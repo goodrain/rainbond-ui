@@ -45,7 +45,7 @@ class EditableCell extends React.Component {
         attr_name,
         attr_value
       },
-      callback: res => {
+      callback: (res) => {
         const arr = res && res.list ? res.list : [];
         arr.unshift(attr_name ? `${attr_name}` : `${attr_value}`);
         Array.from(new Set(arr));
@@ -64,7 +64,7 @@ class EditableCell extends React.Component {
           });
         }
       },
-      handleError: err => {
+      handleError: (err) => {
         if (err && err.data && err.data.code == 10401) {
           return null;
         }
@@ -184,7 +184,7 @@ class EnvironmentVariable extends React.Component {
     this.fetchInnerEnvs();
   }
 
-  isEditing = record => record.ID === this.state.editingID;
+  isEditing = (record) => record.ID === this.state.editingID;
 
   handleAdd = () => {
     const { total, innerEnvsList } = this.state;
@@ -214,7 +214,7 @@ class EnvironmentVariable extends React.Component {
     if (isCancel) {
       if (addVariable) {
         const newData = [...innerEnvsList];
-        const index = newData.findIndex(item => ID === item.ID);
+        const index = newData.findIndex((item) => ID === item.ID);
         newData.splice(index, 1);
         this.setState({ innerEnvsList: newData });
       }
@@ -232,7 +232,7 @@ class EnvironmentVariable extends React.Component {
       }
     });
   };
-  handleEditVariable = vals => {
+  handleEditVariable = (vals) => {
     const { dispatch, appAlias } = this.props;
     const { editingID } = this.state;
     dispatch({
@@ -244,7 +244,7 @@ class EnvironmentVariable extends React.Component {
         attr_value: vals.attr_value,
         name: vals.name
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           notification.success({ message: '编辑成功' });
           this.fetchInnerEnvs();
@@ -253,7 +253,7 @@ class EnvironmentVariable extends React.Component {
       }
     });
   };
-  handleSubmitAddVariable = vals => {
+  handleSubmitAddVariable = (vals) => {
     const { dispatch, appAlias, type } = this.props;
     dispatch({
       type: 'appControl/addInnerEnvs',
@@ -265,7 +265,7 @@ class EnvironmentVariable extends React.Component {
         name: vals.name,
         scope: type === 'Inner' ? 'inner' : 'outer'
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           notification.success({ message: '添加成功' });
           this.fetchInnerEnvs();
@@ -282,11 +282,11 @@ class EnvironmentVariable extends React.Component {
     });
   };
 
-  edit = key => {
+  edit = (key) => {
     this.setState({ editingID: key });
   };
 
-  onPageChange = page => {
+  onPageChange = (page) => {
     this.setState(
       {
         page,
@@ -311,7 +311,7 @@ class EnvironmentVariable extends React.Component {
     );
   };
 
-  onDeleteVariabl = data => {
+  onDeleteVariabl = (data) => {
     this.setState({ deleteVar: data });
   };
 
@@ -325,7 +325,7 @@ class EnvironmentVariable extends React.Component {
         app_alias: appAlias,
         ID: deleteVar
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           notification.success({ message: '删除成功' });
           this.fetchInnerEnvs();
@@ -340,7 +340,7 @@ class EnvironmentVariable extends React.Component {
     this.setState({ deleteVar: false });
   };
 
-  onTransfer = data => {
+  onTransfer = (data) => {
     this.setState({ transfer: data });
   };
 
@@ -355,7 +355,7 @@ class EnvironmentVariable extends React.Component {
         ID: transfer.ID,
         scope: transfer.scope == 'inner' ? 'outer' : 'inner'
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           notification.success({ message: '转移成功' });
           this.fetchInnerEnvs();
@@ -368,7 +368,7 @@ class EnvironmentVariable extends React.Component {
   cancelTransfer = () => {
     this.setState({ transfer: false });
   };
-  handleSearch = env_name => {
+  handleSearch = (env_name) => {
     this.setState(
       {
         page: 1,
@@ -403,11 +403,11 @@ class EnvironmentVariable extends React.Component {
     dispatch({
       type: request,
       payload: obj,
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           const arr = [];
           if (res.list && res.list.length > 0) {
-            res.list.map(item => {
+            res.list.map((item) => {
               const isHidden = globalUtil.confirmEnding(
                 `${item.attr_name}`,
                 'PASS'
@@ -454,7 +454,7 @@ class EnvironmentVariable extends React.Component {
       isAttrNameList: arr
     });
   };
-  handleDiv = v => {
+  handleDiv = (v) => {
     const wraps = {
       wordBreak: 'break-all',
       wordWrap: 'break-word'
@@ -505,7 +505,7 @@ class EnvironmentVariable extends React.Component {
         key: '1',
         width: '30%',
         editable: true,
-        render: v => this.handleDiv(v)
+        render: (v) => this.handleDiv(v)
       },
       {
         title: '变量值',
@@ -538,7 +538,7 @@ class EnvironmentVariable extends React.Component {
         key: '3',
         width: '25%',
         editable: true,
-        render: v => this.handleDiv(v)
+        render: (v) => this.handleDiv(v)
       }
     ];
 
@@ -551,89 +551,93 @@ class EnvironmentVariable extends React.Component {
         render: (v, data) => {
           const { editingID } = this.state;
           const editable = this.isEditing(data);
-          return editable ? (
-            <span>
-              <EditableContext.Consumer>
-                {form => (
-                  <Button
-                    loading={editEvnsLoading || addInnerEnvsLoading}
-                    onClick={() => this.save(form, data.ID)}
-                    type="link"
-                  >
-                    保存
-                  </Button>
-                )}
-              </EditableContext.Consumer>
-              <EditableContext.Consumer>
-                {form => (
-                  <a
-                    onClick={() => this.save(form, data.ID, true)}
-                    style={{ marginRight: 8 }}
-                  >
-                    取消
-                  </a>
-                )}
-              </EditableContext.Consumer>
-            </span>
-          ) : (
-            <Fragment>
-              <a
-                onClick={() => this.onDeleteVariabl(data.ID)}
-                style={{ marginRight: '5px' }}
-              >
-                删除
-              </a>
-              {(type === 'Inner' || autoQuery) && (
-                <Tooltip
-                  title={
-                    <p>
-                      {autoQuery ? (
-                        <span>
-                          将此连接信息变量转换为
-                          <br />
-                          环境变量
-                        </span>
-                      ) : (
-                        <span>
-                          将此环境变量转换为
-                          <br />
-                          组件连接信息变量
-                        </span>
-                      )}
-                    </p>
-                  }
+          const isAction = data.container_port === 0;
+          if (isAction) {
+            return editable ? (
+              <span>
+                <EditableContext.Consumer>
+                  {(form) => (
+                    <Button
+                      loading={editEvnsLoading || addInnerEnvsLoading}
+                      onClick={() => this.save(form, data.ID)}
+                      type="link"
+                    >
+                      保存
+                    </Button>
+                  )}
+                </EditableContext.Consumer>
+                <EditableContext.Consumer>
+                  {(form) => (
+                    <a
+                      onClick={() => this.save(form, data.ID, true)}
+                      style={{ marginRight: 8 }}
+                    >
+                      取消
+                    </a>
+                  )}
+                </EditableContext.Consumer>
+              </span>
+            ) : (
+              <Fragment>
+                <a
+                  onClick={() => this.onDeleteVariabl(data.ID)}
+                  style={{ marginRight: '5px' }}
                 >
-                  <a
-                    href="javascript:;"
-                    onClick={() => {
-                      this.onTransfer(data);
-                    }}
-                    style={{ marginRight: '5px' }}
+                  删除
+                </a>
+                {(type === 'Inner' || autoQuery) && (
+                  <Tooltip
+                    title={
+                      <p>
+                        {autoQuery ? (
+                          <span>
+                            将此连接信息变量转换为
+                            <br />
+                            环境变量
+                          </span>
+                        ) : (
+                          <span>
+                            将此环境变量转换为
+                            <br />
+                            组件连接信息变量
+                          </span>
+                        )}
+                      </p>
+                    }
                   >
-                    转移
-                  </a>
-                </Tooltip>
-              )}
-              <a
-                disabled={editingID !== ''}
-                onClick={() => {
-                  this.edit(data.ID);
-                }}
-              >
-                修改
-              </a>
-            </Fragment>
-          );
+                    <a
+                      href="javascript:;"
+                      onClick={() => {
+                        this.onTransfer(data);
+                      }}
+                      style={{ marginRight: '5px' }}
+                    >
+                      转移
+                    </a>
+                  </Tooltip>
+                )}
+                <a
+                  disabled={editingID !== ''}
+                  onClick={() => {
+                    this.edit(data.ID);
+                  }}
+                >
+                  修改
+                </a>
+              </Fragment>
+            );
+          }
+          return '';
         }
       });
     }
-    const columns = column.map(col => {
+    const columns = column.map((col) => {
       if (!col.editable) {
         return col;
       }
       return {
         ...col,
-        onCell: record => ({
+        onCell: (record) => ({
           record,
           form,
           addVariable,

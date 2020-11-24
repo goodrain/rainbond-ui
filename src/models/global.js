@@ -1,6 +1,7 @@
 import {
   addConfiguration,
   addEnterpriseAdminTeams,
+  upDataEnterpriseAdminTeams,
   authEnterprise,
   bindGithub,
   buyPurchase,
@@ -16,6 +17,7 @@ import {
   editConfiguration,
   fetchAppComponents,
   fetchEnterpriseAdmin,
+  getEnterpriseRoles,
   fetchEnterpriseApps,
   fetchEnterpriseInfo,
   fetchEnterpriseList,
@@ -592,6 +594,12 @@ export default {
         callback(response);
       }
     },
+    *fetchEnterpriseRoles({ payload, callback }, { call }) {
+      const response = yield call(getEnterpriseRoles, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *deleteEnterpriseAdmin({ payload, callback }, { call }) {
       const response = yield call(deleteEnterpriseAdmin, payload);
       if (response && callback) {
@@ -624,7 +632,12 @@ export default {
         callback(response);
       }
     },
-
+    *editEnterpriseAdminTeams({ payload, callback }, { call }) {
+      const response = yield call(upDataEnterpriseAdminTeams, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchUserTeams({ payload, callback }, { call }) {
       const response = yield call(fetchUserTeams, payload);
       if (response && callback) {

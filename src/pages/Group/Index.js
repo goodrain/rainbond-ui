@@ -14,6 +14,7 @@ import { connect } from 'dva';
 import moment from 'moment';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { batchOperation } from '../../services/app';
 import ConfirmModal from '../../components/ConfirmModal';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
@@ -58,6 +59,7 @@ class Main extends PureComponent {
       toEdit: false,
       toEditAppDirector: false,
       service_alias: [],
+      serviceIds: [],
       linkList: [],
       jsonDataLength: 0,
       promptModal: false,
@@ -120,10 +122,11 @@ class Main extends PureComponent {
           if (JSON.stringify(data) === '{}') {
             return;
           }
+          const serviceIds = [];
           const service_alias = [];
           const { json_data } = data;
-          this.setState({ jsonDataLength: Object.keys(json_data).length });
           Object.keys(json_data).map((key) => {
+            serviceIds.push(key);
             if (
               json_data[key].cur_status == 'running' &&
               json_data[key].is_internet == true
@@ -131,9 +134,17 @@ class Main extends PureComponent {
               service_alias.push(json_data[key].service_alias);
             }
           });
-          this.setState({ service_alias }, () => {
-            this.loadLinks(service_alias.join('-'), isCycle);
-          });
+
+          this.setState(
+            {
+              jsonDataLength: Object.keys(json_data).length,
+              service_alias,
+              serviceIds
+            },
+            () => {
+              this.loadLinks(service_alias.join('-'), isCycle);
+            }
+          );
         }
       }
     });
@@ -408,24 +419,42 @@ class Main extends PureComponent {
   };
 
   handlePromptModalOpen = () => {
-    const { code } = this.state;
+    const { code, serviceIds } = this.state;
     const { dispatch } = this.props;
-    dispatch({
-      type: 'global/buildShape',
-      payload: {
-        tenantName: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId(),
-        action: code
-      },
-      callback: (data) => {
-        notification.success({
-          message: data.msg_show || '构建成功',
-          duration: '3'
-        });
-        this.handlePromptModalClose();
+    if (code === 'restart') {
+      batchOperation({
+        action: code,
+        team_name: globalUtil.getCurrTeamName(),
+        serviceIds: serviceIds && serviceIds.join(',')
+      }).then((res) => {
+        if (res && res._code === 200) {
+          notification.success({
+            message: '重启成功'
+          });
+          this.handlePromptModalClose();
+        }
         this.loadTopology(false);
-      }
-    });
+      });
+    } else {
+      dispatch({
+        type: 'global/buildShape',
+        payload: {
+          tenantName: globalUtil.getCurrTeamName(),
+          group_id: this.getGroupId(),
+          action: code
+        },
+        callback: (res) => {
+          if (res && res._code === 200) {
+            notification.success({
+              message: res.msg_show || '构建成功',
+              duration: '3'
+            });
+            this.handlePromptModalClose();
+          }
+          this.loadTopology(false);
+        }
+      });
+    }
   };
 
   handlePromptModalClose = () => {
@@ -469,8 +498,7 @@ class Main extends PureComponent {
         isStop,
         isUpdate,
         isConstruct,
-        isCopy,
-        isRestart
+        isCopy
       },
       buildShapeLoading,
       editGroupLoading,
@@ -481,7 +509,8 @@ class Main extends PureComponent {
       componentPermissions: {
         isAccess: isComponentDescribe,
         isCreate: isComponentCreate,
-        isConstruct: isComponentConstruct
+        isConstruct: isComponentConstruct,
+        isRestart
       }
     } = this.props;
     const {
@@ -497,7 +526,8 @@ class Main extends PureComponent {
       toEditAppDirector,
       toDelete,
       type,
-      customSwitch
+      customSwitch,
+      serviceIds
     } = this.state;
     const codeObj = {
       start: '启动',
@@ -594,6 +624,24 @@ class Main extends PureComponent {
                 <Divider type="vertical" />
               </span>
             )}
+            {resources.status &&
+              (resources.status === 'ABNORMAL' ||
+                resources.status === 'PARTIAL_ABNORMAL') &&
+              serviceIds &&
+              serviceIds.length > 0 &&
+              isRestart && (
+                <span>
+                  <a
+                    onClick={() => {
+                      this.handleTopology('restart');
+                    }}
+                    disabled={BtnDisabled}
+                  >
+                    重启
+                  </a>
+                  <Divider type="vertical" />
+                </span>
+              )}
             {isDelete && resources.status !== 'RUNNING' && (
               <a onClick={this.toDelete}>删除</a>
             )}

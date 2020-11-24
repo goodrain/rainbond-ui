@@ -112,7 +112,6 @@ export default class Convenient extends PureComponent {
       });
       return null;
     }
-    console.log('resultresult',result)
 
     dispatch({
       type: 'user/addCollectionView',

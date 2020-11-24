@@ -12,16 +12,15 @@ import userUtil from '../../utils/user';
   enterprise: global.enterprise,
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
-  overviewInfo: index.overviewInfo,
+  overviewInfo: index.overviewInfo
 }))
 export default class EnterpriseClusters extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    const adminer =
-      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
+    const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
-      adminer,
+      adminer
     };
   }
   componentWillMount() {
@@ -39,30 +38,30 @@ export default class EnterpriseClusters extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid, clusterID },
-      },
+        params: { eid, clusterID }
+      }
     } = this.props;
     dispatch({
       type: 'region/fetchEnterpriseCluster',
       payload: {
         enterprise_id: eid,
-        region_id: clusterID,
+        region_id: clusterID
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
-            regionInfo: res.bean,
+            regionInfo: res.bean
           });
         }
-      },
+      }
     });
   };
 
   render() {
     const {
       match: {
-        params: { eid, clusterID },
-      },
+        params: { eid, clusterID }
+      }
     } = this.props;
 
     return (
@@ -70,7 +69,7 @@ export default class EnterpriseClusters extends PureComponent {
         src={`/console/enterprise/${eid}/regions/${clusterID}/dashboard`}
         style={{
           width: '100%',
-          height: 'calc(100vh - 150px)',
+          height: 'calc(100vh - 150px)'
         }}
         sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
         scrolling="auto"

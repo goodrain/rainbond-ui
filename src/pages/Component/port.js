@@ -106,8 +106,8 @@ class EditAlias extends PureComponent {
                   message: '内部域名最多63个位'
                 },
                 {
-                  pattern: /^[a-z0-9]([a-z0-9-_]*[-a-z0-9]*[a-z0-9])?$/,
-                  message: '必须由小写的字母、数字和- _组成，并且必须以字母数字开始和结束'
+                  pattern: /^[a-z]([a-z0-9-_]*[-a-z0-9]*[a-z0-9])?$/,
+                  message: '必须由小写的字母、数字和- _组成，并且必须以字母开始、数字和字母结束'
                 }
               ]
             })(<Input placeholder="请填写内部域名" />)}
@@ -611,7 +611,7 @@ export default class Index extends PureComponent {
         this.hideEditAlias();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功' });
+          : notification.success({ message: '操作成功、需要更新才能生效' });
         this.props.onshowRestartTips(true);
       }
     });
