@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux, Link } from 'dva/router';
-import { Form, Row, Col, message } from 'antd';
+import { Form, Row, Col, message, Alert } from 'antd';
 import styles from './Register.less';
 import cookie from '../../utils/cookie';
-import oauthUtil from '../../utils/oauth';
 import RegisterComponent from './registerComponent';
 import rainbondUtil from '../../utils/rainbond';
 
@@ -98,6 +97,7 @@ export default class Register extends Component {
     const { user_info } = this.state;
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     let oauthServer = null;
+    // eslint-disable-next-line no-unused-expressions
     rainbondUtil.OauthbEnable(rainbondInfo) &&
       rainbondInfo.oauth_services.value.map((item) => {
         if (item.service_id == service_id) {
@@ -106,11 +106,14 @@ export default class Register extends Component {
       });
     return (
       <div className={styles.main}>
-        <p style={{ margin: '24px 0' }}>
-          来自{oauthServer && oauthServer.name}登录的
-          {user_info && user_info.oauth_user_name}{' '}
-          您好！你需要补充完整平台账号信息
-        </p>
+        <Alert
+          style={{ margin: '24px 0' }}
+          message={`来自${oauthServer && oauthServer.name}登录的
+          ${user_info && user_info.oauth_user_name}
+          您好！你需要补充完整平台账号信息`}
+          type="info"
+        />
+
         <Row style={{ marginBottom: '24px' }}>
           <Col span={10} className={styles.boxJump}>
             {!firstRegist && (
@@ -134,7 +137,6 @@ export default class Register extends Component {
             </Link>
           </Col>
         </Row>
-
         <RegisterComponent
           user_info={user_info}
           onSubmit={this.handleSubmit}

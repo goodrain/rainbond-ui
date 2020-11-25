@@ -1,8 +1,7 @@
 import { connect } from 'dva';
 import React from 'react';
 import { Link } from 'dva/router';
-import { Icon } from 'antd';
-import { DefaultFooter } from '@ant-design/pro-layout';
+import CustomFooter from './CustomFooter';
 import globalUtil from '../utils/global';
 import oauthUtil from '../utils/oauth';
 import rainbondUtil from '../utils/rainbond';
@@ -58,7 +57,7 @@ class UserLayout extends React.PureComponent {
     });
   };
   render() {
-    const { rainbondInfo, nouse, children } = this.props;
+    const { rainbondInfo, children } = this.props;
     const { isRender } = this.state;
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo) || logo;
     const isEnterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
@@ -69,7 +68,9 @@ class UserLayout extends React.PureComponent {
       <div className={styles.container}>
         <div className={styles.headers}>
           <div className={styles.logo}>
-            <img src={fetchLogo} alt="LOGO" />
+            <Link to="/">
+              <img src={fetchLogo} alt="LOGO" />
+            </Link>
           </div>
         </div>
         <div className={styles.content}>
@@ -80,45 +81,12 @@ class UserLayout extends React.PureComponent {
             <div className={styles.contentBoxRight}>{children}</div>
           </div>
         </div>
-        {!isEnterpriseEdition && (
-          <div className={styles.footers}>
-            <DefaultFooter
-              copyright="2020 北京好雨科技有限公司出品"
-              links={[
-                {
-                  key: 'Rainbond',
-                  title: 'Rainbond',
-                  href: 'https://www.rainbond.com',
-                  blankTarget: true
-                },
-                {
-                  key: 'poc',
-                  title: '申请POC',
-                  href: 'https://goodrain.goodrain.com/page/price#customForm',
-                  blankTarget: true
-                },
-                {
-                  key: 'community',
-                  title: '社区讨论',
-                  href: 'https://t.goodrain.com',
-                  blankTarget: true
-                },
-                {
-                  key: 'github',
-                  title: <Icon type="github" />,
-                  href: 'https://github.com/goodrain/rainbond',
-                  blankTarget: true
-                }
-              ]}
-            />
-          </div>
-        )}
+        {!isEnterpriseEdition && <CustomFooter />}
       </div>
     );
   }
 }
 
 export default connect(({ global }) => ({
-  rainbondInfo: global.rainbondInfo,
-  nouse: global.nouse
+  rainbondInfo: global.rainbondInfo
 }))(UserLayout);

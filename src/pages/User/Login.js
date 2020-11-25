@@ -85,7 +85,8 @@ export default class LoginPage extends Component {
       oauthServicesList = rainbondInfo.oauth_services.value;
     }
     return (
-      <div className={styles.main}>
+      <div className={styles.main} style={{ marginTop: '100px' }}>
+        <h3>用户登录</h3>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
         {rainbondUtil.OauthbEnable(rainbondInfo) &&
           (oauthInfo ||

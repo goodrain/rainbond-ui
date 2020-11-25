@@ -165,7 +165,7 @@ export default class RegisterComponent extends Component {
     const { time, help } = this.state;
     return (
       <Form onSubmit={this.handleSubmit}>
-        {/* {firstRegist && ( */}
+        {firstRegist && (
           <FormItem>
             {getFieldDecorator('enter_name', {
               rules: [
@@ -176,7 +176,7 @@ export default class RegisterComponent extends Component {
               ]
             })(<Input size="large" placeholder="企业名称" />)}
           </FormItem>
-        {/* )} */}
+        )}
         <FormItem>
           {getFieldDecorator('user_name', {
             initialValue: user_info ? user_info.oauth_user_name : '',

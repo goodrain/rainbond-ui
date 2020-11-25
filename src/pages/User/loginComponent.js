@@ -15,7 +15,7 @@ const { UserName, Password, Submit } = Login;
 export default class LoginComponent extends Component {
   handleSubmit = (err, values) => {
     const { onSubmit } = this.props;
-    console.log('版本11-1：21：00');
+    console.log('版本11-25：21：00');
     if (!err && onSubmit) {
       userUtil.removeCookie();
       onSubmit(values);
@@ -26,7 +26,6 @@ export default class LoginComponent extends Component {
     const { thirdLogin, userLogin, type } = this.props;
     return (
       <div className={styles.main}>
-        <h3>用户登录</h3>
         <Login defaultActiveKey="account" onSubmit={this.handleSubmit}>
           <UserName name="nick_name" placeholder="用户名/邮箱" />
           <Password name="password" placeholder="密码" />
