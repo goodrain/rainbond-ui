@@ -33,7 +33,8 @@ export default class customMonitor extends PureComponent {
       KeyImportList: [],
       BatchDelete: false,
       isMonitorsLoading: false,
-      isMonitors: false
+      isMonitors: false,
+      isRender: false
     };
   }
   componentDidMount() {
@@ -80,16 +81,11 @@ export default class customMonitor extends PureComponent {
       },
       callback: (res) => {
         if (res && res._code === 200) {
-          if (res.list.length > 0) {
-            this.setState({
-              monitorFigureList: res.list,
-              isMonitorFigure: false
-            });
-          } else {
-            this.setState({
-              isMonitorFigure: true
-            });
-          }
+          const isList = res.list && res.list.length > 0;
+          this.setState({
+            monitorFigureList: isList ? res.list : [],
+            isMonitorFigure: !isList
+          });
           this.cancalBatchDelete();
         }
       }
@@ -135,9 +131,11 @@ export default class customMonitor extends PureComponent {
     this.setState(
       {
         info: val,
-        monitorFigureList: list
+        monitorFigureList: list,
+        isRender: true
       },
       () => {
+        this.setState({ isRender: false });
         this.handleSubmit(val, false);
       }
     );
@@ -160,6 +158,9 @@ export default class customMonitor extends PureComponent {
             if (isMessage) {
               notification.success({
                 message: '保存成功'
+              });
+              this.setState({ isRender: true }, () => {
+                this.setState({ isRender: false });
               });
             }
             this.fetchServiceMonitorFigure();
@@ -270,6 +271,7 @@ export default class customMonitor extends PureComponent {
       KeyImportList,
       BatchDelete,
       isMonitors,
+      isRender,
       isMonitorsLoading
     } = this.state;
     const menu = (
@@ -291,10 +293,21 @@ export default class customMonitor extends PureComponent {
     );
     return (
       <div>
+        {isCustomMonitoring && (
+          <CustomMonitoring
+            serviceId={serviceId}
+            teamName={teamName}
+            appAlias={appAlias}
+            info={info}
+            onOk={this.handleSubmit}
+            onCancel={this.onCancelCustomMonitoring}
+          />
+        )}
         {!isMonitoryPoint && (
           <Row>
             <CustomChart
               moduleName="CustomMonitor"
+              isRender={isRender}
               upData={this.fetchServiceMonitorFigure}
               handleSorting={this.handleSorting}
               onDelete={this.onDelete}
@@ -306,11 +319,11 @@ export default class customMonitor extends PureComponent {
                 <div
                   style={{
                     display: 'inline-block',
-                    width: 'calc(100% - 68px)'
+                    width: 'calc(100% - 598px)',
+                    lineHeight: '40px'
                   }}
                 >
                   <Button
-                    icon="plus"
                     style={{ marginLeft: '5px' }}
                     onClick={this.handleCustomMonitoring}
                   >
@@ -327,18 +340,6 @@ export default class customMonitor extends PureComponent {
                         一键导入 <Icon type="down" />
                       </Button>
                     </Dropdown>
-                  )}
-                  {isCustomMonitoring && (
-                    <Col span={24} style={{ marginRight: '10px' }}>
-                      <CustomMonitoring
-                        serviceId={serviceId}
-                        teamName={teamName}
-                        appAlias={appAlias}
-                        info={info}
-                        onOk={this.handleSubmit}
-                        onCancel={this.onCancelCustomMonitoring}
-                      />
-                    </Col>
                   )}
                   {monitorFigureList && monitorFigureList.length > 0 && (
                     <Button
@@ -415,6 +416,7 @@ export default class customMonitor extends PureComponent {
           <MonitoryPoint
             {...this.props}
             onCancel={() => {
+              this.fetchServiceMonitorFigure();
               this.handleMonitoryPoint(false);
             }}
           />

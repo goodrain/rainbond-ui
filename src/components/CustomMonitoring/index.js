@@ -77,9 +77,15 @@ export default class CustomMonitoring extends PureComponent {
     const { form } = this.props;
     form.validateFields({ force: true }, (err, vals) => {
       if (!err) {
-        this.setState({
-          RangeData: [vals]
-        });
+        this.setState(
+          {
+            RangeData: [vals],
+            isRender: true
+          },
+          () => {
+            this.setState({ isRender: false });
+          }
+        );
       }
     });
   };

@@ -37,17 +37,20 @@ export default class RangeChart extends PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { start: oldStart, end, step, moduleName, isRender } = this.props;
+    const { start: oldStart, end, step, moduleName } = this.props;
     const {
       start: newStart,
       end: newEnd,
       step: newStep,
-      newIsRender
+      isRender: newIsRender
     } = nextProps;
 
     const isUpData =
       oldStart !== newStart || end !== newEnd || step !== newStep;
-    if (moduleName === 'CustomMonitor' && isUpData && newIsRender) {
+    if (
+      moduleName === 'CustomMonitor' &&
+      (isUpData && newIsRender)
+    ) {
       this.loadPerformanceAnalysis(nextProps);
     }
     if (moduleName === 'PerformanceAnalysis' && isUpData) {

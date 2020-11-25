@@ -1,3 +1,4 @@
+/* eslint-disable react/no-redundant-should-component-update */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable prettier/prettier */
 /* eslint-disable array-callback-return */
@@ -11,14 +12,15 @@ import moment from 'moment';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
 import RangeChart from './rangeChart';
-import { object } from 'prop-types';
+import styless from './index.less';
 
 const FormItem = Form.Item;
 // eslint-disable-next-line react/no-multi-comp
-@connect(({ user, appControl }) => ({
+@connect(({ user, appControl, loading }) => ({
   currUser: user.currentUser,
   appDetail: appControl.appDetail,
-  baseInfo: appControl.baseInfo
+  baseInfo: appControl.baseInfo,
+  editLoading: loading.effects['monitor/editServiceMonitorFigure']
 }))
 @Form.create()
 export default class ChartTitle extends PureComponent {
@@ -27,9 +29,23 @@ export default class ChartTitle extends PureComponent {
     this.state = {
       start: new Date().getTime() / 1000 - 60 * 60,
       end: new Date().getTime() / 1000,
-      isLoading: true
+      isLoading: true,
+      isRender: false
     };
   }
+
+  shouldComponentUpdate(nextProps, _nextState) {
+    if (nextProps.moduleName && nextProps.moduleName === 'CustomMonitor') {
+      if (nextProps.isRender || _nextState.isRender) {
+        return true;
+      } else if (nextProps.RangeData.length == this.props.RangeData.length) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   disabledDate = (current) => {
     // Can not select days before today and today
     return (
@@ -133,13 +149,22 @@ export default class ChartTitle extends PureComponent {
     const { form } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
-        this.setState({
-          start: values.start.valueOf() / 1000,
-          end: values.end.valueOf() / 1000
-        });
+        this.setState(
+          {
+            isRender: true,
+            start: values.start.valueOf() / 1000,
+            end: values.end.valueOf() / 1000
+          },
+          () => {
+            this.setState({
+              isRender: false
+            });
+          }
+        );
       }
     });
   };
+
   onSortEnd = ({ oldIndex, newIndex }, e) => {
     e.preventDefault();
     const { handleSorting, RangeData = [] } = this.props;
@@ -168,7 +193,7 @@ export default class ChartTitle extends PureComponent {
       appAlias = ''
     } = this.props;
     const { getFieldDecorator } = form;
-    const { start, end, isLoading } = this.state;
+    const { start, end, isLoading, isRender } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -210,7 +235,6 @@ export default class ChartTitle extends PureComponent {
         >
           <RangeChart
             key={ID}
-            isRender={false}
             moduleName="CustomMonitor"
             style={{ zIndex: 99999999, cursor: 'all-scroll' }}
             {...parameter}
@@ -218,6 +242,7 @@ export default class ChartTitle extends PureComponent {
             onCancelLoading={this.setState({ isLoading: false })}
             isLoading={isLoading}
             serviceId={serviceId}
+            isRender={isRender}
             CustomMonitorInfo={value}
             title={title}
             type={promql}
@@ -235,11 +260,11 @@ export default class ChartTitle extends PureComponent {
     const SortableList = SortableContainer(({ items }) => {
       return (
         <div style={gridStyles}>
-          {items.map((item, index) => {
+          {items.map((item) => {
             return (
               <SortableItem
                 style={{ zIndex: 99999999 }}
-                key={`item-${index}`}
+                key={item.ID}
                 index={item.sequence}
                 value={item}
               />
@@ -251,7 +276,7 @@ export default class ChartTitle extends PureComponent {
     return (
       <Fragment>
         <Row>
-          <Col span={6}>
+          <Col span={24} className={styless.customBox}>
             <FormItem {...formItemLayout} label="开始时间">
               {getFieldDecorator('start', {
                 rules: [{ required: false, message: '请选择开始时间' }],
@@ -260,7 +285,7 @@ export default class ChartTitle extends PureComponent {
                 )
               })(
                 <DatePicker
-                  style={{ width: '100%' }}
+                  style={{ width: '195px' }}
                   format="YYYY-MM-DD HH:mm:ss"
                   disabledDate={this.disabledDate}
                   disabledTime={this.disabledDateStartTime}
@@ -268,15 +293,13 @@ export default class ChartTitle extends PureComponent {
                 />
               )}
             </FormItem>
-          </Col>
-          <Col span={6}>
             <FormItem {...formItemLayout} label="结束时间">
               {getFieldDecorator('end', {
                 rules: [{ required: false, message: '请选择结束时间' }],
                 initialValue: moment(new Date())
               })(
                 <DatePicker
-                  style={{ width: '100%' }}
+                  style={{ width: '195px' }}
                   format="YYYY-MM-DD HH:mm:ss"
                   disabledDate={this.disabledDate}
                   disabledTime={this.disabledDateEndTime}
@@ -284,9 +307,9 @@ export default class ChartTitle extends PureComponent {
                 />
               )}
             </FormItem>
-          </Col>
-          <Col span={12} style={{ lineHeight: '39.99px' }}>
-            <Button onClick={this.queryAll}>查询</Button>
+            <Button style={{ marginLeft: '5px' }} onClick={this.queryAll}>
+              查询
+            </Button>
             {operation}
           </Col>
         </Row>
@@ -302,7 +325,7 @@ export default class ChartTitle extends PureComponent {
             })}
           </Row>
         ) : moduleName === 'CustomMonitor' ? (
-          <div>
+          <div style={{ marginTop: '20px' }}>
             <SortableList
               axis="xy"
               distance={1}
