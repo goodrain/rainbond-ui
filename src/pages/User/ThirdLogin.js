@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux, Link } from 'dva/router';
-import { Row, Col, message } from 'antd';
+import { Row, Col, message, Alert } from 'antd';
 import styles from './Login.less';
 import rainbondUtil from '../../utils/rainbond';
 import LoginComponent from './loginComponent';
 import cookie from '../../utils/cookie';
-import oauthUtil from '../../utils/oauth';
 
 const code = rainbondUtil.OauthParameter('code');
 const service_id = rainbondUtil.OauthParameter('service_id');
@@ -17,11 +16,11 @@ const oauth_type = rainbondUtil.OauthParameter('oauth_type');
   login: {},
   isRegist: global.isRegist,
   rainbondInfo: global.rainbondInfo,
-  submitting: loading.effects['user/login'],
+  submitting: loading.effects['user/login']
 }))
 export default class LoginPage extends Component {
   state = {
-    user_info: null,
+    user_info: null
   };
 
   componentDidMount() {
@@ -29,35 +28,35 @@ export default class LoginPage extends Component {
       type: 'user/fetchThirdInfo',
       payload: {
         code,
-        service_id,
+        service_id
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
-            user_info: res.bean.user_info,
+            user_info: res.bean.user_info
           });
         }
-      },
+      }
     });
   }
-  handleSubmit = values => {
+  handleSubmit = (values) => {
     const { dispatch } = this.props;
     if (code && service_id && oauth_user_id) {
       dispatch({
         type: 'user/thirdLogin',
         payload: {
-          ...values,
+          ...values
         },
-        callback: data => {
+        callback: (data) => {
           if (data && data._code === 200) {
             cookie.set('token', data.bean.token);
             dispatch({
               type: 'user/fetchThirdBinding',
               payload: {
                 service_id,
-                oauth_user_id,
+                oauth_user_id
               },
-              callback: res => {
+              callback: (res) => {
                 if (res && res.status && res.status === 400) {
                   message.warning('认证失败，请重新认证', 1, () => {
                     dispatch(routerRedux.replace('/user/login'));
@@ -67,10 +66,10 @@ export default class LoginPage extends Component {
                     dispatch(routerRedux.replace('/'));
                   });
                 }
-              },
+              }
             });
           }
-        },
+        }
       });
     }
   };
@@ -82,19 +81,22 @@ export default class LoginPage extends Component {
     const code = rainbondUtil.OauthParameter('code');
     const service_id = rainbondUtil.OauthParameter('service_id');
     let oauthServer = null;
+    // eslint-disable-next-line no-unused-expressions
     rainbondUtil.OauthbEnable(rainbondInfo) &&
-      rainbondInfo.oauth_services.value.map(item => {
+      rainbondInfo.oauth_services.value.map((item) => {
         if (item.service_id == service_id) {
           oauthServer = item;
         }
       });
     return (
       <div className={styles.main}>
-        <p style={{ marginBottom: '24px' }}>
-          来自{oauthServer && oauthServer.name}登录的
-          {user_info && user_info.oauth_user_name}
-          您好！你需要补充完整平台账号信息
-        </p>
+        <Alert
+          style={{ margin: '24px 0' }}
+          message={`来自${oauthServer && oauthServer.name}登录的
+          ${user_info && user_info.oauth_user_name}
+          您好！你需要补充完整平台账号信息`}
+          type="info"
+        />
         <Row style={{ marginBottom: '24px' }}>
           <Col
             span={10}
