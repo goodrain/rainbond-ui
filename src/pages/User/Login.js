@@ -11,7 +11,7 @@ import LoginComponent from './loginComponent';
 
 @connect(({ global }) => ({
   isRegist: global.isRegist,
-  rainbondInfo: global.rainbondInfo,
+  rainbondInfo: global.rainbondInfo
 }))
 export default class LoginPage extends Component {
   constructor(props) {
@@ -23,14 +23,14 @@ export default class LoginPage extends Component {
     dispatch({ type: 'global/hideNeedLogin' });
     globalUtil.removeCookie();
   }
-  handleSubmit = values => {
+  handleSubmit = (values) => {
     const { dispatch, location } = this.props;
     const query_params = new URLSearchParams(location.search);
     const redirect = query_params.get('redirect');
     dispatch({
       type: 'user/login',
       payload: {
-        ...values,
+        ...values
       },
       callback: () => {
         let url = '/';
@@ -38,17 +38,17 @@ export default class LoginPage extends Component {
           url = redirect;
         }
         window.location.href = url;
-      },
+      }
     });
   };
-  fetchEnterpriseInfo = eid => {
+  fetchEnterpriseInfo = (eid) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200 && res.bean && res.bean.oauth_services) {
           // eslint-disable-next-line camelcase
           const { oauth_services = {} } = res.bean;
@@ -58,11 +58,11 @@ export default class LoginPage extends Component {
               oauthServicesList:
                 oauth_services.value &&
                 oauth_services.value.length > 0 &&
-                oauth_services.value,
+                oauth_services.value
             });
           }
         }
-      },
+      }
     });
   };
 
@@ -101,19 +101,17 @@ export default class LoginPage extends Component {
                     className={styles.thirdCol}
                     key={oauthInfo.client_id}
                   >
-                    <a href={url}>
+                    <a href={url} title={oauthInfo.name}>
                       {icon}
-                      <p>{oauthInfo.name}</p>
                     </a>
                   </Col>
                 )}
-                {oauthServicesList.map(item => {
+                {oauthServicesList.map((item) => {
                   const { name, service_id } = item;
                   return (
-                    <Col span="8" className={styles.thirdCol} key={service_id}>
-                      <a href={oauthUtil.getAuthredictURL(item)}>
+                    <Col span={8} className={styles.thirdCol} key={service_id}>
+                      <a href={oauthUtil.getAuthredictURL(item)} title={name}>
                         {oauthUtil.getIcon(item)}
-                        <p>{name}</p>
                       </a>
                     </Col>
                   );
