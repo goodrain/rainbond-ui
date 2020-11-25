@@ -183,7 +183,35 @@ class EnvironmentVariable extends React.Component {
   componentDidMount() {
     this.fetchInnerEnvs();
   }
-
+  onTransfer = (data) => {
+    this.setState({ transfer: data });
+  };
+  onDeleteVariabl = (data) => {
+    this.setState({ deleteVar: data });
+  };
+  onShowSizeChange = (page, page_size) => {
+    this.setState(
+      {
+        page,
+        page_size,
+        editingID: ''
+      },
+      () => {
+        this.fetchInnerEnvs();
+      }
+    );
+  };
+  onPageChange = (page) => {
+    this.setState(
+      {
+        page,
+        editingID: ''
+      },
+      () => {
+        this.fetchInnerEnvs();
+      }
+    );
+  };
   isEditing = (record) => record.ID === this.state.editingID;
 
   handleAdd = () => {
@@ -196,7 +224,8 @@ class EnvironmentVariable extends React.Component {
       ID,
       attr_name: undefined,
       attr_value: undefined,
-      name: ''
+      name: '',
+      container_port: 0
     };
     this.setState(
       {
@@ -286,35 +315,6 @@ class EnvironmentVariable extends React.Component {
     this.setState({ editingID: key });
   };
 
-  onPageChange = (page) => {
-    this.setState(
-      {
-        page,
-        editingID: ''
-      },
-      () => {
-        this.fetchInnerEnvs();
-      }
-    );
-  };
-
-  onShowSizeChange = (page, page_size) => {
-    this.setState(
-      {
-        page,
-        page_size,
-        editingID: ''
-      },
-      () => {
-        this.fetchInnerEnvs();
-      }
-    );
-  };
-
-  onDeleteVariabl = (data) => {
-    this.setState({ deleteVar: data });
-  };
-
   handleDeleteVariabl = () => {
     const { dispatch, appAlias } = this.props;
     const { deleteVar } = this.state;
@@ -338,10 +338,6 @@ class EnvironmentVariable extends React.Component {
 
   cancelDeleteVariabl = () => {
     this.setState({ deleteVar: false });
-  };
-
-  onTransfer = (data) => {
-    this.setState({ transfer: data });
   };
 
   handleTransfer = () => {
