@@ -535,16 +535,20 @@ class Main extends PureComponent {
       stop: '停用',
       deploy: '构建'
     };
-
+ 
     const appState = {
       RUNNING: '运行中',
+      STARTING: '启动中',
       CLOSED: '已关闭',
+      STOPPING: '关闭中',
       ABNORMAL: '异常',
       PARTIAL_ABNORMAL: '部分异常'
     };
     const appStateColor = {
       RUNNING: 'success',
+      STARTING: 'success',
       CLOSED: 'error',
+      STOPPING: 'error',
       ABNORMAL: 'error',
       PARTIAL_ABNORMAL: 'error'
     };
