@@ -1,6 +1,6 @@
 /* eslint-disable compat/compat */
 /* eslint-disable camelcase */
-import { Col, Divider, Row } from 'antd';
+import { Tooltip, Divider, Row } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
 import globalUtil from '../../utils/global';
@@ -96,24 +96,24 @@ export default class LoginPage extends Component {
               </Divider>
               <Row className={styles.third}>
                 {oauthInfo && (
-                  <Col
-                    span={8}
-                    className={styles.thirdCol}
-                    key={oauthInfo.client_id}
-                  >
-                    <a href={url} title={oauthInfo.name}>
-                      {icon}
-                    </a>
-                  </Col>
+                  <div className={styles.thirdCol} key={oauthInfo.client_id}>
+                    <Tooltip placement="top" title={oauthInfo.name}>
+                      <a href={url} title={oauthInfo.name}>
+                        {icon}
+                      </a>
+                    </Tooltip>
+                  </div>
                 )}
                 {oauthServicesList.map((item) => {
                   const { name, service_id } = item;
                   return (
-                    <Col span={8} className={styles.thirdCol} key={service_id}>
-                      <a href={oauthUtil.getAuthredictURL(item)} title={name}>
-                        {oauthUtil.getIcon(item)}
-                      </a>
-                    </Col>
+                    <div className={styles.thirdCol} key={service_id}>
+                      <Tooltip placement="top" title={name}>
+                        <a href={oauthUtil.getAuthredictURL(item)} title={name}>
+                          {oauthUtil.getIcon(item)}
+                        </a>
+                      </Tooltip>
+                    </div>
                   );
                 })}
               </Row>
