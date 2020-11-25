@@ -68,7 +68,7 @@ export default class Index extends PureComponent {
   queryIsFinished = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "groupControl/queryRestoreState",
+      type: "application/queryRestoreState",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.props.groupId,
@@ -101,7 +101,7 @@ export default class Index extends PureComponent {
       return;
     }
     this.props.dispatch({
-      type: "groupControl/migrateApp",
+      type: "application/migrateApp",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region: this.state.regionName,
@@ -127,7 +127,7 @@ export default class Index extends PureComponent {
   queryMigrateApp = () => {
     if (!this.mount) return;
     this.props.dispatch({
-      type: "groupControl/queryMigrateApp",
+      type: "application/queryMigrateApp",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         restore_id: this.state.restore_id,

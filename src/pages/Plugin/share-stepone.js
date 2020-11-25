@@ -63,10 +63,10 @@ const uploadButton = (
   </div>
 );
 
-@connect(({ user, groupControl, loading }) => ({
+@connect(({ user, application, loading }) => ({
   currUser: user.currentUser,
-  apps: groupControl.apps,
-  groupDetail: groupControl.groupDetail || {},
+  apps: application.apps,
+  groupDetail: application.groupDetail || {},
   loading,
 }))
 @Form.create()

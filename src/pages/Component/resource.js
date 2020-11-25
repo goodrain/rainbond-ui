@@ -1,29 +1,32 @@
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
+/* eslint-disable eqeqeq */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-nested-ternary */
 import {
   Button,
-  Icon,
   Card,
-  Modal,
-  Tabs,
-  Input,
-  Form,
-  Spin,
-  Select,
   Divider,
-  notification
+  Form,
+  Icon,
+  Input,
+  Modal,
+  notification,
+  Select,
+  Spin,
+  Tabs
 } from 'antd';
-import AutoDeploy from './setting/auto-deploy';
-import ChangeBuildSource from './setting/edit-buildsource';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
 import CodeBuildConfig from '../../components/CodeBuildConfig';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
-import { languageObj } from '../../utils/utils';
-import rainbondUtil from '../../utils/rainbond';
 import globalUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
+import { languageObj } from '../../utils/utils';
 import styles from './resource.less';
+import AutoDeploy from './setting/auto-deploy';
+import ChangeBuildSource from './setting/edit-buildsource';
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -34,7 +37,7 @@ const { Option, OptGroup } = Select;
     currUser: user.currentUser,
     createWay: appControl.createWay,
     rainbondInfo: global.rainbondInfo,
-    enterprise: global.enterprise
+    enterprise: global.enterprise,
   }),
   null,
   null,
@@ -63,7 +66,7 @@ export default class Index extends PureComponent {
       tabList: [],
       OauthLoading: true,
       isAddComponents: false,
-      page: 1
+      page: 1,
     };
   }
   componentDidMount() {
@@ -77,11 +80,11 @@ export default class Index extends PureComponent {
         const { oauth_type, service_id } = item;
         tabList.push({
           type: oauth_type,
-          id: `${service_id}`
+          id: `${service_id}`,
         });
       });
       this.setState({
-        tabList
+        tabList,
       });
     }
 
@@ -91,7 +94,7 @@ export default class Index extends PureComponent {
   getParams() {
     return {
       group_id: this.props.match.params.appID,
-      compose_id: this.props.match.params.composeId
+      compose_id: this.props.match.params.composeId,
     };
   }
   onChangeBuildSource = () => {
@@ -103,13 +106,13 @@ export default class Index extends PureComponent {
       type: 'appControl/getRuntimeBuildInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias
+        app_alias: this.props.appDetail.service.service_alias,
       },
       callback: data => {
         if (data) {
           this.setState({ runtimeInfo: data.bean ? data.bean : {} });
         }
-      }
+      },
     });
   };
   handleEditRuntime = build_env_dict => {
@@ -118,14 +121,14 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        build_env_dict
+        build_env_dict,
       },
       callback: res => {
         if (res && res._code == 200) {
           notification.success({ message: '修改成功.' });
           this.getRuntimeInfo();
         }
-      }
+      },
     });
   };
   handleEditInfo = (val = {}) => {
@@ -134,13 +137,13 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        ...val
+        ...val,
       },
       callback: data => {
         if (data) {
           this.props.updateDetail();
         }
-      }
+      },
     });
   };
 
@@ -166,7 +169,7 @@ export default class Index extends PureComponent {
       type: 'appControl/getAppBuidSource',
       payload: {
         team_name,
-        service_alias: this.props.appDetail.service.service_alias
+        service_alias: this.props.appDetail.service.service_alias,
       },
       callback: data => {
         if (data) {
@@ -181,7 +184,7 @@ export default class Index extends PureComponent {
             }
           });
         }
-      }
+      },
     });
   };
 
@@ -193,15 +196,15 @@ export default class Index extends PureComponent {
       type: 'global/codeThirdInfo',
       payload: {
         full_name: buildSource.full_name,
-        oauth_service_id: buildSource.oauth_service_id
+        oauth_service_id: buildSource.oauth_service_id,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            thirdInfo: res.bean
+            thirdInfo: res.bean,
           });
         }
-      }
+      },
     });
   };
 
@@ -219,7 +222,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         service_alias: this.props.appDetail.service.service_alias,
-        check_uuid: this.state.check_uuid
+        check_uuid: this.state.check_uuid,
       },
       callback: res => {
         if (res) {
@@ -237,12 +240,12 @@ export default class Index extends PureComponent {
               this.setState({
                 create_status: res.bean && res.bean.check_status,
                 service_info: res.bean && res.bean.service_info,
-                error_infos: res.bean && res.bean.error_infos
+                error_infos: res.bean && res.bean.error_infos,
               });
             }
           }
         }
-      }
+      },
     });
   };
 
@@ -252,14 +255,14 @@ export default class Index extends PureComponent {
       type: 'appControl/putLanguage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail.service.service_alias
+        service_alias: this.props.appDetail.service.service_alias,
       },
       callback: res => {
         if (res) {
           this.setState(
             {
               create_status: res.bean && res.bean.create_status,
-              check_uuid: res.bean && res.bean.check_uuid
+              check_uuid: res.bean && res.bean.check_uuid,
             },
             () => {
               if (this.state.create_status == 'failure') {
@@ -269,14 +272,14 @@ export default class Index extends PureComponent {
             }
           );
         }
-      }
+      },
     });
   };
 
   hideMarketAppDetail = () => {
     this.setState({
       showApp: {},
-      showMarketAppDetail: false
+      showMarketAppDetail: false,
     });
   };
 
@@ -292,17 +295,17 @@ export default class Index extends PureComponent {
       payload: {
         type: tabType,
         full_name: project_full_name || buildSource.full_name,
-        oauth_service_id: oauth_service_id || buildSource.oauth_service_id
+        oauth_service_id: oauth_service_id || buildSource.oauth_service_id,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             tags: res.bean ? res.bean[tabType] : [],
             tagsLoading: false,
-            OauthLoading: false
+            OauthLoading: false,
           });
         }
-      }
+      },
     });
   };
 
@@ -348,7 +351,7 @@ export default class Index extends PureComponent {
           id ||
           oauth_service_id ||
           (buildSource && buildSource.oauth_service_id) ||
-          (tabList.length > 0 ? tabList[0].id : '')
+          (tabList.length > 0 ? tabList[0].id : ''),
       },
       callback: res => {
         if (res && res.bean) {
@@ -362,21 +365,21 @@ export default class Index extends PureComponent {
             setFieldsValue({
               full_name: setFullName,
               git_url: setUrl,
-              code_version: setVersion
+              code_version: setVersion,
             });
           }
           this.setState(
             {
               firstPage,
               lastPage,
-              fullList: res.bean.repositories
+              fullList: res.bean.repositories,
             },
             () => {
               this.handleCodeWarehouseType(this.props);
             }
           );
         }
-      }
+      },
     });
   };
 
@@ -391,7 +394,7 @@ export default class Index extends PureComponent {
         setFieldsValue(
           {
             git_url: item.project_url,
-            code_version: item.project_default_branch
+            code_version: item.project_default_branch,
           },
           () => {
             this.handleCodeWarehouseType(this.props);
@@ -417,20 +420,20 @@ export default class Index extends PureComponent {
           full_name: fieldsValue.full_name,
           git_url: fieldsValue.git_url,
           code_version: fieldsValue.code_version,
-          service_source: 'source_code'
+          service_source: 'source_code',
         },
         callback: () => {
           notification.success({ message: '修改成功，下次构建部署时生效' });
           this.loadBuildSourceInfo();
           this.hideEditOauth();
-        }
+        },
       });
     });
   };
   // 是否可以浏览当前界面
   canView() {
     const {
-      componentPermissions: { isSource }
+      componentPermissions: { isSource },
     } = this.props;
     return isSource;
   }
@@ -447,45 +450,45 @@ export default class Index extends PureComponent {
       fullList,
       tabList,
       firstPage,
-      lastPage
+      lastPage,
     } = this.state;
     const language = appUtil.getLanguage(appDetail);
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 3
-        }
+          span: 3,
+        },
       },
       wrapperCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 21
-        }
-      }
+          span: 21,
+        },
+      },
     };
 
     const formOauthLayout = {
       labelCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 5
-        }
+          span: 5,
+        },
       },
       wrapperCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 19
-        }
-      }
+          span: 19,
+        },
+      },
     };
 
     const { teamName, regionName } = match.params;
@@ -500,7 +503,7 @@ export default class Index extends PureComponent {
           <Card
             title="构建源"
             style={{
-              marginBottom: 24
+              marginBottom: 24,
             }}
             extra={[
               appUtil.isOauthByBuildSource(buildSource) ? (
@@ -513,13 +516,13 @@ export default class Index extends PureComponent {
                     更改
                   </a>
                 )
-              )
+              ),
             ]}
           >
             <div>
               <FormItem
                 style={{
-                  marginBottom: 0
+                  marginBottom: 0,
                 }}
                 {...formItemLayout}
                 label="创建方式"
@@ -542,7 +545,7 @@ export default class Index extends PureComponent {
               <div>
                 <FormItem
                   style={{
-                    marginBottom: 0
+                    marginBottom: 0,
                   }}
                   {...formItemLayout}
                   label="镜像名称"
@@ -551,7 +554,7 @@ export default class Index extends PureComponent {
                 </FormItem>
                 <FormItem
                   style={{
-                    marginBottom: 0
+                    marginBottom: 0,
                   }}
                   {...formItemLayout}
                   label="版本"
@@ -560,7 +563,7 @@ export default class Index extends PureComponent {
                 </FormItem>
                 <FormItem
                   style={{
-                    marginBottom: 0
+                    marginBottom: 0,
                   }}
                   {...formItemLayout}
                   label="启动命令"
@@ -575,7 +578,7 @@ export default class Index extends PureComponent {
               <Fragment>
                 <FormItem
                   style={{
-                    marginBottom: 0
+                    marginBottom: 0,
                   }}
                   {...formItemLayout}
                   label="应用模版名称"
@@ -588,9 +591,9 @@ export default class Index extends PureComponent {
                           showApp: {
                             details: buildSource.details,
                             group_name: buildSource.rain_app_name,
-                            group_key: buildSource.group_key
+                            group_key: buildSource.group_key,
                           },
-                          showMarketAppDetail: true
+                          showMarketAppDetail: true,
                         });
                       }}
                     >
@@ -602,7 +605,7 @@ export default class Index extends PureComponent {
                 </FormItem>
                 <FormItem
                   style={{
-                    marginBottom: 0
+                    marginBottom: 0,
                   }}
                   {...formItemLayout}
                   label="版本"
@@ -617,7 +620,7 @@ export default class Index extends PureComponent {
             {appUtil.isOauthByBuildSource(buildSource) && (
               <FormItem
                 style={{
-                  marginBottom: 0
+                  marginBottom: 0,
                 }}
                 {...formItemLayout}
                 label="项目名称"
@@ -632,7 +635,7 @@ export default class Index extends PureComponent {
               <Fragment>
                 <FormItem
                   style={{
-                    marginBottom: 0
+                    marginBottom: 0,
                   }}
                   {...formItemLayout}
                   label="仓库地址"
@@ -643,7 +646,7 @@ export default class Index extends PureComponent {
                 </FormItem>
                 <FormItem
                   style={{
-                    marginBottom: 0
+                    marginBottom: 0,
                   }}
                   {...formItemLayout}
                   label="代码版本"
@@ -653,7 +656,7 @@ export default class Index extends PureComponent {
 
                 <FormItem
                   style={{
-                    marginBottom: 0
+                    marginBottom: 0,
                   }}
                   {...formItemLayout}
                   className={styles.ant_form_item}
@@ -704,28 +707,28 @@ export default class Index extends PureComponent {
               !this.state.create_status
                 ? [
                     <Button key="back" onClick={this.handlelanguageBox}>
-                      关闭
+                    关闭
                     </Button>,
                     <Button
-                      key="submit"
-                      type="primary"
-                      onClick={this.handleDetectPutLanguage}
-                    >
+                    key="submit"
+                    type="primary"
+                    onClick={this.handleDetectPutLanguage}
+                  >
                       检测
-                    </Button>
+                  </Button>,
                   ]
                 : this.state.create_status == 'success'
                 ? [
                     <Button key="back" onClick={this.handlelanguageBox}>
-                      关闭
+                    关闭
                     </Button>,
                     <Button
-                      key="submit"
-                      type="primary"
-                      onClick={this.handlelanguageBox}
-                    >
+                    key="submit"
+                    type="primary"
+                    onClick={this.handlelanguageBox}
+                  >
                       确认
-                    </Button>
+                  </Button>,
                   ]
                 : [<Button key="back">关闭</Button>]
             }
@@ -750,13 +753,13 @@ export default class Index extends PureComponent {
                     style={{
                       textAlign: 'center',
                       color: '#28cb75',
-                      fontSize: '36px'
+                      fontSize: '36px',
                     }}
                   >
                     <Icon
                       style={{
                         color: '#f5222d',
-                        marginRight: 8
+                        marginRight: 8,
                       }}
                       type="close-circle-o"
                     />
@@ -768,7 +771,7 @@ export default class Index extends PureComponent {
                           <span
                             dangerouslySetInnerHTML={{
                               __html: `<span>${item.error_info ||
-                                ''} ${item.solve_advice || ''}</span>`
+                                ''} ${item.solve_advice || ''}</span>`,
                             }}
                           />
                         </div>
@@ -785,7 +788,7 @@ export default class Index extends PureComponent {
                     style={{
                       textAlign: 'center',
                       color: '#28cb75',
-                      fontSize: '36px'
+                      fontSize: '36px',
                     }}
                   >
                     <Icon type="check-circle-o" />
@@ -809,7 +812,7 @@ export default class Index extends PureComponent {
                     style={{
                       textAlign: 'center',
                       color: '999',
-                      fontSize: '36px'
+                      fontSize: '36px',
                     }}
                   >
                     <Icon type="close-circle-o" />
@@ -865,7 +868,7 @@ export default class Index extends PureComponent {
                 <FormItem {...formOauthLayout} label="创建方式">
                   {getFieldDecorator('oauth_service_id', {
                     initialValue: thirdInfo ? `${thirdInfo.service_id}` : '',
-                    rules: [{ required: true, message: '请选择创建方式' }]
+                    rules: [{ required: true, message: '请选择创建方式' }],
                   })(
                     <Select
                       onChange={this.handleProvinceChange}
@@ -886,7 +889,7 @@ export default class Index extends PureComponent {
                     initialValue: buildSource
                       ? buildSource.full_name
                       : fullList.length > 0 && fullList[0].project_full_name,
-                    rules: [{ required: true, message: '请选择项目' }]
+                    rules: [{ required: true, message: '请选择项目' }],
                   })(
                     <Select
                       onChange={this.handleProjectChange}
@@ -899,7 +902,7 @@ export default class Index extends PureComponent {
                               <div
                                 style={{
                                   padding: '4px 8px',
-                                  cursor: 'pointer'
+                                  cursor: 'pointer',
                                 }}
                                 onMouseDown={e => e.preventDefault()}
                                 onClick={this.onPagePre}
@@ -915,7 +918,7 @@ export default class Index extends PureComponent {
                               <div
                                 style={{
                                   padding: '4px 8px',
-                                  cursor: 'pointer'
+                                  cursor: 'pointer',
                                 }}
                                 onMouseDown={e => e.preventDefault()}
                                 onClick={this.onPageNext}
@@ -946,7 +949,7 @@ export default class Index extends PureComponent {
                     initialValue: buildSource
                       ? buildSource.git_url
                       : fullList.length > 0 && fullList[0].git_url,
-                    rules: [{ required: true, message: '请选择创建方式' }]
+                    rules: [{ required: true, message: '请选择创建方式' }],
                   })(<Input placeholder="请输入配置组名" disabled />)}
                 </FormItem>
 
@@ -957,7 +960,7 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('code_version', {
                     initialValue: buildSource ? buildSource.code_version : '',
-                    rules: [{ required: true, message: '请输入代码版本' }]
+                    rules: [{ required: true, message: '请输入代码版本' }],
                   })(
                     <Select placeholder="请输入代码版本">
                       <OptGroup

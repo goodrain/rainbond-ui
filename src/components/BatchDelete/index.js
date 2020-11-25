@@ -16,7 +16,6 @@ import globalUtil from '../../utils/global';
   }
 )
 
-/* 转移到其他应用组 */
 export default class MoveGroup extends PureComponent {
   constructor(props) {
     super(props);
@@ -24,7 +23,7 @@ export default class MoveGroup extends PureComponent {
     this.state = {
       // eslint-disable-next-line react/no-unused-state
       batchDeleteApps,
-      apps: batchDeleteApps.map(item => {
+      apps: batchDeleteApps.map((item) => {
         if (item) {
           return {
             service_id: item.service_id,
@@ -40,7 +39,7 @@ export default class MoveGroup extends PureComponent {
   handleDelete = () => {
     this.setState({ confirm: true });
     const { dispatch, batchDeleteApps } = this.props;
-    const ids = batchDeleteApps.map(item => {
+    const ids = batchDeleteApps.map((item) => {
       return item.service_id;
     });
     dispatch({
@@ -49,7 +48,7 @@ export default class MoveGroup extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         serviceIds: ids.join(',')
       },
-      callback: res => {
+      callback: (res) => {
         if (res) {
           this.setState({ apps: res.list });
         }
@@ -57,14 +56,14 @@ export default class MoveGroup extends PureComponent {
     });
   };
 
-  reDelete = id => {
+  reDelete = (id) => {
     reDelete({
       team_name: globalUtil.getCurrTeamName(),
       service_id: id
-    }).then(data => {
+    }).then((data) => {
       if (data) {
         const newapps = [];
-        this.state.apps.map(item => {
+        this.state.apps.map((item) => {
           if (item.service_id == id) {
             item.status = 200;
             item.msg = '删除成功';
@@ -96,12 +95,16 @@ export default class MoveGroup extends PureComponent {
               },
               {
                 title: '反馈信息',
-                dataIndex: 'msg'
+                dataIndex: 'msg',
+                render: (val) => {
+                  const map = { success: '删除成功' };
+                  return <span>{map[val] || val}</span>;
+                }
               },
               {
                 title: '操作',
                 dataIndex: 'action',
-                render: (v, data) => {
+                render: (_, data) => {
                   if (data.status == 412) {
                     return (
                       <a
@@ -132,7 +135,7 @@ export default class MoveGroup extends PureComponent {
                 : '请刷新数据后删除'}
             </p>
             <Row>
-              {apps.map(item => {
+              {apps.map((item) => {
                 if (item == undefined) return null;
                 return (
                   <Col

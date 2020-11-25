@@ -19,7 +19,7 @@ class Index extends React.Component {
 
       window.iframeGetMonitor = function(fn, errcallback) {
         dispatch({
-          type: 'groupControl/groupMonitorData',
+          type: 'application/groupMonitorData',
           payload: {
             team_name: teamName,
             group_id: groupId,

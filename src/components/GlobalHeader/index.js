@@ -1,23 +1,21 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/sort-comp */
 /* eslint-disable prettier/prettier */
+import rainbondUtil from "@/utils/rainbond";
 import {
   Avatar,
-  Button,
   Dropdown,
   Icon,
   Layout,
   Menu,
   notification,
-  Spin,
-  Tooltip
+  Spin
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Debounce from 'lodash-decorators/debounce';
 import React, { PureComponent } from 'react';
 import userIcon from '../../../public/images/user-icon-small.png';
-import rainbondUtil from '../../utils/rainbond';
 import ChangePassword from '../ChangePassword';
 import styles from './index.less';
 
@@ -179,14 +177,16 @@ export default class GlobalHeader extends PureComponent {
               开源版
             </a>
           )}
+          {
+          rainbondUtil.documentPlatform_url(rainbondInfo) && 
           <a
             className={styles.action}
             style={{ color: '#fff' }}
             href={`${rainbondUtil.documentPlatform_url(rainbondInfo)}docs/`}
             target="_blank"
-          >
-            参考手册
-          </a>
+            rel="noopener noreferrer" 
+          >参考手册
+          </a>}
           {currentUser ? (
             <Dropdown overlay={menu}>
               <span className={`${styles.action} ${styles.account}`}>

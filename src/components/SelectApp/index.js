@@ -56,11 +56,11 @@ export default class SelectApp extends PureComponent {
   handleCreateApp = vals => {
     const { dispatch, currentTeam } = this.props;
     dispatch({
-      type: 'groupControl/addGroup',
+      type: 'application/addGroup',
       payload: {
         team_name: currentTeam.team_name,
         group_name: vals.group_name,
-        group_note: vals.group_note,
+        note: vals.note,
       },
       callback: () => {
         notification.success({ message: formatMessage({ id: 'add.success' }) });

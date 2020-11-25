@@ -1,7 +1,8 @@
+/* eslint-disable consistent-return */
 /* eslint-disable react/react-in-jsx-scope */
+import axios from 'axios';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
-import axios from 'axios';
 import cookie from './cookie';
 import styles from './utils.less';
 
@@ -32,7 +33,7 @@ const global = {
     }
     try {
       const defaultOptions = {
-        credentials: 'same-origin'
+        credentials: 'same-origin',
       };
       const { title, version } = info;
       defaultOptions.url = 'https://log.rainbond.com/log';
@@ -43,7 +44,9 @@ const global = {
         e_name: info.enterprise_alias,
         version: version.value,
         title: title.value,
-        day: moment(new Date()).locale('zh-cn').format('YYYYMMDD')
+        day: moment(new Date())
+          .locale('zh-cn')
+          .format('YYYYMMDD'),
       });
       defaultOptions.data = JSON.parse(defaultOptions.data);
       axios(defaultOptions);
@@ -131,7 +134,7 @@ const global = {
       TEMINATING: '#20124A', // 关闭中 紫色
       tEMINATING: '#20124A', // 关闭中 紫色
       Some_abnormal: '#FF0000', // 一些不正常 纯红
-      Building: '#007710' // 构建  纯蓝
+      Building: '#007710', // 构建  纯蓝
     };
     return statusColorMap[status] || statusColorMap.unknow;
   },
@@ -507,7 +510,7 @@ const global = {
       logs: (
         <svg
           style={{
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
           t="1566527207023"
           className={styles.iconm}
@@ -697,7 +700,7 @@ const global = {
       currentVersion: (
         <svg
           style={{
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
           t="1566532978509"
           className={styles.icon}
@@ -723,7 +726,7 @@ const global = {
       upgrade: (
         <svg
           style={{
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
           t="1566533552365"
           className={styles.icon}
@@ -749,7 +752,7 @@ const global = {
       rollback: (
         <svg
           style={{
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
           t="1566533701108"
           className={styles.icon}
@@ -770,7 +773,7 @@ const global = {
       delete: (
         <svg
           style={{
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
           t="1566533607654"
           className={styles.icon}
@@ -843,11 +846,10 @@ const global = {
             fill="#9d9d9d"
           />
         </svg>
-      )
+      ),
     };
     return svgType[type] || type;
   },
-
   fetchStateBJColor(status) {
     const statusColorMap = {
       running:
@@ -871,11 +873,10 @@ const global = {
       creating:
         'linear-gradient(to right, #778899 0, #778899 10px, #fff 10px, #fff 100%) no-repeat', // 部署中
       expired:
-        'linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat' // 过期
+        'linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat', // 过期
     };
     return statusColorMap[status] || statusColorMap.unKnow;
   },
-
   fetchStateText(state) {
     const statusColorMap = {
       RUNNING: '运行中',
@@ -897,9 +898,16 @@ const global = {
       creating: '部署中',
       expired: '过期',
       NOTREADY: '未就绪',
-      UNHEALTHY: '不健康'
+      UNHEALTHY: '不健康',
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
+  },
+  fetchGovernanceMode(state) {
+    const GovernanceMode = {
+      KUBERNETES_NATIVE_SERVICE: '原生 service 模式',
+      BUILD_IN_SERVICE_MESH: '内置 ServiceMesh 模式',
+    };
+    return GovernanceMode[state] || '-';
   },
   fetchTime(value) {
     const second = value; // 时间差的毫秒数
@@ -954,7 +962,9 @@ const global = {
 
     let result = '';
     if (days && days > 7) {
-      result = moment(date).locale('zh-cn').format('YYYY-MM-DD');
+      result = moment(date)
+        .locale('zh-cn')
+        .format('YYYY-MM-DD');
     } else if (days && days >= 1 && days < 7) {
       result += `${days}天前`;
     } else if (hours && hours >= 1 && hours <= 23) {
@@ -972,7 +982,7 @@ const global = {
     const reasonsType = {
       UnknownContainerStatuses: '未知的容器状态',
       ContainersNotReady: '容器未就绪',
-      ContainersNotInitialized: '容器尚未初始化'
+      ContainersNotInitialized: '容器尚未初始化',
     };
     return reasonsType[type] || type;
   },
@@ -982,7 +992,7 @@ const global = {
         '内存不足, 建议为程序分配更多内存, 或检查程序是否合理使用内存',
       Unhealthy:
         '健康检测不通过, 请检查程序的端口是否可用, 以及健康检测配置是否正确',
-      Initiating: '等待启动中, 请检查该组件所依赖的组件是否已经正常启动'
+      Initiating: '等待启动中, 请检查该组件所依赖的组件是否已经正常启动',
     };
     return adviceType[type] || type;
   },
@@ -1018,7 +1028,7 @@ const global = {
       plugin: '插件管理',
       teamMember: '团队成员管理',
       teamRole: '团队角色管理',
-      teamRegion: '团队集群管理'
+      teamRegion: '团队集群管理',
     };
     return AccessText[text] || text;
   },
@@ -1030,7 +1040,7 @@ const global = {
       ReadinessProbeFailed: '#CD0200',
       AbnormalShtdown: '#CD0200',
       EventTypeAbnormalExited: '#CD0200',
-      AbnormalExited: '#CD0200'
+      AbnormalExited: '#CD0200',
     };
     return abnormalcolor[type] || 'rgba(0,0,0,0.65)';
   },
@@ -1123,7 +1133,7 @@ const global = {
       'app-restore-probe': '重新加载应用探针',
       'app-restore-deps': '重新加载应用依赖',
       'app-restore-depvols': '重新加载应用依赖存储',
-      'app-restore-plugins': '重新加载应用插件'
+      'app-restore-plugins': '重新加载应用插件',
     };
     return statusOptType[state] || state;
   },
@@ -1156,23 +1166,23 @@ const global = {
       {
         type: 'state_singleton',
         name: this.getComponentType('state_singleton'),
-        desc: '部署为Statefulset类型，一般用于DB类，消息中间件类，数据类组件 '
+        desc: '部署为Statefulset类型，一般用于DB类，消息中间件类，数据类组件 ',
       },
       {
         type: 'state_multiple',
         name: this.getComponentType('state_multiple'),
-        desc: '可多实例运行的有状态组件'
+        desc: '可多实例运行的有状态组件',
       },
       {
         type: 'stateless_singleton',
         name: this.getComponentType('stateless_singleton'),
-        desc: '部署为Deployment, 一般用于Web类，API类等组件，不可扩展实例数'
+        desc: '部署为Deployment, 一般用于Web类，API类等组件，不可扩展实例数',
       },
       {
         type: 'stateless_multiple',
         name: this.getComponentType('stateless_multiple'),
-        desc: '可多实例运行的无状态组件'
-      }
+        desc: '可多实例运行的无状态组件',
+      },
     ];
   },
   getComponentType(componentType) {
@@ -1185,12 +1195,14 @@ const global = {
         return '无状态单实例';
       case 'stateless_multiple':
         return '无状态多实例';
+      default:
+        return '';
     }
   },
   isStateComponent(componentType) {
     if (
-      componentType == 'state_singleton' ||
-      componentType == 'state_multiple'
+      componentType === 'state_singleton' ||
+      componentType === 'state_multiple'
     ) {
       return true;
     }
@@ -1198,13 +1210,13 @@ const global = {
   },
   isSingletonComponent(componentType) {
     if (
-      componentType == 'state_singleton' ||
-      componentType == 'stateless_singleton'
+      componentType === 'state_singleton' ||
+      componentType === 'stateless_singleton'
     ) {
       return true;
     }
     return false;
-  }
+  },
 };
 
 export default global;

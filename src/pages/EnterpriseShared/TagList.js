@@ -1,10 +1,11 @@
-import React, { PureComponent } from "react";
-import { Modal, Form, Select, Button, Checkbox, Row, Col } from "antd";
+/* eslint-disable no-unused-expressions */
+/* eslint-disable camelcase */
+import { Button, Checkbox, Col, Form, Modal, Row } from "antd";
 import { connect } from "dva";
+import React, { PureComponent } from "react";
 import styles from "../../components/CreateTeam/index.less";
 
 const FormItem = Form.Item;
-const { Option } = Select;
 
 @Form.create()
 @connect(({ user }) => ({
@@ -65,7 +66,7 @@ export default class TagList extends PureComponent {
         ]}
       >
         {seeTag ? (
-          <Row style={{marginBottom:'20px'}}>
+          <Row style={{ marginBottom: '20px' }}>
             {seeTag.map(item => {
               return (
                 <Col key={item} span={8}>
@@ -81,35 +82,35 @@ export default class TagList extends PureComponent {
             hideRequiredMark
           >
             <FormItem {...formItemLayout} label="">
-              {getFieldDecorator("tag", {
-                initialValue: checkedValues || [],
-                rules: [
-                  {
-                    required: false,
-                    message: "请选择标签"
-                  }
-                ]
-              })(
-                <Checkbox.Group
-                  style={{ width: "100%" }}
-                  onChange={this.onChangeCheckbox}
-                >
-                  <Row>
-                    {tagLists &&
-                      tagLists.map(item => {
-                        const { name, tag_id } = item;
-                        return (
-                          <Col key={tag_id} span={8}>
-                            <Checkbox value={name}>{name}</Checkbox>
-                          </Col>
-                        );
-                      })}
-                  </Row>
-                </Checkbox.Group>
-              )}
+              {getFieldDecorator('tag', {
+                  initialValue: checkedValues || [],
+                  rules: [
+                    {
+                      required: false,
+                      message: '请选择标签',
+                    },
+                  ],
+                })(
+                  <Checkbox.Group
+                    style={{ width: '100%' }}
+                    onChange={this.onChangeCheckbox}
+                  >
+                    <Row>
+                      {tagLists &&
+                        tagLists.map(item => {
+                          const { name, tag_id } = item;
+                          return (
+                            <Col key={tag_id} span={8}>
+                              <Checkbox value={name}>{name}</Checkbox>
+                            </Col>
+                          );
+                        })}
+                    </Row>
+                  </Checkbox.Group>
+                )}
             </FormItem>
           </Form>
-        )}
+          )}
       </Modal>
     );
   }

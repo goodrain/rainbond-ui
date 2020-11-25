@@ -215,15 +215,21 @@ export function restart(
 }
 
 /*
-	批量重启
+  批量操作
+  stop: 停止组件
+  start: 启动组件
+  restart: 重启组件
+  move: 移动组件
+  upgrade: 更新组件
+  deploy: 构建组件
 */
-export function batchReStart(body = {}) {
+export function batchOperation(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
     {
       method: 'post',
       data: {
-        action: 'restart',
+        action: body.action,
         service_ids: body.serviceIds
       }
     }
@@ -588,7 +594,7 @@ export function getMnt(
       },
       paramsSerializer(params) {
         const yourNewParams = params.volume_types
-          .map(_ => `volume_types=${_}`)
+          .map((_) => `volume_types=${_}`)
           .join('&');
         const str = `query=${params.query}&page=${params.page}&page_size=${params.page_size}&type=${params.type}&${yourNewParams}`;
         return str;
@@ -777,6 +783,7 @@ export async function editPortAlias(
       method: 'put',
       data: {
         action: 'change_port_alias',
+        k8s_service_name: body.k8s_service_name,
         port_alias: body.port_alias
       }
     }
@@ -2187,6 +2194,53 @@ export async function fetchLogContent(
     }
   );
 }
+
+export async function getMavensettings(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/mavensettings`,
+    {
+      method: 'get',
+      params: {
+        onlyname: body.onlyname
+      }
+    }
+  );
+}
+
+export async function addMavensettings(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/mavensettings`,
+    {
+      method: 'post',
+      data: {
+        name: body.name,
+        content: body.content
+      }
+    }
+  );
+}
+
+export async function editMavensettings(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/mavensettings/${body.name}`,
+    {
+      method: 'put',
+      data: {
+        content: body.content
+      }
+    }
+  );
+}
+
+export async function deleteMavensettings(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/mavensettings/${body.name}`,
+    {
+      method: 'delete'
+    }
+  );
+}
+
 /*
 	设置用户权限
 */
