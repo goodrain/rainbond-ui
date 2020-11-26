@@ -9,7 +9,7 @@ import roleUtil from '../../utils/role';
 
 @connect(({ user, teamControl }) => ({
   currentUser: user.currentUser,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 export default class SelectApp extends PureComponent {
   constructor(props) {
@@ -19,13 +19,13 @@ export default class SelectApp extends PureComponent {
       loading: true,
       currentApp: {},
       queryName: '',
-      visible: false,
+      visible: false
     };
   }
   componentDidMount() {
     this.loadTeamApps();
   }
-  queryApps = query => {
+  queryApps = (query) => {
     this.setState({ queryName: query }, () => {
       this.loadTeamApps();
     });
@@ -37,36 +37,41 @@ export default class SelectApp extends PureComponent {
       type: 'global/fetchGroups',
       payload: {
         team_name: currentTeam.team_name,
-        query: queryName,
+        query: queryName
       },
-      callback: re => {
-        this.setState({ teamApps: re, loading: false });
-        re.map(item => {
-          if (item.group_id == currentAppID) {
-            this.setState({ teamApps: re, loading: false, currentApp: item });
+      callback: (list) => {
+        if (list && list.length > 0) {
+          const currentList = list.filter(
+            (item) => item.group_id == currentAppID
+          );
+          if (currentList && currentList.length > 0) {
+            this.setState({ currentApp: currentList[0] });
           }
-        });
-      },
+          this.setState({ teamApps: list.reverse(), loading: false });
+        } else {
+          this.setState({ loading: false });
+        }
+      }
     });
   };
   showCreateApp = () => {
     this.handleOut();
     this.setState({ showCreateApp: true });
   };
-  handleCreateApp = vals => {
+  handleCreateApp = (vals) => {
     const { dispatch, currentTeam } = this.props;
     dispatch({
       type: 'groupControl/addGroup',
       payload: {
         team_name: currentTeam.team_name,
         group_name: vals.group_name,
-        group_note: vals.group_note,
+        group_note: vals.group_note
       },
       callback: () => {
         notification.success({ message: formatMessage({ id: 'add.success' }) });
         this.cancelCreateApp();
         this.loadTeamApps();
-      },
+      }
     });
   };
   cancelCreateApp = () => {
@@ -89,7 +94,7 @@ export default class SelectApp extends PureComponent {
       currentAppID,
       currentComponent,
       active,
-      currentTeamPermissionsInfo,
+      currentTeamPermissionsInfo
     } = this.props;
     const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps`;
     const {
@@ -97,7 +102,7 @@ export default class SelectApp extends PureComponent {
       loading,
       showCreateApp,
       currentApp,
-      visible,
+      visible
     } = this.state;
     const isCreateApp = roleUtil.canCreateApp(currentTeamPermissionsInfo);
     const currentAPPLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${currentAppID}`;
@@ -122,7 +127,7 @@ export default class SelectApp extends PureComponent {
         <div>
           <div className={style.dropBoxList}>
             <ul>
-              {teamApps.map(item => {
+              {teamApps.map((item) => {
                 const link = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${item.group_id}`;
                 return (
                   <li key={item.group_id}>
