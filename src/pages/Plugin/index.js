@@ -316,8 +316,11 @@ class PluginList extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.state.deletePlugin.plugin_id
       },
-      callback: (data) => {
-        this.fetchPlugins();
+      callback: (res) => {
+        if (res && res._code === 200) {
+          notification.success({ message: '删除成功' });
+        }
+        this.fetchDefaultPlugin();
         this.cancelDeletePlugin();
       }
     });
