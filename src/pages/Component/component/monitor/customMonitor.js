@@ -34,7 +34,8 @@ export default class customMonitor extends PureComponent {
       BatchDelete: false,
       isMonitorsLoading: false,
       isMonitors: false,
-      isRender: false
+      isRender: false,
+      KeyImportLoading: true
     };
   }
   componentDidMount() {
@@ -71,7 +72,7 @@ export default class customMonitor extends PureComponent {
       isCustomMonitoring: true
     });
   };
-  fetchServiceMonitorFigure = () => {
+  fetchServiceMonitorFigure = (isUpdata = true) => {
     const { dispatch } = this.props;
     const parameter = this.handleParameter();
     dispatch({
@@ -86,6 +87,9 @@ export default class customMonitor extends PureComponent {
             monitorFigureList: isList ? res.list : [],
             isMonitorFigure: !isList
           });
+          if (!isUpdata) {
+            this.handleUpData();
+          }
           this.cancalBatchDelete();
         }
       }
@@ -103,6 +107,7 @@ export default class customMonitor extends PureComponent {
       callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
+            KeyImportLoading: false,
             KeyImportList: res.list
           });
         }
@@ -127,18 +132,20 @@ export default class customMonitor extends PureComponent {
       }
     });
   };
-  handleSorting = (val, list) => {
+  handleSorting = (val) => {
     this.setState(
       {
         info: val,
-        monitorFigureList: list,
-        isRender: true
       },
       () => {
-        this.setState({ isRender: false });
         this.handleSubmit(val, false);
       }
     );
+  };
+  handleUpData = () => {
+    this.setState({ isRender: true }, () => {
+      this.setState({ isRender: false });
+    });
   };
   handleSubmit = (vals, isMessage = true) => {
     const { dispatch } = this.props;
@@ -159,11 +166,9 @@ export default class customMonitor extends PureComponent {
               notification.success({
                 message: '保存成功'
               });
-              this.setState({ isRender: true }, () => {
-                this.setState({ isRender: false });
-              });
+              this.handleUpData();
             }
-            this.fetchServiceMonitorFigure();
+            this.fetchServiceMonitorFigure(isMessage);
             this.onCancelCustomMonitoring();
           }
         }
@@ -272,25 +277,10 @@ export default class customMonitor extends PureComponent {
       BatchDelete,
       isMonitors,
       isRender,
+      KeyImportLoading,
       isMonitorsLoading
     } = this.state;
-    const menu = (
-      <Menu>
-        {KeyImportList.map((item) => {
-          return (
-            <Menu.Item style={{ textAlign: 'center' }}>
-              <a
-                onClick={() => {
-                  this.addKeyImport(item);
-                }}
-              >
-                {item}
-              </a>
-            </Menu.Item>
-          );
-        })}
-      </Menu>
-    );
+
     return (
       <div>
         {isCustomMonitoring && (
@@ -303,7 +293,7 @@ export default class customMonitor extends PureComponent {
             onCancel={this.onCancelCustomMonitoring}
           />
         )}
-        {!isMonitoryPoint && (
+        {!isMonitoryPoint && !KeyImportLoading && (
           <Row>
             <CustomChart
               moduleName="CustomMonitor"
@@ -329,9 +319,25 @@ export default class customMonitor extends PureComponent {
                   >
                     添加图表
                   </Button>
-                  {KeyImportList.length > 0 && (
+                  {KeyImportList && KeyImportList.length > 0 && (
                     <Dropdown
-                      overlay={menu}
+                      overlay={
+                        <Menu>
+                          {KeyImportList.map((item) => {
+                            return (
+                              <Menu.Item style={{ textAlign: 'center' }}>
+                                <a
+                                  onClick={() => {
+                                    this.addKeyImport(item);
+                                  }}
+                                >
+                                  {item}
+                                </a>
+                              </Menu.Item>
+                            );
+                          })}
+                        </Menu>
+                      }
                       trigger={['click']}
                       placement="bottomCenter"
                       disabled={addKeyImportLoading}
