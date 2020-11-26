@@ -5,7 +5,9 @@ import { Alert, Table, notification, Button, Row } from 'antd';
 import ConfirmModal from '../../../components/ConfirmModal';
 import AccesstokenForm from '../../../components/AccesstokenForm';
 
-@connect()
+@connect(({ loading }) => ({
+  deleteAccessLoading: loading.effects['user/deleteAccessToke']
+}))
 class BindingView extends Component {
   constructor(props) {
     super(props);
@@ -13,7 +15,7 @@ class BindingView extends Component {
       dataSource: [],
       openDeleteAccessToken: false,
       ID: '',
-      visible: false,
+      visible: false
     };
   }
 
@@ -24,20 +26,20 @@ class BindingView extends Component {
   onCanceAccessToken = () => {
     this.setState({
       openDeleteAccessToken: false,
-      ID: '',
+      ID: ''
     });
   };
   loadAccessTokenList = () => {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchAccessToken',
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
-            dataSource: res.list,
+            dataSource: res.list
           });
         }
-      },
+      }
     });
   };
 
@@ -47,15 +49,15 @@ class BindingView extends Component {
     dispatch({
       type: 'user/deleteAccessToke',
       payload: {
-        user_id: ID,
+        user_id: ID
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           notification.success({ message: '删除成功' });
           this.loadAccessTokenList();
           this.onCanceAccessToken();
         }
-      },
+      }
     });
   };
   addAccessToken = () => {
@@ -64,20 +66,20 @@ class BindingView extends Component {
   handleCancel = () => {
     this.setState({ visible: false, ID: '' });
   };
-  openDeleteAccessToken = ID => {
+  openDeleteAccessToken = (ID) => {
     this.setState({
       ID,
-      openDeleteAccessToken: true,
+      openDeleteAccessToken: true
     });
   };
 
-  handleRegenerateAccessToken = ID => {
+  handleRegenerateAccessToken = (ID) => {
     this.setState({
       ID,
-      visible: true,
+      visible: true
     });
   };
-  disabledDate = current => {
+  disabledDate = (current) => {
     // Can not select days before today and today
     return current && current < moment().endOf('day');
   };
@@ -86,7 +88,7 @@ class BindingView extends Component {
     return {
       disabledHours: () => this.range(0, 24).splice(4, 20),
       disabledMinutes: () => this.range(30, 60),
-      disabledSeconds: () => [55, 56],
+      disabledSeconds: () => [55, 56]
     };
   };
 
@@ -103,7 +105,7 @@ class BindingView extends Component {
     this.handleCancel();
   };
 
-  handleExpireTime = val => {
+  handleExpireTime = (val) => {
     let date = '';
     const str = val ? `${val}` : '';
     if (val && str.length === 10) {
@@ -117,20 +119,21 @@ class BindingView extends Component {
   };
 
   render() {
+    const { deleteAccessLoading } = this.props;
     const { dataSource, openDeleteAccessToken, visible, ID } = this.state;
     const columns = [
       {
         title: '用途',
         dataIndex: 'note',
         key: 'note',
-        width: '30%',
+        width: '30%'
       },
       {
         title: '过期时间',
         dataIndex: 'expire_time',
         key: 'expire_time',
         width: '25%',
-        render: val => {
+        render: (val) => {
           const endTime = this.handleExpireTime(val);
           if (endTime) {
             return moment(endTime)
@@ -138,7 +141,7 @@ class BindingView extends Component {
               .format('YYYY-MM-DD HH:mm:ss');
           }
           return '不限制';
-        },
+        }
       },
       {
         title: '状态',
@@ -153,14 +156,14 @@ class BindingView extends Component {
             <Fragment>
               <div
                 style={{
-                  color: isOverdue ? '#f81d22' : ' #0b8235',
+                  color: isOverdue ? '#f81d22' : ' #0b8235'
                 }}
               >
                 {isOverdue ? '过期' : '正常'}
               </div>
             </Fragment>
           );
-        },
+        }
       },
       {
         title: '操作',
@@ -184,8 +187,8 @@ class BindingView extends Component {
               重新生成
             </a>
           </Fragment>
-        ),
-      },
+        )
+      }
     ];
 
     return (
@@ -217,6 +220,7 @@ class BindingView extends Component {
           <ConfirmModal
             title="删除令牌"
             desc="确定要删除访问令牌?"
+            loading={deleteAccessLoading}
             onCancel={this.onCanceAccessToken}
             onOk={this.handleDeleteAccessToken}
           />
