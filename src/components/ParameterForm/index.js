@@ -23,14 +23,14 @@ class ParameterForm extends PureComponent {
       WebSocket: !!(props.editInfo && props.editInfo.WebSocket)
     };
   }
-  onChangeWebSocket = e => {
+  onChangeWebSocket = (e) => {
     const { setFieldsValue } = this.props.form;
     this.setState({ WebSocket: !this.state.WebSocket }, () => {
       setFieldsValue({ WebSocket: this.state.WebSocket });
     });
   };
 
-  handleOk = e => {
+  handleOk = (e) => {
     e.preventDefault();
     const { onOk, form } = this.props;
     form.validateFields((err, values) => {
@@ -40,11 +40,17 @@ class ParameterForm extends PureComponent {
     });
   };
   checkContent = (res, value, callback) => {
-    let num = Number(value);
+    const num = Number(value);
     if (num) {
       if (num < 0) {
         callback('最小输入值0');
         return;
+      }
+      if (res.field === 'proxy_body_size') {
+        if (num > 1) {
+          callback('最大输入值1');
+          return;
+        }
       }
       if (num > 65535) {
         callback('最大输入值65535');
@@ -67,6 +73,13 @@ class ParameterForm extends PureComponent {
     };
     const { editInfo } = this.props;
     const { proxyBuffering, WebSocket } = this.state;
+    const customRules = [
+      {
+        pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+        message: '请输入整数'
+      },
+      { validator: this.checkContent }
+    ];
     return (
       <div>
         <Drawer
@@ -140,9 +153,10 @@ class ParameterForm extends PureComponent {
                   {
                     required: true,
                     message: '请输入'
-                  }
+                  },
+                  ...customRules
                 ],
-                initialValue: editInfo ? editInfo.proxy_body_size : '1'
+                initialValue: editInfo ? editInfo.proxy_body_size : '0'
               })(<Input addonAfter="Mb" />)}
             </FormItem>
             <FormItem
@@ -151,13 +165,7 @@ class ParameterForm extends PureComponent {
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_buffer_numbers', {
-                rules: [
-                  {
-                    pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                    message: '请输入数字'
-                  },
-                  { validator: this.checkContent }
-                ],
+                rules: customRules,
                 initialValue: editInfo ? editInfo.proxy_buffer_numbers : '4'
               })(<Input />)}
             </FormItem>
@@ -167,13 +175,7 @@ class ParameterForm extends PureComponent {
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_buffer_size', {
-                rules: [
-                  {
-                    pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                    message: '请输入数字'
-                  },
-                  { validator: this.checkContent }
-                ],
+                rules: customRules,
                 initialValue: editInfo ? editInfo.proxy_buffer_size : '4'
               })(<Input addonAfter="K" placeholder="请输入缓冲区大小" />)}
             </FormItem>
