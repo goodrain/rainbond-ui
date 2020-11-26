@@ -262,12 +262,12 @@ class Index extends PureComponent {
                       },
                       {
                         title: 'CPU',
-                        dataIndex: 'limit_cpu',
-                        key: 'limit_cpu',
+                        dataIndex: 'request_cpu',
+                        key: 'request_cpu',
                         width: '10%',
-                        render: limit_cpu => (
+                        render: val => (
                           <span className={styles.wordText}>
-                            {limit_cpu || ''}
+                            {val || ''}
                           </span>
                         ),
                       },
