@@ -18,8 +18,8 @@ import rainbondUtil from '../../utils/rainbond';
 import ConfirmModal from '../../components/ConfirmModal';
 import CodeMirror from 'react-codemirror';
 
-require('codemirror/mode/yaml/yaml');
-require('codemirror/lib/codemirror.css');
+require('react-codemirror/node_modules/codemirror/mode/yaml/yaml');
+require('react-codemirror/node_modules/codemirror/lib/codemirror.css');
 require('../../styles/codemirror.less');
 
 /* 修改compose内容 */
