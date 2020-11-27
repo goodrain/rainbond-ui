@@ -588,12 +588,18 @@ class TeamLayout extends PureComponent {
               )}
               <Content
                 style={{
-                  margin: '24px 24px 0',
-                  height: '100%',
+                  height: 'calc(100vh - 64px)',
+                  overflow: 'auto',
                   width: autoWidth
                 }}
               >
-                {renderContent()}
+                <div
+                  style={{
+                    margin: '24px 24px 0'
+                  }}
+                >
+                  {renderContent()}
+                </div>
               </Content>
             </Layout>
           </Layout>

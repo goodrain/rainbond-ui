@@ -354,19 +354,25 @@ class EnterpriseLayout extends PureComponent {
               <Content
                 key={eid}
                 style={{
-                  margin: '24px 24px 0',
-                  height: '100%',
+                  height: 'calc(100vh - 64px)',
+                  overflow: 'auto',
                   width: autoWidth
                 }}
               >
-                <Authorized
-                  logined
-                  // authority={children.props.route.authority}
-                  authority={['admin', 'user']}
-                  noMatch={<Redirect to="/user/login" />}
+                <div
+                  style={{
+                    margin: '24px 24px 0'
+                  }}
                 >
-                  {children}
-                </Authorized>
+                  <Authorized
+                    logined
+                    // authority={children.props.route.authority}
+                    authority={['admin', 'user']}
+                    noMatch={<Redirect to="/user/login" />}
+                  >
+                    {children}
+                  </Authorized>
+                </div>
               </Content>
             </Layout>
           </Layout>

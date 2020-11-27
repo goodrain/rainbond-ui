@@ -25,13 +25,12 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import moment from 'moment';
 import numeral from 'numeral';
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { FormattedMessage } from 'umi-plugin-locale';
 import EditGroupName from '../../components/AddOrEditGroup';
 import { ChartCard, MiniArea } from '../../components/Charts';
 import NumberInfo from '../../components/NumberInfo';
 import Result from '../../components/Result';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import configureGlobal from '../../utils/configureGlobal';
 import cookie from '../../utils/cookie';
@@ -553,7 +552,7 @@ export default class Index extends PureComponent {
   handleOkApplication = (vals) => {
     const { dispatch } = this.props;
     dispatch({
-      type: "application/addGroup",
+      type: 'application/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_name: vals.group_name,
@@ -821,7 +820,7 @@ export default class Index extends PureComponent {
 
     const steps = guideutil.getStep(GuideList);
     return (
-      <PageHeaderLayout>
+      <Fragment>
         {loadingOverview && <Spin tip="Loading..." />}
         {!loadingOverview && index.overviewInfo.region_health && (
           <div style={{ margin: '0px -24px 0' }}>
@@ -1026,7 +1025,9 @@ export default class Index extends PureComponent {
                               >
                                 <a style={{ fontSize: '16px' }}>{group_name}</a>
                               </Link>
-                              <span className={styles.timeShow}>{update_time && moment(update_time).fromNow()}</span>
+                              <span className={styles.timeShow}>
+                                {update_time && moment(update_time).fromNow()}
+                              </span>
                               <div className={styles.teamListStyle}>
                                 <div>
                                   <span>组件：</span>
@@ -1213,7 +1214,7 @@ export default class Index extends PureComponent {
               />
             </div>
           )}
-      </PageHeaderLayout>
+      </Fragment>
     );
   }
 }

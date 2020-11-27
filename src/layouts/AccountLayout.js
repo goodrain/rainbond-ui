@@ -21,7 +21,7 @@ import logo from '../../public/logo.png';
 
 const { Content } = Layout;
 let isMobile;
-enquireScreen(b => {
+enquireScreen((b) => {
   isMobile = b;
 });
 class AccountLayout extends PureComponent {
@@ -30,7 +30,7 @@ class AccountLayout extends PureComponent {
     this.state = {
       ready: false,
       isMobiles: isMobile,
-      enterpriseList: [],
+      enterpriseList: []
     };
   }
   componentDidMount() {
@@ -44,19 +44,19 @@ class AccountLayout extends PureComponent {
     dispatch({ type: 'user/fetchCurrent' });
     dispatch({
       type: 'global/fetchEnterpriseList',
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState(
             {
               enterpriseList: res.list,
-              ready: true,
+              ready: true
             },
             () => {
               this.fetchEnterpriseInfo();
             }
           );
         }
-      },
+      }
     });
   };
 
@@ -74,14 +74,14 @@ class AccountLayout extends PureComponent {
   getContext() {
     const { location } = this.props;
     return {
-      location,
+      location
     };
   }
-  handleMenuCollapse = collapsed => {
+  handleMenuCollapse = (collapsed) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/changeLayoutCollapsed',
-      payload: collapsed,
+      payload: collapsed
     });
   };
 
@@ -92,18 +92,18 @@ class AccountLayout extends PureComponent {
       dispatch({
         type: 'global/fetchEnterpriseInfo',
         payload: {
-          enterprise_id: currentUser.enterprise_id,
-        },
+          enterprise_id: currentUser.enterprise_id
+        }
       });
     }
   };
-  fetchEnterpriseService = eid => {
+  fetchEnterpriseService = (eid) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'order/fetchEnterpriseService',
       payload: {
-        enterprise_id: eid,
-      },
+        enterprise_id: eid
+      }
     });
   };
 
@@ -115,7 +115,7 @@ class AccountLayout extends PureComponent {
       collapsed,
       enterprise,
       location,
-      location: { pathname },
+      location: { pathname }
     } = this.props;
 
     const { enterpriseList, isMobiles, ready } = this.state;
@@ -124,7 +124,7 @@ class AccountLayout extends PureComponent {
       return <PageLoading />;
     }
     const queryString = stringify({
-      redirect: window.location.href,
+      redirect: window.location.href
     });
     if (!currentUser || !rainbondInfo || enterpriseList.length === 0) {
       return <Redirect to={`/user/login?${queryString}`} />;
@@ -132,23 +132,23 @@ class AccountLayout extends PureComponent {
 
     const query = {
       'screen-xs': {
-        maxWidth: 575,
+        maxWidth: 575
       },
       'screen-sm': {
         minWidth: 576,
-        maxWidth: 767,
+        maxWidth: 767
       },
       'screen-md': {
         minWidth: 768,
-        maxWidth: 991,
+        maxWidth: 991
       },
       'screen-lg': {
         minWidth: 992,
-        maxWidth: 1199,
+        maxWidth: 1199
       },
       'screen-xl': {
-        minWidth: 1200,
-      },
+        minWidth: 1200
+      }
     };
     const autoWidth = 'calc(100% -48px)';
     const customHeader = () => {
@@ -192,18 +192,24 @@ class AccountLayout extends PureComponent {
             <Content
               key="sdfds"
               style={{
-                margin: '24px 24px 0',
-                height: '100%',
-                width: autoWidth,
+                height: 'calc(100vh - 64px)',
+                overflow: 'auto',
+                width: autoWidth
               }}
             >
-              <Authorized
-                logined
-                authority={['admin', 'user']}
-                noMatch={<Redirect to="/user/login" />}
+              <div
+                style={{
+                  margin: '24px 24px 0'
+                }}
               >
-                {children}
-              </Authorized>
+                <Authorized
+                  logined
+                  authority={['admin', 'user']}
+                  noMatch={<Redirect to="/user/login" />}
+                >
+                  {children}
+                </Authorized>
+              </div>
             </Content>
           </Layout>
         </Layout>
@@ -214,7 +220,7 @@ class AccountLayout extends PureComponent {
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
           <ContainerQuery query={query}>
-            {params => (
+            {(params) => (
               <Context.Provider value={this.getContext()}>
                 <div className={classNames(params)}>{layout()}</div>
               </Context.Provider>
@@ -230,5 +236,5 @@ export default connect(({ user, global, order }) => ({
   currentUser: user.currentUser,
   rainbondInfo: global.rainbondInfo,
   collapsed: global.collapsed,
-  enterprise: global.enterprise,
+  enterprise: global.enterprise
 }))(AccountLayout);

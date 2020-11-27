@@ -272,6 +272,7 @@ export default class SiderMenu extends PureComponent {
         onCollapse={onCollapse}
         width={0}
         collapsedWidth={300}
+        style={{ height: collapsed ? '100%' : '0px' }}
         className={styles.sider}
       >
         <div className={styles.siderLeft}>
