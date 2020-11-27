@@ -1,6 +1,6 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import {
   Alert,
   Button,
@@ -15,18 +15,18 @@ import {
   Steps,
   Table,
   Typography
-} from "antd";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import ACKBuyConfig from "../../components/Cluster/ACKBuyConfig";
-import BaseAddCluster from "../../components/Cluster/BaseAddCluster";
-import KubernetesTableShow from "../../components/Cluster/KubernetesTableShow";
-import RainbondClusterInit from "../../components/Cluster/RainbondClusterInit";
-import SetRegionConfig from "../../components/Cluster/SetRegionConfig";
-import ShowInitRainbondDetail from "../../components/Cluster/ShowInitRainbondDetail";
-import cloud from "../../utils/cloud";
-import userUtil from "../../utils/user";
-import rainbondUtil from "../../utils/rainbond";
-import styles from "./index.less";
+} from 'antd';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import ACKBuyConfig from '../../components/Cluster/ACKBuyConfig';
+import BaseAddCluster from '../../components/Cluster/BaseAddCluster';
+import KubernetesTableShow from '../../components/Cluster/KubernetesTableShow';
+import RainbondClusterInit from '../../components/Cluster/RainbondClusterInit';
+import SetRegionConfig from '../../components/Cluster/SetRegionConfig';
+import ShowInitRainbondDetail from '../../components/Cluster/ShowInitRainbondDetail';
+import cloud from '../../utils/cloud';
+import userUtil from '../../utils/user';
+import rainbondUtil from '../../utils/rainbond';
+import styles from './index.less';
 
 const { Step } = Steps;
 const { Paragraph } = Typography;
@@ -39,20 +39,19 @@ const { Paragraph } = Typography;
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   isRegist: global.isRegist,
-  oauthLongin: loading.effects["global/creatOauth"],
+  oauthLongin: loading.effects['global/creatOauth'],
   overviewInfo: index.overviewInfo
 }))
 export default class EnterpriseClusters extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    const adminer =
-      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
+    const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
       addClusterShow: false,
       showBuyClusterConfig: false,
-      selectProvider: "ack",
+      selectProvider: 'ack',
       currentStep: 0,
       k8sClusters: [],
       providerAccess: {},
@@ -92,17 +91,17 @@ export default class EnterpriseClusters extends PureComponent {
       }
     } = this.props;
     dispatch({
-      type: "cloud/getAccessKey",
+      type: 'cloud/getAccessKey',
       payload: {
         enterprise_id: eid,
         provider_name: selectProvider
       },
-      callback: access => {
+      callback: (access) => {
         this.setState({ providerAccess: access });
       }
     });
   };
-  setProvider = value => {
+  setProvider = (value) => {
     this.setState({ selectProvider: value });
   };
   setAccessKey = () => {
@@ -119,14 +118,14 @@ export default class EnterpriseClusters extends PureComponent {
       }
       this.setState({ loading: true });
       dispatch({
-        type: "cloud/setAccessKey",
+        type: 'cloud/setAccessKey',
         payload: {
           enterprise_id: eid,
           provider_name: selectProvider,
           access_key: fieldsValue.access_key,
           secret_key: fieldsValue.secret_key
         },
-        callback: access => {
+        callback: (access) => {
           if (access) {
             // load clusters
             this.loadKubernetesCluster();
@@ -135,7 +134,7 @@ export default class EnterpriseClusters extends PureComponent {
       });
     });
   };
-  startInit = clusterID => {
+  startInit = (clusterID) => {
     this.setState({ selectClusterID: clusterID, currentStep: 2 });
   };
   loadRunningInitTasks = () => {
@@ -146,18 +145,18 @@ export default class EnterpriseClusters extends PureComponent {
       }
     } = this.props;
     dispatch({
-      type: "cloud/loadRunningInitRainbondTasks",
+      type: 'cloud/loadRunningInitRainbondTasks',
       payload: {
         enterprise_id: eid
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState({
             runningInitTasks: data.tasks
           });
         }
       },
-      handleError: res => {
+      handleError: (res) => {
         cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       }
@@ -172,12 +171,12 @@ export default class EnterpriseClusters extends PureComponent {
     } = this.props;
     const { selectProvider } = this.state;
     dispatch({
-      type: "cloud/loadKubereneteClusters",
+      type: 'cloud/loadKubereneteClusters',
       payload: {
         enterprise_id: eid,
         provider_name: selectProvider
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState({
             k8sClusters: data.clusters,
@@ -189,7 +188,7 @@ export default class EnterpriseClusters extends PureComponent {
           this.setState({ loading: false });
         }
       },
-      handleError: res => {
+      handleError: (res) => {
         cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       }
@@ -205,7 +204,7 @@ export default class EnterpriseClusters extends PureComponent {
   addClusterShow = () => {
     this.setState({
       addClusterShow: true,
-      text: "添加集群"
+      text: '添加集群'
     });
   };
   addClusterOK = () => {
@@ -224,24 +223,24 @@ export default class EnterpriseClusters extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: "选择供应商"
+        title: '选择供应商'
       },
       {
-        title: "选择(创建)Kubernetes集群"
+        title: '选择(创建)Kubernetes集群'
       },
       {
-        title: "初始化Rainbond集群"
+        title: '初始化Rainbond集群'
       },
       {
-        title: "完成对接"
+        title: '完成对接'
       }
     ];
     return steps;
   };
-  showInitTaskDetail = selectTask => {
+  showInitTaskDetail = (selectTask) => {
     this.setState({ showInitTaskDetail: true, initTask: selectTask });
   };
-  completeInit = task => {
+  completeInit = (task) => {
     this.setState({
       currentStep: 3,
       selectProvider: task.providerName,
@@ -267,27 +266,27 @@ export default class EnterpriseClusters extends PureComponent {
     });
     const columns = [
       {
-        title: "提供商",
-        dataIndex: "providerName",
-        render: text => {
+        title: '提供商',
+        dataIndex: 'providerName',
+        render: (text) => {
           return cloud.getProviderShowName(text);
         }
       },
       {
-        title: "集群ID",
-        dataIndex: "clusterID"
+        title: '集群ID',
+        dataIndex: 'clusterID'
       },
       {
-        title: "状态",
-        dataIndex: "status",
-        render: text => {
+        title: '状态',
+        dataIndex: 'status',
+        render: (text) => {
           return cloud.getTaskStatus(text);
         }
       },
       {
-        title: "操作",
-        key: "method",
-        dataIndex: "",
+        title: '操作',
+        key: 'method',
+        dataIndex: '',
         render: (text, row) => {
           return (
             <div>
@@ -299,7 +298,7 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 查看进度
               </Button>
-              {row.status == "inited" && (
+              {row.status == 'inited' && (
                 <Button
                   type="link"
                   onClick={() => {
@@ -328,7 +327,7 @@ export default class EnterpriseClusters extends PureComponent {
         xs: { span: 24 },
         sm: { span: 24 }
       },
-      labelAlign: "left"
+      labelAlign: 'left'
     };
     return (
       <Form {...formItemLayout}>
@@ -344,10 +343,10 @@ export default class EnterpriseClusters extends PureComponent {
               <li>
                 <span>
                   确保以下服务已开通或授权已授予：
-                  {cloud.getAliyunCountDescribe().map(item => {
+                  {cloud.getAliyunCountDescribe().map((item) => {
                     return (
                       <a
-                        style={{ marginRight: "8px" }}
+                        style={{ marginRight: '8px' }}
                         href={item.href}
                         target="_blank"
                       >
@@ -390,27 +389,27 @@ export default class EnterpriseClusters extends PureComponent {
             </ul>
           </Paragraph>
         </Col>
-        <Col span={8} style={{ padding: "16px" }}>
+        <Col span={8} style={{ padding: '16px' }}>
           <Form.Item name="access_key" label="Access Key">
-            {getFieldDecorator("access_key", {
-              initialValue: providerAccess.access_key || "",
+            {getFieldDecorator('access_key', {
+              initialValue: providerAccess.access_key || '',
               rules: [
                 {
                   required: true,
-                  message: "请提供具有足够权限的Access Key"
+                  message: '请提供具有足够权限的Access Key'
                 }
               ]
             })(<Input placeholder="Access Key" />)}
           </Form.Item>
         </Col>
-        <Col span={8} style={{ padding: "16px" }}>
+        <Col span={8} style={{ padding: '16px' }}>
           <Form.Item name="secret_key" label="Secret Key">
-            {getFieldDecorator("secret_key", {
-              initialValue: providerAccess.secret_key || "",
+            {getFieldDecorator('secret_key', {
+              initialValue: providerAccess.secret_key || '',
               rules: [
                 {
                   required: true,
-                  message: "请提供具有足够权限的Secret Key"
+                  message: '请提供具有足够权限的Secret Key'
                 }
               ]
             })(<Input type="password" placeholder="Secret Key" />)}
@@ -486,7 +485,7 @@ export default class EnterpriseClusters extends PureComponent {
       >
         {K8sCluster && (
           <Alert
-            style={{ marginBottom: "16px" }}
+            style={{ marginBottom: '16px' }}
             message="欢迎您成为Rainbond Cloud用户，在开始您的云应用管理之旅之前，您首先需要完成资源的对接准备，我们为你提供了以下两种方式作为选择，如有任何疑问，请与我们联系（直接联系电话: 18501030060）"
             type="info"
             showIcon
@@ -510,7 +509,7 @@ export default class EnterpriseClusters extends PureComponent {
         </Card>
 
         {K8sCluster && (
-          <Card style={{ marginTop: "16px" }}>
+          <Card style={{ marginTop: '16px' }}>
             <Row>
               <h3>从云服务商托管Kubernetes集群开始添加</h3>
               <Divider />
@@ -518,14 +517,14 @@ export default class EnterpriseClusters extends PureComponent {
               {runningInitTasks &&
                 runningInitTasks.length > 0 &&
                 currentStep == 0 && (
-                  <Row style={{ marginBottom: "32px", padding: "0 16px" }}>
+                  <Row style={{ marginBottom: '32px', padding: '0 16px' }}>
                     <h4>正在初始化的集群</h4>
                     {runningTasks}
                   </Row>
                 )}
 
               <Steps current={currentStep}>
-                {this.loadSteps().map(item => (
+                {this.loadSteps().map((item) => (
                   <Step key={item.title} title={item.title} />
                 ))}
               </Steps>
@@ -533,8 +532,8 @@ export default class EnterpriseClusters extends PureComponent {
             {currentStep == 0 && (
               <Row>
                 {/* provider list */}
-                <Row style={{ marginTop: "32px" }}>
-                  {providers.map(item => {
+                <Row style={{ marginTop: '32px' }}>
+                  {providers.map((item) => {
                     return (
                       <Col
                         key={item.id}
@@ -544,7 +543,7 @@ export default class EnterpriseClusters extends PureComponent {
                           }
                         }}
                         span={8}
-                        style={{ padding: "16px" }}
+                        style={{ padding: '16px' }}
                       >
                         <Row
                           className={[
@@ -575,12 +574,12 @@ export default class EnterpriseClusters extends PureComponent {
                   })}
                 </Row>
                 {/* user key info */}
-                <Row style={{ marginTop: "32px", padding: "0 16px" }}>
+                <Row style={{ marginTop: '32px', padding: '0 16px' }}>
                   <h4>账户设置</h4>
                   {aliyunAcountSetting}
                 </Row>
                 <Row justify="center">
-                  <Col style={{ textAlign: "center" }} span={24}>
+                  <Col style={{ textAlign: 'center' }} span={24}>
                     <Button
                       loading={loading}
                       onClick={this.setAccessKey}
@@ -593,7 +592,7 @@ export default class EnterpriseClusters extends PureComponent {
               </Row>
             )}
             {currentStep == 1 && !showBuyClusterConfig && (
-              <Row style={{ marginTop: "32px" }}>
+              <Row style={{ marginTop: '32px' }}>
                 {k8sClusters && k8sClusters.length > 0 && <h4>选择已有集群</h4>}
                 {k8sClusters && k8sClusters.length > 0 ? (
                   <KubernetesTableShow
@@ -609,7 +608,7 @@ export default class EnterpriseClusters extends PureComponent {
                   <Empty description="暂无可用集群,如果集群确实存在，请确认AccessKey是否赋予集群管理权限">
                     <Button
                       onClick={this.preStep}
-                      style={{ marginRight: "16px" }}
+                      style={{ marginRight: '16px' }}
                     >
                       上一步
                     </Button>
@@ -621,7 +620,7 @@ export default class EnterpriseClusters extends PureComponent {
               </Row>
             )}
             {currentStep == 1 && showBuyClusterConfig && (
-              <Row style={{ marginTop: "32px" }}>
+              <Row style={{ marginTop: '32px' }}>
                 <h4>购买集群配置</h4>
                 <ACKBuyConfig
                   eid={eid}
@@ -631,7 +630,7 @@ export default class EnterpriseClusters extends PureComponent {
               </Row>
             )}
             {currentStep == 2 && selectClusterID && (
-              <Row style={{ marginTop: "32px" }}>
+              <Row style={{ marginTop: '32px' }}>
                 <RainbondClusterInit
                   eid={eid}
                   loadRuningTasks={this.loadRunningInitTasks}
@@ -697,7 +696,7 @@ export default class EnterpriseClusters extends PureComponent {
                       fill="#326CE5"
                       p-id="4913"
                     />
-                  </svg>{" "}
+                  </svg>{' '}
                   管理您的公有云资源，实现自动化云原生运维
                 </span>
                 <Paragraph className={styles.describe}>
@@ -739,7 +738,7 @@ export default class EnterpriseClusters extends PureComponent {
                 </Paragraph>
               </div>
             </div>
-            <p style={{ marginTop: "16px" }}>
+            <p style={{ marginTop: '16px' }}>
               我们有专业工程师协助您对接您的计算资源，并辅助您实现DevOps流程、企业中台、企业客户交付、多云管理等体验流程。
             </p>
             <p>
@@ -751,7 +750,7 @@ export default class EnterpriseClusters extends PureComponent {
                 Cloud产品说明
               </a>
             </p>
-            <p style={{ textAlign: "center" }}>
+            <p style={{ textAlign: 'center' }}>
               <Button onClick={this.hideInitShow} type="primary">
                 我已知晓，开始体验
               </Button>

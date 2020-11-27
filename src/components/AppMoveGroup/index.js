@@ -5,7 +5,6 @@ import { Form, notification, Modal, Select } from 'antd';
 const FormItem = Form.Item;
 const { Option } = Select;
 
-/* 转移到其他应用组 */
 
 @Form.create()
 export default class MoveGroup extends PureComponent {
@@ -15,7 +14,7 @@ export default class MoveGroup extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       if (fieldsValue.group_id === currGroupID) {
-        notification.warning({ message: '不能选择当前所在组' });
+        notification.warning({ message: '不能选择当前所在应用' });
         return;
       }
       this.props.onOk(fieldsValue.group_id);
@@ -28,7 +27,7 @@ export default class MoveGroup extends PureComponent {
 
     return (
       <Modal
-        title="修改应用所属组"
+        title="修改组件所属应用"
         visible
         confirmLoading={loading}
         onOk={this.handleSubmit}

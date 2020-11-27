@@ -8,6 +8,8 @@ if [ -z "$VERSION" ];then
 fi
 
 BUILD_RBD_APP_UI=${BUILD_RBD_APP_UI:-true} 
+DOMESTIC_BASE_NAME=${DOMESTIC_BASE_NAME:-'registry.cn-hangzhou.aliyuncs.com'}
+DOMESTIC_NAMESPACE=${DOMESTIC_NAMESPACE:-'goodrain'}
 
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
 docker build -t "rainbond/rainbond-ui:$VERSION" .

@@ -2,22 +2,26 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-shadow */
 /* eslint-disable react/no-unused-state */
-import React, { PureComponent } from 'react';
+import { Alert, Button, Col, Drawer, Icon, Row } from 'antd';
 import { connect } from 'dva';
-import { Row, Col, Button, Icon, Drawer, Alert } from 'antd';
-import styles from './Index.less';
-import Custom from '../Create/code-custom';
-import Check from '../Create/create-check';
-import ImageName from '../Create/image-name';
-import ImageCmd from '../Create/image-cmd';
-import Market from '../Create/market';
-import rainbondUtil from '../../utils/rainbond';
-import { languageObj } from '../../utils/utils';
-import oauthUtil from '../../utils/oauth';
+import React, { PureComponent } from 'react';
 import CodeGitRepostory from '../../components/GitRepostory';
 import globalUtil from '../../utils/global';
+import oauthUtil from '../../utils/oauth';
+import rainbondUtil from '../../utils/rainbond';
+import { languageObj } from '../../utils/utils';
+import Custom from '../Create/code-custom';
+import Check from '../Create/create-check';
+import ImageCmd from '../Create/image-cmd';
+import ImageName from '../Create/image-name';
+import Market from '../Create/market';
+import styles from './Index.less';
 
-@connect(({ global }) => ({
+@connect(({ user, application, global }) => ({
+  currUser: user.currentUser,
+  apps: application.apps,
+  groupDetail: application.groupDetail || {},
+  groups: global.groups || [],
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise
 }))
@@ -283,6 +287,7 @@ export default class AddServiceComponent extends PureComponent {
                                 key={key}
                                 href={languageObj[key]}
                                 target="_blank"
+                                rel="noopener noreferrer"
                               >
                                 {key}
                               </a>

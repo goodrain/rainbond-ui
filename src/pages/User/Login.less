@@ -1,16 +1,19 @@
-@import "~antd/lib/style/themes/default.less";
+@import '~antd/lib/style/themes/default.less';
 
 .main {
-  width : 400px;
+  width: 380px;
   margin: 0 auto;
-
+  & > h3 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
   .icon {
-    font-size     : 24px;
-    color         : rgba(0, 0, 0, 0.2);
-    margin-left   : 16px;
+    font-size: 24px;
+    color: rgba(0, 0, 0, 0.2);
+    margin-left: 16px;
     vertical-align: middle;
-    cursor        : pointer;
-    transition    : color .3s;
+    cursor: pointer;
+    transition: color 0.3s;
 
     &:hover {
       color: @primary-color;
@@ -18,8 +21,8 @@
   }
 
   .other {
-    text-align : left;
-    margin-top : 24px;
+    text-align: left;
+    margin-top: 24px;
     line-height: 22px;
 
     .register {
@@ -30,9 +33,9 @@
 
 .boxJump {
   background: #fff;
-  font-size : 12px;
+  font-size: 12px;
   text-align: center;
-  padding   : 8px 0;
+  padding: 8px 0;
 
   a {
     color: #000;
@@ -45,23 +48,20 @@
 
 .thirdLoadingTitle {
   font-size: 14px;
-  color    : #333 !important;
+  color: #333 !important;
 }
 
 .third {
   display: flex;
+  align-items: center;
   justify-content: center;
-  &>div {
-    text-align: center;
-
-    i {
-      font-size: 20px
-    }
-
-    img {
-      width : 18px;
-      height: 18px;
-    }
+  flex-wrap: wrap;
+  & > div {
+    margin-left: 20px;
+    margin-bottom: 20px;
+  }
+  & > div:nth-of-type(1) {
+    margin-left: 0;
   }
 }
 
@@ -70,7 +70,7 @@
     overflow: inherit !important;
   }
 
-  cursor  : pointer;
+  cursor: pointer;
   overflow: hidden;
 
   a {

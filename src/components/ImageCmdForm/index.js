@@ -59,7 +59,7 @@ export default class Index extends PureComponent {
     const { setFieldsValue } = this.props.form;
 
     this.props.dispatch({
-      type: "groupControl/addGroup",
+      type: "application/addGroup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...vals

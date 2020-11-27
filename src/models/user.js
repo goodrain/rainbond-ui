@@ -36,6 +36,7 @@ export default {
 
   state: {
     list: [],
+    collectionList: [],
     currentUser: null,
     notifyCount: 0,
     register: null
@@ -116,9 +117,10 @@ export default {
       }
     },
     // 收藏视图列表
-    *fetchCollectionViewInfo({ payload, callback }, { call }) {
+    *fetchCollectionViewInfo({ payload, callback }, { call, put }) {
       const response = yield call(queryCollectionViewInfo, payload);
       if (response) {
+        yield put({ type: 'saveCollectionList', payload: response });
         callback && callback(response);
       }
     },
@@ -317,6 +319,12 @@ export default {
       return {
         ...state,
         list: action.payload
+      };
+    },
+    saveCollectionList(state, action) {
+      return {
+        ...state,
+        collectionList: action.payload.list
       };
     },
     saveCurrentUser(state, action) {

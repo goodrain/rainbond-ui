@@ -18,8 +18,8 @@ import rainbondUtil from '../../utils/rainbond';
 import ConfirmModal from '../../components/ConfirmModal';
 import CodeMirror from 'react-codemirror';
 
-require('react-codemirror/node_modules/codemirror/mode/yaml/yaml');
-require('react-codemirror/node_modules/codemirror/lib/codemirror.css');
+require('codemirror/mode/yaml/yaml');
+require('codemirror/lib/codemirror.css');
 require('../../styles/codemirror.less');
 
 /* 修改compose内容 */
@@ -298,7 +298,7 @@ export default class CreateCheck extends PureComponent {
     const appDetail = this.state.appDetail;
     const params = this.getParams();
     this.props.dispatch({
-      type: 'groupControl/buildCompose',
+      type: 'application/buildCompose',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...params,
@@ -507,7 +507,7 @@ export default class CreateCheck extends PureComponent {
   handleModifyCompose = vals => {
     const params = this.getParams();
     this.props.dispatch({
-      type: 'groupControl/editAppCreateCompose',
+      type: 'application/editAppCreateCompose',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: params.group_id,
@@ -533,7 +533,7 @@ export default class CreateCheck extends PureComponent {
   handleDelete = () => {
     const params = this.getParams();
     this.props.dispatch({
-      type: 'groupControl/deleteCompose',
+      type: 'application/deleteCompose',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...params,

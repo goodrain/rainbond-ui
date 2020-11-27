@@ -83,7 +83,7 @@ class BackupStatus extends PureComponent {
 
   startLoopStatus() {
     this.props.dispatch({
-      type: "groupControl/fetchBackupStatus",
+      type: "application/fetchBackupStatus",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         backup_id: this.props.data.backup_id,
@@ -285,7 +285,7 @@ export default class AppList extends PureComponent {
   fetchBackup = () => {
     const { teamName, appID } = this.props.match.params;
     this.props.dispatch({
-      type: "groupControl/fetchBackup",
+      type: "application/fetchBackup",
       payload: {
         team_name: teamName,
         group_id: appID,
@@ -309,7 +309,7 @@ export default class AppList extends PureComponent {
   };
   handleBackup = data => {
     this.props.dispatch({
-      type: "groupControl/backup",
+      type: "application/backup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
@@ -345,7 +345,7 @@ export default class AppList extends PureComponent {
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: "groupControl/fetchGroupDetail",
+      type: "application/fetchGroupDetail",
       payload: {
         team_name: teamName,
         region_name: regionName,
@@ -436,7 +436,7 @@ export default class AppList extends PureComponent {
   };
   handleDelete = () => {
     this.props.dispatch({
-      type: "groupControl/delBackup",
+      type: "application/delBackup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
