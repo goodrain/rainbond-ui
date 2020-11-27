@@ -35,6 +35,7 @@ export default class Index extends PureComponent {
     this.state = {
       currStep: this.props.currStep || 0,
       loading: false,
+      alertText: false,
       marketUrl: '',
       accessKey: '',
       marketList: [],
@@ -139,16 +140,42 @@ export default class Index extends PureComponent {
     const { form } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
-        this.setState(
-          {
-            marketUrl: values.url,
-            currStep: 2
-          },
-          () => {
-            this.handleClose();
-          }
-        );
+        this.handleIsCloudAppStoreUrl(values.url);
       }
+    });
+  };
+  handleIsCloudAppStoreUrl = (url) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'market/detectionAddress',
+      payload: {
+        url
+      },
+      callback: (res) => {
+        if (res && res.isRainstore) {
+          this.setState(
+            {
+              marketUrl: values.url,
+              currStep: 2,
+              alertText: false
+            },
+            () => {
+              this.handleClose();
+            }
+          );
+        } else {
+          this.handleNoCloudAppStoreUrl();
+        }
+      },
+      handleError: () => {
+        this.handleNoCloudAppStoreUrl();
+      }
+    });
+  };
+  handleNoCloudAppStoreUrl = () => {
+    this.setState({
+      alertText: '应用市场不可用，请检查应用市场地址，或联系应用市场的管理员',
+      loading: false
     });
   };
   handleOkMarkets = () => {
@@ -252,7 +279,13 @@ export default class Index extends PureComponent {
     this.props.dispatch({ type: 'global/hideAuthCompany' });
   };
   render() {
-    const { currStep: step, loading, marketList, marketUrl } = this.state;
+    const {
+      currStep: step,
+      loading,
+      marketList,
+      marketUrl,
+      alertText
+    } = this.state;
     const {
       title = '企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
       onCancel,
@@ -308,7 +341,6 @@ export default class Index extends PureComponent {
               />
             </div>
           )}
-
           {step !== 2 && (
             <div
               style={{
@@ -342,6 +374,13 @@ export default class Index extends PureComponent {
                     <p style={{ fontSize: '18px', marginBottom: '40px' }}>
                       请填写需要进行绑定的应用市场的URL
                     </p>
+                    {alertText && (
+                      <Alert
+                        style={{ margin: '-20px 0 20px 0' }}
+                        message={alertText}
+                        type="info"
+                      />
+                    )}
                     <Form>
                       <Form.Item {...formItemLayout} label="">
                         {getFieldDecorator('url', {
@@ -400,7 +439,10 @@ export default class Index extends PureComponent {
                                     key={url}
                                     style={{ position: 'relative', padding: 0 }}
                                   >
-                                    <Checkbox value={domain}   style={{ width: '400px' }}>
+                                    <Checkbox
+                                      value={domain}
+                                      style={{ width: '400px' }}
+                                    >
                                       <Card className={PluginStyles.cards}>
                                         <Card.Meta
                                           className={PluginStyles.cardsMetas}
