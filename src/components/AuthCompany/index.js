@@ -151,25 +151,31 @@ export default class Index extends PureComponent {
       payload: {
         url
       },
-      callback: () => {
-        this.setState(
-          {
-            marketUrl: values.url,
-            currStep: 2,
-            alertText: false
-          },
-          () => {
-            this.handleClose();
-          }
-        );
+      callback: (res) => {
+        if (res && res.isRainstore) {
+          this.setState(
+            {
+              marketUrl: values.url,
+              currStep: 2,
+              alertText: false
+            },
+            () => {
+              this.handleClose();
+            }
+          );
+        } else {
+          this.handleNoCloudAppStoreUrl();
+        }
       },
-      handleError: (res) => {
-        this.setState({
-          alertText:
-            '应用市场不可用，请检查应用市场地址，或联系应用市场的管理员',
-          loading: false
-        });
+      handleError: () => {
+        this.handleNoCloudAppStoreUrl();
       }
+    });
+  };
+  handleNoCloudAppStoreUrl = () => {
+    this.setState({
+      alertText: '应用市场不可用，请检查应用市场地址，或联系应用市场的管理员',
+      loading: false
     });
   };
   handleOkMarkets = () => {
