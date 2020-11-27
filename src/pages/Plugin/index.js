@@ -1,7 +1,7 @@
 /* eslint-disable react/no-multi-comp */
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Card, Button, Icon, List, notification } from 'antd';
+import { Card, Button, Icon, List, notification, Modal } from 'antd';
 import { Link, routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
@@ -13,6 +13,7 @@ import Manage from './manage';
 import ConfirmModal from '../../components/ConfirmModal';
 import MarketPluginDetailShow from '../../components/MarketPluginDetailShow';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+const { confirm } = Modal;
 
 class MarketPlugin extends PureComponent {
   constructor(props) {
@@ -165,10 +166,11 @@ class MarketPlugin extends PureComponent {
   }
 }
 
-@connect(({ teamControl, enterprise }) => ({
+@connect(({ teamControl, enterprise, loading }) => ({
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
-  currentEnterprise: enterprise.currentEnterprise
+  currentEnterprise: enterprise.currentEnterprise,
+  deletePluginLoading: loading.effects['plugin/deletePlugin']
 }))
 class PluginList extends PureComponent {
   constructor(arg) {
@@ -176,7 +178,8 @@ class PluginList extends PureComponent {
     this.state = {
       defaultList: [],
       list: [],
-      deletePlugin: null
+      deletePlugin: null,
+      pluginInfo: null
     };
     this.timer = null;
   }
@@ -185,7 +188,7 @@ class PluginList extends PureComponent {
   }
 
   onDeletePlugin = (plugin) => {
-    this.setState({ deletePlugin: plugin });
+    this.setState({ deletePlugin: plugin, pluginInfo: plugin });
   };
   onInstallPlugin = (item) => {
     this.props.dispatch({
@@ -309,12 +312,16 @@ class PluginList extends PureComponent {
       )
     );
   };
-  hanldeDeletePlugin = () => {
+  hanldeDeletePlugin = (isForce) => {
+    const { pluginInfo, deletePlugin } = this.state;
     this.props.dispatch({
       type: 'plugin/deletePlugin',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        plugin_id: this.state.deletePlugin.plugin_id
+        is_force: isForce,
+        plugin_id:
+          (deletePlugin && deletePlugin.plugin_id) ||
+          (pluginInfo && pluginInfo.plugin_id)
       },
       callback: (res) => {
         if (res && res._code === 200) {
@@ -322,6 +329,17 @@ class PluginList extends PureComponent {
         }
         this.fetchDefaultPlugin();
         this.cancelDeletePlugin();
+        this.cancelDeletePluginInfo();
+      },
+      handleError: (res) => {
+        if (res && res.data.code === 20600) {
+          this.handlePlugIn();
+          this.cancelDeletePlugin();
+        } else {
+          notification.warning({
+            message: res.data.msg_show
+          });
+        }
       }
     });
   };
@@ -329,12 +347,33 @@ class PluginList extends PureComponent {
   cancelDeletePlugin = () => {
     this.setState({ deletePlugin: null });
   };
+  cancelDeletePluginInfo = () => {
+    this.setState({ pluginInfo: null });
+  };
+
+  handlePlugIn = () => {
+    const th = this;
+    confirm({
+      title: '该插件有组件使用',
+      content: '是否强制删除',
+      okText: '确认',
+      cancelText: '取消',
+      onOk() {
+        th.hanldeDeletePlugin(true);
+        return new Promise((resolve, reject) => {
+          setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
+        }).catch(() => console.log('Oops errors!'));
+      }
+    });
+  };
+
   render() {
     const {
       currentEnterprise,
       currentTeam,
       currentRegionName,
-      operationPermissions
+      operationPermissions,
+      deletePluginLoading
     } = this.props;
     const { list } = this.state;
     const content = (
@@ -425,10 +464,13 @@ class PluginList extends PureComponent {
           />
           {this.state.deletePlugin && (
             <ConfirmModal
-              onOk={this.hanldeDeletePlugin}
-              onCancel={this.cancelDeletePlugin}
               title="删除插件"
               desc="确定要删除此插件吗？"
+              loading={deletePluginLoading}
+              onOk={() => {
+                this.hanldeDeletePlugin(false);
+              }}
+              onCancel={this.cancelDeletePlugin}
             />
           )}
         </div>

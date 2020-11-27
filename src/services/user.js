@@ -9,10 +9,11 @@ export async function fetchAccessToken() {
 }
 /* New access to token data */
 
-export async function addAccessToken(data) {
+export async function addAccessToken(data, handleError) {
   return request(`${apiconfig.baseUrl}/console/users/access-token`, {
     method: 'post',
-    data
+    data,
+    handleError
   });
 }
 /* Update access token data */
