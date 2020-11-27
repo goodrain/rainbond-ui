@@ -5,32 +5,32 @@ import cookie from '../../utils/cookie';
 import apiconfig from '../../../config/api.config';
 import globalUtil from '../../utils/global';
 
-require('react-codemirror/node_modules/codemirror/lib/codemirror.css');
+require('codemirror/lib/codemirror.css');
 
-require('react-codemirror/node_modules/codemirror/theme/seti.css');
-require('react-codemirror/node_modules/codemirror/addon/display/fullscreen.css');
+require('codemirror/theme/seti.css');
+require('codemirror/addon/display/fullscreen.css');
 require('../../styles/codemirror.less');
 
-require('react-codemirror/node_modules/codemirror/addon/display/panel');
-require('react-codemirror/node_modules/codemirror/mode/javascript/javascript');
-require('react-codemirror/node_modules/codemirror/mode/yaml/yaml');
-require('react-codemirror/node_modules/codemirror/addon/display/fullscreen');
-require('react-codemirror/node_modules/codemirror/addon/edit/matchbrackets');
+require('codemirror/addon/display/panel');
+require('codemirror/mode/javascript/javascript');
+require('codemirror/mode/yaml/yaml');
+require('codemirror/addon/display/fullscreen');
+require('codemirror/addon/edit/matchbrackets');
 
 class CodeMirrorForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      fullScreen: false,
+      fullScreen: false
     };
     this.CodeMirrorRef = '';
   }
 
-  saveRef = ref => {
+  saveRef = (ref) => {
     this.CodeMirrorRef = ref;
   };
 
-  handleChangeUpload = info => {
+  handleChangeUpload = (info) => {
     const { beforeUpload } = this.props;
     if (beforeUpload) {
       if (beforeUpload(info.file, false)) {
@@ -41,7 +41,7 @@ class CodeMirrorForm extends PureComponent {
 
     return this.handleFile(info);
   };
-  handleFile = info => {
+  handleFile = (info) => {
     let fileList = [...info.fileList];
     if (fileList.length > 0) {
       fileList = fileList.slice(-1);
@@ -49,7 +49,7 @@ class CodeMirrorForm extends PureComponent {
     }
   };
 
-  readFileContents = fileList => {
+  readFileContents = (fileList) => {
     let fileString = '';
     const { CodeMirrorRef } = this;
     const { name, setFieldsValue } = this.props;
@@ -57,11 +57,11 @@ class CodeMirrorForm extends PureComponent {
       const reader = new FileReader(); // 新建一个FileReader
       reader.readAsText(fileList[i].originFileObj, 'UTF-8'); // 读取文件
       // eslint-disable-next-line no-loop-func
-      reader.onload = evt => {
+      reader.onload = (evt) => {
         // 读取完文件之后会回来这里
         fileString += evt.target.result; // 读取文件内容
         setFieldsValue({
-          [name]: fileString,
+          [name]: fileString
         });
         if (CodeMirrorRef) {
           const editor = CodeMirrorRef.getCodeMirror();
@@ -84,7 +84,7 @@ class CodeMirrorForm extends PureComponent {
       mode,
       action,
       beforeUpload,
-      titles,
+      titles
     } = this.props;
     const { fullScreen } = this.state;
     let defaultFullScreenStyle = {
@@ -95,7 +95,7 @@ class CodeMirrorForm extends PureComponent {
       textAlign: 'right',
       background: '#333',
       lineHeight: '1px',
-      padding: '9px 0 6px 0',
+      padding: '9px 0 6px 0'
     };
 
     if (fullScreen) {
@@ -103,13 +103,13 @@ class CodeMirrorForm extends PureComponent {
         position: 'fixed',
         right: '5px',
         width: '100%',
-        zIndex: 99,
+        zIndex: 99
       });
     } else {
       defaultFullScreenStyle = Object.assign(defaultFullScreenStyle, {
         position: 'absolute',
         width,
-        zIndex: 4,
+        zIndex: 4
       });
     }
 
@@ -122,7 +122,7 @@ class CodeMirrorForm extends PureComponent {
       smartIndent: true,
       matchBrackets: true,
       scrollbarStyle: null,
-      showCursorWhenSelecting: true,
+      showCursorWhenSelecting: true
     };
 
     const token = cookie.get('token');
@@ -135,7 +135,7 @@ class CodeMirrorForm extends PureComponent {
       >
         {getFieldDecorator(name, {
           initialValue: data || '',
-          rules: [{ required: true, message }],
+          rules: [{ required: true, message }]
         })(<CodeMirror options={options} ref={this.saveRef} />)}
         <div style={defaultFullScreenStyle}>
           <div
