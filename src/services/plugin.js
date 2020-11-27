@@ -5,7 +5,7 @@ import apiconfig from '../../config/api.config';
 export async function installMarketPlugin(body = { plugin_id }) {
   return request(`${apiconfig.baseUrl}/console/market/plugins/install`, {
     method: 'POST',
-    data: body,
+    data: body
   });
 }
 
@@ -15,7 +15,7 @@ export async function getUnInstalledPlugin(
 ) {
   return request(`${apiconfig.baseUrl}/console/plugins/installable`, {
     method: 'get',
-    params: body,
+    params: body
   });
 }
 
@@ -26,7 +26,7 @@ export async function startShareOneEvent(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugin-share/${body.shareId}/events/${body.eventId}`,
     {
-      method: 'post',
+      method: 'post'
     }
   );
 }
@@ -38,7 +38,7 @@ export async function getShareOneEventInfo(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugin-share/${body.shareId}/events/${body.eventId}`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -50,7 +50,7 @@ export async function getShareEventInfo(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugin-share/${body.shareId}/events`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -64,8 +64,8 @@ export async function submitSharePlugin(body = {}) {
     {
       method: 'post',
       data: {
-        share_plugin_info: body.share_plugin_info,
-      },
+        share_plugin_info: body.share_plugin_info
+      }
     }
   );
 }
@@ -77,13 +77,13 @@ export async function getPluginShareInfo(
   body = {
     team_name,
     pluginId,
-    shareId,
+    shareId
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugin-share/${body.shareId}`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -94,13 +94,13 @@ export async function getPluginShareInfo(
 export async function giveupSharePlugin(
   body = {
     team_name,
-    plugin_id,
+    plugin_id
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugin-share/${body.share_id}`,
     {
-      method: 'delete',
+      method: 'delete'
     }
   );
 }
@@ -111,13 +111,13 @@ export async function giveupSharePlugin(
 export async function sharePlugin(
   body = {
     team_name,
-    plugin_id,
+    plugin_id
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/${body.plugin_id}/share/record`,
     {
-      method: 'post',
+      method: 'post'
     }
   );
 }
@@ -128,13 +128,13 @@ export async function sharePlugin(
 export async function getShareRecord(
   body = {
     team_name,
-    plugin_id,
+    plugin_id
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/${body.plugin_id}/share/record`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -144,7 +144,7 @@ export async function getShareRecord(
 */
 export async function getMyPlugins(
   body = {
-    team_name,
+    team_name
   }
 ) {
   return request(
@@ -166,14 +166,14 @@ export async function createPlugin(
     image,
     code_repo,
     code_version,
-    desc,
+    desc
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins`,
     {
       method: 'post',
-      data: body,
+      data: body
     }
   );
 }
@@ -181,15 +181,16 @@ export async function createPlugin(
 /*
 	删除插件
 */
-export async function deletePlugin(
-  body = {
-    team_name,
-    plugin_id,
-  }
-) {
+export async function deletePlugin(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/${body.plugin_id}`,
-    { method: 'delete' }
+    {
+      method: 'delete',
+      data: {
+        is_force: body.is_force
+      },
+      handleError
+    }
   );
 }
 
@@ -199,7 +200,7 @@ export async function deletePlugin(
 export async function getPluginInfo(
   body = {
     team_name,
-    plugin_id,
+    plugin_id
   }
 ) {
   return request(
@@ -215,7 +216,7 @@ export async function getPluginInfo(
 export async function getPluginVersions(
   body = {
     team_name,
-    plugin_id,
+    plugin_id
   }
 ) {
   return request(
@@ -224,8 +225,8 @@ export async function getPluginVersions(
       method: 'get',
       params: {
         page: 1,
-        page_size: 100,
-      },
+        page_size: 100
+      }
     }
   );
 }
@@ -238,14 +239,14 @@ export async function getPluginVersionInfo(
   body = {
     team_name,
     plugin_id,
-    build_version,
+    build_version
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}`,
     {
       method: 'get',
-      showLoading: false,
+      showLoading: false
     }
   );
 }
@@ -258,7 +259,7 @@ export async function getPluginVersionConfig(
   body = {
     team_name,
     plugin_id,
-    build_version,
+    build_version
   }
 ) {
   return request(
@@ -274,14 +275,14 @@ export async function editPluginVersionInfo(
   body = {
     team_name,
     plugin_id,
-    build_version,
+    build_version
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}`,
     {
       method: 'put',
-      data: body,
+      data: body
     }
   );
 }
@@ -294,14 +295,14 @@ export async function addPluginVersionConfig(
     team_name,
     plugin_id,
     build_version,
-    entry,
+    entry
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`,
     {
       method: 'post',
-      data: body.entry,
+      data: body.entry
     }
   );
 }
@@ -314,7 +315,7 @@ export async function removePluginVersionConfig(
     team_name,
     plugin_id,
     build_version,
-    config_group_id,
+    config_group_id
   }
 ) {
   return request(
@@ -322,8 +323,8 @@ export async function removePluginVersionConfig(
     {
       method: 'delete',
       data: {
-        config_group_id: body.config_group_id,
-      },
+        config_group_id: body.config_group_id
+      }
     }
   );
 }
@@ -336,14 +337,14 @@ export async function editPluginVersionConfig(
     team_name,
     plugin_id,
     build_version,
-    entry,
+    entry
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`,
     {
       method: 'put',
-      data: body.entry,
+      data: body.entry
     }
   );
 }
@@ -355,7 +356,7 @@ export async function removePluginVersion(
   body = {
     team_name,
     plugin_id,
-    build_version,
+    build_version
   }
 ) {
   return request(
@@ -371,7 +372,7 @@ export async function createPluginVersion(
   body = {
     team_name,
     plugin_id,
-    build_version,
+    build_version
   }
 ) {
   return request(
@@ -386,7 +387,7 @@ export async function buildPluginVersion(
   body = {
     team_name,
     plugin_id,
-    build_version,
+    build_version
   }
 ) {
   return request(
@@ -402,7 +403,7 @@ export async function getBuildPluginVersionStatus(
   body = {
     team_name,
     plugin_id,
-    build_version,
+    build_version
   }
 ) {
   return request(
@@ -419,7 +420,7 @@ export async function getBuildVersionLog(
     team_name,
     plugin_id,
     build_version,
-    level,
+    level
   }
 ) {
   return request(
@@ -427,8 +428,8 @@ export async function getBuildVersionLog(
     {
       method: 'get',
       params: {
-        level: body.level,
-      },
+        level: body.level
+      }
     }
   );
 }
@@ -441,7 +442,7 @@ export async function getUsedApp(
     team_name,
     plugin_id,
     page,
-    page_size,
+    page_size
   }
 ) {
   return request(
@@ -450,8 +451,8 @@ export async function getUsedApp(
       method: 'get',
       params: {
         page: body.page,
-        page_size: body.page_size,
-      },
+        page_size: body.page_size
+      }
     }
   );
 }
@@ -475,8 +476,8 @@ export async function installDefaultPlugin(body = { team_name, plugin_type }) {
     {
       method: 'post',
       data: {
-        plugin_type: body.plugin_type,
-      },
+        plugin_type: body.plugin_type
+      }
     }
   );
 }
