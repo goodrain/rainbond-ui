@@ -16,6 +16,7 @@ require('codemirror/mode/yaml/yaml');
 require('codemirror/addon/display/fullscreen');
 require('codemirror/addon/edit/matchbrackets');
 
+
 // eslint-disable-next-line react/no-redundant-should-component-update
 class CodeMirrorForm extends PureComponent {
   constructor(props) {
@@ -25,6 +26,7 @@ class CodeMirrorForm extends PureComponent {
     };
     this.CodeMirrorRef = '';
   }
+  
   saveRef = (ref) => {
     this.CodeMirrorRef = ref;
   };
