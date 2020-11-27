@@ -29,6 +29,10 @@ export default class AppExporter extends PureComponent {
     };
   }
   componentDidMount() {
+    const { exportVersionList, exportVersion } = this.state;
+    if (exportVersionList && exportVersionList.length > 0 && exportVersion) {
+      this.handleVersionInfo();
+    }
     this.queryExport();
   }
   getDockerComposeAppShow = () => {
@@ -176,13 +180,15 @@ export default class AppExporter extends PureComponent {
   };
   handleVersionInfo = () => {
     const { exportVersionList, exportVersion } = this.state;
-    const currentVersionInfo = exportVersionList.filter(
-      (item) => item.version === exportVersion
-    );
-    if (currentVersionInfo.length > 0) {
-      this.setState({
-        versionInfo: currentVersionInfo[0]
-      });
+    if (exportVersion && exportVersion.length > 0) {
+      const currentVersionInfo = exportVersionList.filter(
+        (item) => item.version === exportVersion[0]
+      );
+      if (currentVersionInfo.length > 0) {
+        this.setState({
+          versionInfo: currentVersionInfo[0]
+        });
+      }
     }
   };
 

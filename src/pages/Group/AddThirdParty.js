@@ -10,10 +10,10 @@ import OuterCustom from "../Create/outer-custom";
 import Market from "../Create/market";
 
 
-@connect(({ user, groupControl, global }) => ({
+@connect(({ user, application, global }) => ({
   currUser: user.currentUser,
-  apps: groupControl.apps,
-  groupDetail: groupControl.groupDetail || {},
+  apps: application.apps,
+  groupDetail: application.groupDetail || {},
   groups: global.groups || [],
   rainbondInfo: global.rainbondInfo
 }))

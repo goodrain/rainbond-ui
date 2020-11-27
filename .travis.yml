@@ -1,6 +1,0 @@
-
-services:
-  - docker
-script:
-  - bash -c ./build.sh
-

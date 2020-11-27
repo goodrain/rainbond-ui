@@ -428,7 +428,7 @@ export default class shareCheck extends PureComponent {
         </Card>
         {this.state.showDelete && (
           <ConfirmModal
-            disabled={loading.effects['groupControl/giveupShare']}
+            disabled={loading.effects['application/giveupShare']}
             onOk={this.handleGiveup}
             onCancel={this.hideShowDelete}
             title="放弃分享"

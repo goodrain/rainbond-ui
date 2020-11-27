@@ -10,7 +10,7 @@ import {
   Alert,
   Modal,
   Input,
-  notification,
+  notification
 } from 'antd';
 import NoPermTip from '../../components/NoPermTip';
 import Port from '../../components/Port';
@@ -37,7 +37,7 @@ class EditAlias extends PureComponent {
     const { onOk, form } = this.props;
     form.validateFields(
       {
-        force: true,
+        force: true
       },
       (err, values) => {
         if (!err && onOk) {
@@ -57,20 +57,20 @@ class EditAlias extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 5,
-        },
+          span: 5
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 16,
-        },
-      },
+          span: 16
+        }
+      }
     };
     const port = this.props.port || {};
     return (
@@ -88,10 +88,29 @@ class EditAlias extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请填写端口别名',
-                },
-              ],
+                  message: '请填写端口别名'
+                }
+              ]
             })(<Input placeholder="请填写端口别名" />)}
+          </FormItem>
+          <FormItem {...formItemLayout} label="内部域名">
+            {getFieldDecorator('k8s_service_name', {
+              initialValue: port.k8s_service_name,
+              rules: [
+                {
+                  required: true,
+                  message: '请填写内部域名'
+                },
+                {
+                  max: 63,
+                  message: '内部域名最多63个位'
+                },
+                {
+                  pattern: /^[a-z]([a-z0-9-_]*[-a-z0-9]*[a-z0-9])?$/,
+                  message: '必须由小写的字母、数字和- _组成，并且必须以字母开始、数字和字母结束'
+                }
+              ]
+            })(<Input placeholder="请填写内部域名" />)}
           </FormItem>
         </Form>
       </Modal>
@@ -112,7 +131,7 @@ class AddKey extends PureComponent {
 
     form.validateFields(
       {
-        force: true,
+        force: true
       },
       (err, values) => {
         if (!err && onOk) {
@@ -133,20 +152,20 @@ class AddKey extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 5,
-        },
+          span: 5
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 16,
-        },
-      },
+          span: 16
+        }
+      }
     };
     return (
       <Modal
@@ -162,9 +181,9 @@ class AddKey extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请填写证书名称',
-                },
-              ],
+                  message: '请填写证书名称'
+                }
+              ]
             })(<Input placeholder="请填写证书名称" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="key">
@@ -172,9 +191,9 @@ class AddKey extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请添加key',
-                },
-              ],
+                  message: '请添加key'
+                }
+              ]
             })(<TextArea placeholder="请添加key" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="证书">
@@ -182,9 +201,9 @@ class AddKey extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请添加证书',
-                },
-              ],
+                  message: '请添加证书'
+                }
+              ]
             })(<TextArea placeholder="请添加证书" />)}
           </FormItem>
         </Form>
@@ -197,7 +216,7 @@ class AddKey extends PureComponent {
   ({ user, appControl }) => ({
     currUser: user.currentUser,
     ports: appControl.ports,
-    certificates: appControl.certificates,
+    certificates: appControl.certificates
   }),
   null,
   null,
@@ -221,7 +240,7 @@ export default class Index extends PureComponent {
       subPort: '',
       page: 1,
       page_size: 10,
-      isAddLicense: false,
+      isAddLicense: false
     };
   }
 
@@ -235,7 +254,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        port,
+        port
       },
       callback: () => {
         this.fetchPorts();
@@ -243,7 +262,7 @@ export default class Index extends PureComponent {
           ? ''
           : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
 
@@ -253,7 +272,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        port,
+        port
       },
       callback: () => {
         this.fetchPorts();
@@ -261,7 +280,7 @@ export default class Index extends PureComponent {
           ? ''
           : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
   onCancelAddDomain = () => {
@@ -276,7 +295,7 @@ export default class Index extends PureComponent {
   addLicense = () => {
     this.setState(
       {
-        page_size: this.state.page_size + 10,
+        page_size: this.state.page_size + 10
       },
       () => {
         this.fetchCertificates();
@@ -293,7 +312,7 @@ export default class Index extends PureComponent {
       payload: {
         page,
         page_size,
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
         if (data && data.list) {
@@ -301,7 +320,7 @@ export default class Index extends PureComponent {
           const isAdd = !!(listNum && listNum > page_size);
           this.setState({ isAddLicense: isAdd });
         }
-      },
+      }
     });
   }
 
@@ -311,8 +330,8 @@ export default class Index extends PureComponent {
       type: 'appControl/fetchPorts',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-      },
+        app_alias: this.props.appAlias
+      }
     });
   };
   handleSubmitProtocol = (protocol, port, callback) => {
@@ -323,12 +342,12 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         port,
-        protocol,
+        protocol
       },
       callback: () => {
         this.fetchPorts();
         callback();
-      },
+      }
     });
   };
   handleDeletePort = port => {
@@ -343,7 +362,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        port: this.state.showDeletePort,
+        port: this.state.showDeletePort
       },
       callback: () => {
         this.cancalDeletePort();
@@ -352,7 +371,7 @@ export default class Index extends PureComponent {
           ? ''
           : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
 
@@ -369,7 +388,7 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         port: this.state.showDeleteDomain.port,
-        domain: this.state.showDeleteDomain.domain,
+        domain: this.state.showDeleteDomain.domain
       },
       callback: () => {
         this.cancalDeleteDomain();
@@ -378,7 +397,7 @@ export default class Index extends PureComponent {
           ? ''
           : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
   showAddPort = () => {
@@ -391,7 +410,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         service_alias: this.props.appAlias,
-        port: port.container_port,
+        port: port.container_port
       },
       callback: data => {
         const portlist = data && data.list;
@@ -401,10 +420,10 @@ export default class Index extends PureComponent {
           this.setState({
             showSubPort: true,
             tcp_ports: portlist,
-            subPort: port.container_port,
+            subPort: port.container_port
           });
         }
-      },
+      }
     });
   };
   handleSubPort = values => {
@@ -416,13 +435,13 @@ export default class Index extends PureComponent {
         service_alias: this.props.appAlias,
         port: this.state.subPort,
         lb_mapping_port: valList[1],
-        service_id: valList[0],
+        service_id: valList[0]
       },
       callback: data => {
         this.setState({ showSubPort: false });
         notification.success({ message: '端口修改成功' });
         this.fetchPorts();
-      },
+      }
     });
   };
   hideSubPort = () => {
@@ -434,13 +453,13 @@ export default class Index extends PureComponent {
       type: 'appControl/getSubDomain',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appAlias,
+        service_alias: this.props.appAlias
       },
       callback: data => {
         if (data) {
           this.setState({ sld_suffix: data.bean.sld_suffix });
         }
-      },
+      }
     });
   };
   hideSubDomain = () => {
@@ -454,13 +473,13 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         service_alias: this.props.appAlias,
         domain_name: newdomain,
-        container_port: this.state.single_port,
+        container_port: this.state.single_port
       },
       callback: data => {
         this.setState({ sld_suffix: null, showSubDomain: false });
         notification.success({ message: '二级域名添加成功' });
         this.fetchPorts();
-      },
+      }
     });
   };
 
@@ -471,7 +490,7 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         protocol: val.protocol,
-        port: val.port,
+        port: val.port
       },
       callback: () => {
         this.onCancelAddPort();
@@ -480,7 +499,7 @@ export default class Index extends PureComponent {
           ? ''
           : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
 
@@ -498,12 +517,12 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         alias: vals.alias,
         private_key: vals.private_key,
-        certificate: vals.certificate,
+        certificate: vals.certificate
       },
       callback: () => {
         this.cancelCreateKey();
         this.fetchCertificates();
-      },
+      }
     });
   };
   handleOpenOuter = port => {
@@ -512,7 +531,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        port,
+        port
       },
       callback: () => {
         this.fetchPorts();
@@ -520,7 +539,7 @@ export default class Index extends PureComponent {
           ? ''
           : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
 
@@ -530,7 +549,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        port,
+        port
       },
       callback: () => {
         this.fetchPorts();
@@ -538,7 +557,7 @@ export default class Index extends PureComponent {
           ? ''
           : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
 
@@ -547,8 +566,8 @@ export default class Index extends PureComponent {
       values.rule_extensions = [
         {
           key: values.protocol,
-          value: 'true',
-        },
+          value: 'true'
+        }
       ];
     }
     const { appDetail } = this.props;
@@ -563,12 +582,12 @@ export default class Index extends PureComponent {
         protocol: values.protocol,
         certificate_id: values.certificate_id,
         group_id: appDetail.service.group_id,
-        rule_extensions: values.rule_extensions ? values.rule_extensions : [],
+        rule_extensions: values.rule_extensions ? values.rule_extensions : []
       },
       callback: () => {
         this.fetchPorts();
         this.onCancelAddDomain();
-      },
+      }
     });
   };
   showEditAlias = port => {
@@ -583,23 +602,24 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
+        k8s_service_name: vals.k8s_service_name,
         port: this.state.showEditAlias.container_port,
-        port_alias: vals.alias,
+        port_alias: vals.alias
       },
       callback: () => {
         this.fetchPorts();
         this.hideEditAlias();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功' });
+          : notification.success({ message: '操作成功、需要更新才能生效' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
   // 是否可以浏览当前界面
   canView() {
     const {
-      componentPermissions: { isPort },
+      componentPermissions: { isPort }
     } = this.props;
     return isPort;
   }
@@ -619,14 +639,14 @@ export default class Index extends PureComponent {
               message="端口配置信息发生变化后需要重启组件才能生效"
               type="info"
               style={{
-                marginBottom: 24,
+                marginBottom: 24
               }}
             />
           </Col>
           <Col
             span={12}
             style={{
-              textAlign: 'right',
+              textAlign: 'right'
             }}
           >
             <Button onClick={this.showAddPort} type="primary">
@@ -642,7 +662,7 @@ export default class Index extends PureComponent {
                 marginTop: 100,
                 marginBottom: 100,
                 fontSize: 20,
-                textAlign: 'center',
+                textAlign: 'center'
               }}
             >
               如需要提供访问服务，请
