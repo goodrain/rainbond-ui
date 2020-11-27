@@ -88,7 +88,15 @@ export async function updateServiceMonitor(body) {
     }
   );
 }
-
+export async function sortMonitorFigure(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/exchange-graphs`,
+    {
+      method: 'put',
+      data: body
+    }
+  );
+}
 export function getServiceMonitorFigure(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs`,

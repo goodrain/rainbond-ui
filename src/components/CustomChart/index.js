@@ -10,7 +10,6 @@ import { Button, Col, DatePicker, Form, Row } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
-import arrayMove from 'array-move';
 import RangeChart from './rangeChart';
 import styless from './index.less';
 
@@ -169,11 +168,14 @@ export default class ChartTitle extends PureComponent {
     e.preventDefault();
     const { handleSorting, RangeData = [] } = this.props;
     if (oldIndex !== newIndex && RangeData && RangeData.length > 0) {
-      const RangeList = RangeData.filter((item) => item.sequence === oldIndex);
-      if (RangeList && RangeList.length > 0) {
-        const info = Object.assign({}, RangeList[0], { sequence: newIndex });
-        handleSorting(info, arrayMove(RangeData, oldIndex, newIndex));
-      }
+      const graphIds = [];
+      RangeData.map((item) => {
+        const { sequence, graph_id: id } = item;
+        if (sequence === oldIndex || sequence === newIndex) {
+          graphIds.push(id);
+        }
+      });
+      handleSorting(graphIds);
     }
   };
 
