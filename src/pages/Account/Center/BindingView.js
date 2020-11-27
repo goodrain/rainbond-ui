@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
-import { List, Icon } from 'antd';
+import { List } from 'antd';
 import oauthUtil from '../../../utils/oauth';
 import rainbondUtil from '../../../utils/rainbond';
 
@@ -8,7 +8,7 @@ import rainbondUtil from '../../../utils/rainbond';
   currUser: user.currentUser,
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
-  appDetail: appControl.appDetail,
+  appDetail: appControl.appDetail
 }))
 class BindingView extends Component {
   render() {
@@ -29,12 +29,13 @@ class BindingView extends Component {
         <List
           itemLayout="horizontal"
           dataSource={oauthList}
-          renderItem={item => {
+          renderItem={(item) => {
             const {
               service_name: serviceName,
               is_authenticated: isAuthenticated,
+              oauth_user_name: oauthUserName,
               is_expired: isExpired,
-              oauth_type: oauthType,
+              oauth_type: oauthType
             } = item;
             const authURL = oauthUtil.getAuthredictURL(item);
             let certificationText = '';
@@ -55,7 +56,7 @@ class BindingView extends Component {
                     >
                       {certificationText || '去认证'}
                     </a>
-                  </span>,
+                  </span>
                 ]}
               >
                 <List.Item.Meta
@@ -64,7 +65,7 @@ class BindingView extends Component {
                   description={
                     <div>
                       当前{certificationText || '未认证'}
-                      {oauthType}账号
+                      {oauthUserName || oauthType}账号
                     </div>
                   }
                 />

@@ -17,15 +17,15 @@ const oauthUtil = {
   getAuthredictURL(item) {
     if (item) {
       const {
-        oauth_type,
-        client_id,
-        auth_url,
-        redirect_uri,
-        service_id,
-        authorize_url
+        oauth_type: oauthType,
+        client_id: clientId,
+        auth_url: authUrl,
+        redirect_uri: redirectUri,
+        service_id: serviceId,
+        authorize_url: authorizeUrl
       } = item;
-      if (oauth_type === 'enterprisecenter' && authorize_url) {
-        const str = authorize_url;
+      if (oauthType === 'enterprisecenter' && authorizeUrl) {
+        const str = authorizeUrl;
         const agreement = `${window.location.protocol}//`;
         const content = window.location.host;
         const suffix = str.substring(
@@ -46,13 +46,13 @@ const oauthUtil = {
         return url;
       }
 
-      if (authorize_url) {
-        return authorize_url;
+      if (authorizeUrl) {
+        return authorizeUrl;
       }
-      if (oauth_type == 'github') {
-        return `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
+      if (oauthType == 'github') {
+        return `${authUrl}?client_id=${clientId}&redirect_uri=${redirectUri}?service_id=${serviceId}&scope=user%20repo%20admin:repo_hook`;
       }
-      return `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
+      return `${authUrl}?client_id=${clientId}&redirect_uri=${redirectUri}?service_id=${serviceId}&response_type=code`;
     }
     return null;
   },
@@ -166,6 +166,31 @@ const oauthUtil = {
         />
       </svg>
     );
+    const AliyunSvg = () => (
+      <svg
+        t="1606461675119"
+        viewBox="0 0 1639 1024"
+        p-id="6641"
+        width={size}
+        height={size}
+      >
+        <path
+          d="M545.497212 568.816485h545.078303V445.915798H545.497212z"
+          fill="#FE6A00"
+          p-id="6642"
+        />
+        <path
+          d="M1363.642182-0.005172H1002.987313L1090.011798 123.185131l262.930101 80.539152A113.700202 113.700202 0 0 1 1432.358788 312.883717l0.025858 0.284445v394.084848a113.705374 113.705374 0 0 1-79.437575 109.164606l-262.930101 80.559839L1002.987313 1020.167758h360.654869c150.445253 0 272.409859-121.980121 272.409858-272.430546v-475.332525c0-150.445253-121.959434-272.404687-272.409858-272.404687"
+          fill="#FE6A00"
+          p-id="6643"
+        />
+        <path
+          d="M272.409859-0.005172h360.654868L546.040242 123.185131 283.099798 203.719111A113.710545 113.710545 0 0 0 203.693253 312.883717v394.369293a113.710545 113.710545 0 0 0 79.411717 109.164606l262.930101 80.559839L633.069899 1020.167758H272.409859C121.959434 1020.147071 0 898.161778 0 747.711354v-475.332526C0 121.964606 121.959434 0.005172 272.409859 0.005172"
+          fill="#FE6A00"
+          p-id="6644"
+        />
+      </svg>
+    );
 
     if (item) {
       const { oauth_type: oauthType } = item;
@@ -173,7 +198,8 @@ const oauthUtil = {
         github: GithubSvg,
         gitlab: GitlabSvg,
         gitee: GiteeSvg,
-        nailing: NailingSvg
+        dingtalk: NailingSvg,
+        aliyun: AliyunSvg
       };
       return <Icon component={map[oauthType] || OauthSvg} />;
     }
@@ -196,6 +222,7 @@ const oauthUtil = {
   userbondOAuth(currentUser, service_id) {
     let isBond = false;
     if (currentUser) {
+      // eslint-disable-next-line no-unused-expressions
       currentUser.oauth_services &&
         currentUser.oauth_services.map((item) => {
           if (
