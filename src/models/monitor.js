@@ -14,6 +14,7 @@ import {
   postServiceMonitor,
   deleteServiceMonitor,
   updateServiceMonitor,
+  sortMonitorFigure,
   updataServiceMonitorFigure,
   deleteServiceMonitorFigure,
   batchDeleteServiceMonitorFigure,
@@ -76,6 +77,12 @@ export default {
     },
     *editServiceMonitorFigure({ payload, callback }, { call }) {
       const response = yield call(updataServiceMonitorFigure, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *sortMonitorFigure({ payload, callback }, { call }) {
+      const response = yield call(sortMonitorFigure, payload);
       if (callback) {
         callback(response);
       }

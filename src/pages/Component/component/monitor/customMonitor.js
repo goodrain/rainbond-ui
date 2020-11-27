@@ -95,7 +95,6 @@ export default class customMonitor extends PureComponent {
       }
     });
   };
-
   fetchKeyImport = () => {
     const { dispatch } = this.props;
     const parameter = this.handleParameter();
@@ -114,7 +113,6 @@ export default class customMonitor extends PureComponent {
       }
     });
   };
-
   addKeyImport = (name) => {
     const { dispatch } = this.props;
     const parameter = this.handleParameter();
@@ -133,21 +131,27 @@ export default class customMonitor extends PureComponent {
     });
   };
   handleSorting = (val) => {
-    this.setState(
-      {
-        info: val,
+    const { dispatch } = this.props;
+    const parameter = this.handleParameter();
+    dispatch({
+      type: 'monitor/sortMonitorFigure',
+      payload: {
+        ...parameter,
+        graph_ids: val
       },
-      () => {
-        this.handleSubmit(val, false);
+      callback: (res) => {
+        if (res && res._code === 200) {
+          this.fetchServiceMonitorFigure(false);
+        }
       }
-    );
+    });
   };
   handleUpData = () => {
     this.setState({ isRender: true }, () => {
       this.setState({ isRender: false });
     });
   };
-  handleSubmit = (vals, isMessage = true) => {
+  handleSubmit = (vals) => {
     const { dispatch } = this.props;
     const { info } = this.state;
     const parameter = this.handleParameter();
@@ -162,13 +166,10 @@ export default class customMonitor extends PureComponent {
         },
         callback: (res) => {
           if (res && res._code === 200) {
-            if (isMessage) {
-              notification.success({
-                message: '保存成功'
-              });
-              this.handleUpData();
-            }
-            this.fetchServiceMonitorFigure(isMessage);
+            notification.success({
+              message: '保存成功'
+            });
+            this.fetchServiceMonitorFigure(false);
             this.onCancelCustomMonitoring();
           }
         }
@@ -213,7 +214,6 @@ export default class customMonitor extends PureComponent {
       }
     });
   };
-
   fetchServiceMonitor = () => {
     const { dispatch } = this.props;
     const parameter = this.handleParameter();
@@ -231,7 +231,6 @@ export default class customMonitor extends PureComponent {
       }
     });
   };
-
   handleParameter = () => {
     const { appDetail } = this.props;
     return {
@@ -239,13 +238,11 @@ export default class customMonitor extends PureComponent {
       app_alias: appDetail.service.service_alias
     };
   };
-
   cancalDelete = () => {
     this.setState({
       showDelete: false
     });
   };
-
   handleBatchDelete = () => {
     this.setState({
       BatchDelete: true
