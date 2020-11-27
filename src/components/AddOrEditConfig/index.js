@@ -1,136 +1,126 @@
+/* eslint-disable react/no-multi-comp */
 /*
   添加或者修改插件配置
 */
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Route } from "dva/router";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Input,
-  Dropdown,
-  Table,
-  Modal,
-  Radio,
-  Select,
-  Tooltip
-} from "antd";
-import globalUtil from "../../utils/global";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { Form, Icon, Input, Modal, Radio, Select, Tooltip } from 'antd';
 
 const RadioGroup = Radio.Group;
-const Option = Select.Option;
+const { Option } = Select;
 
 @Form.create()
 class EvnOption extends React.Component {
-  checkAttrAltValue = (rule, value, callback) => {
+  componentWillMount() {
+    const { onDidMount, index } = this.props;
+    if (onDidMount) {
+      onDidMount(index, this);
+    }
+  }
+  componentDidMount() {
+    const { onChange, index, form } = this.props;
+    if (onChange) {
+      onChange(index, form.getFieldsValue());
+    }
+  }
+  componentWillUnmount() {
+    const { onUnmount, index } = this.props;
+    if (onUnmount) {
+      onUnmount(index);
+    }
+  }
+
+  checkAttrAltValue = (_, value, callback) => {
     const { getFieldValue } = this.props.form;
-    if (getFieldValue("attr_type") !== "string" && !value) {
-      callback("请输入可选值");
+    if (getFieldValue('attr_type') !== 'string' && !value) {
+      callback('请输入可选值');
     } else {
       callback();
     }
   };
-  componentWillMount() {
-    this.props.onDidMount && this.props.onDidMount(this.props.index, this);
-  }
-  componentDidMount() {
-    this.props.onChange &&
-      this.props.onChange(this.props.index, this.props.form.getFieldsValue());
-  }
-  componentWillUnmount() {
-    this.props.onUnmount && this.props.onUnmount(this.props.index);
-  }
-  validAttrName = (rule, value, callback) => {
+
+  validAttrName = (_, value, callback) => {
     if (!value) {
-      callback("属性名");
+      callback('请输入属性名');
       return;
     }
-
-    if (!/^[A-Za-z].*$/.test(value || "")) {
-      callback("大小写英文_");
+    if (value && !/^[-._a-zA-Z][-._a-zA-Z0-9]*$/.test(value)) {
+      callback('只能由 - . _ 字母和数字组成，不能以数字开头');
       return;
     }
     callback();
   };
   check(callback) {
-    const form = this.props.form;
-    form.validateFields((err, fieldsValue) => {
-      callback && callback(err);
+    const { form } = this.props;
+    form.validateFields((err) => {
+      if (callback) {
+        callback(err);
+      }
     });
   }
-  handleOnchange = key => {
-    this.props.form.validateFields([key], (err, fieldsValue) => {
-      setTimeout(() => {
-        this.props.onChange &&
-          this.props.onChange(
-            this.props.index,
-            this.props.form.getFieldsValue()
-          );
-      });
-      if (err) return;
+  handleOnchange = (key, value) => {
+    const { form, onChange, index } = this.props;
+    const { setFieldsValue, validateFields, getFieldsValue } = form;
+    setFieldsValue({ [key]: value });
+    validateFields([key], (err) => {
+      if ((!err && onChange, index)) {
+        onChange(index, getFieldsValue());
+      }
     });
   };
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const attr_type = getFieldValue("attr_type") || "string";
-    const data = this.props.data || {};
-    const protocols = this.props.protocols || [];
-
+    const { form, data = {}, protocols = [] } = this.props;
+    const { getFieldDecorator, getFieldValue } = form;
+    const attrType = getFieldValue('attr_type') || 'string';
     return (
       <Form
-        style={{ display: "inline-block", verticalAlign: "middle" }}
+        style={{ display: 'inline-block', verticalAlign: 'middle' }}
         layout="inline"
       >
-        <Form.Item hasFeedback={false} style={{ display: "none" }}>
-          {getFieldDecorator("ID", {
-            initialValue: data.ID || ""
+        <Form.Item style={{ display: 'none' }}>
+          {getFieldDecorator('ID', {
+            initialValue: data.ID || ''
           })(<Input />)}
         </Form.Item>
-        <Form.Item hasFeedback={false}>
-          {getFieldDecorator("attr_name", {
-            initialValue: data.attr_name || "",
+        <Form.Item style={{ width: 100 }}>
+          {getFieldDecorator('attr_name', {
+            initialValue: data.attr_name || '',
             rules: [{ validator: this.validAttrName }]
           })(
             <Input
-              onChange={() => {
-                this.handleOnchange("attr_name");
+              onChange={(e) => {
+                this.handleOnchange('attr_name', e.target.value);
               }}
-              style={{ width: 80 }}
               placeholder="属性名"
             />
           )}
         </Form.Item>
-        <Form.Item hasFeedback={false}>
-          {getFieldDecorator("protocol", {
-            initialValue: data.protocol || "",
-            rules: [{ required: false, message: "协议" }]
+        <Form.Item>
+          {getFieldDecorator('protocol', {
+            initialValue: data.protocol || '',
+            rules: [{ required: false, message: '协议' }]
           })(
             <Select
-              onChange={() => {
-                this.handleOnchange("protocal");
+              onChange={(e) => {
+                this.handleOnchange('protocal', e.target.value);
               }}
               style={{ width: 100 }}
             >
               <Option value="">协议</Option>
-              {protocols.map(item => (
+              {protocols.map((item) => (
                 <Option value={item}>{item}</Option>
               ))}
             </Select>
           )}
         </Form.Item>
-        <Form.Item hasFeedback={false}>
-          {getFieldDecorator("attr_type", {
-            initialValue: data.attr_type || "string",
-            rules: [{ required: true, message: "属性名" }]
+        <Form.Item>
+          {getFieldDecorator('attr_type', {
+            initialValue: data.attr_type || 'string',
+            rules: [{ required: true, message: '属性名' }]
           })(
             <Select
-              onChange={() => {
-                this.handleOnchange("attr_type");
+              onChange={(e) => {
+                this.handleOnchange('attr_type', e.target.value);
               }}
               style={{ width: 100 }}
             >
@@ -140,32 +130,29 @@ class EvnOption extends React.Component {
             </Select>
           )}
         </Form.Item>
-        <Form.Item hasFeedback={false}>
-          {getFieldDecorator("attr_default_value", {
-            initialValue: data.attr_default_value || "",
-            rules: [{ required: false, message: "默认值" }]
+        <Form.Item>
+          {getFieldDecorator('attr_default_value', {
+            initialValue: data.attr_default_value || '',
+            rules: [{ required: false, message: '默认值' }]
           })(
             <Input
-              onChange={() => {
-                this.handleOnchange("attr_default_value");
+              onChange={(e) => {
+                this.handleOnchange('attr_default_value', e.target.value);
               }}
               style={{ width: 80 }}
               placeholder="默认值"
             />
           )}
         </Form.Item>
-        <Form.Item
-          hasFeedback={false}
-          style={{ display: attr_type === "string" ? "none" : "" }}
-        >
+        <Form.Item style={{ display: attrType === 'string' ? 'none' : '' }}>
           <Tooltip title="单选或多选的可选值， 多个用逗号分割，如：value1, value2">
-            {getFieldDecorator("attr_alt_value", {
-              initialValue: data.attr_alt_value || "",
+            {getFieldDecorator('attr_alt_value', {
+              initialValue: data.attr_alt_value || '',
               rules: [{ validator: this.checkAttrAltValue }]
             })(
               <Input
-                onChange={() => {
-                  this.handleOnchange("attr_alt_value");
+                onChange={(e) => {
+                  this.handleOnchange('attr_alt_value', e.target.value);
                 }}
                 style={{ width: 100 }}
                 placeholder="可选值"
@@ -173,14 +160,14 @@ class EvnOption extends React.Component {
             )}
           </Tooltip>
         </Form.Item>
-        <Form.Item hasFeedback={false}>
-          {getFieldDecorator("is_change", {
+        <Form.Item>
+          {getFieldDecorator('is_change', {
             initialValue: data.is_change === void 0 ? true : data.is_change,
-            rules: [{ required: false, message: "默认值" }]
+            rules: [{ required: false, message: '默认值' }]
           })(
             <Select
-              onChange={() => {
-                this.handleOnchange("is_change");
+              onChange={(e) => {
+                this.handleOnchange('is_change', e.target.value);
               }}
               style={{ width: 100 }}
             >
@@ -189,14 +176,14 @@ class EvnOption extends React.Component {
             </Select>
           )}
         </Form.Item>
-        <Form.Item hasFeedback={false}>
-          {getFieldDecorator("attr_info", {
-            initialValue: data.attr_info || "",
-            rules: [{ required: false, message: "默认值" }]
+        <Form.Item>
+          {getFieldDecorator('attr_info', {
+            initialValue: data.attr_info || '',
+            rules: [{ required: false, message: '默认值' }]
           })(
             <Input
-              onChange={() => {
-                this.handleOnchange("attr_info");
+              onChange={(e) => {
+                this.handleOnchange('attr_info', e.target.value);
               }}
               style={{ width: 100 }}
               placeholder="简要说明"
@@ -212,7 +199,7 @@ class EvnOption extends React.Component {
 class EnvGroup extends PureComponent {
   constructor(props) {
     super(props);
-    let group = (this.props.value || []).map(item => ({
+    let group = (this.props.value || []).map((item) => ({
       key: Math.random(),
       value: item
     }));
@@ -229,66 +216,74 @@ class EnvGroup extends PureComponent {
     this.groupItem = [];
   }
   componentWillMount() {
-    this.props.onDidMount && this.props.onDidMount(this);
+    const { onDidMount } = this.props;
+    if (onDidMount) {
+      onDidMount(this);
+    }
   }
+
   check() {
     let res = true;
     for (let i = 0; i < this.groupItem.length; i++) {
-      this.groupItem[i].com.check(err => {
+      this.groupItem[i].com.check((err) => {
         res = !err;
       });
       if (!res) break;
     }
     return res;
   }
-  handlePlus = key => {
-    let group = this.state.group;
+  handlePlus = (key) => {
+    const { group } = this.state;
     let index = 0;
-    group = group.filter((item, i) => {
+    const setGroup = group.filter((item, i) => {
       if (item.key === key) {
         index = i;
       }
       return true;
     });
-    group.splice(index + 1, 0, { key: Math.random() });
-    this.state.group = group;
-    this.setState({ group });
-    this.forceUpdate();
+    setGroup.splice(index + 1, 0, { key: Math.random() });
+    this.setState({ group: setGroup });
   };
-  handleMinus = key => {
-    let group = [].concat(this.state.group);
-    if (group.length === 1) return;
-    group = group.filter(item => !!item).filter(item => item.key !== key);
-    this.state.group = group;
-    this.setState({ group });
-    this.props.onChange &&
-      this.props.onChange(this.state.group.map(item => item.value));
-    this.forceUpdate();
+  handleMinus = (key) => {
+    const { onChange } = this.props;
+    const { group } = this.state;
+    let setGroup = [].concat(group);
+    if (setGroup.length === 1) return;
+    setGroup = group
+      .filter((item) => !!item)
+      .filter((item) => item.key !== key);
+    this.setState({ group: setGroup });
+    if (onChange) {
+      onChange(this.state.group.map((item) => item.value));
+    }
   };
   handleChange = (index, val) => {
-    this.state.group.map(item => {
+    const { onChange } = this.props;
+    const { group } = this.state;
+    group.map((item) => {
       if (item.key === index) {
         item.value = val;
       }
       return item;
     });
-    const onchangeVal = this.state.group.map(item => item.value);
-    this.props.onChange && this.props.onChange(onchangeVal);
+    const onchangeVal = group.map((item) => item.value);
+    if (onChange) {
+      onChange(onchangeVal);
+    }
   };
   handleOptionMount = (k, com) => {
     this.groupItem.push({ key: k, com });
   };
-  handleOptionUnmout = k => {
-    this.groupItem = this.groupItem.filter(item => item.key !== k);
+  handleOptionUnmout = (k) => {
+    this.groupItem = this.groupItem.filter((item) => item.key !== k);
   };
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    let group = this.state.group;
-    group = group.filter(item => !!item);
+    let { group } = this.state;
+    group = group.filter((item) => !!item);
     return (
       <div>
-        {(group || []).map((item, index) => (
-          <div key={item.key}>
+        {(group || []).map((item) => (
+          <div key={item.key} style={{ display: 'flex' }}>
             <EvnOption
               onDidMount={this.handleOptionMount}
               onUnmount={this.handleOptionUnmout}
@@ -298,28 +293,28 @@ class EnvGroup extends PureComponent {
               index={item.key}
               onChange={this.handleChange}
             />
-            <Icon
-              onClick={() => {
-                this.handlePlus(item.key);
-              }}
-              style={{
-                verticalAlign: "middle",
-                cursor: "pointer",
-                fontSize: 20
-              }}
-              type="plus"
-            />
-            <Icon
-              onClick={() => {
-                this.handleMinus(item.key);
-              }}
-              style={{
-                verticalAlign: "middle",
-                cursor: "pointer",
-                fontSize: 20
-              }}
-              type="minus"
-            />
+            <div>
+              <Icon
+                onClick={() => {
+                  this.handlePlus(item.key);
+                }}
+                style={{
+                  cursor: 'pointer',
+                  fontSize: 20
+                }}
+                type="plus"
+              />
+              <Icon
+                onClick={() => {
+                  this.handleMinus(item.key);
+                }}
+                style={{
+                  cursor: 'pointer',
+                  fontSize: 20
+                }}
+                type="minus"
+              />
+            </div>
           </div>
         ))}
       </div>
@@ -343,54 +338,51 @@ const formItemLayout = {
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      selectedRowKeys: [],
-      apps: []
-    };
     this.envGroup = null;
   }
   componentDidMount() {}
   handleSubmit = () => {
-    const form = this.props.form;
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
+      if (!err && onSubmit) {
+        onSubmit(fieldsValue);
+      }
     });
   };
   handleCancel = () => {
-    this.props.onCancel && this.props.onCancel();
-  };
-  hanldeMetaTypeChange = e => {
-    const { getFieldDecorator, setFieldsValue } = this.props.form;
-    const value = e.target.value;
-    if (value !== "un_define") {
-      setFieldsValue({ injection: "auto" });
+    const { onCancel } = this.props;
+    if (onCancel) {
+      onCancel();
     }
   };
-  checkInjection = (rule, value, callback) => {
+  hanldeMetaTypeChange = (e) => {
+    const { setFieldsValue } = this.props.form;
+    if (e.target.value !== 'un_define') {
+      setFieldsValue({ injection: 'auto' });
+    }
+  };
+  checkInjection = (_rule, _value, callback) => {
     if (this.envGroup) {
       if (this.envGroup.check()) {
         callback();
       } else {
-        callback("    ");
+        callback();
       }
     }
   };
-  handleEvnGroupMount = com => {
+  handleEvnGroupMount = (com) => {
     this.envGroup = com;
   };
   render() {
-    const title = this.props.title;
-
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const data = this.props.data || {};
-    const metaType = getFieldValue("service_meta_type") || "un_define";
-
+    const { title, form, data = {}, loading = false } = this.props;
+    const { getFieldDecorator, getFieldValue } = form;
+    const metaType = getFieldValue('service_meta_type') || 'un_define';
     return (
       <Modal
-        title={title || "新增配置组"}
+        title={title || '新增配置组'}
         width={1000}
         visible
+        confirmLoading={loading}
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
       >
@@ -400,16 +392,16 @@ export default class Index extends PureComponent {
             {...formItemLayout}
             label="配置组名"
           >
-            {getFieldDecorator("config_name", {
-              initialValue: data.config_name || "",
-              rules: [{ required: true, message: "请输入配置组名" }],
+            {getFieldDecorator('config_name', {
+              initialValue: data.config_name || '',
+              rules: [{ required: true, message: '请输入配置组名' }],
               validateFirst: true
             })(<Input placeholder="请输入配置组名" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="依赖元数据类型">
-            {getFieldDecorator("service_meta_type", {
-              initialValue: data.service_meta_type || "un_define",
-              rules: [{ required: true, message: "请输入配置组名" }]
+            {getFieldDecorator('service_meta_type', {
+              initialValue: data.service_meta_type || 'un_define',
+              rules: [{ required: true, message: '请输入配置组名' }]
             })(
               <RadioGroup onChange={this.hanldeMetaTypeChange}>
                 <Radio value="un_define">不依赖</Radio>
@@ -419,13 +411,13 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
           <Form.Item {...formItemLayout} label="注入类型">
-            {getFieldDecorator("injection", {
-              initialValue: data.injection || "env",
-              rules: [{ required: true, message: "请输入配置组名" }]
+            {getFieldDecorator('injection', {
+              initialValue: data.injection || 'env',
+              rules: [{ required: true, message: '请输入配置组名' }]
             })(
               <RadioGroup>
                 <Radio
-                  style={{ display: metaType === "un_define" ? "" : "none" }}
+                  style={{ display: metaType === 'un_define' ? '' : 'none' }}
                   value="env"
                 >
                   环境变量
@@ -434,13 +426,8 @@ export default class Index extends PureComponent {
               </RadioGroup>
             )}
           </Form.Item>
-          <Form.Item
-            validateStatus="t"
-            hasFeedback={false}
-            {...formItemLayout}
-            label="配置项"
-          >
-            {getFieldDecorator("options", {
+          <Form.Item validateStatus="t" {...formItemLayout} label="配置项">
+            {getFieldDecorator('options', {
               initialValue: data.options || [],
               rules: [{ validator: this.checkInjection }]
             })(

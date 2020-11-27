@@ -16,10 +16,13 @@ import styles from './Index.less';
 const ButtonGroup = Button.Group;
 
 @Form.create()
-@connect(({ teamControl, enterprise }) => ({
+@connect(({ teamControl, enterprise, loading }) => ({
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
+  addConfigLoading: loading.effects['plugin/addPluginVersionConfig'],
+  editConfigLoading: loading.effects['plugin/editPluginVersionConfig'],
+  removeConfigLoading: loading.effects['plugin/removePluginVersionConfig']
 }))
 export default class Index extends PureComponent {
   constructor(arg) {
@@ -32,11 +35,12 @@ export default class Index extends PureComponent {
       showEditConfig: null,
       showDeleteVersion: false,
       showBuildLog: false,
+      configVisible: false,
       event_id: '',
       apps: [],
       page: 1,
       page_size: 6,
-      total: 0,
+      total: 0
     };
     this.mount = false;
   }
@@ -50,7 +54,7 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     this.mount = false;
   }
-  onPageChange = page => {
+  onPageChange = (page) => {
     this.setState({ page }, () => {
       this.getUsedApp();
     });
@@ -60,8 +64,8 @@ export default class Index extends PureComponent {
       type: 'plugin/getShareRecord',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        plugin_id: this.getId(),
-      },
+        plugin_id: this.getId()
+      }
     });
   };
   getUsedApp = () => {
@@ -71,16 +75,16 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
         page: this.state.page,
-        page_size: this.state.page_size,
+        page_size: this.state.page_size
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState({
             apps: data.list || [],
-            total: data.total,
+            total: data.total
           });
         }
-      },
+      }
     });
   };
   getVersions = () => {
@@ -88,14 +92,14 @@ export default class Index extends PureComponent {
       type: 'plugin/getPluginVersions',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        plugin_id: this.getId(),
+        plugin_id: this.getId()
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           if (!this.state.currVersion && data.list.length) {
             this.setState(
               {
-                currVersion: data.list[0].build_version,
+                currVersion: data.list[0].build_version
               },
               () => {
                 this.getPluginVersionInfo();
@@ -104,7 +108,7 @@ export default class Index extends PureComponent {
             );
           }
         }
-      },
+      }
     });
   };
   getPluginVersionInfo = () => {
@@ -114,16 +118,16 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion,
+        build_version: this.state.currVersion
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState({ currInfo: data.bean });
           setTimeout(() => {
             this.getPluginVersionInfo();
           }, 5000);
         }
-      },
+      }
     });
   };
   getPluginVersionConfig = () => {
@@ -132,34 +136,34 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion,
+        build_version: this.state.currVersion
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState({ config: data.list });
         }
-      },
+      }
     });
   };
 
   getId = () => {
     return this.props.match.params.pluginId;
   };
-  handleSubmit = val => {
+  handleSubmit = (val) => {
     this.props.dispatch({
       type: 'plugin/createPlugin',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...val,
-      },
+        ...val
+      }
     });
   };
-  handleVersionChange = val => {
+  handleVersionChange = (val) => {
     const { key } = val;
     if (key === this.state.currVersion) return;
     this.setState(
       {
-        currVersion: key,
+        currVersion: key
       },
       () => {
         this.getPluginVersionInfo();
@@ -173,68 +177,80 @@ export default class Index extends PureComponent {
   hiddenAddConfig = () => {
     this.setState({ showAddConfig: false });
   };
-  hanldeEditSubmit = values => {
+  handleOpenDelConfigVisible = (data) => {
+    this.setState({ configVisible: data });
+  };
+
+  handleCloseDelConfigVisible = () => {
+    this.setState({ configVisible: false });
+  };
+
+  hanldeEditSubmit = (values) => {
     this.props.dispatch({
       type: 'plugin/editPluginVersionInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
         build_version: this.state.currVersion,
-        ...values,
+        ...values
       },
       callback: () => {
         Notification.success({ message: '修改成功' });
-      },
+      }
     });
   };
-  handleDelConfig = config => {
+  handleDelConfig = () => {
+    const { configVisible } = this.state;
     this.props.dispatch({
       type: 'plugin/removePluginVersionConfig',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
         build_version: this.state.currVersion,
-        config_group_id: config.ID,
+        config_group_id: configVisible.ID
       },
       callback: () => {
+        Notification.success({ message: '删除成功' });
         this.getPluginVersionConfig();
-      },
+        this.handleCloseDelConfigVisible();
+      }
     });
   };
-  handleAddConfig = values => {
+  handleAddConfig = (values) => {
     this.props.dispatch({
       type: 'plugin/addPluginVersionConfig',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
         build_version: this.state.currVersion,
-        entry: values,
+        entry: values
       },
       callback: () => {
         this.hiddenAddConfig();
         this.getPluginVersionConfig();
-      },
+      }
     });
   };
-  handleEditConfig = values => {
+  handleEditConfig = (values) => {
+    const { showEditConfig, currVersion } = this.state;
     this.props.dispatch({
       type: 'plugin/editPluginVersionConfig',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion,
+        build_version: currVersion,
         entry: {
-          ...this.state.showEditConfig,
-          ...values,
-        },
+          ...showEditConfig,
+          ...values
+        }
       },
       callback: () => {
         this.hideEditConfig();
         this.getPluginVersionConfig();
-      },
+      }
     });
   };
-  showEditConfig = config => {
+  showEditConfig = (config) => {
     this.setState({ showEditConfig: config });
   };
   hideEditConfig = () => {
@@ -252,13 +268,13 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion,
+        build_version: this.state.currVersion
       },
       callback: () => {
         this.cancelDeleteVersion();
         this.state.currVersion = '';
         this.getVersions();
-      },
+      }
     });
   };
   handleCreatePluginVersion = () => {
@@ -266,13 +282,13 @@ export default class Index extends PureComponent {
       type: 'plugin/createPluginVersion',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        plugin_id: this.getId(),
+        plugin_id: this.getId()
       },
       callback: () => {
         Notification.success({ message: '操作成功' });
         this.state.currVersion = '';
         this.getVersions();
-      },
+      }
     });
   };
   handleBuildPluginVersion = () => {
@@ -281,15 +297,22 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion,
+        build_version: this.state.currVersion
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
-          this.state.currVersion = '';
-          this.setState({ event_id: data.bean.event_id, showBuildLog: true });
-          this.getVersions();
+          this.setState(
+            {
+              currVersion: '',
+              event_id: data.bean.event_id,
+              showBuildLog: true
+            },
+            () => {
+              this.getVersions();
+            }
+          );
         }
-      },
+      }
     });
   };
   showBuildLog = () => {
@@ -311,9 +334,9 @@ export default class Index extends PureComponent {
       type: 'plugin/sharePlugin',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        plugin_id: this.getId(),
+        plugin_id: this.getId()
       },
-      callback: data => {
+      callback: (data) => {
         if (data.bean.step === 1) {
           dispatch(
             routerRedux.push(
@@ -332,7 +355,7 @@ export default class Index extends PureComponent {
             )
           );
         }
-      },
+      }
     });
   };
   render() {
@@ -340,9 +363,26 @@ export default class Index extends PureComponent {
       currentEnterprise,
       currentTeam,
       currentRegionName,
-      operationPermissions: { isCreate, isEdit, isDelete },
+      removeConfigLoading,
+      addConfigLoading,
+      editConfigLoading,
+      operationPermissions: { isCreate, isEdit, isDelete }
     } = this.props;
-    const { config, currInfo } = this.state;
+    const {
+      config,
+      currInfo,
+      configVisible,
+      showAddConfig,
+      showEditConfig,
+      showDeleteVersion,
+      showBuildLog,
+      currVersion,
+      event_id,
+      apps,
+      page,
+      page_size,
+      total
+    } = this.state;
     if (!currInfo) return null;
     const action = (
       <div>
@@ -365,7 +405,7 @@ export default class Index extends PureComponent {
       <Row
         style={{
           float: 'right',
-          width: 300,
+          width: 300
         }}
       >
         <Col xs={24} sm={12}>
@@ -388,7 +428,7 @@ export default class Index extends PureComponent {
     );
     breadcrumbList.push({
       title: '插件列表',
-      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/myplugns`,
+      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/myplugns`
     });
     breadcrumbList.push({ title: currInfo.plugin_alias });
     return (
@@ -401,14 +441,14 @@ export default class Index extends PureComponent {
       >
         <Card
           style={{
-            marginBottom: 16,
+            marginBottom: 16
           }}
           title="版本基础信息"
         >
           <div
             style={{
               maxWidth: 500,
-              margin: '0 auto',
+              margin: '0 auto'
             }}
           >
             <CreatePluginForm
@@ -424,7 +464,7 @@ export default class Index extends PureComponent {
 
         <Card
           style={{
-            marginBottom: 16,
+            marginBottom: 16
           }}
           title="配置组管理"
         >
@@ -433,28 +473,28 @@ export default class Index extends PureComponent {
               columns={[
                 {
                   title: '配置项名',
-                  dataIndex: 'config_name',
+                  dataIndex: 'config_name'
                 },
                 {
                   title: '依赖元数据类型',
                   dataIndex: 'service_meta_type',
-                  render: v => {
+                  render: (v) => {
                     return pluginUtil.getMetaTypeCN(v);
-                  },
+                  }
                 },
                 {
                   title: '注入类型',
                   dataIndex: 'injection',
-                  render: v => {
+                  render: (v) => {
                     return pluginUtil.getInjectionCN(v);
-                  },
+                  }
                 },
                 {
                   title: '配置项',
                   dataIndex: 'options',
                   width: '40%',
-                  render: v => {
-                    return (v || []).map(item => {
+                  render: (v) => {
+                    return (v || []).map((item) => {
                       return (
                         <p className={styles.configGroup}>
                           <span>属性名: {item.attr_name}</span>
@@ -469,12 +509,12 @@ export default class Index extends PureComponent {
                         </p>
                       );
                     });
-                  },
+                  }
                 },
                 {
                   title: '操作',
                   dataIndex: 'action',
-                  render: (v, data) => {
+                  render: (_v, data) => {
                     return (
                       <Fragment>
                         {isEdit && (
@@ -484,7 +524,7 @@ export default class Index extends PureComponent {
                               this.showEditConfig(data);
                             }}
                             style={{
-                              marginRight: 8,
+                              marginRight: 8
                             }}
                           >
                             修改
@@ -494,7 +534,7 @@ export default class Index extends PureComponent {
                           <a
                             href="javascript:;"
                             onClick={() => {
-                              this.handleDelConfig(data);
+                              this.handleOpenDelConfigVisible(data);
                             }}
                           >
                             删除
@@ -502,8 +542,8 @@ export default class Index extends PureComponent {
                         )}
                       </Fragment>
                     );
-                  },
-                },
+                  }
+                }
               ]}
               dataSource={config}
               pagination={false}
@@ -512,7 +552,7 @@ export default class Index extends PureComponent {
           <div
             style={{
               textAlign: 'right',
-              paddingTop: 24,
+              paddingTop: 24
             }}
           >
             <Button onClick={this.showAddConfig}>
@@ -538,11 +578,11 @@ export default class Index extends PureComponent {
                       {v}
                     </Link>
                   );
-                },
+                }
               },
               {
                 title: '安装版本',
-                dataIndex: 'build_version',
+                dataIndex: 'build_version'
               },
               {
                 title: '操作',
@@ -557,32 +597,45 @@ export default class Index extends PureComponent {
                       查看已安装插件
                     </Link>
                   );
-                },
-              },
+                }
+              }
             ]}
-            dataSource={this.state.apps}
+            dataSource={apps}
             pagination={{
-              current: this.state.page,
-              pageSize: this.state.page_size,
-              total: this.state.total,
-              onChange: this.onPageChange,
+              current: page,
+              pageSize: page_size,
+              total,
+              onChange: this.onPageChange
             }}
           />
         </Card>
-        {this.state.showAddConfig && (
+        {configVisible && (
+          <ConfirmModal
+            title="删除配置项"
+            subDesc="此操作不可恢复"
+            desc="确定要删除此配置项？"
+            loading={removeConfigLoading}
+            onOk={this.handleDelConfig}
+            onCancel={this.handleCloseDelConfigVisible}
+          />
+        )}
+        {showAddConfig && (
           <AddOrEditConfig
+            loading={addConfigLoading}
             onCancel={this.hiddenAddConfig}
             onSubmit={this.handleAddConfig}
           />
         )}
-        {this.state.showEditConfig && (
+        {showEditConfig && (
           <AddOrEditConfig
-            data={this.state.showEditConfig}
+            title="修改配置组"
+            loading={editConfigLoading}
+            data={showEditConfig}
             onCancel={this.hideEditConfig}
             onSubmit={this.handleEditConfig}
           />
         )}
-        {this.state.showDeleteVersion && (
+        {showDeleteVersion && (
           <ConfirmModal
             onOk={this.handleDeleteVersion}
             onCancel={this.cancelDeleteVersion}
@@ -591,12 +644,12 @@ export default class Index extends PureComponent {
             subDesc="此操作不可恢复"
           />
         )}
-        {this.state.showBuildLog && this.state.currVersion && (
+        {showBuildLog && currVersion && (
           <BuildPluginVersion
             onCancel={this.hideBuildLog}
-            event_id={this.state.event_id}
+            event_id={event_id}
             plugin_id={this.getId()}
-            build_version={this.state.currVersion}
+            build_version={currVersion}
           />
         )}
       </PageHeaderLayout>

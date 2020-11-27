@@ -74,7 +74,7 @@ class LicenseDrawer extends PureComponent {
       setFieldsValue,
       formItemLayout,
       Form,
-      width: '338px',
+      width: '328px',
       getFieldDecorator,
     };
     const certificateList = [

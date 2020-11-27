@@ -45,7 +45,7 @@ class AccesstokenForm extends PureComponent {
   };
 
   addAccesstoken = values => {
-    const { dispatch, onOk } = this.props;
+    const { dispatch } = this.props;
     this.setState({ loading: true });
     dispatch({
       type: 'user/addAccessToken',
@@ -59,7 +59,7 @@ class AccesstokenForm extends PureComponent {
   };
 
   putAccesstoken = ID => {
-    const { dispatch, onOk } = this.props;
+    const { dispatch } = this.props;
     this.setState({ loading: true });
     dispatch({
       type: 'user/putAccessToken',
@@ -68,13 +68,13 @@ class AccesstokenForm extends PureComponent {
       },
       callback: res => {
         if (res && res._code === 200) {
-          this.setState({ accessKey: res.bean.access_key });
+          this.setState({ loading: false, accessKey: res.bean.access_key });
         }
       },
     });
   };
 
-  disabledDate = current => {
+  disabledDate = (current) => {
     // Can not select days before today and today
     return current && current < moment().endOf('day');
   };
