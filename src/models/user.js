@@ -50,8 +50,8 @@ export default {
       }
     },
 
-    *addAccessToken({ payload, callback }, { call, put }) {
-      const data = yield call(addAccessToken, payload);
+    *addAccessToken({ payload, callback, handleError }, { call, put }) {
+      const data = yield call(addAccessToken, payload, handleError);
       if (data && callback) {
         callback(data);
       }
