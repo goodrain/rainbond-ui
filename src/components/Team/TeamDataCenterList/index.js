@@ -1,16 +1,16 @@
-import { Card } from "antd";
-import { connect } from "dva";
-import moment from "moment";
-import React, { PureComponent } from "react";
-import ConfirmModal from "../../../components/ConfirmModal";
-import globalUtil from "../../../utils/global";
-import OpenRegion from "../../OpenRegion";
-import styles from "./index.less";
+import { Card } from 'antd';
+import { connect } from 'dva';
+import moment from 'moment';
+import React, { PureComponent } from 'react';
+import ConfirmModal from '../../../components/ConfirmModal';
+import globalUtil from '../../../utils/global';
+import OpenRegion from '../../OpenRegion';
+import styles from './index.less';
 
 @connect(({ teamControl, loading }) => ({
   regions: teamControl.regions,
-  projectLoading: loading.effects["project/fetchNotice"],
-  activitiesLoading: loading.effects["activities/fetchList"]
+  projectLoading: loading.effects['project/fetchNotice'],
+  activitiesLoading: loading.effects['activities/fetchList']
 }))
 export default class DatacenterList extends PureComponent {
   constructor(props) {
@@ -32,14 +32,14 @@ export default class DatacenterList extends PureComponent {
   };
   handleOpenRegion = regions => {
     this.props.dispatch({
-      type: "teamControl/openRegion",
+      type: 'teamControl/openRegion',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        region_names: regions.join(",")
+        region_names: regions.join(',')
       },
       callback: () => {
         this.fetchRegions();
-        this.props.dispatch({ type: "user/fetchCurrent" });
+        this.props.dispatch({ type: 'user/fetchCurrent' });
         this.cancelOpenRegion();
       }
     });
@@ -47,14 +47,14 @@ export default class DatacenterList extends PureComponent {
   handleCloseRegion = () => {
     const { regionName } = this.state;
     this.props.dispatch({
-      type: "teamControl/closeTeamRegion",
+      type: 'teamControl/closeTeamRegion',
       payload: {
         teamName: globalUtil.getCurrTeamName(),
         regionName
       },
       callback: () => {
         this.fetchRegions();
-        this.props.dispatch({ type: "user/fetchCurrent" });
+        this.props.dispatch({ type: 'user/fetchCurrent' });
         this.cancelCloseRegion();
       }
     });
@@ -63,7 +63,7 @@ export default class DatacenterList extends PureComponent {
     const { dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     dispatch({
-      type: "teamControl/fetchRegions",
+      type: 'teamControl/fetchRegions',
       payload: {
         team_name: teamName
       }
@@ -79,7 +79,7 @@ export default class DatacenterList extends PureComponent {
     const {
       regions,
       projectLoading,
-      datecenterPermissions: { isInstall }
+      datecenterPermissions: { isInstall, isUninstall }
     } = this.props;
     const { openRegion, showUninstallCluster, closeRegionLoading } = this.state;
 
@@ -137,22 +137,24 @@ export default class DatacenterList extends PureComponent {
                         />
                       </svg>
                       <a>{item.region_alisa}</a>
-                      <a
-                        onClick={() => this.showCloseRegion(item.region_name)}
-                        style={{ float: "right", color: "#1890ff" }}
-                      >
-                        卸载
-                      </a>
+                      {isUninstall && (
+                        <a
+                          onClick={() => this.showCloseRegion(item.region_name)}
+                          style={{ float: 'right', color: '#1890ff' }}
+                        >
+                          卸载
+                        </a>
+                      )}
                     </div>
                   }
-                  description={item.desc || "-"}
+                  description={item.desc || '-'}
                 />
                 <div className={styles.projectItemContent}>
                   <span className={styles.datetime}>
-                    开通于{" "}
+                    开通于{' '}
                     {moment(item.create_time)
-                      .locale("zh-cn")
-                      .format("YYYY年-MM月-DD日")}
+                      .locale('zh-cn')
+                      .format('YYYY年-MM月-DD日')}
                   </span>
                 </div>
               </Card>
@@ -161,14 +163,14 @@ export default class DatacenterList extends PureComponent {
           {!regions || !regions.length ? (
             <p
               style={{
-                textAlign: "center",
+                textAlign: 'center',
                 paddingTop: 20
               }}
             >
               暂无集群
             </p>
           ) : (
-            ""
+            ''
           )}
         </Card>
         {openRegion && (

@@ -1,4 +1,4 @@
-@import "~antd/lib/style/themes/default.less";
+@import '~antd/lib/style/themes/default.less';
 
 .content {
   margin: 24px 24px 0;
@@ -7,6 +7,14 @@
   text-align: center;
   padding: 16px 0;
 }
+.customFooter {
+  :global {
+    .ant-pro-global-footer-links a:not(:last-child) {
+      margin-right: 20px;
+    }
+  }
+}
+
 @media screen and (max-width: @screen-sm) {
   .content {
     margin: 24px 0 0;

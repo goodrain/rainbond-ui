@@ -298,7 +298,7 @@ export default class CreateCheck extends PureComponent {
     const appDetail = this.state.appDetail;
     const params = this.getParams();
     this.props.dispatch({
-      type: 'groupControl/buildCompose',
+      type: 'application/buildCompose',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...params,
@@ -507,7 +507,7 @@ export default class CreateCheck extends PureComponent {
   handleModifyCompose = vals => {
     const params = this.getParams();
     this.props.dispatch({
-      type: 'groupControl/editAppCreateCompose',
+      type: 'application/editAppCreateCompose',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: params.group_id,
@@ -533,7 +533,7 @@ export default class CreateCheck extends PureComponent {
   handleDelete = () => {
     const params = this.getParams();
     this.props.dispatch({
-      type: 'groupControl/deleteCompose',
+      type: 'application/deleteCompose',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...params,

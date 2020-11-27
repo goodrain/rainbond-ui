@@ -1,22 +1,23 @@
+import { Upload } from 'antd';
 import React, { PureComponent } from 'react';
 import CodeMirror from 'react-codemirror';
-import { Upload } from 'antd';
-import cookie from '../../utils/cookie';
 import apiconfig from '../../../config/api.config';
+import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 
 require('codemirror/lib/codemirror.css');
-
 require('codemirror/theme/seti.css');
 require('codemirror/addon/display/fullscreen.css');
 require('../../styles/codemirror.less');
-
 require('codemirror/addon/display/panel');
+require('codemirror/mode/xml/xml');
 require('codemirror/mode/javascript/javascript');
 require('codemirror/mode/yaml/yaml');
 require('codemirror/addon/display/fullscreen');
 require('codemirror/addon/edit/matchbrackets');
 
+
+// eslint-disable-next-line react/no-redundant-should-component-update
 class CodeMirrorForm extends PureComponent {
   constructor(props) {
     super(props);
@@ -25,7 +26,7 @@ class CodeMirrorForm extends PureComponent {
     };
     this.CodeMirrorRef = '';
   }
-
+  
   saveRef = (ref) => {
     this.CodeMirrorRef = ref;
   };
@@ -126,7 +127,6 @@ class CodeMirrorForm extends PureComponent {
     };
 
     const token = cookie.get('token');
-
     return (
       <Form.Item
         {...formItemLayout}

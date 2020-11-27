@@ -72,7 +72,7 @@ export default class AppGatewayList extends PureComponent {
     const { dispatch, match } = this.props;
     const { teamName, regionName, appID } = match.params;
     dispatch({
-      type: 'groupControl/fetchGroupDetail',
+      type: 'application/fetchGroupDetail',
       payload: {
         team_name: teamName,
         region_name: regionName,

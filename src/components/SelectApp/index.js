@@ -3,9 +3,9 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import roleUtil from '../../utils/role';
 import EditGroupName from '../AddOrEditGroup';
 import style from '../SelectTeam/index.less';
-import roleUtil from '../../utils/role';
 
 @connect(({ user, teamControl }) => ({
   currentUser: user.currentUser,
@@ -25,7 +25,7 @@ export default class SelectApp extends PureComponent {
   componentDidMount() {
     this.loadTeamApps();
   }
-  queryApps = (query) => {
+  queryApps = query => {
     this.setState({ queryName: query }, () => {
       this.loadTeamApps();
     });
@@ -39,10 +39,10 @@ export default class SelectApp extends PureComponent {
         team_name: currentTeam.team_name,
         query: queryName
       },
-      callback: (list) => {
+      callback: list => {
         if (list && list.length > 0) {
           const currentList = list.filter(
-            (item) => item.group_id == currentAppID
+            item => item.group_id == currentAppID
           );
           if (currentList && currentList.length > 0) {
             this.setState({ currentApp: currentList[0] });
@@ -58,14 +58,14 @@ export default class SelectApp extends PureComponent {
     this.handleOut();
     this.setState({ showCreateApp: true });
   };
-  handleCreateApp = (vals) => {
+  handleCreateApp = vals => {
     const { dispatch, currentTeam } = this.props;
     dispatch({
-      type: 'groupControl/addGroup',
+      type: 'application/addGroup',
       payload: {
         team_name: currentTeam.team_name,
         group_name: vals.group_name,
-        group_note: vals.group_note
+        note: vals.note
       },
       callback: () => {
         notification.success({ message: formatMessage({ id: 'add.success' }) });
@@ -127,7 +127,7 @@ export default class SelectApp extends PureComponent {
         <div>
           <div className={style.dropBoxList}>
             <ul>
-              {teamApps.map((item) => {
+              {teamApps.map(item => {
                 const link = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${item.group_id}`;
                 return (
                   <li key={item.group_id}>

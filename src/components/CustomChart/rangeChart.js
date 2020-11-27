@@ -6,12 +6,16 @@
 // eslint-disable-next-line react/no-multi-comp
 import React, { Fragment, PureComponent } from 'react';
 import moment from 'moment';
-import { Card, Spin } from 'antd';
+import { connect } from 'dva';
+import { Card, Spin, notification, Checkbox } from 'antd';
 import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import globalUtil from '@/utils/global';
 import monitorDataUtil from '@/utils/monitorDataUtil';
+import CustomMonitoring from '@/components/CustomMonitoring';
+import styless from './index.less';
 import { start } from '@/services/app';
 
+@connect()
 export default class RangeChart extends PureComponent {
   constructor(props) {
     super(props);
@@ -20,27 +24,43 @@ export default class RangeChart extends PureComponent {
       performanceObj: {}
     };
   }
-
-  componentDidMount() {
+  componentWillMount() {
     const { moduleName } = this.props;
-    if (moduleName === 'PerformanceAnalysis') {
+    if (
+      moduleName === 'PerformanceAnalysis' ||
+      moduleName === 'CustomMonitor'
+    ) {
       this.loadPerformanceAnalysis(this.props);
     } else {
       this.loadRangeData(this.props);
     }
   }
+
   componentWillReceiveProps(nextProps) {
-    const { start, end, step, moduleName } = this.props;
-    const { start: newStart, end: newEnd, step: newStep } = nextProps;
-    const isUpData = start !== newStart || end !== newEnd || step !== newStep;
+    const { start: oldStart, end, step, moduleName } = this.props;
+    const {
+      start: newStart,
+      end: newEnd,
+      step: newStep,
+      isRender: newIsRender
+    } = nextProps;
+
+    const isUpData =
+      oldStart !== newStart || end !== newEnd || step !== newStep;
+    if (
+      moduleName === 'CustomMonitor' &&
+      (isUpData && newIsRender)
+    ) {
+      this.loadPerformanceAnalysis(nextProps);
+    }
     if (moduleName === 'PerformanceAnalysis' && isUpData) {
       this.loadPerformanceAnalysis(nextProps);
-    } else if (isUpData) {
+    } else if (isUpData && moduleName !== 'CustomMonitor') {
       this.loadRangeData(nextProps);
     }
   }
 
-  loadPerformanceAnalysis = props => {
+  loadPerformanceAnalysis = (props) => {
     this.setState({ loading: true });
     const { dispatch, appAlias } = props;
     dispatch({
@@ -48,7 +68,7 @@ export default class RangeChart extends PureComponent {
       payload: Object.assign({}, this.handleParameter(props), {
         app_alias: appAlias
       }),
-      callback: re => {
+      callback: (re) => {
         this.setState({ loading: false });
         if (re.bean) {
           this.setState({ performanceObj: re.bean });
@@ -56,7 +76,7 @@ export default class RangeChart extends PureComponent {
       }
     });
   };
-  loadRangeData = props => {
+  loadRangeData = (props) => {
     this.setState({ loading: true });
     const { appDetail, dispatch } = props;
     dispatch({
@@ -64,7 +84,7 @@ export default class RangeChart extends PureComponent {
       payload: Object.assign({}, this.handleParameter(props), {
         componentAlias: appDetail.service.service_alias
       }),
-      callback: re => {
+      callback: (re) => {
         this.setState({ loading: false });
         if (re.bean) {
           this.setState({ memoryRange: re.bean.result });
@@ -72,10 +92,10 @@ export default class RangeChart extends PureComponent {
       }
     });
   };
-  handleParameter = props => {
-    const { type, start, end } = props;
+  handleParameter = (props) => {
+    const { moduleName, type, start, end } = props;
     return {
-      query: this.getQueryByType(type),
+      query: moduleName === 'CustomMonitor' ? type : this.getQueryByType(type),
       start: start || new Date().getTime() / 1000 - 60 * 60,
       end: end || new Date().getTime() / 1000,
       step: Math.ceil((end - start) / 100) || 15,
@@ -83,7 +103,7 @@ export default class RangeChart extends PureComponent {
     };
   };
 
-  getQueryByType = T => {
+  getQueryByType = (T) => {
     const { appDetail, baseInfo } = this.props;
     if (appDetail && appDetail.service) {
       const {
@@ -117,7 +137,10 @@ export default class RangeChart extends PureComponent {
     return ``;
   };
   getMeta = () => {
-    const { type } = this.props;
+    const { type, title, moduleName } = this.props;
+    if (moduleName === 'CustomMonitor') {
+      return { title, label: title, unit: ' ' };
+    }
     switch (type) {
       case 'containerMem':
         return { title: '内存使用量', label: '内存（MB）', unit: ' MB' };
@@ -137,13 +160,13 @@ export default class RangeChart extends PureComponent {
         return { title: '', label: '', unit: '' };
     }
   };
-  converData = dataRange => {
+  converData = (dataRange) => {
     const rangedata = [];
     if (dataRange) {
-      dataRange.map(item => {
+      dataRange.map((item) => {
         const cid = item.metric.pod;
         if (item.values) {
-          item.values.map(v => {
+          item.values.map((v) => {
             rangedata.push({
               cid,
               time: v[0] * 1000,
@@ -158,19 +181,54 @@ export default class RangeChart extends PureComponent {
 
   loadRefresh = () => {
     const { moduleName } = this.props;
-    if (moduleName === 'PerformanceAnalysis') {
+    if (
+      moduleName === 'PerformanceAnalysis' ||
+      moduleName === 'CustomMonitor'
+    ) {
       this.loadPerformanceAnalysis(this.props);
     } else {
       this.loadRangeData(this.props);
     }
   };
 
+  handleSubmit = (vals) => {
+    const { dispatch, appAlias, CustomMonitorInfo, upData } = this.props;
+    if (CustomMonitorInfo && CustomMonitorInfo.graph_id && upData) {
+      dispatch({
+        type: 'monitor/editServiceMonitorFigure',
+        payload: {
+          app_alias: appAlias,
+          team_name: globalUtil.getCurrTeamName(),
+          ...vals,
+          graph_id: CustomMonitorInfo.graph_id,
+          sequence: CustomMonitorInfo.sequence
+        },
+        callback: (res) => {
+          if (res && res._code === 200) {
+            notification.success({
+              message: '保存成功'
+            });
+            upData();
+            this.onCancelCustomMonitoring();
+          }
+        }
+      });
+    }
+  };
+
   render() {
-    const { moduleName } = this.props;
+    const {
+      moduleName,
+      onDelete,
+      onEdit,
+      CustomMonitorInfo,
+      isEdit = true
+    } = this.props;
     const { memoryRange, performanceObj, loading } = this.state;
+    const isCustomMonitor = moduleName === 'CustomMonitor';
     const { title, label, unit } = this.getMeta();
     const data =
-      moduleName === 'PerformanceAnalysis'
+      moduleName === 'PerformanceAnalysis' || isCustomMonitor
         ? monitorDataUtil.queryRangeTog2F(performanceObj, title)
         : this.converData(memoryRange);
     const cols = {
@@ -178,10 +236,7 @@ export default class RangeChart extends PureComponent {
         alias: '时间',
         tickCount: 10,
         type: 'time',
-        formatter: v =>
-          moment(new Date(v))
-            .locale('zh-cn')
-            .format('HH:mm')
+        formatter: (v) => moment(new Date(v)).locale('zh-cn').format('HH:mm')
       },
       value: {
         alias: { label },
@@ -195,15 +250,49 @@ export default class RangeChart extends PureComponent {
       <Fragment>
         <Spin spinning={loading}>
           <Card
+            className={isCustomMonitor && styless.rangeChart}
             title={title}
-            extra={<a onClick={() => this.loadRefresh()}>刷新</a>}
+            extra={
+              isEdit && (
+                <div>
+                  {isCustomMonitor && (
+                    <span>
+                      <a
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onEdit(e, CustomMonitorInfo);
+                        }}
+                        style={{ marginRight: '10px' }}
+                      >
+                        编辑
+                      </a>
+                      <a
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onDelete(CustomMonitorInfo);
+                        }}
+                        style={{ marginRight: '10px' }}
+                      >
+                        删除
+                      </a>
+                    </span>
+                  )}
+                  <a onClick={this.loadRefresh}>刷新</a>
+                </div>
+              )
+            }
           >
-            <Chart height={400} data={data} scale={cols} forceFit>
+            <Chart
+              height={isCustomMonitor ? 200 : 400}
+              data={data}
+              scale={cols}
+              forceFit
+            >
               <Legend />
               <Axis
                 name="value"
                 label={{
-                  formatter: val => `${val}${unit}`
+                  formatter: (val) => `${val}${unit}`
                 }}
               />
               <Axis name="time" />
@@ -217,7 +306,7 @@ export default class RangeChart extends PureComponent {
                 position="time*value"
                 color="cid"
                 shape="smooth"
-                size={2}
+                size={1}
               />
             </Chart>
           </Card>

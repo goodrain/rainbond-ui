@@ -6,7 +6,7 @@ const FormItem = Form.Item;
 
 @Form.create()
 export default class CollectionView extends PureComponent {
-  handleSubmit = e => {
+  handleSubmit = (e) => {
     e.preventDefault();
     const { form, onOk } = this.props;
     const { validateFields } = form;
@@ -18,19 +18,27 @@ export default class CollectionView extends PureComponent {
   };
 
   render() {
-    const { visible, onCancel, form, title, data } = this.props;
+    const {
+      visible,
+      onCancel,
+      form,
+      title,
+      data,
+      loading = false
+    } = this.props;
     const formItemLayout = {
       labelCol: {
-        span: 5,
+        span: 5
       },
       wrapperCol: {
-        span: 19,
-      },
+        span: 19
+      }
     };
     const { getFieldDecorator } = form;
     return (
       <Modal
         className={styless.TelescopicModal}
+        confirmLoading={loading}
         title={title}
         visible={visible}
         onOk={this.handleSubmit}
@@ -43,8 +51,17 @@ export default class CollectionView extends PureComponent {
           <FormItem {...formItemLayout} label="名称">
             {getFieldDecorator('name', {
               initialValue: (data && data.name) || '',
-              rules: [{ required: true, message: '请输入名称' }],
+              rules: [
+                { required: true, message: '请输入名称' },
+                {
+                  max: 10,
+                  message: '收藏名称最多10个字'
+                }
+              ]
             })(<Input placeholder="请输入名称" />)}
+            <div className={styless.conformDesc}>
+              请输入收藏名称，最多10个字
+            </div>
           </FormItem>
         </Form>
       </Modal>

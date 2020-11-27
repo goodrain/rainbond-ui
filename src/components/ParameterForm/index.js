@@ -23,14 +23,14 @@ class ParameterForm extends PureComponent {
       WebSocket: !!(props.editInfo && props.editInfo.WebSocket)
     };
   }
-  onChangeWebSocket = e => {
+  onChangeWebSocket = (e) => {
     const { setFieldsValue } = this.props.form;
     this.setState({ WebSocket: !this.state.WebSocket }, () => {
       setFieldsValue({ WebSocket: this.state.WebSocket });
     });
   };
 
-  handleOk = e => {
+  handleOk = (e) => {
     e.preventDefault();
     const { onOk, form } = this.props;
     form.validateFields((err, values) => {
@@ -39,7 +39,7 @@ class ParameterForm extends PureComponent {
       }
     });
   };
-  checkContent = (res, value, callback) => {
+  checkContent = (_, value, callback) => {
     let num = Number(value);
     if (num) {
       if (num < 0) {
@@ -54,7 +54,16 @@ class ParameterForm extends PureComponent {
     callback();
   };
   render() {
-    const { getFieldDecorator } = this.props.form;
+    const { editInfo, form, onClose, visible } = this.props;
+    const { getFieldDecorator } = form;
+    const { proxyBuffering, WebSocket } = this.state;
+    const customRules = [
+      {
+        pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+        message: '请输入整数'
+      },
+      { validator: this.checkContent }
+    ];
     const formItemLayout = {
       labelCol: {
         xs: { span: 8 },
@@ -65,8 +74,6 @@ class ParameterForm extends PureComponent {
         sm: { span: 16 }
       }
     };
-    const { editInfo } = this.props;
-    const { proxyBuffering, WebSocket } = this.state;
     return (
       <div>
         <Drawer
@@ -74,8 +81,8 @@ class ParameterForm extends PureComponent {
           placement="right"
           width={500}
           closable={false}
-          onClose={this.props.onClose}
-          visible={this.props.visible}
+          onClose={onClose}
+          visible={visible}
           maskClosable={false}
           style={{
             overflow: 'auto'
@@ -140,9 +147,10 @@ class ParameterForm extends PureComponent {
                   {
                     required: true,
                     message: '请输入'
-                  }
+                  },
+                  ...customRules
                 ],
-                initialValue: editInfo ? editInfo.proxy_body_size : '1'
+                initialValue: editInfo ? editInfo.proxy_body_size : '0'
               })(<Input addonAfter="Mb" />)}
             </FormItem>
             <FormItem
@@ -151,13 +159,7 @@ class ParameterForm extends PureComponent {
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_buffer_numbers', {
-                rules: [
-                  {
-                    pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                    message: '请输入数字'
-                  },
-                  { validator: this.checkContent }
-                ],
+                rules: customRules,
                 initialValue: editInfo ? editInfo.proxy_buffer_numbers : '4'
               })(<Input />)}
             </FormItem>
@@ -167,13 +169,7 @@ class ParameterForm extends PureComponent {
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_buffer_size', {
-                rules: [
-                  {
-                    pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                    message: '请输入数字'
-                  },
-                  { validator: this.checkContent }
-                ],
+                rules: customRules,
                 initialValue: editInfo ? editInfo.proxy_buffer_size : '4'
               })(<Input addonAfter="K" placeholder="请输入缓冲区大小" />)}
             </FormItem>
@@ -252,7 +248,7 @@ class ParameterForm extends PureComponent {
               style={{
                 marginRight: 8
               }}
-              onClick={this.props.onClose}
+              onClick={onClose}
             >
               取消
             </Button>

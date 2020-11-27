@@ -136,16 +136,18 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
   );
 
   const control = roleUtil.queryControlInfo(permissionsInfo, 'describe');
-
+  const isAppConfigGroup = roleUtil.queryAppConfigGroupInfo(
+    permissionsInfo,
+    'describe'
+  );
   const { isShare, isBackup, isUpgrade } = appPermissions;
-
   const menuArr = [
     {
       name: formatMessage({ id: 'menu.app.dashboard' }),
       icon: 'dashboard',
       path: `team/${teamName}/region/${regionName}/apps/${appID}`,
-      authority: ['admin', 'user'],
-    },
+      authority: ['admin', 'user']
+    }
   ];
 
   function addMenuArr(obj) {
@@ -157,7 +159,7 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       name: formatMessage({ id: 'menu.app.publish' }),
       icon: publishIcon,
       path: `team/${teamName}/region/${regionName}/apps/${appID}/publish`,
-      authority: ['admin', 'user'],
+      authority: ['admin', 'user']
     });
   }
 
@@ -166,7 +168,7 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       name: formatMessage({ id: 'menu.app.backup' }),
       icon: backupIcon,
       path: `team/${teamName}/region/${regionName}/apps/${appID}/backup`,
-      authority: ['admin', 'user'],
+      authority: ['admin', 'user']
     });
   }
   if (control) {
@@ -174,24 +176,30 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       name: formatMessage({ id: 'menu.app.gateway' }),
       icon: 'gateway',
       path: `team/${teamName}/region/${regionName}/apps/${appID}/gateway`,
-      authority: ['admin', 'user'],
+      authority: ['admin', 'user']
     });
   }
-
   if (isUpgrade) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.upgrade' }),
       icon: upgradeIcon,
       path: `team/${teamName}/region/${regionName}/apps/${appID}/upgrade`,
-      authority: ['admin', 'user'],
+      authority: ['admin', 'user']
     });
   }
-
+  if (isAppConfigGroup) {
+    addMenuArr({
+      name: formatMessage({ id: 'menu.app.configgroups' }),
+      icon: 'setting',
+      path: `team/${teamName}/region/${regionName}/apps/${appID}/configgroups`,
+      authority: ['admin', 'user']
+    });
+  }
   return menuArr;
 }
 
 function formatter(data, parentPath = '', parentAuthority) {
-  return data.map(item => {
+  return data.map((item) => {
     let { path } = item;
     if (!isUrl(path)) {
       path = parentPath + item.path;
@@ -199,7 +207,7 @@ function formatter(data, parentPath = '', parentAuthority) {
     const result = {
       ...item,
       path,
-      authority: item.authority || parentAuthority,
+      authority: item.authority || parentAuthority
     };
     if (item.children) {
       result.children = formatter(

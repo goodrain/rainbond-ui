@@ -400,7 +400,7 @@ export default class Index extends PureComponent {
                                     key={url}
                                     style={{ position: 'relative', padding: 0 }}
                                   >
-                                    <Checkbox value={domain}>
+                                    <Checkbox value={domain}   style={{ width: '400px' }}>
                                       <Card className={PluginStyles.cards}>
                                         <Card.Meta
                                           className={PluginStyles.cardsMetas}
