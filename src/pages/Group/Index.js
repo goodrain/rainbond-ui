@@ -13,7 +13,7 @@ import {
 import { connect } from 'dva';
 import moment from 'moment';
 import { routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { batchOperation } from '../../services/app';
 import ConfirmModal from '../../components/ConfirmModal';
 import RapidCopy from '../../components/RapidCopy';
@@ -535,7 +535,7 @@ class Main extends PureComponent {
       stop: '停用',
       deploy: '构建'
     };
- 
+
     const appState = {
       RUNNING: '运行中',
       STARTING: '启动中',
@@ -799,21 +799,10 @@ class Main extends PureComponent {
         </div>
       </div>
     );
-    let breadcrumbList = [];
-    breadcrumbList = createApp(
-      createTeam(
-        createEnterprise(breadcrumbList, currentEnterprise),
-        currentTeam,
-        currentRegionName
-      ),
-      currentTeam,
-      currentRegionName,
-      { appName: groupDetail.group_name, appID: groupDetail.app_id }
-    );
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     return (
-      <PageHeaderLayout breadcrumbList={breadcrumbList} loading={loadingDetail}>
+      <Fragment>
         <Row>{pageHeaderContent}</Row>
         {customSwitch && (
           <ApplicationGovernance
@@ -991,7 +980,7 @@ class Main extends PureComponent {
             <p>{codeObj[code]}当前应用下的全部组件？</p>
           </Modal>
         )}
-      </PageHeaderLayout>
+      </Fragment>
     );
   }
 }

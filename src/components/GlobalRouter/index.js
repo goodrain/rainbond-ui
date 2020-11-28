@@ -336,7 +336,7 @@ export default class GlobalRouter extends PureComponent {
           ]}
           style={{
             width: '68px',
-            height: '100%',
+            height: 'calc(100vh - 64px)',
             position: 'relative'
           }}
         >
