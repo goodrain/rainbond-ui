@@ -1,8 +1,8 @@
-import React, { PureComponent } from 'react';
+import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
-import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
+import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreatUser from '../../components/CreatUserForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -354,7 +354,6 @@ export default class EnterpriseUsers extends PureComponent {
           )}
 
           <Table
-            size="middle"
             pagination={{
               current: page,
               pageSize,
