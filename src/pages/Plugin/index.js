@@ -178,8 +178,10 @@ class PluginList extends PureComponent {
     this.state = {
       defaultList: [],
       list: [],
+      installLoading: false,
       deletePlugin: null,
-      pluginInfo: null
+      pluginInfo: null,
+      currentType: false
     };
     this.timer = null;
   }
@@ -191,20 +193,32 @@ class PluginList extends PureComponent {
     this.setState({ deletePlugin: plugin, pluginInfo: plugin });
   };
   onInstallPlugin = (item) => {
-    this.props.dispatch({
-      type: 'plugin/installDefaultPlugin',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        plugin_type: item.category
+    this.setState(
+      {
+        currentType: item.plugin_type,
+        installLoading: true
       },
-      callback: (data) => {
-        this.fetchDefaultPlugin();
+      () => {
+        this.props.dispatch({
+          type: 'plugin/installDefaultPlugin',
+          payload: {
+            team_name: globalUtil.getCurrTeamName(),
+            plugin_type: item.category
+          },
+          callback: (res) => {
+            if (res && res._code === 200) {
+              notification.success({ message: '安装成功' });
+            }
+            this.fetchDefaultPlugin();
+          }
+        });
       }
-    });
+    );
   };
 
   getAction = (item, operationPermissions) => {
     const { isCreate, isDelete } = operationPermissions;
+    const { installLoading, currentType } = this.state;
     if (item.has_install !== false) {
       const arr = [];
       if (isDelete) {
@@ -232,13 +246,18 @@ class PluginList extends PureComponent {
     }
     if (isCreate) {
       return [
-        <span
+        <Button
+          type="link"
+          style={{ height: '17px', color: 'rgba(0, 0, 0, 0.45)' }}
+          loading={
+            currentType && currentType === item.plugin_type && installLoading
+          }
           onClick={() => {
             this.onInstallPlugin(item);
           }}
         >
           安装
-        </span>
+        </Button>
       ];
     }
     return [];
@@ -299,7 +318,9 @@ class PluginList extends PureComponent {
           }
           const list = [...arr, ...installList] || [];
           this.setState({
-            list
+            list,
+            installLoading: false,
+            currentType: false
           });
         }
       }

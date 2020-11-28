@@ -184,6 +184,13 @@ export async function postBindingMarkets(body, handleError) {
     }
   );
 }
+/* get  detection Markets Address */
+export async function detectionAddress(body = {}, handleError) {
+  return request(`${body.url}/app-server/openapi/healthz`, {
+    method: 'get',
+    handleError
+  });
+}
 
 /* get  Binding  Market List */
 export async function getBindingMarketsList(body, handleError) {

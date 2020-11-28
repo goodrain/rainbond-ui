@@ -763,10 +763,8 @@ export default class Main extends PureComponent {
                       )}
                     </div>
 
-                    <div style={{ marginRight: '30px' }}>
-                      <h3 style={{ marginBottom: '5px' }}>
-                        {appInfo.app_name}
-                      </h3>
+                    <div>
+                      <h3 title={appInfo.app_name}>{appInfo.app_name}</h3>
                       <div>{appInfo.describe}</div>
                     </div>
                     <div>
