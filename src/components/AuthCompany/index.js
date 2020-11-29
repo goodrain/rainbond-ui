@@ -153,16 +153,12 @@ export default class Index extends PureComponent {
       },
       callback: (res) => {
         if (res && res.isRainstore) {
-          this.setState(
-            {
-              marketUrl: values.url,
-              currStep: 2,
-              alertText: false
-            },
-            () => {
-              this.handleClose();
-            }
-          );
+          this.setState({
+            marketUrl: url,
+            currStep: 2,
+            loading: false,
+            alertText: false
+          });
         } else {
           this.handleNoCloudAppStoreUrl();
         }

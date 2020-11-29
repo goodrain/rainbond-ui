@@ -1,32 +1,32 @@
 /* eslint-disable no-void */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-underscore-dangle */
-import { notification } from "antd";
-import axios from "axios";
+import { notification } from 'antd';
+import axios from 'axios';
 // import { routerRedux } from 'dva/router';
 // import store from "../index";
 // import store from '@/index'
 // const { dispatch } = store;
-import { push } from "umi/router";
-import globalUtil from "../utils/global";
-import cookie from "./cookie";
+import { push } from 'umi/router';
+import globalUtil from '../utils/global';
+import cookie from './cookie';
 
 const codeMessage = {
-  200: "服务器成功返回请求的数据",
-  201: "新建或修改数据成功。",
-  202: "一个请求已经进入后台排队（异步任务）",
-  204: "删除数据成功。",
-  400: "发出的请求有错误，服务器没有进行新建或修改数据,的操作。",
-  401: "用户没有权限（令牌、用户名、密码错误）。",
-  403: "用户得到授权，但是访问是被禁止的。",
-  404: "发出的请求针对的是不存在的记录，服务器没有进行操作",
-  406: "请求的格式不可得。",
-  410: "请求的资源被永久删除，且不会再得到的。",
-  422: "当创建一个对象时，发生一个验证错误。",
-  500: "服务器发生错误，请检查服务器",
-  502: "网关错误",
-  503: "服务不可用，服务器暂时过载或维护",
-  504: "网关超时"
+  200: '服务器成功返回请求的数据',
+  201: '新建或修改数据成功。',
+  202: '一个请求已经进入后台排队（异步任务）',
+  204: '删除数据成功。',
+  400: '发出的请求有错误，服务器没有进行新建或修改数据,的操作。',
+  401: '用户没有权限（令牌、用户名、密码错误）。',
+  403: '用户得到授权，但是访问是被禁止的。',
+  404: '发出的请求针对的是不存在的记录，服务器没有进行操作',
+  406: '请求的格式不可得。',
+  410: '请求的资源被永久删除，且不会再得到的。',
+  422: '当创建一个对象时，发生一个验证错误。',
+  500: '服务器发生错误，请检查服务器',
+  502: '网关错误',
+  503: '服务不可用，服务器暂时过载或维护',
+  504: '网关超时'
 };
 
 function checkStatus(response) {
@@ -55,7 +55,7 @@ function checkStatus(response) {
  */
 export default function request(url, options) {
   const defaultOptions = {
-    credentials: "include"
+    credentials: 'include'
   };
   const newOptions = {
     ...defaultOptions,
@@ -63,8 +63,8 @@ export default function request(url, options) {
   };
   // if (newOptions.method === "POST" || newOptions.method === "PUT") {
   newOptions.headers = {
-    Accept: "application/json",
-    "Content-Type": "application/json; charset=utf-8",
+    Accept: 'application/json',
+    'Content-Type': 'application/json; charset=utf-8',
 
     ...newOptions.headers
   };
@@ -88,18 +88,18 @@ export default function request(url, options) {
     // (cookie.get('token'))
   };
 
-  const token = cookie.get("token");
-  const teamName = cookie.get("team_name");
-  const regionName = cookie.get("region_name");
-  let interfaceRegionName = "";
-  let interfaceTeamName = "";
+  const token = cookie.get('token');
+  const teamName = cookie.get('team_name');
+  const regionName = cookie.get('region_name');
+  let interfaceRegionName = '';
+  let interfaceTeamName = '';
   if (token && newOptions.passAuthorization) {
     newOptions.headers.Authorization = `GRJWT ${token}`;
   }
 
   if (
     url &&
-    (url.lastIndexOf("/groups") > -1 || url.lastIndexOf("/topological") > -1) &&
+    (url.lastIndexOf('/groups') > -1 || url.lastIndexOf('/topological') > -1) &&
     newOptions.params &&
     newOptions.params.region_name
   ) {
@@ -133,26 +133,32 @@ export default function request(url, options) {
 
   showLoading &&
     window.g_app._store.dispatch({
-      type: "global/showLoading"
+      type: 'global/showLoading'
     });
   return axios(newOptions)
     .then(checkStatus)
-    .then(response => {
+    .then((response) => {
       showLoading &&
         window.g_app._store.dispatch({
-          type: "global/hiddenLoading"
+          type: 'global/hiddenLoading'
         });
-
-      const res = response.data.data || {};
+      let res = response.data.data || {};
+      if (
+        response.config &&
+        response.config.url &&
+        response.config.url.indexOf('openapi/healthz') > -1
+      ) {
+        res = response.data || {};
+      }
       res._code = response.status;
       res._condition = response.data.code;
       res.msg_show = response.data.msg_show;
       return res;
     })
-    .catch(error => {
+    .catch((error) => {
       if (showLoading) {
         window.g_app._store.dispatch({
-          type: "global/hiddenLoading"
+          type: 'global/hiddenLoading'
         });
       }
 
@@ -168,14 +174,14 @@ export default function request(url, options) {
         } catch (e) {}
         if (resData.code === 10410) {
           window.g_app._store.dispatch({
-            type: "global/showPayTip"
+            type: 'global/showPayTip'
           });
           return;
         }
 
         if (resData.code >= 20001 && resData.code <= 20003) {
           window.g_app._store.dispatch({
-            type: "global/showOrders",
+            type: 'global/showOrders',
             payload: {
               code: resData.code
             }
@@ -185,7 +191,7 @@ export default function request(url, options) {
 
         if (resData.code === 10406) {
           window.g_app._store.dispatch({
-            type: "global/showMemoryTip",
+            type: 'global/showMemoryTip',
             payload: {
               message: resData.msg_show
             }
@@ -194,13 +200,13 @@ export default function request(url, options) {
           return;
         }
         if (resData.code === 10409) {
-          cookie.setGuide("appStore", "true");
-          notification.warning({ message: "与云市连接超时,请检查网络" });
+          cookie.setGuide('appStore', 'true');
+          notification.warning({ message: '与云市连接超时,请检查网络' });
           return;
         }
         if (resData.code === 10408) {
           window.g_app._store.dispatch({
-            type: "global/showNoMoneyTip",
+            type: 'global/showNoMoneyTip',
             payload: {
               message: resData.msg_show
             }
@@ -209,9 +215,9 @@ export default function request(url, options) {
           return;
         }
         if (resData.code === 10407) {
-          cookie.setGuide("appStore", "true");
+          cookie.setGuide('appStore', 'true');
           window.g_app._store.dispatch({
-            type: "global/showAuthCompany",
+            type: 'global/showAuthCompany',
             payload: {
               market_name: resData.data.bean.name
             }
@@ -222,7 +228,7 @@ export default function request(url, options) {
 
         if (resData.code === 10405) {
           window.g_app._store.dispatch({
-            type: "global/showNeedLogin"
+            type: 'global/showNeedLogin'
           });
           return;
         }
@@ -235,7 +241,7 @@ export default function request(url, options) {
 
         if (resData.code === 10400) {
           window.g_app._store.dispatch({
-            type: "global/setNouse",
+            type: 'global/setNouse',
             payload: {
               isNouse: true
             }
@@ -258,7 +264,7 @@ export default function request(url, options) {
           );
           return;
         }
-        
+
         // 访问资源所属团队与当前团队不一致
         if (resData.code === 10403) {
           location.href = globalUtil.replaceUrlTeam(
@@ -274,16 +280,16 @@ export default function request(url, options) {
 
         const msg = resData.msg_show || resData.msg || resData.detail;
         if (msg && newOptions.showMessage === true) {
-          if (msg.indexOf("身份认证信息未提供") > -1) {
-            push({ type: "global/showNeedLogin" });
+          if (msg.indexOf('身份认证信息未提供') > -1) {
+            push({ type: 'global/showNeedLogin' });
             return;
           }
 
-          notification.warning({ message: "警告", description: msg });
+          notification.warning({ message: '警告', description: msg });
         }
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Error", error.message);
+        console.log('Error', error.message);
         if (newOptions.handleError) {
           newOptions.handleError(error);
         }
