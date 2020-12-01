@@ -142,14 +142,7 @@ export default function request(url, options) {
         window.g_app._store.dispatch({
           type: 'global/hiddenLoading'
         });
-      let res = response.data.data || {};
-      if (
-        response.config &&
-        response.config.url &&
-        response.config.url.indexOf('openapi/healthz') > -1
-      ) {
-        res = response.data || {};
-      }
+      const res = response.data.data || {};
       res._code = response.status;
       res._condition = response.data.code;
       res.msg_show = response.data.msg_show;

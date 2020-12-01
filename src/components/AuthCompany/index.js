@@ -20,6 +20,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import axios from 'axios';
 import PluginStyles from '../../pages/Create/Index.less';
 import cookie from '../../utils/cookie';
 import Ellipsis from '../Ellipsis';
@@ -146,13 +147,10 @@ export default class Index extends PureComponent {
   };
   handleIsCloudAppStoreUrl = (url) => {
     const { dispatch } = this.props;
-    dispatch({
-      type: 'market/detectionAddress',
-      payload: {
-        url
-      },
-      callback: (res) => {
-        if (res && res.isRainstore) {
+    axios
+      .get(`${url}/app-server/openapi/healthz`)
+      .then((res) => {
+        if (res && res.data && res.data.isRainstore) {
           this.setState({
             marketUrl: url,
             currStep: 2,
@@ -162,11 +160,10 @@ export default class Index extends PureComponent {
         } else {
           this.handleNoCloudAppStoreUrl();
         }
-      },
-      handleError: () => {
+      })
+      .catch(() => {
         this.handleNoCloudAppStoreUrl();
-      }
-    });
+      });
   };
   handleNoCloudAppStoreUrl = () => {
     this.setState({
