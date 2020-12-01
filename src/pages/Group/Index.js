@@ -376,7 +376,10 @@ class Main extends PureComponent {
         note: vals.note,
         username: vals.username
       },
-      callback: () => {
+      callback: (res) => {
+        if (res && res._code === 200) {
+          notification.success({ message: '修改成功' });
+        }
         this.handleUpDataHeader();
         this.cancelEdit();
         this.cancelEditAppDirector();
@@ -535,7 +538,7 @@ class Main extends PureComponent {
       stop: '停用',
       deploy: '构建'
     };
- 
+
     const appState = {
       RUNNING: '运行中',
       STARTING: '启动中',
@@ -974,7 +977,7 @@ class Main extends PureComponent {
             group_name={groupDetail.group_name}
             note={groupDetail.note}
             loading={editGroupLoading}
-            principal={currApp.principal}
+            principal={currApp.username}
             onCancel={this.cancelEditAppDirector}
             onOk={this.handleEdit}
           />
