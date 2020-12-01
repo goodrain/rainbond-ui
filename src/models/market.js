@@ -10,7 +10,6 @@ import {
   fetchAppModels,
   getAppMarketInfo,
   postBindingMarkets,
-  detectionAddress,
   getBindingMarketsList,
   fetchAppModelsTags,
   getAppModelsDetails,
@@ -44,12 +43,6 @@ export default {
     },
     *fetchAppMarketInfo({ payload, callback }, { call }) {
       const response = yield call(getAppMarketInfo, payload);
-      if (response && callback) {
-        callback(response);
-      }
-    },
-    *detectionAddress({ payload, callback, handleError }, { call }) {
-      const response = yield call(detectionAddress, payload, handleError);
       if (response && callback) {
         callback(response);
       }
