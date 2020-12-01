@@ -1099,6 +1099,7 @@ const global = {
       'share-yb': '发布到市场',
       'share-ys': '发布到市场',
       updata: '更新组件',
+      'add-app-service-monitor': '添加监控点',
       'add-service-dependency': '添加组件依赖',
       'delete-service-dependency': '删除组件依赖',
       'add-service-env': '添加组件环境变量',
