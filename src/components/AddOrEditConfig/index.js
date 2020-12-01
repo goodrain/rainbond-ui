@@ -101,8 +101,8 @@ class EvnOption extends React.Component {
             rules: [{ required: false, message: '协议' }]
           })(
             <Select
-              onChange={(e) => {
-                this.handleOnchange('protocal', e.target.value);
+              onChange={(values) => {
+                this.handleOnchange('protocal', values);
               }}
               style={{ width: 100 }}
             >
@@ -119,8 +119,8 @@ class EvnOption extends React.Component {
             rules: [{ required: true, message: '属性名' }]
           })(
             <Select
-              onChange={(e) => {
-                this.handleOnchange('attr_type', e.target.value);
+              onChange={(values) => {
+                this.handleOnchange('attr_type', values);
               }}
               style={{ width: 100 }}
             >
@@ -166,8 +166,8 @@ class EvnOption extends React.Component {
             rules: [{ required: false, message: '默认值' }]
           })(
             <Select
-              onChange={(e) => {
-                this.handleOnchange('is_change', e.target.value);
+              onChange={(values) => {
+                this.handleOnchange('is_change', values);
               }}
               style={{ width: 100 }}
             >
