@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable no-unused-expressions */
 import React, { PureComponent } from 'react';
 import {
@@ -6,7 +7,6 @@ import {
   Upload,
   Select,
   Input,
-  Radio,
   Spin,
   Divider,
   Row,
@@ -23,10 +23,8 @@ import { routerRedux } from 'dva/router';
 import apiconfig from '../../../config/api.config';
 import ConfirmModal from '../../components/ConfirmModal';
 import EditAppVersion from '../../components/EditAppVersion';
-import editClusterInfo from '@/components/Cluster/BaseAddCluster';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import BraftEditor from 'braft-editor';
-import { object } from 'prop-types';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
@@ -68,6 +66,9 @@ export default class Main extends PureComponent {
       page: 1,
       page_size: 10,
       appList: [],
+      versionPag: 1,
+      versionPageSize: 10,
+      total: 0,
       toDelete: false,
       editAppVersion: false,
       isEdit: false,
@@ -79,7 +80,11 @@ export default class Main extends PureComponent {
     this.getEnterpriseTeams();
     this.getAppModelsDetails();
   }
-  componentDidMount() {}
+  onPageChange = (page) => {
+    this.setState({ versionPag: page }, () => {
+      this.getAppModelsDetails();
+    });
+  };
   getLogoBase64 = (img, callback) => {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result));
@@ -138,6 +143,7 @@ export default class Main extends PureComponent {
       }
     });
   };
+
   getAppModelsDetails = () => {
     const {
       dispatch,
@@ -146,12 +152,15 @@ export default class Main extends PureComponent {
       },
       form
     } = this.props;
-
+    const { versionPag, versionPageSize, total } = this.state;
     dispatch({
       type: 'market/fetchAppModelsDetails',
       payload: {
         enterprise_id: eid,
-        appId
+        appId,
+        page: versionPag,
+        page_size: versionPageSize,
+        total
       },
       callback: (res) => {
         if (res && res._code === 200) {
@@ -163,11 +172,11 @@ export default class Main extends PureComponent {
               details: BraftEditor.createEditorState(text)
             });
           }
-
           this.setState({
             imageUrl: res.bean.pic,
             appInfo: res.bean,
-            appList: res.list
+            appList: res.list,
+            total: res.total
           });
         }
       }
@@ -423,6 +432,9 @@ export default class Main extends PureComponent {
       editAppVersion,
       isEdit,
       isAppDetails,
+      versionPag,
+      versionPageSize,
+      total,
       appStoreAdmin: { isEditApp, isEditVersionApp, isDeleteAppVersion }
     } = this.state;
     const { getFieldDecorator, getFieldValue } = form;
@@ -924,6 +936,12 @@ export default class Main extends PureComponent {
                       )
                     }
                   ]}
+                  pagination={{
+                    current: versionPag,
+                    pageSize: versionPageSize,
+                    total,
+                    onChange: this.onPageChange
+                  }}
                 />
               </div>
             </Card>
