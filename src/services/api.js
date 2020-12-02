@@ -878,8 +878,6 @@ export async function saveLog(body = {}) {
 /* 查询企业下所有团队 */
 export async function fetchEnterpriseTeams(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/teams`,
-
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/teams`,
     {
       method: 'get',
@@ -895,7 +893,6 @@ export async function fetchEnterpriseTeams(param) {
 /* 获取企业管理员列表 */
 export async function fetchEnterpriseAdmin(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user`,
     {
       method: 'get',
@@ -931,22 +928,29 @@ export async function fetchEnterpriseUsers(param) {
 /* 添加企业管理员 */
 export async function addEnterpriseAdminTeams(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user`,
     {
       method: 'post',
       data: {
         user_id: param.user_id,
+        roles: param.roles
       },
     }
   );
 }
-
+export async function upDataEnterpriseAdminTeams(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/admin/user/${body.user_id}`,
+    {
+      method: 'put',
+      data: body
+    }
+  );
+}
 /* 删除 企业管理员 */
 
 export async function deleteEnterpriseAdmin(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user/${param.user_id}`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user/${param.user_id}`,
     {
       method: 'delete',
@@ -957,7 +961,6 @@ export async function deleteEnterpriseAdmin(param) {
 /* 获取当前用户团队列表（搜索） */
 export async function fetchUserTeams(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/user/{user_id}/teams`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/user/${param.user_id}/teams`,
     {
       method: 'get',
@@ -973,7 +976,6 @@ export async function fetchUserTeams(param) {
 /* 查询企业列表 */
 export async function fetchEnterpriseList() {
   return request(
-    // `http://doc.goodrain.org/mock/18/enterprises`,
     `${apiconfig.baseUrl}/console/enterprises`,
     {
       method: 'get',

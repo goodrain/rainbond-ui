@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/alt-text */
@@ -50,7 +51,7 @@ export default class EnterpriseShared extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    const enterpriseAdmin = userUtil.isCompanyAdmin(user);
+    const appStoreAdmin = userUtil.isPermissions(user, 'app_store');
     this.state = {
       marketPag: {
         pageSize: 10,
@@ -65,7 +66,7 @@ export default class EnterpriseShared extends PureComponent {
       localLoading: true,
       marketLoading: true,
       marketTabLoading: true,
-      enterpriseAdmin,
+      appStoreAdmin,
       tagList: [],
       tags: [],
       scope: 'enterprise',
@@ -103,6 +104,7 @@ export default class EnterpriseShared extends PureComponent {
   onChangeRadio = (e) => {
     this.setState(
       {
+        page: 1,
         scope: e.target.value
       },
       () => {
@@ -603,7 +605,16 @@ export default class EnterpriseShared extends PureComponent {
       appInfo,
       visibles,
       bouncedText,
-      enterpriseAdmin,
+      appStoreAdmin: {
+        isCreateApp,
+        isEditApp,
+        isDeleteApp,
+        isImportApp,
+        isExportApp,
+        isCreateAppStore,
+        isEditAppStore,
+        isDeleteAppStore
+      },
       activeTabKey,
       marketInfo,
       marketPag
@@ -618,7 +629,7 @@ export default class EnterpriseShared extends PureComponent {
     const isMarket = marketInfo && marketInfo.status == 1;
     const defaulAppImg = globalUtil.fetchSvg('defaulAppImg');
     const managementMenu = (info) => {
-      const delApp = enterpriseAdmin && (
+      const delApp = isDeleteApp && (
         <Menu.Item>
           <a
             onClick={() => {
@@ -630,7 +641,7 @@ export default class EnterpriseShared extends PureComponent {
         </Menu.Item>
       );
 
-      const editorApp = enterpriseAdmin && (
+      const editorApp = isEditApp && (
         <Menu.Item>
           <a
             onClick={() => {
@@ -652,7 +663,7 @@ export default class EnterpriseShared extends PureComponent {
       if (exportOperation || editorApp || delApp) {
         return (
           <Menu>
-            {exportOperation}
+            {isExportApp && exportOperation}
             {editorApp}
             {delApp}
           </Menu>
@@ -662,10 +673,12 @@ export default class EnterpriseShared extends PureComponent {
     };
     const operation = (
       <Col span={5} style={{ textAlign: 'right' }} className={styles.btns}>
-        <Button style={{ margin: '0 14px 0 10px' }}>
-          <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
-        </Button>
-        {enterpriseAdmin && (
+        {isImportApp && (
+          <Button style={{ margin: '0 14px 0 10px' }}>
+            <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
+          </Button>
+        )}
+        {isCreateApp && (
           <Button type="primary" onClick={this.handleOpenCreateAppModel}>
             创建应用模版
           </Button>
@@ -675,15 +688,19 @@ export default class EnterpriseShared extends PureComponent {
 
     const marketOperation = (
       <div>
-        <Button
-          onClick={this.handleOpenDeleteAppMarket}
-          style={{ marginRight: '22px' }}
-        >
-          删除
-        </Button>
-        <Button type="primary" onClick={this.handleOpenUpAppMarket}>
-          编辑
-        </Button>
+        {isDeleteAppStore && (
+          <Button
+            onClick={this.handleOpenDeleteAppMarket}
+            style={{ marginRight: '22px' }}
+          >
+            删除
+          </Button>
+        )}
+        {isEditAppStore && (
+          <Button type="primary" onClick={this.handleOpenUpAppMarket}>
+            编辑
+          </Button>
+        )}
       </div>
     );
 
@@ -692,14 +709,16 @@ export default class EnterpriseShared extends PureComponent {
         <img src={NoComponent} />
         <p>当前无应用模版，请选择方式添加</p>
         <div className={styles.btns}>
-          {enterpriseAdmin && (
+          {isCreateApp && (
             <Button type="primary" onClick={this.handleOpenCreateAppModel}>
               创建应用模版
             </Button>
           )}
-          <Button type="primary">
-            <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
-          </Button>
+          {isImportApp && (
+            <Button type="primary">
+              <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -855,11 +874,7 @@ export default class EnterpriseShared extends PureComponent {
                             return null;
                           }
                           return (
-                            <div
-                              key={tagId}
-                              title={name}
-                              style={{ marginRight: '5px' }}
-                            >
+                            <div key={tagId} style={{ marginRight: '5px' }}>
                               {name}
                             </div>
                           );
@@ -1024,11 +1039,7 @@ export default class EnterpriseShared extends PureComponent {
                             return null;
                           }
                           return (
-                            <div
-                              key={item}
-                              title={item}
-                              style={{ marginRight: '5px' }}
-                            >
+                            <div key={item} style={{ marginRight: '5px' }}>
                               {item}
                             </div>
                           );
@@ -1036,7 +1047,8 @@ export default class EnterpriseShared extends PureComponent {
                       {tags && tags.length > 3 && (
                         <a
                           style={{ marginLeft: '5px' }}
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             this.handleOpenMoreTags(tags);
                           }}
                         >
@@ -1214,14 +1226,16 @@ export default class EnterpriseShared extends PureComponent {
               </TabPane>
             );
           })}
-          <TabPane
-            tab={
-              <Tooltip placement="top" title="添加应用市场">
-                <Icon type="plus" className={styles.addSvg} />
-              </Tooltip>
-            }
-            key="add"
-          />
+          {isCreateAppStore && (
+            <TabPane
+              tab={
+                <Tooltip placement="top" title="添加应用市场">
+                  <Icon type="plus" className={styles.addSvg} />
+                </Tooltip>
+              }
+              key="add"
+            />
+          )}
         </Tabs>
       </PageHeaderLayout>
     );

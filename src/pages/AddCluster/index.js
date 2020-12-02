@@ -46,8 +46,7 @@ export default class EnterpriseClusters extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    const adminer =
-      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
+    const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
       addClusterShow: false,

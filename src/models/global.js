@@ -51,6 +51,7 @@ import {
   fetchEnterpriseAdmin,
   deleteEnterpriseAdmin,
   addEnterpriseAdminTeams,
+  upDataEnterpriseAdminTeams,
   fetchUserTeams,
   fetchOverviewApp,
   fetchOverview,
@@ -579,7 +580,12 @@ export default {
         callback && callback(response);
       }
     },
-
+    *editEnterpriseAdminTeams({ payload, callback }, { call }) {
+      const response = yield call(upDataEnterpriseAdminTeams, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchUserTeams({ payload, callback }, { put, call }) {
       const response = yield call(fetchUserTeams, payload);
       if (response) {
