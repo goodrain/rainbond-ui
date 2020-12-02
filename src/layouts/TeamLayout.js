@@ -482,7 +482,7 @@ class TeamLayout extends PureComponent {
       if (hasRegion) {
         isRegionMaintain =
           currentRegion.region_status === '3' &&
-          !userUtil.isSystemAdmin(currentUser);
+          !userUtil.isCompanyAdmin(currentUser);
       } else {
         return <Redirect to="/" />;
       }
