@@ -409,6 +409,44 @@ export default class Main extends PureComponent {
       }
     });
   };
+  handleOnSelect = (value) => {
+    const { tagList } = this.state;
+    if (value && tagList.length > 0) {
+      let judge = true;
+      tagList.map((item) => {
+        if (item.name === value) {
+          judge = false;
+        }
+      });
+
+      if (judge) {
+        this.createTag(value);
+      }
+    } else if (tagList && tagList.length === 0) {
+      this.createTag(value);
+    }
+  };
+
+  createTag = (name) => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch({
+      type: 'market/createTag',
+      payload: {
+        enterprise_id: eid,
+        name
+      },
+      callback: (res) => {
+        if (res && res._code === 200) {
+          this.getTags();
+        }
+      }
+    });
+  };
 
   render() {
     const {
@@ -643,7 +681,7 @@ export default class Main extends PureComponent {
                           <Select
                             mode="tags"
                             style={{ width: '100%' }}
-                            // onSelect={this.handleOnSelect}
+                            onSelect={this.handleOnSelect}
                             tokenSeparators={[',']}
                             placeholder="请选择分类标签"
                           >

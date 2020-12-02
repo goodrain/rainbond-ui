@@ -803,10 +803,10 @@ export default class EnterpriseShared extends PureComponent {
                   >
                     <Col span={3} style={{ display: 'flex' }}>
                       <div className={styles.lt}>
-                        <p>
+                        <div>
                           <Icon type="arrow-down" />
-                          {installNumber}
-                        </p>
+                          <div title={installNumber}>{installNumber}</div>
+                        </div>
                       </div>
                       <div className={styles.imgs}>
                         {pic ? <img src={pic} alt="" /> : defaulAppImg}
@@ -831,7 +831,7 @@ export default class EnterpriseShared extends PureComponent {
                         </p>
                       </div>
                     </Col>
-                    <Col span={4} className={styles.status}>
+                    <Col span={3} className={styles.status}>
                       <div>
                         {devStatus && (
                           <p className={styles.dev_status}>{devStatus}</p>
@@ -846,7 +846,7 @@ export default class EnterpriseShared extends PureComponent {
                         )}
                       </div>
                     </Col>
-                    <Col span={4} className={styles.tags}>
+                    <Col span={5} className={styles.tags}>
                       {tags &&
                         tags.length > 0 &&
                         tags.map((item, index) => {
@@ -855,7 +855,11 @@ export default class EnterpriseShared extends PureComponent {
                             return null;
                           }
                           return (
-                            <div key={tagId} style={{ marginRight: '5px' }}>
+                            <div
+                              key={tagId}
+                              title={name}
+                              style={{ marginRight: '5px' }}
+                            >
                               {name}
                             </div>
                           );
@@ -863,8 +867,10 @@ export default class EnterpriseShared extends PureComponent {
                       {tags && tags.length > 3 && (
                         <a
                           style={{ marginLeft: '5px' }}
-                          onClick={() => {
-                            this.handleOpenMoreTags(tags);
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const customTags = tags.map((item) => item.name);
+                            this.handleOpenMoreTags(customTags);
                           }}
                         >
                           更多
@@ -968,10 +974,10 @@ export default class EnterpriseShared extends PureComponent {
                   <div className={styles.h70}>
                     <Col span={3} style={{ display: 'flex' }}>
                       <div className={styles.lt}>
-                        <p>
+                        <div>
                           <Icon type="arrow-down" />
-                          {installNumber}
-                        </p>
+                          <div title={installNumber}>{installNumber}</div>
+                        </div>
                       </div>
                       <div className={styles.imgs}>
                         {logo ? <img src={logo} alt="" /> : defaulAppImg}
@@ -995,7 +1001,7 @@ export default class EnterpriseShared extends PureComponent {
                         </p>
                       </div>
                     </Col>
-                    <Col span={4} className={styles.status}>
+                    <Col span={3} className={styles.status}>
                       <div>
                         {devStatus && (
                           <p className={styles.dev_status}>{devStatus}</p>
@@ -1010,7 +1016,7 @@ export default class EnterpriseShared extends PureComponent {
                         )}
                       </div>
                     </Col>
-                    <Col span={4} className={styles.tags}>
+                    <Col span={5} className={styles.tags}>
                       {tags &&
                         tags.length > 0 &&
                         tags.map((item, index) => {
@@ -1018,7 +1024,11 @@ export default class EnterpriseShared extends PureComponent {
                             return null;
                           }
                           return (
-                            <div key={item} style={{ marginRight: '5px' }}>
+                            <div
+                              key={item}
+                              title={item}
+                              style={{ marginRight: '5px' }}
+                            >
                               {item}
                             </div>
                           );
