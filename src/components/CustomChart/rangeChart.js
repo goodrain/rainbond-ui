@@ -7,13 +7,11 @@
 import React, { Fragment, PureComponent } from 'react';
 import moment from 'moment';
 import { connect } from 'dva';
-import { Card, Spin, notification, Checkbox } from 'antd';
+import { Card, Spin, notification } from 'antd';
 import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import globalUtil from '@/utils/global';
 import monitorDataUtil from '@/utils/monitorDataUtil';
-import CustomMonitoring from '@/components/CustomMonitoring';
 import styless from './index.less';
-import { start } from '@/services/app';
 
 @connect()
 export default class RangeChart extends PureComponent {
@@ -47,10 +45,7 @@ export default class RangeChart extends PureComponent {
 
     const isUpData =
       oldStart !== newStart || end !== newEnd || step !== newStep;
-    if (
-      moduleName === 'CustomMonitor' &&
-      (isUpData && newIsRender)
-    ) {
+    if (moduleName === 'CustomMonitor' && isUpData && newIsRender) {
       this.loadPerformanceAnalysis(nextProps);
     }
     if (moduleName === 'PerformanceAnalysis' && isUpData) {
@@ -139,7 +134,7 @@ export default class RangeChart extends PureComponent {
   getMeta = () => {
     const { type, title, moduleName } = this.props;
     if (moduleName === 'CustomMonitor') {
-      return { title, label: title, unit: ' ' };
+      return { title, label: title, unit: '' };
     }
     switch (type) {
       case 'containerMem':
@@ -288,11 +283,39 @@ export default class RangeChart extends PureComponent {
               scale={cols}
               forceFit
             >
-              <Legend />
+              <Legend
+                useHtml
+                itemTpl={
+                  '<li class="g2-legend-list-item item-{index} {checked}" data-color="{originColor}" data-value="{originValue}" style="display:flex;align-items:center;flex-wrap:wrap;cursor: pointer;font-size: 14px;">' +
+                  '<i class="g2-legend-marker" style="width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:10px;background-color: {color};"></i>' +
+                  '<span title={value} class="g2-legend-text" style="display:inline-block;width:90%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">{value}</span>' +
+                  '</li>'
+                }
+                g2-legend-list={{
+                  border: 'none',
+                  height: '40px'
+                }}
+                g2-legend-list-item={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center'
+                }}
+              />
               <Axis
                 name="value"
                 label={{
-                  formatter: (val) => `${val}${unit}`
+                  offset: 75,
+                  htmlTemplate: (text) => {
+                    const customWidth = unit ? '50px' : '75px';
+                    return `<div 
+                                title=${text}
+                                style="width:75px;display: flex;align-items: center;"
+                            >
+                              <div style="width:${customWidth};text-align: right;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${text}</div>
+                              <div>${unit}</div>
+                            </div>`;
+                  }
                 }}
               />
               <Axis name="time" />
