@@ -118,7 +118,7 @@ class Index extends React.Component {
   handleAddGroup = vals => {
     const { setFieldsValue } = this.props.form;
     this.props.dispatch({
-      type: 'application/addGroup',
+      type: 'groupControl/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...vals,

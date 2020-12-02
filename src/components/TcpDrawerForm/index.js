@@ -1,18 +1,22 @@
-/* eslint-disable camelcase */
+import React, { PureComponent } from 'react';
+import PortInput from './portInput';
+import { connect } from 'dva';
 import {
+  Row,
+  Col,
+  Card,
+  Table,
   Button,
   Drawer,
   Form,
-
-  Select
+  Input,
+  Select,
+  notification,
 } from 'antd';
-import { connect } from 'dva';
-import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
-import PortInput from './portInput';
 
 const FormItem = Form.Item;
-const { Option } = Select;
+const Option = Select.Option;
 
 @connect(({ user, global, loading }) => ({
   currUser: user.currentUser,
@@ -72,7 +76,7 @@ class DrawerForm extends PureComponent {
     const team_name = globalUtil.getCurrTeamName();
     /** 获取对应的group_name */
     dispatch({
-      type: 'application/fetchApps',
+      type: 'groupControl/fetchApps',
       payload: {
         group_id: groupObj.key,
         team_name,
@@ -146,24 +150,14 @@ class DrawerForm extends PureComponent {
       callback('请输入完整的ip和端口');
       return;
     }
-    if (
-      value.available_port &&
-      value.available_port >= 1 &&
-      value.available_port <= 65534
-    ) {
+    if (value.available_port &&value.available_port>=1&&value.available_port<=65534) {
       callback();
     } else {
       callback('请输入正确的端口:1-65534');
     }
   };
   render() {
-    const {
-      onClose,
-      editInfo,
-      addTcpLoading,
-      editTcpLoading,
-      appID,
-    } = this.props;
+    const { onClose, editInfo, addTcpLoading, editTcpLoading, appID } = this.props;
     const { getFieldDecorator } = this.props.form;
     const { domain_port } = this.state;
     const formItemLayout = {
@@ -177,8 +171,7 @@ class DrawerForm extends PureComponent {
       },
     };
 
-    let rule_round;
-    let current_enpoint;
+    let rule_round, current_enpoint;
     if (editInfo && editInfo.rule_extensions)
       rule_round = editInfo.rule_extensions.split(':')[1];
 
@@ -245,16 +238,15 @@ class DrawerForm extends PureComponent {
                 label="应用名称"
                 style={{ zIndex: 10011 }}
               >
-                {getFieldDecorator('group_id', {
-                  rules: [{ required: true, message: '请选择应用' }],
-                  initialValue: appID
-                    ? { key: appID }
-                    : editInfo && editInfo.g_id && editInfo.group_name
-                    ? {
-                        key: editInfo.g_id,
-                        label: editInfo.group_name,
-                      }
-                    : undefined,
+                {getFieldDecorator("group_id", {
+                  rules: [{ required: true, message: "请选择应用" }],
+                  initialValue: appID ? { key: appID }:(
+                    editInfo && editInfo.g_id && editInfo.group_name
+                      ? {
+                          key: editInfo.g_id,
+                          label: editInfo.group_name,
+                        }
+                      : undefined)
                 })(
                   <Select
                     labelInValue
@@ -264,7 +256,7 @@ class DrawerForm extends PureComponent {
                   >
                     {(this.props.groups || []).map((group, index) => {
                       return (
-                        <Option value={`${group.group_id}`} key={index}>
+                        <Option value={`${group.group_id  }`} key={index}>
                           {group.group_name}
                         </Option>
                       );
@@ -291,7 +283,7 @@ class DrawerForm extends PureComponent {
                     {(this.state.serviceComponentList || []).map(
                       (service, index) => {
                         return (
-                          <Option value={`${service.service_id}`} key={index}>
+                          <Option value={`${service.service_id  }`} key={index}>
                             {service.service_cname}
                           </Option>
                         );

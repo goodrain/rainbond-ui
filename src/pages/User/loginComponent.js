@@ -1,21 +1,21 @@
-import React, { Component } from 'react';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
-import userUtil from '../../utils/global';
-import Login from '../../components/Login';
-import styles from './Login.less';
+import React, { Component } from "react";
+import { connect } from "dva";
+import { Link } from "dva/router";
+import userUtil from "../../utils/global";
+import Login from "../../components/Login";
+import styles from "./Login.less";
 
 const { UserName, Password, Submit } = Login;
 
 @connect(({ loading, global }) => ({
   isRegist: global.isRegist,
-  thirdLogin: loading.effects['user/thirdLogin'],
-  userLogin: loading.effects['user/login']
+  thirdLogin: loading.effects["user/thirdLogin"],
+  userLogin: loading.effects["user/login"]
 }))
 export default class LoginComponent extends Component {
   handleSubmit = (err, values) => {
     const { onSubmit } = this.props;
-    console.log('版本11-25：21：00');
+    console.log("版本11-1：21：00");
     if (!err && onSubmit) {
       userUtil.removeCookie();
       onSubmit(values);
@@ -29,11 +29,11 @@ export default class LoginComponent extends Component {
         <Login defaultActiveKey="account" onSubmit={this.handleSubmit}>
           <UserName name="nick_name" placeholder="用户名/邮箱" />
           <Password name="password" placeholder="密码" />
-          <Submit loading={type !== 'thirdLogin' ? userLogin : thirdLogin}>
-            {type === 'thirdLogin' ? '登录并绑定' : '登录'}
+          <Submit loading={type !== "thirdLogin" ? userLogin : thirdLogin}>
+            {type === "thirdLogin" ? "登录并绑定" : "登录"}
           </Submit>
           <div className={styles.other}>
-            {this.props.isRegist && type !== 'thirdLogin' && (
+            {this.props.isRegist && type !== "thirdLogin" && (
               <Link className={styles.register} to="/user/register">
                 注册账户
               </Link>

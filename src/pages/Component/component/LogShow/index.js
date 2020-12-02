@@ -1,14 +1,12 @@
 import { connect } from 'dva';
-import { Modal, Button } from 'antd';
 import React from 'react';
 import Ansi from '../../../../components/Ansi';
 import globalUtil from '../../../../utils/global';
 import styles from './index.less';
-import downLoadTools from '@/utils/downLoadTools';
 
 @connect(
   ({ user }) => ({
-    currUser: user.currentUser
+    currUser: user.currentUser,
   }),
   null,
   null,
@@ -21,7 +19,7 @@ class Index extends React.Component {
       logs: [],
       dockerprogress: null,
       status: null,
-      dynamic: false
+      dynamic: false,
     };
     this.state.dockerprogress = new Map();
   }
@@ -43,36 +41,36 @@ class Index extends React.Component {
     this.props.handleCancel();
   };
   loadEventLog() {
-    const { EventID, showSocket } = this.props;
+    const { EventID } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: 'appControl/fetchLogContent',
       payload: {
         team_name: teamName,
-        eventID: EventID
+        eventID: EventID,
       },
       callback: res => {
         if (res) {
           this.setState(
             {
-              logs: res.list
+              logs: res.list,
             },
             () => {
-              if (showSocket) {
+              if (this.props.showSocket) {
                 this.showSocket();
               }
             }
           );
-        } else if (showSocket) {
+        } else if (this.props.showSocket) {
           this.showSocket();
         }
-      }
+      },
     });
   }
   showSocket() {
-    const { EventID, socket } = this.props;
-    if (socket) {
-      socket.watchEventLog(
+    const { EventID } = this.props;
+    if (this.props.socket) {
+      this.props.socket.watchEventLog(
         message => {
           const logs = this.state.logs || [];
           if (message.message.indexOf('id') !== -1) {
@@ -89,7 +87,7 @@ class Index extends React.Component {
                 this.setState({
                   dockerprogress,
                   logs,
-                  dynamic: true
+                  dynamic: true,
                 });
                 return;
               }
@@ -106,7 +104,7 @@ class Index extends React.Component {
         },
         () => {
           this.setState({
-            status: <p style={{ color: 'green' }}>操作已成功</p>
+            status: <p style={{ color: 'green' }}>操作已成功</p>,
           });
         },
         () => {
@@ -118,15 +116,13 @@ class Index extends React.Component {
   }
 
   render() {
-    const { title, onOk, onCancel, width } = this.props;
     const { logs, status, dockerprogress, dynamic } = this.state;
     let lineNumber = 0;
-    let bodyText = '';
-    const box = (
+    return (
       <div>
         <div className={styles.logsss} ref="box">
           {logs &&
-            logs.map(log => {
+            logs.map((log, index) => {
               lineNumber += 1;
               try {
                 if (log.message.indexOf('"stream"') != -1) {
@@ -173,46 +169,6 @@ class Index extends React.Component {
         </div>
         {status && <div style={{ textAlign: 'center' }}>{status}</div>}
       </div>
-    );
-
-    const downloadbBox = (
-      <div>
-        当前日志过大请下载后查看
-        <a
-          style={{ marginLeft: '30px' }}
-          onClick={() => {
-            downLoadTools.saveTXT(bodyText, '日志');
-          }}
-        >
-          下载日志
-        </a>
-      </div>
-    );
-
-    if (logs && logs.length > 0) {
-      logs.map(item => {
-        lineNumber += 1;
-        bodyText = `${bodyText}\n${item.message}`;
-      });
-    }
-    const isDownloadb = bodyText.length >= 10240 && !dynamic;
-
-    if (bodyText.length === 0) {
-      return <div />;
-    }
-    return (
-      <Modal
-        className={!isDownloadb && styles.logModal}
-        title={title}
-        visible
-        onOk={onOk}
-        onCancel={onCancel}
-        width={isDownloadb ? '520px' : width}
-        bodyStyle={isDownloadb ? {} : { background: '#222222', color: '#fff' }}
-        footer={isDownloadb ? [<Button onClick={onCancel}>关闭</Button>] : null}
-      >
-        <div>{isDownloadb ? downloadbBox : box}</div>
-      </Modal>
     );
   }
 }

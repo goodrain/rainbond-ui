@@ -24,7 +24,8 @@ export default class EnterpriseSetting extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    const adminer = userUtil.isCompanyAdmin(user);
+    const adminer =
+      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
       activeKey: 'infrastructure'
@@ -37,7 +38,7 @@ export default class EnterpriseSetting extends PureComponent {
       dispatch(routerRedux.push(`/`));
     }
   }
-  onChange = (key) => {
+  onChange = key => {
     this.setState({ activeKey: key });
   };
 

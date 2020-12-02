@@ -1,13 +1,15 @@
 /* eslint-disable no-undef */
-import apiconfig from '../../config/api.config';
-import request from '../utils/request';
+import apiconfig from "../../config/api.config";
+import request from "../utils/request";
 
 // edit role
 export async function editRole(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${
+      body.role_id
+    }`,
     {
-      method: 'put',
+      method: "put",
       data: {
         name: body.name
       }
@@ -19,9 +21,11 @@ export async function editRole(body = {}) {
 export async function putRolePermissions(body = {}) {
   return request(
     // `https://doc.goodrain.org/mock/18/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${
+      body.role_id
+    }/perms`,
     {
-      method: 'put',
+      method: "put",
       data: {
         permissions: body.permissions
       }
@@ -33,9 +37,11 @@ export async function putRolePermissions(body = {}) {
 export async function removeRole(body = {}) {
   return request(
     // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles/{role_id}`,
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${
+      body.role_id
+    }`,
     {
-      method: 'delete'
+      method: "delete"
     }
   );
 }
@@ -45,7 +51,7 @@ export async function createRole(body = {}) {
     // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles`,{
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles`,
     {
-      method: 'post',
+      method: "post",
       data: {
         name: body.name
       }
@@ -59,7 +65,7 @@ export async function getTeamRoles(body = {}) {
     // `https://doc.goodrain.org/mock/18/console/teams/${body.team_name}/roles`,
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles`,
     {
-      method: 'get'
+      method: "get"
     }
   );
 }
@@ -67,9 +73,11 @@ export async function getTeamRoles(body = {}) {
 export async function getTeamRolesPermissions(body = {}) {
   return request(
     // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles/{role_id}/perms`,
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${
+      body.role_id
+    }/perms`,
     {
-      method: 'get'
+      method: "get"
     }
   );
 }
@@ -78,9 +86,11 @@ export async function getTeamRolesPermissions(body = {}) {
 export async function getTeamUserPermissions(body = {}, handleError) {
   return request(
     // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/users/{user_id}/perms`,
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${body.user_id}/perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${
+      body.user_id
+    }/perms`,
     {
-      method: 'get',
+      method: "get",
       handleError
     }
   );
@@ -96,9 +106,11 @@ export async function userDetail(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${body.user_name}/details`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${
+      body.user_name
+    }/details`,
     {
-      method: 'get'
+      method: "get"
     }
   );
 }
@@ -115,7 +127,7 @@ export async function moveTeam(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/pemtransfer`,
     {
-      method: 'post',
+      method: "post",
       data: {
         user_id: body.user_id
       }
@@ -128,7 +140,7 @@ export async function moveTeam(
 */
 export async function getTeamPermissions() {
   return request(`${apiconfig.baseUrl}/console/teams/user/identity`, {
-    method: 'get'
+    method: "get"
   });
 }
 
@@ -137,9 +149,11 @@ export async function getTeamPermissions() {
 */
 export async function editMember(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${body.user_id}/roles`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${
+      body.user_id
+    }/roles`,
     {
-      method: 'put',
+      method: "put",
       data: {
         roles: body.role_ids
       }
@@ -157,10 +171,10 @@ export async function createTeam(
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/add-teams`, {
-    method: 'post',
+    method: "post",
     data: {
       team_alias: body.team_name,
-      useable_regions: body.useable_regions.join(',')
+      useable_regions: body.useable_regions.join(",")
     }
   });
 }
@@ -176,7 +190,7 @@ export async function getMembers(
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/users`, {
-    method: 'get',
+    method: "get",
     params: {
       page: body.page,
       page_size: body.pageSize
@@ -191,8 +205,7 @@ export async function getTeamMembers(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/roles`,
     {
-      method: 'get',
-      params: body
+      method: "get"
     }
   );
 }
@@ -211,7 +224,7 @@ export async function addMember(
     // `http://5000.gradb2e2.2c9v614j.17f4cc.grapps.cn/console/teams/${body.team_name}/add_team_user`,
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/add_team_user`,
     {
-      method: 'post',
+      method: "post",
       data: {
         user_ids: body.user_ids,
         role_ids: body.role_ids
@@ -232,7 +245,7 @@ export async function removeMember(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/batch/delete`,
     {
-      method: 'delete',
+      method: "delete",
       data: {
         user_ids: [body.user_ids]
       }
@@ -252,7 +265,7 @@ export async function editTeamName(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/modifyname`,
     {
-      method: 'post',
+      method: "post",
       data: {
         new_team_alias: body.new_team_alias
       }
@@ -272,7 +285,7 @@ export async function deleteTeam(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/delete?force=true`,
     {
-      method: 'delete',
+      method: "delete",
       handleError
     }
   );
@@ -326,9 +339,11 @@ export async function getTeamAppOverview(
 */
 export async function getTeamRegionApps(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview/service/over`,
+    `${apiconfig.baseUrl}/console/teams/${
+      body.team_name
+    }/overview/service/over`,
     {
-      method: 'get',
+      method: "get",
       params: body,
       handleError,
       showLoading: false
@@ -347,9 +362,11 @@ export async function getTeamRegionAppsStatus(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${body.region_name}/overview/services/status`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${
+      body.region_name
+    }/overview/services/status`,
     {
-      method: 'post',
+      method: "post",
       data: {
         service_ids: body.service_ids
       }
@@ -364,7 +381,7 @@ export async function getTeamRegionGroups(body) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview/groups`,
     {
-      method: 'get',
+      method: "get",
       params: {
         query: body.query,
         region_name: body.region_name
@@ -384,7 +401,7 @@ export async function getCertificates(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/certificates`,
     {
-      method: 'get',
+      method: "get",
       params: {
         page: body.page,
         page_size: body.page_size
@@ -407,7 +424,7 @@ export async function addCertificate(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/certificates`,
     {
-      method: 'post',
+      method: "post",
       data: {
         alias: body.alias,
         private_key: body.private_key,
@@ -430,7 +447,7 @@ export async function getNewestEvent(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/services/event`,
     {
-      method: 'get',
+      method: "get",
       params: {
         team_name: body.team_name,
         page: body.page,
@@ -451,7 +468,7 @@ export function unOpenRegion(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/region/unopen`,
     {
-      method: 'get'
+      method: "get"
     }
   );
 }
@@ -466,7 +483,7 @@ export function openRegion(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/region`,
     {
-      method: 'patch',
+      method: "patch",
       data: {
         region_names: body.region_names
       }
@@ -483,7 +500,7 @@ export function closeTeamRegion(
   handleError
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.teamName}/region`, {
-    method: 'delete',
+    method: "delete",
     data: {
       region_name: body.regionName
     },
@@ -502,7 +519,7 @@ export function getGithubInfo(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/code_repo/github`,
     {
-      method: 'get',
+      method: "get",
       data: {
         tenantName: body.team_name
       }
@@ -521,7 +538,7 @@ export function getGitlabInfo(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/code_repo/gitlab`,
     {
-      method: 'get',
+      method: "get",
       data: {
         tenantName: body.team_name
       }
@@ -539,8 +556,10 @@ export async function getRegionKey(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/publickey`,
-    { method: 'get' }
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/regions/${
+      body.region_name
+    }/publickey`,
+    { method: "get" }
   );
 }
 
@@ -553,7 +572,7 @@ export async function exitTeam(
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/exit`, {
-    method: 'get'
+    method: "get"
   });
 }
 
@@ -564,7 +583,7 @@ export async function getJoinTeamUsers(body = { team_name }) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/applicants`,
     {
-      method: 'get'
+      method: "get"
     }
   );
 }
@@ -572,15 +591,14 @@ export async function getJoinTeamUsers(body = { team_name }) {
 /*
   审批用户加入
  */
-export async function setJoinTeamUsers(body = {}) {
+export async function setJoinTeamUsers(body = { team_name, user_id, action }) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/applicants`,
     {
-      method: 'put',
+      method: "put",
       data: {
         user_id: body.user_id,
-        action: body.action,
-        role_ids: body.role_ids
+        action: body.action
       }
     }
   );
@@ -591,7 +609,7 @@ export async function setJoinTeamUsers(body = {}) {
  */
 export async function undoTeamUsers(body = { team_name, user_id, action }) {
   return request(`${apiconfig.baseUrl}/console/user/applicants/join`, {
-    method: 'put',
+    method: "put",
     data: {
       team_name: body.team_name
     }
@@ -603,7 +621,7 @@ export async function undoTeamUsers(body = { team_name, user_id, action }) {
  */
 export async function joinTeam(body = {}) {
   return request(`${apiconfig.baseUrl}/console/enterprise/admin/join-team`, {
-    method: 'post',
+    method: "post",
     data: {
       team_name: body.team_name
     }
@@ -614,7 +632,7 @@ export async function stopComponentInTeam(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/close`,
     {
-      method: 'post',
+      method: "post",
       data: {},
       handleError
     }
@@ -625,7 +643,7 @@ export async function stopComponentInTenant(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/close`,
     {
-      method: 'post',
+      method: "post",
       data: {
         region_name: body.region_name
       },

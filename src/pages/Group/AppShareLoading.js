@@ -1,5 +1,3 @@
-/* eslint-disable react/sort-comp */
-/* eslint-disable react/no-multi-comp */
 import { Button, Card, Icon } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -74,9 +72,9 @@ class ShareEvent extends React.Component {
   };
   getShareStatus = () => {
     if (this.state.status !== 'start' || !this.mount) return;
-    let dispatchtype = 'application/getShareStatus';
+    let dispatchtype = 'groupControl/getShareStatus';
     if (this.state.data.type == 'plugin') {
-      dispatchtype = 'application/getPluginShareEventInShareApp';
+      dispatchtype = 'groupControl/getPluginShareEventInShareApp';
     }
     this.props.dispatch({
       type: dispatchtype,
@@ -109,9 +107,9 @@ class ShareEvent extends React.Component {
   };
   startShareEvent = () => {
     const event = this.props.data;
-    let dispatchtype = 'application/startShareEvent';
+    let dispatchtype = 'groupControl/startShareEvent';
     if (event.type == 'plugin') {
-      dispatchtype = 'application/startPluginShareEventInShareApp';
+      dispatchtype = 'groupControl/startPluginShareEventInShareApp';
     }
     this.props.dispatch({
       type: dispatchtype,
@@ -218,7 +216,7 @@ export default class shareCheck extends PureComponent {
   getShareEventInfo = () => {
     const params = this.getParams();
     this.props.dispatch({
-      type: 'application/getShareEventInfo',
+      type: 'groupControl/getShareEventInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         share_id: params.shareId,
@@ -315,7 +313,7 @@ export default class shareCheck extends PureComponent {
     this.setState({ completeLoading: true });
     const params = this.getParams();
     this.props.dispatch({
-      type: 'application/completeShare',
+      type: 'groupControl/completeShare',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         share_id: params.shareId,
@@ -337,7 +335,7 @@ export default class shareCheck extends PureComponent {
   handleGiveUp = () => {
     const params = this.getParams();
     this.props.dispatch({
-      type: 'application/giveupShare',
+      type: 'groupControl/giveupShare',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         share_id: params.shareId,
@@ -452,7 +450,7 @@ export default class shareCheck extends PureComponent {
         </Card>
         {this.state.showDelete && (
           <ConfirmModal
-            disabled={loading.effects['application/giveupShare']}
+            disabled={loading.effects['groupControl/giveupShare']}
             onOk={this.handleGiveUp}
             onCancel={this.hideShowDelete}
             title="放弃分享"

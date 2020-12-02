@@ -33,7 +33,7 @@ export default class SelectComponent extends PureComponent {
     const { queryName } = this.state;
     if (currentAppID) {
       dispatch({
-        type: 'application/fetchApps',
+        type: 'groupControl/fetchApps',
         payload: {
           team_name: currentTeam.team_name,
           region_name: currentRegion.team_region_name,

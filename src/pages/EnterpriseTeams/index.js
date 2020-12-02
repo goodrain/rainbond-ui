@@ -37,7 +37,8 @@ export default class EnterpriseTeams extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    const adminer =  userUtil.isCompanyAdmin(user);
+    const adminer =
+      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       teamList: [],
       userTeamList: [],

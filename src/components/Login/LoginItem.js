@@ -12,12 +12,12 @@ function generator({ defaultProps, defaultRules, type }) {
     return class BasicComponent extends Component {
       static contextTypes = {
         form: PropTypes.object,
-        updateActive: PropTypes.func
+        updateActive: PropTypes.func,
       };
       constructor(props) {
         super(props);
         this.state = {
-          count: 0
+          count: 0,
         };
       }
       componentDidMount() {
@@ -41,18 +41,12 @@ function generator({ defaultProps, defaultRules, type }) {
             clearInterval(this.interval);
           }
         }, 1000);
-      };
+      }
       render() {
         const { getFieldDecorator } = this.context.form;
         const options = {};
         let otherProps = {};
-        const {
-          onChange,
-          defaultValue,
-          rules,
-          name,
-          ...restProps
-        } = this.props;
+        const { onChange, defaultValue, rules, name, ...restProps } = this.props;
         const { count } = this.state;
         options.rules = rules || defaultRules;
         if (onChange) {
@@ -68,10 +62,9 @@ function generator({ defaultProps, defaultRules, type }) {
             <FormItem>
               <Row gutter={8}>
                 <Col span={16}>
-                  {getFieldDecorator(
-                    name,
-                    options
-                  )(<WrappedComponent {...defaultProps} {...inputProps} />)}
+                  {getFieldDecorator(name, options)(
+                    <WrappedComponent {...defaultProps} {...inputProps} />
+                  )}
                 </Col>
                 <Col span={8}>
                   <Button
@@ -89,10 +82,9 @@ function generator({ defaultProps, defaultRules, type }) {
         }
         return (
           <FormItem>
-            {getFieldDecorator(
-              name,
-              options
-            )(<WrappedComponent {...defaultProps} {...otherProps} />)}
+            {getFieldDecorator(name, options)(
+              <WrappedComponent {...defaultProps} {...otherProps} />
+            )}
           </FormItem>
         );
       }
@@ -105,7 +97,7 @@ Object.keys(map).forEach((item) => {
   LoginItem[item] = generator({
     defaultProps: map[item].props,
     defaultRules: map[item].rules,
-    type: item
+    type: item,
   })(map[item].component);
 });
 

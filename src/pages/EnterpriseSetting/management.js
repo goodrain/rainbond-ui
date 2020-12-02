@@ -1,4 +1,3 @@
-import React, { Fragment, PureComponent } from 'react';
 import {
   Button,
   Card,
@@ -12,10 +11,9 @@ import {
   Spin
 } from 'antd';
 import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
 import AddAdmin from '../../components/AddAdmin';
 import ConfirmModal from '../../components/ConfirmModal';
-import roleUtil from '@/utils/role';
-import userUtil from '@/utils/user';
 import styles from './index.less';
 
 @connect(({ user, loading, global }) => ({
@@ -28,16 +26,12 @@ import styles from './index.less';
 export default class Management extends PureComponent {
   constructor(props) {
     super(props);
-    const { user } = this.props;
-    const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
-      adminer,
       adminList: [],
       showAddAdmin: false,
       exitAdminNameID: '',
       enterpriseAdminLoading: false,
-      showDelTeam: false,
-      info: false
+      showDelTeam: false
     };
   }
 
@@ -48,7 +42,6 @@ export default class Management extends PureComponent {
   onAddAdmin = () => {
     this.setState({ showAddAdmin: true });
   };
-
   getEnterpriseAdmins = () => {
     const {
       dispatch,
@@ -61,7 +54,7 @@ export default class Management extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           this.setState({
             adminList: res.list,
@@ -71,51 +64,32 @@ export default class Management extends PureComponent {
       }
     });
   };
-  handleEdit = (info) => {
-    this.setState({ showAddAdmin: true, info });
-  };
-  handleCreateAdmin = (values) => {
+  handleCreateAdmin = values => {
     const {
       dispatch,
       match: {
         params: { eid }
       }
     } = this.props;
-    const { info } = this.state;
-    if (info) {
-      dispatch({
-        type: 'global/editEnterpriseAdminTeams',
-        payload: {
-          enterprise_id: eid,
-          ...values
-        },
-        callback: () => {
-          notification.success({ message: '编辑成功' });
-          this.getEnterpriseAdmins();
-          this.cancelCreateAdmin();
-        }
-      });
-    } else {
-      dispatch({
-        type: 'global/addEnterpriseAdminTeams',
-        payload: {
-          enterprise_id: eid,
-          ...values
-        },
-        callback: () => {
-          notification.success({ message: '添加成功' });
-          this.getEnterpriseAdmins();
-          this.cancelCreateAdmin();
-        }
-      });
-    }
+    dispatch({
+      type: 'global/addEnterpriseAdminTeams',
+      payload: {
+        enterprise_id: eid,
+        user_id: values.user_id
+      },
+      callback: () => {
+        notification.success({ message: '添加成功' });
+        this.getEnterpriseAdmins();
+        this.cancelCreateAdmin();
+      }
+    });
   };
 
   cancelCreateAdmin = () => {
-    this.setState({ showAddAdmin: false, info: false });
+    this.setState({ showAddAdmin: false });
   };
 
-  showDelTeam = (exitAdminNameID) => {
+  showDelTeam = exitAdminNameID => {
     this.setState({ showDelTeam: true, exitAdminNameID });
   };
 
@@ -158,18 +132,15 @@ export default class Management extends PureComponent {
     const {
       match: {
         params: { eid }
-      },
-      user
+      }
     } = this.props;
+
     const {
       adminList,
       enterpriseAdminLoading,
       showAddAdmin,
-      showDelTeam,
-      info,
-      adminer
+      showDelTeam
     } = this.state;
-    const userId = user && user.user_id;
 
     const adminLists = adminList && adminList.length > 0 && adminList;
     const moreSvg = () => (
@@ -200,27 +171,17 @@ export default class Management extends PureComponent {
       </svg>
     );
 
-    const managementMenu = (item) => {
+    const managementMenu = exitAdminNameID => {
       return (
         <Menu>
           <Menu.Item>
             <a
               href="javascript:;"
               onClick={() => {
-                this.showDelTeam(item.user_id);
+                this.showDelTeam(exitAdminNameID);
               }}
             >
               删除管理员
-            </a>
-          </Menu.Item>
-          <Menu.Item>
-            <a
-              href="javascript:;"
-              onClick={() => {
-                this.handleEdit(item);
-              }}
-            >
-              编辑管理员
             </a>
           </Menu.Item>
         </Menu>
@@ -239,7 +200,7 @@ export default class Management extends PureComponent {
     );
     const managementAdmin = (
       <div style={{ marginTop: '20px' }}>
-        <Row>{adminer && operation}</Row>
+        <Row>{operation}</Row>
         {adminLists && (
           <Row
             className={styles.teamMinTit}
@@ -247,24 +208,17 @@ export default class Management extends PureComponent {
             align="middle"
             style={{ padding: ' 0 0 10px 24px' }}
           >
-            <Col span={5}>名称</Col>
-            <Col span={5}>姓名</Col>
-            <Col span={6}>角色</Col>
-            <Col span={5}>时间</Col>
+            <Col span={7}>名称</Col>
+            <Col span={7}>姓名</Col>
+            <Col span={7}>时间</Col>
           </Row>
         )}
         {adminLists ? (
-          adminLists.map((item) => {
-            const {
-              user_id: id,
-              create_time: createTime,
-              nick_name: nickName,
-              real_name: realName,
-              roles
-            } = item;
+          adminLists.map(item => {
+            const { user_id, create_time, nick_name, real_name } = item;
             return (
               <Card
-                key={id}
+                key={user_id}
                 style={{ marginBottom: '10px' }}
                 bodyStyle={{ padding: 0 }}
                 hoverable
@@ -274,23 +228,13 @@ export default class Management extends PureComponent {
                   align="middle"
                   style={{ paddingLeft: '24px', height: '70px' }}
                 >
-                  <Col span={5}>{nickName}</Col>
-                  <Col span={5}>{realName}</Col>
-                  <Col span={6}>
-                    {roles.map((items) => {
-                      return (
-                        <span style={{ marginRight: '5px' }}>
-                          {roleUtil.roleMap(items)}
-                        </span>
-                      );
-                    })}
-                  </Col>
-                  <Col span={5}>{createTime}</Col>
+                  <Col span={7}>{nick_name}</Col>
+                  <Col span={7}>{real_name}</Col>
+                  <Col span={7}>{create_time}</Col>
                   <Col span={2} />
                   <Col span={1} className={styles.bor}>
                     <Dropdown
-                      disabled={userId == id}
-                      overlay={managementMenu(item)}
+                      overlay={managementMenu(user_id)}
                       placement="bottomLeft"
                     >
                       <Icon component={moreSvg} style={{ width: '100%' }} />
@@ -311,7 +255,6 @@ export default class Management extends PureComponent {
         {showAddAdmin && (
           <AddAdmin
             eid={eid}
-            info={info}
             onOk={this.handleCreateAdmin}
             onCancel={this.cancelCreateAdmin}
           />

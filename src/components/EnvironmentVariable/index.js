@@ -106,7 +106,7 @@ class EditableCell extends React.Component {
         },
         {
           pattern: /[-._a-zA-Z][-._a-zA-Z0-9]/,
-          message: ' 必须由字母、数字和 - . _ 组成，不支持数字开头'
+          message: '请输入合法的变量名、不支持中文'
         }
       ];
     } else if (dataIndex === 'attr_value') {

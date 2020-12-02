@@ -15,8 +15,8 @@ if (token) {
 
 // @connect(({user, global}) => ({currUser: user.currentUser}))
 
-@connect(({ user, global, application }) => ({
-  groupDetail: application.groupDetail || {},
+@connect(({ user, global, groupControl }) => ({
+  groupDetail: groupControl.groupDetail || {},
   currUser: user.currentUser,
   groups: global.groups || []
 }))

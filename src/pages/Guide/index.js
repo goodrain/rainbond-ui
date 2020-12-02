@@ -117,11 +117,11 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     const { GuideList } = this.state;
     dispatch({
-      type: "application/addGroup",
+      type: "groupControl/addGroup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_name: vals.group_name,
-        note: vals.note
+        group_note: vals.group_note
       },
       callback: res => {
         if (res) {
@@ -150,7 +150,7 @@ export default class Index extends PureComponent {
   handleShare = group_id => {
     const { dispatch } = this.props;
     dispatch({
-      type: "application/ShareGroup",
+      type: "groupControl/ShareGroup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id
@@ -201,7 +201,7 @@ export default class Index extends PureComponent {
     const { setFieldsValue } = this.props.form;
 
     this.props.dispatch({
-      type: "application/addGroup",
+      type: "groupControl/addGroup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...vals
@@ -229,7 +229,7 @@ export default class Index extends PureComponent {
     const groupId = this.props.form.getFieldValue("group_id");
     const { dispatch } = this.props;
     dispatch({
-      type: "application/fetchApps",
+      type: "groupControl/fetchApps",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),

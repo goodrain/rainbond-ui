@@ -1,11 +1,10 @@
-import { Button, Card, Form, Input, notification, Row, Table } from 'antd';
-import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
-import moment from "moment";
 import React, { PureComponent } from 'react';
-import AddGroup from '../../components/AddOrEditGroup';
-import ScrollerX from '../../components/ScrollerX';
+import { routerRedux, Link } from 'dva/router';
+import { connect } from 'dva';
+import { Card, Table, Button, Row, notification, Form, Input } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import ScrollerX from '../../components/ScrollerX';
+import AddGroup from '../../components/AddOrEditGroup';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
@@ -102,7 +101,7 @@ export default class AppList extends PureComponent {
   handleAddGroup = vals => {
     const { teamName } = this.props.match.params;
     this.props.dispatch({
-      type: 'application/addGroup',
+      type: 'groupControl/addGroup',
       payload: {
         team_name: teamName,
         ...vals,
@@ -217,28 +216,6 @@ export default class AppList extends PureComponent {
                   },
                 },
                 {
-                  title: '更新时间',
-                  dataIndex: 'update_time',
-                  width: '200px',
-                  render: (val, data) => {
-                    if (val){
-                      return moment(val).format("YYYY-MM-DD HH:mm:ss")
-                    }
-                    return '-'
-                  },
-                },
-                {
-                  title: '创建时间',
-                  dataIndex: 'create_time',
-                  width: '200px',
-                  render: (val, data) => {
-                    if (val){
-                      return moment(val).format("YYYY-MM-DD HH:mm:ss")
-                    }
-                    return '-'
-                  },
-                },
-                {
                   title: '组件(运行/总数)',
                   dataIndex: 'services_num',
                   align: 'center',
@@ -266,7 +243,7 @@ export default class AppList extends PureComponent {
                 },
                 {
                   title: '备份记录',
-                  width: '150px',
+                  width: '200px',
                   dataIndex: 'backup_record_num',
                   align: 'center',
                   render: (val, data) => {
@@ -281,7 +258,7 @@ export default class AppList extends PureComponent {
                 },
                 {
                   title: '发布记录',
-                  width: '150px',
+                  width: '200px',
                   dataIndex: 'share_record_num',
                   align: 'center',
                   render: (val, data) => {

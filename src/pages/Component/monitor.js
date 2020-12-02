@@ -5,7 +5,6 @@ import React, { Fragment, PureComponent } from 'react';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
-import CustomMonitor from './component/monitor/customMonitor';
 import MonitorHistory from './component/monitor/pahistoryshow';
 import MonitorNow from './component/monitor/pashow';
 import ResourceShow from './component/monitor/resourceshow';
@@ -14,21 +13,16 @@ import TraceShow from './component/monitor/trace';
 const ButtonGroup = Button.Group;
 
 // eslint-disable-next-line react/no-multi-comp
-@connect(
-  ({ user }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  {
-    withRef: true,
-  }
-)
+@connect(({ user }) => ({ currUser: user.currentUser }), null, null, {
+  withRef: true
+})
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
       type: 'now',
       showMenu: 'pm',
-      anaPlugins: null,
+      anaPlugins: null
     };
   }
   componentWillMount() {
@@ -40,11 +34,12 @@ export default class Index extends PureComponent {
   }
 
   getAnalyzePlugins() {
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/getAnalyzePlugins',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: appAlias,
       },
       callback: data => {
         const relist = (data && data.list) || [];
@@ -79,7 +74,7 @@ export default class Index extends PureComponent {
   };
 
   renderPM() {
-    const { type, anaPlugins } = this.state;
+    const { type, anaPlugins, showMenu } = this.state;
     const { appDetail } = this.props;
     const showPerformance = anaPlugins && anaPlugins.length > 0;
     if (showPerformance) {
@@ -88,7 +83,7 @@ export default class Index extends PureComponent {
           <div
             style={{
               textAlign: 'left',
-              marginBottom: 25,
+              marginBottom: 25
             }}
           >
             <ButtonGroup>
@@ -124,13 +119,13 @@ export default class Index extends PureComponent {
           style={{
             textAlign: 'center',
             fontSize: 18,
-            padding: '30px 0',
+            padding: '30px 0'
           }}
         >
           尚未开通性能分析插件
           <p
             style={{
-              paddingTop: 8,
+              paddingTop: 8
             }}
           >
             <Link
@@ -149,10 +144,7 @@ export default class Index extends PureComponent {
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { showMenu } = this.state;
-    const {
-      appDetail,
-      componentPermissions: { isServiceMonitor },
-    } = this.props;
+    const { appDetail } = this.props;
     const defaultShow = ['pm'];
     const enablePM =
       appDetail.service.language &&
@@ -169,7 +161,9 @@ export default class Index extends PureComponent {
               <Menu.Item key="pm">性能分析</Menu.Item>
               <Menu.Item key="resource">资源监控</Menu.Item>
               {enablePM && <Menu.Item key="trace">链路追踪</Menu.Item>}
-              {isServiceMonitor && <Menu.Item key="custom">业务监控</Menu.Item>}
+              {/* <Menu.Item key="custom" disabled>
+                业务监控
+              </Menu.Item> */}
             </Menu>
           </div>
         </Col>
@@ -177,7 +171,6 @@ export default class Index extends PureComponent {
           {showMenu === 'pm' && this.renderPM()}
           {showMenu === 'trace' && <TraceShow />}
           {showMenu === 'resource' && <ResourceShow />}
-          {showMenu === 'custom' && <CustomMonitor appDetail={appDetail} />}
         </Col>
       </Row>
     );

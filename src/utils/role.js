@@ -5,11 +5,7 @@ const actionMaps = {
   developer: '开发者',
   viewer: '观察者',
   access: '访问者',
-  owner: '拥有者'
-};
-const roleMaps = {
-  admin: '企业管理员',
-  app_store: '应用市场管理员'
+  owner: '拥有者',
 };
 const AccessText = {
   component: '组件管理',
@@ -20,7 +16,6 @@ const AccessText = {
   teamMember: '团队成员管理',
   teamRole: '团队角色管理',
   teamRegion: '团队集群管理',
-  app_config_group: '应用配置组管理'
 };
 
 let arr = [
@@ -29,7 +24,7 @@ let arr = [
   'isEdit',
   'isDelete',
   'isInstall',
-  'isUninstall'
+  'isUninstall',
 ];
 let targetArr = [
   'describe',
@@ -37,7 +32,7 @@ let targetArr = [
   'edit',
   'delete',
   'install',
-  'uninstall'
+  'uninstall',
 ];
 const operationArr = ['isStart', 'isStop', 'isUpdate', 'isConstruct'];
 const targetOperationArr = ['start', 'stop', 'update', 'construct'];
@@ -65,9 +60,6 @@ export default {
   actionMap(name) {
     return actionMaps[name] || name;
   },
-  roleMap(name) {
-    return roleMaps[name] || name;
-  },
   fetchAccessText(text) {
     return AccessText[text] || text;
   },
@@ -84,8 +76,8 @@ export default {
           'isUpgrade',
           'isCopy',
           'isImport',
-          'isExport'
-        ]
+          'isExport',
+        ],
       ];
       targetArr = [
         ...targetArr,
@@ -98,8 +90,8 @@ export default {
           'upgrade',
           'copy',
           'import',
-          'export'
-        ]
+          'export',
+        ],
       ];
     }
 
@@ -121,8 +113,7 @@ export default {
           'isDeploytype',
           'isCharacteristic',
           'isHealth',
-          'isServiceMonitor'
-        ]
+        ],
       ];
 
       targetArr = [
@@ -142,8 +133,7 @@ export default {
           'deploy_type',
           'characteristic',
           'health',
-          'service_monitor'
-        ]
+        ],
       ];
     }
     const obj = {};
@@ -161,9 +151,6 @@ export default {
   },
   queryComponentInfo(data, targets) {
     return this.queryTeamUserPermissionsInfo(data, 'component', targets);
-  },
-  queryAppConfigGroupInfo(data, targets) {
-    return this.queryTeamUserPermissionsInfo(data, 'app_config_group', targets);
   },
   queryControlInfo(data, targets) {
     return this.queryTeamUserPermissionsInfo(data, 'gatewayRule', targets);
@@ -190,7 +177,7 @@ export default {
     if (permissionsInfo && moduleName && targets) {
       const teamInfo = permissionsInfo.team;
       if (moduleName === 'teamBasicInfo') {
-        teamInfo.perms.map((item) => {
+        teamInfo.perms.map(item => {
           const name = Object.keys(item)[0];
           if (name === targets) results.push(item[targets]);
         });
@@ -210,7 +197,7 @@ export default {
   },
   // eslint-disable-next-line consistent-return
   queryPermissionsChildren(data, moduleName, targets, results) {
-    return data.map((item) => {
+    return data.map(item => {
       const keys = Object.keys(item)[0];
       if (item[keys].sub_models && item[keys].sub_models.length > 0) {
         return this.renderTreeNodes(
@@ -221,7 +208,7 @@ export default {
         );
       }
       if (keys === moduleName) {
-        item[keys].perms.map((item2) => {
+        item[keys].perms.map(item2 => {
           const name = Object.keys(item2)[0];
           if (targets === name) {
             results.push(item2[targets]);
@@ -229,7 +216,7 @@ export default {
         });
       }
     });
-  }
+  },
 
   // team permissions
 };

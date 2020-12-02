@@ -18,9 +18,9 @@ import {
   notification,
   Row
 } from 'antd';
+import axios from 'axios';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import axios from 'axios';
 import PluginStyles from '../../pages/Create/Index.less';
 import cookie from '../../utils/cookie';
 import Ellipsis from '../Ellipsis';

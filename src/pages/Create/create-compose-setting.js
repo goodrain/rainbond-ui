@@ -92,7 +92,7 @@ export default class Index extends PureComponent {
         this
             .props
             .dispatch({
-                type: 'application/buildCompose',
+                type: 'groupControl/buildCompose',
                 payload: {
                     team_name: globalUtil.getCurrTeamName(),
                     ...params
@@ -117,7 +117,7 @@ export default class Index extends PureComponent {
         this
             .props
             .dispatch({
-                type: 'application/deleteCompose',
+                type: 'groupControl/deleteCompose',
                 payload: {
                     team_name: globalUtil.getCurrTeamName(),
                     ...params

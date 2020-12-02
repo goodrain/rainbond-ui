@@ -1,4 +1,4 @@
-ARG VERSION=V5.3
+ARG VERSION=V5.2
 FROM rainbond/rbd-ui-base:${VERSION}
 ADD dist /dist
 

@@ -1,44 +1,5 @@
-import apiconfig from '../../config/api.config';
-import request from '../utils/request';
-
-export async function getServiceNameList(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `
-  );
-}
-
-export async function CheckK8sServiceName(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/checkK8sServiceName `,
-    {
-      method: 'post',
-      data: {
-        k8s_service_name: params.k8s_service_name
-      }
-    }
-  );
-}
-
-export async function SetCheckK8sServiceName(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `,
-    {
-      method: 'put',
-      data: params.arr
-    }
-  );
-}
-export async function setGovernancemode(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/governancemode `,
-    {
-      method: 'put',
-      data: {
-        governance_mode: params.governance_mode
-      }
-    }
-  );
-}
+import apiconfig from "../../config/api.config";
+import request from "../utils/request";
 
 /*
    查询备份状态
@@ -49,7 +10,7 @@ export async function getBackupStatus(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
     {
-      method: 'get',
+      method: "get",
       params: {
         backup_id: body.backup_id
       }
@@ -64,7 +25,7 @@ export async function getBackup(body = { team_name, group_id }) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/backup`,
     {
-      method: 'get',
+      method: "get",
       params: {
         group_id: body.group_id,
         page: body.page,
@@ -82,7 +43,7 @@ export async function queryAllBackup(param) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${param.team_name}/all/groupapp/backup`,
     {
-      method: 'get',
+      method: "get",
       params: {
         page: param.pageNum || 1,
         page_size: param.pageSize || 10
@@ -95,7 +56,7 @@ export async function queryRestoreState(param) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${param.team_name}/groupapp/${param.group_id}/migrate/record`,
     {
-      method: 'get',
+      method: "get",
       params: {
         group_uuid: param.group_uuid
       }
@@ -109,7 +70,7 @@ export async function backup(body = { team_name, group_id }, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
     {
-      method: 'POST',
+      method: "POST",
       data: {
         note: body.note,
         mode: body.mode,
@@ -130,7 +91,7 @@ export async function groupMonitorData(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/monitor/batch_query`,
     {
-      method: 'get',
+      method: "get",
       showLoading: false,
       showMessage: false,
       handleError
@@ -154,7 +115,7 @@ export async function editAppCreateCompose(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/compose_update`,
     {
-      method: 'put',
+      method: "put",
       data: body
     }
   );
@@ -163,28 +124,18 @@ export async function editAppCreateCompose(
 /*
 	获取某个应用组的信息
 */
-export async function getGroupDetail(body = {}, handleError) {
+export async function getGroupDetail(
+  body = {
+    team_name,
+    group_id
+  },
+  handleError
+) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`,
     {
       handleError
     }
-  );
-}
-/*
-	获取某个应用组的信息
-*/
-export async function getAppDetailState(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/status`
-  );
-}
-/*
-	获取某个应用组的信息
-*/
-export async function getAppResourcesStatistics(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/group/${body.group_id}/resources`
   );
 }
 
@@ -203,7 +154,7 @@ export async function getGroupApps(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/service/group`,
     {
-      method: 'get',
+      method: "get",
       params: {
         group_id: body.group_id,
         page: body.page || 1,
@@ -227,7 +178,7 @@ export async function deleteGroup(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`,
     {
-      method: 'delete'
+      method: "delete"
     }
   );
 }
@@ -245,7 +196,7 @@ export async function deleteCompose(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/delete`,
     {
-      method: 'delete',
+      method: "delete",
       data: {
         compose_id: body.compose_id
       }
@@ -256,15 +207,21 @@ export async function deleteCompose(
 /*
   修改组
 */
-export async function editGroup(body = {}) {
+export async function editGroup(
+  body = {
+    team_name,
+    group_id,
+    group_name,
+    group_note
+  }
+) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`,
     {
-      method: 'put',
+      method: "put",
       data: {
-        app_name: body.group_name,
-        note: body.note,
-        username: body.username
+        group_name: body.group_name,
+        group_note: body.group_note
       }
     }
   );
@@ -277,12 +234,12 @@ export async function addGroup(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups`,
     {
-      method: 'post',
+      method: "post",
       data: {
         team_name: body.team_name,
         region_name: body.region_name,
-        app_name: body.group_name,
-        note: body.note
+        group_name: body.group_name,
+        group_note: body.group_note
       }
     }
   );
@@ -296,7 +253,7 @@ export async function queryCopyComponent(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${tenantName}/groupapp/${group_id}/copy`,
     {
-      method: 'get',
+      method: "get",
       data: {
         tenantName,
         group_id
@@ -314,7 +271,7 @@ export async function AddCopyTeamApps(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${tenantName}/groupapp/${group_id}/copy`,
     {
       handleError,
-      method: 'post',
+      method: "post",
       data: body
     }
   );
@@ -332,7 +289,7 @@ export async function recordShare(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/share/record`,
     {
-      method: 'get',
+      method: "get",
       params: {
         team_name: body.team_name,
         group_id: body.group_id
@@ -353,7 +310,7 @@ export async function createShare(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/share/record`,
     {
-      method: 'post',
+      method: "post",
       data: {
         group_id: body.group_id,
         scope: body.scope,
@@ -372,7 +329,7 @@ export async function getShareRecords(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/share/record`,
     {
-      method: 'get',
+      method: "get",
       params: {
         page: body.page,
         page_size: body.page_size
@@ -392,7 +349,7 @@ export async function getShareRecord(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/share/record/${body.record_id}`,
     {
-      method: 'get'
+      method: "get"
     }
   );
 }
@@ -408,7 +365,7 @@ export async function deleteShareRecord(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/share/record/${body.record_id}`,
     {
-      method: 'delete'
+      method: "delete"
     }
   );
 }
@@ -424,7 +381,7 @@ export async function giveupShare(
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/giveup`,
-    { method: 'delete' }
+    { method: "delete" }
   );
 }
 
@@ -440,7 +397,7 @@ export async function getShare(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.shareId}/info`,
     {
-      method: 'get'
+      method: "get"
     }
   );
 }
@@ -460,7 +417,7 @@ export async function submitShare(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/info`,
     {
-      method: 'post',
+      method: "post",
       data: body.new_info,
       handleError,
       params: {
@@ -483,7 +440,7 @@ export async function buildCompose(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/compose_build`,
     {
-      method: 'post',
+      method: "post",
       data: {
         compose_id: body.compose_id
       }
@@ -502,7 +459,7 @@ export async function getShareEventInfo(
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events`,
-    { method: 'get' }
+    { method: "get" }
   );
 }
 
@@ -518,7 +475,7 @@ export async function startShareEvent(
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${body.event_id}`,
-    { method: 'post' }
+    { method: "post" }
   );
 }
 
@@ -534,7 +491,7 @@ export async function startPluginShareEventInShareApp(
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${body.event_id}/plugin`,
-    { method: 'post' }
+    { method: "post" }
   );
 }
 
@@ -550,7 +507,7 @@ export async function getPluginShareEventInShareApp(
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${body.event_id}/plugin`,
-    { method: 'get' }
+    { method: "get" }
   );
 }
 
@@ -566,7 +523,7 @@ export async function getShareStatus(
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${body.event_id}`,
-    { method: 'get' }
+    { method: "get" }
   );
 }
 
@@ -582,7 +539,7 @@ export async function completeShare(
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/complete`,
-    { method: 'post' }
+    { method: "post" }
   );
 }
 
@@ -604,7 +561,7 @@ export async function migrateApp(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/migrate`,
     {
-      method: 'post',
+      method: "post",
       data: {
         region: body.region,
         team: body.team,
@@ -626,7 +583,7 @@ export async function queryMigrateApp(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/migrate`,
     {
-      method: 'get',
+      method: "get",
       params: {
         restore_id: body.restore_id
       }
@@ -641,7 +598,7 @@ export async function delRestore(body = { team_name, group_id, new_group_id }) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/delete`,
     {
-      method: 'DELETE',
+      method: "DELETE",
       data: {
         new_group_id: body.new_group_id
       }
@@ -656,7 +613,7 @@ export async function delBackup(body = { team_name, group_id, backup_id }) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
     {
-      method: 'DELETE',
+      method: "DELETE",
       data: {
         backup_id: body.backup_id
       }
@@ -673,7 +630,7 @@ export async function delFailureBackup(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
     {
-      method: 'DELETE',
+      method: "DELETE",
       data: {
         backup_id: body.backup_id
       }

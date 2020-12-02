@@ -1,31 +1,22 @@
-/* eslint-disable no-nested-ternary */
 /* eslint-disable prettier/prettier */
-import React, { Fragment, Component } from 'react';
+import { Badge, Button, Card, notification, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import {
-  Badge,
-  Button,
-  Card,
-  notification,
-  Table,
-  Tooltip,
-  Dropdown,
-  Menu,
-  Icon
-} from 'antd';
 import moment from 'moment';
-import ScrollerX from '../../components/ScrollerX';
-import styles from './ComponentList.less';
+import React, { Component, Fragment } from 'react';
 import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
-import { batchOperation } from '../../services/app';
+import ScrollerX from '../../components/ScrollerX';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
+import styles from './ComponentList.less';
 
 @connect(
   ({ global, loading }) => ({
     groups: global.groups,
+    buildShapeLoading: loading.effects['appControl/putBatchReStart'],
+    batchStartLoading: loading.effects['appControl/putBatchStart'],
+    batchStopLoading: loading.effects['appControl/putBbatchStop'],
     batchMoveLoading: loading.effects['appControl/putBatchMove'],
     reStartLoading: loading.effects['appControl/putReStart'],
     startLoading: loading.effects['appControl/putStart'],
@@ -48,8 +39,7 @@ export default class ComponentList extends Component {
       pageSize: 10,
       moveGroupShow: false,
       batchDeleteApps: [],
-      batchDeleteShow: false,
-      operationState: false
+      batchDeleteShow: false
     };
   }
   componentDidMount() {
@@ -64,22 +54,22 @@ export default class ComponentList extends Component {
   componentWillUnmount() {
     clearInterval(this.timer);
     this.props.dispatch({
-      type: 'application/clearApps'
+      type: 'groupControl/clearApps'
     });
   }
-  onSelectChange = (selectedRowKeys) => {
+  onSelectChange = selectedRowKeys => {
     this.setState({
       selectedRowKeys
     });
   };
   getSelectedKeys() {
     const selected = this.getSelected();
-    return selected.map((item) => item.service_id);
+    return selected.map(item => item.service_id);
   }
 
   getSelected() {
     const key = this.state.selectedRowKeys;
-    const res = key.map((item) => this.state.apps[item]);
+    const res = key.map(item => this.state.apps[item]);
     return res;
   }
   updateApp = () => {
@@ -95,7 +85,7 @@ export default class ComponentList extends Component {
     const { dispatch, groupId } = this.props;
     const { current, pageSize } = this.state;
     dispatch({
-      type: 'application/fetchApps',
+      type: 'groupControl/fetchApps',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
@@ -103,7 +93,7 @@ export default class ComponentList extends Component {
         page: current,
         page_size: pageSize
       },
-      callback: (data) => {
+      callback: data => {
         if (data && data._code == 200) {
           this.setState({
             apps: data.list || [],
@@ -118,7 +108,7 @@ export default class ComponentList extends Component {
     const { dispatch, groupId } = this.props;
     const { current, pageSize } = this.state;
     dispatch({
-      type: 'application/fetchApps',
+      type: 'groupControl/fetchApps',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
@@ -126,7 +116,7 @@ export default class ComponentList extends Component {
         page: current,
         page_size: pageSize
       },
-      callback: (data) => {
+      callback: data => {
         if (data && data._code == 200) {
           this.setState(
             {
@@ -142,6 +132,7 @@ export default class ComponentList extends Component {
       }
     });
   };
+
   handleOperation = (state, data) => {
     const { dispatch } = this.props;
     const operationMap = {
@@ -155,7 +146,7 @@ export default class ComponentList extends Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: data.service_alias
       },
-      callback: (res) => {
+      callback: res => {
         if (res) {
           notification.success({
             message: operationMap[state]
@@ -165,32 +156,29 @@ export default class ComponentList extends Component {
     });
   };
 
-  handleOperationState = (operationState) => {
-    this.setState({ operationState });
-  };
-  handleBatchOperation = (action) => {
+  handleBatch = state => {
     const ids = this.getSelectedKeys();
-    const map = {
-      stop: '批量关闭中',
-      start: '批量启动中',
-      restart: '批量重启中',
-      upgrade: '批量更新中',
-      deploy: '批量构建中'
+    const { dispatch } = this.props;
+    const batchMap = {
+      putBatchReStart: '批量重启中',
+      putBatchStart: '批量启动中',
+      putBbatchStop: '批量关闭中'
     };
-    batchOperation({
-      action,
-      team_name: globalUtil.getCurrTeamName(),
-      serviceIds: ids && ids.join(',')
-    }).then((data) => {
-      this.handleOperationState(false);
-      if (data && map[action]) {
-        notification.success({
-          message: map[action]
-        });
+    dispatch({
+      type: `appControl/${state}`,
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        serviceIds: ids.join(',')
+      },
+      callback: data => {
+        if (data) {
+          notification.success({
+            message: batchMap[state]
+          });
+        }
       }
     });
   };
-
   handleBatchDelete = () => {
     const apps = this.getSelected();
     this.setState({ batchDeleteApps: apps, batchDeleteShow: true });
@@ -216,7 +204,7 @@ export default class ComponentList extends Component {
       }
     });
   };
-  handleBatchMove = (groupID) => {
+  handleBatchMove = groupID => {
     const ids = this.getSelectedKeys();
     const { dispatch } = this.props;
     dispatch({
@@ -226,7 +214,7 @@ export default class ComponentList extends Component {
         serviceIds: ids.join(','),
         move_group_id: groupID
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           notification.success({
             message: '批量移动中'
@@ -242,41 +230,47 @@ export default class ComponentList extends Component {
   showBatchMove = () => {
     this.setState({ moveGroupShow: true });
   };
-  // 是否可以批量操作
-  CanBatchOperation = () => {
-    const arr = this.getSelected();
-    return arr && arr.length > 0;
+  // 是否可以批量重启
+  canBatchRestart = () => {
+    const selectedRowKeys = this.getSelected();
+    const hasSelected = selectedRowKeys.length > 0;
+    return hasSelected;
+  };
+  // 是否可以批量启动
+  canBatchStart = () => {
+    const selectedRowKeys = this.getSelected();
+    const hasSelected = selectedRowKeys.length > 0;
+    return hasSelected;
+  };
+  // 是否可以批量关闭
+  canBatchStop = () => {
+    const selectedRowKeys = this.getSelected();
+    const hasSelected = selectedRowKeys.length > 0;
+    return hasSelected;
+  };
+  canBatchMove = () => {
+    const selectedRowKeys = this.getSelected();
+    const hasSelected = selectedRowKeys.length > 0;
+    return hasSelected;
+  };
+  canBatchDelete = () => {
+    const selectedRowKeys = this.getSelected();
+    const hasSelected = selectedRowKeys.length > 0;
+    return hasSelected;
   };
 
   render() {
     const {
-      componentPermissions: {
-        isStart,
-        isRestart,
-        isStop,
-        isDelete,
-        isEdit,
-        isUpdate,
-        isConstruct
-      },
+      componentPermissions: { isStart, isRestart, isStop, isDelete, isEdit },
+      buildShapeLoading,
+      batchStartLoading,
+      batchStopLoading,
       batchMoveLoading,
       reStartLoading,
       startLoading,
-      stopLoading,
-      groupId,
-      groups
+      stopLoading
     } = this.props;
-    const {
-      selectedRowKeys,
-      current,
-      total,
-      apps,
-      pageSize,
-      batchDeleteShow,
-      batchDeleteApps,
-      moveGroupShow,
-      operationState
-    } = this.state;
+    const { selectedRowKeys, current, total, apps, pageSize } = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange
@@ -285,24 +279,11 @@ export default class ComponentList extends Component {
       pageSize,
       current,
       total,
-      showSizeChanger:true,
-      onChange: (page) => {
+      onChange: page => {
         this.setState(
           {
             current: page,
             selectedRowKeys: []
-          },
-          () => {
-            this.loadComponents();
-          }
-        );
-      },
-      // eslint-disable-next-line no-shadow
-      onShowSizeChange: (page, pageSize) => {
-        this.setState(
-          {
-            current: page,
-            pageSize
           },
           () => {
             this.loadComponents();
@@ -394,8 +375,10 @@ export default class ComponentList extends Component {
       {
         title: '更新时间',
         dataIndex: 'update_time',
-        render: (val) =>
-          moment(val).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')
+        render: val =>
+          moment(val)
+            .locale('zh-cn')
+            .format('YYYY-MM-DD HH:mm:ss')
       },
       {
         title: '操作',
@@ -440,84 +423,58 @@ export default class ComponentList extends Component {
         )
       }
     ];
-    const customBox = [
-      {
-        permissions: isConstruct,
-        name: '构建',
-        action: 'deploy'
-      },
-      {
-        permissions: isUpdate,
-        name: '更新',
-        action: 'upgrade'
-      },
-      {
-        permissions: isRestart,
-        name: '重启',
-        action: 'restart'
-      },
-      {
-        permissions: isStop,
-        name: '关闭',
-        action: 'stop'
-      },
-      {
-        permissions: isStart,
-        name: '启动',
-        action: 'start'
-      },
-      {
-        permissions: isEdit,
-        name: '移动',
-        action: false,
-        customMethods: this.showBatchMove
-      },
-      {
-        permissions: isDelete,
-        name: '删除',
-        action: false,
-        customMethods: this.handleBatchDelete
-      }
-    ];
-    const menu = (
-      <Menu>
-        {customBox.map((item) => {
-          const { permissions, name, action, customMethods } = item;
-          return (
-            permissions && (
-              <Menu.Item style={{ textAlign: 'center' }}>
-                <a
-                  loading={operationState === action ? operationState : false}
-                  onClick={() => {
-                    if (action) {
-                      this.handleOperationState(action);
-                      this.handleBatchOperation(action);
-                    } else {
-                      customMethods();
-                    }
-                  }}
-                >
-                  {name}
-                </a>
-              </Menu.Item>
-            )
-          );
-        })}
-      </Menu>
-    );
     const footer = (
       <div className={styles.tableList}>
         <div className={styles.tableListOperator}>
-          <Dropdown
-            overlay={menu}
-            trigger={['click']}
-            placement="topCenter"
-            disabled={!this.CanBatchOperation()}
-          >
-            <Button>
-              批量操作 <Icon type="down" />
+          {isRestart && (
+            <Button
+              disabled={!this.canBatchRestart()}
+              onClick={() => {
+                this.handleBatch('putBatchReStart');
+              }}
+              loading={buildShapeLoading}
+            >
+              批量重启
             </Button>
-          </Dropdown>
+          )}
+          {isStop && (
+            <Button
+              disabled={!this.canBatchStop()}
+              onClick={() => {
+                this.handleBatch('putBbatchStop');
+              }}
+              loading={batchStopLoading}
+            >
+              批量关闭
+            </Button>
+          )}
+          {isStart && (
+            <Button
+              disabled={!this.canBatchStart()}
+              onClick={() => {
+                this.handleBatch('putBatchStart');
+              }}
+              loading={batchStartLoading}
+            >
+              批量启动
+            </Button>
+          )}
+          {isEdit && (
+            <Button
+              disabled={!this.canBatchMove()}
+              onClick={this.showBatchMove}
+            >
+              批量移动
+            </Button>
+          )}
+          {isDelete && (
+            <Button
+              disabled={!this.canBatchDelete()}
+              onClick={this.handleBatchDelete}
+            >
+              批量删除
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -532,27 +489,27 @@ export default class ComponentList extends Component {
         >
           <ScrollerX sm={750}>
             <Table
-              style={{ position: 'relative' }}
               pagination={pagination}
               rowSelection={rowSelection}
               columns={columns}
               loading={reStartLoading || startLoading || stopLoading}
               dataSource={apps || []}
               footer={() => footer}
+              style={{ position: 'relative' }}
             />
           </ScrollerX>
-          {batchDeleteShow && (
+          {this.state.batchDeleteShow && (
             <BatchDelete
-              batchDeleteApps={batchDeleteApps}
+              batchDeleteApps={this.state.batchDeleteApps}
               onCancel={this.hideBatchDelete}
               onOk={this.hideBatchDelete}
             />
           )}
-          {moveGroupShow && (
+          {this.state.moveGroupShow && (
             <MoveGroup
               loading={batchMoveLoading}
-              currGroupID={groupId}
-              groups={groups}
+              currGroupID={this.props.groupId}
+              groups={this.props.groups}
               onOk={this.handleBatchMove}
               onCancel={this.hideMoveGroup}
             />

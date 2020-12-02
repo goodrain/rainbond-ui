@@ -23,7 +23,7 @@ import {
   fetchAccessToken,
   addAccessToken,
   putAccessToken,
-  deleteAccessToke
+  deleteAccessToke,
 } from '../services/user';
 import { setAuthority } from '../utils/authority';
 import userUtil from '../utils/global';
@@ -36,10 +36,9 @@ export default {
 
   state: {
     list: [],
-    collectionList: [],
     currentUser: null,
     notifyCount: 0,
-    register: null
+    register: null,
   },
 
   effects: {
@@ -117,10 +116,9 @@ export default {
       }
     },
     // 收藏视图列表
-    *fetchCollectionViewInfo({ payload, callback }, { call, put }) {
+    *fetchCollectionViewInfo({ payload, callback }, { call }) {
       const response = yield call(queryCollectionViewInfo, payload);
       if (response) {
-        yield put({ type: 'saveCollectionList', payload: response });
         callback && callback(response);
       }
     },
@@ -225,7 +223,7 @@ export default {
         cookie.set('token', response.bean.token);
         const urlParams = new URL(window.location.href);
 
-        const pathname = yield select((state) => {
+        const pathname = yield select(state => {
           return (
             state &&
             state.routing &&
@@ -247,8 +245,8 @@ export default {
             routerRedux.push({
               pathname: '/user/register-result',
               state: {
-                account: response.bean.nick_name
-              }
+                account: response.bean.nick_name,
+              },
             })
           );
         } else {
@@ -262,9 +260,7 @@ export default {
       const response = yield call(register, payload);
       if (response) {
         const urlParams = new URL(window.location.href);
-        const pathname = yield select(
-          (state) => state.routing.location.pathname
-        );
+        const pathname = yield select(state => state.routing.location.pathname);
         // add the parameters in the url
         const redirect = urlParams.searchParams.get('redirect', pathname);
         yield put({ type: 'registerHandle', payload: response.bean, redirect });
@@ -293,7 +289,7 @@ export default {
       if (response) {
         callback && callback(response.bean);
       }
-    }
+    },
   },
 
   reducers: {
@@ -301,7 +297,7 @@ export default {
       return {
         ...state,
         register: payload,
-        redirect
+        redirect,
       };
     },
     changeLoginStatus(state, { payload }) {
@@ -309,7 +305,7 @@ export default {
       return {
         ...state,
         status: payload.status,
-        type: payload.type
+        type: payload.type,
       };
     },
     tologout(state, action) {
@@ -318,19 +314,13 @@ export default {
     save(state, action) {
       return {
         ...state,
-        list: action.payload
-      };
-    },
-    saveCollectionList(state, action) {
-      return {
-        ...state,
-        collectionList: action.payload.list
+        list: action.payload,
       };
     },
     saveCurrentUser(state, action) {
       return {
         ...state,
-        currentUser: action.payload
+        currentUser: action.payload,
       };
     },
     saveOtherTeam(state, action) {
@@ -338,14 +328,14 @@ export default {
       currentUser.teams.push(action.team);
       return {
         ...state,
-        currentUser: Object.assign({}, currentUser)
+        currentUser: Object.assign({}, currentUser),
       };
     },
     changeNotifyCount(state, action) {
       return {
         ...state,
-        notifyCount: action.payload
+        notifyCount: action.payload,
       };
-    }
-  }
+    },
+  },
 };

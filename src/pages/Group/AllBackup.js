@@ -52,7 +52,7 @@ class BackupStatus extends PureComponent {
   };
   startLoopStatus() {
     this.props.dispatch({
-      type: "application/fetchBackupStatus",
+      type: "groupControl/fetchBackupStatus",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         backup_id: this.props.data.backup_id,
@@ -89,8 +89,8 @@ class BackupStatus extends PureComponent {
 }
 
 /**main */
-@connect(({ user, global, application }) => ({
-  groupDetail: application.groupDetail || {},
+@connect(({ user, global, groupControl }) => ({
+  groupDetail: groupControl.groupDetail || {},
   currUser: user.currentUser,
   groups: global.groups || []
 }))
@@ -120,7 +120,7 @@ class Index extends React.Component {
     const { dispatch } = this.props;
     const { pageNum, pageSize } = this.state;
     dispatch({
-      type: "application/queryAllBackup",
+      type: "groupControl/queryAllBackup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         pageNum,
@@ -169,7 +169,7 @@ class Index extends React.Component {
   handleDelete = e => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "application/delBackup",
+      type: "groupControl/delBackup",
       payload: {
         team_name: team_name,
         group_id: this.state.group_id,
@@ -202,7 +202,7 @@ class Index extends React.Component {
   handleDeleteBackup = e => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "application/delFailureBackup",
+      type: "groupControl/delFailureBackup",
       payload: {
         team_name: team_name,
         group_id: this.state.group_id,
