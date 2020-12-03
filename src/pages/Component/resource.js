@@ -77,11 +77,13 @@ export default class Index extends PureComponent {
       rainbondUtil.OauthEnterpriseEnable(enterprise)
     ) {
       enterprise.oauth_services.value.map(item => {
-        const { oauth_type, service_id } = item;
-        tabList.push({
-          type: oauth_type,
-          id: `${service_id}`,
-        });
+        const { oauth_type, service_id, is_git } = item;
+        if (is_git) {
+          tabList.push({
+            type: oauth_type,
+            id: `${service_id}`
+          });
+        }
       });
       this.setState({
         tabList,
