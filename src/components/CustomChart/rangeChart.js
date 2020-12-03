@@ -285,10 +285,16 @@ export default class RangeChart extends PureComponent {
             >
               <Legend
                 useHtml
+                containerTpl={
+                  '<div class="g2-legend" style="position:absolute;top:20px;right:60px;width:100%;">' +
+                  '<h4 class="g2-legend-title"></h4>' +
+                  '<ul class="g2-legend-list" style="list-style-type:none;margin:0;padding:0;"></ul>' +
+                  '</div>'
+                }
                 itemTpl={
-                  '<li class="g2-legend-list-item item-{index} {checked}" data-color="{originColor}" data-value="{originValue}" style="display:flex;align-items:center;flex-wrap:wrap;cursor: pointer;font-size: 14px;">' +
+                  '<li class="g2-legend-list-item item-{index} {checked}" data-color="{originColor}" data-value="{originValue}" style="cursor: pointer;font-size: 14px;">' +
                   '<i class="g2-legend-marker" style="width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:10px;background-color: {color};"></i>' +
-                  '<span title={value} class="g2-legend-text" style="display:inline-block;width:90%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">{value}</span>' +
+                  '<span title={value} class="g2-legend-text" style="display:inline-block;max-width:94%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">{value}</span>' +
                   '</li>'
                 }
                 g2-legend-list={{
@@ -299,7 +305,8 @@ export default class RangeChart extends PureComponent {
                   display: 'flex',
                   alignItems: 'center',
                   flexWrap: 'wrap',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  marginRight: 0
                 }}
               />
               <Axis
