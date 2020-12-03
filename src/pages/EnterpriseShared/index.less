@@ -97,7 +97,8 @@
 }
 
 .lt {
-  width: 18px;
+  cursor: default;
+  width: 28px;
   background: #4d73b1;
   box-shadow: 1px 0 2px 0 rgba(0, 0, 0, 0.3);
   height: 70px;
@@ -105,11 +106,19 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-
-  p {
+  div {
+    width: 100%;
     text-align: center;
     margin: 0;
     color: #fff;
+    font-size: 12px;
+    i {
+      display: block;
+      margin-bottom: 5px;
+    }
+    div {
+      width: 100%;
+    }
   }
 }
 
@@ -120,11 +129,11 @@
 }
 
 .imgs {
-  width: 100%;
+  width: calc(100% - 28px);
   display: flex;
   align-items: center;
   justify-content: center;
-  svg,
+
   img {
     min-width: 44px;
     max-width: 60px;
@@ -250,6 +259,10 @@
   align-items: center;
 
   div {
+    max-width: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     background: #f0f2f5;
     padding: 2px 5px;
     font-family: PingFangSC-Regular;

@@ -821,11 +821,18 @@ export default class EnterpriseShared extends PureComponent {
                     }}
                   >
                     <Col span={3} style={{ display: 'flex' }}>
-                      <div className={styles.lt}>
-                        <p>
+                      <div
+                        className={styles.lt}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <div>
                           <Icon type="arrow-down" />
-                          {installNumber}
-                        </p>
+                          <div title={installNumber}>
+                            {globalUtil.nFormatter(installNumber)}
+                          </div>
+                        </div>
                       </div>
                       <div className={styles.imgs}>
                         {pic ? <img src={pic} alt="" /> : defaulAppImg}
@@ -850,7 +857,7 @@ export default class EnterpriseShared extends PureComponent {
                         </p>
                       </div>
                     </Col>
-                    <Col span={4} className={styles.status}>
+                    <Col span={3} className={styles.status}>
                       <div>
                         {devStatus && (
                           <p className={styles.dev_status}>{devStatus}</p>
@@ -865,7 +872,7 @@ export default class EnterpriseShared extends PureComponent {
                         )}
                       </div>
                     </Col>
-                    <Col span={4} className={styles.tags}>
+                    <Col span={5} className={styles.tags}>
                       {tags &&
                         tags.length > 0 &&
                         tags.map((item, index) => {
@@ -882,8 +889,10 @@ export default class EnterpriseShared extends PureComponent {
                       {tags && tags.length > 3 && (
                         <a
                           style={{ marginLeft: '5px' }}
-                          onClick={() => {
-                            this.handleOpenMoreTags(tags);
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const customTags = tags.map((item) => item.name);
+                            this.handleOpenMoreTags(customTags);
                           }}
                         >
                           更多
@@ -986,11 +995,18 @@ export default class EnterpriseShared extends PureComponent {
                 Cols={
                   <div className={styles.h70}>
                     <Col span={3} style={{ display: 'flex' }}>
-                      <div className={styles.lt}>
-                        <p>
+                      <div
+                        className={styles.lt}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <div>
                           <Icon type="arrow-down" />
-                          {installNumber}
-                        </p>
+                          <div title={installNumber}>
+                            {globalUtil.nFormatter(installNumber)}
+                          </div>
+                        </div>
                       </div>
                       <div className={styles.imgs}>
                         {logo ? <img src={logo} alt="" /> : defaulAppImg}
@@ -1014,7 +1030,7 @@ export default class EnterpriseShared extends PureComponent {
                         </p>
                       </div>
                     </Col>
-                    <Col span={4} className={styles.status}>
+                    <Col span={3} className={styles.status}>
                       <div>
                         {devStatus && (
                           <p className={styles.dev_status}>{devStatus}</p>
@@ -1029,7 +1045,7 @@ export default class EnterpriseShared extends PureComponent {
                         )}
                       </div>
                     </Col>
-                    <Col span={4} className={styles.tags}>
+                    <Col span={5} className={styles.tags}>
                       {tags &&
                         tags.length > 0 &&
                         tags.map((item, index) => {
@@ -1045,7 +1061,8 @@ export default class EnterpriseShared extends PureComponent {
                       {tags && tags.length > 3 && (
                         <a
                           style={{ marginLeft: '5px' }}
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             this.handleOpenMoreTags(tags);
                           }}
                         >
