@@ -60,17 +60,6 @@ class AccountLayout extends PureComponent {
     });
   };
 
-  getPageTitle = () => {
-    const { rainbondInfo } = this.props;
-    const title =
-      (rainbondInfo &&
-        rainbondInfo.title &&
-        rainbondInfo.title.enable &&
-        rainbondInfo.title.value) ||
-      ' Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
-    return title;
-  };
-
   getContext() {
     const { location } = this.props;
     return {
@@ -215,10 +204,11 @@ class AccountLayout extends PureComponent {
         </Layout>
       );
     };
+    const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);
 
     return (
       <Fragment>
-        <DocumentTitle title={this.getPageTitle(pathname)}>
+        <DocumentTitle title={SiteTitle}>
           <ContainerQuery query={query}>
             {(params) => (
               <Context.Provider value={this.getContext()}>

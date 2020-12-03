@@ -319,17 +319,6 @@ class TeamLayout extends PureComponent {
     return { location, breadcrumbNameMap: this.breadcrumbNameMap };
   };
 
-  getPageTitle = () => {
-    const { rainbondInfo } = this.props;
-    const title =
-      (rainbondInfo &&
-        rainbondInfo.title &&
-        rainbondInfo.title.enable &&
-        rainbondInfo.title.value) ||
-      'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
-    return title;
-  };
-
   handleMenuCollapse = (collapsed) => {
     const { dispatch } = this.props;
     dispatch({
@@ -606,10 +595,11 @@ class TeamLayout extends PureComponent {
         </Layout>
       );
     };
+    const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);
 
     return (
       <Fragment>
-        <DocumentTitle title={this.getPageTitle(pathname)}>
+        <DocumentTitle title={SiteTitle}>
           <ContainerQuery key={teamName + regionName} query={query}>
             {(params) => (
               <Context.Provider value={this.getContext()}>
