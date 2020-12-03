@@ -82,26 +82,25 @@ export default class Index extends PureComponent {
 
   handleBuild = () => {
     this.setState({ buildState: true });
-
     const { JavaMavenData, is_deploy } = this.state;
     if (JavaMavenData.length > 0) {
-      const team_name = globalUtil.getCurrTeamName();
-      const app_alias = this.getAppAlias();
-      const serviceIds = JavaMavenData.map((item) => item.service_ids);
-
+      const teamName = globalUtil.getCurrTeamName();
+      const appAlias = this.getAppAlias();
       this.props.dispatch({
         type: 'appControl/createService',
         payload: {
-          team_name: team_name,
-          app_alias: app_alias,
+          team_name: teamName,
+          app_alias: appAlias,
           service_infos: JavaMavenData
         },
         callback: (res) => {
           if (res && res._code == 200) {
+            const groupId = res.bean && res.bean.group_id;
+            const serviceIds = res.bean && res.bean.service_ids;
             if (is_deploy) {
-              this.BuildShape(res.bean, serviceIds);
+              this.BuildShape(groupId, serviceIds);
             } else {
-              this.fetchGroups(res.bean);
+              this.fetchGroups(groupId);
             }
           }
         }
@@ -112,22 +111,25 @@ export default class Index extends PureComponent {
     }
   };
 
-  BuildShape = (group_id, serviceIds) => {
+  BuildShape = (groupId, serviceIds) => {
     batchOperation({
       action: 'deploy',
       team_name: globalUtil.getCurrTeamName(),
       serviceIds: serviceIds && serviceIds.length > 0 && serviceIds.join(',')
     }).then(() => {
-      this.fetchGroups(group_id);
+      this.fetchGroups(groupId);
     });
   };
 
-  fetchGroups = (group_id) => {
-    this.props.dispatch({
+  fetchGroups = (groupId) => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = this.getCurrRegionName();
+    const { dispatch } = this.props;
+    dispatch({
       type: 'global/fetchGroups',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName()
+        team_name: teamName,
+        region_name: regionName
       },
       callback: () => {
         notification.success({
@@ -135,10 +137,9 @@ export default class Index extends PureComponent {
           duration: '3'
         });
         this.setState({ buildState: false });
-
-        this.props.dispatch(
+        dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}`
+            `/team/${teamName}/region/${regionName}/apps/${groupId}`
           )
         );
       }
