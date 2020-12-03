@@ -197,9 +197,6 @@ class Index extends React.Component {
     }
     const isDownloadb = bodyText.length >= 1024*1024 && !dynamic;
 
-    if (bodyText.length === 0) {
-      return <div />;
-    }
     return (
       <Modal
         className={!isDownloadb && styles.logModal}
