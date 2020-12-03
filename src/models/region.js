@@ -7,10 +7,10 @@ import {
   getProtocols,
   sethEnterpriseClusterTenantLimit,
   upEnterpriseCluster
-} from "../services/region";
+} from '../services/region';
 
 export default {
-  namespace: "region",
+  namespace: 'region',
   state: {
     // 成员
     protocols: []
@@ -19,7 +19,7 @@ export default {
     *fetchProtocols({ payload, callback }, { call, put }) {
       const response = yield call(getProtocols, payload);
       if (response && !response.status) {
-        yield put({ type: "saveProtocols", payload: response.list });
+        yield put({ type: 'saveProtocols', payload: response.list });
       }
     },
     *upEnterpriseCluster({ payload, callback }, { put, call }) {
@@ -79,8 +79,15 @@ export default {
         callback(response);
       }
     },
-    *deleteEnterpriseCluster({ payload, callback }, { put, call }) {
-      const response = yield call(deleteEnterpriseCluster, payload);
+    *deleteEnterpriseCluster(
+      { payload, callback, handleError },
+      { put, call }
+    ) {
+      const response = yield call(
+        deleteEnterpriseCluster,
+        payload,
+        handleError
+      );
       if (response && callback) {
         callback(response);
       }
