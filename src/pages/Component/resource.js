@@ -1,29 +1,32 @@
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
+/* eslint-disable eqeqeq */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-nested-ternary */
 import {
   Button,
-  Icon,
   Card,
-  Modal,
-  Tabs,
-  Input,
-  Form,
-  Spin,
-  Select,
   Divider,
-  notification
+  Form,
+  Icon,
+  Input,
+  Modal,
+  notification,
+  Select,
+  Spin,
+  Tabs
 } from 'antd';
-import AutoDeploy from './setting/auto-deploy';
-import ChangeBuildSource from './setting/edit-buildsource';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
 import CodeBuildConfig from '../../components/CodeBuildConfig';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
-import { languageObj } from '../../utils/utils';
-import rainbondUtil from '../../utils/rainbond';
 import globalUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
+import { languageObj } from '../../utils/utils';
 import styles from './resource.less';
+import AutoDeploy from './setting/auto-deploy';
+import ChangeBuildSource from './setting/edit-buildsource';
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -73,12 +76,14 @@ export default class Index extends PureComponent {
       rainbondUtil.OauthbEnable(rainbondInfo) &&
       rainbondUtil.OauthEnterpriseEnable(enterprise)
     ) {
-      enterprise.oauth_services.value.map(item => {
-        const { oauth_type, service_id } = item;
-        tabList.push({
-          type: oauth_type,
-          id: `${service_id}`
-        });
+      enterprise.oauth_services.value.map((item) => {
+        const { oauth_type, service_id, is_git } = item;
+        if (is_git) {
+          tabList.push({
+            type: oauth_type,
+            id: `${service_id}`
+          });
+        }
       });
       this.setState({
         tabList
@@ -105,14 +110,14 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState({ runtimeInfo: data.bean ? data.bean : {} });
         }
       }
     });
   };
-  handleEditRuntime = build_env_dict => {
+  handleEditRuntime = (build_env_dict) => {
     this.props.dispatch({
       type: 'appControl/editRuntimeBuildInfo',
       payload: {
@@ -120,7 +125,7 @@ export default class Index extends PureComponent {
         app_alias: this.props.appDetail.service.service_alias,
         build_env_dict
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           notification.success({ message: '修改成功.' });
           this.getRuntimeInfo();
@@ -136,7 +141,7 @@ export default class Index extends PureComponent {
         app_alias: this.props.appDetail.service.service_alias,
         ...val
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.props.updateDetail();
         }
@@ -168,7 +173,7 @@ export default class Index extends PureComponent {
         team_name,
         service_alias: this.props.appDetail.service.service_alias
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           const { bean } = data;
           this.setState({ buildSource: bean }, () => {
@@ -195,7 +200,7 @@ export default class Index extends PureComponent {
         full_name: buildSource.full_name,
         oauth_service_id: buildSource.oauth_service_id
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             thirdInfo: res.bean
@@ -221,7 +226,7 @@ export default class Index extends PureComponent {
         service_alias: this.props.appDetail.service.service_alias,
         check_uuid: this.state.check_uuid
       },
-      callback: res => {
+      callback: (res) => {
         if (res) {
           if (res._code == 200) {
             if (
@@ -229,7 +234,7 @@ export default class Index extends PureComponent {
               res.bean.check_status != 'success' &&
               res.bean.check_status != 'failure'
             ) {
-              setTimeout(function() {
+              setTimeout(function () {
                 _th.handleDetectGetLanguage();
               }, 3000);
             } else {
@@ -254,7 +259,7 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         service_alias: this.props.appDetail.service.service_alias
       },
-      callback: res => {
+      callback: (res) => {
         if (res) {
           this.setState(
             {
@@ -281,7 +286,7 @@ export default class Index extends PureComponent {
   };
 
   // 获取类型
-  handleCodeWarehouseType = props => {
+  handleCodeWarehouseType = (props) => {
     const { dispatch, type } = props;
     const { tabType, buildSource } = this.state;
     const oauth_service_id = this.props.form.getFieldValue('oauth_service_id');
@@ -294,7 +299,7 @@ export default class Index extends PureComponent {
         full_name: project_full_name || buildSource.full_name,
         oauth_service_id: oauth_service_id || buildSource.oauth_service_id
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             tags: res.bean ? res.bean[tabType] : [],
@@ -306,7 +311,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  onTabChange = tabType => {
+  onTabChange = (tabType) => {
     this.setState({ tabType, tagsLoading: true }, () => {
       this.handleCodeWarehouseType(this.props);
     });
@@ -332,7 +337,7 @@ export default class Index extends PureComponent {
     }
   };
 
-  handleProvinceChange = id => {
+  handleProvinceChange = (id) => {
     // 获取代码仓库信息
     const { dispatch, form } = this.props;
     const { setFieldsValue } = this.props.form;
@@ -350,8 +355,14 @@ export default class Index extends PureComponent {
           (buildSource && buildSource.oauth_service_id) ||
           (tabList.length > 0 ? tabList[0].id : '')
       },
-      callback: res => {
-        if (res && res.bean) {
+      callback: (res) => {
+        if (
+          res &&
+          res._code === 200 &&
+          res.bean &&
+          res.bean.repositories &&
+          res.bean.repositories.length > 0
+        ) {
           const firstPage = page == 1;
           const lastPage = res.bean.repositories.length < 10;
 
@@ -375,18 +386,20 @@ export default class Index extends PureComponent {
               this.handleCodeWarehouseType(this.props);
             }
           );
+        } else {
+          this.setState({ tagsLoading: false, OauthLoading: false });
         }
       }
     });
   };
 
-  handleProjectChange = project_full_name => {
+  handleProjectChange = (project_full_name) => {
     this.setState({ OauthLoading: true });
     const { form } = this.props;
     const { setFieldsValue } = this.props.form;
     const { fullList } = this.state;
 
-    fullList.map(item => {
+    fullList.map((item) => {
       if (item.project_full_name === project_full_name) {
         setFieldsValue(
           {
@@ -762,13 +775,14 @@ export default class Index extends PureComponent {
                     />
                   </p>
                   {this.state.error_infos &&
-                    this.state.error_infos.map(item => {
+                    this.state.error_infos.map((item) => {
                       return (
                         <div>
                           <span
                             dangerouslySetInnerHTML={{
-                              __html: `<span>${item.error_info ||
-                                ''} ${item.solve_advice || ''}</span>`
+                              __html: `<span>${item.error_info || ''} ${
+                                item.solve_advice || ''
+                              }</span>`
                             }}
                           />
                         </div>
@@ -792,7 +806,7 @@ export default class Index extends PureComponent {
                   </p>
 
                   {this.state.service_info &&
-                    this.state.service_info.map(item => {
+                    this.state.service_info.map((item) => {
                       return (
                         <p style={{ textAlign: 'center', fontSize: '14px' }}>
                           {item.key}:{item.value}{' '}
@@ -872,7 +886,7 @@ export default class Index extends PureComponent {
                       placeholder="请选择要创建方式"
                     >
                       {tabList.length > 0 &&
-                        tabList.map(item => (
+                        tabList.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {item.type}
                           </Option>
@@ -890,7 +904,7 @@ export default class Index extends PureComponent {
                   })(
                     <Select
                       onChange={this.handleProjectChange}
-                      dropdownRender={menu => (
+                      dropdownRender={(menu) => (
                         <div>
                           {menu}
                           {!firstPage && (
@@ -901,7 +915,7 @@ export default class Index extends PureComponent {
                                   padding: '4px 8px',
                                   cursor: 'pointer'
                                 }}
-                                onMouseDown={e => e.preventDefault()}
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={this.onPagePre}
                               >
                                 上一页
@@ -917,7 +931,7 @@ export default class Index extends PureComponent {
                                   padding: '4px 8px',
                                   cursor: 'pointer'
                                 }}
-                                onMouseDown={e => e.preventDefault()}
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={this.onPageNext}
                               >
                                 下一页
@@ -929,7 +943,7 @@ export default class Index extends PureComponent {
                       placeholder="请选择项目"
                     >
                       {fullList.length > 0 &&
-                        fullList.map(item => (
+                        fullList.map((item) => (
                           <Option
                             key={item.project_url}
                             value={item.project_full_name}
@@ -973,7 +987,7 @@ export default class Index extends PureComponent {
                         }
                       >
                         {tags.length > 0 ? (
-                          tags.map(item => {
+                          tags.map((item) => {
                             return (
                               <Option key={item} value={item}>
                                 {item}
