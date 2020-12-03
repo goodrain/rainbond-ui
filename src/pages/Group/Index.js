@@ -37,7 +37,7 @@ const FormItem = Form.Item;
 
 @Form.create()
 class EditGroupName extends PureComponent {
-  onOk = e => {
+  onOk = (e) => {
     e.preventDefault();
     const { form, onOk } = this.props;
 
@@ -183,7 +183,7 @@ class Main extends PureComponent {
         team_name,
         groupId: this.getGroupId()
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           const data = res.bean;
           if (JSON.stringify(data) === '{}') {
@@ -192,7 +192,7 @@ class Main extends PureComponent {
           const service_alias = [];
           const { json_data } = data;
           this.setState({ jsonDataLength: Object.keys(json_data).length });
-          Object.keys(json_data).map(key => {
+          Object.keys(json_data).map((key) => {
             if (
               json_data[key].cur_status == 'running' &&
               json_data[key].is_internet == true
@@ -216,7 +216,7 @@ class Main extends PureComponent {
         service_alias,
         team_name: globalUtil.getCurrTeamName()
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState(
             {
@@ -227,6 +227,7 @@ class Main extends PureComponent {
                 this.handleTimers(
                   'timer',
                   () => {
+                    this.fetchAppDetail();
                     this.loadTopology(true);
                   },
                   10000
@@ -236,11 +237,12 @@ class Main extends PureComponent {
           );
         }
       },
-      handleError: err => {
+      handleError: (err) => {
         this.handleError(err);
         this.handleTimers(
           'timer',
           () => {
+            this.fetchAppDetail();
             this.loadTopology(true);
           },
           20000
@@ -248,7 +250,7 @@ class Main extends PureComponent {
       }
     });
   }
-  handleError = err => {
+  handleError = (err) => {
     const { componentTimer } = this.state;
     if (!componentTimer) {
       return null;
@@ -281,7 +283,7 @@ class Main extends PureComponent {
         region_name: regionName,
         group_id: appID
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             currApp: res.bean,
@@ -289,7 +291,7 @@ class Main extends PureComponent {
           });
         }
       },
-      handleError: res => {
+      handleError: (res) => {
         const { componentTimer } = this.state;
         if (!componentTimer) {
           return null;
@@ -310,11 +312,11 @@ class Main extends PureComponent {
     form.resetFields();
     this.loadApps();
   };
-  handleSearch = e => {
+  handleSearch = (e) => {
     e.preventDefault();
     this.loadApps();
   };
-  changeType = type => {
+  changeType = (type) => {
     this.setState({ type });
   };
   toDelete = () => {
@@ -346,7 +348,7 @@ class Main extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId()
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           notification.success({ message: '删除成功' });
           this.closeComponentTimer();
@@ -361,13 +363,13 @@ class Main extends PureComponent {
     });
   };
 
-  newAddress = grid => {
+  newAddress = (grid) => {
     this.props.dispatch({
       type: 'global/fetchGroups',
       payload: {
         team_name: globalUtil.getCurrTeamName()
       },
-      callback: list => {
+      callback: (list) => {
         if (list && list.length) {
           if (grid == list[0].group_id) {
             this.newAddress(grid);
@@ -397,7 +399,7 @@ class Main extends PureComponent {
   cancelEdit = () => {
     this.setState({ toEdit: false });
   };
-  handleEdit = vals => {
+  handleEdit = (vals) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'groupControl/editGroup',
@@ -407,7 +409,10 @@ class Main extends PureComponent {
         group_name: vals.group_name,
         group_note: vals.group_note
       },
-      callback: () => {
+      callback: (res) => {
+        if (res && res._code == 200) {
+          notification.success({ message: '修改成功' });
+        }
         this.handleUpDataHeader();
         this.cancelEdit();
         this.fetchAppDetail();
@@ -434,7 +439,7 @@ class Main extends PureComponent {
     this.setState({ toAdd: false });
   };
 
-  handleAdd = vals => {
+  handleAdd = (vals) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'groupControl/addGroup',
@@ -457,7 +462,7 @@ class Main extends PureComponent {
   };
 
   /** 构建拓扑图 */
-  handleTopology = code => {
+  handleTopology = (code) => {
     this.setState({
       promptModal: true,
       code
@@ -486,7 +491,7 @@ class Main extends PureComponent {
         group_id: this.getGroupId(),
         action: code
       },
-      callback: data => {
+      callback: (data) => {
         notification.success({
           message: data.msg_show || '构建成功',
           duration: '3'
@@ -503,7 +508,7 @@ class Main extends PureComponent {
       code: ''
     });
   };
-  handleSizeChange = e => {
+  handleSizeChange = (e) => {
     this.setState({ size: e.target.value });
   };
 
@@ -548,10 +553,6 @@ class Main extends PureComponent {
       toDelete,
       type
     } = this.state;
-    if (groupDetail.group_id != appID && !loadingDetail) {
-      this.fetchAppDetail();
-    }
-
     const codeObj = {
       start: '启动',
       restart: '重启',
@@ -806,7 +807,7 @@ class Main extends PureComponent {
         {type === 'spin' && <Spin />}
         {type === 'shapes' && (
           <EditorTopology
-            changeType={types => {
+            changeType={(types) => {
               this.changeType(types);
             }}
             group_id={this.getGroupId()}
@@ -889,7 +890,7 @@ export default class Index extends PureComponent {
     const { params } = this.props.match;
     return params.appID;
   }
-  handlePermissions = type => {
+  handlePermissions = (type) => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.querySpecifiedPermissionsInfo(
       currentTeamPermissionsInfo,
