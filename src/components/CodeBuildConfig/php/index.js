@@ -1,16 +1,10 @@
-import React, { PureComponent } from "react";
-import { Form, Radio, Switch, Input } from "antd";
-import { connect } from "dva";
+import React, { PureComponent } from 'react';
+import { Form, Radio, Switch } from 'antd';
+import { connect } from 'dva';
 const RadioGroup = Radio.Group;
 
-@connect(null, null, null,
-   { withRef: true }
-   )
+@connect(null, null, null, { withRef: true })
 class Index extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const formItemLayout = {
       labelCol: {
@@ -39,7 +33,7 @@ class Index extends PureComponent {
           label="禁用缓存"
           help="开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库"
         >
-          {getFieldDecorator("BUILD_NO_CACHE", {
+          {getFieldDecorator('BUILD_NO_CACHE', {
             initialValue: envs && envs.BUILD_NO_CACHE ? true : false
           })(
             <Switch
@@ -48,9 +42,8 @@ class Index extends PureComponent {
           )}
         </Form.Item>
         <Form.Item {...formItemLayout} label="Web服务器支持">
-          {getFieldDecorator("BUILD_RUNTIMES_SERVER", {
-            initialValue:
-              (envs && envs.BUILD_RUNTIMES_SERVER) || "apache"
+          {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
+            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || 'apache'
           })(
             <RadioGroup>
               <Radio value="apache">apache(默认)</Radio>
@@ -59,10 +52,13 @@ class Index extends PureComponent {
           )}
         </Form.Item>
 
-        <Form.Item {...formItemLayout} label="PHP版本" help="源码主目录composer.json文件中必须定义php版本">
-          {getFieldDecorator("BUILD_RUNTIMES", {
-            initialValue:
-              (envs && envs.BUILD_RUNTIMES) || ""
+        <Form.Item
+          {...formItemLayout}
+          label="PHP版本"
+          help="源码主目录composer.json文件中必须定义php版本"
+        >
+          {getFieldDecorator('BUILD_RUNTIMES', {
+            initialValue: (envs && envs.BUILD_RUNTIMES) || ''
           })(
             <RadioGroup>
               <Radio value="5.6.35" selected="selected">
@@ -70,8 +66,8 @@ class Index extends PureComponent {
               </Radio>
               <Radio value="5.5.38">5.5.38</Radio>
               <Radio value="7.0.29">7.0.29</Radio>
-              <Radio value="7.1.33">7.1.33</Radio>
-              <Radio value="7.2.26">7.2.26</Radio>
+              <Radio value="7.1.27">7.1.27</Radio>
+              <Radio value="7.2.16">7.2.16</Radio>
               <Radio value="7.3.13">7.3.13</Radio>
             </RadioGroup>
           )}
