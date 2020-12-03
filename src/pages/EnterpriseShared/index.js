@@ -829,7 +829,9 @@ export default class EnterpriseShared extends PureComponent {
                       >
                         <div>
                           <Icon type="arrow-down" />
-                          <div title={installNumber}>{installNumber}</div>
+                          <div title={installNumber}>
+                            {globalUtil.nFormatter(installNumber)}
+                          </div>
                         </div>
                       </div>
                       <div className={styles.imgs}>
@@ -1001,7 +1003,9 @@ export default class EnterpriseShared extends PureComponent {
                       >
                         <div>
                           <Icon type="arrow-down" />
-                          <div title={installNumber}>{installNumber}</div>
+                          <div title={installNumber}>
+                            {globalUtil.nFormatter(installNumber)}
+                          </div>
                         </div>
                       </div>
                       <div className={styles.imgs}>
