@@ -87,7 +87,13 @@ class CreateUserForm extends PureComponent {
             <FormItem {...formItemLayout} label="用户名">
               {getFieldDecorator('user_name', {
                 initialValue: userInfo ? userInfo.nick_name : '',
-                rules: [{ required: true, message: '请填写用户名!' }],
+                rules: [
+                  { required: true, message: '请填写用户名!' },
+                  {
+                    pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
+                    message: '只支持字母、数字、中文、_和-组合'
+                  }
+                ],
               })(<Input placeholder="请填写用户名!" />)}
             </FormItem>
           )}
