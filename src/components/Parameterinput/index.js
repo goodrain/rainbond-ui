@@ -73,7 +73,7 @@ class Parameterinput extends Component {
                   name="item_key"
                   value={item.item_key}
                   maxLength={255}
-                  style={{ width: '370px' }}
+                  style={{ width: '170px' }}
                   placeholder={keyPlaceholder}
                   onChange={this.onKeyChange.bind(this, index)}
                 />
@@ -86,7 +86,7 @@ class Parameterinput extends Component {
                     rows={1}
                     value={item.item_value}
                     maxLength={65533}
-                    style={{ width: '370px', marginRight: '10px' }}
+                    style={{ width: '170px', marginRight: '10px' }}
                     placeholder={valuePlaceholder}
                     onChange={this.onValueChange.bind(this, index)}
                   />
