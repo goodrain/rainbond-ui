@@ -123,7 +123,7 @@ export default class Index extends PureComponent {
 
   fetchGroups = (groupId) => {
     const teamName = globalUtil.getCurrTeamName();
-    const regionName = this.getCurrRegionName();
+    const regionName = globalUtil.getCurrRegionName();
     const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchGroups',
