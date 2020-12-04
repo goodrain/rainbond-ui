@@ -66,12 +66,12 @@ class ParameterForm extends PureComponent {
     ];
     const formItemLayout = {
       labelCol: {
-        xs: { span: 8 },
-        sm: { span: 8 }
+        xs: { span: 24 },
+        sm: { span: 6 }
       },
       wrapperCol: {
-        xs: { span: 16 },
-        sm: { span: 16 }
+        xs: { span: 24 },
+        sm: { span: 18 }
       }
     };
     return (
@@ -79,7 +79,7 @@ class ParameterForm extends PureComponent {
         <Drawer
           title="参数配置"
           placement="right"
-          width={500}
+          width={550}
           closable={false}
           onClose={onClose}
           visible={visible}
