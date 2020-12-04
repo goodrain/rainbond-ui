@@ -821,10 +821,17 @@ export default class EnterpriseShared extends PureComponent {
                     }}
                   >
                     <Col span={3} style={{ display: 'flex' }}>
-                      <div className={styles.lt}>
+                      <div
+                        className={styles.lt}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
                         <div>
                           <Icon type="arrow-down" />
-                          <div title={installNumber}>{installNumber}</div>
+                          <div title={installNumber}>
+                            {globalUtil.nFormatter(installNumber)}
+                          </div>
                         </div>
                       </div>
                       <div className={styles.imgs}>
@@ -988,10 +995,17 @@ export default class EnterpriseShared extends PureComponent {
                 Cols={
                   <div className={styles.h70}>
                     <Col span={3} style={{ display: 'flex' }}>
-                      <div className={styles.lt}>
+                      <div
+                        className={styles.lt}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
                         <div>
                           <Icon type="arrow-down" />
-                          <div title={installNumber}>{installNumber}</div>
+                          <div title={installNumber}>
+                            {globalUtil.nFormatter(installNumber)}
+                          </div>
                         </div>
                       </div>
                       <div className={styles.imgs}>
