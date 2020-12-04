@@ -71,7 +71,6 @@ class TeamLayout extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.getPageTitle = memoizeOne(this.getPageTitle);
     this.state = {
       isMobile,
       enterpriseList: [],
