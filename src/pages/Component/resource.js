@@ -77,9 +77,10 @@ export default class Index extends PureComponent {
       rainbondUtil.OauthEnterpriseEnable(enterprise)
     ) {
       enterprise.oauth_services.value.map((item) => {
-        const { oauth_type, service_id, is_git } = item;
+        const { oauth_type, service_id, is_git, name } = item;
         if (is_git) {
           tabList.push({
+            name,
             type: oauth_type,
             id: `${service_id}`
           });
@@ -488,7 +489,7 @@ export default class Index extends PureComponent {
           span: 24
         },
         sm: {
-          span: 5
+          span: 6
         }
       },
       wrapperCol: {
@@ -496,7 +497,7 @@ export default class Index extends PureComponent {
           span: 24
         },
         sm: {
-          span: 19
+          span: 18
         }
       }
     };
@@ -535,7 +536,11 @@ export default class Index extends PureComponent {
                   marginBottom: 0
                 }}
                 {...formItemLayout}
-                label="创建方式"
+                label={
+                  appUtil.isOauthByBuildSource(buildSource) && thirdInfo
+                    ? 'OAuth服务'
+                    : '创建方式'
+                }
               >
                 <Link
                   to={
@@ -876,19 +881,24 @@ export default class Index extends PureComponent {
           >
             <Spin spinning={this.state.OauthLoading}>
               <Form onSubmit={this.handleSubmitOauth}>
-                <FormItem {...formOauthLayout} label="创建方式">
+                <FormItem {...formOauthLayout} label="OAuth服务">
                   {getFieldDecorator('oauth_service_id', {
                     initialValue: thirdInfo ? `${thirdInfo.service_id}` : '',
-                    rules: [{ required: true, message: '请选择创建方式' }]
+                    rules: [
+                      {
+                        required: true,
+                        message: '请选择OAuth服务'
+                      }
+                    ]
                   })(
                     <Select
                       onChange={this.handleProvinceChange}
-                      placeholder="请选择要创建方式"
+                      placeholder="请选择OAuth服务"
                     >
                       {tabList.length > 0 &&
                         tabList.map((item) => (
                           <Option key={item.id} value={item.id}>
-                            {item.type}
+                            {item.name}
                           </Option>
                         ))}
                     </Select>
