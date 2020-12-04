@@ -320,7 +320,6 @@ class DrawerForm extends PureComponent {
                 initialValue: editInfo.domain_name,
               })(<Input placeholder="请输入域名" />)}
               <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                <Icon type="question-circle" theme="filled" />
                 <a href="javascript:void(0)" onClick={this.showDescription}>
                   请将域名解析到：{currentRegion && currentRegion.tcpdomain}
                 </a>
