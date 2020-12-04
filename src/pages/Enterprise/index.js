@@ -808,7 +808,7 @@ export default class Enterprise extends PureComponent {
                           bordered={false}
                           onClick={() => {
                             this.props.dispatch(
-                              routerRedux.replace(
+                              routerRedux.push(
                                 `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
                               )
                             );
@@ -818,7 +818,7 @@ export default class Enterprise extends PureComponent {
                             <img
                               onClick={() => {
                                 this.props.dispatch(
-                                  routerRedux.replace(
+                                  routerRedux.push(
                                     `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
                                   )
                                 );
@@ -867,7 +867,7 @@ export default class Enterprise extends PureComponent {
                               style={{ width: '93%', cursor: 'pointer' }}
                               onClick={() => {
                                 this.props.dispatch(
-                                  routerRedux.replace(
+                                  routerRedux.push(
                                     `/team/${team_name}/region/${region}/index`
                                   )
                                 );
@@ -879,7 +879,7 @@ export default class Enterprise extends PureComponent {
                               <img
                                 onClick={() => {
                                   this.props.dispatch(
-                                    routerRedux.replace(
+                                    routerRedux.push(
                                       `/team/${team_name}/region/${region}/index`
                                     )
                                   );
@@ -1054,7 +1054,7 @@ export default class Enterprise extends PureComponent {
                                 editorConvenient
                                   ? this.deleteConvenient(item)
                                   : this.props.dispatch(
-                                      routerRedux.replace(url)
+                                      routerRedux.push(url)
                                     );
                               }}
                             >

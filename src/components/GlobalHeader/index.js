@@ -39,7 +39,7 @@ export default class GlobalHeader extends PureComponent {
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
     if (key === 'userCenter') {
-      dispatch(routerRedux.replace(`/account/center`));
+      dispatch(routerRedux.push(`/account/center`));
     }
     if (key === 'cpw') {
       this.showChangePass();
