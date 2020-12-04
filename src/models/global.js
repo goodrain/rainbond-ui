@@ -20,6 +20,7 @@ import {
   getEnterpriseRoles,
   fetchEnterpriseApps,
   fetchEnterpriseInfo,
+  setBasicInformation,
   fetchEnterpriseList,
   fetchEnterpriseTeams,
   fetchEnterpriseUsers,
