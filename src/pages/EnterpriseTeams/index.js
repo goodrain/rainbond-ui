@@ -409,7 +409,7 @@ export default class EnterpriseTeams extends PureComponent {
   };
   onJumpTeam = (team_name, region) => {
     const { dispatch } = this.props;
-    dispatch(routerRedux.replace(`/team/${team_name}/region/${region}/index`));
+    dispatch(routerRedux.push(`/team/${team_name}/region/${region}/index`));
   };
 
   render() {
