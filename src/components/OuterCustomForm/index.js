@@ -327,7 +327,7 @@ export default class Index extends PureComponent {
                       <a
                         href={`${rainbondUtil.documentPlatform_url(
                           rainbondInfo
-                        )}docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA`}
+                        )}docs/component-create/thirdparty-service/thirdparty-create`}
                         target="_blank"
                         style={{ color: '#fff' }}
                       >
@@ -335,7 +335,6 @@ export default class Index extends PureComponent {
                       </a>
                     }
                   >
-                    {' '}
                     <Icon type="question-circle-o" />
                   </Tooltip>
                 </span>
@@ -437,7 +436,7 @@ export default class Index extends PureComponent {
                           <a
                             href={`${rainbondUtil.documentPlatform_url(
                               rainbondInfo
-                            )}docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA`}
+                            )}docs/component-create/thirdparty-service/thirdparty-create`}
                             target="_blank"
                             style={{ color: '#fff' }}
                           >
@@ -445,7 +444,6 @@ export default class Index extends PureComponent {
                           </a>
                         }
                       >
-                        {' '}
                         <Icon type="question-circle-o" />
                       </Tooltip>
                     </span>
