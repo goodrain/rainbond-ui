@@ -201,6 +201,7 @@ class Index extends React.Component {
       <Modal
         className={!isDownloadb && styles.logModal}
         title={title}
+        maskClosable={false}
         visible
         onOk={onOk}
         onCancel={onCancel}

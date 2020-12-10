@@ -1,14 +1,14 @@
 /*
   添加或者修改插件配置
 */
-import React, { PureComponent, Fragment } from "react";
+import { Button, Modal, Tabs } from "antd";
 import { connect } from "dva";
-import { Button, Modal, Tabs, message } from "antd";
-import globalUtil from "../../utils/global";
+import React, { PureComponent } from "react";
 import LogProcress from "../../components/LogProcress";
-import userUtil from "../../utils/user";
-import teamUtil from "../../utils/team";
+import globalUtil from "../../utils/global";
 import regionUtil from "../../utils/region";
+import teamUtil from "../../utils/team";
+import userUtil from "../../utils/user";
 const TabPane = Tabs.TabPane;
 
 @connect(({ user, loading }) => ({}))
@@ -120,6 +120,7 @@ export default class Index extends PureComponent {
         title={"版本构建日志"}
         width={600}
         visible={true}
+        maskClosable={false}
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
         footer={[<Button onClick={this.handleCancel}>关闭</Button>]}

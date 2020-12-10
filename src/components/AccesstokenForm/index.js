@@ -1,15 +1,15 @@
-import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
-import { connect } from 'dva';
 import {
-  Modal,
-  Form,
-  Input,
   Alert,
   DatePicker,
-  Typography,
-  notification
+  Form,
+  Input,
+  Modal,
+  notification,
+  Typography
 } from 'antd';
+import { connect } from 'dva';
+import moment from 'moment';
+import React, { Fragment, PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -51,22 +51,22 @@ class AccesstokenForm extends PureComponent {
       }
     });
   };
-  handleAccesstokenCallback = (res) => {
+  handleAccesstokenCallback = res => {
     if (res && res._code === 200) {
       this.setState({ accessKey: res.bean.access_key });
     }
     this.setState({ loading: false });
   };
-  addAccesstoken = (values) => {
+  addAccesstoken = values => {
     const { dispatch } = this.props;
     this.setState({ loading: true });
     dispatch({
       type: 'user/addAccessToken',
       payload: values,
-      callback: (res) => {
+      callback: res => {
         this.handleAccesstokenCallback(res);
       },
-      handleError: (err) => {
+      handleError: err => {
         if (err && err.data && err.data.msg_show) {
           notification.warning({
             message: err.data.msg_show
@@ -77,7 +77,7 @@ class AccesstokenForm extends PureComponent {
     });
   };
 
-  putAccesstoken = (ID) => {
+  putAccesstoken = ID => {
     const { dispatch } = this.props;
     this.setState({ loading: true });
     dispatch({
@@ -85,13 +85,13 @@ class AccesstokenForm extends PureComponent {
       payload: {
         user_id: ID
       },
-      callback: (res) => {
+      callback: res => {
         this.handleAccesstokenCallback(res);
       }
     });
   };
 
-  disabledDate = (current) => {
+  disabledDate = current => {
     // Can not select days before today and today
     return current && current < moment().endOf('day');
   };
@@ -152,6 +152,7 @@ class AccesstokenForm extends PureComponent {
       <Modal
         visible
         confirmLoading={loading}
+        maskClosable={false}
         className={styles.TelescopicModal}
         title={ID || accessKey ? '请保存AccessKey' : '新增访问令牌'}
         onOk={this.handleSubmit}
