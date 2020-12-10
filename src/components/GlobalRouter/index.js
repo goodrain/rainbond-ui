@@ -1,12 +1,12 @@
-import React, { PureComponent } from 'react';
-import { Menu, Icon } from 'antd';
-import { Link } from 'dva/router';
+import { Icon, Menu } from 'antd';
 import { connect } from 'dva';
-import styles from './index.less';
+import { Link } from 'dva/router';
+import React, { PureComponent } from 'react';
 import { formatMessage } from 'umi-plugin-locale';
-import CollectionView from '../SiderMenu/CollectionView';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
+import CollectionView from '../SiderMenu/CollectionView';
+import styles from './index.less';
 
 const { SubMenu } = Menu;
 
@@ -305,7 +305,6 @@ export default class GlobalRouter extends PureComponent {
     if (!selectedKeys.length) {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
-    const offsetHeights = document.body.offsetHeight - 132;
     return (
       <div
         style={{
@@ -348,7 +347,7 @@ export default class GlobalRouter extends PureComponent {
             style={{
               width: '100%',
               position: 'absolute',
-              top: offsetHeights
+              bottom: '0px'
             }}
           >
             <a>
