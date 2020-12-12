@@ -1,27 +1,42 @@
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
 import {
-  Form,
-  Button,
-  Select,
-  Input,
-  Radio,
-  Alert,
-  Modal,
-  Row,
-  Col,
-  Icon,
-  Tooltip,
-  message
+  Alert, Button,
+
+
+
+
+
+
+  Col, Form,
+
+
+
+
+
+
+
+
+  Icon, Input,
+
+
+  Modal, Radio,
+
+
+  Row, Select,
+
+
+
+
+
+
+
+  Tooltip
 } from 'antd';
+import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 
-import configureGlobal from '../../utils/configureGlobal';
-import ShowRegionKey from '../../components/ShowRegionKey';
-import styles from './index.less';
-import Moretext from './moretext';
 
 const FormItem = Form.Item;
 
@@ -310,7 +325,6 @@ export default class Index extends PureComponent {
                 value={endpointsType}
               >
                 <Radio value="static">静态注册</Radio>
-                <Radio value="discovery">动态注册</Radio>
                 <Radio value="api">API注册</Radio>
               </RadioGroup>
             )}
@@ -380,14 +394,10 @@ export default class Index extends PureComponent {
                     );
                   })}
                 </div>
-                //         <div>
-                //             <div>192.168.1.1:8888 （输入方式1示例）</div>
-                //             <div>192.168.1.3      （输入方式2示例）</div>
-                //         </div>
               )}
             </FormItem>
           )}
-
+          {/* discovery type is disable  */}
           {endpointsType == 'discovery' && (
             <div>
               {' '}
