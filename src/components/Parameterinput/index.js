@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
+import { Icon, Input, Row } from 'antd';
 import React, { Component } from 'react';
-import { Row, Input, Icon } from 'antd';
 const { TextArea } = Input;
 
 class Parameterinput extends Component {
@@ -73,7 +73,7 @@ class Parameterinput extends Component {
                   name="item_key"
                   value={item.item_key}
                   maxLength={255}
-                  style={{ width: '170px' }}
+                  style={{ width: '300px' }}
                   placeholder={keyPlaceholder}
                   onChange={this.onKeyChange.bind(this, index)}
                 />
@@ -86,7 +86,7 @@ class Parameterinput extends Component {
                     rows={1}
                     value={item.item_value}
                     maxLength={65533}
-                    style={{ width: '170px', marginRight: '10px' }}
+                    style={{ width: '360px', marginRight: '10px' }}
                     placeholder={valuePlaceholder}
                     onChange={this.onValueChange.bind(this, index)}
                   />
