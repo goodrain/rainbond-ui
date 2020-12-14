@@ -1,6 +1,23 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable react/sort-comp */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable consistent-return */
+/* eslint-disable no-shadow */
+/* eslint-disable eqeqeq */
+/* eslint-disable array-callback-return */
+/* eslint-disable no-param-reassign */
+/* eslint-disable vars-on-top */
+/* eslint-disable no-var */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable camelcase */
 /* eslint-disable no-loop-func */
 /* eslint-disable guard-for-in */
-/* eslint-disable react/jsx-no-bind */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable func-names */
+/* eslint-disable no-unused-expressions */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable import/first */
@@ -100,19 +117,15 @@ class AppInfo extends PureComponent {
       app.service_connect_info_map_list.length
     ) {
       return (
-        <div
-          style={{
-            marginBottom: 24
-          }}
-        >
+        <div>
           <h4
             style={{
-              marginBottom: 8
+              marginBottom: 0
             }}
           >
             连接信息
           </h4>
-          <Divider />
+          <Divider style={{ margin: '16px 0 0' }} />
           <Row>
             {app.service_connect_info_map_list.map((item, index) => (
               <Col key={`connection_${index}`} span={8}>
@@ -173,19 +186,15 @@ class AppInfo extends PureComponent {
     const { getFieldDecorator, setFieldsValue } = form;
     if (app.service_env_map_list && app.service_env_map_list.length) {
       return (
-        <div
-          style={{
-            marginBottom: 24
-          }}
-        >
+        <div>
           <h4
             style={{
-              marginBottom: 8
+              marginBottom: 0
             }}
           >
             环境变量
           </h4>
-          <Divider />
+          <Divider style={{ margin: '16px 0 0' }} />
           <Row>
             {app.service_env_map_list.map((item) => {
               const { attr_name, attr_value, is_change } = item;
@@ -235,19 +244,15 @@ class AppInfo extends PureComponent {
     if (app.extend_method_map) {
       const steps = getFieldValue(`${ID}||step_node`);
       return (
-        <div
-          style={{
-            marginBottom: 24
-          }}
-        >
+        <div>
           <h4
             style={{
-              marginBottom: 8
+              marginBottom: 0
             }}
           >
             伸缩规则
           </h4>
-          <Divider />
+          <Divider style={{ margin: '16px 0 0' }} />
           <Row>
             <Col span={6}>
               <FormItem label="最小节点(个)" style={{ padding: 16 }}>
@@ -377,6 +382,7 @@ export default class Main extends PureComponent {
       fileList: [],
       shareList: [],
       sharearrs: [],
+      shareAll: [],
       shareModal: null,
       isShare: 'false',
       service_cname: '',
@@ -393,7 +399,8 @@ export default class Main extends PureComponent {
       versions: [],
       versionInfo: false,
       editorAppModel: false,
-      appModelInfo: false
+      appModelInfo: false,
+      checkAll: true
     };
     this.com = [];
     this.share_group_info = null;
@@ -415,11 +422,13 @@ export default class Main extends PureComponent {
 
   onFileChange = (e) => {
     const share_service_data = this.share_service_list;
-    const { shareList, sharearrs } = this.state;
+    const { shareList, sharearrs, shareAll } = this.state;
     // this.props.form.setFieldsValue({sharing:e})
     if (e.length > 0) {
+      this.setState({
+        checkAll: shareAll.length === e.length
+      });
       const newArray = sharearrs.filter((item) => !e.includes(item));
-
       const arr = [];
       const dep_service_key = [];
       const dep_service_name = [];
@@ -430,12 +439,13 @@ export default class Main extends PureComponent {
               option.dep_service_map_list.length > 0 &&
               option.dep_service_map_list.map((items) => {
                 dep_service_key.push(items.dep_service_key);
-                dep_service_name.push(option.service_cname);
+                if (!dep_service_name.includes(option.service_cname)) {
+                  dep_service_name.push(option.service_cname);
+                }
               });
           }
         });
       });
-
       let show = false;
       let name = '';
       if (newArray.length > 0 && dep_service_key.length > 0) {
@@ -452,7 +462,6 @@ export default class Main extends PureComponent {
           });
         });
       }
-
       if (show && e.length <= sharearrs.length) {
         this.setState({
           shareModal: e,
@@ -469,8 +478,6 @@ export default class Main extends PureComponent {
           }
         );
       }
-    } else {
-      notification.warning({ message: '分享组件不能少于1个' });
     }
   };
   getParams() {
@@ -520,9 +527,9 @@ export default class Main extends PureComponent {
             });
             this.setState({
               shareList: arr,
-              sharearrs: arr
+              sharearrs: arr,
+              shareAll: arr
             });
-            // this.props.form.setFieldsValue({ sharing: arr })
           }
         }
       },
@@ -762,7 +769,7 @@ export default class Main extends PureComponent {
                   option.service_env_map_list.map((serapp) => {
                     const {
                       attr_name: attrName,
-                      attr_value: attrValue,
+                      attr_value: attrValue
                     } = serapp;
                     if (attrName == indexarr[1] && attrValue == indexarr[3]) {
                       serapp[indexarr[2]] = appvalue[index];
@@ -886,16 +893,9 @@ export default class Main extends PureComponent {
         }
       });
     });
-    this.setState(
-      {
-        share_service_list: arr
-      },
-      () => {
-        if (arr.length > 0) {
-          this.tabClick(arr[0].service_share_uuid);
-        }
-      }
-    );
+    this.setState({
+      share_service_list: arr
+    });
   };
 
   hanldeShareTypeChange = (e) => {
@@ -986,6 +986,16 @@ export default class Main extends PureComponent {
       describe: versionInfo
         ? versionInfo.describe || versionInfo.app_describe
         : ''
+    });
+  };
+  onCheckAllChange = (e) => {
+    const { shareAll } = this.state;
+    this.setState({
+      sharearrs: e.target.checked ? shareAll : [],
+      checkAll: e.target.checked
+    });
+    this.props.form.setFieldsValue({
+      sharingComponents: e.target.checked ? shareAll : []
     });
   };
 
@@ -1230,56 +1240,78 @@ export default class Main extends PureComponent {
           >
             <div
               style={{
-                padding: '24px'
+                padding: '24px 24px 0 24px'
               }}
             >
-              <div className={mytabcss.mytab}>
-                <h4
-                  className={mytabcss.required}
-                  style={{
-                    marginBottom: 8
-                  }}
+              <div>
+                <FormItem
+                  className={mytabcss.cancelFormItem}
+                  labelCol={{ span: 24 }}
+                  wrapperCol={{ span: 24 }}
+                  label={
+                    <span>
+                      <span>分享组件</span>
+                      <Checkbox
+                        style={{ float: 'right' }}
+                        checked={this.state.checkAll}
+                        onChange={this.onCheckAllChange}
+                      >
+                        全选
+                      </Checkbox>
+                    </span>
+                  }
                 >
-                  分享组件
-                </h4>
-                <div className={mytabcss.mytabtit} id="mytabtit">
-                  <Checkbox.Group
-                    onChange={this.onFileChange}
-                    value={sharearrs}
-                    style={{ display: 'block', marginTop: '9px' }}
-                  >
-                    <Tabs activeKey={tabk} onChange={this.tabClick}>
-                      {apps.map((apptit) => {
-                        return (
-                          <TabPane
-                            key={apptit.service_share_uuid}
-                            tab={
-                              <span className={mytabcss.cont}>
-                                <Checkbox
-                                  onChange={this.onChange}
-                                  value={apptit.service_share_uuid}
-                                  style={{ marginRight: '10px' }}
-                                />
-                                <a
-                                  tab={apptit.service_cname}
-                                  onClick={() => {
-                                    this.tabClick(apptit.service_share_uuid);
-                                  }}
-                                >
-                                  {apptit.service_cname}
-                                </a>
-                              </span>
-                            }
-                          />
-                        );
-                      })}
-                    </Tabs>
-                  </Checkbox.Group>
+                  {getFieldDecorator('sharingComponents', {
+                    initialValue: sharearrs,
+                    rules: [
+                      {
+                        required: true,
+                        message: '分享组件不能少于1个'
+                      }
+                    ]
+                  })(
+                    <Checkbox.Group
+                      style={{ display: 'block', marginTop: '9px' }}
+                      value={sharearrs}
+                      onChange={this.onFileChange}
+                    >
+                      <Tabs className={mytabcss.cancelCursor} activeKey={tabk}>
+                        {apps.map((apptit) => {
+                          return (
+                            <TabPane
+                              key={apptit.service_share_uuid}
+                              tab={
+                                <span className={mytabcss.cont}>
+                                  <Checkbox
+                                    onChange={this.onChange}
+                                    value={apptit.service_share_uuid}
+                                    style={{ marginRight: '10px' }}
+                                  />
+                                  <a
+                                    tab={apptit.service_cname}
+                                    onClick={() => {
+                                      this.tabClick(apptit.service_share_uuid);
+                                    }}
+                                  >
+                                    {apptit.service_cname}
+                                  </a>
+                                </span>
+                              }
+                            />
+                          );
+                        })}
+                      </Tabs>
+                    </Checkbox.Group>
+                  )}
+                </FormItem>
+                <div>
                   {apps.map((apptit) => {
                     const id = apptit.service_share_uuid;
+                    const is = id === tabk;
                     return (
-                      sharearrs.includes(tabk) &&
-                      id === tabk && (
+                      // sharearrs.includes(tabk) &&
+                      // id === tabk && (
+                      <div style={{ display: id === tabk ? 'block' : 'none' }}>
                         <AppInfo
                           key={id}
                           form={form}
@@ -1288,7 +1320,9 @@ export default class Main extends PureComponent {
                           tab={apptit.service_alias}
                           ID={apptit.service_id}
                         />
-                      )
+                      </div>
+
+                      // )
                     );
                   })}
                 </div>

@@ -1,34 +1,28 @@
-@import "~antd/lib/style/themes/default.less";
-.mytabtit {
-    width: 100%;
-    border-bottom: 1px #e8e8e8 solid;
-    text-align: left;
-    margin-bottom: 20px;
-    :global {
-        .ant-tabs-nav .ant-tabs-tab{
-            padding: 0px;
-            margin: 0 5px;
-        }
-    } 
+@import '~antd/lib/style/themes/default.less';
+.cancelCursor {
+  :global {
+    .ant-tabs-nav .ant-tabs-tab {
+      padding: 0;
+      cursor: auto !important;
+    }
+  }
 }
-
-.mytabtit .cont {
-    padding: 10px;
-    display: inline-block;
-    margin-right: 2px;
+.cancelFormItem {
+  margin-bottom: 0;
 }
-
-.mytabtit .cont a {
-    color: #333;
-    text-decoration: none;
+.cont a {
+  display: inline-block;
+  padding: 0 10px 10px 0;
+  color: #333;
+  text-decoration: none;
 }
 
 .required::before {
-    display: inline-block;
-    margin-right: 4px;
-    color: #f5222d;
-    font-size: 14px;
-    font-family: SimSun, sans-serif;
-    line-height: 1;
-    content: '*';
+  display: inline-block;
+  margin-right: 4px;
+  color: #f5222d;
+  font-size: 14px;
+  font-family: SimSun, sans-serif;
+  line-height: 1;
+  content: '*';
 }
