@@ -13,7 +13,8 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import RangeChart from './rangeChart';
 import styless from './index.less';
 
-const FormItem = Form.Item;
+const { RangePicker } = DatePicker;
+
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl, loading }) => ({
   currUser: user.currentUser,
@@ -44,98 +45,11 @@ export default class ChartTitle extends PureComponent {
 
     return true;
   }
-
   disabledDate = (current) => {
     // Can not select days before today and today
-    return (
-      current &&
-      (current > moment().endOf('day') ||
-        current <
-          moment(new Date(new Date().getTime() - 7 * 24 * 1 * 60 * 60 * 1000)))
-    );
+    return current && current > moment().endOf('day');
   };
-  disabledDates = (current) => {
-    return current < moment(new Date()) || current > moment().endOf('day');
-  };
-  disabledDateStartTime = (current) => {
-    const reset = {
-      disabledHours: () => this.range(0, 24),
-      disabledMinutes: () => this.range(0, 60),
-      disabledSeconds: () => this.range(0, 60)
-    };
-    if (current) {
-      const today = moment().date();
-      const currentToday = current.date();
-      const currentHour = current.hour();
-      if (today == currentToday) {
-        const minute = Number(moment().minutes());
-        const hour = Number(moment().hour());
-        if (currentHour < hour) {
-          return {
-            disabledHours: () => this.range(hour + 1, 24)
-          };
-        }
-        return {
-          disabledHours: () => this.range(hour + 1, 24),
-          disabledMinutes: () => this.range(minute + 1, 60)
-        };
-      }
-    } else {
-      return reset;
-    }
-  };
-  disabledDateEndTime = (current) => {
-    const starts = this.props.form.getFieldValue('start');
-    const startMonth = starts.month() + 1;
-    const startDate = starts.date();
-    const startHour = starts.hour();
-    const startMinute = starts.minute();
 
-    const reset = {
-      disabledHours: () => this.range(0, 24),
-      disabledMinutes: () => this.range(0, 60),
-      disabledSeconds: () => this.range(0, 60)
-    };
-    if (current) {
-      const today = moment().date();
-      const currentMonth = current.month() + 1;
-      const currentToday = current.date();
-      const currentHour = current.hour();
-      const currentMinute = current.minute();
-
-      if (startMonth > currentMonth || startDate > currentToday) {
-        return reset;
-      }
-      if (startMonth == currentMonth && startDate == currentToday) {
-        if (startHour > currentHour) {
-          return {
-            disabledHours: () => this.range(0, startHour)
-          };
-        }
-        if (startHour === currentHour && startMinute > currentMinute) {
-          return {
-            disabledHours: () => this.range(0, startHour),
-            disabledMinutes: () => this.range(0, startMinute)
-          };
-        }
-      }
-      if (today == currentToday) {
-        const minute = Number(moment().minutes());
-        const hour = Number(moment().hour());
-        if (currentHour < hour) {
-          return {
-            disabledHours: () => this.range(hour + 1, 24)
-          };
-        }
-        return {
-          disabledHours: () => this.range(hour + 1, 24),
-          disabledMinutes: () => this.range(minute + 1, 60)
-        };
-      }
-    } else {
-      return reset;
-    }
-  };
   range = (start, end) => {
     const result = [];
     for (let i = start; i < end; i++) {
@@ -145,23 +59,16 @@ export default class ChartTitle extends PureComponent {
   };
 
   queryAll = () => {
-    const { form } = this.props;
-    form.validateFields((err, values) => {
-      if (!err) {
-        this.setState(
-          {
-            isRender: true,
-            start: values.start.valueOf() / 1000,
-            end: values.end.valueOf() / 1000
-          },
-          () => {
-            this.setState({
-              isRender: false
-            });
-          }
-        );
+    this.setState(
+      {
+        isRender: true
+      },
+      () => {
+        this.setState({
+          isRender: false
+        });
       }
-    });
+    );
   };
 
   onSortEnd = ({ oldIndex, newIndex }, e) => {
@@ -179,11 +86,31 @@ export default class ChartTitle extends PureComponent {
     }
   };
 
+  handleChangeTimes = (values) => {
+    let startTime = '';
+    let endTime = '';
+
+    if (values && values.length > 1) {
+      startTime = moment(values[0]).valueOf() / 1000;
+      endTime = moment(values[1]).valueOf() / 1000;
+    }
+    this.setState(
+      {
+        start: startTime,
+        end: endTime
+      },
+      () => {
+        if (this.props.handleUpData) {
+          this.props.handleUpData();
+        }
+      }
+    );
+  };
+
   render() {
     const {
       appDetail,
       dispatch,
-      form,
       moduleName,
       operation,
       onDelete,
@@ -194,26 +121,7 @@ export default class ChartTitle extends PureComponent {
       RangeData = [],
       appAlias = ''
     } = this.props;
-    const { getFieldDecorator } = form;
     const { start, end, isLoading, isRender } = this.state;
-    const formItemLayout = {
-      labelCol: {
-        xs: {
-          span: 24
-        },
-        sm: {
-          span: 6
-        }
-      },
-      wrapperCol: {
-        xs: {
-          span: 24
-        },
-        sm: {
-          span: 10
-        }
-      }
-    };
     const parameter = {
       moduleName,
       start,
@@ -223,22 +131,19 @@ export default class ChartTitle extends PureComponent {
       baseInfo,
       appAlias
     };
+
     const SortableItem = SortableElement(({ value }) => {
       const { title, promql, sequence, ID } = value;
       return (
         <div
           key={ID}
           index={sequence}
-          style={{
-            zIndex: 99999999,
-            cursor: 'all-scroll',
-            minHeight: '278px'
-          }}
+          className={styless.RangeChartBox}
         >
           <RangeChart
             key={ID}
             moduleName="CustomMonitor"
-            style={{ zIndex: 99999999, cursor: 'all-scroll' }}
+            style={{ cursor: 'all-scroll' }}
             {...parameter}
             upData={upData}
             onCancelLoading={this.setState({ isLoading: false })}
@@ -265,7 +170,7 @@ export default class ChartTitle extends PureComponent {
           {items.map((item) => {
             return (
               <SortableItem
-                style={{ zIndex: 99999999 }}
+                style={{ zIndex: 10 }}
                 key={item.ID}
                 index={item.sequence}
                 value={item}
@@ -279,36 +184,25 @@ export default class ChartTitle extends PureComponent {
       <Fragment>
         <Row>
           <Col span={24} className={styless.customBox}>
-            <FormItem {...formItemLayout} label="开始时间">
-              {getFieldDecorator('start', {
-                rules: [{ required: false, message: '请选择开始时间' }],
-                initialValue: moment(
-                  new Date(new Date().getTime() - 1 * 60 * 60 * 1000)
-                )
-              })(
-                <DatePicker
-                  style={{ width: '195px' }}
-                  format="YYYY-MM-DD HH:mm:ss"
-                  disabledDate={this.disabledDate}
-                  disabledTime={this.disabledDateStartTime}
-                  showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
-                />
-              )}
-            </FormItem>
-            <FormItem {...formItemLayout} label="结束时间">
-              {getFieldDecorator('end', {
-                rules: [{ required: false, message: '请选择结束时间' }],
-                initialValue: moment(new Date())
-              })(
-                <DatePicker
-                  style={{ width: '195px' }}
-                  format="YYYY-MM-DD HH:mm:ss"
-                  disabledDate={this.disabledDate}
-                  disabledTime={this.disabledDateEndTime}
-                  showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
-                />
-              )}
-            </FormItem>
+            <RangePicker
+              separator="至"
+              style={{ width: '390px' }}
+              disabledDate={this.disabledDate}
+              onChange={(value) => {
+                this.handleChangeTimes(value);
+              }}
+              defaultValue={[
+                moment(
+                  new Date(new Date().getTime() - 1 * 60 * 60 * 1000),
+                  'HH:mm:ss'
+                ),
+                moment(moment(new Date()), 'HH:mm:ss')
+              ]}
+              showTime={{
+                hideDisabledOptions: true
+              }}
+              format="YYYY-MM-DD HH:mm:ss"
+            />
             <Button style={{ marginLeft: '5px' }} onClick={this.queryAll}>
               查询
             </Button>
@@ -331,14 +225,18 @@ export default class ChartTitle extends PureComponent {
             <SortableList
               axis="xy"
               distance={1}
-              style={{ zIndex: 99999999 }}
+              style={{ zIndex: 10 }}
               items={RangeData}
               onSortEnd={this.onSortEnd}
             />
           </div>
         ) : (
           RangeData.map((item) => {
-            return <RangeChart key={item} {...parameter} type={item} />;
+            return (
+              <div style={{ marginTop: '20px' }}>
+                <RangeChart key={item} {...parameter} type={item} />
+              </div>
+            );
           })
         )}
       </Fragment>

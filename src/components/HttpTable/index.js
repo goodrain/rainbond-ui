@@ -502,7 +502,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'domain_name',
         key: 'domain_name',
         align: 'left',
-        width: '200px',
+        width: 200,
         render: (text, record) => {
           return record.is_outer_service == 1 ? (
             <a
@@ -524,7 +524,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'type',
         key: 'type',
         align: 'center',
-        width: '30px',
+        width: 100,
         render: text => {
           return text == '0' ? <span>默认</span> : <span>自定义</span>;
         },
@@ -534,7 +534,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'is_senior',
         key: 'is_senior',
         align: 'center',
-        width: '100px',
+        width: 100,
         render: (text, record) => {
           return text == '0' ? <span>无</span> : this.seeHighRoute(record);
         },
@@ -544,7 +544,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'certificate_alias',
         key: 'certificate_alias',
         align: 'center',
-        width: '40px',
+        width: 40,
         render: text => {
           return text ? <span>{text}</span> : <span>无</span>;
         },
@@ -554,7 +554,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'group_name',
         key: 'group_name',
         align: 'center',
-        width: '100px',
+        width: 100,
         render: (text, record) => {
           return record.is_outer_service == 0 ? (
             <a href="" disabled>
@@ -576,7 +576,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'service_cname',
         key: 'service_cname',
         align: 'center',
-        width: '100px',
+        width: 100,
         render: (text, record) => {
           return record.is_outer_service == 0 ? (
             <a href="" disabled>
@@ -598,7 +598,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'action',
         key: 'action',
         align: 'center',
-        width: '120px',
+        width: 150,
         render: (data, record) => {
           return record.is_outer_service == 1 ? (
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>

@@ -65,8 +65,11 @@ export default class RangeChart extends PureComponent {
       }),
       callback: (re) => {
         this.setState({ loading: false });
-        if (re.bean) {
-          this.setState({ performanceObj: re.bean });
+        if (re.bean && re.bean.result && re.bean.result.length > 0) {
+          this.setState({
+            memoryRange: re.bean.result,
+            performanceObj: re.bean
+          });
         }
       }
     });
@@ -81,7 +84,7 @@ export default class RangeChart extends PureComponent {
       }),
       callback: (re) => {
         this.setState({ loading: false });
-        if (re.bean) {
+        if (re.bean && re.bean.result && re.bean.result.length > 0) {
           this.setState({ memoryRange: re.bean.result });
         }
       }
@@ -159,7 +162,15 @@ export default class RangeChart extends PureComponent {
     const rangedata = [];
     if (dataRange) {
       dataRange.map((item) => {
-        const cid = item.metric.pod;
+        const setObj = Object.assign({}, item.metric);
+        let cid = '';
+        if (setObj && setObj.__name__) {
+          delete setObj.__name__;
+          cid = item.metric.__name__ + JSON.stringify(setObj);
+        }
+        if (setObj && setObj.pod) {
+          cid = item.metric.pod + JSON.stringify(setObj);
+        }
         if (item.values) {
           item.values.map((v) => {
             rangedata.push({
@@ -223,7 +234,7 @@ export default class RangeChart extends PureComponent {
     const isCustomMonitor = moduleName === 'CustomMonitor';
     const { title, label, unit } = this.getMeta();
     const data =
-      moduleName === 'PerformanceAnalysis' || isCustomMonitor
+      moduleName === 'PerformanceAnalysis'
         ? monitorDataUtil.queryRangeTog2F(performanceObj, title)
         : this.converData(memoryRange);
     const cols = {
@@ -278,28 +289,31 @@ export default class RangeChart extends PureComponent {
             }
           >
             <Chart
-              height={isCustomMonitor ? 200 : 400}
+              height={isCustomMonitor ? 222 : 400}
               data={data}
               scale={cols}
               forceFit
             >
               <Legend
                 useHtml
-                containerTpl={
-                  '<div class="g2-legend" style="position:absolute;top:20px;right:60px;width:100%;">' +
-                  '<h4 class="g2-legend-title"></h4>' +
-                  '<ul class="g2-legend-list" style="list-style-type:none;margin:0;padding:0;"></ul>' +
-                  '</div>'
-                }
-                itemTpl={
-                  '<li class="g2-legend-list-item item-{index} {checked}" data-color="{originColor}" data-value="{originValue}" style="cursor: pointer;font-size: 14px;">' +
-                  '<i class="g2-legend-marker" style="width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:10px;background-color: {color};"></i>' +
-                  '<span title={value} class="g2-legend-text" style="display:inline-block;max-width:94%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">{value}</span>' +
-                  '</li>'
-                }
+                containerTpl={`<div class="g2-legend" style="position:absolute;top:20px;right:60px;width:100%;margin-top:-2px;">
+                      <h4 class="g2-legend-title"></h4>
+                      <div class=${styless.ov}><ul class="g2-legend-list" style="list-style-type:none;margin:0;padding:0;"></ul></div>
+                    </div>
+               `}
+                itemTpl={`
+                  <li class="g2-legend-list-item item-{index} {checked}" data-color="{originColor}" data-value="{originValue}" style="cursor: pointer;font-size: 14px;">
+                  <i class="g2-legend-marker" style="width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:10px;background-color: {color};"></i>
+                  <span title={value} class="g2-legend-text" style="display:inline-block;max-width:94%;white-space:nowrap;font-size:80%;">{value}</span>
+                  </li>`}
+                g2-legend={{
+                  overflow: 'hidden',
+                  marginTop: '-2px'
+                }}
                 g2-legend-list={{
+                  marginTop: '-5px',
                   border: 'none',
-                  height: '40px'
+                  height: '50px'
                 }}
                 g2-legend-list-item={{
                   display: 'flex',
@@ -327,9 +341,21 @@ export default class RangeChart extends PureComponent {
               />
               <Axis name="time" />
               <Tooltip
+                g2-tooltip={{
+                  zIndex: 99,
+                  width: '80%',
+                  overflow: 'hidden'
+                }}
                 crosshairs={{
                   type: 'y'
                 }}
+                containerTpl='<div class="g2-tooltip">
+                                <p class="g2-tooltip-title"></p>
+                              <table class="g2-tooltip-list" style="display: block;width: 400px;"></table></div>'
+                itemTpl={`<tr class="g2-tooltip-list-item" style="display: flex;justify-content: space-between;">
+                    <td style="font-size:80%;color:{color};width:90%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">{name}</td>
+                    <td style="margin-left: 5px;">{value}</td>
+                  </tr>`}
               />
               <Geom
                 type="line"

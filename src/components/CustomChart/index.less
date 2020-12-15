@@ -5,11 +5,29 @@
         width: 95% !important;
         margin: 0 auto;
       }
-      padding: 20px 0 0 0 !important;
+      padding: 20px 0 !important;
     }
   }
 }
-
+.ov {
+  overflow: scroll;
+  scrollbar-width: none; /* firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.ov::-webkit-scrollbar {
+  display: none;
+}
+.tooltips {
+  z-index: 9999999;
+}
+.RangeChartBox {
+  cursor: all-scroll;
+  min-height: 300px;
+  z-index: 10;
+  &:hover {
+    z-index: 99;
+  }
+}
 .customBox {
   display: flex;
   align-items: center;
