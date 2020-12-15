@@ -131,22 +131,19 @@ export default class ChartTitle extends PureComponent {
       baseInfo,
       appAlias
     };
+
     const SortableItem = SortableElement(({ value }) => {
       const { title, promql, sequence, ID } = value;
       return (
         <div
           key={ID}
           index={sequence}
-          style={{
-            zIndex: 99999999,
-            cursor: 'all-scroll',
-            minHeight: '300px'
-          }}
+          className={styless.RangeChartBox}
         >
           <RangeChart
             key={ID}
             moduleName="CustomMonitor"
-            style={{ zIndex: 99999999, cursor: 'all-scroll' }}
+            style={{ cursor: 'all-scroll' }}
             {...parameter}
             upData={upData}
             onCancelLoading={this.setState({ isLoading: false })}
@@ -173,7 +170,7 @@ export default class ChartTitle extends PureComponent {
           {items.map((item) => {
             return (
               <SortableItem
-                style={{ zIndex: 99999999 }}
+                style={{ zIndex: 10 }}
                 key={item.ID}
                 index={item.sequence}
                 value={item}
@@ -228,7 +225,7 @@ export default class ChartTitle extends PureComponent {
             <SortableList
               axis="xy"
               distance={1}
-              style={{ zIndex: 99999999 }}
+              style={{ zIndex: 10 }}
               items={RangeData}
               onSortEnd={this.onSortEnd}
             />
