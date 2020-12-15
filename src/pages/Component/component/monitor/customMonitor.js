@@ -295,6 +295,7 @@ export default class customMonitor extends PureComponent {
             <CustomChart
               moduleName="CustomMonitor"
               isRender={isRender}
+              handleUpData={this.handleUpData}
               upData={this.fetchServiceMonitorFigure}
               handleSorting={this.handleSorting}
               onDelete={this.onDelete}

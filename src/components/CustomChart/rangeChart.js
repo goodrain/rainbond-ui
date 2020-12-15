@@ -65,8 +65,11 @@ export default class RangeChart extends PureComponent {
       }),
       callback: (re) => {
         this.setState({ loading: false });
-        if (re.bean) {
-          this.setState({ performanceObj: re.bean });
+        if (re.bean && re.bean.result && re.bean.result.length > 0) {
+          this.setState({
+            memoryRange: re.bean.result,
+            performanceObj: re.bean
+          });
         }
       }
     });
@@ -81,7 +84,7 @@ export default class RangeChart extends PureComponent {
       }),
       callback: (re) => {
         this.setState({ loading: false });
-        if (re.bean) {
+        if (re.bean && re.bean.result && re.bean.result.length > 0) {
           this.setState({ memoryRange: re.bean.result });
         }
       }
@@ -223,9 +226,10 @@ export default class RangeChart extends PureComponent {
     const isCustomMonitor = moduleName === 'CustomMonitor';
     const { title, label, unit } = this.getMeta();
     const data =
-      moduleName === 'PerformanceAnalysis' || isCustomMonitor
+      moduleName === 'PerformanceAnalysis'
         ? monitorDataUtil.queryRangeTog2F(performanceObj, title)
         : this.converData(memoryRange);
+
     const cols = {
       time: {
         alias: '时间',
@@ -278,7 +282,7 @@ export default class RangeChart extends PureComponent {
             }
           >
             <Chart
-              height={isCustomMonitor ? 200 : 400}
+              height={isCustomMonitor ? 222 : 400}
               data={data}
               scale={cols}
               forceFit
