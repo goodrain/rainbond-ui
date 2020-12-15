@@ -1,15 +1,15 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable import/extensions */
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { Button, Row, notification, Dropdown, Icon, Menu, Col } from 'antd';
-import MonitoryPoint from './monitoryPoint';
-import ConfirmModal from '@/components/ConfirmModal';
-import BatchDeleteChart from '@/components/BatchDeleteChart';
-import CustomMonitoring from '@/components/CustomMonitoring';
-import CustomChart from '@/components/CustomChart';
 import globalUtil from '@//utils/global';
+import BatchDeleteChart from '@/components/BatchDeleteChart';
+import ConfirmModal from '@/components/ConfirmModal';
+import CustomChart from '@/components/CustomChart';
+import CustomMonitoring from '@/components/CustomMonitoring';
 import Result from '@/components/Result';
+import { Button, Dropdown, Icon, Menu, notification, Row } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import MonitoryPoint from './monitoryPoint';
 
 /* eslint react/no-array-index-key: 0 */
 
@@ -18,7 +18,7 @@ import Result from '@/components/Result';
   delServiceMonitorFigureLoading:
     loading.effects['monitor/delServiceMonitorFigure'],
   addKeyImportLoading: loading.effects['monitor/addKeyImport'],
-  delLoading: loading.effects['monitor/batchDeleteServiceMonitorFigure']
+  delLoading: loading.effects['monitor/batchDeleteServiceMonitorFigure'],
 }))
 export default class customMonitor extends PureComponent {
   constructor(props) {
@@ -35,7 +35,7 @@ export default class customMonitor extends PureComponent {
       isMonitorsLoading: false,
       isMonitors: false,
       isRender: false,
-      KeyImportLoading: true
+      KeyImportLoading: true,
     };
   }
   componentDidMount() {
@@ -46,30 +46,30 @@ export default class customMonitor extends PureComponent {
   onCancelCustomMonitoring = () => {
     this.setState({
       info: {},
-      isCustomMonitoring: false
+      isCustomMonitoring: false,
     });
   };
   onEdit = (e, val) => {
     e.preventDefault();
     this.setState({
       info: val,
-      isCustomMonitoring: true
+      isCustomMonitoring: true,
     });
   };
-  onDelete = (val) => {
+  onDelete = val => {
     this.setState({
-      showDelete: val.graph_id
+      showDelete: val.graph_id,
     });
   };
-  handleMonitoryPoint = (isMonitoryPoint) => {
+  handleMonitoryPoint = isMonitoryPoint => {
     this.setState({
-      isMonitoryPoint
+      isMonitoryPoint,
     });
   };
 
   handleCustomMonitoring = () => {
     this.setState({
-      isCustomMonitoring: true
+      isCustomMonitoring: true,
     });
   };
   fetchServiceMonitorFigure = (isUpdata = true) => {
@@ -78,21 +78,21 @@ export default class customMonitor extends PureComponent {
     dispatch({
       type: 'monitor/fetchServiceMonitorFigure',
       payload: {
-        ...parameter
+        ...parameter,
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           const isList = res.list && res.list.length > 0;
           this.setState({
             monitorFigureList: isList ? res.list : [],
-            isMonitorFigure: !isList
+            isMonitorFigure: !isList,
           });
           if (!isUpdata) {
             this.handleUpData();
           }
           this.cancalBatchDelete();
         }
-      }
+      },
     });
   };
   fetchKeyImport = () => {
@@ -101,49 +101,49 @@ export default class customMonitor extends PureComponent {
     dispatch({
       type: 'monitor/fetchKeyImport',
       payload: {
-        ...parameter
+        ...parameter,
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           this.setState({
             KeyImportLoading: false,
-            KeyImportList: res.list
+            KeyImportList: res.list,
           });
         }
-      }
+      },
     });
   };
-  addKeyImport = (name) => {
+  addKeyImport = name => {
     const { dispatch } = this.props;
     const parameter = this.handleParameter();
     dispatch({
       type: 'monitor/addKeyImport',
       payload: {
         graph_name: name,
-        ...parameter
+        ...parameter,
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           this.fetchServiceMonitorFigure();
           this.fetchKeyImport();
         }
-      }
+      },
     });
   };
-  handleSorting = (val) => {
+  handleSorting = val => {
     const { dispatch } = this.props;
     const parameter = this.handleParameter();
     dispatch({
       type: 'monitor/sortMonitorFigure',
       payload: {
         ...parameter,
-        graph_ids: val
+        graph_ids: val,
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           this.fetchServiceMonitorFigure(false);
         }
-      }
+      },
     });
   };
   handleUpData = () => {
@@ -151,7 +151,7 @@ export default class customMonitor extends PureComponent {
       this.setState({ isRender: false });
     });
   };
-  handleSubmit = (vals) => {
+  handleSubmit = vals => {
     const { dispatch } = this.props;
     const { info } = this.state;
     const parameter = this.handleParameter();
@@ -162,34 +162,34 @@ export default class customMonitor extends PureComponent {
           ...parameter,
           ...vals,
           graph_id: info.graph_id,
-          sequence: info.sequence
+          sequence: info.sequence,
         },
-        callback: (res) => {
+        callback: res => {
           if (res && res._code === 200) {
             notification.success({
-              message: '保存成功'
+              message: '保存成功',
             });
             this.fetchServiceMonitorFigure(false);
             this.onCancelCustomMonitoring();
           }
-        }
+        },
       });
     } else {
       dispatch({
         type: 'monitor/addServiceMonitorFigure',
         payload: {
           ...parameter,
-          ...vals
+          ...vals,
         },
-        callback: (res) => {
+        callback: res => {
           if (res && res._code === 200) {
             notification.success({
-              message: '添加成功'
+              message: '添加成功',
             });
             this.fetchServiceMonitorFigure();
             this.onCancelCustomMonitoring();
           }
-        }
+        },
       });
     }
   };
@@ -201,17 +201,17 @@ export default class customMonitor extends PureComponent {
       type: 'monitor/delServiceMonitorFigure',
       payload: {
         ...parameter,
-        graph_id: showDelete
+        graph_id: showDelete,
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           notification.success({
-            message: '删除成功'
+            message: '删除成功',
           });
           this.fetchServiceMonitorFigure();
           this.cancalDelete();
         }
-      }
+      },
     });
   };
   fetchServiceMonitor = () => {
@@ -221,36 +221,36 @@ export default class customMonitor extends PureComponent {
     dispatch({
       type: 'monitor/fetchServiceMonitor',
       payload: parameter,
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           this.setState({
             isMonitorsLoading: true,
-            isMonitors: res.list.length > 0
+            isMonitors: res.list.length > 0,
           });
         }
-      }
+      },
     });
   };
   handleParameter = () => {
     const { appDetail } = this.props;
     return {
       team_name: globalUtil.getCurrTeamName(),
-      app_alias: appDetail.service.service_alias
+      app_alias: appDetail.service.service_alias,
     };
   };
   cancalDelete = () => {
     this.setState({
-      showDelete: false
+      showDelete: false,
     });
   };
   handleBatchDelete = () => {
     this.setState({
-      BatchDelete: true
+      BatchDelete: true,
     });
   };
   cancalBatchDelete = () => {
     this.setState({
-      BatchDelete: false
+      BatchDelete: false,
     });
   };
   render() {
@@ -258,7 +258,7 @@ export default class customMonitor extends PureComponent {
       appDetail,
       delServiceMonitorFigureLoading,
       addKeyImportLoading,
-      delLoading
+      delLoading,
     } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     const appAlias = appDetail.service.service_alias;
@@ -275,7 +275,7 @@ export default class customMonitor extends PureComponent {
       isMonitors,
       isRender,
       KeyImportLoading,
-      isMonitorsLoading
+      isMonitorsLoading,
     } = this.state;
 
     return (
@@ -307,8 +307,8 @@ export default class customMonitor extends PureComponent {
                 <div
                   style={{
                     display: 'inline-block',
-                    width: 'calc(100% - 598px)',
-                    lineHeight: '40px'
+                    width: 'calc(100% - 450px)',
+                    lineHeight: '40px',
                   }}
                 >
                   <Button
@@ -321,7 +321,7 @@ export default class customMonitor extends PureComponent {
                     <Dropdown
                       overlay={
                         <Menu>
-                          {KeyImportList.map((item) => {
+                          {KeyImportList.map(item => {
                             return (
                               <Menu.Item style={{ textAlign: 'center' }}>
                                 <a

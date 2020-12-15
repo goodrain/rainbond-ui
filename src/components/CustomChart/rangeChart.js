@@ -1,16 +1,17 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable prettier/prettier */
 /* eslint-disable array-callback-return */
 /* eslint-disable prettier/prettier */
 /* eslint-disable import/extensions */
 /* eslint-disable react/sort-comp */
 // eslint-disable-next-line react/no-multi-comp
-import React, { Fragment, PureComponent } from 'react';
-import moment from 'moment';
-import { connect } from 'dva';
-import { Card, Spin, notification } from 'antd';
-import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import globalUtil from '@/utils/global';
 import monitorDataUtil from '@/utils/monitorDataUtil';
+import { Card, notification, Spin } from 'antd';
+import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
+import { connect } from 'dva';
+import moment from 'moment';
+import React, { Fragment, PureComponent } from 'react';
 import styless from './index.less';
 
 @connect()
@@ -55,12 +56,12 @@ export default class RangeChart extends PureComponent {
     }
   }
 
-  loadPerformanceAnalysis = (props) => {
+  loadPerformanceAnalysis = (props, updateTime=false) => {
     this.setState({ loading: true });
     const { dispatch, appAlias } = props;
     dispatch({
       type: 'appControl/fetchPerformanceAnalysis',
-      payload: Object.assign({}, this.handleParameter(props), {
+      payload: Object.assign({}, this.handleParameter(props, updateTime), {
         app_alias: appAlias
       }),
       callback: (re) => {
@@ -74,6 +75,7 @@ export default class RangeChart extends PureComponent {
       }
     });
   };
+
   loadRangeData = (props) => {
     this.setState({ loading: true });
     const { appDetail, dispatch } = props;
@@ -90,12 +92,12 @@ export default class RangeChart extends PureComponent {
       }
     });
   };
-  handleParameter = (props) => {
+  handleParameter = (props, updateTime=false) => {
     const { moduleName, type, start, end } = props;
     return {
       query: moduleName === 'CustomMonitor' ? type : this.getQueryByType(type),
-      start: start || new Date().getTime() / 1000 - 60 * 60,
-      end: end || new Date().getTime() / 1000,
+      start: updateTime ? new Date().getTime() / 1000 - 60 * 60 : start,
+      end: updateTime ? new Date().getTime() / 1000 : end,
       step: Math.ceil((end - start) / 100) || 15,
       teamName: globalUtil.getCurrTeamName()
     };
@@ -191,7 +193,7 @@ export default class RangeChart extends PureComponent {
       moduleName === 'PerformanceAnalysis' ||
       moduleName === 'CustomMonitor'
     ) {
-      this.loadPerformanceAnalysis(this.props);
+      this.loadPerformanceAnalysis(this.props, true);
     } else {
       this.loadRangeData(this.props);
     }
@@ -246,7 +248,13 @@ export default class RangeChart extends PureComponent {
       },
       value: {
         alias: { label },
-        tickCount: 5
+        tickCount: 5,
+        formatter: (val) => {
+          if (val > 1000) {
+            return `${(val/1000)}k`;
+          }
+          return val;
+        },
       },
       cid: {
         type: 'cat'
@@ -341,6 +349,8 @@ export default class RangeChart extends PureComponent {
               />
               <Axis name="time" />
               <Tooltip
+                shared
+                follow
                 g2-tooltip={{
                   zIndex: 99,
                   width: '80%',
