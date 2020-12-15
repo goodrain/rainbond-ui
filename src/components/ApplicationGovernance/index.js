@@ -25,19 +25,10 @@ export default class ApplicationGovernance extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      page: 1,
-      page_size: 6,
-      total: 0,
       step: false,
       ServiceNameList: []
     };
   }
-
-  onPageChange = (page) => {
-    this.setState({ page }, () => {
-      this.fetchServiceNameList();
-    });
-  };
 
   setK8sServiceNames = (value) => {
     const { dispatch, appID, onCancel } = this.props;
@@ -240,12 +231,7 @@ export default class ApplicationGovernance extends PureComponent {
             <Table
               size="middle"
               rowKey={this.rowKey}
-              pagination={{
-                current: this.state.page,
-                pageSize: this.state.page_size,
-                total: this.state.total,
-                onChange: this.onPageChange
-              }}
+              pagination={false}
               dataSource={ServiceNameList || []}
               columns={[
                 {
