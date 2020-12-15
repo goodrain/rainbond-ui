@@ -83,7 +83,6 @@ class EnterpriseLayout extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.getPageTitle = memoizeOne(this.getPageTitle);
     this.breadcrumbNameMap = getBreadcrumbNameMap(
       getMenuData(this.props.groups)
     );
