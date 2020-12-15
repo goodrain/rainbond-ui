@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
-import { Icon, Input, Row } from 'antd';
 import React, { Component } from 'react';
+import { Row, Col, Input, Icon } from 'antd';
 const { TextArea } = Input;
 
 class Parameterinput extends Component {
@@ -19,6 +19,7 @@ class Parameterinput extends Component {
       });
     }
   }
+
   onKeyChange = (index, e) => {
     const { values } = this.state;
     values[index].item_key = e.target.value;
@@ -31,9 +32,8 @@ class Parameterinput extends Component {
     this.triggerChange(values);
     this.setValues(values);
   };
-
   setValues(arr = []) {
-    if (!arr.length) {
+    if (!(arr && arr.length)) {
       arr.push({ item_key: '', item_value: '' });
     }
     this.setState({ values: arr });
@@ -48,7 +48,6 @@ class Parameterinput extends Component {
     this.setValues(values);
     this.triggerChange(values);
   };
-
   triggerChange(values) {
     const { onChange } = this.props;
     if (onChange) {
@@ -68,30 +67,33 @@ class Parameterinput extends Component {
           values.length > 0 &&
           values.map((item, index) => {
             return (
-              <Row style={{ display: 'flex', alignItems: 'center' }}>
-                <Input
-                  name="item_key"
-                  value={item.item_key}
-                  maxLength={255}
-                  style={{ width: '300px' }}
-                  placeholder={keyPlaceholder}
-                  onChange={this.onKeyChange.bind(this, index)}
-                />
-                <span style={{ textAlign: 'center', padding: '0 10px' }}>
+              <Row
+                style={{ display: 'flex', alignItems: 'center' }}
+                key={index}
+              >
+                <Col span={10}>
+                  <Input
+                    name="item_key"
+                    value={item.item_key}
+                    maxLength={255}
+                    placeholder={keyPlaceholder}
+                    onChange={this.onKeyChange.bind(this, index)}
+                  />
+                </Col>
+                <Col span={1} style={{ textAlign: 'center' }}>
                   :
-                </span>
-                <div>
+                </Col>
+                <Col span={10}>
                   <TextArea
                     name="item_value"
                     rows={1}
                     value={item.item_value}
                     maxLength={65533}
-                    style={{ width: '360px', marginRight: '10px' }}
                     placeholder={valuePlaceholder}
                     onChange={this.onValueChange.bind(this, index)}
                   />
-                </div>
-                <div style={{ textAlign: 'center' }}>
+                </Col>
+                <Col span={3} style={{ textAlign: 'center' }}>
                   {index === 0 ? (
                     <Icon
                       type="plus-circle"
@@ -105,7 +107,7 @@ class Parameterinput extends Component {
                       onClick={this.remove.bind(this, index)}
                     />
                   )}
-                </div>
+                </Col>
               </Row>
             );
           })}
