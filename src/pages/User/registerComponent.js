@@ -181,9 +181,10 @@ export default class RegisterComponent extends Component {
           {getFieldDecorator('user_name', {
             initialValue: user_info ? user_info.oauth_user_name : '',
             rules: [
+              { required: true, message: '请输入用户名!' },
               {
-                required: true,
-                message: '请输入用户名！'
+                pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
+                message: '只支持字母、数字、中文、_和-组合'
               }
             ]
           })(<Input size="large" placeholder="用户名" />)}
