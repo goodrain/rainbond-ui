@@ -1,8 +1,8 @@
-import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
-import React, { PureComponent } from 'react';
+import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreatUser from '../../components/CreatUserForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -86,7 +86,17 @@ export default class EnterpriseUsers extends PureComponent {
         }
       },
       handleError: (res) => {
-        cloud.handleCloudAPIError(res);
+        if (
+          res &&
+          res.data &&
+          res.data.code &&
+          res.data.code < 600 &&
+          res.data.msg_show
+        ) {
+          notification.warning({ message: res.data.msg_show });
+        } else {
+          cloud.handleCloudAPIError(res);
+        }
       }
     });
   };
@@ -354,6 +364,7 @@ export default class EnterpriseUsers extends PureComponent {
           )}
 
           <Table
+            size="middle"
             pagination={{
               current: page,
               pageSize,
