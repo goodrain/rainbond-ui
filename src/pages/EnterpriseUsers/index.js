@@ -86,7 +86,17 @@ export default class EnterpriseUsers extends PureComponent {
         }
       },
       handleError: (res) => {
-        cloud.handleCloudAPIError(res);
+        if (
+          res &&
+          res.data &&
+          res.data.code &&
+          res.data.code < 600 &&
+          res.data.msg_show
+        ) {
+          notification.warning({ message: res.data.msg_show });
+        } else {
+          cloud.handleCloudAPIError(res);
+        }
       }
     });
   };
