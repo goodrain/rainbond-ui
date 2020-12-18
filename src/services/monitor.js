@@ -8,7 +8,9 @@ import request from '../utils/request';
 */
 export function getMonitorRangeData(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.teamName}/apps/${body.componentAlias}/monitor/query_range`,
+    `${apiconfig.baseUrl}/console/teams/${body.teamName}/apps/${
+      body.componentAlias
+    }/monitor/query_range`,
     {
       method: 'get',
       showMessage: false,
@@ -16,7 +18,8 @@ export function getMonitorRangeData(body = {}) {
         query: body.query,
         start: body.start || new Date().getTime() / 1000 - 60 * 60,
         end: body.end || new Date().getTime() / 1000,
-        step: body.step || 72
+        step: body.step || 72,
+        disable_auto_label: body.disable_auto_label
       },
       showLoading: false
     }
@@ -25,7 +28,9 @@ export function getMonitorRangeData(body = {}) {
 
 export function getComponentCPURange(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/monitor/query`,
     {
       method: 'get',
       showMessage: false,
@@ -39,7 +44,9 @@ export function getComponentCPURange(body = {}) {
 
 export function getComponentNetworkRange(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/monitor/query`,
     {
       method: 'get',
       showMessage: false,
@@ -53,7 +60,9 @@ export function getComponentNetworkRange(body = {}) {
 
 export function getServiceMonitor(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/service_monitor`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/service_monitor`,
     {
       method: 'get',
       params: body
@@ -63,7 +72,9 @@ export function getServiceMonitor(body = {}) {
 
 export async function postServiceMonitor(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/service_monitor`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${
+      params.app_alias
+    }/service_monitor`,
     {
       method: 'post',
       data: params
@@ -73,7 +84,9 @@ export async function postServiceMonitor(params) {
 
 export async function deleteServiceMonitor(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/service_monitor/${params.name}`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${
+      params.app_alias
+    }/service_monitor/${params.name}`,
     {
       method: 'delete'
     }
@@ -81,7 +94,9 @@ export async function deleteServiceMonitor(params) {
 }
 export async function updateServiceMonitor(body) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/service_monitor/${body.name}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/service_monitor/${body.name}`,
     {
       method: 'put',
       data: body
@@ -90,7 +105,9 @@ export async function updateServiceMonitor(body) {
 }
 export async function sortMonitorFigure(body) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/exchange-graphs`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/exchange-graphs`,
     {
       method: 'put',
       data: body
@@ -99,7 +116,9 @@ export async function sortMonitorFigure(body) {
 }
 export function getServiceMonitorFigure(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/graphs`,
     {
       method: 'get'
     }
@@ -107,7 +126,9 @@ export function getServiceMonitorFigure(body = {}) {
 }
 export function getComponentMetrics(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/metrics`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/metrics`,
     {
       method: 'get'
     }
@@ -115,7 +136,9 @@ export function getComponentMetrics(body = {}) {
 }
 export async function addKeyImport(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/internal-graphs`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${
+      params.app_alias
+    }/internal-graphs`,
     {
       method: 'post',
       data: { graph_name: params.graph_name }
@@ -124,7 +147,9 @@ export async function addKeyImport(params) {
 }
 export function getKeyImport(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/internal-graphs`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/internal-graphs`,
     {
       method: 'get'
     }
@@ -132,7 +157,9 @@ export function getKeyImport(body = {}) {
 }
 export function getServiceMonitorFigureInfo(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs/${body.graph_id}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/graphs/${body.graph_id}`,
     {
       method: 'get'
     }
@@ -140,7 +167,9 @@ export function getServiceMonitorFigureInfo(body = {}) {
 }
 export function addServiceMonitorFigure(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/graphs`,
     {
       method: 'post',
       data: body
@@ -149,7 +178,9 @@ export function addServiceMonitorFigure(body = {}) {
 }
 export async function updataServiceMonitorFigure(body) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs/${body.graph_id}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/graphs/${body.graph_id}`,
     {
       method: 'put',
       data: body
@@ -159,7 +190,9 @@ export async function updataServiceMonitorFigure(body) {
 
 export async function deleteServiceMonitorFigure(body) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs/${body.graph_id}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/graphs/${body.graph_id}`,
     {
       method: 'delete'
     }
@@ -168,7 +201,9 @@ export async function deleteServiceMonitorFigure(body) {
 
 export async function batchDeleteServiceMonitorFigure(body) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/graphs`,
     {
       method: 'delete',
       data: body

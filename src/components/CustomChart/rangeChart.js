@@ -56,7 +56,7 @@ export default class RangeChart extends PureComponent {
     }
   }
 
-  loadPerformanceAnalysis = (props, updateTime=false) => {
+  loadPerformanceAnalysis = (props, updateTime = false) => {
     this.setState({ loading: true });
     const { dispatch, appAlias } = props;
     dispatch({
@@ -64,7 +64,7 @@ export default class RangeChart extends PureComponent {
       payload: Object.assign({}, this.handleParameter(props, updateTime), {
         app_alias: appAlias
       }),
-      callback: (re) => {
+      callback: re => {
         this.setState({ loading: false });
         if (re.bean && re.bean.result && re.bean.result.length > 0) {
           this.setState({
@@ -76,7 +76,7 @@ export default class RangeChart extends PureComponent {
     });
   };
 
-  loadRangeData = (props) => {
+  loadRangeData = props => {
     this.setState({ loading: true });
     const { appDetail, dispatch } = props;
     dispatch({
@@ -84,7 +84,7 @@ export default class RangeChart extends PureComponent {
       payload: Object.assign({}, this.handleParameter(props), {
         componentAlias: appDetail.service.service_alias
       }),
-      callback: (re) => {
+      callback: re => {
         this.setState({ loading: false });
         if (re.bean && re.bean.result && re.bean.result.length > 0) {
           this.setState({ memoryRange: re.bean.result });
@@ -92,18 +92,21 @@ export default class RangeChart extends PureComponent {
       }
     });
   };
-  handleParameter = (props, updateTime=false) => {
+  handleParameter = (props, updateTime = false) => {
     const { moduleName, type, start, end } = props;
     return {
       query: moduleName === 'CustomMonitor' ? type : this.getQueryByType(type),
       start: updateTime ? new Date().getTime() / 1000 - 60 * 60 : start,
       end: updateTime ? new Date().getTime() / 1000 : end,
       step: Math.ceil((end - start) / 100) || 15,
-      teamName: globalUtil.getCurrTeamName()
+      teamName: globalUtil.getCurrTeamName(),
+      disable_auto_label: !!(
+        type === 'containerNetR' || type === 'containerNetT'
+      )
     };
   };
 
-  getQueryByType = (T) => {
+  getQueryByType = T => {
     const { appDetail, baseInfo } = this.props;
     if (appDetail && appDetail.service) {
       const {
@@ -160,10 +163,10 @@ export default class RangeChart extends PureComponent {
         return { title: '', label: '', unit: '' };
     }
   };
-  converData = (dataRange) => {
+  converData = dataRange => {
     const rangedata = [];
     if (dataRange) {
-      dataRange.map((item) => {
+      dataRange.map(item => {
         const setObj = Object.assign({}, item.metric);
         let cid = '';
         if (setObj && setObj.__name__) {
@@ -174,7 +177,7 @@ export default class RangeChart extends PureComponent {
           cid = item.metric.pod + JSON.stringify(setObj);
         }
         if (item.values) {
-          item.values.map((v) => {
+          item.values.map(v => {
             rangedata.push({
               cid,
               time: v[0] * 1000,
@@ -199,7 +202,7 @@ export default class RangeChart extends PureComponent {
     }
   };
 
-  handleSubmit = (vals) => {
+  handleSubmit = vals => {
     const { dispatch, appAlias, CustomMonitorInfo, upData } = this.props;
     if (CustomMonitorInfo && CustomMonitorInfo.graph_id && upData) {
       dispatch({
@@ -211,7 +214,7 @@ export default class RangeChart extends PureComponent {
           graph_id: CustomMonitorInfo.graph_id,
           sequence: CustomMonitorInfo.sequence
         },
-        callback: (res) => {
+        callback: res => {
           if (res && res._code === 200) {
             notification.success({
               message: '保存成功'
@@ -244,17 +247,20 @@ export default class RangeChart extends PureComponent {
         alias: '时间',
         tickCount: 10,
         type: 'time',
-        formatter: (v) => moment(new Date(v)).locale('zh-cn').format('HH:mm')
+        formatter: v =>
+          moment(new Date(v))
+            .locale('zh-cn')
+            .format('HH:mm')
       },
       value: {
         alias: { label },
         tickCount: 5,
-        formatter: (val) => {
+        formatter: val => {
           if (val > 1000) {
-            return `${(val/1000)}k`;
+            return `${val / 1000}k`;
           }
           return val;
-        },
+        }
       },
       cid: {
         type: 'cat'
@@ -272,7 +278,7 @@ export default class RangeChart extends PureComponent {
                   {isCustomMonitor && (
                     <span>
                       <a
-                        onClick={(e) => {
+                        onClick={e => {
                           e.preventDefault();
                           onEdit(e, CustomMonitorInfo);
                         }}
@@ -281,7 +287,7 @@ export default class RangeChart extends PureComponent {
                         编辑
                       </a>
                       <a
-                        onClick={(e) => {
+                        onClick={e => {
                           e.preventDefault();
                           onDelete(CustomMonitorInfo);
                         }}
@@ -306,7 +312,9 @@ export default class RangeChart extends PureComponent {
                 useHtml
                 containerTpl={`<div class="g2-legend" style="position:absolute;top:20px;right:60px;width:100%;margin-top:-2px;">
                       <h4 class="g2-legend-title"></h4>
-                      <div class=${styless.ov}><ul class="g2-legend-list" style="list-style-type:none;margin:0;padding:0;"></ul></div>
+                      <div class=${
+                        styless.ov
+                      }><ul class="g2-legend-list" style="list-style-type:none;margin:0;padding:0;"></ul></div>
                     </div>
                `}
                 itemTpl={`
@@ -335,7 +343,7 @@ export default class RangeChart extends PureComponent {
                 name="value"
                 label={{
                   offset: 75,
-                  htmlTemplate: (text) => {
+                  htmlTemplate: text => {
                     const customWidth = unit ? '50px' : '75px';
                     return `<div 
                                 title=${text}
