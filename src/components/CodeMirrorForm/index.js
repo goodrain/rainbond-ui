@@ -4,6 +4,7 @@ import CodeMirror from 'react-codemirror';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
+import styles from './index.less';
 
 require('codemirror/lib/codemirror.css');
 require('codemirror/theme/seti.css');
@@ -16,7 +17,6 @@ require('codemirror/mode/yaml/yaml');
 require('codemirror/addon/display/fullscreen');
 require('codemirror/addon/edit/matchbrackets');
 
-
 // eslint-disable-next-line react/no-redundant-should-component-update
 class CodeMirrorForm extends PureComponent {
   constructor(props) {
@@ -26,7 +26,7 @@ class CodeMirrorForm extends PureComponent {
     };
     this.CodeMirrorRef = '';
   }
-  
+
   saveRef = (ref) => {
     this.CodeMirrorRef = ref;
   };
@@ -131,7 +131,7 @@ class CodeMirrorForm extends PureComponent {
       <Form.Item
         {...formItemLayout}
         label={label}
-        style={{ overflow: 'hidden' }}
+        className={fullScreen && styles.fullScreens}
       >
         {getFieldDecorator(name, {
           initialValue: data || '',
