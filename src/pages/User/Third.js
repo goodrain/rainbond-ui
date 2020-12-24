@@ -149,6 +149,7 @@ export default class ThirdLogin extends Component {
   }
 
   handleSuccess() {
+    const { dispatch } = this.props;
     let redirect = window.localStorage.getItem('redirect');
     if (!redirect || redirect == '') {
       redirect = '/';
