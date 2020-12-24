@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import { Alert, Col, Form, message, Row } from 'antd';
 import { connect } from 'dva';
-import { routerRedux, Link } from 'dva/router';
-import { Form, Row, Col, message, Alert } from 'antd';
-import styles from './Register.less';
+import { Link, routerRedux } from 'dva/router';
+import React, { Component } from 'react';
 import cookie from '../../utils/cookie';
-import RegisterComponent from './registerComponent';
 import rainbondUtil from '../../utils/rainbond';
+import styles from './Register.less';
+import RegisterComponent from './registerComponent';
 
 const oauth_user_id = rainbondUtil.OauthParameter('oauth_user_id');
 const code = rainbondUtil.OauthParameter('code');
@@ -31,7 +31,7 @@ export default class Register extends Component {
         code,
         service_id
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           this.setState({
             user_info: res.bean.user_info
@@ -41,7 +41,7 @@ export default class Register extends Component {
     });
   }
 
-  handleSubmit = (values) => {
+  handleSubmit = values => {
     const { dispatch } = this.props;
     if (code && service_id && oauth_user_id) {
       dispatch({
@@ -49,7 +49,7 @@ export default class Register extends Component {
         payload: {
           ...values
         },
-        callback: (data) => {
+        callback: data => {
           if (data && data.token != '') {
             cookie.set('token', data.token);
             dispatch({
@@ -58,10 +58,19 @@ export default class Register extends Component {
                 service_id,
                 oauth_user_id
               },
-              callback: (res) => {
+              callback: res => {
                 if (res && res._code == 200) {
                   message.success('认证成功', 1, () => {
-                    dispatch(routerRedux.replace('/'));
+                    // support redirect to the page before login
+                    let redirect = window.localStorage.getItem('redirect');
+                    if (!redirect || redirect == '') {
+                      redirect = '/';
+                    }
+                    if (redirect.startsWith('/')) {
+                      dispatch(routerRedux.push(redirect));
+                    } else {
+                      window.location.href = redirect;
+                    }
                   });
                 } else {
                   message.warning('认证失败，请重新认证', 1, () => {
@@ -99,7 +108,7 @@ export default class Register extends Component {
     let oauthServer = null;
     // eslint-disable-next-line no-unused-expressions
     rainbondUtil.OauthbEnable(rainbondInfo) &&
-      rainbondInfo.oauth_services.value.map((item) => {
+      rainbondInfo.oauth_services.value.map(item => {
         if (item.service_id == service_id) {
           oauthServer = item;
         }

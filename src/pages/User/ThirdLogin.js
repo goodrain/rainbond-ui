@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import { Alert, Col, message, Row } from 'antd';
 import { connect } from 'dva';
-import { routerRedux, Link } from 'dva/router';
-import { Row, Col, message, Alert } from 'antd';
-import styles from './Login.less';
-import rainbondUtil from '../../utils/rainbond';
-import LoginComponent from './loginComponent';
+import { Link, routerRedux } from 'dva/router';
+import React, { Component } from 'react';
 import cookie from '../../utils/cookie';
+import rainbondUtil from '../../utils/rainbond';
+import styles from './Login.less';
+import LoginComponent from './loginComponent';
 
 const code = rainbondUtil.OauthParameter('code');
 const service_id = rainbondUtil.OauthParameter('service_id');
@@ -30,7 +30,7 @@ export default class LoginPage extends Component {
         code,
         service_id
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           this.setState({
             user_info: res.bean.user_info
@@ -39,7 +39,7 @@ export default class LoginPage extends Component {
       }
     });
   }
-  handleSubmit = (values) => {
+  handleSubmit = values => {
     const { dispatch } = this.props;
     if (code && service_id && oauth_user_id) {
       dispatch({
@@ -47,7 +47,7 @@ export default class LoginPage extends Component {
         payload: {
           ...values
         },
-        callback: (data) => {
+        callback: data => {
           if (data && data._code === 200) {
             cookie.set('token', data.bean.token);
             dispatch({
@@ -56,14 +56,25 @@ export default class LoginPage extends Component {
                 service_id,
                 oauth_user_id
               },
-              callback: (res) => {
+              callback: res => {
                 if (res && res.status && res.status === 400) {
                   message.warning('认证失败，请重新认证', 1, () => {
                     dispatch(routerRedux.replace('/user/login'));
                   });
                 } else if (res && res._code === 200) {
                   message.success('认证成功', 1, () => {
-                    dispatch(routerRedux.replace('/'));
+                    // support redirect to the page before login
+                    let redirect = window.localStorage.getItem('redirect');
+                    if (!redirect || redirect == '') {
+                      redirect = '/';
+                    }
+                    console.log('third login success, redirect to ' + redirect);
+                    if (redirect.startsWith('/')) {
+                      dispatch(routerRedux.push(redirect));
+                    } else {
+                      window.location.href = redirect;
+                    }
+                    window.localStorage.setItem('redirect', '');
                   });
                 }
               }
@@ -83,7 +94,7 @@ export default class LoginPage extends Component {
     let oauthServer = null;
     // eslint-disable-next-line no-unused-expressions
     rainbondUtil.OauthbEnable(rainbondInfo) &&
-      rainbondInfo.oauth_services.value.map((item) => {
+      rainbondInfo.oauth_services.value.map(item => {
         if (item.service_id == service_id) {
           oauthServer = item;
         }

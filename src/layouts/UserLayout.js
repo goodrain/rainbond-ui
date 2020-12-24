@@ -1,12 +1,12 @@
 import { connect } from 'dva';
-import React from 'react';
 import { Link } from 'dva/router';
-import CustomFooter from './CustomFooter';
+import React from 'react';
+import cloud from '../../public/cloud.png';
+import logo from '../../public/logo.png';
 import globalUtil from '../utils/global';
 import oauthUtil from '../utils/oauth';
 import rainbondUtil from '../utils/rainbond';
-import logo from '../../public/logo.png';
-import cloud from '../../public/cloud.png';
+import CustomFooter from './CustomFooter';
 import styles from './UserLayout.less';
 
 class UserLayout extends React.PureComponent {
@@ -21,9 +21,15 @@ class UserLayout extends React.PureComponent {
     // 初始化 获取RainbondInfo信息
     dispatch({
       type: 'global/fetchRainbondInfo',
-      callback: (info) => {
+      callback: info => {
         if (info) {
           globalUtil.putLog(info);
+          const query = this.props.location.query;
+          if (this.props.location.pathname == '/user/login') {
+            const redirect = query.redirect;
+            window.localStorage.setItem('redirect', redirect);
+            console.log('set redirect ' + redirect);
+          }
           // check auto login
           const isOauth =
             rainbondUtil.OauthbEnable(info) ||
@@ -31,7 +37,7 @@ class UserLayout extends React.PureComponent {
           let oauthInfo =
             info.enterprise_center_oauth && info.enterprise_center_oauth.value;
           if (!oauthInfo && info.oauth_services && info.oauth_services.value) {
-            info.oauth_services.value.map((item) => {
+            info.oauth_services.value.map(item => {
               if (item.is_auto_login) {
                 oauthInfo = item;
               }
@@ -39,7 +45,8 @@ class UserLayout extends React.PureComponent {
             });
           }
           if (isOauth && oauthInfo) {
-            if (oauthInfo.is_auto_login) {
+            const is_disable_auto_login = query.disable_auto_login;
+            if (oauthInfo.is_auto_login && is_disable_auto_login != 'true') {
               globalUtil.removeCookie();
               window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
             }
@@ -51,7 +58,7 @@ class UserLayout extends React.PureComponent {
       }
     });
   }
-  isRender = (isRender) => {
+  isRender = isRender => {
     this.setState({
       isRender
     });
@@ -76,7 +83,7 @@ class UserLayout extends React.PureComponent {
         <div className={styles.content}>
           <div className={styles.contentBox}>
             <div className={styles.contentBoxLeft}>
-              <img src={cloud} alt="云原生" />
+              <img src={cloud} alt="云原生应用管理平台" />
             </div>
             <div className={styles.contentBoxRight}>{children}</div>
           </div>

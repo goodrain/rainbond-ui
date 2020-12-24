@@ -1,6 +1,6 @@
 /* eslint-disable compat/compat */
 /* eslint-disable camelcase */
-import { Tooltip, Divider, Row } from 'antd';
+import { Divider, Row, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
 import globalUtil from '../../utils/global';
@@ -23,7 +23,7 @@ export default class LoginPage extends Component {
     dispatch({ type: 'global/hideNeedLogin' });
     globalUtil.removeCookie();
   }
-  handleSubmit = (values) => {
+  handleSubmit = values => {
     const { dispatch, location } = this.props;
     const query_params = new URLSearchParams(location.search);
     const redirect = query_params.get('redirect');
@@ -41,14 +41,14 @@ export default class LoginPage extends Component {
       }
     });
   };
-  fetchEnterpriseInfo = (eid) => {
+  fetchEnterpriseInfo = eid => {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200 && res.bean && res.bean.oauth_services) {
           // eslint-disable-next-line camelcase
           const { oauth_services = {} } = res.bean;
@@ -105,7 +105,7 @@ export default class LoginPage extends Component {
                     </Tooltip>
                   </div>
                 )}
-                {oauthServicesList.map((item) => {
+                {oauthServicesList.map(item => {
                   const { name, service_id } = item;
                   return (
                     <div className={styles.thirdCol} key={service_id}>
