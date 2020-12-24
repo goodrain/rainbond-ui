@@ -18,6 +18,7 @@ class UserLayout extends React.PureComponent {
   }
   componentWillMount() {
     const { dispatch } = this.props;
+    const disableAutoLogin = rainbondUtil.OauthParameter('disable_auto_login');
     // 初始化 获取RainbondInfo信息
     dispatch({
       type: 'global/fetchRainbondInfo',
@@ -39,11 +40,14 @@ class UserLayout extends React.PureComponent {
             });
           }
           if (isOauth && oauthInfo) {
-            if (oauthInfo.is_auto_login) {
+            if (oauthInfo.is_auto_login && disableAutoLogin != 'true') {
               globalUtil.removeCookie();
               window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
+            } else if (disableAutoLogin) {
+              this.isRender(true);
+            } else {
+              this.isRender(!oauthInfo.is_auto_login);
             }
-            this.isRender(!oauthInfo.is_auto_login);
           } else {
             this.isRender(true);
           }

@@ -83,6 +83,8 @@ export default class LoginPage extends Component {
     let oauthServer = null;
     // eslint-disable-next-line no-unused-expressions
     rainbondUtil.OauthbEnable(rainbondInfo) &&
+      rainbondInfo.oauth_services &&
+      rainbondInfo.oauth_services.value &&
       rainbondInfo.oauth_services.value.map((item) => {
         if (item.service_id == service_id) {
           oauthServer = item;
