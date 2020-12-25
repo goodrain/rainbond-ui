@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-constructor */
 import { connect } from 'dva';
 import React from 'react';
 import globalUtil from '../utils/global';
@@ -16,12 +17,12 @@ class OauthLayout extends React.PureComponent {
         if (info) {
           globalUtil.putLog(info);
         }
-      },
+      }
     });
   }
 
   render() {
-    const { rainbondInfo, nouse, children } = this.props;
+    const { rainbondInfo, children } = this.props;
     if (!rainbondInfo) {
       return null;
     }
@@ -31,5 +32,5 @@ class OauthLayout extends React.PureComponent {
 
 export default connect(({ global }) => ({
   rainbondInfo: global.rainbondInfo,
-  nouse: global.nouse,
+  nouse: global.nouse
 }))(OauthLayout);

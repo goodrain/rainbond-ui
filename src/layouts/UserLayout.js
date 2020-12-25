@@ -24,11 +24,12 @@ class UserLayout extends React.PureComponent {
       callback: info => {
         if (info) {
           globalUtil.putLog(info);
-          const query = this.props.location.query;
-          if (this.props.location.pathname == '/user/login') {
-            const redirect = query.redirect;
-            window.localStorage.setItem('redirect', redirect);
-            console.log('set redirect ' + redirect);
+          const { query } = this.props.location;
+          if (this.props.location.pathname === '/user/login') {
+            const { redirect } = query;
+            if (redirect) {
+              window.localStorage.setItem('redirect', redirect);
+            }
           }
           // check auto login
           const isOauth =
@@ -45,8 +46,8 @@ class UserLayout extends React.PureComponent {
             });
           }
           if (isOauth && oauthInfo) {
-            const is_disable_auto_login = query.disable_auto_login;
-            if (oauthInfo.is_auto_login && is_disable_auto_login != 'true') {
+            const isDisableAutoLogin = query.disable_auto_login;
+            if (oauthInfo.is_auto_login && isDisableAutoLogin !== 'true') {
               globalUtil.removeCookie();
               window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
             }

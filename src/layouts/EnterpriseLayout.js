@@ -1,5 +1,5 @@
 /* eslint-disable react/sort-comp */
-import { Layout, Tooltip } from 'antd';
+import { Layout } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
@@ -32,10 +32,10 @@ const qs = require('query-string');
 
 const { Content } = Layout;
 
-const getBreadcrumbNameMap = memoizeOne((meun) => {
+const getBreadcrumbNameMap = memoizeOne(meun => {
   const routerMap = {};
-  const mergeMeunAndRouter = (meunData) => {
-    meunData.forEach((meunItem) => {
+  const mergeMeunAndRouter = meunData => {
+    meunData.forEach(meunItem => {
       if (meunItem.children) {
         mergeMeunAndRouter(meunItem.children);
       }
@@ -69,7 +69,7 @@ const query = {
 };
 
 let isMobile;
-enquireScreen((b) => {
+enquireScreen(b => {
   isMobile = b;
 });
 
@@ -107,7 +107,7 @@ class EnterpriseLayout extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseList',
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           this.setState(
             {
@@ -124,7 +124,7 @@ class EnterpriseLayout extends PureComponent {
     });
   };
 
-  loadClusters = (eid) => {
+  loadClusters = eid => {
     const { dispatch, currentUser } = this.props;
     dispatch({
       type: 'region/fetchEnterpriseClusters',
@@ -132,7 +132,7 @@ class EnterpriseLayout extends PureComponent {
         enterprise_id: eid,
         check_status: 'no'
       },
-      callback: (res) => {
+      callback: res => {
         const adminer = userUtil.isCompanyAdmin(currentUser);
         if (res && res.list && res.list.length == 0 && adminer) {
           dispatch(routerRedux.push(`/enterprise/${eid}/addCluster?init=true`));
@@ -142,7 +142,7 @@ class EnterpriseLayout extends PureComponent {
   };
 
   load = () => {
-    enquireScreen((mobile) => {
+    enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
     // 连接云应用市场
@@ -153,14 +153,14 @@ class EnterpriseLayout extends PureComponent {
     return { location, breadcrumbNameMap: this.breadcrumbNameMap };
   };
 
-  matchParamsPath = (pathname) => {
-    const pathKey = Object.keys(this.breadcrumbNameMap).find((key) => {
+  matchParamsPath = pathname => {
+    const pathKey = Object.keys(this.breadcrumbNameMap).find(key => {
       return pathToRegexp(key).test(pathname);
     });
     return this.breadcrumbNameMap[pathKey];
   };
 
-  handleMenuCollapse = (collapsed) => {
+  handleMenuCollapse = collapsed => {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/changeLayoutCollapsed',
@@ -186,13 +186,14 @@ class EnterpriseLayout extends PureComponent {
       }
     } = this.props;
     const { enterpriseList } = this.state;
-    if (!eid || eid == 'auto') {
+    if (!eid || eid === 'auto') {
       if (enterpriseList.length > 0) {
         let selectE = null;
-        enterpriseList.map((item) => {
-          if (item.enterprise_id == currentUser.enterprise_id) {
+        enterpriseList.map(item => {
+          if (item.enterprise_id === currentUser.enterprise_id) {
             selectE = item;
           }
+          return item;
         });
         if (selectE == null) {
           selectE = enterpriseList[0];
@@ -207,17 +208,18 @@ class EnterpriseLayout extends PureComponent {
         dispatch(routerRedux.push('/user/login'));
       }
     } else {
-      enterpriseList.map((item) => {
-        if (item.enterprise_id == eid) {
+      enterpriseList.map(item => {
+        if (item.enterprise_id === eid) {
           this.fetchEnterpriseInfo(eid);
           globalUtil.putLog(Object.assign(rainbondInfo, item));
           this.setState({ enterpriseInfo: item });
         }
+        return item;
       });
     }
   };
 
-  fetchEnterpriseInfo = (eid) => {
+  fetchEnterpriseInfo = eid => {
     if (!eid) {
       return null;
     }
@@ -232,7 +234,7 @@ class EnterpriseLayout extends PureComponent {
     });
   };
 
-  fetchEnterpriseService = (eid) => {
+  fetchEnterpriseService = eid => {
     const { dispatch } = this.props;
     dispatch({
       type: 'order/fetchEnterpriseService',
@@ -373,7 +375,7 @@ class EnterpriseLayout extends PureComponent {
       <Fragment>
         <DocumentTitle title={SiteTitle}>
           <ContainerQuery query={query}>
-            {(params) => (
+            {params => (
               <Context.Provider value={this.getContext()}>
                 <div className={classNames(params)}>{layout()}</div>
               </Context.Provider>
