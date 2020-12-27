@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
 import { Alert, Col, Form, message, Row } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -10,7 +12,6 @@ import RegisterComponent from './registerComponent';
 const oauth_user_id = rainbondUtil.OauthParameter('oauth_user_id');
 const code = rainbondUtil.OauthParameter('code');
 const service_id = rainbondUtil.OauthParameter('service_id');
-const oauth_type = rainbondUtil.OauthParameter('oauth_type');
 
 @connect(({ user, global }) => ({
   register: user.register,
@@ -50,7 +51,7 @@ export default class Register extends Component {
           ...values
         },
         callback: data => {
-          if (data && data.token != '') {
+          if (data && data.token !== '') {
             cookie.set('token', data.token);
             dispatch({
               type: 'user/fetchThirdBinding',
@@ -59,11 +60,11 @@ export default class Register extends Component {
                 oauth_user_id
               },
               callback: res => {
-                if (res && res._code == 200) {
+                if (res && res._code === 200) {
                   message.success('认证成功', 1, () => {
                     // support redirect to the page before login
                     let redirect = window.localStorage.getItem('redirect');
-                    if (!redirect || redirect == '') {
+                    if (!redirect || redirect === '') {
                       redirect = '/';
                     }
                     if (redirect.startsWith('/')) {
@@ -83,12 +84,6 @@ export default class Register extends Component {
         }
       });
     }
-  };
-
-  changeTime = () => {
-    this.setState({
-      time: Date.now()
-    });
   };
 
   render() {
@@ -111,9 +106,10 @@ export default class Register extends Component {
       rainbondInfo.oauth_services &&
       rainbondInfo.oauth_services.value &&
       rainbondInfo.oauth_services.value.map(item => {
-        if (item.service_id == service_id) {
+        if (item.service_id === service_id) {
           oauthServer = item;
         }
+        return item;
       });
     return (
       <div className={styles.main}>
