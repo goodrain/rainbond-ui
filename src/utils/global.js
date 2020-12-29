@@ -1142,7 +1142,11 @@ const global = {
       'app-restore-probe': '重新加载应用探针',
       'app-restore-deps': '重新加载应用依赖',
       'app-restore-depvols': '重新加载应用依赖存储',
-      'app-restore-plugins': '重新加载应用插件'
+      'app-restore-plugins': '重新加载应用插件',
+      'create-service-plugin': '创建组件插件',
+      'update-service-plugin': '更新组件插件',
+      'delete-service-plugin': '删除组件插件',
+      'update-service-plugin-config': '更新组件插件配置'
     };
     return statusOptType[state] || state;
   },
