@@ -370,6 +370,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '类型',
         dataIndex: 'region_type',
         align: 'center',
+        width: 150,
         render: (val, _) => {
           return (
             <span>
@@ -406,7 +407,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '内存(GB)',
         dataIndex: 'total_memory',
         align: 'center',
-        width: '20%',
+        width: 150,
         render: (_, item) => {
           return (
             <a
@@ -430,7 +431,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '状态',
         dataIndex: 'status',
         align: 'center',
-        width: '10%',
+        width: 120,
         render: (val, data) => {
           if (data.health_status === 'failure') {
             return <span style={{ color: 'red' }}>通信异常</span>;
@@ -486,7 +487,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '操作',
         dataIndex: 'method',
         align: 'center',
-        width: '10%',
+        width: 150,
         render: (_, item) => {
           return [
             <a
