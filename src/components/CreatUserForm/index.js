@@ -12,34 +12,34 @@ class CreateUserForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      authorityList: [],
+      authorityList: []
     };
   }
   /**
    * 表单
    */
 
-  handleSelect = selectedTeam => {
+  handleSelect = (selectedTeam) => {
     const { dispatch, form } = this.props;
     const { setFieldsValue } = form;
 
     dispatch({
       type: 'teamControl/fetchTeamRoles',
       payload: {
-        team_name: selectedTeam,
+        team_name: selectedTeam
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState(
             {
-              authorityList: data.list,
+              authorityList: data.list
             },
             () => {
               setFieldsValue({ role_ids: [] });
             }
           );
         }
-      },
+      }
     });
   };
   checkAccount = (rule, value, callback) => {
@@ -66,12 +66,12 @@ class CreateUserForm extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 },
+        sm: { span: 4 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 },
-      },
+        sm: { span: 18 }
+      }
     };
     return (
       <Modal
@@ -87,16 +87,28 @@ class CreateUserForm extends PureComponent {
             <FormItem {...formItemLayout} label="用户名">
               {getFieldDecorator('user_name', {
                 initialValue: userInfo ? userInfo.nick_name : '',
-                rules: [{ required: true, message: '请填写用户名!' }],
-              })(<Input placeholder="请填写用户名!" />)}
+                rules: [
+                  { required: true, message: '请填写用户名!' },
+                  {
+                    min: 3,
+                    message: '最小长度3位'
+                  },
+                  {
+                    max: 24,
+                    message: '最大长度24位'
+                  }
+                ]
+              })(<Input autoComplete="off" placeholder="请填写用户名!" />)}
             </FormItem>
           )}
 
           <FormItem {...formItemLayout} label="姓名">
             {getFieldDecorator('real_name', {
               initialValue: (userInfo && userInfo.real_name) || '',
-              rules: [{ required: true, message: '请填写姓名!' }],
-            })(<Input type="text" placeholder="请填写姓名!" />)}
+              rules: [{ required: true, message: '请填写姓名!' }]
+            })(
+              <Input autoComplete="off" type="text" placeholder="请填写姓名!" />
+            )}
           </FormItem>
 
           <FormItem {...formItemLayout} label="密码">
@@ -105,10 +117,15 @@ class CreateUserForm extends PureComponent {
               rules: [
                 {
                   required: true,
-                  validator: this.checkAccount,
-                },
-              ],
-            })(<Input.Password placeholder="请填写密码" />)}
+                  validator: this.checkAccount
+                }
+              ]
+            })(
+              <Input.Password
+                autoComplete="new-password"
+                placeholder="请填写密码"
+              />
+            )}
           </FormItem>
 
           {!userInfo && (
@@ -117,14 +134,20 @@ class CreateUserForm extends PureComponent {
                 {getFieldDecorator('email', {
                   rules: [
                     { required: true, message: '请填写邮箱!' },
-                    { type: 'email', message: '邮箱格式不正确!' },
-                  ],
-                })(<Input type="text" placeholder="请填写邮箱!" />)}
+                    { type: 'email', message: '邮箱格式不正确!' }
+                  ]
+                })(
+                  <Input
+                    type="text"
+                    placeholder="请填写邮箱!"
+                    autoComplete="off"
+                  />
+                )}
               </FormItem>
 
               <FormItem {...formItemLayout} label="所属团队">
                 {getFieldDecorator('tenant_name', {
-                  rules: [{ required: false, message: '请选择团队!' }],
+                  rules: [{ required: false, message: '请选择团队!' }]
                 })(
                   <TenantSelect
                     placeholder="请输入团队名称进行查询"
@@ -137,14 +160,14 @@ class CreateUserForm extends PureComponent {
               <FormItem {...formItemLayout} label="角色权限">
                 {getFieldDecorator('role_ids', {
                   initialValue: [],
-                  rules: [{ required: false, message: '请选择用户角色!' }],
+                  rules: [{ required: false, message: '请选择用户角色!' }]
                 })(
                   <Select
                     mode="multiple"
                     style={{ width: '100%' }}
                     placeholder="请选择用户角色"
                   >
-                    {authorityList.map(item => {
+                    {authorityList.map((item) => {
                       const { ID, name } = item;
                       return (
                         <Option key={ID} value={ID}>
