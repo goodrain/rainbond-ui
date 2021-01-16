@@ -390,20 +390,20 @@ const providers = [
       '支持阿里云托管类型集群对接，集群可用性由阿里云负责，Rainbond Cloud负责辅助集群创建、Rainbond集群初始化以及后续的资源调度管理',
     disable: false
   },
-  {
-    id: 'eks',
-    name: 'Amazon EKS',
-    icon: amzonIcon,
-    describe: 'Amazon EKS 即将支持',
-    disable: true
-  },
-  {
-    id: 'cce',
-    name: '华为云 CCE',
-    icon: huaweiIcon,
-    describe: '华为云 CCE 即将支持',
-    disable: true
-  }
+  // {
+  //   id: 'eks',
+  //   name: 'Amazon EKS',
+  //   icon: amzonIcon,
+  //   describe: 'Amazon EKS 即将支持',
+  //   disable: true
+  // },
+  // {
+  //   id: 'cce',
+  //   name: '华为云 CCE',
+  //   icon: huaweiIcon,
+  //   describe: '华为云 CCE 即将支持',
+  //   disable: true
+  // }
 ];
 
 const cloud = {
