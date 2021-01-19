@@ -1,10 +1,10 @@
+import downLoadTools from '@/utils/downLoadTools';
+import { Button, Modal } from 'antd';
 import { connect } from 'dva';
-import { Modal, Button } from 'antd';
 import React from 'react';
 import Ansi from '../../../../components/Ansi';
 import globalUtil from '../../../../utils/global';
 import styles from './index.less';
-import downLoadTools from '@/utils/downLoadTools';
 
 @connect(
   ({ user }) => ({
@@ -195,15 +195,13 @@ class Index extends React.Component {
         bodyText = `${bodyText}\n${item.message}`;
       });
     }
-    const isDownloadb = bodyText.length >= 10240 && !dynamic;
+    const isDownloadb = bodyText.length >= 1024*1024 && !dynamic;
 
-    if (bodyText.length === 0) {
-      return <div />;
-    }
     return (
       <Modal
         className={!isDownloadb && styles.logModal}
         title={title}
+        maskClosable={false}
         visible
         onOk={onOk}
         onCancel={onCancel}

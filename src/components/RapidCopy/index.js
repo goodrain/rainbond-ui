@@ -187,6 +187,7 @@ export default class Index extends PureComponent {
         ...vals
       },
       callback: (group) => {
+        console.log('group', group);
         if (group) {
           // 获取群组
           this.fetchTeamApps(teamName, regionName, group.group_id);

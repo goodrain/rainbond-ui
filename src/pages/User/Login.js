@@ -1,6 +1,6 @@
 /* eslint-disable compat/compat */
 /* eslint-disable camelcase */
-import { Col, Divider, Row } from 'antd';
+import { Divider, Row, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
 import globalUtil from '../../utils/global';
@@ -11,7 +11,7 @@ import LoginComponent from './loginComponent';
 
 @connect(({ global }) => ({
   isRegist: global.isRegist,
-  rainbondInfo: global.rainbondInfo,
+  rainbondInfo: global.rainbondInfo
 }))
 export default class LoginPage extends Component {
   constructor(props) {
@@ -30,7 +30,7 @@ export default class LoginPage extends Component {
     dispatch({
       type: 'user/login',
       payload: {
-        ...values,
+        ...values
       },
       callback: () => {
         let url = '/';
@@ -38,7 +38,7 @@ export default class LoginPage extends Component {
           url = redirect;
         }
         window.location.href = url;
-      },
+      }
     });
   };
   fetchEnterpriseInfo = eid => {
@@ -46,7 +46,7 @@ export default class LoginPage extends Component {
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
       callback: res => {
         if (res && res._code === 200 && res.bean && res.bean.oauth_services) {
@@ -58,11 +58,11 @@ export default class LoginPage extends Component {
               oauthServicesList:
                 oauth_services.value &&
                 oauth_services.value.length > 0 &&
-                oauth_services.value,
+                oauth_services.value
             });
           }
         }
-      },
+      }
     });
   };
 
@@ -85,7 +85,8 @@ export default class LoginPage extends Component {
       oauthServicesList = rainbondInfo.oauth_services.value;
     }
     return (
-      <div className={styles.main}>
+      <div className={styles.main} style={{ marginTop: '100px' }}>
+        <h3>用户登录</h3>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
         {rainbondUtil.OauthbEnable(rainbondInfo) &&
           (oauthInfo ||
@@ -96,26 +97,24 @@ export default class LoginPage extends Component {
               </Divider>
               <Row className={styles.third}>
                 {oauthInfo && (
-                  <Col
-                    span={8}
-                    className={styles.thirdCol}
-                    key={oauthInfo.client_id}
-                  >
-                    <a href={url}>
-                      {icon}
-                      <p>{oauthInfo.name}</p>
-                    </a>
-                  </Col>
+                  <div className={styles.thirdCol} key={oauthInfo.client_id}>
+                    <Tooltip placement="top" title={oauthInfo.name}>
+                      <a href={url} title={oauthInfo.name}>
+                        {icon}
+                      </a>
+                    </Tooltip>
+                  </div>
                 )}
                 {oauthServicesList.map(item => {
                   const { name, service_id } = item;
                   return (
-                    <Col span="8" className={styles.thirdCol} key={service_id}>
-                      <a href={oauthUtil.getAuthredictURL(item)}>
-                        {oauthUtil.getIcon(item)}
-                        <p>{name}</p>
-                      </a>
-                    </Col>
+                    <div className={styles.thirdCol} key={service_id}>
+                      <Tooltip placement="top" title={name}>
+                        <a href={oauthUtil.getAuthredictURL(item)} title={name}>
+                          {oauthUtil.getIcon(item)}
+                        </a>
+                      </Tooltip>
+                    </div>
                   );
                 })}
               </Row>

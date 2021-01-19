@@ -14,8 +14,10 @@ import {
   postServiceMonitor,
   deleteServiceMonitor,
   updateServiceMonitor,
+  sortMonitorFigure,
   updataServiceMonitorFigure,
   deleteServiceMonitorFigure,
+  batchDeleteServiceMonitorFigure,
   getServiceMonitorFigureInfo,
   getKeyImport,
   getComponentMetrics,
@@ -79,8 +81,20 @@ export default {
         callback(response);
       }
     },
+    *sortMonitorFigure({ payload, callback }, { call }) {
+      const response = yield call(sortMonitorFigure, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *delServiceMonitorFigure({ payload, callback }, { call }) {
       const response = yield call(deleteServiceMonitorFigure, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *batchDeleteServiceMonitorFigure({ payload, callback }, { call }) {
+      const response = yield call(batchDeleteServiceMonitorFigure, payload);
       if (callback) {
         callback(response);
       }

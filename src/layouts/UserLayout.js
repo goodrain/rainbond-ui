@@ -1,16 +1,19 @@
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React from 'react';
+import cloud from '../../public/cloud.png';
+import logo from '../../public/logo.png';
 import globalUtil from '../utils/global';
 import oauthUtil from '../utils/oauth';
 import rainbondUtil from '../utils/rainbond';
+import CustomFooter from './CustomFooter';
 import styles from './UserLayout.less';
 
 class UserLayout extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      isRender: false,
+      isRender: false
     };
   }
   componentWillMount() {
@@ -21,6 +24,14 @@ class UserLayout extends React.PureComponent {
       callback: info => {
         if (info) {
           globalUtil.putLog(info);
+          const { query } = this.props.location;
+          const isLogin = this.props.location.pathname === '/user/login';
+          if (isLogin) {
+            const { redirect } = query;
+            if (redirect) {
+              window.localStorage.setItem('redirect', redirect);
+            }
+          }
           // check auto login
           const isOauth =
             rainbondUtil.OauthbEnable(info) ||
@@ -35,8 +46,9 @@ class UserLayout extends React.PureComponent {
               return null;
             });
           }
-          if (isOauth && oauthInfo) {
-            if (oauthInfo.is_auto_login) {
+          if (isOauth && oauthInfo && isLogin) {
+            const isDisableAutoLogin = query.disable_auto_login;
+            if (oauthInfo.is_auto_login && isDisableAutoLogin !== 'true') {
               globalUtil.removeCookie();
               window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
             }
@@ -45,46 +57,45 @@ class UserLayout extends React.PureComponent {
             this.isRender(true);
           }
         }
-      },
+      }
     });
   }
   isRender = isRender => {
     this.setState({
-      isRender,
+      isRender
     });
   };
   render() {
-    const { rainbondInfo, nouse, children } = this.props;
+    const { rainbondInfo, children } = this.props;
     const { isRender } = this.state;
+    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo) || logo;
+    const isEnterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     if (!rainbondInfo || !isRender) {
       return null;
     }
     return (
       <div className={styles.container}>
-        <div className={styles.content}>
-          {!nouse && (
-            <div className={styles.top}>
-              <div className={styles.header}>
-                <Link to="/">
-                  <h1 className={styles.titles}>
-                    {rainbondInfo &&
-                    rainbondInfo.title &&
-                    rainbondInfo.title.enable
-                      ? rainbondInfo.title.value
-                      : ''}
-                  </h1>
-                </Link>
-              </div>
-            </div>
-          )}
-          <div>{children}</div>
+        <div className={styles.headers}>
+          <div className={styles.logo}>
+            <Link to="/">
+              <img src={fetchLogo} alt="LOGO" />
+            </Link>
+          </div>
         </div>
+        <div className={styles.content}>
+          <div className={styles.contentBox}>
+            <div className={styles.contentBoxLeft}>
+              <img src={cloud} alt="云原生应用管理平台" />
+            </div>
+            <div className={styles.contentBoxRight}>{children}</div>
+          </div>
+        </div>
+        {!isEnterpriseEdition && <CustomFooter />}
       </div>
     );
   }
 }
 
 export default connect(({ global }) => ({
-  rainbondInfo: global.rainbondInfo,
-  nouse: global.nouse,
+  rainbondInfo: global.rainbondInfo
 }))(UserLayout);

@@ -19,7 +19,8 @@ export async function getAppModelsDetails(param) {
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-model/${param.appId}`,
 
     {
-      method: 'get'
+      method: 'get',
+      params: param
     }
   );
 }

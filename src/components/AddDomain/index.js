@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
-import { Divider, Icon, Form, Select, Modal, Input, Alert } from 'antd';
+import { Alert, Divider, Form, Icon, Input, Modal, Select } from 'antd';
 import { Link } from 'dva/router';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
 
 const FormItem = Form.Item;
@@ -103,8 +103,8 @@ export default class AddDomain extends PureComponent {
                   message: '请添加域名',
                 },
                 {
-                  pattern: /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                  message: '格式不正确',
+                  pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
+                  message: '请填写正确的域名格式，支持泛域名',
                 },
               ],
             })(<Input placeholder="请填写域名" />)}

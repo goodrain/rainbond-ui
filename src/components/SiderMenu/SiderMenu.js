@@ -11,8 +11,10 @@ import styles from './index.less';
 const { Sider } = Layout;
 const { Search } = Input;
 
-@connect(({ global }) => ({
-  rainbondInfo: global.rainbondInfo
+@connect(({ global, user, loading }) => ({
+  rainbondInfo: global.rainbondInfo,
+  collectionList: user.collectionList,
+  viewLoading: loading.effects['user/addCollectionView']
 }))
 export default class SiderMenu extends PureComponent {
   constructor(props) {
@@ -21,7 +23,6 @@ export default class SiderMenu extends PureComponent {
       collectionVisible: false,
       delcollectionVisible: false,
       collectionInfo: false,
-      collectionList: [],
       page: 1,
       page_size: 10,
       name: '',
@@ -107,13 +108,6 @@ export default class SiderMenu extends PureComponent {
       type: 'user/fetchCollectionViewInfo',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id
-      },
-      callback: (res) => {
-        if (res) {
-          this.setState({
-            collectionList: res.list
-          });
-        }
       }
     });
   };
@@ -188,11 +182,12 @@ export default class SiderMenu extends PureComponent {
       enterpriseList,
       currentEnterprise,
       currentTeam,
-      logo
+      collectionList,
+      logo,
+      viewLoading
     } = this.props;
     const {
       collectionVisible,
-      collectionList,
       delcollectionVisible,
       userTeamList,
       isSearch,
@@ -277,6 +272,7 @@ export default class SiderMenu extends PureComponent {
         onCollapse={onCollapse}
         width={0}
         collapsedWidth={300}
+        style={{ height: collapsed ? '100%' : '0px' }}
         className={styles.sider}
       >
         <div className={styles.siderLeft}>
@@ -284,6 +280,7 @@ export default class SiderMenu extends PureComponent {
             <CollectionView
               title={formatMessage({ id: 'sidecar.collection.add' })}
               visible={collectionVisible}
+              loading={viewLoading}
               onOk={this.handleCollectionView}
               onCancel={this.handleCloseCollectionVisible}
             />

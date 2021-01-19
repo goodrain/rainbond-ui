@@ -469,7 +469,7 @@ export default class Index extends React.Component {
       },
       callback: () => {
         this.cancelAddTag();
-        notification.success({ message: '添加成功' });
+        notification.success({ message: '添加成功需重启或更新才能生效' });
         this.fetchTags();
         this.setState({ tabData: [] });
       },

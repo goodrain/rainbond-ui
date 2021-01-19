@@ -12,12 +12,12 @@ export default {
       {
         antd: true,
         dva: {
-          hmr: true,
+          hmr: true
         },
         dynamicImport: {
           loadingComponent: './components/PageLoading/index',
           webpackChunkName: true,
-          level: 3,
+          level: 3
         },
         locale: {
           // default false
@@ -25,25 +25,25 @@ export default {
           // default zh-CN
           default: 'zh-CN',
           // default true, when it is true, will use `navigator.language` overwrite default
-          baseNavigator: false,
-        },
-      },
-    ],
+          baseNavigator: false
+        }
+      }
+    ]
   ],
   ignoreMomentLocale: true,
   theme: {
-    'card-actions-background': defaultSettings.primaryColor,
+    'card-actions-background': defaultSettings.primaryColor
   },
   lessLoaderOptions: {
-    javascriptEnabled: true,
+    javascriptEnabled: true
   },
   disableDynamicImport: true,
 
   routes: routerConfig,
   proxy: {
-    '/console/proxy': {
-      target: 'http://zengqg.pre.goodrain.com',
-      changeOrigin: true,
-    },
-  },
+    '/console': {
+      target: 'http://7070.gr255017.2c9v614j.17f4cc.grapps.cn',
+      changeOrigin: true
+    }
+  }
 };

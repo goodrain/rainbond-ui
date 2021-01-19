@@ -1,3 +1,4 @@
+/* eslint-disable react/no-redundant-should-component-update */
 /* eslint-disable prettier/prettier */
 /* eslint-disable array-callback-return */
 /* eslint-disable prettier/prettier */
@@ -12,13 +13,14 @@ import {
   Form,
   Input,
   Col,
+  Modal,
   Alert,
   Button,
   AutoComplete
 } from 'antd';
 import styless from './index.less';
+import styles from '../CreateTeam/index.less';
 import RangeChart from '@/components/CustomChart/rangeChart';
-import { start } from '@/services/app';
 
 const FormItem = Form.Item;
 @Form.create()
@@ -34,12 +36,15 @@ export default class CustomMonitoring extends PureComponent {
     this.state = {
       indicators: [],
       RangeData: this.props.info.graph_id ? [this.props.info] : [],
-      loading: false
+      loading: false,
+      isRender: false
     };
   }
+
   componentDidMount() {
     this.fetchComponentMetrics();
   }
+
   fetchComponentMetrics = () => {
     const { dispatch, serviceId, teamName, appAlias } = this.props;
     dispatch({
@@ -50,8 +55,9 @@ export default class CustomMonitoring extends PureComponent {
         serviceId
       },
       callback: (res) => {
+        const arr = res.list.map((item) => item.metric);
         this.setState({
-          indicators: res.list
+          indicators: arr
         });
       }
     });
@@ -66,13 +72,20 @@ export default class CustomMonitoring extends PureComponent {
       }
     });
   };
+
   handleSearch = () => {
     const { form } = this.props;
     form.validateFields({ force: true }, (err, vals) => {
       if (!err) {
-        this.setState({
-          RangeData: [vals]
-        });
+        this.setState(
+          {
+            RangeData: [vals],
+            isRender: true
+          },
+          () => {
+            this.setState({ isRender: false });
+          }
+        );
       }
     });
   };
@@ -80,6 +93,7 @@ export default class CustomMonitoring extends PureComponent {
   handleSubmitDelete = () => {
     this.cancalDelete();
   };
+
   render() {
     const {
       form,
@@ -87,12 +101,12 @@ export default class CustomMonitoring extends PureComponent {
       dispatch,
       appDetail,
       appAlias,
-      info={},
+      info = {},
       addLoading,
       editLoading
     } = this.props;
     const { getFieldDecorator } = form;
-    const { loading, indicators, RangeData } = this.state;
+    const { loading, indicators, RangeData, isRender } = this.state;
     const parameter = {
       moduleName: 'CustomMonitor',
       start: new Date().getTime() / 1000 - 60 * 60,
@@ -102,10 +116,37 @@ export default class CustomMonitoring extends PureComponent {
       appAlias
     };
     return (
-      <Fragment>
-        <Form onSubmit={this.onOk}>
-          <Spin spinning={loading}>
-            <Col span={24}>
+      <Modal
+        title={info && info.ID ? '编辑图表' : '添加图表'}
+        visible
+        width={600}
+        confirmLoading={loading}
+        className={styles.TelescopicModal}
+        onCancel={onCancel}
+        onOk={this.onOk}
+        footer={[
+          <Button style={{ marginTop: '10px' }} onClick={onCancel}>
+            取消
+          </Button>,
+          <Button
+            style={{ marginTop: '10px' }}
+            type="primary"
+            loading={addLoading || editLoading}
+            onClick={this.onOk}
+          >
+            {info && info.graph_id ? '保存' : '添加'}
+          </Button>
+        ]}
+      >
+        <Fragment>
+          <Form onSubmit={this.onOk}>
+            <Spin spinning={loading}>
+              <Alert
+                style={{ marginBottom: '10px' }}
+                message="请输入 标准PromQL 语法进行查询显示图表"
+                type="info"
+                showIcon
+              />
               <Card
                 className={styless.customCard}
                 headStyle={{ padding: '0 24px' }}
@@ -122,30 +163,14 @@ export default class CustomMonitoring extends PureComponent {
                       ]
                     })(
                       <Input
-                        style={{ width:'calc(100% - 15px)' }}
+                        style={{ width: 'calc(100% - 15px)' }}
                         placeholder="请填写标题"
                       />
                     )}
                   </FormItem>
                 }
-                extra={
-                  <div>
-                    <a style={{ marginRight: '5px' }} onClick={onCancel}>
-                      取消
-                    </a>
-                    <a onClick={this.onOk} loading={addLoading || editLoading}>
-                      {info.graph_id ? '保存' : '添加'}
-                    </a>
-                  </div>
-                }
               >
                 <div>
-                  <Alert
-                    style={{ marginBottom: '10px' }}
-                    message="请输入 标准PromQL 语法进行查询显示图表"
-                    type="info"
-                    showIcon
-                  />
                   <FormItem>
                     {getFieldDecorator('promql', {
                       initialValue: info.promql || '',
@@ -158,23 +183,18 @@ export default class CustomMonitoring extends PureComponent {
                       ]
                     })(
                       <AutoComplete
-                        style={{ width: 'calc(100% - 75px)', marginRight: '5px' }}
+                        style={{
+                          width: 'calc(100% - 75px)',
+                          marginRight: '5px'
+                        }}
+                        dataSource={indicators}
+                        filterOption={(inputValue, option) =>
+                          option.props.children
+                            .toUpperCase()
+                            .indexOf(inputValue.toUpperCase()) !== -1
+                        }
                         placeholder="请填写查询条件"
-                      >
-                        {indicators &&
-                          indicators.length > 0 &&
-                          indicators.map((item, index) => {
-                            const { metric } = item;
-                            return (
-                              <AutoComplete.Option
-                                key={`metric${index}`}
-                                value={metric}
-                              >
-                                {metric}
-                              </AutoComplete.Option>
-                            );
-                          })}
-                      </AutoComplete>
+                      />
                     )}
                     <Button onClick={this.handleSearch}>查询</Button>
                   </FormItem>
@@ -184,8 +204,10 @@ export default class CustomMonitoring extends PureComponent {
                         const { title, promql } = item;
                         return (
                           <RangeChart
+                            moduleName="CustomMonitor"
                             isEdit={false}
                             key={title}
+                            isRender={isRender}
                             {...parameter}
                             title={title}
                             type={promql}
@@ -195,10 +217,10 @@ export default class CustomMonitoring extends PureComponent {
                   </div>
                 </div>
               </Card>
-            </Col>
-          </Spin>
-        </Form>
-      </Fragment>
+            </Spin>
+          </Form>
+        </Fragment>
+      </Modal>
     );
   }
 }

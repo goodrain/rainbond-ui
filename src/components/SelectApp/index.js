@@ -3,13 +3,13 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import roleUtil from '../../utils/role';
 import EditGroupName from '../AddOrEditGroup';
 import style from '../SelectTeam/index.less';
-import roleUtil from '../../utils/role';
 
 @connect(({ user, teamControl }) => ({
   currentUser: user.currentUser,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 export default class SelectApp extends PureComponent {
   constructor(props) {
@@ -19,7 +19,7 @@ export default class SelectApp extends PureComponent {
       loading: true,
       currentApp: {},
       queryName: '',
-      visible: false,
+      visible: false
     };
   }
   componentDidMount() {
@@ -37,16 +37,21 @@ export default class SelectApp extends PureComponent {
       type: 'global/fetchGroups',
       payload: {
         team_name: currentTeam.team_name,
-        query: queryName,
+        query: queryName
       },
-      callback: re => {
-        this.setState({ teamApps: re, loading: false });
-        re.map(item => {
-          if (item.group_id == currentAppID) {
-            this.setState({ teamApps: re, loading: false, currentApp: item });
+      callback: list => {
+        if (list && list.length > 0) {
+          const currentList = list.filter(
+            item => item.group_id == currentAppID
+          );
+          if (currentList && currentList.length > 0) {
+            this.setState({ currentApp: currentList[0] });
           }
-        });
-      },
+          this.setState({ teamApps: list.reverse(), loading: false });
+        } else {
+          this.setState({ loading: false });
+        }
+      }
     });
   };
   showCreateApp = () => {
@@ -60,13 +65,13 @@ export default class SelectApp extends PureComponent {
       payload: {
         team_name: currentTeam.team_name,
         group_name: vals.group_name,
-        note: vals.note,
+        note: vals.note
       },
       callback: () => {
         notification.success({ message: formatMessage({ id: 'add.success' }) });
         this.cancelCreateApp();
         this.loadTeamApps();
-      },
+      }
     });
   };
   cancelCreateApp = () => {
@@ -89,7 +94,7 @@ export default class SelectApp extends PureComponent {
       currentAppID,
       currentComponent,
       active,
-      currentTeamPermissionsInfo,
+      currentTeamPermissionsInfo
     } = this.props;
     const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps`;
     const {
@@ -97,7 +102,7 @@ export default class SelectApp extends PureComponent {
       loading,
       showCreateApp,
       currentApp,
-      visible,
+      visible
     } = this.state;
     const isCreateApp = roleUtil.canCreateApp(currentTeamPermissionsInfo);
     const currentAPPLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${currentAppID}`;

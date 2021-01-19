@@ -1,12 +1,11 @@
-import React, { Component } from 'react';
+import { Alert, Col, message, Row } from 'antd';
 import { connect } from 'dva';
-import { routerRedux, Link } from 'dva/router';
-import { Row, Col, message } from 'antd';
-import styles from './Login.less';
-import rainbondUtil from '../../utils/rainbond';
-import LoginComponent from './loginComponent';
+import { Link, routerRedux } from 'dva/router';
+import React, { Component } from 'react';
 import cookie from '../../utils/cookie';
-import oauthUtil from '../../utils/oauth';
+import rainbondUtil from '../../utils/rainbond';
+import styles from './Login.less';
+import LoginComponent from './loginComponent';
 
 const code = rainbondUtil.OauthParameter('code');
 const service_id = rainbondUtil.OauthParameter('service_id');
@@ -17,11 +16,11 @@ const oauth_type = rainbondUtil.OauthParameter('oauth_type');
   login: {},
   isRegist: global.isRegist,
   rainbondInfo: global.rainbondInfo,
-  submitting: loading.effects['user/login'],
+  submitting: loading.effects['user/login']
 }))
 export default class LoginPage extends Component {
   state = {
-    user_info: null,
+    user_info: null
   };
 
   componentDidMount() {
@@ -29,15 +28,15 @@ export default class LoginPage extends Component {
       type: 'user/fetchThirdInfo',
       payload: {
         code,
-        service_id,
+        service_id
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            user_info: res.bean.user_info,
+            user_info: res.bean.user_info
           });
         }
-      },
+      }
     });
   }
   handleSubmit = values => {
@@ -46,7 +45,7 @@ export default class LoginPage extends Component {
       dispatch({
         type: 'user/thirdLogin',
         payload: {
-          ...values,
+          ...values
         },
         callback: data => {
           if (data && data._code === 200) {
@@ -55,7 +54,7 @@ export default class LoginPage extends Component {
               type: 'user/fetchThirdBinding',
               payload: {
                 service_id,
-                oauth_user_id,
+                oauth_user_id
               },
               callback: res => {
                 if (res && res.status && res.status === 400) {
@@ -64,13 +63,24 @@ export default class LoginPage extends Component {
                   });
                 } else if (res && res._code === 200) {
                   message.success('认证成功', 1, () => {
-                    dispatch(routerRedux.replace('/'));
+                    // support redirect to the page before login
+                    let redirect = window.localStorage.getItem('redirect');
+                    if (!redirect || redirect == '') {
+                      redirect = '/';
+                    }
+                    console.log('third login success, redirect to ' + redirect);
+                    if (redirect.startsWith('/')) {
+                      dispatch(routerRedux.push(redirect));
+                    } else {
+                      window.location.href = redirect;
+                    }
+                    window.localStorage.setItem('redirect', '');
                   });
                 }
-              },
+              }
             });
           }
-        },
+        }
       });
     }
   };
@@ -82,7 +92,10 @@ export default class LoginPage extends Component {
     const code = rainbondUtil.OauthParameter('code');
     const service_id = rainbondUtil.OauthParameter('service_id');
     let oauthServer = null;
+    // eslint-disable-next-line no-unused-expressions
     rainbondUtil.OauthbEnable(rainbondInfo) &&
+      rainbondInfo.oauth_services &&
+      rainbondInfo.oauth_services.value &&
       rainbondInfo.oauth_services.value.map(item => {
         if (item.service_id == service_id) {
           oauthServer = item;
@@ -90,11 +103,13 @@ export default class LoginPage extends Component {
       });
     return (
       <div className={styles.main}>
-        <p style={{ marginBottom: '24px' }}>
-          来自{oauthServer && oauthServer.name}登录的
-          {user_info && user_info.oauth_user_name}
-          您好！你需要补充完整平台账号信息
-        </p>
+        <Alert
+          style={{ margin: '24px 0' }}
+          message={`来自${oauthServer && oauthServer.name}登录的
+          ${user_info && user_info.oauth_user_name}
+          您好！你需要补充完整平台账号信息`}
+          type="info"
+        />
         <Row style={{ marginBottom: '24px' }}>
           <Col
             span={10}

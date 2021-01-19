@@ -1,7 +1,15 @@
-import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
+import {
+  Alert,
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  notification,
+  Typography
+} from 'antd';
 import { connect } from 'dva';
-import { Modal, Form, Input, Alert, DatePicker, Typography } from 'antd';
+import moment from 'moment';
+import React, { Fragment, PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -14,7 +22,7 @@ class AccesstokenForm extends PureComponent {
     super(arg);
     this.state = {
       accessKey: false,
-      loading: false,
+      loading: false
     };
   }
 
@@ -43,34 +51,43 @@ class AccesstokenForm extends PureComponent {
       }
     });
   };
-
+  handleAccesstokenCallback = res => {
+    if (res && res._code === 200) {
+      this.setState({ accessKey: res.bean.access_key });
+    }
+    this.setState({ loading: false });
+  };
   addAccesstoken = values => {
-    const { dispatch, onOk } = this.props;
+    const { dispatch } = this.props;
     this.setState({ loading: true });
     dispatch({
       type: 'user/addAccessToken',
       payload: values,
       callback: res => {
-        if (res && res._code === 200) {
-          this.setState({ loading: false, accessKey: res.bean.access_key });
-        }
+        this.handleAccesstokenCallback(res);
       },
+      handleError: err => {
+        if (err && err.data && err.data.msg_show) {
+          notification.warning({
+            message: err.data.msg_show
+          });
+        }
+        this.setState({ loading: false });
+      }
     });
   };
 
   putAccesstoken = ID => {
-    const { dispatch, onOk } = this.props;
+    const { dispatch } = this.props;
     this.setState({ loading: true });
     dispatch({
       type: 'user/putAccessToken',
       payload: {
-        user_id: ID,
+        user_id: ID
       },
       callback: res => {
-        if (res && res._code === 200) {
-          this.setState({ accessKey: res.bean.access_key });
-        }
-      },
+        this.handleAccesstokenCallback(res);
+      }
     });
   };
 
@@ -83,7 +100,7 @@ class AccesstokenForm extends PureComponent {
     return {
       disabledHours: () => this.range(0, 24).splice(4, 20),
       disabledMinutes: () => this.range(30, 60),
-      disabledSeconds: () => [55, 56],
+      disabledSeconds: () => [55, 56]
     };
   };
 
@@ -97,7 +114,7 @@ class AccesstokenForm extends PureComponent {
 
   handleCloneAccessKey = () => {
     this.setState({
-      accessKey: false,
+      accessKey: false
     });
     const { onOk, onCancel } = this.props;
     const { accessKey } = this.state;
@@ -115,26 +132,27 @@ class AccesstokenForm extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 6,
-        },
+          span: 6
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 14,
-        },
-      },
+          span: 14
+        }
+      }
     };
 
     return (
       <Modal
         visible
         confirmLoading={loading}
+        maskClosable={false}
         className={styles.TelescopicModal}
         title={ID || accessKey ? '请保存AccessKey' : '新增访问令牌'}
         onOk={this.handleSubmit}
@@ -163,14 +181,14 @@ class AccesstokenForm extends PureComponent {
             <FormItem {...formItemLayout} label="用途">
               {getFieldDecorator('note', {
                 rules: [{ required: true, message: '请输入用途!' }],
-                initialValue: '',
+                initialValue: ''
               })(<Input placeholder="请输入用途" />)}
             </FormItem>
 
             <FormItem {...formItemLayout} label="过期时间">
               {getFieldDecorator('age', {
                 rules: [{ required: false, message: '请输入时间!' }],
-                initialValue: '',
+                initialValue: ''
               })(
                 <DatePicker
                   style={{ width: '100%' }}

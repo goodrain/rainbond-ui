@@ -20,13 +20,14 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import axios from 'axios';
 import PluginStyles from '../../pages/Create/Index.less';
 import cookie from '../../utils/cookie';
 import Ellipsis from '../Ellipsis';
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
-  rainbondInfo: global.rainbondInfo,
+  rainbondInfo: global.rainbondInfo
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -35,14 +36,16 @@ export default class Index extends PureComponent {
     this.state = {
       currStep: this.props.currStep || 0,
       loading: false,
+      alertText: false,
       marketUrl: '',
       accessKey: '',
       marketList: [],
+      checkedValues: []
     };
   }
   componentWillMount() {
     // eslint-disable-next-line func-names
-    window.addEventListener('message', res => {
+    window.addEventListener('message', (res) => {
       if (res.data && res.data.accessKey) {
         return this.handleNextStep(3, res.data.accessKey);
       }
@@ -55,23 +58,28 @@ export default class Index extends PureComponent {
       });
     }
   }
+  onChangeCheckbox = (checkedValues) => {
+    this.setState({
+      checkedValues
+    });
+  };
   getAppMarketInfo = () => {
     const { dispatch, eid, marketName } = this.props;
     const payload = Object.assign(
       {},
       {
         name: marketName,
-        enterprise_id: eid,
+        enterprise_id: eid
       }
     );
     dispatch({
       type: 'market/fetchAppMarketInfo',
       payload,
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           if (res.list && res.list.url) {
             this.setState({
-              marketUrl: res.list.url,
+              marketUrl: res.list.url
             });
             this.handleCurrStep(2);
           } else {
@@ -79,10 +87,10 @@ export default class Index extends PureComponent {
           }
           this.handleClose();
         }
-      },
+      }
     });
   };
-  handleBindingMarketsList = accessKey => {
+  handleBindingMarketsList = (accessKey) => {
     const { dispatch, eid, marketName } = this.props;
     const { marketUrl } = this.state;
     const payload = Object.assign(
@@ -91,17 +99,17 @@ export default class Index extends PureComponent {
         market_name: marketName,
         market_url: marketUrl,
         access_key: accessKey,
-        enterprise_id: eid,
+        enterprise_id: eid
       }
     );
     dispatch({
       type: 'market/fetchBindingMarketsList',
       payload,
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             marketList: res.list,
-            accessKey,
+            accessKey
           });
           this.handleCurrStep(4);
           this.handleClose();
@@ -109,7 +117,7 @@ export default class Index extends PureComponent {
       },
       handleError: () => {
         this.handleClose();
-      },
+      }
     });
   };
   handleNextStep = (stpe, parameter) => {
@@ -124,36 +132,54 @@ export default class Index extends PureComponent {
     });
   };
 
-  handleCurrStep = step => {
+  handleCurrStep = (step) => {
     this.setState({
-      currStep: step,
+      currStep: step
     });
   };
   handleMarketUrl = () => {
     const { form } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
-        this.setState(
-          {
-            marketUrl: values.url,
-            currStep: 2,
-          },
-          () => {
-            this.handleClose();
-          }
-        );
+        this.handleIsCloudAppStoreUrl(values.url);
       }
+    });
+  };
+  handleIsCloudAppStoreUrl = (url) => {
+    const { dispatch } = this.props;
+    axios
+      .get(`${url}/app-server/openapi/healthz`)
+      .then((res) => {
+        if (res && res.data && res.data.isRainstore) {
+          this.setState({
+            marketUrl: url,
+            currStep: 2,
+            loading: false,
+            alertText: false
+          });
+        } else {
+          this.handleNoCloudAppStoreUrl();
+        }
+      })
+      .catch(() => {
+        this.handleNoCloudAppStoreUrl();
+      });
+  };
+  handleNoCloudAppStoreUrl = () => {
+    this.setState({
+      alertText: '应用市场不可用，请检查应用市场地址，或联系应用市场的管理员',
+      loading: false
     });
   };
   handleOkMarkets = () => {
     const { form, marketName } = this.props;
-    const { marketList, accessKey, marketUrl } = this.state;
-    form.validateFields((err, values) => {
+    const { marketList, checkedValues, accessKey, marketUrl } = this.state;
+    form.validateFields((err) => {
       if (!err) {
         this.setState({ loading: true }, () => {
           const arr = [];
-          marketList.map(item => {
-            values.markets.map(items => {
+          checkedValues.map((items) => {
+            marketList.map((item) => {
               if (item.domain === items && marketName) {
                 item.name = marketName;
               } else {
@@ -161,7 +187,9 @@ export default class Index extends PureComponent {
               }
               item.access_key = accessKey;
               item.type = 'rainstore';
-              arr.push(item);
+              if (item.domain === items) {
+                arr.push(item);
+              }
             });
           });
           const { dispatch, eid, onCancel } = this.props;
@@ -169,13 +197,13 @@ export default class Index extends PureComponent {
             {},
             {
               markets: arr,
-              enterprise_id: eid,
+              enterprise_id: eid
             }
           );
           dispatch({
             type: 'market/addBindingMarkets',
             payload,
-            callback: res => {
+            callback: (res) => {
               if (res && res._code === 200) {
                 if (onCancel) {
                   onCancel();
@@ -184,7 +212,7 @@ export default class Index extends PureComponent {
                 }
                 notification.success({
                   message: '绑定成功',
-                  duration: 1,
+                  duration: 1
                 });
                 setTimeout(() => {
                   window.location.reload();
@@ -194,7 +222,7 @@ export default class Index extends PureComponent {
             },
             handleError: () => {
               this.handleClose();
-            },
+            }
           });
         });
       }
@@ -236,7 +264,7 @@ export default class Index extends PureComponent {
   };
   handleClose = () => {
     this.setState({
-      loading: false,
+      loading: false
     });
   };
   hidden = () => {
@@ -244,20 +272,26 @@ export default class Index extends PureComponent {
     this.props.dispatch({ type: 'global/hideAuthCompany' });
   };
   render() {
-    const { currStep: step, loading, marketList, marketUrl } = this.state;
+    const {
+      currStep: step,
+      loading,
+      marketList,
+      marketUrl,
+      alertText
+    } = this.state;
     const {
       title = '企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
       onCancel,
-      rainbondInfo,
+      rainbondInfo
     } = this.props;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
-        span: 0,
+        span: 0
       },
       wrapperCol: {
-        span: 24,
-      },
+        span: 24
+      }
     };
     const defaultMarketUrl = rainbondInfo && rainbondInfo.default_market_url;
     const message = (
@@ -289,7 +323,7 @@ export default class Index extends PureComponent {
                 src={`${marketUrl}/certification/login`}
                 style={{
                   width: '100%',
-                  height: '400px',
+                  height: '400px'
                 }}
                 sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                 scrolling="auto"
@@ -300,17 +334,16 @@ export default class Index extends PureComponent {
               />
             </div>
           )}
-
           {step !== 2 && (
             <div
               style={{
                 display: 'flex',
-                justifyContent: 'center',
+                justifyContent: 'center'
               }}
             >
               <div
                 style={{
-                  textAlign: 'center',
+                  textAlign: 'center'
                 }}
               >
                 {step === 0 && (
@@ -334,6 +367,13 @@ export default class Index extends PureComponent {
                     <p style={{ fontSize: '18px', marginBottom: '40px' }}>
                       请填写需要进行绑定的应用市场的URL
                     </p>
+                    {alertText && (
+                      <Alert
+                        style={{ margin: '-20px 0 20px 0' }}
+                        message={alertText}
+                        type="info"
+                      />
+                    )}
                     <Form>
                       <Form.Item {...formItemLayout} label="">
                         {getFieldDecorator('url', {
@@ -341,9 +381,9 @@ export default class Index extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: '请填写需要进行绑定的应用市场的URL',
-                            },
-                          ],
+                              message: '请填写需要进行绑定的应用市场的URL'
+                            }
+                          ]
                         })(
                           <Input
                             type="text"
@@ -375,13 +415,16 @@ export default class Index extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: '请选择需要绑定的商店',
-                            },
-                          ],
+                              message: '请选择需要绑定的商店'
+                            }
+                          ]
                         })(
-                          <Checkbox.Group style={{ width: '450px' }}>
+                          <Checkbox.Group
+                            onChange={this.onChangeCheckbox}
+                            style={{ width: '450px' }}
+                          >
                             <Row gutter={[24, 24]}>
-                              {marketList.map(item => {
+                              {marketList.map((item) => {
                                 const { name, url, logo, desc, domain } = item;
                                 return (
                                   <Col
@@ -389,7 +432,10 @@ export default class Index extends PureComponent {
                                     key={url}
                                     style={{ position: 'relative', padding: 0 }}
                                   >
-                                    <Checkbox value={domain}>
+                                    <Checkbox
+                                      value={domain}
+                                      style={{ width: '400px' }}
+                                    >
                                       <Card className={PluginStyles.cards}>
                                         <Card.Meta
                                           className={PluginStyles.cardsMetas}
@@ -398,7 +444,7 @@ export default class Index extends PureComponent {
                                               style={{
                                                 width: 110,
                                                 height: 110,
-                                                margin: ' 0 auto',
+                                                margin: ' 0 auto'
                                               }}
                                               alt={name}
                                               src={

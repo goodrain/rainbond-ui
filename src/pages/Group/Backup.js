@@ -606,7 +606,7 @@ export default class AppList extends PureComponent {
               </Button>
             )}
             <Button onClick={this.jumpToAllbackup} href="javascript:;">
-              全部备份
+            团队全部备份
             </Button>
           </div>
         }

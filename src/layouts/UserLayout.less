@@ -1,83 +1,41 @@
-@import "~antd/lib/style/themes/default.less";
+@import '~antd/lib/style/themes/default.less';
 
-.container {
-  display       : flex;
-  flex-direction: column;
-  min-height    : 100%;
-  background    : #f0f2f5;
-}
-
-.content {
-  padding: 32px 0;
-  flex   : 1;
-}
-
-@media (min-width: @screen-md-min) {
-  .container {
-    background-image   : url('../../public/user-bg.svg');
-    background-repeat  : no-repeat;
-    background-position: center 110px;
-    background-size    : 100%;
-  }
-
-  .content {
-    padding: 112px 0 24px 0;
-  }
-}
-
-.top {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.header {
-  height     : 44px;
-  line-height: 44px;
-
-  a {
-    text-decoration: none;
-  }
-
-  .titles {
-    display       : inline;
-    vertical-align: middle;
-    margin-bottom : 0;
-    font-size     : 37px;
-  }
-}
-
-.logo {
-  vertical-align: top;
-  margin-right  : 16px;
-  max-height    : 50px;
-}
-
-.title {
-  font-size  : 33px;
-  color      : @heading-color;
-  font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  font-weight: 600;
-  position   : relative;
-  top        : 2px;
-}
-
-.desc {
-  font-size    : @font-size-base;
-  color        : @text-color-secondary;
-  margin-top   : 12px;
-  margin-bottom: 40px;
-}
-
-
-@media screen and (max-width:1100px) and (min-width:100px) {
-  .header {
-    .titles {
-      font-size: 12px !important;
+.headers {
+  height: 64px;
+  padding-left: 20px;
+  .logo {
+    height: 64px;
+    line-height: 64px;
+    width: 236px;
+    img {
+      height: 55%;
+      width: 100%;
     }
   }
-
-  .desc {
-    font-size : 12px !important;
-    margin-top: 22px;
+}
+.content {
+  display: flex;
+  align-items: center;
+  height: calc(100vh - 186px);
+  .contentBox {
+    width: 1200px;
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+    height: 549px;
+    .contentBoxLeft {
+      width: 61%;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .contentBoxRight {
+      background: #ffffff;
+      width: 39%;
+      height: 549px;
+      display: flex;
+      overflow: auto;
+    }
   }
 }

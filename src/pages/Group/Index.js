@@ -13,7 +13,8 @@ import {
 import { connect } from 'dva';
 import moment from 'moment';
 import { routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
+import { batchOperation } from '../../services/app';
 import ConfirmModal from '../../components/ConfirmModal';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
@@ -58,6 +59,7 @@ class Main extends PureComponent {
       toEdit: false,
       toEditAppDirector: false,
       service_alias: [],
+      serviceIds: [],
       linkList: [],
       jsonDataLength: 0,
       promptModal: false,
@@ -120,10 +122,11 @@ class Main extends PureComponent {
           if (JSON.stringify(data) === '{}') {
             return;
           }
+          const serviceIds = [];
           const service_alias = [];
           const { json_data } = data;
-          this.setState({ jsonDataLength: Object.keys(json_data).length });
           Object.keys(json_data).map((key) => {
+            serviceIds.push(key);
             if (
               json_data[key].cur_status == 'running' &&
               json_data[key].is_internet == true
@@ -131,9 +134,17 @@ class Main extends PureComponent {
               service_alias.push(json_data[key].service_alias);
             }
           });
-          this.setState({ service_alias }, () => {
-            this.loadLinks(service_alias.join('-'), isCycle);
-          });
+
+          this.setState(
+            {
+              jsonDataLength: Object.keys(json_data).length,
+              service_alias,
+              serviceIds
+            },
+            () => {
+              this.loadLinks(service_alias.join('-'), isCycle);
+            }
+          );
         }
       }
     });
@@ -158,6 +169,8 @@ class Main extends PureComponent {
                 this.handleTimers(
                   'timer',
                   () => {
+                    this.fetchAppDetailState();
+                    this.fetchAppDetail();
                     this.loadTopology(true);
                   },
                   10000
@@ -172,6 +185,8 @@ class Main extends PureComponent {
         this.handleTimers(
           'timer',
           () => {
+            this.fetchAppDetailState();
+            this.fetchAppDetail();
             this.loadTopology(true);
           },
           20000
@@ -361,7 +376,10 @@ class Main extends PureComponent {
         note: vals.note,
         username: vals.username
       },
-      callback: () => {
+      callback: (res) => {
+        if (res && res._code == 200) {
+          notification.success({ message: '修改成功' });
+        }
         this.handleUpDataHeader();
         this.cancelEdit();
         this.cancelEditAppDirector();
@@ -404,24 +422,42 @@ class Main extends PureComponent {
   };
 
   handlePromptModalOpen = () => {
-    const { code } = this.state;
+    const { code, serviceIds } = this.state;
     const { dispatch } = this.props;
-    dispatch({
-      type: 'global/buildShape',
-      payload: {
-        tenantName: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId(),
-        action: code
-      },
-      callback: (data) => {
-        notification.success({
-          message: data.msg_show || '构建成功',
-          duration: '3'
-        });
-        this.handlePromptModalClose();
+    if (code === 'restart') {
+      batchOperation({
+        action: code,
+        team_name: globalUtil.getCurrTeamName(),
+        serviceIds: serviceIds && serviceIds.join(',')
+      }).then((res) => {
+        if (res && res._code === 200) {
+          notification.success({
+            message: '重启成功'
+          });
+          this.handlePromptModalClose();
+        }
         this.loadTopology(false);
-      }
-    });
+      });
+    } else {
+      dispatch({
+        type: 'global/buildShape',
+        payload: {
+          tenantName: globalUtil.getCurrTeamName(),
+          group_id: this.getGroupId(),
+          action: code
+        },
+        callback: (res) => {
+          if (res && res._code === 200) {
+            notification.success({
+              message: res.msg_show || '构建成功',
+              duration: '3'
+            });
+            this.handlePromptModalClose();
+          }
+          this.loadTopology(false);
+        }
+      });
+    }
   };
 
   handlePromptModalClose = () => {
@@ -476,7 +512,8 @@ class Main extends PureComponent {
       componentPermissions: {
         isAccess: isComponentDescribe,
         isCreate: isComponentCreate,
-        isConstruct: isComponentConstruct
+        isConstruct: isComponentConstruct,
+        isRestart
       }
     } = this.props;
     const {
@@ -492,7 +529,8 @@ class Main extends PureComponent {
       toEditAppDirector,
       toDelete,
       type,
-      customSwitch
+      customSwitch,
+      serviceIds
     } = this.state;
     const codeObj = {
       start: '启动',
@@ -503,13 +541,17 @@ class Main extends PureComponent {
 
     const appState = {
       RUNNING: '运行中',
+      STARTING: '启动中',
       CLOSED: '已关闭',
+      STOPPING: '关闭中',
       ABNORMAL: '异常',
       PARTIAL_ABNORMAL: '部分异常'
     };
     const appStateColor = {
       RUNNING: 'success',
+      STARTING: 'success',
       CLOSED: 'error',
+      STOPPING: 'error',
       ABNORMAL: 'error',
       PARTIAL_ABNORMAL: 'error'
     };
@@ -576,7 +618,7 @@ class Main extends PureComponent {
               status={appStateColor[resources.status] || 'default'}
               text={appState[resources.status] || '-'}
             />
-            {resources.status && isStart && resources.status !== 'RUNNING' && (
+            {resources.status && isStart && (
               <span>
                 <a
                   onClick={() => {
@@ -589,6 +631,24 @@ class Main extends PureComponent {
                 <Divider type="vertical" />
               </span>
             )}
+            {resources.status &&
+              (resources.status === 'ABNORMAL' ||
+                resources.status === 'PARTIAL_ABNORMAL') &&
+              serviceIds &&
+              serviceIds.length > 0 &&
+              isRestart && (
+                <span>
+                  <a
+                    onClick={() => {
+                      this.handleTopology('restart');
+                    }}
+                    disabled={BtnDisabled}
+                  >
+                    重启
+                  </a>
+                  <Divider type="vertical" />
+                </span>
+              )}
             {isDelete && resources.status !== 'RUNNING' && (
               <a onClick={this.toDelete}>删除</a>
             )}
@@ -619,7 +679,7 @@ class Main extends PureComponent {
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
                 <div>使用磁盘</div>
-                <div>{`${sourceUtil.unit(resources.disk || 0, 'MB')}`}</div>
+                <div>{`${sourceUtil.unit(resources.disk || 0, 'KB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
                 <div>组件数量</div>
@@ -713,7 +773,7 @@ class Main extends PureComponent {
                   isControl && this.handleJump('gateway');
                 }}
               >
-                <a>{currApp.service_num || 0}</a>
+                <a>{currApp.ingress_num || 0}</a>
               </div>
             </div>
 
@@ -742,21 +802,10 @@ class Main extends PureComponent {
         </div>
       </div>
     );
-    let breadcrumbList = [];
-    breadcrumbList = createApp(
-      createTeam(
-        createEnterprise(breadcrumbList, currentEnterprise),
-        currentTeam,
-        currentRegionName
-      ),
-      currentTeam,
-      currentRegionName,
-      { appName: groupDetail.group_name, appID: groupDetail.app_id }
-    );
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     return (
-      <PageHeaderLayout breadcrumbList={breadcrumbList} loading={loadingDetail}>
+      <Fragment>
         <Row>{pageHeaderContent}</Row>
         {customSwitch && (
           <ApplicationGovernance
@@ -917,7 +966,7 @@ class Main extends PureComponent {
             group_name={groupDetail.group_name}
             note={groupDetail.note}
             loading={editGroupLoading}
-            principal={currApp.principal}
+            principal={currApp.username}
             onCancel={this.cancelEditAppDirector}
             onOk={this.handleEdit}
           />
@@ -934,7 +983,7 @@ class Main extends PureComponent {
             <p>{codeObj[code]}当前应用下的全部组件？</p>
           </Modal>
         )}
-      </PageHeaderLayout>
+      </Fragment>
     );
   }
 }

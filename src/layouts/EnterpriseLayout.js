@@ -1,5 +1,5 @@
 /* eslint-disable react/sort-comp */
-import { Layout, Tooltip } from 'antd';
+import { Layout } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
@@ -83,7 +83,6 @@ class EnterpriseLayout extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.getPageTitle = memoizeOne(this.getPageTitle);
     this.breadcrumbNameMap = getBreadcrumbNameMap(
       getMenuData(this.props.groups)
     );
@@ -154,17 +153,6 @@ class EnterpriseLayout extends PureComponent {
     return { location, breadcrumbNameMap: this.breadcrumbNameMap };
   };
 
-  getPageTitle = () => {
-    const { rainbondInfo } = this.props;
-    const title =
-      (rainbondInfo &&
-        rainbondInfo.title &&
-        rainbondInfo.title.enable &&
-        rainbondInfo.title.value) ||
-      ' Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
-    return title;
-  };
-
   matchParamsPath = pathname => {
     const pathKey = Object.keys(this.breadcrumbNameMap).find(key => {
       return pathToRegexp(key).test(pathname);
@@ -198,13 +186,14 @@ class EnterpriseLayout extends PureComponent {
       }
     } = this.props;
     const { enterpriseList } = this.state;
-    if (!eid || eid == 'auto') {
+    if (!eid || eid === 'auto') {
       if (enterpriseList.length > 0) {
         let selectE = null;
         enterpriseList.map(item => {
-          if (item.enterprise_id == currentUser.enterprise_id) {
+          if (item.enterprise_id === currentUser.enterprise_id) {
             selectE = item;
           }
+          return item;
         });
         if (selectE == null) {
           selectE = enterpriseList[0];
@@ -220,11 +209,12 @@ class EnterpriseLayout extends PureComponent {
       }
     } else {
       enterpriseList.map(item => {
-        if (item.enterprise_id == eid) {
+        if (item.enterprise_id === eid) {
           this.fetchEnterpriseInfo(eid);
           globalUtil.putLog(Object.assign(rainbondInfo, item));
           this.setState({ enterpriseInfo: item });
         }
+        return item;
       });
     }
   };
@@ -333,6 +323,7 @@ class EnterpriseLayout extends PureComponent {
             />
             <Layout style={{ flexDirection: 'row' }}>
               <GlobalRouter
+                currentEnterprise={enterpriseInfo}
                 enterpriseList={enterpriseList}
                 title={
                   rainbondInfo &&
@@ -347,32 +338,42 @@ class EnterpriseLayout extends PureComponent {
                 pathname={pathname}
                 location={location}
                 isMobile={this.state.isMobile}
+                collapsed={collapsed}
+                onCollapse={this.handleMenuCollapse}
               />
               <Content
                 key={eid}
                 style={{
-                  margin: '24px 24px 0',
-                  height: '100%',
+                  height: 'calc(100vh - 64px)',
+                  overflow: 'auto',
                   width: autoWidth
                 }}
               >
-                <Authorized
-                  logined
-                  // authority={children.props.route.authority}
-                  authority={['admin', 'user']}
-                  noMatch={<Redirect to="/user/login" />}
+                <div
+                  style={{
+                    margin: '24px 24px 0'
+                  }}
                 >
-                  {children}
-                </Authorized>
+                  <Authorized
+                    logined
+                    // authority={children.props.route.authority}
+                    authority={['admin', 'user']}
+                    noMatch={<Redirect to="/user/login" />}
+                  >
+                    {children}
+                  </Authorized>
+                </div>
               </Content>
             </Layout>
           </Layout>
         </Layout>
       );
     };
+    const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);
+
     return (
       <Fragment>
-        <DocumentTitle title={this.getPageTitle(pathname)}>
+        <DocumentTitle title={SiteTitle}>
           <ContainerQuery query={query}>
             {params => (
               <Context.Provider value={this.getContext()}>

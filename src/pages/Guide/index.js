@@ -332,7 +332,7 @@ export default class Index extends PureComponent {
                 this.setState({ addApplication: true });
               }}
             >
-              创建应用，完成任务
+              新建应用，完成任务
             </Button>
           )}
         </p>
@@ -1079,7 +1079,7 @@ export default class Index extends PureComponent {
 
             {this.state.addApplication && (
               <EditGroupName
-                title="添加应用"
+                title="新建应用"
                 onCancel={this.handleCancelApplication}
                 onOk={this.handleOkApplication}
               />

@@ -1,5 +1,5 @@
-import React, { Fragment, PureComponent } from "react";
-import CustomChart from "@/components/CustomChart";
+import CustomChart from '@/components/CustomChart';
+import React, { Fragment, PureComponent } from 'react';
 
 export default class ResourceShow extends PureComponent {
   render() {
@@ -7,10 +7,10 @@ export default class ResourceShow extends PureComponent {
       <Fragment>
         <CustomChart
           RangeData={[
-            "containerMem",
-            "containerCpu",
-            "containerNetR",
-            "containerNetT"
+            'containerMem',
+            'containerCpu',
+            'containerNetR',
+            'containerNetT'
           ]}
           moduleName="ResourceMonitoring"
         />

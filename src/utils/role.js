@@ -7,6 +7,10 @@ const actionMaps = {
   access: '访问者',
   owner: '拥有者'
 };
+const roleMaps = {
+  admin: '企业管理员',
+  app_store: '应用市场管理员'
+};
 const AccessText = {
   component: '组件管理',
   app: '应用管理',
@@ -60,6 +64,9 @@ export default {
   },
   actionMap(name) {
     return actionMaps[name] || name;
+  },
+  roleMap(name) {
+    return roleMaps[name] || name;
   },
   fetchAccessText(text) {
     return AccessText[text] || text;

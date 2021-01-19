@@ -97,7 +97,7 @@ export default class AppDirector extends PureComponent {
                 style={{ width: '100%' }}
               >
                 {members.map((d) => (
-                  <Option key={d.user_name}>{d.user_name}</Option>
+                  <Option key={d.nick_name}>{d.user_name}</Option>
                 ))}
               </Select>
             )}
