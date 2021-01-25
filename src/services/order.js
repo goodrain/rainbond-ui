@@ -1,12 +1,12 @@
-import request from '../utils/request';
 import apiconfig from '../../config/api.config';
+import request from '../utils/request';
 
 /* 获取企业服务信息 */
 export async function queryEnterpriseService(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/subscribe`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -16,14 +16,13 @@ export async function queryEnterpriseServiceRefresh(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/sync`,
     {
-      method: 'post',
+      method: 'post'
     }
   );
 }
 
-
 /* 创建订单 */
-export async function CreateOrder(body = {},handleError) {
+export async function CreateOrder(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/orders`,
     {
@@ -50,7 +49,7 @@ export async function queryEnterpriseOrderList(body = {}) {
 }
 
 /* 获取企业订单详情 */
-export async function queryEnterpriseOrderDetails(body = {},handleError) {
+export async function queryEnterpriseOrderDetails(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/orders/${body.order_id}`,
     {
@@ -62,10 +61,7 @@ export async function queryEnterpriseOrderDetails(body = {},handleError) {
 
 /* 获取银行详情 */
 export async function queryBankInfo(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/bank/info`,
-    {
-      method: 'get',
-    }
-  );
+  return request(`${apiconfig.baseUrl}/console/bank/info`, {
+    method: 'get'
+  });
 }

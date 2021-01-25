@@ -1,0 +1,37 @@
+@import "~antd/lib/style/themes/default.less";
+@import "../../../utils/utils.less";
+
+
+.describe {
+    background: rgba(22, 184, 248, .1);
+    padding: 8px;
+
+    li {
+        line-height: 24px;
+    }
+}
+
+.editable-cell {
+    position: relative;
+}
+
+.editable-cell-value-wrap {
+    padding: 5px 12px;
+    cursor: pointer;
+}
+
+.editable-row:hover .editable-cell-value-wrap {
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    padding: 4px 11px;
+}
+
+.cmd {
+    padding: 16px;
+    background: #000;
+    color: #fff;
+    line-height: 16px;
+    display: block;
+    font-size: 10px;
+    font-family: PingFangSC-Regular, sans-serif;
+}

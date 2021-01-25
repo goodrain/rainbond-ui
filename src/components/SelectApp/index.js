@@ -159,7 +159,7 @@ export default class SelectApp extends PureComponent {
     );
     let showstyle = {};
     if (!currentComponent) {
-      showstyle = { background: '#1890ff', color: '#ffffff' };
+      showstyle = { background: '#4d73b1', color: '#ffffff' };
     }
     return (
       <div

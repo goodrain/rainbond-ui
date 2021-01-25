@@ -1,6 +1,6 @@
-import { AnserJsonEntry, ansiToJson } from "anser";
-import { escapeCarriageReturn } from "escape-carriage";
-import * as React from "react";
+import { AnserJsonEntry, ansiToJson } from 'anser';
+import { escapeCarriageReturn } from 'escape-carriage';
+import * as React from 'react';
 
 /**
  * Converts ANSI strings into JSON output.
@@ -29,18 +29,21 @@ function convertBundleIntoReact(
 ) {
   const style: { backgroundColor?: string; color?: string } = {};
   if (bundle.bg) {
-    style.backgroundColor = "rgb(" + bundle.bg + ")";
+    style.backgroundColor = `rgb(${bundle.bg})`;
   }
   if (bundle.fg) {
-    style.color = "rgb(" + bundle.fg + ")";
+    style.color = `rgb(${bundle.fg})`;
   }
   if (bundle.content) {
     if (bundle.content.indexOf('') > -1 && bundle.content.indexOf('') < 6) {
-      style.textIndent = bundle.content.indexOf('') !== 0 ? bundle.content.indexOf('') * 2 + "em" : "2em";
+      style.textIndent =
+        bundle.content.indexOf('') !== 0
+          ? `${bundle.content.indexOf('') * 2}em`
+          : '2em';
     }
   }
 
-  return React.createElement("span", { style: style, key: key }, bundle.content);
+  return React.createElement('span', { style, key }, bundle.content);
 }
 
 declare interface Props {
@@ -51,7 +54,7 @@ declare interface Props {
 
 export default function Ansi(props: Props) {
   return React.createElement(
-    "code",
+    'code',
     { className: props.className },
     ansiToJSON(props.children).map(
       convertBundleIntoReact.bind(null, props.linkify)

@@ -1,6 +1,7 @@
-import React, { PureComponent } from 'react';
+/* eslint-disable no-underscore-dangle */
+import { Col, Form, Input, Modal, notification } from 'antd';
 import { connect } from 'dva';
-import { Form, Input, Modal, notification, Col } from 'antd';
+import React, { PureComponent } from 'react';
 import CodeMirrorForm from '../../CodeMirrorForm';
 import styles from '../../CreateTeam/index.less';
 
@@ -26,7 +27,7 @@ class EditClusterInfo extends PureComponent {
     if (!isRightType) {
       if (isMessage) {
         notification.warning({
-          message: '请上传以.yaml、.yml结尾的 Region Config 文件',
+          message: '请上传以.yaml、.yml结尾的 Region Config 文件'
         });
       }
       return false;
@@ -64,6 +65,8 @@ class EditClusterInfo extends PureComponent {
         ...values,
         region_type: ['custom'],
         enterprise_id: eid,
+        provider: 'directly',
+        providerClusterID: ''
       },
       callback: res => {
         if (res && res._condition === 200) {
@@ -72,7 +75,7 @@ class EditClusterInfo extends PureComponent {
             onOk();
           }
         }
-      },
+      }
     });
   };
   render() {
@@ -80,11 +83,11 @@ class EditClusterInfo extends PureComponent {
     const { getFieldDecorator, setFieldsValue } = form;
     const formItemLayout = {
       labelCol: {
-        xs: { span: 24 },
+        xs: { span: 24 }
       },
       wrapperCol: {
-        xs: { span: 24 },
-      },
+        xs: { span: 24 }
+      }
     };
     return (
       <Modal
@@ -102,7 +105,7 @@ class EditClusterInfo extends PureComponent {
               label="集群ID"
               style={{
                 width: '50%',
-                padding: '0 16px',
+                padding: '0 16px'
               }}
             >
               {getFieldDecorator('region_name', {
@@ -111,9 +114,9 @@ class EditClusterInfo extends PureComponent {
                   { required: true, message: '集群ID是必填项，不可修改' },
                   {
                     pattern: /^[a-z0-9A-Z-_]+$/,
-                    message: '只支持字母、数字和-_组合',
-                  },
-                ],
+                    message: '只支持字母、数字和-_组合'
+                  }
+                ]
               })(<Input placeholder="请填写集群ID，添加后不可修改" />)}
             </FormItem>
 
@@ -122,12 +125,12 @@ class EditClusterInfo extends PureComponent {
               label="集群名称"
               style={{
                 width: '50%',
-                padding: '0 16px',
+                padding: '0 16px'
               }}
             >
               {getFieldDecorator('region_alias', {
                 initialValue: '',
-                rules: [{ required: true, message: '请填写集群名称!' }],
+                rules: [{ required: true, message: '请填写集群名称!' }]
               })(<Input placeholder="请填写集群名称" />)}
             </FormItem>
           </Col>
@@ -137,11 +140,11 @@ class EditClusterInfo extends PureComponent {
               label="备注"
               style={{
                 width: '100%',
-                padding: '0 16px',
+                padding: '0 16px'
               }}
             >
               {getFieldDecorator('desc', {
-                initialValue: '',
+                initialValue: ''
               })(<Input placeholder="备注信息" />)}
             </FormItem>
           </Col>

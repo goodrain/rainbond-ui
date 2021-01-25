@@ -32,7 +32,8 @@ export default {
   ],
   ignoreMomentLocale: true,
   theme: {
-    'card-actions-background': defaultSettings.primaryColor
+    'card-actions-background': defaultSettings.primaryColor,
+    'primary-color': defaultSettings.primaryColor
   },
   lessLoaderOptions: {
     javascriptEnabled: true
@@ -42,7 +43,7 @@ export default {
   routes: routerConfig,
   proxy: {
     '/console': {
-      target: 'http://7070.gr255017.2c9v614j.17f4cc.grapps.cn',
+      target: 'http://127.0.0.1:8000',
       changeOrigin: true
     }
   }

@@ -416,6 +416,9 @@ export async function getTeamOverview(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview`,
     {
+      params: {
+        region_name: body.region_name
+      },
       method: 'get',
       handleError
     }
