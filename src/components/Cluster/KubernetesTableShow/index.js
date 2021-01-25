@@ -73,7 +73,13 @@ export default class KubernetesClusterShow extends PureComponent {
   };
 
   reInstallCluster = clusterID => {
-    const { dispatch, eid, selectProvider, loadKubernetesCluster } = this.props;
+    const {
+      dispatch,
+      eid,
+      selectProvider,
+      loadKubernetesCluster,
+      loadLastTask
+    } = this.props;
     if (selectProvider !== 'rke') {
       message.warning('该提供商不支持集群重装');
       return;
@@ -88,6 +94,9 @@ export default class KubernetesClusterShow extends PureComponent {
         if (data) {
           if (loadKubernetesCluster) {
             loadKubernetesCluster();
+          }
+          if (loadLastTask) {
+            loadLastTask();
           }
         }
       },

@@ -319,6 +319,7 @@ export default class EnterpriseClusters extends PureComponent {
             showLastTaskDetail={() => {
               this.setState({ showTaskDetail: true });
             }}
+            loadLastTask={this.loadLastTask}
             linkedClusters={linkedClusters}
             showBuyClusterConfig={this.showBuyClusterConfig}
           />

@@ -62,7 +62,7 @@ export default class RainbondClusterInit extends PureComponent {
     }
   };
 
-  loadTask = failReturn => {
+  loadTask = () => {
     const {
       dispatch,
       eid,
@@ -165,7 +165,7 @@ export default class RainbondClusterInit extends PureComponent {
                   </span>
                 </li>
                 <li>
-                  <span>如何集群节点数量大于3将默认安装高可用模式。</span>
+                  <span>如果集群节点数量大于3将默认安装高可用模式。</span>
                 </li>
                 <li>
                   <span>
