@@ -62,7 +62,7 @@ export default class RainbondClusterInit extends PureComponent {
     }
   };
 
-  loadTask = () => {
+  loadTask = noopen => {
     const {
       dispatch,
       eid,
@@ -86,7 +86,7 @@ export default class RainbondClusterInit extends PureComponent {
             }
           } else if (data.status === 'complete') {
             // init failure
-          } else {
+          } else if (!noopen) {
             this.setState({ showInitDetail: true });
           }
         }
@@ -184,6 +184,9 @@ export default class RainbondClusterInit extends PureComponent {
 
         {task && task.status !== 'complete' ? (
           <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
+            <Button onClick={preStep} style={{ marginRight: '16px' }}>
+              上一步
+            </Button>
             <Button
               onClick={() => {
                 this.setState({ showInitDetail: true });

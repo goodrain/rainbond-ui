@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
 import { Dropdown, Icon, Input, notification } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -18,7 +20,6 @@ export default class SelectTeam extends PureComponent {
       page: 1,
       page_size: 5,
       userTeamList: [],
-      userTeamsLoading: true,
       showCreateTeam: false,
       loading: true,
       visible: false
@@ -49,7 +50,6 @@ export default class SelectTeam extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             userTeamList: res.list,
-            userTeamsLoading: false,
             loading: false
           });
         }

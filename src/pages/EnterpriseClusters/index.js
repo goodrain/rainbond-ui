@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-param-reassign */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-underscore-dangle */
 import {
@@ -110,6 +112,7 @@ export default class EnterpriseClusters extends PureComponent {
           res.list.map((item, index) => {
             item.key = `cluster${index}`;
             clusters.push(item);
+            return item;
           });
           this.setState({ clusters });
         }

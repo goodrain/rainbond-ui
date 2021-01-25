@@ -10,7 +10,6 @@ import {
   Modal,
   Row,
   Steps,
-  Table,
   Typography
 } from 'antd';
 import { connect } from 'dva';
@@ -18,8 +17,6 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import BaseAddCluster from '../../components/Cluster/BaseAddCluster';
 import CustomClusterAdd from '../../components/Cluster/CustomClusterAdd';
-import RainbondClusterInit from '../../components/Cluster/RainbondClusterInit';
-import SetRegionConfig from '../../components/Cluster/SetRegionConfig';
 import ShowInitRainbondDetail from '../../components/Cluster/ShowInitRainbondDetail';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cloud from '../../utils/cloud';
@@ -55,8 +52,7 @@ export default class EnterpriseClusters extends PureComponent {
       providerAccess: {},
       loading: false,
       initTask: {},
-      initShow: false,
-      runningInitTasks: []
+      initShow: false
     };
   }
   componentWillMount() {
@@ -76,7 +72,6 @@ export default class EnterpriseClusters extends PureComponent {
   }
   componentDidMount() {
     this.getAccessKey();
-    this.loadRunningInitTasks();
   }
 
   // getAccessKey get enterprise accesskey
@@ -130,34 +125,6 @@ export default class EnterpriseClusters extends PureComponent {
           }
         }
       });
-    });
-  };
-  startInit = clusterID => {
-    this.setState({ selectClusterID: clusterID, currentStep: 2 });
-  };
-  loadRunningInitTasks = () => {
-    const { dispatch } = this.props;
-    const {
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch({
-      type: 'cloud/loadRunningInitRainbondTasks',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: data => {
-        if (data) {
-          this.setState({
-            runningInitTasks: data.tasks
-          });
-        }
-      },
-      handleError: res => {
-        cloud.handleCloudAPIError(res);
-        this.setState({ loading: false });
-      }
     });
   };
   cancelAddCluster = () => {
@@ -219,79 +186,16 @@ export default class EnterpriseClusters extends PureComponent {
   completeInit = task => {
     this.setState({
       currentStep: 3,
-      selectProvider: task.providerName,
-      selectClusterID: task.clusterID
+      selectProvider: task.providerName
     });
   };
   cancelShowInitDetail = () => {
-    this.loadRunningInitTasks();
     this.setState({ showInitTaskDetail: false });
   };
   hideInitShow = () => {
     this.setState({ initShow: false });
   };
-  renderRunningInitTask = () => {
-    const { runningInitTasks } = this.state;
-    if (!runningInitTasks || runningInitTasks.length === 0) {
-      return;
-    }
-    const tasks = [];
-    runningInitTasks.map((item, index) => {
-      item.key = `task${index}`;
-      tasks.push(item);
-      return item;
-    });
-    const columns = [
-      {
-        title: '提供商',
-        dataIndex: 'providerName',
-        render: text => {
-          return cloud.getProviderShowName(text);
-        }
-      },
-      {
-        title: '集群ID',
-        dataIndex: 'clusterID'
-      },
-      {
-        title: '状态',
-        dataIndex: 'status',
-        render: text => {
-          return cloud.getTaskStatus(text);
-        }
-      },
-      {
-        title: '操作',
-        key: 'method',
-        dataIndex: '',
-        render: (text, row) => {
-          return (
-            <div>
-              <Button
-                type="link"
-                onClick={() => {
-                  this.showInitTaskDetail(row);
-                }}
-              >
-                查看进度
-              </Button>
-              {row.status === 'inited' && (
-                <Button
-                  type="link"
-                  onClick={() => {
-                    this.completeInit(row);
-                  }}
-                >
-                  完成对接
-                </Button>
-              )}
-            </div>
-          );
-        }
-      }
-    ];
-    return <Table pagination={false} columns={columns} dataSource={tasks} />;
-  };
+
   renderAliyunAcountSetting = () => {
     const { providerAccess } = this.state;
     const { getFieldDecorator } = this.props.form;
@@ -402,12 +306,10 @@ export default class EnterpriseClusters extends PureComponent {
       addClusterShow,
       addCustomClusterShow,
       selectProvider,
-      selectClusterID,
       currentStep,
       loading,
       showInitTaskDetail,
       initTask,
-      runningInitTasks,
       initShow
     } = this.state;
 
@@ -418,7 +320,6 @@ export default class EnterpriseClusters extends PureComponent {
     } = this.props;
 
     const aliyunAcountSetting = this.renderAliyunAcountSetting();
-    const runningTasks = this.renderRunningInitTask();
     const icon = (
       <svg
         t="1610788158830"
@@ -571,96 +472,65 @@ export default class EnterpriseClusters extends PureComponent {
             <Row>
               <h3>云服务商基础设施</h3>
               <Divider />
-              {runningInitTasks &&
-                runningInitTasks.length > 0 &&
-                currentStep === 0 && (
-                  <Row style={{ marginBottom: '32px', padding: '0 16px' }}>
-                    <h4>正在初始化的集群</h4>
-                    {runningTasks}
-                  </Row>
-                )}
             </Row>
-            {currentStep === 0 && (
-              <Row>
-                {/* provider list */}
-                <Row style={{ marginTop: '32px' }}>
-                  {providers.map(item => {
-                    return (
-                      <Col
-                        key={item.id}
-                        onClick={() => {
-                          if (!item.disable) {
-                            this.setProvider(item.id);
-                          }
-                        }}
-                        span={8}
-                        style={{ padding: '16px' }}
-                      >
-                        <Row
-                          className={[
-                            styles.provider,
-                            selectProvider === item.id && styles.providerActive
-                          ]}
-                        >
-                          <Col flex="100px" className={styles.providericon}>
-                            {item.icon}
-                          </Col>
-                          <Col flex="auto" className={styles.providerDesc}>
-                            <h4>{item.name}</h4>
-                            <p>{item.describe}</p>
-                          </Col>
-                          {selectProvider === item.id && (
-                            <div className={styles.providerChecked}>
-                              {selectIcon}
-                            </div>
-                          )}
-                          {item.disable && (
-                            <div className={styles.disable}>
-                              即将支持（需要请联系我们）
-                            </div>
-                          )}
-                        </Row>
-                      </Col>
-                    );
-                  })}
-                </Row>
-                {/* user key info */}
-                <Row style={{ marginTop: '32px', padding: '0 16px' }}>
-                  <h4>账户设置</h4>
-                  {aliyunAcountSetting}
-                </Row>
-                <Row justify="center">
-                  <Col style={{ textAlign: 'center' }} span={24}>
-                    <Button
-                      loading={loading}
-                      onClick={this.setAccessKey}
-                      type="primary"
+            {/* provider list */}
+            <Row>
+              {providers.map(item => {
+                return (
+                  <Col
+                    key={item.id}
+                    onClick={() => {
+                      if (!item.disable) {
+                        this.setProvider(item.id);
+                      }
+                    }}
+                    span={8}
+                    style={{ padding: '16px' }}
+                  >
+                    <Row
+                      className={[
+                        styles.provider,
+                        selectProvider === item.id && styles.providerActive
+                      ]}
                     >
-                      下一步
-                    </Button>
+                      <Col flex="100px" className={styles.providericon}>
+                        {item.icon}
+                      </Col>
+                      <Col flex="auto" className={styles.providerDesc}>
+                        <h4>{item.name}</h4>
+                        <p>{item.describe}</p>
+                      </Col>
+                      {selectProvider === item.id && (
+                        <div className={styles.providerChecked}>
+                          {selectIcon}
+                        </div>
+                      )}
+                      {item.disable && (
+                        <div className={styles.disable}>
+                          即将支持（需要请联系我们）
+                        </div>
+                      )}
+                    </Row>
                   </Col>
-                </Row>
-              </Row>
-            )}
-            {currentStep === 2 && selectClusterID && (
-              <Row style={{ marginTop: '32px' }}>
-                <RainbondClusterInit
-                  eid={eid}
-                  loadRuningTasks={this.loadRunningInitTasks}
-                  completeInit={this.completeInit}
-                  selectProvider={selectProvider}
-                  selectClusterID={selectClusterID}
-                  preStep={this.preStep}
-                />
-              </Row>
-            )}
-            {currentStep === 3 && (
-              <SetRegionConfig
-                eid={eid}
-                selectProvider={selectProvider}
-                selectClusterID={selectClusterID}
-              />
-            )}
+                );
+              })}
+            </Row>
+            {/* user key info */}
+            <Row style={{ marginTop: '32px', padding: '0 16px' }}>
+              <h4>账户设置</h4>
+              {aliyunAcountSetting}
+            </Row>
+            <Row justify="center">
+              <Col style={{ textAlign: 'center' }} span={24}>
+                <Button
+                  loading={loading}
+                  onClick={this.setAccessKey}
+                  type="primary"
+                >
+                  下一步
+                </Button>
+              </Col>
+            </Row>
           </Card>
         )}
         {addClusterShow && (
