@@ -132,7 +132,7 @@ export default class Index extends PureComponent {
         page_size: servicePageSize
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             serviceList: res.list
           });
@@ -173,7 +173,7 @@ export default class Index extends PureComponent {
         end: new Date().getTime() / 1000
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const visitDatas =
             res.bean &&
             res.bean.data &&
@@ -234,7 +234,7 @@ export default class Index extends PureComponent {
         id: 1
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState(
             {
               domainTotal: res.bean && res.bean.total,
@@ -278,7 +278,7 @@ export default class Index extends PureComponent {
         page_size
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             teamAppList: res.list,
             total: res.bean && res.bean.total
@@ -295,7 +295,7 @@ export default class Index extends PureComponent {
         enterprise_id: this.props.currUser.enterprise_id
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const { list } = res;
           let current = 7;
           list.filter((item, index) => {
@@ -459,7 +459,7 @@ export default class Index extends PureComponent {
       type: 'index/fetchApps',
       payload,
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.handleTimers(
             'loadAppsTimer',
             () => {
@@ -1067,7 +1067,7 @@ export default class Index extends PureComponent {
                                   </Link>
                                 </div>
                                 <div>
-                                  <span>分享记录：</span>
+                                  <span>发布记录：</span>
                                   <a style={{ color: 'rgba(0, 0, 0, 0.65)' }}>
                                     {share_record_num}
                                   </a>

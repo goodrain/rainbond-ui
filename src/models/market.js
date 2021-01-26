@@ -28,7 +28,8 @@ import {
   upAppMarket,
   upAppModel,
   upDataTag,
-  upDataAppVersionInfo
+  upDataAppVersionInfo,
+  storehubCheck
 } from '../services/market';
 
 export default {
@@ -211,6 +212,12 @@ export default {
     },
     *cancelImportApp({ payload, callback }, { call }) {
       const data = yield call(cancelImportApp, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *storehubCheck({ payload, callback }, { call }) {
+      const data = yield call(storehubCheck, payload);
       if (data && callback) {
         callback(data);
       }

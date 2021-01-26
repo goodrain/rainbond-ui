@@ -1,41 +1,56 @@
-import React, { PureComponent, Fragment } from 'react';
 import {
-  Button,
-  Icon,
-  Card,
-  Row,
-  Col,
-  Table,
-  Radio,
-  Affix,
-  Form,
-  Tooltip,
-  notification,
+    Affix, Button,
+
+    Card,
+
+    Col,
+
+
+
+    Form, Icon,
+
+
+
+
+
+
+
+
+    notification, Radio, Row,
+
+    Table,
+
+
+
+    Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import CodeBuildConfig from '../CodeBuildConfig';
-import Port from '../../components/Port';
-import {
-  getMnt,
-  addMnt,
-  getRelationedApp,
-  removeRelationedApp,
-  batchAddRelationedApp,
-} from '../../services/app';
-import NoPermTip from '../../components/NoPermTip';
-import EditPortAlias from '../../components/EditPortAlias';
-import ConfirmModal from '../../components/ConfirmModal';
-import AddPort from '../../components/AddPort';
+import React, { Fragment, PureComponent } from 'react';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
-import AddRelationMnt from '../../components/AddRelationMnt';
+import AddPort from '../../components/AddPort';
 import AddRelation from '../../components/AddRelation';
-import ViewRelationInfo from '../../components/ViewRelationInfo';
+import AddRelationMnt from '../../components/AddRelationMnt';
+import ConfirmModal from '../../components/ConfirmModal';
+import EditPortAlias from '../../components/EditPortAlias';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
+import NoPermTip from '../../components/NoPermTip';
+import Port from '../../components/Port';
+import ViewRelationInfo from '../../components/ViewRelationInfo';
+import {
+    addMnt,
+
+
+    batchAddRelationedApp, getMnt,
+
+    getRelationedApp,
+    removeRelationedApp
+} from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import { getVolumeTypeShowName } from '../../utils/utils';
+import CodeBuildConfig from '../CodeBuildConfig';
 import styles from './setting.less';
 
 const RadioButton = Radio.Button;
@@ -225,7 +240,7 @@ class RenderDeploy extends PureComponent {
         build_env_dict,
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '修改成功' });
           this.getRuntimeInfo();
         }

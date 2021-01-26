@@ -53,7 +53,7 @@ export default class ThirdLogin extends Component {
                   dispatch(routerRedux.push(`/`));
                 }
               );
-            } else if (resdata && resdata._code === 200) {
+            } else if (resdata && resdata.status_code === 200) {
               this.setState(
                 {
                   resultState: 'success',
@@ -101,7 +101,7 @@ export default class ThirdLogin extends Component {
                 );
               }
             );
-          } else if (res && res._code === 200) {
+          } else if (res && res.status_code === 200) {
             const data = res.bean;
             if (data && data.token) {
               cookie.set('token', data.token);
@@ -113,21 +113,13 @@ export default class ThirdLogin extends Component {
               if (!data.result.is_authenticated) {
                 dispatch(
                   routerRedux.push(
-                    `/user/third/register?code=${data.result.code}&service_id=${
-                      data.result.service_id
-                    }&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${
-                      data.result.oauth_type
-                    }`
+                    `/user/third/register?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
                   )
                 );
               } else {
                 dispatch(
                   routerRedux.push(
-                    `/user/third/login?code=${data.result.code}&service_id=${
-                      data.result.service_id
-                    }&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${
-                      data.result.oauth_type
-                    }`
+                    `/user/third/login?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
                   )
                 );
               }

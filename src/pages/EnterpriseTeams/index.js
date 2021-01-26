@@ -91,7 +91,7 @@ export default class EnterpriseTeams extends PureComponent {
         name
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             total: (res.bean && res.bean.total_count) || 1,
             initShow: res.bean.total_count === 0,
@@ -121,7 +121,7 @@ export default class EnterpriseTeams extends PureComponent {
         name
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             userTeamList: res.list,
             userTeamsLoading: false
@@ -195,7 +195,7 @@ export default class EnterpriseTeams extends PureComponent {
         enterprise_id: eid
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             overviewTeamsLoading: false,
             overviewTeamInfo: res.bean
@@ -223,7 +223,7 @@ export default class EnterpriseTeams extends PureComponent {
         team_name: exitTeamName
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.getOverviewTeam();
           this.getUserTeams();
           this.hideExitTeam();
@@ -287,7 +287,7 @@ export default class EnterpriseTeams extends PureComponent {
       },
       callback: res => {
         this.setState({ closeTeamComponentLoading: false });
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '操作成功，组件正在关闭中' });
         }
         this.hideCloseAllComponent();
@@ -318,7 +318,7 @@ export default class EnterpriseTeams extends PureComponent {
       },
       callback: res => {
         this.setState({ delTeamLoading: false });
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.getEnterpriseTeams();
           this.hideDelTeam();
           notification.success({ message: '团队删除成功' });
@@ -397,7 +397,7 @@ export default class EnterpriseTeams extends PureComponent {
         team_name: teamName
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.onJumpTeam(teamName, region);
         }
       }

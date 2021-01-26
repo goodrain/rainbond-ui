@@ -210,7 +210,7 @@ export default class EnterpriseShared extends PureComponent {
         enterprise_id: eid
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           if (!res.bean || res.bean.region_name === '') {
             confirm({
               content: '您还未对接集群，应用模版导入功能暂不可用'
@@ -247,7 +247,7 @@ export default class EnterpriseShared extends PureComponent {
         event_id: this.state.event_id
       },
       callback: data => {
-        if (data && data._code === 200) {
+        if (data && data.status_code === 200) {
           this.setState({
             import_file_status: data.list
           });
@@ -342,7 +342,7 @@ export default class EnterpriseShared extends PureComponent {
         page_size: 999
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             userTeamList: res.list
           });

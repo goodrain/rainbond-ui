@@ -170,7 +170,7 @@ export default class EnterpriseClusters extends PureComponent {
         region_id: regionID
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             regionInfo: res.bean,
             editClusterShow: true,
@@ -304,7 +304,7 @@ export default class EnterpriseClusters extends PureComponent {
         team_name: teamName
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.onJumpTeam(teamName, regionName);
         }
       }

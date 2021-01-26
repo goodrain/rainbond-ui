@@ -422,7 +422,7 @@ export async function getStoreList(
   );
 }
 
-/* 获取分享的应用模型列表 */
+/* 获取发布的应用模型列表 */
 export async function getShareModelList(body) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/shared/apps`,
@@ -432,6 +432,15 @@ export async function getShareModelList(body) {
         scope: body.scope,
         market_id: body.market_id
       }
+    }
+  );
+}
+
+export async function storehubCheck(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.eid}/storehub-check`,
+    {
+      method: 'get'
     }
   );
 }

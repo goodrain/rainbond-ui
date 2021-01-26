@@ -108,7 +108,7 @@ class EnterpriseLayout extends PureComponent {
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState(
             {
               enterpriseList: res.list,

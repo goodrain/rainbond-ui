@@ -12,17 +12,21 @@ const actionCNMap = {
   create: '创建',
   own_money: '应用欠费关闭',
   expired: '应用过期关闭',
-  'share-ys': '分享到云市',
-  'share-yb': '分享到云帮',
+  'share-ys': '发布到云市',
+  'share-yb': '发布到云帮',
   reboot: '应用重启',
   'git-change': '仓库地址修改',
-  imageUpgrade: '应用更新',
+  imageUpgrade: '应用更新'
 };
 
 const appActionLogUtil = {
   // 是否正在操作中
   isActioning(log) {
-    return !!(log.final_status !== 'complete' && log.final_status !== 'timeout' && log.event_id);
+    return !!(
+      log.final_status !== 'complete' &&
+      log.final_status !== 'timeout' &&
+      log.event_id
+    );
   },
   // 获取操作的中文描述
   getActionCN(log) {
@@ -35,13 +39,13 @@ const appActionLogUtil = {
       success: '完成',
       failure: '失败',
       timeout: '超时',
-      abnormal: '异常',
+      abnormal: '异常'
     };
     const final_status_json = {
       complate: '完成',
       timeout: '超时',
       failure: '失败',
-      timeout: '超时',
+      timeout: '超时'
     };
 
     if (log.final_status == 'complete') {
@@ -132,6 +136,6 @@ const appActionLogUtil = {
   // 获取操作的日期时间
   getActionDateTime(log) {
     return log.start_time || '';
-  },
+  }
 };
 export default appActionLogUtil;

@@ -43,7 +43,7 @@ export default class SelectComponent extends PureComponent {
           query: queryName
         },
         callback: data => {
-          if (data && data._code == 200) {
+          if (data && data.status_code === 200) {
             this.setState({
               components: data.list || []
             });

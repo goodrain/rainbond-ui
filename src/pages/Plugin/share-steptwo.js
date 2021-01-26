@@ -1,19 +1,18 @@
-import React, { PureComponent, Fragment } from 'react';
-import { Button, Icon, Card, Modal, Form, Input, Select } from 'antd';
+import { Button, Card, Icon } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
+import ConfirmModal from '../../components/ConfirmModal';
+import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
-import CodeCustomForm from '../../components/CodeCustomForm';
-import LogProcress from '../../components/LogProcress';
-import userUtil from '../../utils/user';
 import regionUtil from '../../utils/region';
+import userUtil from '../../utils/user';
 
 @connect(({ user, appControl, loading }) => ({
   currUser: user.currentUser,
-  loading,
+  loading
 }))
 class ShareEvent extends React.Component {
   constructor(props) {
@@ -21,7 +20,7 @@ class ShareEvent extends React.Component {
     this.state = {
       data: this.props.data || {},
       eventId: this.props.data.event_id || '',
-      status: this.props.data.event_status || 'not_start',
+      status: this.props.data.event_status || 'not_start'
     };
     this.mount = false;
     const teamName = globalUtil.getCurrTeamName();
@@ -40,8 +39,8 @@ class ShareEvent extends React.Component {
     this.checkStatus();
   };
   checkStatus = () => {
-    const data = this.state.data;
-    const status = this.state.status;
+    const { data } = this.state;
+    const { status } = this.state;
     if (status === 'not_start') {
       this.props.receiveStartShare &&
         this.props.receiveStartShare(this.startShareEvent);
@@ -77,13 +76,13 @@ class ShareEvent extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         shareId: this.props.share_id,
-        eventId: this.state.data.ID,
+        eventId: this.state.data.ID
       },
       callback: data => {
         if (data) {
           this.setState(
             {
-              status: data.bean.event_status,
+              status: data.bean.event_status
             },
             () => {
               if (this.state.status === 'success') {
@@ -98,7 +97,7 @@ class ShareEvent extends React.Component {
             }
           );
         }
-      },
+      }
     });
   };
   startShareEvent = () => {
@@ -107,14 +106,14 @@ class ShareEvent extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         shareId: this.props.share_id,
-        eventId: this.state.data.ID,
+        eventId: this.state.data.ID
       },
       callback: data => {
         if (data) {
           this.setState(
             {
               eventId: data.bean.event_id,
-              status: data.bean.event_status,
+              status: data.bean.event_status
             },
             () => {
               this.getShareStatus();
@@ -122,7 +121,7 @@ class ShareEvent extends React.Component {
             }
           );
         }
-      },
+      }
     });
   };
   renderStatus = () => {
@@ -134,7 +133,7 @@ class ShareEvent extends React.Component {
         <Icon
           type="check-circle"
           style={{
-            color: '#52c41a',
+            color: '#52c41a'
           }}
         />
       );
@@ -146,11 +145,11 @@ class ShareEvent extends React.Component {
   };
   render() {
     const data = this.state.data || {};
-    const eventId = this.state.eventId;
+    const { eventId } = this.state;
     return (
       <div
         style={{
-          marginBottom: 24,
+          marginBottom: 24
         }}
       >
         <h4>
@@ -178,7 +177,7 @@ export default class shareCheck extends PureComponent {
       successNum: 0,
       showDelete: false,
       startShareCallback: [],
-      isStart: false,
+      isStart: false
     };
     this.fails = [];
     this.mount = false;
@@ -207,22 +206,22 @@ export default class shareCheck extends PureComponent {
       type: 'plugin/getShareEventInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        shareId: params.shareId,
+        shareId: params.shareId
       },
       callback: data => {
         if (data) {
           this.setState({
             shareEventList: data.bean.event_list || [],
-            status: !data.bean.is_compelte ? 'checking' : 'success',
+            status: !data.bean.is_compelte ? 'checking' : 'success'
           });
         }
-      },
+      }
     });
   };
   getParams = () => {
     return {
       shareId: this.props.match.params.shareId,
-      groupId: this.props.match.params.appID,
+      groupId: this.props.match.params.appID
     };
   };
   componentWillUnmount() {
@@ -248,19 +247,19 @@ export default class shareCheck extends PureComponent {
       </Button>,
       <Button onClick={this.recheck} type="primary">
         重新检测
-      </Button>,
+      </Button>
     ];
 
     return (
       <Result
         type="error"
-        title="插件分享失败"
+        title="插件发布失败"
         description="请核对并修改以下信息后，再重新检测。"
         extra={extra}
         actions={actions}
         style={{
           marginTop: 48,
-          marginBottom: 16,
+          marginBottom: 16
         }}
       />
     );
@@ -270,17 +269,17 @@ export default class shareCheck extends PureComponent {
     const actions = [
       <Button onClick={this.handleBuild} type="primary">
         {' '}
-        完成分享流程{' '}
+        完成发布流程{' '}
       </Button>,
       <Button onClick={this.showDelete} type="default">
         {' '}
         放弃创建{' '}
-      </Button>,
+      </Button>
     ];
     return (
       <Result
         type="success"
-        title="插件分享成功"
+        title="插件发布成功"
         description="您可以执行以下操作"
         extra={extra}
         actions={actions}
@@ -303,7 +302,7 @@ export default class shareCheck extends PureComponent {
       type: 'global/complatePluginShare',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        share_id: params.shareId,
+        share_id: params.shareId
       },
       callback: data => {
         this.props.dispatch(
@@ -313,17 +312,17 @@ export default class shareCheck extends PureComponent {
             )}`
           )
         );
-      },
+      }
     });
   };
   handleGiveup = () => {
-    const pluginId = this.props.match.params.pluginId;
+    const { pluginId } = this.props.match.params;
     const { dispatch } = this.props;
     dispatch({
       type: 'plugin/giveupSharePlugin',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        share_id: this.props.match.params.shareId,
+        share_id: this.props.match.params.shareId
       },
       callback: data => {
         dispatch(
@@ -331,14 +330,14 @@ export default class shareCheck extends PureComponent {
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${pluginId}`
           )
         );
-      },
+      }
     });
   };
   renderBody = () => {
     const params = this.getParams();
     const eventList = this.state.shareEventList;
-    const status = this.state.status;
-    const loading = this.props.loading;
+    const { status } = this.state;
+    const { loading } = this.props;
     const extra = (
       <div>
         {(eventList || []).map(item => {
@@ -367,7 +366,7 @@ export default class shareCheck extends PureComponent {
         <Button onClick={this.handleCompleteShare} type="primary">
           {' '}
           确认发布{' '}
-        </Button>,
+        </Button>
       ];
     }
     if (status === 'checking') {
@@ -377,7 +376,7 @@ export default class shareCheck extends PureComponent {
       actions = [
         <Button onClick={this.showDelete} type="default">
           放弃发布
-        </Button>,
+        </Button>
       ];
     }
     if (status === 'failure') {
@@ -390,7 +389,7 @@ export default class shareCheck extends PureComponent {
         </Button>,
         <Button onClick={this.showDelete} type="default">
           放弃发布
-        </Button>,
+        </Button>
       ];
     }
     return (
@@ -402,7 +401,7 @@ export default class shareCheck extends PureComponent {
         actions={actions}
         style={{
           marginTop: 48,
-          marginBottom: 16,
+          marginBottom: 16
         }}
       />
     );
@@ -414,8 +413,8 @@ export default class shareCheck extends PureComponent {
     this.setState({ showDelete: false });
   };
   render() {
-    const loading = this.props.loading;
-    const shareEventList = this.state.shareEventList;
+    const { loading } = this.props;
+    const { shareEventList } = this.state;
     if (!shareEventList.length) return null;
     return (
       <PageHeaderLayout>
@@ -431,8 +430,8 @@ export default class shareCheck extends PureComponent {
             disabled={loading.effects['application/giveupShare']}
             onOk={this.handleGiveup}
             onCancel={this.hideShowDelete}
-            title="放弃分享"
-            desc="确定要放弃此次分享吗?"
+            title="放弃发布"
+            desc="确定要放弃此次发布吗?"
           />
         )}
       </PageHeaderLayout>

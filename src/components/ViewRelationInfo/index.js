@@ -1,22 +1,19 @@
 //查看连接信息
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
 import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Input,
-  Dropdown,
-  Table,
-  Modal,
-  Tooltip
+    Button,
+
+
+    Input,
+
+
+    Modal, Table,
+
+    Tooltip
 } from "antd";
-import globalUtil from "../../utils/global";
+import { connect } from "dva";
+import React, { PureComponent } from "react";
 import styles from '../../pages/Component/Index.less';
+import globalUtil from "../../utils/global";
 
 @connect(({ user, appControl }) => ({
   relationOuterEnvs: appControl.relationOuterEnvs
@@ -67,7 +64,7 @@ export default class ViewRelationInfo extends PureComponent {
         page_size
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const arr = [];
           if (res.list && res.list.length > 0) {
             res.list.map(item => {

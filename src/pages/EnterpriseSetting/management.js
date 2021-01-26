@@ -1,4 +1,5 @@
-import React, { Fragment, PureComponent } from 'react';
+import roleUtil from '@/utils/role';
+import userUtil from '@/utils/user';
 import {
   Button,
   Card,
@@ -12,10 +13,9 @@ import {
   Spin
 } from 'antd';
 import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
 import AddAdmin from '../../components/AddAdmin';
 import ConfirmModal from '../../components/ConfirmModal';
-import roleUtil from '@/utils/role';
-import userUtil from '@/utils/user';
 import styles from './index.less';
 
 @connect(({ user, loading, global }) => ({
@@ -61,8 +61,8 @@ export default class Management extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             adminList: res.list,
             enterpriseAdminLoading: false
@@ -71,10 +71,10 @@ export default class Management extends PureComponent {
       }
     });
   };
-  handleEdit = (info) => {
+  handleEdit = info => {
     this.setState({ showAddAdmin: true, info });
   };
-  handleCreateAdmin = (values) => {
+  handleCreateAdmin = values => {
     const {
       dispatch,
       match: {
@@ -115,7 +115,7 @@ export default class Management extends PureComponent {
     this.setState({ showAddAdmin: false, info: false });
   };
 
-  showDelTeam = (exitAdminNameID) => {
+  showDelTeam = exitAdminNameID => {
     this.setState({ showDelTeam: true, exitAdminNameID });
   };
 
@@ -200,7 +200,7 @@ export default class Management extends PureComponent {
       </svg>
     );
 
-    const managementMenu = (item) => {
+    const managementMenu = item => {
       return (
         <Menu>
           <Menu.Item>
@@ -254,7 +254,7 @@ export default class Management extends PureComponent {
           </Row>
         )}
         {adminLists ? (
-          adminLists.map((item) => {
+          adminLists.map(item => {
             const {
               user_id: id,
               create_time: createTime,
@@ -277,7 +277,7 @@ export default class Management extends PureComponent {
                   <Col span={5}>{nickName}</Col>
                   <Col span={5}>{realName}</Col>
                   <Col span={6}>
-                    {roles.map((items) => {
+                    {roles.map(items => {
                       return (
                         <span style={{ marginRight: '5px' }}>
                           {roleUtil.roleMap(items)}

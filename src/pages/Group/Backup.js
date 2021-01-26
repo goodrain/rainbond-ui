@@ -353,7 +353,7 @@ export default class AppList extends PureComponent {
         group_id: appID
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             appDetail: res.bean,
             loadingDetail: false

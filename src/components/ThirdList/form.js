@@ -10,32 +10,31 @@ import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import styles from './Index.less';
 
-
 const { Option, OptGroup } = Select;
 const { TabPane } = Tabs;
 
 const formItemLayout = {
   labelCol: {
-    span: 5,
+    span: 5
   },
   wrapperCol: {
-    span: 19,
-  },
+    span: 19
+  }
 };
 
 const formItemLayoutOrder = {
   labelCol: {
-    span: 21,
+    span: 21
   },
   wrapperCol: {
-    span: 3,
-  },
+    span: 3
+  }
 };
 @connect(
   ({ user, global, loading }) => ({
     currUser: user.currentUser,
     groups: global.groups,
-    createAppByCodeLoading: loading.effects['createApp/createThirtAppByCode'],
+    createAppByCodeLoading: loading.effects['createApp/createThirtAppByCode']
   }),
   null,
   null,
@@ -50,7 +49,7 @@ class Index extends React.Component {
       tags: [],
       tabType: 'branches',
       tagsLoading: true,
-      Loading: true,
+      Loading: true
     };
   }
   componentWillMount() {
@@ -78,17 +77,17 @@ class Index extends React.Component {
       payload: {
         type: tabType,
         full_name: thirdInfo ? thirdInfo.project_full_name : '',
-        oauth_service_id: type,
+        oauth_service_id: type
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             tags: res.bean ? res.bean[tabType] : [],
             tagsLoading: false,
-            Loading: false,
+            Loading: false
           });
         }
-      },
+      }
     });
   };
 
@@ -121,7 +120,7 @@ class Index extends React.Component {
       type: 'application/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...vals,
+        ...vals
       },
       callback: group => {
         if (group) {
@@ -130,15 +129,15 @@ class Index extends React.Component {
             type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName(),
+              region_name: globalUtil.getCurrRegionName()
             },
             callback: () => {
               setFieldsValue({ group_id: group.group_id });
               this.cancelAddGroup();
-            },
+            }
           });
         }
-      },
+      }
     });
   };
 
@@ -150,7 +149,7 @@ class Index extends React.Component {
       createAppByCodeLoading,
       ServiceComponent,
       thirdInfo,
-      groupId,
+      groupId
     } = this.props;
     const showCreateGroup =
       this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
@@ -180,14 +179,14 @@ class Index extends React.Component {
                 initialValue:
                   +groupId ||
                   (groups && groups.length > 0 && groups[0].group_id),
-                rules: [{ required: true, message: '请选择' }],
+                rules: [{ required: true, message: '请选择' }]
               })(
                 <Select
                   placeholder="请选择要所属应用"
                   style={{
                     display: 'inline-block',
                     width: ServiceComponent ? '' : 292,
-                    marginRight: 15,
+                    marginRight: 15
                   }}
                   disabled={!!ServiceComponent}
                 >
@@ -214,7 +213,7 @@ class Index extends React.Component {
             >
               {getFieldDecorator('service_cname', {
                 initialValue: thirdInfo ? thirdInfo.project_name : '',
-                rules: [{ required: true, message: '要创建的组件还没有名字' }],
+                rules: [{ required: true, message: '要创建的组件还没有名字' }]
               })(<Input placeholder="请为创建的组件起个名字吧" />)}
             </Form.Item>
 
@@ -230,7 +229,7 @@ class Index extends React.Component {
             >
               {getFieldDecorator('code_version', {
                 initialValue: tags && tags.length > 0 && tags[0],
-                rules: [{ required: true, message: '请输入代码版本' }],
+                rules: [{ required: true, message: '请输入代码版本' }]
               })(
                 <Select placeholder="请输入代码版本">
                   <OptGroup
@@ -248,7 +247,9 @@ class Index extends React.Component {
                     {!tagsLoading && tags && tags.length > 0 ? (
                       tags.map(item => {
                         return (
-                          <Option key={item} value={item}>{item}</Option>
+                          <Option key={item} value={item}>
+                            {item}
+                          </Option>
                         );
                       })
                     ) : (
@@ -272,7 +273,7 @@ class Index extends React.Component {
             >
               {getFieldDecorator('open_webhook', {
                 initialValue: false,
-                rules: [{ required: true, message: '请选择' }],
+                rules: [{ required: true, message: '请选择' }]
               })(<Switch />)}
             </Form.Item>
 
@@ -280,23 +281,23 @@ class Index extends React.Component {
               <div style={{ textAlign: 'center' }}>
                 {ServiceComponent && this.props.ButtonGroupState
                   ? this.props.handleServiceBotton(
-                    <Button
-                      onClick={this.handleSubmit}
-                      type="primary"
-                      loading={createAppByCodeLoading}
-                    >
-                      新建组件
-                    </Button>,
+                      <Button
+                        onClick={this.handleSubmit}
+                        type="primary"
+                        loading={createAppByCodeLoading}
+                      >
+                        新建组件
+                      </Button>,
                       false
                     )
                   : !ServiceComponent && (
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={createAppByCodeLoading}
-                  >
-                    确认创建
-                  </Button>
+                      <Button
+                        onClick={this.handleSubmit}
+                        type="primary"
+                        loading={createAppByCodeLoading}
+                      >
+                        确认创建
+                      </Button>
                     )}
               </div>
             ) : null}

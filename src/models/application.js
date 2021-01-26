@@ -1,45 +1,45 @@
 import {
-  getGroupApps,
-  getGroupDetail,
+  AddCopyTeamApps,
+  addGroup,
+  backup,
+  buildCompose,
+  CheckK8sServiceName,
+  completeShare,
+  createShare,
+  delBackup,
+  deleteCompose,
+  deleteGroup,
+  deleteShareRecord,
+  delFailureBackup,
+  delRestore,
+  editAppCreateCompose,
+  editGroup,
   getAppDetailState,
   getAppResourcesStatistics,
-  deleteGroup,
-  editGroup,
-  addGroup,
-  queryCopyComponent,
-  AddCopyTeamApps,
-  recordShare,
-  getShareRecords,
-  getShareRecord,
-  deleteShareRecord,
-  createShare,
-  deleteCompose,
-  buildCompose,
-  getShare,
-  submitShare,
-  getShareEventInfo,
-  startShareEvent,
-  getShareStatus,
-  giveupShare,
-  completeShare,
-  editAppCreateCompose,
-  groupMonitorData,
-  backup,
   getBackup,
   getBackupStatus,
-  migrateApp,
-  queryMigrateApp,
-  delRestore,
-  delBackup,
-  delFailureBackup,
-  startPluginShareEventInShareApp,
+  getGroupApps,
+  getGroupDetail,
   getPluginShareEventInShareApp,
-  queryAllBackup,
-  queryRestoreState,
-  setGovernancemode,
-  SetCheckK8sServiceName,
-  CheckK8sServiceName,
   getServiceNameList,
+  getShare,
+  getShareEventInfo,
+  getShareRecord,
+  getShareRecords,
+  getShareStatus,
+  giveupShare,
+  groupMonitorData,
+  migrateApp,
+  queryAllBackup,
+  queryCopyComponent,
+  queryMigrateApp,
+  queryRestoreState,
+  recordShare,
+  SetCheckK8sServiceName,
+  setGovernancemode,
+  startPluginShareEventInShareApp,
+  startShareEvent,
+  submitShare
 } from '../services/application';
 
 export default {
@@ -190,7 +190,7 @@ export default {
       }
     },
 
-    // 查询未完成分享记录
+    // 查询未完成发布记录
     *recordShare({ payload, callback }, { call }) {
       const response = yield call(recordShare, payload);
       if (response && callback) {
@@ -215,28 +215,28 @@ export default {
         callback(response);
       }
     },
-    // 创建分享记录
+    // 创建发布记录
     *ShareGroup({ payload, callback }, { call }) {
       const response = yield call(createShare, payload);
       if (response && callback) {
         callback(response);
       }
     },
-    // 查询分享信息
+    // 查询发布信息
     *getShareInfo({ payload, callback }, { call }) {
       const response = yield call(getShare, payload);
       if (response && callback) {
         callback(response);
       }
     },
-    // 提交分享信息
+    // 提交发布信息
     *subShareInfo({ payload, callback, handleError }, { call }) {
       const response = yield call(submitShare, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
-    // 放弃分享
+    // 放弃发布
     *giveupShare({ payload, callback }, { call }) {
       const response = yield call(giveupShare, payload);
       if (response && callback) {

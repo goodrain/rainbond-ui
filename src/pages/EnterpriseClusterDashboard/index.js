@@ -47,8 +47,8 @@ export default class EnterpriseClusters extends PureComponent {
         enterprise_id: eid,
         region_id: clusterID
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             regionInfo: res.bean
           });

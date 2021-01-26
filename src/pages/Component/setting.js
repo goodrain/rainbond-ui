@@ -1,35 +1,30 @@
-import React, { Fragment } from 'react';
-import { connect } from 'dva';
 import {
+  Button,
   Card,
   Form,
-  Button,
-  Icon,
-  Table,
-  Tag,
-  notification,
-  Tooltip,
   Modal,
-  Radio,
+  notification,
   Popconfirm,
+  Radio,
   Switch,
+  Tag
 } from 'antd';
+import { connect } from 'dva';
+import React, { Fragment } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
-import SetMemberAppAction from '../../components/SetMemberAppAction';
-import ScrollerX from '../../components/ScrollerX';
-import globalUtil from '../../utils/global';
-import appProbeUtil from '../../utils/appProbe-util';
-import appUtil from '../../utils/app';
-import appStatusUtil from '../../utils/appStatus-util';
-import NoPermTip from '../../components/NoPermTip';
-import AddTag from './setting/add-tag';
-import EditActions from './setting/perm';
-import ViewHealthCheck from './setting/health-check';
-import ViewRunHealthCheck from './setting/run-health-check';
-import EditHealthCheck from './setting/edit-health-check';
-import AddVarModal from './setting/env';
-import EditRunHealthCheck from './setting/edit-run-health-check';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
+import NoPermTip from '../../components/NoPermTip';
+import SetMemberAppAction from '../../components/SetMemberAppAction';
+import appProbeUtil from '../../utils/appProbe-util';
+import appStatusUtil from '../../utils/appStatus-util';
+import globalUtil from '../../utils/global';
+import AddTag from './setting/add-tag';
+import EditHealthCheck from './setting/edit-health-check';
+import EditRunHealthCheck from './setting/edit-run-health-check';
+import AddVarModal from './setting/env';
+import ViewHealthCheck from './setting/health-check';
+import EditActions from './setting/perm';
+import ViewRunHealthCheck from './setting/run-health-check';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -44,7 +39,7 @@ const RadioGroup = Radio.Group;
     // tags: appControl.tags,
     appDetail: appControl.appDetail,
     teamControl,
-    appControl,
+    appControl
   }),
   null,
   null,
@@ -81,7 +76,7 @@ export default class Index extends React.Component {
       page: 1,
       page_size: 5,
       total: 0,
-      env_name: '',
+      env_name: ''
     };
   }
   componentDidMount() {
@@ -119,8 +114,8 @@ export default class Index extends React.Component {
       type: 'appControl/fetchBaseInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-      },
+        app_alias: this.props.appAlias
+      }
     });
   };
   fetchPorts = () => {
@@ -129,8 +124,8 @@ export default class Index extends React.Component {
       type: 'appControl/fetchPorts',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-      },
+        app_alias: this.props.appAlias
+      }
     });
   };
   fetchTags = () => {
@@ -139,13 +134,13 @@ export default class Index extends React.Component {
       type: 'appControl/fetchTags',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
       callback: data => {
         if (data) {
           this.setState({ tags: data.used_labels });
         }
-      },
+      }
     });
   };
   // 变量信息
@@ -158,13 +153,13 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
         page,
         page_size,
-        env_name,
+        env_name
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState({ total: res.bean.total });
         }
-      },
+      }
     });
   };
   fetchStartProbe() {
@@ -172,8 +167,8 @@ export default class Index extends React.Component {
       type: 'appControl/fetchStartProbe',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-      },
+        app_alias: this.props.appAlias
+      }
     });
   }
   fetchRunningProbe() {
@@ -181,9 +176,9 @@ export default class Index extends React.Component {
       type: 'appControl/fetchRunningProbe',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
-      callback: code => {},
+      callback: code => {}
     });
   }
   loadMembers = () => {
@@ -193,13 +188,13 @@ export default class Index extends React.Component {
       type: 'teamControl/fetchMember',
       payload: {
         team_name,
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
       callback: data => {
         if (data) {
           this.setState({ memberslist: data.list });
         }
-      },
+      }
     });
   };
 
@@ -215,12 +210,12 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        ...values,
+        ...values
       },
       callback: () => {
         this.loadMembers();
         this.hideAddMember();
-      },
+      }
     });
   };
   handleAddVar = () => {
@@ -237,18 +232,18 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
         attr_name: vals.attr_name,
         attr_value: vals.attr_value,
-        name: vals.name,
+        name: vals.name
       },
       callback: () => {
         this.handleCancelAddVar();
         this.fetchInnerEnvs();
-      },
+      }
     });
   };
   // 是否可以浏览当前界面
   canView() {
     const {
-      componentPermissions: { isDeploytype, isCharacteristic, isHealth },
+      componentPermissions: { isDeploytype, isCharacteristic, isHealth }
     } = this.props;
     return isDeploytype || isCharacteristic || isHealth;
   }
@@ -265,14 +260,14 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        ID: this.state.deleteVar.ID,
+        ID: this.state.deleteVar.ID
       },
       callback: () => {
         this.cancelDeleteVar();
         this.fetchInnerEnvs();
         notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
 
@@ -284,13 +279,13 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ID: transfer.ID,
-        scope: transfer.scope == 'inner' ? 'outer' : 'inner',
+        scope: transfer.scope == 'inner' ? 'outer' : 'inner'
       },
       callback: res => {
         this.cancelTransfer();
         this.fetchInnerEnvs();
         notification.success({ message: '操作成功' });
-      },
+      }
     });
   };
 
@@ -309,12 +304,12 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
         ID: showEditVar.ID,
         attr_value: vals.attr_value,
-        name: vals.name,
+        name: vals.name
       },
       callback: () => {
         this.cancelEditVar();
         this.fetchInnerEnvs();
-      },
+      }
     });
   };
   handleStartProbeStart = isUsed => {
@@ -325,11 +320,11 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ...startProbe,
-        is_used: isUsed,
+        is_used: isUsed
       },
       callback: () => {
         this.fetchStartProbe();
-      },
+      }
     });
   };
   handleRunProbeStart = isUsed => {
@@ -340,11 +335,11 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ...runningProbe,
-        is_used: isUsed,
+        is_used: isUsed
       },
       callback: () => {
         this.fetchRunningProbe();
-      },
+      }
     });
   };
   handleEditHealth = vals => {
@@ -356,12 +351,12 @@ export default class Index extends React.Component {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
           ...vals,
-          old_mode: startProbe.mode,
+          old_mode: startProbe.mode
         },
         callback: () => {
           this.onCancelEditStartProbe();
           this.fetchStartProbe();
-        },
+        }
       });
     } else {
       this.props.dispatch({
@@ -369,12 +364,12 @@ export default class Index extends React.Component {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
-          ...vals,
+          ...vals
         },
         callback: () => {
           this.onCancelEditStartProbe();
           this.fetchStartProbe();
-        },
+        }
       });
     }
   };
@@ -385,12 +380,12 @@ export default class Index extends React.Component {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
-          ...vals,
+          ...vals
         },
         callback: () => {
           this.onCancelEditRunProbe();
           this.fetchRunningProbe();
-        },
+        }
       });
     } else {
       this.props.dispatch({
@@ -398,12 +393,12 @@ export default class Index extends React.Component {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
-          ...vals,
+          ...vals
         },
         callback: () => {
           this.onCancelEditRunProbe();
           this.fetchRunningProbe();
-        },
+        }
       });
     }
   };
@@ -431,12 +426,12 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        label_id: tag.label_id,
+        label_id: tag.label_id
       },
       callback: () => {
         notification.success({ message: '删除成功' });
         this.fetchTags();
-      },
+      }
     });
   };
   onAddTag = () => {
@@ -444,16 +439,16 @@ export default class Index extends React.Component {
       type: 'appControl/getTagInformation',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
       callback: data => {
         if (data) {
           this.setState({
             addTag: true,
-            tabData: data.list,
+            tabData: data.list
           });
         }
-      },
+      }
     });
   };
   cancelAddTag = () => {
@@ -465,14 +460,14 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        label_ids: tags,
+        label_ids: tags
       },
       callback: () => {
         this.cancelAddTag();
         notification.success({ message: '添加成功需重启或更新才能生效' });
         this.fetchTags();
         this.setState({ tabData: [] });
-      },
+      }
     });
   };
   onEditAction = member => {
@@ -489,19 +484,19 @@ export default class Index extends React.Component {
         team_name,
         user_id: this.state.toEditAction.user_id,
         app_alias: this.props.appAlias,
-        ...value,
+        ...value
       },
       callback: () => {
         this.loadMembers();
         this.hideEditAction();
-      },
+      }
     });
   };
 
   hideMarketAppDetail = () => {
     this.setState({
       showApp: {},
-      showMarketAppDetail: false,
+      showMarketAppDetail: false
     });
   };
 
@@ -512,11 +507,11 @@ export default class Index extends React.Component {
       type: 'appControl/fetchDetail',
       payload: {
         team_name: teamName,
-        app_alias: appAlias,
+        app_alias: appAlias
       },
       callback: appDetail => {
         this.setState({ currentComponent: appDetail.service });
-      },
+      }
     });
   };
   setupAttribute = () => {
@@ -525,7 +520,7 @@ export default class Index extends React.Component {
       return;
     }
     this.setState({
-      visibleAppSetting: true,
+      visibleAppSetting: true
     });
   };
   handleOk_AppSetting = () => {
@@ -538,7 +533,7 @@ export default class Index extends React.Component {
           payload: {
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.props.appAlias,
-            extend_method: values.extend_method,
+            extend_method: values.extend_method
           },
           callback: data => {
             if (data) {
@@ -546,7 +541,7 @@ export default class Index extends React.Component {
               this.setState(
                 {
                   visibleAppSetting: false,
-                  isShow: false,
+                  isShow: false
                 },
                 () => {
                   this.fetchBaseInfo();
@@ -554,7 +549,7 @@ export default class Index extends React.Component {
                 }
               );
             }
-          },
+          }
         });
       }
     });
@@ -571,7 +566,7 @@ export default class Index extends React.Component {
   handleCancel_AppSetting = () => {
     this.setState({
       visibleAppSetting: false,
-      isShow: false,
+      isShow: false
     });
   };
   modifyText = () => {
@@ -590,7 +585,7 @@ export default class Index extends React.Component {
       payload: {
         service_name,
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
       callback: data => {
         if (data) {
@@ -598,7 +593,7 @@ export default class Index extends React.Component {
           notification.success({ message: '修改成功' });
           this.setState({ isInput: false });
         }
-      },
+      }
     });
   };
 
@@ -607,7 +602,7 @@ export default class Index extends React.Component {
       e.target.value !=
       (this.props.baseInfo.extend_method || 'stateless_multiple');
     this.setState({
-      isShow: show,
+      isShow: show
     });
   };
 
@@ -624,7 +619,7 @@ export default class Index extends React.Component {
   onPageChange = page => {
     this.setState(
       {
-        page,
+        page
       },
       () => {
         this.fetchInnerEnvs();
@@ -636,7 +631,7 @@ export default class Index extends React.Component {
     this.setState(
       {
         page: 1,
-        env_name,
+        env_name
       },
       () => {
         this.fetchInnerEnvs();
@@ -651,7 +646,7 @@ export default class Index extends React.Component {
       ports,
       baseInfo,
       teamControl,
-      componentPermissions: { isDeploytype, isCharacteristic, isHealth },
+      componentPermissions: { isDeploytype, isCharacteristic, isHealth }
     } = this.props;
     const { viewStartHealth, is_fix, tags, tabData, isShow } = this.state;
 
@@ -659,30 +654,30 @@ export default class Index extends React.Component {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 4,
-        },
+          span: 4
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 18,
-        },
-      },
+          span: 18
+        }
+      }
     };
     const appsetting_formItemLayout = {
       wrapperCol: {
-        span: 24,
-      },
+        span: 24
+      }
     };
     const radioStyle = {
       display: 'block',
       height: '30px',
-      lineHeight: '30px',
+      lineHeight: '30px'
     };
 
     if (typeof baseInfo.build_upgrade !== 'boolean') {
@@ -692,14 +687,14 @@ export default class Index extends React.Component {
       <Fragment>
         <Card
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           title="基础信息"
         >
           <Form>
             <FormItem
               style={{
-                marginBottom: 0,
+                marginBottom: 0
               }}
               {...formItemLayout}
               label="创建时间"
@@ -708,7 +703,7 @@ export default class Index extends React.Component {
             </FormItem>
             <FormItem
               style={{
-                marginBottom: 0,
+                marginBottom: 0
               }}
               {...formItemLayout}
               label="组件部署类型"
@@ -726,7 +721,7 @@ export default class Index extends React.Component {
             </FormItem>
             <FormItem
               style={{
-                marginBottom: 0,
+                marginBottom: 0
               }}
               {...formItemLayout}
               label="组件特性"
@@ -751,7 +746,7 @@ export default class Index extends React.Component {
             </FormItem>
             <FormItem
               style={{
-                marginBottom: 0,
+                marginBottom: 0
               }}
               {...formItemLayout}
               label="组件构建后自动升级"
@@ -766,7 +761,7 @@ export default class Index extends React.Component {
         {isHealth && (
           <Card
             style={{
-              marginBottom: 24,
+              marginBottom: 24
             }}
             title={
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -780,7 +775,7 @@ export default class Index extends React.Component {
                       style={{
                         marginRight: '5px',
                         fontSize: '14px',
-                        fontWeight: 400,
+                        fontWeight: 400
                       }}
                     >
                       {JSON.stringify(startProbe) != '{}' ? '编辑' : '设置'}
@@ -963,7 +958,7 @@ export default class Index extends React.Component {
                   >
                     <Button type="primary">确定</Button>
                   </Popconfirm>,
-                  <Button onClick={this.handleCancel_AppSetting}>取消</Button>,
+                  <Button onClick={this.handleCancel_AppSetting}>取消</Button>
                 ]
               ) : (
                 <div>
@@ -981,9 +976,9 @@ export default class Index extends React.Component {
                 rules: [
                   {
                     required: true,
-                    message: '请选择组件类型',
-                  },
-                ],
+                    message: '请选择组件类型'
+                  }
+                ]
               })(
                 <RadioGroup onChange={this.onChange1}>
                   {globalUtil.getSupportComponentTyps().map(item => {

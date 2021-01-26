@@ -1,20 +1,25 @@
-import React, { PureComponent } from 'react';
 import {
-  Button,
-  Icon,
-  Modal,
-  Form,
-  Upload,
-  Select,
-  Input,
-  Tag,
-  Tooltip,
+    Button,
+
+
+    Form, Icon,
+
+
+
+
+    Input, Modal,
+
+
+    Select,
+
+    Tag,
+    Tooltip, Upload
 } from 'antd';
-import { getAllRegion } from '../../services/api';
-import globalUtil from '../../utils/global';
-import styles from '../CreateTeam/index.less';
+import React, { PureComponent } from 'react';
 import apiconfig from '../../../config/api.config';
+import { getAllRegion } from '../../services/api';
 import cookie from '../../utils/cookie';
+import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -190,12 +195,12 @@ class CreateMarketApp extends PureComponent {
             layout="horizontal"
             hideRequiredMark
           >
-            <FormItem {...formItemLayout} label="应用分享范围" hasFeedback>
+            <FormItem {...formItemLayout} label="应用发布范围" hasFeedback>
               {getFieldDecorator('scope', {
                 rules: [
                   {
                     required: true,
-                    message: '请选择应用分享范围',
+                    message: '请选择应用发布范围',
                   },
                 ],
               })(
@@ -207,7 +212,7 @@ class CreateMarketApp extends PureComponent {
                   <Radio.Button value="team">团队</Radio.Button>
                 </Radio.Group>
               )}
-              <div className={styles.conformDesc}>选择应用分享范围</div>
+              <div className={styles.conformDesc}>选择应用发布范围</div>
             </FormItem>
 
             <FormItem {...formItemLayout} label="应用名称" hasFeedback>

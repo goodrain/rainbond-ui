@@ -1,14 +1,14 @@
 /* eslint-disable camelcase */
 import {
-  Button,
-  Card,
-  Form,
-  Icon,
-  Input,
-  notification,
-  Pagination,
-  Table,
-  Tooltip
+    Button,
+    Card,
+    Form,
+    Icon,
+    Input,
+    notification,
+    Pagination,
+    Table,
+    Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
@@ -45,7 +45,7 @@ class EditableCell extends React.Component {
         attr_name,
         attr_value
       },
-      callback: (res) => {
+      callback: res => {
         const arr = res && res.list ? res.list : [];
         arr.unshift(attr_name ? `${attr_name}` : `${attr_value}`);
         Array.from(new Set(arr));
@@ -64,7 +64,7 @@ class EditableCell extends React.Component {
           });
         }
       },
-      handleError: (err) => {
+      handleError: err => {
         if (err && err.data && err.data.code == 10401) {
           return null;
         }
@@ -183,10 +183,10 @@ class EnvironmentVariable extends React.Component {
   componentDidMount() {
     this.fetchInnerEnvs();
   }
-  onTransfer = (data) => {
+  onTransfer = data => {
     this.setState({ transfer: data });
   };
-  onDeleteVariabl = (data) => {
+  onDeleteVariabl = data => {
     this.setState({ deleteVar: data });
   };
   onShowSizeChange = (page, page_size) => {
@@ -201,7 +201,7 @@ class EnvironmentVariable extends React.Component {
       }
     );
   };
-  onPageChange = (page) => {
+  onPageChange = page => {
     this.setState(
       {
         page,
@@ -212,7 +212,7 @@ class EnvironmentVariable extends React.Component {
       }
     );
   };
-  isEditing = (record) => record.ID === this.state.editingID;
+  isEditing = record => record.ID === this.state.editingID;
 
   handleAdd = () => {
     const { total, innerEnvsList } = this.state;
@@ -243,7 +243,7 @@ class EnvironmentVariable extends React.Component {
     if (isCancel) {
       if (addVariable) {
         const newData = [...innerEnvsList];
-        const index = newData.findIndex((item) => ID === item.ID);
+        const index = newData.findIndex(item => ID === item.ID);
         newData.splice(index, 1);
         this.setState({ innerEnvsList: newData });
       }
@@ -261,7 +261,7 @@ class EnvironmentVariable extends React.Component {
       }
     });
   };
-  handleEditVariable = (vals) => {
+  handleEditVariable = vals => {
     const { dispatch, appAlias } = this.props;
     const { editingID } = this.state;
     dispatch({
@@ -273,8 +273,8 @@ class EnvironmentVariable extends React.Component {
         attr_value: vals.attr_value,
         name: vals.name
       },
-      callback: (res) => {
-        if (res && res._code == 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           notification.success({ message: '编辑成功' });
           this.fetchInnerEnvs();
           this.handleCancelAddVariabl();
@@ -282,7 +282,7 @@ class EnvironmentVariable extends React.Component {
       }
     });
   };
-  handleSubmitAddVariable = (vals) => {
+  handleSubmitAddVariable = vals => {
     const { dispatch, appAlias, type } = this.props;
     dispatch({
       type: 'appControl/addInnerEnvs',
@@ -294,8 +294,8 @@ class EnvironmentVariable extends React.Component {
         name: vals.name,
         scope: type === 'Inner' ? 'inner' : 'outer'
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           notification.success({ message: '添加成功' });
           this.fetchInnerEnvs();
           this.handleCancelAddVariabl();
@@ -311,7 +311,7 @@ class EnvironmentVariable extends React.Component {
     });
   };
 
-  edit = (key) => {
+  edit = key => {
     this.setState({ editingID: key });
   };
 
@@ -325,8 +325,8 @@ class EnvironmentVariable extends React.Component {
         app_alias: appAlias,
         ID: deleteVar
       },
-      callback: (res) => {
-        if (res && res._code == 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           notification.success({ message: '删除成功' });
           this.fetchInnerEnvs();
         }
@@ -351,8 +351,8 @@ class EnvironmentVariable extends React.Component {
         ID: transfer.ID,
         scope: transfer.scope == 'inner' ? 'outer' : 'inner'
       },
-      callback: (res) => {
-        if (res && res._code == 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           notification.success({ message: '转移成功' });
           this.fetchInnerEnvs();
           this.cancelTransfer();
@@ -364,7 +364,7 @@ class EnvironmentVariable extends React.Component {
   cancelTransfer = () => {
     this.setState({ transfer: false });
   };
-  handleSearch = (env_name) => {
+  handleSearch = env_name => {
     this.setState(
       {
         page: 1,
@@ -399,11 +399,11 @@ class EnvironmentVariable extends React.Component {
     dispatch({
       type: request,
       payload: obj,
-      callback: (res) => {
-        if (res && res._code == 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           const arr = [];
           if (res.list && res.list.length > 0) {
-            res.list.map((item) => {
+            res.list.map(item => {
               const isHidden = globalUtil.confirmEnding(
                 `${item.attr_name}`,
                 'PASS'
@@ -450,7 +450,7 @@ class EnvironmentVariable extends React.Component {
       isAttrNameList: arr
     });
   };
-  handleDiv = (v) => {
+  handleDiv = v => {
     const wraps = {
       wordBreak: 'break-all',
       wordWrap: 'break-word'
@@ -501,7 +501,7 @@ class EnvironmentVariable extends React.Component {
         key: '1',
         width: '30%',
         editable: true,
-        render: (v) => this.handleDiv(v)
+        render: v => this.handleDiv(v)
       },
       {
         title: '变量值',
@@ -534,7 +534,7 @@ class EnvironmentVariable extends React.Component {
         key: '3',
         width: '25%',
         editable: true,
-        render: (v) => this.handleDiv(v)
+        render: v => this.handleDiv(v)
       }
     ];
 
@@ -552,7 +552,7 @@ class EnvironmentVariable extends React.Component {
             return editable ? (
               <span>
                 <EditableContext.Consumer>
-                  {(form) => (
+                  {form => (
                     <Button
                       loading={editEvnsLoading || addInnerEnvsLoading}
                       onClick={() => this.save(form, data.ID)}
@@ -563,7 +563,7 @@ class EnvironmentVariable extends React.Component {
                   )}
                 </EditableContext.Consumer>
                 <EditableContext.Consumer>
-                  {(form) => (
+                  {form => (
                     <a
                       onClick={() => this.save(form, data.ID, true)}
                       style={{ marginRight: 8 }}
@@ -627,13 +627,13 @@ class EnvironmentVariable extends React.Component {
         }
       });
     }
-    const columns = column.map((col) => {
+    const columns = column.map(col => {
       if (!col.editable) {
         return col;
       }
       return {
         ...col,
-        onCell: (record) => ({
+        onCell: record => ({
           record,
           form,
           addVariable,

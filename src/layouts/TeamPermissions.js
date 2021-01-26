@@ -1,7 +1,7 @@
-import React from 'react';
-import { connect } from 'dva';
-import router from 'umi/router';
 import { notification } from 'antd';
+import { connect } from 'dva';
+import React from 'react';
+import router from 'umi/router';
 import PageLoading from '../components/PageLoading';
 import Exception from '../pages/Exception/403';
 import roleUtil from '../utils/role';
@@ -12,7 +12,7 @@ class TeamPermissions extends React.PureComponent {
     super(props);
     this.state = {
       teamView: true,
-      loading: true,
+      loading: true
     };
   }
   componentWillMount() {
@@ -26,16 +26,16 @@ class TeamPermissions extends React.PureComponent {
       dispatch({
         type: 'user/fetchCurrent',
         callback: res => {
-          if (res && res._code === 200) {
+          if (res && res.status_code === 200) {
             this.handleResults(res.bean.teams, teamName);
           }
         },
         handleError: () => {
           this.setState({
             loading: false,
-            teamView: false,
+            teamView: false
           });
-        },
+        }
       });
     }
   };
@@ -45,13 +45,13 @@ class TeamPermissions extends React.PureComponent {
     const teamPermissions = userUtil.getTeamByTeamPermissions(teams, teamName);
     if (teamPermissions && teamPermissions.length === 0) {
       notification.warning({
-        message: '请先加入团队',
+        message: '请先加入团队'
       });
       return router.push('/');
     }
     dispatch({
       type: 'teamControl/fetchCurrentTeamPermissions',
-      payload: teamPermissions,
+      payload: teamPermissions
     });
     const results = roleUtil.queryTeamUserPermissionsInfo(
       teamPermissions,

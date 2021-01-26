@@ -47,7 +47,7 @@ export default class SelectTeam extends PureComponent {
         page_size
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             userTeamList: res.list,
             loading: false

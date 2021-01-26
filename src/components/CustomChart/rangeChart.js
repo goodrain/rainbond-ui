@@ -215,7 +215,7 @@ export default class RangeChart extends PureComponent {
           sequence: CustomMonitorInfo.sequence
         },
         callback: res => {
-          if (res && res._code === 200) {
+          if (res && res.status_code === 200) {
             notification.success({
               message: '保存成功'
             });
@@ -312,9 +312,7 @@ export default class RangeChart extends PureComponent {
                 useHtml
                 containerTpl={`<div class="g2-legend" style="position:absolute;top:20px;right:60px;width:100%;margin-top:-2px;">
                       <h4 class="g2-legend-title"></h4>
-                      <div class=${
-                        styless.ov
-                      }><ul class="g2-legend-list" style="list-style-type:none;margin:0;padding:0;"></ul></div>
+                      <div class=${styless.ov}><ul class="g2-legend-list" style="list-style-type:none;margin:0;padding:0;"></ul></div>
                     </div>
                `}
                 itemTpl={`

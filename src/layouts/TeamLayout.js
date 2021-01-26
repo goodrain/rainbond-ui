@@ -95,7 +95,7 @@ class TeamLayout extends PureComponent {
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState(
             {
               enterpriseList: res.list
@@ -123,7 +123,7 @@ class TeamLayout extends PureComponent {
       dispatch({
         type: 'user/fetchCurrent',
         callback: res => {
-          if (res && res._code === 200) {
+          if (res && res.status_code === 200) {
             this.getTeamOverview(res.bean.user_id);
           }
         }
@@ -146,7 +146,7 @@ class TeamLayout extends PureComponent {
         region_name: regionName
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState(
             {
               eid: res.bean.eid
@@ -186,7 +186,7 @@ class TeamLayout extends PureComponent {
       type: 'teamControl/fetchTeamUserPermissions',
       payload: { user_id: ID, team_name: teamName },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           const results = roleUtil.queryTeamUserPermissionsInfo(
             res.bean,
             'teamBasicInfo',

@@ -1,16 +1,16 @@
 /* eslint-disable prettier/prettier */
-import React, { PureComponent } from 'react';
 import {
-  Form,
-  Modal,
-  Select,
-  Input,
   Alert,
-  Table,
+  Button,
+  Form,
+  Input,
+  Modal,
   notification,
-  Button
+  Select,
+  Table
 } from 'antd';
 import { connect } from 'dva';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
 
 const FormItem = Form.Item;
@@ -30,11 +30,11 @@ export default class ApplicationGovernance extends PureComponent {
     };
   }
 
-  setK8sServiceNames = (value) => {
+  setK8sServiceNames = value => {
     const { dispatch, appID, onCancel } = this.props;
     const { ServiceNameList } = this.state;
     const arr = [];
-    ServiceNameList.map((item) => {
+    ServiceNameList.map(item => {
       const {
         service_id: id,
         port_alias: alias,
@@ -61,8 +61,8 @@ export default class ApplicationGovernance extends PureComponent {
         group_id: appID,
         arr
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.handleNotification();
           onCancel();
         }
@@ -70,7 +70,7 @@ export default class ApplicationGovernance extends PureComponent {
     });
   };
 
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
     const { form } = this.props;
     const { step } = this.state;
@@ -86,7 +86,7 @@ export default class ApplicationGovernance extends PureComponent {
     });
   };
 
-  handleGovernancemode = (value) => {
+  handleGovernancemode = value => {
     const { dispatch, appID, onCancel, onOk } = this.props;
     dispatch({
       type: 'application/setgovernancemode',
@@ -120,7 +120,7 @@ export default class ApplicationGovernance extends PureComponent {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res.bean) {
           this.setState({
             step: true,
@@ -130,7 +130,7 @@ export default class ApplicationGovernance extends PureComponent {
       }
     });
   };
-  checkK8sServiceName = (value) => {
+  checkK8sServiceName = value => {
     const { dispatch, appID } = this.props;
     dispatch({
       type: 'application/checkK8sServiceName',
@@ -140,7 +140,7 @@ export default class ApplicationGovernance extends PureComponent {
         service_alias: value.service_alias,
         k8s_service_name: value.k8s_service_name
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res.bean && !res.bean.is_valid) {
           this.setK8sServiceNames();
         }
@@ -160,7 +160,7 @@ export default class ApplicationGovernance extends PureComponent {
           service_alias: ServiceNameList[0].service_alias,
           k8s_service_name: ServiceNameList[0].k8s_service_name
         },
-        callback: (res) => {
+        callback: res => {
           if (res && res.bean && !res.bean.is_valid) {
             callback(); // +
           } else {
@@ -177,7 +177,7 @@ export default class ApplicationGovernance extends PureComponent {
   rowKey = (record, index) => index;
   handleOnCancel = () => {
     const { onCancel } = this.props;
-    if(this.state.step){
+    if (this.state.step) {
       this.handleNotification();
     }
     onCancel();
@@ -324,7 +324,7 @@ export default class ApplicationGovernance extends PureComponent {
                   ]
                 })(
                   <Select style={{ width: '357px' }}>
-                    {list.map((item) => {
+                    {list.map(item => {
                       return (
                         <Option key={item.key} value={item.key}>
                           {item.name}

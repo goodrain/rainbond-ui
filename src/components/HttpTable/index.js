@@ -121,7 +121,7 @@ export default class HttpTable extends PureComponent {
         rule_id: values.http_rule_id,
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const arr = [];
           if (res.bean && res.bean.value) {
             if (

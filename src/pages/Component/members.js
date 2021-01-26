@@ -1,26 +1,14 @@
-import React, { Fragment } from "react";
-import { connect } from "dva";
-import {
-  Card,
-  Form,
-  Button,
-  Icon,
-  Table,
-  Tag,
-  Tooltip,
-  Modal,
-  Radio,
-  Input
-} from "antd";
-import ConfirmModal from "../../components/ConfirmModal";
-import SetMemberAppAction from "../../components/SetMemberAppAction";
-import ScrollerX from "../../components/ScrollerX";
-import globalUtil from "../../utils/global";
-import appProbeUtil from "../../utils/appProbe-util";
-import appUtil from "../../utils/app";
-import NoPermTip from "../../components/NoPermTip";
-import EditActions from "./setting/perm";
-import EditHealthCheck from "./setting/edit-health-check";
+/* eslint-disable no-plusplus */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable eqeqeq */
+/* eslint-disable camelcase */
+/* eslint-disable react/sort-comp */
+import { Card, Form, Input, Modal, Radio } from 'antd';
+import { connect } from 'dva';
+import React from 'react';
+import appProbeUtil from '../../utils/appProbe-util';
+import globalUtil from '../../utils/global';
+import EditHealthCheck from './setting/edit-health-check';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -33,7 +21,6 @@ const RadioGroup = Radio.Group;
     runningProbe: appControl.runningProbe,
     ports: appControl.ports,
     baseInfo: appControl.baseInfo,
-    // tags: appControl.tags,
     appDetail: appControl.appDetail,
     teamControl,
     appControl
@@ -47,96 +34,23 @@ export default class Index extends React.Component {
   constructor(arg) {
     super(arg);
     this.state = {
-      isShow: false,
-      showEditVar: null,
-      deleteVar: null,
-      viewStartHealth: null,
-      editStartHealth: null,
-      viewRunHealth: null,
-      editRunHealth: null,
-      addTag: false,
-      tabData: [],
-      showAddMember: false,
-      toEditAction: null,
-      toDeleteMember: null,
-      memberslist: null,
-      members: null,
-      buildSource: null,
-      changeBuildSource: false,
-      showApp: {},
-      // appStatus: null,
-      visibleAppSetting: false,
-      tags: [],
-      isInput: false,
       healthList: null,
       showHealth: false,
-      Permissions: [],
-      isScheme: "",
+      isScheme: '',
       list: []
     };
   }
   componentDidMount() {
-    if (!this.canView()) return;
-    this.props.dispatch({ type: "teamControl/fetchAllPerm" });
+    this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
     this.fetchStartProbe();
     this.fetchPorts();
     this.fetchBaseInfo();
     this.fetchTags();
-    this.loadMembers();
-    this.loadpermsMembers();
-    this.handleGetList();
-    // this.getHealth();
-    // this.loadBuildSourceInfo();
   }
-  componentWillUnmount() {
-    const { dispatch } = this.props;
-    // dispatch({ type: "appControl/clearTags" });
-    // dispatch({ type: "appControl/clearPorts" });
-    // dispatch({ type: "appControl/clearInnerEnvs" });
-    // dispatch({ type: "appControl/clearStartProbe" });
-    // dispatch({ type: "appControl/clearRunningProbe" });
-    // dispatch({ type: "appControl/clearMembers" });
-  }
-
-  handleGetList = () => {
-    this.props.dispatch({
-      type: "appControl/getInstanceList",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          this.setState({
-            list: res.list
-          });
-        }
-      }
-    });
-  };
-
-  getHealth = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: "appControl/getHealthList",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
-      },
-      callback: data => {
-        if (data && data._code == "200") {
-          this.setState({
-            healthList: JSON.stringify(data.bean) == "{}" ? null : data.bean,
-            isScheme: data.bean.Scheme
-          });
-        }
-      }
-    });
-  };
   fetchBaseInfo = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "appControl/fetchBaseInfo",
+      type: 'appControl/fetchBaseInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias
@@ -146,33 +60,29 @@ export default class Index extends React.Component {
   fetchPorts = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "appControl/fetchPorts",
+      type: 'appControl/fetchPorts',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias
       },
-      callback: data => {}
+      callback: () => {}
     });
   };
   fetchTags = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "appControl/fetchTags",
+      type: 'appControl/fetchTags',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias
       },
-      callback: data => {
-        if (data) {
-          this.setState({ tags: data.used_labels });
-        }
-      }
+      callback: () => {}
     });
   };
 
   fetchStartProbe() {
     this.props.dispatch({
-      type: "appControl/fetchStartProbe",
+      type: 'appControl/fetchStartProbe',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias
@@ -180,138 +90,9 @@ export default class Index extends React.Component {
     });
   }
 
-  loadMembers = () => {
-    const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    dispatch({
-      type: "teamControl/fetchMember",
-      payload: {
-        team_name,
-        app_alias: this.props.appAlias
-      },
-      callback: data => {
-        if (data) {
-          this.setState({ memberslist: data.list });
-        }
-      }
-    });
-  };
-
-  loadpermsMembers = () => {
-    const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    dispatch({
-      type: "appControl/fetchpermsMember",
-      payload: {
-        team_name,
-        app_alias: this.props.appAlias
-      },
-      callback: data => {
-        if (data) {
-          this.setState({ members: data.list });
-        }
-      }
-    });
-  };
-  showAddMember = () => {
-    this.props.dispatch({
-      type: "appControl/getPermissions",
-      payload: {},
-      callback: res => {
-        if (res && res._code == "200") {
-          this.setState({
-            Permissions: res.list,
-            showAddMember: true
-          });
-        }
-      }
-    });
-  };
-  hideAddMember = () => {
-    this.setState({ showAddMember: false });
-  };
-  handleAddMember = values => {
-    this.props.dispatch({
-      type: "appControl/setMemberAction",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        ...values
-      },
-      callback: () => {
-        this.loadMembers();
-        this.loadpermsMembers();
-        this.hideAddMember();
-      }
-    });
-  };
-
-  // 是否可以浏览当前界面
-  canView() {
-    return true;
-    // return appUtil.canManageAppSetting(this.props.appDetail);
-  }
-
-  onEditAction = member => {
-    // this.setState({ toEditAction: member });
-    this.props.dispatch({
-      type: "appControl/getPermissions",
-      payload: {},
-      callback: res => {
-        if (res && res._code == "200") {
-          this.setState({
-            Permissions: res.list,
-            toEditAction: member
-          });
-        }
-      }
-    });
-  };
-  hideEditAction = () => {
-    this.setState({ toEditAction: null });
-  };
-  handleEditAction = value => {
-    const team_name = globalUtil.getCurrTeamName();
-    this.props.dispatch({
-      type: "appControl/editMemberAction",
-      payload: {
-        team_name,
-        user_id: this.state.toEditAction.user_id,
-        app_alias: this.props.appAlias,
-        ...value
-      },
-      callback: () => {
-        this.loadMembers();
-        this.loadpermsMembers();
-        this.hideEditAction();
-      }
-    });
-  };
-  onDelMember = member => {
-    this.setState({ toDeleteMember: member });
-  };
-  hideDelMember = () => {
-    this.setState({ toDeleteMember: null });
-  };
-  handleDelMember = () => {
-    const team_name = globalUtil.getCurrTeamName();
-    this.props.dispatch({
-      type: "appControl/deleteMember",
-      payload: {
-        team_name,
-        app_alias: this.props.appAlias,
-        user_id: this.state.toDeleteMember.user_id
-      },
-      callback: () => {
-        this.loadMembers();
-        this.loadpermsMembers();
-        this.hideDelMember();
-      }
-    });
-  };
   handleSubmit = vals => {
     this.props.dispatch({
-      type: "appControl/addStartProbe",
+      type: 'appControl/addStartProbe',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
@@ -327,7 +108,7 @@ export default class Index extends React.Component {
   handleSubmitEdit = vals => {
     const { startProbe } = this.props;
     this.props.dispatch({
-      type: "appControl/editStartProbe",
+      type: 'appControl/editStartProbe',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
@@ -360,58 +141,58 @@ export default class Index extends React.Component {
     });
   };
   handleState = () => {
-    let arr = this.state.list || [{ status: "-" }];
+    const arr = this.state.list || [{ status: '-' }];
     let healthy = 0;
     let unhealthy = 0;
     let Unknown = 0;
-    let nos = "";
+    let nos = '';
     arr.map(item => {
       const { status } = item;
-      if (status == "healthy") {
+      if (status == 'healthy') {
         healthy++;
-      } else if (status == "unhealthy") {
+      } else if (status == 'unhealthy') {
         unhealthy++;
-      } else if (status == "Unknown" || status == "unknown") {
+      } else if (status == 'Unknown' || status == 'unknown') {
         Unknown++;
       } else {
-        nos = "-";
+        nos = '-';
       }
+      return item;
     });
     if (
       healthy != 0 &&
       unhealthy == 0 &&
-      Unknown == 0 &&
-      Unknown == 0 &&
-      nos == ""
+      Unknown === 0 &&
+      Unknown === 0 &&
+      nos == ''
     ) {
       return (
         <span>
-          (<span style={{ color: "green" }}>健康</span>)
+          (<span style={{ color: 'green' }}>健康</span>)
         </span>
       );
     } else if (healthy != 0 && (unhealthy != 0 || Unknown != 0)) {
       return (
         <span>
-          (<span style={{ color: "green" }}>部分健康</span>)
+          (<span style={{ color: 'green' }}>部分健康</span>)
         </span>
       );
-    } else if (healthy == 0 && unhealthy != 0 && Unknown == 0 && nos == "") {
+    } else if (healthy == 0 && unhealthy != 0 && Unknown == 0 && nos == '') {
       return (
         <span>
-          (<span style={{ color: "red" }}>不健康</span>)
+          (<span style={{ color: 'red' }}>不健康</span>)
         </span>
       );
-    } else if (healthy == 0 && unhealthy == 0 && Unknown != 0 && nos == "") {
-      return "(未知)";
-    } else {
-      return "(-)";
+    } else if (healthy == 0 && unhealthy == 0 && Unknown != 0 && nos == '') {
+      return '(未知)';
     }
+    return '(-)';
   };
 
   handleStartProbeStart = isUsed => {
     const { startProbe } = this.props;
     this.props.dispatch({
-      type: "appControl/editStartProbe",
+      type: 'appControl/editStartProbe',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
@@ -427,22 +208,18 @@ export default class Index extends React.Component {
   handleStates = data => {
     if (appProbeUtil.isStartProbeUsed(data)) {
       if (appProbeUtil.isStartProbeStart(data)) {
-        return "已启用";
+        return '已启用';
       }
-      return "已禁用";
+      return '已禁用';
     }
-    return "未设置";
+    return '未设置';
   };
   render() {
-    if (!this.canView()) return <NoPermTip />;
-    const self = this;
-    const { baseInfo, teamControl, startProbe, ports } = this.props;
-    const members = this.state.members || [];
-    if (typeof baseInfo.build_upgrade != "boolean") {
+    const { baseInfo, startProbe, ports } = this.props;
+    if (typeof baseInfo.build_upgrade !== 'boolean') {
       return null;
     }
     const { getFieldDecorator } = this.props.form;
-    const data = this.props.data || {};
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -456,76 +233,85 @@ export default class Index extends React.Component {
     const { healthList, showHealth, isScheme, list } = this.state;
     return (
       <div>
-        {startProbe &&
+        {startProbe && (
           <Card
             title={
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 健康检测
                 <div>
-                  {startProbe &&
+                  {startProbe && (
                     <a
                       style={{
-                        marginRight: "5px",
-                        fontSize: "14px",
+                        marginRight: '5px',
+                        fontSize: '14px',
                         fontWeight: 400
                       }}
                       onClick={() => {
                         this.openCancel();
                       }}
                     >
-                      {JSON.stringify(startProbe) != "{}" ? "编辑" : "设置"}
-                    </a>}
-                  {JSON.stringify(startProbe) != "{}" &&
-                  appProbeUtil.isStartProbeStart(startProbe)
-                    ? <a
-                        onClick={() => {
-                          this.handleStartProbeStart(false);
-                        }}
-                        style={{
-                          marginRight: "5px",
-                          fontSize: "14px",
-                          fontWeight: 400
-                        }}
-                        href="javascript:;"
-                      >
-                        禁用
-                      </a>
-                    : JSON.stringify(startProbe) != "{}" &&
+                      {JSON.stringify(startProbe) != '{}' ? '编辑' : '设置'}
+                    </a>
+                  )}
+                  {JSON.stringify(startProbe) != '{}' &&
+                  appProbeUtil.isStartProbeStart(startProbe) ? (
+                    <a
+                      onClick={() => {
+                        this.handleStartProbeStart(false);
+                      }}
+                      style={{
+                        marginRight: '5px',
+                        fontSize: '14px',
+                        fontWeight: 400
+                      }}
+                      href="javascript:;"
+                    >
+                      禁用
+                    </a>
+                  ) : (
+                    JSON.stringify(startProbe) != '{}' && (
                       <a
                         onClick={() => {
                           this.handleStartProbeStart(true);
                         }}
                         style={{
-                          marginRight: "5px",
-                          fontSize: "14px",
+                          marginRight: '5px',
+                          fontSize: '14px',
                           fontWeight: 400
                         }}
                         href="javascript:;"
                       >
                         启用
-                      </a>}
+                      </a>
+                    )
+                  )}
                 </div>
               </div>
             }
           >
-            {startProbe &&
-              <div style={{ display: "flex" }}>
-                <div style={{ width: "33%", textAlign: "center" }}>
+            {startProbe && (
+              <div style={{ display: 'flex' }}>
+                <div style={{ width: '33%', textAlign: 'center' }}>
                   当前状态:{this.handleState()}
                 </div>
-                <div style={{ width: "33%", textAlign: "center" }}>
-                  检测方式:{startProbe.scheme ? startProbe.scheme : "未设置"}
+                <div style={{ width: '33%', textAlign: 'center' }}>
+                  检测方式:{startProbe.scheme ? startProbe.scheme : '未设置'}
                 </div>
-                <div style={{ width: "33%", textAlign: "center" }}>
-                  不健康处理方式:{startProbe.mode == "readiness"
-                    ? "下线"
-                    : startProbe.mode == "liveness"
-                      ? "重启"
-                      : startProbe.mode == "ignore" ? "忽略" : "未设置"}
+                <div style={{ width: '33%', textAlign: 'center' }}>
+                  不健康处理方式:
+                  {startProbe.mode == 'readiness'
+                    ? '下线'
+                    : startProbe.mode == 'liveness'
+                    ? '重启'
+                    : startProbe.mode == 'ignore'
+                    ? '忽略'
+                    : '未设置'}
                 </div>
-              </div>}
-          </Card>}
-        {showHealth &&
+              </div>
+            )}
+          </Card>
+        )}
+        {showHealth && (
           <Modal
             title="编辑健康检测"
             onOk={() => {
@@ -534,49 +320,54 @@ export default class Index extends React.Component {
             onCancel={this.handleCancel}
             visible={showHealth}
           >
-            {healthList &&
+            {healthList && (
               <Form onSubmit={this.handleSubmit}>
                 <FormItem {...formItemLayout} label="检测方式">
-                  {getFieldDecorator("Scheme", {
-                    initialValue: healthList.Scheme || "",
-                    rules: [{ required: true, message: "请输入检测方式" }]
+                  {getFieldDecorator('Scheme', {
+                    initialValue: healthList.Scheme || '',
+                    rules: [{ required: true, message: '请输入检测方式' }]
                   })(
                     <RadioGroup onChange={this.onChange}>
-                      <Radio value={"HTTP"}>HTTP</Radio>
-                      <Radio value={"TCP"}>TCP</Radio>
+                      <Radio value="HTTP">HTTP</Radio>
+                      <Radio value="TCP">TCP</Radio>
                     </RadioGroup>
                   )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="检测端口">
-                  {getFieldDecorator("port", {
-                    initialValue: healthList.port || "",
-                    rules: [{ required: true, message: "请输入检测端口" }]
-                  })(<Input placeholder="请输入端口" style={{ width: "90%" }} />)}
+                  {getFieldDecorator('port', {
+                    initialValue: healthList.port || '',
+                    rules: [{ required: true, message: '请输入检测端口' }]
+                  })(
+                    <Input placeholder="请输入端口" style={{ width: '90%' }} />
+                  )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="不健康处理方式:">
-                  {getFieldDecorator("action", {
-                    initialValue: healthList.action || "",
-                    rules: [{ required: true, message: "请选择" }]
+                  {getFieldDecorator('action', {
+                    initialValue: healthList.action || '',
+                    rules: [{ required: true, message: '请选择' }]
                   })(
                     <RadioGroup onChange={this.onChanges}>
-                      <Radio value={"offline"}>下线</Radio>
-                      <Radio value={"ignore"}>忽略</Radio>
+                      <Radio value="offline">下线</Radio>
+                      <Radio value="ignore">忽略</Radio>
                     </RadioGroup>
                   )}
                 </FormItem>
-                {isScheme == "HTTP" &&
+                {isScheme == 'HTTP' && (
                   <FormItem {...formItemLayout} label="URI">
-                    {getFieldDecorator("path", {
-                      initialValue: healthList.path || ""
-                    })(<Input placeholder="请输入URI" style={{ width: "90%" }} />)}
-                  </FormItem>}
+                    {getFieldDecorator('path', {
+                      initialValue: healthList.path || ''
+                    })(
+                      <Input placeholder="请输入URI" style={{ width: '90%' }} />
+                    )}
+                  </FormItem>
+                )}
                 <FormItem {...formItemLayout} label="检测间隔时间">
-                  {getFieldDecorator("time_interval", {
-                    initialValue: healthList.time_interval || ""
+                  {getFieldDecorator('time_interval', {
+                    initialValue: healthList.time_interval || ''
                   })(
                     <Input
                       type="number"
-                      style={{ width: "90%" }}
+                      style={{ width: '90%' }}
                       placeholder="请输入间隔时间"
                     />
                   )}
@@ -584,141 +375,31 @@ export default class Index extends React.Component {
                 </FormItem>
 
                 <FormItem {...formItemLayout} label="允许错误次数">
-                  {getFieldDecorator("max_error_num", {
-                    initialValue: healthList.max_error_num || ""
+                  {getFieldDecorator('max_error_num', {
+                    initialValue: healthList.max_error_num || ''
                   })(
                     <Input
                       type="number"
-                      style={{ width: "90%" }}
+                      style={{ width: '90%' }}
                       placeholder="请输入允许错误次数"
                     />
                   )}
                   <span style={{ marginLeft: 8 }}> 秒</span>
                 </FormItem>
-              </Form>}
-          </Modal>}
-        {this.state.showHealth &&
+              </Form>
+            )}
+          </Modal>
+        )}
+        {this.state.showHealth && (
           <EditHealthCheck
             ports={ports}
             onOk={this.handleSubmitEdit}
             title="健康检测"
             data={startProbe}
             onCancel={this.handleCancel}
-            types={"third"}
-          />}
-        <Card
-          style={{
-            marginTop: 24
-          }}
-          title={
-            <Fragment>
-              {" "}成员应用权限{" "}
-              <Tooltip title="示例：成员所属角色包含 `启动`权限, 成员应用权限包含`关闭`权限，则该成员对该应用的最终权限为 `启动`+`关闭`">
-                {" "}<Icon type="info-circle-o" />{" "}
-              </Tooltip>
-            </Fragment>
-          }
-        >
-          <ScrollerX sm={600}>
-            <Table
-              columns={[
-                {
-                  title: "用户名",
-                  dataIndex: "nick_name",
-                  key: "1"
-                },
-                {
-                  title: "邮箱",
-                  dataIndex: "email",
-                  key: "2"
-                },
-                {
-                  title: "操作权限",
-                  width: "50%",
-                  dataIndex: "service_perms",
-                  key: "3",
-                  render(val) {
-                    const arr = val || [];
-                    return (
-                      <span>
-                        {arr.map((item, index) =>
-                          <Tag key={index}>
-                            {item.perm_info}
-                          </Tag>
-                        )}
-                      </span>
-                    );
-                  }
-                },
-                {
-                  title: "操作",
-                  dataIndex: "action",
-                  key: "4",
-                  render: (v, data) => {
-                    if (!appUtil.canManageAppMember(this.props.appDetail))
-                      return null;
-                    return (
-                      <div>
-                        <a
-                          onClick={() => {
-                            self.onEditAction(data);
-                          }}
-                          href="javascript:;"
-                        >
-                          编辑权限
-                        </a>
-                        <a
-                          onClick={() => {
-                            self.onDelMember(data);
-                          }}
-                          href="javascript:;"
-                        >
-                          移除应用权限
-                        </a>
-                      </div>
-                    );
-                  }
-                }
-              ]}
-              pagination={false}
-              dataSource={members}
-            />
-          </ScrollerX>
-          {appUtil.canManageAppMember(this.props.appDetail) &&
-            <div
-              style={{
-                marginTop: 10,
-                textAlign: "right"
-              }}
-            >
-              <Button onClick={this.showAddMember}>
-                <Icon type="plus" />
-                设置成员应用权限
-              </Button>
-            </div>}
-        </Card>
-
-        {this.state.toEditAction &&
-          <EditActions
-            onSubmit={this.handleEditAction}
-            onCancel={this.hideEditAction}
-            actions={this.state.Permissions}
-            value={this.state.toEditAction.service_perms.map(item => item.id)}
-          />}
-        {this.state.showAddMember &&
-          <SetMemberAppAction
-            members={this.state.memberslist}
-            actions={this.state.Permissions}
-            onOk={this.handleAddMember}
-            onCancel={this.hideAddMember}
-          />}
-        {this.state.toDeleteMember &&
-          <ConfirmModal
-            onOk={this.handleDelMember}
-            title="删除成员权限"
-            desc="确定要删除此成员的应用权限吗？"
-            onCancel={this.hideDelMember}
-          />}
+            types="third"
+          />
+        )}
       </div>
     );
   }
