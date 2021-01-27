@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import Parameterinput from '@/components/Parameterinput';
 import { batchOperation } from '@/services/app';
 import { createEnterprise, createTeam } from '@/utils/breadcrumb';
@@ -437,10 +438,7 @@ export default class ConfigurationDetails extends PureComponent {
                   }
                 ]
               })(
-                <Parameterinput
-                  isPassword
-                  editInfo={(info && info.config_items) || ''}
-                />
+                <Parameterinput editInfo={(info && info.config_items) || ''} />
               )}
             </FormItem>
             {apps.length > 0 && (

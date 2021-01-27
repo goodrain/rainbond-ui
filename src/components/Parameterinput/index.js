@@ -1,6 +1,8 @@
+/* eslint-disable react/no-array-index-key */
 /* eslint-disable react/jsx-no-bind */
+import { Col, Icon, Input, Row } from 'antd';
 import React, { Component } from 'react';
-import { Row, Col, Input, Icon } from 'antd';
+
 const { TextArea } = Input;
 
 class Parameterinput extends Component {
@@ -42,7 +44,7 @@ class Parameterinput extends Component {
     const { values } = this.state;
     this.setState({ values: values.concat({ item_key: '', item_value: '' }) });
   };
-  remove = (index) => {
+  remove = index => {
     const { values } = this.state;
     values.splice(index, 1);
     this.setValues(values);
@@ -58,8 +60,7 @@ class Parameterinput extends Component {
   render() {
     const {
       keyPlaceholder = '请输入key值',
-      valuePlaceholder = '请输入value值',
-      isPassword = false
+      valuePlaceholder = '请输入value值'
     } = this.props;
     const { values } = this.state;
     return (
@@ -67,10 +68,13 @@ class Parameterinput extends Component {
         {values &&
           values.length > 0 &&
           values.map((item, index) => {
+            const isPassword =
+              item.item_key.indexOf('PASS') > -1 ||
+              item.item_key.indexOf('pass') > -1;
             return (
               <Row
                 style={{ display: 'flex', alignItems: 'center' }}
-                key={index}
+                key={`conifgitem${index}`}
               >
                 <Col span={10}>
                   <Input

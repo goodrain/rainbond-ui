@@ -1,17 +1,16 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable prettier/prettier */
 import {
-    Badge,
-    Button,
-    Card,
-
-
-
-    Dropdown,
-
-    Icon, Menu, notification,
-    Table,
-    Tooltip
+  Badge,
+  Button,
+  Card,
+  Dropdown,
+  Icon,
+  Menu,
+  notification,
+  Popconfirm,
+  Table,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -69,19 +68,19 @@ export default class ComponentList extends Component {
       type: 'application/clearApps'
     });
   }
-  onSelectChange = (selectedRowKeys) => {
+  onSelectChange = selectedRowKeys => {
     this.setState({
       selectedRowKeys
     });
   };
   getSelectedKeys() {
     const selected = this.getSelected();
-    return selected.map((item) => item.service_id);
+    return selected.map(item => item.service_id);
   }
 
   getSelected() {
     const key = this.state.selectedRowKeys;
-    const res = key.map((item) => this.state.apps[item]);
+    const res = key.map(item => this.state.apps[item]);
     return res;
   }
   updateApp = () => {
@@ -105,7 +104,7 @@ export default class ComponentList extends Component {
         page: current,
         page_size: pageSize
       },
-      callback: (data) => {
+      callback: data => {
         if (data && data.status_code === 200) {
           this.setState({
             apps: data.list || [],
@@ -128,7 +127,7 @@ export default class ComponentList extends Component {
         page: current,
         page_size: pageSize
       },
-      callback: (data) => {
+      callback: data => {
         if (data && data.status_code === 200) {
           this.setState(
             {
@@ -157,7 +156,7 @@ export default class ComponentList extends Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: data.service_alias
       },
-      callback: (res) => {
+      callback: res => {
         if (res) {
           notification.success({
             message: operationMap[state]
@@ -167,10 +166,10 @@ export default class ComponentList extends Component {
     });
   };
 
-  handleOperationState = (operationState) => {
+  handleOperationState = operationState => {
     this.setState({ operationState });
   };
-  handleBatchOperation = (action) => {
+  handleBatchOperation = action => {
     const ids = this.getSelectedKeys();
     const map = {
       stop: '批量关闭中',
@@ -183,7 +182,7 @@ export default class ComponentList extends Component {
       action,
       team_name: globalUtil.getCurrTeamName(),
       serviceIds: ids && ids.join(',')
-    }).then((data) => {
+    }).then(data => {
       this.handleOperationState(false);
       if (data && map[action]) {
         notification.success({
@@ -218,7 +217,7 @@ export default class ComponentList extends Component {
       }
     });
   };
-  handleBatchMove = (groupID) => {
+  handleBatchMove = groupID => {
     const ids = this.getSelectedKeys();
     const { dispatch } = this.props;
     dispatch({
@@ -228,7 +227,7 @@ export default class ComponentList extends Component {
         serviceIds: ids.join(','),
         move_group_id: groupID
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           notification.success({
             message: '批量移动中'
@@ -287,8 +286,8 @@ export default class ComponentList extends Component {
       pageSize,
       current,
       total,
-      showSizeChanger:true,
-      onChange: (page) => {
+      showSizeChanger: true,
+      onChange: page => {
         this.setState(
           {
             current: page,
@@ -323,7 +322,7 @@ export default class ComponentList extends Component {
             }/overview`}
           >
             {' '}
-            {data.service_source && data.service_source == 'third_party' ? (
+            {data.service_source && data.service_source === 'third_party' ? (
               <span>
                 <Tooltip title="第三方组件">
                   <span
@@ -363,7 +362,7 @@ export default class ComponentList extends Component {
         dataIndex: 'min_memory',
         render: (val, data) => (
           <span>
-            {data.service_source && data.service_source == 'third_party'
+            {data.service_source && data.service_source === 'third_party'
               ? '-'
               : `${val}MB`}
           </span>
@@ -373,15 +372,15 @@ export default class ComponentList extends Component {
         title: '状态',
         dataIndex: 'status_cn',
         render: (val, data) =>
-          data.service_source && data.service_source == 'third_party' ? (
+          data.service_source && data.service_source === 'third_party' ? (
             <Badge
               status={appUtil.appStatusToBadgeStatus(data.status)}
               text={
-                val == '运行中'
+                val === '运行中'
                   ? '健康'
-                  : val == '运行异常'
+                  : val === '运行异常'
                   ? '不健康'
-                  : val == '已关闭'
+                  : val === '已关闭'
                   ? '下线'
                   : val
               }
@@ -396,8 +395,10 @@ export default class ComponentList extends Component {
       {
         title: '更新时间',
         dataIndex: 'update_time',
-        render: (val) =>
-          moment(val).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')
+        render: val =>
+          moment(val)
+            .locale('zh-cn')
+            .format('YYYY-MM-DD HH:mm:ss')
       },
       {
         title: '操作',
@@ -407,34 +408,34 @@ export default class ComponentList extends Component {
             {data.service_source && data.service_source !== 'third_party' && (
               <Fragment>
                 {isRestart && (
-                  <Button
-                    type="link"
-                    onClick={() => {
+                  <Popconfirm
+                    title="确认要重启该组件吗？"
+                    onConfirm={() => {
                       this.handleOperation('putReStart', data);
                     }}
                   >
-                    重启
-                  </Button>
+                    <Button type="link">重启</Button>
+                  </Popconfirm>
                 )}
                 {isStart && (
-                  <Button
-                    type="link"
-                    onClick={() => {
+                  <Popconfirm
+                    title="确认要启动该组件吗？"
+                    onConfirm={() => {
                       this.handleOperation('putStart', data);
                     }}
                   >
-                    启动
-                  </Button>
+                    <Button type="link">启动</Button>
+                  </Popconfirm>
                 )}
                 {isStop && (
-                  <Button
-                    type="link"
-                    onClick={() => {
+                  <Popconfirm
+                    title="确认要关闭该组件吗？"
+                    onConfirm={() => {
                       this.handleOperation('putStop', data);
                     }}
                   >
-                    关闭
-                  </Button>
+                    <Button type="link">关闭</Button>
+                  </Popconfirm>
                 )}
               </Fragment>
             )}
@@ -483,7 +484,7 @@ export default class ComponentList extends Component {
     ];
     const menu = (
       <Menu>
-        {customBox.map((item) => {
+        {customBox.map(item => {
           const { permissions, name, action, customMethods } = item;
           return (
             permissions && (

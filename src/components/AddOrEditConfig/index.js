@@ -2,9 +2,9 @@
 /*
   添加或者修改插件配置
 */
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
 import { Form, Icon, Input, Modal, Radio, Select, Tooltip } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;
@@ -52,7 +52,7 @@ class EvnOption extends React.Component {
   };
   check(callback) {
     const { form } = this.props;
-    form.validateFields((err) => {
+    form.validateFields(err => {
       if (callback) {
         callback(err);
       }
@@ -62,7 +62,7 @@ class EvnOption extends React.Component {
     const { form, onChange, index } = this.props;
     const { setFieldsValue, validateFields, getFieldsValue } = form;
     setFieldsValue({ [key]: value });
-    validateFields([key], (err) => {
+    validateFields([key], err => {
       if ((!err && onChange, index)) {
         onChange(index, getFieldsValue());
       }
@@ -88,7 +88,7 @@ class EvnOption extends React.Component {
             rules: [{ validator: this.validAttrName }]
           })(
             <Input
-              onChange={(e) => {
+              onChange={e => {
                 this.handleOnchange('attr_name', e.target.value);
               }}
               placeholder="属性名"
@@ -101,13 +101,13 @@ class EvnOption extends React.Component {
             rules: [{ required: false, message: '协议' }]
           })(
             <Select
-              onChange={(values) => {
+              onChange={values => {
                 this.handleOnchange('protocal', values);
               }}
               style={{ width: 100 }}
             >
               <Option value="">协议</Option>
-              {protocols.map((item) => (
+              {protocols.map(item => (
                 <Option value={item}>{item}</Option>
               ))}
             </Select>
@@ -119,7 +119,7 @@ class EvnOption extends React.Component {
             rules: [{ required: true, message: '属性名' }]
           })(
             <Select
-              onChange={(values) => {
+              onChange={values => {
                 this.handleOnchange('attr_type', values);
               }}
               style={{ width: 100 }}
@@ -136,7 +136,7 @@ class EvnOption extends React.Component {
             rules: [{ required: false, message: '默认值' }]
           })(
             <Input
-              onChange={(e) => {
+              onChange={e => {
                 this.handleOnchange('attr_default_value', e.target.value);
               }}
               style={{ width: 80 }}
@@ -151,7 +151,7 @@ class EvnOption extends React.Component {
               rules: [{ validator: this.checkAttrAltValue }]
             })(
               <Input
-                onChange={(e) => {
+                onChange={e => {
                   this.handleOnchange('attr_alt_value', e.target.value);
                 }}
                 style={{ width: 100 }}
@@ -166,7 +166,7 @@ class EvnOption extends React.Component {
             rules: [{ required: false, message: '默认值' }]
           })(
             <Select
-              onChange={(values) => {
+              onChange={values => {
                 this.handleOnchange('is_change', values);
               }}
               style={{ width: 100 }}
@@ -182,7 +182,7 @@ class EvnOption extends React.Component {
             rules: [{ required: false, message: '默认值' }]
           })(
             <Input
-              onChange={(e) => {
+              onChange={e => {
                 this.handleOnchange('attr_info', e.target.value);
               }}
               style={{ width: 100 }}
@@ -199,7 +199,7 @@ class EvnOption extends React.Component {
 class EnvGroup extends PureComponent {
   constructor(props) {
     super(props);
-    let group = (this.props.value || []).map((item) => ({
+    let group = (this.props.value || []).map(item => ({
       key: Math.random(),
       value: item
     }));
@@ -225,14 +225,14 @@ class EnvGroup extends PureComponent {
   check() {
     let res = true;
     for (let i = 0; i < this.groupItem.length; i++) {
-      this.groupItem[i].com.check((err) => {
+      this.groupItem[i].com.check(err => {
         res = !err;
       });
       if (!res) break;
     }
     return res;
   }
-  handlePlus = (key) => {
+  handlePlus = key => {
     const { group } = this.state;
     let index = 0;
     const setGroup = group.filter((item, i) => {
@@ -244,29 +244,27 @@ class EnvGroup extends PureComponent {
     setGroup.splice(index + 1, 0, { key: Math.random() });
     this.setState({ group: setGroup });
   };
-  handleMinus = (key) => {
+  handleMinus = key => {
     const { onChange } = this.props;
     const { group } = this.state;
     let setGroup = [].concat(group);
     if (setGroup.length === 1) return;
-    setGroup = group
-      .filter((item) => !!item)
-      .filter((item) => item.key !== key);
+    setGroup = group.filter(item => !!item).filter(item => item.key !== key);
     this.setState({ group: setGroup });
     if (onChange) {
-      onChange(this.state.group.map((item) => item.value));
+      onChange(this.state.group.map(item => item.value));
     }
   };
   handleChange = (index, val) => {
     const { onChange } = this.props;
     const { group } = this.state;
-    group.map((item) => {
+    group.map(item => {
       if (item.key === index) {
         item.value = val;
       }
       return item;
     });
-    const onchangeVal = group.map((item) => item.value);
+    const onchangeVal = group.map(item => item.value);
     if (onChange) {
       onChange(onchangeVal);
     }
@@ -274,15 +272,15 @@ class EnvGroup extends PureComponent {
   handleOptionMount = (k, com) => {
     this.groupItem.push({ key: k, com });
   };
-  handleOptionUnmout = (k) => {
-    this.groupItem = this.groupItem.filter((item) => item.key !== k);
+  handleOptionUnmout = k => {
+    this.groupItem = this.groupItem.filter(item => item.key !== k);
   };
   render() {
     let { group } = this.state;
-    group = group.filter((item) => !!item);
+    group = group.filter(item => !!item);
     return (
       <div>
-        {(group || []).map((item) => (
+        {(group || []).map(item => (
           <div key={item.key} style={{ display: 'flex' }}>
             <EvnOption
               onDidMount={this.handleOptionMount}
@@ -355,7 +353,7 @@ export default class Index extends PureComponent {
       onCancel();
     }
   };
-  hanldeMetaTypeChange = (e) => {
+  hanldeMetaTypeChange = e => {
     const { setFieldsValue } = this.props.form;
     if (e.target.value !== 'un_define') {
       setFieldsValue({ injection: 'auto' });
@@ -370,7 +368,7 @@ export default class Index extends PureComponent {
       }
     }
   };
-  handleEvnGroupMount = (com) => {
+  handleEvnGroupMount = com => {
     this.envGroup = com;
   };
   render() {

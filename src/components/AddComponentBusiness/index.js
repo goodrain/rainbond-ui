@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
-import { Form, Input, Modal, Switch, Checkbox, Row, Col } from 'antd';
 import Parameterinput from '@/components/Parameterinput';
+import { Checkbox, Col, Form, Input, Modal, Row, Switch } from 'antd';
+import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -54,7 +54,7 @@ export default class AddComponentBusiness extends PureComponent {
             {getFieldDecorator('configuration', {
               initialValue: '',
               rules: [{ required: true }]
-            })(<Parameterinput editInfo={''} />)}
+            })(<Parameterinput editInfo="" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="组件">
             {getFieldDecorator('rule_extensions_http', {
