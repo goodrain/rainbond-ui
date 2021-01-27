@@ -1,15 +1,15 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { Modal, Checkbox, notification, Radio, Form } from 'antd';
-import globalUtil from '../../utils/global';
-import cookie from '../../utils/cookie';
-import { Flow, withPropsAPI, RegisterCommand } from 'gg-editor';
-import {
-  addRelationedApp,
-  removeRelationedApp,
-  updateRolling,
-} from '../../services/app';
+import { Checkbox, Form, Modal, notification, Radio } from 'antd';
 import dagre from 'dagre';
+import { connect } from 'dva';
+import { Flow, RegisterCommand, withPropsAPI } from 'gg-editor';
+import React, { PureComponent } from 'react';
+import {
+    addRelationedApp,
+    removeRelationedApp,
+    updateRolling
+} from '../../services/app';
+import cookie from '../../utils/cookie';
+import globalUtil from '../../utils/global';
 
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
@@ -69,7 +69,7 @@ class EditorData extends PureComponent {
         groupId: group_id,
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const data = this.goodrainData2scopeData(res.bean);
           this.setState({
             data,
@@ -241,7 +241,7 @@ class EditorData extends PureComponent {
             open_inner: true,
             container_port: fieldsValue.container_port,
           }).then(res => {
-            if (res && res._code == 200) {
+            if (res && res.status_code === 200) {
               this.loadTopology();
               shape == 'undeploy' || shape == 'closed' || shape == 'stopping'
                 ? notification.success({ message: '依赖添加成功。' })
@@ -266,7 +266,7 @@ class EditorData extends PureComponent {
               open_outer: true,
             },
             callback: res => {
-              if (res && res._code == 200) {
+              if (res && res.status_code === 200) {
                 notification.success({ message: res.msg_show });
                 this.setState({ visible: false, shape: '' });
                 this.loadTopology();
@@ -295,7 +295,7 @@ class EditorData extends PureComponent {
       app_alias: name,
       dep_service_id: id,
     }).then(res => {
-      if (res && res._code == 212) {
+      if (res && res.status_code === 212) {
         if (res.msg_show == '当前应用已被关联') {
           this.handleUndo();
           return;
@@ -304,7 +304,7 @@ class EditorData extends PureComponent {
         notification.success({ message: res.msg_show });
         return;
       }
-      if (res && res._code == 201) {
+      if (res && res.status_code === 201) {
         if (res.list.length == 0) {
           this.handleUndo();
           notification.warning({ message: '暂无端口可用' });
@@ -321,7 +321,7 @@ class EditorData extends PureComponent {
         });
         return;
       }
-      if (res && res._code == 200) {
+      if (res && res.status_code === 200) {
         this.loadTopology();
         sourceShape == 'undeploy' ||
         sourceShape == 'closed' ||
@@ -349,7 +349,7 @@ class EditorData extends PureComponent {
           app_alias: name,
           dep_service_id: id,
         }).then(res => {
-          if (res && res._code == 200) {
+          if (res && res.status_code === 200) {
             notification.success({ message: res.msg_show });
             this.loadTopology();
             this.setState({
@@ -367,7 +367,7 @@ class EditorData extends PureComponent {
             close_outer: true,
           },
           callback: res => {
-            if (res && res._code == 200) {
+            if (res && res.status_code === 200) {
               notification.success({ message: res.msg_show });
               this.loadTopology();
               this.setState({
@@ -397,7 +397,7 @@ class EditorData extends PureComponent {
         open_outer: '',
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           if (res.msg_show == '该组件已开启对外端口') {
             this.handleUndo();
             return;
@@ -406,7 +406,7 @@ class EditorData extends PureComponent {
           this.loadTopology();
           return;
         }
-        if (res && res._code == 201) {
+        if (res && res.status_code === 201) {
           if (res.list.length == 0) {
             this.handleUndo();
             notification.warning({ message: '暂无端口可用' });

@@ -1,11 +1,13 @@
-import { Dropdown, Icon, Input, notification } from "antd";
-import { connect } from "dva";
-import { Link } from "dva/router";
-import React, { PureComponent } from "react";
-import { formatMessage, FormattedMessage } from "umi-plugin-locale";
-import userUtil from "../../utils/user";
-import CreateTeam from "../CreateTeam";
-import style from "./index.less";
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
+import { Dropdown, Icon, Input, notification } from 'antd';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
+import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import userUtil from '../../utils/user';
+import CreateTeam from '../CreateTeam';
+import style from './index.less';
 
 @connect(({ user }) => ({
   currentUser: user.currentUser
@@ -14,18 +16,17 @@ export default class SelectTeam extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      queryName: "",
+      queryName: '',
       page: 1,
       page_size: 5,
       userTeamList: [],
-      userTeamsLoading: true,
       showCreateTeam: false,
       loading: true,
       visible: false
     };
   }
   componentDidMount() {
-    this.loadUserTeams("");
+    this.loadUserTeams('');
   }
   queryTeams = queryName => {
     this.setState({ queryName }, () => {
@@ -37,7 +38,7 @@ export default class SelectTeam extends PureComponent {
     const { dispatch, currentUser, currentEnterprise } = this.props;
     const { page, page_size, queryName } = this.state;
     dispatch({
-      type: "global/fetchUserTeams",
+      type: 'global/fetchUserTeams',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
         user_id: currentUser.user_id,
@@ -46,10 +47,9 @@ export default class SelectTeam extends PureComponent {
         page_size
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             userTeamList: res.list,
-            userTeamsLoading: false,
             loading: false
           });
         }
@@ -65,12 +65,12 @@ export default class SelectTeam extends PureComponent {
     const { dispatch } = this.props;
 
     dispatch({
-      type: "teamControl/createTeam",
+      type: 'teamControl/createTeam',
       payload: values,
       callback: () => {
         // 获取最新的用户信息
-        dispatch({ type: "user/fetchCurrent" });
-        notification.success({ message: formatMessage({ id: "add.success" }) });
+        dispatch({ type: 'user/fetchCurrent' });
+        notification.success({ message: formatMessage({ id: 'add.success' }) });
         this.cancelCreateTeam();
         this.loadUserTeams();
       }
@@ -99,20 +99,14 @@ export default class SelectTeam extends PureComponent {
       active
     } = this.props;
     const { userTeamList, loading, showCreateTeam, visible } = this.state;
-    const currentTeamLink = `/team/${currentTeam.team_name}/region/${
-      currentRegion.team_region_name
-    }/index`;
-    const currentEnterpriseTeamPageLink = `/enterprise/${
-      currentEnterprise.enterprise_id
-    }/teams`;
+    const currentTeamLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
+    const currentEnterpriseTeamPageLink = `/enterprise/${currentEnterprise.enterprise_id}/teams`;
     const items = [];
     userTeamList.map(team => {
       const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name);
       if (teamInfo) {
         teamInfo.region.map(region => {
-          const link = `/team/${team.team_name}/region/${
-            region.team_region_name
-          }/index`;
+          const link = `/team/${team.team_name}/region/${region.team_region_name}/index`;
           const item = {
             name: `${team.team_alias} | ${region.team_region_alias}`,
             link
@@ -134,7 +128,7 @@ export default class SelectTeam extends PureComponent {
               <Input.Search
                 onSearch={this.queryTeams}
                 className={style.dropBoxSearchInputContrl}
-                placeholder={formatMessage({ id: "header.team.search" })}
+                placeholder={formatMessage({ id: 'header.team.search' })}
               />
             </div>
           </div>
@@ -173,7 +167,7 @@ export default class SelectTeam extends PureComponent {
         </div>
       </div>
     );
-    const showstyle = { background: "#1890ff", color: "#ffffff" };
+    const showstyle = { background: '#4d73b1', color: '#ffffff' };
     return (
       <div
         className={className}

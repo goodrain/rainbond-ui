@@ -1,32 +1,39 @@
 import {
-  queryEnterpriseService,
-  queryEnterpriseOrderList,
-  queryEnterpriseOrderDetails,
-  queryBankInfo,
   CreateOrder,
-  queryEnterpriseServiceRefresh,
+  queryBankInfo,
+  queryEnterpriseOrderDetails,
+  queryEnterpriseOrderList,
+  queryEnterpriseService,
+  queryEnterpriseServiceRefresh
 } from '../services/order';
 
 export default {
   namespace: 'order',
 
   state: {
-    enterpriseServiceInfo: null,
+    enterpriseServiceInfo: null
   },
 
   effects: {
     *fetchEnterpriseService({ payload, callback }, { call, put }) {
       const response = yield call(queryEnterpriseService, payload);
-      if (response && response._code === 200) {
+      if (response && response.status_code === 200) {
         yield put({
           type: 'setEnterpriseServiceInfo',
-          payload: response.bean,
+          payload: response.bean
         });
         callback && callback(response);
       }
     },
-    *fetchEnterpriseServiceRefresh({ payload, callback, handleError }, { call }) {
-      const response = yield call(queryEnterpriseServiceRefresh, payload, handleError);
+    *fetchEnterpriseServiceRefresh(
+      { payload, callback, handleError },
+      { call }
+    ) {
+      const response = yield call(
+        queryEnterpriseServiceRefresh,
+        payload,
+        handleError
+      );
       if (response && callback) {
         callback(response);
       }
@@ -58,15 +65,15 @@ export default {
       if (response && callback) {
         callback(response);
       }
-    },
+    }
   },
 
   reducers: {
     setEnterpriseServiceInfo(state, { payload }) {
       return {
         ...state,
-        enterpriseServiceInfo: payload,
+        enterpriseServiceInfo: payload
       };
-    },
-  },
+    }
+  }
 };

@@ -1,7 +1,7 @@
 import { Button, Card, Form, Input, notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import moment from "moment";
+import moment from 'moment';
 import React, { PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
 import ScrollerX from '../../components/ScrollerX';
@@ -19,7 +19,7 @@ const FormItem = Form.Item;
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 export default class AppList extends PureComponent {
   constructor(props) {
@@ -30,13 +30,13 @@ export default class AppList extends PureComponent {
       page: 1,
       query: '',
       pageSize: 10,
-      operationPermissions: this.handlePermissions('queryAppInfo'),
+      operationPermissions: this.handlePermissions('queryAppInfo')
     };
   }
   componentWillMount() {
     const { dispatch } = this.props;
     const {
-      operationPermissions: { isAccess },
+      operationPermissions: { isAccess }
     } = this.state;
     if (!isAccess) {
       globalUtil.withoutPermission(dispatch);
@@ -65,17 +65,17 @@ export default class AppList extends PureComponent {
         region: regionName,
         query,
         page,
-        page_size: pageSize,
+        page_size: pageSize
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             loading: false,
             apps: res.list,
-            total: res.bean && res.bean.total,
+            total: res.bean && res.bean.total
           });
         }
-      },
+      }
     });
   };
   handlePermissions = type => {
@@ -105,7 +105,7 @@ export default class AppList extends PureComponent {
       type: 'application/addGroup',
       payload: {
         team_name: teamName,
-        ...vals,
+        ...vals
       },
       callback: res => {
         if (res) {
@@ -113,7 +113,7 @@ export default class AppList extends PureComponent {
           this.getTeamAppList();
           this.cancelAddGroup();
         }
-      },
+      }
     });
   };
 
@@ -129,7 +129,7 @@ export default class AppList extends PureComponent {
       currentEnterprise,
       currentTeam,
       currentRegionName,
-      match,
+      match
     } = this.props;
     const { teamName, regionName } = match.params;
     const {
@@ -139,7 +139,7 @@ export default class AppList extends PureComponent {
       pageSize,
       total,
       addGroup,
-      operationPermissions: { isCreate },
+      operationPermissions: { isCreate }
     } = this.state;
     let breadcrumbList = [];
 
@@ -198,7 +198,7 @@ export default class AppList extends PureComponent {
                 current: page,
                 pageSize,
                 total,
-                onChange: this.onPageChange,
+                onChange: this.onPageChange
               }}
               dataSource={apps || []}
               columns={[
@@ -214,29 +214,29 @@ export default class AppList extends PureComponent {
                         {val}
                       </Link>
                     );
-                  },
+                  }
                 },
                 {
                   title: '更新时间',
                   dataIndex: 'update_time',
                   width: '200px',
                   render: (val, data) => {
-                    if (val){
-                      return moment(val).format("YYYY-MM-DD HH:mm:ss")
+                    if (val) {
+                      return moment(val).format('YYYY-MM-DD HH:mm:ss');
                     }
-                    return '-'
-                  },
+                    return '-';
+                  }
                 },
                 {
                   title: '创建时间',
                   dataIndex: 'create_time',
                   width: '200px',
                   render: (val, data) => {
-                    if (val){
-                      return moment(val).format("YYYY-MM-DD HH:mm:ss")
+                    if (val) {
+                      return moment(val).format('YYYY-MM-DD HH:mm:ss');
                     }
-                    return '-'
-                  },
+                    return '-';
+                  }
                 },
                 {
                   title: '组件(运行/总数)',
@@ -249,7 +249,7 @@ export default class AppList extends PureComponent {
                         {data.run_service_num}/{data.services_num}
                       </p>
                     );
-                  },
+                  }
                 },
                 {
                   title: '占用内存/分配内存(MB)',
@@ -262,7 +262,7 @@ export default class AppList extends PureComponent {
                         {data.used_mem}/{data.allocate_mem}
                       </p>
                     );
-                  },
+                  }
                 },
                 {
                   title: '备份记录',
@@ -277,7 +277,7 @@ export default class AppList extends PureComponent {
                         {val}
                       </Link>
                     );
-                  },
+                  }
                 },
                 {
                   title: '发布记录',
@@ -292,7 +292,7 @@ export default class AppList extends PureComponent {
                         {val}
                       </Link>
                     );
-                  },
+                  }
                 },
                 {
                   title: '备注',
@@ -301,8 +301,8 @@ export default class AppList extends PureComponent {
                     return (
                       <p style={{ marginBottom: 0, color: '#999999' }}>{val}</p>
                     );
-                  },
-                },
+                  }
+                }
               ]}
             />
           </ScrollerX>

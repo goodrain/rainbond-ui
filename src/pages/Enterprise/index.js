@@ -103,8 +103,8 @@ export default class Enterprise extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             overviewMonitorInfo: res.bean,
             overviewMonitorInfoLoading: false
@@ -123,8 +123,8 @@ export default class Enterprise extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             overviewTeamInfo: res.bean,
             overviewTeamInfoLoading: false
@@ -143,8 +143,8 @@ export default class Enterprise extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             overviewInfo: res.bean,
             overviewInfoLoading: false
@@ -163,8 +163,8 @@ export default class Enterprise extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             overviewAppInfo:
               res.bean && JSON.stringify(res.bean) !== '{}' ? res.bean : false,
@@ -184,8 +184,8 @@ export default class Enterprise extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             enterpriseInfo: res.bean,
             enterpriseInfoLoading: false
@@ -219,8 +219,8 @@ export default class Enterprise extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             total: res.list.length,
             collectionInfoLoading: false,
@@ -243,8 +243,8 @@ export default class Enterprise extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           if (
             res.list.length > 0 &&
             res.list[0].access_key === '' &&
@@ -260,7 +260,7 @@ export default class Enterprise extends PureComponent {
     });
   };
 
-  handleCreateTeam = (values) => {
+  handleCreateTeam = values => {
     this.props.dispatch({
       type: 'teamControl/createTeam',
       payload: values,
@@ -300,7 +300,7 @@ export default class Enterprise extends PureComponent {
     return null;
   };
 
-  handleJoinTeam = (values) => {
+  handleJoinTeam = values => {
     this.props.dispatch({
       type: 'global/joinTeam',
       payload: values,
@@ -333,7 +333,7 @@ export default class Enterprise extends PureComponent {
     this.setState({ editorConvenient: !this.state.editorConvenient });
   };
 
-  deleteConvenient = (collectionInfo) => {
+  deleteConvenient = collectionInfo => {
     this.setState({
       delcollectionVisible: true,
       collectionInfo
@@ -349,8 +349,8 @@ export default class Enterprise extends PureComponent {
         favorite_id: collectionInfo && collectionInfo.favorite_id,
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code == 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           notification.success({ message: '删除成功' });
           this.fetchCollectionViewInfo();
           this.handleCloseDelCollectionVisible();
@@ -852,7 +852,7 @@ export default class Enterprise extends PureComponent {
                       </Card>
                     </Col>
                     <Col span={11} offset={1}>
-                      {active_teams.map((item) => {
+                      {active_teams.map(item => {
                         const { team_name, region, team_alias } = item;
                         return (
                           <Card
@@ -1053,9 +1053,7 @@ export default class Enterprise extends PureComponent {
                               onClick={() => {
                                 editorConvenient
                                   ? this.deleteConvenient(item)
-                                  : this.props.dispatch(
-                                      routerRedux.push(url)
-                                    );
+                                  : this.props.dispatch(routerRedux.push(url));
                               }}
                             >
                               <Card

@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react/react-in-jsx-scope */
-import { notification } from 'antd';
+import { notification, Tooltip } from 'antd';
 
 const aliyunRegionNames = [
   {
@@ -22,6 +22,11 @@ const aliyunRegionNames = [
     RegionId: 'cn-huhehaote',
     RegionEndpoint: 'ecs.cn-huhehaote.aliyuncs.com',
     LocalName: '华北5（呼和浩特）'
+  },
+  {
+    RegionId: 'cn-wulanchabu',
+    RegionEndpoint: 'ecs-cn-wulanchabu.aliyuncs.com',
+    LocalName: '华北6（乌兰察布）'
   },
   {
     RegionId: 'cn-hangzhou',
@@ -142,6 +147,16 @@ const createKubernetesSteps = {
     Title: '创建集群',
     Description: '创建托管集群，创建成功后大概10分钟集群即可使用',
     Status: ''
+  },
+  InitClusterConfig: {
+    Title: '初始化集群配置',
+    Description: '初始化创建集群所需要的配置数据',
+    Status: ''
+  },
+  InstallKubernetes: {
+    Title: '安装集群',
+    Description: '连接所有节点安装 Kubernetes 集群，耗时取决于网络状况。',
+    Status: ''
   }
 };
 
@@ -193,8 +208,8 @@ const initRainbondSteps = {
     Status: ''
   },
   InitRainbondRegion: {
-    Title: '初始化Rainbond集群完成',
-    Description: '已经完成Rainbond集群初始化',
+    Title: '初始化Rainbond集群',
+    Description: '等待 Rainbond 集群初始化完成',
     Status: ''
   },
   InitRainbondRegionOperator: {
@@ -203,18 +218,18 @@ const initRainbondSteps = {
     Status: ''
   },
   InitRainbondRegionImageHub: {
-    Title: '启动集群本地镜像仓库(预计2分钟)',
+    Title: '启动集群本地镜像仓库(预计5分钟)',
     Description:
-      '本地镜像仓库就绪意味着存储、网关等服务已就绪，本阶段预计2分钟',
+      '本地镜像仓库就绪意味着存储、网关等服务已就绪，本阶段预计5分钟，取决于网络状况',
     Status: ''
   },
   InitRainbondRegionPackage: {
-    Title: '系统所需所有镜像本地化处理(预计10分钟)',
-    Description: '将Rainbond需要的所有镜像获取完成并推送到本地镜像仓库',
+    Title: '系统所需的非组件镜像本地化处理(预计5分钟)',
+    Description: '将Rainbond需要的非组件镜像获取完成并推送到本地镜像仓库',
     Status: ''
   },
   InitRainbondRegionRegionConfig: {
-    Title: '获取集群访问配置文件(预计1分钟)',
+    Title: '获取集群访问配置文件(预计5分钟)',
     Description:
       '等待集群服务启动完成，当API服务可以正常访问则集群访问配置文件已获取完成',
     Status: ''
@@ -389,27 +404,27 @@ const providers = [
     describe:
       '支持阿里云托管类型集群对接，集群可用性由阿里云负责，Rainbond Cloud负责辅助集群创建、Rainbond集群初始化以及后续的资源调度管理',
     disable: false
-  },
-  {
-    id: 'eks',
-    name: 'Amazon EKS',
-    icon: amzonIcon,
-    describe: 'Amazon EKS 即将支持',
-    disable: true
-  },
-  {
-    id: 'cce',
-    name: '华为云 CCE',
-    icon: huaweiIcon,
-    describe: '华为云 CCE 即将支持',
-    disable: true
   }
+  // {
+  //   id: 'eks',
+  //   name: 'Amazon EKS',
+  //   icon: amzonIcon,
+  //   describe: 'Amazon EKS 即将支持',
+  //   disable: true
+  // },
+  // {
+  //   id: 'cce',
+  //   name: '华为云 CCE',
+  //   icon: huaweiIcon,
+  //   describe: '华为云 CCE 即将支持',
+  //   disable: true
+  // }
 ];
 
 const cloud = {
   getAliyunRegionName(id) {
     let regionName = id;
-    aliyunRegionNames.map((item) => {
+    aliyunRegionNames.map(item => {
       if (item.RegionId == id) {
         regionName = item.LocalName;
       }
@@ -424,9 +439,13 @@ const cloud = {
   getAliyunClusterName(n) {
     switch (n) {
       case 'ManagedKubernetes':
-        return '托管集群';
+        return '阿里云托管集群';
       case 'ServerlessKubernetes':
-        return 'Serverless集群';
+        return '阿里云Serverless集群';
+      case 'rke':
+        return '主机自安装集群';
+      case 'custom':
+        return '自建对接集群';
       default:
         return n;
     }
@@ -479,7 +498,7 @@ const cloud = {
         notification.warning({ message: '阿里云容器服务默认缺角未创建' });
         break;
       case 7007:
-        notification.warning({ message: '阿里云API请求故障，请联系我们' });
+        notification.warning({ message: '阿里云API请求故障，请稍后重试' });
         break;
       case 400:
         notification.warning({ message: '请求参数错误' });
@@ -501,9 +520,9 @@ const cloud = {
     };
     let complete = false;
     const steps = [];
-    events.map((item) => {
+    events.map(item => {
       let step = createKubernetesSteps[item.type];
-      if (step == undefined) {
+      if (step === undefined) {
         step = {
           Title: item.type,
           Description: item.type,
@@ -515,8 +534,9 @@ const cloud = {
       step.Color = colorMap[item.status];
       steps.push(step);
       if (
-        item.status == 'failure' ||
-        (item.type == 'CreateCluster' && item.status == 'success')
+        item.status === 'failure' ||
+        ((item.type === 'CreateCluster' || item.type === 'InstallKubernetes') &&
+          item.status === 'success')
       ) {
         complete = true;
       }
@@ -532,9 +552,9 @@ const cloud = {
     };
     let complete = false;
     const steps = [];
-    events.map((item) => {
+    events.map(item => {
       let step = initRainbondSteps[item.type];
-      if (step == undefined) {
+      if (step === undefined) {
         step = {
           Title: item.type,
           Description: item.type,
@@ -546,42 +566,42 @@ const cloud = {
       step.Color = colorMap[item.status];
       steps.push(step);
       if (
-        item.status == 'failure' ||
-        (item.type == 'InitRainbondRegion' && item.status == 'success')
+        item.status === 'failure' ||
+        (item.type === 'InitRainbondRegion' && item.status === 'success')
       ) {
         complete = true;
       }
     });
     return { complete, steps };
   },
-  getAliyunClusterStatus(status, cluster) {
-    const logURL = `https://cs.console.aliyun.com/#/k8s/cluster/${cluster.cluster_id}/log`;
+  getAliyunClusterStatus(status, cluster, linkedClusters) {
     switch (status) {
       case 'running':
-        if (cluster.rainbond_init) {
+        if (linkedClusters.get(cluster.cluster_id)) {
           return <span style={{ color: 'green' }}>运行中(已对接)</span>;
         }
+        if (cluster.rainbond_init === true) {
+          return <span style={{ color: 'green' }}>运行中(已初始化)</span>;
+        }
+        if (cluster.parameters && cluster.parameters.Message) {
+          return (
+            <Tooltip title={cluster.parameters.Message}>
+              <span style={{ color: 'green' }}>
+                <span style={{ color: 'red', fontSize: '16px' }}>*</span>运行中
+              </span>
+            </Tooltip>
+          );
+        }
         return <span style={{ color: 'green' }}>运行中</span>;
+
       case 'initial':
-        return (
-          <span style={{ color: '#1890ff' }}>
-            初始化中
-            <a target="_blank" href={logURL}>
-              查看日志
-            </a>
-          </span>
-        );
+        return <span style={{ color: '#1890ff' }}>初始化中</span>;
       case 'deleting':
         return <span style={{ color: 'red' }}>删除中</span>;
+      case 'offline':
+        return <span style={{ color: 'red' }}>已离线</span>;
       case 'failed':
-        return (
-          <span style={{ color: 'red' }}>
-            创建失败
-            <a target="_blank" href={logURL}>
-              查看日志
-            </a>
-          </span>
-        );
+        return <span style={{ color: 'red' }}>安装失败</span>;
       default:
         return status;
     }
@@ -591,10 +611,11 @@ const cloud = {
   },
   getProviderShowName(id) {
     let name = id;
-    providers.map((item) => {
-      if (item.id == id) {
+    providers.map(item => {
+      if (item.id === id) {
         name = item.name;
       }
+      return item;
     });
     return name;
   },

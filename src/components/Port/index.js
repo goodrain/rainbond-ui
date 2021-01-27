@@ -1,17 +1,20 @@
-import React, { PureComponent } from 'react';
+import {
+    Button, Form,
+
+    Icon,
+
+
+    Modal,
+
+    notification, Select, Switch,
+
+
+    Table
+} from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
+import React, { PureComponent } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import {
-  Form,
-  Button,
-  Icon,
-  Switch,
-  Select,
-  Modal,
-  Table,
-  notification,
-} from 'antd';
 import appPortUtil from '../../utils/appPort-util';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
@@ -207,7 +210,7 @@ export default class Index extends PureComponent {
           app_alias: appDetail.service.service_alias,
         },
         callback: res => {
-          if (res && res._code == 200) {
+          if (res && res.status_code === 200) {
             this.setState({
               list: res.list,
             });

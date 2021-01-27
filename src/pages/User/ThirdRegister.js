@@ -33,7 +33,7 @@ export default class Register extends Component {
         service_id
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             user_info: res.bean.user_info
           });
@@ -60,7 +60,7 @@ export default class Register extends Component {
                 oauth_user_id
               },
               callback: res => {
-                if (res && res._code === 200) {
+                if (res && res.status_code === 200) {
                   message.success('认证成功', 1, () => {
                     // support redirect to the page before login
                     let redirect = window.localStorage.getItem('redirect');

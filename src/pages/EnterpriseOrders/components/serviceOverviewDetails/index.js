@@ -9,7 +9,7 @@ import {
   notification,
   Row,
   Slider,
-  Spin,
+  Spin
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -19,7 +19,7 @@ import ordersUtil from '../../../../utils/orders';
 import styles from '../../index.less';
 
 @connect(({ order }) => ({
-  enterpriseServiceInfo: order.enterpriseServiceInfo,
+  enterpriseServiceInfo: order.enterpriseServiceInfo
 }))
 export default class ServiceOverview extends PureComponent {
   constructor(props) {
@@ -44,7 +44,7 @@ export default class ServiceOverview extends PureComponent {
       noDiscountExtended: 0,
       computingYears: '',
       computingMonth: '',
-      computingNewOrder: '',
+      computingNewOrder: ''
     };
   }
   componentWillMount() {
@@ -66,9 +66,7 @@ export default class ServiceOverview extends PureComponent {
         discountText: enterpriseServiceInfo.discount
           ? `${enterpriseServiceInfo.discount * 10}折优惠`
           : '8.0折优惠',
-        capacity: ordersUtil.handlUnitMemory(
-          enterpriseServiceInfo.memory_limit
-        ),
+        capacity: ordersUtil.handlUnitMemory(enterpriseServiceInfo.memory_limit)
       },
       () => {
         this.calculatePrice();
@@ -83,7 +81,7 @@ export default class ServiceOverview extends PureComponent {
   selected = selected => {
     this.setState(
       {
-        selected,
+        selected
       },
       () => {
         this.calculatePrice();
@@ -100,7 +98,7 @@ export default class ServiceOverview extends PureComponent {
       info,
       selected,
       discountText,
-      discountMoney,
+      discountMoney
     } = this.state;
     const timeDelay = selected === 3;
     const isRenewal = info && info.type === 'vip';
@@ -225,7 +223,7 @@ export default class ServiceOverview extends PureComponent {
     this.setState({
       computingYears,
       yearsPay,
-      discount,
+      discount
     });
   };
 
@@ -276,7 +274,7 @@ export default class ServiceOverview extends PureComponent {
     this.setState({
       computingMonth,
       monthPay,
-      originalMonthPay,
+      originalMonthPay
     });
   };
 
@@ -293,7 +291,7 @@ export default class ServiceOverview extends PureComponent {
       this.setState({
         extended: billing ? 0 : supplementarys,
         noDiscountExtended: billing ? 0 : noDiscountSupplementarys,
-        computingNewOrder: billing ? '' : Filling,
+        computingNewOrder: billing ? '' : Filling
       });
     }
   };
@@ -343,7 +341,7 @@ export default class ServiceOverview extends PureComponent {
   onChangeMonthNumber = monthNumber => {
     this.setState(
       {
-        monthNumber: monthNumber < 1 ? 1 : monthNumber,
+        monthNumber: monthNumber < 1 ? 1 : monthNumber
       },
       () => {
         this.calculatePrice();
@@ -361,10 +359,10 @@ export default class ServiceOverview extends PureComponent {
       noDiscountExtended,
       discount,
       monthPay,
-      originalMonthPay,
+      originalMonthPay
     } = this.state;
     this.setState({
-      submitLoading: true,
+      submitLoading: true
     });
     const { dispatch, eid } = this.props;
     const totalPrice =
@@ -383,28 +381,26 @@ export default class ServiceOverview extends PureComponent {
         final_price: totalPrice,
         memory: capacity,
         months: month,
-        original_price: originalPrice,
+        original_price: originalPrice
       },
       callback: res => {
-        if (res && res._code === 200 && res.bean) {
+        if (res && res.status_code === 200 && res.bean) {
           dispatch(
             routerRedux.push(
-              `/enterprise/${eid}/orders/orderManagement/orderDetails/${
-                res.bean.order_id
-              }`
+              `/enterprise/${eid}/orders/orderManagement/orderDetails/${res.bean.order_id}`
             )
           );
         }
       },
       handleError: res => {
         this.setState({
-          submitLoading: false,
+          submitLoading: false
         });
         if (res && res.data && res.data.code) {
           switch (res.data.code) {
             case 6000:
               return notification.warning({
-                message: '请求的价格, 和实际计算出来的价格不一致',
+                message: '请求的价格, 和实际计算出来的价格不一致'
               });
             case 6002:
               return notification.warning({ message: '参数 months 不正确' });
@@ -412,17 +408,17 @@ export default class ServiceOverview extends PureComponent {
               return notification.warning({ message: '参数 memory 不正确' });
             case 6005:
               return notification.warning({
-                message: '内存不能小于已使用内存',
+                message: '内存不能小于已使用内存'
               });
             case 6006:
               return notification.warning({ message: '还有未支付的订单' });
             default:
               return notification.warning({
-                message: '未知错误',
+                message: '未知错误'
               });
           }
         }
-      },
+      }
     });
   };
 
@@ -465,7 +461,7 @@ export default class ServiceOverview extends PureComponent {
     }
 
     this.setState({
-      moments,
+      moments
     });
   };
 
@@ -489,7 +485,7 @@ export default class ServiceOverview extends PureComponent {
       computingMonth,
       computingNewOrder,
       discountText,
-      maxSlider,
+      maxSlider
     } = this.state;
 
     const free = info && info.type === 'free';
@@ -519,7 +515,7 @@ export default class ServiceOverview extends PureComponent {
               height: '100%',
               margin: 'auto',
               paddingTop: 50,
-              textAlign: 'center',
+              textAlign: 'center'
             }}
           >
             <Spin size="large" />
@@ -602,7 +598,7 @@ export default class ServiceOverview extends PureComponent {
                     if (value % 5 > 0) {
                       this.setState({
                         capacity: value + (5 - (value % 5)),
-                        maxSlider: true,
+                        maxSlider: true
                       });
                     } else {
                       this.setState({ capacity: value, maxSlider: true });

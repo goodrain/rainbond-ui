@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
+import { Button, Form, Modal, Radio, Select } from 'antd';
 import { connect } from 'dva';
-import { Form, Button, Select, Modal, Radio } from 'antd';
+import React, { PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
@@ -8,15 +8,15 @@ import styles from '../CreateTeam/index.less';
 const { Option } = Select;
 const formItemLayout = {
   labelCol: {
-    span: 5,
+    span: 5
   },
   wrapperCol: {
-    span: 19,
-  },
+    span: 19
+  }
 };
 
 @connect(({ global }) => ({ groups: global.groups }), null, null, {
-  withRef: true,
+  withRef: true
 })
 @Form.create()
 export default class Index extends PureComponent {
@@ -24,7 +24,7 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       addGroup: false,
-      is_deploy: true,
+      is_deploy: true
     };
   }
   onAddGroup = () => {
@@ -39,7 +39,7 @@ export default class Index extends PureComponent {
       type: 'application/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...vals,
+        ...vals
       },
       callback: group => {
         if (group) {
@@ -48,15 +48,15 @@ export default class Index extends PureComponent {
             type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName(),
+              region_name: globalUtil.getCurrRegionName()
             },
             callback: () => {
               setFieldsValue({ group_id: group.group_id });
               this.cancelAddGroup();
-            },
+            }
           });
         }
-      },
+      }
     });
   };
 
@@ -66,8 +66,8 @@ export default class Index extends PureComponent {
     this.props.dispatch({
       type: 'global/fetchGroups',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-      },
+        team_name: globalUtil.getCurrTeamName()
+      }
     });
   };
   handleSubmit = e => {
@@ -84,7 +84,7 @@ export default class Index extends PureComponent {
 
   renderSuccessOnChange = () => {
     this.setState({
-      is_deploy: !this.state.is_deploy,
+      is_deploy: !this.state.is_deploy
     });
   };
 
@@ -128,7 +128,7 @@ export default class Index extends PureComponent {
             checked={this.state.is_deploy}
           >
             并构建启动
-          </Radio>,
+          </Radio>
         ]}
       >
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
@@ -142,9 +142,9 @@ export default class Index extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请选择版本',
-                },
-              ],
+                  message: '请选择版本'
+                }
+              ]
             })(
               <Select
                 onChange={this.handleChangeVersion}
@@ -176,16 +176,16 @@ export default class Index extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请选择',
-                },
-              ],
+                  message: '请选择'
+                }
+              ]
             })(
               <Select
                 placeholder="请选择应用"
                 style={{
                   display: 'inline-block',
                   width: 220,
-                  marginRight: 15,
+                  marginRight: 15
                 }}
               >
                 {(groups || []).map(group => (

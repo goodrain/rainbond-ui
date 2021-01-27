@@ -1,25 +1,34 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
 import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Input,
-  Icon,
-  Menu,
-  Select,
-  Radio,
-  Upload,
+    Button, Card, Col,
+
+    Form,
+
+
+    Icon, Input,
+
+    Menu,
+
+    Radio, Row,
+
+
+
+
+
+
+
+    Select,
+
+    Upload
 } from 'antd';
+import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import FooterToolbar from '../../components/FooterToolbar';
+import React, { PureComponent } from 'react';
 import apiconfig from '../../../config/api.config';
+import FooterToolbar from '../../components/FooterToolbar';
+import styles from '../../components/PageHeader/index.less';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
-import styles from '../../components/PageHeader/index.less';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -247,7 +256,7 @@ export default class Main extends PureComponent {
                     </Form.Item>
                   </Col>
                   <Col span="12">
-                    <Form.Item {...formItemLayout} label="分享范围">
+                    <Form.Item {...formItemLayout} label="发布范围">
                       {getFieldDecorator('scope', {
                         initialValue: info.scope || 'team',
                         rules: [

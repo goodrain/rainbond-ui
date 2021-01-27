@@ -28,7 +28,7 @@ const { confirm } = Modal;
   enterprise: global.enterprise,
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
-  overviewInfo: index.overviewInfo,
+  overviewInfo: index.overviewInfo
 }))
 export default class OauthTable extends PureComponent {
   constructor(props) {
@@ -39,7 +39,7 @@ export default class OauthTable extends PureComponent {
       oauthTable: [],
       openOauth: false,
       isOpen: false,
-      showDeleteDomain: false,
+      showDeleteDomain: false
     };
   }
   componentDidMount() {
@@ -57,7 +57,7 @@ export default class OauthTable extends PureComponent {
         <span
           style={{
             wordBreak: 'break-all',
-            wordWrap: 'break-word',
+            wordWrap: 'break-word'
           }}
         >
           {data}
@@ -75,7 +75,7 @@ export default class OauthTable extends PureComponent {
       cancelText: '取消',
       onOk() {
         _th.handleDeleteOauth(record);
-      },
+      }
     });
   };
 
@@ -84,14 +84,14 @@ export default class OauthTable extends PureComponent {
     dispatch({
       type: 'global/deleteOauthInfo',
       payload: {
-        service_id: data.service_id,
+        service_id: data.service_id
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '删除成功' });
           this.handelOauthInfo();
         }
-      },
+      }
     });
   };
 
@@ -103,7 +103,7 @@ export default class OauthTable extends PureComponent {
       oauth_type,
       home_url,
       redirect_domain,
-      is_auto_login,
+      is_auto_login
     } = values;
     oauth_type = oauth_type.toLowerCase();
     if (oauth_type === 'github') {
@@ -117,7 +117,7 @@ export default class OauthTable extends PureComponent {
       oauth_type,
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       home_url,
-      is_console: true,
+      is_console: true
     };
     this.handelRequest(obj);
   };
@@ -145,10 +145,10 @@ export default class OauthTable extends PureComponent {
       type: 'global/creatOauth',
       payload: {
         enterprise_id: eid,
-        arr,
+        arr
       },
       callback: data => {
-        if (data && data._code === 200) {
+        if (data && data.status_code === 200) {
           notification.success({
             message: isOpen
               ? '开启成功'
@@ -156,11 +156,11 @@ export default class OauthTable extends PureComponent {
               ? '关闭成功'
               : oauthInfo
               ? '编辑成功'
-              : '添加成功',
+              : '添加成功'
           });
           this.handelOauthInfo();
         }
-      },
+      }
     });
   };
 
@@ -168,14 +168,14 @@ export default class OauthTable extends PureComponent {
     this.setState({
       openOauth: true,
       oauthInfo,
-      isOpen,
+      isOpen
     });
   };
 
   handleOpenDomain = oauthInfo => {
     this.setState({
       oauthInfo,
-      showDeleteDomain: true,
+      showDeleteDomain: true
     });
   };
 
@@ -184,7 +184,7 @@ export default class OauthTable extends PureComponent {
       isOpen: false,
       openOauth: false,
       oauthInfo: false,
-      showDeleteDomain: false,
+      showDeleteDomain: false
     });
   };
   handelOauthInfo = () => {
@@ -192,18 +192,18 @@ export default class OauthTable extends PureComponent {
     dispatch({
       type: 'global/getOauthInfo',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const lists = res.list && res.list.length > 0 && res.list;
           this.setState({
             loading: false,
-            oauthTable: lists || [],
+            oauthTable: lists || []
           });
           this.handelClone();
         }
-      },
+      }
     });
   };
   render() {
@@ -213,7 +213,7 @@ export default class OauthTable extends PureComponent {
       loading,
       openOauth,
       oauthInfo,
-      showDeleteDomain,
+      showDeleteDomain
     } = this.state;
     let autoLoginOAuth = null;
     oauthTable.map(item => {
@@ -225,7 +225,7 @@ export default class OauthTable extends PureComponent {
     });
     return (
       <Modal
-        title="OAuth服务配置"
+        title="OAuth 第三方服务集成配置"
         loading={loading}
         className={styles.TelescopicModal}
         width={1150}
@@ -234,16 +234,16 @@ export default class OauthTable extends PureComponent {
         onCancel={onCancel}
         footer={[
           <Button style={{ marginTop: '20px' }} onClick={this.handleSubmit}>
-            关闭
-          </Button>,
+            禁用
+          </Button>
         ]}
       >
         <div>
           {showDeleteDomain && (
             <ConfirmModal
               loading={oauthLongin}
-              title="关闭"
-              desc="确定要关闭此配置吗？"
+              title="禁用"
+              desc="确定要禁用该Oauth服务吗？禁用后基于该服务构建的组件将不能进行构建"
               onOk={() => {
                 this.handelRequest(oauthInfo, 'clone');
               }}
@@ -263,9 +263,7 @@ export default class OauthTable extends PureComponent {
             <Col span={12}>
               {autoLoginOAuth && (
                 <Alert
-                  message={`${
-                    autoLoginOAuth.name
-                  } 服务已开启自动登录，登录流程将自动导航到该服务。`}
+                  message={`${autoLoginOAuth.name} 服务已开启自动登录，登录流程将自动导航到该服务。`}
                   type="success"
                 />
               )}
@@ -290,34 +288,34 @@ export default class OauthTable extends PureComponent {
                 title: 'OAuth类型',
                 dataIndex: 'oauth_type',
                 key: '1',
-                width: '10%',
+                width: '10%'
               },
               {
                 title: '名称',
                 dataIndex: 'name',
                 key: '2',
-                width: '15%',
+                width: '15%'
               },
               {
                 title: '客户端ID',
                 dataIndex: 'client_id',
                 key: '3',
                 width: '15%',
-                render: data => this.handleDiv(data),
+                render: data => this.handleDiv(data)
               },
               {
                 title: '客户端密钥',
                 dataIndex: 'client_secret',
                 key: '4',
                 width: '15%',
-                render: data => this.handleDiv(data),
+                render: data => this.handleDiv(data)
               },
               {
                 title: '服务地址',
                 dataIndex: 'home_url',
                 key: '5',
                 width: '15%',
-                render: data => this.handleDiv(data),
+                render: data => this.handleDiv(data)
               },
               {
                 title: '操作',
@@ -350,11 +348,11 @@ export default class OauthTable extends PureComponent {
                           : this.handleOpen(record, true);
                       }}
                     >
-                      {record.enable ? '关闭' : '开启'}
+                      {record.enable ? '禁用' : '启用'}
                     </a>
                   </div>
-                ),
-              },
+                )
+              }
             ]}
           />
         </div>

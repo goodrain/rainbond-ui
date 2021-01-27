@@ -9,7 +9,7 @@ import ordersUtil from '../../../../utils/orders';
 import styles from '../../index.less';
 
 @connect(({ order }) => ({
-  enterpriseServiceInfo: order.enterpriseServiceInfo,
+  enterpriseServiceInfo: order.enterpriseServiceInfo
 }))
 export default class ServiceOverview extends PureComponent {
   constructor(props) {
@@ -25,13 +25,13 @@ export default class ServiceOverview extends PureComponent {
     dispatch({
       type: 'order/fetchEnterpriseServiceRefresh',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.fetchEnterpriseService();
         }
-      },
+      }
     });
   };
   fetchEnterpriseService = () => {
@@ -39,15 +39,15 @@ export default class ServiceOverview extends PureComponent {
     dispatch({
       type: 'order/fetchEnterpriseService',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
-            loading: false,
+            loading: false
           });
         }
-      },
+      }
     });
   };
 
@@ -91,7 +91,7 @@ export default class ServiceOverview extends PureComponent {
                         style={{
                           display: 'flex',
                           border: 'none',
-                          alignItems: 'baseline',
+                          alignItems: 'baseline'
                         }}
                       >
                         <h6>
@@ -101,8 +101,8 @@ export default class ServiceOverview extends PureComponent {
                         </h6>
                         <a
                           style={{
-                            marginLeft:'5px',
-                            fontSize: '12px',
+                            marginLeft: '5px',
+                            fontSize: '12px'
                           }}
                           onClick={this.handlRefresh}
                         >

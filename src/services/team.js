@@ -305,6 +305,9 @@ export async function getTeamRegionOverview(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview`,
     {
       showLoading: false,
+      params: {
+        region_name: body.region_name
+      },
       handleError
     }
   );

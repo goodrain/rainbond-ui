@@ -7,20 +7,24 @@ if [ -z "$VERSION" ];then
 	fi
 fi
 
+IMAGE_DOMAIN=${IMAGE_DOMAIN:-docker.io}
+IMAGE_NAMESPACE=${IMAGE_NAMESPACE:-rainbond}
+IMAGE_NAME="${IMAGE_DOMAIN}/${IMAGE_NAMESPACE}/rainbond-ui:$VERSION"
+
 BUILD_RBD_APP_UI=${BUILD_RBD_APP_UI:-true} 
 DOMESTIC_BASE_NAME=${DOMESTIC_BASE_NAME:-'registry.cn-hangzhou.aliyuncs.com'}
 DOMESTIC_NAMESPACE=${DOMESTIC_NAMESPACE:-'goodrain'}
 
-echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
-docker build -t "rainbond/rainbond-ui:$VERSION" .
-docker push "rainbond/rainbond-ui:$VERSION"
+echo "$DOCKER_PASSWORD" | docker login ${IMAGE_DOMAIN} -u "$DOCKER_USERNAME" --password-stdin
+docker build --build-arg VERSION="${VERSION}" --build-arg IMAGE_DOMAIN="${IMAGE_DOMAIN}" --build-arg IMAGE_NAMESPACE="${IMAGE_NAMESPACE}" -t  ${IMAGE_NAME} .
+docker push ${IMAGE_NAME}
 
 
 if [ ${BUILD_RBD_APP_UI} == "true" ];
 then
 	mv dist build/dist
-	docker build --build-arg VERSION="${VERSION}" -t "rainbond/rbd-app-ui:$VERSION" ./build
-	docker push "rainbond/rbd-app-ui:$VERSION"
+	docker build --build-arg VERSION="${VERSION}" --build-arg IMAGE_DOMAIN="${IMAGE_DOMAIN}" --build-arg IMAGE_NAMESPACE="${IMAGE_NAMESPACE}" -t "${IMAGE_DOMAIN}/${IMAGE_NAMESPACE}/rbd-app-ui:$VERSION" ./build
+	docker push "${IMAGE_DOMAIN}/${IMAGE_NAMESPACE}/rbd-app-ui:$VERSION"
 
 	if [ ${DOMESTIC_BASE_NAME} ];
 	then
@@ -30,4 +34,3 @@ then
 		docker push "${newTag}"
 	fi
 fi
-

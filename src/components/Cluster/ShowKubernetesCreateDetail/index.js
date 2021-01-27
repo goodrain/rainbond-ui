@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import { Button, Modal, Row, Timeline } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -12,7 +13,7 @@ class ShowKubernetesCreateDetail extends PureComponent {
     this.state = {
       loading: true,
       complete: false,
-      steps: [],
+      steps: []
     };
   }
   componentDidMount() {
@@ -20,10 +21,9 @@ class ShowKubernetesCreateDetail extends PureComponent {
     this.loadTaskEvents();
   }
   componentWillUnmount() {
-    // 清除定时器
-    clearInterval(this.interval);
-    this.interval = null;
+    this.refresh = false;
   }
+  refresh = true;
 
   loadTask = () => {
     const { dispatch, eid, taskID } = this.props;
@@ -31,20 +31,19 @@ class ShowKubernetesCreateDetail extends PureComponent {
       type: 'cloud/loadTask',
       payload: {
         enterprise_id: eid,
-        taskID: taskID,
+        taskID
       },
       callback: data => {
         if (data) {
           this.setState({
-            task: data,
-            complete: data.status == 'complete',
+            complete: data.status === 'complete'
           });
         }
       },
       handleError: res => {
         cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
-      },
+      }
     });
   };
   loadTaskEvents = () => {
@@ -53,7 +52,7 @@ class ShowKubernetesCreateDetail extends PureComponent {
       type: 'cloud/loadTaskEvents',
       payload: {
         enterprise_id: eid,
-        taskID: taskID,
+        taskID
       },
       callback: data => {
         if (data) {
@@ -61,23 +60,26 @@ class ShowKubernetesCreateDetail extends PureComponent {
             data.events
           );
           this.setState({
-            complete: complete,
+            complete,
             loading: false,
-            steps: steps,
+            steps
           });
-          if (this.interval == null) {
-            this.interval = setInterval(() => this.loadTaskEvents(), 2000);
-          }
-          if (complete && this.interval != null) {
-            clearInterval(this.interval);
-            this.interval = null;
+          if (this.refresh && !complete) {
+            setTimeout(() => {
+              this.loadTaskEvents();
+            }, 4000);
           }
         }
       },
       handleError: res => {
         cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
-      },
+        if (this.refresh) {
+          setTimeout(() => {
+            this.loadTaskEvents();
+          }, 8000);
+        }
+      }
     });
   };
 
@@ -90,7 +92,7 @@ class ShowKubernetesCreateDetail extends PureComponent {
     }
     return (
       <Modal
-        title={title || "集群购买进度"}
+        title={title || '集群创建进度'}
         visible
         width={600}
         onCancel={onCancel}
@@ -99,23 +101,17 @@ class ShowKubernetesCreateDetail extends PureComponent {
         footer={[
           <Button type="primary" onClick={onCancel}>
             关闭
-          </Button>,
+          </Button>
         ]}
       >
         <Row loading={loading} className={styles.box}>
           <Timeline loading={loading} pending={pending}>
-            {steps.map((item,index) => {
+            {steps.map((item, index) => {
               return (
                 <Timeline.Item color={item.Color} key={`step${index}`}>
-                  <h4>
-                    {item.Title}
-                  </h4>
-                  <p>
-                    {item.Description}
-                  </p>
-                  <p>
-                    {item.Message}
-                  </p>
+                  <h4>{item.Title}</h4>
+                  <p>{item.Description}</p>
+                  <p>{item.Message}</p>
                 </Timeline.Item>
               );
             })}
