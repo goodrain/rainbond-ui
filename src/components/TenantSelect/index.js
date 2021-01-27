@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { connect } from 'dva';
 import { Select } from 'antd';
+import { connect } from 'dva';
+import React, { Component } from 'react';
 import cookie from '../../utils/cookie';
 
 const { Option } = Select;
@@ -11,7 +11,7 @@ class TenantSelect extends Component {
     super(props);
     this.state = {
       data: [],
-      tenant: undefined,
+      tenant: undefined
     };
   }
   componentDidMount() {
@@ -27,13 +27,13 @@ class TenantSelect extends Component {
       type: 'global/searchTenant',
       payload: {
         eid,
-        tenant: value,
+        tenant: value
       },
       callback: res => {
-        if (res && res._code === 200 && res.bean) {
+        if (res && res.status_code === 200 && res.bean) {
           this.setState({ data: res.bean.list || [] });
         }
-      },
+      }
     });
   };
 

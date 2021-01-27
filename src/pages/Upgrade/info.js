@@ -3,24 +3,33 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
-import React, { PureComponent } from 'react';
+import {
+    Button,
+
+    Checkbox, Col,
+
+
+
+
+    Form,
+
+    Icon, List, Row,
+
+
+
+
+    Select,
+
+
+
+    Spin, Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import {
-  Row,
-  Col,
-  Button,
-  List,
-  Checkbox,
-  Select,
-  Form,
-  Tooltip,
-  Icon,
-  Spin
-} from 'antd';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
-import infoUtil from './info-util';
 import styles from './index.less';
+import infoUtil from './info-util';
 
 const { Option } = Select;
 
@@ -74,7 +83,7 @@ export default class AppList extends PureComponent {
       type: 'global/CloudAppUpdateOrder',
       payload,
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           if (activeKey != 2) {
             this.setState({
               infoObj: res.bean ? res.bean : data
@@ -130,7 +139,7 @@ export default class AppList extends PureComponent {
 
   //  查询某云市应用的更新版本
 
-  getUpdatedVersion = Rollback => {
+  getUpdatedVersion = (Rollback) => {
     const { group_id } = this.props;
     const { infoObj } = this.state;
     this.props.dispatch({
@@ -141,7 +150,7 @@ export default class AppList extends PureComponent {
         group_key: infoObj.group_key
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState(
             {
               upgradeVersions: res.list
@@ -181,7 +190,7 @@ export default class AppList extends PureComponent {
   };
 
   // 查询某云市应用下组件的更新信息
-  getUpdatedInfo = versions => {
+  getUpdatedInfo = (versions) => {
     const version = this.props.form.getFieldValue('upgradeVersions');
     const { group_id, dispatch } = this.props;
     const { infoObj } = this.state;
@@ -198,7 +207,7 @@ export default class AppList extends PureComponent {
       type: 'global/CloudAppUpdatedInfo',
       payload,
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const { indexs } = this.state;
           const { list } = res;
           if (list && list.length > 0) {
@@ -227,7 +236,7 @@ export default class AppList extends PureComponent {
     });
   };
 
-  handleChangeVersions = value => {
+  handleChangeVersions = (value) => {
     this.props.form.setFieldsValue({ upgradeVersions: value });
     this.getUpdatedInfo(value);
   };
@@ -263,7 +272,7 @@ export default class AppList extends PureComponent {
     });
   };
   // 创建升级任务
-  createUpgradeTasks = values => {
+  createUpgradeTasks = (values) => {
     const { group_id, form, dispatch } = this.props;
     const { infoObj, upgradeInfo } = this.state;
     const version = form.getFieldValue('upgradeVersions');
@@ -289,7 +298,7 @@ export default class AppList extends PureComponent {
         upgrade_record_id: infoObj.ID
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState(
             {
               record_id: res.bean.ID
@@ -313,7 +322,7 @@ export default class AppList extends PureComponent {
   //             group_id
   //         },
   //         callback: (res) => {
-  //             if (res && res._code == 200) {
+  //             if (res && res.status_code === 200) {
   //                 const { indexs } = this.state;
   //                 if (res.list && res.list.length > 0) {
   //                     this.setState({
@@ -335,7 +344,7 @@ export default class AppList extends PureComponent {
   // }
 
   // 查询某应用的更新记录详情
-  getUpgradeRecordsInfo = Rollback => {
+  getUpgradeRecordsInfo = (Rollback) => {
     const { group_id, dispatch } = this.props;
     const { record_id, upgradeText } = this.state;
     dispatch({
@@ -346,7 +355,7 @@ export default class AppList extends PureComponent {
         record_id
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const info = res.bean;
           this.setState(
             {
@@ -514,173 +523,208 @@ export default class AppList extends PureComponent {
     ];
   };
 
-  setData = data => {
+  setData = (data) => {
     const {
-      deploy_version,
       image,
       ports,
       volumes,
       dep_services,
       dep_volumes,
       plugins,
-      envs
+      envs,
+      app_config_groups,
+      component_monitors,
+      component_graphs
     } = data;
+    const arr = [];
+    const isImages = image && image.is_change;
+    const isEnvs = envs && envs.add && envs.add.length > 0;
+    const isPorts = ports && ports.add && ports.add.length > 0;
+    const isDepServices =
+      dep_services &&
+      ((dep_services.add && dep_services.add.length > 0) ||
+        (dep_services.del && dep_services.del.length > 0));
+    const isDepVolumess =
+      dep_volumes && dep_volumes.add && dep_volumes.add.length > 0;
+    const isPlugins = plugins && plugins.add && plugins.add.length > 0;
+    const isAppConfigGroups =
+      app_config_groups &&
+      app_config_groups.add &&
+      app_config_groups.add.length > 0;
+    const isComponentMonitors =
+      component_monitors &&
+      component_monitors.add &&
+      component_monitors.add.length > 0;
+    const isComponentGraphs =
+      component_graphs &&
+      component_graphs.add &&
+      component_graphs.add.length > 0;
 
-    const images = {
-      title: '镜像',
-      description: (
-        <div>
-          {image && image.is_change ? (
-            <div className={styles.textzt}>
-              从 <span>{image.old}</span> 变更为 <span>{image.new}</span>
-            </div>
-          ) : (
-            <div>暂无变化</div>
-          )}
+    const isVolumes =
+      volumes &&
+      ((volumes.add && volumes.add.length > 0) ||
+        (volumes.upd && volumes.upd.length > 0));
+    function addArr(title, description) {
+      arr.push({
+        title,
+        description
+      });
+    }
+    if (isImages) {
+      addArr(
+        '镜像',
+        <div className={styles.textzt}>
+          从 <span>{image.old}</span> 变更为 <span>{image.new}</span>
         </div>
-      )
-      // actions: [<a>删除</a>],
-    };
-    const envss = {
-      title: '环境变量',
-      description: (
-        <div>
-          {envs && envs.add && envs.add.length > 0 ? (
-            <div className={styles.textzt}>
-              新增变量：
-              {envs.add.map((item, index) => {
-                return <span key={index}>{item.attr_name}</span>;
-              })}
-            </div>
-          ) : (
-            <div>暂无变化</div>
-          )}
-        </div>
-      )
-    };
-    const portss = {
-      title: '端口',
-      description: (
-        <div>
-          {ports && ports.add && ports.add.length > 0 ? (
-            <div className={styles.textzt}>
-              新增端口：
-              {ports.add.map((item, index) => {
-                return <span key={index}>{item.container_port}</span>;
-              })}
-            </div>
-          ) : (
-            <div>暂无变化</div>
-          )}
-        </div>
-      )
-    };
+      );
+    }
 
-    const volumess = {
-      title: '存储',
-      description: (
-        <div>
-          {volumes ? (
-            <div>
-              {volumes.add && volumes.add.length > 0 && (
-                <div className={styles.textzt}>
-                  新增存储挂载：
-                  {volumes.add.map((item, index) => {
-                    return <span key={index}>{item.volume_name}</span>;
-                  })}
-                </div>
-              )}
-              {volumes.upd && volumes.upd.length > 0 && (
-                <div className={styles.textzt}>
-                  更新存储挂载：
-                  {volumes.upd.map((item, index) => {
-                    return <span key={index}>{item.volume_name}</span>;
-                  })}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div>暂无变化</div>
-          )}
+    if (isEnvs) {
+      addArr(
+        '环境变量',
+        <div className={styles.textzt}>
+          新增变量：
+          {envs.add.map((item, index) => {
+            return <span key={index}>{item.attr_name}</span>;
+          })}
         </div>
-      )
-    };
+      );
+    }
 
-    const yl = {
-      title: '依赖组件',
-      description: (
-        <div>
-          {dep_services ? (
-            <div>
-              {dep_services.add && dep_services.add.length > 0 && (
-                <div className={styles.textzt}>
-                  新增对
-                  {dep_services.add.map((item, index) => {
-                    return <span key={index}>{item.service_cname}</span>;
-                  })}
-                  组件的依赖
-                </div>
-              )}
-              {dep_services.del && dep_services.del.length > 0 && (
-                <div className={styles.textzt}>
-                  移除对
-                  {dep_services.del.map((item, index) => {
-                    return <span key={index}>{item.service_cname}</span>;
-                  })}
-                  组件的依赖
-                </div>
-              )}
-            </div>
-          ) : (
-            <div>暂无变化</div>
-          )}
+    if (isPorts) {
+      addArr(
+        '端口',
+        <div className={styles.textzt}>
+          新增端口：
+          {ports.add.map((item, index) => {
+            return <span key={index}>{item.container_port}</span>;
+          })}
         </div>
-      )
-    };
+      );
+    }
 
-    const dep_volumess = {
-      title: '依赖的存储',
-      description: (
+    if (isVolumes) {
+      addArr(
+        '存储',
         <div>
-          {dep_volumes && dep_volumes.add && dep_volumes.add.length > 0 ? (
+          {volumes.add && volumes.add.length > 0 && (
             <div className={styles.textzt}>
               新增存储挂载：
-              {dep_volumes.add.map((item, index) => {
-                return <span key={index}>{item.mnt_name}</span>;
+              {volumes.add.map((item, index) => {
+                return <span key={index}>{item.volume_name}</span>;
               })}
             </div>
-          ) : (
-            <div>暂无变化</div>
           )}
-        </div>
-      )
-    };
-
-    const pluginss = {
-      title: '插件',
-      description: (
-        <div>
-          {plugins && plugins.add && plugins.add.length > 0 ? (
+          {volumes.upd && volumes.upd.length > 0 && (
             <div className={styles.textzt}>
-              新增插件：
-              {plugins.add.map((item, index) => {
-                return <span key={index}>{item.plugin_alias}</span>;
+              更新存储挂载：
+              {volumes.upd.map((item, index) => {
+                return <span key={index}>{item.volume_name}</span>;
               })}
             </div>
-          ) : (
-            <div>暂无变化</div>
           )}
         </div>
-      )
-    };
+      );
+    }
 
-    const arr = [volumess, dep_volumess, envss, images, yl, portss, pluginss];
-    // for (var i = 0; i < arr.length; i++) {
-    //     if (arr[i] == "" || typeof (arr[i]) == "undefined") {
-    //         arr.splice(i, 1);
-    //         i = i - 1;
-    //     }
-    // }
+    if (isDepServices) {
+      addArr(
+        '依赖组件',
+        <div>
+          {dep_services.add && dep_services.add.length > 0 && (
+            <div className={styles.textzt}>
+              新增对
+              {dep_services.add.map((item, index) => {
+                return <span key={index}>{item.service_cname}</span>;
+              })}
+              组件的依赖
+            </div>
+          )}
+          {dep_services.del && dep_services.del.length > 0 && (
+            <div className={styles.textzt}>
+              移除对
+              {dep_services.del.map((item, index) => {
+                return <span key={index}>{item.service_cname}</span>;
+              })}
+              组件的依赖
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (isDepVolumess) {
+      addArr(
+        '依赖的存储',
+        <div className={styles.textzt}>
+          新增存储挂载：
+          {dep_volumes.add.map((item, index) => {
+            return <span key={index}>{item.mnt_name}</span>;
+          })}
+        </div>
+      );
+    }
+
+    if (isPlugins) {
+      addArr(
+        '插件',
+        <div className={styles.textzt}>
+          新增插件：
+          {plugins.add.map((item, index) => {
+            return <span key={index}>{item.plugin_alias}</span>;
+          })}
+        </div>
+      );
+    }
+
+    if (isAppConfigGroups) {
+      addArr(
+        '应用配置组',
+        <div className={styles.textzt}>
+          新增应用配置组：
+          {app_config_groups.add.map((item, index) => {
+            return (
+              <Tooltip
+                placement="top"
+                title={
+                  item.config_items &&
+                  Object.keys(item.config_items).map((key) => {
+                    return <div>{`${key} : ${item.config_items[key]}`}</div>;
+                  })
+                }
+              >
+                <span key={index}>{item.name}</span>;
+              </Tooltip>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (isComponentMonitors) {
+      addArr(
+        '监控点',
+        <div className={styles.textzt}>
+          新增监控点：
+          {component_monitors.add.map((item, index) => {
+            return <span key={index}>{item.service_show_name}</span>;
+          })}
+        </div>
+      );
+    }
+
+    if (isComponentGraphs) {
+      addArr(
+        '监控图表',
+        <div className={styles.textzt}>
+          新增监控图表：
+          {component_graphs.add.map((item, index) => {
+            return <span key={index}>{item.title}</span>;
+          })}
+        </div>
+      );
+    }
+
     return arr;
   };
 
@@ -704,7 +748,7 @@ export default class AppList extends PureComponent {
                 service_ids: values.services
               },
               callback: res => {
-                if (res && res._code == 200) {
+                if (res && res.status_code === 200) {
                   this.setState(
                     {
                       record_id: res.bean.ID
@@ -822,12 +866,23 @@ export default class AppList extends PureComponent {
                         {upgradeInfo &&
                           upgradeInfo.length > 0 &&
                           upgradeInfo.map((item, index) => {
-                            const { service, upgrade_info, update } = item;
-                            const upgradeRecordsStatus =
-                              upgradeRecords &&
-                              upgradeRecords.length > 0 &&
-                              upgradeRecords[index] &&
-                              upgradeRecords[index].status;
+                            const {
+                              service,
+                              upgrade_info,
+                              update,
+                              service_id: serviceId
+                            } = item;
+                            const upgrades = upgradeRecords.filter(
+                              (items) =>
+                                items.service_id ===
+                                ((service && service.service_id) || serviceId)
+                            );
+
+                            let upgradeRecordsStatus = 1;
+                            if (upgrades && upgrades.length > 0) {
+                              upgradeRecordsStatus = upgrades[0].status;
+                            }
+
                             return (
                               <Col
                                 span={24}
@@ -868,77 +923,78 @@ export default class AppList extends PureComponent {
                                 </div>
 
                                 <div>
-                                  {upgradeRecords &&
-                                  upgradeRecords.length > 0 &&
+                                  {upgrades &&
+                                  upgrades.length > 0 &&
                                   (upgrade_info != null || update != null) &&
-                                  JSON.stringify(upgrade_info || update) != '{}'
-                                    ? upgradeRecords[index] && (
-                                        <div>
-                                          {upgradeRecordsStatus == 1 ||
-                                          upgradeRecordsStatus == 2 ||
-                                          upgradeRecordsStatus == 4 ? (
+                                  JSON.stringify(upgrade_info || update) !=
+                                    '{}' ? (
+                                    <div>
+                                      {upgradeRecordsStatus == 1 ||
+                                      upgradeRecordsStatus == 2 ||
+                                      upgradeRecordsStatus == 4 ? (
+                                        <Icon
+                                          type="sync"
+                                          style={{ color: '#1890ff' }}
+                                          spin
+                                        />
+                                      ) : upgradeRecordsStatus == 3 ||
+                                        (upgradeRecordsStatus == 5 &&
+                                          upgradeRecordsStatus <= 7) ? (
+                                        <Tooltip title="成功">
+                                          <Icon
+                                            type="check"
+                                            style={{ color: '#239B24' }}
+                                          />
+                                        </Tooltip>
+                                      ) : upgradeRecordsStatus == 8 ? (
+                                        <Tooltip title="失败">
+                                          <Icon
+                                            type="close"
+                                            style={{ color: 'red' }}
+                                          />
+                                        </Tooltip>
+                                      ) : (
+                                        <Tooltip title="成功">
+                                          <Icon
+                                            type="check"
+                                            style={{ color: '#239B24' }}
+                                          />
+                                        </Tooltip>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    service &&
+                                    service.type && (
+                                      <div>
+                                        {service.type == 'upgrade' &&
+                                        (upgrade_info != null ||
+                                          update != null) &&
+                                        JSON.stringify(
+                                          upgrade_info || update
+                                        ) != '{}' ? (
+                                          <Tooltip title="可升级">
                                             <Icon
-                                              type="sync"
-                                              style={{ color: '#1890ff' }}
-                                              spin
+                                              type="up"
+                                              style={{ color: '#239B24' }}
                                             />
-                                          ) : upgradeRecordsStatus == 3 ||
-                                            (upgradeRecordsStatus == 5 &&
-                                              upgradeRecordsStatus <= 7) ? (
-                                            <Tooltip title="成功">
-                                              <Icon
-                                                type="check"
-                                                style={{ color: '#239B24' }}
-                                              />
-                                            </Tooltip>
-                                          ) : upgradeRecordsStatus == 8 ? (
-                                            <Tooltip title="失败">
-                                              <Icon
-                                                type="close"
-                                                style={{ color: 'red' }}
-                                              />
-                                            </Tooltip>
-                                          ) : (
-                                            <Tooltip title="成功">
-                                              <Icon
-                                                type="check"
-                                                style={{ color: '#239B24' }}
-                                              />
-                                            </Tooltip>
-                                          )}
-                                        </div>
-                                      )
-                                    : service &&
-                                      service.type && (
-                                        <div>
-                                          {service.type == 'upgrade' &&
-                                          (upgrade_info != null ||
+                                          </Tooltip>
+                                        ) : (upgrade_info != null ||
                                             update != null) &&
                                           JSON.stringify(
                                             upgrade_info || update
                                           ) != '{}' ? (
-                                            <Tooltip title="可升级">
-                                              <Icon
-                                                type="up"
-                                                style={{ color: '#239B24' }}
-                                              />
-                                            </Tooltip>
-                                          ) : (upgrade_info != null ||
-                                              update != null) &&
-                                            JSON.stringify(
-                                              upgrade_info || update
-                                            ) != '{}' ? (
-                                            <Tooltip title="新增组件">
-                                              <Icon
-                                                type="plus"
-                                                style={{ color: '#239B24' }}
-                                              />
-                                            </Tooltip>
-                                          ) : (
-                                            ''
-                                          )}
-                                        </div>
-                                      )}
+                                          <Tooltip title="新增组件">
+                                            <Icon
+                                              type="plus"
+                                              style={{ color: '#239B24' }}
+                                            />
+                                          </Tooltip>
+                                        ) : (
+                                          ''
+                                        )}
+                                      </div>
+                                    )
+                                  )}
                                 </div>
                               </Col>
                             );

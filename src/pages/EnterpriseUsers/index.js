@@ -1,8 +1,8 @@
-import React, { PureComponent } from 'react';
+import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
-import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
+import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreatUser from '../../components/CreatUserForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -60,7 +60,7 @@ export default class EnterpriseUsers extends PureComponent {
       }
     );
   };
-  handleCreatUser = (values) => {
+  handleCreatUser = values => {
     const {
       dispatch,
       match: {
@@ -78,14 +78,14 @@ export default class EnterpriseUsers extends PureComponent {
         enterprise_id: eid,
         ...values
       },
-      callback: (data) => {
+      callback: data => {
         if (data && data._condition === 200) {
           this.loadUser();
           this.cancelCreatUser();
           notification.success({ message: data.msg_show || '' });
         }
       },
-      handleError: (res) => {
+      handleError: res => {
         if (
           res &&
           res.data &&
@@ -101,7 +101,7 @@ export default class EnterpriseUsers extends PureComponent {
     });
   };
 
-  upUser = (values) => {
+  upUser = values => {
     const { userInfo } = this.state;
     const info = userInfo;
     info.real_name = values.real_name;
@@ -119,7 +119,7 @@ export default class EnterpriseUsers extends PureComponent {
         ...info,
         enterprise_id: eid
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._condition === 200) {
           this.cancelCreatUser();
           this.loadUser();
@@ -143,7 +143,7 @@ export default class EnterpriseUsers extends PureComponent {
         user_id: userInfo.user_id,
         enterprise_id: eid
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._condition === 200) {
           this.loadUser();
           this.cancelDelUser();
@@ -169,7 +169,7 @@ export default class EnterpriseUsers extends PureComponent {
         page_size: pageSize,
         name
       },
-      callback: (res) => {
+      callback: res => {
         if (res) {
           this.setState({ adminList: res.list, total: res.total });
         }
@@ -193,7 +193,7 @@ export default class EnterpriseUsers extends PureComponent {
     });
   };
 
-  handleEdit = (item) => {
+  handleEdit = item => {
     this.setState({
       userInfo: item,
       userVisible: true,
@@ -201,7 +201,7 @@ export default class EnterpriseUsers extends PureComponent {
     });
   };
 
-  delUser = (userInfo) => {
+  delUser = userInfo => {
     this.setState({
       delVisible: true,
       userInfo
@@ -213,10 +213,10 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false
     });
   };
-  handleSearch = (e) => {
+  handleSearch = e => {
     this.loadUser();
   };
-  handelChange = (e) => {
+  handelChange = e => {
     this.setState({ name: e.target.value });
   };
   render() {
@@ -262,10 +262,12 @@ export default class EnterpriseUsers extends PureComponent {
         dataIndex: 'create_time',
         rowKey: 'create_time',
         align: 'center',
-        render: (val) => {
+        render: val => {
           return (
             <span>
-              {moment(val).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}
+              {moment(val)
+                .locale('zh-cn')
+                .format('YYYY-MM-DD HH:mm:ss')}
             </span>
           );
         }
@@ -364,7 +366,6 @@ export default class EnterpriseUsers extends PureComponent {
           )}
 
           <Table
-            size="middle"
             pagination={{
               current: page,
               pageSize,

@@ -49,7 +49,12 @@ export default class LoginPage extends Component {
         enterprise_id: eid
       },
       callback: res => {
-        if (res && res._code === 200 && res.bean && res.bean.oauth_services) {
+        if (
+          res &&
+          res.status_code === 200 &&
+          res.bean &&
+          res.bean.oauth_services
+        ) {
           // eslint-disable-next-line camelcase
           const { oauth_services = {} } = res.bean;
           if (oauth_services.enable) {

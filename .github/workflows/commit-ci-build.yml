@@ -18,6 +18,7 @@ jobs:
       - name: Build the Docker image
         env:
           TRAVIS_PULL_REQUEST: false
+          BUILD_RBD_APP_UI: false
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOMESTIC_DOCKER_PASSWORD: ${{ secrets.DOMESTIC_DOCKER_PASSWORD }}

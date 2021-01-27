@@ -1,18 +1,18 @@
-import React, { PureComponent, Fragment } from 'react';
+import { Button, Empty, Icon, Menu, Spin, Tabs } from 'antd';
 import { connect } from 'dva';
-import { Tabs, Icon, Menu, Button, Spin, Empty } from 'antd';
-import PermissionsForm from './permissionsForm';
-import ConfirmModal from '../../ConfirmModal';
+import React, { Fragment, PureComponent } from 'react';
 import globalUtil from '../../../utils/global';
 import roleUtil from '../../../utils/role';
+import ConfirmModal from '../../ConfirmModal';
 import styles from './index.less';
+import PermissionsForm from './permissionsForm';
 
 const { Item } = Menu;
 const { TabPane } = Tabs;
 
 @connect(({ teamControl, loading }) => ({
   teamControl,
-  activitiesLoading: loading.effects['activities/fetchList'],
+  activitiesLoading: loading.effects['activities/fetchList']
 }))
 export default class RoleList extends PureComponent {
   constructor(props) {
@@ -23,7 +23,7 @@ export default class RoleList extends PureComponent {
       rolesID: null,
       rolesLoading: true,
       permissions: null,
-      permissionsLoading: true,
+      permissionsLoading: true
     };
   }
   componentDidMount() {
@@ -49,12 +49,12 @@ export default class RoleList extends PureComponent {
       type: 'teamControl/removeRole',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        role_id: this.state.deleteRole.ID,
+        role_id: this.state.deleteRole.ID
       },
       callback: () => {
         this.hideDelRole();
         this.loadTeamRoles();
-      },
+      }
     });
   };
   hideDelRole = () => {
@@ -66,10 +66,10 @@ export default class RoleList extends PureComponent {
     dispatch({
       type: 'teamControl/fetchTeamRoles',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: globalUtil.getCurrTeamName()
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           let ID = null;
           if (res.list && res.list.length > 0) {
             ID = res.list[0].ID;
@@ -77,10 +77,10 @@ export default class RoleList extends PureComponent {
           this.setState({
             roleList: res.list,
             rolesID: rolesID || ID,
-            rolesLoading: false,
+            rolesLoading: false
           });
         }
-      },
+      }
     });
   };
 
@@ -89,25 +89,25 @@ export default class RoleList extends PureComponent {
     dispatch({
       type: 'global/fetchPermissions',
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             permissions: res.bean || [],
-            permissionsLoading: false,
+            permissionsLoading: false
           });
         }
-      },
+      }
     });
   };
 
   selectKey = ({ key }) => {
     this.setState({
-      rolesID: key,
+      rolesID: key
     });
   };
 
   render() {
     const {
-      rolePermissions: { isCreate, isEdit, isDelete },
+      rolePermissions: { isCreate, isEdit, isDelete }
     } = this.props;
     const {
       roleList,
@@ -116,7 +116,7 @@ export default class RoleList extends PureComponent {
       permissionsLoading,
       showAddRole,
       rolesID,
-      deleteRole,
+      deleteRole
     } = this.state;
     const roles = roleList && roleList.length > 0;
     return (

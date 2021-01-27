@@ -1,32 +1,32 @@
-import React, { PureComponent, Fragment } from 'react';
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Icon,
+  notification,
+  Row,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import {
-  Row,
-  Col,
-  Card,
-  Button,
-  Icon,
-  Alert,
-  Table,
-  Tooltip,
-  notification,
-} from 'antd';
+import React, { Fragment, PureComponent } from 'react';
+import AddVolumes from '../../components/AddOrEditVolume';
+import AddRelationMnt from '../../components/AddRelationMnt';
 import ConfirmModal from '../../components/ConfirmModal';
+import NoPermTip from '../../components/NoPermTip';
 import RelyComponentModal from '../../components/RelyComponentModal';
-import { getMnt, addMnt } from '../../services/app';
+import ScrollerX from '../../components/ScrollerX';
+import { addMnt, getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import { getVolumeTypeShowName } from '../../utils/utils';
-import AddRelationMnt from '../../components/AddRelationMnt';
-import ScrollerX from '../../components/ScrollerX';
-import AddVolumes from '../../components/AddOrEditVolume';
-import NoPermTip from '../../components/NoPermTip';
 
 @connect(
   ({ user, appControl }) => ({
     currUser: user.currentUser,
     volumes: appControl.volumes,
-    appBaseInfo: appControl.baseInfo,
+    appBaseInfo: appControl.baseInfo
   }),
   null,
   null,
@@ -44,7 +44,7 @@ export default class Index extends PureComponent {
       editor: null,
       volumeOpts: [],
       relyComponent: false,
-      relyComponentList: [],
+      relyComponentList: []
     };
   }
 
@@ -73,13 +73,13 @@ export default class Index extends PureComponent {
   handleOpenRelyComponent = relyComponentList => {
     this.setState({
       relyComponent: true,
-      relyComponentList,
+      relyComponentList
     });
   };
   handleCloseRelyComponent = () => {
     this.setState({
       relyComponent: false,
-      relyComponentList: [],
+      relyComponentList: []
     });
   };
   fetchVolumes = () => {
@@ -88,8 +88,8 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        is_config: false,
-      },
+        is_config: false
+      }
     });
   };
   fetchVolumeOpts = () => {
@@ -97,15 +97,15 @@ export default class Index extends PureComponent {
       type: 'appControl/fetchVolumeOpts',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
       callback: data => {
         if (data) {
           this.setState({
-            volumeOpts: data.list || [],
+            volumeOpts: data.list || []
           });
         }
-      },
+      }
     });
   };
   fetchBaseInfo = () => {
@@ -114,8 +114,8 @@ export default class Index extends PureComponent {
       type: 'appControl/fetchBaseInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-      },
+        app_alias: this.props.appAlias
+      }
     });
   };
   loadMntList = () => {
@@ -125,11 +125,11 @@ export default class Index extends PureComponent {
       page: 1,
       page_size: 1000,
       volume_type: ['share-file', 'memoryfs', 'local'],
-      type: 'mnt',
+      type: 'mnt'
     }).then(data => {
       if (data) {
         this.setState({
-          mntList: data.list || [],
+          mntList: data.list || []
         });
       }
     });
@@ -137,8 +137,8 @@ export default class Index extends PureComponent {
   handleAddVar = () => {
     this.setState({
       showAddVar: {
-        new: true,
-      },
+        new: true
+      }
     });
   };
   handleCancelAddVar = () => {
@@ -155,14 +155,14 @@ export default class Index extends PureComponent {
           app_alias: this.props.appAlias,
           new_volume_path: vals.volume_path,
           new_file_content: vals.file_content,
-          ID: editor.ID,
+          ID: editor.ID
         },
         callback: () => {
           this.fetchVolumes();
           this.handleCancelAddVar();
           this.props.onshowRestartTips(true);
           this.remindInfo();
-        },
+        }
       });
     } else {
       this.props.dispatch({
@@ -170,14 +170,14 @@ export default class Index extends PureComponent {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
-          ...vals,
+          ...vals
         },
         callback: () => {
           this.fetchVolumes();
           this.handleCancelAddVar();
           this.props.onshowRestartTips(true);
           this.remindInfo();
-        },
+        }
       });
     }
   };
@@ -196,7 +196,7 @@ export default class Index extends PureComponent {
             <br />
             需要重启组件才能生效!
           </div>
-        ),
+        )
       });
     } else {
       notification.success({ message: '操作成功' });
@@ -214,7 +214,7 @@ export default class Index extends PureComponent {
     addMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      body: mnts,
+      body: mnts
     }).then(data => {
       if (data) {
         this.handleCancelAddRelation();
@@ -230,14 +230,14 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        volume_id: this.state.toDeleteVolume.ID,
+        volume_id: this.state.toDeleteVolume.ID
       },
       callback: () => {
         this.onCancelDeleteVolume();
         this.fetchVolumes();
         notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
   handleDeleteMnt = () => {
@@ -246,14 +246,14 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        dep_vol_id: this.state.toDeleteMnt.dep_vol_id,
+        dep_vol_id: this.state.toDeleteMnt.dep_vol_id
       },
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
         notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
   cancelDeleteMnt = () => {
@@ -262,7 +262,7 @@ export default class Index extends PureComponent {
   // 是否可以浏览当前界面
   canView() {
     const {
-      componentPermissions: { isStorage },
+      componentPermissions: { isStorage }
     } = this.props;
     return isStorage;
   }
@@ -280,16 +280,22 @@ export default class Index extends PureComponent {
               message="存储配置发生变化后需要更新组件才能生效"
               type="info"
               style={{
-                marginBottom: 24,
+                marginBottom: 24
               }}
             />
           </Col>
         </Row>
         <Card
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           title={<span> 存储设置 </span>}
+          extra={
+            <Button onClick={this.handleAddVar}>
+              <Icon type="plus" />
+              添加存储
+            </Button>
+          }
         >
           <ScrollerX sm={650}>
             <Table
@@ -303,7 +309,7 @@ export default class Index extends PureComponent {
                       <span
                         style={{
                           cursor: 'pointer',
-                          color: item.dep_services && '#1890ff',
+                          color: item.dep_services && '#1890ff'
                         }}
                         onClick={() => {
                           if (item.dep_services) {
@@ -314,18 +320,18 @@ export default class Index extends PureComponent {
                         {text}
                       </span>
                     );
-                  },
+                  }
                 },
                 {
                   title: '挂载路径',
-                  dataIndex: 'volume_path',
+                  dataIndex: 'volume_path'
                 },
                 {
                   title: '存储类型',
                   dataIndex: 'volume_type',
                   render: text => {
                     return <span>{this.getVolumeTypeShowName(text)}</span>;
-                  },
+                  }
                 },
                 {
                   title: '存储容量',
@@ -335,7 +341,7 @@ export default class Index extends PureComponent {
                       return <span>不限制</span>;
                     }
                     return <span>{text}GB</span>;
-                  },
+                  }
                 },
                 {
                   title: '状态',
@@ -345,7 +351,7 @@ export default class Index extends PureComponent {
                       return <span style={{ color: 'red' }}>未挂载</span>;
                     }
                     return <span style={{ color: 'green' }}>已挂载</span>;
-                  },
+                  }
                 },
                 {
                   title: '操作',
@@ -369,25 +375,22 @@ export default class Index extends PureComponent {
                         编辑
                       </a>
                     </div>
-                  ),
-                },
+                  )
+                }
               ]}
               dataSource={volumes}
             />
           </ScrollerX>
-          <div
-            style={{
-              marginTop: 10,
-              textAlign: 'right',
-            }}
-          >
-            <Button onClick={this.handleAddVar}>
-              <Icon type="plus" />
-              添加存储
-            </Button>
-          </div>
         </Card>
-        <Card title={<span> 共享其他组件存储 </span>}>
+        <Card
+          title={<span> 共享其他组件存储 </span>}
+          extra={
+            <Button onClick={this.showAddRelation}>
+              <Icon type="plus" />
+              挂载共享存储
+            </Button>
+          }
+        >
           <ScrollerX sm={850}>
             <Table
               pagination={false}
@@ -402,13 +405,13 @@ export default class Index extends PureComponent {
                       <span
                         style={{
                           wordBreak: 'break-all',
-                          wordWrap: 'break-word',
+                          wordWrap: 'break-word'
                         }}
                       >
                         {data}
                       </span>
                     </Tooltip>
-                  ),
+                  )
                 },
                 {
                   title: '目标存储名称',
@@ -420,13 +423,13 @@ export default class Index extends PureComponent {
                       <span
                         style={{
                           wordBreak: 'break-all',
-                          wordWrap: 'break-word',
+                          wordWrap: 'break-word'
                         }}
                       >
                         {data}
                       </span>
                     </Tooltip>
-                  ),
+                  )
                 },
                 {
                   title: '目标挂载路径',
@@ -438,13 +441,13 @@ export default class Index extends PureComponent {
                       <span
                         style={{
                           wordBreak: 'break-all',
-                          wordWrap: 'break-word',
+                          wordWrap: 'break-word'
                         }}
                       >
                         {data}
                       </span>
                     </Tooltip>
-                  ),
+                  )
                 },
                 {
                   title: '目标存储类型',
@@ -453,7 +456,7 @@ export default class Index extends PureComponent {
                   width: '10%',
                   render: text => {
                     return <span>{this.getVolumeTypeShowName(text)}</span>;
-                  },
+                  }
                 },
                 {
                   title: '目标所属组件',
@@ -468,7 +471,7 @@ export default class Index extends PureComponent {
                     >
                       {v}
                     </Link>
-                  ),
+                  )
                 },
                 {
                   title: '目标组件所属应用',
@@ -483,7 +486,7 @@ export default class Index extends PureComponent {
                     >
                       {v}
                     </Link>
-                  ),
+                  )
                 },
                 {
                   title: '操作',
@@ -499,23 +502,12 @@ export default class Index extends PureComponent {
                     >
                       取消挂载
                     </a>
-                  ),
-                },
+                  )
+                }
               ]}
               dataSource={mntList}
             />
           </ScrollerX>
-          <div
-            style={{
-              marginTop: 10,
-              textAlign: 'right',
-            }}
-          >
-            <Button onClick={this.showAddRelation}>
-              <Icon type="plus" />
-              挂载共享存储
-            </Button>
-          </div>
         </Card>
 
         {this.state.showAddVar && (

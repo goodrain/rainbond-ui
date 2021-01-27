@@ -7,7 +7,7 @@ import style from '../SelectTeam/index.less';
 
 @connect(({ user, appControl }) => ({
   currentUser: user.currentUser,
-  appDetail: appControl.appDetail,
+  appDetail: appControl.appDetail
 }))
 export default class SelectComponent extends PureComponent {
   constructor(props) {
@@ -17,7 +17,7 @@ export default class SelectComponent extends PureComponent {
       showOpenRegion: false,
       loading: true,
       queryName: '',
-      visible: false,
+      visible: false
     };
   }
   componentDidMount() {
@@ -40,15 +40,15 @@ export default class SelectComponent extends PureComponent {
           group_id: currentAppID,
           page: 1,
           page_size: 50,
-          query: queryName,
+          query: queryName
         },
         callback: data => {
-          if (data && data._code == 200) {
+          if (data && data.status_code === 200) {
             this.setState({
-              components: data.list || [],
+              components: data.list || []
             });
           }
-        },
+        }
       });
     }
   };
@@ -67,19 +67,15 @@ export default class SelectComponent extends PureComponent {
       currentComponent,
       currentRegion,
       active,
-      appDetail,
+      appDetail
     } = this.props;
     const groupId =
       appDetail && appDetail.service && appDetail.service.group_id;
-    const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${
-      currentRegion.team_region_name
-    }/apps/${groupId}`;
+    const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${groupId}`;
     const { components, loading, visible } = this.state;
     const currentAPPLink =
       currentComponent &&
-      `/team/${currentTeam.team_name}/region/${
-        currentRegion.team_region_name
-      }/components/${currentComponent.service_alias}/overview`;
+      `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/components/${currentComponent.service_alias}/overview`;
     const dropdown = (
       <div className={style.dropBox}>
         <div>
@@ -102,9 +98,7 @@ export default class SelectComponent extends PureComponent {
           <div className={style.dropBoxList}>
             <ul>
               {components.map(item => {
-                const link = `/team/${currentTeam.team_name}/region/${
-                  currentRegion.team_region_name
-                }/components/${item.service_alias}/overview`;
+                const link = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/components/${item.service_alias}/overview`;
                 return (
                   <li key={item.service_alias}>
                     <Link to={link} title={item.service_cname}>
@@ -126,7 +120,7 @@ export default class SelectComponent extends PureComponent {
     );
     let showstyle = {};
     if (currentComponent) {
-      showstyle = { background: '#1890ff', color: '#ffffff' };
+      showstyle = { background: '#4d73b1', color: '#ffffff' };
     }
     return (
       <div

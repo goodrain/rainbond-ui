@@ -1,18 +1,18 @@
 /* eslint-disable react/no-multi-comp */
-import React, { PureComponent, Fragment } from 'react';
+import { Button, Card, Icon, List, Modal, notification } from 'antd';
 import { connect } from 'dva';
-import { Card, Button, Icon, List, notification, Modal } from 'antd';
 import { Link, routerRedux } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
+import ConfirmModal from '../../components/ConfirmModal';
+import Ellipsis from '../../components/Ellipsis';
+import MarketPluginDetailShow from '../../components/MarketPluginDetailShow';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
 import roleUtil from '../../utils/role';
 import styles from './Index.less';
-import Ellipsis from '../../components/Ellipsis';
 import Manage from './manage';
-import ConfirmModal from '../../components/ConfirmModal';
-import MarketPluginDetailShow from '../../components/MarketPluginDetailShow';
-import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 const { confirm } = Modal;
 
 class MarketPlugin extends PureComponent {
@@ -34,20 +34,20 @@ class MarketPlugin extends PureComponent {
         page: 1,
         limit: 1000
       },
-      callback: (data) => {
+      callback: data => {
         this.setState({
           list: (data && data.list) || []
         });
       }
     });
   };
-  handleInstall = (data) => {
+  handleInstall = data => {
     this.props.dispatch({
       type: 'plugin/installMarketPlugin',
       payload: {
         plugin_id: data.id
       },
-      callback: (data) => {
+      callback: data => {
         notification.success({
           message: '安装成功'
         });
@@ -59,7 +59,7 @@ class MarketPlugin extends PureComponent {
   hideMarketPluginDetail = () => {
     this.setState({ showMarketPluginDetail: false, showPlugin: {} });
   };
-  showMarketPluginDetail = (plugin) => {
+  showMarketPluginDetail = plugin => {
     this.setState({ showMarketPluginDetail: true, showPlugin: plugin });
   };
   renderTmp = () => {
@@ -72,7 +72,7 @@ class MarketPlugin extends PureComponent {
       );
     }
 
-    list = list.filter((item) => {
+    list = list.filter(item => {
       return !item.is_installed && item.is_complete;
     });
 
@@ -87,7 +87,7 @@ class MarketPlugin extends PureComponent {
           xs: 1
         }}
         dataSource={list}
-        renderItem={(item) => (
+        renderItem={item => (
           <List.Item key={item.id}>
             <Card
               className={styles.card}
@@ -189,10 +189,10 @@ class PluginList extends PureComponent {
     this.fetchDefaultPlugin();
   }
 
-  onDeletePlugin = (plugin) => {
+  onDeletePlugin = plugin => {
     this.setState({ deletePlugin: plugin, pluginInfo: plugin });
   };
-  onInstallPlugin = (item) => {
+  onInstallPlugin = item => {
     this.setState(
       {
         currentType: item.plugin_type,
@@ -205,8 +205,8 @@ class PluginList extends PureComponent {
             team_name: globalUtil.getCurrTeamName(),
             plugin_type: item.category
           },
-          callback: (res) => {
-            if (res && res._code === 200) {
+          callback: res => {
+            if (res && res.status_code === 200) {
               notification.success({ message: '安装成功' });
             }
             this.fetchDefaultPlugin();
@@ -262,7 +262,7 @@ class PluginList extends PureComponent {
     }
     return [];
   };
-  getItemTitle = (item) => {
+  getItemTitle = item => {
     if (item.has_install) {
       return (
         <Link
@@ -283,7 +283,7 @@ class PluginList extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName()
       },
-      callback: (data) => {
+      callback: data => {
         if (data && data.bean) {
           this.setState(
             {
@@ -304,14 +304,14 @@ class PluginList extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName()
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
-          const arr = defaultList.filter((item) => {
+          const arr = defaultList.filter(item => {
             return !item.has_install;
           });
           let installList = [];
           if (data.list && data.list.length > 0) {
-            data.list.map((item) => {
+            data.list.map(item => {
               item.has_install = true;
               installList.push(item);
             });
@@ -333,7 +333,7 @@ class PluginList extends PureComponent {
       )
     );
   };
-  hanldeDeletePlugin = (isForce) => {
+  hanldeDeletePlugin = isForce => {
     const { pluginInfo, deletePlugin } = this.state;
     this.props.dispatch({
       type: 'plugin/deletePlugin',
@@ -344,15 +344,15 @@ class PluginList extends PureComponent {
           (deletePlugin && deletePlugin.plugin_id) ||
           (pluginInfo && pluginInfo.plugin_id)
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           notification.success({ message: '删除成功' });
         }
         this.fetchDefaultPlugin();
         this.cancelDeletePlugin();
         this.cancelDeletePluginInfo();
       },
-      handleError: (res) => {
+      handleError: res => {
         if (res && res.data.code === 20600) {
           this.handlePlugIn();
           this.cancelDeletePlugin();
@@ -428,7 +428,7 @@ class PluginList extends PureComponent {
               xs: 1
             }}
             dataSource={['', ...list]}
-            renderItem={(item) =>
+            renderItem={item =>
               // eslint-disable-next-line no-nested-ternary
               item ? (
                 <List.Item key={item.id}>
@@ -524,7 +524,7 @@ class Index extends PureComponent {
     }
   }
 
-  handlePermissions = (type) => {
+  handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.querySpecifiedPermissionsInfo(
       currentTeamPermissionsInfo,

@@ -15,7 +15,7 @@ class CreateOAuthForm extends PureComponent {
     super(props);
     this.state = {
       oauthList: [],
-      edit: false,
+      edit: false
     };
   }
   componentDidMount() {
@@ -38,12 +38,12 @@ class CreateOAuthForm extends PureComponent {
     dispatch({
       type: 'user/fetchOauthType',
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
-            oauthList: res.bean && res.bean.oauth_type,
+            oauthList: res.bean && res.bean.oauth_type
           });
         }
-      },
+      }
     });
   };
 
@@ -61,17 +61,17 @@ class CreateOAuthForm extends PureComponent {
     const { edit, oauthList } = this.state;
     const formItemLayout = {
       labelCol: {
-        span: 8,
+        span: 8
       },
       wrapperCol: {
-        span: 16,
-      },
+        span: 16
+      }
     };
     const oauthType = getFieldValue('oauth_type') || 'github';
     return (
       <Modal
         visible
-        title={edit ? 'OAuth配置编辑' : '添加Oauth服务'}
+        title={edit ? '编辑第三方服务配置' : '添加 Oauth 第三方服务'}
         maskClosable={false}
         onOk={this.handleSubmit}
         onCancel={onCancel}
@@ -81,7 +81,7 @@ class CreateOAuthForm extends PureComponent {
           <Button type="primary" loading={loading} onClick={this.handleSubmit}>
             确定
           </Button>,
-          <Button onClick={onCancel}>取消</Button>,
+          <Button onClick={onCancel}>取消</Button>
         ]}
       >
         <Form layout="horizontal" hideRequiredMark onSubmit={this.handleSubmit}>
@@ -97,7 +97,7 @@ class CreateOAuthForm extends PureComponent {
           >
             {getFieldDecorator('oauth_type', {
               initialValue: oauthInfo ? oauthInfo.oauth_type : 'github',
-              rules: [{ required: true, message: '请选择oauth_type类型' }],
+              rules: [{ required: true, message: '请选择oauth_type类型' }]
             })(
               <Select disabled={edit} placeholder="请选择要oauth_type类型">
                 {oauthList &&
@@ -130,9 +130,9 @@ class CreateOAuthForm extends PureComponent {
                 { required: true, message: '请输入名称' },
                 {
                   max: 32,
-                  message: '最大长度32位',
-                },
-              ],
+                  message: '最大长度32位'
+                }
+              ]
             })(<Input placeholder="请输入名称" />)}
             <div className={styles.conformDesc}>OAuth服务显示名称</div>
           </Form.Item>
@@ -155,9 +155,9 @@ class CreateOAuthForm extends PureComponent {
                   { type: 'url', message: '输入数据不是合法的URL' },
                   {
                     max: 255,
-                    message: '最大长度255位',
-                  },
-                ],
+                    message: '最大长度255位'
+                  }
+                ]
               })(<Input disabled={edit} placeholder="请输入服务地址" />)}
               <div className={styles.conformDesc}>第三方服务访问地址</div>
             </Form.Item>
@@ -179,9 +179,9 @@ class CreateOAuthForm extends PureComponent {
                 { required: true, message: '请输入client_id' },
                 {
                   max: 64,
-                  message: '最大长度64位',
-                },
-              ],
+                  message: '最大长度64位'
+                }
+              ]
             })(<Input disabled={edit} placeholder="请输入client_id" />)}
             <div className={styles.conformDesc}>Client ID</div>
           </Form.Item>
@@ -201,9 +201,9 @@ class CreateOAuthForm extends PureComponent {
                 { required: true, message: '请输入client_secret' },
                 {
                   max: 64,
-                  message: '最大长度64位',
-                },
-              ],
+                  message: '最大长度64位'
+                }
+              ]
             })(<Input disabled={edit} placeholder="请输入client_secret" />)}
             <div className={styles.conformDesc}>Client Secret</div>
           </Form.Item>
@@ -226,12 +226,14 @@ class CreateOAuthForm extends PureComponent {
                 { type: 'url', message: '输入数据不是合法的URL' },
                 {
                   max: 255,
-                  message: '最大长度255位',
-                },
-              ],
+                  message: '最大长度255位'
+                }
+              ]
             })(<Input placeholder="请输入平台访问域名" />)}
             <div className={styles.conformDesc}>
-              平台访问域名是用于OAuth认证完回跳时的访问地址，回跳路径为：/console/oauth/redirect
+              平台访问域名是用于 OAuth
+              认证完回跳时的访问地址，默认填充为当前访问地址。您在 Oauth
+              服务提供商配置时还需要设置回跳路径为：/console/oauth/redirect
             </div>
           </Form.Item>
           <Form.Item
@@ -246,7 +248,7 @@ class CreateOAuthForm extends PureComponent {
           >
             {getFieldDecorator('is_auto_login', {
               initialValue: oauthInfo ? oauthInfo.is_auto_login : false,
-              rules: [{ required: true, message: '设置是否开启自动登录选项' }],
+              rules: [{ required: true, message: '设置是否开启自动登录选项' }]
             })(
               <Switch
                 checkedChildren="开启"
@@ -255,7 +257,7 @@ class CreateOAuthForm extends PureComponent {
               />
             )}
             <div className={styles.conformDesc}>
-              开启自动登录即需要登录时将自动跳转到该Oauth服务进行认证，实现单点登录效果
+              开启自动登录即需要登录时将自动跳转到该Oauth服务进行认证，实现单点登录效果，未确认该服务可用之前请谨慎开启。
             </div>
           </Form.Item>
         </Form>

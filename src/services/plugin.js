@@ -1,5 +1,5 @@
-import request from '../utils/request';
 import apiconfig from '../../config/api.config';
+import request from '../utils/request';
 
 /* 安装内部市场的插件 */
 export async function installMarketPlugin(body = { plugin_id }) {
@@ -20,7 +20,7 @@ export async function getUnInstalledPlugin(
 }
 
 /*
-查询分享单个任务的状态
+查询发布单个任务的状态
  */
 export async function startShareOneEvent(body = {}) {
   return request(
@@ -32,7 +32,7 @@ export async function startShareOneEvent(body = {}) {
 }
 
 /*
-查询分享单个任务的状态
+查询发布单个任务的状态
  */
 export async function getShareOneEventInfo(body = {}) {
   return request(
@@ -44,7 +44,7 @@ export async function getShareOneEventInfo(body = {}) {
 }
 
 /*
-  插件分享提交
+  插件发布提交
 */
 export async function getShareEventInfo(body = {}) {
   return request(
@@ -56,7 +56,7 @@ export async function getShareEventInfo(body = {}) {
 }
 
 /*
-  插件分享提交
+  插件发布提交
 */
 export async function submitSharePlugin(body = {}) {
   return request(
@@ -71,7 +71,7 @@ export async function submitSharePlugin(body = {}) {
 }
 
 /**
-  获取插件分享的信息
+  获取插件发布的信息
  */
 export async function getPluginShareInfo(
   body = {
@@ -89,7 +89,7 @@ export async function getPluginShareInfo(
 }
 
 /**
-  放弃分享插件
+  放弃发布插件
  */
 export async function giveupSharePlugin(
   body = {
@@ -106,7 +106,7 @@ export async function giveupSharePlugin(
 }
 
 /**
-  分享插件
+  发布插件
  */
 export async function sharePlugin(
   body = {
@@ -123,7 +123,7 @@ export async function sharePlugin(
 }
 
 /*
-  查询未完成插件分享记录
+  查询未完成插件发布记录
  */
 export async function getShareRecord(
   body = {

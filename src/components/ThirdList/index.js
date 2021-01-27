@@ -15,13 +15,13 @@ import {
   Skeleton,
   Spin,
   Tooltip
-} from "antd";
-import { connect } from "dva";
-import React from "react";
-import App from "../../../public/images/app.svg";
-import globalUtil from "../../utils/global";
-import ThirForm from "./form.js";
-import styles from "./Index.less";
+} from 'antd';
+import { connect } from 'dva';
+import React from 'react';
+import App from '../../../public/images/app.svg';
+import globalUtil from '../../utils/global';
+import ThirForm from './form.js';
+import styles from './Index.less';
 
 @connect()
 @Form.create()
@@ -36,13 +36,13 @@ class Index extends React.Component {
       total: 0,
       loading: true,
       thirdInfo: false,
-      search: "",
-      event_id: "",
-      check_uuid: "",
+      search: '',
+      event_id: '',
+      check_uuid: '',
       create_loading: false,
-      create_status: "",
-      service_info: "",
-      error_infos: ""
+      create_status: '',
+      service_info: '',
+      error_infos: ''
     };
   }
   componentDidMount() {
@@ -51,7 +51,7 @@ class Index extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.type !== this.props.type) {
-      this.setState({ visible: false, search: "" }, () => {
+      this.setState({ visible: false, search: '' }, () => {
         this.handleCodeWarehouseInfo(nextProps);
       });
     }
@@ -84,7 +84,7 @@ class Index extends React.Component {
       },
       () => {
         dispatch({
-          type: "global/codeWarehouseInfo",
+          type: 'global/codeWarehouseInfo',
           payload: {
             page,
             search,
@@ -116,7 +116,7 @@ class Index extends React.Component {
       },
       () => {
         dispatch({
-          type: "global/testCode",
+          type: 'global/testCode',
           payload: {
             region_name,
             tenant_name: team_name,
@@ -125,13 +125,13 @@ class Index extends React.Component {
             oauth_service_id: this.props.type
           },
           callback: res => {
-            if (res && res._code === 200) {
+            if (res && res.status_code === 200) {
               this.setState(
                 {
                   event_id: res.data && res.data.bean && res.data.bean.event_id,
                   check_uuid:
                     res.data && res.data.bean && res.data.bean.check_uuid,
-                  create_status: "Checking",
+                  create_status: 'Checking',
                   create_loading: false
                 },
                 () => {
@@ -151,7 +151,7 @@ class Index extends React.Component {
     const region_name = globalUtil.getCurrRegionName();
     const _th = this;
     dispatch({
-      type: "global/detectionCode",
+      type: 'global/detectionCode',
       payload: {
         oauth_service_id: type,
         region: region_name,
@@ -159,11 +159,11 @@ class Index extends React.Component {
         check_uuid
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           if (
             res.bean &&
-            res.bean.check_status != "Success" &&
-            res.bean.check_status != "Failure"
+            res.bean.check_status != 'Success' &&
+            res.bean.check_status != 'Failure'
           ) {
             this.timer = setTimeout(function() {
               _th.handleDetectionCode();
@@ -204,9 +204,9 @@ class Index extends React.Component {
     }
     this.setState({
       detection: false,
-      create_status: "",
-      service_info: "",
-      error_infos: ""
+      create_status: '',
+      service_info: '',
+      error_infos: ''
     });
   };
   handleOpenDetection = thirdInfo => {
@@ -227,11 +227,11 @@ class Index extends React.Component {
       page
     } = this.state;
     const { handleType } = this.props;
-    const ServiceComponent = handleType && handleType === "Service";
+    const ServiceComponent = handleType && handleType === 'Service';
     return (
       <div
         style={{
-          background: ServiceComponent ? "#fff " : "#F0F2F5"
+          background: ServiceComponent ? '#fff ' : '#F0F2F5'
         }}
       >
         {this.state.detection && (
@@ -242,64 +242,64 @@ class Index extends React.Component {
             footer={
               !this.state.create_status
                 ? [
-                  <Button key="back" onClick={this.handleDetection}>
-                    关闭
-                  </Button>,
-                  <Button
-                    key="submit"
-                    type="primary"
-                    loading={create_loading}
-                    onClick={this.handleTestCode}
-                  >
-                    检测
-                  </Button>
+                    <Button key="back" onClick={this.handleDetection}>
+                      关闭
+                    </Button>,
+                    <Button
+                      key="submit"
+                      type="primary"
+                      loading={create_loading}
+                      onClick={this.handleTestCode}
+                    >
+                      检测
+                    </Button>
                   ]
-                : this.state.create_status == "Success"
+                : this.state.create_status == 'Success'
                 ? [
-                  <Button key="back" onClick={this.handleDetection}>
-                    关闭
-                  </Button>,
-                  <Button
-                    key="submit"
-                    type="primary"
-                    onClick={this.handleDetection}
-                  >
-                    确认
-                  </Button>
+                    <Button key="back" onClick={this.handleDetection}>
+                      关闭
+                    </Button>,
+                    <Button
+                      key="submit"
+                      type="primary"
+                      onClick={this.handleDetection}
+                    >
+                      确认
+                    </Button>
                   ]
                 : [
-                  <Button key="back" onClick={this.handleDetection}>
-                    关闭
-                  </Button>
+                    <Button key="back" onClick={this.handleDetection}>
+                      关闭
+                    </Button>
                   ]
             }
           >
             <div>
-              {this.state.create_status == "Checking" ||
-              this.state.create_status == "Complete" ? (
+              {this.state.create_status == 'Checking' ||
+              this.state.create_status == 'Complete' ? (
                 <div>
-                  <p style={{ textAlign: "center" }}>
+                  <p style={{ textAlign: 'center' }}>
                     <Spin />
                   </p>
-                  <p style={{ textAlign: "center", fontSize: "14px" }}>
+                  <p style={{ textAlign: 'center', fontSize: '14px' }}>
                     检测中，请稍后(请勿关闭弹窗)
                   </p>
                 </div>
               ) : (
-                ""
+                ''
               )}
-              {this.state.create_status == "Failure" ? (
+              {this.state.create_status == 'Failure' ? (
                 <div>
                   <p
                     style={{
-                      textAlign: "center",
-                      color: "#28cb75",
-                      fontSize: "36px"
+                      textAlign: 'center',
+                      color: '#28cb75',
+                      fontSize: '36px'
                     }}
                   >
                     <Icon
                       style={{
-                        color: "#f5222d",
+                        color: '#f5222d',
                         marginRight: 8
                       }}
                       type="close-circle-o"
@@ -312,7 +312,7 @@ class Index extends React.Component {
                           <span
                             dangerouslySetInnerHTML={{
                               __html: `<span>${items.error_info ||
-                                ""} ${items.solve_advice || ""}</span>`
+                                ''} ${items.solve_advice || ''}</span>`
                             }}
                           />
                         </div>
@@ -321,15 +321,15 @@ class Index extends React.Component {
                     })}
                 </div>
               ) : (
-                ""
+                ''
               )}
-              {this.state.create_status == "Success" ? (
+              {this.state.create_status == 'Success' ? (
                 <div>
                   <p
                     style={{
-                      textAlign: "center",
-                      color: "#28cb75",
-                      fontSize: "36px"
+                      textAlign: 'center',
+                      color: '#28cb75',
+                      fontSize: '36px'
                     }}
                   >
                     <Icon type="check-circle-o" />
@@ -338,37 +338,37 @@ class Index extends React.Component {
                   {this.state.service_info &&
                     this.state.service_info.map(item => {
                       return (
-                        <p style={{ textAlign: "center", fontSize: "14px" }}>
-                          检测语言:{item.language}{" "}
+                        <p style={{ textAlign: 'center', fontSize: '14px' }}>
+                          检测语言:{item.language}{' '}
                         </p>
                       );
                     })}
                 </div>
               ) : (
-                ""
+                ''
               )}
-              {this.state.create_status == "Failed" ? (
+              {this.state.create_status == 'Failed' ? (
                 <div>
                   <p
                     style={{
-                      textAlign: "center",
-                      color: "999",
-                      fontSize: "36px"
+                      textAlign: 'center',
+                      color: '999',
+                      fontSize: '36px'
                     }}
                   >
                     <Icon type="close-circle-o" />
                   </p>
-                  <p style={{ textAlign: "center", fontSize: "14px" }}>
+                  <p style={{ textAlign: 'center', fontSize: '14px' }}>
                     检测失败，请重新检测
                   </p>
                 </div>
               ) : (
-                ""
+                ''
               )}
 
               {!this.state.create_status && (
                 <div>
-                  <p style={{ textAlign: "center", fontSize: "14px" }}>
+                  <p style={{ textAlign: 'center', fontSize: '14px' }}>
                     确定要检测语言吗?
                   </p>
                 </div>
@@ -390,14 +390,14 @@ class Index extends React.Component {
                 onSearch={this.handleSearch}
                 style={{
                   width: 522,
-                  padding: "0 0 11px 0"
+                  padding: '0 0 11px 0'
                 }}
               />
             }
             footer={
-              <div style={{ display: "flex", marginBottom: "32px" }}>
+              <div style={{ display: 'flex', marginBottom: '32px' }}>
                 <Pagination
-                  style={{ marginLeft: "auto" }}
+                  style={{ marginLeft: 'auto' }}
                   showTotal={t => `共计 ${t} 个仓库`}
                   onChange={this.onChangePage}
                   current={page}
@@ -420,7 +420,7 @@ class Index extends React.Component {
                       检测语言
                     </a>
                     <a
-                      style={{ marginLeft: "16px" }}
+                      style={{ marginLeft: '16px' }}
                       onClick={() => {
                         this.showModal(item);
                       }}
@@ -433,25 +433,25 @@ class Index extends React.Component {
                 <Skeleton avatar title={false} loading={false} active>
                   <List.Item.Meta
                     style={{
-                      alignItems: "center",
-                      overflow: "hidden"
+                      alignItems: 'center',
+                      overflow: 'hidden'
                     }}
                     avatar={<Avatar src={App} />}
                     title={
                       <a target="_blank" href={item.project_url}>
                         <div className={styles.listItemMataTitle}>
                           <Tooltip title={item.project_name}>
-                            <div>{item.project_name || "-"}</div>
+                            <div>{item.project_name || '-'}</div>
                           </Tooltip>
                           <Tooltip
                             title={
                               item.project_full_name &&
-                              item.project_full_name.split("/")[0]
+                              item.project_full_name.split('/')[0]
                             }
                           >
                             <div>
                               {item.project_full_name &&
-                                item.project_full_name.split("/")[0]}
+                                item.project_full_name.split('/')[0]}
                             </div>
                           </Tooltip>
                         </div>
@@ -462,17 +462,17 @@ class Index extends React.Component {
                     <Row
                       justify="center"
                       style={{
-                        width: "70%",
-                        display: "flex",
-                        alignItems: "center",
-                        overflow: "hidden"
+                        width: '70%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        overflow: 'hidden'
                       }}
                     >
                       <Col span={8}>
                         <Tooltip title={item.project_description}>
                           <div
                             className={styles.listItemMataDesc}
-                            style={{ paddingLeft: "10px" }}
+                            style={{ paddingLeft: '10px' }}
                           >
                             {item.project_description}
                           </div>
@@ -484,9 +484,9 @@ class Index extends React.Component {
                           <div className={styles.listItemMataBranch}>
                             <Icon
                               type="apartment"
-                              style={{ marginRight: "5px" }}
+                              style={{ marginRight: '5px' }}
                             />
-                            {item.project_default_branch || "-"}
+                            {item.project_default_branch || '-'}
                           </div>
                         </Tooltip>
                       </Col>
@@ -497,9 +497,9 @@ class Index extends React.Component {
             )}
           />
         ) : (
-          <Card bordered={false} style={{ padding: "24px 32px" }}>
+          <Card bordered={false} style={{ padding: '24px 32px' }}>
             <Icon
-              style={{ fontSize: "16px", marginRight: "8px" }}
+              style={{ fontSize: '16px', marginRight: '8px' }}
               type="arrow-left"
               onClick={this.handleCancel}
             />
@@ -507,8 +507,8 @@ class Index extends React.Component {
             <div
               className={styles.formWrap}
               style={{
-                marginTop: ServiceComponent ? "25px" : "0",
-                width: ServiceComponent ? "auto" : "500px"
+                marginTop: ServiceComponent ? '25px' : '0',
+                width: ServiceComponent ? 'auto' : '500px'
               }}
             >
               <ThirForm

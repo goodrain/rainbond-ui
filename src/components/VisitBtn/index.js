@@ -1,15 +1,15 @@
 /* eslint-disable react/sort-comp */
 import {
-  Alert,
-  Button,
-  Card,
-  Dropdown,
-  Icon,
-  Menu,
-  Modal,
-  notification,
-  Table,
-  Tooltip
+    Alert,
+    Button,
+    Card,
+    Dropdown,
+    Icon,
+    Menu,
+    Modal,
+    notification,
+    Table,
+    Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -96,7 +96,7 @@ export default class Index extends PureComponent {
         app_alias: appAlias
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.handleTimers(
             'timer',
             () => {

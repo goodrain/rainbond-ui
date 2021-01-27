@@ -1,17 +1,23 @@
+@import "~antd/lib/style/themes/default.less";
+@import "../../../utils/utils.less";
+
 .setCheckbox {
   width: 100%;
   margin-top: 8px;
-  &>div{
+
+  &>div {
     display: flex;
     flex-wrap: wrap;
     position: relative;
     top: -21px;
   }
+
   :global {
-    .ant-form-item-control{
+    .ant-form-item-control {
       top: -25px;
     }
-    .ant-checkbox + span {
+
+    .ant-checkbox+span {
       display: inline-block;
       text-align: center;
       width: 100px;
@@ -19,8 +25,9 @@
       white-space: nowrap;
       overflow: hidden;
     }
-    .ant-checkbox-checked + span {
-      color: rgb(24, 144, 255) !important;
+
+    .ant-checkbox-checked+span {
+      color: @primary-color  !important;
     }
 
     .ant-checkbox-wrapper {
@@ -34,19 +41,22 @@
       display: flex;
       align-items: center;
       margin-bottom: 8px;
+
       &:hover {
-        border-color: rgb(24, 144, 255) !important;
-        .ant-checkbox + span {
-          color: rgb(24, 144, 255) !important;
+        border-color: @primary-color  !important;
+
+        .ant-checkbox+span {
+          color: @primary-color  !important;
         }
       }
     }
 
     .ant-checkbox-wrapper-checked {
-      border-color: rgb(24, 144, 255) !important;
+      border-color: @primary-color  !important;
     }
   }
 }
+
 .over {
   width: 200px;
   text-overflow: ellipsis;

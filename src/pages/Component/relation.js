@@ -1,17 +1,19 @@
+/* eslint-disable guard-for-in */
+/* eslint-disable camelcase */
 /* eslint-disable react/no-multi-comp */
-import React, { PureComponent, Fragment } from 'react';
+import { Button, Card, Icon, Modal, notification, Table } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import { Card, Button, Icon, Table, Modal, notification } from 'antd';
-import {
-  getRelationedApp,
-  removeRelationedApp,
-  batchAddRelationedApp,
-} from '../../services/app';
-import NoPermTip from '../../components/NoPermTip';
+import React, { Fragment, PureComponent } from 'react';
 import AddRelation from '../../components/AddRelation';
-import ScrollerX from '../../components/ScrollerX';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
+import NoPermTip from '../../components/NoPermTip';
+import ScrollerX from '../../components/ScrollerX';
+import {
+  batchAddRelationedApp,
+  getRelationedApp,
+  removeRelationedApp
+} from '../../services/app';
 import globalUtil from '../../utils/global';
 
 // 查看连接信息
@@ -46,6 +48,9 @@ export default class Index extends PureComponent {
       relationList: [],
       viewRelationInfo: null,
       showText: null,
+      page: 1,
+      pageSize: 8,
+      total: 0
     };
   }
   componentDidMount() {
@@ -58,27 +63,40 @@ export default class Index extends PureComponent {
   onViewRelationInfo = data => {
     this.setState({ viewRelationInfo: data });
   };
+  onPageChange = page => {
+    this.setState({ page }, () => {
+      this.loadRelationedApp();
+    });
+  };
   canView() {
     const {
-      componentPermissions: { isRely },
+      componentPermissions: { isRely }
     } = this.props;
     return isRely;
   }
   loadRelationedApp = () => {
+    const { page, pageSize } = this.state;
     getRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
+      page,
+      pageSize
     }).then(res => {
       if (res) {
         let arr = res.bean.port_list;
         if (res.list && res.list.length > 0) {
-          res.list.map((item, index) => {
+          res.list.map(item => {
             const { ports_list } = item;
             arr = arr.concat(ports_list);
+            return item;
           });
         }
         arr = this.isRepeat(arr);
-        this.setState({ relationList: res.list || [], showText: arr });
+        this.setState({
+          relationList: res.list || [],
+          showText: arr,
+          total: res.bean.total
+        });
       }
     });
   };
@@ -102,7 +120,7 @@ export default class Index extends PureComponent {
     batchAddRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      dep_service_ids: ids,
+      dep_service_ids: ids
     }).then(data => {
       if (data) {
         notification.info({ message: '需要更新才能生效' });
@@ -116,7 +134,7 @@ export default class Index extends PureComponent {
     removeRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      dep_service_id: app.service_id,
+      dep_service_id: app.service_id
     }).then(data => {
       if (data) {
         this.loadRelationedApp();
@@ -146,12 +164,22 @@ export default class Index extends PureComponent {
             <span>依赖组件信息</span>,
             <span style={{ color: 'red' }}>
               {showText && '（依赖的组件有相同的端口冲突,请处理）'}
-            </span>,
+            </span>
           ]}
+          extra={
+            <Button onClick={this.showAddRelation}>
+              <Icon type="plus" /> 添加依赖
+            </Button>
+          }
         >
           <ScrollerX sm={650}>
             <Table
-              pagination={false}
+              pagination={{
+                current: this.state.page,
+                pageSize: this.state.pageSize,
+                total: this.state.total,
+                onChange: this.onPageChange
+              }}
               columns={[
                 {
                   title: '组件名',
@@ -164,7 +192,7 @@ export default class Index extends PureComponent {
                     >
                       {val}
                     </Link>
-                  ),
+                  )
                 },
                 {
                   title: '所属应用',
@@ -177,7 +205,7 @@ export default class Index extends PureComponent {
                     >
                       {val}
                     </Link>
-                  ),
+                  )
                 },
                 {
                   title: '操作',
@@ -201,17 +229,12 @@ export default class Index extends PureComponent {
                         取消依赖
                       </a>
                     </Fragment>
-                  ),
-                },
+                  )
+                }
               ]}
               dataSource={relationList}
             />
           </ScrollerX>
-          <div style={{ marginTop: 10, textAlign: 'right' }}>
-            <Button onClick={this.showAddRelation}>
-              <Icon type="plus" /> 添加依赖
-            </Button>
-          </div>
         </Card>
 
         {this.state.showAddRelation && (

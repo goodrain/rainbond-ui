@@ -1,27 +1,24 @@
-import React, { Fragment, PureComponent } from 'react';
-import { connect } from 'dva';
-import { Redirect, Link } from 'dva/router';
-import DocumentTitle from 'react-document-title';
-import { ContainerQuery } from 'react-container-query';
-import classNames from 'classnames';
-import { stringify } from 'querystring';
-import { enquireScreen } from 'enquire-js';
-
 import { Layout } from 'antd';
-
-import Context from './MenuContext';
-import SiderMenu from '../components/SiderMenu';
+import classNames from 'classnames';
+import { connect } from 'dva';
+import { Link, Redirect } from 'dva/router';
+import { enquireScreen } from 'enquire-js';
+import { stringify } from 'querystring';
+import React, { Fragment, PureComponent } from 'react';
+import { ContainerQuery } from 'react-container-query';
+import DocumentTitle from 'react-document-title';
+import logo from '../../public/logo.png';
 import GlobalHeader from '../components/GlobalHeader';
-import PageLoading from '../components/PageLoading';
 import headerStype from '../components/GlobalHeader/index.less';
+import PageLoading from '../components/PageLoading';
+import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
 import rainbondUtil from '../utils/rainbond';
-
-import logo from '../../public/logo.png';
+import Context from './MenuContext';
 
 const { Content } = Layout;
 let isMobile;
-enquireScreen((b) => {
+enquireScreen(b => {
   isMobile = b;
 });
 class AccountLayout extends PureComponent {
@@ -44,8 +41,8 @@ class AccountLayout extends PureComponent {
     dispatch({ type: 'user/fetchCurrent' });
     dispatch({
       type: 'global/fetchEnterpriseList',
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState(
             {
               enterpriseList: res.list,
@@ -66,7 +63,7 @@ class AccountLayout extends PureComponent {
       location
     };
   }
-  handleMenuCollapse = (collapsed) => {
+  handleMenuCollapse = collapsed => {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/changeLayoutCollapsed',
@@ -86,7 +83,7 @@ class AccountLayout extends PureComponent {
       });
     }
   };
-  fetchEnterpriseService = (eid) => {
+  fetchEnterpriseService = eid => {
     const { dispatch } = this.props;
     dispatch({
       type: 'order/fetchEnterpriseService',
@@ -210,7 +207,7 @@ class AccountLayout extends PureComponent {
       <Fragment>
         <DocumentTitle title={SiteTitle}>
           <ContainerQuery query={query}>
-            {(params) => (
+            {params => (
               <Context.Provider value={this.getContext()}>
                 <div className={classNames(params)}>{layout()}</div>
               </Context.Provider>

@@ -11,6 +11,7 @@ import {
   Icon,
   Input,
   Menu,
+  Modal,
   notification,
   Pagination,
   Radio,
@@ -65,7 +66,6 @@ export default class EnterpriseShared extends PureComponent {
       componentList: [],
       localLoading: true,
       marketLoading: true,
-      marketTabLoading: true,
       appStoreAdmin,
       tagList: [],
       tags: [],
@@ -74,8 +74,6 @@ export default class EnterpriseShared extends PureComponent {
       visibles: null,
       bouncedText: '',
       bouncedType: '',
-      group_version: null,
-      chooseVersion: null,
       deleteApp: false,
       deleteAppMarket: false,
       deleteAppMarketLoading: false,
@@ -101,7 +99,7 @@ export default class EnterpriseShared extends PureComponent {
       this.load();
     }
   }
-  onChangeRadio = (e) => {
+  onChangeRadio = e => {
     this.setState(
       {
         page: 1,
@@ -112,7 +110,7 @@ export default class EnterpriseShared extends PureComponent {
       }
     );
   };
-  onChangeCheckbox = (checkedValues) => {
+  onChangeCheckbox = checkedValues => {
     this.setState(
       {
         tags: checkedValues
@@ -123,7 +121,7 @@ export default class EnterpriseShared extends PureComponent {
     );
   };
 
-  onChangeBounced = (checkedValues) => {
+  onChangeBounced = checkedValues => {
     this.setState({
       chooseVersion: checkedValues
     });
@@ -144,14 +142,14 @@ export default class EnterpriseShared extends PureComponent {
       this.getMarkets(marketInfo && marketInfo.name);
     });
   };
-  onTabChange = (tabID) => {
+  onTabChange = tabID => {
     if (tabID === 'add') {
       this.handleOpencreateAppMarket();
       return null;
     }
     const { marketTab } = this.state;
     let arr = [];
-    arr = marketTab.filter((item) => {
+    arr = marketTab.filter(item => {
       return item.ID === Number(tabID);
     });
     const isArr = arr && arr.length > 0;
@@ -203,8 +201,8 @@ export default class EnterpriseShared extends PureComponent {
           page_size: pageSize,
           tags
         },
-        callback: (res) => {
-          if (res && res._code === 200) {
+        callback: res => {
+          if (res && res.status_code === 200) {
             this.setState({
               total: res.total,
               componentList: res.list,
@@ -228,8 +226,8 @@ export default class EnterpriseShared extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             tagList: res.list
           });
@@ -238,7 +236,7 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
-  getMarketsTab = (ID) => {
+  getMarketsTab = ID => {
     const {
       dispatch,
       match: {
@@ -251,8 +249,8 @@ export default class EnterpriseShared extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState(
             {
               marketTabLoading: false,
@@ -269,7 +267,7 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
-  getMarkets = (name) => {
+  getMarkets = name => {
     const {
       dispatch,
       match: {
@@ -290,8 +288,8 @@ export default class EnterpriseShared extends PureComponent {
     dispatch({
       type: 'market/fetchMarkets',
       payload,
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           const setMarketPag = Object.assign({}, this.state.marketPag, {
             total: res.total
           });
@@ -305,13 +303,44 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
+  checkStoreHub = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch({
+      type: 'market/storehubCheck',
+      payload: {
+        eid
+      },
+      callback: res => {
+        if (res && res.status_code === 200 && res.bean.remind) {
+          Modal.confirm({
+            title: '配置提醒',
+            cancelText: '已了解',
+            okText: '去配置',
+            onCancel: () => {},
+            onOk: () => {
+              dispatch(routerRedux.push(`/enterprise/${eid}/setting`));
+            },
+            content:
+              '该平台已对接多个集群，但本地组件库暂未配置多集群可用的镜像仓库，将导致应用无法跨集群安装。'
+          });
+        }
+      }
+    });
+  };
+
   load = () => {
     this.getApps();
     this.getTags();
     this.getMarketsTab();
+    this.checkStoreHub();
   };
 
-  handleSearchLocal = (name) => {
+  handleSearchLocal = name => {
     this.setState(
       {
         page: 1,
@@ -322,7 +351,7 @@ export default class EnterpriseShared extends PureComponent {
       }
     );
   };
-  handleSearchMarket = (query) => {
+  handleSearchMarket = query => {
     const { marketPag, marketInfo } = this.state;
 
     const setMarketPag = Object.assign({}, marketPag, {
@@ -341,14 +370,14 @@ export default class EnterpriseShared extends PureComponent {
   handleOpenEditorMoreTags = () => {
     this.setState({ moreTags: true, editorTags: true });
   };
-  handleOpenMoreTags = (seeTag) => {
+  handleOpenMoreTags = seeTag => {
     this.setState({ moreTags: true, seeTag });
   };
   handleCloseMoreTags = () => {
     this.setState({ moreTags: false, editorTags: false, seeTag: false });
   };
 
-  showOfflineApp = (appInfo) => {
+  showOfflineApp = appInfo => {
     this.setState({
       appInfo,
       deleteApp: true,
@@ -362,14 +391,14 @@ export default class EnterpriseShared extends PureComponent {
   handleCloseDeleteAppMarket = () => {
     this.setState({ deleteAppMarket: false });
   };
-  handleOkBounced = (values) => {
+  handleOkBounced = values => {
     const { bouncedType } = this.state;
     this.setState(
       {
         chooseVersion: values.chooseVersion
       },
       () => {
-        if (bouncedType == 'delete') {
+        if (bouncedType === 'delete') {
           this.setState({
             deleteApp: true
           });
@@ -393,8 +422,8 @@ export default class EnterpriseShared extends PureComponent {
         enterprise_id: eid,
         app_id: appInfo.app_id
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           notification.success({
             message: '删除成功'
           });
@@ -419,8 +448,8 @@ export default class EnterpriseShared extends PureComponent {
         enterprise_id: eid,
         marketName: marketInfo.name
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.handleCloseDeleteAppMarket();
           this.getMarketsTab();
           this.setState({
@@ -439,14 +468,13 @@ export default class EnterpriseShared extends PureComponent {
     this.setState({
       deleteApp: null,
       visibles: null,
-      group_version: null,
       bouncedText: '',
       bouncedType: '',
       appInfo: false
     });
   };
 
-  handlePageChange = (page) => {
+  handlePageChange = page => {
     this.state.page = page;
     this.getApps();
   };
@@ -457,12 +485,11 @@ export default class EnterpriseShared extends PureComponent {
     if (versions_info) {
       this.setState({
         visibles: true,
-        group_version: versions_info,
         appInfo: item,
         bouncedText: text
       });
     } else {
-      this.setState({ group_version: versions_info, appInfo: item }, () => {
+      this.setState({ appInfo: item }, () => {
         if (versions_info) {
           this.handleCloudsUpdate(versions_info[0].version);
         }
@@ -471,7 +498,7 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   // 云更新
-  handleCloudsUpdate = (chooseVersion) => {
+  handleCloudsUpdate = chooseVersion => {
     const { appInfo } = this.state;
     const {
       dispatch,
@@ -488,8 +515,8 @@ export default class EnterpriseShared extends PureComponent {
           app_versions: chooseVersion
         }
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.handleCancelDelete();
           notification.success({ message: '更新成功' });
           this.getApps();
@@ -504,7 +531,7 @@ export default class EnterpriseShared extends PureComponent {
     this.handleCancelAppModel();
   };
 
-  handleCreateAppMarket = (ID) => {
+  handleCreateAppMarket = ID => {
     const { upAppMarket } = this.state;
     notification.success({ message: upAppMarket ? '编辑成功' : '创建成功' });
     this.getMarketsTab(ID);
@@ -546,13 +573,13 @@ export default class EnterpriseShared extends PureComponent {
     this.handleCancelupDataAppModel();
   };
 
-  handleOpenUpDataAppModel = (appInfo) => {
+  handleOpenUpDataAppModel = appInfo => {
     this.setState({
       appInfo,
       upDataAppModel: true
     });
   };
-  handleAppModel = (appInfo) => {
+  handleAppModel = appInfo => {
     const {
       dispatch,
       match: {
@@ -570,7 +597,7 @@ export default class EnterpriseShared extends PureComponent {
       upDataAppModel: false
     });
   };
-  showMarketAppDetail = (app) => {
+  showMarketAppDetail = app => {
     // cloud app
     if (app && app.app_detail_url) {
       window.open(app.app_detail_url, '_blank');
@@ -628,7 +655,7 @@ export default class EnterpriseShared extends PureComponent {
 
     const isMarket = marketInfo && marketInfo.status == 1;
     const defaulAppImg = globalUtil.fetchSvg('defaulAppImg');
-    const managementMenu = (info) => {
+    const managementMenu = info => {
       const delApp = isDeleteApp && (
         <Menu.Item>
           <a
@@ -797,7 +824,7 @@ export default class EnterpriseShared extends PureComponent {
             <Spin />
           </div>
         ) : componentList && componentList.length > 0 ? (
-          componentList.map((item) => {
+          componentList.map(item => {
             const {
               app_id: appId,
               pic,
@@ -815,7 +842,7 @@ export default class EnterpriseShared extends PureComponent {
                 Cols={
                   <div
                     className={styles.h70}
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       this.handleAppModel(item);
                     }}
@@ -823,7 +850,7 @@ export default class EnterpriseShared extends PureComponent {
                     <Col span={3} style={{ display: 'flex' }}>
                       <div
                         className={styles.lt}
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                         }}
                       >
@@ -842,7 +869,7 @@ export default class EnterpriseShared extends PureComponent {
                       <div>
                         <p>
                           <a
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               this.showMarketAppDetail(item);
                             }}
@@ -889,9 +916,9 @@ export default class EnterpriseShared extends PureComponent {
                       {tags && tags.length > 3 && (
                         <a
                           style={{ marginLeft: '5px' }}
-                          onClick={(e) => {
+                          onClick={e => {
                             e.stopPropagation();
-                            const customTags = tags.map((item) => item.name);
+                            const customTags = tags.map(item => item.name);
                             this.handleOpenMoreTags(customTags);
                           }}
                         >
@@ -977,7 +1004,7 @@ export default class EnterpriseShared extends PureComponent {
             <Spin />
           </div>
         ) : marketList && marketList.length > 0 ? (
-          marketList.map((item) => {
+          marketList.map(item => {
             const {
               app_id: appId,
               logo,
@@ -997,7 +1024,7 @@ export default class EnterpriseShared extends PureComponent {
                     <Col span={3} style={{ display: 'flex' }}>
                       <div
                         className={styles.lt}
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                         }}
                       >
@@ -1061,7 +1088,7 @@ export default class EnterpriseShared extends PureComponent {
                       {tags && tags.length > 3 && (
                         <a
                           style={{ marginLeft: '5px' }}
-                          onClick={(e) => {
+                          onClick={e => {
                             e.stopPropagation();
                             this.handleOpenMoreTags(tags);
                           }}
@@ -1224,7 +1251,7 @@ export default class EnterpriseShared extends PureComponent {
               {localsContent}
             </div>
           </TabPane>
-          {marketTab.map((item) => {
+          {marketTab.map(item => {
             const { ID, alias, name } = item;
             return (
               <TabPane

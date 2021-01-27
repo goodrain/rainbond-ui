@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
+import { Alert, Form, Input, Modal, notification } from 'antd';
 import { connect } from 'dva';
-import { Form, Input, Modal, notification, Alert } from 'antd';
+import React, { PureComponent } from 'react';
 import styles from '../../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -23,7 +23,7 @@ class EditClusterInfo extends PureComponent {
       }
     });
   };
-  upClusters = (values) => {
+  upClusters = values => {
     const { dispatch, eid, regionInfo, onOk } = this.props;
     dispatch({
       type: 'region/upEnterpriseCluster',
@@ -32,8 +32,8 @@ class EditClusterInfo extends PureComponent {
         ...values,
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           if (res.bean && res.bean.health_status === 'failure') {
             this.setState({ healthStatus: false });
           } else {

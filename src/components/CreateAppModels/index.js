@@ -1,22 +1,21 @@
-import React, { PureComponent } from 'react';
 import {
   Button,
-  Icon,
-  Modal,
-  Form,
-  Upload,
-  Select,
-  Input,
-  Radio,
-  Spin,
   Divider,
-  Checkbox
+  Form,
+  Icon,
+  Input,
+  Modal,
+  Radio,
+  Select,
+  Spin,
+  Upload
 } from 'antd';
 import { connect } from 'dva';
-import userUtil from '../../utils/user';
-import styles from '../CreateTeam/index.less';
+import React, { PureComponent } from 'react';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
+import userUtil from '../../utils/user';
+import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -69,8 +68,8 @@ class CreateAppModels extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             tagList: res.list
           });
@@ -79,12 +78,12 @@ class CreateAppModels extends PureComponent {
     });
   };
 
-  getBase64 = (file) => {
+  getBase64 = file => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
+      reader.onerror = error => reject(error);
     });
   };
 
@@ -94,7 +93,7 @@ class CreateAppModels extends PureComponent {
     reader.readAsDataURL(img);
   };
 
-  getEnterpriseTeams = (name) => {
+  getEnterpriseTeams = name => {
     const { dispatch, eid } = this.props;
     const { page, page_size } = this.state;
     dispatch({
@@ -105,8 +104,8 @@ class CreateAppModels extends PureComponent {
         page_size,
         enterprise_id: eid
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           if (res.bean && res.bean.list) {
             const listNum = (res.bean && res.bean.total_count) || 0;
             const isAdd = !!(listNum && listNum > page_size);
@@ -145,7 +144,7 @@ class CreateAppModels extends PureComponent {
     });
   };
 
-  handleLogoChange = (info) => {
+  handleLogoChange = info => {
     if (info.file.status === 'uploading') {
       this.setState({ loading: true });
       return;
@@ -161,7 +160,7 @@ class CreateAppModels extends PureComponent {
         loading: false
       });
 
-      this.getLogoBase64(info.file.originFileObj, (imageBase64) =>
+      this.getLogoBase64(info.file.originFileObj, imageBase64 =>
         this.setState({
           imageBase64
         })
@@ -172,7 +171,7 @@ class CreateAppModels extends PureComponent {
   handleLogoRemove = () => {
     this.setState({ imageUrl: '', imageBase64: '' });
   };
-  handlePreview = async (file) => {
+  handlePreview = async file => {
     if (!file.url && !file.preview) {
       file.preview = await this.getBase64(file.originFileObj);
     }
@@ -184,14 +183,14 @@ class CreateAppModels extends PureComponent {
 
   handleCancel = () => this.setState({ previewVisible: false });
 
-  handleClose = (removedTagID) => {
+  handleClose = removedTagID => {
     const tagList = this.state.tagList.filter(
-      (item) => item.tag_id !== removedTagID
+      item => item.tag_id !== removedTagID
     );
     this.setState({ tagList });
   };
 
-  createTag = (name) => {
+  createTag = name => {
     const { dispatch, eid } = this.props;
     dispatch({
       type: 'market/createTag',
@@ -199,8 +198,8 @@ class CreateAppModels extends PureComponent {
         enterprise_id: eid,
         name
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.getTags();
         }
       }
@@ -224,7 +223,7 @@ class CreateAppModels extends PureComponent {
   //   });
   // };
 
-  upAppModel = (values) => {
+  upAppModel = values => {
     const { dispatch, eid, appInfo, onOk, team_name } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
 
@@ -235,8 +234,8 @@ class CreateAppModels extends PureComponent {
       tagList &&
       tagList.length > 0
     ) {
-      values.tag_ids.map((items) => {
-        tagList.map((item) => {
+      values.tag_ids.map(items => {
+        tagList.map(item => {
           if (items === item.name) {
             arr.push(parseFloat(item.tag_id));
           }
@@ -262,15 +261,15 @@ class CreateAppModels extends PureComponent {
     dispatch({
       type: 'market/upAppModel',
       payload: body,
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           onOk && onOk(appInfo);
         }
       }
     });
   };
 
-  createAppModel = (values) => {
+  createAppModel = values => {
     const {
       dispatch,
       eid,
@@ -289,8 +288,8 @@ class CreateAppModels extends PureComponent {
       tagList &&
       tagList.length > 0
     ) {
-      values.tag_ids.map((items) => {
-        tagList.map((item) => {
+      values.tag_ids.map(items => {
+        tagList.map(item => {
           if (items === item.name) {
             tags.push(item.name);
             arr.push(parseFloat(item.tag_id));
@@ -318,8 +317,8 @@ class CreateAppModels extends PureComponent {
       dispatch({
         type: 'market/createMarketAppModel',
         payload: customBody,
-        callback: (res) => {
-          if (res && res._code === 200) {
+        callback: res => {
+          if (res && res.status_code === 200) {
             if (onOk) {
               onOk();
             }
@@ -351,8 +350,8 @@ class CreateAppModels extends PureComponent {
     dispatch({
       type: 'market/createAppModel',
       payload: customBody,
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           if (onOk) {
             onOk();
           }
@@ -361,11 +360,11 @@ class CreateAppModels extends PureComponent {
     });
   };
 
-  handleOnSelect = (value) => {
+  handleOnSelect = value => {
     const { tagList } = this.state;
     if (value && tagList.length > 0) {
       let judge = true;
-      tagList.map((item) => {
+      tagList.map(item => {
         if (item.name === value) {
           judge = false;
         }
@@ -421,7 +420,7 @@ class CreateAppModels extends PureComponent {
       tagList &&
       tagList.length > 0
     ) {
-      appInfo.tags.map((items) => {
+      appInfo.tags.map(items => {
         arr.push(items.name);
       });
     }
@@ -498,7 +497,7 @@ class CreateAppModels extends PureComponent {
                   isShared ? (
                     <Select
                       placeholder="请选择发布范围"
-                      dropdownRender={(menu) => (
+                      dropdownRender={menu => (
                         <div>
                           {menu}
                           {isAddLicense && (
@@ -512,7 +511,7 @@ class CreateAppModels extends PureComponent {
                                     padding: '4px 8px',
                                     cursor: 'pointer'
                                   }}
-                                  onMouseDown={(e) => e.preventDefault()}
+                                  onMouseDown={e => e.preventDefault()}
                                   onClick={() => {
                                     this.addTeams();
                                   }}
@@ -532,7 +531,7 @@ class CreateAppModels extends PureComponent {
                       </Option>
 
                       {teamList &&
-                        teamList.map((item) => {
+                        teamList.map(item => {
                           return (
                             <Option key={item.team_name} value={item.team_name}>
                               {item.team_alias}
@@ -568,7 +567,7 @@ class CreateAppModels extends PureComponent {
                   tokenSeparators={[',']}
                   placeholder="请选择分类标签"
                 >
-                  {tagList.map((item) => {
+                  {tagList.map(item => {
                     const { tag_id, name } = item;
                     return (
                       <Option key={tag_id} value={name} label={name}>

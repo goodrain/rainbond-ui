@@ -18,9 +18,9 @@ import {
   notification,
   Row
 } from 'antd';
+import axios from 'axios';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import axios from 'axios';
 import PluginStyles from '../../pages/Create/Index.less';
 import cookie from '../../utils/cookie';
 import Ellipsis from '../Ellipsis';
@@ -45,7 +45,7 @@ export default class Index extends PureComponent {
   }
   componentWillMount() {
     // eslint-disable-next-line func-names
-    window.addEventListener('message', (res) => {
+    window.addEventListener('message', res => {
       if (res.data && res.data.accessKey) {
         return this.handleNextStep(3, res.data.accessKey);
       }
@@ -58,7 +58,7 @@ export default class Index extends PureComponent {
       });
     }
   }
-  onChangeCheckbox = (checkedValues) => {
+  onChangeCheckbox = checkedValues => {
     this.setState({
       checkedValues
     });
@@ -75,8 +75,8 @@ export default class Index extends PureComponent {
     dispatch({
       type: 'market/fetchAppMarketInfo',
       payload,
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           if (res.list && res.list.url) {
             this.setState({
               marketUrl: res.list.url
@@ -90,7 +90,7 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleBindingMarketsList = (accessKey) => {
+  handleBindingMarketsList = accessKey => {
     const { dispatch, eid, marketName } = this.props;
     const { marketUrl } = this.state;
     const payload = Object.assign(
@@ -105,8 +105,8 @@ export default class Index extends PureComponent {
     dispatch({
       type: 'market/fetchBindingMarketsList',
       payload,
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             marketList: res.list,
             accessKey
@@ -132,7 +132,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  handleCurrStep = (step) => {
+  handleCurrStep = step => {
     this.setState({
       currStep: step
     });
@@ -145,11 +145,11 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleIsCloudAppStoreUrl = (url) => {
+  handleIsCloudAppStoreUrl = url => {
     const { dispatch } = this.props;
     axios
       .get(`${url}/app-server/openapi/healthz`)
-      .then((res) => {
+      .then(res => {
         if (res && res.data && res.data.isRainstore) {
           this.setState({
             marketUrl: url,
@@ -174,12 +174,12 @@ export default class Index extends PureComponent {
   handleOkMarkets = () => {
     const { form, marketName } = this.props;
     const { marketList, checkedValues, accessKey, marketUrl } = this.state;
-    form.validateFields((err) => {
+    form.validateFields(err => {
       if (!err) {
         this.setState({ loading: true }, () => {
           const arr = [];
-          checkedValues.map((items) => {
-            marketList.map((item) => {
+          checkedValues.map(items => {
+            marketList.map(item => {
               if (item.domain === items && marketName) {
                 item.name = marketName;
               } else {
@@ -203,8 +203,8 @@ export default class Index extends PureComponent {
           dispatch({
             type: 'market/addBindingMarkets',
             payload,
-            callback: (res) => {
-              if (res && res._code === 200) {
+            callback: res => {
+              if (res && res.status_code === 200) {
                 if (onCancel) {
                   onCancel();
                 } else {
@@ -424,7 +424,7 @@ export default class Index extends PureComponent {
                             style={{ width: '450px' }}
                           >
                             <Row gutter={[24, 24]}>
-                              {marketList.map((item) => {
+                              {marketList.map(item => {
                                 const { name, url, logo, desc, domain } = item;
                                 return (
                                   <Col

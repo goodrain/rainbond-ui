@@ -14,7 +14,8 @@ import {
   Select,
   Spin,
   Tabs,
-  Tag
+  Tag,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -105,7 +106,7 @@ export default class Main extends PureComponent {
   onCancelCreate = () => {
     this.setState({ showCreate: null });
   };
-  getCloudRecommendApps = (v) => {
+  getCloudRecommendApps = v => {
     const { currentKey } = this.state;
     const { currentEnterprise } = this.props;
     this.props.dispatch({
@@ -117,7 +118,7 @@ export default class Main extends PureComponent {
         pageSize: v ? 9 : this.state.cloudPageSize,
         page: v ? 1 : this.state.cloudPage
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState(
             {
@@ -127,7 +128,7 @@ export default class Main extends PureComponent {
             () => {
               if (
                 data._code &&
-                data._code === 210 &&
+                data.status_code === 210 &&
                 data._condition &&
                 data._condition === 10503
               ) {
@@ -148,7 +149,7 @@ export default class Main extends PureComponent {
       }
     });
   };
-  getApps = (v) => {
+  getApps = v => {
     const { currentEnterprise } = this.props;
     this.props.dispatch({
       type: 'market/fetchAppModels',
@@ -160,7 +161,7 @@ export default class Main extends PureComponent {
         page: v ? 1 : this.state.page,
         is_complete: 1
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState(
             {
@@ -192,12 +193,12 @@ export default class Main extends PureComponent {
       payload: {
         enterprise_id: currentEnterprise.enterprise_id
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           const arr = res.list;
           const arryNew = [];
           if (arr && arr.length > 0) {
-            res.list.map((item) => {
+            res.list.map(item => {
               const { name, status, alias } = item;
               if (status === 1) {
                 arryNew.push(
@@ -223,7 +224,7 @@ export default class Main extends PureComponent {
       }
     });
   };
-  handleSearch = (v) => {
+  handleSearch = v => {
     const { scopeMax } = this.state;
     if (scopeMax === 'localApplication') {
       this.setState(
@@ -248,7 +249,7 @@ export default class Main extends PureComponent {
     }
   };
 
-  hanldePageChange = (page) => {
+  hanldePageChange = page => {
     this.setState(
       {
         page
@@ -259,7 +260,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  hanldeCloudPageChange = (page) => {
+  hanldeCloudPageChange = page => {
     this.setState(
       {
         cloudPage: page
@@ -270,7 +271,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleTabChange = (key) => {
+  handleTabChange = key => {
     this.setState(
       {
         scope: key,
@@ -282,7 +283,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleTabMaxChange = (key) => {
+  handleTabMaxChange = key => {
     this.setState(
       {
         page: 1,
@@ -304,7 +305,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  showCreate = (app) => {
+  showCreate = app => {
     const { handleType } = this.state;
     if (handleType) {
       this.setState({ installBounced: app });
@@ -312,7 +313,7 @@ export default class Main extends PureComponent {
       this.setState({ showCreate: app });
     }
   };
-  handleInstallBounced = (e) => {
+  handleInstallBounced = e => {
     e.preventDefault();
     const { form, dispatch, groupId, refreshCurrent } = this.props;
     const {
@@ -354,9 +355,8 @@ export default class Main extends PureComponent {
           }
           dispatch(
             routerRedux.push(
-              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
-                groupId || 0
-              }`
+              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+                0}`
             )
           );
         }
@@ -446,7 +446,7 @@ export default class Main extends PureComponent {
     this.setState({ visiblebox: newvisible });
     this.queryExport(item);
   };
-  showMarketAppDetail = (app) => {
+  showMarketAppDetail = app => {
     // cloud app
     if (app && app.app_detail_url) {
       window.open(app.app_detail_url, '_blank');
@@ -479,7 +479,7 @@ export default class Main extends PureComponent {
           padding: handleType ? '0 20px 20px' : '20px '
         }}
       >
-        {tabList.map((item) => {
+        {tabList.map(item => {
           const { key, tab } = item;
           return (
             <TabPane tab={tab} key={key}>
@@ -500,7 +500,7 @@ export default class Main extends PureComponent {
     const { scopeMax, handleType } = this.state;
     const cloud = scopeMax != 'localApplication';
 
-    const title = (item) => (
+    const title = item => (
       <div
         title={item.app_name || ''}
         style={{
@@ -557,17 +557,20 @@ export default class Main extends PureComponent {
       </div>
     );
     const fastactions = [
-      <div
-        onClick={() => {
-          isInstall && this.showCreate(item);
-        }}
-      >
-        <div className={PluginStyles.cardTitle}>
-          <span title={item.app_name}>{item.app_name}</span>
-          {isInstall && <span>安装</span>}
+      <Tooltip title={isInstall ? '点击安装' : '不可安装'}>
+        <div
+          onClick={() => {
+            if (isInstall) {
+              this.showCreate(item);
+            }
+          }}
+        >
+          <div className={PluginStyles.cardTitle}>
+            <span title={item.app_name}>{item.app_name}</span>
+          </div>
+          {versionBox}
         </div>
-        {versionBox}
-      </div>
+      </Tooltip>
     ];
 
     const defaultActions = isInstall
@@ -704,7 +707,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleCertification = (marketName) => {
+  handleCertification = marketName => {
     this.setState({
       authorizations: marketName
     });
@@ -749,7 +752,7 @@ export default class Main extends PureComponent {
       current: moreState ? 1 : page,
       pageSize: moreState ? 3 : pageSize,
       total: moreState ? 1 : total,
-      onChange: (v) => {
+      onChange: v => {
         this.hanldePageChange(v);
       }
     };
@@ -757,15 +760,15 @@ export default class Main extends PureComponent {
       current: moreState ? 1 : cloudPage,
       pageSize: moreState ? 3 : cloudPageSize,
       total: moreState ? 1 : cloudTotal,
-      onChange: (v) => {
+      onChange: v => {
         this.hanldeCloudPageChange(v);
       }
     };
     let isInstall = true;
 
     if (marketTab && marketTab.length > 0) {
-      const arr = marketTab.filter((item) => {
-        return item.name == currentKey;
+      const arr = marketTab.filter(item => {
+        return item.name === currentKey;
       });
       if (arr && arr.length > 0) {
         isInstall = fetchMarketAuthority(arr[0], 'ReadInstall');
@@ -793,7 +796,7 @@ export default class Main extends PureComponent {
         }}
         pagination={paginationProps}
         dataSource={list}
-        renderItem={(item) => (
+        renderItem={item => (
           <List.Item style={{ border: 'none' }}>
             {this.renderApp(item, true)}
           </List.Item>
@@ -813,7 +816,7 @@ export default class Main extends PureComponent {
         }}
         pagination={cloudPaginationProps}
         dataSource={cloudList}
-        renderItem={(item) => (
+        renderItem={item => (
           <List.Item style={{ border: 'none' }}>
             {this.renderApp(item, isInstall)}
           </List.Item>
@@ -836,7 +839,7 @@ export default class Main extends PureComponent {
             enterButton="搜索"
             size="large"
             value={defaultValue}
-            onChange={(event) => {
+            onChange={event => {
               this.setState({
                 app_name: event.target.value,
                 cloudApp_name: event.target.value
@@ -861,11 +864,11 @@ export default class Main extends PureComponent {
     const tabComponentList = [
       {
         key: 'enterprise',
-        tab: '公司分享'
+        tab: '公司发布'
       },
       {
         key: 'team',
-        tab: '团队分享'
+        tab: '团队发布'
       }
     ];
     const tabList = tabAllList.concat(tabComponentList);

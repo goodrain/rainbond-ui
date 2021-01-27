@@ -1,16 +1,16 @@
-import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import React, { PureComponent } from 'react';
 import HttpTable from '../../components/HttpTable';
 import TcpTable from '../../components/TcpTable';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   createApp,
   createEnterprise,
-  createTeam,
+  createTeam
 } from '../../utils/breadcrumb';
-import roleUtil from '../../utils/role';
 import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/role';
 
 /* eslint react/no-array-index-key: 0 */
 
@@ -18,7 +18,7 @@ import globalUtil from '../../utils/global';
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 export default class AppGatewayList extends PureComponent {
   constructor(props) {
@@ -39,13 +39,13 @@ export default class AppGatewayList extends PureComponent {
         this.props.match.params.types
           ? this.props.match.params.types
           : false,
-      operationPermissions: this.handlePermissions('queryControlInfo'),
+      operationPermissions: this.handlePermissions('queryControlInfo')
     };
   }
   componentWillMount() {
     const { dispatch } = this.props;
     const {
-      operationPermissions: { isAccess },
+      operationPermissions: { isAccess }
     } = this.state;
 
     if (!isAccess) {
@@ -76,12 +76,12 @@ export default class AppGatewayList extends PureComponent {
       payload: {
         team_name: teamName,
         region_name: regionName,
-        group_id: appID,
+        group_id: appID
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
-            appDetail: res.bean,
+            appDetail: res.bean
           });
         }
       },
@@ -93,7 +93,7 @@ export default class AppGatewayList extends PureComponent {
             )
           );
         }
-      },
+      }
     });
   };
   handleTabChange = key => {
@@ -139,12 +139,12 @@ export default class AppGatewayList extends PureComponent {
         tabList={[
           {
             key: 'http',
-            tab: 'HTTP',
+            tab: 'HTTP'
           },
           {
             key: 'tcp',
-            tab: 'TCP/UDP',
-          },
+            tab: 'TCP/UDP'
+          }
         ]}
         onTabChange={this.handleTabChange}
       >

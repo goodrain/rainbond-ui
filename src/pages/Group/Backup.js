@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable react/jsx-no-bind */
 import {
   Alert,
@@ -12,28 +13,28 @@ import {
   Radio,
   Table,
   Tooltip
-} from "antd";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
-import React, { Fragment, PureComponent } from "react";
-import apiconfig from "../../../config/api.config";
-import ConfirmModal from "../../components/ConfirmModal";
-import styles from "../../components/CreateTeam/index.less";
-import ImportBackup from "../../components/ImportBackup";
-import MigrationBackup from "../../components/MigrationBackup";
-import RestoreBackup from "../../components/RestoreBackup";
-import ScrollerX from "../../components/ScrollerX";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+} from 'antd';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
+import apiconfig from '../../../config/api.config';
+import ConfirmModal from '../../components/ConfirmModal';
+import styles from '../../components/CreateTeam/index.less';
+import ImportBackup from '../../components/ImportBackup';
+import MigrationBackup from '../../components/MigrationBackup';
+import RestoreBackup from '../../components/RestoreBackup';
+import ScrollerX from '../../components/ScrollerX';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   createApp,
   createEnterprise,
   createTeam
-} from "../../utils/breadcrumb";
-import globalUtil from "../../utils/global";
-import logSocket from "../../utils/logSocket";
-import roleUtil from "../../utils/role";
-import sourceUtil from "../../utils/source-unit";
-import userUtil from "../../utils/user";
+} from '../../utils/breadcrumb';
+import globalUtil from '../../utils/global';
+import logSocket from '../../utils/logSocket';
+import roleUtil from '../../utils/role';
+import sourceUtil from '../../utils/source-unit';
+import userUtil from '../../utils/user';
 
 const { TextArea } = Input;
 const RadioButton = Radio.Button;
@@ -45,16 +46,16 @@ class BackupStatus extends PureComponent {
     super(props);
     this.state = {
       map: {
-        starting: "备份中",
-        success: "备份成功",
-        failed: "备份失败"
+        starting: '备份中',
+        success: '备份成功',
+        failed: '备份失败'
       }
     };
     this.timer = null;
   }
   componentDidMount() {
     const { data } = this.props;
-    if (data.status === "starting") {
+    if (data.status === 'starting') {
       this.createSocket();
       this.startLoopStatus();
     }
@@ -83,7 +84,7 @@ class BackupStatus extends PureComponent {
 
   startLoopStatus() {
     this.props.dispatch({
-      type: "application/fetchBackupStatus",
+      type: 'application/fetchBackupStatus',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         backup_id: this.props.data.backup_id,
@@ -92,7 +93,7 @@ class BackupStatus extends PureComponent {
       callback: data => {
         if (data) {
           const { bean } = data;
-          if (bean.status === "starting") {
+          if (bean.status === 'starting') {
             this.timer = setTimeout(() => {
               this.startLoopStatus();
             }, 10000);
@@ -110,8 +111,8 @@ class BackupStatus extends PureComponent {
     const data = this.props.data || {};
     return (
       <span>
-        {this.state.map[data.status]}{" "}
-        {data.status === "starting" && (
+        {this.state.map[data.status]}{' '}
+        {data.status === 'starting' && (
           <Icon style={{ marginLeft: 8 }} type="loading" spin />
         )}
       </span>
@@ -156,8 +157,8 @@ class Backup extends PureComponent {
       }
     };
     const cloudBackupTip = is_configed
-      ? "备份到云端存储上，可实现跨集群迁移"
-      : "请在管理后台开启此功能";
+      ? '备份到云端存储上，可实现跨集群迁移'
+      : '需要企业管理员在企业设置中配置 OSS 云对象存储';
     return (
       <Modal
         title="新增备份"
@@ -168,17 +169,17 @@ class Backup extends PureComponent {
         footer={[
           <Button onClick={onCancel}> 取消 </Button>,
           <Button type="primary" onClick={this.onOk}>
-            {warningText ? "强制备份" : "确定"}
+            {warningText ? '强制备份' : '确定'}
           </Button>
         ]}
       >
         <Form layout="horizontal">
           <Form.Item {...formItemLayout} label={<span>备份方式</span>}>
-            {getFieldDecorator("mode", {
+            {getFieldDecorator('mode', {
               initialValue: is_configed
-                ? data.mode || "full-online"
-                : "full-offline",
-              rules: [{ required: true, message: "要创建的应用还没有名字" }]
+                ? data.mode || 'full-online'
+                : 'full-offline',
+              rules: [{ required: true, message: '要创建的应用还没有名字' }]
             })(
               <RadioGroup>
                 <Tooltip title={cloudBackupTip}>
@@ -193,9 +194,9 @@ class Backup extends PureComponent {
             )}
           </Form.Item>
           <Form.Item {...formItemLayout} label="备份说明">
-            {getFieldDecorator("note", {
-              initialValue: data.note || "",
-              rules: [{ required: true, message: "请写入备份说明" }]
+            {getFieldDecorator('note', {
+              initialValue: data.note || '',
+              rules: [{ required: true, message: '请写入备份说明' }]
             })(<TextArea placeholder="请写入备份说明" />)}
           </Form.Item>
 
@@ -204,9 +205,9 @@ class Backup extends PureComponent {
               <Alert message={warningText} type="warning" />
               <List
                 size="small"
-                style={{ margin: "10px 0" }}
+                style={{ margin: '10px 0' }}
                 header={
-                  <h6 style={{ marginBottom: "0", fontSize: "15px" }}>
+                  <h6 style={{ marginBottom: '0', fontSize: '15px' }}>
                     组件名称
                   </h6>
                 }
@@ -245,13 +246,13 @@ export default class AppList extends PureComponent {
       showDel: false,
       showRecovery: false,
       showImport: false,
-      backup_id: "",
+      backup_id: '',
       appDetail: {},
       is_configed: null,
-      group_uuid: "",
-      warningText: "",
+      group_uuid: '',
+      warningText: '',
       componentList: [],
-      operationPermissions: this.handlePermissions("queryAppInfo")
+      operationPermissions: this.handlePermissions('queryAppInfo')
     };
   }
 
@@ -285,7 +286,7 @@ export default class AppList extends PureComponent {
   fetchBackup = () => {
     const { teamName, appID } = this.props.match.params;
     this.props.dispatch({
-      type: "application/fetchBackup",
+      type: 'application/fetchBackup',
       payload: {
         team_name: teamName,
         group_id: appID,
@@ -305,11 +306,11 @@ export default class AppList extends PureComponent {
   };
 
   cancelBackup = () => {
-    this.setState({ showBackup: false, warningText: "", componentList: [] });
+    this.setState({ showBackup: false, warningText: '', componentList: [] });
   };
   handleBackup = data => {
     this.props.dispatch({
-      type: "application/backup",
+      type: 'application/backup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
@@ -324,13 +325,13 @@ export default class AppList extends PureComponent {
           if (res.data && res.data.code) {
             if (res.data.code === 4122) {
               this.setState({
-                warningText: "备份有异常 ：组件使用了自定义存储，是否强制备份",
+                warningText: '备份有异常 ：组件使用了自定义存储，是否强制备份',
                 componentList: res.data.data.list || []
               });
             }
             if (res.data.code === 4121) {
               this.setState({
-                warningText: "备份有异常 ：有状态组件未停止，是否强制备份",
+                warningText: '备份有异常 ：有状态组件未停止，是否强制备份',
                 componentList: res.data.data.list || []
               });
             }
@@ -345,14 +346,14 @@ export default class AppList extends PureComponent {
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: "application/fetchGroupDetail",
+      type: 'application/fetchGroupDetail',
       payload: {
         team_name: teamName,
         region_name: regionName,
         group_id: appID
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             appDetail: res.bean,
             loadingDetail: false
@@ -376,7 +377,7 @@ export default class AppList extends PureComponent {
   };
   handleImportBackup = e => {
     notification.success({
-      message: "备份已导入",
+      message: '备份已导入',
       duration: 2
     });
     this.setState({ showImport: false });
@@ -395,11 +396,11 @@ export default class AppList extends PureComponent {
     });
   };
   handleRecoveryBackup = () => {
-    this.setState({ showRecovery: false, backup_id: "" });
+    this.setState({ showRecovery: false, backup_id: '' });
     this.fetchBackup();
   };
   cancelRecoveryBackup = () => {
-    this.setState({ showRecovery: false, backup_id: "" });
+    this.setState({ showRecovery: false, backup_id: '' });
     this.fetchBackup();
   };
   // 迁移应用备份
@@ -414,7 +415,7 @@ export default class AppList extends PureComponent {
     this.setState({ showMove: false });
   };
   cancelMoveBackup = () => {
-    this.setState({ showMove: false, backup_id: "" });
+    this.setState({ showMove: false, backup_id: '' });
   };
   // 导出应用备份
 
@@ -426,7 +427,7 @@ export default class AppList extends PureComponent {
     }`;
     window.open(exportURl);
     notification.success({
-      message: "备份导出中",
+      message: '备份导出中',
       duration: 2
     });
   };
@@ -436,7 +437,7 @@ export default class AppList extends PureComponent {
   };
   handleDelete = () => {
     this.props.dispatch({
-      type: "application/delBackup",
+      type: 'application/delBackup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
@@ -445,7 +446,7 @@ export default class AppList extends PureComponent {
       callback: data => {
         if (data) {
           notification.success({
-            message: "删除成功",
+            message: '删除成功',
             duration: 2
           });
           this.cancelDelete();
@@ -455,7 +456,7 @@ export default class AppList extends PureComponent {
     });
   };
   cancelDelete = () => {
-    this.setState({ showDel: false, backup_id: "" }, () => {
+    this.setState({ showDel: false, backup_id: '' }, () => {
       this.fetchBackup();
     });
   };
@@ -477,34 +478,34 @@ export default class AppList extends PureComponent {
     } = this.state;
     const columns = [
       {
-        title: "备份时间",
-        dataIndex: "create_time"
+        title: '备份时间',
+        dataIndex: 'create_time'
       },
       {
-        title: "备份人",
-        dataIndex: "user"
+        title: '备份人',
+        dataIndex: 'user'
       },
       {
-        title: "备份模式",
-        dataIndex: "mode",
+        title: '备份模式',
+        dataIndex: 'mode',
         render: (val, data) => {
           const map = {
-            "full-online": "云端备份",
-            "full-offline": "本地备份"
+            'full-online': '云端备份',
+            'full-offline': '本地备份'
           };
-          return map[val] || "";
+          return map[val] || '';
         }
       },
       {
-        title: "包大小",
-        dataIndex: "backup_size",
+        title: '包大小',
+        dataIndex: 'backup_size',
         render: (val, data) => {
-          return sourceUtil.unit(val, "Byte");
+          return sourceUtil.unit(val, 'Byte');
         }
       },
       {
-        title: "状态",
-        dataIndex: "status",
+        title: '状态',
+        dataIndex: 'status',
         render: (val, data) => {
           return (
             <BackupStatus
@@ -516,20 +517,20 @@ export default class AppList extends PureComponent {
         }
       },
       {
-        title: "备注",
-        dataIndex: "note"
+        title: '备注',
+        dataIndex: 'note'
       },
       {
-        title: "操作",
-        dataIndex: "action",
+        title: '操作',
+        dataIndex: 'action',
         render: (val, data) => {
           return (
             <div>
-              {data.status === "success" ? (
+              {data.status === 'success' ? (
                 <Fragment>
                   {isMigrate && (
                     <a
-                      style={{ marginRight: "5px" }}
+                      style={{ marginRight: '5px' }}
                       onClick={this.handleRecovery.bind(this, data)}
                     >
                       恢复
@@ -537,15 +538,15 @@ export default class AppList extends PureComponent {
                   )}
                   {isMigrate && (
                     <a
-                      style={{ marginRight: "5px" }}
+                      style={{ marginRight: '5px' }}
                       onClick={this.handleMove.bind(this, data)}
                     >
                       迁移
                     </a>
                   )}
-                  {data.mode === "full-online" && isExport && (
+                  {data.mode === 'full-online' && isExport && (
                     <a
-                      style={{ marginRight: "5px" }}
+                      style={{ marginRight: '5px' }}
                       onClick={this.handleExport.bind(this, data)}
                     >
                       导出
@@ -554,14 +555,14 @@ export default class AppList extends PureComponent {
                   <a onClick={this.handleDel.bind(this, data)}>删除</a>
                 </Fragment>
               ) : (
-                ""
+                ''
               )}
-              {data.status === "failed" ? (
+              {data.status === 'failed' ? (
                 <Fragment>
                   <a onClick={this.handleDel.bind(this, data)}>删除</a>
                 </Fragment>
               ) : (
-                ""
+                ''
               )}
             </div>
           );
@@ -606,7 +607,7 @@ export default class AppList extends PureComponent {
               </Button>
             )}
             <Button onClick={this.jumpToAllbackup} href="javascript:;">
-            团队全部备份
+              团队全部备份
             </Button>
           </div>
         }

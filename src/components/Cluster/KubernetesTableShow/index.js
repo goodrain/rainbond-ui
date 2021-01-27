@@ -1,9 +1,23 @@
-import { Button, Col, Icon, Row, Table, Typography } from 'antd';
+/* eslint-disable react/sort-comp */
+import {
+  Button,
+  Col,
+  Icon,
+  message,
+  Modal,
+  Popconfirm,
+  Row,
+  Table,
+  Typography
+} from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { Link } from 'umi';
+import Ansi from '../../../components/Ansi';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
-import ShowKubernetesCreateDetail from '../ShowKubernetesCreateDetail';
+import istyles from './index.less';
+
 const { Paragraph } = Typography;
 
 @connect()
@@ -12,175 +26,304 @@ export default class KubernetesClusterShow extends PureComponent {
     super(props);
     this.state = {
       selectClusterName: '',
-      selectClusterID: '',
-      showTaskDetail: false,
-      lastTask: {},
+      createLog: '',
+      showCreateLog: false
     };
   }
-  componentDidMount() {
-    this.loadLastTask();
-  }
-  startInit = () => {
-    const { selectClusterID } = this.state;
-    const { startInit } = this.props;
-    startInit && startInit(selectClusterID);
-  };
-  loadLastTask = () => {
-    const { dispatch, eid, taskID, selectProvider } = this.props;
+  componentDidMount() {}
+  deleteCluster(clusterID) {
+    const { dispatch, eid, selectProvider, loadKubernetesCluster } = this.props;
     dispatch({
-      type: 'cloud/loadLastTask',
+      type: 'cloud/deleteKubernetesCluster',
       payload: {
         enterprise_id: eid,
-        provider_name: selectProvider,
-        taskID: taskID,
+        providerName: selectProvider,
+        clusterID
       },
-      callback: data => {
-        if (data) {
-          // to load create event
-          this.setState({ lastTask: data });
+      callback: () => {
+        if (loadKubernetesCluster) {
+          loadKubernetesCluster();
         }
       },
       handleError: res => {
         cloud.handleCloudAPIError(res);
+      }
+    });
+  }
+  queryCreateLog = row => {
+    const { dispatch, eid, selectProvider } = this.props;
+    dispatch({
+      type: 'cloud/queryCreateLog',
+      payload: {
+        enterprise_id: eid,
+        provider_name: selectProvider,
+        clusterID: row.cluster_id
       },
+      callback: data => {
+        if (data) {
+          // to load create event
+          const content = data.content.split('\n');
+          this.setState({ createLog: content, showCreateLog: true });
+        }
+      },
+      handleError: res => {
+        cloud.handleCloudAPIError(res);
+      }
     });
   };
-  showTaskDetail = () => {
-    this.setState({ showTaskDetail: true });
+
+  reInstallCluster = clusterID => {
+    const {
+      dispatch,
+      eid,
+      selectProvider,
+      loadKubernetesCluster,
+      loadLastTask
+    } = this.props;
+    if (selectProvider !== 'rke') {
+      message.warning('该提供商不支持集群重装');
+      return;
+    }
+    dispatch({
+      type: 'cloud/reInstall',
+      payload: {
+        enterprise_id: eid,
+        clusterID
+      },
+      callback: data => {
+        if (data) {
+          if (loadKubernetesCluster) {
+            loadKubernetesCluster();
+          }
+          if (loadLastTask) {
+            loadLastTask();
+          }
+        }
+      },
+      handleError: res => {
+        cloud.handleCloudAPIError(res);
+      }
+    });
   };
-  cancelShowCreateDetail = () => {
-    this.setState({ showTaskDetail: false });
+  getLineHtml = (lineNumber, line) => {
+    return (
+      <div className={istyles.logline} key={lineNumber}>
+        <a>{lineNumber}</a>
+        <Ansi>{line}</Ansi>
+      </div>
+    );
   };
   render() {
+    const { selectProvider, linkedClusters, eid } = this.props;
     const columns = [
       {
         title: '名称(ID)',
         dataIndex: 'name',
-        render: (text, row) => `${text}(${row.cluster_id})`,
-      },
-      {
-        title: '区域',
-        dataIndex: 'region_id',
-        render: text => {
-          return cloud.getAliyunRegionName(text);
-        },
-      },
-      {
-        title: '可用区',
-        dataIndex: 'zone_id',
+        render: (text, row) => `${text}(${row.cluster_id})`
       },
       {
         title: '类型',
         dataIndex: 'cluster_type',
         render: text => {
           return cloud.getAliyunClusterName(text);
-        },
-      },
-      {
-        title: '节点数量',
-        dataIndex: 'size',
-      },
-      {
-        title: '版本',
-        dataIndex: 'current_version',
-      },
-      {
-        title: '状态',
-        dataIndex: 'state',
-        render: (text, row) => {
-          return cloud.getAliyunClusterStatus(text, row);
-        },
-      },
+        }
+      }
     ];
+    if (selectProvider !== 'custom' && selectProvider !== 'rke') {
+      columns.push({
+        title: '区域',
+        dataIndex: 'region_id',
+        render: text => {
+          return cloud.getAliyunRegionName(text);
+        }
+      });
+      columns.push({
+        title: '可用区',
+        dataIndex: 'zone_id'
+      });
+    } else {
+      columns.push({
+        title: 'API地址',
+        dataIndex: 'master_url.api_server_endpoint'
+      });
+    }
+    columns.push({
+      title: '节点数量',
+      dataIndex: 'size'
+    });
+    columns.push({
+      title: '版本',
+      dataIndex: 'current_version'
+    });
+    columns.push({
+      title: '状态',
+      dataIndex: 'state',
+      render: (text, row) => {
+        return cloud.getAliyunClusterStatus(text, row, linkedClusters);
+      }
+    });
+
+    columns.push({
+      title: '操作',
+      dataIndex: 'cluster_id',
+      render: (text, row) => {
+        return (
+          <div>
+            {row.state === 'failed' && selectProvider === 'rke' && (
+              <Popconfirm
+                placement="top"
+                title="确认要重新安装当前集群吗？"
+                onConfirm={() => {
+                  this.reInstallCluster(row.cluster_id || row.name);
+                }}
+                okText="确定"
+                cancelText="取消"
+              >
+                <a>重新安装</a>
+              </Popconfirm>
+            )}
+            {row.rainbond_init === true &&
+              !linkedClusters.get(row.cluster_id) && (
+                <Link
+                  to={`/enterprise/${eid}/provider/${selectProvider}/kclusters/${row.cluster_id}/link`}
+                >
+                  对接
+                </Link>
+              )}
+            {row.create_log_path &&
+              (row.create_log_path.startsWith('http') ? (
+                <a href={row.create_log_path} target="_blank" rel="noreferrer">
+                  查看日志
+                </a>
+              ) : (
+                <a
+                  onClick={() => {
+                    this.queryCreateLog(row);
+                  }}
+                >
+                  查看日志
+                </a>
+              ))}
+            {!row.rainbond_init &&
+              (selectProvider === 'rke' || selectProvider === 'custom') && (
+                <Popconfirm
+                  placement="top"
+                  title="确认要删除当前集群吗？"
+                  onConfirm={() => {
+                    this.deleteCluster(row.cluster_id || row.name);
+                  }}
+                  okText="确定"
+                  cancelText="取消"
+                >
+                  <a>删除</a>
+                </Popconfirm>
+              )}
+          </div>
+        );
+      }
+    });
 
     // rowSelection object indicates the need for row selection
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
         if (selectedRows[0]) {
           this.setState({
-            selectClusterID: selectedRows[0].cluster_id,
-            selectClusterName: selectedRows[0].name,
+            selectClusterName: selectedRows[0].name
           });
+          if (this.props.selectCluster) {
+            this.props.selectCluster({
+              clusterID: selectedRows[0].cluster_id,
+              name: selectedRows[0].name
+            });
+          }
         }
       },
       getCheckboxProps: record => ({
         disabled:
-          record.cluster_type != 'ManagedKubernetes' ||
-          record.state != 'running' ||
-          record.rainbond_init, // Column configuration not to be checked
+          record.state !== 'running' ||
+          linkedClusters.get(record.cluster_id) ||
+          record.rainbond_init ||
+          (record.parameters && record.parameters.DisableRainbondInit), // Column configuration not to be checked
         name: record.name,
-      }),
+        title: record.parameters && record.parameters.Message
+      })
     };
     const {
       data,
-      preStep,
       showBuyClusterConfig,
-      eid,
       loadKubernetesCluster,
-    } = this.props;
-    const {
-      selectClusterName,
-      selectClusterID,
+      loading,
       lastTask,
-      showTaskDetail,
-    } = this.state;
-    let nextDisable = selectClusterID == '';
+      showLastTaskDetail
+    } = this.props;
+    const { selectClusterName, createLog, showCreateLog } = this.state;
     return (
       <div>
         <Row style={{ marginBottom: '20px' }}>
-          <Col span={24} style={{ padding: '16px' }}>
-            <Paragraph className={styles.describe}>
-              <ul>
-                <li>
-                  <span>
-                    为保障服务质量，目前Rainbond
-                    Cloud仅支持阿里云托管集群进行对接
-                  </span>
-                </li>
-                <li>
-                  <span>
-                    若暂无可用集群，可点击
-                    <Button type="link" onClick={showBuyClusterConfig}>
-                      新购买集群
-                    </Button>
-                    快速购买
-                  </span>
-                </li>
-                <li>
-                  <span>
-                    若集群创建出现错误，请再次确保以下服务已开通或授权已授予后重试：
-                    {cloud.getAliyunCountDescribe().map(item=>{
-                      return <a style={{marginRight: "8px"}} href={item.href} target="_blank">{item.title}</a>
-                    })}
-                  </span>
-               </li>
-                <li>
-                  <span>
-                    集群购买成功后处于初始化中的状态，阿里云将完成集群创建，正常情况下10分钟左右即可初始化完成
-                  </span>
-                </li>
-              </ul>
-            </Paragraph>
-          </Col>
+          {selectProvider === 'ack' && (
+            <Col span={24} style={{ padding: '16px' }}>
+              <Paragraph className={styles.describe}>
+                <ul>
+                  <li>
+                    <span>目前 Rainbond 支持阿里云托管集群自动化购买</span>
+                  </li>
+                  <li>
+                    <span>
+                      若暂无可用集群，可点击
+                      <Button type="link" onClick={showBuyClusterConfig}>
+                        新购买集群
+                      </Button>
+                      快速购买
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      若集群创建出现错误，请再次确保以下服务已开通或授权已授予后重试：
+                      {cloud.getAliyunCountDescribe().map(item => {
+                        return (
+                          <a
+                            style={{ marginRight: '8px' }}
+                            href={item.href}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {item.title}
+                          </a>
+                        );
+                      })}
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      集群购买成功后处于初始化中的状态，阿里云将完成集群创建，正常情况下10分钟左右即可初始化完成
+                    </span>
+                  </li>
+                </ul>
+              </Paragraph>
+            </Col>
+          )}
           <Col span={12} style={{ textAlign: 'left' }}>
             {selectClusterName && (
-              <span>
+              <span style={{ marginRight: '16px' }}>
                 已选择集群: {selectClusterName},
-                该集群符合Rainbond接入规则，可以开始Rainbond集群初始化
+                该集群符合Rainbond接入规则，可以开始Rainbond集群初始化。
               </span>
             )}
-            {lastTask && lastTask.name && lastTask.status != 'complete' && (
-              <span>
-                正在购买集群: {lastTask.name},
-                <Button onClick={this.showTaskDetail} type="link">
-                  点击查看购买进度
-                </Button>
-              </span>
-            )}
+            {!selectClusterName &&
+              lastTask &&
+              lastTask.name &&
+              showLastTaskDetail && (
+                <span>
+                  上一次创建任务: {lastTask.name},
+                  <Button onClick={showLastTaskDetail} type="link">
+                    点击查看创建进度
+                  </Button>
+                </span>
+              )}
           </Col>
           <Col span={12} style={{ textAlign: 'right' }}>
             <Button type="primary" onClick={showBuyClusterConfig}>
-              新购买集群
+              新增集群
             </Button>
             <Button
               style={{ marginLeft: '16px' }}
@@ -190,33 +333,34 @@ export default class KubernetesClusterShow extends PureComponent {
             </Button>
           </Col>
         </Row>
-
         <Table
+          loading={loading}
           rowSelection={{
             type: 'radio',
-            ...rowSelection,
+            ...rowSelection
           }}
           pagination={false}
           columns={columns}
           dataSource={data}
         />
-        <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
-          <Button onClick={preStep}>上一步</Button>
-          <Button
-            style={{ marginLeft: '16px' }}
-            type="primary"
-            onClick={this.startInit}
-            disabled={nextDisable}
+        {showCreateLog && (
+          <Modal
+            visible
+            width={1000}
+            maskClosable={false}
+            onCancel={() => {
+              this.setState({ showCreateLog: false });
+            }}
+            title="集群创建日志"
+            bodyStyle={{ background: '#000' }}
+            footer={null}
           >
-            下一步
-          </Button>
-        </Col>
-        {showTaskDetail && lastTask && (
-          <ShowKubernetesCreateDetail
-            onCancel={this.cancelShowCreateDetail}
-            eid={eid}
-            taskID={lastTask.taskID}
-          />
+            <div className={istyles.cmd}>
+              {createLog.map((line, index) => {
+                return this.getLineHtml(index + 1, line);
+              })}
+            </div>
+          </Modal>
         )}
       </div>
     );

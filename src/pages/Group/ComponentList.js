@@ -1,27 +1,29 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable prettier/prettier */
-import React, { Fragment, Component } from 'react';
+import {
+    Badge,
+    Button,
+    Card,
+
+
+
+    Dropdown,
+
+    Icon, Menu, notification,
+    Table,
+    Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import {
-  Badge,
-  Button,
-  Card,
-  notification,
-  Table,
-  Tooltip,
-  Dropdown,
-  Menu,
-  Icon
-} from 'antd';
 import moment from 'moment';
-import ScrollerX from '../../components/ScrollerX';
-import styles from './ComponentList.less';
+import React, { Component, Fragment } from 'react';
 import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
+import ScrollerX from '../../components/ScrollerX';
 import { batchOperation } from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
+import styles from './ComponentList.less';
 
 @connect(
   ({ global, loading }) => ({
@@ -104,7 +106,7 @@ export default class ComponentList extends Component {
         page_size: pageSize
       },
       callback: (data) => {
-        if (data && data._code == 200) {
+        if (data && data.status_code === 200) {
           this.setState({
             apps: data.list || [],
             total: data.total || 0
@@ -127,7 +129,7 @@ export default class ComponentList extends Component {
         page_size: pageSize
       },
       callback: (data) => {
-        if (data && data._code == 200) {
+        if (data && data.status_code === 200) {
           this.setState(
             {
               apps: data.list || [],

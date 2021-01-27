@@ -1,12 +1,12 @@
-import React, { PureComponent } from 'react';
-import { Button, notification, Tooltip, Radio } from 'antd';
+import { Button, notification, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import globalUtil from '../../utils/global';
-import { batchOperation } from '../../services/app';
-import httpResponseUtil from '../../utils/httpResponse';
-import ConfirmModal from '../../components/ConfirmModal';
+import React, { PureComponent } from 'react';
 import AppCreateMoreService from '../../components/AppCreateMoreService';
+import ConfirmModal from '../../components/ConfirmModal';
+import { batchOperation } from '../../services/app';
+import globalUtil from '../../utils/global';
+import httpResponseUtil from '../../utils/httpResponse';
 
 @connect(null, null, null, {
   withRef: true
@@ -15,7 +15,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      //property、deploy
+      // property、deploy
       type: 'property',
       appDetail: null,
       data: null,
@@ -39,8 +39,8 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         check_uuid: this.getCheck_uuid()
       },
-      callback: (res) => {
-        if (res && res._code == 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             data: res.list
           });
@@ -61,13 +61,13 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.getAppAlias()
       },
-      callback: (data) => {
+      callback: data => {
         this.setState({ appDetail: data });
       },
-      handleError: (data) => {
-        let code = httpResponseUtil.getCode(data);
+      handleError: data => {
+        const code = httpResponseUtil.getCode(data);
         if (code) {
-          //应用不存在
+          // 应用不存在
           if (code === 404) {
             this.props.dispatch(
               routerRedux.push(
@@ -93,8 +93,8 @@ export default class Index extends PureComponent {
           app_alias: appAlias,
           service_infos: JavaMavenData
         },
-        callback: (res) => {
-          if (res && res._code == 200) {
+        callback: res => {
+          if (res && res.status_code === 200) {
             const groupId = res.bean && res.bean.group_id;
             const serviceIds = res.bean && res.bean.service_ids;
             if (is_deploy) {
@@ -121,7 +121,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  fetchGroups = (groupId) => {
+  fetchGroups = groupId => {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const { dispatch } = this.props;
@@ -152,8 +152,8 @@ export default class Index extends PureComponent {
     this.props.dispatch({
       type: 'appControl/deleteApp',
       payload: {
-        team_name: team_name,
-        app_alias: app_alias,
+        team_name,
+        app_alias,
         is_force: true
       },
       callback: () => {
@@ -176,7 +176,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const { data, is_deploy, buildState } = this.state;
-    let arr = data;
+    const arr = data;
     if (arr && arr.length > 0) {
       arr.map((item, index) => {
         arr[index].index = index;
@@ -200,7 +200,7 @@ export default class Index extends PureComponent {
           {data && data.length > 0 && (
             <AppCreateMoreService
               data={arr}
-              onSubmit={(JavaMavenData) => {
+              onSubmit={JavaMavenData => {
                 this.setState({
                   JavaMavenData
                 });

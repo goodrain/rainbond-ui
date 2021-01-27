@@ -1,17 +1,22 @@
+import {
+    Button, Card,
+
+
+    Divider, Form,
+
+
+
+
+
+
+    Icon, Input,
+    notification,
+    Tabs,
+    Tooltip
+} from "antd";
+import { connect } from "dva";
 import React, { PureComponent } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { connect } from "dva";
-import {
-  Card,
-  Form,
-  Button,
-  Divider,
-  Input,
-  notification,
-  Tabs,
-  Tooltip,
-  Icon
-} from "antd";
 import DescriptionList from "../../../components/DescriptionList";
 import globalUtil from "../../../utils/global";
 import rainbondUtil from "../../../utils/rainbond";
@@ -145,7 +150,7 @@ export default class AutoDeploy extends PureComponent {
           keyword: deploy_keyword
         },
         callback: data => {
-          if (data && data._code == 200) {
+          if (data && data.status_code === 200) {
             notification.success({ message: "更新成功" });
             this.setState({
               deploy_keyword: data.bean.deploy_keyword
@@ -168,7 +173,7 @@ export default class AutoDeploy extends PureComponent {
           trigger: deploy_mirror
         },
         callback: data => {
-          if (data && data._code == 200) {
+          if (data && data.status_code === 200) {
             notification.success({ message: "更新成功" });
             this.setState({
               deploy_mirror: data.bean.trigger,
