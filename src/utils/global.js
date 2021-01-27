@@ -63,9 +63,7 @@ const global = {
         e_name: info.enterprise_alias,
         version: version.value,
         title: title.value,
-        day: moment(new Date())
-          .locale('zh-cn')
-          .format('YYYYMMDD')
+        day: moment(new Date()).locale('zh-cn').format('YYYYMMDD')
       });
       defaultOptions.data = JSON.parse(defaultOptions.data);
       axios(defaultOptions);
@@ -981,9 +979,7 @@ const global = {
 
     let result = '';
     if (days && days > 7) {
-      result = moment(date)
-        .locale('zh-cn')
-        .format('YYYY-MM-DD');
+      result = moment(date).locale('zh-cn').format('YYYY-MM-DD');
     } else if (days && days >= 1 && days < 7) {
       result += `${days}天前`;
     } else if (hours && hours >= 1 && hours <= 23) {
@@ -1153,7 +1149,11 @@ const global = {
       'app-restore-probe': '重新加载应用探针',
       'app-restore-deps': '重新加载应用依赖',
       'app-restore-depvols': '重新加载应用依赖存储',
-      'app-restore-plugins': '重新加载应用插件'
+      'app-restore-plugins': '重新加载应用插件',
+      'create-service-plugin': '创建组件插件',
+      'update-service-plugin': '更新组件插件',
+      'delete-service-plugin': '删除组件插件',
+      'update-service-plugin-config': '更新组件插件配置'
     };
     return statusOptType[state] || state;
   },
