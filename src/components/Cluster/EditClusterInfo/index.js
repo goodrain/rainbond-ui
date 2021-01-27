@@ -59,7 +59,8 @@ class EditClusterInfo extends PureComponent {
         sm: { span: 13 }
       }
     };
-    const reUrl = /(http|ws|https|wss):\/\/[\w\-_]+([\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
+    const rulesApiUrl = /(http|https):\/\/[\w\-_]+([\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
+    const rulesWebSocketUrl = /(ws|wss):\/\/[\w\-_]+([\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
 
     return (
       <Modal
@@ -123,8 +124,8 @@ class EditClusterInfo extends PureComponent {
                 rules: [
                   { required: true, message: 'API通信地址是必填项' },
                   {
-                    pattern: reUrl,
-                    message: '格式不正确'
+                    pattern: rulesApiUrl,
+                    message: '只支持https或http协议头'
                   }
                 ]
               })(<Input placeholder="请输入API通信地址" />)}
@@ -140,8 +141,8 @@ class EditClusterInfo extends PureComponent {
                 rules: [
                   { required: true, message: 'WebSocket通信地址是必填项' },
                   {
-                    pattern: reUrl,
-                    message: '格式不正确'
+                    pattern: rulesWebSocketUrl,
+                    message: '只支持ws或wss协议头'
                   }
                 ]
               })(<Input placeholder="请输入WebSocket通信地址" />)}
