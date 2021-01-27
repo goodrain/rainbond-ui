@@ -174,7 +174,9 @@ export default class RegisterComponent extends Component {
                   message: '请输入企业名称'
                 }
               ]
-            })(<Input size="large" placeholder="企业名称" />)}
+            })(
+              <Input autoComplete="off" size="large" placeholder="企业名称" />
+            )}
           </FormItem>
         )}
         <FormItem>
@@ -183,11 +185,19 @@ export default class RegisterComponent extends Component {
             rules: [
               { required: true, message: '请输入用户名!' },
               {
+                min: 3,
+                message: '最小长度3位'
+              },
+              {
+                max: 24,
+                message: '最大长度24位'
+              },
+              {
                 pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
                 message: '只支持字母、数字、中文、_和-组合'
               }
             ]
-          })(<Input size="large" placeholder="用户名" />)}
+          })(<Input autoComplete="off" size="large" placeholder="用户名" />)}
         </FormItem>
         <FormItem>
           {getFieldDecorator('email', {
@@ -202,7 +212,7 @@ export default class RegisterComponent extends Component {
                 message: '邮箱地址格式错误！'
               }
             ]
-          })(<Input size="large" placeholder="邮箱" />)}
+          })(<Input autoComplete="off" size="large" placeholder="邮箱" />)}
         </FormItem>
         <FormItem help={help}>
           {getFieldDecorator('password', {
@@ -216,6 +226,7 @@ export default class RegisterComponent extends Component {
               size="large"
               type="password"
               placeholder="密码不能少于8位！"
+              autoComplete="new-password"
             />
           )}
         </FormItem>
@@ -230,7 +241,14 @@ export default class RegisterComponent extends Component {
                 validator: this.checkConfirm
               }
             ]
-          })(<Input size="large" type="password" placeholder="确认密码" />)}
+          })(
+            <Input
+              size="large"
+              type="password"
+              placeholder="确认密码"
+              autoComplete="new-password"
+            />
+          )}
         </FormItem>
         <FormItem>
           <Row gutter={8}>
@@ -242,7 +260,9 @@ export default class RegisterComponent extends Component {
                     message: '请输入验证码！'
                   }
                 ]
-              })(<Input size="large" placeholder="验证码" />)}
+              })(
+                <Input autoComplete="off" size="large" placeholder="验证码" />
+              )}
             </Col>
             <Col span={8}>
               <img
