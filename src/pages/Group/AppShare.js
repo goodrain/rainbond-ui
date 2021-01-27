@@ -603,7 +603,7 @@ export default class Main extends PureComponent {
   handleSubmitConditions = () => {
     const { record, versionInfo } = this.state;
     const { form } = this.props;
-    form.validateFields((err, values) => {
+    form.validateFieldsAndScroll({ scroll: { offsetTop: 80 } },(err, values) => {
       if (!err) {
         if (
           record.scope !== 'goodrain' &&
