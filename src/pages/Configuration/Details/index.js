@@ -437,7 +437,10 @@ export default class ConfigurationDetails extends PureComponent {
                   }
                 ]
               })(
-                <Parameterinput editInfo={(info && info.config_items) || ''} />
+                <Parameterinput
+                  isPassword
+                  editInfo={(info && info.config_items) || ''}
+                />
               )}
             </FormItem>
             {apps.length > 0 && (

@@ -58,7 +58,8 @@ class Parameterinput extends Component {
   render() {
     const {
       keyPlaceholder = '请输入key值',
-      valuePlaceholder = '请输入value值'
+      valuePlaceholder = '请输入value值',
+      isPassword = false
     } = this.props;
     const { values } = this.state;
     return (
@@ -73,6 +74,7 @@ class Parameterinput extends Component {
               >
                 <Col span={10}>
                   <Input
+                    autoComplete="off"
                     name="item_key"
                     value={item.item_key}
                     maxLength={255}
@@ -84,14 +86,25 @@ class Parameterinput extends Component {
                   :
                 </Col>
                 <Col span={10}>
-                  <TextArea
-                    name="item_value"
-                    rows={1}
-                    value={item.item_value}
-                    maxLength={65533}
-                    placeholder={valuePlaceholder}
-                    onChange={this.onValueChange.bind(this, index)}
-                  />
+                  {isPassword ? (
+                    <Input.Password
+                      autoComplete="new-password"
+                      name="item_value"
+                      value={item.item_value}
+                      maxLength={65533}
+                      placeholder={valuePlaceholder}
+                      onChange={this.onValueChange.bind(this, index)}
+                    />
+                  ) : (
+                    <TextArea
+                      name="item_value"
+                      rows={1}
+                      value={item.item_value}
+                      maxLength={65533}
+                      placeholder={valuePlaceholder}
+                      onChange={this.onValueChange.bind(this, index)}
+                    />
+                  )}
                 </Col>
                 <Col span={3} style={{ textAlign: 'center' }}>
                   {index === 0 ? (
