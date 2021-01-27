@@ -52,7 +52,7 @@ class AccesstokenForm extends PureComponent {
     });
   };
   handleAccesstokenCallback = res => {
-    if (res && res._code === 200) {
+    if (res && res.status_code === 200) {
       this.setState({ accessKey: res.bean.access_key });
     }
     this.setState({ loading: false });

@@ -50,8 +50,8 @@ export default class SiderMenu extends PureComponent {
         page_size: pageSize,
         name
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             userTeamList: res.list
           });
@@ -61,14 +61,14 @@ export default class SiderMenu extends PureComponent {
   };
 
   // conversion Path 转化路径
-  conversionPath = (path) => {
+  conversionPath = path => {
     if (path && path.indexOf('http') === 0) {
       return path;
     }
     return `/${path || ''}`.replace(/\/+/g, '/');
   };
 
-  handleOpenChange = (openKeys) => {
+  handleOpenChange = openKeys => {
     // const lastOpenKey = openKeys[openKeys.length - 1]; const isMainMenu =
     // this.props.menuData.some(   item => lastOpenKey && (item.key === lastOpenKey
     // || item.path === lastOpenKey) );
@@ -89,7 +89,7 @@ export default class SiderMenu extends PureComponent {
     });
   };
 
-  handleOpenDelCollectionVisible = (collectionInfo) => {
+  handleOpenDelCollectionVisible = collectionInfo => {
     this.setState({
       delcollectionVisible: true,
       collectionInfo
@@ -131,7 +131,7 @@ export default class SiderMenu extends PureComponent {
         favorite_id: collectionInfo && collectionInfo.favorite_id,
         enterprise_id: currentEnterprise.enterprise_id
       },
-      callback: (res) => {
+      callback: res => {
         if (res) {
           this.fetchCollectionViewInfo();
           this.handleCloseDelCollectionVisible();
@@ -140,7 +140,7 @@ export default class SiderMenu extends PureComponent {
     });
   };
 
-  handleCollectionView = (values) => {
+  handleCollectionView = values => {
     const { dispatch, location, currentEnterprise } = this.props;
     dispatch({
       type: 'user/addCollectionView',
@@ -149,7 +149,7 @@ export default class SiderMenu extends PureComponent {
         name: values.name,
         url: location.pathname
       },
-      callback: (res) => {
+      callback: res => {
         if (res) {
           this.fetchCollectionViewInfo();
           this.handleCloseCollectionVisible();
@@ -158,7 +158,7 @@ export default class SiderMenu extends PureComponent {
     });
   };
 
-  handleOnSearchTeam = (name) => {
+  handleOnSearchTeam = name => {
     this.setState(
       {
         name
@@ -312,7 +312,7 @@ export default class SiderMenu extends PureComponent {
                 onClick={this.handleOpenCollectionVisible}
               />
             </div>
-            {collectionList.map((item) => {
+            {collectionList.map(item => {
               if (item.url) {
                 return (
                   <Link key={item.url} to={item.url}>
@@ -321,7 +321,7 @@ export default class SiderMenu extends PureComponent {
                       <Icon
                         className={styles.addCollection}
                         component={delSvg}
-                        onClick={(e) => {
+                        onClick={e => {
                           e.preventDefault();
                           this.handleOpenDelCollectionVisible(item);
                         }}
@@ -335,7 +335,7 @@ export default class SiderMenu extends PureComponent {
             <div className={styles.tit}>
               <FormattedMessage id="sidecar.enterprise" />
             </div>
-            {enterpriseList.map((item) => {
+            {enterpriseList.map(item => {
               return (
                 <Link
                   key={item.enterprise_id}
@@ -369,7 +369,7 @@ export default class SiderMenu extends PureComponent {
               />
             )}
             {userTeam &&
-              userTeam.map((item) => {
+              userTeam.map(item => {
                 const {
                   region,
                   team_name: teamName,

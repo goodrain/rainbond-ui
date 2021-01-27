@@ -1,35 +1,32 @@
+import { routerRedux } from 'dva/router';
 import {
-  query as queryUsers,
-  queryCurrent,
-  login,
-  getDetail,
-  logout,
-  fetchEnterpriseNoTeamUser,
-  queryOauthType,
-  register,
-  gitlabRegister,
-  createGitlabProject,
-  changePass,
-  queryThirdInfo,
-  queryThirdCertification,
-  queryCertificationThird,
-  getTeamByName,
-  queryThirdBinding,
-  queryThirdLoginBinding,
+  addAccessToken,
   addCollectionView,
-  queryCollectionViewInfo,
-  putCollectionViewInfo,
+  changePass,
+  createGitlabProject,
+  deleteAccessToke,
   deleteCollectionViewInfo,
   fetchAccessToken,
-  addAccessToken,
+  fetchEnterpriseNoTeamUser,
+  getDetail,
+  getTeamByName,
+  gitlabRegister,
+  login,
   putAccessToken,
-  deleteAccessToke
+  putCollectionViewInfo,
+  query as queryUsers,
+  queryCertificationThird,
+  queryCollectionViewInfo,
+  queryOauthType,
+  queryThirdBinding,
+  queryThirdCertification,
+  queryThirdInfo,
+  queryThirdLoginBinding,
+  register
 } from '../services/user';
 import { setAuthority } from '../utils/authority';
-import userUtil from '../utils/global';
-
 import cookie from '../utils/cookie';
-import { routerRedux } from 'dva/router';
+import userUtil from '../utils/global';
 
 export default {
   namespace: 'user',
@@ -225,7 +222,7 @@ export default {
         cookie.set('token', response.bean.token);
         const urlParams = new URL(window.location.href);
 
-        const pathname = yield select((state) => {
+        const pathname = yield select(state => {
           return (
             state &&
             state.routing &&
@@ -239,7 +236,7 @@ export default {
           : null;
         yield put({ type: 'registerHandle', payload: response.bean, redirect });
         if (
-          response._code === 200 &&
+          response.status_code === 200 &&
           response.bean &&
           response.bean.nick_name
         ) {
@@ -262,9 +259,7 @@ export default {
       const response = yield call(register, payload);
       if (response) {
         const urlParams = new URL(window.location.href);
-        const pathname = yield select(
-          (state) => state.routing.location.pathname
-        );
+        const pathname = yield select(state => state.routing.location.pathname);
         // add the parameters in the url
         const redirect = urlParams.searchParams.get('redirect', pathname);
         yield put({ type: 'registerHandle', payload: response.bean, redirect });

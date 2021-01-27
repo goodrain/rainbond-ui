@@ -7,8 +7,8 @@ export async function queryEnterpriseAccesskey(body = {}) {
     {
       method: 'get',
       params: {
-        provider_name: body.provider_name,
-      },
+        provider_name: body.provider_name
+      }
     }
   );
 }
@@ -22,26 +22,25 @@ export async function setEnterpriseAccesskey(body = {}) {
       data: {
         provider_name: body.provider_name,
         access_key: body.access_key,
-        secret_key: body.secret_key,
-      },
+        secret_key: body.secret_key
+      }
     }
   );
 }
 
 /* 获取阿里云的kubernetes集群列表 */
 export async function loadKubereneteClusters(body, handleError) {
-    return request(
-      `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters`,
-      {
-        method: 'get',
-        params: {
-          provider_name: body.provider_name,
-        },
-        handleError
-      }
-    );
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters`,
+    {
+      method: 'get',
+      params: {
+        provider_name: body.provider_name
+      },
+      handleError
+    }
+  );
 }
-
 
 /* 创建Kubernetes集群 */
 export async function createKubernetesCluster(body, handleError) {
@@ -54,7 +53,10 @@ export async function createKubernetesCluster(body, handleError) {
         provider_name: body.provider_name,
         resourceType: body.resourceType,
         workerNum: body.workerNum,
-        region: body.region
+        region: body.region,
+        nodes: body.nodes,
+        kubeconfig: body.kubeconfig,
+        eip: body.eip
       },
       handleError
     }
@@ -79,7 +81,7 @@ export async function loadLastTask(body, handleError) {
     {
       method: 'get',
       params: {
-        provider_name: body.provider_name,
+        provider_name: body.provider_name
       },
       handleError
     }
@@ -104,13 +106,12 @@ export async function loadInitRainbondTask(body, handleError) {
     {
       method: 'get',
       params: {
-        provider_name: body.providerName,
+        provider_name: body.providerName
       },
       handleError
     }
   );
 }
-
 
 /* 获取指定集群的init task */
 export async function initRainbondRegion(body, handleError) {
@@ -121,12 +122,12 @@ export async function initRainbondRegion(body, handleError) {
       data: {
         providerName: body.providerName,
         clusterID: body.clusterID,
+        retry: body.retry
       },
       handleError
     }
   );
 }
-
 
 /* 获取running init task */
 export async function loadRunningInitRainbondTasks(body, handleError) {
@@ -146,7 +147,7 @@ export async function loadRegionConfig(body, handleError) {
     {
       method: 'get',
       params: {
-        provider_name: body.providerName,
+        provider_name: body.providerName
       },
       handleError
     }
@@ -159,8 +160,51 @@ export async function updateInitTaskStatus(body, handleError) {
     {
       method: 'put',
       data: {
-        status: body.status,
+        status: body.status
       },
+      handleError
+    }
+  );
+}
+
+export async function deleteKubernetesCluster(body, handleError) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}`,
+    {
+      method: 'delete',
+      params: {
+        provider_name: body.providerName
+      },
+      handleError
+    }
+  );
+}
+
+export async function getInitNodeCmd(handleError) {
+  return request(`/console/proxy/enterprise-server/api/v1/init_node_cmd`, {
+    method: 'get',
+    handleError
+  });
+}
+
+export async function queryCreateLog(body, handleError) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/createlog`,
+    {
+      method: 'get',
+      params: {
+        provider_name: body.providerName
+      },
+      handleError
+    }
+  );
+}
+
+export async function reInstall(body, handleError) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/reinstall`,
+    {
+      method: 'post',
       handleError
     }
   );

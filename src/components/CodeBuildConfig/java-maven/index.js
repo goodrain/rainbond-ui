@@ -1,10 +1,10 @@
-import React, { PureComponent } from 'react';
-import { Form, Radio, Switch, Input, Select, Button } from 'antd';
-import { connect } from 'dva';
-import JavaJDK from '../java-jdk';
 import MavenConfiguration from '@/components/MavenConfiguration';
 import globalUtil from '@/utils/global';
 import roleUtil from '@/utils/role';
+import { Button, Form, Input, Radio, Select } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import JavaJDK from '../java-jdk';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;
@@ -33,14 +33,14 @@ class Index extends PureComponent {
     this.fetchMavensettings();
   }
 
-  onCancel = (MavenName) => {
+  onCancel = MavenName => {
     this.fetchMavensettings(MavenName);
     this.setState({
       mavenVisible: false
     });
   };
 
-  fetchMavensettings = (MavenName) => {
+  fetchMavensettings = MavenName => {
     const { dispatch, currentEnterprise, form } = this.props;
     const { setFieldsValue } = form;
 
@@ -51,8 +51,8 @@ class Index extends PureComponent {
         enterprise_id: currentEnterprise.enterprise_id,
         onlyname: true
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({ MavenList: res.list }, () => {
             if (MavenName) {
               setFieldsValue({
@@ -74,7 +74,7 @@ class Index extends PureComponent {
 
   handleSubmit = () => {};
 
-  handleEventPermissions = (type) => {
+  handleEventPermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.queryTeamBasicInfo(currentTeamPermissionsInfo, type);
   };
@@ -166,7 +166,7 @@ class Index extends PureComponent {
               placeholder="请选择Maven配置"
               style={{ width: '300px', marginRight: '20px' }}
             >
-              {MavenList.map((item) => {
+              {MavenList.map(item => {
                 return (
                   // eslint-disable-next-line react/no-array-index-key
                   <Option key={item.name}>{item.name}</Option>

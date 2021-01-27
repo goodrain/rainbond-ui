@@ -1,19 +1,19 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
 import {
-  Card,
-  Button,
-  Modal,
-  Row,
-  Col,
-  notification,
   Alert,
-  Typography,
+  Button,
+  Card,
+  Col,
+  Modal,
+  notification,
+  Row,
+  Typography
 } from 'antd';
-import styles from '../../index.less';
-import ordersUtil from '../../../../utils/orders';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import moment from 'moment';
+import React, { PureComponent } from 'react';
+import ordersUtil from '../../../../utils/orders';
+import styles from '../../index.less';
 
 const { Paragraph } = Typography;
 
@@ -26,7 +26,7 @@ export default class OrderDetails extends PureComponent {
       dtailsLoading: true,
       bankLoading: true,
       visible: true,
-      bankInfo: null,
+      bankInfo: null
     };
   }
 
@@ -41,13 +41,13 @@ export default class OrderDetails extends PureComponent {
       type: 'order/fetchEnterpriseOrderDetails',
       payload: {
         enterprise_id: eid,
-        order_id: orderId,
+        order_id: orderId
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             dtailsLoading: false,
-            info: res.bean,
+            info: res.bean
           });
         }
       },
@@ -56,7 +56,7 @@ export default class OrderDetails extends PureComponent {
           notification.warning({ message: '订单不存在' });
           this.jump();
         }
-      },
+      }
     });
   };
   financialInfo = () => {
@@ -71,7 +71,7 @@ export default class OrderDetails extends PureComponent {
       ),
       onOk() {
         _th.jump();
-      },
+      }
     });
   };
 
@@ -85,13 +85,13 @@ export default class OrderDetails extends PureComponent {
     dispatch({
       type: 'order/fetchBankInfo',
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             bankLoading: false,
-            bankInfo: res.bean,
+            bankInfo: res.bean
           });
         }
-      },
+      }
     });
   };
 
@@ -112,7 +112,7 @@ export default class OrderDetails extends PureComponent {
     const map = {
       ToBePaid: '待支付:',
       Paid: '已支付:',
-      Closed: '已关闭:',
+      Closed: '已关闭:'
     };
     return map[state] || '';
   };
@@ -127,12 +127,12 @@ export default class OrderDetails extends PureComponent {
         name: '创建时间',
         value: `${moment(info.create_time)
           .locale('zh-cn')
-          .format('YYYY-MM-DD HH:mm:ss')}`,
+          .format('YYYY-MM-DD HH:mm:ss')}`
       },
       {
         name: '服务周期',
         value: `
-        ${info.final_price === 0 ? '不限制' : `${info.months}月`}`,
+        ${info.final_price === 0 ? '不限制' : `${info.months}月`}`
       },
       {
         name: '生效时间',
@@ -145,7 +145,7 @@ export default class OrderDetails extends PureComponent {
                 .locale('zh-cn')
                 .format('YYYY-MM-DD')}`
             : '未生效'
-        }`,
+        }`
       },
       {
         name: '结束时间',
@@ -157,12 +157,12 @@ export default class OrderDetails extends PureComponent {
                 .locale('zh-cn')
                 .format('YYYY-MM-DD')}`
             : '未生效'
-        }`,
+        }`
       },
 
       {
         name: '购买容量',
-        value: `${ordersUtil.handlUnit(info.memory)}GB调度内存`,
+        value: `${ordersUtil.handlUnit(info.memory)}GB调度内存`
       },
       {
         name: '总费用',
@@ -173,8 +173,8 @@ export default class OrderDetails extends PureComponent {
             ? `已优惠¥ ${(info.original_price - info.final_price).toFixed(2) /
                 1}`
             : ''
-        }`,
-      },
+        }`
+      }
     ];
 
     return (
@@ -247,7 +247,9 @@ export default class OrderDetails extends PureComponent {
                         请通过对公付款到以下账号{' '}
                         <Paragraph
                           style={{ marginBottom: '0px' }}
-                          copyable={{ text: `开户行：${bankInfo.bank}; 账号名：${bankInfo.account_name}; 账号：${bankInfo.account};` }}
+                          copyable={{
+                            text: `开户行：${bankInfo.bank}; 账号名：${bankInfo.account_name}; 账号：${bankInfo.account};`
+                          }}
                         />
                         ：
                       </p>

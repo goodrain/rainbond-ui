@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
+import { Alert, Form, Input, Modal, notification } from 'antd';
 import { connect } from 'dva';
-import { Form, Input, Modal, notification, Alert } from 'antd';
+import React, { PureComponent } from 'react';
 import styles from '../../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -11,8 +11,8 @@ class EditClusterInfo extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      healthStatus: true,
-    }
+      healthStatus: true
+    };
   }
   handleSubmit = () => {
     const { form } = this.props;
@@ -24,41 +24,40 @@ class EditClusterInfo extends PureComponent {
     });
   };
   upClusters = values => {
-    const { dispatch, eid, regionInfo,onOk } = this.props;
+    const { dispatch, eid, regionInfo, onOk } = this.props;
     dispatch({
-      type: "region/upEnterpriseCluster",
+      type: 'region/upEnterpriseCluster',
       payload: {
         region_id: regionInfo && regionInfo.region_id,
         ...values,
         enterprise_id: eid
       },
       callback: res => {
-        if (res && res._code === 200) {
-          if (res.bean && res.bean.health_status === "failure") {
-            this.setState({healthStatus: false})
-          }else{
-            notification.success({ message: "编辑成功" });
-            onOk&&onOk()
+        if (res && res.status_code === 200) {
+          if (res.bean && res.bean.health_status === 'failure') {
+            this.setState({ healthStatus: false });
+          } else {
+            notification.success({ message: '编辑成功' });
+            onOk && onOk();
           }
         }
       }
     });
   };
 
-
   render() {
     const { form, onCancel, title, regionInfo } = this.props;
-    const { healthStatus } = this.state
+    const { healthStatus } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 9 },
+        sm: { span: 9 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 13 },
-      },
+        sm: { span: 13 }
+      }
     };
     const reUrl = /(http|ws|https|wss):\/\/[\w\-_]+([\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
 
@@ -71,23 +70,29 @@ class EditClusterInfo extends PureComponent {
         width={1000}
         onCancel={onCancel}
       >
-        {!healthStatus && <Alert style={{textAlign: "center", marginBottom: "8px"}} message="集群连接失败，请确认配置是否正确" type="error" />}
+        {!healthStatus && (
+          <Alert
+            style={{ textAlign: 'center', marginBottom: '8px' }}
+            message="集群连接失败，请确认配置是否正确"
+            type="error"
+          />
+        )}
         <Form onSubmit={this.handleSubmit}>
           <div style={{ display: 'flex' }}>
             <FormItem
               {...formItemLayout}
               label="集群ID"
               style={{
-                width: '50%',
+                width: '50%'
               }}
             >
               {getFieldDecorator('region_name', {
                 initialValue: regionInfo ? regionInfo.region_name : '',
-                rules: [{ required: true, message: '集群ID不可修改' }],
+                rules: [{ required: true, message: '集群ID不可修改' }]
               })(
                 <Input
                   placeholder="请填写集群ID"
-                  disabled={regionInfo!==undefined}
+                  disabled={regionInfo !== undefined}
                 />
               )}
             </FormItem>
@@ -96,17 +101,13 @@ class EditClusterInfo extends PureComponent {
               {...formItemLayout}
               label="集群名称"
               style={{
-                width: '50%',
+                width: '50%'
               }}
             >
               {getFieldDecorator('region_alias', {
                 initialValue: regionInfo ? regionInfo.region_alias : '',
-                rules: [{ required: true, message: '请填写集群名称!' }],
-              })(
-                <Input
-                  placeholder="请填写集群名称"
-                />
-              )}
+                rules: [{ required: true, message: '请填写集群名称!' }]
+              })(<Input placeholder="请填写集群名称" />)}
             </FormItem>
           </div>
           <div style={{ display: 'flex' }}>
@@ -114,7 +115,7 @@ class EditClusterInfo extends PureComponent {
               label="API地址"
               {...formItemLayout}
               style={{
-                width: '50%',
+                width: '50%'
               }}
             >
               {getFieldDecorator('url', {
@@ -123,9 +124,9 @@ class EditClusterInfo extends PureComponent {
                   { required: true, message: 'API通信地址是必填项' },
                   {
                     pattern: reUrl,
-                    message: '格式不正确',
-                  },
-                ],
+                    message: '格式不正确'
+                  }
+                ]
               })(<Input placeholder="请输入API通信地址" />)}
             </FormItem>
 
@@ -140,9 +141,9 @@ class EditClusterInfo extends PureComponent {
                   { required: true, message: 'WebSocket通信地址是必填项' },
                   {
                     pattern: reUrl,
-                    message: '格式不正确',
-                  },
-                ],
+                    message: '格式不正确'
+                  }
+                ]
               })(<Input placeholder="请输入WebSocket通信地址" />)}
             </FormItem>
           </div>
@@ -158,9 +159,9 @@ class EditClusterInfo extends PureComponent {
                   { required: true, message: 'HTTP应用默认域名后缀是必填项' },
                   {
                     pattern: /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                    message: '格式不正确',
-                  },
-                ],
+                    message: '格式不正确'
+                  }
+                ]
               })(<Input placeholder="请输入HTTP应用默认域名后缀" />)}
             </FormItem>
 
@@ -175,9 +176,9 @@ class EditClusterInfo extends PureComponent {
                   { required: true, message: 'TCP应用默认访问IP是必填项' },
                   {
                     pattern: /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                    message: '格式不正确',
-                  },
-                ],
+                    message: '格式不正确'
+                  }
+                ]
               })(<Input placeholder="请输入TCP应用默认访问IP" />)}
             </FormItem>
           </div>
@@ -189,7 +190,7 @@ class EditClusterInfo extends PureComponent {
             >
               {getFieldDecorator('ssl_ca_cert', {
                 initialValue: regionInfo.ssl_ca_cert,
-                rules: [{ required: true, message: 'API-CA证书' }],
+                rules: [{ required: true, message: 'API-CA证书' }]
               })(
                 <TextArea
                   autosize={{ minRows: 3, maxRows: 6 }}
@@ -204,7 +205,7 @@ class EditClusterInfo extends PureComponent {
             >
               {getFieldDecorator('cert_file', {
                 initialValue: regionInfo.cert_file,
-                rules: [{ required: true, message: 'API-Client证书必填' }],
+                rules: [{ required: true, message: 'API-Client证书必填' }]
               })(
                 <TextArea
                   autosize={{ minRows: 3, maxRows: 6 }}
@@ -221,7 +222,7 @@ class EditClusterInfo extends PureComponent {
             >
               {getFieldDecorator('key_file', {
                 initialValue: regionInfo.key_file,
-                rules: [{ required: true, message: 'API-Client证书密钥必填' }],
+                rules: [{ required: true, message: 'API-Client证书密钥必填' }]
               })(
                 <TextArea
                   autosize={{ minRows: 3, maxRows: 6 }}
@@ -229,13 +230,9 @@ class EditClusterInfo extends PureComponent {
                 />
               )}
             </FormItem>
-            <FormItem
-              label="备注"
-              {...formItemLayout}
-              style={{ width: '50%' }}
-            >
+            <FormItem label="备注" {...formItemLayout} style={{ width: '50%' }}>
               {getFieldDecorator('desc', {
-                initialValue: regionInfo.desc,
+                initialValue: regionInfo.desc
               })(
                 <TextArea
                   autosize={{ minRows: 3, maxRows: 6 }}

@@ -1,23 +1,22 @@
-import React, { PureComponent } from 'react';
+import globalUtil from '@//utils/global';
 import {
-  Modal,
+  Button,
+  Col,
   Form,
   Icon,
-  Row,
   Input,
-  Menu,
   Layout,
-  Col,
+  Menu,
+  Modal,
   notification,
-  Spin,
-  Button
+  Row,
+  Spin
 } from 'antd';
 import { connect } from 'dva';
-import styles from '../CreateTeam/index.less';
+import React, { PureComponent } from 'react';
 import CodeMirrorForm from '../CodeMirrorForm';
 import ConfirmModal from '../ConfirmModal';
-import globalUtil from '@//utils/global';
-import form from '@/models/form';
+import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const { Sider, Content } = Layout;
@@ -73,8 +72,8 @@ export default class AddAdmin extends PureComponent {
         enterprise_id: currentEnterprise.enterprise_id,
         onlyname: false
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           if (res.list && res.list.length === 0) {
             this.setState({ isEditor: false });
           } else {
@@ -82,7 +81,7 @@ export default class AddAdmin extends PureComponent {
           }
           if (Initialize && res.list && res.list.length > 0) {
             if (activeMaven) {
-              const list = res.list.filter((item) => item.name === activeMaven);
+              const list = res.list.filter(item => item.name === activeMaven);
               if (list && list.length > 0) {
                 this.setState({ mavenInfo: list[0] });
               } else {
@@ -128,7 +127,7 @@ export default class AddAdmin extends PureComponent {
     return true;
   };
 
-  handleClick = (e) => {
+  handleClick = e => {
     this.handleEditorConfiguration();
     this.setState(
       {
@@ -137,7 +136,7 @@ export default class AddAdmin extends PureComponent {
       () => {
         const { mavenList } = this.state;
         const { setFieldsValue } = this.props.form;
-        const list = mavenList.filter((item) => item.name === e.key);
+        const list = mavenList.filter(item => item.name === e.key);
         if (list && list.length > 0) {
           this.setState({ mavenInfo: list[0], contentLoading: false });
           setFieldsValue({ content: list[0].content });
@@ -158,8 +157,8 @@ export default class AddAdmin extends PureComponent {
             enterprise_id: currentEnterprise.enterprise_id,
             ...values
           },
-          callback: (res) => {
-            if (res && res._code === 200) {
+          callback: res => {
+            if (res && res.status_code === 200) {
               this.setState({
                 mavenInfo: res.bean,
                 loading: true,
@@ -183,8 +182,8 @@ export default class AddAdmin extends PureComponent {
         enterprise_id: currentEnterprise.enterprise_id,
         name: mavenInfo.name
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           const { setFieldsValue } = form;
           setFieldsValue({ content: '' });
           setFieldsValue({ name: '' });
@@ -217,8 +216,8 @@ export default class AddAdmin extends PureComponent {
             name: mavenInfo.name,
             content: values.content
           },
-          callback: (res) => {
-            if (res && res._code === 200) {
+          callback: res => {
+            if (res && res.status_code === 200) {
               this.setState({
                 mavenInfo: res.bean,
                 loading: true,
@@ -359,7 +358,7 @@ export default class AddAdmin extends PureComponent {
                   selectedKeys={[`${mavenInfo.name}`]}
                   style={{ height: '100%' }}
                 >
-                  {mavenList.map((item) => {
+                  {mavenList.map(item => {
                     const { name } = item;
                     return (
                       <Menu.Item key={name}>

@@ -1,22 +1,23 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {
-  Row,
-  Card,
-  Form,
   Button,
-  Table,
+  Card,
+  Col,
+  Form,
   Input,
+  Modal,
   notification,
   Radio,
-  Modal
+  Row,
+  Table
 } from 'antd';
-
-import globalUtil from '../../utils/global';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ConfirmModal from '../../components/ConfirmModal';
+import globalUtil from '../../utils/global';
 
 const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
@@ -95,8 +96,8 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias
       },
-      callback: (res) => {
-        if (res && res._code == 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             endpoint_num:
               res.bean.endpoint_num > 0 ? res.bean.endpoint_num : '',
@@ -106,7 +107,7 @@ export default class Index extends PureComponent {
       }
     });
   };
-  openDeleteVar = (ep_id) => {
+  openDeleteVar = ep_id => {
     this.setState({ deleteVar: true, ep_id });
   };
   cancelDeleteVar = () => {
@@ -121,15 +122,15 @@ export default class Index extends PureComponent {
         app_alias: this.props.appAlias,
         ep_id
       },
-      callback: (res) => {
-        if (res && res._code == '200') {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.handleGetList();
           this.cancelDeleteVar();
         }
       }
     });
   };
-  handleModify = (status) => {
+  handleModify = status => {
     // 上online， 下offline线
     this.props.dispatch({
       type: 'appControl/modifyInstanceList',
@@ -139,8 +140,8 @@ export default class Index extends PureComponent {
         ep_id: status.ep_id,
         is_online: !status.is_online
       },
-      callback: (res) => {
-        if (res && res._code == '200') {
+      callback: res => {
+        if (res && res.status_code === 200) {
           if (res.bean && res.bean.port_closed) {
             this.showConfirm();
           } else {
@@ -154,7 +155,7 @@ export default class Index extends PureComponent {
   addInstance = () => {
     this.setState({ visible: true });
   };
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
     const { form } = this.props;
     form.validateFields((err, fieldsValue) => {
@@ -169,8 +170,8 @@ export default class Index extends PureComponent {
           ip: fieldsValue.ip,
           is_online: fieldsValue.is_online
         },
-        callback: (res) => {
-          if (res && res._code == '200') {
+        callback: res => {
+          if (res && res.status_code === 200) {
             this.setState({ visible: false });
             this.handleGetList();
           }
@@ -182,7 +183,7 @@ export default class Index extends PureComponent {
     this.setState({ visible: false, is_online: false });
   };
   validAttrName = (rule, value, callback) => {
-    if (!value || value == '') {
+    if (!value || value === '') {
       callback('请输入正确的IP地址');
       return;
     }
@@ -209,8 +210,8 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias
       },
-      callback: (res) => {
-        if (res && res._code == '200') {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             api_service_key: res.bean.api_service_key
           });
@@ -222,7 +223,7 @@ export default class Index extends PureComponent {
   render() {
     const { list, endpoint_num, api_service_key, visible } = this.state;
     const { appDetail } = this.props;
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
         span: 5
@@ -242,7 +243,7 @@ export default class Index extends PureComponent {
         title: '健康状态',
         dataIndex: 'status',
         key: '2',
-        render: (data) => {
+        render: data => {
           return (
             <span
               style={{
@@ -295,7 +296,7 @@ export default class Index extends PureComponent {
       list &&
       list.length > 0
     ) {
-      list.map((item) => {
+      list.map(item => {
         if (
           !rege.test(item.address) &&
           (regs.test(item.address) || rega.test(item.address))
@@ -304,6 +305,9 @@ export default class Index extends PureComponent {
         }
       });
     }
+    const secret_key =
+      api_service_key ||
+      (appDetail.api_service_key ? appDetail.api_service_key : '');
 
     return (
       <Fragment>
@@ -334,7 +338,7 @@ export default class Index extends PureComponent {
                       onClick={() => {
                         this.onChange();
                       }}
-                      value={true}
+                      value
                     >
                       上线
                     </Radio>
@@ -367,58 +371,68 @@ export default class Index extends PureComponent {
                 </div>
               }
             >
-              <p>
-                注册方式：{' '}
-                {appDetail.register_way ? appDetail.register_way : ''}
-              </p>
-              {appDetail.api_url && (
-                <p>
-                  API地址： {appDetail.api_url ? appDetail.api_url : ''}
-                  <div style={{ margin: '5px 0' }}>
-                    <span>
-                      秘钥：{' '}
-                      <a>
-                        {api_service_key
-                          ? api_service_key
-                          : appDetail.api_service_key
-                          ? appDetail.api_service_key
-                          : ''}
-                      </a>
-                      <CopyToClipboard
-                        text={
-                          appDetail.api_service_key
-                            ? appDetail.api_service_key
-                            : ''
-                        }
-                        onCopy={() => {
-                          notification.success({ message: '复制成功' });
-                        }}
-                      >
-                        <Button size="small" style={{ margin: '0 10px' }}>
-                          复制
+              <Row>
+                <Col span={12}>
+                  <p>
+                    注册方式：{' '}
+                    {appDetail.register_way ? appDetail.register_way : ''}
+                  </p>
+                  {appDetail.api_url && (
+                    <p>
+                      API地址： {appDetail.api_url ? appDetail.api_url : ''}
+                      <div style={{ margin: '5px 0' }}>
+                        <span>
+                          秘钥： <a>{secret_key}</a>
+                          <CopyToClipboard
+                            text={secret_key}
+                            onCopy={() => {
+                              notification.success({ message: '复制成功' });
+                            }}
+                          >
+                            <Button size="small" style={{ margin: '0 10px' }}>
+                              复制
+                            </Button>
+                          </CopyToClipboard>
+                        </span>
+                        <Button
+                          size="small"
+                          onClick={() => {
+                            this.handleUpDatekey();
+                          }}
+                        >
+                          重置密钥
                         </Button>
-                      </CopyToClipboard>
+                      </div>
+                    </p>
+                  )}
+                  {endpoint_num && (
+                    <p>当前实例数: {endpoint_num > 0 ? endpoint_num : ''}</p>
+                  )}
+                  {appDetail.discovery_type && (
+                    <p>动态类型: {appDetail.discovery_type}</p>
+                  )}
+                  {appDetail.discovery_key && (
+                    <p>动态key: {appDetail.discovery_key}</p>
+                  )}
+                </Col>
+                {appDetail.api_url && (
+                  <Col span={12}>
+                    <span>
+                      API
+                      调用参考（将其中的192.168.1.1修改为你的真实IP地址即可）：
                     </span>
-                    <Button
-                      size="small"
-                      onClick={() => {
-                        this.handleUpDatekey();
+                    <div
+                      style={{
+                        background: '#000',
+                        color: '#fff',
+                        padding: '16px'
                       }}
                     >
-                      重置密钥
-                    </Button>
-                  </div>
-                </p>
-              )}
-              {endpoint_num && (
-                <p>当前实例数: {endpoint_num > 0 ? endpoint_num : ''}</p>
-              )}
-              {appDetail.discovery_type && (
-                <p>动态类型: {appDetail.discovery_type}</p>
-              )}
-              {appDetail.discovery_key && (
-                <p>动态key: {appDetail.discovery_key}</p>
-              )}
+                      {`curl -X PUT --url ${appDetail.api_url} -H "Content-Type: application/json" -d '{"secret_key":"${secret_key}","ip":"192.168.1.1","is_online":true}'`}
+                    </div>
+                  </Col>
+                )}
+              </Row>
             </Card>
           )}
         </Row>

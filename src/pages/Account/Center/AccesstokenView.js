@@ -1,9 +1,9 @@
-import React, { Component, Fragment } from 'react';
+import { Alert, Button, notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
-import { Alert, Table, notification, Button, Row } from 'antd';
-import ConfirmModal from '../../../components/ConfirmModal';
+import React, { Component, Fragment } from 'react';
 import AccesstokenForm from '../../../components/AccesstokenForm';
+import ConfirmModal from '../../../components/ConfirmModal';
 
 @connect(({ loading }) => ({
   deleteAccessLoading: loading.effects['user/deleteAccessToke']
@@ -33,8 +33,8 @@ class BindingView extends Component {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchAccessToken',
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             dataSource: res.list
           });
@@ -51,8 +51,8 @@ class BindingView extends Component {
       payload: {
         user_id: ID
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           notification.success({ message: '删除成功' });
           this.loadAccessTokenList();
           this.onCanceAccessToken();
@@ -66,20 +66,20 @@ class BindingView extends Component {
   handleCancel = () => {
     this.setState({ visible: false, ID: '' });
   };
-  openDeleteAccessToken = (ID) => {
+  openDeleteAccessToken = ID => {
     this.setState({
       ID,
       openDeleteAccessToken: true
     });
   };
 
-  handleRegenerateAccessToken = (ID) => {
+  handleRegenerateAccessToken = ID => {
     this.setState({
       ID,
       visible: true
     });
   };
-  disabledDate = (current) => {
+  disabledDate = current => {
     // Can not select days before today and today
     return current && current < moment().endOf('day');
   };
@@ -105,7 +105,7 @@ class BindingView extends Component {
     this.handleCancel();
   };
 
-  handleExpireTime = (val) => {
+  handleExpireTime = val => {
     let date = '';
     const str = val ? `${val}` : '';
     if (val && str.length === 10) {
@@ -133,7 +133,7 @@ class BindingView extends Component {
         dataIndex: 'expire_time',
         key: 'expire_time',
         width: '25%',
-        render: (val) => {
+        render: val => {
           const endTime = this.handleExpireTime(val);
           if (endTime) {
             return moment(endTime)

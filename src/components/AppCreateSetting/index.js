@@ -1,41 +1,41 @@
-import React, { PureComponent, Fragment } from 'react';
 import {
-  Button,
-  Icon,
-  Card,
-  Row,
-  Col,
-  Table,
-  Radio,
   Affix,
+  Button,
+  Card,
+  Col,
   Form,
-  Tooltip,
+  Icon,
   notification,
+  Radio,
+  Row,
+  Table,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import CodeBuildConfig from '../CodeBuildConfig';
-import Port from '../../components/Port';
-import {
-  getMnt,
-  addMnt,
-  getRelationedApp,
-  removeRelationedApp,
-  batchAddRelationedApp,
-} from '../../services/app';
-import NoPermTip from '../../components/NoPermTip';
-import EditPortAlias from '../../components/EditPortAlias';
-import ConfirmModal from '../../components/ConfirmModal';
-import AddPort from '../../components/AddPort';
+import React, { Fragment, PureComponent } from 'react';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
-import AddRelationMnt from '../../components/AddRelationMnt';
+import AddPort from '../../components/AddPort';
 import AddRelation from '../../components/AddRelation';
-import ViewRelationInfo from '../../components/ViewRelationInfo';
+import AddRelationMnt from '../../components/AddRelationMnt';
+import ConfirmModal from '../../components/ConfirmModal';
+import EditPortAlias from '../../components/EditPortAlias';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
+import NoPermTip from '../../components/NoPermTip';
+import Port from '../../components/Port';
+import ViewRelationInfo from '../../components/ViewRelationInfo';
+import {
+  addMnt,
+  batchAddRelationedApp,
+  getMnt,
+  getRelationedApp,
+  removeRelationedApp
+} from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import { getVolumeTypeShowName } from '../../utils/utils';
+import CodeBuildConfig from '../CodeBuildConfig';
 import styles from './setting.less';
 
 const RadioButton = Radio.Button;
@@ -50,41 +50,41 @@ class BaseInfo extends PureComponent {
       memoryList: [
         {
           text: '64M',
-          value: 64,
+          value: 64
         },
         {
           text: '128M',
-          value: 128,
+          value: 128
         },
         {
           text: '256M',
-          value: 256,
+          value: 256
         },
         {
           text: '512M',
-          value: 512,
+          value: 512
         },
         {
           text: '1G',
-          value: 1024,
+          value: 1024
         },
         {
           text: '2G',
-          value: 1024 * 2,
+          value: 1024 * 2
         },
         {
           text: '4G',
-          value: 1024 * 4,
+          value: 1024 * 4
         },
         {
           text: '8G',
-          value: 1024 * 8,
+          value: 1024 * 8
         },
         {
           text: '16G',
-          value: 1024 * 16,
-        },
-      ],
+          value: 1024 * 16
+        }
+      ]
     };
   }
   handleSubmit = () => {
@@ -98,38 +98,38 @@ class BaseInfo extends PureComponent {
   render() {
     const { appDetail, form } = this.props;
     const { getFieldDecorator } = form;
-    const {extend_method} = appDetail.service;
+    const { extend_method } = appDetail.service;
     const minMemory = appDetail.service.min_memory;
     const list = this.state.memoryList;
 
     const radioStyle = {
       display: 'block',
       height: '30px',
-      lineHeight: '30px',
+      lineHeight: '30px'
     };
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 3,
-        },
+          span: 3
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 21,
-        },
-      },
+          span: 21
+        }
+      }
     };
     return (
       <Card
         title="基本信息"
         style={{
-          marginBottom: 16,
+          marginBottom: 16
         }}
       >
         <Form.Item {...formItemLayout} label="组件类型">
@@ -138,9 +138,9 @@ class BaseInfo extends PureComponent {
             rules: [
               {
                 required: true,
-                message: '请选择组件类型',
-              },
-            ],
+                message: '请选择组件类型'
+              }
+            ]
           })(
             <RadioGroup>
               {globalUtil.getSupportComponentTyps().map(item => {
@@ -159,9 +159,9 @@ class BaseInfo extends PureComponent {
             rules: [
               {
                 required: true,
-                message: '请选择内存',
-              },
-            ],
+                message: '请选择内存'
+              }
+            ]
           })(
             <RadioGroup>
               {minMemory < list[0].value ? (
@@ -195,7 +195,7 @@ class RenderDeploy extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      runtimeInfo: '',
+      runtimeInfo: ''
     };
   }
   componentDidMount() {
@@ -207,13 +207,13 @@ class RenderDeploy extends PureComponent {
       type: 'appControl/getRuntimeBuildInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
+        app_alias: this.props.appDetail.service.service_alias
       },
       callback: data => {
         if (data) {
           this.setState({ runtimeInfo: data.bean ? data.bean : {} });
         }
-      },
+      }
     });
   };
   handleEditRuntime = (build_env_dict = {}) => {
@@ -222,14 +222,14 @@ class RenderDeploy extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        build_env_dict,
+        build_env_dict
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '修改成功' });
           this.getRuntimeInfo();
         }
-      },
+      }
     });
   };
   handleEditInfo = (val = {}) => {
@@ -238,21 +238,21 @@ class RenderDeploy extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        ...val,
+        ...val
       },
       callback: data => {
         if (data) {
           this.props.updateDetail();
           notification.success({ message: '更新成功' });
         }
-      },
+      }
     });
   };
   render() {
     const {
       visible,
       appDetail,
-      componentPermissions: { isDeploytype, isSource },
+      componentPermissions: { isDeploytype, isSource }
     } = this.props;
     const { runtimeInfo } = this.state;
     if (!runtimeInfo) return null;
@@ -261,7 +261,7 @@ class RenderDeploy extends PureComponent {
     return (
       <div
         style={{
-          display: visible ? 'block' : 'none',
+          display: visible ? 'block' : 'none'
         }}
       >
         {!isDeploytype && !isSource && <NoPermTip />}
@@ -295,7 +295,7 @@ class Mnt extends PureComponent {
       toDeleteMnt: null,
       toDeleteVolume: null,
       volumes: [],
-      volumeOpts: [],
+      volumeOpts: []
     };
   }
 
@@ -310,15 +310,15 @@ class Mnt extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        is_config: false,
+        is_config: false
       },
       callback: data => {
         if (data) {
           this.setState({
-            volumes: data.list || [],
+            volumes: data.list || []
           });
         }
-      },
+      }
     });
   };
   fetchVolumeOpts = () => {
@@ -326,15 +326,15 @@ class Mnt extends PureComponent {
       type: 'appControl/fetchVolumeOpts',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
+        app_alias: this.props.appDetail.service.service_alias
       },
       callback: data => {
         if (data) {
           this.setState({
-            volumeOpts: data.list || [],
+            volumeOpts: data.list || []
           });
         }
-      },
+      }
     });
   };
   loadMntList = () => {
@@ -342,11 +342,11 @@ class Mnt extends PureComponent {
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appDetail.service.service_alias,
       page: 1,
-      page_size: 1000,
+      page_size: 1000
     }).then(data => {
       if (data) {
         this.setState({
-          mntList: data.list || [],
+          mntList: data.list || []
         });
       }
     });
@@ -354,8 +354,8 @@ class Mnt extends PureComponent {
   handleAddVar = () => {
     this.setState({
       showAddVar: {
-        new: true,
-      },
+        new: true
+      }
     });
   };
   handleCancelAddVar = () => {
@@ -367,12 +367,12 @@ class Mnt extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        ...vals,
+        ...vals
       },
       callback: () => {
         this.fetchVolumes();
         this.handleCancelAddVar();
-      },
+      }
     });
   };
   showAddRelation = () => {
@@ -385,7 +385,7 @@ class Mnt extends PureComponent {
     addMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appDetail.service.service_alias,
-      body: mnts,
+      body: mnts
     }).then(data => {
       if (data) {
         this.handleCancelAddRelation();
@@ -408,12 +408,12 @@ class Mnt extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        volume_id: this.state.toDeleteVolume.ID,
+        volume_id: this.state.toDeleteVolume.ID
       },
       callback: () => {
         this.onCancelDeleteVolume();
         this.fetchVolumes();
-      },
+      }
     });
   };
   handleDeleteMnt = () => {
@@ -422,12 +422,12 @@ class Mnt extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        dep_vol_id: this.state.toDeleteMnt.dep_vol_id,
+        dep_vol_id: this.state.toDeleteMnt.dep_vol_id
       },
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
-      },
+      }
     });
   };
   cancelDeleteMnt = () => {
@@ -443,18 +443,18 @@ class Mnt extends PureComponent {
     const columns = [
       {
         title: '存储名称',
-        dataIndex: 'volume_name',
+        dataIndex: 'volume_name'
       },
       {
         title: '挂载路径',
-        dataIndex: 'volume_path',
+        dataIndex: 'volume_path'
       },
       {
         title: '存储类型',
         dataIndex: 'volume_type',
         render: (text, record) => {
           return <span>{this.getVolumeTypeShowName(text)}</span>;
-        },
+        }
       },
       {
         title: '存储容量',
@@ -464,7 +464,7 @@ class Mnt extends PureComponent {
             return <span>不限制</span>;
           }
           return <span>{text}GB</span>;
-        },
+        }
       },
       {
         title: '状态',
@@ -474,7 +474,7 @@ class Mnt extends PureComponent {
             return <span style={{ color: 'red' }}>未挂载</span>;
           }
           return <span style={{ color: 'green' }}>已挂载</span>;
-        },
+        }
       },
       {
         title: '操作',
@@ -490,35 +490,42 @@ class Mnt extends PureComponent {
               删除
             </a>
           );
-        },
-      },
+        }
+      }
     ];
     return (
       <Fragment>
         <Card
           style={{
-            marginBottom: 16,
+            marginBottom: 16
           }}
           title="存储设置"
+          extra={
+            <Button onClick={this.handleAddVar}>
+              <Icon type="plus" />
+              添加存储
+            </Button>
+          }
         >
           <Table pagination={false} dataSource={volumes} columns={columns} />
           <div
             style={{
               marginTop: 10,
-              textAlign: 'right',
+              textAlign: 'right'
             }}
-          >
-            <Button onClick={this.handleAddVar}>
-              <Icon type="plus" />
-              添加存储
-            </Button>
-          </div>
+          />
         </Card>
         <Card
           style={{
-            marginBottom: 16,
+            marginBottom: 16
           }}
           title="共享存储"
+          extra={
+            <Button onClick={this.showAddRelation}>
+              <Icon type="plus" />
+              挂载共享存储
+            </Button>
+          }
         >
           <Table
             pagination={false}
@@ -533,13 +540,13 @@ class Mnt extends PureComponent {
                     <span
                       style={{
                         wordBreak: 'break-all',
-                        wordWrap: 'break-word',
+                        wordWrap: 'break-word'
                       }}
                     >
                       {data}
                     </span>
                   </Tooltip>
-                ),
+                )
               },
               {
                 title: '目标存储名称',
@@ -551,13 +558,13 @@ class Mnt extends PureComponent {
                     <span
                       style={{
                         wordBreak: 'break-all',
-                        wordWrap: 'break-word',
+                        wordWrap: 'break-word'
                       }}
                     >
                       {data}
                     </span>
                   </Tooltip>
-                ),
+                )
               },
               {
                 title: '目标挂载路径',
@@ -569,13 +576,13 @@ class Mnt extends PureComponent {
                     <span
                       style={{
                         wordBreak: 'break-all',
-                        wordWrap: 'break-word',
+                        wordWrap: 'break-word'
                       }}
                     >
                       {data}
                     </span>
                   </Tooltip>
-                ),
+                )
               },
               {
                 title: '目标存储类型',
@@ -584,7 +591,7 @@ class Mnt extends PureComponent {
                 width: '10%',
                 render: (text, record) => {
                   return <span>{this.getVolumeTypeShowName(text)}</span>;
-                },
+                }
               },
               {
                 title: '目标所属组件',
@@ -601,7 +608,7 @@ class Mnt extends PureComponent {
                       {v}
                     </Link>
                   );
-                },
+                }
               },
               {
                 title: '目标组件所属应用',
@@ -618,7 +625,7 @@ class Mnt extends PureComponent {
                       {v}
                     </Link>
                   );
-                },
+                }
               },
               {
                 title: '操作',
@@ -636,22 +643,11 @@ class Mnt extends PureComponent {
                       取消挂载
                     </a>
                   );
-                },
-              },
+                }
+              }
             ]}
             dataSource={mntList}
           />
-          <div
-            style={{
-              marginTop: 10,
-              textAlign: 'right',
-            }}
-          >
-            <Button onClick={this.showAddRelation}>
-              <Icon type="plus" />
-              挂载共享存储
-            </Button>
-          </div>
         </Card>
         {this.state.showAddVar && (
           <AddOrEditVolume
@@ -697,7 +693,7 @@ class Relation extends PureComponent {
       showAddRelation: false,
       linkList: [],
       relationList: [],
-      viewRelationInfo: null,
+      viewRelationInfo: null
     };
   }
   componentDidMount() {
@@ -706,11 +702,11 @@ class Relation extends PureComponent {
   loadRelationedApp = () => {
     getRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appDetail.service.service_alias,
+      app_alias: this.props.appDetail.service.service_alias
     }).then(data => {
       if (data) {
         this.setState({
-          relationList: data.list || [],
+          relationList: data.list || []
         });
       }
     });
@@ -725,7 +721,7 @@ class Relation extends PureComponent {
     batchAddRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appDetail.service.service_alias,
-      dep_service_ids: ids,
+      dep_service_ids: ids
     }).then(data => {
       if (data) {
         notification.info({ message: '需要更新才能生效' });
@@ -738,7 +734,7 @@ class Relation extends PureComponent {
     removeRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appDetail.service.service_alias,
-      dep_service_id: app.service_id,
+      dep_service_id: app.service_id
     }).then(data => {
       if (data) {
         this.loadRelationedApp();
@@ -771,11 +767,11 @@ class Relation extends PureComponent {
                     {val}
                   </Link>
                 );
-              },
+              }
             },
             {
               title: '所属组',
-              dataIndex: 'group_name',
+              dataIndex: 'group_name'
             },
             {
               title: '操作',
@@ -787,7 +783,7 @@ class Relation extends PureComponent {
                       onClick={() => this.onViewRelationInfo(data)}
                       href="javascript:;"
                       style={{
-                        marginRight: 8,
+                        marginRight: 8
                       }}
                     >
                       查看链接信息
@@ -802,15 +798,15 @@ class Relation extends PureComponent {
                     </a>
                   </Fragment>
                 );
-              },
-            },
+              }
+            }
           ]}
           dataSource={relationList}
         />
         <div
           style={{
             marginTop: 10,
-            textAlign: 'right',
+            textAlign: 'right'
           }}
         >
           <Button onClick={this.showAddRelation}>
@@ -847,7 +843,7 @@ class Ports extends PureComponent {
       showDeletePort: null,
       showDeleteDomain: null,
       showAddPort: false,
-      ports: [],
+      ports: []
     };
   }
   componentDidMount() {
@@ -859,13 +855,13 @@ class Ports extends PureComponent {
       type: 'appControl/fetchPorts',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
+        app_alias: this.props.appDetail.service.service_alias
       },
       callback: data => {
         this.setState({
-          ports: (data && data.list) || [],
+          ports: (data && data.list) || []
         });
-      },
+      }
     });
   };
   handleSubmitProtocol = (protocol, port, callback) => {
@@ -876,12 +872,12 @@ class Ports extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
         port,
-        protocol,
+        protocol
       },
       callback: () => {
         this.fetchPorts();
         callback();
-      },
+      }
     });
   };
   showEditAlias = port => {
@@ -897,12 +893,12 @@ class Ports extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
         port: this.state.showEditAlias.container_port,
-        port_alias: vals.alias,
+        port_alias: vals.alias
       },
       callback: () => {
         this.fetchPorts();
         this.hideEditAlias();
-      },
+      }
     });
   };
   handleOpenInner = port => {
@@ -911,11 +907,11 @@ class Ports extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        port,
+        port
       },
       callback: () => {
         this.fetchPorts();
-      },
+      }
     });
   };
   onCloseInner = port => {
@@ -924,11 +920,11 @@ class Ports extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        port,
+        port
       },
       callback: () => {
         this.fetchPorts();
-      },
+      }
     });
   };
   handleOpenOuter = port => {
@@ -937,11 +933,11 @@ class Ports extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        port,
+        port
       },
       callback: () => {
         this.fetchPorts();
-      },
+      }
     });
   };
   onCloseOuter = port => {
@@ -950,11 +946,11 @@ class Ports extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        port,
+        port
       },
       callback: () => {
         this.fetchPorts();
-      },
+      }
     });
   };
   handleDeletePort = port => {
@@ -969,12 +965,12 @@ class Ports extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        port: this.state.showDeletePort,
+        port: this.state.showDeletePort
       },
       callback: () => {
         this.cancalDeletePort();
         this.fetchPorts();
-      },
+      }
     });
   };
   showAddPort = () => {
@@ -991,12 +987,12 @@ class Ports extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
         protocol: val.protocol,
-        port: val.port,
+        port: val.port
       },
       callback: () => {
         this.onCancelAddPort();
         this.fetchPorts();
-      },
+      }
     });
   };
   render() {
@@ -1007,7 +1003,7 @@ class Ports extends PureComponent {
       <Card
         title="端口管理"
         style={{
-          marginBottom: 16,
+          marginBottom: 16
         }}
       >
         <div className={styles.ports}>
@@ -1031,7 +1027,7 @@ class Ports extends PureComponent {
           {!ports.length ? (
             <p
               style={{
-                textAlign: 'center',
+                textAlign: 'center'
               }}
             >
               暂无端口
@@ -1043,7 +1039,7 @@ class Ports extends PureComponent {
         <div
           style={{
             textAlign: 'right',
-            paddingTop: 20,
+            paddingTop: 20
           }}
         >
           <Button type="default" onClick={this.showAddPort}>
@@ -1095,12 +1091,12 @@ class RenderProperty extends PureComponent {
     const {
       appDetail,
       visible,
-      componentPermissions: { isEnv, isRely, isStorage, isPort },
+      componentPermissions: { isEnv, isRely, isStorage, isPort }
     } = this.props;
     return (
       <div
         style={{
-          display: visible ? 'block' : 'none',
+          display: visible ? 'block' : 'none'
         }}
       >
         {!isPort && !isEnv && !isStorage && !isRely && <NoPermTip />}
@@ -1122,12 +1118,12 @@ class RenderProperty extends PureComponent {
 // eslint-disable-next-line react/no-multi-comp
 @connect(
   ({ teamControl }) => ({
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
   {
-    withRef: true,
+    withRef: true
   }
 )
 export default class Index extends PureComponent {
@@ -1135,7 +1131,7 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       componentPermissions: this.handlePermissions('queryComponentInfo'),
-      type: 'property',
+      type: 'property'
     };
   }
   getAppAlias() {
@@ -1161,7 +1157,7 @@ export default class Index extends PureComponent {
       <div>
         <div
           style={{
-            overflow: 'hidden',
+            overflow: 'hidden'
           }}
         >
           <div className={styles.typeBtnWrap}>
@@ -1197,7 +1193,7 @@ export default class Index extends PureComponent {
             className={styles.content}
             style={{
               overflow: 'hidden',
-              marginBottom: 90,
+              marginBottom: 90
             }}
           >
             <RenderDeploy

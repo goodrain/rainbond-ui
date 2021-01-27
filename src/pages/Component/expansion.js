@@ -1,34 +1,18 @@
 import {
-  Alert, Button, Card, Col,
-
-
-
-
-
-
-  Divider, Form,
-
-
-
-
-
-
-
-
-  Icon, Input, notification, Row,
-
-
-
-
+  Alert,
+  Button,
+  Card,
+  Col,
+  Divider,
+  Form,
+  Icon,
+  Input,
+  notification,
+  Row,
   Select,
-
   Spin,
-
-
-
-
-
-  Switch, Table
+  Switch,
+  Table
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -53,7 +37,7 @@ const { Option } = Select;
     baseInfo: appControl.baseInfo,
     extendInfo: appControl.extendInfo,
     instances: appControl.pods,
-    scaling: appControl.scalingRules,
+    scaling: appControl.scalingRules
   }),
   null,
   null,
@@ -96,7 +80,7 @@ export default class Index extends PureComponent {
       errorMinNum: '',
       errorMaxNum: '',
       errorCpuValue: '',
-      errorMemoryValue: '',
+      errorMemoryValue: ''
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -110,11 +94,11 @@ export default class Index extends PureComponent {
         instances: (nextProps.instances.new_pods || []).concat(
           nextProps.instances.old_pods || []
         ),
-        loading: false,
+        loading: false
       });
     } else {
       this.setState({
-        loading: false,
+        loading: false
       });
     }
   }
@@ -136,7 +120,7 @@ export default class Index extends PureComponent {
   // 是否可以浏览当前界面
   canView() {
     const {
-      componentPermissions: { isTelescopic },
+      componentPermissions: { isTelescopic }
     } = this.props;
     return isTelescopic;
   }
@@ -145,7 +129,7 @@ export default class Index extends PureComponent {
     vertical({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      new_memory: memory,
+      new_memory: memory
     }).then(data => {
       if (data && !data.status) {
         notification.success({ message: '操作成功，执行中' });
@@ -157,7 +141,7 @@ export default class Index extends PureComponent {
     horizontal({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      new_node: node,
+      new_node: node
     }).then(data => {
       if (data && !data.status) {
         notification.success({ message: '操作成功，执行中' });
@@ -176,14 +160,14 @@ export default class Index extends PureComponent {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           rule_id: id,
-          service_alias: appDetail.service.service_alias,
+          service_alias: appDetail.service.service_alias
         },
         callback: res => {
           if (res) {
             if (type === 'close') {
               this.setState(
                 {
-                  rulesInfo: res.bean,
+                  rulesInfo: res.bean
                 },
                 () => {
                   this.shutDownAutoScaling();
@@ -192,7 +176,7 @@ export default class Index extends PureComponent {
             } else {
               this.setState(
                 {
-                  rulesInfo: res.bean,
+                  rulesInfo: res.bean
                 },
                 () => {
                   this.changeAutoScaling(this.state.rulesInfo);
@@ -200,7 +184,7 @@ export default class Index extends PureComponent {
               );
             }
           }
-        },
+        }
       });
     }
   };
@@ -209,13 +193,13 @@ export default class Index extends PureComponent {
     this.setState({
       showEditAutoScaling: false,
       addindicators: false,
-      rulesInfo: false,
+      rulesInfo: false
     });
   };
 
   handlePodClick = (podName, manageName) => {
     const adPopup = window.open('about:blank');
-    const {appAlias} = this.props;
+    const { appAlias } = this.props;
     if (podName && manageName) {
       this.props.dispatch({
         type: 'appControl/managePod',
@@ -223,11 +207,11 @@ export default class Index extends PureComponent {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: appAlias,
           pod_name: podName,
-          manage_name: manageName,
+          manage_name: manageName
         },
         callback: () => {
           adPopup.location.href = `/console/teams/${globalUtil.getCurrTeamName()}/apps/${appAlias}/docker_console/`;
-        },
+        }
       });
     }
   };
@@ -237,13 +221,13 @@ export default class Index extends PureComponent {
       type: 'appControl/fetchExtendInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
       handleError: res => {
         if (res && res.status === 403) {
           this.props.dispatch(routerRedux.push('/exception/403'));
         }
-      },
+      }
     });
   };
   fetchInstanceInfo = () => {
@@ -252,23 +236,23 @@ export default class Index extends PureComponent {
       type: 'appControl/fetchPods',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             // 接口变化
             instances: (res.list.new_pods || []).concat(
               res.list.old_pods || []
             ),
-            loading: false,
+            loading: false
           });
         } else {
           this.setState({
-            loading: false,
+            loading: false
           });
         }
-      },
+      }
     });
   };
 
@@ -282,7 +266,7 @@ export default class Index extends PureComponent {
 
   shutDownAutoScaling = () => {
     this.setState({
-      automaLoading: true,
+      automaLoading: true
     });
     const { dispatch, appDetail } = this.props;
     const { rulesInfo, id } = this.state;
@@ -298,17 +282,17 @@ export default class Index extends PureComponent {
         tenant_name: user,
         service_alias: alias,
         enable: false,
-        rule_id: id,
+        rule_id: id
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '关闭成功' });
           this.setState(
             {
               showEditAutoScaling: false,
               addindicators: false,
               id: '',
-              enable: false,
+              enable: false
             },
             () => {
               this.getScalingRules();
@@ -317,14 +301,14 @@ export default class Index extends PureComponent {
         } else {
           notification.success({ message: '关闭失败' });
         }
-      },
+      }
     });
   };
 
   /** 添加伸缩 */
   addScalingRules = values => {
     this.setState({
-      automaLoading: true,
+      automaLoading: true
     });
     const { dispatch, appDetail } = this.props;
     const user = globalUtil.getCurrTeamName();
@@ -338,8 +322,8 @@ export default class Index extends PureComponent {
           values.selectMemory.indexOf('utilization') > -1
             ? 'utilization'
             : 'average_value',
-        metric_target_value: values.value ? parseInt(values.value) : 0,
-      },
+        metric_target_value: values.value ? parseInt(values.value) : 0
+      }
     ];
     dispatch({
       type: 'appControl/addScalingRules',
@@ -349,10 +333,10 @@ export default class Index extends PureComponent {
         maxNum: parseInt(values.maxNum),
         minNum: parseInt(values.minNum),
         tenant_name: user,
-        service_alias: alias,
+        service_alias: alias
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '开启成功' });
           this.setState(
             { showEditAutoScaling: false, addindicators: false },
@@ -364,16 +348,16 @@ export default class Index extends PureComponent {
           this.setState({
             showEditAutoScaling: false,
             addindicators: false,
-            loading: false,
+            loading: false
           });
         }
-      },
+      }
     });
   };
   /* 编辑伸缩规则 */
   changeScalingRules = values => {
     this.setState({
-      automaLoading: true,
+      automaLoading: true
     });
     const { dispatch, appDetail } = this.props;
     const {
@@ -381,7 +365,7 @@ export default class Index extends PureComponent {
       addindicators,
       rulesInfo,
       toDeleteMnt,
-      automaticTelescopic,
+      automaticTelescopic
     } = this.state;
     const user = globalUtil.getCurrTeamName();
     const alias = appDetail.service.service_alias;
@@ -395,7 +379,7 @@ export default class Index extends PureComponent {
           values.selectMemory.indexOf('utilization') > -1
             ? 'utilization'
             : 'average_value',
-        metric_target_value: values.value ? parseInt(values.value) : 0,
+        metric_target_value: values.value ? parseInt(values.value) : 0
       });
     }
 
@@ -415,10 +399,10 @@ export default class Index extends PureComponent {
           metrics: addindicators ? arr : values.metrics,
           tenant_name: user,
           service_alias: alias,
-          rule_id: id,
+          rule_id: id
         },
         callback: res => {
-          if (res && res._code === 200) {
+          if (res && res.status_code === 200) {
             notification.success({
               message: toDeleteMnt
                 ? '删除成功'
@@ -426,7 +410,7 @@ export default class Index extends PureComponent {
                 ? '开启成功'
                 : addindicators
                 ? '添加成功'
-                : '编辑成功',
+                : '编辑成功'
             });
 
             _th.setState(
@@ -434,7 +418,7 @@ export default class Index extends PureComponent {
                 showEditAutoScaling: false,
                 addindicators: false,
                 toDeleteMnt: false,
-                id: res.bean.id,
+                id: res.bean.id
               },
               () => {
                 _th.getScalingRules();
@@ -444,7 +428,7 @@ export default class Index extends PureComponent {
             notification.success({ message: '失败！' });
             _th.setState({ showEditAutoScaling: false, addindicators: false });
           }
-        },
+        }
       });
     }
   };
@@ -456,10 +440,10 @@ export default class Index extends PureComponent {
       type: 'appControl/getScalingRules',
       payload: {
         tenant_name: globalUtil.getCurrTeamName(),
-        service_alias: appDetail.service.service_alias,
+        service_alias: appDetail.service.service_alias
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const { list } = res;
           const datavalue = !!(list && list.length > 0);
           this.setState({
@@ -469,15 +453,15 @@ export default class Index extends PureComponent {
             editRules: !!(datavalue && list[0].enable),
             automaticTelescopic: !!(datavalue && list[0].enable),
             loading: false,
-            automaLoading: false,
+            automaLoading: false
           });
         } else {
           this.setState({
             loading: false,
-            automaLoading: false,
+            automaLoading: false
           });
         }
-      },
+      }
     });
   };
   onPageChange = page_num => {
@@ -495,16 +479,16 @@ export default class Index extends PureComponent {
         tenant_name: globalUtil.getCurrTeamName(),
         service_alias: appDetail.service.service_alias,
         page: page_num,
-        page_size,
+        page_size
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             total: res.bean.total,
-            sclaingRecord: res.bean.data,
+            sclaingRecord: res.bean.data
           });
         }
-      },
+      }
     });
   };
 
@@ -567,7 +551,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         rule_id: id,
-        service_alias: appDetail.service.service_alias,
+        service_alias: appDetail.service.service_alias
       },
       callback: res => {
         if (res) {
@@ -575,7 +559,7 @@ export default class Index extends PureComponent {
             this.setState({
               rulesInfo: res.bean,
               showEditAutoScaling: true,
-              addindicators: true,
+              addindicators: true
             });
           } else if (type === 'delete') {
             const obj = res.bean;
@@ -611,7 +595,7 @@ export default class Index extends PureComponent {
             this.changeScalingRules(obj);
           }
         }
-      },
+      }
     });
   };
   cancelDeleteMnt = () => {
@@ -621,7 +605,7 @@ export default class Index extends PureComponent {
   handleDeleteMnt = deleteType => {
     this.setState({
       deleteType,
-      toDeleteMnt: true,
+      toDeleteMnt: true
     });
   };
 
@@ -666,7 +650,7 @@ export default class Index extends PureComponent {
       this.setState({
         errorDesc: '不能为空',
         [errorTypeDesc]: errorDesc,
-        errorType: type,
+        errorType: type
       });
       return false;
     }
@@ -698,14 +682,14 @@ export default class Index extends PureComponent {
       this.setState(
         {
           [errorTypeDesc]: '',
-          errorType: type,
+          errorType: type
         },
         () => {
           const {
             errorMinNum,
             errorMaxNum,
             errorCpuValue,
-            errorMemoryValue,
+            errorMemoryValue
           } = this.state;
 
           if (
@@ -718,7 +702,7 @@ export default class Index extends PureComponent {
             validateFields((_, values) => {
               this.setState(
                 {
-                  editInfo: values,
+                  editInfo: values
                 },
                 () => {
                   this.handleAddIndicators('edit');
@@ -733,7 +717,7 @@ export default class Index extends PureComponent {
 
     this.setState({
       [errorTypeDesc]: errorDesc,
-      errorType: type,
+      errorType: type
     });
   };
 
@@ -764,7 +748,7 @@ export default class Index extends PureComponent {
       errorMinNum,
       errorMaxNum,
       errorCpuValue,
-      errorMemoryValue,
+      errorMemoryValue
     } = this.state;
     if (!extendInfo) {
       return null;
@@ -806,7 +790,7 @@ export default class Index extends PureComponent {
               onClick={() => {
                 this.setState(
                   {
-                    loading: true,
+                    loading: true
                   },
                   () => {
                     this.fetchInstanceInfo();
@@ -893,7 +877,7 @@ export default class Index extends PureComponent {
                   style={{ width: '100%' }}
                 >
                   {getFieldDecorator('memory', {
-                    initialValue: `${extendInfo.current_memory}`,
+                    initialValue: `${extendInfo.current_memory}`
                   })(
                     <Select className={styles.memorySelect}>
                       {(extendInfo.memory_list || []).map(item => (
@@ -908,14 +892,14 @@ export default class Index extends PureComponent {
                     size="default"
                     type="primary"
                     style={{
-                      marginLeft: '14px',
+                      marginLeft: '14px'
                     }}
                   >
                     设置
                   </Button>
                   <div
                     style={{
-                      marginLeft: '5px',
+                      marginLeft: '5px'
                     }}
                     className={styles.remindDesc}
                   >
@@ -937,7 +921,7 @@ export default class Index extends PureComponent {
                   style={{ width: '100%' }}
                 >
                   {getFieldDecorator('node', {
-                    initialValue: extendInfo.current_node,
+                    initialValue: extendInfo.current_node
                   })(
                     <Select className={styles.nodeSelect}>
                       {(extendInfo.node_list || []).map(item => (
@@ -953,7 +937,7 @@ export default class Index extends PureComponent {
                     size="default"
                     type="primary"
                     style={{
-                      marginLeft: '14px',
+                      marginLeft: '14px'
                     }}
                   >
                     设置
@@ -1049,7 +1033,7 @@ export default class Index extends PureComponent {
                         (rulesList &&
                           rulesList.length > 0 &&
                           rulesList[0].min_replicas) ||
-                        0,
+                        0
                     })(
                       <Input
                         disabled={!automaticTelescopic}
@@ -1070,11 +1054,11 @@ export default class Index extends PureComponent {
                       rules: [
                         {
                           pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                          message: '请输入数字',
+                          message: '请输入数字'
                         },
                         { required: true, message: '请输入最大数量' },
-                        { validator: this.checkContent },
-                      ],
+                        { validator: this.checkContent }
+                      ]
                     })(
                       <Input
                         disabled={!automaticTelescopic}
@@ -1098,11 +1082,11 @@ export default class Index extends PureComponent {
                         rules: [
                           {
                             pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                            message: '请输入数字',
+                            message: '请输入数字'
                           },
                           { required: true, message: '请输入CPU' },
-                          { validator: this.checkContent },
-                        ],
+                          { validator: this.checkContent }
+                        ]
                       })(
                         <Input
                           disabled={!automaticTelescopic}
@@ -1125,11 +1109,11 @@ export default class Index extends PureComponent {
                         rules: [
                           {
                             pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                            message: '请输入数字',
+                            message: '请输入数字'
                           },
                           { required: true, message: '请输入内存' },
-                          { validator: this.checkContent },
-                        ],
+                          { validator: this.checkContent }
+                        ]
                       })(
                         <Input
                           disabled={!automaticTelescopic}
@@ -1222,7 +1206,7 @@ export default class Index extends PureComponent {
               current: page_num,
               pageSize: page_size,
               total,
-              onChange: this.onPageChange,
+              onChange: this.onPageChange
             }}
             columns={[
               {
@@ -1239,7 +1223,7 @@ export default class Index extends PureComponent {
                       .locale('zh-cn')
                       .format('YYYY-MM-DD HH:mm:ss')}
                   </div>
-                ),
+                )
               },
               {
                 title: '伸缩详情',
@@ -1252,12 +1236,12 @@ export default class Index extends PureComponent {
                     style={{
                       textAlign: 'left',
                       wordWrap: 'break-word',
-                      wordBreak: 'break-word',
+                      wordBreak: 'break-word'
                     }}
                   >
                     {description}
                   </div>
-                ),
+                )
               },
               {
                 title: '类型',
@@ -1273,7 +1257,7 @@ export default class Index extends PureComponent {
                       ? '手动伸缩'
                       : '垂直自动伸缩'}
                   </div>
-                ),
+                )
               },
               {
                 title: '操作人',
@@ -1283,15 +1267,15 @@ export default class Index extends PureComponent {
                 width: '13%',
                 render: operator => {
                   return <span> {operator || '-'} </span>;
-                },
+                }
               },
               {
                 title: '原因',
                 dataIndex: 'reason',
                 align: 'center',
                 key: 'reason',
-                width: '13%',
-              },
+                width: '13%'
+              }
             ]}
           />
         </Card>

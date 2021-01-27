@@ -21,7 +21,7 @@ import roleUtil from '../../utils/role';
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 export default class AppPublishList extends PureComponent {
   constructor(props) {
@@ -32,7 +32,7 @@ export default class AppPublishList extends PureComponent {
       page: 1,
       pageSize: 10,
       total: 0,
-      selectStoreShow: false,
+      selectStoreShow: false
     };
   }
   componentWillMount() {
@@ -69,13 +69,13 @@ export default class AppPublishList extends PureComponent {
       payload: {
         team_name: teamName,
         region_name: regionName,
-        group_id: appID,
+        group_id: appID
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             appDetail: res.bean,
-            loadingDetail: false,
+            loadingDetail: false
           });
         }
       },
@@ -87,7 +87,7 @@ export default class AppPublishList extends PureComponent {
             )
           );
         }
-      },
+      }
     });
   };
 
@@ -102,13 +102,13 @@ export default class AppPublishList extends PureComponent {
         team_name: teamName,
         app_id: appID,
         page,
-        page_size: pageSize,
+        page_size: pageSize
       },
       callback: data => {
         if (data) {
           this.setState({ recoders: data.list, loading: false });
         }
-      },
+      }
     });
   };
 
@@ -121,11 +121,11 @@ export default class AppPublishList extends PureComponent {
         team_name: teamName,
         group_id: appID,
         scope,
-        target,
+        target
       },
       callback: data => {
         this.continuePublish(data.bean.ID, data.bean.step);
-      },
+      }
     });
   };
 
@@ -148,11 +148,11 @@ export default class AppPublishList extends PureComponent {
       payload: {
         team_name: teamName,
         app_id: appID,
-        record_id: recordID,
+        record_id: recordID
       },
       callback: data => {
         this.fetchPublishRecoder();
-      },
+      }
     });
   };
 
@@ -167,11 +167,11 @@ export default class AppPublishList extends PureComponent {
       type: 'application/giveupShare',
       payload: {
         team_name: teamName,
-        share_id: recordID,
+        share_id: recordID
       },
       callback: data => {
         this.fetchPublishRecoder();
-      },
+      }
     });
   };
 
@@ -204,13 +204,13 @@ export default class AppPublishList extends PureComponent {
       pageSize,
       total,
       selectStoreShow,
-      recoders,
+      recoders
     } = this.state;
     const {
       currentEnterprise,
       currentTeam,
       currentRegionName,
-      dispatch,
+      dispatch
     } = this.props;
     breadcrumbList = createApp(
       createTeam(
@@ -250,7 +250,7 @@ export default class AppPublishList extends PureComponent {
                 current: page,
                 pageSize,
                 total,
-                onChange: this.onPageChange,
+                onChange: this.onPageChange
               }}
               dataSource={recoders || []}
               columns={[
@@ -262,7 +262,7 @@ export default class AppPublishList extends PureComponent {
                       return val;
                     }
                     return <span style={{ color: '#999999' }}>未指定</span>;
-                  },
+                  }
                 },
                 {
                   title: '版本号(别名)',
@@ -278,7 +278,7 @@ export default class AppPublishList extends PureComponent {
                       );
                     }
                     return <span style={{ color: '#999999' }}>未指定</span>;
-                  },
+                  }
                 },
                 {
                   title: '发布范围',
@@ -322,7 +322,7 @@ export default class AppPublishList extends PureComponent {
                         }
                         return <p style={{ marginBottom: 0 }}>应用商店</p>;
                     }
-                  },
+                  }
                 },
                 {
                   title: '发布时间',
@@ -334,7 +334,7 @@ export default class AppPublishList extends PureComponent {
                         .locale('zh-cn')
                         .format('YYYY-MM-DD HH:mm:ss')}
                     </span>
-                  ),
+                  )
                 },
                 {
                   title: '状态',
@@ -350,7 +350,7 @@ export default class AppPublishList extends PureComponent {
                       case 2:
                         return <span style={{ color: '#999999' }}>已取消</span>;
                     }
-                  },
+                  }
                 },
                 {
                   title: '操作',
@@ -392,8 +392,8 @@ export default class AppPublishList extends PureComponent {
                         )}
                       </div>
                     );
-                  },
-                },
+                  }
+                }
               ]}
             />
           </ScrollerX>

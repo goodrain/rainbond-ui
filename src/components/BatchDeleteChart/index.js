@@ -1,8 +1,8 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable prettier/prettier */
-import React, { PureComponent } from 'react';
+import { Button, Checkbox, Col, Form, Modal, notification, Row } from 'antd';
 import { connect } from 'dva';
-import { Button, Checkbox, Modal, Row, Col, Form, notification } from 'antd';
+import React, { PureComponent } from 'react';
 import styless from '../CreateTeam/index.less';
 const FormItem = Form.Item;
 
@@ -13,14 +13,14 @@ class ConfirmModal extends PureComponent {
     super(props);
     const { data } = this.props;
     const defaultCheckedList =
-      data && data.length > 0 && data.map((item) => item.graph_id);
+      data && data.length > 0 && data.map(item => item.graph_id);
     this.state = {
       allCheckedList: defaultCheckedList,
       indeterminate: true,
       checkAll: true
     };
   }
-  onChange = (checkedList) => {
+  onChange = checkedList => {
     const { data, form } = this.props;
     const { setFieldsValue } = form;
     this.setState({
@@ -30,7 +30,7 @@ class ConfirmModal extends PureComponent {
     setFieldsValue({ graphIds: checkedList });
   };
 
-  onCheckAllChange = (e) => {
+  onCheckAllChange = e => {
     const { allCheckedList } = this.state;
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ graphIds: e.target.checked ? allCheckedList : [] });
@@ -40,7 +40,7 @@ class ConfirmModal extends PureComponent {
     });
   };
 
-  onOk = (e) => {
+  onOk = e => {
     e.preventDefault();
     const { form, onOk } = this.props;
     form.validateFields({ force: true }, (err, vals) => {
@@ -50,7 +50,7 @@ class ConfirmModal extends PureComponent {
     });
   };
 
-  handleSubmitBatchDelete = (vals) => {
+  handleSubmitBatchDelete = vals => {
     const { dispatch, onOk, team_name, app_alias } = this.props;
     dispatch({
       type: 'monitor/batchDeleteServiceMonitorFigure',
@@ -59,8 +59,8 @@ class ConfirmModal extends PureComponent {
         team_name,
         graph_ids: vals.graphIds
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           notification.success({
             message: '删除成功'
           });
@@ -74,7 +74,7 @@ class ConfirmModal extends PureComponent {
     const { title, onCancel, data, form, loading = false } = this.props;
     const { checkAll, indeterminate } = this.state;
     const defaultCheckedList =
-      data && data.length > 0 && data.map((item) => item.graph_id);
+      data && data.length > 0 && data.map(item => item.graph_id);
 
     const { getFieldDecorator } = form;
     const formItemLayout = {
@@ -128,7 +128,7 @@ class ConfirmModal extends PureComponent {
                 onChange={this.onChange}
               >
                 <Row>
-                  {data.map((item) => {
+                  {data.map(item => {
                     const { title: name, ID, graph_id: graphId } = item;
                     return (
                       <Col span={12} key={ID} style={{ marginBottom: '5px' }}>

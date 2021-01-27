@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import { Alert, Button, Modal, Row, Timeline } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -12,7 +13,7 @@ class InitRainbondDetail extends PureComponent {
     this.state = {
       loading: true,
       complete: false,
-      steps: [],
+      steps: []
     };
   }
   componentDidMount() {
@@ -20,32 +21,29 @@ class InitRainbondDetail extends PureComponent {
     this.loadTaskEvents();
   }
   componentWillUnmount() {
-    // 清除定时器
-    clearInterval(this.interval);
-    this.interval = null;
+    this.refresh = false;
   }
-
+  refresh = true;
   loadTask = () => {
     const { dispatch, eid, clusterID, providerName } = this.props;
     dispatch({
       type: 'cloud/loadInitRainbondTask',
       payload: {
         enterprise_id: eid,
-        clusterID: clusterID,
-        providerName: providerName,
+        clusterID,
+        providerName
       },
       callback: data => {
         if (data) {
           this.setState({
-            task: data,
-            complete: data.status == 'complete',
+            complete: data.status === 'complete'
           });
         }
       },
       handleError: res => {
         cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
-      },
+      }
     });
   };
   loadTaskEvents = () => {
@@ -54,29 +52,25 @@ class InitRainbondDetail extends PureComponent {
       type: 'cloud/loadTaskEvents',
       payload: {
         enterprise_id: eid,
-        taskID: taskID,
+        taskID
       },
       callback: data => {
         if (data) {
           const { complete, steps } = cloud.showInitRainbondSteps(data.events);
           this.setState({
-            complete: complete,
+            complete,
             loading: false,
-            steps: steps,
+            steps
           });
-          if (this.interval == null) {
-            this.interval = setInterval(() => this.loadTaskEvents(), 4000);
-          }
-          if (complete && this.interval != null) {
-            clearInterval(this.interval);
-            this.interval = null;
+          if (!complete && this.refresh) {
+            setTimeout(() => this.loadTaskEvents(), 4000);
           }
         }
       },
       handleError: res => {
         cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
-      },
+      }
     });
   };
 
@@ -89,7 +83,7 @@ class InitRainbondDetail extends PureComponent {
     }
     return (
       <Modal
-        title={title || 'Rainbond集群初始化进度查询'}
+        title={title || 'Rainbond 集群初始化进度查询'}
         visible
         maskClosable={false}
         width={600}
@@ -98,11 +92,16 @@ class InitRainbondDetail extends PureComponent {
         footer={[
           <Button type="primary" onClick={onCancel}>
             关闭
-          </Button>,
+          </Button>
         ]}
       >
         <Row loading={loading} className={styles.box}>
-          <Alert style={{marginBottom: "16px"}} message="初始化流程预计耗时20分钟，请耐心等待，若遇到错误请与客服联系" type="info" showIcon />
+          <Alert
+            style={{ marginBottom: '16px' }}
+            message="初始化流程预计耗时20分钟，请耐心等待，若遇到错误请反馈到社区"
+            type="info"
+            showIcon
+          />
           <Timeline loading={loading} pending={pending}>
             {steps.map((item, index) => {
               return (

@@ -1,12 +1,12 @@
 /* eslint-disable import/extensions */
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
-import { Card, Table, Button, Row, notification, Alert, Col } from 'antd';
-import ScrollerX from '@/components/ScrollerX';
+import globalUtil from '@//utils/global';
 import AddCustomMonitor from '@/components/AddCustomMonitor';
 import ConfirmModal from '@/components/ConfirmModal';
-import globalUtil from '@//utils/global';
+import ScrollerX from '@/components/ScrollerX';
 import roleUtil from '@/utils/role';
+import { Alert, Button, Card, Col, notification, Row, Table } from 'antd';
+import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
 
 /* eslint react/no-array-index-key: 0 */
 
@@ -54,8 +54,8 @@ export default class customMonitor extends PureComponent {
     dispatch({
       type: 'monitor/fetchServiceMonitor',
       payload: parameter,
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           const arr = res.list;
           this.setState({
             loading: false,
@@ -68,7 +68,7 @@ export default class customMonitor extends PureComponent {
       }
     });
   };
-  handlePermissions = (type) => {
+  handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.querySpecifiedPermissionsInfo(
       currentTeamPermissionsInfo,
@@ -79,7 +79,7 @@ export default class customMonitor extends PureComponent {
     this.setState({ addCustomMonitor: false, editorData: {} });
   };
 
-  handleDelete = (data) => {
+  handleDelete = data => {
     this.setState({
       dleCustomMonitor: data
     });
@@ -95,7 +95,7 @@ export default class customMonitor extends PureComponent {
         ...parameter,
         name: dleCustomMonitor
       },
-      callback: (res) => {
+      callback: res => {
         if (res) {
           notification.success({ message: '删除成功' });
           this.fetchServiceMonitor();
@@ -107,13 +107,13 @@ export default class customMonitor extends PureComponent {
   cancelDeleteCustomMonitor = () => {
     this.setState({ dleCustomMonitor: false });
   };
-  handleEditor = (data) => {
+  handleEditor = data => {
     this.setState({
       editorData: data,
       addCustomMonitor: true
     });
   };
-  handleAddCustomMonitor = (vals) => {
+  handleAddCustomMonitor = vals => {
     const { dispatch } = this.props;
     const { editorData } = this.state;
     const parameter = this.handleParameter();
@@ -125,7 +125,7 @@ export default class customMonitor extends PureComponent {
         ...parameter,
         ...vals
       },
-      callback: (res) => {
+      callback: res => {
         if (res) {
           notification.success({
             message: editorData.name ? '保存成功' : '添加成功'

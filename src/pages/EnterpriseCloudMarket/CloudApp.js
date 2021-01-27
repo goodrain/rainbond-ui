@@ -1,16 +1,16 @@
-import React, { PureComponent, Fragment } from 'react';
+import {
+  Alert,
+  Avatar,
+  Card,
+  Input,
+  List,
+  notification,
+  Radio,
+  Select
+} from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import {
-  Card,
-  List,
-  Avatar,
-  Input,
-  Radio,
-  notification,
-  Select,
-  Alert,
-} from 'antd';
+import React, { Fragment, PureComponent } from 'react';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import globalUtil from '../../utils/global';
 import BasicListStyles from '../List/BasicList.less';
@@ -23,7 +23,7 @@ const { Option } = Select;
 
 @connect(({ user, global }) => ({
   user: user.currentUser,
-  rainbondInfo: global.rainbondInfo,
+  rainbondInfo: global.rainbondInfo
 }))
 export default class CloudApp extends PureComponent {
   constructor(props) {
@@ -36,7 +36,7 @@ export default class CloudApp extends PureComponent {
       showMarketAppDetail: false,
       showApp: {},
       networkText: '',
-      appName: '',
+      appName: ''
     };
   }
   componentDidMount = () => {
@@ -85,8 +85,8 @@ export default class CloudApp extends PureComponent {
         enterprise_id: eid,
         body: {
           app_id: item.app_id,
-          app_versions: item.version,
-        },
+          app_versions: item.version
+        }
       },
       callback: () => {
         notification.success({ message: '操作成功' });
@@ -94,7 +94,7 @@ export default class CloudApp extends PureComponent {
         if (onSyncSuccess) {
           onSyncSuccess();
         }
-      },
+      }
     });
   };
 
@@ -106,10 +106,10 @@ export default class CloudApp extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_name: data.app_name,
         group_key: data.group_key,
-        version,
+        version
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           if (res.list && res.list.length > 0) {
             const arr = this.state.apps;
             arr[index].is_complete = res.list[0].is_complete;
@@ -117,14 +117,14 @@ export default class CloudApp extends PureComponent {
             this.setState({ apps: arr });
           }
         }
-      },
+      }
     });
   };
 
   handlePageChange = page => {
     this.setState(
       {
-        page,
+        page
       },
       () => {
         this.loadApps();
@@ -138,13 +138,13 @@ export default class CloudApp extends PureComponent {
     }
     this.setState({
       showApp: app,
-      showMarketAppDetail: true,
+      showMarketAppDetail: true
     });
   };
   hideMarketAppDetail = () => {
     this.setState({
       showApp: {},
-      showMarketAppDetail: false,
+      showMarketAppDetail: false
     });
   };
 
@@ -153,7 +153,7 @@ export default class CloudApp extends PureComponent {
     const { appName, page, pageSize } = this.state;
     this.setState(
       {
-        loading: true,
+        loading: true
       },
       () => {
         dispatch({
@@ -162,7 +162,7 @@ export default class CloudApp extends PureComponent {
             enterprise_id: eid,
             app_name: appName,
             page,
-            page_size: pageSize,
+            page_size: pageSize
           },
           callback: data => {
             if (data) {
@@ -170,16 +170,16 @@ export default class CloudApp extends PureComponent {
                 apps: data.list || [],
                 loading:
                   data._code &&
-                  data._code === 210 &&
+                  data.status_code === 210 &&
                   data._condition &&
                   data._condition === 10503
                     ? -1
                     : false,
                 total: data.total,
-                networkText: data.msg_show,
+                networkText: data.msg_show
               });
             }
-          },
+          }
         });
       }
     );
@@ -189,7 +189,7 @@ export default class CloudApp extends PureComponent {
     this.setState(
       {
         appName,
-        page: 1,
+        page: 1
       },
       () => {
         this.loadApps();
@@ -211,7 +211,7 @@ export default class CloudApp extends PureComponent {
       networkText,
       apps,
       showMarketAppDetail,
-      showApp,
+      showApp
     } = this.state;
 
     const paginationProps = {
@@ -220,7 +220,7 @@ export default class CloudApp extends PureComponent {
       current: page,
       onChange: pages => {
         this.handlePageChange(pages);
-      },
+      }
     };
 
     return (
@@ -239,7 +239,7 @@ export default class CloudApp extends PureComponent {
         }
         style={{}}
         bodyStyle={{
-          padding: '0 32px 40px 32px',
+          padding: '0 32px 40px 32px'
         }}
         extra={
           <div className={BasicListStyles.extraContent}>

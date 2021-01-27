@@ -1,30 +1,40 @@
-import React, { PureComponent } from "react";
+import {
+    Button, Card,
+
+
+
+
+
+
+
+
+
+
+
+    Divider, Form,
+
+
+    Icon,
+
+
+    Modal, notification, Select,
+
+
+
+
+
+    Spin
+} from "antd";
 import { connect } from "dva";
 import { routerRedux } from "dva/router";
-import {
-  Card,
-  Row,
-  Form,
-  Col,
-  Select,
-  Icon,
-  DatePicker,
-  notification,
-  Modal,
-  Radio,
-  Spin,
-  Button,
-  Divider
-} from "antd";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import DescriptionList from "../../components/DescriptionList";
-import styles from "./index.less";
-import guideUtil from "../../utils/guide";
-import globalUtil from "../../utils/global";
-import configureGlobal from "../../utils/configureGlobal";
+import React, { PureComponent } from "react";
 import EditGroupName from "../../components/AddOrEditGroup";
-import { languageObj } from "../../utils/utils";
+import configureGlobal from "../../utils/configureGlobal";
+import globalUtil from "../../utils/global";
+import guideUtil from "../../utils/guide";
 import rainbondUtil from "../../utils/rainbond";
+import { languageObj } from "../../utils/utils";
+import styles from "./index.less";
 
 const { Option } = Select;
 
@@ -81,7 +91,7 @@ export default class Index extends PureComponent {
         enterprise_id: this.props.user.enterprise_id
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             GuideList: res.list,
             SpinState: false,
@@ -238,7 +248,7 @@ export default class Index extends PureComponent {
         page_size: 80
       },
       callback: data => {
-        if (data && data._code == 200) {
+        if (data && data.status_code === 200) {
           this.setState({
             ServiceList: data.list || []
           });
@@ -685,7 +695,7 @@ export default class Index extends PureComponent {
         />
 
         <p>
-          将前置任务创建的应用分享到应用市场，从而让你的业务系统支持一键交付能力。完成当前任务用户会关注以下功能：
+          将前置任务创建的应用发布到应用市场，从而让你的业务系统支持一键交付能力。完成当前任务用户会关注以下功能：
         </p>
         <p>
           1. 应用发布到企业应用市场{" "}
@@ -713,7 +723,7 @@ export default class Index extends PureComponent {
         </p>
         {this.lineShow()}
         <p>
-          完成任务说明：将上述任务建立的源码业务+数据库的完整应用分享到应用市场，并尝试一键安装出一个新的应用。
+          完成任务说明：将上述任务建立的源码业务+数据库的完整应用发布到应用市场，并尝试一键安装出一个新的应用。
         </p>
         <p style={{ textAlign: "center" }}>
           {grade.status ? this.completedShow() : ""}

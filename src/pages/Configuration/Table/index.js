@@ -1,22 +1,23 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { routerRedux, Link } from 'dva/router';
-import {
-  Card,
-  Table,
-  Button,
-  Row,
-  Form,
-  Input,
-  notification,
-  Badge,
-  Popover,
-  Modal
-} from 'antd';
-import moment from 'moment';
-import { batchOperation } from '@/services/app';
 // eslint-disable-next-line import/extensions
 import ConfirmModal from '@/components/ConfirmModal';
+import { batchOperation } from '@/services/app';
+import {
+  Badge,
+  Button,
+  Card,
+  Form,
+  Input,
+  Modal,
+  notification,
+  Popover,
+  Row,
+  Table
+} from 'antd';
+import { connect } from 'dva';
+import { Link, routerRedux } from 'dva/router';
+import moment from 'moment';
+import React, { PureComponent } from 'react';
+
 const { confirm } = Modal;
 const FormItem = Form.Item;
 /* eslint react/no-array-index-key: 0 */
@@ -45,7 +46,7 @@ export default class ConfigurationTable extends PureComponent {
   componentDidMount() {
     this.fetchConfigurationList();
   }
-  onPageChange = (page) => {
+  onPageChange = page => {
     this.setState({ page }, () => {
       this.fetchConfigurationList();
     });
@@ -64,8 +65,8 @@ export default class ConfigurationTable extends PureComponent {
         page,
         page_size: pageSize
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.setState({
             loading: false,
             apps: res.list,
@@ -88,13 +89,13 @@ export default class ConfigurationTable extends PureComponent {
   handleSearch = () => {
     this.fetchConfigurationList();
   };
-  handelChange = (e) => {
+  handelChange = e => {
     this.setState({ query: e.target.value });
   };
   handleEnter = () => {
     this.handleSearch();
   };
-  handleDelete = (data) => {
+  handleDelete = data => {
     this.setState({
       deleteVar: true,
       info: data
@@ -115,7 +116,7 @@ export default class ConfigurationTable extends PureComponent {
     const { page, pageSize, query, info } = this.state;
     const serviceIds = [];
     if (info && info.services && info.services.length > 0) {
-      info.services.map((item) => {
+      info.services.map(item => {
         serviceIds.push(item.service_id);
       });
     }
@@ -131,8 +132,8 @@ export default class ConfigurationTable extends PureComponent {
         page,
         page_size: pageSize
       },
-      callback: (res) => {
-        if (res && res._code === 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           this.fetchConfigurationList();
           this.cancelDeleteVariabl();
           if (serviceIds.length > 0) {
@@ -148,7 +149,7 @@ export default class ConfigurationTable extends PureComponent {
     });
   };
 
-  showRemind = (serviceIds) => {
+  showRemind = serviceIds => {
     const th = this;
     confirm({
       title: '需更新组件立即生效',
@@ -166,14 +167,14 @@ export default class ConfigurationTable extends PureComponent {
       }
     });
   };
-  handleBatchOperation = (serviceIds) => {
+  handleBatchOperation = serviceIds => {
     const { teamName } = this.props;
     batchOperation({
       action: 'upgrade',
       team_name: teamName,
       serviceIds:
         serviceIds && serviceIds.length > 0 ? serviceIds.join(',') : ''
-    }).then((data) => {
+    }).then(data => {
       if (data) {
         notification.success({
           message: '更新成功',
@@ -254,7 +255,7 @@ export default class ConfigurationTable extends PureComponent {
                 title: '创建时间',
                 dataIndex: 'create_time',
                 align: 'center',
-                render: (val) => {
+                render: val => {
                   return `${moment(val)
                     .locale('zh-cn')
                     .format('YYYY-MM-DD HH:mm:ss')}`;
@@ -273,7 +274,7 @@ export default class ConfigurationTable extends PureComponent {
                           title="生效组件"
                           content={
                             <div>
-                              {data.services.map((item) => {
+                              {data.services.map(item => {
                                 const {
                                   service_cname: name,
                                   service_alias: alias
@@ -304,7 +305,7 @@ export default class ConfigurationTable extends PureComponent {
                 title: '生效状态',
                 dataIndex: 'enable',
                 align: 'center',
-                render: (val) => {
+                render: val => {
                   return (
                     <div>
                       <Badge

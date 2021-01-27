@@ -159,7 +159,7 @@ export async function getPayHistory(body = {}) {
   );
 }
 
-/* 完成分享 */
+/* 完成发布 */
 export async function complatePluginShare(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugin-share/${body.share_id}/complete`,
@@ -416,6 +416,9 @@ export async function getTeamOverview(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview`,
     {
+      params: {
+        region_name: body.region_name
+      },
       method: 'get',
       handleError
     }

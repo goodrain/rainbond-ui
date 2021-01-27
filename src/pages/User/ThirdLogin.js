@@ -31,7 +31,7 @@ export default class LoginPage extends Component {
         service_id
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             user_info: res.bean.user_info
           });
@@ -48,7 +48,7 @@ export default class LoginPage extends Component {
           ...values
         },
         callback: data => {
-          if (data && data._code === 200) {
+          if (data && data.status_code === 200) {
             cookie.set('token', data.bean.token);
             dispatch({
               type: 'user/fetchThirdBinding',
@@ -61,7 +61,7 @@ export default class LoginPage extends Component {
                   message.warning('认证失败，请重新认证', 1, () => {
                     dispatch(routerRedux.replace('/user/login'));
                   });
-                } else if (res && res._code === 200) {
+                } else if (res && res.status_code === 200) {
                   message.success('认证成功', 1, () => {
                     // support redirect to the page before login
                     let redirect = window.localStorage.getItem('redirect');

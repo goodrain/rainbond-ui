@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import { Button, Card, notification, Row, Table, Typography } from 'antd';
 import { connect } from 'dva';
-import { Row, Button, Table, Card, notification, Typography } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import React, { Component } from 'react';
 import LicenseDrawer from '../../components/LicenseDrawer';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
@@ -14,7 +14,7 @@ const { Paragraph } = Typography;
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 class Control extends Component {
   constructor(props) {
@@ -28,14 +28,14 @@ class Control extends Component {
       total: '',
       editData: '',
       id: '',
-      operationPermissions: this.handlePermissions('queryCertificateInfo'),
+      operationPermissions: this.handlePermissions('queryCertificateInfo')
     };
   }
 
   componentWillMount() {
     const { dispatch } = this.props;
     const {
-      operationPermissions: { isAccess },
+      operationPermissions: { isAccess }
     } = this.state;
     if (!isAccess) {
       globalUtil.withoutPermission(dispatch);
@@ -61,18 +61,18 @@ class Control extends Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         page_num: page,
-        page_size: pageSize,
+        page_size: pageSize
       },
       callback: data => {
-        if (data && data._code == 200) {
+        if (data && data.status_code === 200) {
           this.setState({
             licenseList: data.list,
             total: data.bean.nums,
             editData: '',
-            licenseLoading: false,
+            licenseLoading: false
           });
         }
-      },
+      }
     });
   };
   handleCick = () => {
@@ -92,16 +92,16 @@ class Control extends Component {
           private_key: values.private_key,
           certificate: values.certificate,
           certificate_type: values.certificate_type,
-          team_name: globalUtil.getCurrTeamName(),
+          team_name: globalUtil.getCurrTeamName()
         },
         callback: data => {
-          if (data && data._code == 200) {
+          if (data && data.status_code === 200) {
             notification.success({ message: '添加成功' });
             this.setState({ visibleDrawer: false }, () => {
               this.load();
             });
           }
-        },
+        }
       });
     } else {
       this.props.dispatch({
@@ -112,16 +112,16 @@ class Control extends Component {
           certificate: values.certificate,
           certificate_type: values.certificate_type,
           team_name: globalUtil.getCurrTeamName(),
-          certifiate_id: this.state.id,
+          certifiate_id: this.state.id
         },
         callback: data => {
-          if (data && data._code == 200) {
+          if (data && data.status_code === 200) {
             notification.success({ message: data ? '修改成功' : '修改失败' });
             this.setState({ visibleDrawer: false }, () => {
               this.load();
             });
           }
-        },
+        }
       });
     }
   };
@@ -131,16 +131,16 @@ class Control extends Component {
       type: 'gateWay/deleteLicense',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        certifiate_id: record.id,
+        certifiate_id: record.id
       },
       callback: data => {
-        if (data && data._code == 200) {
+        if (data && data.status_code === 200) {
           notification.success({
-            message: (data && data.msg_show) || '删除成功',
+            message: (data && data.msg_show) || '删除成功'
           });
           this.load();
         }
-      },
+      }
     });
   };
   /** 编辑 */
@@ -149,17 +149,17 @@ class Control extends Component {
       type: 'gateWay/queryDetail',
       payload: {
         certifiate_id: record.id,
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        if (data && data._code == 200) {
+        if (data && data.status_code === 200) {
           this.setState({
             visibleDrawer: true,
             editData: data.bean,
-            id: data.bean.id,
+            id: data.bean.id
           });
         }
-      },
+      }
     });
   };
   saveForm = form => {
@@ -187,7 +187,7 @@ class Control extends Component {
       pageSize,
       total,
       licenseList,
-      operationPermissions: { isCreate, isEdit, isDelete },
+      operationPermissions: { isCreate, isEdit, isDelete }
     } = this.state;
     const columns = [
       {
@@ -195,7 +195,7 @@ class Control extends Component {
         dataIndex: 'alias',
         key: 'alias',
         align: 'center',
-        width: '12%',
+        width: '12%'
       },
       {
         title: '证书地址',
@@ -208,7 +208,7 @@ class Control extends Component {
             <Paragraph
               ellipsis={{
                 rows: 2,
-                expandable: true,
+                expandable: true
               }}
             >
               {data &&
@@ -221,7 +221,7 @@ class Control extends Component {
                 })}
             </Paragraph>
           );
-        },
+        }
       },
       {
         title: '过期时间',
@@ -233,27 +233,27 @@ class Control extends Component {
           return (
             <div
               style={{
-                color: record.has_expired ? 'red' : ' rgba(0, 0, 0, 0.65)',
+                color: record.has_expired ? 'red' : ' rgba(0, 0, 0, 0.65)'
               }}
             >
               {data}
             </div>
           );
-        },
+        }
       },
       {
         title: '证书类型',
         dataIndex: 'certificate_type',
         key: 'certificate_type',
         align: 'center',
-        width: '13%',
+        width: '13%'
       },
       {
         title: '证书来源',
         dataIndex: 'issued_by',
         key: 'issued_by',
         align: 'center',
-        width: '15%',
+        width: '15%'
       },
       {
         title: '操作',
@@ -297,8 +297,8 @@ class Control extends Component {
               )}
             </span>
           );
-        },
-      },
+        }
+      }
     ];
     let breadcrumbList = [];
     breadcrumbList = createTeam(
@@ -332,7 +332,7 @@ class Control extends Component {
               page_num: page,
               pageSize,
               onChange: this.onPageChange,
-              current: page,
+              current: page
             }}
             rowKey={this.rowKey}
             dataSource={licenseList}

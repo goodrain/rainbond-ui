@@ -3,24 +3,33 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
-import React, { PureComponent } from 'react';
+import {
+    Button,
+
+    Checkbox, Col,
+
+
+
+
+    Form,
+
+    Icon, List, Row,
+
+
+
+
+    Select,
+
+
+
+    Spin, Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import {
-  Row,
-  Col,
-  Button,
-  List,
-  Checkbox,
-  Select,
-  Form,
-  Tooltip,
-  Icon,
-  Spin
-} from 'antd';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
-import infoUtil from './info-util';
 import styles from './index.less';
+import infoUtil from './info-util';
 
 const { Option } = Select;
 
@@ -74,7 +83,7 @@ export default class AppList extends PureComponent {
       type: 'global/CloudAppUpdateOrder',
       payload,
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           if (activeKey != 2) {
             this.setState({
               infoObj: res.bean ? res.bean : data
@@ -141,7 +150,7 @@ export default class AppList extends PureComponent {
         group_key: infoObj.group_key
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState(
             {
               upgradeVersions: res.list
@@ -198,7 +207,7 @@ export default class AppList extends PureComponent {
       type: 'global/CloudAppUpdatedInfo',
       payload,
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const { indexs } = this.state;
           const { list } = res;
           if (list && list.length > 0) {
@@ -289,7 +298,7 @@ export default class AppList extends PureComponent {
         upgrade_record_id: infoObj.ID
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           this.setState(
             {
               record_id: res.bean.ID
@@ -313,7 +322,7 @@ export default class AppList extends PureComponent {
   //             group_id
   //         },
   //         callback: (res) => {
-  //             if (res && res._code == 200) {
+  //             if (res && res.status_code === 200) {
   //                 const { indexs } = this.state;
   //                 if (res.list && res.list.length > 0) {
   //                     this.setState({
@@ -346,7 +355,7 @@ export default class AppList extends PureComponent {
         record_id
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const info = res.bean;
           this.setState(
             {
@@ -704,7 +713,7 @@ export default class AppList extends PureComponent {
                 service_ids: values.services
               },
               callback: res => {
-                if (res && res._code == 200) {
+                if (res && res.status_code === 200) {
                   this.setState(
                     {
                       record_id: res.bean.ID

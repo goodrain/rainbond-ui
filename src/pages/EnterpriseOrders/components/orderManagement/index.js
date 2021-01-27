@@ -1,19 +1,9 @@
-import React, { PureComponent } from 'react';
+import { Badge, Card, Col, Form, Row, Select, Table } from 'antd';
 import { connect } from 'dva';
-import {
-  Card,
-  Table,
-  Badge,
-  Row,
-  Col,
-  Form,
-  Select,
-  Button,
-  AutoComplete,
-} from 'antd';
 import { Link } from 'dva/router';
-import ordersUtil from '../../../../utils/orders';
 import moment from 'moment';
+import React, { PureComponent } from 'react';
+import ordersUtil from '../../../../utils/orders';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -26,7 +16,7 @@ const FormItem = Form.Item;
   enterprise: global.enterprise,
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
-  overviewInfo: index.overviewInfo,
+  overviewInfo: index.overviewInfo
 }))
 export default class EnterpriseClusters extends PureComponent {
   constructor(props) {
@@ -38,7 +28,7 @@ export default class EnterpriseClusters extends PureComponent {
       total: 0,
       loading: true,
       tabLoading: true,
-      query: '',
+      query: ''
     };
   }
 
@@ -54,7 +44,7 @@ export default class EnterpriseClusters extends PureComponent {
   handleSearch = () => {
     this.setState(
       {
-        page: 1,
+        page: 1
       },
       () => {
         this.fetchEnterpriseOrderList();
@@ -78,18 +68,18 @@ export default class EnterpriseClusters extends PureComponent {
         query,
         page,
         page_size,
-        enterprise_id: eid,
+        enterprise_id: eid
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             loading: false,
             tabLoading: false,
             orderList: res.list,
-            total: res.total || 0,
+            total: res.total || 0
           });
         }
-      },
+      }
     });
   };
 
@@ -101,7 +91,7 @@ export default class EnterpriseClusters extends PureComponent {
       tabLoading,
       page,
       page_size,
-      total,
+      total
     } = this.state;
     const colorbj = (color, bg) => {
       return {
@@ -110,7 +100,7 @@ export default class EnterpriseClusters extends PureComponent {
         color,
         background: bg,
         borderRadius: '15px',
-        padding: '2px 0',
+        padding: '2px 0'
       };
     };
     const columns = [
@@ -127,13 +117,13 @@ export default class EnterpriseClusters extends PureComponent {
               style={{
                 wordBreak: 'break-all',
                 wordWrap: 'break-word',
-                color: '#1890ff',
+                color: '#1890ff'
               }}
             >
               {val}
             </Link>
           );
-        },
+        }
       },
 
       {
@@ -143,8 +133,15 @@ export default class EnterpriseClusters extends PureComponent {
         align: 'center',
         width: '190px',
         render: val => {
-          return <span> {moment(val).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}</span>;
-        },
+          return (
+            <span>
+              {' '}
+              {moment(val)
+                .locale('zh-cn')
+                .format('YYYY-MM-DD HH:mm:ss')}
+            </span>
+          );
+        }
       },
       {
         title: '服务周期',
@@ -158,7 +155,7 @@ export default class EnterpriseClusters extends PureComponent {
               {val.final_price === 0 ? '不限制' : <div>{months}月</div>}
             </div>
           );
-        },
+        }
       },
       {
         title: '生效时间',
@@ -172,13 +169,17 @@ export default class EnterpriseClusters extends PureComponent {
               {val.final_price === 0 ? (
                 '不限制'
               ) : val.status === 'Paid' ? (
-                <div>{moment(effect_time).locale('zh-cn').format('YYYY-MM-DD')}</div>
+                <div>
+                  {moment(effect_time)
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD')}
+                </div>
               ) : (
                 <div>未生效</div>
               )}
             </div>
           );
-        },
+        }
       },
       {
         title: '结束时间',
@@ -192,13 +193,17 @@ export default class EnterpriseClusters extends PureComponent {
               {val.final_price === 0 ? (
                 '不限制'
               ) : val.status === 'Paid' ? (
-                <div>{moment(expired_time).locale('zh-cn').format('YYYY-MM-DD')}</div>
+                <div>
+                  {moment(expired_time)
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD')}
+                </div>
               ) : (
                 <div>未生效</div>
               )}
             </div>
           );
-        },
+        }
       },
       {
         title: '购买容量(GB)',
@@ -208,7 +213,7 @@ export default class EnterpriseClusters extends PureComponent {
         width: '130px',
         render: memory => {
           return <span>{ordersUtil.handlUnit(memory)}</span>;
-        },
+        }
       },
       {
         title: '总价',
@@ -227,15 +232,16 @@ export default class EnterpriseClusters extends PureComponent {
                     style={{
                       color: '#b7bcc7',
                       fontSize: '12px',
-                      marginLeft: '5px',
+                      marginLeft: '5px'
                     }}
                   >
-                    ( 已优惠¥{(data.original_price - final_price).toFixed(2) / 1} )
+                    ( 已优惠¥
+                    {(data.original_price - final_price).toFixed(2) / 1} )
                   </s>
                 )}
             </div>
           );
-        },
+        }
       },
       {
         title: '订单状态',
@@ -274,8 +280,8 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               );
           }
-        },
-      },
+        }
+      }
     ];
 
     return (
@@ -284,7 +290,7 @@ export default class EnterpriseClusters extends PureComponent {
           style={{
             marginBottom: '20px',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'center'
           }}
         >
           <Col span={24}>
@@ -310,7 +316,7 @@ export default class EnterpriseClusters extends PureComponent {
             current: page,
             pageSize: page_size,
             total,
-            onChange: this.onPageChange,
+            onChange: this.onPageChange
           }}
           dataSource={orderList}
           columns={columns}

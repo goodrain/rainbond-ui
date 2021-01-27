@@ -38,7 +38,7 @@ export default {
   // footer
   isEnableDefaultFooter: () => false,
   // Kubernetes Cluster
-  isEnableK8sCluster: () => false,
+  isEnableK8sCluster: () => true,
 
   // 判断是否是第一个用户注册管理员
   fetchIsFirstRegist: (bean = {}) =>

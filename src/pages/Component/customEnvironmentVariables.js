@@ -1,27 +1,27 @@
-import React, { Fragment } from 'react';
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Form,
+  Icon,
+  notification,
+  Row,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import {
-  Card,
-  Form,
-  Button,
-  Icon,
-  Table,
-  notification,
-  Tooltip,
-  Row,
-  Col,
-  Alert
-} from 'antd';
-import AddVarModal from './setting/env';
+import React, { Fragment } from 'react';
+import AddStorage from '../../components/AddStorage';
+import RelationMnt from '../../components/AddStorage/relationMnt';
 import ConfirmModal from '../../components/ConfirmModal';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
-import { getMnt, addMnt } from '../../services/app';
-import globalUtil from '../../utils/global';
-import RelationMnt from '../../components/AddStorage/relationMnt';
-import ScrollerX from '../../components/ScrollerX';
-import AddStorage from '../../components/AddStorage';
 import NoPermTip from '../../components/NoPermTip';
+import ScrollerX from '../../components/ScrollerX';
+import { addMnt, getMnt } from '../../services/app';
+import globalUtil from '../../utils/global';
+import AddVarModal from './setting/env';
 
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -157,7 +157,7 @@ export default class Index extends React.Component {
         env_name
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           const arr = [];
           if (res.list && res.list.length > 0) {
             res.list.map(item => {
@@ -226,7 +226,7 @@ export default class Index extends React.Component {
         name: vals.name
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '添加成功' });
           this.fetchInnerEnvs();
           this.handleCancelAddVar();
@@ -250,7 +250,7 @@ export default class Index extends React.Component {
         ID: this.state.deleteVar.ID
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '删除成功' });
           this.fetchInnerEnvs();
         }
@@ -271,7 +271,7 @@ export default class Index extends React.Component {
         scope: transfer.scope == 'inner' ? 'outer' : 'inner'
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '转移成功' });
           this.fetchInnerEnvs();
           this.cancelTransfer();
@@ -292,7 +292,7 @@ export default class Index extends React.Component {
         name: vals.name
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '编辑成功' });
           this.cancelEditVar();
           this.fetchInnerEnvs();
@@ -315,7 +315,7 @@ export default class Index extends React.Component {
         user_id: this.state.toDeleteMember.user_id
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '删除成功' });
           this.loadMembers();
           this.loadpermsMembers();
@@ -383,7 +383,7 @@ export default class Index extends React.Component {
           ID: editor.ID
         },
         callback: res => {
-          if (res && res._code == 200) {
+          if (res && res.status_code === 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();
             notification.success({ message: '编辑成功' });
@@ -400,7 +400,7 @@ export default class Index extends React.Component {
           ...vals
         },
         callback: res => {
-          if (res && res._code == 200) {
+          if (res && res.status_code === 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();
             notification.success({ message: '添加成功' });
@@ -440,7 +440,7 @@ export default class Index extends React.Component {
         volume_id: this.state.toDeleteVolume.ID
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res.status_code === 200) {
           notification.success({ message: '删除成功' });
           this.onCancelDeleteVolume();
           this.fetchVolumes();
@@ -544,6 +544,12 @@ export default class Index extends React.Component {
             marginBottom: 24
           }}
           title={<span> 配置文件设置 </span>}
+          extra={
+            <Button onClick={this.handleAddVars}>
+              <Icon type="plus" />
+              添加配置文件
+            </Button>
+          }
         >
           <ScrollerX sm={650}>
             <Table
@@ -585,19 +591,16 @@ export default class Index extends React.Component {
               dataSource={volumes}
             />
           </ScrollerX>
-          <div
-            style={{
-              marginTop: 10,
-              textAlign: 'right'
-            }}
-          >
-            <Button onClick={this.handleAddVars}>
-              <Icon type="plus" />
-              添加配置文件
-            </Button>
-          </div>
         </Card>
-        <Card title={<span> 共享配置文件 </span>}>
+        <Card
+          title={<span> 共享配置文件 </span>}
+          extra={
+            <Button onClick={this.showAddRelation}>
+              <Icon type="plus" />
+              挂载共享配置文件
+            </Button>
+          }
+        >
           <ScrollerX sm={850}>
             <Table
               pagination={false}
@@ -685,17 +688,6 @@ export default class Index extends React.Component {
               dataSource={mntList}
             />
           </ScrollerX>
-          <div
-            style={{
-              marginTop: 10,
-              textAlign: 'right'
-            }}
-          >
-            <Button onClick={this.showAddRelation}>
-              <Icon type="plus" />
-              挂载共享配置文件
-            </Button>
-          </div>
         </Card>
         {this.state.showAddVars && (
           <AddStorage

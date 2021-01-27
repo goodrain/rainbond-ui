@@ -1,23 +1,23 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
-import {
-  Form,
-  Input,
-  Card,
-  Switch,
-  Checkbox,
-  Row,
-  Button,
-  notification,
-  Modal
-} from 'antd';
-import ConfigurationHeader from '../Header';
 import Parameterinput from '@/components/Parameterinput';
-import { createEnterprise, createTeam } from '@/utils/breadcrumb';
 import { batchOperation } from '@/services/app';
+import { createEnterprise, createTeam } from '@/utils/breadcrumb';
 import globalUtil from '@/utils/global';
 import roleUtil from '@/utils/role';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Form,
+  Input,
+  Modal,
+  notification,
+  Row,
+  Switch
+} from 'antd';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
+import ConfigurationHeader from '../Header';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -58,12 +58,12 @@ export default class ConfigurationDetails extends PureComponent {
   componentDidMount() {
     this.loadConfigurationDetails();
   }
-  onChangeGroup = (checkedValues) => {
+  onChangeGroup = checkedValues => {
     this.setState({
       allChecked: this.state.apps.length === checkedValues.length
     });
   };
-  onOk = (e) => {
+  onOk = e => {
     e.preventDefault();
     const { form } = this.props;
     const { id } = this.handleParameter();
@@ -97,14 +97,14 @@ export default class ConfigurationDetails extends PureComponent {
       )
     );
   };
-  handlePermissions = (type) => {
+  handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.querySpecifiedPermissionsInfo(
       currentTeamPermissionsInfo,
       type
     );
   };
-  handleConfiguration = (vals) => {
+  handleConfiguration = vals => {
     const { dispatch } = this.props;
     const { info } = this.state;
     const { teamName, regionName, appID, id } = this.handleParameter();
@@ -115,18 +115,18 @@ export default class ConfigurationDetails extends PureComponent {
       group_id: appID,
       ...vals
     };
-    const { service_ids: serviceIds } = vals;
+    const { service_ids: serviceIds, enable } = vals;
     if (`${id}` === 'add') {
       dispatch({
         type: 'global/AddConfiguration',
         payload: {
           ...parameter
         },
-        callback: (res) => {
+        callback: res => {
           if (res) {
             this.handleClose();
             notification.success({ message: '添加成功' });
-            if (serviceIds && serviceIds.length > 0) {
+            if (serviceIds && serviceIds.length > 0 && enable) {
               this.showRemind(serviceIds);
             } else {
               this.onCancel();
@@ -141,12 +141,12 @@ export default class ConfigurationDetails extends PureComponent {
           name: id,
           ...parameter
         },
-        callback: (res) => {
+        callback: res => {
           if (res) {
             const arr = [];
             let UpDataList = [];
             if (info && info.services && info.services.length > 0) {
-              info.services.map((item) => {
+              info.services.map(item => {
                 if (item.service_id) {
                   arr.push(item.service_id);
                 }
@@ -169,7 +169,7 @@ export default class ConfigurationDetails extends PureComponent {
     }
   };
 
-  showRemind = (serviceIds) => {
+  showRemind = serviceIds => {
     const th = this;
     confirm({
       title: '需更新组件立即生效',
@@ -187,14 +187,14 @@ export default class ConfigurationDetails extends PureComponent {
       }
     });
   };
-  handleBatchOperation = (serviceIds) => {
+  handleBatchOperation = serviceIds => {
     const { teamName } = this.handleParameter();
     batchOperation({
       action: 'upgrade',
       team_name: teamName,
       serviceIds:
         serviceIds && serviceIds.length > 0 ? serviceIds.join(',') : ''
-    }).then((data) => {
+    }).then(data => {
       if (data) {
         this.onCancel();
       }
@@ -214,11 +214,11 @@ export default class ConfigurationDetails extends PureComponent {
         page: 1,
         page_size: 999
       },
-      callback: (res) => {
-        if (res && res._code == 200) {
+      callback: res => {
+        if (res && res.status_code === 200) {
           if (res.list && res.list.length > 0) {
             const arr = res.list.filter(
-              (item) => item.service_source !== 'third_party'
+              item => item.service_source !== 'third_party'
             );
             this.setState({
               apps: arr
@@ -250,8 +250,8 @@ export default class ConfigurationDetails extends PureComponent {
           group_id: appID,
           name: id
         },
-        callback: (res) => {
-          if (res && res._code == 200) {
+        callback: res => {
+          if (res && res.status_code === 200) {
             this.setState(
               {
                 info: res.bean,
@@ -271,7 +271,7 @@ export default class ConfigurationDetails extends PureComponent {
 
   checkConfiguration = (rule, value, callback) => {
     if (value && value.length > 0) {
-      const arr = value.filter((item) => item.item_key === '');
+      const arr = value.filter(item => item.item_key === '');
       if (value[0].item_key === '' && value[0].item_value === '') {
         callback();
       } else if (arr && arr.length > 0) {
@@ -279,7 +279,7 @@ export default class ConfigurationDetails extends PureComponent {
       } else {
         let judge = false;
         let isMax = false;
-        value.map((item) => {
+        value.map(item => {
           const { item_key, item_value } = item;
           if (!/^[-._a-zA-Z][-._a-zA-Z0-9]*$/.test(item_key)) {
             judge = true;
@@ -301,7 +301,7 @@ export default class ConfigurationDetails extends PureComponent {
     }
     callback();
   };
-  handleHelpfulVisable = (parameter) => {
+  handleHelpfulVisable = parameter => {
     this.setState({ helpfulVisable: parameter });
   };
   handleClose = () => {
@@ -321,7 +321,7 @@ export default class ConfigurationDetails extends PureComponent {
   handleIsAll = () => {
     const { setFieldsValue } = this.props.form;
     const { apps, allChecked } = this.state;
-    const serviceId = allChecked ? [] : apps.map((item) => item.service_id);
+    const serviceId = allChecked ? [] : apps.map(item => item.service_id);
     setFieldsValue({ service_ids: serviceId });
     this.setState({ allChecked: !allChecked });
   };
@@ -339,7 +339,7 @@ export default class ConfigurationDetails extends PureComponent {
     const { getFieldDecorator } = form;
     const serviceIds = [];
     if (info && info.services && info.services.length > 0) {
-      info.services.map((item) => {
+      info.services.map(item => {
         serviceIds.push(item.service_id);
       });
     }
@@ -454,7 +454,7 @@ export default class ConfigurationDetails extends PureComponent {
                     onChange={this.onChangeGroup}
                   >
                     <Row span={24}>
-                      {apps.map((item) => {
+                      {apps.map(item => {
                         const {
                           service_cname: name,
                           service_id: serviceId

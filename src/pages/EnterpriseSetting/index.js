@@ -37,7 +37,7 @@ export default class EnterpriseSetting extends PureComponent {
       dispatch(routerRedux.push(`/`));
     }
   }
-  onChange = (key) => {
+  onChange = key => {
     this.setState({ activeKey: key });
   };
 

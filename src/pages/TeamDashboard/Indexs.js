@@ -1,28 +1,28 @@
-import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
 import {
-  Row,
-  Col,
-  Card,
-  List,
   Avatar,
+  Button,
+  Card,
+  Col,
   Form,
   Input,
+  List,
+  Row,
   Select,
-  Button,
-  Tooltip,
+  Tooltip
 } from 'antd';
-import IndexTable from '../../components/IndexTable';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
+import moment from 'moment';
+import React, { Fragment, PureComponent } from 'react';
 import EditableLinkGroup from '../../components/EditableLinkGroup';
+import IndexTable from '../../components/IndexTable';
 import ScrollerX from '../../components/ScrollerX';
-import rainbondUtil from '../../utils/rainbond';
-import styles from './Index.less';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
+import rainbondUtil from '../../utils/rainbond';
 import sourceUtil from '../../utils/source-unit';
+import userUtil from '../../utils/user';
+import styles from './Index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -36,7 +36,7 @@ const { Option } = Select;
   enterprise: global.enterprise,
   projectLoading: loading.effects['project/fetchNotice'],
   activitiesLoading: loading.effects['activities/fetchList'],
-  loading,
+  loading
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -45,7 +45,7 @@ export default class Index extends PureComponent {
     this.state = {
       disk: {},
       memory: {},
-      companyInfo: {},
+      companyInfo: {}
     };
   }
   componentDidMount() {
@@ -70,44 +70,44 @@ export default class Index extends PureComponent {
       {
         title: '自定义源码',
         icontype: 'code',
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/custom`,
-      },
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/custom`
+      }
     ];
     const imagelinks = [
       {
         title: '指定镜像',
         icontype: 'laptop',
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/custom`,
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/custom`
       },
       {
         title: 'DockerRun命令',
         icontype: 'laptop',
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/dockerrun`,
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/dockerrun`
       },
       {
         title: 'Dockercompose',
         icontype: 'laptop',
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/Dockercompose`,
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/Dockercompose`
       },
       {
         title: '从应用市场安装',
         icontype: 'appstore-o',
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/market`,
-      },
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/market`
+      }
     ];
     const { enterprise } = this.props;
     if (rainbondUtil.OauthbTypes(enterprise, 'github')) {
       codelinks.push({
         title: 'Github项目',
         icontype: 'github',
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`,
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`
       });
     }
     if (rainbondUtil.OauthbTypes(enterprise, 'gitlab')) {
       codelinks.push({
         title: 'Gitlab仓库',
         icontype: 'gitlab',
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/goodrain`,
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/goodrain`
       });
     }
     codelinks.push(...imagelinks);
@@ -120,16 +120,16 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.currUser.enterprise_id,
-        region: globalUtil.getCurrRegionName(),
+        region: globalUtil.getCurrRegionName()
       },
       callback: data => {
         if (data) {
           this.setState({
             memory: data.bean.memory || {},
-            disk: data.bean.disk,
+            disk: data.bean.disk
           });
         }
-      },
+      }
     });
   }
   getCompanyInfo = () => {
@@ -137,13 +137,13 @@ export default class Index extends PureComponent {
       type: 'global/getCompanyInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: this.props.currUser.enterprise_id,
+        enterprise_id: this.props.currUser.enterprise_id
       },
       callback: data => {
         if (data) {
           this.setState({ companyInfo: data.bean });
         }
-      },
+      }
     });
   };
 
@@ -167,15 +167,15 @@ export default class Index extends PureComponent {
       type: 'index/fetchOverview',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName(),
+        region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
         if (res) {
           dispatch({
             type: 'global/setNouse',
             payload: {
-              isNouse: false,
-            },
+              isNouse: false
+            }
           });
         }
       },
@@ -184,11 +184,11 @@ export default class Index extends PureComponent {
           dispatch({
             type: 'global/setNouse',
             payload: {
-              isNouse: true,
-            },
+              isNouse: true
+            }
           });
         }
-      },
+      }
     });
   };
 
@@ -198,8 +198,8 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         page: 1,
-        page_size: 6,
-      },
+        page_size: 6
+      }
     });
   };
   loadApps = () => {
@@ -207,7 +207,7 @@ export default class Index extends PureComponent {
     const { pagination } = index;
     let searchKey = {
       searchKey: '',
-      service_status: '',
+      service_status: ''
     };
     // 获取搜索信息
     form.validateFields((err, fieldsValue) => {
@@ -221,14 +221,14 @@ export default class Index extends PureComponent {
       page_size: pagination.pageSize,
       order: (pagination.order || '').replace('end', ''),
       fields: pagination.fields,
-      ...searchKey,
+      ...searchKey
     };
     dispatch({
       type: 'index/fetchApps',
       payload,
       callback: res => {
         console.log('res', res);
-      },
+      }
     });
   };
 
@@ -237,34 +237,34 @@ export default class Index extends PureComponent {
     const status = [
       {
         value: 'all',
-        text: '全部',
+        text: '全部'
       },
       {
         value: 'running',
-        text: '运行中',
+        text: '运行中'
       },
       {
         value: 'closed',
-        text: '已关闭',
+        text: '已关闭'
       },
       {
         value: 'abnormal',
-        text: '运行异常',
-      },
+        text: '运行异常'
+      }
     ];
     return (
       <Form
         onSubmit={this.handleSearch}
         layout="inline"
         style={{
-          paddingBottom: 8,
+          paddingBottom: 8
         }}
       >
         <Row
           gutter={{
             md: 8,
             lg: 24,
-            xl: 48,
+            xl: 48
           }}
         >
           <Col md={8} sm={24}>
@@ -292,7 +292,7 @@ export default class Index extends PureComponent {
               </Button>
               <Button
                 style={{
-                  marginLeft: 8,
+                  marginLeft: 8
                 }}
                 onClick={this.handleFormReset}
               >
@@ -310,8 +310,8 @@ export default class Index extends PureComponent {
     dispatch({
       type: 'index/savePage',
       payload: {
-        currentPage: 1,
-      },
+        currentPage: 1
+      }
     });
     setTimeout(() => {
       this.loadApps();
@@ -324,8 +324,8 @@ export default class Index extends PureComponent {
     dispatch({
       type: 'index/savePage',
       payload: {
-        currentPage: 1,
-      },
+        currentPage: 1
+      }
     });
     setTimeout(() => {
       this.loadApps();
@@ -339,8 +339,8 @@ export default class Index extends PureComponent {
         currentPage: pagination.current,
         pageSize: pagination.pageSize,
         order: sorter.field ? sorter.order : '',
-        fields: sorter.field ? sorter.field : '',
-      },
+        fields: sorter.field ? sorter.field : ''
+      }
     });
     setTimeout(() => {
       this.loadApps();
@@ -355,7 +355,7 @@ export default class Index extends PureComponent {
           style={{
             textAlign: 'center',
             color: 'ccc',
-            paddingTop: 20,
+            paddingTop: 20
           }}
         >
           暂无动态
@@ -367,7 +367,7 @@ export default class Index extends PureComponent {
       '': '进行中',
       complete: '完成',
       failure: '失败',
-      timeout: '超时',
+      timeout: '超时'
     };
 
     return list.map(item => {
@@ -408,7 +408,7 @@ export default class Index extends PureComponent {
       projectLoading,
       activitiesLoading,
       currUser,
-      pagination,
+      pagination
     } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
@@ -516,8 +516,8 @@ export default class Index extends PureComponent {
         breadcrumbList={[
           {
             title: '首页',
-            href: '/',
-          },
+            href: '/'
+          }
         ]}
         content={pageHeaderContent}
         extraContent={extraContent}
@@ -527,7 +527,7 @@ export default class Index extends PureComponent {
             <Card
               bordered={false}
               style={{
-                marginBottom: 24,
+                marginBottom: 24
               }}
             >
               <div className={styles.tableList}>
@@ -547,12 +547,12 @@ export default class Index extends PureComponent {
           <Col xl={8} lg={24} md={24} sm={24} xs={24}>
             <Card
               style={{
-                marginBottom: 24,
+                marginBottom: 24
               }}
               title="快速创建应用"
               bordered={false}
               bodyStyle={{
-                padding: 0,
+                padding: 0
               }}
             >
               <EditableLinkGroup
@@ -564,7 +564,7 @@ export default class Index extends PureComponent {
 
             <Card
               bodyStyle={{
-                padding: 0,
+                padding: 0
               }}
               bordered={false}
               className={styles.activeCard}

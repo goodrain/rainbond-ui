@@ -1,18 +1,17 @@
-import React, { PureComponent, Fragment } from 'react';
-
+import { Avatar, Card, Icon, Input, List, Tag, Tooltip } from 'antd';
 import { connect } from 'dva';
-import { Card, Icon, List, Tag, Input, Tooltip, Avatar } from 'antd';
+import React, { Fragment, PureComponent } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import CloudApp from './CloudApp';
 import rainbondUtil from '../../utils/rainbond';
-import styles from './index.less';
 import BasicListStyles from '../List/BasicList.less';
+import CloudApp from './CloudApp';
+import styles from './index.less';
 
 const { Search } = Input;
 
 @connect(({ user, global }) => ({
   user: user.currentUser,
-  enterprise: global.enterprise,
+  enterprise: global.enterprise
 }))
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
@@ -25,7 +24,7 @@ export default class EnterpriseShared extends PureComponent {
       page: 1,
       scope: 'enterprise',
       showCloudApp: true,
-      componentList: [],
+      componentList: []
     };
   }
   componentDidMount() {
@@ -40,8 +39,8 @@ export default class EnterpriseShared extends PureComponent {
       dispatch,
       user,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const { page, pageSize, appName, scope } = this.state;
     dispatch({
@@ -52,17 +51,17 @@ export default class EnterpriseShared extends PureComponent {
         app_name: appName,
         scope,
         page,
-        page_size: pageSize,
+        page_size: pageSize
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             componentList: res.list,
             loading: false,
-            total: res.total,
+            total: res.total
           });
         }
-      },
+      }
     });
   };
 
@@ -77,7 +76,7 @@ export default class EnterpriseShared extends PureComponent {
               lineHeight: '16px',
               color: '#999999',
               border: 'none',
-              background: 'none',
+              background: 'none'
             }}
             size="small"
           >
@@ -91,7 +90,7 @@ export default class EnterpriseShared extends PureComponent {
   handlePageChange = page => {
     this.setState(
       {
-        page,
+        page
       },
       () => {
         this.getApps();
@@ -103,7 +102,7 @@ export default class EnterpriseShared extends PureComponent {
     this.setState(
       {
         appName,
-        page: 1,
+        page: 1
       },
       () => {
         this.getApps();
@@ -114,8 +113,8 @@ export default class EnterpriseShared extends PureComponent {
     const {
       enterprise,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
 
     const {
@@ -124,7 +123,7 @@ export default class EnterpriseShared extends PureComponent {
       total,
       page,
       showCloudApp,
-      loading,
+      loading
     } = this.state;
 
     const paginationProps = {
@@ -133,7 +132,7 @@ export default class EnterpriseShared extends PureComponent {
       current: page,
       onChange: pages => {
         this.handlePageChange(pages);
-      },
+      }
     };
 
     return (
@@ -152,7 +151,7 @@ export default class EnterpriseShared extends PureComponent {
           style={{
             display: showCloudApp ? 'flex' : 'block',
             position: 'relative',
-            overflow: 'hidden',
+            overflow: 'hidden'
           }}
         >
           <Card
@@ -171,10 +170,10 @@ export default class EnterpriseShared extends PureComponent {
             style={{
               transition: 'all .8s',
               width: '50%',
-              display: 'inline-block',
+              display: 'inline-block'
             }}
             bodyStyle={{
-              padding: '0 32px 40px 32px',
+              padding: '0 32px 40px 32px'
             }}
           >
             <List
@@ -193,7 +192,7 @@ export default class EnterpriseShared extends PureComponent {
                       </span>
                     )}
                   </p>
-                ),
+                )
               }}
               loading={loading}
               pagination={paginationProps}
@@ -235,7 +234,7 @@ export default class EnterpriseShared extends PureComponent {
                 ? 'translate3d(0, 0, 0)'
                 : 'translate3d(100%, 0, 0)',
               marginLeft: 8,
-              width: '49%',
+              width: '49%'
             }}
           >
             <CloudApp

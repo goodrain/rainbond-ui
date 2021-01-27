@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-param-reassign */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-underscore-dangle */
 import {
@@ -7,11 +9,13 @@ import {
   Card,
   Col,
   Form,
+  Icon,
   InputNumber,
   Modal,
   notification,
   Row,
-  Table
+  Table,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -29,7 +33,7 @@ import userUtil from '../../utils/user';
   enterprise: global.enterprise,
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
-  overviewInfo: index.overviewInfo,
+  overviewInfo: index.overviewInfo
 }))
 @Form.create()
 export default class EnterpriseClusters extends PureComponent {
@@ -51,7 +55,7 @@ export default class EnterpriseClusters extends PureComponent {
       tenantPage: 1,
       tenantPageSize: 5,
       showTenantListRegion: '',
-      setTenantLimitShow: false,
+      setTenantLimitShow: false
     };
   }
   componentWillMount() {
@@ -70,14 +74,14 @@ export default class EnterpriseClusters extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
       type: 'region/deleteEnterpriseCluster',
       payload: {
         region_id: regionInfo.region_id,
-        enterprise_id: eid,
+        enterprise_id: eid
       },
       callback: res => {
         if (res && res._condition === 200) {
@@ -85,7 +89,7 @@ export default class EnterpriseClusters extends PureComponent {
           this.cancelClusters();
           notification.success({ message: '删除成功' });
         }
-      },
+      }
     });
   };
 
@@ -93,14 +97,14 @@ export default class EnterpriseClusters extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
       type: 'region/fetchEnterpriseClusters',
       payload: {
         enterprise_id: eid,
-        name,
+        name
       },
       callback: res => {
         if (res && res.list) {
@@ -108,10 +112,11 @@ export default class EnterpriseClusters extends PureComponent {
           res.list.map((item, index) => {
             item.key = `cluster${index}`;
             clusters.push(item);
+            return item;
           });
           this.setState({ clusters });
         }
-      },
+      }
     });
   };
 
@@ -123,7 +128,7 @@ export default class EnterpriseClusters extends PureComponent {
     this.setState({
       editClusterShow: false,
       text: '',
-      regionInfo: false,
+      regionInfo: false
     });
   };
 
@@ -134,13 +139,13 @@ export default class EnterpriseClusters extends PureComponent {
   delUser = regionInfo => {
     this.setState({
       delVisible: true,
-      regionInfo,
+      regionInfo
     });
   };
   cancelClusters = () => {
     this.setState({
       delVisible: false,
-      regionInfo: false,
+      regionInfo: false
     });
   };
 
@@ -155,24 +160,24 @@ export default class EnterpriseClusters extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
       type: 'region/fetchEnterpriseCluster',
       payload: {
         enterprise_id: eid,
-        region_id: regionID,
+        region_id: regionID
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.setState({
             regionInfo: res.bean,
             editClusterShow: true,
-            text: '编辑集群',
+            text: '编辑集群'
           });
         }
-      },
+      }
     });
   };
 
@@ -183,7 +188,7 @@ export default class EnterpriseClusters extends PureComponent {
         regionAlias: item.region_alias,
         regionName: item.region_name,
         showTenantListRegion: item.region_id,
-        loadTenants: true,
+        loadTenants: true
       },
       this.loadRegionTenants
     );
@@ -194,8 +199,8 @@ export default class EnterpriseClusters extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
       type: 'region/fetchEnterpriseClusterTenants',
@@ -203,14 +208,14 @@ export default class EnterpriseClusters extends PureComponent {
         enterprise_id: eid,
         page: tenantPage,
         pageSize: tenantPageSize,
-        region_id: showTenantListRegion,
+        region_id: showTenantListRegion
       },
       callback: data => {
         if (data && data.bean) {
           this.setState({
             tenants: data.bean.tenants,
             tenantTotal: data.bean.total,
-            loadTenants: false,
+            loadTenants: false
           });
         } else {
           this.setState({ loadTenants: false });
@@ -219,7 +224,7 @@ export default class EnterpriseClusters extends PureComponent {
       handleError: err => {
         console.log(err);
         this.setState({ loadTenants: false });
-      },
+      }
     });
   };
 
@@ -228,7 +233,7 @@ export default class EnterpriseClusters extends PureComponent {
       setTenantLimitShow: true,
       limitTenantName: item.tenant_name,
       limitTeamName: item.team_name,
-      initLimitValue: item.set_limit_memory,
+      initLimitValue: item.set_limit_memory
     });
   };
 
@@ -236,14 +241,14 @@ export default class EnterpriseClusters extends PureComponent {
     e.preventDefault();
     const {
       match: {
-        params: { eid },
+        params: { eid }
       },
-      form,
+      form
     } = this.props;
     const { limitTenantName, showTenantListRegion } = this.state;
     form.validateFields(
       {
-        force: true,
+        force: true
       },
       (err, values) => {
         if (!err) {
@@ -254,25 +259,25 @@ export default class EnterpriseClusters extends PureComponent {
               enterprise_id: eid,
               region_id: showTenantListRegion,
               tenant_name: limitTenantName,
-              limit_memory: values.limit_memory,
+              limit_memory: values.limit_memory
             },
-            callback: data => {
+            callback: () => {
               notification.success({
-                message: '设置成功',
+                message: '设置成功'
               });
               this.setState({
                 limitSummitLoading: false,
-                setTenantLimitShow: false,
+                setTenantLimitShow: false
               });
               this.loadRegionTenants();
             },
-            handleError: err => {
-              console.log(err);
+            handleError: herr => {
+              console.log(herr);
               notification.warning({
-                message: '设置失败咯，请稍后重试',
+                message: '设置失败咯，请稍后重试'
               });
               this.setState({ limitSummitLoading: false });
-            },
+            }
           });
         }
       }
@@ -283,7 +288,7 @@ export default class EnterpriseClusters extends PureComponent {
     this.setState({
       showTenantList: false,
       showTenantListRegion: '',
-      tenants: [],
+      tenants: []
     });
   };
   handleTenantPageChange = page => {
@@ -296,13 +301,13 @@ export default class EnterpriseClusters extends PureComponent {
     dispatch({
       type: 'teamControl/joinTeam',
       payload: {
-        team_name: teamName,
+        team_name: teamName
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           this.onJumpTeam(teamName, regionName);
         }
-      },
+      }
     });
   };
   onJumpTeam = (team_name, region) => {
@@ -317,10 +322,9 @@ export default class EnterpriseClusters extends PureComponent {
       regionInfo,
       delVisible,
       showTenantList,
-      showTenantListRegion,
       tenants,
       loadTenants,
-      regionAlias,
+      regionAlias
     } = this.state;
     const {
       tenantTotal,
@@ -329,19 +333,19 @@ export default class EnterpriseClusters extends PureComponent {
       setTenantLimitShow,
       limitTeamName,
       limitSummitLoading,
-      initLimitValue,
+      initLimitValue
     } = this.state;
     const { getFieldDecorator } = this.props.form;
     const pagination = {
       onChange: this.handleTenantPageChange,
       total: tenantTotal,
       pageSize: tenantPageSize,
-      current: tenantPage,
+      current: tenantPage
     };
     const {
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
 
     const colorbj = (color, bg) => {
@@ -350,7 +354,7 @@ export default class EnterpriseClusters extends PureComponent {
         color,
         background: bg,
         borderRadius: '15px',
-        padding: '2px 0',
+        padding: '2px 0'
       };
     };
     const columns = [
@@ -364,13 +368,14 @@ export default class EnterpriseClusters extends PureComponent {
               {val}
             </Link>
           );
-        },
+        }
       },
       {
         title: '类型',
         dataIndex: 'region_type',
         align: 'center',
-        render: (val, _) => {
+        width: '100px',
+        render: val => {
           return (
             <span>
               {val && val instanceof Array && val.length > 0
@@ -396,11 +401,54 @@ export default class EnterpriseClusters extends PureComponent {
                         </span>
                       );
                     }
+                    return item;
                   })
                 : '普通集群'}
             </span>
           );
-        },
+        }
+      },
+      {
+        title: '安装方式',
+        dataIndex: 'provider',
+        align: 'center',
+        width: '130px',
+        render: item => {
+          switch (item) {
+            case 'ack':
+              return (
+                <span style={{ marginRight: '8px' }} key={item}>
+                  ACK
+                </span>
+              );
+            case 'custom':
+              return (
+                <span style={{ marginRight: '8px' }} key={item}>
+                  自建Kubernetes
+                </span>
+              );
+            case 'rke':
+              return (
+                <Tooltip title="支持节点扩容">
+                  <span style={{ marginRight: '8px' }} key={item}>
+                    基于主机自建
+                  </span>
+                </Tooltip>
+              );
+            case 'tke':
+              return (
+                <span style={{ marginRight: '8px' }} key={item}>
+                  TKE
+                </span>
+              );
+            default:
+              return (
+                <span style={{ marginRight: '8px' }} key={item}>
+                  直接对接
+                </span>
+              );
+          }
+        }
       },
       {
         title: '内存(GB)',
@@ -418,13 +466,13 @@ export default class EnterpriseClusters extends PureComponent {
               {this.handlUnit(item.total_memory)}
             </a>
           );
-        },
+        }
       },
       {
         title: '版本',
         dataIndex: 'rbd_version',
         align: 'center',
-        width: '350px',
+        width: '350px'
       },
       {
         title: '状态',
@@ -480,7 +528,7 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               );
           }
-        },
+        }
       },
       {
         title: '操作',
@@ -509,10 +557,10 @@ export default class EnterpriseClusters extends PureComponent {
               }}
             >
               资源限额
-            </a>,
+            </a>
           ];
-        },
-      },
+        }
+      }
     ];
 
     const tenantColumns = [
@@ -530,27 +578,27 @@ export default class EnterpriseClusters extends PureComponent {
               {item.team_name}
             </a>
           );
-        },
+        }
       },
       {
         title: '内存使用量(MB)',
         dataIndex: 'memory_request',
-        align: 'center',
+        align: 'center'
       },
       {
         title: 'CPU使用量',
         dataIndex: 'cpu_request',
-        align: 'center',
+        align: 'center'
       },
       {
         title: '租户限额(MB)',
         dataIndex: 'set_limit_memory',
-        align: 'center',
+        align: 'center'
       },
       {
         title: '运行组件数',
         dataIndex: 'running_app_num',
-        align: 'center',
+        align: 'center'
       },
       {
         title: '操作',
@@ -565,21 +613,21 @@ export default class EnterpriseClusters extends PureComponent {
               }}
             >
               设置限额
-            </a>,
+            </a>
           ];
-        },
-      },
+        }
+      }
     ];
 
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 20 },
-        sm: { span: 12 },
-      },
+        sm: { span: 12 }
+      }
     };
     return (
       <PageHeaderLayout
@@ -591,6 +639,14 @@ export default class EnterpriseClusters extends PureComponent {
             <Link to={`/enterprise/${eid}/addCluster`}>
               <Button type="primary">添加集群</Button>
             </Link>
+            <Button
+              style={{ marginLeft: '16px' }}
+              onClick={() => {
+                this.loadClusters();
+              }}
+            >
+              <Icon type="reload" />
+            </Button>
           </Col>
         </Row>
         <Card>
@@ -646,9 +702,9 @@ export default class EnterpriseClusters extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '内存限制值必填',
-                        },
-                      ],
+                          message: '内存限制值必填'
+                        }
+                      ]
                     })(
                       <InputNumber
                         style={{ width: '200px' }}
@@ -663,7 +719,7 @@ export default class EnterpriseClusters extends PureComponent {
                       onClick={() => {
                         this.setState({
                           setTenantLimitShow: false,
-                          limitSummitLoading: false,
+                          limitSummitLoading: false
                         });
                       }}
                     >

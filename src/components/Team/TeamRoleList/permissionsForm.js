@@ -1,7 +1,7 @@
 /* eslint-disable react/sort-comp */
-import React, { PureComponent } from 'react';
+import { Button, Form, Input, notification, Spin, Tree } from 'antd';
 import { connect } from 'dva';
-import { Form, Input, Tree, Button, Spin, notification } from 'antd';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../../utils/global';
 import roleUtil from '../../../utils/role';
 import styles from './index.less';
@@ -13,7 +13,7 @@ const FormItem = Form.Item;
 @connect(({ teamControl, loading, user }) => ({
   teamControl,
   currUser: user.currentUser,
-  activitiesLoading: loading.effects['activities/fetchList'],
+  activitiesLoading: loading.effects['activities/fetchList']
 }))
 export default class RoleList extends PureComponent {
   constructor(props) {
@@ -24,7 +24,7 @@ export default class RoleList extends PureComponent {
       autoExpandParent: true,
       checkedKeys: [],
       selectedKeys: [],
-      loading: false,
+      loading: false
     };
   }
   componentDidMount() {
@@ -55,7 +55,7 @@ export default class RoleList extends PureComponent {
     // or, you can remove all expanded children keys.
     this.setState({
       expandedKeys,
-      autoExpandParent: false,
+      autoExpandParent: false
     });
   };
 
@@ -73,7 +73,7 @@ export default class RoleList extends PureComponent {
       expandedKeys: [],
       autoExpandParent: true,
       checkedKeys: [],
-      selectedKeys: [],
+      selectedKeys: []
     });
     form.resetFields();
   };
@@ -84,14 +84,14 @@ export default class RoleList extends PureComponent {
       type: 'teamControl/createRole',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        name: values.name,
+        name: values.name
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           return this.loadTeamRolesPermissions(res.bean.ID, true);
         }
         this.handleCloseLoading();
-      },
+      }
     });
   };
 
@@ -101,16 +101,16 @@ export default class RoleList extends PureComponent {
       type: 'teamControl/fetchTeamRolesPermissions',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        role_id: ID,
+        role_id: ID
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           const rolePermissions = (res.bean && res.bean.permissions) || null;
           if (rolePermissions) {
             this.handlePermissions(res.bean, isEditor);
           }
         }
-      },
+      }
     });
   };
 
@@ -144,7 +144,7 @@ export default class RoleList extends PureComponent {
       if (isEditor) {
         this.setState(
           {
-            rolePermissionItem,
+            rolePermissionItem
           },
           () => {
             this.handleRolePermissions(rolePermissionItem);
@@ -154,7 +154,7 @@ export default class RoleList extends PureComponent {
         this.setState({
           expandedKeys: arr,
           checkedKeys: arr,
-          autoExpandParent: true,
+          autoExpandParent: true
         });
       }
     }
@@ -218,14 +218,14 @@ export default class RoleList extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         role_id: rolesID,
-        name: values.name,
+        name: values.name
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res.status_code === 200) {
           return this.loadTeamRolesPermissions(res.bean.ID, true);
         }
         this.handleCloseLoading();
-      },
+      }
     });
   };
 
@@ -237,23 +237,23 @@ export default class RoleList extends PureComponent {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           role_id: values.role_id,
-          permissions: values.permissions,
+          permissions: values.permissions
         },
         callback: res => {
-          if (res && res._code === 200) {
+          if (res && res.status_code === 200) {
             onCancelAddRole(parseInt(res.bean.role_id));
             notification.success({
-              message: isAddRole ? '创建成功' : '编辑成功',
+              message: isAddRole ? '创建成功' : '编辑成功'
             });
           }
           this.handleCloseLoading();
-        },
+        }
       });
     }
   };
   handleCloseLoading = () => {
     this.setState({
-      loading: false,
+      loading: false
     });
   };
 
@@ -312,33 +312,33 @@ export default class RoleList extends PureComponent {
       isAddRole,
       onCancelAddRole,
       isEdit,
-      isCreate,
+      isCreate
     } = this.props;
     const {
       expandedKeys,
       autoExpandParent,
       checkedKeys,
       selectedKeys,
-      loading,
+      loading
     } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 6,
-        },
+          span: 6
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 14,
-        },
-      },
+          span: 14
+        }
+      }
     };
 
     return (
@@ -347,13 +347,13 @@ export default class RoleList extends PureComponent {
           <div className={styles.AuthModuleWrap}>
             <FormItem {...formItemLayout} label="角色名称">
               {getFieldDecorator('name', {
-                rules: [{ required: true, message: '请输入角色名称!' }],
+                rules: [{ required: true, message: '请输入角色名称!' }]
               })(<Input placeholder="请输入角色名称" />)}
             </FormItem>
             {permissions && (
               <FormItem {...formItemLayout} label="权限分配">
                 {getFieldDecorator('permissions', {
-                  rules: [{ required: false, message: '权限分配!' }],
+                  rules: [{ required: false, message: '权限分配!' }]
                   // initialValue: '',
                 })(
                   <Tree

@@ -13,4 +13,5 @@ jobs:
       - name: Build the Docker image
         env:
           TRAVIS_PULL_REQUEST: true
+          BUILD_RBD_APP_UI: false
         run: VERSION=${{ github.base_ref }}-dev ./build.sh
