@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
+import { Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
-import { Form, Input, Select, Modal } from 'antd';
+import React, { PureComponent } from 'react';
 import TenantSelect from '../../components/TenantSelect';
 import styles from '../CreateTeam/index.less';
 
@@ -19,7 +19,7 @@ class CreateUserForm extends PureComponent {
    * 表单
    */
 
-  handleSelect = (selectedTeam) => {
+  handleSelect = selectedTeam => {
     const { dispatch, form } = this.props;
     const { setFieldsValue } = form;
 
@@ -28,7 +28,7 @@ class CreateUserForm extends PureComponent {
       payload: {
         team_name: selectedTeam
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState(
             {
@@ -59,6 +59,17 @@ class CreateUserForm extends PureComponent {
       }
     });
   };
+
+  checkAccountPass = (rule, value, callback) => {
+    if (!value) {
+      callback('请填写密码');
+    } else if (value && value.length < 8) {
+      callback('密码长度至少为8位');
+    } else {
+      callback();
+    }
+  };
+
   render() {
     const { eid, onCancel, title, userInfo, form } = this.props;
     const { getFieldDecorator } = form;
@@ -115,22 +126,32 @@ class CreateUserForm extends PureComponent {
             )}
           </FormItem>
 
-          <FormItem {...formItemLayout} label="密码">
-            {getFieldDecorator('password', {
-              initialValue: (userInfo && userInfo.password) || '',
-              rules: [
-                {
-                  required: true,
-                  validator: this.checkAccount
-                }
-              ]
-            })(
-              <Input.Password
-                autoComplete="new-password"
-                placeholder="请填写密码"
-              />
-            )}
-          </FormItem>
+          {!userInfo && (
+            <FormItem {...formItemLayout} label="密码">
+              {getFieldDecorator('password', {
+                initialValue: (userInfo && userInfo.password) || '',
+                rules: [
+                  {
+                    required: true,
+                    validator: this.checkAccountPass
+                  }
+                ]
+              })(<Input.Password placeholder="请填写密码" />)}
+            </FormItem>
+          )}
+
+          {userInfo && (
+            <FormItem {...formItemLayout} label="设置新密码">
+              {getFieldDecorator('password', {
+                initialValue: (userInfo && userInfo.password) || '',
+                rules: [
+                  {
+                    validator: this.checkAccountPass
+                  }
+                ]
+              })(<Input.Password placeholder="留空则不修改密码" />)}
+            </FormItem>
+          )}
 
           {!userInfo && (
             <div>
@@ -171,7 +192,7 @@ class CreateUserForm extends PureComponent {
                     style={{ width: '100%' }}
                     placeholder="请选择用户角色"
                   >
-                    {authorityList.map((item) => {
+                    {authorityList.map(item => {
                       const { ID, name } = item;
                       return (
                         <Option key={ID} value={ID}>

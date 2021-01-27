@@ -14,7 +14,8 @@ import {
   Select,
   Spin,
   Tabs,
-  Tag
+  Tag,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -556,17 +557,20 @@ export default class Main extends PureComponent {
       </div>
     );
     const fastactions = [
-      <div
-        onClick={() => {
-          isInstall && this.showCreate(item);
-        }}
-      >
-        <div className={PluginStyles.cardTitle}>
-          <span title={item.app_name}>{item.app_name}</span>
-          {isInstall && <span>安装</span>}
+      <Tooltip title={isInstall ? '点击安装' : '不可安装'}>
+        <div
+          onClick={() => {
+            if (isInstall) {
+              this.showCreate(item);
+            }
+          }}
+        >
+          <div className={PluginStyles.cardTitle}>
+            <span title={item.app_name}>{item.app_name}</span>
+          </div>
+          {versionBox}
         </div>
-        {versionBox}
-      </div>
+      </Tooltip>
     ];
 
     const defaultActions = isInstall
@@ -764,7 +768,7 @@ export default class Main extends PureComponent {
 
     if (marketTab && marketTab.length > 0) {
       const arr = marketTab.filter(item => {
-        return item.name == currentKey;
+        return item.name === currentKey;
       });
       if (arr && arr.length > 0) {
         isInstall = fetchMarketAuthority(arr[0], 'ReadInstall');

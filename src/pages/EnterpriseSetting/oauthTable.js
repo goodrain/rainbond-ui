@@ -6,14 +6,14 @@
   挂载共享目录组件
 */
 import {
-    Alert,
-    Button,
-    Col,
-    Modal,
-    notification,
-    Row,
-    Table,
-    Tooltip
+  Alert,
+  Button,
+  Col,
+  Modal,
+  notification,
+  Row,
+  Table,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -234,7 +234,7 @@ export default class OauthTable extends PureComponent {
         onCancel={onCancel}
         footer={[
           <Button style={{ marginTop: '20px' }} onClick={this.handleSubmit}>
-            关闭
+            禁用
           </Button>
         ]}
       >
@@ -242,8 +242,8 @@ export default class OauthTable extends PureComponent {
           {showDeleteDomain && (
             <ConfirmModal
               loading={oauthLongin}
-              title="关闭"
-              desc="确定要关闭此配置吗？"
+              title="禁用"
+              desc="确定要禁用该Oauth服务吗？禁用后基于该服务构建的组件将不能进行构建"
               onOk={() => {
                 this.handelRequest(oauthInfo, 'clone');
               }}
@@ -348,7 +348,7 @@ export default class OauthTable extends PureComponent {
                           : this.handleOpen(record, true);
                       }}
                     >
-                      {record.enable ? '关闭' : '开启'}
+                      {record.enable ? '禁用' : '启用'}
                     </a>
                   </div>
                 )

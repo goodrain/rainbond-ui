@@ -290,6 +290,12 @@ export default class Index extends PureComponent {
             marginBottom: 24
           }}
           title={<span> 存储设置 </span>}
+          extra={
+            <Button onClick={this.handleAddVar}>
+              <Icon type="plus" />
+              添加存储
+            </Button>
+          }
         >
           <ScrollerX sm={650}>
             <Table
@@ -375,19 +381,16 @@ export default class Index extends PureComponent {
               dataSource={volumes}
             />
           </ScrollerX>
-          <div
-            style={{
-              marginTop: 10,
-              textAlign: 'right'
-            }}
-          >
-            <Button onClick={this.handleAddVar}>
-              <Icon type="plus" />
-              添加存储
-            </Button>
-          </div>
         </Card>
-        <Card title={<span> 共享其他组件存储 </span>}>
+        <Card
+          title={<span> 共享其他组件存储 </span>}
+          extra={
+            <Button onClick={this.showAddRelation}>
+              <Icon type="plus" />
+              挂载共享存储
+            </Button>
+          }
+        >
           <ScrollerX sm={850}>
             <Table
               pagination={false}
@@ -505,17 +508,6 @@ export default class Index extends PureComponent {
               dataSource={mntList}
             />
           </ScrollerX>
-          <div
-            style={{
-              marginTop: 10,
-              textAlign: 'right'
-            }}
-          >
-            <Button onClick={this.showAddRelation}>
-              <Icon type="plus" />
-              挂载共享存储
-            </Button>
-          </div>
         </Card>
 
         {this.state.showAddVar && (

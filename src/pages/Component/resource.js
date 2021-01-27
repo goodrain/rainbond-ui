@@ -1,3 +1,5 @@
+/* eslint-disable react/sort-comp */
+/* eslint-disable camelcase */
 /* eslint-disable eqeqeq */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-nested-ternary */
@@ -70,6 +72,11 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount() {
+    this.setOauthService();
+    this.getRuntimeInfo();
+    this.loadBuildSourceInfo();
+  }
+  setOauthService = () => {
     const { rainbondInfo, enterprise } = this.props;
     const tabList = [];
     if (
@@ -77,23 +84,22 @@ export default class Index extends PureComponent {
       rainbondUtil.OauthEnterpriseEnable(enterprise)
     ) {
       enterprise.oauth_services.value.map(item => {
-        const { oauth_type, service_id, is_git, name } = item;
+        const { oauth_type, service_id, is_git, name, enable } = item;
         if (is_git) {
           tabList.push({
             name,
             type: oauth_type,
+            enable,
             id: `${service_id}`
           });
         }
+        return item;
       });
       this.setState({
         tabList
       });
     }
-
-    this.getRuntimeInfo();
-    this.loadBuildSourceInfo();
-  }
+  };
   getParams() {
     return {
       group_id: this.props.match.params.appID,
@@ -340,7 +346,7 @@ export default class Index extends PureComponent {
 
   handleProvinceChange = id => {
     // 获取代码仓库信息
-    const { dispatch, form } = this.props;
+    const { dispatch } = this.props;
     const { setFieldsValue } = this.props.form;
     const { tabList, buildSource, page } = this.state;
     const oauth_service_id = this.props.form.getFieldValue('oauth_service_id');
@@ -366,7 +372,6 @@ export default class Index extends PureComponent {
         ) {
           const firstPage = page == 1;
           const lastPage = res.bean.repositories.length < 10;
-
           const setFullName = res.bean.repositories[0].project_full_name;
           const setUrl = res.bean.repositories[0].project_url;
           const setVersion = res.bean.repositories[0].project_default_branch;
@@ -396,7 +401,6 @@ export default class Index extends PureComponent {
 
   handleProjectChange = project_full_name => {
     this.setState({ OauthLoading: true });
-    const { form } = this.props;
     const { setFieldsValue } = this.props.form;
     const { fullList } = this.state;
 
@@ -550,7 +554,7 @@ export default class Index extends PureComponent {
                   style={{ color: !isLocalShared && 'rgba(0, 0, 0, 0.65)' }}
                 >
                   {appUtil.isOauthByBuildSource(buildSource) && thirdInfo
-                    ? thirdInfo.service_type
+                    ? thirdInfo.service_name
                     : buildShared}
                 </Link>
               </FormItem>
@@ -895,11 +899,14 @@ export default class Index extends PureComponent {
                       placeholder="请选择OAuth服务"
                     >
                       {tabList.length > 0 &&
-                        tabList.map(item => (
-                          <Option key={item.id} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
+                        tabList.map(
+                          item =>
+                            item.enable && (
+                              <Option key={item.id} value={item.id}>
+                                {item.name}
+                              </Option>
+                            )
+                        )}
                     </Select>
                   )}
                 </FormItem>

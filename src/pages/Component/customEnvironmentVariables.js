@@ -544,6 +544,12 @@ export default class Index extends React.Component {
             marginBottom: 24
           }}
           title={<span> 配置文件设置 </span>}
+          extra={
+            <Button onClick={this.handleAddVars}>
+              <Icon type="plus" />
+              添加配置文件
+            </Button>
+          }
         >
           <ScrollerX sm={650}>
             <Table
@@ -585,19 +591,16 @@ export default class Index extends React.Component {
               dataSource={volumes}
             />
           </ScrollerX>
-          <div
-            style={{
-              marginTop: 10,
-              textAlign: 'right'
-            }}
-          >
-            <Button onClick={this.handleAddVars}>
-              <Icon type="plus" />
-              添加配置文件
-            </Button>
-          </div>
         </Card>
-        <Card title={<span> 共享配置文件 </span>}>
+        <Card
+          title={<span> 共享配置文件 </span>}
+          extra={
+            <Button onClick={this.showAddRelation}>
+              <Icon type="plus" />
+              挂载共享配置文件
+            </Button>
+          }
+        >
           <ScrollerX sm={850}>
             <Table
               pagination={false}
@@ -685,17 +688,6 @@ export default class Index extends React.Component {
               dataSource={mntList}
             />
           </ScrollerX>
-          <div
-            style={{
-              marginTop: 10,
-              textAlign: 'right'
-            }}
-          >
-            <Button onClick={this.showAddRelation}>
-              <Icon type="plus" />
-              挂载共享配置文件
-            </Button>
-          </div>
         </Card>
         {this.state.showAddVars && (
           <AddStorage

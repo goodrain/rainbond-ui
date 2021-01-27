@@ -1,14 +1,15 @@
-import React, { PureComponent } from 'react';
+/* eslint-disable camelcase */
 import {
+  Button,
+  Drawer,
   Form,
   Input,
-  Radio,
-  Tooltip,
-  Drawer,
-  Button,
   message,
   notification,
+  Radio,
+  Tooltip
 } from 'antd';
+import React, { PureComponent } from 'react';
 import pluginUtil from '../../utils/plugin';
 
 const FormItem = Form.Item;
@@ -69,11 +70,11 @@ export default class AddVolumes extends PureComponent {
     const { volumeOpts } = this.props;
     for (let i = 0; i < volumeOpts.length; i++) {
       if (
-        volumeOpts[i].volume_type == volume_type &&
+        volumeOpts[i].volume_type === volume_type &&
         volumeOpts[i].capacity_validation
       ) {
         this.setState({
-          volumeCapacityValidation: volumeOpts[i].capacity_validation,
+          volumeCapacityValidation: volumeOpts[i].capacity_validation
         });
       }
     }
@@ -82,6 +83,10 @@ export default class AddVolumes extends PureComponent {
     if (value) {
       if (value > 1000) {
         callback(`限额最大值为1000GB`);
+        return;
+      }
+      if (value < 0) {
+        callback(`限额最小值为0，即不进行限制`);
         return;
       }
     }
@@ -149,12 +154,12 @@ export default class AddVolumes extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 },
-      },
+        sm: { span: 18 }
+      }
     };
     return (
       <Drawer
@@ -168,7 +173,7 @@ export default class AddVolumes extends PureComponent {
         style={{
           height: '100%',
           overflow: 'auto',
-          paddingBottom: 53,
+          paddingBottom: 53
         }}
       >
         <Form onSubmit={this.handleSubmit}>
@@ -178,9 +183,9 @@ export default class AddVolumes extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请输入存储名称',
-                },
-              ],
+                  message: '请输入存储名称'
+                }
+              ]
             })(
               <Input
                 placeholder="请输入存储名称"
@@ -194,9 +199,9 @@ export default class AddVolumes extends PureComponent {
               rules: [
                 {
                   required: true,
-                  validator: this.checkMountPath,
-                },
-              ],
+                  validator: this.checkMountPath
+                }
+              ]
             })(<Input placeholder="请输入挂载路径" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="存储配额(GB)">
@@ -204,9 +209,13 @@ export default class AddVolumes extends PureComponent {
               initialValue: defaultVolumeCapacity,
               rules: [
                 {
-                  validator: this.checkVolumeCapacity,
+                  min: 0,
+                  message: '最小值为0，即不限制'
                 },
-              ],
+                {
+                  validator: this.checkVolumeCapacity
+                }
+              ]
             })(
               <Input
                 type="number"
@@ -226,9 +235,9 @@ export default class AddVolumes extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请选择存储类型',
-                },
-              ],
+                  message: '请选择存储类型'
+                }
+              ]
             })(
               <RadioGroup onChange={this.handleChange}>
                 {volumeOpts.map(item => {
@@ -258,12 +267,12 @@ export default class AddVolumes extends PureComponent {
             textAlign: 'right',
             left: 0,
             background: '#fff',
-            borderRadius: '0 0 4px 4px',
+            borderRadius: '0 0 4px 4px'
           }}
         >
           <Button
             style={{
-              marginRight: 8,
+              marginRight: 8
             }}
             onClick={this.handleCancel}
           >
