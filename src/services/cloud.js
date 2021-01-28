@@ -209,3 +209,16 @@ export async function reInstall(body, handleError) {
     }
   );
 }
+
+export async function getKubeConfig(body, handleError) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/kubeconfig`,
+    {
+      method: 'get',
+      params: {
+        provider_name: body.providerName
+      },
+      handleError
+    }
+  );
+}

@@ -61,6 +61,9 @@ export default class ThirdLogin extends Component {
                   desc: ''
                 },
                 () => {
+                  if (resdata.bean.token) {
+                    cookie.set('token', resdata.bean.token);
+                  }
                   this.handleSuccess();
                 }
               );
@@ -88,7 +91,7 @@ export default class ThirdLogin extends Component {
           domain: window.location.host
         },
         callback: res => {
-          if (res && res.status && res.status === 400) {
+          if (res && res.status_code === 400) {
             this.setState(
               {
                 resultState: 'error',
@@ -143,7 +146,7 @@ export default class ThirdLogin extends Component {
   handleSuccess() {
     const { dispatch } = this.props;
     let redirect = window.localStorage.getItem('redirect');
-    if (!redirect || redirect == '') {
+    if (!redirect || redirect === '') {
       redirect = '/';
     }
     window.localStorage.setItem('redirect', '');

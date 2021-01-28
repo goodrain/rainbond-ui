@@ -12,8 +12,10 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import CodeMirror from 'react-codemirror';
 import { Link } from 'umi';
 import Ansi from '../../../components/Ansi';
+import { getKubeConfig } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
 import istyles from './index.less';
@@ -105,6 +107,20 @@ export default class KubernetesClusterShow extends PureComponent {
       }
     });
   };
+
+  getKubeConfig = clusterID => {
+    const { eid, selectProvider } = this.props;
+    getKubeConfig({
+      clusterID,
+      enterprise_id: eid,
+      providerName: selectProvider
+    }).then(res => {
+      if (res.status_code === 200) {
+        this.setState({ kubeConfig: res.config });
+      }
+    });
+  };
+
   getLineHtml = (lineNumber, line) => {
     return (
       <div className={istyles.logline} key={lineNumber}>
@@ -169,6 +185,11 @@ export default class KubernetesClusterShow extends PureComponent {
       render: (text, row) => {
         return (
           <div>
+            {row.state === 'running' && (
+              <a onClick={() => this.getKubeConfig(row.cluster_id || row.name)}>
+                KubeConfig
+              </a>
+            )}
             {row.state === 'failed' && selectProvider === 'rke' && (
               <Popconfirm
                 placement="top"
@@ -256,7 +277,12 @@ export default class KubernetesClusterShow extends PureComponent {
       lastTask,
       showLastTaskDetail
     } = this.props;
-    const { selectClusterName, createLog, showCreateLog } = this.state;
+    const {
+      selectClusterName,
+      createLog,
+      showCreateLog,
+      kubeConfig
+    } = this.state;
     return (
       <div>
         <Row style={{ marginBottom: '20px' }}>
@@ -359,6 +385,36 @@ export default class KubernetesClusterShow extends PureComponent {
               {createLog.map((line, index) => {
                 return this.getLineHtml(index + 1, line);
               })}
+            </div>
+          </Modal>
+        )}
+        {kubeConfig && (
+          <Modal
+            visible
+            width={1000}
+            maskClosable={false}
+            onCancel={() => {
+              this.setState({ kubeConfig: '' });
+            }}
+            title="KubeConfig"
+            bodyStyle={{ background: '#000' }}
+            footer={null}
+          >
+            <div className={istyles.cmd}>
+              <CodeMirror
+                value={kubeConfig}
+                options={{
+                  mode: { name: 'javascript', json: true },
+                  lineNumbers: true,
+                  theme: 'seti',
+                  lineWrapping: true,
+                  smartIndent: true,
+                  matchBrackets: true,
+                  scrollbarStyle: null,
+                  showCursorWhenSelecting: true,
+                  height: 500
+                }}
+              />
             </div>
           </Modal>
         )}
