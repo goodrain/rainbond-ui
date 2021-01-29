@@ -413,7 +413,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '安装方式',
         dataIndex: 'provider',
         align: 'center',
-        width: '130px',
+        width: '150px',
         render: item => {
           switch (item) {
             case 'ack':

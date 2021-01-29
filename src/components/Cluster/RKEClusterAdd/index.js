@@ -123,13 +123,15 @@ class EditableCell extends React.Component {
         )}
       </Form.Item>
     ) : (
-      <div
-        className="editable-cell-value-wrap"
-        style={{ paddingRight: 24 }}
-        onClick={this.toggleEdit}
-      >
-        {children}
-      </div>
+      <Tooltip title="点击修改">
+        <div
+          className="editable-cell-value-wrap"
+          style={{ paddingRight: 24, cursor: 'pointer' }}
+          onClick={this.toggleEdit}
+        >
+          {children}
+        </div>
+      </Tooltip>
     );
   };
 
@@ -288,22 +290,19 @@ export default class RKEClusterConfig extends PureComponent {
         title: 'IP 地址',
         dataIndex: 'ip',
         width: '150px',
-        editable: true,
-        render: text => <Tooltip title="点击修改">{text}</Tooltip>
+        editable: true
       },
       {
         title: '内网 IP 地址',
         dataIndex: 'internalIP',
         width: '150px',
-        editable: true,
-        render: text => <Tooltip title="点击修改">{text}</Tooltip>
+        editable: true
       },
       {
         title: 'SSH 端口',
         dataIndex: 'sshPort',
         width: '100px',
-        editable: true,
-        render: text => <Tooltip title="点击修改">{text}</Tooltip>
+        editable: true
       },
       {
         title: '节点类型',

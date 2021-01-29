@@ -67,21 +67,25 @@ export default class SetRegionConfig extends PureComponent {
         callback: res => {
           if (res && res._condition === 200) {
             notification.success({ message: '添加成功' });
-            dispatch({
-              type: 'cloud/updateInitTaskStatus',
-              payload: {
-                enterprise_id: eid,
-                taskID: task.taskID,
-                status: 'complete'
-              },
-              callback: () => {
-                dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-              },
-              handleError: herr => {
-                cloud.handleCloudAPIError(herr);
-                this.setState({ commitloading: false });
-              }
-            });
+            if (task) {
+              dispatch({
+                type: 'cloud/updateInitTaskStatus',
+                payload: {
+                  enterprise_id: eid,
+                  taskID: task.taskID,
+                  status: 'complete'
+                },
+                callback: () => {
+                  dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+                },
+                handleError: herr => {
+                  cloud.handleCloudAPIError(herr);
+                  this.setState({ commitloading: false });
+                }
+              });
+            } else {
+              dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+            }
           }
         },
         handleError: () => {
@@ -132,6 +136,10 @@ export default class SetRegionConfig extends PureComponent {
         }
       },
       handleError: res => {
+        if (res.data && res.data.code === 404) {
+          this.loadRegionConfig();
+          return;
+        }
         cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       }
