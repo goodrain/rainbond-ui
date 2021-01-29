@@ -3,6 +3,7 @@
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable react/sort-comp */
 import {
+  Alert,
   Button,
   Col,
   Form,
@@ -123,13 +124,15 @@ class EditableCell extends React.Component {
         )}
       </Form.Item>
     ) : (
-      <div
-        className="editable-cell-value-wrap"
-        style={{ paddingRight: 24 }}
-        onClick={this.toggleEdit}
-      >
-        {children}
-      </div>
+      <Tooltip title="点击修改">
+        <div
+          className="editable-cell-value-wrap"
+          style={{ paddingRight: 24, cursor: 'pointer' }}
+          onClick={this.toggleEdit}
+        >
+          {children}
+        </div>
+      </Tooltip>
     );
   };
 
@@ -142,6 +145,7 @@ class EditableCell extends React.Component {
       index,
       handleSave,
       children,
+      disable,
       ...restProps
     } = this.props;
     return (
@@ -170,8 +174,20 @@ export default class RKEClusterConfig extends PureComponent {
   }
 
   componentDidMount = () => {
-    this.handleAdd();
+    this.setNodeList();
     this.loadInitNodeCmd();
+  };
+
+  setNodeList = () => {
+    const { nodeList } = this.props;
+    for (let i = 0; i < nodeList.length; i++) {
+      nodeList[i].key = `key${i}`;
+      if (!nodeList[i].sshPort || nodeList[i].sshPort === 0) {
+        nodeList[i].sshPort = 22;
+      }
+      nodeList[i].disable = true;
+    }
+    this.setState({ dataSource: nodeList, count: nodeList.length });
   };
 
   loadInitNodeCmd = () => {
@@ -184,40 +200,34 @@ export default class RKEClusterConfig extends PureComponent {
     });
   };
 
-  createCluster = () => {
-    const { form, dispatch, eid, onOK } = this.props;
+  updateCluster = () => {
+    const { dispatch, eid, onOK, clusterID } = this.props;
     const { dataSource } = this.state;
-    form.validateFields((err, fieldsValue) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      if (dataSource.length < 1) {
-        message.warning('请定义集群节点');
-      }
-      this.setState({ loading: true });
-      dispatch({
-        type: 'cloud/createKubernetesCluster',
-        payload: {
-          enterprise_id: eid,
-          provider_name: 'rke',
-          nodes: dataSource,
-          ...fieldsValue
-        },
-        callback: data => {
-          if (data && onOK) {
-            onOK(data);
-          }
-        },
-        handleError: res => {
-          if (res && res.data && res.data.code === 7005) {
-            onOK(res.data.data);
-            return;
-          }
-          cloud.handleCloudAPIError(res);
-          this.setState({ loading: false });
+    if (dataSource.length < 1) {
+      message.warning('请定义集群节点');
+    }
+    this.setState({ loading: true });
+    dispatch({
+      type: 'cloud/updateKubernetesCluster',
+      payload: {
+        enterprise_id: eid,
+        clusterID,
+        provider: 'rke',
+        nodes: dataSource
+      },
+      callback: data => {
+        if (data && onOK) {
+          onOK(data);
         }
-      });
+      },
+      handleError: res => {
+        if (res && res.data && res.data.code === 7005) {
+          onOK(res.data.data);
+          return;
+        }
+        cloud.handleCloudAPIError(res);
+        this.setState({ loading: false });
+      }
     });
   };
 
@@ -225,8 +235,7 @@ export default class RKEClusterConfig extends PureComponent {
     const dataSource = [...this.state.dataSource];
     this.setState({ dataSource: dataSource.filter(item => item.key !== key) });
   };
-
-  handleAdd = () => {
+  getNextIP = () => {
     const { count, dataSource } = this.state;
     let init = `192.168.1.${count + 1}`;
     if (dataSource.length > 0 && dataSource[dataSource.length - 1].ip !== '') {
@@ -235,10 +244,28 @@ export default class RKEClusterConfig extends PureComponent {
         init = `${ips.slice(0, 3).join('.')}.${Number(ips[3]) + 1}`;
       }
     }
+    return init;
+  };
+  getNextInternalIP = () => {
+    const { count, dataSource } = this.state;
+    let init = `192.168.1.${count + 1}`;
+    if (
+      dataSource.length > 0 &&
+      dataSource[dataSource.length - 1].internalIP !== ''
+    ) {
+      const ips = dataSource[dataSource.length - 1].internalIP.split('.');
+      if (ips.length > 3) {
+        init = `${ips.slice(0, 3).join('.')}.${Number(ips[3]) + 1}`;
+      }
+    }
+    return init;
+  };
+  handleAdd = () => {
+    const { count, dataSource } = this.state;
     const newData = {
       key: count,
-      ip: init,
-      internalIP: init,
+      ip: this.getNextIP(),
+      internalIP: this.getNextInternalIP(),
       sshPort: 22,
       roles: ['etcd', 'controlplane', 'worker']
     };
@@ -288,41 +315,33 @@ export default class RKEClusterConfig extends PureComponent {
         title: 'IP 地址',
         dataIndex: 'ip',
         width: '150px',
-        editable: true,
-        render: text => <Tooltip title="点击修改">{text}</Tooltip>
+        editable: true
       },
       {
         title: '内网 IP 地址',
         dataIndex: 'internalIP',
         width: '150px',
-        editable: true,
-        render: text => <Tooltip title="点击修改">{text}</Tooltip>
+        editable: true
       },
       {
         title: 'SSH 端口',
         dataIndex: 'sshPort',
         width: '100px',
-        editable: true,
-        render: text => <Tooltip title="点击修改">{text}</Tooltip>
+        editable: true
       },
       {
         title: '节点类型',
         dataIndex: 'roles',
         width: '220px',
         editable: true,
-        render: text => (
-          <Tooltip title="点击修改">
-            {text.map(item => (
-              <Tag color="blue">{this.nodeRole(item)}</Tag>
-            ))}
-          </Tooltip>
-        )
+        render: text =>
+          text.map(item => <Tag color="blue">{this.nodeRole(item)}</Tag>)
       },
       {
         title: '操作',
         dataIndex: 'name',
         render: (text, record) =>
-          this.state.dataSource.length > 1 ? (
+          this.state.dataSource.length > 1 && !record.disable ? (
             <Popconfirm
               title="确定要删除吗?"
               onConfirm={() => this.handleDelete(record.key)}
@@ -338,53 +357,74 @@ export default class RKEClusterConfig extends PureComponent {
       }
       return {
         ...col,
-        onCell: record => ({
-          record,
-          editable: col.editable,
-          dataIndex: col.dataIndex,
-          title: col.title,
-          handleSave: this.handleSave
-        })
+        onCell: record => {
+          if (record.disable) {
+            return {
+              record,
+              editable: false,
+              dataIndex: col.dataIndex,
+              title: col.title
+            };
+          }
+          return {
+            record,
+            editable: col.editable,
+            dataIndex: col.dataIndex,
+            title: col.title,
+            handleSave: this.handleSave
+          };
+        }
       };
     });
     return (
       <Modal
         visible
-        title="基于主机安装 Kubernetes 集群"
+        title="扩容 Kubernetes 集群"
         className={styles.TelescopicModal}
         width={800}
         destroyOnClose
         footer={
           <Popconfirm
-            title="确定已完成所有节点的初始化并开始安装集群吗?"
-            onConfirm={this.createCluster}
+            title="确定已完成所有节点的初始化并开始扩容集群吗?"
+            onConfirm={this.updateCluster}
           >
             {' '}
-            <Button type="primary">开始安装</Button>
+            <Button type="primary">开始扩容</Button>
           </Popconfirm>
         }
         confirmLoading={loading}
         onCancel={onCancel}
         maskClosable={false}
       >
+        <Alert
+          type="warning"
+          message="集群节点扩容特别是管理节点、ETCD节点扩容具有一定风险，请选择合适的时间进行"
+        />
         <Form>
           <Row>
             <Col span={24} style={{ padding: '16px' }}>
               <Paragraph className={styles.describe}>
                 <ul>
                   <li>
-                    <span>采用 RKE 方案基于提供的主机安装 Kubernetes 集群</span>
+                    <span>
+                      采用 RKE 方案基于提供的主机安装 Kubernetes 集群。
+                    </span>
                   </li>
                   <li>
                     <span>
                       请确保提供的主机<b>SSH端口</b>和<b>6443端口</b>
-                      都可以被当前网络直接访问
+                      都可以被当前网络直接访问。
                     </span>
                   </li>
                   <li>
                     <span>
                       节点初始化脚本会进行<b>系统检查</b>、<b>配置SSH免密</b>、
-                      <b>Docker安装</b>三项动作
+                      <b>Docker安装</b>三项动作。
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      Kubernetes 集群扩容成功后自动纳入 Rainbond 管理。
                     </span>
                   </li>
                 </ul>
@@ -392,24 +432,8 @@ export default class RKEClusterConfig extends PureComponent {
             </Col>
           </Row>
           <Row>
-            <Col span={12} style={{ padding: '0 16px' }}>
-              <Form.Item label="集群名称">
-                {getFieldDecorator('name', {
-                  initialValue: '',
-                  rules: [
-                    { required: true, message: '集群名称必填' },
-                    {
-                      pattern: /^[a-z0-9A-Z-]+$/,
-                      message: '只支持字母、数字和中划线组合'
-                    }
-                  ]
-                })(<Input placeholder="集群名称,请确保其保持唯一" />)}
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row>
             <Col span={24} style={{ padding: '0 16px' }}>
-              <Form.Item label="节点列表(192.168.1.1为默认数据，点击修改)">
+              <Form.Item label="节点列表(已有节点不支持变更)">
                 {getFieldDecorator('nodeLists', {
                   initialValue: ''
                 })(

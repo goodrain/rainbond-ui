@@ -222,3 +222,27 @@ export async function getKubeConfig(body, handleError) {
     }
   );
 }
+
+export async function getUpdateKubernetesTask(body, handleError) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/update-cluster/${body.clusterID}`,
+    {
+      method: 'get',
+      params: {
+        provider_name: body.providerName
+      },
+      handleError
+    }
+  );
+}
+
+export async function updateKubernetesCluster(body, handleError) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/update-cluster`,
+    {
+      method: 'post',
+      data: body,
+      handleError
+    }
+  );
+}

@@ -159,7 +159,23 @@ const createKubernetesSteps = {
     Status: ''
   }
 };
-
+const updateKubernetesSteps = {
+  Init: {
+    Title: '控制器初始化',
+    Description: '检测提供的参数是否正确',
+    Status: ''
+  },
+  InitClusterConfig: {
+    Title: '初始化集群配置',
+    Description: '初始化扩容集群所需要的配置数据',
+    Status: ''
+  },
+  UpdateKubernetes: {
+    Title: '扩容集群',
+    Description: '连接所有节点完成节点的扩容，耗时取决于网络状况。',
+    Status: ''
+  }
+};
 const initRainbondSteps = {
   Init: {
     Title: '控制器初始化',
@@ -425,7 +441,7 @@ const cloud = {
   getAliyunRegionName(id) {
     let regionName = id;
     aliyunRegionNames.map(item => {
-      if (item.RegionId == id) {
+      if (item.RegionId === id) {
         regionName = item.LocalName;
       }
     });
@@ -500,6 +516,32 @@ const cloud = {
       case 7007:
         notification.warning({ message: '阿里云API请求故障，请稍后重试' });
         break;
+      case 7010:
+        notification.warning({
+          message: '节点角色缺失，请确保管理、计算、ETCD节点分别至少一个'
+        });
+        break;
+      case 7011:
+        notification.warning({ message: 'ETCD节点数量必须为奇数' });
+        break;
+      case 7012:
+        notification.warning({ message: '集群节点配置校验不通过' });
+        break;
+      case 7013:
+        notification.warning({ message: '节点端口配置不正确' });
+        break;
+      case 7014:
+        notification.warning({ message: 'KubeConfig配置不能为空' });
+        break;
+      case 7015:
+        notification.warning({ message: '集群不能被删除' });
+        break;
+      case 7016:
+        notification.warning({ message: '集群不支持重新安装' });
+        break;
+      case 7017:
+        notification.warning({ message: '该集群不支持节点扩容动作' });
+        break;
       case 400:
         notification.warning({ message: '请求参数错误' });
         break;
@@ -540,6 +582,7 @@ const cloud = {
       ) {
         complete = true;
       }
+      return item;
     });
     return { complete, steps };
   },
@@ -571,6 +614,38 @@ const cloud = {
       ) {
         complete = true;
       }
+    });
+    return { complete, steps };
+  },
+  showUpdateClusterSteps(events) {
+    const colorMap = {
+      start: '',
+      '': 'gray',
+      failure: 'red',
+      success: 'green'
+    };
+    let complete = false;
+    const steps = [];
+    events.map(item => {
+      let step = updateKubernetesSteps[item.type];
+      if (step === undefined) {
+        step = {
+          Title: item.type,
+          Description: item.type,
+          Status: ''
+        };
+      }
+      step.Status = item.status;
+      step.Message = item.message;
+      step.Color = colorMap[item.status];
+      steps.push(step);
+      if (
+        item.status === 'failure' ||
+        (item.type === 'UpdateKubernetes' && item.status === 'success')
+      ) {
+        complete = true;
+      }
+      return item;
     });
     return { complete, steps };
   },

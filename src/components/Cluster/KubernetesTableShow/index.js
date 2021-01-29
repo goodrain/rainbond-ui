@@ -15,9 +15,14 @@ import React, { PureComponent } from 'react';
 import CodeMirror from 'react-codemirror';
 import { Link } from 'umi';
 import Ansi from '../../../components/Ansi';
-import { getKubeConfig } from '../../../services/cloud';
+import {
+  getKubeConfig,
+  getUpdateKubernetesTask
+} from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
+import RKEClusterUpdate from '../RKEClusterUpdate';
+import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
 import istyles from './index.less';
 
 const { Paragraph } = Typography;
@@ -32,7 +37,16 @@ export default class KubernetesClusterShow extends PureComponent {
       showCreateLog: false
     };
   }
-  componentDidMount() {}
+  componentDidMount() {
+    this.autoPage();
+  }
+
+  autoPage = () => {
+    const { updateKubernetes, updateKubernetesClusterID } = this.props;
+    if (updateKubernetes && updateKubernetesClusterID) {
+      this.updateCluster(updateKubernetesClusterID);
+    }
+  };
   deleteCluster(clusterID) {
     const { dispatch, eid, selectProvider, loadKubernetesCluster } = this.props;
     dispatch({
@@ -107,7 +121,41 @@ export default class KubernetesClusterShow extends PureComponent {
       }
     });
   };
-
+  updateCluster = clusterID => {
+    const { eid, selectProvider } = this.props;
+    getUpdateKubernetesTask({
+      clusterID,
+      providerName: selectProvider,
+      enterprise_id: eid
+    })
+      .then(re => {
+        if (re.task && re.task.status !== 'complete') {
+          this.setState({
+            showUpdateKubernetesTasks: true,
+            updateTask: re.task
+          });
+          return;
+        }
+        this.setState({
+          showUpdateKubernetes: true,
+          nodeList: re.nodeList,
+          updateClusterID: clusterID
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+  cancelShowUpdateKubernetes = () => {
+    const { loadKubernetesCluster } = this.props;
+    this.setState({
+      showUpdateKubernetesTasks: false,
+      updateTask: null
+    });
+    if (loadKubernetesCluster) {
+      loadKubernetesCluster();
+    }
+  };
   getKubeConfig = clusterID => {
     const { eid, selectProvider } = this.props;
     getKubeConfig({
@@ -239,6 +287,11 @@ export default class KubernetesClusterShow extends PureComponent {
                   <a>删除</a>
                 </Popconfirm>
               )}
+            {row.state === 'running' && selectProvider === 'rke' && (
+              <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
+                节点扩容
+              </a>
+            )}
           </div>
         );
       }
@@ -281,7 +334,12 @@ export default class KubernetesClusterShow extends PureComponent {
       selectClusterName,
       createLog,
       showCreateLog,
-      kubeConfig
+      kubeConfig,
+      showUpdateKubernetes,
+      nodeList,
+      updateClusterID,
+      showUpdateKubernetesTasks,
+      updateTask
     } = this.state;
     return (
       <div>
@@ -417,6 +475,30 @@ export default class KubernetesClusterShow extends PureComponent {
               />
             </div>
           </Modal>
+        )}
+        {showUpdateKubernetes && (
+          <RKEClusterUpdate
+            eid={eid}
+            onOK={task =>
+              this.setState({
+                showUpdateKubernetes: false,
+                updateTask: task,
+                showUpdateKubernetesTasks: true
+              })
+            }
+            onCancel={() => {
+              this.setState({ showUpdateKubernetes: false });
+            }}
+            clusterID={updateClusterID}
+            nodeList={nodeList}
+          />
+        )}
+        {showUpdateKubernetesTasks && (
+          <ShowUpdateClusterDetail
+            eid={eid}
+            task={updateTask}
+            onCancel={this.cancelShowUpdateKubernetes}
+          />
         )}
       </div>
     );

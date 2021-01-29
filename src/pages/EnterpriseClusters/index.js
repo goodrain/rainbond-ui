@@ -28,7 +28,7 @@ import userUtil from '../../utils/user';
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
   list,
-  loading: loading.models.list,
+  clusterLoading: loading.effects['region/fetchEnterpriseClusters'],
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   isRegist: global.isRegist,
@@ -345,7 +345,8 @@ export default class EnterpriseClusters extends PureComponent {
     const {
       match: {
         params: { eid }
-      }
+      },
+      clusterLoading
     } = this.props;
 
     const colorbj = (color, bg) => {
@@ -534,9 +535,9 @@ export default class EnterpriseClusters extends PureComponent {
         title: '操作',
         dataIndex: 'method',
         align: 'center',
-        width: '170px',
+        width: '240px',
         render: (_, item) => {
-          return [
+          const mlist = [
             <a
               onClick={() => {
                 this.delUser(item);
@@ -559,6 +560,16 @@ export default class EnterpriseClusters extends PureComponent {
               资源限额
             </a>
           ];
+          if (item.provider === 'rke') {
+            mlist.push(
+              <Link
+                to={`/enterprise/${eid}/provider/rke/kclusters?clusterID=${item.provider_cluster_id}&updateKubernetes=true`}
+              >
+                节点扩容
+              </Link>
+            );
+          }
+          return mlist;
         }
       }
     ];
@@ -673,7 +684,11 @@ export default class EnterpriseClusters extends PureComponent {
             style={{ marginBottom: '16px' }}
             message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
           />
-          <Table dataSource={clusters} columns={columns} />
+          <Table
+            loading={clusterLoading}
+            dataSource={clusters}
+            columns={columns}
+          />
         </Card>
         {showTenantList && (
           <Modal

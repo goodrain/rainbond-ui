@@ -10,11 +10,12 @@ import {
   loadRunningInitRainbondTasks,
   loadTask,
   loadTaskEvents,
+  queryCreateLog,
   queryEnterpriseAccesskey,
+  reInstall,
   setEnterpriseAccesskey,
   updateInitTaskStatus,
-  queryCreateLog,
-  reInstall
+  updateKubernetesCluster
 } from '../services/cloud';
 
 export default {
@@ -132,6 +133,16 @@ export default {
     },
     *reInstall({ payload, callback, handleError }, { call }) {
       const response = yield call(reInstall, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *updateKubernetesCluster({ payload, callback, handleError }, { call }) {
+      const response = yield call(
+        updateKubernetesCluster,
+        payload,
+        handleError
+      );
       if (response && callback) {
         callback(response);
       }

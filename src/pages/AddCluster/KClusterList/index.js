@@ -276,6 +276,9 @@ export default class EnterpriseClusters extends PureComponent {
     const {
       match: {
         params: { eid, provider }
+      },
+      location: {
+        query: { clusterID, updateKubernetes }
       }
     } = this.props;
     let title = 'Kubernetes 集群列表';
@@ -322,6 +325,8 @@ export default class EnterpriseClusters extends PureComponent {
             loadLastTask={this.loadLastTask}
             linkedClusters={linkedClusters}
             showBuyClusterConfig={this.showBuyClusterConfig}
+            updateKubernetes={updateKubernetes}
+            updateKubernetesClusterID={clusterID}
           />
           {showBuyClusterConfig && this.renderCreateClusterShow()}
           <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
