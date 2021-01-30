@@ -372,18 +372,26 @@ export default class RKEClusterConfig extends PureComponent {
               <Paragraph className={styles.describe}>
                 <ul>
                   <li>
-                    <span>采用 RKE 方案基于提供的主机安装 Kubernetes 集群</span>
+                    <span>
+                      采用 RKE 方案基于提供的主机安装 Kubernetes 集群。
+                    </span>
                   </li>
                   <li>
                     <span>
                       请确保提供的主机<b>SSH端口</b>和<b>6443端口</b>
-                      都可以被当前网络直接访问
+                      都可以被当前网络直接访问。
                     </span>
                   </li>
                   <li>
                     <span>
                       节点初始化脚本会进行<b>系统检查</b>、<b>配置SSH免密</b>、
-                      <b>Docker安装</b>三项动作
+                      <b>Docker安装</b>三项动作。
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      如果你的主机已经安装 Docker,请确保不能大于 19.03.x 和低于
+                      1.13.x 版本。
                     </span>
                   </li>
                 </ul>
