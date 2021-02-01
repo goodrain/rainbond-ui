@@ -172,7 +172,6 @@ export default class RKEClusterConfig extends PureComponent {
   }
 
   componentDidMount = () => {
-    this.handleAdd();
     this.loadInitNodeCmd();
   };
 
@@ -309,13 +308,8 @@ export default class RKEClusterConfig extends PureComponent {
         dataIndex: 'roles',
         width: '220px',
         editable: true,
-        render: text => (
-          <Tooltip title="点击修改">
-            {text.map(item => (
-              <Tag color="blue">{this.nodeRole(item)}</Tag>
-            ))}
-          </Tooltip>
-        )
+        render: text =>
+          text.map(item => <Tag color="blue">{this.nodeRole(item)}</Tag>)
       },
       {
         title: '操作',
@@ -378,7 +372,8 @@ export default class RKEClusterConfig extends PureComponent {
                   </li>
                   <li>
                     <span>
-                      请确保提供的主机<b>SSH端口</b>和<b>6443端口</b>
+                      请确保提供的主机的 IP 地址的<b>SSH 端口</b>和
+                      <b>6443端口</b>
                       都可以被当前网络直接访问。
                     </span>
                   </li>
@@ -390,8 +385,9 @@ export default class RKEClusterConfig extends PureComponent {
                   </li>
                   <li>
                     <span>
-                      如果你的主机已经安装 Docker,请确保不能大于 19.03.x 和低于
-                      1.13.x 版本。
+                      如果你的主机已经安装 Docker，请确保不能大于 <b>19.03.x</b>{' '}
+                      和低于
+                      <b>1.13.x</b> 版本。
                     </span>
                   </li>
                 </ul>
@@ -416,7 +412,7 @@ export default class RKEClusterConfig extends PureComponent {
           </Row>
           <Row>
             <Col span={24} style={{ padding: '0 16px' }}>
-              <Form.Item label="节点列表(192.168.1.1为默认数据，点击修改)">
+              <Form.Item label="节点列表">
                 {getFieldDecorator('nodeLists', {
                   initialValue: ''
                 })(
@@ -436,7 +432,7 @@ export default class RKEClusterConfig extends PureComponent {
             </Col>
           </Row>
           <Row style={{ padding: '0 16px' }}>
-            <span style={{ fontWeight: 600 }}>
+            <span style={{ fontWeight: 600, color: 'red' }}>
               请在所有节点先执行以下初始化命令（执行用户需要具有sudo权限）：
             </span>
             <Col span={24} style={{ marginTop: '16px' }}>
