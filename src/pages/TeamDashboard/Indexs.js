@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 import {
   Avatar,
   Button,

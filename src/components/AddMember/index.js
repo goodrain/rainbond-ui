@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
-import { Modal, Form, Checkbox, Select, Input } from 'antd';
+import { Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import UserSelect from '../UserSelect';
@@ -14,7 +14,7 @@ class ConfirmModal extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      roles: [],
+      roles: []
     };
   }
   componentDidMount() {
@@ -27,15 +27,15 @@ class ConfirmModal extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         page_size: 10000,
-        page: 1,
+        page: 1
       },
       callback: data => {
         if (data) {
           this.setState({
-            roles: data.list || [],
+            roles: data.list || []
           });
         }
-      },
+      }
     });
   };
   handleSubmit = () => {
@@ -55,18 +55,18 @@ class ConfirmModal extends PureComponent {
 
     if (data && data.roles) {
       data.roles.map(item => {
-        initialValueRoles.push(item.role_id);
+        initialValueRoles.push(Number(item.role_id));
       });
     }
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
-      },
+        sm: { span: 14 }
+      }
     };
 
     return (
@@ -84,9 +84,9 @@ class ConfirmModal extends PureComponent {
                 rules: [
                   {
                     required: false,
-                    message: '请输入用户名称',
-                  },
-                ],
+                    message: '请输入用户名称'
+                  }
+                ]
               })(<Input disabled placeholder="请输入用户名称" />)}
             </FormItem>
           ) : (
@@ -95,9 +95,9 @@ class ConfirmModal extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: '请选择要添加的用户',
-                  },
-                ],
+                    message: '请选择要添加的用户'
+                  }
+                ]
               })(<UserSelect />)}
             </FormItem>
           )}
@@ -108,9 +108,9 @@ class ConfirmModal extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请选择角色',
-                },
-              ],
+                  message: '请选择角色'
+                }
+              ]
             })(
               <Select
                 mode="multiple"

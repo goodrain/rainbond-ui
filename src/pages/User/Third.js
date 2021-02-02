@@ -61,7 +61,7 @@ export default class ThirdLogin extends Component {
                   desc: ''
                 },
                 () => {
-                  if (resdata.bean.token) {
+                  if (resdata.bean && resdata.bean.token) {
                     cookie.set('token', resdata.bean.token);
                   }
                   this.handleSuccess();
