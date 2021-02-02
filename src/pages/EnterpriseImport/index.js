@@ -42,7 +42,6 @@ export default class EnterpriseShared extends PureComponent {
       file_list: [],
       import_file_status: [],
       userTeamList: [],
-      autoQuery: false,
       scopeValue: enterpriseAdmin ? 'enterprise' : 'team',
       tenant_name: '',
       percents: false,
@@ -50,11 +49,13 @@ export default class EnterpriseShared extends PureComponent {
     };
   }
   componentDidMount() {
+    this.loop = true;
     this.queryImportRecord();
     this.getUserTeams();
   }
   componentWillUnmount() {
-    this.timer && clearTimeout(this.timer);
+    this.loop = false;
+    this.statusloop = false;
   }
   cancelImport = () => {
     const {
@@ -78,39 +79,11 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
   complete = () => {
-    this.props.onOK && this.props.onOK();
-  };
-  closeAutoQuery = () => {
-    this.timer && clearTimeout(this.timer);
-    this.setState({ autoQuery: false });
-  };
-  handleOk = () => {
-    const file = this.state.fileList;
-    if (file.length === 0) {
-      notification.info({
-        message: '您还没有上传文件'
-      });
-      return;
+    if (this.props.onOK) {
+      this.props.onOK();
     }
-    const file_name = file[0].name;
-    const { event_id } = file[0].response.data.bean;
-    this.props.dispatch({
-      type: 'market/importApp',
-      payload: {
-        scope: 'enterprise',
-        event_id,
-        file_name
-      },
-      callback: data => {
-        if (data) {
-          notification.success({ message: `操作成功，正在导入` });
-          this.props.onOk && this.props.onOk(data);
-        }
-      }
-    });
   };
   onChangeUpload = info => {
-    const { autoQuery } = this.state;
     let { fileList } = info;
     fileList = fileList.filter(file => {
       if (file.response) {
@@ -130,8 +103,6 @@ export default class EnterpriseShared extends PureComponent {
       this.setState({
         percents: false
       });
-    } else {
-      !autoQuery && this.openAutoQuery();
     }
 
     this.setState({ fileList });
@@ -142,11 +113,8 @@ export default class EnterpriseShared extends PureComponent {
   onFileChange = e => {
     this.setState({ file_list: e });
   };
-  openAutoQuery = () => {
-    this.setState({ autoQuery: true });
-    this.handleQueryImportDir();
-  };
   openQueryImportStatus = () => {
+    this.statusloop = true;
     this.queryImportStatus();
   };
   handleSubmit = () => {
@@ -168,12 +136,13 @@ export default class EnterpriseShared extends PureComponent {
       notification.warning({
         message: '请选择一个团队'
       });
-      return null;
+      return;
     }
 
     let fileStr = '';
-    file_list.map(order => {
-      fileStr += `${order},`;
+    file_list.map(app => {
+      fileStr += `${app},`;
+      return app;
     });
     fileStr = fileStr.slice(0, fileStr.length - 1);
     this.props.dispatch({
@@ -190,7 +159,7 @@ export default class EnterpriseShared extends PureComponent {
           notification.success({
             message: '开始导入应用'
           });
-          this.closeAutoQuery();
+          this.loop = false;
           this.openQueryImportStatus();
         }
       }
@@ -225,7 +194,7 @@ export default class EnterpriseShared extends PureComponent {
             () => {
               if (res.bean.region_name !== '') {
                 this.openQueryImportStatus();
-                this.handleQueryImportDir(true);
+                this.handleQueryImportDir();
               }
             }
           );
@@ -278,45 +247,42 @@ export default class EnterpriseShared extends PureComponent {
             });
             return;
           }
-          setTimeout(() => {
-            this.queryImportStatus();
-          }, 2000);
+          if (this.statusloop) {
+            setTimeout(() => {
+              this.queryImportStatus();
+            }, 3000);
+          }
         }
-      }
+      },
+      handleError: () => {}
     });
   };
 
-  handleQueryImportDir = isNext => {
+  handleQueryImportDir = () => {
     const {
       dispatch,
       match: {
         params: { eid }
       }
     } = this.props;
-    const { autoQuery } = this.state;
-    if (isNext || autoQuery) {
-      dispatch({
-        type: 'market/queryImportDirApp',
-        payload: {
-          enterprise_id: eid,
-          event_id: this.state.event_id
-        },
-        callback: data => {
-          if (data) {
-            this.setState({ existFileList: data.list });
-          }
-          const _th = this;
-          if (autoQuery) {
-            this.timer = setTimeout(function() {
-              _th.handleQueryImportDir();
-            }, 8000);
-          }
+    dispatch({
+      type: 'market/queryImportDirApp',
+      payload: {
+        enterprise_id: eid,
+        event_id: this.state.event_id
+      },
+      callback: data => {
+        if (data) {
+          this.setState({ existFileList: data.list });
         }
-      });
-    }
-  };
-  onChange = checkedValues => {
-    console.log('checked = ', checkedValues);
+        if (this.loop) {
+          setTimeout(() => {
+            this.handleQueryImportDir();
+          }, 6000);
+        }
+      },
+      handleError: () => {}
+    });
   };
 
   onChangeRadio = e => {
@@ -386,7 +352,8 @@ export default class EnterpriseShared extends PureComponent {
       userTeamList,
       record,
       region_name,
-      enterpriseAdmin
+      enterpriseAdmin,
+      import_file_status
     } = this.state;
 
     const existFiles =
@@ -433,7 +400,7 @@ export default class EnterpriseShared extends PureComponent {
                 <Upload
                   showUploadList={false}
                   name="appTarFile"
-                  accept=".zip,.tar"
+                  accept=".zip,.tar,.gz"
                   action={record.upload_url}
                   fileList={this.state.fileList}
                   onChange={this.onChangeUpload}
@@ -461,7 +428,31 @@ export default class EnterpriseShared extends PureComponent {
                       return (
                         <Col key={`col${order}`} span={24}>
                           <Checkbox key={order} value={order}>
-                            {order}
+                            {order}{' '}
+                            {import_file_status.map(item => {
+                              if (item.file_name === order) {
+                                switch (item.status) {
+                                  case 'failed':
+                                    return (
+                                      <Icon
+                                        type="check-circle"
+                                        theme="twoTone"
+                                        twoToneColor="red"
+                                      />
+                                    );
+                                  case 'success':
+                                    return (
+                                      <Icon
+                                        type="check-circle"
+                                        theme="twoTone"
+                                        twoToneColor="#52c41a"
+                                      />
+                                    );
+                                  default:
+                                    return <Icon type="sync" spin />;
+                                }
+                              }
+                            })}
                           </Checkbox>
                         </Col>
                       );
@@ -514,7 +505,7 @@ export default class EnterpriseShared extends PureComponent {
                   >
                     放弃导入
                   </Button>
-                  {this.state.import_file_status.length == 0 && (
+                  {this.state.import_file_status.length === 0 && (
                     <Button
                       type="primary"
                       onClick={() => {

@@ -22,7 +22,7 @@ export default class SetRegionConfig extends PureComponent {
     this.state = {
       loading: true,
       configs: {},
-      task: {}
+      task: null
     };
   }
   componentDidMount() {

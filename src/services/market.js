@@ -313,11 +313,12 @@ export function importApp(body = {}) {
      查询包导入状态
   */
 
-export function queryImportApp(body = { team_name, event_id }) {
+export function queryImportApp(body = { team_name, event_id }, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}`,
     {
-      method: 'get'
+      method: 'get',
+      handleError
     }
   );
 }
@@ -340,14 +341,18 @@ export function importDir(body = { team_name }) {
      查询本次导入的目录下的文件
   */
 
-export function queryImportDirApp(body = { enterprise_id, event_id }) {
+export function queryImportDirApp(
+  body = { enterprise_id, event_id },
+  handleError
+) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}/dir`,
     {
       method: 'get',
       params: {
         event_id: body.event_id
-      }
+      },
+      handleError
     }
   );
 }
