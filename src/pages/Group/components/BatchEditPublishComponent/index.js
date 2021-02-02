@@ -24,7 +24,9 @@ class BatchEditPublishComponent extends PureComponent {
       const alloptions = allcomponents.map(item => item.service_share_uuid);
       this.setState({
         allOptions: alloptions,
-        checkedList: options
+        checkedList: options,
+        checkAll: alloptions.length === options.length,
+        indeterminate: !!options.length && options.length < alloptions.length
       });
     }
   };
@@ -66,46 +68,44 @@ class BatchEditPublishComponent extends PureComponent {
         okText="确定"
         cancelText="取消"
       >
-        <div>
-          <Checkbox
-            indeterminate={indeterminate}
-            onChange={this.onCheckAllChange}
-            checked={checkAll}
-          >
-            选择全部
-          </Checkbox>
-          <Divider />
-          <Checkbox.Group
-            style={{
-              width: '100%',
-              display: 'flex',
-              flexFlow: 'row wrap'
-            }}
-            onChange={this.onChange}
-            value={checkedList}
-          >
-            {allcomponents.map(apptit => {
-              return (
-                <div style={{ padding: '8px', flex: '0 0 50%' }}>
-                  <Button
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    <Checkbox
-                      checked
-                      value={apptit.service_share_uuid}
-                      style={{ marginRight: '10px' }}
-                    />
-                    {apptit.service_cname}
-                  </Button>
-                </div>
-              );
-            })}
-          </Checkbox.Group>
-        </div>
+        <Checkbox
+          indeterminate={indeterminate}
+          onChange={this.onCheckAllChange}
+          checked={checkAll}
+        >
+          选择全部
+        </Checkbox>
+        <Divider />
+        <Checkbox.Group
+          style={{
+            width: '100%',
+            display: 'flex',
+            flexFlow: 'row wrap'
+          }}
+          onChange={this.onChange}
+          value={checkedList}
+        >
+          {allcomponents.map(apptit => {
+            return (
+              <div style={{ padding: '8px', flex: '0 0 50%' }}>
+                <Button
+                  style={{
+                    width: '100%',
+                    textAlign: 'left',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <Checkbox
+                    checked
+                    value={apptit.service_share_uuid}
+                    style={{ marginRight: '10px' }}
+                  />
+                  {apptit.service_cname}
+                </Button>
+              </div>
+            );
+          })}
+        </Checkbox.Group>
       </Modal>
     );
   }
