@@ -29,7 +29,7 @@ const { Option, OptGroup } = Select;
   currUser: user.currentUser,
   enterprise: global.enterprise,
   addHttpStrategyLoading: loading.effects['gateWay/addHttpStrategy'],
-  editHttpStrategyLoading: loading.effects['gateWay/editHttpStrategy'],
+  editHttpStrategyLoading: loading.effects['gateWay/editHttpStrategy']
 }))
 class DrawerForm extends PureComponent {
   constructor(props) {
@@ -54,7 +54,7 @@ class DrawerForm extends PureComponent {
           props.editInfo.domain_cookie ||
           // props.editInfo.the_weight ||
           props.editInfo.certificate_id)
-      ),
+      )
     };
   }
   componentWillMount() {
@@ -70,7 +70,7 @@ class DrawerForm extends PureComponent {
       payload: {
         team_name,
         page,
-        page_size,
+        page_size
       },
       callback: data => {
         if (data && data.list) {
@@ -78,7 +78,7 @@ class DrawerForm extends PureComponent {
           const isAdd = !!(listNum && listNum > page_size);
           this.setState({ licenseList: data.list, isAddLicense: isAdd });
         }
-      },
+      }
     });
     if (editInfo) {
       this.handleServices({ key: editInfo.g_id });
@@ -91,7 +91,7 @@ class DrawerForm extends PureComponent {
   addLicense = () => {
     this.setState(
       {
-        page_size: this.state.page_size + 10,
+        page_size: this.state.page_size + 10
       },
       () => {
         this.heandleEditInfo(this.props);
@@ -132,7 +132,7 @@ class DrawerForm extends PureComponent {
       type: 'application/fetchApps',
       payload: {
         group_id: groupObj.key,
-        team_name,
+        team_name
       },
       callback: data => {
         if (data) {
@@ -141,18 +141,18 @@ class DrawerForm extends PureComponent {
               if (isPerform && editInfo) {
                 this.handlePorts(editInfo.service_id, true);
                 this.props.form.setFieldsValue({
-                  service_id: editInfo.service_id,
+                  service_id: editInfo.service_id
                 });
               } else {
                 this.handlePorts(data.list[0].service_id, false);
                 this.props.form.setFieldsValue({
-                  service_id: data.list[0].service_id,
+                  service_id: data.list[0].service_id
                 });
               }
             }
           });
         }
-      },
+      }
     });
   };
   /** 获取端口 */
@@ -171,7 +171,7 @@ class DrawerForm extends PureComponent {
           service_obj.length > 0 &&
           service_obj[0].service_alias &&
           service_obj[0].service_alias,
-        team_name,
+        team_name
       },
       callback: data => {
         if (data) {
@@ -179,47 +179,47 @@ class DrawerForm extends PureComponent {
             if (data.list && data.list.length > 0) {
               if (isPerform && editInfo) {
                 this.setState({
-                  isPerform: false,
+                  isPerform: false
                 });
                 this.props.form.setFieldsValue({
-                  container_port: editInfo.container_port,
+                  container_port: editInfo.container_port
                 });
               } else {
                 this.props.form.setFieldsValue({
-                  container_port: data.list[0].container_port,
+                  container_port: data.list[0].container_port
                 });
               }
             }
           });
         }
-      },
+      }
     });
   };
   /** 介绍域名说明 */
   showDescription = () => {
     this.setState({
-      descriptionVisible: true,
+      descriptionVisible: true
     });
   };
   handleOk_description = () => {
     this.setState({
-      descriptionVisible: false,
+      descriptionVisible: false
     });
   };
   handeCertificateSelect = value => {
     if (value) {
       this.setState({
-        rule_extensions_visible: true,
+        rule_extensions_visible: true
       });
     }
     this.setState({
-      automaticCertificateVisible: value === 'auto_ssl',
+      automaticCertificateVisible: value === 'auto_ssl'
     });
   };
 
   handleRoutingConfiguration = () => {
     this.setState({
-      routingConfiguration: !this.state.routingConfiguration,
+      routingConfiguration: !this.state.routingConfiguration
     });
   };
   render() {
@@ -229,18 +229,18 @@ class DrawerForm extends PureComponent {
       groups,
       editInfo,
       addHttpStrategyLoading,
-      editHttpStrategyLoading,
+      editHttpStrategyLoading
     } = this.props;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 5 },
-        sm: { span: 5 },
+        sm: { span: 5 }
       },
       wrapperCol: {
         xs: { span: 19 },
-        sm: { span: 19 },
-      },
+        sm: { span: 19 }
+      }
     };
     // const currentGroup = editInfo ? editInfo.g_id : groups.lenth > 0 ? groups[0].group_id : null;
     let rule_http;
@@ -279,7 +279,7 @@ class DrawerForm extends PureComponent {
       routingConfiguration,
       licenseList,
       isAddLicense,
-      automaticCertificateVisible,
+      automaticCertificateVisible
     } = this.state;
     const dividers = <Divider style={{ margin: '4px 0' }} />;
     return (
@@ -293,14 +293,14 @@ class DrawerForm extends PureComponent {
           visible={this.props.visible}
           maskClosable={false}
           style={{
-            overflow: 'auto',
+            overflow: 'auto'
           }}
         >
           <Form>
             <h3
               style={{
                 borderBottom: '1px solid #BBBBBB',
-                marginBottom: '10px',
+                marginBottom: '10px'
               }}
             >
               路由规则
@@ -314,14 +314,14 @@ class DrawerForm extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: '请添加域名',
+                    message: '请添加域名'
                   },
                   {
                     pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                    message: '请填写正确的域名格式，支持泛域名',
-                  },
+                    message: '请填写正确的域名格式，支持泛域名'
+                  }
                 ],
-                initialValue: editInfo.domain_name,
+                initialValue: editInfo.domain_name
               })(<Input placeholder="请输入域名" />)}
               <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                 <a href="javascript:void(0)" onClick={this.showDescription}>
@@ -334,14 +334,14 @@ class DrawerForm extends PureComponent {
                 rules: [
                   {
                     required: false,
-                    message: '/',
+                    message: '/'
                   },
                   {
                     pattern: /^\/+.*/,
-                    message: '请输入绝对路径',
-                  },
+                    message: '请输入绝对路径'
+                  }
                 ],
-                initialValue: editInfo.domain_path,
+                initialValue: editInfo.domain_path
               })(<Input placeholder="/" />)}
             </FormItem>
 
@@ -359,17 +359,17 @@ class DrawerForm extends PureComponent {
               <div>
                 <FormItem {...formItemLayout} label="请求头">
                   {getFieldDecorator('domain_heander', {
-                    initialValue: editInfo.domain_heander,
+                    initialValue: editInfo.domain_heander
                   })(<DAinput />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="Cookie">
                   {getFieldDecorator('domain_cookie', {
-                    initialValue: editInfo.domain_cookie,
+                    initialValue: editInfo.domain_cookie
                   })(<DAinput />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="权重">
                   {getFieldDecorator('the_weight', {
-                    initialValue: editInfo.the_weight || 100,
+                    initialValue: editInfo.the_weight || 100
                   })(
                     <InputNumber min={1} max={100} style={{ width: '100%' }} />
                   )}
@@ -384,7 +384,7 @@ class DrawerForm extends PureComponent {
                       initialValue:
                         AutomaticCertificate && editInfo.auto_ssl
                           ? 'auto_ssl'
-                          : editInfo.certificate_id,
+                          : editInfo.certificate_id
                     })(
                       <Select
                         placeholder="请绑定证书"
@@ -398,7 +398,7 @@ class DrawerForm extends PureComponent {
                                 <div
                                   style={{
                                     padding: '4px 8px',
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                   }}
                                   onMouseDown={e => e.preventDefault()}
                                   onClick={this.addLicense}
@@ -444,9 +444,9 @@ class DrawerForm extends PureComponent {
                         rules: [
                           {
                             required: true,
-                            message: '请选择签发证书认证配置',
-                          },
-                        ],
+                            message: '请选择签发证书认证配置'
+                          }
+                        ]
                       })(
                         <Select placeholder="请选择签发证书认证配置">
                           {Object.keys(AutomaticCertificateDeleteValue).map(
@@ -463,7 +463,7 @@ class DrawerForm extends PureComponent {
                   {(this.state.rule_extensions_visible ||
                     (editInfo.certificate_id && rule_http)) &&
                     getFieldDecorator('rule_extensions_http', {
-                      initialValue: [rule_http],
+                      initialValue: [rule_http]
                     })(
                       <Checkbox.Group>
                         <Row>
@@ -477,7 +477,7 @@ class DrawerForm extends PureComponent {
                     )}
                   <FormItem>
                     {getFieldDecorator('rule_extensions_round', {
-                      initialValue: rule_round || 'round-robin',
+                      initialValue: rule_round || 'round-robin'
                     })(
                       <Select placeholder="请选择负载均衡类型">
                         <Option value="round-robin">负载均衡算法：轮询</Option>
@@ -497,7 +497,7 @@ class DrawerForm extends PureComponent {
             <h3
               style={{
                 borderBottom: '1px solid #BBBBBB',
-                marginBottom: '10px',
+                marginBottom: '10px'
               }}
             >
               访问目标
@@ -513,9 +513,9 @@ class DrawerForm extends PureComponent {
                   ? { key: appID }
                   : (editInfo && {
                       key: editInfo.g_id,
-                      label: editInfo.group_name,
+                      label: editInfo.group_name
                     }) ||
-                    undefined,
+                    undefined
               })(
                 <Select
                   labelInValue
@@ -542,7 +542,7 @@ class DrawerForm extends PureComponent {
                     : this.state.serviceComponentList &&
                       this.state.serviceComponentList.length > 0
                     ? this.state.serviceComponentList[0].service_id
-                    : undefined,
+                    : undefined
               })(
                 <Select placeholder="请选择组件" onChange={this.handlePorts}>
                   {(this.state.serviceComponentList || []).map(
@@ -569,7 +569,7 @@ class DrawerForm extends PureComponent {
                     : this.state.portList && this.state.portList.length > 0
                     ? this.state.portList[0].container_port
                     : undefined,
-                rules: [{ required: true, message: '请选择端口号' }],
+                rules: [{ required: true, message: '请选择端口号' }]
               })(
                 <Select placeholder="请选择端口号">
                   {(this.state.portList || []).map((port, index) => {
@@ -594,12 +594,12 @@ class DrawerForm extends PureComponent {
               left: 0,
               background: '#fff',
               borderRadius: '0 0 4px 4px',
-              zIndex: 9999,
+              zIndex: 9999
             }}
           >
             <Button
               style={{
-                marginRight: 8,
+                marginRight: 8
               }}
               onClick={onClose}
             >
@@ -627,7 +627,7 @@ class DrawerForm extends PureComponent {
                 onClick={this.handleOk_description}
               >
                 确定
-              </Button>,
+              </Button>
             ]}
             zIndex={9999}
           >

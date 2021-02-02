@@ -107,7 +107,10 @@ class EditClusterInfo extends PureComponent {
             >
               {getFieldDecorator('region_alias', {
                 initialValue: regionInfo ? regionInfo.region_alias : '',
-                rules: [{ required: true, message: '请填写集群名称!' }]
+                rules: [
+                  { required: true, message: '请填写集群名称!' },
+                  { max: 24, message: '集群名称不能超过24字符' }
+                ]
               })(<Input placeholder="请填写集群名称" />)}
             </FormItem>
           </div>

@@ -144,7 +144,11 @@ export default class SelectComponent extends PureComponent {
               </div>
             )}
             {!active && currentAPPLink && (
-              <Link className={style.selectButtonLink} to={currentAPPLink}>
+              <Link
+                className={style.selectButtonLink}
+                to={currentAPPLink}
+                title={currentComponent && currentComponent.service_cname}
+              >
                 {currentComponent && currentComponent.service_cname}
               </Link>
             )}

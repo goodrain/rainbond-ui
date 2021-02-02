@@ -1,40 +1,24 @@
 import {
-    Button, Card,
-
-
-
-
-
-
-
-
-
-
-
-    Divider, Form,
-
-
-    Icon,
-
-
-    Modal, notification, Select,
-
-
-
-
-
-    Spin
-} from "antd";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
-import React, { PureComponent } from "react";
-import EditGroupName from "../../components/AddOrEditGroup";
-import configureGlobal from "../../utils/configureGlobal";
-import globalUtil from "../../utils/global";
-import guideUtil from "../../utils/guide";
-import rainbondUtil from "../../utils/rainbond";
-import { languageObj } from "../../utils/utils";
-import styles from "./index.less";
+  Button,
+  Card,
+  Divider,
+  Form,
+  Icon,
+  Modal,
+  notification,
+  Select,
+  Spin
+} from 'antd';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
+import EditGroupName from '../../components/AddOrEditGroup';
+import configureGlobal from '../../utils/configureGlobal';
+import globalUtil from '../../utils/global';
+import guideUtil from '../../utils/guide';
+import rainbondUtil from '../../utils/rainbond';
+import { languageObj } from '../../utils/utils';
+import styles from './index.less';
 
 const { Option } = Select;
 
@@ -86,7 +70,7 @@ export default class Index extends PureComponent {
 
   getGuideState = () => {
     this.props.dispatch({
-      type: "global/getGuideState",
+      type: 'global/getGuideState',
       payload: {
         enterprise_id: this.props.user.enterprise_id
       },
@@ -127,7 +111,7 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     const { GuideList } = this.state;
     dispatch({
-      type: "application/addGroup",
+      type: 'application/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_name: vals.group_name,
@@ -135,10 +119,10 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res) {
-          notification.success({ message: "添加成功" });
+          notification.success({ message: '添加成功' });
           this.handleCancelApplication();
           dispatch({
-            type: "global/fetchGroups",
+            type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName()
             },
@@ -160,7 +144,7 @@ export default class Index extends PureComponent {
   handleShare = group_id => {
     const { dispatch } = this.props;
     dispatch({
-      type: "application/ShareGroup",
+      type: 'application/ShareGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id
@@ -190,7 +174,7 @@ export default class Index extends PureComponent {
 
   handleSubmit = e => {
     e.preventDefault();
-    const {form} = this.props;
+    const { form } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) {
         return;
@@ -211,7 +195,7 @@ export default class Index extends PureComponent {
     const { setFieldsValue } = this.props.form;
 
     this.props.dispatch({
-      type: "application/addGroup",
+      type: 'application/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...vals
@@ -220,7 +204,7 @@ export default class Index extends PureComponent {
         if (group) {
           // 获取群组
           this.props.dispatch({
-            type: "global/fetchGroups",
+            type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
               region_name: globalUtil.getCurrRegionName()
@@ -236,10 +220,10 @@ export default class Index extends PureComponent {
   };
 
   handleOnchange = () => {
-    const groupId = this.props.form.getFieldValue("group_id");
+    const groupId = this.props.form.getFieldValue('group_id');
     const { dispatch } = this.props;
     dispatch({
-      type: "application/fetchApps",
+      type: 'application/fetchApps',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
@@ -258,7 +242,7 @@ export default class Index extends PureComponent {
   };
 
   completedShow = () => {
-    return <span style={{ color: "rgb(82, 196, 26)" }}>已完成</span>;
+    return <span style={{ color: 'rgb(82, 196, 26)' }}>已完成</span>;
   };
   lineShow = () => {
     return <Divider>完成任务前请查阅以上内容</Divider>;
@@ -268,35 +252,34 @@ export default class Index extends PureComponent {
     this.state.GuideList.map(item => {
       if (item.key == guideKey) {
         guide = item;
-
       }
     });
     return guide;
   };
 
   CreateApp = () => {
-    const grade = this.getGuide("app_create");
+    const grade = this.getGuide('app_create');
     const { rainbondInfo } = this.props;
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     if (!grade) {
-      return "";
+      return '';
     }
     return (
       <div
         className={styles.connect}
-        style={{ borderColor: grade.status ? "#1890ff" : "#A8A2A2" }}
+        style={{ borderColor: grade.status ? '#1890ff' : '#A8A2A2' }}
       >
         <Icon
           className={styles.icono}
           type="caret-up"
           theme="filled"
-          style={{ color: grade.status ? "#1890ff" : "#A8A2A2" }}
+          style={{ color: grade.status ? '#1890ff' : '#A8A2A2' }}
         />
         <p>
           应用是核心抽象，由N个组件构成，它类似于Maven或Dotnet中的Project，通常是指一个完整的业务系统。在应用级抽象中用户通常关注以下知识：
         </p>
         <p>
-          1. 应用拓扑图可视化，便捷观察所有组件的运行状态{" "}
+          1. 应用拓扑图可视化，便捷观察所有组件的运行状态{' '}
           <a
             href={`${platform_url}docs/user-manual/app-manage/app-topology/`}
             target="_blank"
@@ -314,7 +297,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          3. 应用发布到企业应用市场{" "}
+          3. 应用发布到企业应用市场{' '}
           <a
             href={`${platform_url}docs/user-manual/app-manage/share-app/`}
             target="_blank"
@@ -323,7 +306,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          4. 应用整体的备份和恢复以及跨团队或集群迁移{" "}
+          4. 应用整体的备份和恢复以及跨团队或集群迁移{' '}
           <a
             href={`${platform_url}docs/user-manual/app-manage/app-backup/`}
             target="_blank"
@@ -332,7 +315,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         {this.lineShow()}
-        <p style={{ textAlign: "center" }}>
+        <p style={{ textAlign: 'center' }}>
           {grade.status ? (
             this.completedShow()
           ) : (
@@ -351,23 +334,23 @@ export default class Index extends PureComponent {
   };
 
   CreateSourceCode = () => {
-    const grade = this.getGuide("source_code_service_create");
+    const grade = this.getGuide('source_code_service_create');
     const { rainbondInfo } = this.props;
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
-      return "";
+      return '';
     }
     return (
       <div
         className={styles.connect}
-        style={{ borderColor: grade.status ? "#1890ff" : "#A8A2A2" }}
+        style={{ borderColor: grade.status ? '#1890ff' : '#A8A2A2' }}
       >
         <Icon
           className={styles.icont}
           type="caret-up"
           theme="filled"
-          style={{ color: grade.status ? "#1890ff" : "#A8A2A2" }}
+          style={{ color: grade.status ? '#1890ff' : '#A8A2A2' }}
         />
 
         <p>
@@ -429,7 +412,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          4. 服务配置文件动态配置{" "}
+          4. 服务配置文件动态配置{' '}
           <a
             href={`${platform_url}docs/user-manual/app-service-manage/service-volume/#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6`}
             target="_blank"
@@ -440,16 +423,16 @@ export default class Index extends PureComponent {
         {this.lineShow()}
         <p>
           完成任务说明: 使用你自己的源码或基于JavaDemo源码创建组件：
-          <code style={{ color: "#000000" }}>
+          <code style={{ color: '#000000' }}>
             https://github.com/goodrain/java-maven-demo.git
           </code>
         </p>
-        <p style={{ textAlign: "center" }}>
+        <p style={{ textAlign: 'center' }}>
           {grade.status ? (
             this.completedShow()
           ) : (
             <div>
-              <Button style={{ marginRight: "10px" }}>
+              <Button style={{ marginRight: '10px' }}>
                 <a
                   href={`${rainbondUtil.documentPlatform_url(
                     rainbondInfo
@@ -479,29 +462,29 @@ export default class Index extends PureComponent {
   };
 
   CreateByImageTaskShow = () => {
-    const grade = this.getGuide("image_service_create");
+    const grade = this.getGuide('image_service_create');
     const { rainbondInfo } = this.props;
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
-      return "";
+      return '';
     }
     return (
       <div
         className={styles.connect}
-        style={{ borderColor: grade.status ? "#1890ff" : "#A8A2A2" }}
+        style={{ borderColor: grade.status ? '#1890ff' : '#A8A2A2' }}
       >
         <Icon
           className={styles.icons}
           type="caret-up"
           theme="filled"
-          style={{ color: grade.status ? "#1890ff" : "#A8A2A2" }}
+          style={{ color: grade.status ? '#1890ff' : '#A8A2A2' }}
         />
         <p>
           从镜像创建组件要求用户具备一定的容器化知识，本次任务我们将从镜像安装Mysql数据库，完成本次任务用户关注以下知识：
         </p>
         <p>
-          1. 支持基于Docker镜像创建组件的规范{" "}
+          1. 支持基于Docker镜像创建组件的规范{' '}
           <a
             href={`${platform_url}docs/user-manual/app-creation/image-support/`}
             target="_blank"
@@ -519,14 +502,14 @@ export default class Index extends PureComponent {
           </a>
         </p>
         {this.lineShow()}
-        <p style={{ textAlign: "center" }}>
+        <p style={{ textAlign: 'center' }}>
           {grade.status ? (
             this.completedShow()
           ) : (
             <div>
               <p>
                 复制以下DockerRun命令示例去创建组件：
-                <code style={{ color: "#000000" }}>
+                <code style={{ color: '#000000' }}>
                   docker run -it -e MYSQL_ROOT_PASSWORD=rootpassword mysql
                 </code>
               </p>
@@ -558,8 +541,8 @@ export default class Index extends PureComponent {
         style={{
           borderColor:
             GuideList && GuideList.length > 0 && GuideList[2].status
-              ? "#1890ff"
-              : "#A8A2A2"
+              ? '#1890ff'
+              : '#A8A2A2'
         }}
       >
         <Icon
@@ -569,8 +552,8 @@ export default class Index extends PureComponent {
           style={{
             color:
               GuideList && GuideList.length > 0 && GuideList[2].status
-                ? "#1890ff"
-                : "#A8A2A2"
+                ? '#1890ff'
+                : '#A8A2A2'
           }}
         />
 
@@ -586,7 +569,7 @@ export default class Index extends PureComponent {
         <p>1. 从公有应用市场同步应用</p>
         <p>2. 从应用市场一键安装数据库组件</p>
         <p>3. 初始化数据库数据</p>
-        <p style={{ textAlign: "center" }}>
+        <p style={{ textAlign: 'center' }}>
           {/* <Button style={{ marginRight: "10px" }}>查看视频教程</Button> */}
           {GuideList && GuideList.length > 0 && !GuideList[2].status ? (
             this.completedShow()
@@ -610,30 +593,30 @@ export default class Index extends PureComponent {
   };
 
   Service = () => {
-    const grade = this.getGuide("service_connect_db");
+    const grade = this.getGuide('service_connect_db');
     const { rainbondInfo } = this.props;
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
-      return "";
+      return '';
     }
     return (
       <div
         className={styles.connect}
-        style={{ borderColor: grade.status ? "#1890ff" : "#A8A2A2" }}
+        style={{ borderColor: grade.status ? '#1890ff' : '#A8A2A2' }}
       >
         <Icon
           className={styles.iconf}
           type="caret-up"
           theme="filled"
-          style={{ color: grade.status ? "#1890ff" : "#A8A2A2" }}
+          style={{ color: grade.status ? '#1890ff' : '#A8A2A2' }}
         />
 
         <p>
           当前任务以组件连接数据库为例学习组件之间内网通信机制，完成当前任务用户会关注以下知识：
         </p>
         <p>
-          1. 组件建立依赖关系包含的通信原理（组件注册/组件发现){" "}
+          1. 组件建立依赖关系包含的通信原理（组件注册/组件发现){' '}
           <a
             href={`${platform_url}docs/user-manual/app-service-manage/service-rely/#%E6%9C%8D%E5%8A%A1%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86`}
             target="_blank"
@@ -651,7 +634,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          3. 了解如何建立组件依赖关系{" "}
+          3. 了解如何建立组件依赖关系{' '}
           <a
             href={`${platform_url}docs/user-manual/app-service-manage/service-rely/#%E6%9C%8D%E5%8A%A1%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86`}
             target="_blank"
@@ -663,26 +646,26 @@ export default class Index extends PureComponent {
         <p>
           完成任务说明：设置上一个任务创建的数据库组件的连接信息(比如MYSQL_USER,MYSQL_PASSWORD等)，将源码创建的组件依赖数据库组件建立依赖关系，源码组件通过环境变量获取数据库连接信息即可连接数据库
         </p>
-        <p style={{ textAlign: "center" }}>
-          {grade.status ? this.completedShow() : ""}
+        <p style={{ textAlign: 'center' }}>
+          {grade.status ? this.completedShow() : ''}
         </p>
       </div>
     );
   };
   ReleaseMarket = () => {
-    const grade = this.getGuide("share_app");
+    const grade = this.getGuide('share_app');
     const { rainbondInfo } = this.props;
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
-      return "";
+      return '';
     }
 
     return (
       <div
         className={styles.connect}
         style={{
-          borderColor: grade.status ? "#1890ff" : "#A8A2A2"
+          borderColor: grade.status ? '#1890ff' : '#A8A2A2'
         }}
       >
         <Icon
@@ -690,7 +673,7 @@ export default class Index extends PureComponent {
           type="caret-up"
           theme="filled"
           style={{
-            color: grade.status ? "#1890ff" : "#A8A2A2"
+            color: grade.status ? '#1890ff' : '#A8A2A2'
           }}
         />
 
@@ -698,7 +681,7 @@ export default class Index extends PureComponent {
           将前置任务创建的应用发布到应用市场，从而让你的业务系统支持一键交付能力。完成当前任务用户会关注以下功能：
         </p>
         <p>
-          1. 应用发布到企业应用市场{" "}
+          1. 应用发布到企业应用市场{' '}
           <a
             href={`${platform_url}docs/user-manual/app-manage/share-app/`}
             target="_blank"
@@ -707,7 +690,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          2. 应用支持基于应用市场一键安装的关键因素{" "}
+          2. 应用支持基于应用市场一键安装的关键因素{' '}
           <a
             href={`${platform_url}docs/user-manual/app-store/app-specification/`}
             target="_blank"
@@ -716,7 +699,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          3. SaaS化应用市场如何建立{" "}
+          3. SaaS化应用市场如何建立{' '}
           <a href="https://www.goodrain.com" target="_blank">
             [联系商业支持]
           </a>
@@ -725,27 +708,27 @@ export default class Index extends PureComponent {
         <p>
           完成任务说明：将上述任务建立的源码业务+数据库的完整应用发布到应用市场，并尝试一键安装出一个新的应用。
         </p>
-        <p style={{ textAlign: "center" }}>
-          {grade.status ? this.completedShow() : ""}
+        <p style={{ textAlign: 'center' }}>
+          {grade.status ? this.completedShow() : ''}
         </p>
       </div>
     );
   };
 
   AccessStrategy = () => {
-    const grade = this.getGuide("custom_gw_rule");
+    const grade = this.getGuide('custom_gw_rule');
     const { rainbondInfo } = this.props;
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
-      return "";
+      return '';
     }
 
     return (
       <div
         className={styles.connect}
         style={{
-          borderColor: grade.status ? "#1890ff" : "#A8A2A2"
+          borderColor: grade.status ? '#1890ff' : '#A8A2A2'
         }}
       >
         <Icon
@@ -753,7 +736,7 @@ export default class Index extends PureComponent {
           type="caret-up"
           theme="filled"
           style={{
-            color: grade.status ? "#1890ff" : "#A8A2A2"
+            color: grade.status ? '#1890ff' : '#A8A2A2'
           }}
         />
 
@@ -765,7 +748,7 @@ export default class Index extends PureComponent {
           网关支持HTTP/WebSocket/TCP/UDP服务访问协议。HTTP类策略根据域名等信息进行路由匹配，TCP类策略通过IP+端口进行路由匹配。完成当前任务用户会关注以下功能：
         </p>
         <p>
-          1. HTTP访问策略配置{" "}
+          1. HTTP访问策略配置{' '}
           <a
             href={`${platform_url}docs/user-manual/gateway/traffic-control/#%E6%B7%BB%E5%8A%A0-http-%E7%AD%96%E7%95%A5`}
             target="_blank"
@@ -774,7 +757,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          2. HTTPs证书管理{" "}
+          2. HTTPs证书管理{' '}
           <a
             href={`${platform_url}docs/user-manual/gateway/cert-management/`}
             target="_blank"
@@ -783,7 +766,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          3. TCP访问策略配置{" "}
+          3. TCP访问策略配置{' '}
           <a
             href={`${platform_url}docs/user-manual/gateway/traffic-control/#tcp-%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5`}
             target="_blank"
@@ -795,7 +778,7 @@ export default class Index extends PureComponent {
         <p>
           完成任务说明：通过配置自定义的域名来访问上述任务创建的应用，或者配置IP+端口的TCP访问策略来访问应用。
         </p>
-        <p style={{ textAlign: "center" }}>
+        <p style={{ textAlign: 'center' }}>
           {grade.status ? (
             this.completedShow()
           ) : (
@@ -818,16 +801,16 @@ export default class Index extends PureComponent {
   };
 
   AnalysisPlugin = () => {
-    const grade = this.getGuide("install_plugin");
+    const grade = this.getGuide('install_plugin');
     if (!grade) {
-      return "";
+      return '';
     }
 
     return (
       <div
         className={styles.connect}
         style={{
-          borderColor: grade.status ? "#1890ff" : "#A8A2A2"
+          borderColor: grade.status ? '#1890ff' : '#A8A2A2'
         }}
       >
         <Icon
@@ -835,7 +818,7 @@ export default class Index extends PureComponent {
           type="caret-up"
           theme="filled"
           style={{
-            color: grade.status ? "#1890ff" : "#A8A2A2"
+            color: grade.status ? '#1890ff' : '#A8A2A2'
           }}
         />
         <p>
@@ -853,7 +836,7 @@ export default class Index extends PureComponent {
           完成任务说明：在插件管理中安装已集成的性能分析插件，确定插件构建成功后前往上述任务创建的具有HTTP协议或Mysql协议端口组件管理面板，插件栏目中开通性能分析插件并更新组件，
           访问组件并观看组件的监控栏目数据。
         </p>
-        <p style={{ textAlign: "center" }}>
+        <p style={{ textAlign: 'center' }}>
           {grade.status ? (
             this.completedShow()
           ) : (
@@ -881,40 +864,40 @@ export default class Index extends PureComponent {
     let num = 0;
     const steps = [
       {
-        title: "创建应用",
+        title: '创建应用',
         content: configureGlobal.rainbondTextShow && this.CreateApp(),
-        status: guideUtil.getStatus("app_create", GuideList)
+        status: guideUtil.getStatus('app_create', GuideList)
       },
       {
-        title: "基于源码创建组件",
+        title: '基于源码创建组件',
         content: this.CreateSourceCode(),
-        status: guideUtil.getStatus("source_code_service_create", GuideList)
+        status: guideUtil.getStatus('source_code_service_create', GuideList)
       },
       {
-        title: "基于镜像安装数据库",
+        title: '基于镜像安装数据库',
         content:
           configureGlobal.rainbondTextShow && this.CreateByImageTaskShow(),
-        status: guideUtil.getStatus("image_service_create", GuideList)
+        status: guideUtil.getStatus('image_service_create', GuideList)
       },
       {
-        title: "组件连接数据库",
+        title: '组件连接数据库',
         content: this.Service(),
-        status: guideUtil.getStatus("service_connect_db", GuideList)
+        status: guideUtil.getStatus('service_connect_db', GuideList)
       },
       {
-        title: "发布应用到应用市场",
+        title: '发布应用到应用市场',
         content: this.ReleaseMarket(),
-        status: guideUtil.getStatus("share_app", GuideList)
+        status: guideUtil.getStatus('share_app', GuideList)
       },
       {
-        title: "配置应用访问策略",
+        title: '配置应用访问策略',
         content: configureGlobal.rainbondTextShow && this.AccessStrategy(),
-        status: guideUtil.getStatus("custom_gw_rule", GuideList)
+        status: guideUtil.getStatus('custom_gw_rule', GuideList)
       },
       {
-        title: "安装性能分析插件",
+        title: '安装性能分析插件',
         content: this.AnalysisPlugin(),
-        status: guideUtil.getStatus("install_plugin", GuideList)
+        status: guideUtil.getStatus('install_plugin', GuideList)
       }
     ];
     if (steps.length > 0) {
@@ -928,7 +911,7 @@ export default class Index extends PureComponent {
     return (
       <Card
         style={{
-          height: "600px",
+          height: '600px',
           marginBottom: 24
         }}
         bodyStyle={{
@@ -936,20 +919,20 @@ export default class Index extends PureComponent {
         }}
         bordered={false}
         title={
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>基础任务</span>
             {SpinState ? (
-              ""
+              ''
             ) : (
               <span>
                 {num}/7
                 <span
                   style={{
-                    color: num == 7 ? "rgb(82, 196, 26)" : "red",
-                    marginLeft: "10px"
+                    color: num == 7 ? 'rgb(82, 196, 26)' : 'red',
+                    marginLeft: '10px'
                   }}
                 >
-                  {num == 7 ? "已完成" : "未完成"}
+                  {num == 7 ? '已完成' : '未完成'}
                 </span>
               </span>
             )}
@@ -959,12 +942,12 @@ export default class Index extends PureComponent {
         {SpinState ? (
           <div
             style={{
-              textAlign: "center",
-              height: "400px",
-              lineHeight: "400px"
+              textAlign: 'center',
+              height: '400px',
+              lineHeight: '400px'
             }}
           >
-            <Spin size="large" />{" "}
+            <Spin size="large" />{' '}
           </div>
         ) : (
           <div>
@@ -1056,14 +1039,14 @@ export default class Index extends PureComponent {
               >
                 <Form onSubmit={this.handleSubmit} layout="horizontal">
                   <Form.Item {...formItemLayout} label="应用名称">
-                    {getFieldDecorator("group_id", {
-                      initialValue: "",
-                      rules: [{ required: true, message: "请选择" }]
+                    {getFieldDecorator('group_id', {
+                      initialValue: '',
+                      rules: [{ required: true, message: '请选择' }]
                     })(
                       <Select
                         placeholder="请选择要所属应用"
                         style={{
-                          display: "inline-block",
+                          display: 'inline-block',
                           width: 270,
                           marginRight: 15
                         }}

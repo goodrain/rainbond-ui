@@ -7,18 +7,23 @@
     -ms-flex-align: center;
     align-items: center;
 }
+
 .selectButtonLink:hover {
     color: #1890ff;
 }
 
 .selectButtonLink {
-    display: -ms-flexbox;
-    display: flex;
     -ms-flex-align: center;
     align-items: center;
     font-size: 16px;
     color: #ffffff;
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
 }
+
 .selectButtonName {
     margin: 0 5px 1px 0;
     padding: 0 7px;
@@ -32,11 +37,13 @@
     white-space: nowrap;
     max-width: 211px;
     line-height: 30px;
+
     span {
         display: inline;
         margin-right: 4px;
     }
 }
+
 .selectButtonArray {
     margin-top: 1px;
     opacity: .5;
@@ -45,7 +52,7 @@
     transition: -webkit-transform .1s ease-in-out;
     -o-transition: transform .1s ease-in-out;
     transition: transform .1s ease-in-out;
-    transition: transform .1s ease-in-out,-webkit-transform .1s ease-in-out;
+    transition: transform .1s ease-in-out, -webkit-transform .1s ease-in-out;
 }
 
 .dropBox {
@@ -53,14 +60,16 @@
     border: 1px solid #dadfe6;
     border-radius: 2px;
     background: #fff;
-    box-shadow: 0 2px 4px 0 rgba(0,0,0,.1);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
 }
+
 .dropBoxSearch {
     padding: 9px;
     background: #f5f7fa;
     box-shadow: 0 1px 0 0 #d8dde4;
     border-radius: 2px 2px 0 0;
 }
+
 .dropBoxSearchInput {
     width: 100%;
     border-radius: 2px;
@@ -69,6 +78,7 @@
     position: relative;
     display: inline-block;
 }
+
 .dropBoxSearchInputIcon {
     cursor: default;
     position: absolute;
@@ -82,38 +92,45 @@
     opacity: .5;
     z-index: 1;
 }
+
 .dropBoxSearchInputContrl:focus {
     border: 1px solid #1890ff;
 }
+
 .dropBoxList {
     margin: 0;
+
     ul {
         max-height: 350px;
         overflow: auto;
         margin: 0;
         padding: 0;
+
         li {
             background-color: #f5f7fa;
             align-items: center;
             display: flex;
             height: 42px;
             width: 100%;
+
             a {
                 align-items: center;
                 display: flex;
                 cursor: pointer;
                 color: #0052cc;
                 background-color: transparent;
+
                 img {
                     width: 24px;
                     height: 24px;
                     margin-left: 16px;
-                    border-radius: 2px!important;
+                    border-radius: 2px !important;
                     padding: 0;
                     margin: 0;
                     border: none;
                 }
-                span{
+
+                span {
                     margin-left: 15px;
                     width: 100%;
                     color: #202d40;
@@ -138,9 +155,10 @@
     padding-left: 15px;
     cursor: pointer;
     width: 100%;
-    -webkit-box-shadow: 0 -1px 0 0 rgba(218,223,230,.5);
-    box-shadow: 0 -1px 0 0 rgba(218,223,230,.5);
+    -webkit-box-shadow: 0 -1px 0 0 rgba(218, 223, 230, .5);
+    box-shadow: 0 -1px 0 0 rgba(218, 223, 230, .5);
     color: #0052cc;
+
     i {
         margin-right: 8px;
     }
@@ -157,8 +175,8 @@
     display: flex;
     -ms-flex-align: center;
     align-items: center;
+
     span {
         color: #202d40;
     }
 }
-

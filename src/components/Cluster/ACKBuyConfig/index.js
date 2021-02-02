@@ -154,7 +154,8 @@ export default class ACKBuyConfig extends PureComponent {
                     {
                       pattern: /^[a-z0-9A-Z-]+$/,
                       message: '只支持字母、数字和中划线组合'
-                    }
+                    },
+                    { max: 24, message: '集群名称不能超过24字符' }
                   ]
                 })(<Input placeholder="集群名称,请确保其保持唯一" />)}
               </Form.Item>

@@ -1,12 +1,12 @@
-import React, { PureComponent } from 'react';
 import { Form, Input, Modal } from 'antd';
+import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 
 @Form.create()
 export default class EditGroupName extends PureComponent {
-  onOk = (e) => {
+  onOk = e => {
     e.preventDefault();
     const { form, onOk } = this.props;
     form.validateFields({ force: true }, (err, vals) => {
@@ -51,8 +51,8 @@ export default class EditGroupName extends PureComponent {
               rules: [
                 { required: true, message: '请填写应用名称' },
                 {
-                  max: 64,
-                  message: '最大长度64位'
+                  max: 24,
+                  message: '应用名称最大长度24位'
                 }
               ]
             })(<Input placeholder="请填写应用名称" />)}
