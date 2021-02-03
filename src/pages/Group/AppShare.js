@@ -316,7 +316,7 @@ class AppInfo extends PureComponent {
             <Col span={6}>
               <FormItem label="初始内存(M)" style={{ padding: 16 }}>
                 {getFieldDecorator(`${ID}||init_memory`, {
-                  initialValue: app.extend_method_map.init_memory,
+                  initialValue: app.extend_method_map.init_memory || 32,
                   rules: [
                     {
                       required: true,
@@ -603,29 +603,32 @@ export default class Main extends PureComponent {
   handleSubmitConditions = () => {
     const { record, versionInfo } = this.state;
     const { form } = this.props;
-    form.validateFieldsAndScroll({ scroll: { offsetTop: 80 } },(err, values) => {
-      if (!err) {
-        if (
-          record.scope !== 'goodrain' &&
-          versionInfo &&
-          values.version === versionInfo.version &&
-          versionInfo.dev_status
-        ) {
-          confirm({
-            title:
-              '当前发布版本是Release状态，发布成功后该版本将取消Release状态',
-            content: '',
-            okText: '确认',
-            cancelText: '取消',
-            onOk: () => {
-              this.handleSubmit();
-            }
-          });
-        } else {
-          this.handleSubmit();
+    form.validateFieldsAndScroll(
+      { scroll: { offsetTop: 80 } },
+      (err, values) => {
+        if (!err) {
+          if (
+            record.scope !== 'goodrain' &&
+            versionInfo &&
+            values.version === versionInfo.version &&
+            versionInfo.dev_status
+          ) {
+            confirm({
+              title:
+                '当前发布版本是Release状态，发布成功后该版本将取消Release状态',
+              content: '',
+              okText: '确认',
+              cancelText: '取消',
+              onOk: () => {
+                this.handleSubmit();
+              }
+            });
+          } else {
+            this.handleSubmit();
+          }
         }
       }
-    });
+    );
   };
   handleSubmit = () => {
     const { dispatch, form } = this.props;
@@ -652,7 +655,7 @@ export default class Main extends PureComponent {
         share_service_list.map((item, index) => {
           const { extend_method_map, service_id } = item;
           if (extend_method_map) {
-            Object.keys(extend_method_map).forEach(function(key) {
+            Object.keys(extend_method_map).forEach(function (key) {
               if (values[`${service_id}||${key}`]) {
                 share_service_data[index].extend_method_map[key] =
                   values[`${service_id}||${key}`];
@@ -1244,8 +1247,14 @@ export default class Main extends PureComponent {
                   {apps.map(apptit => {
                     const id = apptit.service_share_uuid;
                     return (
-                      sharearrs.includes(tabk) &&
-                      id === tabk && (
+                      <div
+                        style={{
+                          display:
+                            sharearrs.includes(tabk) && id === tabk
+                              ? 'block'
+                              : 'none'
+                        }}
+                      >
                         <AppInfo
                           key={id}
                           form={form}
@@ -1254,7 +1263,7 @@ export default class Main extends PureComponent {
                           tab={apptit.service_alias}
                           ID={apptit.service_id}
                         />
-                      )
+                      </div>
                     );
                   })}
                 </div>
