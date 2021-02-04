@@ -69,7 +69,9 @@ export default class BackupManage extends PureComponent {
           this.setState({ addLoading: false });
         });
       },
-      onCancel() {}
+      onCancel: () => {
+        this.setState({ addLoading: false });
+      }
     });
   };
 
@@ -97,6 +99,33 @@ export default class BackupManage extends PureComponent {
     } = this.props;
     download(`/console/enterprise/${eid}/backups/${name}`, name);
   };
+  onChangeUpload = info => {
+    const { status } = info.file;
+    if (status === 'done') {
+      notification.success({ message: '上传成功' });
+      this.loadBackups();
+      this.setState({ uploadLoading: false });
+    } else {
+      this.setState({ uploadLoading: true });
+    }
+  };
+
+  loadBackups = () => {
+    this.setState({ backupLoading: true });
+    const {
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    loadBackups({ enterprise_id: eid })
+      .then(data => {
+        this.setState({ backups: data.list, backupLoading: false });
+      })
+      .catch(() => {
+        this.setState({ backupLoading: false });
+      });
+  };
+
   submitOnRecover = () => {
     const {
       match: {
@@ -123,32 +152,6 @@ export default class BackupManage extends PureComponent {
         });
       }
     });
-  };
-
-  loadBackups = () => {
-    this.setState({ backupLoading: true });
-    const {
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    loadBackups({ enterprise_id: eid })
-      .then(data => {
-        this.setState({ backups: data.list, backupLoading: false });
-      })
-      .catch(() => {
-        this.setState({ backupLoading: false });
-      });
-  };
-  onChangeUpload = info => {
-    const { status } = info.file;
-    if (status === 'done') {
-      notification.success({ message: '上传成功' });
-      this.loadBackups();
-      this.setState({ uploadLoading: false });
-    } else {
-      this.setState({ uploadLoading: true });
-    }
   };
 
   render() {
@@ -240,7 +243,7 @@ export default class BackupManage extends PureComponent {
               <Table
                 loading={backupLoading}
                 pagination={false}
-                dataSource={backups.reverse()}
+                dataSource={backups}
                 columns={columns}
               />
             </Col>
