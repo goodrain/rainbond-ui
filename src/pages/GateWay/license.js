@@ -1,4 +1,12 @@
-import { Button, Card, notification, Row, Table, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  notification,
+  Popconfirm,
+  Row,
+  Table,
+  Typography
+} from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
 import LicenseDrawer from '../../components/LicenseDrawer';
@@ -210,12 +218,15 @@ class Control extends Component {
                 rows: 2,
                 expandable: true
               }}
+              style={{ margin: 0 }}
             >
               {data &&
                 data.map(item => {
                   return (
                     <Row key={item}>
-                      <Paragraph copyable>{item}</Paragraph>
+                      <Paragraph style={{ margin: 0 }} copyable>
+                        {item}
+                      </Paragraph>
                     </Row>
                   );
                 })}
@@ -287,13 +298,14 @@ class Control extends Component {
               )}
 
               {isDelete && (
-                <a
-                  onClick={() => {
+                <Popconfirm
+                  title="确认要删除吗？"
+                  onConfirm={() => {
                     this.handleDelete(record);
                   }}
                 >
-                  删除
-                </a>
+                  <a>删除</a>
+                </Popconfirm>
               )}
             </span>
           );

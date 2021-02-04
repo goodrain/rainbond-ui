@@ -67,6 +67,10 @@ class UpdateMemory extends PureComponent {
           <Option value={1024}>1G</Option>
           <Option value={2048}>2G</Option>
           <Option value={2048 * 2}>4G</Option>
+          <Option value={2048 * 4}>8G</Option>
+          <Option value={2048 * 8}>16G</Option>
+          <Option value={2048 * 16}>32G</Option>
+          <Option value={2048 * 32}>64G</Option>
         </Select>
       </Modal>
     );

@@ -1,9 +1,8 @@
-import React, { PureComponent } from "react";
-import moment from "moment";
-import LogSocket from "../../utils/logSocket";
-import domUtil from "../../utils/dom-util";
-import dateUtil from "../../utils/date-util";
-import { Modal } from "antd";
+import moment from 'moment';
+import React, { PureComponent } from 'react';
+import dateUtil from '../../utils/date-util';
+import domUtil from '../../utils/dom-util';
+import LogSocket from '../../utils/logSocket';
 
 export default class Index extends PureComponent {
   constructor(props) {
@@ -15,11 +14,11 @@ export default class Index extends PureComponent {
     this.eventId = this.props.eventId;
   }
   componentDidMount() {
-    const resover = this.props.resover;
+    const { resover } = this.props;
     this.createTmpElement();
     if (this.socketUrl) {
-      let isThrough = dateUtil.isWebSocketOpen(this.socketUrl);
-      if (isThrough && isThrough === "through") {
+      const isThrough = dateUtil.isWebSocketOpen(this.socketUrl);
+      if (isThrough && isThrough === 'through') {
         this.socket = new LogSocket({
           eventId: this.eventId,
           url: this.socketUrl,
@@ -39,13 +38,13 @@ export default class Index extends PureComponent {
             const ele = this.ele.cloneNode();
             try {
               if (this.ref) {
-                const box = document.getElementById("box");
+                const box = document.getElementById('box');
                 box.scrollTop = box.scrollHeight;
                 data.message = JSON.parse(data.message);
                 const msg = data.message;
                 ele.innerHTML = this.getItemHtml(data);
                 if (msg.id) {
-                  ele.setAttribute("data-id", msg.id);
+                  ele.setAttribute('data-id', msg.id);
                   const hasEle = document.querySelector(
                     `p[data-id="${msg.id}"]`
                   );
@@ -72,50 +71,58 @@ export default class Index extends PureComponent {
   }
   componentWillUnmount() {
     if (this.socket) {
-      this.socket.close() ? this.socket.close() : "";
+      this.socket.close() ? this.socket.close() : '';
       this.socket = null;
     }
     this.state.datas = [];
   }
   getItemHtml = data => {
-    if (typeof data.message === "string") {
+    if (typeof data.message === 'string') {
       var msg = data.message;
       return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
         data.time
-      ).locale('zh-cn').format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
+      )
+        .locale('zh-cn')
+        .format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
     }
     try {
-      const message = data.message;
-      var msg = "";
+      const { message } = data;
+      var msg = '';
       if (message.id) {
         msg += `${message.id}:`;
       }
-      msg += message.status || "";
-      msg += message.progress || "";
+      msg += message.status || '';
+      msg += message.progress || '';
       if (msg) {
         return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
           data.time
-        ).locale('zh-cn').format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
+        )
+          .locale('zh-cn')
+          .format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
       }
       return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
         data.time
-      ).locale('zh-cn').format("HH:mm:ss")}</span><span>${message.stream}</span>`;
+      )
+        .locale('zh-cn')
+        .format('HH:mm:ss')}</span><span>${message.stream}</span>`;
     } catch (e) {
       if (data.message) {
         return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
           data.time
-        ).locale('zh-cn').format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
+        )
+          .locale('zh-cn')
+          .format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
       }
-      return "";
+      return '';
     }
   };
   createTmpElement() {
-    this.ele = document.createElement("p");
-    this.ele.cssText = "margin-bottom:0";
+    this.ele = document.createElement('p');
+    this.ele.cssText = 'margin-bottom:0';
   }
 
   findProgressById = id => {
-    const datas = this.state.datas;
+    const { datas } = this.state;
     const d = datas.filter(data => data.message.id === id)[0];
     return d;
   };
@@ -131,7 +138,7 @@ export default class Index extends PureComponent {
 
     return (
       <div
-        style={{ maxHeight: this.props.opened ? 350 : 30, overflowY: "auto" }}
+        style={{ maxHeight: this.props.opened ? 350 : 30, overflowY: 'auto' }}
         id="box"
         ref={this.saveRef}
       >
@@ -144,7 +151,7 @@ export default class Index extends PureComponent {
                   marginRight: 10
                 }}
               >
-                {dateUtil.format(item.time, "hh:mm:ss")}
+                {dateUtil.format(item.time, 'hh:mm:ss')}
               </span>
               <span>{item.message}</span>
             </p>

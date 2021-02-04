@@ -13,7 +13,7 @@ import regionUtil from '../../utils/region';
 import userUtil from '../../utils/user';
 import { openInNewTab } from '../../utils/utils';
 
-@connect(({ user, appControl, loading }) => ({
+@connect(({ user, loading }) => ({
   currUser: user.currentUser,
   loading
 }))
@@ -42,11 +42,9 @@ class ShareEvent extends React.Component {
     this.checkStatus();
   };
   checkStatus = () => {
-    const { data } = this.state;
     const { status } = this.state;
-    if (status === 'not_start') {
-      this.props.receiveStartShare &&
-        this.props.receiveStartShare(this.startShareEvent);
+    if (status === 'not_start' && this.props.receiveStartShare) {
+      this.props.receiveStartShare(this.startShareEvent);
     }
     if (status === 'start') {
       this.getShareStatus();
@@ -75,7 +73,7 @@ class ShareEvent extends React.Component {
   getShareStatus = () => {
     if (this.state.status !== 'start' || !this.mount) return;
     let dispatchtype = 'application/getShareStatus';
-    if (this.state.data.type == 'plugin') {
+    if (this.state.data.type === 'plugin') {
       dispatchtype = 'application/getPluginShareEventInShareApp';
     }
     this.props.dispatch({
@@ -110,7 +108,7 @@ class ShareEvent extends React.Component {
   startShareEvent = () => {
     const event = this.props.data;
     let dispatchtype = 'application/startShareEvent';
-    if (event.type == 'plugin') {
+    if (event.type === 'plugin') {
       dispatchtype = 'application/startPluginShareEventInShareApp';
     }
     this.props.dispatch({
@@ -129,7 +127,9 @@ class ShareEvent extends React.Component {
             },
             () => {
               this.getShareStatus();
-              this.props.onStartSuccess && this.props.onStartSuccess();
+              if (this.props.onStartSuccess) {
+                this.props.onStartSuccess();
+              }
             }
           );
         }
@@ -157,22 +157,46 @@ class ShareEvent extends React.Component {
   };
   render() {
     const data = this.state.data || {};
-    const { eventId } = this.state;
+    const { eventId, opened } = this.state;
     return (
       <div
         style={{
           marginBottom: 24
         }}
       >
-        <h4>
-          {data.type == 'plugin'
-            ? `插件名称:${data.plugin_name}`
-            : `组件名称:${data.service_name}`}
+        <div style={{ padding: '16px', background: '#f2f4f5' }}>
+          {data.type === 'plugin'
+            ? `插件: ${data.plugin_name}`
+            : `组件: ${data.service_name}`}
+          {`  `}
           {this.renderStatus()}
-        </h4>
-        <div>
+          <div style={{ float: 'right' }}>
+            {!opened ? (
+              <a
+                onClick={() => {
+                  this.setState({ opened: true });
+                }}
+              >
+                <Icon type="down" />
+              </a>
+            ) : (
+              <a
+                onClick={() => {
+                  this.setState({ opened: false });
+                }}
+              >
+                <Icon type="up" />
+              </a>
+            )}
+          </div>
+        </div>
+        <div style={{ padding: '16px', background: '#f2f4f5' }}>
           {eventId && (
-            <LogProcress socketUrl={this.socketUrl} eventId={eventId} />
+            <LogProcress
+              opened={opened}
+              socketUrl={this.socketUrl}
+              eventId={eventId}
+            />
           )}
         </div>
       </div>
@@ -180,7 +204,7 @@ class ShareEvent extends React.Component {
   }
 }
 
-@connect(({ user, appControl, loading }) => ({ loading }))
+@connect(({ loading }) => ({ loading }))
 export default class shareCheck extends PureComponent {
   constructor(props) {
     super(props);
@@ -342,7 +366,7 @@ export default class shareCheck extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         share_id: params.shareId
       },
-      callback: data => {
+      callback: () => {
         this.hideShowDelete();
         this.props.dispatch(
           routerRedux.replace(
