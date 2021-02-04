@@ -2,11 +2,11 @@
   挂载共享目录组件
 */
 
-import React, { PureComponent, Fragment } from "react";
-import { Link } from "dva/router";
-import { Input, Table, Modal, notification, Tooltip } from "antd";
-import { getMnt } from "../../services/app";
-import globalUtil from "../../utils/global";
+import { Input, Modal, notification, Table, Tooltip } from 'antd';
+import { Link } from 'dva/router';
+import React, { PureComponent } from 'react';
+import { getMnt } from '../../services/app';
+import globalUtil from '../../utils/global';
 
 export default class Index extends PureComponent {
   constructor(props) {
@@ -25,7 +25,7 @@ export default class Index extends PureComponent {
   }
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
-      notification.warning({ message: "请选择要挂载共享配置文件目录" });
+      notification.warning({ message: '请选择要挂载共享配置文件目录' });
       return;
     }
 
@@ -40,7 +40,7 @@ export default class Index extends PureComponent {
     res = res.filter(item => !!item.path);
 
     if (!res.length) {
-      notification.warning({ message: "请检查本地配置文件目录是否填写" });
+      notification.warning({ message: '请检查本地配置文件目录是否填写' });
       return;
     }
 
@@ -50,7 +50,7 @@ export default class Index extends PureComponent {
     this.setState(
       {
         current: page,
-        pageSize: pageSize
+        pageSize
       },
       () => {
         this.loadUnMntList();
@@ -63,8 +63,10 @@ export default class Index extends PureComponent {
       app_alias: this.props.appAlias,
       page: this.state.current,
       page_size: this.state.pageSize,
-      type: "unmnt",
-      volume_type:this.props.volume_type?this.props.volume_type:["share-file","memoryfs","local"]
+      type: 'unmnt',
+      volume_type: this.props.volume_type
+        ? this.props.volume_type
+        : ['share-file', 'memoryfs', 'local']
     }).then(data => {
       if (data) {
         this.setState({
@@ -96,9 +98,9 @@ export default class Index extends PureComponent {
 
     const pagination = {
       onChange: this.handleTableChange,
-      total: total,
-      pageSize: pageSize,
-      current: current
+      total,
+      pageSize,
+      current
     };
 
     return (
@@ -113,13 +115,13 @@ export default class Index extends PureComponent {
           pagination={pagination}
           dataSource={this.state.list}
           rowSelection={rowSelection}
-          style={{ width: "100%", overflowX: "auto" }}
+          style={{ width: '100%', overflowX: 'auto' }}
           columns={[
             {
-              title: "本地挂载配置文件路径",
-              dataIndex: "localpath",
-              key: "1",
-              width: "20%",
+              title: '本地挂载配置文件路径',
+              dataIndex: 'localpath',
+              key: '1',
+              width: '20%',
               render: (localpath, data, index) => (
                 <Input
                   onChange={e => {
@@ -130,72 +132,88 @@ export default class Index extends PureComponent {
               )
             },
             {
-              title: "配置文件名称",
-              dataIndex: "dep_vol_name",
-              key: "2",
-              width: "20%",
+              title: '配置文件名称',
+              dataIndex: 'dep_vol_name',
+              key: '2',
+              width: '20%',
               render: (data, index) => (
                 <Tooltip title={data}>
-                  <span style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word"
-                  }}>{data}</span>
+                  <span
+                    style={{
+                      wordBreak: 'break-all',
+                      wordWrap: 'break-word'
+                    }}
+                  >
+                    {data}
+                  </span>
                 </Tooltip>
               )
             },
             {
-              title: "挂载配置文件路径",
-              dataIndex: "dep_vol_path",
-              key: "3",
-              width: "20%",
+              title: '挂载配置文件路径',
+              dataIndex: 'dep_vol_path',
+              key: '3',
+              width: '20%',
               render: (data, index) => (
                 <Tooltip title={data}>
-                  <span style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word"
-                  }}>{data}</span>
+                  <span
+                    style={{
+                      wordBreak: 'break-all',
+                      wordWrap: 'break-word'
+                    }}
+                  >
+                    {data}
+                  </span>
                 </Tooltip>
               )
             },
             {
-              title: "所属组件",
-              dataIndex: "dep_app_name",
-              key: "5",
-              width: "20%",
+              title: '所属组件',
+              dataIndex: 'dep_app_name',
+              key: '5',
+              width: '20%',
               render: (v, data) => {
                 return (
                   <Tooltip title={v}>
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
                         data.dep_app_alias
-                        }/overview`}
+                      }/overview`}
                     >
-                      <span style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}>{v}</span>
+                      <span
+                        style={{
+                          wordBreak: 'break-all',
+                          wordWrap: 'break-word'
+                        }}
+                      >
+                        {v}
+                      </span>
                     </Link>
                   </Tooltip>
                 );
               }
             },
             {
-              title: "组件所属应用",
-              dataIndex: "dep_app_group",
-              key: "6",
-              width: "15%",
+              title: '组件所属应用',
+              dataIndex: 'dep_app_group',
+              key: '6',
+              width: '15%',
               render: (v, data) => {
                 return (
                   <Tooltip title={v}>
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                         data.dep_group_id
-                        }`}
+                      }`}
                     >
-                      <span style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}>{v}</span>
+                      <span
+                        style={{
+                          wordBreak: 'break-all',
+                          wordWrap: 'break-word'
+                        }}
+                      >
+                        {v}
+                      </span>
                     </Link>
                   </Tooltip>
                 );

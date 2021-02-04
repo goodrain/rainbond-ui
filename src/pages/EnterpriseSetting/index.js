@@ -4,6 +4,7 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import userUtil from '../../utils/user';
+import BackupManage from './backup';
 import Infrastructure from './infrastructure';
 import Management from './management';
 
@@ -55,6 +56,11 @@ export default class EnterpriseSetting extends PureComponent {
           {adminer && (
             <TabPane tab={<div>企业管理员管理</div>} key="management">
               <Management {...this.props} />
+            </TabPane>
+          )}
+          {adminer && (
+            <TabPane tab={<div>数据备份</div>} key="backup">
+              <BackupManage {...this.props} />
             </TabPane>
           )}
         </Tabs>

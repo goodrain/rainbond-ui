@@ -80,13 +80,6 @@ export default function request(url, options) {
 
   newOptions.headers = {
     ...headers
-
-    // "Authorization": 'GRJWT '+ (cookie.get('token') ||
-    // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImxpY2hhbyIsImV4cCI6MTU
-    // x
-    // ODY2MzYyNCwiZW1haWwiOiJsaWNAZ29vZHJhaW4uY29tIiwidXNlcl9pZCI6Nn0.N95RuiLn0nA8T
-    // w RR0TGh6luHnJ9A_IYJtGxHQdtc2jE'), "Authorization": 'GRJWT '+
-    // (cookie.get('token'))
   };
 
   const token = cookie.get('token');
