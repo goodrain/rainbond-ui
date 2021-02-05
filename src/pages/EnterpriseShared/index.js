@@ -854,12 +854,13 @@ export default class EnterpriseShared extends PureComponent {
                           e.stopPropagation();
                         }}
                       >
-                        <div>
-                          <Icon type="arrow-down" />
-                          <div title={installNumber}>
-                            {globalUtil.nFormatter(installNumber)}
+                        <Tooltip title="安装量">
+                          <div>
+                            <div title={installNumber}>
+                              {globalUtil.nFormatter(installNumber)}
+                            </div>
                           </div>
-                        </div>
+                        </Tooltip>
                       </div>
                       <div className={styles.imgs}>
                         {pic ? <img src={pic} alt="" /> : defaulAppImg}
@@ -1028,12 +1029,13 @@ export default class EnterpriseShared extends PureComponent {
                           e.stopPropagation();
                         }}
                       >
-                        <div>
-                          <Icon type="arrow-down" />
-                          <div title={installNumber}>
-                            {globalUtil.nFormatter(installNumber)}
+                        <Tooltip title="安装量">
+                          <div>
+                            <div title={installNumber}>
+                              {globalUtil.nFormatter(installNumber)}
+                            </div>
                           </div>
-                        </div>
+                        </Tooltip>
                       </div>
                       <div className={styles.imgs}>
                         {logo ? <img src={logo} alt="" /> : defaulAppImg}

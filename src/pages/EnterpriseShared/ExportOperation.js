@@ -1,6 +1,6 @@
-import { connect } from "dva";
-import React, { Fragment, PureComponent } from "react";
-import AppExporter from "./AppExporter";
+import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
+import AppExporter from './AppExporter';
 
 @connect(({ user }) => ({
   currentUser: user.currentUser
@@ -33,12 +33,8 @@ export default class ExportOperation extends PureComponent {
     const { eid, app } = this.props;
     return (
       <Fragment>
-        <a
-          onClick={this.showAppExport}
-          style={{ marginRight: 8 }}
-          href="javascript:;"
-        >
-          导出应用模版{this.state.is_exporting ? "(导出中)" : ""}
+        <a onClick={this.showAppExport} style={{ marginRight: 8 }}>
+          导出应用模版{this.state.is_exporting ? '(导出中)' : ''}
         </a>
         {this.state.showExporterApp && (
           <AppExporter

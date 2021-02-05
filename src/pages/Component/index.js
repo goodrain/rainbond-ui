@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/sort-comp */
 /* eslint-disable camelcase */
@@ -1303,7 +1304,7 @@ class Main extends PureComponent {
           </Modal>
         )}
         <Modal
-          title={[<span>从云市应用构建</span>]}
+          title={[<span>从应用商店升级构建</span>]}
           className={styless.TelescopicModal}
           visible={this.state.visibleBuild}
           onOk={this.handleOkBuild}
@@ -1356,7 +1357,7 @@ class Main extends PureComponent {
               <Form onSubmit={this.handleOkBuild}>
                 <Alert
                   message={[
-                    <span>从云市应用</span>,
+                    <span>从应用商店应用 </span>,
                     <a
                       onClick={() => {
                         this.hideMarketOpenAppDetail();

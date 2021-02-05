@@ -1,5 +1,5 @@
 /* eslint-disable react/sort-comp */
-import { Button, Checkbox, Divider, Form, Modal } from 'antd';
+import { Button, Checkbox, Divider, Form, message, Modal } from 'antd';
 import { PureComponent } from 'react';
 
 @Form.create()
@@ -32,12 +32,20 @@ class BatchEditPublishComponent extends PureComponent {
   };
   batchEdit = () => {
     const { checkedList } = this.state;
+    if (checkedList.length < 1) {
+      message.info('请至少发布一个组件');
+      return;
+    }
     const { onOk } = this.props;
     if (onOk) {
       onOk(checkedList);
     }
   };
   onChange = checkedList => {
+    if (checkedList.length < 1) {
+      message.info('请至少保留一个组件');
+      return;
+    }
     const { allOptions } = this.state;
     this.setState({
       checkedList,

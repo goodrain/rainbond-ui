@@ -109,6 +109,12 @@ export default class OauthTable extends PureComponent {
     if (oauth_type === 'github') {
       home_url = 'https://github.com';
     }
+    if (oauth_type === 'aliyun') {
+      home_url = 'https://oauth.aliyun.com';
+    }
+    if (oauth_type === 'dingtalk') {
+      home_url = 'https://oapi.dingtalk.com';
+    }
     const obj = {
       name,
       client_id,

@@ -233,9 +233,7 @@ class AppInfo extends PureComponent {
   };
   renderExtend = () => {
     const { app = {}, ID = 'extend', form } = this.props;
-
     const { getFieldDecorator, getFieldValue } = form;
-
     if (app.extend_method_map) {
       const steps = getFieldValue(`${ID}||step_node`);
       return (
@@ -448,6 +446,7 @@ export default class Main extends PureComponent {
           }
           this.setState({
             info: data.bean,
+            plugin_list: data.bean.share_plugin_list,
             selectedApp,
             tabk: data.bean.share_service_list[0].service_share_uuid,
             share_service_list: data.bean.share_service_list
@@ -655,7 +654,7 @@ export default class Main extends PureComponent {
         share_service_list.map((item, index) => {
           const { extend_method_map, service_id } = item;
           if (extend_method_map) {
-            Object.keys(extend_method_map).forEach(function (key) {
+            Object.keys(extend_method_map).forEach(function(key) {
               if (values[`${service_id}||${key}`]) {
                 share_service_data[index].extend_method_map[key] =
                   values[`${service_id}||${key}`];
@@ -738,7 +737,7 @@ export default class Main extends PureComponent {
         });
         newinfo.app_version_info = appVersionInfo;
         newinfo.share_service_list = arr;
-        newinfo.share_plugin_list = this.state.info.share_plugin_list;
+        newinfo.share_plugin_list = this.state.plugin_list;
         const teamName = globalUtil.getCurrTeamName();
         const { appID, shareId } = this.props.match.params;
         dispatch({
@@ -952,12 +951,37 @@ export default class Main extends PureComponent {
       item => item.service_share_uuid !== component_share_key
     );
     if (tabk !== component_share_key) {
-      this.setState({ share_service_list: new_comonents });
-    } else {
-      this.setState({
-        share_service_list: new_comonents,
-        tabk: new_comonents.length > 0 && new_comonents[0].service_share_uuid
+      this.setState({ share_service_list: new_comonents }, () => {
+        this.update_publish_plugins();
       });
+    } else {
+      this.setState(
+        {
+          share_service_list: new_comonents,
+          tabk: new_comonents.length > 0 && new_comonents[0].service_share_uuid
+        },
+        () => {
+          this.update_publish_plugins();
+        }
+      );
+    }
+  };
+  update_publish_plugins = () => {
+    const { share_service_list, info } = this.state;
+    const plugin_ids = [];
+    share_service_list.map(item => {
+      if (item.service_related_plugin_config) {
+        item.service_related_plugin_config.map(plu =>
+          plugin_ids.push(plu.plugin_id)
+        );
+      }
+      return item;
+    });
+    if (info.share_plugin_list) {
+      const new_plugins = info.share_plugin_list.filter(
+        item => plugin_ids.indexOf(item.plugin_id) > -1
+      );
+      this.setState({ plugin_list: new_plugins });
     }
   };
   updateSelectComponents = checked => {
@@ -966,26 +990,36 @@ export default class Main extends PureComponent {
       item => checked.indexOf(item.service_share_uuid) > -1
     );
     if (checked.indexOf(tabk) > -1) {
-      this.setState({
-        batchEditShow: false,
-        share_service_list: new_comonents
-      });
+      this.setState(
+        {
+          batchEditShow: false,
+          share_service_list: new_comonents
+        },
+        () => {
+          this.update_publish_plugins();
+        }
+      );
     } else {
-      this.setState({
-        batchEditShow: false,
-        share_service_list: new_comonents,
-        tabk: new_comonents.length > 0 && new_comonents[0].service_share_uuid
-      });
+      this.setState(
+        {
+          batchEditShow: false,
+          share_service_list: new_comonents,
+          tabk: new_comonents.length > 0 && new_comonents[0].service_share_uuid
+        },
+        () => {
+          this.update_publish_plugins();
+        }
+      );
     }
   };
 
   render() {
-    const { info, tabk, share_service_list } = this.state;
+    const { info, tabk, share_service_list, plugin_list } = this.state;
     if (!info) {
       return null;
     }
     const apps = share_service_list || [];
-    const plugins = info.share_plugin_list || [];
+    const plugins = plugin_list || [];
     const {
       loading,
       form,

@@ -61,10 +61,10 @@ class CreateOAuthForm extends PureComponent {
     const { edit, oauthList } = this.state;
     const formItemLayout = {
       labelCol: {
-        span: 8
+        span: 6
       },
       wrapperCol: {
-        span: 16
+        span: 18
       }
     };
     const oauthType = getFieldValue('oauth_type') || 'github';
@@ -137,31 +137,33 @@ class CreateOAuthForm extends PureComponent {
             <div className={styles.conformDesc}>OAuth服务显示名称</div>
           </Form.Item>
 
-          {oauthType !== 'github' && (
-            <Form.Item
-              className={styles.clearConform}
-              {...formItemLayout}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Branches} alt="" />
-                  服务地址
-                </div>
-              }
-            >
-              {getFieldDecorator('home_url', {
-                initialValue: oauthInfo ? oauthInfo.home_url : '',
-                rules: [
-                  { required: true, message: '请输入服务地址' },
-                  { type: 'url', message: '输入数据不是合法的URL' },
-                  {
-                    max: 255,
-                    message: '最大长度255位'
-                  }
-                ]
-              })(<Input disabled={edit} placeholder="请输入服务地址" />)}
-              <div className={styles.conformDesc}>第三方服务访问地址</div>
-            </Form.Item>
-          )}
+          {oauthType !== 'github' &&
+            oauthType !== 'aliyun' &&
+            oauthType !== 'dingtalk' && (
+              <Form.Item
+                className={styles.clearConform}
+                {...formItemLayout}
+                label={
+                  <div className={styles.clearConformMinTitle}>
+                    <img src={Branches} alt="" />
+                    服务地址
+                  </div>
+                }
+              >
+                {getFieldDecorator('home_url', {
+                  initialValue: oauthInfo ? oauthInfo.home_url : '',
+                  rules: [
+                    { required: true, message: '请输入服务地址' },
+                    { type: 'url', message: '输入数据不是合法的URL' },
+                    {
+                      max: 255,
+                      message: '最大长度255位'
+                    }
+                  ]
+                })(<Input disabled={edit} placeholder="请输入服务地址" />)}
+                <div className={styles.conformDesc}>第三方服务访问地址</div>
+              </Form.Item>
+            )}
 
           <Form.Item
             className={styles.clearConform}
@@ -213,7 +215,7 @@ class CreateOAuthForm extends PureComponent {
             label={
               <div className={styles.clearConformMinTitle}>
                 <img src={Branches} alt="" />
-                平台访问域名
+                回调地址
               </div>
             }
           >
@@ -222,18 +224,24 @@ class CreateOAuthForm extends PureComponent {
                 ? oauthInfo.redirect_uri.replace('/console/oauth/redirect', '')
                 : `${window.location.protocol}//${window.location.host}`,
               rules: [
-                { required: true, message: '请输入正确的平台访问域名' },
+                { required: true, message: '请输入正确的回调地址' },
                 { type: 'url', message: '输入数据不是合法的URL' },
                 {
                   max: 255,
                   message: '最大长度255位'
                 }
               ]
-            })(<Input placeholder="请输入平台访问域名" />)}
+            })(
+              <Input
+                placeholder="请输入回调地址"
+                suffix={<span>/console/oauth/redirect</span>}
+              />
+            )}
+
             <div className={styles.conformDesc}>
-              平台访问域名是用于 OAuth
-              认证完回跳时的访问地址，默认填充为当前访问地址。您在 Oauth
-              服务提供商配置时还需要设置回跳路径为：/console/oauth/redirect
+              回调地址是用于 OAuth
+              认证完回跳时的访问地址，默认填充为当前访问地址。通常也需要您在
+              Oauth 服务提供商进行相同的配置。
             </div>
           </Form.Item>
           <Form.Item
