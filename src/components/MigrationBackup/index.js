@@ -1,35 +1,23 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
 import {
-  Row,
-  Col,
-  Card,
-  Form,
+  Alert,
   Button,
+  Col,
+  Form,
   Icon,
-  Menu,
-  Dropdown,
-  notification,
-  Select,
-  Input,
   Modal,
-  message,
+  notification,
+  Row,
+  Select,
   Spin
-} from "antd";
-import globalUtil from "../../utils/global";
-import { isNull } from "util";
+} from 'antd';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
+import globalUtil from '../../utils/global';
 
-const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 
-const appRestore = {
-  starting: "迁移中",
-  success: "成功",
-  failed: "失败"
-};
-
-@connect(({ user, global }) => ({ currUser: user.currentUser }))
+@connect(({ user }) => ({ currUser: user.currentUser }))
 @Form.create()
 export default class Index extends PureComponent {
   constructor(props) {
@@ -37,78 +25,62 @@ export default class Index extends PureComponent {
     this.state = {
       teamsData: [],
       regionData: [],
-      teamsName: "",
-      regionName: "",
-      teamsAlias: "",
-      regionAlias: "",
-      backup_id: this.props.backupId,
-      restore_id: "",
+      teamsName: '',
+      regionName: '',
+      restore_id: '',
       showRestore: false,
-      restore_status: "",
-      isFinished: "",
-      notRecovered_restore_id: ""
+      restore_status: '',
+      notRecovered_restore_id: ''
     };
     this.mount = false;
   }
 
   componentDidMount() {
     this.mount = true;
-    var teams = this.props.currUser.teams;
-    var teamsArr = [];
-    teams.map(order => {
-      var orderbox = {};
-      orderbox["team_alias"] = order.team_alias;
-      orderbox["team_name"] = order.team_name;
-      orderbox["region"] = order.region;
-      teamsArr.push(orderbox);
-    });
-    this.setState({ teamsData: teamsArr });
+    this.setTeamList();
     this.queryIsFinished();
   }
-  queryIsFinished = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: "application/queryRestoreState",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.props.groupId,
-        group_uuid: this.props.group_uuid
-      },
-      callback: data => {
-        if (data) {
-          this.setState({
-            event_id: data.bean.data === null ? "" : data.bean.data.event_id,
-            notRecovered_restore_id:
-              data.bean.data === null ? "" : data.bean.data.restore_id
-          });
-        }
-      }
-    });
-  };
   componentWillUnmount() {
     this.mount = false;
   }
 
-  handleSubmit = e => {
-    var teamsName = this.state.teamsName;
-    var regionName = this.state.regionName;
-    if (teamsName == "") {
-      notification.warning({ message: "请选择迁移团队" });
+  onRegionChange = value => {
+    this.setState({ regionName: value });
+  };
+
+  setTeamList = () => {
+    const { teams } = this.props.currUser;
+    const teamsArr = [];
+    teams.map(order => {
+      const orderbox = {};
+      orderbox.team_alias = order.team_alias;
+      orderbox.team_name = order.team_name;
+      orderbox.region = order.region;
+      teamsArr.push(orderbox);
+      return order;
+    });
+    this.setState({ teamsData: teamsArr });
+  };
+  handleSubmit = () => {
+    const { teamsName } = this.state;
+    const { regionName } = this.state;
+    if (teamsName === '') {
+      notification.warning({ message: '请选择迁移团队' });
       return;
     }
-    if (regionName == "") {
-      notification.warning({ message: "请选择迁移集群" });
+    if (regionName === '') {
+      notification.warning({ message: '请选择迁移集群' });
       return;
     }
     this.props.dispatch({
-      type: "application/migrateApp",
+      type: 'application/migrateApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region: this.state.regionName,
         team: this.state.teamsName,
         backup_id: this.props.backupId,
         group_id: this.props.groupId,
-        migrate_type: "migrate",
+        migrate_type: 'migrate',
         event_id: this.state.event_id,
         notRecovered_restore_id: this.state.notRecovered_restore_id
       },
@@ -123,11 +95,11 @@ export default class Index extends PureComponent {
     });
   };
 
-  //查询迁移状态
+  // 查询迁移状态
   queryMigrateApp = () => {
     if (!this.mount) return;
     this.props.dispatch({
-      type: "application/queryMigrateApp",
+      type: 'application/queryMigrateApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         restore_id: this.state.restore_id,
@@ -139,20 +111,18 @@ export default class Index extends PureComponent {
             showRestore: true,
             restore_status: data.bean.status
           });
-          if (data.bean.status == "success") {
+          if (data.bean.status == 'success') {
             this.props.dispatch(
               routerRedux.push(
-                `/team/${data.bean.migrate_team}/region/${
-                  data.bean.migrate_region
-                }/apps/${data.bean.group_id}`
+                `/team/${data.bean.migrate_team}/region/${data.bean.migrate_region}/apps/${data.bean.group_id}`
               )
             );
             location.reload();
           }
-          if (data.bean.status == "failed") {
-            //this.props.onCancel && this.props.onCancel()
+          if (data.bean.status == 'failed') {
+            // this.props.onCancel && this.props.onCancel()
           }
-          if (data.bean.status == "starting") {
+          if (data.bean.status == 'starting') {
             setTimeout(() => {
               this.queryMigrateApp();
             }, 2000);
@@ -163,42 +133,72 @@ export default class Index extends PureComponent {
   };
 
   handleTeamsChange = value => {
-    const teamsData = this.state.teamsData;
-    var regionList = [];
+    const { teamsData } = this.state;
+    const { moveBackupMode, currentRegion } = this.props;
+    let regionList = [];
     teamsData.map(order => {
-      if (order.team_name == value) {
-        regionList = order.region;
+      if (order.team_name === value) {
+        if (moveBackupMode !== 'full-offline') {
+          regionList = order.region;
+        } else {
+          regionList = order.region.filter(
+            re => re.team_region_name === currentRegion
+          );
+        }
+      }
+      return order;
+    });
+    this.setState({
+      teamsName: value,
+      regionData: regionList,
+      regionName: regionList.length > 0 ? regionList[0].team_region_name : ''
+    });
+  };
+
+  queryIsFinished = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'application/queryRestoreState',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: this.props.groupId,
+        group_uuid: this.props.group_uuid
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            event_id: data.bean.data === null ? '' : data.bean.data.event_id,
+            notRecovered_restore_id:
+              data.bean.data === null ? '' : data.bean.data.restore_id
+          });
+        }
       }
     });
-    this.setState({ teamsName: value, regionData: regionList });
-  };
-  onRegionChange = value => {
-    var regionData = this.state.regionData;
-    this.setState({ regionName: value });
   };
 
   render() {
     const teamsData = this.state.teamsData || [];
     const regionData = this.state.regionData || [];
     const restoreStatus = this.state.restore_status;
+    const { moveBackupMode } = this.props;
     return (
       <Modal
-        visible={true}
+        visible
         onCancel={this.props.onCancel}
         onOk={this.handleSubmit}
         title="迁移"
         footer={
           this.state.showRestore
             ? [
-                <Button key="back" onClick={this.props.onCancel}>
+              <Button key="back" onClick={this.props.onCancel}>
                   关闭
                 </Button>
               ]
             : [
-                <Button key="back" onClick={this.props.onCancel}>
+              <Button key="back" onClick={this.props.onCancel}>
                   关闭
                 </Button>,
-                <Button key="submit" type="primary" onClick={this.handleSubmit}>
+              <Button key="submit" type="primary" onClick={this.handleSubmit}>
                   迁移
                 </Button>
               ]
@@ -206,82 +206,93 @@ export default class Index extends PureComponent {
       >
         {this.state.showRestore ? (
           <div>
-            {restoreStatus == "starting" ? (
+            {restoreStatus === 'starting' ? (
               <div>
-                <p style={{ textAlign: "center" }}>
+                <p style={{ textAlign: 'center' }}>
                   <Spin />
                 </p>
-                <p style={{ textAlign: "center", fontSize: "14px" }}>
+                <p style={{ textAlign: 'center', fontSize: '14px' }}>
                   迁移中，请稍后(请勿关闭弹窗)
                 </p>
               </div>
             ) : (
-              ""
+              ''
             )}
-            {restoreStatus == "success" ? (
+            {restoreStatus === 'success' ? (
               <div>
                 <p
                   style={{
-                    textAlign: "center",
-                    color: "#28cb75",
-                    fontSize: "36px"
+                    textAlign: 'center',
+                    color: '#28cb75',
+                    fontSize: '36px'
                   }}
                 >
                   <Icon type="check-circle-o" />
                 </p>
-                <p style={{ textAlign: "center", fontSize: "14px" }}>
+                <p style={{ textAlign: 'center', fontSize: '14px' }}>
                   迁移成功
                 </p>
               </div>
             ) : (
-              ""
+              ''
             )}
-            {restoreStatus == "failed" ? (
+            {restoreStatus === 'failed' ? (
               <div>
                 <p
                   style={{
-                    textAlign: "center",
-                    color: "999",
-                    fontSize: "36px"
+                    textAlign: 'center',
+                    color: '999',
+                    fontSize: '36px'
                   }}
                 >
                   <Icon type="close-circle-o" />
                 </p>
-                <p style={{ textAlign: "center", fontSize: "14px" }}>
+                <p style={{ textAlign: 'center', fontSize: '14px' }}>
                   迁移失败，请重新迁移
                 </p>
               </div>
             ) : (
-              ""
+              ''
             )}
           </div>
         ) : (
           <div>
+            {moveBackupMode === 'full-offline' && (
+              <Alert type="warning" message="本地备份不能进行跨集群迁移" />
+            )}
             <p>请选择迁移的团队和集群</p>
-            <Select
-              style={{ width: 120, marginRight: "10px" }}
-              onSelect={this.handleTeamsChange}
-              defaultValue="请选择团队"
-            >
-              {teamsData.map(order => {
-                return (
-                  <Option value={order.team_name}>{order.team_alias}</Option>
-                );
-              })}
-            </Select>
-            <Select
-              style={{ width: 120 }}
-              onSelect={this.onRegionChange}
-              defaultValue="请选择集群"
-            >
-              {regionData.map(order => {
-                return (
-                  <Option value={order.team_region_name}>
-                    {order.team_region_alias}
-                  </Option>
-                );
-              })}
-            </Select>
+            <Row>
+              <Col span={12}>
+                <Select
+                  style={{ width: '90%', marginRight: '10px' }}
+                  onSelect={this.handleTeamsChange}
+                  defaultValue="请选择团队"
+                >
+                  {teamsData.map(order => {
+                    return (
+                      <Option value={order.team_name}>
+                        {order.team_alias}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              </Col>
+              <Col span={12}>
+                <Select
+                  style={{ width: '90%' }}
+                  onSelect={this.onRegionChange}
+                  value={this.state.regionName}
+                >
+                  {regionData.map(order => {
+                    return (
+                      <Option value={order.team_region_name}>
+                        {order.team_region_alias}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              </Col>
+            </Row>
           </div>
         )}
       </Modal>

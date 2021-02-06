@@ -375,7 +375,7 @@ export default class AppList extends PureComponent {
   toAdd = () => {
     this.setState({ showImport: true });
   };
-  handleImportBackup = e => {
+  handleImportBackup = () => {
     notification.success({
       message: '备份已导入',
       duration: 2
@@ -388,7 +388,7 @@ export default class AppList extends PureComponent {
     this.fetchBackup();
   };
   // 恢复应用备份
-  handleRecovery = (data, e) => {
+  handleRecovery = data => {
     this.setState({
       showRecovery: true,
       backup_id: data.backup_id,
@@ -404,11 +404,12 @@ export default class AppList extends PureComponent {
     this.fetchBackup();
   };
   // 迁移应用备份
-  handleMove = (data, e) => {
+  handleMove = data => {
     this.setState({
       showMove: true,
       backup_id: data.backup_id,
-      group_uuid: data.group_uuid
+      group_uuid: data.group_uuid,
+      moveBackupMode: data.mode
     });
   };
   handleMoveBackup = () => {
@@ -470,11 +471,12 @@ export default class AppList extends PureComponent {
 
   render() {
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    const { regionName } = this.props.match.params;
     const {
       appDetail,
       loadingDetail,
       list = [],
-      operationPermissions: { isMigrate, isRestore, isImport, isExport }
+      operationPermissions: { isMigrate, isImport, isExport }
     } = this.state;
     const columns = [
       {
@@ -488,7 +490,7 @@ export default class AppList extends PureComponent {
       {
         title: '备份模式',
         dataIndex: 'mode',
-        render: (val, data) => {
+        render: val => {
           const map = {
             'full-online': '云端备份',
             'full-offline': '本地备份'
@@ -499,7 +501,7 @@ export default class AppList extends PureComponent {
       {
         title: '包大小',
         dataIndex: 'backup_size',
-        render: (val, data) => {
+        render: val => {
           return sourceUtil.unit(val, 'Byte');
         }
       },
@@ -606,9 +608,7 @@ export default class AppList extends PureComponent {
                 导入备份
               </Button>
             )}
-            <Button onClick={this.jumpToAllbackup} href="javascript:;">
-              团队全部备份
-            </Button>
+            <Button onClick={this.jumpToAllbackup}>团队全部备份</Button>
           </div>
         }
       >
@@ -649,7 +649,9 @@ export default class AppList extends PureComponent {
             onCancel={this.cancelMoveBackup}
             backupId={this.state.backup_id}
             groupId={this.getGroupId()}
+            currentRegion={regionName}
             group_uuid={this.state.group_uuid}
+            moveBackupMode={this.state.moveBackupMode}
           />
         )}
         {this.state.showRecovery && (

@@ -1,31 +1,31 @@
-import React, { PureComponent } from 'react';
+import {
+  Button, Form,
+
+  Icon,
+
+
+
+
+
+  Modal, notification,
+  Select,
+
+
+
+  Spin
+} from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Dropdown,
-  notification,
-  Select,
-  Input,
-  Modal,
-  message,
-  Spin,
-} from 'antd';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 
 const appRestore = {
   starting: '迁移中',
   success: '成功',
-  failed: '失败',
+  failed: '失败'
 };
 
 @connect(({ user, global }) => ({ currUser: user.currentUser }))
@@ -42,7 +42,7 @@ export default class Index extends PureComponent {
       isFinished: '',
       notRecovered_restore_id: '',
       restore: false,
-      restoreUrl: '',
+      restoreUrl: ''
     };
     this.mount = false;
   }
@@ -55,7 +55,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.props.groupId,
-        group_uuid: this.props.group_uuid,
+        group_uuid: this.props.group_uuid
       },
       callback: data => {
         if (data) {
@@ -63,10 +63,10 @@ export default class Index extends PureComponent {
             isFinished: data.bean.is_finished,
             event_id: data.bean.data === null ? '' : data.bean.data.event_id,
             notRecovered_restore_id:
-              data.bean.data === null ? '' : data.bean.data.restore_id,
+              data.bean.data === null ? '' : data.bean.data.restore_id
           });
         }
-      },
+      }
     });
   }
   componentWillUnmount() {
@@ -84,7 +84,7 @@ export default class Index extends PureComponent {
         group_id: groupId,
         migrate_type: 'recover',
         event_id: this.state.event_id,
-        notRecovered_restore_id: this.state.notRecovered_restore_id,
+        notRecovered_restore_id: this.state.notRecovered_restore_id
       },
       callback: data => {
         // notification.success({message: "开始恢复中",duration:'2'});
@@ -93,7 +93,7 @@ export default class Index extends PureComponent {
             this.queryMigrateApp();
           });
         }
-      },
+      }
     });
   };
 
@@ -105,7 +105,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.props.groupId,
-        new_group_id: this.state.new_group_id,
+        new_group_id: this.state.new_group_id
       },
       callback: data => {
         if (data) {
@@ -113,7 +113,7 @@ export default class Index extends PureComponent {
           restore && this.JumpAddress();
           this.props.onCancel & this.props.onCancel();
         }
-      },
+      }
     });
   };
 
@@ -129,7 +129,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name,
         restore_id,
-        group_id: groupId,
+        group_id: groupId
       },
       callback: data => {
         if (data && data.bean) {
@@ -137,7 +137,7 @@ export default class Index extends PureComponent {
           this.setState({
             showRestore: true,
             restore_status: info.status,
-            new_group_id: info.group_id,
+            new_group_id: info.group_id
           });
           if (info.status == 'starting') {
             setTimeout(() => {
@@ -146,13 +146,11 @@ export default class Index extends PureComponent {
           } else if (info.status == 'success') {
             this.setState({
               restore: true,
-              restoreUrl: `/team/${team_name}/region/${region_name}/apps/${
-                info.group_id
-              }`,
+              restoreUrl: `/team/${team_name}/region/${region_name}/apps/${info.group_id}`
             });
           }
         }
-      },
+      }
     });
   };
 
@@ -177,30 +175,30 @@ export default class Index extends PureComponent {
         footer={
           !showRestore
             ? [
-              <Button key="back" onClick={onCancel}>
+                <Button key="back" onClick={onCancel}>
                 关闭
-              </Button>,
-              <Button
+                </Button>,
+                <Button
                 key="submit"
                 type="primary"
                 onClick={this.handleRestore}
               >
-                恢复
-              </Button>,
+                  恢复
+              </Button>
               ]
             : restore_status == 'success'
             ? [
-              <Button key="back" onClick={this.JumpAddress}>
+                <Button key="back" onClick={this.JumpAddress}>
                 关闭
-              </Button>,
-              <Button key="submit" type="primary" onClick={this.handleSubmit}>
+                </Button>,
+                <Button key="submit" type="primary" onClick={this.handleSubmit}>
                 确认
-              </Button>,
+                </Button>
               ]
             : [
-              <Button key="back" onClick={onCancel}>
+                <Button key="back" onClick={onCancel}>
                 关闭
-              </Button>,
+                </Button>
               ]
         }
       >
@@ -224,7 +222,7 @@ export default class Index extends PureComponent {
                   style={{
                     textAlign: 'center',
                     color: '#28cb75',
-                    fontSize: '36px',
+                    fontSize: '36px'
                   }}
                 >
                   <Icon type="check-circle-o" />
@@ -242,7 +240,7 @@ export default class Index extends PureComponent {
                   style={{
                     textAlign: 'center',
                     color: '999',
-                    fontSize: '36px',
+                    fontSize: '36px'
                   }}
                 >
                   <Icon type="close-circle-o" />
@@ -255,7 +253,7 @@ export default class Index extends PureComponent {
               ''
             )}
           </div>
-        ) :isFinished ? (
+        ) : isFinished ? (
           <div>
             <p>您是否要恢复备份到当前集群?</p>
           </div>
