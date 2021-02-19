@@ -1,14 +1,25 @@
 /* eslint-disable react/sort-comp */
-import { Button, Checkbox, Col, Form, notification, Typography } from 'antd';
+import {
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Modal,
+  notification,
+  Typography
+} from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { getRainbondClusterConfig } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
+import CodeMirrorForm from '../../CodeMirrorForm';
 import styles from '../ACKBuyConfig/index.less';
 import InitRainbondDetail from '../ShowInitRainbondDetail';
 
 const { Paragraph } = Typography;
 
 @connect()
+@Form.create()
 export default class RainbondClusterInit extends PureComponent {
   constructor(props) {
     super(props);
@@ -109,10 +120,36 @@ export default class RainbondClusterInit extends PureComponent {
   setChecked = val => {
     this.setState({ checked: val.target.checked });
   };
-
+  showSetRainbondCluster = () => {
+    const { eid, clusterID } = this.props;
+    getRainbondClusterConfig({ enterprise_id: eid, clusterID }, res => {
+      if (res && res.data && res.data.code === 404) {
+        return;
+      }
+      cloud.handleCloudAPIError(res);
+    }).then(re => {
+      this.setState({ showClusterInitConfig: true, initconfig: re.config });
+    });
+  };
   render() {
-    const { preStep, eid, selectProvider } = this.props;
-    const { checked, showInitDetail, loading, task } = this.state;
+    const { preStep, eid, selectProvider, form } = this.props;
+    const {
+      checked,
+      showInitDetail,
+      loading,
+      task,
+      showClusterInitConfig,
+      initconfig
+    } = this.state;
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 24 }
+      },
+      wrapperCol: {
+        xs: { span: 24 }
+      }
+    };
+    const { getFieldDecorator, setFieldsValue } = form;
     return (
       <Form>
         <h4>注意事项：</h4>
@@ -161,7 +198,8 @@ export default class RainbondClusterInit extends PureComponent {
                 </li>
                 <li>
                   <span>
-                    网关节点以下端口必须空闲：443、80、8443、6060，否则将导致初始化失败
+                    网关节点以下端口必须空闲：80, 443, 6060, 7070, 8443, 10254,
+                    18080, 18081，否则将导致初始化失败
                   </span>
                 </li>
                 <li>
@@ -170,6 +208,18 @@ export default class RainbondClusterInit extends PureComponent {
                 <li>
                   <span>
                     安装过程中需要访问网关节点6443、8443、6060端口，请确保相关端口可被访问。
+                  </span>
+                </li>
+                <li>
+                  <span>
+                    若您希望自定义集群初始化参数{' '}
+                    <a
+                      onClick={() => {
+                        this.showSetRainbondCluster();
+                      }}
+                    >
+                      点击这里
+                    </a>
                   </span>
                 </li>
               </ul>
@@ -219,6 +269,32 @@ export default class RainbondClusterInit extends PureComponent {
             clusterID={task.clusterID}
             taskID={task.taskID}
           />
+        )}
+        {showClusterInitConfig && (
+          <Modal
+            visible
+            title="设置 RainbondCluster"
+            onOk={this.handleSubmit}
+            width={800}
+            confirmLoading={loading}
+            onCancel={() => {
+              this.setState({ showClusterInitConfig: false });
+            }}
+          >
+            <CodeMirrorForm
+              titles="RainbondCluster 包含Rainbond集群的初始化的全部配置"
+              setFieldsValue={setFieldsValue}
+              formItemLayout={formItemLayout}
+              Form={Form}
+              getFieldDecorator={getFieldDecorator}
+              mode="yaml"
+              name="config"
+              data={initconfig}
+              label="RainbondCluster"
+              message="RainbondCluster 配置是必需的"
+              width="750px"
+            />
+          </Modal>
         )}
       </Form>
     );

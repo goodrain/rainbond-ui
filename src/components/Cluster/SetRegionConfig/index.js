@@ -130,9 +130,7 @@ export default class SetRegionConfig extends PureComponent {
       callback: data => {
         if (data) {
           this.setState({ task: data });
-          if (data.status === 'inited' || data.status === 'complete') {
-            this.loadRegionConfig();
-          }
+          this.loadRegionConfig();
         }
       },
       handleError: res => {

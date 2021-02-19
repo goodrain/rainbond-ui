@@ -246,3 +246,26 @@ export async function updateKubernetesCluster(body, handleError) {
     }
   );
 }
+
+export async function getRainbondClusterConfig(body, handleError) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/rainbondcluster`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+export async function setRainbondClusterConfig(body, handleError) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/rainbondcluster`,
+    {
+      method: 'put',
+      data: {
+        config: body.config
+      },
+      handleError
+    }
+  );
+}
