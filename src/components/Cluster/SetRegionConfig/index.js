@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import {
+  Alert,
   Button,
   Card,
   Col,
@@ -169,11 +170,19 @@ export default class SetRegionConfig extends PureComponent {
       <Form>
         <Card loading={loading} bordered={false} style={{ padding: '0 16px' }}>
           <Row>
-            <Descriptions>
-              <Descriptions.Item label="API通信地址">
-                {configs.apiAddress}
-              </Descriptions.Item>
-            </Descriptions>
+            {!configs.apiAddress && (
+              <Alert
+                message="未正常获取到集群的初始化状态，不能进行对接"
+                type="error"
+              />
+            )}
+            {configs.apiAddress && (
+              <Descriptions>
+                <Descriptions.Item label="API通信地址">
+                  {configs.apiAddress}
+                </Descriptions.Item>
+              </Descriptions>
+            )}
           </Row>
           <Row style={{ marginTop: '32px' }}>
             <h4>集群设置</h4>
@@ -213,6 +222,7 @@ export default class SetRegionConfig extends PureComponent {
               <Button
                 loading={commitloading}
                 onClick={this.createClusters}
+                disabled={!configs.apiAddress}
                 type="primary"
               >
                 对接

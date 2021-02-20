@@ -542,6 +542,12 @@ const cloud = {
       case 7017:
         notification.warning({ message: '该集群不支持节点扩容动作' });
         break;
+      case 7018:
+        notification.warning({ message: 'RainbondCluster 配置不合法，请检查后重试' });
+        break;
+      case 7019:
+          notification.warning({ message: '无法获取集群的初始化状态' });
+        break;
       case 400:
         notification.warning({ message: '请求参数错误' });
         break;

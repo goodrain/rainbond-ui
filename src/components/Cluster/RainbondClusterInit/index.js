@@ -10,7 +10,10 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { getRainbondClusterConfig } from '../../../services/cloud';
+import {
+  getRainbondClusterConfig,
+  setRainbondClusterConfig
+} from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import CodeMirrorForm from '../../CodeMirrorForm';
 import styles from '../ACKBuyConfig/index.less';
@@ -129,6 +132,27 @@ export default class RainbondClusterInit extends PureComponent {
       cloud.handleCloudAPIError(res);
     }).then(re => {
       this.setState({ showClusterInitConfig: true, initconfig: re.config });
+    });
+  };
+  handleSubmit = () => {
+    const { form, eid, clusterID } = this.props;
+    form.validateFields((err, values) => {
+      if (!err) {
+        setRainbondClusterConfig(
+          { enterprise_id: eid, clusterID, config: values.config },
+          res => {
+            if (res && res.data && res.data.code === 404) {
+              return;
+            }
+            cloud.handleCloudAPIError(res);
+          }
+        ).then(re => {
+          if (re && re.status_code === 200) {
+            notification.success({ message: '设置成功' });
+            this.setState({ showClusterInitConfig: false });
+          }
+        });
+      }
     });
   };
   render() {

@@ -5,11 +5,13 @@ import {
   Icon,
   message,
   Modal,
+  notification,
   Popconfirm,
   Row,
   Table,
   Typography
 } from 'antd';
+import copy from 'copy-to-clipboard';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import CodeMirror from 'react-codemirror';
@@ -17,7 +19,8 @@ import { Link } from 'umi';
 import Ansi from '../../../components/Ansi';
 import {
   getKubeConfig,
-  getUpdateKubernetesTask
+  getUpdateKubernetesTask,
+  uninstallRegion
 } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
@@ -123,11 +126,16 @@ export default class KubernetesClusterShow extends PureComponent {
   };
   updateCluster = clusterID => {
     const { eid, selectProvider } = this.props;
-    getUpdateKubernetesTask({
-      clusterID,
-      providerName: selectProvider,
-      enterprise_id: eid
-    })
+    getUpdateKubernetesTask(
+      {
+        clusterID,
+        providerName: selectProvider,
+        enterprise_id: eid
+      },
+      err => {
+        cloud.handleCloudAPIError(err);
+      }
+    )
       .then(re => {
         if (re.task && re.task.status !== 'complete') {
           this.setState({
@@ -145,6 +153,23 @@ export default class KubernetesClusterShow extends PureComponent {
       .catch(err => {
         console.log(err);
       });
+  };
+  uninstallCluster = clusterID => {
+    const { eid, selectProvider } = this.props;
+    uninstallRegion(
+      {
+        provider_name: selectProvider,
+        enterprise_id: eid,
+        clusterID
+      },
+      err => {
+        cloud.handleCloudAPIError(err);
+      }
+    ).then(re => {
+      if (re && re.status_code === 200) {
+        notification.success({ message: '集群正在卸载中，稍后请刷新列表' });
+      }
+    });
   };
   cancelShowUpdateKubernetes = () => {
     const { loadKubernetesCluster } = this.props;
@@ -291,6 +316,19 @@ export default class KubernetesClusterShow extends PureComponent {
               <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
                 节点扩容
               </a>
+            )}
+            {row.rainbond_init === true && (
+              <Popconfirm
+                placement="top"
+                title="卸载后不可恢复，确认要卸载当前集群的 Rainbond 服务吗？"
+                onConfirm={() => {
+                  this.uninstallCluster(row.cluster_id || row.name);
+                }}
+                okText="确定"
+                cancelText="取消"
+              >
+                <a>卸载</a>
+              </Popconfirm>
             )}
           </div>
         );
@@ -456,7 +494,11 @@ export default class KubernetesClusterShow extends PureComponent {
             }}
             title="KubeConfig"
             bodyStyle={{ background: '#000' }}
-            footer={null}
+            onOk={() => {
+              copy(kubeConfig);
+              notification.success({ message: '复制成功' });
+            }}
+            okText="复制"
           >
             <div className={istyles.cmd}>
               <CodeMirror

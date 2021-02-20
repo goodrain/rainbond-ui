@@ -269,3 +269,14 @@ export async function setRainbondClusterConfig(body, handleError) {
     }
   );
 }
+
+export async function uninstallRegion(body, handleError) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/uninstall`,
+    {
+      method: 'post',
+      data: body,
+      handleError
+    }
+  );
+}
