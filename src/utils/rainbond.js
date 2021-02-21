@@ -18,14 +18,14 @@ export default {
       enterpriseInfo.logo.enable &&
       enterpriseInfo.logo.value),
   // 获取网页图标
-  fetchFavicon: (enterpriseInfo) =>
+  fetchFavicon: enterpriseInfo =>
     (enterpriseInfo &&
       enterpriseInfo.favicon &&
       enterpriseInfo.favicon.enable &&
       enterpriseInfo.favicon.value) ||
-    '/static/dists/favicon.png',
+    '/static/dists/favicon.ico',
   // 获取网站标题
-  fetchSiteTitle: (enterpriseInfo) =>
+  fetchSiteTitle: enterpriseInfo =>
     (enterpriseInfo &&
       enterpriseInfo.title &&
       enterpriseInfo.title.enable &&
@@ -115,7 +115,7 @@ export default {
       bean.oauth_services &&
       bean.oauth_services.enable &&
       bean.oauth_services.value &&
-      bean.oauth_services.value.find((item) => item.oauth_type === values)) ||
+      bean.oauth_services.value.find(item => item.oauth_type === values)) ||
     false,
 
   // 判断企业是否配置了云应用市场
