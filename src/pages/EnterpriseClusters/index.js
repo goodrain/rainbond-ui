@@ -23,6 +23,7 @@ import React, { PureComponent } from 'react';
 import EditClusterInfo from '../../components/Cluster/EditClusterInfo';
 import ConfirmModal from '../../components/ConfirmModal';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 
 @connect(({ user, list, loading, global, index }) => ({
@@ -115,6 +116,7 @@ export default class EnterpriseClusters extends PureComponent {
             return item;
           });
           this.setState({ clusters });
+          globalUtil.putClusterInfoLog(eid, res.list);
         }
       }
     });

@@ -143,7 +143,7 @@ export default class BackupManage extends PureComponent {
           password: vals.password
         }).then(re => {
           if (re && re.status_code === 200) {
-            notification.success({ message: '恢复成功' });
+            notification.success({ message: '恢复成功，请退出后重新登录' });
             this.loadBackups();
             this.setState({ recoverShow: false, recoverLoading: false });
           } else {

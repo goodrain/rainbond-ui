@@ -1,13 +1,14 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/alt-text */
-import React, { Component } from 'react';
+import { Button, Col, Form, Input, Progress, Row } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import { Form, Input, Button, Row, Col, Progress } from 'antd';
-import styles from './Register.less';
+import React, { Component } from 'react';
 import apiconfig from '../../../config/api.config';
 import userUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
+import styles from './Register.less';
 
 const FormItem = Form.Item;
 
@@ -28,29 +29,15 @@ const passwordProgressMap = {
 export default class RegisterComponent extends Component {
   // first user, to register admin
   state = {
-    count: 0,
     confirmDirty: false,
     visible: false,
     help: '',
-    prefix: '86',
     time: Date.now()
   };
 
   componentWillUnmount() {
     clearInterval(this.interval);
   }
-
-  onGetCaptcha = () => {
-    let count = 59;
-    this.setState({ count });
-    this.interval = setInterval(() => {
-      count -= 1;
-      this.setState({ count });
-      if (count === 0) {
-        clearInterval(this.interval);
-      }
-    }, 1000);
-  };
 
   getPasswordStatus = () => {
     const { form } = this.props;
@@ -64,7 +51,7 @@ export default class RegisterComponent extends Component {
     return 'poor';
   };
 
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit } = this.props;
     form.validateFields(
@@ -74,13 +61,15 @@ export default class RegisterComponent extends Component {
       (err, values) => {
         if (!err) {
           userUtil.removeCookie();
-          onSubmit && onSubmit(values);
+          if (onSubmit) {
+            onSubmit(values);
+          }
         }
       }
     );
   };
 
-  handleConfirmBlur = (e) => {
+  handleConfirmBlur = e => {
     const { value } = e.target;
     this.setState({
       confirmDirty: this.state.confirmDirty || !!value
@@ -126,9 +115,6 @@ export default class RegisterComponent extends Component {
     }
   };
 
-  changePrefix = (value) => {
-    this.setState({ prefix: value });
-  };
   changeTime = () => {
     this.setState({
       time: Date.now()
@@ -179,41 +165,88 @@ export default class RegisterComponent extends Component {
             )}
           </FormItem>
         )}
-        <FormItem>
-          {getFieldDecorator('user_name', {
-            initialValue: user_info ? user_info.oauth_user_name : '',
-            rules: [
-              { required: true, message: '请输入用户名!' },
-              {
-                min: 3,
-                message: '最小长度3位'
-              },
-              {
-                max: 24,
-                message: '最大长度24位'
-              },
-              {
-                pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
-                message: '只支持字母、数字、中文、_和-组合'
-              }
-            ]
-          })(<Input autoComplete="off" size="large" placeholder="用户名" />)}
-        </FormItem>
-        <FormItem>
-          {getFieldDecorator('email', {
-            initialValue: user_info ? user_info.oauth_user_email : '',
-            rules: [
-              {
-                required: true,
-                message: '请输入邮箱地址！'
-              },
-              {
-                type: 'email',
-                message: '邮箱地址格式错误！'
-              }
-            ]
-          })(<Input autoComplete="off" size="large" placeholder="邮箱" />)}
-        </FormItem>
+        <Row>
+          <Col span="12" style={{ padding: '0 8px 0 0' }}>
+            <FormItem>
+              {getFieldDecorator('real_name', {
+                initialValue: user_info ? user_info.oauth_user_name : '',
+                rules: [
+                  { required: true, message: '请输入姓名' },
+                  {
+                    max: 24,
+                    message: '最大长度24位'
+                  },
+                  {
+                    pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
+                    message: '只支持字母、数字、中文、_和-组合'
+                  }
+                ]
+              })(<Input autoComplete="off" size="large" placeholder="姓名" />)}
+            </FormItem>
+          </Col>
+          <Col span="12" style={{ padding: '0 0 0 8px' }}>
+            <FormItem>
+              {getFieldDecorator('user_name', {
+                initialValue: firstRegist ? 'admin' : '',
+                rules: [
+                  { required: true, message: '请输入用户名!' },
+                  {
+                    min: 3,
+                    message: '最小长度3位'
+                  },
+                  {
+                    max: 24,
+                    message: '最大长度24位'
+                  },
+                  {
+                    pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
+                    message: '只支持字母、数字、中文、_和-组合'
+                  }
+                ]
+              })(
+                <Input autoComplete="off" size="large" placeholder="用户名" />
+              )}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="12" style={{ padding: '0 8px 0 0' }}>
+            <FormItem>
+              {getFieldDecorator('email', {
+                initialValue: user_info ? user_info.oauth_user_email : '',
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入邮箱地址！'
+                  },
+                  {
+                    type: 'email',
+                    message: '邮箱地址格式错误！'
+                  }
+                ]
+              })(<Input autoComplete="off" size="large" placeholder="邮箱" />)}
+            </FormItem>
+          </Col>
+          <Col span="12" style={{ padding: '0 0 0 8px' }}>
+            <FormItem>
+              {getFieldDecorator('phone', {
+                initialValue: '',
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入手机号'
+                  },
+                  {
+                    pattern: /^[0-9]{11}$/,
+                    message: '请输入正确的手机号'
+                  }
+                ]
+              })(
+                <Input autoComplete="off" size="large" placeholder="手机号" />
+              )}
+            </FormItem>
+          </Col>
+        </Row>
         <FormItem help={help}>
           {getFieldDecorator('password', {
             rules: [
@@ -298,6 +331,16 @@ export default class RegisterComponent extends Component {
             </Link>
           )}
         </FormItem>
+        {firstRegist && (
+          <Row>
+            <Col
+              span={24}
+              style={{ fontSize: 12, marginTop: -12, color: '#666666' }}
+            >
+              请注意：注册使用即同意 Rainbond 发行版用户许可协议。
+            </Col>
+          </Row>
+        )}
       </Form>
     );
   }

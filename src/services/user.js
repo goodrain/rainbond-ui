@@ -1,5 +1,6 @@
-import request from '../utils/request';
+/* eslint-disable no-undef */
 import apiconfig from '../../config/api.config';
+import request from '../utils/request';
 
 /* Gets the access token data */
 export async function fetchAccessToken() {
@@ -190,7 +191,7 @@ export async function login(
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     transformRequest: [
-      function (data) {
+      function(data) {
         let ret = '';
         for (const it in data) {
           ret += `${encodeURIComponent(it)}=${encodeURIComponent(data[it])}&`;
@@ -225,7 +226,7 @@ export async function register(
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     transformRequest: [
-      function (data) {
+      function(data) {
         let ret = '';
         for (const it in data) {
           ret += `${encodeURIComponent(it)}=${encodeURIComponent(data[it])}&`;
