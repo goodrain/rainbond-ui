@@ -79,6 +79,7 @@ const global = {
       defaultOptions.data = JSON.stringify({
         eid: info.enterprise_id,
         e_name: info.enterprise_alias,
+        real_name: info.real_name,
         phone: info.phone,
         version: info.version,
         email: info.email,
