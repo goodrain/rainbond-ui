@@ -29,15 +29,10 @@ function AppPubSubSocket(op) {
   // 当close 事件发生时， 是否自动重新连接
   this.isAutoConnect = option.isAutoConnect;
   this.destroyed = option.destroyed;
-  if (
-    this.url &&
-    /(ws|wss):\/\/[\w\-_]+([\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/.test(
-      this.url
-    )
-  ) {
+  try {
     this.init();
-  } else {
-    this.isAutoConnect = false;
+  } catch (e) {
+    console.log(e);
   }
 }
 
@@ -54,7 +49,7 @@ AppPubSubSocket.prototype = {
       autoStart: false,
       batchout: true,
       maxCache: 5000,
-      onExecute: (message) => {
+      onExecute: message => {
         if (message === undefined) {
           return;
         }
@@ -64,7 +59,7 @@ AppPubSubSocket.prototype = {
     this.monitorLogQueue = new TimerQueue({
       interval: 5,
       autoStart: false,
-      onExecute: (message) => {
+      onExecute: message => {
         if (message === undefined) {
           return;
         }
@@ -86,7 +81,7 @@ AppPubSubSocket.prototype = {
   watchEventLog(onMessage, onSuccess, onFailure, eventID) {
     const channel = `event-${eventID}`;
     if (this.eventLogQueue.has(channel)) {
-      this.eventLogQueue.get(channel).onExecute = (item) => {
+      this.eventLogQueue.get(channel).onExecute = item => {
         if (item.action !== undefined && item.status !== undefined) {
           if (item.status === 'success') {
             onSuccess(item.message);
@@ -101,7 +96,7 @@ AppPubSubSocket.prototype = {
         channel,
         new TimerQueue({
           autoStart: true,
-          onExecute: (item) => {
+          onExecute: item => {
             if (item.action !== undefined && item.status !== undefined) {
               if (item.status === 'success') {
                 onSuccess(item.message);
@@ -212,7 +207,7 @@ AppPubSubSocket.prototype = {
       this.onOpen(this.webSocket);
       this.opened = true;
       if (this.waitingSendMessage.length > 0) {
-        this.waitingSendMessage.map((m) => {
+        this.waitingSendMessage.map(m => {
           this.webSocket.send(m);
           return null;
         });
