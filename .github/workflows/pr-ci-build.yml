@@ -1,0 +1,17 @@
+name: pr-ci-build
+
+on:
+  pull_request:
+    branches: [V5.2]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build the Docker image
+        env:
+          TRAVIS_PULL_REQUEST: true
+          BUILD_RBD_APP_UI: false
+        run: VERSION=${{ github.base_ref }}-dev ./build.sh
