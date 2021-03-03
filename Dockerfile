@@ -1,4 +1,4 @@
-FROM rainbond/rbd-ui-base:V5.1
+FROM rainbond/rbd-ui-base:V5.2
 
 RUN mkdir /dist
 
