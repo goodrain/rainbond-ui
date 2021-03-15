@@ -202,7 +202,7 @@ class AppInfo extends PureComponent {
                         initialValue: attr_value,
                         rules: [
                           {
-                            required: true,
+                            required: false,
                             message: '不能为空'
                           }
                         ]
