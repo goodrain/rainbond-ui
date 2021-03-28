@@ -747,11 +747,12 @@ export default class Main extends PureComponent {
       app_name: appName,
       cloudApp_name: cloudAppName
     } = this.state;
-
+    const setHideOnSinglePage = moreState ? true : false;
     const paginationProps = {
       current: moreState ? 1 : page,
       pageSize: moreState ? 3 : pageSize,
       total: moreState ? 1 : total,
+      hideOnSinglePage: setHideOnSinglePage,
       onChange: v => {
         this.hanldePageChange(v);
       }
@@ -760,6 +761,7 @@ export default class Main extends PureComponent {
       current: moreState ? 1 : cloudPage,
       pageSize: moreState ? 3 : cloudPageSize,
       total: moreState ? 1 : cloudTotal,
+      hideOnSinglePage: setHideOnSinglePage,
       onChange: v => {
         this.hanldeCloudPageChange(v);
       }
@@ -774,6 +776,25 @@ export default class Main extends PureComponent {
         isInstall = fetchMarketAuthority(arr[0], 'ReadInstall');
       }
     }
+
+    const mores = (
+      handleType && moreState && (
+        ( scopeMax==='localApplication' && list && list.length > 0 ) || ( scopeMax!='localApplication' && cloudList && cloudList.length>0 )
+        ) && (
+        <div
+          style={{
+            textAlign: 'right',
+            height: '70px',
+            marginTop:'-40px',
+            position: 'relative',
+            zIndex:99
+          }}
+        >
+          <a onClick={this.loadMore}>查看更多...</a>
+         </div>
+      )
+    )
+    
     const cardList = (
       <List
         bordered={false}
@@ -884,8 +905,8 @@ export default class Main extends PureComponent {
     const SpinBox = (
       <div
         style={{
-          height: '300px',
-          lineHeight: '300px',
+          height: '255px',
+          lineHeight: '255px',
           textAlign: 'center'
         }}
       >
@@ -1002,7 +1023,7 @@ export default class Main extends PureComponent {
                 />
               )}
               {scopeMax === 'localApplication' ? (
-                <div>
+                <div style={{marginBottom:!moreState&&handleType&& handleType === 'Service' && '40px'}}>
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
               ) : (
@@ -1031,23 +1052,9 @@ export default class Main extends PureComponent {
                   )}
                 </div>
               )}
+              {mores}
 
-              {handleType && moreState && list && list.length > 0 && (
-                <div
-                  style={{
-                    textAlign: 'right',
-                    zIndex: 9,
-                    position: 'absolute',
-                    height: '70px',
-                    background: 'white',
-                    width: '100%',
-                    right: 0,
-                    bottom: '-10px'
-                  }}
-                >
-                  <a onClick={this.loadMore}>查看更多...</a>
-                </div>
-              )}
+          
             </PageHeaderLayout>
           </div>
         )}

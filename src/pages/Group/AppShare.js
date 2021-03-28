@@ -197,12 +197,12 @@ class AppInfo extends PureComponent {
                 <Col span={8}>
                   <FormItem label={attr_name} style={{ padding: 16 }}>
                     {getFieldDecorator(
-                      `env||${attr_name}||attr_value||${attr_value}`,
+                      `env||${attr_name}`,
                       {
                         initialValue: attr_value,
                         rules: [
                           {
-                            required: true,
+                            required: false,
                             message: '不能为空'
                           }
                         ]
@@ -707,8 +707,8 @@ export default class Main extends PureComponent {
                       attr_name: attrName,
                       attr_value: attrValue
                     } = serapp;
-                    if (attrName === indexarr[1] && attrValue === indexarr[3]) {
-                      serapp[indexarr[2]] = appvalue[index];
+                    if (attrName === indexarr[1]) {
+                      serapp.attr_value = appvalue[index];
                     }
                   });
                 }

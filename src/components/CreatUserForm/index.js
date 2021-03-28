@@ -167,6 +167,22 @@ class CreateUserForm extends PureComponent {
                   />
                 )}
               </FormItem>
+              <FormItem {...formItemLayout} label="电话">
+                {getFieldDecorator('phone', {
+                  rules: [
+                    {
+                      pattern: /^[0-9]{11}$/,
+                      message: '请输入正确的手机号'
+                    }
+                  ]
+                })(
+                  <Input
+                    type="text"
+                    placeholder="请填写手机号"
+                    autoComplete="off"
+                  />
+                )}
+              </FormItem>
 
               <FormItem {...formItemLayout} label="所属团队">
                 {getFieldDecorator('tenant_name', {

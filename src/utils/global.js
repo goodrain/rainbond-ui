@@ -46,6 +46,53 @@ const global = {
     cookie.remove('enterprise_edition', { domain: '' });
     cookie.remove('platform_url', { domain: '' });
   },
+  putClusterInfoLog(eid, clusters) {
+    try {
+      const defaultOptions = {
+        credentials: 'same-origin'
+      };
+      defaultOptions.url = 'https://log.rainbond.com/log';
+      defaultOptions.method = 'post';
+      defaultOptions.data = JSON.stringify({
+        eid,
+        cluster_sizes: clusters.length,
+        cluster_types: clusters.map(cluster => {
+          return cluster.provider;
+        }),
+        day: moment(new Date())
+          .locale('zh-cn')
+          .format('YYYYMMDD')
+      });
+      defaultOptions.data = JSON.parse(defaultOptions.data);
+      axios(defaultOptions);
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  putRegistLog(info) {
+    try {
+      const defaultOptions = {
+        credentials: 'same-origin'
+      };
+      defaultOptions.url = 'https://log.rainbond.com/log';
+      defaultOptions.method = 'post';
+      defaultOptions.data = JSON.stringify({
+        eid: info.enterprise_id,
+        e_name: info.enterprise_alias,
+        real_name: info.real_name,
+        phone: info.phone,
+        version: info.version,
+        email: info.email,
+        day: moment(new Date())
+          .locale('zh-cn')
+          .format('YYYYMMDD')
+      });
+      defaultOptions.data = JSON.parse(defaultOptions.data);
+      axios(defaultOptions);
+    } catch (e) {
+      console.log(e);
+    }
+  },
   putLog(info) {
     if (!info || (info && !info.enterprise_id)) {
       return null;
@@ -69,7 +116,9 @@ const global = {
       });
       defaultOptions.data = JSON.parse(defaultOptions.data);
       axios(defaultOptions);
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
   },
   getCurrEnterpriseId() {
     const reg = /enterprise\/([^\/]+)/;

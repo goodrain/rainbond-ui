@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import { routerRedux } from 'dva/router';
 import {
   addAccessToken,
@@ -216,6 +217,9 @@ export default {
       const response = yield call(register, payload);
 
       if (response) {
+        if (complete) {
+          complete(response.bean);
+        }
         // 非常粗暴的跳转,登陆成功之后权限会变成user或admin,会自动重定向到主页 Login success after permission
         // changes to admin or user The refresh will automatically redirect to the home
         // page yield put(routerRedux.push('/'));
@@ -252,8 +256,6 @@ export default {
           yield put(routerRedux.push('/'));
         }
       }
-
-      complete && complete();
     },
     *thirdRegister({ payload, callback }, { call, put, select }) {
       const response = yield call(register, payload);
@@ -329,7 +331,7 @@ export default {
       };
     },
     saveOtherTeam(state, action) {
-      const currentUser = state.currentUser;
+      const { currentUser } = state;
       currentUser.teams.push(action.team);
       return {
         ...state,

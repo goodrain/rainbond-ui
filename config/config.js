@@ -1,10 +1,14 @@
 import defaultSettings from '../src/defaultSettings';
 import routerConfig from './router.config';
 
+let publcPath = '/static/dists/';
+if (process.env.SEPARATION === 'true') {
+  publcPath = `/`;
+}
+
 export default {
   history: 'hash',
-  publicPath: '/static/dists/',
-  // publicPath: "/",
+  publicPath: publcPath,
   hash: true,
   plugins: [
     [

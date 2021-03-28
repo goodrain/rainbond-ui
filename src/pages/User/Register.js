@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import React, { Component } from 'react';
+import globalUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
 import styles from './Register.less';
 import RegisterComponent from './registerComponent';
-import rainbondUtil from '../../utils/rainbond';
 
 @connect(({ user, global }) => ({
   register: user.register,
@@ -12,26 +13,30 @@ import rainbondUtil from '../../utils/rainbond';
 }))
 export default class Register extends Component {
   // first user, to register admin
-  state = {
-    count: 0,
-    confirmDirty: false,
-    visible: false,
-    help: '',
-    prefix: '86',
-    time: Date.now()
-  };
+  state = {};
 
-  handleSubmit = (values) => {
+  handleSubmit = values => {
+    const { rainbondInfo } = this.props;
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
+    const version =
+      rainbondInfo && rainbondInfo.version && rainbondInfo.version.enable
+        ? rainbondInfo.version.value
+        : '';
     const { dispatch } = this.props;
     dispatch({
       type: 'user/register',
       payload: {
         ...values
       },
-      complete: () => {
-        this.setState({
-          time: Date.now()
-        });
+      complete: data => {
+        if (firstRegist) {
+          globalUtil.putRegistLog(
+            Object.assign(
+              { enterprise_alias: values.enter_name, version },
+              data
+            )
+          );
+        }
       }
     });
   };

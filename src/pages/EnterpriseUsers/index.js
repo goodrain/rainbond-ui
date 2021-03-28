@@ -252,6 +252,12 @@ export default class EnterpriseUsers extends PureComponent {
         align: 'center'
       },
       {
+        title: '电话',
+        dataIndex: 'phone',
+        rowKey: 'phone',
+        align: 'center'
+      },
+      {
         title: '邮箱',
         dataIndex: 'email',
         rowKey: 'email',
