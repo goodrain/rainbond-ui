@@ -1,5 +1,5 @@
-import React, { PureComponent } from 'react';
 import { Button, Dropdown, Menu, Tooltip } from 'antd';
+import React, { PureComponent } from 'react';
 
 /*
   access_type : no_port|无端口、
@@ -37,11 +37,12 @@ export default class Index extends PureComponent {
 
     if (links.length === 1) {
       let singleLink;
-      if (links[0] && links[0].url && links[0].url[0])
+      if (links[0] && links[0].url && links[0].url[0]) {
         singleLink =
           links[0].url[0].includes('http') || links[0].url[0].includes('https')
             ? links[0].url[0]
             : `http://${links[0].url[0]}`;
+      }
       return singleLink ? (
         <Tooltip
           title="跳转到组件对外访问端口对应的域名地址"

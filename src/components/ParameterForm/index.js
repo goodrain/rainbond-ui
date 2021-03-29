@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
 import { Button, Drawer, Form, Input, Switch } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
 import Parameterinput from '../Parameterinput';
 import styles from './index.less';
 
@@ -23,14 +23,14 @@ class ParameterForm extends PureComponent {
       WebSocket: !!(props.editInfo && props.editInfo.WebSocket)
     };
   }
-  onChangeWebSocket = (e) => {
+  onChangeWebSocket = e => {
     const { setFieldsValue } = this.props.form;
     this.setState({ WebSocket: !this.state.WebSocket }, () => {
       setFieldsValue({ WebSocket: this.state.WebSocket });
     });
   };
 
-  handleOk = (e) => {
+  handleOk = e => {
     e.preventDefault();
     const { onOk, form } = this.props;
     form.validateFields((err, values) => {
@@ -40,7 +40,7 @@ class ParameterForm extends PureComponent {
     });
   };
   checkContent = (_, value, callback) => {
-    let num = Number(value);
+    const num = Number(value);
     if (num) {
       if (num < 0) {
         callback('最小输入值0');
@@ -53,6 +53,19 @@ class ParameterForm extends PureComponent {
     }
     callback();
   };
+  checkBufferSize = (res, value, callback) => {
+    const num = Number(value);
+    if (num <= 0) {
+      callback('输入值过小，或不是合法数字，推荐至少设置4K');
+      return;
+    }
+    if (num > 65535) {
+      callback('最大输入值65535');
+      return;
+    }
+    callback();
+  };
+
   render() {
     const { editInfo, form, onClose, visible } = this.props;
     const { getFieldDecorator } = form;
@@ -169,7 +182,7 @@ class ParameterForm extends PureComponent {
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_buffer_size', {
-                rules: customRules,
+                rules: [{ validator: this.checkBufferSize }],
                 initialValue: editInfo ? editInfo.proxy_buffer_size : '4'
               })(<Input addonAfter="K" placeholder="请输入缓冲区大小" />)}
             </FormItem>
