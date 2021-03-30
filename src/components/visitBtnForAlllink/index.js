@@ -68,21 +68,27 @@ export default class Index extends PureComponent {
         <Dropdown
           overlay={
             <Menu>
-              {links.map(item => (
-                <Menu.Item key={item}>
-                  <a
-                    target="_blank"
-                    href={
-                      item.url[0].includes('http') ||
-                      item.url[0].includes('https')
-                        ? item.url[0]
-                        : `http://${item.url[0]}`
-                    }
-                  >
-                    {item.service_cname}{' '}
-                  </a>
-                </Menu.Item>
-              ))}
+              {links.map(item => {
+                if (item && item.url.length > 0 && item.url[0]) {
+                  return (
+                    <Menu.Item key={item}>
+                      <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={
+                          item.url[0].includes('http') ||
+                          item.url[0].includes('https')
+                            ? item.url[0]
+                            : `http://${item.url[0]}`
+                        }
+                      >
+                        {item.service_cname}{' '}
+                      </a>
+                    </Menu.Item>
+                  );
+                }
+                return null;
+              })}
             </Menu>
           }
           placement="bottomRight"
