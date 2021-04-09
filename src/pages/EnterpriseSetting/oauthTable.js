@@ -240,7 +240,7 @@ export default class OauthTable extends PureComponent {
         onCancel={onCancel}
         footer={[
           <Button style={{ marginTop: '20px' }} onClick={this.handleSubmit}>
-            禁用
+            关闭
           </Button>
         ]}
       >
