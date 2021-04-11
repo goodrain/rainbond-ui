@@ -1,5 +1,5 @@
+import { Button, Drawer, Form, Input, Radio, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
-import { Form, Input, Radio, Tooltip, Drawer, Button } from 'antd';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const FormItem = Form.Item;
@@ -31,12 +31,12 @@ export default class AddVolumes extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 24 },
+        sm: { span: 24 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 24 },
-      },
+        sm: { span: 24 }
+      }
     };
 
     return (
@@ -51,7 +51,7 @@ export default class AddVolumes extends PureComponent {
         style={{
           height: 'calc(100% - 55px)',
           overflow: 'auto',
-          paddingBottom: 53,
+          paddingBottom: 53
         }}
       >
         <Form onSubmit={this.handleSubmit} labelAlign="left">
@@ -61,9 +61,13 @@ export default class AddVolumes extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请输入配置文件名称',
+                  message: '请输入配置文件名称'
                 },
-              ],
+                {
+                  max: 30,
+                  message: '最大长度30位'
+                }
+              ]
             })(
               <Input
                 placeholder="请输入配置文件名称"
@@ -77,9 +81,13 @@ export default class AddVolumes extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请输入配置文件挂载路径',
+                  message: '请输入配置文件挂载路径'
                 },
-              ],
+                {
+                  max: 255,
+                  message: '最大长度255位'
+                }
+              ]
             })(<Input placeholder="请输入配置文件挂载路径" />)}
           </FormItem>
           <div style={{ display: 'none' }}>
@@ -89,9 +97,9 @@ export default class AddVolumes extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: '请选择存储类型',
-                  },
-                ],
+                    message: '请选择存储类型'
+                  }
+                ]
               })(
                 <RadioGroup>
                   <Radio value="config-file" disabled={!!this.props.editor}>
@@ -126,12 +134,12 @@ export default class AddVolumes extends PureComponent {
             textAlign: 'right',
             left: 0,
             background: '#fff',
-            borderRadius: '0 0 4px 4px',
+            borderRadius: '0 0 4px 4px'
           }}
         >
           <Button
             style={{
-              marginRight: 8,
+              marginRight: 8
             }}
             onClick={this.handleCancel}
           >
