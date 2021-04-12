@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { Card, Col, Form, Icon, Modal, Row, Tooltip } from 'antd';
+import { Card, Col, Form, Icon, Row, Tooltip } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
@@ -154,7 +154,7 @@ class Index extends PureComponent {
                         </span>
                       </span>
                     </div>
-                    <div style={{ position: 'relative' }}>
+                    <div style={{ position: 'static' }} className="table-wrap">
                       {SynType === 0 && (
                         <Tooltip
                           visible={FinalStatus === ''}
@@ -162,7 +162,9 @@ class Index extends PureComponent {
                           arrowPointAtCenter
                           autoAdjustOverflow={false}
                           title="查看日志"
-                          style={{ position: 'absolute', left: '0', top: '0' }}
+                          getPopupContainer={() =>
+                            document.querySelector('.table-wrap')
+                          }
                         >
                           <div
                             style={{

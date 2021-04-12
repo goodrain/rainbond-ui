@@ -134,7 +134,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '修改成功.' });
+          notification.success({ message: '修改成功' });
           this.getRuntimeInfo();
         }
       }
