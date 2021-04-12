@@ -53,6 +53,10 @@ export default class AddVolumes extends PureComponent {
       callback('挂载路径为系统保留路径，请更换其他路径');
       return;
     }
+    if (value && value.length > 100) {
+      callback('最大长度100位');
+      return;
+    }
 
     callback();
   };
@@ -184,6 +188,10 @@ export default class AddVolumes extends PureComponent {
                 {
                   required: true,
                   message: '请输入存储名称'
+                },
+                {
+                  max: 40,
+                  message: '最大长度40位'
                 }
               ]
             })(
