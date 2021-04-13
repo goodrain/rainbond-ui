@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
-import { Form, Radio, Switch, Input } from 'antd';
+import { Form, Input, Radio, Switch } from 'antd';
 import { connect } from 'dva';
+import React, { PureComponent } from 'react';
 
 const RadioGroup = Radio.Group;
 
@@ -14,20 +14,20 @@ class Index extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 4,
-        },
+          span: 4
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 20,
-        },
-      },
+          span: 20
+        }
+      }
     };
     const { envs } = this.props;
     const { getFieldDecorator } = this.props.form;
@@ -39,20 +39,16 @@ class Index extends PureComponent {
           help="开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库"
         >
           {getFieldDecorator('BUILD_NO_CACHE', {
-            initialValue: !!(envs && envs.BUILD_NO_CACHE),
-          })(
-            <Switch
-              defaultChecked={!!(envs && envs.BUILD_NO_CACHE)}
-            />
-          )}
+            initialValue: !!(envs && envs.BUILD_NO_CACHE)
+          })(<Switch defaultChecked={!!(envs && envs.BUILD_NO_CACHE)} />)}
         </Form.Item>
         <Form.Item {...formItemLayout} label="Golang版本">
           {getFieldDecorator('BUILD_GOVERSION', {
-            initialValue: (envs && envs.BUILD_GOVERSION) || 'go1.12',
+            initialValue: (envs && envs.BUILD_GOVERSION) || 'go1.11'
           })(
             <RadioGroup>
-              <Radio value="go1.12">go1.12(默认)</Radio>
-              <Radio value="go1.11">go1.11</Radio>
+              <Radio value="go1.11">go1.11(默认)</Radio>
+              <Radio value="go1.12">go1.12</Radio>
               <Radio value="go1.13">go1.13</Radio>
               <Radio value="go1.10">go1.10</Radio>
               <Radio value="go1.9">go1.9</Radio>
@@ -67,7 +63,7 @@ class Index extends PureComponent {
         >
           {getFieldDecorator('BUILD_GOPROXY', {
             initialValue: (envs && envs.BUILD_GOPROXY) || 'https://goproxy.io',
-            rules: [{ type: 'url', message: '输入数据不是合法的URL' }],
+            rules: [{ type: 'url', message: '输入数据不是合法的URL' }]
           })(<Input />)}
         </Form.Item>
       </div>
