@@ -2211,6 +2211,7 @@ export async function getMavensettings(body = {}) {
     {
       method: 'get',
       params: {
+        team_name: body.team_name,
         onlyname: body.onlyname
       }
     }
@@ -2223,6 +2224,7 @@ export async function addMavensettings(body = {}) {
     {
       method: 'post',
       data: {
+        team_name: body.team_name,
         name: body.name,
         content: body.content
       }
@@ -2236,6 +2238,7 @@ export async function editMavensettings(body = {}) {
     {
       method: 'put',
       data: {
+        team_name: body.team_name,
         content: body.content
       }
     }
@@ -2246,7 +2249,10 @@ export async function deleteMavensettings(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/mavensettings/${body.name}`,
     {
-      method: 'delete'
+      method: 'delete',
+      data: {
+        team_name: body.team_name
+      }
     }
   );
 }

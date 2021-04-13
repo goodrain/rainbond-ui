@@ -62,14 +62,24 @@ export default class AddAdmin extends PureComponent {
     });
   };
 
+  handleParameter = () => {
+    const { currentEnterprise } = this.props;
+    return {
+      team_name: globalUtil.getCurrTeamName(),
+      region_name: globalUtil.getCurrRegionName(),
+      enterprise_id: currentEnterprise.enterprise_id
+    };
+  };
+
   fetchMavensettings = (Initialize, activeMaven) => {
-    const { dispatch, currentEnterprise, form } = this.props;
+    const { dispatch, form } = this.props;
     const { setFieldsValue } = form;
+    const parameter = this.handleParameter();
+
     dispatch({
       type: 'appControl/fetchMavensettings',
       payload: {
-        region_name: globalUtil.getCurrRegionName(),
-        enterprise_id: currentEnterprise.enterprise_id,
+        ...parameter,
         onlyname: false
       },
       callback: res => {
@@ -149,12 +159,12 @@ export default class AddAdmin extends PureComponent {
     const { form } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
-        const { dispatch, currentEnterprise } = this.props;
+        const { dispatch } = this.props;
+        const parameter = this.handleParameter();
         dispatch({
           type: 'appControl/AddMavensettings',
           payload: {
-            region_name: globalUtil.getCurrRegionName(),
-            enterprise_id: currentEnterprise.enterprise_id,
+            ...parameter,
             ...values
           },
           callback: res => {
@@ -174,12 +184,12 @@ export default class AddAdmin extends PureComponent {
   };
   handleDelete = () => {
     const { mavenInfo } = this.state;
-    const { dispatch, currentEnterprise, form } = this.props;
+    const { dispatch, form } = this.props;
+    const parameter = this.handleParameter();
     dispatch({
       type: 'appControl/DeleteMavensettings',
       payload: {
-        region_name: globalUtil.getCurrRegionName(),
-        enterprise_id: currentEnterprise.enterprise_id,
+        ...parameter,
         name: mavenInfo.name
       },
       callback: res => {
@@ -203,16 +213,15 @@ export default class AddAdmin extends PureComponent {
     });
   };
   handleEditSubmit = () => {
-    const { form } = this.props;
+    const { form, dispatch } = this.props;
     const { mavenInfo } = this.state;
     form.validateFields((err, values) => {
       if (!err) {
-        const { dispatch, currentEnterprise } = this.props;
+        const parameter = this.handleParameter();
         dispatch({
           type: 'appControl/EditMavensettings',
           payload: {
-            region_name: globalUtil.getCurrRegionName(),
-            enterprise_id: currentEnterprise.enterprise_id,
+            ...parameter,
             name: mavenInfo.name,
             content: values.content
           },
