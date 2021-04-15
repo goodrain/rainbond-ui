@@ -476,7 +476,7 @@ class CreateAppModels extends PureComponent {
                 ]
               })(<Input placeholder="请输入名称" />)}
               <div className={styles.conformDesc}>
-                请输入创建的应用模版名称，最多32字.
+                请输入创建的应用模版名称，最多32位
               </div>
             </FormItem>
             {!market_id && (

@@ -220,6 +220,10 @@ export default class RegisterComponent extends Component {
                     message: '请输入邮箱地址！'
                   },
                   {
+                    max: 30,
+                    message: '最大长度30位'
+                  },
+                  {
                     type: 'email',
                     message: '邮箱地址格式错误！'
                   }

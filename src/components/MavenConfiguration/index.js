@@ -199,12 +199,12 @@ export default class AddAdmin extends PureComponent {
           setFieldsValue({ name: '' });
           this.setState(
             {
+              mavenInfo: {},
               contentLoading: true
             },
             () => {
               this.onCancelDelete();
               this.fetchMavensettings(true);
-
               notification.success({ message: '删除成功' });
             }
           );

@@ -42,11 +42,13 @@ class CreateUserForm extends PureComponent {
       }
     });
   };
-  checkAccount = (rule, value, callback) => {
+  checkAccountPass = (rule, value, callback) => {
     if (!value) {
       callback('请填写密码');
     } else if (value && value.length < 8) {
       callback('密码长度至少为8位');
+    } else if (value && value.length > 16) {
+      callback('最大长度16位');
     } else {
       callback();
     }
@@ -58,14 +60,6 @@ class CreateUserForm extends PureComponent {
         onOk(values);
       }
     });
-  };
-
-  checkAccountPass = (rule, value, callback) => {
-    if (value && value.length < 8) {
-      callback('密码长度至少为8位');
-    } else {
-      callback();
-    }
   };
 
   render() {
@@ -118,7 +112,17 @@ class CreateUserForm extends PureComponent {
           <FormItem {...formItemLayout} label="姓名">
             {getFieldDecorator('real_name', {
               initialValue: (userInfo && userInfo.real_name) || '',
-              rules: [{ required: true, message: '请填写姓名!' }]
+              rules: [
+                { required: true, message: '请填写姓名!' },
+                {
+                  max: 24,
+                  message: '最大长度24位'
+                },
+                {
+                  pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
+                  message: '只支持字母、数字、中文、_和-组合'
+                }
+              ]
             })(
               <Input autoComplete="off" type="text" placeholder="请填写姓名!" />
             )}
@@ -157,6 +161,10 @@ class CreateUserForm extends PureComponent {
                 {getFieldDecorator('email', {
                   rules: [
                     { required: true, message: '请填写邮箱!' },
+                    {
+                      max: 30,
+                      message: '最大长度30位'
+                    },
                     { type: 'email', message: '邮箱格式不正确!' }
                   ]
                 })(
