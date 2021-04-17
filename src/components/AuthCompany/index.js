@@ -16,14 +16,23 @@ import {
   Input,
   Modal,
   notification,
-  Row
+  Radio,
+  Row,
+  Select,
+  Tabs
 } from 'antd';
 import axios from 'axios';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import PluginStyles from '../../pages/Create/Index.less';
 import cookie from '../../utils/cookie';
+import globalUtil from '../../utils/global';
 import Ellipsis from '../Ellipsis';
+import HelmForm from '../HelmForm';
+
+const RadioGroup = Radio.Group;
+const { TabPane } = Tabs;
+const { Option } = Select;
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
@@ -39,6 +48,7 @@ export default class Index extends PureComponent {
       alertText: false,
       marketUrl: '',
       accessKey: '',
+      activeKeyStore: 'rainbondStore',
       marketList: [],
       checkedValues: []
     };
@@ -120,6 +130,7 @@ export default class Index extends PureComponent {
       }
     });
   };
+
   handleNextStep = (stpe, parameter) => {
     this.setState({ loading: true }, () => {
       if (stpe === 1) {
@@ -271,20 +282,30 @@ export default class Index extends PureComponent {
     cookie.setGuide('appStore', 'true');
     this.props.dispatch({ type: 'global/hideAuthCompany' });
   };
+  handleTabs = key => {
+    this.setState({ activeKeyStore: key });
+  };
+
   render() {
+    const {
+      title = '企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
+      onCancel,
+      onOk,
+      rainbondInfo,
+      form,
+      eid,
+      isHelm = false
+    } = this.props;
     const {
       currStep: step,
       loading,
       marketList,
       marketUrl,
-      alertText
+      alertText,
+      activeKeyStore
     } = this.state;
-    const {
-      title = '企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
-      onCancel,
-      rainbondInfo
-    } = this.props;
-    const { getFieldDecorator } = this.props.form;
+
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         span: 0
@@ -311,186 +332,229 @@ export default class Index extends PureComponent {
         onCancel={onCancel || this.hidden}
         footer={null}
       >
-        <div>
-          {step === 2 && !loading && (
-            <div>
-              <Alert
-                message={message}
-                type="success"
-                style={{ marginBottom: '24px' }}
-              />
-              <iframe
-                src={`${marketUrl}/certification/login`}
-                style={{
-                  width: '100%',
-                  height: '400px'
-                }}
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                scrolling="auto"
-                frameBorder="no"
-                border="0"
-                marginWidth="0"
-                marginHeight="0"
-              />
-            </div>
-          )}
-          {step !== 2 && (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center'
-              }}
-            >
+        {isHelm && (
+          <Tabs
+            defaultActiveKey={activeKeyStore}
+            style={{ marginTop: '-24px' }}
+            onChange={this.handleTabs}
+          >
+            <TabPane
+              tab={
+                <span className={PluginStyles.verticalCen}>
+                  {globalUtil.fetchSvg('localMarket')}
+                  Rainbond商店
+                </span>
+              }
+              key="rainbondStore"
+            />
+
+            <TabPane
+              tab={
+                <span className={PluginStyles.verticalCen}>
+                  {globalUtil.fetchSvg('HelmSvg')}
+                  Helm商店
+                </span>
+              }
+              key="helmStore"
+            />
+          </Tabs>
+        )}
+
+        {activeKeyStore === 'rainbondStore' ? (
+          <div>
+            {step === 2 && !loading && (
+              <div>
+                <Alert
+                  message={message}
+                  type="success"
+                  style={{ marginBottom: '16px' }}
+                />
+                <iframe
+                  src={`${marketUrl}/certification/login`}
+                  style={{
+                    width: '100%',
+                    height: '400px'
+                  }}
+                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                  scrolling="auto"
+                  frameBorder="no"
+                  border="0"
+                  marginWidth="0"
+                  marginHeight="0"
+                />
+              </div>
+            )}
+            {step !== 2 && (
               <div
                 style={{
-                  textAlign: 'center'
+                  display: 'flex',
+                  justifyContent: 'center'
                 }}
               >
-                {step === 0 && (
-                  <div>
-                    <p style={{ fontSize: '18px', marginBottom: '40px' }}>
-                      请先进行应用市场认证
-                    </p>
-                    <Button
-                      onClick={() => {
-                        this.handleNextStep(1);
-                      }}
-                      loading={loading}
-                      type="primary"
-                    >
-                      去认证
-                    </Button>
-                  </div>
-                )}
-                {step === 1 && (
-                  <div>
-                    <p style={{ fontSize: '18px', marginBottom: '40px' }}>
-                      请填写需要进行绑定的应用市场的URL
-                    </p>
-                    {alertText && (
-                      <Alert
-                        style={{ margin: '-20px 0 20px 0' }}
-                        message={alertText}
-                        type="info"
-                      />
-                    )}
-                    <Form>
-                      <Form.Item {...formItemLayout} label="">
-                        {getFieldDecorator('url', {
-                          initialValue: defaultMarketUrl || '',
-                          rules: [
-                            {
-                              required: true,
-                              message: '请填写需要进行绑定的应用市场的URL'
-                            }
-                          ]
-                        })(
-                          <Input
-                            type="text"
-                            placeholder="请填写需要进行绑定的应用市场的URL"
-                          />
-                        )}
-                      </Form.Item>
+                <div
+                  style={{
+                    textAlign: 'center'
+                  }}
+                >
+                  {step === 0 && (
+                    <div>
+                      <p style={{ fontSize: '18px', margin: '8px 0 20px' }}>
+                        请先进行应用市场认证
+                      </p>
                       <Button
                         onClick={() => {
-                          this.handleNextStep(2);
+                          this.handleNextStep(1);
                         }}
                         loading={loading}
                         type="primary"
                       >
-                        下一步
+                        去认证
                       </Button>
-                    </Form>
-                  </div>
-                )}
-                {step === 4 && (
-                  <div>
-                    <p style={{ fontSize: '18px', marginBottom: '30px' }}>
-                      认证成功，选择需要绑定的商店
-                    </p>
-                    <Form className={PluginStyles.customGroup}>
-                      <Form.Item {...formItemLayout} label="">
-                        {getFieldDecorator('markets', {
-                          initialValue: [],
-                          rules: [
-                            {
-                              required: true,
-                              message: '请选择需要绑定的商店'
-                            }
-                          ]
-                        })(
-                          <Checkbox.Group
-                            onChange={this.onChangeCheckbox}
-                            style={{ width: '450px' }}
-                          >
-                            <Row gutter={[24, 24]}>
-                              {marketList.map(item => {
-                                const { name, url, logo, desc, domain } = item;
-                                return (
-                                  <Col
-                                    span={24}
-                                    key={url}
-                                    style={{ position: 'relative', padding: 0 }}
-                                  >
-                                    <Checkbox
-                                      value={domain}
-                                      style={{ width: '400px' }}
+                    </div>
+                  )}
+                  {step === 1 && (
+                    <div>
+                      <p style={{ fontSize: '18px', margin: '8px 0 20px' }}>
+                        请填写需要进行绑定的应用市场的URL
+                      </p>
+                      {alertText && (
+                        <Alert
+                          style={{ margin: '-20px 0 20px 0' }}
+                          message={alertText}
+                          type="info"
+                        />
+                      )}
+                      <Form>
+                        <Form.Item {...formItemLayout} label="">
+                          {getFieldDecorator('url', {
+                            initialValue: defaultMarketUrl || '',
+                            rules: [
+                              {
+                                required: true,
+                                message: '请填写需要进行绑定的应用市场的URL'
+                              }
+                            ]
+                          })(
+                            <Input
+                              type="text"
+                              placeholder="请填写需要进行绑定的应用市场的URL"
+                            />
+                          )}
+                        </Form.Item>
+                        <Button
+                          onClick={() => {
+                            this.handleNextStep(2);
+                          }}
+                          loading={loading}
+                          type="primary"
+                        >
+                          下一步
+                        </Button>
+                      </Form>
+                    </div>
+                  )}
+                  {step === 4 && (
+                    <div>
+                      <p style={{ fontSize: '18px', margin: '8px 0 20px' }}>
+                        认证成功，选择需要绑定的商店
+                      </p>
+                      <Form className={PluginStyles.customGroup}>
+                        <Form.Item {...formItemLayout} label="">
+                          {getFieldDecorator('markets', {
+                            initialValue: [],
+                            rules: [
+                              {
+                                required: true,
+                                message: '请选择需要绑定的商店'
+                              }
+                            ]
+                          })(
+                            <Checkbox.Group
+                              onChange={this.onChangeCheckbox}
+                              style={{ width: '450px' }}
+                            >
+                              <Row gutter={[24, 24]}>
+                                {marketList.map(item => {
+                                  const {
+                                    name,
+                                    url,
+                                    logo,
+                                    desc,
+                                    domain
+                                  } = item;
+                                  return (
+                                    <Col
+                                      span={24}
+                                      key={url}
+                                      style={{
+                                        position: 'relative',
+                                        padding: 0
+                                      }}
                                     >
-                                      <Card className={PluginStyles.cards}>
-                                        <Card.Meta
-                                          className={PluginStyles.cardsMetas}
-                                          avatar={
-                                            <img
-                                              style={{
-                                                width: 110,
-                                                height: 110,
-                                                margin: ' 0 auto'
-                                              }}
-                                              alt={name}
-                                              src={
-                                                logo ||
-                                                require('../../../public/images/market.svg')
-                                              }
-                                              height={110}
-                                            />
-                                          }
-                                          title={name}
-                                          description={
-                                            <Fragment>
-                                              <Ellipsis
-                                                className={PluginStyles.item}
-                                                lines={3}
-                                              >
-                                                <span title={desc}>{desc}</span>
-                                              </Ellipsis>
-                                            </Fragment>
-                                          }
-                                        />
-                                      </Card>
-                                    </Checkbox>
-                                  </Col>
-                                );
-                              })}
-                            </Row>
-                          </Checkbox.Group>
-                        )}
-                      </Form.Item>
-                    </Form>
-                    <Button
-                      onClick={() => {
-                        this.handleOkMarkets();
-                      }}
-                      loading={loading}
-                      type="primary"
-                    >
-                      绑定
-                    </Button>
-                  </div>
-                )}
+                                      <Checkbox
+                                        value={domain}
+                                        style={{ width: '400px' }}
+                                      >
+                                        <Card className={PluginStyles.cards}>
+                                          <Card.Meta
+                                            className={PluginStyles.cardsMetas}
+                                            avatar={
+                                              <img
+                                                style={{
+                                                  width: 110,
+                                                  height: 110,
+                                                  margin: ' 0 auto'
+                                                }}
+                                                alt={name}
+                                                src={
+                                                  logo ||
+                                                  require('../../../public/images/market.svg')
+                                                }
+                                                height={110}
+                                              />
+                                            }
+                                            title={name}
+                                            description={
+                                              <Fragment>
+                                                <Ellipsis
+                                                  className={PluginStyles.item}
+                                                  lines={3}
+                                                >
+                                                  <span title={desc}>
+                                                    {desc}
+                                                  </span>
+                                                </Ellipsis>
+                                              </Fragment>
+                                            }
+                                          />
+                                        </Card>
+                                      </Checkbox>
+                                    </Col>
+                                  );
+                                })}
+                              </Row>
+                            </Checkbox.Group>
+                          )}
+                        </Form.Item>
+                      </Form>
+                      <Button
+                        onClick={() => {
+                          this.handleOkMarkets();
+                        }}
+                        loading={loading}
+                        type="primary"
+                      >
+                        绑定
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        ) : (
+          <HelmForm onCancel={onCancel} data={false} eid={eid} onOk={onOk} />
+        )}
       </Modal>
     );
   }

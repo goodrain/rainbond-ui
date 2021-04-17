@@ -343,7 +343,7 @@ export default class Main extends PureComponent {
           enterprise_id: eid,
           name: appInfo ? appInfo.app_name : values.name,
           pic: imageUrl,
-          tag_ids: tagId ? tagId : arr,
+          tag_ids: tagId || arr,
           app_id: appId,
           describe: appInfo ? appInfo.describe : values.describe,
           details: details || (values.details && values.details.toHTML()),

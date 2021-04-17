@@ -25,10 +25,10 @@ import {
   setJoinTeamUsers,
   stopComponentInTeam,
   undoTeamUsers
-} from "../services/team";
+} from '../services/team';
 
 export default {
-  namespace: "teamControl",
+  namespace: 'teamControl',
   state: {
     // 成员
     members: [],
@@ -38,7 +38,7 @@ export default {
     regions: [],
     // current show teams
     currentTeam: {},
-    currentRegionName: "",
+    currentRegionName: '',
     // team Permissions info
     currentTeamPermissionsInfo: null
   },
@@ -50,7 +50,7 @@ export default {
       const response = yield call(getTeamUserPermissions, payload, handleError);
       if (response) {
         yield put({
-          type: "saveCurrentTeamPermissionsInfo",
+          type: 'saveCurrentTeamPermissionsInfo',
           payload: response.bean.permissions
         });
         if (callback) {
@@ -172,23 +172,23 @@ export default {
     *fetchRegions({ payload, callback }, { call, put }) {
       const response = yield call(getRegions, payload);
       if (response && !response.status) {
-        yield put({ type: "saveRegions", payload: response.list });
+        yield put({ type: 'saveRegions', payload: response.list });
         if (callback) {
           callback(response);
         }
       }
     },
     *fetchCurrentTeam({ payload }, { put }) {
-      yield put({ type: "saveCurrentTeam", payload });
+      yield put({ type: 'saveCurrentTeam', payload });
     },
     *fetchCurrentTeamPermissions({ payload }, { put }) {
       yield put({
-        type: "saveCurrentTeamPermissionsInfo",
+        type: 'saveCurrentTeamPermissionsInfo',
         payload
       });
     },
     *fetchCurrentRegionName({ payload }, { put }) {
-      yield put({ type: "saveCurrentRegionName", payload });
+      yield put({ type: 'saveCurrentRegionName', payload });
     },
     // 开通集群
     *openRegion({ payload, callback }, { call }) {

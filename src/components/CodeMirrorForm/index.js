@@ -85,6 +85,7 @@ class CodeMirrorForm extends PureComponent {
       mode,
       action,
       beforeUpload,
+      marginTop = 0,
       titles
     } = this.props;
     const { fullScreen } = this.state;
@@ -131,6 +132,7 @@ class CodeMirrorForm extends PureComponent {
       <Form.Item
         {...formItemLayout}
         label={label}
+        style={{ marginTop }}
         className={fullScreen && styles.fullScreens}
       >
         {getFieldDecorator(name, {

@@ -3,6 +3,7 @@ import {
   addGroup,
   backup,
   buildCompose,
+  CheckHelmApp,
   CheckK8sServiceName,
   completeShare,
   createShare,
@@ -22,6 +23,7 @@ import {
   getGroupDetail,
   getPluginShareEventInShareApp,
   getServiceNameList,
+  getServices,
   getShare,
   getShareEventInfo,
   getShareRecord,
@@ -29,6 +31,7 @@ import {
   getShareStatus,
   giveupShare,
   groupMonitorData,
+  InstallHelmApp,
   migrateApp,
   queryAllBackup,
   queryCopyComponent,
@@ -53,6 +56,18 @@ export default {
     plugins: []
   },
   effects: {
+    *installHelmApp({ payload, callback }, { call }) {
+      const response = yield call(InstallHelmApp, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *checkHelmApp({ payload, callback }, { call }) {
+      const response = yield call(CheckHelmApp, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *fetchServiceNameList({ payload, callback }, { call }) {
       const response = yield call(getServiceNameList, payload);
       if (callback) {
@@ -161,6 +176,12 @@ export default {
     },
     *deleteCompose({ payload, callback }, { call }) {
       const response = yield call(deleteCompose, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchServices({ payload, callback }, { call }) {
+      const response = yield call(getServices, payload);
       if (response && callback) {
         callback(response);
       }

@@ -78,7 +78,7 @@
           color: rgba(0, 0, 0, 0.45);
         }
       }
-      div:nth-of-type(1){
+      div:nth-of-type(1) {
         width: 55%;
       }
     }
@@ -101,9 +101,6 @@
   }
   .content_Box {
     margin: 24px 0;
-    .states {
-      margin-right: 24px;
-    }
     a {
       font-size: 14px;
       color: rgba(0, 0, 0, 0.45);
@@ -111,6 +108,67 @@
         color: #1890ff !important;
       }
     }
+  }
+}
+.states {
+  margin-right: 24px;
+}
+.helmState {
+  width: calc(100% - 45% - 70px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+  font-family: 'PingFangSC-Medium';
+  font-size: 18px;
+  .operationState {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.45);
+  }
+}
+
+.customCollapse {
+  background: #fff;
+  padding: 24px;
+  margin-top: 24px;
+  :global {
+    .ant-collapse-borderless {
+      background: #fff;
+    }
+    .ant-collapse-item > .ant-collapse-header {
+      background: #f7f7f7;
+      border-top: 1px solid rgb(217, 217, 217);
+      padding: 6px 40px;
+    }
+    .ant-collapse-item > .ant-collapse-header,
+    .ant-collapse-item > .ant-collapse-content {
+      border-left: 1px solid rgb(217, 217, 217);
+      border-right: 1px solid rgb(217, 217, 217);
+    }
+  }
+}
+
+.customPanel {
+  margin-bottom: 24px;
+  overflow: hidden;
+  background: #fff;
+  border: 0px;
+  border-radius: 2px;
+}
+
+.customPanelHeader {
+  h6 {
+    font-size: 14px;
+    margin-bottom: 2;
+  }
+  p {
+    font-size: 12px;
+    margin-bottom: 0;
+  }
+  h6,
+  p {
+    line-height: 1;
   }
 }
 
@@ -166,6 +224,11 @@
   i {
     font-size: 50px;
   }
+}
+.process {
+  background: #f5f5f5;
+  margin-top: 20px;
+  padding: 24px;
 }
 
 .prompt {

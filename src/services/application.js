@@ -9,6 +9,17 @@ export async function getServiceNameList(params) {
   );
 }
 
+export async function CheckHelmApp(body = {}) {
+  return request(
+    // 'https://doc.goodrain.org/mock/18/console/teams/{team_name}/groups/{app_id}/detect-process',
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/detect-process`,
+    {
+      method: 'get',
+      params: body
+    }
+  );
+}
+
 export async function CheckK8sServiceName(params) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.tenantName}/checkK8sServiceName `,
@@ -289,6 +300,16 @@ export async function addGroup(body = {}) {
         app_name: body.group_name,
         note: body.note
       }
+    }
+  );
+}
+
+export async function getServices(body = {}) {
+  return request(
+    // 'https://doc.goodrain.org/mock/18/console/teams/{team_name}/groups/{app_id}/services',
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/copy`,
+    {
+      method: 'get'
     }
   );
 }
@@ -591,6 +612,17 @@ export async function completeShare(
   );
 }
 
+export async function InstallHelmApp(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/install`,
+    {
+      method: 'post',
+      data: {
+        values: body.values
+      }
+    }
+  );
+}
 /*
   应用备份迁移/恢复
 */

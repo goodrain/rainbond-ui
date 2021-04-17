@@ -21,6 +21,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import AuthCompany from '../../components/AuthCompany';
+import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
 import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
 import styles from '../../components/CreateTeam/index.less';
 import Ellipsis from '../../components/Ellipsis';
@@ -61,6 +62,7 @@ export default class Main extends PureComponent {
         : (match && match.params && match.params.keyword) || ''
     );
     this.state = {
+      helmInstallLoading: false,
       list: [],
       authorizations: false,
       app_name: appName,
@@ -75,6 +77,7 @@ export default class Main extends PureComponent {
       cloudPage: 1,
       cloudPageSize: 9,
       cloudTotal: 0,
+      helmCreate: null,
       showCreate: null,
       scope,
       scopeMax: '',
@@ -85,7 +88,15 @@ export default class Main extends PureComponent {
       moreState: moreState || null,
       is_deploy: true,
       marketTab: [],
-      currentKey: ''
+      currentKey: '',
+      helmList: [],
+      helmLoading: true,
+      helmPag: {
+        pageSize: 9,
+        total: 0,
+        page: 1,
+        query: ''
+      }
     };
     this.mount = false;
   }
@@ -96,7 +107,7 @@ export default class Main extends PureComponent {
   componentDidMount() {
     this.mount = true;
     this.getApps();
-    this.getMarketsTab();
+    this.getHelmMarketsTab();
   }
   componentWillUnmount() {
     this.mount = false;
@@ -104,7 +115,7 @@ export default class Main extends PureComponent {
   }
 
   onCancelCreate = () => {
-    this.setState({ showCreate: null });
+    this.setState({ showCreate: null, helmCreate: null });
   };
   getCloudRecommendApps = v => {
     const { currentKey } = this.state;
@@ -182,6 +193,7 @@ export default class Main extends PureComponent {
   };
   getMarketsTab = () => {
     const { dispatch, currentEnterprise, scopeProMax } = this.props;
+    const { marketTab } = this.state;
     const tabListMax = [
       {
         key: 'localApplication',
@@ -212,18 +224,93 @@ export default class Main extends PureComponent {
             scopeProMax ||
             (arryNew.length > 0 ? arryNew[0].key : 'localApplication');
           this.setState({
-            marketTab: [...arryNew, ...tabListMax]
+            marketTab: [...arryNew, ...marketTab, ...tabListMax]
           });
           this.handleTabMaxChange(scopeMaxs);
         } else {
           this.setState({
-            marketTab: tabListMax,
-            scopeMax: 'localApplication'
+            marketTab: [...marketTab, ...tabListMax]
+          });
+          if (marketTab && marketTab.length > 0) {
+            this.handleTabMaxChange(marketTab[0].tab);
+          } else {
+            this.setState({
+              scopeMax: 'localApplication'
+            });
+          }
+        }
+      }
+    });
+  };
+
+  getHelmMarketsTab = () => {
+    const { dispatch, currentEnterprise } = this.props;
+    dispatch({
+      type: 'market/fetchHelmMarketsTab',
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          if (Array.isArray(res)) {
+            res.map(item => {
+              item.tab = item.name;
+              item.key = `Helm-${item.name}`;
+            });
+          }
+          this.setState(
+            {
+              marketTab: Array.isArray(res) ? res : []
+            },
+            () => {
+              this.getMarketsTab();
+            }
+          );
+        } else {
+          this.getMarketsTab();
+        }
+      },
+      handleError: () => {
+        this.getMarketsTab();
+      }
+    });
+  };
+  getHelmAppStore = name => {
+    const { dispatch, currentEnterprise } = this.props;
+    const { helmPag } = this.state;
+    const payload = Object.assign(
+      {},
+      {
+        name,
+        enterprise_id: currentEnterprise.enterprise_id
+      },
+      helmPag
+    );
+    dispatch({
+      type: 'market/fetchHelmAppStore',
+      payload,
+      callback: res => {
+        if (res && res.status_code === 200) {
+          const setHelmPag = Object.assign({}, helmPag, {
+            total: (res && res.length) || 0
+          });
+          let helmList = [];
+          if (Array.isArray(res)) {
+            helmList = res.splice(
+              helmPag.page > 1 ? (helmPag.page - 1) * helmPag.pageSize : 0,
+              helmPag.pageSize
+            );
+          }
+          this.setState({
+            helmLoading: false,
+            helmList,
+            helmPag: setHelmPag
           });
         }
       }
     });
   };
+
   handleSearch = v => {
     const { scopeMax } = this.state;
     if (scopeMax === 'localApplication') {
@@ -270,7 +357,18 @@ export default class Main extends PureComponent {
       }
     );
   };
-
+  hanldeHelmPageChange = page => {
+    const { helmPag, scopeMax } = this.state;
+    const paginfo = Object.assign({}, helmPag, { page });
+    this.setState(
+      {
+        helmPag: paginfo
+      },
+      () => {
+        this.getHelmAppStore(scopeMax.slice(5));
+      }
+    );
+  };
   handleTabChange = key => {
     this.setState(
       {
@@ -298,6 +396,8 @@ export default class Main extends PureComponent {
       () => {
         if (key === 'localApplication') {
           this.getApps('reset');
+        } else if (key.indexOf('Helm-') > -1) {
+          this.getHelmAppStore(key.slice(5));
         } else {
           this.getCloudRecommendApps('reset');
         }
@@ -312,6 +412,20 @@ export default class Main extends PureComponent {
     } else {
       this.setState({ showCreate: app });
     }
+  };
+  handleHelmIntall = app => {
+    const { scopeMax, marketTab } = this.state;
+    let info = {};
+    marketTab.map(item => {
+      if (item.key === scopeMax) {
+        info = item;
+      }
+    });
+    this.setState({
+      helmCreate: Object.assign({}, app, info, {
+        app_store_name: scopeMax.slice(5)
+      })
+    });
   };
   handleInstallBounced = e => {
     e.preventDefault();
@@ -398,7 +512,44 @@ export default class Main extends PureComponent {
       }
     });
   };
-
+  handleCreateHelm = (vals, is_deploy) => {
+    const { dispatch } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    this.setState({ helmInstallLoading: true });
+    dispatch({
+      type: 'createApp/installHelmApp',
+      payload: {
+        team_name: teamName,
+        ...vals,
+        is_deploy
+      },
+      callback: res => {
+        // 刷新左侧按钮
+        dispatch({
+          type: 'global/fetchGroups',
+          payload: {
+            team_name: teamName
+          },
+          callback: () => {
+            if (res && res.status_code === 200) {
+              this.onCancelCreate();
+              dispatch(
+                routerRedux.push(
+                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
+                    res.bean.ID
+                  }`
+                )
+              );
+            }
+            this.setState({ helmInstallLoading: false });
+          },
+          renderError: () => {
+            this.setState({ helmInstallLoading: false });
+          }
+        });
+      }
+    });
+  };
   handleCloudCreate = (vals, is_deploy) => {
     const { scopeMax, currentKey } = this.state;
     const app = this.state.showCreate;
@@ -496,13 +647,12 @@ export default class Main extends PureComponent {
     );
   };
   // eslint-disable-next-line react/sort-comp
-  renderApp = (item, isInstall) => {
+  renderApp = (item, isInstall, type) => {
     const { scopeMax, handleType } = this.state;
     const cloud = scopeMax != 'localApplication';
-
     const title = item => (
       <div
-        title={item.app_name || ''}
+        title={item.app_name || item.name || ''}
         style={{
           maxWidth: '200px',
           overflow: 'hidden',
@@ -515,7 +665,7 @@ export default class Main extends PureComponent {
             this.showMarketAppDetail(item);
           }}
         >
-          {item.app_name}
+          {item.app_name || item.name}
         </a>
       </div>
     );
@@ -545,10 +695,10 @@ export default class Main extends PureComponent {
                     className={PluginStyles.cardVersionTagStyle}
                     color="green"
                     size="small"
-                    title={itemx.app_version}
+                    title={itemx.app_version || itemx.version}
                     key={index}
                   >
-                    {itemx.app_version}
+                    {itemx.app_version || itemx.version}
                   </Tag>
                 );
               })}
@@ -572,19 +722,22 @@ export default class Main extends PureComponent {
         </div>
       </Tooltip>
     ];
-
     const defaultActions = isInstall
       ? [
           <span
             onClick={() => {
-              this.showCreate(item);
+              if (type === 'helm') {
+                this.handleHelmIntall(item);
+              } else {
+                this.showCreate(item);
+              }
             }}
           >
             安装
           </span>
         ]
       : [];
-
+    const appIcon = require('../../../public/images/app_icon.jpg');
     return (
       <Fragment>
         {(item.is_official == true || item.is_official == 1) && (
@@ -615,8 +768,8 @@ export default class Main extends PureComponent {
                 alt={item.title}
                 src={
                   cloud
-                    ? item.logo
-                    : item.pic || require('../../../public/images/app_icon.jpg')
+                    ? item.logo || item.icon || appIcon
+                    : item.pic || appIcon
                 }
                 height={handleType ? 154 : 80}
                 onClick={() => {
@@ -647,7 +800,9 @@ export default class Main extends PureComponent {
                     )}
                   </span>
                   <Ellipsis className={PluginStyles.item} lines={3}>
-                    <span title={item.describe}>{item.describe}</span>
+                    <span title={item.describe || item.description}>
+                      {item.describe || item.description}
+                    </span>
                   </Ellipsis>
                 </Fragment>
               )
@@ -737,6 +892,7 @@ export default class Main extends PureComponent {
       page,
       pageSize,
       total,
+      helmInstallLoading,
       marketTab,
       currentKey,
       authorizations,
@@ -745,9 +901,13 @@ export default class Main extends PureComponent {
       showApp,
       is_deploy: isDeploy,
       app_name: appName,
-      cloudApp_name: cloudAppName
+      cloudApp_name: cloudAppName,
+      helmList,
+      helmPag,
+      helmLoading,
+      helmCreate
     } = this.state;
-    const setHideOnSinglePage = moreState ? true : false;
+    const setHideOnSinglePage = !!moreState;
     const paginationProps = {
       current: moreState ? 1 : page,
       pageSize: moreState ? 3 : pageSize,
@@ -766,6 +926,15 @@ export default class Main extends PureComponent {
         this.hanldeCloudPageChange(v);
       }
     };
+    const helmPaginationProps = {
+      current: moreState ? 1 : helmPag.page,
+      pageSize: moreState ? 3 : helmPag.pageSize,
+      total: moreState ? 1 : helmPag.total,
+      hideOnSinglePage: setHideOnSinglePage,
+      onChange: v => {
+        this.hanldeHelmPageChange(v);
+      }
+    };
     let isInstall = true;
 
     if (marketTab && marketTab.length > 0) {
@@ -777,24 +946,25 @@ export default class Main extends PureComponent {
       }
     }
 
-    const mores = (
-      handleType && moreState && (
-        ( scopeMax==='localApplication' && list && list.length > 0 ) || ( scopeMax!='localApplication' && cloudList && cloudList.length>0 )
-        ) && (
+    const mores = handleType &&
+      moreState &&
+      ((scopeMax === 'localApplication' && list && list.length > 0) ||
+        (scopeMax != 'localApplication' &&
+          cloudList &&
+          cloudList.length > 0)) && (
         <div
           style={{
             textAlign: 'right',
             height: '70px',
-            marginTop:'-40px',
+            marginTop: '-40px',
             position: 'relative',
-            zIndex:99
+            zIndex: 99
           }}
         >
           <a onClick={this.loadMore}>查看更多...</a>
-         </div>
-      )
-    )
-    
+        </div>
+      );
+
     const cardList = (
       <List
         bordered={false}
@@ -842,6 +1012,31 @@ export default class Main extends PureComponent {
             {this.renderApp(item, isInstall)}
           </List.Item>
         )}
+      />
+    );
+    const helmCardList = (
+      <List
+        bordered={false}
+        grid={{
+          gutter: 24,
+          lg: 3,
+          md: 2,
+          sm: 1,
+          xs: 1
+        }}
+        pagination={helmPaginationProps}
+        dataSource={helmList}
+        renderItem={item => {
+          let info = item;
+          if (item.versions && item.versions.length > 0) {
+            info = Object.assign({}, item, item.versions[0]);
+          }
+          return (
+            <List.Item style={{ border: 'none' }}>
+              {this.renderApp(info, true, 'helm')}
+            </List.Item>
+          );
+        }}
       />
     );
     const defaultValue =
@@ -913,6 +1108,7 @@ export default class Main extends PureComponent {
         <Spin size="large" />
       </div>
     );
+
     return (
       <div>
         {authorizations && (
@@ -926,7 +1122,14 @@ export default class Main extends PureComponent {
             currStep={2}
           />
         )}
-
+        {helmCreate && (
+          <CreateAppFromHelmForm
+            installLoading={helmInstallLoading}
+            data={helmCreate}
+            onSubmit={this.handleCreateHelm}
+            onCancel={this.onCancelCreate}
+          />
+        )}
         {showCreate && (
           <CreateAppFromMarketForm
             disabled={loading.effects['createApp/installApp']}
@@ -949,7 +1152,6 @@ export default class Main extends PureComponent {
             app={showApp}
           />
         )}
-
         {handleType && installBounced && (
           <Modal
             title="确认要安装此应用作为你的组件么？"
@@ -1022,8 +1224,18 @@ export default class Main extends PureComponent {
                   style={{ margin: '-10px 0 15px 0' }}
                 />
               )}
-              {scopeMax === 'localApplication' ? (
-                <div style={{marginBottom:!moreState&&handleType&& handleType === 'Service' && '40px'}}>
+              {scopeMax.indexOf('Helm-') > -1 ? (
+                <div>{helmLoading ? SpinBox : helmCardList}</div>
+              ) : scopeMax === 'localApplication' ? (
+                <div
+                  style={{
+                    marginBottom:
+                      !moreState &&
+                      handleType &&
+                      handleType === 'Service' &&
+                      '40px'
+                  }}
+                >
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
               ) : (
@@ -1053,8 +1265,6 @@ export default class Main extends PureComponent {
                 </div>
               )}
               {mores}
-
-          
             </PageHeaderLayout>
           </div>
         )}
