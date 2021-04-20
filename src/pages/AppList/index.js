@@ -9,6 +9,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import styles from '../Create/Index.less';
 
 const FormItem = Form.Item;
 /* eslint react/no-array-index-key: 0 */
@@ -205,12 +206,15 @@ export default class AppList extends PureComponent {
                 {
                   title: '应用名称',
                   dataIndex: 'group_name',
-                  width: '300px',
                   render: (val, data) => {
                     return (
                       <Link
+                        className={styles.verticalCen}
                         to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}`}
                       >
+                        {globalUtil.fetchSvg(
+                          data.app_type === 'helm' ? 'HelmSvg' : 'localMarket'
+                        )}
                         {val}
                       </Link>
                     );
@@ -219,8 +223,8 @@ export default class AppList extends PureComponent {
                 {
                   title: '更新时间',
                   dataIndex: 'update_time',
-                  width: '200px',
-                  render: (val, data) => {
+                  width: 190,
+                  render: val => {
                     if (val) {
                       return moment(val).format('YYYY-MM-DD HH:mm:ss');
                     }
@@ -230,8 +234,8 @@ export default class AppList extends PureComponent {
                 {
                   title: '创建时间',
                   dataIndex: 'create_time',
-                  width: '200px',
-                  render: (val, data) => {
+                  width: 190,
+                  render: val => {
                     if (val) {
                       return moment(val).format('YYYY-MM-DD HH:mm:ss');
                     }
@@ -242,7 +246,7 @@ export default class AppList extends PureComponent {
                   title: '组件(运行/总数)',
                   dataIndex: 'services_num',
                   align: 'center',
-                  width: '150px',
+                  width: 150,
                   render: (_, data) => {
                     return (
                       <p style={{ marginBottom: 0 }}>
@@ -255,7 +259,7 @@ export default class AppList extends PureComponent {
                   title: '占用内存/分配内存(MB)',
                   dataIndex: 'used_mem',
                   align: 'center',
-                  width: '200px',
+                  width: 190,
                   render: (_, data) => {
                     return (
                       <p style={{ marginBottom: 0 }}>
@@ -266,7 +270,7 @@ export default class AppList extends PureComponent {
                 },
                 {
                   title: '备份记录',
-                  width: '150px',
+                  width: 100,
                   dataIndex: 'backup_record_num',
                   align: 'center',
                   render: (val, data) => {
@@ -281,7 +285,7 @@ export default class AppList extends PureComponent {
                 },
                 {
                   title: '发布记录',
-                  width: '150px',
+                  width: 100,
                   dataIndex: 'share_record_num',
                   align: 'center',
                   render: (val, data) => {
@@ -296,6 +300,7 @@ export default class AppList extends PureComponent {
                 },
                 {
                   title: '备注',
+                  width: 60,
                   dataIndex: 'group_note',
                   render: val => {
                     return (

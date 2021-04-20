@@ -44,7 +44,7 @@ export default class AddServiceComponent extends PureComponent {
       scopeProMax: ''
     };
   }
-  getGitServerName = (item) => {
+  getGitServerName = item => {
     const { oauth_type: type, name = '' } = item;
     const map = {
       github: 'Github项目',
@@ -189,7 +189,7 @@ export default class AddServiceComponent extends PureComponent {
     const PublicParameter = {
       groupId,
       ...BasisParameter,
-      handleServiceGetData: (data) => {
+      handleServiceGetData: data => {
         this.handleServiceComponent(
           false,
           null,
@@ -245,7 +245,7 @@ export default class AddServiceComponent extends PureComponent {
                   </Col>
                   {servers &&
                     servers.length > 0 &&
-                    servers.map((item) => {
+                    servers.map(item => {
                       const { service_id: id, oauth_type: type } = item;
                       return (
                         <Col
@@ -281,7 +281,7 @@ export default class AddServiceComponent extends PureComponent {
                       message={
                         <p className={styles.prompt}>
                           注:支持
-                          {Object.keys(languageObj).map((key) => {
+                          {Object.keys(languageObj).map(key => {
                             return (
                               <a
                                 key={key}
@@ -344,8 +344,9 @@ export default class AddServiceComponent extends PureComponent {
                 <Row>
                   <Market
                     {...MarketParameter}
+                    isHelm={false}
                     scope="enterprise"
-                    handleServiceComponent={(scopeMax) => {
+                    handleServiceComponent={scopeMax => {
                       this.handleServiceComponent(
                         false,
                         'market',
@@ -401,6 +402,7 @@ export default class AddServiceComponent extends PureComponent {
           {ServiceComponentTwoPage === 'market' && (
             <Market
               {...MarketParameter}
+              isHelm={false}
               scopeMax="localApplication"
               handleServiceComponent={() => {
                 this.handleServiceComponent(false, 'market', null);

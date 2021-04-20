@@ -306,8 +306,7 @@ export async function addGroup(body = {}) {
 
 export async function getServices(body = {}) {
   return request(
-    // 'https://doc.goodrain.org/mock/18/console/teams/{team_name}/groups/{app_id}/services',
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/copy`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/services`,
     {
       method: 'get'
     }

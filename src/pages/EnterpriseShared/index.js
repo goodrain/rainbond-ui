@@ -417,10 +417,25 @@ export default class EnterpriseShared extends PureComponent {
           });
           let helmList = [];
           if (Array.isArray(res)) {
-            helmList = res.splice(
-              helmPag.page > 1 ? (helmPag.page - 1) * 10 : 0,
-              10
-            );
+            const helmQuery = helmPag.query;
+            const helmPage = helmPag.page;
+            if (helmQuery) {
+              const arr = [];
+              const ql = helmQuery.length;
+              res.map(item => {
+                if (ql <= item.name.length) {
+                  const str = item.name.substring(0, ql);
+                  if (str.indexOf(helmQuery) > -1) {
+                    arr.push(item);
+                  }
+                }
+              });
+              setHelmPag.total = arr.length;
+              helmList =
+                arr.length > 10 ? arr.splice((helmPage - 1) * 10, 10) : arr;
+            } else {
+              helmList = res.splice(helmPage > 1 ? (helmPage - 1) * 10 : 0, 10);
+            }
           }
           this.setState({
             helmLoading: false,
@@ -822,7 +837,7 @@ export default class EnterpriseShared extends PureComponent {
       showMarketAppDetail: false
     });
   };
-  handleLists = (types, managementMenu, item, pic, versions, index) => {
+  handleLists = (types, managementMenu, item, pic, versions) => {
     const {
       app_id: appId,
       describe,
@@ -853,18 +868,20 @@ export default class EnterpriseShared extends PureComponent {
             }}
           >
             <Col span={3} style={{ display: 'flex' }}>
-              <div
-                className={styles.lt}
-                onClick={e => {
-                  e.stopPropagation();
-                }}
-              >
-                <Tooltip title="安装量">
-                  <div title={installNumber || index + 1}>
-                    {globalUtil.nFormatter(installNumber || index + 1)}
-                  </div>
-                </Tooltip>
-              </div>
+              {!isHelmContent && (
+                <div
+                  className={styles.lt}
+                  onClick={e => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <Tooltip title="安装量">
+                    <div title={installNumber}>
+                      {globalUtil.nFormatter(installNumber)}
+                    </div>
+                  </Tooltip>
+                </div>
+              )}
               <div className={styles.imgs}>
                 {pic ? <img src={pic} alt="" /> : defaulAppImg}
               </div>
@@ -1330,15 +1347,14 @@ export default class EnterpriseShared extends PureComponent {
             <Spin />
           </div>
         ) : helmList && helmList.length > 0 ? (
-          helmList.map((item, index) => {
+          helmList.map(item => {
             const { versions } = item;
             return this.handleLists(
               'helmContent',
               helmMenu,
               item,
               versions && versions.length > 0 && versions[0].icon,
-              versions,
-              index
+              versions
             );
           })
         ) : (

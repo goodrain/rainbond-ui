@@ -145,7 +145,6 @@ export default class Index extends PureComponent {
           this.setState({
             checkList: res && res.list
           });
-          console.log('handleHelmCheck', res);
         }
       }
     });
@@ -702,7 +701,7 @@ export default class Index extends PureComponent {
                     />
                   )}
                 </div>
-                <div style={{ marginTop: '10px' }}>应用描述</div>
+                <div style={{ marginTop: '10px' }}>{currApp.note}</div>
               </div>
               {resources.status && (
                 <div className={styles.helmState}>

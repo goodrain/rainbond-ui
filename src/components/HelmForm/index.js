@@ -117,8 +117,16 @@ export default class Index extends PureComponent {
                 message: '请填写名称'
               },
               {
-                pattern: /^[a-zA-Z0-9]+$/,
-                message: '只支持字母、数字组合'
+                min: 4,
+                message: '最小长度4位'
+              },
+              {
+                max: 32,
+                message: '最大长度32位'
+              },
+              {
+                pattern: /^[a-z][a-zA-Z0-9]+$/,
+                message: '只支持字母开头、字母和数字组合'
               }
             ]
           })(
@@ -186,17 +194,6 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
         )}
-        <Form.Item {...formItemLayout} label="仓库分支">
-          {getFieldDecorator('branch', {
-            initialValue: (data && data.branch) || '',
-            rules: [
-              {
-                required: true,
-                message: '请填写分支名称'
-              }
-            ]
-          })(<Input type="text" placeholder="例如: master" />)}
-        </Form.Item>
         <div style={{ textAlign: 'center' }}>
           {!isEditor && (
             <Button
