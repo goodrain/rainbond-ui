@@ -80,6 +80,7 @@ class TeamLayout extends PureComponent {
       currentEnterprise: false,
       currentComponent: null,
       eid: '',
+      appID: globalUtil.getAppID(),
       teamView: true
     };
   }
@@ -87,7 +88,26 @@ class TeamLayout extends PureComponent {
   componentWillMount() {
     this.getEnterpriseList();
   }
-
+  componentWillReceiveProps(nextProps) {
+    // const {
+    //   match: {
+    //     params: { appID }
+    //   }
+    // } = nextProps;
+    const appID = globalUtil.getAppID();
+    const { appID: cldAppID } = this.state;
+    if (appID && appID !== cldAppID) {
+      this.setState(
+        {
+          appID,
+          currentApp: false
+        },
+        () => {
+          this.fetchAppDetail(appID);
+        }
+      );
+    }
+  }
   // get enterprise list
   getEnterpriseList = () => {
     const { dispatch, currentUser } = this.props;
@@ -345,6 +365,9 @@ class TeamLayout extends PureComponent {
   fetchAppDetail = appID => {
     const { dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
+    if (!appID) {
+      return false;
+    }
     dispatch({
       type: 'application/fetchGroupDetail',
       payload: {
@@ -409,26 +432,22 @@ class TeamLayout extends PureComponent {
     ) {
       return <PageLoading />;
     }
-    let appID = globalUtil.getAppID();
 
     if (
       teamName !== currentTeam.team_name ||
       regionName !== (currentRegion && currentRegion.team_region_name)
     ) {
       this.load();
-      if (appID) {
-        this.fetchAppDetail(appID);
-      }
     }
     if (upDataHeader) {
       this.upData();
     }
+    let appID = globalUtil.getAppID();
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
     const componentID = globalUtil.getComponentID();
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
-
-    if (appID && !currentApp && JSON.stringify(groupDetail) === '{}') {
+    if (appID && (!currentApp || !groupDetail.ID)) {
       this.fetchAppDetail(appID);
       return <PageLoading />;
     }
@@ -500,6 +519,8 @@ class TeamLayout extends PureComponent {
       );
     }
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
+    const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);
+
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
       const hasRegion =
@@ -590,6 +611,7 @@ class TeamLayout extends PureComponent {
               isMobile={this.state.isMobile}
               customHeader={teamView && customHeader}
             />
+
             <Layout style={{ flexDirection: 'row' }}>
               {teamView && (
                 <GlobalRouter
@@ -632,7 +654,6 @@ class TeamLayout extends PureComponent {
         </Layout>
       );
     };
-    const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);
 
     return (
       <Fragment>

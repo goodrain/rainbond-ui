@@ -1,32 +1,38 @@
-@import "~antd/lib/style/themes/default.less";
+@import '~antd/lib/style/themes/default.less';
 
 .headerBox {
-  display    : flex;
+  display: flex;
   align-items: center;
-  background : #ffffff;
+  background: #ffffff;
 }
 
 .icons:hover {
-  background: #4D73B1;
+  background: #4d73b1;
 }
-
+.verticalCen {
+  display: flex;
+  align-items: center;
+  svg {
+    margin: 0;
+  }
+}
 .icons {
-  background: #D8D8D8;
+  background: #d8d8d8;
 
   i {
-    color    : #ffffff;
+    color: #ffffff;
     font-size: 28px;
   }
 
-  cursor     : pointer;
-  width      : 33px;
+  cursor: pointer;
+  width: 33px;
   line-height: 98px;
-  text-align : center;
+  text-align: center;
 }
 
 .pageHeader {
-  background   : @component-background;
-  padding      : 16px 32px 0;
+  background: @component-background;
+  padding: 16px 32px 0;
   border-bottom: @border-width-base @border-style-base @border-color-split;
 
   .detail {
@@ -52,48 +58,47 @@
   }
 
   .logo {
-    flex        : 0 1 auto;
+    flex: 0 1 auto;
     margin-right: 16px;
-    padding-top : 1px;
+    padding-top: 1px;
 
-    >img {
-      width        : 28px;
-      height       : 28px;
+    > img {
+      width: 28px;
+      height: 28px;
       border-radius: @border-radius-base;
-      display      : block;
+      display: block;
     }
   }
 
   .title {
-    font-family   : PingFangSC-Regular;
-    font-size     : 20px;
-    color         : #2B3844;
+    font-family: PingFangSC-Regular;
+    font-size: 20px;
+    color: #2b3844;
     letter-spacing: 0;
   }
 
   .action {
     margin-left: 56px;
-    min-width  : 266px;
+    min-width: 266px;
 
     :global {
-
       .ant-btn-group:not(:last-child),
       .ant-btn:not(:last-child) {
         margin-right: 8px;
       }
 
-      .ant-btn-group>.ant-btn {
+      .ant-btn-group > .ant-btn {
         margin-right: 0;
       }
     }
   }
 
   .content {
-    font-family   : PingFangSC-Regular;
-    font-size     : 12px;
-    color         : #9CA2A8 !important;
+    font-family: PingFangSC-Regular;
+    font-size: 12px;
+    color: #9ca2a8 !important;
     letter-spacing: 0;
-    line-height   : 23px;
+    line-height: 23px;
   }
 
   .title,
@@ -121,7 +126,7 @@
   }
 
   .extraContent {
-    min-width  : 242px;
+    min-width: 242px;
   }
 }
 
@@ -150,7 +155,7 @@
     .action,
     .extraContent {
       margin-left: 0;
-      text-align : left;
+      text-align: left;
     }
   }
 }
@@ -167,15 +172,14 @@
   .pageHeader {
     .action {
       :global {
-
         .ant-btn-group,
         .ant-btn {
-          display      : block;
+          display: block;
           margin-bottom: 8px;
         }
 
-        .ant-btn-group>.ant-btn {
-          display      : inline-block;
+        .ant-btn-group > .ant-btn {
+          display: inline-block;
           margin-bottom: 0;
         }
       }

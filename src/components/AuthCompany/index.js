@@ -341,13 +341,12 @@ export default class Index extends PureComponent {
             <TabPane
               tab={
                 <span className={PluginStyles.verticalCen}>
-                  {globalUtil.fetchSvg('localMarket')}
-                  Rainbond商店
+                  {globalUtil.fetchSvg('cloudMarket')}
+                  RainStore商店
                 </span>
               }
               key="rainbondStore"
             />
-
             <TabPane
               tab={
                 <span className={PluginStyles.verticalCen}>

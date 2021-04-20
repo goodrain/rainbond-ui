@@ -244,36 +244,40 @@ export default class Main extends PureComponent {
   };
 
   getHelmMarketsTab = () => {
-    const { dispatch, currentEnterprise } = this.props;
-    dispatch({
-      type: 'market/fetchHelmMarketsTab',
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          if (Array.isArray(res)) {
-            res.map(item => {
-              item.tab = item.name;
-              item.key = `Helm-${item.name}`;
-            });
-          }
-          this.setState(
-            {
-              marketTab: Array.isArray(res) ? res : []
-            },
-            () => {
-              this.getMarketsTab();
+    const { dispatch, currentEnterprise, isHelm = true } = this.props;
+    if (isHelm) {
+      dispatch({
+        type: 'market/fetchHelmMarketsTab',
+        payload: {
+          enterprise_id: currentEnterprise.enterprise_id
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            if (Array.isArray(res)) {
+              res.map(item => {
+                item.tab = item.name;
+                item.key = `Helm-${item.name}`;
+              });
             }
-          );
-        } else {
+            this.setState(
+              {
+                marketTab: Array.isArray(res) ? res : []
+              },
+              () => {
+                this.getMarketsTab();
+              }
+            );
+          } else {
+            this.getMarketsTab();
+          }
+        },
+        handleError: () => {
           this.getMarketsTab();
         }
-      },
-      handleError: () => {
-        this.getMarketsTab();
-      }
-    });
+      });
+    } else {
+      this.getMarketsTab();
+    }
   };
   getHelmAppStore = name => {
     const { dispatch, currentEnterprise } = this.props;
@@ -296,10 +300,25 @@ export default class Main extends PureComponent {
           });
           let helmList = [];
           if (Array.isArray(res)) {
-            helmList = res.splice(
-              helmPag.page > 1 ? (helmPag.page - 1) * helmPag.pageSize : 0,
-              helmPag.pageSize
-            );
+            const helmQuery = helmPag.query;
+            const helmPage = helmPag.page;
+            if (helmQuery) {
+              const arr = [];
+              const ql = helmQuery.length;
+              res.map(item => {
+                if (ql <= item.name.length) {
+                  const str = item.name.substring(0, ql);
+                  if (str.indexOf(helmQuery) > -1) {
+                    arr.push(item);
+                  }
+                }
+              });
+              setHelmPag.total = arr.length;
+              helmList =
+                arr.length > 9 ? arr.splice((helmPage - 1) * 9, 9) : arr;
+            } else {
+              helmList = res.splice(helmPage > 1 ? (helmPage - 1) * 9 : 0, 9);
+            }
           }
           this.setState({
             helmLoading: false,
@@ -323,6 +342,15 @@ export default class Main extends PureComponent {
           this.getApps();
         }
       );
+    } else if (scopeMax.indexOf('Helm-') > -1) {
+      const { helmPag } = this.state;
+      const setHelmPag = Object.assign({}, helmPag, {
+        page: 1,
+        query: v
+      });
+      this.setState({ helmPag: setHelmPag }, () => {
+        this.getHelmAppStore(scopeMax.slice(5));
+      });
     } else {
       this.setState(
         {
@@ -531,7 +559,7 @@ export default class Main extends PureComponent {
             team_name: teamName
           },
           callback: () => {
-            if (res && res.status_code === 200) {
+            if (res && res.status_code === 200 && res.bean && res.bean.ID) {
               this.onCancelCreate();
               dispatch(
                 routerRedux.push(
@@ -873,9 +901,9 @@ export default class Main extends PureComponent {
       loading,
       currentEnterprise,
       currentTeam,
-      currentRegionName
+      currentRegionName,
+      isHelm = true
     } = this.props;
-
     const {
       handleType,
       moreState,
@@ -1199,6 +1227,7 @@ export default class Main extends PureComponent {
         {marketTab && marketTab.length > 0 && (
           <div>
             <PageHeaderLayout
+              isSvg
               breadcrumbList={breadcrumbList}
               content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
               tabList={marketTab}
@@ -1224,7 +1253,7 @@ export default class Main extends PureComponent {
                   style={{ margin: '-10px 0 15px 0' }}
                 />
               )}
-              {scopeMax.indexOf('Helm-') > -1 ? (
+              {scopeMax.indexOf('Helm-') > -1 && isHelm ? (
                 <div>{helmLoading ? SpinBox : helmCardList}</div>
               ) : scopeMax === 'localApplication' ? (
                 <div

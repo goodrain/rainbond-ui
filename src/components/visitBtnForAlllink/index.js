@@ -1,5 +1,6 @@
-import React, { PureComponent } from 'react';
+/* eslint-disable react/jsx-no-target-blank */
 import { Button, Dropdown, Menu, Tooltip } from 'antd';
+import React, { PureComponent } from 'react';
 
 /*
   access_type : no_port|无端口、
@@ -12,7 +13,7 @@ import { Button, Dropdown, Menu, Tooltip } from 'antd';
 
 // @connect(({ user, appControl, global }) => ({ visitInfo: appControl.visitInfo }))
 export default class Index extends PureComponent {
-  renderHttpPort = visitInfo => {
+  renderHttpPort = (visitInfo, type) => {
     /** 筛选出里面有必须url */
     const links = [];
     const isAccessUrls = visitInfo.filter(item => {
@@ -47,14 +48,25 @@ export default class Index extends PureComponent {
           title="跳转到组件对外访问端口对应的域名地址"
           placement="topRight"
         >
-          <Button
-            type="primary"
-            onClick={() => {
-              window.open(singleLink);
-            }}
-          >
-            访问
-          </Button>
+          {type === 'link' ? (
+            <a
+              style={{ fontSize: '14px' }}
+              onClick={() => {
+                window.open(singleLink);
+              }}
+            >
+              访问
+            </a>
+          ) : (
+            <Button
+              type="primary"
+              onClick={() => {
+                window.open(singleLink);
+              }}
+            >
+              访问
+            </Button>
+          )}
         </Tooltip>
       ) : null;
     }
@@ -86,14 +98,18 @@ export default class Index extends PureComponent {
           }
           placement="bottomRight"
         >
-          <Button type="primary">访问</Button>
+          {type === 'link' ? (
+            <a style={{ fontSize: '14px' }}>访问</a>
+          ) : (
+            <Button type="primary">访问</Button>
+          )}
         </Dropdown>
       </Tooltip>
     );
   };
 
   render() {
-    const { linkList } = this.props;
-    return this.renderHttpPort(linkList);
+    const { linkList, type = 'primary' } = this.props;
+    return this.renderHttpPort(linkList, type);
   }
 }

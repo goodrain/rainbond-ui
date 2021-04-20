@@ -56,12 +56,13 @@ export default class Index extends PureComponent {
           payload: Object.assign({}, { enterprise_id: eid }, values),
           callback: res => {
             if (res && res.status_code === 200 && onOk && onCancel) {
-              onOk();
+              onOk(res.name);
               onCancel();
-              this.handleClose();
             }
+            this.handleClose();
           },
-          handleError: () => {
+          handleError: res => {
+            this.handleError(res);
             this.handleClose();
           }
         });
@@ -85,14 +86,64 @@ export default class Index extends PureComponent {
               onOk();
             }
           },
-          handleError: () => {
+          handleError: res => {
+            this.handleError(res);
             this.handleClose();
           }
         });
       }
     });
   };
+  handleCheckAppName = (name, callbacks) => {
+    const { dispatch, eid } = this.props;
+    if (!callbacks) {
+      return null;
+    }
+    if (!name) {
+      return callbacks();
+    }
+    if (name.length < 4) {
+      return callbacks('最小长度4位');
+    }
+    if (name.length > 32) {
+      return callbacks('最大长度32位');
+    }
+    const pattern = /^[a-z][a-zA-Z0-9]+$/;
+    if (!name.match(pattern)) {
+      return callbacks('只支持字母开头、字母和数字组合');
+    }
 
+    dispatch({
+      type: 'market/checkWarehouseAppName',
+      payload: {
+        name,
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          callbacks('仓库名称已存在');
+        } else {
+          callbacks();
+        }
+      },
+      handleError: res => {
+        if (callbacks && res && res.data && res.data.code) {
+          if (res.data.code === 8001) {
+            callbacks('仓库名称已存在');
+          } else {
+            callbacks();
+          }
+        }
+      }
+    });
+  };
+  handleError = res => {
+    if (res && res.data && res.data.code) {
+      notification.warning({
+        message: '仓库名称已存在'
+      });
+    }
+  };
   render() {
     const { rainbondInfo, form, data, onCancel, isEditor = false } = this.props;
     const { createLoading, showUsernameAndPass } = this.state;
@@ -105,45 +156,40 @@ export default class Index extends PureComponent {
         span: 24
       }
     };
-    const defaultMarketUrl = rainbondInfo && rainbondInfo.default_market_url;
     return (
       <Form>
-        <Form.Item {...formItemLayout} label="名称">
+        <Form.Item {...formItemLayout} label="商店名称">
           {getFieldDecorator('name', {
             initialValue: (data && data.name) || '',
             rules: [
               {
                 required: true,
-                message: '请填写名称'
+                message: '请填写商店名称'
               },
               {
-                pattern: /^[a-zA-Z0-9]+$/,
-                message: '只支持字母、数字组合'
+                validator: (_, value, callback) => {
+                  this.handleCheckAppName(value, callback);
+                }
               }
             ]
           })(
             <Input
               disabled={data && data.name}
               type="text"
-              placeholder="请填写名称"
+              placeholder="请填写商店名称"
             />
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="仓库地址">
+        <Form.Item {...formItemLayout} label="商店地址">
           {getFieldDecorator('url', {
-            initialValue: (data && data.url) || defaultMarketUrl || '',
+            initialValue: (data && data.url) || '',
             rules: [
               {
                 required: true,
-                message: '请填写需要进行绑定的应用市场的URL'
+                message: '请填写商店地址'
               }
             ]
-          })(
-            <Input
-              type="text"
-              placeholder="请填写需要进行绑定的应用市场的URL"
-            />
-          )}
+          })(<Input type="text" placeholder="请填写商店地址" />)}
         </Form.Item>
         <div style={{ textAlign: 'right', marginTop: '-16px' }}>
           <Checkbox
@@ -154,49 +200,38 @@ export default class Index extends PureComponent {
               });
             }}
           >
-            私有仓库
+            私有商店
           </Checkbox>
         </div>
         {showUsernameAndPass && (
-          <Form.Item {...formItemLayout} label="仓库用户名">
+          <Form.Item {...formItemLayout} label="商店用户名">
             {getFieldDecorator('username', {
               initialValue: (data && data.username) || '',
               rules: [
                 {
                   required: showUsernameAndPass,
-                  message: '请输入仓库用户名'
+                  message: '请输入商店用户名'
                 }
               ]
-            })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+            })(<Input autoComplete="off" placeholder="请输入商店用户名" />)}
           </Form.Item>
         )}
         {showUsernameAndPass && (
-          <Form.Item {...formItemLayout} label="仓库密码">
+          <Form.Item {...formItemLayout} label="商店密码">
             {getFieldDecorator('password', {
               initialValue: (data && data.password) || '',
               rules: [
-                { required: showUsernameAndPass, message: '请输入仓库密码' }
+                { required: showUsernameAndPass, message: '请输入商店密码' }
               ]
             })(
               <Input
                 autoComplete="new-password"
                 type="password"
-                placeholder="请输入仓库密码"
+                placeholder="请输入商店密码"
               />
             )}
           </Form.Item>
         )}
-        <Form.Item {...formItemLayout} label="仓库分支">
-          {getFieldDecorator('branch', {
-            initialValue: (data && data.branch) || '',
-            rules: [
-              {
-                required: true,
-                message: '请填写分支名称'
-              }
-            ]
-          })(<Input type="text" placeholder="例如: master" />)}
-        </Form.Item>
         <div style={{ textAlign: 'center' }}>
           {!isEditor && (
             <Button

@@ -393,7 +393,7 @@ export default class Main extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
+    dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
   };
   handleIsRelease = record => {
     const _th = this;

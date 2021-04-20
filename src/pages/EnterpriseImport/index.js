@@ -73,7 +73,7 @@ export default class EnterpriseShared extends PureComponent {
       callback: data => {
         if (data) {
           notification.success({ message: `取消成功` });
-          dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
+          dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
         }
       }
     });
@@ -234,7 +234,7 @@ export default class EnterpriseShared extends PureComponent {
               message: '导入完成'
             });
 
-            dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
+            dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
 
             return;
           }

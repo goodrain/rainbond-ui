@@ -5,7 +5,6 @@ import globalUtil from '@/utils/global';
 import roleUtil from '@/utils/role';
 import { Spin } from 'antd';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import Group from './Group';
 import Helm from './Helm';
@@ -44,62 +43,13 @@ export default class Index extends PureComponent {
     } = this.state;
     if (!isAccess) {
       globalUtil.withoutPermission(dispatch);
-    } else {
-      this.fetchAppDetail();
     }
   }
-  componentWillReceiveProps(nextProps) {
-    const {
-      match: {
-        params: { appID }
-      }
-    } = nextProps;
-    const { appID: cldAppID } = this.state;
 
-    if (appID !== cldAppID) {
-      this.setState(
-        {
-          appID,
-          loading: true
-        },
-        () => {
-          this.fetchAppDetail();
-        }
-      );
-    }
-  }
   getGroupId() {
     const { params } = this.props.match;
     return params.appID;
   }
-
-  fetchAppDetail = () => {
-    const { dispatch } = this.props;
-    const { teamName, regionName, appID } = this.props.match.params;
-    dispatch({
-      type: 'application/fetchGroupDetail',
-      payload: {
-        team_name: teamName,
-        region_name: regionName,
-        group_id: appID
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            currApp: res.bean,
-            loading: false
-          });
-        }
-      },
-      handleError: res => {
-        if (res && res.code === 404) {
-          dispatch(
-            routerRedux.push(`/team/${teamName}/region/${regionName}/apps`)
-          );
-        }
-      }
-    });
-  };
 
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
@@ -110,14 +60,12 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { loading, currApp } = this.state;
-    const appType = currApp && currApp.app_type;
-    // Group
+    const { groupDetail } = this.props;
     return (
       <Fragment>
-        {loading ? (
+        {JSON.stringify(groupDetail) === '{}' ? (
           <Spin />
-        ) : appType === 'helm' ? (
+        ) : groupDetail.app_type === 'helm' ? (
           <Helm {...this.props} {...this.state} />
         ) : (
           <Group {...this.props} {...this.state} />

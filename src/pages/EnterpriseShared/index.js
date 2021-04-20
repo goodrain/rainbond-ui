@@ -28,6 +28,7 @@ import AuthCompany from '../../components/AuthCompany';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreateAppMarket from '../../components/CreateAppMarket';
 import CreateAppModels from '../../components/CreateAppModels';
+import CreateHelmAppModels from '../../components/CreateHelmAppModels';
 import DeleteApp from '../../components/DeleteApp';
 import HelmAppMarket from '../../components/HelmAppMarket';
 import Lists from '../../components/Lists';
@@ -52,7 +53,13 @@ const { Search } = Input;
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
     super(props);
-    const { user } = this.props;
+    const {
+      user,
+      match: {
+        params: { marketName }
+      }
+    } = this.props;
+
     const appStoreAdmin = userUtil.isPermissions(user, 'app_store');
     this.state = {
       marketPag: {
@@ -97,29 +104,16 @@ export default class EnterpriseShared extends PureComponent {
       seeTag: false,
       marketList: [],
       marketTab: [],
-      helmTab: [
-        // {
-        //   description: 'Rainbond社区开源商店为Rainbond开源用户提供应用分发服务',
-        //   enterprise_id: '73376e85bd09060430d4bb61ba9f6612',
-        //   status: 1,
-        //   access_key: '9b9f5b48fff845b5bdbf6ca3e2e92851',
-        //   ID: 423230,
-        //   domain: 'rainbond',
-        //   name: 'RainbondMarket',
-        //   type: 'rainstore',
-        //   alias: 'helm应用商店',
-        //   access_actions: ['ReadInstall', 'Write'],
-        //   url: 'https://store.goodrain.com'
-        // }
-      ],
-      activeTabKey: 'local',
+      helmTab: [],
+      activeTabKey: marketName || 'local',
       marketInfo: false,
       helmInfo: false,
       upAppMarket: false,
       upHelmAppMarket: false,
       showCloudMarketAuth: false,
       showApp: {},
-      showMarketAppDetail: false
+      showMarketAppDetail: false,
+      appTypes: false
     };
   }
   componentDidMount() {
@@ -296,7 +290,7 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
-  getMarketsTab = ID => {
+  getMarketsTab = (ID, first) => {
     const {
       dispatch,
       match: {
@@ -318,6 +312,9 @@ export default class EnterpriseShared extends PureComponent {
               if (ID) {
                 this.onTabChange(ID);
               }
+              if (first) {
+                this.onTabChange(this.state.activeTabKey);
+              }
             }
           );
         }
@@ -325,7 +322,7 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
-  getHelmMarketsTab = ID => {
+  getHelmMarketsTab = (ID, first) => {
     const {
       dispatch,
       match: {
@@ -346,6 +343,9 @@ export default class EnterpriseShared extends PureComponent {
             () => {
               if (ID) {
                 this.onTabChange(ID);
+              }
+              if (first) {
+                this.onTabChange(this.state.activeTabKey);
               }
             }
           );
@@ -417,10 +417,25 @@ export default class EnterpriseShared extends PureComponent {
           });
           let helmList = [];
           if (Array.isArray(res)) {
-            helmList = res.splice(
-              helmPag.page > 1 ? (helmPag.page - 1) * 10 : 0,
-              10
-            );
+            const helmQuery = helmPag.query;
+            const helmPage = helmPag.page;
+            if (helmQuery) {
+              const arr = [];
+              const ql = helmQuery.length;
+              res.map(item => {
+                if (ql <= item.name.length) {
+                  const str = item.name.substring(0, ql);
+                  if (str.indexOf(helmQuery) > -1) {
+                    arr.push(item);
+                  }
+                }
+              });
+              setHelmPag.total = arr.length;
+              helmList =
+                arr.length > 10 ? arr.splice((helmPage - 1) * 10, 10) : arr;
+            } else {
+              helmList = res.splice(helmPage > 1 ? (helmPage - 1) * 10 : 0, 10);
+            }
           }
           this.setState({
             helmLoading: false,
@@ -465,8 +480,8 @@ export default class EnterpriseShared extends PureComponent {
   load = () => {
     this.getApps();
     this.getTags();
-    this.getMarketsTab();
-    this.getHelmMarketsTab();
+    this.getMarketsTab(false, true);
+    this.getHelmMarketsTab(false, true);
     this.checkStoreHub();
   };
 
@@ -532,9 +547,10 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
-  installHelmApp = appInfo => {
+  installHelmApp = (appInfo, types) => {
     this.setState({
       appInfo,
+      appTypes: types,
       installHelmApp: true
     });
   };
@@ -658,6 +674,7 @@ export default class EnterpriseShared extends PureComponent {
   handleCancelDelete = () => {
     this.setState({
       installHelmApp: null,
+      appTypes: null,
       deleteApp: null,
       visibles: null,
       bouncedText: '',
@@ -802,6 +819,7 @@ export default class EnterpriseShared extends PureComponent {
     this.setState({
       appInfo: null,
       installHelmApp: false,
+      appTypes: null,
       upDataAppModel: false
     });
   };
@@ -822,7 +840,7 @@ export default class EnterpriseShared extends PureComponent {
       showMarketAppDetail: false
     });
   };
-  handleLists = (types, managementMenu, item, pic, versions, index) => {
+  handleLists = (types, managementMenu, item, pic, versions) => {
     const {
       app_id: appId,
       describe,
@@ -837,7 +855,6 @@ export default class EnterpriseShared extends PureComponent {
     const isHelmContent = types === 'helmContent';
     const helmInfo =
       isHelmContent && versions && versions.length > 0 && versions[0];
-
     return (
       <Lists
         key={appId}
@@ -853,18 +870,20 @@ export default class EnterpriseShared extends PureComponent {
             }}
           >
             <Col span={3} style={{ display: 'flex' }}>
-              <div
-                className={styles.lt}
-                onClick={e => {
-                  e.stopPropagation();
-                }}
-              >
-                <Tooltip title="安装量">
-                  <div title={installNumber || index + 1}>
-                    {globalUtil.nFormatter(installNumber || index + 1)}
-                  </div>
-                </Tooltip>
-              </div>
+              {!isHelmContent && (
+                <div
+                  className={styles.lt}
+                  onClick={e => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <Tooltip title="安装量">
+                    <div title={installNumber}>
+                      {globalUtil.nFormatter(installNumber)}
+                    </div>
+                  </Tooltip>
+                </div>
+              )}
               <div className={styles.imgs}>
                 {pic ? <img src={pic} alt="" /> : defaulAppImg}
               </div>
@@ -906,7 +925,7 @@ export default class EnterpriseShared extends PureComponent {
                 )}
               </div>
             </Col>
-            <Col span={5} className={styles.tags}>
+            <Col span={4} className={styles.tags}>
               {tags &&
                 tags.length > 0 &&
                 tags.map((items, index) => {
@@ -936,6 +955,23 @@ export default class EnterpriseShared extends PureComponent {
                   更多
                 </a>
               )}
+            </Col>
+            <Col
+              span={1}
+              className={styles.tags}
+              style={{ justifyContent: 'center' }}
+            >
+              <div
+                className={styles.installBox}
+                style={{ background: '#fff' }}
+                onClick={e => {
+                  e.stopPropagation();
+                  this.installHelmApp(item, types);
+                }}
+              >
+                {globalUtil.fetchSvg('InstallApp')}
+                <div style={{ background: '#fff' }}>安装</div>
+              </div>
             </Col>
           </div>
         }
@@ -974,6 +1010,7 @@ export default class EnterpriseShared extends PureComponent {
       helmList,
       tagList,
       appInfo,
+      appTypes,
       visibles,
       bouncedText,
       showCloudMarketAuth,
@@ -997,7 +1034,6 @@ export default class EnterpriseShared extends PureComponent {
       helmPag,
       seeTag
     } = this.state;
-
     const tagLists = tagList && tagList.length > 0 && tagList;
 
     const accessActions =
@@ -1019,7 +1055,6 @@ export default class EnterpriseShared extends PureComponent {
           </a>
         </Menu.Item>
       );
-
       const editorApp = isEditApp && (
         <Menu.Item>
           <a
@@ -1051,20 +1086,6 @@ export default class EnterpriseShared extends PureComponent {
       return null;
     };
 
-    const helmMenu = info => {
-      const installApp = (
-        <Menu.Item>
-          <a
-            onClick={() => {
-              this.installHelmApp(info);
-            }}
-          >
-            安装应用
-          </a>
-        </Menu.Item>
-      );
-      return <Menu>{installApp}</Menu>;
-    };
     const contentStyle = {
       display: 'flex',
       alignItems: 'center',
@@ -1156,7 +1177,7 @@ export default class EnterpriseShared extends PureComponent {
       </div>
     );
 
-    const noCloudMarket = (
+    const noCloudMarket = isHelm => (
       <Empty
         style={{ marginTop: '120px' }}
         image="https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original"
@@ -1164,10 +1185,12 @@ export default class EnterpriseShared extends PureComponent {
           height: 60
         }}
         description={
-          <span>{!isMarket ? '市场未连接、暂无数据' : '暂无数据'}</span>
+          <span>
+            {!isHelm && !isMarket ? '市场未连接、暂无数据' : '暂无数据'}
+          </span>
         }
       >
-        {!isMarket && marketOperation}
+        {!isHelm && !isMarket && marketOperation}
       </Empty>
     );
 
@@ -1296,7 +1319,7 @@ export default class EnterpriseShared extends PureComponent {
             );
           })
         ) : (
-          noCloudMarket
+          noCloudMarket(false)
         )}
 
         <div style={rightStyle}>
@@ -1330,19 +1353,18 @@ export default class EnterpriseShared extends PureComponent {
             <Spin />
           </div>
         ) : helmList && helmList.length > 0 ? (
-          helmList.map((item, index) => {
+          helmList.map(item => {
             const { versions } = item;
             return this.handleLists(
               'helmContent',
-              helmMenu,
+              null,
               item,
               versions && versions.length > 0 && versions[0].icon,
-              versions,
-              index
+              versions
             );
           })
         ) : (
-          noCloudMarket
+          noCloudMarket(true)
         )}
 
         <div style={rightStyle}>
@@ -1393,10 +1415,12 @@ export default class EnterpriseShared extends PureComponent {
         )}
 
         {installHelmApp && (
-          <CreateAppModels
+          <CreateHelmAppModels
             title="安装应用"
             eid={eid}
+            appTypes={appTypes}
             appInfo={appInfo}
+            helmInfo={helmInfo}
             onOk={this.handleupDataAppModel}
             onCancel={this.handleCancelupDataAppModel}
           />

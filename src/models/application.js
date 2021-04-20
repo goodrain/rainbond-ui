@@ -1,11 +1,14 @@
 import {
+  AddAssociatedComponents,
   AddCopyTeamApps,
   addGroup,
   backup,
   buildCompose,
+  CheckAppName,
   CheckHelmApp,
   CheckK8sServiceName,
   completeShare,
+  createAppBatchComponents,
   createShare,
   delBackup,
   deleteCompose,
@@ -15,12 +18,17 @@ import {
   delRestore,
   editAppCreateCompose,
   editGroup,
+  EditHelmApp,
+  getAppAccess,
   getAppDetailState,
   getAppResourcesStatistics,
+  getAssociatedComponents,
   getBackup,
   getBackupStatus,
+  getFreeComponents,
   getGroupApps,
   getGroupDetail,
+  getHelmAppStoresVersions,
   getPluginShareEventInShareApp,
   getServiceNameList,
   getServices,
@@ -33,6 +41,7 @@ import {
   groupMonitorData,
   InstallHelmApp,
   migrateApp,
+  parseChart,
   queryAllBackup,
   queryCopyComponent,
   queryMigrateApp,
@@ -56,8 +65,56 @@ export default {
     plugins: []
   },
   effects: {
+    *fetchFreeComponents({ payload, callback }, { call }) {
+      const response = yield call(getFreeComponents, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchAppAccess({ payload, callback }, { call }) {
+      const response = yield call(getAppAccess, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *CreateAppBatchComponents({ payload, callback }, { call }) {
+      const response = yield call(createAppBatchComponents, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchAssociatedComponents({ payload, callback }, { call }) {
+      const response = yield call(getAssociatedComponents, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *checkAppName({ payload, callback, handleError }, { call }) {
+      const response = yield call(CheckAppName, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *addAssociatedComponents({ payload, callback }, { call }) {
+      const response = yield call(AddAssociatedComponents, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *installHelmApp({ payload, callback }, { call }) {
       const response = yield call(InstallHelmApp, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *parseChart({ payload, callback }, { call }) {
+      const response = yield call(parseChart, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *editHelmApp({ payload, callback }, { call }) {
+      const response = yield call(EditHelmApp, payload);
       if (callback) {
         callback(response);
       }
@@ -145,10 +202,18 @@ export default {
     },
     *fetchAppDetailState({ payload, callback }, { call }) {
       const response = yield call(getAppDetailState, payload);
-      if (response) {
-        if (response && callback) {
-          callback(response);
-        }
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchHelmAppStoresVersions({ payload, callback, handleError }, { call }) {
+      const response = yield call(
+        getHelmAppStoresVersions,
+        payload,
+        handleError
+      );
+      if (response && callback) {
+        callback(response);
       }
     },
     *fetchAppResourcesStatistics({ payload, callback }, { call }) {
@@ -180,8 +245,8 @@ export default {
         callback(response);
       }
     },
-    *fetchServices({ payload, callback }, { call }) {
-      const response = yield call(getServices, payload);
+    *fetchServices({ payload, callback, handleError }, { call }) {
+      const response = yield call(getServices, payload, handleError);
       if (response && callback) {
         callback(response);
       }

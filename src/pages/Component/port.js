@@ -1,27 +1,27 @@
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
 import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
   Alert,
-  Modal,
+  Button,
+  Card,
+  Col,
+  Form,
+  Icon,
   Input,
-  notification
+  Modal,
+  notification,
+  Row
 } from 'antd';
+import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
+import AddDomain from '../../components/AddDomain';
+import AddPort from '../../components/AddPort';
+import ConfirmModal from '../../components/ConfirmModal';
 import NoPermTip from '../../components/NoPermTip';
 import Port from '../../components/Port';
-import ConfirmModal from '../../components/ConfirmModal';
-import AddDomain from '../../components/AddDomain';
+import ScrollerX from '../../components/ScrollerX';
 import SubDomain from '../../components/SubDomain';
 import SubPort from '../../components/SubPort';
-import ScrollerX from '../../components/ScrollerX';
-import AddPort from '../../components/AddPort';
-import globalUtil from '../../utils/global';
 import appUtil from '../../utils/app';
+import globalUtil from '../../utils/global';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -107,7 +107,8 @@ class EditAlias extends PureComponent {
                 },
                 {
                   pattern: /^[a-z]([a-z0-9-_]*[-a-z0-9]*[a-z0-9])?$/,
-                  message: '必须由小写的字母、数字和- _组成，并且必须以字母开始、数字和字母结束'
+                  message:
+                    '必须由小写的字母、数字和- _组成，并且必须以字母开始、数字和字母结束'
                 }
               ]
             })(<Input placeholder="请填写内部域名" />)}
@@ -629,6 +630,8 @@ export default class Index extends PureComponent {
     const isImageApp = appUtil.isImageApp(appDetail);
     const isDockerfile = appUtil.isDockerfile(appDetail);
     if (!this.canView()) return <NoPermTip />;
+    const isHelm =
+      appDetail.service && appDetail.service.component_type === 'helm';
 
     return (
       <Fragment>
@@ -643,17 +646,19 @@ export default class Index extends PureComponent {
               }}
             />
           </Col>
-          <Col
-            span={12}
-            style={{
-              textAlign: 'right'
-            }}
-          >
-            <Button onClick={this.showAddPort} type="primary">
-              <Icon type="plus" />
-              添加端口
-            </Button>
-          </Col>
+          {!isHelm && (
+            <Col
+              span={12}
+              style={{
+                textAlign: 'right'
+              }}
+            >
+              <Button onClick={this.showAddPort} type="primary">
+                <Icon type="plus" />
+                添加端口
+              </Button>
+            </Col>
+          )}
         </Row>
         {!ports.length ? (
           <Card>

@@ -1,6 +1,7 @@
 import {
   appExport,
   cancelImportApp,
+  CheckWarehouseAppName,
   createAppMarket,
   createAppModel,
   createMarketAppModel,
@@ -69,6 +70,12 @@ export default {
     *upHelmAppStore({ payload, callback }, { call }) {
       const response = yield call(upHelmAppStore, payload);
       if (response && callback) {
+        callback(response);
+      }
+    },
+    *checkWarehouseAppName({ payload, callback, handleError }, { call }) {
+      const response = yield call(CheckWarehouseAppName, payload, handleError);
+      if (callback) {
         callback(response);
       }
     },

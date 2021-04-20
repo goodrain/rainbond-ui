@@ -60,7 +60,9 @@ class Parameterinput extends Component {
   render() {
     const {
       keyPlaceholder = '请输入key值',
-      valuePlaceholder = '请输入value值'
+      valuePlaceholder = '请输入value值',
+      isHalf = false,
+      disableds = false
     } = this.props;
     const { values } = this.state;
     return (
@@ -73,11 +75,16 @@ class Parameterinput extends Component {
               item.item_key.indexOf('pass') > -1;
             return (
               <Row
-                style={{ display: 'flex', alignItems: 'center' }}
+                style={{
+                  display: isHalf ? 'inline-block' : 'flex',
+                  alignItems: 'center',
+                  width: isHalf ? '50%' : '100%'
+                }}
                 key={`conifgitem${index}`}
               >
                 <Col span={10}>
                   <Input
+                    disabled={disableds}
                     autoComplete="off"
                     name="item_key"
                     value={item.item_key}
@@ -92,6 +99,7 @@ class Parameterinput extends Component {
                 <Col span={10}>
                   {isPassword ? (
                     <Input.Password
+                      disabled={disableds}
                       autoComplete="new-password"
                       name="item_value"
                       value={item.item_value}
@@ -101,6 +109,7 @@ class Parameterinput extends Component {
                     />
                   ) : (
                     <TextArea
+                      disabled={disableds}
                       name="item_value"
                       rows={1}
                       value={item.item_value}

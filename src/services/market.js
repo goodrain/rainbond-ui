@@ -200,6 +200,18 @@ export async function upHelmAppStore(body) {
     }
   );
 }
+export async function CheckWarehouseAppName(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.name}`,
+    {
+      method: 'get',
+      handleError,
+      params: {
+        name: body.name
+      }
+    }
+  );
+}
 
 /* get  App  Market Info */
 export async function getAppMarketInfo(body) {
