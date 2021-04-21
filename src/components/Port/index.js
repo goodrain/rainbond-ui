@@ -1,15 +1,17 @@
+/* eslint-disable react/jsx-no-target-blank */
+/* eslint-disable no-script-url */
+/* eslint-disable react/no-multi-comp */
+/* eslint-disable eqeqeq */
+/* eslint-disable no-unused-expressions */
 import {
-    Button, Form,
-
-    Icon,
-
-
-    Modal,
-
-    notification, Select, Switch,
-
-
-    Table
+  Button,
+  Form,
+  Icon,
+  Modal,
+  notification,
+  Select,
+  Switch,
+  Table
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -24,7 +26,7 @@ const FormItem = Form.Item;
 @connect(({ region, appControl }) => {
   return {
     appDetail: appControl.appDetail,
-    protocols: region.protocols || [],
+    protocols: region.protocols || []
   };
 })
 class ChangeProtocol extends PureComponent {
@@ -34,7 +36,7 @@ class ChangeProtocol extends PureComponent {
       value: this.props.protocol || 'http',
       visibleModal: false,
       agreement: '',
-      NotHttpConnectInfo: [],
+      NotHttpConnectInfo: []
     };
   }
   onChange = value => {
@@ -53,7 +55,7 @@ class ChangeProtocol extends PureComponent {
         layout="inline"
         style={{
           position: 'relative',
-          top: -8,
+          top: -8
         }}
       >
         <FormItem>
@@ -62,7 +64,7 @@ class ChangeProtocol extends PureComponent {
             size="small"
             value={this.state.value}
             style={{
-              width: 80,
+              width: 80
             }}
           >
             {protocols.map(item => {
@@ -89,18 +91,19 @@ class ChangeProtocol extends PureComponent {
 
 @connect(({ user, appControl }) => ({
   currUser: user.currentUser,
-  appDetail: appControl.appDetail,
+  appDetail: appControl.appDetail
 }))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       editProtocol: false,
-      showEditAlias: null,
       showDomain: false,
-      showPort: false,
-      list: [],
+      list: []
     };
+  }
+  componentDidMount() {
+    this.handleGetList();
   }
   onSubmitProtocol = protocol => {
     this.props.onSubmitProtocol &&
@@ -163,7 +166,7 @@ export default class Index extends PureComponent {
       type: 'gateWay/fetchEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: record.service_name,
+        app_alias: record.service_name
       },
       callback: data => {
         if (data) {
@@ -176,22 +179,19 @@ export default class Index extends PureComponent {
           this.setState({
             visibleModal: true,
             agreement: record,
-            NotHttpConnectInfo: dataList || [],
+            NotHttpConnectInfo: dataList || []
           });
         }
-      },
+      }
     });
   };
   rowKey = (record, index) => index;
   handeModalCancel = () => {
     this.setState({
-      visibleModal: false,
+      visibleModal: false
     });
   };
 
-  componentDidMount() {
-    this.handleGetList();
-  }
   handleGetList = () => {
     const { appDetail, dispatch } = this.props;
     if (
@@ -207,15 +207,15 @@ export default class Index extends PureComponent {
         type: 'appControl/getInstanceList',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          app_alias: appDetail.service.service_alias,
+          app_alias: appDetail.service.service_alias
         },
         callback: res => {
           if (res && res.status_code === 200) {
             this.setState({
-              list: res.list,
+              list: res.list
             });
           }
-        },
+        }
       });
     }
   };
@@ -225,26 +225,25 @@ export default class Index extends PureComponent {
       <Table
         rowKey={this.rowKey}
         className={styles.tdPadding}
-        bordered
         columns={[
           {
             title: '变量名',
             dataIndex: 'attr_name',
             key: 'attr_name',
-            align: 'center',
+            align: 'center'
           },
           {
             title: '变量值',
             dataIndex: 'attr_value',
             key: 'attr_value',
-            align: 'center',
+            align: 'center'
           },
           {
             title: '说明',
             dataIndex: 'name',
             key: 'name',
-            align: 'center',
-          },
+            align: 'center'
+          }
         ]}
         pagination={false}
         dataSource={infoArr}
@@ -259,31 +258,33 @@ export default class Index extends PureComponent {
     const showAlias = appPortUtil.getShowAlias(port);
     const domains = appPortUtil.getDomains(port);
     const tcp_domains = appPortUtil.getTcpDomains(port);
-    let {showDomain} = this.props;
+    let { showDomain } = this.props;
     const DomainText = this.domainsText(domains);
     const { agreement } = this.state;
+    const isHelm = true;
+
     // 是否显示对外访问地址,创建过程中不显示
     const showOuterUrl =
       this.props.showOuterUrl === void 0 ? true : this.props.showOuterUrl;
     showDomain = showDomain === void 0 ? true : showDomain;
-    let num = 0;
-    const { list } = this.state;
-    const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
-    const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
-    const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+    // const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
+    // const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
+    // const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 
-    if (list && list.length > 0) {
-      list.map(item => {
-        if (
-          !rege.test(item.address) &&
-          (regs.test(item.address || '') || rega.test(item.address || ''))
-        ) {
-          num++;
-        }
-      });
-    }
+    // const { list } = this.state;
+    // let num = 0;
+    // if (list && list.length > 0) {
+    //   list.map(item => {
+    //     if (
+    //       !rege.test(item.address) &&
+    //       (regs.test(item.address || '') || rega.test(item.address || ''))
+    //     ) {
+    //       num++;
+    //     }
+    //   });
+    // }
 
-    const {teams} = currUser;
+    const { teams } = currUser;
     const teamName = globalUtil.getCurrTeamName();
     const currenTeams = teams.filter(item => {
       return item.team_name == teamName;
@@ -300,28 +301,28 @@ export default class Index extends PureComponent {
         className={styles.table}
         style={{
           width: '100%',
-          marginBottom: 8,
+          marginBottom: 8
         }}
       >
         <thead>
           <tr>
             <th
               style={{
-                width: 60,
+                width: 60
               }}
             >
               端口号
             </th>
             <th
               style={{
-                width: 100,
+                width: 100
               }}
             >
               端口协议
             </th>
             <th
               style={{
-                width: '50%',
+                width: '50%'
               }}
             >
               服务信息
@@ -329,7 +330,7 @@ export default class Index extends PureComponent {
             {showDomain && (
               <th
                 style={{
-                  width: '30%',
+                  width: '30%'
                 }}
               >
                 访问策略
@@ -337,7 +338,7 @@ export default class Index extends PureComponent {
             )}
             <th
               style={{
-                width: 100,
+                width: 100
               }}
             >
               操作
@@ -368,7 +369,7 @@ export default class Index extends PureComponent {
                 style={{
                   borderBottom: '1px solid #e8e8e8',
                   marginBottom: 8,
-                  paddingBottom: 8,
+                  paddingBottom: 8
                 }}
               >
                 <p>
@@ -454,7 +455,7 @@ export default class Index extends PureComponent {
                                 onClick={() => {
                                   this.props.onDeleteDomain({
                                     port: port.container_port,
-                                    domain: domain.domain_name,
+                                    domain: domain.domain_name
                                   });
                                 }}
                                 className={styles.removePort}
@@ -504,7 +505,7 @@ export default class Index extends PureComponent {
                                 onClick={() => {
                                   this.props.onDeleteDomain({
                                     port: port.container_port,
-                                    domain: domain.domain_name,
+                                    domain: domain.domain_name
                                   });
                                 }}
                                 className={styles.removePort}
@@ -591,7 +592,7 @@ export default class Index extends PureComponent {
                     style={{
                       wordBreak: 'break-all',
                       wordWrap: 'break-word',
-                      color: '#1890ff',
+                      color: '#1890ff'
                     }}
                   >
                     <Button size="small">管理访问策略</Button>
@@ -601,9 +602,11 @@ export default class Index extends PureComponent {
             )}
             <td>
               <p>
-                <Button onClick={this.handleDelete} size="small">
-                  删除
-                </Button>
+                {!isHelm && (
+                  <Button onClick={this.handleDelete} size="small">
+                    删除
+                  </Button>
+                )}
               </p>
             </td>
           </tr>

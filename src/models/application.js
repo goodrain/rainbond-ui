@@ -1,4 +1,5 @@
 import {
+  AddAssociatedComponents,
   AddCopyTeamApps,
   addGroup,
   backup,
@@ -17,8 +18,10 @@ import {
   editGroup,
   getAppDetailState,
   getAppResourcesStatistics,
+  getAssociatedComponents,
   getBackup,
   getBackupStatus,
+  getFreeComponents,
   getGroupApps,
   getGroupDetail,
   getPluginShareEventInShareApp,
@@ -56,6 +59,24 @@ export default {
     plugins: []
   },
   effects: {
+    *fetchFreeComponents({ payload, callback }, { call }) {
+      const response = yield call(getFreeComponents, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchAssociatedComponents({ payload, callback }, { call }) {
+      const response = yield call(getAssociatedComponents, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *addAssociatedComponents({ payload, callback }, { call }) {
+      const response = yield call(AddAssociatedComponents, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *installHelmApp({ payload, callback }, { call }) {
       const response = yield call(InstallHelmApp, payload);
       if (callback) {

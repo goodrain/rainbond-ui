@@ -127,8 +127,13 @@
     color: rgba(0, 0, 0, 0.45);
   }
 }
+.associated {
+  padding: 12px 16px;
+  background: #fafafa;
+}
 
-.customCollapse {
+.customCollapse,
+.customCollapseBox {
   background: #fff;
   padding: 24px;
   margin-top: 24px;
@@ -148,7 +153,14 @@
     }
   }
 }
-
+.customCollapseBox {
+  padding: 0;
+  :global {
+    .ant-collapse-borderless {
+      background: #f0f2f5;
+    }
+  }
+}
 .customPanel {
   margin-bottom: 24px;
   overflow: hidden;
@@ -156,7 +168,10 @@
   border: 0px;
   border-radius: 2px;
 }
-
+.customMD {
+  height: 300px;
+  overflow: auto;
+}
 .customPanelHeader {
   h6 {
     font-size: 14px;

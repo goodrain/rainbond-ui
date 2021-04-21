@@ -28,6 +28,7 @@ import AuthCompany from '../../components/AuthCompany';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreateAppMarket from '../../components/CreateAppMarket';
 import CreateAppModels from '../../components/CreateAppModels';
+import CreateHelmAppModels from '../../components/CreateHelmAppModels';
 import DeleteApp from '../../components/DeleteApp';
 import HelmAppMarket from '../../components/HelmAppMarket';
 import Lists from '../../components/Lists';
@@ -1409,10 +1410,11 @@ export default class EnterpriseShared extends PureComponent {
         )}
 
         {installHelmApp && (
-          <CreateAppModels
+          <CreateHelmAppModels
             title="安装应用"
             eid={eid}
             appInfo={appInfo}
+            helmInfo={helmInfo}
             onOk={this.handleupDataAppModel}
             onCancel={this.handleCancelupDataAppModel}
           />

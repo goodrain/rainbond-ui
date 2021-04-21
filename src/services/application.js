@@ -5,7 +5,26 @@ import request from '../utils/request';
 
 export async function getServiceNameList(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices`
+  );
+}
+export async function getAssociatedComponents(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/components`,
+    {
+      method: 'get',
+      params: {
+        service_name: params.service_name
+      }
+    }
+  );
+}
+export async function getFreeComponents(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/orphan-components`,
+    {
+      method: 'get'
+    }
   );
 }
 
@@ -22,7 +41,7 @@ export async function CheckHelmApp(body = {}) {
 
 export async function CheckK8sServiceName(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/checkK8sServiceName `,
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/checkK8sServiceName`,
     {
       method: 'post',
       data: {
@@ -34,7 +53,7 @@ export async function CheckK8sServiceName(params) {
 
 export async function SetCheckK8sServiceName(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `,
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices`,
     {
       method: 'put',
       data: params.arr
@@ -43,7 +62,7 @@ export async function SetCheckK8sServiceName(params) {
 }
 export async function setGovernancemode(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/governancemode `,
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/governancemode`,
     {
       method: 'put',
       data: {
@@ -622,6 +641,20 @@ export async function InstallHelmApp(body = {}) {
     }
   );
 }
+
+export async function AddAssociatedComponents(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/components`,
+    {
+      method: 'post',
+      data: {
+        service_name: body.service_name,
+        port: body.port
+      }
+    }
+  );
+}
+
 /*
   应用备份迁移/恢复
 */

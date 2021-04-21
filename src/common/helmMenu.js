@@ -62,7 +62,7 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
     {
       name: formatMessage({ id: 'menu.app.dashboard' }),
       icon: 'dashboard',
-      path: `team/${teamName}/region/${regionName}/helms/${appID}`,
+      path: `team/${teamName}/region/${regionName}/apps/${appID}`,
       authority: ['admin', 'user']
     }
   ];
@@ -75,7 +75,7 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.gateway' }),
       icon: 'gateway',
-      path: `team/${teamName}/region/${regionName}/helms/${appID}/gateway`,
+      path: `team/${teamName}/region/${regionName}/apps/${appID}/gateway`,
       authority: ['admin', 'user']
     });
   }
@@ -83,7 +83,7 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.upgrade' }),
       icon: upgradeIcon,
-      path: `team/${teamName}/region/${regionName}/helms/${appID}/upgrade`,
+      path: `team/${teamName}/region/${regionName}/apps/${appID}/upgrade`,
       authority: ['admin', 'user']
     });
   }

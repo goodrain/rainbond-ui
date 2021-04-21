@@ -261,8 +261,11 @@ export default class Index extends PureComponent {
             </span>
           );
         }
-      },
-      {
+      }
+    ];
+    const isHelm = true;
+    if (!isHelm) {
+      columns.push({
         title: '操作',
         dataIndex: 'ep_id',
         key: '3',
@@ -282,29 +285,28 @@ export default class Index extends PureComponent {
             )}
           </div>
         )
-      }
-    ];
-
-    let num = 0;
-    if (
-      appDetail &&
-      appDetail.register_way &&
-      appDetail.register_way === 'static' &&
-      appDetail.service &&
-      appDetail.service.service_source &&
-      appDetail.service.service_source === 'third_party' &&
-      list &&
-      list.length > 0
-    ) {
-      list.map(item => {
-        if (
-          !rege.test(item.address) &&
-          (regs.test(item.address) || rega.test(item.address))
-        ) {
-          num++;
-        }
       });
     }
+    // let num = 0;
+    // if (
+    //   appDetail &&
+    //   appDetail.register_way &&
+    //   appDetail.register_way === 'static' &&
+    //   appDetail.service &&
+    //   appDetail.service.service_source &&
+    //   appDetail.service.service_source === 'third_party' &&
+    //   list &&
+    //   list.length > 0
+    // ) {
+    //   list.map(item => {
+    //     if (
+    //       !rege.test(item.address) &&
+    //       (regs.test(item.address) || rega.test(item.address))
+    //     ) {
+    //       num++;
+    //     }
+    //   });
+    // }
     const secret_key =
       api_service_key ||
       (appDetail.api_service_key ? appDetail.api_service_key : '');
@@ -351,24 +353,26 @@ export default class Index extends PureComponent {
             <Card
               title="服务实例"
               extra={
-                <div>
-                  <Button
-                    style={{ marginRight: '5px' }}
-                    onClick={() => {
-                      this.addInstance();
-                    }}
-                  >
-                    新增
-                  </Button>
+                isHelm ? null : (
+                  <div>
+                    <Button
+                      style={{ marginRight: '5px' }}
+                      onClick={() => {
+                        this.addInstance();
+                      }}
+                    >
+                      新增
+                    </Button>
 
-                  <Button
-                    onClick={() => {
-                      this.handleGetList();
-                    }}
-                  >
-                    刷新
-                  </Button>
-                </div>
+                    <Button
+                      onClick={() => {
+                        this.handleGetList();
+                      }}
+                    >
+                      刷新
+                    </Button>
+                  </div>
+                )
               }
             >
               <Row>

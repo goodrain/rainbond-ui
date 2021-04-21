@@ -1,0 +1,544 @@
+import { Button, Form, Icon, Input, Modal, Select, Upload } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import apiconfig from '../../../config/api.config';
+import cookie from '../../utils/cookie';
+import userUtil from '../../utils/user';
+import styles from '../CreateTeam/index.less';
+
+const FormItem = Form.Item;
+const { Option } = Select;
+const { TextArea } = Input;
+
+@Form.create()
+@connect(({ user, global, teamControl }) => ({
+  user: user.currentUser,
+  rainbondInfo: global.rainbondInfo,
+  currentTeam: teamControl.currentTeam
+}))
+class CreateHelmAppModels extends PureComponent {
+  constructor(props) {
+    super(props);
+    const { user } = this.props;
+    const adminer = userUtil.isCompanyAdmin(user);
+    this.state = {
+      isShared: window.location.href.indexOf('shared') > -1,
+      previewImage: '',
+      previewVisible: false,
+      tagList: [],
+      imageBase64: '',
+      imageUrl: props.helmInfo ? props.helmInfo.pic : '',
+      loading: false,
+      page: 1,
+      page_size: 10,
+      adminer,
+      teamList: [],
+      isAddLicense: false,
+      enterpriseTeamsLoading: true,
+      Checkboxvalue: !!(props.helmInfo && props.helmInfo.dev_status)
+    };
+  }
+  componentDidMount() {
+    this.getTags();
+    const { isShared, adminer } = this.state;
+    if (isShared && adminer) {
+      this.getEnterpriseTeams();
+    }
+  }
+  onChangeCheckbox = () => {
+    this.setState({
+      Checkboxvalue: !this.state.Checkboxvalue
+    });
+  };
+  getTags = () => {
+    const { dispatch, eid } = this.props;
+    dispatch({
+      type: 'market/fetchAppModelsTags',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            tagList: res.list
+          });
+        }
+      }
+    });
+  };
+
+  getBase64 = file => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  getLogoBase64 = (img, callback) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result));
+    reader.readAsDataURL(img);
+  };
+
+  getEnterpriseTeams = name => {
+    const { dispatch, eid } = this.props;
+    const { page, page_size } = this.state;
+    dispatch({
+      type: 'global/fetchEnterpriseTeams',
+      payload: {
+        name,
+        page,
+        page_size,
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          if (res.bean && res.bean.list) {
+            const listNum = (res.bean && res.bean.total_count) || 0;
+            const isAdd = !!(listNum && listNum > page_size);
+
+            this.setState({
+              teamList: res.bean.list,
+              isAddLicense: isAdd,
+              enterpriseTeamsLoading: false
+            });
+          }
+        }
+      }
+    });
+  };
+  addTeams = () => {
+    this.setState(
+      {
+        enterpriseTeamsLoading: true,
+        page_size: this.state.page_size + 10
+      },
+      () => {
+        this.getEnterpriseTeams();
+      }
+    );
+  };
+  handleSubmit = () => {
+    const { form, helmInfo } = this.props;
+    form.validateFields((err, values) => {
+      if (!err) {
+        if (helmInfo) {
+          this.upAppModel(values);
+        } else {
+          this.createAppModel(values);
+        }
+      }
+    });
+  };
+
+  handleLogoChange = info => {
+    if (info.file.status === 'uploading') {
+      this.setState({ loading: true });
+      return;
+    }
+    if (info.file.status === 'done') {
+      this.setState({
+        imageUrl:
+          info.file &&
+          info.file.response &&
+          info.file.response.data &&
+          info.file.response.data.bean &&
+          info.file.response.data.bean.file_url,
+        loading: false
+      });
+
+      this.getLogoBase64(info.file.originFileObj, imageBase64 =>
+        this.setState({
+          imageBase64
+        })
+      );
+    }
+  };
+
+  handleLogoRemove = () => {
+    this.setState({ imageUrl: '', imageBase64: '' });
+  };
+  handlePreview = async file => {
+    if (!file.url && !file.preview) {
+      file.preview = await this.getBase64(file.originFileObj);
+    }
+    this.setState({
+      previewImage: file.url || file.preview,
+      previewVisible: true
+    });
+  };
+
+  handleCancel = () => this.setState({ previewVisible: false });
+
+  handleClose = removedTagID => {
+    const tagList = this.state.tagList.filter(
+      item => item.tag_id !== removedTagID
+    );
+    this.setState({ tagList });
+  };
+
+  createTag = name => {
+    const { dispatch, eid } = this.props;
+    dispatch({
+      type: 'market/createTag',
+      payload: {
+        enterprise_id: eid,
+        name
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.getTags();
+        }
+      }
+    });
+  };
+
+  // handleRemoveTag = tag_id => {
+  //   const { dispatch, eid, helmInfo } = this.props;
+
+  //   dispatch({
+  //     type: 'market/deleteTag',
+  //     payload: {
+  //       enterprise_id: eid,
+  //       app_id: helmInfo.app_id,
+  //       tag_id,
+  //     },
+  //     callback: () => {
+  //       notification.success({ message: '删除成功' });
+  //       this.fetchTags();
+  //     },
+  //   });
+  // };
+
+  upAppModel = values => {
+    const { dispatch, eid, helmInfo, onOk, team_name } = this.props;
+    const { imageUrl, tagList, isShared } = this.state;
+
+    const arr = [];
+    if (
+      values.tag_ids &&
+      values.tag_ids.length > 0 &&
+      tagList &&
+      tagList.length > 0
+    ) {
+      values.tag_ids.map(items => {
+        tagList.map(item => {
+          if (items === item.name) {
+            arr.push(parseFloat(item.tag_id));
+          }
+        });
+      });
+    }
+
+    const body = {
+      enterprise_id: eid,
+      name: values.name,
+      pic: imageUrl,
+      tag_ids: arr,
+      app_id: helmInfo.app_id,
+      dev_status: values.dev_status ? 'release' : '',
+      describe: values.describe,
+      scope: isShared && values.scope !== 'enterprise' ? 'team' : values.scope
+    };
+    if (team_name) {
+      body.create_team = team_name;
+    } else if (isShared && values.scope !== 'enterprise') {
+      body.create_team = values.scope;
+    }
+    dispatch({
+      type: 'market/upAppModel',
+      payload: body,
+      callback: res => {
+        if (res && res.status_code === 200) {
+          onOk && onOk(helmInfo);
+        }
+      }
+    });
+  };
+
+  createAppModel = values => {
+    const {
+      dispatch,
+      eid,
+      onOk,
+      currentTeam,
+      market_id,
+      team_name,
+      defaultScope = false
+    } = this.props;
+    const { imageUrl, tagList, isShared } = this.state;
+    const arr = [];
+    const tags = [];
+    if (
+      values.tag_ids &&
+      values.tag_ids.length > 0 &&
+      tagList &&
+      tagList.length > 0
+    ) {
+      values.tag_ids.map(items => {
+        tagList.map(item => {
+          if (items === item.name) {
+            tags.push(item.name);
+            arr.push(parseFloat(item.tag_id));
+          }
+        });
+      });
+    }
+
+    let customBody = {};
+
+    if (market_id) {
+      customBody = {
+        enterprise_id: eid,
+        marketName: market_id,
+        name: values.name,
+        logo: imageUrl,
+        introduction: '',
+        app_classification_id: '',
+        team_name: currentTeam && currentTeam.team_name,
+        desc: values.describe,
+        publish_type: 'private',
+        tags
+      };
+
+      dispatch({
+        type: 'market/createMarketAppModel',
+        payload: customBody,
+        callback: res => {
+          if (res && res.status_code === 200) {
+            if (onOk) {
+              onOk();
+            }
+          }
+        }
+      });
+      return null;
+    }
+    customBody = {
+      enterprise_id: eid,
+      name: values.name,
+      pic: imageUrl,
+      scope: isShared && values.scope !== 'enterprise' ? 'team' : values.scope,
+      team_name: currentTeam && currentTeam.team_name,
+      dev_status: values.dev_status,
+      describe: values.describe,
+      tag_ids: arr
+    };
+
+    // if (market_id) {
+    //   customBody.scope_target = { market_id };
+    //   customBody.scope = 'goodrain';
+    //   customBody.source = 'local';
+    // }
+    if (isShared && values.scope !== 'enterprise') {
+      customBody.create_team = values.scope;
+    }
+
+    dispatch({
+      type: 'market/createAppModel',
+      payload: customBody,
+      callback: res => {
+        if (res && res.status_code === 200) {
+          if (onOk) {
+            onOk();
+          }
+        }
+      }
+    });
+  };
+
+  handleOnSelect = value => {
+    const { tagList } = this.state;
+    if (value && tagList.length > 0) {
+      let judge = true;
+      tagList.map(item => {
+        if (item.name === value) {
+          judge = false;
+        }
+      });
+
+      if (judge) {
+        this.createTag(value);
+      }
+    } else if (tagList && tagList.length === 0) {
+      this.createTag(value);
+    }
+  };
+
+  render() {
+    const { getFieldDecorator } = this.props.form;
+    const { onCancel, title, helmInfo, appInfo } = this.props;
+    const {
+      imageUrl,
+      previewImage,
+      previewVisible,
+      tagList,
+      imageBase64
+    } = this.state;
+    console.log('helmInfo', helmInfo);
+    console.log('appInfo', appInfo);
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 5 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 19 }
+      }
+    };
+    const arr = [];
+
+    if (
+      helmInfo &&
+      helmInfo.tags &&
+      helmInfo.tags.length > 0 &&
+      tagList &&
+      tagList.length > 0
+    ) {
+      helmInfo.tags.map(items => {
+        arr.push(items.name);
+      });
+    }
+
+    const token = cookie.get('token');
+    const myheaders = {};
+    if (token) {
+      myheaders.Authorization = `GRJWT ${token}`;
+    }
+    const uploadButton = (
+      <div>
+        <Icon type="plus" />
+        <div className="ant-upload-text">上传图标</div>
+      </div>
+    );
+
+    return (
+      <div>
+        <Modal
+          visible={previewVisible}
+          footer={null}
+          onCancel={this.handleCancel}
+        >
+          <img alt="example" style={{ width: '100%' }} src={previewImage} />
+        </Modal>
+        <Modal
+          title={title}
+          visible
+          width={500}
+          className={styles.TelescopicModal}
+          onOk={this.handleSubmit}
+          onCancel={onCancel}
+          footer={[
+            <Button onClick={onCancel}> 取消 </Button>,
+            <Button type="primary" onClick={this.handleSubmit}>
+              确定
+            </Button>
+          ]}
+        >
+          <Form onSubmit={this.handleSubmit} layout="horizontal">
+            <FormItem {...formItemLayout} label="名称">
+              {getFieldDecorator('name', {
+                initialValue: helmInfo ? helmInfo.name : '',
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入名称'
+                  },
+                  {
+                    max: 24,
+                    message: '应用名称最大长度24位'
+                  }
+                ]
+              })(<Input placeholder="请输入名称" />)}
+              <div className={styles.conformDesc}>
+                请输入创建的应用模版名称，最多24字.
+              </div>
+            </FormItem>
+            <FormItem {...formItemLayout} label="应用版本">
+              {getFieldDecorator('version', {
+                initialValue: appInfo.versions
+                  ? appInfo.versions[0].version
+                  : '',
+                rules: [
+                  {
+                    required: true,
+                    message: '请选择版本'
+                  }
+                ]
+              })(
+                <Select style={{ width: '284px' }}>
+                  {appInfo.versions &&
+                    appInfo.versions.map((item, indexs) => {
+                      return (
+                        <Option key={indexs} value={item.version}>
+                          {item.version}
+                        </Option>
+                      );
+                    })}
+                </Select>
+              )}
+            </FormItem>
+            <FormItem {...formItemLayout} label="应用备注">
+              {getFieldDecorator('note', {
+                initialValue: appInfo.versions
+                  ? appInfo.versions[0].description
+                  : '',
+                rules: [
+                  {
+                    max: 255,
+                    message: '最大长度255位'
+                  }
+                ]
+              })(
+                <Input.TextArea
+                  placeholder="请填写应用备注信息"
+                  style={{ width: '284px' }}
+                />
+              )}
+              <div className={styles.conformDesc}>请输入创建的应用模版描述</div>
+            </FormItem>
+            <Form.Item {...formItemLayout} label="LOGO">
+              {getFieldDecorator('pic', {
+                initialValue: appInfo.versions ? appInfo.versions[0].icon : '',
+                rules: [
+                  {
+                    required: false,
+                    message: '请上传图标'
+                  }
+                ]
+              })(
+                <Upload
+                  className="logo-uploader"
+                  name="file"
+                  accept="image/jpg,image/jpeg,image/png"
+                  action={apiconfig.imageUploadUrl}
+                  listType="picture-card"
+                  headers={myheaders}
+                  showUploadList={false}
+                  onChange={this.handleLogoChange}
+                  onRemove={this.handleLogoRemove}
+                  onPreview={this.handlePreview}
+                >
+                  {imageUrl ? (
+                    <img
+                      src={imageBase64 || imageUrl}
+                      alt="avatar"
+                      style={{ width: '100%' }}
+                    />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
+              )}
+            </Form.Item>
+          </Form>
+        </Modal>
+      </div>
+    );
+  }
+}
+
+export default CreateHelmAppModels;

@@ -17,12 +17,14 @@ import {
   Row,
   Steps,
   Tabs,
+  Tag,
   Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
+import Markdown from 'react-markdown';
 import ConfirmModal from '../../components/ConfirmModal';
 import Result from '../../components/Result';
 import { batchOperation } from '../../services/app';
@@ -30,6 +32,7 @@ import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import sourceUtil from '../../utils/source-unit';
 import Instance from '../Component/component/Instance/index';
+import AddAssociatedComponents from './AddAssociatedComponents';
 import styles from './Index.less';
 
 const { TabPane } = Tabs;
@@ -55,6 +58,7 @@ export default class Index extends PureComponent {
 
     this.state = {
       appStateLoading: true,
+      activeServices: '',
       appStates: [
         {
           key: 'initailing',
@@ -82,6 +86,8 @@ export default class Index extends PureComponent {
       },
       checkList: [],
       services: [],
+      freeComponents: [],
+      associatedComponents: [],
       currentSteps: 0,
       customWidth: document.body.clientWidth - 145,
       toDelete: false,
@@ -94,7 +100,7 @@ export default class Index extends PureComponent {
       promptModal: false,
       code: '',
       currApp: {},
-      loadingDetail: true,
+      AssociatedComponents: false,
       componentTimer: true,
       submitLoading: false,
       resources: {}
@@ -267,7 +273,6 @@ export default class Index extends PureComponent {
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     const { teamName, regionName, appID } = this.props.match.params;
-    this.setState({ loadingDetail: true });
     dispatch({
       type: 'application/fetchGroupDetail',
       payload: {
@@ -278,8 +283,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            currApp: res.bean,
-            loadingDetail: false
+            currApp: res.bean
           });
         }
       },
@@ -317,6 +321,7 @@ export default class Index extends PureComponent {
         }
         if (currentSteps >= 2) {
           this.handleServices();
+          this.fetchFreeComponents();
         }
         this.setState({
           resources: res.list || {},
@@ -463,11 +468,14 @@ export default class Index extends PureComponent {
         group_id: this.getGroupId()
       },
       callback: res => {
-        console.log('res', res);
         if (res && res.status_code === 200) {
           this.setState({
             services: res.list || []
           });
+          console.log('services', res);
+          if (res.list && res.list.length > 0) {
+            this.fetchAssociatedComponents(res.list[0].service_name);
+          }
         }
       }
     });
@@ -582,7 +590,71 @@ export default class Index extends PureComponent {
       }
     });
   };
+  AddAssociatedComponents = () => {
+    this.fetchAssociatedComponents();
+    this.cancelAssociatedComponents();
+  };
+  fetchAssociatedComponents = name => {
+    const { dispatch } = this.props;
+    const { activeServices } = this.state;
+    dispatch({
+      type: 'application/fetchAssociatedComponents',
+      payload: {
+        service_name: activeServices || name,
+        tenantName: globalUtil.getCurrTeamName(),
+        groupId: this.getGroupId()
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            activeServices: name,
+            associatedComponents: res.list || []
+          });
+          console.log('fetchAssociatedComponents', res);
+        }
+      }
+    });
+  };
 
+  fetchFreeComponents = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'application/fetchFreeComponents',
+      payload: {
+        tenantName: globalUtil.getCurrTeamName(),
+        groupId: this.getGroupId()
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            freeComponents: res.list || []
+          });
+        }
+      }
+    });
+  };
+
+  handleAssociatedComponents = AssociatedComponents => {
+    this.setState({
+      AssociatedComponents
+    });
+  };
+  handleTabs = key => {
+    this.setState({ activeServices: key });
+  };
+  cancelAssociatedComponents = () => {
+    this.setState({
+      AssociatedComponents: false
+    });
+  };
+  handleThird = appAlias => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/thirdPartyServices`
+      )
+    );
+  };
   handleInstallHelmApp = values => {
     const { dispatch } = this.props;
     dispatch({
@@ -597,16 +669,94 @@ export default class Index extends PureComponent {
           this.setState({
             submitLoading: false
           });
-          console.log('handleInstallHelmApp', res);
         }
       }
     });
   };
+  handleConfing = CodeMirrorFormWidth => {
+    const { form } = this.props;
+    const { getFieldDecorator, setFieldsValue } = form;
+    const { resources, currentSteps, submitLoading } = this.state;
+
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 24 }
+      },
+      wrapperCol: {
+        xs: { span: 24 }
+      }
+    };
+    return (
+      <Form onSubmit={this.handleSubmit} labelAlign="left">
+        <Collapse bordered={false} defaultActiveKey={['1', '2']}>
+          <Panel
+            header={
+              <div className={styles.customPanelHeader}>
+                <h6>详情描述</h6>
+                <p>应用程序信息和用户</p>
+              </div>
+            }
+            key="1"
+            className={styles.customPanel}
+          >
+            <Markdown
+              className={styles.customMD}
+              source={
+                (resources.readme &&
+                  this.decodeBase64Content(resources.readme)) ||
+                ''
+              }
+            />
+          </Panel>
+          <Panel
+            header={
+              <div className={styles.customPanelHeader}>
+                <h6>配置选项</h6>
+                <p>粘贴和读取操作要求应答为 yaml格式</p>
+              </div>
+            }
+            key="2"
+            className={styles.customPanel}
+          >
+            <CodeMirrorForm
+              data={
+                (resources.valuesTemplate &&
+                  this.decodeBase64Content(resources.valuesTemplate)) ||
+                ''
+              }
+              marginTop={20}
+              width={CodeMirrorFormWidth}
+              titles="yaml文件"
+              setFieldsValue={setFieldsValue}
+              formItemLayout={formItemLayout}
+              Form={Form}
+              getFieldDecorator={getFieldDecorator}
+              beforeUpload={this.beforeUpload}
+              mode="yaml"
+              name="yamls"
+              message="yaml是必须的"
+            />
+          </Panel>
+        </Collapse>
+        {currentSteps <= 2 && (
+          <div style={{ textAlign: 'center' }}>
+            <Button
+              onClick={this.handleSubmit}
+              loading={submitLoading}
+              type="primary"
+            >
+              创建
+            </Button>
+          </div>
+        )}
+      </Form>
+    );
+  };
+
   render() {
     const {
       appPermissions: { isUpgrade, isEdit, isDelete, isUpdate },
       groupDetail,
-      form,
       buildShapeLoading,
       editGroupLoading,
       deleteLoading,
@@ -628,19 +778,15 @@ export default class Index extends PureComponent {
       appType,
       checkList,
       services,
+      AssociatedComponents,
       appStateLoading,
-      submitLoading
+      associatedComponents,
+      freeComponents,
+      activeServices
     } = this.state;
     const CodeMirrorFormWidth = `${customWidth - (collapsed ? 433 : 118)}px`;
-    const { getFieldDecorator, setFieldsValue } = form;
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 }
-      },
-      wrapperCol: {
-        xs: { span: 24 }
-      }
-    };
+    const ConfingFormWidth = `${customWidth - (collapsed ? 320 : 20)}px`;
+
     const codeObj = {
       start: '启动',
       restart: '重启',
@@ -649,20 +795,24 @@ export default class Index extends PureComponent {
     };
 
     const appState = {
-      RUNNING: '运行中',
-      STARTING: '启动中',
-      CLOSED: '已关闭',
-      STOPPING: '关闭中',
-      ABNORMAL: '异常',
-      PARTIAL_ABNORMAL: '部分异常'
+      'not-configured': '未配置',
+      unknown: '未知',
+      deployed: '已部署',
+      superseded: '可升级',
+      failed: '失败',
+      uninstalled: '已卸载',
+      uninstalling: '卸载中',
+      'pending-install': '安装中',
+      'pending-upgrade': '升级中',
+      'pending-rollback': '回滚中'
     };
     const appStateColor = {
-      RUNNING: 'success',
-      STARTING: 'success',
-      CLOSED: 'error',
-      STOPPING: 'error',
-      ABNORMAL: 'error',
-      PARTIAL_ABNORMAL: 'error'
+      deployed: 'success',
+      'pending-install': 'success',
+      'pending-upgrade': 'success',
+      'pending-rollback': 'success',
+      superseded: 'success',
+      failed: 'error'
     };
     const BtnDisabled = !(jsonDataLength > 0);
 
@@ -710,7 +860,7 @@ export default class Index extends PureComponent {
                     status={appStateColor[resources.status] || 'default'}
                     text={appState[resources.status] || '-'}
                   />
-                  {resources.status !== 'CLOSED' && isUpdate && (
+                  {resources.status === 'superseded' && isUpdate && (
                     <a
                       className={styles.operationState}
                       onClick={() => {
@@ -721,7 +871,7 @@ export default class Index extends PureComponent {
                       更新
                     </a>
                   )}
-                  {isDelete && (
+                  {resources.status === 'superseded' && isUpdate && (
                     <Divider type="vertical" style={{ marginTop: '4px' }} />
                   )}
                   {isDelete && (
@@ -757,7 +907,7 @@ export default class Index extends PureComponent {
           </div>
         </Card>
         <Card
-          style={{ padding: 0 }}
+          style={{ padding: 0, marginRight: 0 }}
           loading={appStateLoading}
           className={styles.contentl}
         >
@@ -851,142 +1001,151 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Row>{pageHeaderContent}</Row>
-
-        <Card style={{ marginTop: 16 }} loading={appStateLoading}>
-          {currentSteps < 3 && (
-            <Steps
-              type="navigation"
-              current={currentSteps}
-              // onChange={this.onChangeSteps}
-              className="site-navigation-steps"
-            >
-              {appStates.map((item, index) => {
-                const { value } = item;
+        {AssociatedComponents && (
+          <AddAssociatedComponents
+            title="添加关联组件"
+            groupId={this.getGroupId()}
+            data={AssociatedComponents}
+            onCancel={this.cancelAssociatedComponents}
+            onOk={this.AddAssociatedComponents}
+          />
+        )}
+        {freeComponents && freeComponents.length > 0 && (
+          <Card
+            style={{ marginBottom: 24 }}
+            type="inner"
+            // bordered={0}
+            loading={appStateLoading}
+            title="游离组件"
+            bodyStyle={{ padding: 24, background: '#fff' }}
+          >
+            <div>
+              {freeComponents.map(item => {
                 return (
-                  <Step
-                    title={value}
-                    icon={index == currentSteps && <LoadingOutlined />}
-                  />
+                  <Tag
+                    onClick={() => {
+                      this.handleThird(item.component_alias);
+                    }}
+                  >
+                    {item.component_name}
+                  </Tag>
                 );
               })}
-            </Steps>
-          )}
-          {currentSteps < 1 && (
-            <div className={styles.process}>
-              <Result
-                type="ing"
-                title="初始化中..."
-                description="此过程可能比较耗时，请耐心等待"
-                style={{
-                  marginTop: 48,
-                  marginBottom: 16
-                }}
-              />
             </div>
-          )}
+          </Card>
+        )}
 
-          {currentSteps === 1 && (
-            <Steps className={styles.process}>
-              {checkList.map(item => {
-                const { ready, error, type } = item;
+        {currentSteps > 2 && (
+          <Card
+            type="inner"
+            // bordered={0}
+            loading={appStateLoading}
+            title="服务实例"
+            bodyStyle={{ padding: '0', background: '#F0F2F5' }}
+          >
+            <Tabs
+              style={{ background: '#fff', padding: '0 24px 24px' }}
+              activeKey={activeServices}
+              onChange={this.handleTabs}
+            >
+              {services.map(item => {
+                const { service_name: serviceName, pods } = item;
                 return (
-                  <Step
-                    title={appType[type]}
-                    status={ready ? 'finish' : error ? 'error' : 'wait'}
-                    description={
-                      <div style={{ color: '#ff4d4f' }}>{error}</div>
-                    }
-                  />
+                  <TabPane tab={serviceName} key={serviceName}>
+                    <div>
+                      <div className={styles.associated}>
+                        关联组件:
+                        {associatedComponents.map(items => {
+                          return (
+                            <Tag style={{ marginLeft: '5px' }}>
+                              {items.component_name}
+                            </Tag>
+                          );
+                        })}
+                        <Icon
+                          style={{ float: 'right' }}
+                          type="plus-circle"
+                          onClick={() => {
+                            this.handleAssociatedComponents(item);
+                          }}
+                        />
+                      </div>
+                      <Instance
+                        isHelm
+                        runLoading={false}
+                        new_pods={pods}
+                        old_pods={[]}
+                        appAlias={this.getGroupId()}
+                      />
+                    </div>
+                  </TabPane>
                 );
               })}
-            </Steps>
-          )}
-          {currentSteps > 2 && (
-            <Card
-              bordered={0}
-              loading={false}
-              title="服务实例"
-              bodyStyle={{ padding: '0', background: '#F0F2F5' }}
-            >
-              <Tabs style={{ background: '#fff', padding: '0 24px 24px' }}>
-                {services.map((item, index) => {
-                  const { service_name, ports } = item;
+            </Tabs>
+          </Card>
+        )}
+        {currentSteps > 2 && (
+          <div className={styles.customCollapseBox}>
+            {this.handleConfing(ConfingFormWidth)}
+          </div>
+        )}
+        {currentSteps < 3 && (
+          <Card style={{ marginTop: 16 }} loading={appStateLoading}>
+            {currentSteps < 3 && (
+              <Steps
+                type="navigation"
+                current={currentSteps}
+                // onChange={this.onChangeSteps}
+                className="site-navigation-steps"
+              >
+                {appStates.map((item, index) => {
+                  const { value } = item;
                   return (
-                    <TabPane tab={service_name} key={index}>
-                      <Instance
-                        runLoading={false}
-                        new_pods={ports}
-                        old_pods={[]}
-                        appAlias={this.props.appAlias}
-                      />
-                    </TabPane>
+                    <Step
+                      title={value}
+                      icon={index == currentSteps && <LoadingOutlined />}
+                    />
                   );
                 })}
-              </Tabs>
-            </Card>
-          )}
-          {currentSteps > 1 && (
-            <div className={styles.customCollapse}>
-              <Form onSubmit={this.handleSubmit} labelAlign="left">
-                <Collapse bordered={false} defaultActiveKey={['1', '2']}>
-                  <Panel
-                    header={
-                      <div className={styles.customPanelHeader}>
-                        <h6>详情描述</h6>
-                        <p>应用程序信息和用户</p>
-                      </div>
-                    }
-                    key="1"
-                    className={styles.customPanel}
-                  >
-                    <div>应用描述</div>
-                  </Panel>
-                  <Panel
-                    header={
-                      <div className={styles.customPanelHeader}>
-                        <h6>配置选项</h6>
-                        <p>粘贴和读取操作要求应答为 yaml格式</p>
-                      </div>
-                    }
-                    key="2"
-                    className={styles.customPanel}
-                  >
-                    <CodeMirrorForm
-                      data={
-                        (resources.valuesTemplate &&
-                          this.decodeBase64Content(resources.valuesTemplate)) ||
-                        ''
-                      }
-                      marginTop={20}
-                      width={CodeMirrorFormWidth}
-                      titles="yaml文件"
-                      setFieldsValue={setFieldsValue}
-                      formItemLayout={formItemLayout}
-                      Form={Form}
-                      getFieldDecorator={getFieldDecorator}
-                      beforeUpload={this.beforeUpload}
-                      mode="yaml"
-                      name="yamls"
-                      message="yaml是必须的"
-                    />
-                  </Panel>
-                </Collapse>
-                {currentSteps <= 2 && (
-                  <div style={{ textAlign: 'center' }}>
-                    <Button
-                      onClick={this.handleSubmit}
-                      loading={submitLoading}
-                      type="primary"
-                    >
-                      创建
-                    </Button>
-                  </div>
-                )}
-              </Form>
-            </div>
-          )}
-        </Card>
+              </Steps>
+            )}
+            {currentSteps < 1 && (
+              <div className={styles.process}>
+                <Result
+                  type="ing"
+                  title="初始化中..."
+                  description="此过程可能比较耗时，请耐心等待"
+                  style={{
+                    marginTop: 48,
+                    marginBottom: 16
+                  }}
+                />
+              </div>
+            )}
 
+            {currentSteps === 1 && (
+              <Steps className={styles.process}>
+                {checkList.map(item => {
+                  const { ready, error, type } = item;
+                  return (
+                    <Step
+                      title={appType[type]}
+                      status={ready ? 'finish' : error ? 'error' : 'wait'}
+                      description={
+                        <div style={{ color: '#ff4d4f' }}>{error}</div>
+                      }
+                    />
+                  );
+                })}
+              </Steps>
+            )}
+            {currentSteps > 1 && (
+              <div className={styles.customCollapse}>
+                {this.handleConfing(CodeMirrorFormWidth)}
+              </div>
+            )}
+          </Card>
+        )}
         {toDelete && (
           <ConfirmModal
             title="删除应用"

@@ -363,7 +363,6 @@ class TeamLayout extends PureComponent {
     return 'team';
   }
   fetchAppDetail = appID => {
-    console.log('appID', appID);
     const { dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     if (!appID) {
