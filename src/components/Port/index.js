@@ -252,7 +252,7 @@ export default class Index extends PureComponent {
     );
   };
   render() {
-    const { port, currUser } = this.props;
+    const { port, currUser, appDetail } = this.props;
     const outerUrl = appPortUtil.getOuterUrl(port);
     const innerUrl = appPortUtil.getInnerUrl(port);
     const showAlias = appPortUtil.getShowAlias(port);
@@ -261,7 +261,8 @@ export default class Index extends PureComponent {
     let { showDomain } = this.props;
     const DomainText = this.domainsText(domains);
     const { agreement } = this.state;
-    const isHelm = true;
+    const isHelm =
+      appDetail.service && appDetail.service.component_type === 'helm';
 
     // 是否显示对外访问地址,创建过程中不显示
     const showOuterUrl =

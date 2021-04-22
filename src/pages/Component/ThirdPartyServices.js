@@ -232,7 +232,6 @@ export default class Index extends PureComponent {
         span: 19
       }
     };
-
     const columns = [
       {
         title: '实例地址',
@@ -263,7 +262,8 @@ export default class Index extends PureComponent {
         }
       }
     ];
-    const isHelm = true;
+    const isHelm =
+      appDetail.service && appDetail.service.component_type === 'helm';
     if (!isHelm) {
       columns.push({
         title: '操作',

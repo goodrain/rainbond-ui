@@ -1,14 +1,11 @@
-import { Button, Form, Icon, Input, Modal, Select, Upload } from 'antd';
+import { Button, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
-import userUtil from '../../utils/user';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const { TextArea } = Input;
 
 @Form.create()
 @connect(({ user, global, teamControl }) => ({
@@ -19,107 +16,20 @@ const { TextArea } = Input;
 class CreateHelmAppModels extends PureComponent {
   constructor(props) {
     super(props);
-    const { user } = this.props;
-    const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       isShared: window.location.href.indexOf('shared') > -1,
       previewImage: '',
       previewVisible: false,
       tagList: [],
-      imageBase64: '',
-      imageUrl: props.helmInfo ? props.helmInfo.pic : '',
-      loading: false,
-      page: 1,
-      page_size: 10,
-      adminer,
-      teamList: [],
-      isAddLicense: false,
-      enterpriseTeamsLoading: true,
       Checkboxvalue: !!(props.helmInfo && props.helmInfo.dev_status)
     };
-  }
-  componentDidMount() {
-    this.getTags();
-    const { isShared, adminer } = this.state;
-    if (isShared && adminer) {
-      this.getEnterpriseTeams();
-    }
   }
   onChangeCheckbox = () => {
     this.setState({
       Checkboxvalue: !this.state.Checkboxvalue
     });
   };
-  getTags = () => {
-    const { dispatch, eid } = this.props;
-    dispatch({
-      type: 'market/fetchAppModelsTags',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            tagList: res.list
-          });
-        }
-      }
-    });
-  };
 
-  getBase64 = file => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
-    });
-  };
-
-  getLogoBase64 = (img, callback) => {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result));
-    reader.readAsDataURL(img);
-  };
-
-  getEnterpriseTeams = name => {
-    const { dispatch, eid } = this.props;
-    const { page, page_size } = this.state;
-    dispatch({
-      type: 'global/fetchEnterpriseTeams',
-      payload: {
-        name,
-        page,
-        page_size,
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          if (res.bean && res.bean.list) {
-            const listNum = (res.bean && res.bean.total_count) || 0;
-            const isAdd = !!(listNum && listNum > page_size);
-
-            this.setState({
-              teamList: res.bean.list,
-              isAddLicense: isAdd,
-              enterpriseTeamsLoading: false
-            });
-          }
-        }
-      }
-    });
-  };
-  addTeams = () => {
-    this.setState(
-      {
-        enterpriseTeamsLoading: true,
-        page_size: this.state.page_size + 10
-      },
-      () => {
-        this.getEnterpriseTeams();
-      }
-    );
-  };
   handleSubmit = () => {
     const { form, helmInfo } = this.props;
     form.validateFields((err, values) => {
@@ -133,85 +43,7 @@ class CreateHelmAppModels extends PureComponent {
     });
   };
 
-  handleLogoChange = info => {
-    if (info.file.status === 'uploading') {
-      this.setState({ loading: true });
-      return;
-    }
-    if (info.file.status === 'done') {
-      this.setState({
-        imageUrl:
-          info.file &&
-          info.file.response &&
-          info.file.response.data &&
-          info.file.response.data.bean &&
-          info.file.response.data.bean.file_url,
-        loading: false
-      });
-
-      this.getLogoBase64(info.file.originFileObj, imageBase64 =>
-        this.setState({
-          imageBase64
-        })
-      );
-    }
-  };
-
-  handleLogoRemove = () => {
-    this.setState({ imageUrl: '', imageBase64: '' });
-  };
-  handlePreview = async file => {
-    if (!file.url && !file.preview) {
-      file.preview = await this.getBase64(file.originFileObj);
-    }
-    this.setState({
-      previewImage: file.url || file.preview,
-      previewVisible: true
-    });
-  };
-
   handleCancel = () => this.setState({ previewVisible: false });
-
-  handleClose = removedTagID => {
-    const tagList = this.state.tagList.filter(
-      item => item.tag_id !== removedTagID
-    );
-    this.setState({ tagList });
-  };
-
-  createTag = name => {
-    const { dispatch, eid } = this.props;
-    dispatch({
-      type: 'market/createTag',
-      payload: {
-        enterprise_id: eid,
-        name
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.getTags();
-        }
-      }
-    });
-  };
-
-  // handleRemoveTag = tag_id => {
-  //   const { dispatch, eid, helmInfo } = this.props;
-
-  //   dispatch({
-  //     type: 'market/deleteTag',
-  //     payload: {
-  //       enterprise_id: eid,
-  //       app_id: helmInfo.app_id,
-  //       tag_id,
-  //     },
-  //     callback: () => {
-  //       notification.success({ message: '删除成功' });
-  //       this.fetchTags();
-  //     },
-  //   });
-  // };
-
   upAppModel = values => {
     const { dispatch, eid, helmInfo, onOk, team_name } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
@@ -265,8 +97,7 @@ class CreateHelmAppModels extends PureComponent {
       onOk,
       currentTeam,
       market_id,
-      team_name,
-      defaultScope = false
+      team_name
     } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
     const arr = [];
@@ -349,36 +180,10 @@ class CreateHelmAppModels extends PureComponent {
     });
   };
 
-  handleOnSelect = value => {
-    const { tagList } = this.state;
-    if (value && tagList.length > 0) {
-      let judge = true;
-      tagList.map(item => {
-        if (item.name === value) {
-          judge = false;
-        }
-      });
-
-      if (judge) {
-        this.createTag(value);
-      }
-    } else if (tagList && tagList.length === 0) {
-      this.createTag(value);
-    }
-  };
-
   render() {
     const { getFieldDecorator } = this.props.form;
     const { onCancel, title, helmInfo, appInfo } = this.props;
-    const {
-      imageUrl,
-      previewImage,
-      previewVisible,
-      tagList,
-      imageBase64
-    } = this.state;
-    console.log('helmInfo', helmInfo);
-    console.log('appInfo', appInfo);
+    const { previewImage, previewVisible, tagList } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -408,12 +213,6 @@ class CreateHelmAppModels extends PureComponent {
     if (token) {
       myheaders.Authorization = `GRJWT ${token}`;
     }
-    const uploadButton = (
-      <div>
-        <Icon type="plus" />
-        <div className="ant-upload-text">上传图标</div>
-      </div>
-    );
 
     return (
       <div>
@@ -439,6 +238,19 @@ class CreateHelmAppModels extends PureComponent {
           ]}
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
+            <FormItem {...formItemLayout} label="LOGO">
+              <img
+                src={appInfo.versions && appInfo.versions[0].icon}
+                alt="avatar"
+                style={{
+                  minWidth: '44px',
+                  maxWidth: '60px',
+                  minHeight: '44px',
+                  maxHeight: '60px'
+                }}
+              />
+            </FormItem>
+
             <FormItem {...formItemLayout} label="名称">
               {getFieldDecorator('name', {
                 initialValue: helmInfo ? helmInfo.name : '',
@@ -448,13 +260,21 @@ class CreateHelmAppModels extends PureComponent {
                     message: '请输入名称'
                   },
                   {
-                    max: 24,
-                    message: '应用名称最大长度24位'
+                    min: 4,
+                    message: '应用名称最小长度4位'
+                  },
+                  {
+                    max: 53,
+                    message: '应用名称最大长度53位'
+                  },
+                  {
+                    pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/,
+                    message: '只支持字母和数字开头结尾'
                   }
                 ]
-              })(<Input placeholder="请输入名称" />)}
+              })(<Input style={{ width: '284px' }} placeholder="请输入名称" />)}
               <div className={styles.conformDesc}>
-                请输入创建的应用模版名称，最多24字.
+                请输入创建的应用模版名称，最多53字.
               </div>
             </FormItem>
             <FormItem {...formItemLayout} label="应用版本">
@@ -480,6 +300,7 @@ class CreateHelmAppModels extends PureComponent {
                     })}
                 </Select>
               )}
+              <div className={styles.conformDesc}>请选择应用版本</div>
             </FormItem>
             <FormItem {...formItemLayout} label="应用备注">
               {getFieldDecorator('note', {
@@ -500,40 +321,6 @@ class CreateHelmAppModels extends PureComponent {
               )}
               <div className={styles.conformDesc}>请输入创建的应用模版描述</div>
             </FormItem>
-            <Form.Item {...formItemLayout} label="LOGO">
-              {getFieldDecorator('pic', {
-                initialValue: appInfo.versions ? appInfo.versions[0].icon : '',
-                rules: [
-                  {
-                    required: false,
-                    message: '请上传图标'
-                  }
-                ]
-              })(
-                <Upload
-                  className="logo-uploader"
-                  name="file"
-                  accept="image/jpg,image/jpeg,image/png"
-                  action={apiconfig.imageUploadUrl}
-                  listType="picture-card"
-                  headers={myheaders}
-                  showUploadList={false}
-                  onChange={this.handleLogoChange}
-                  onRemove={this.handleLogoRemove}
-                  onPreview={this.handlePreview}
-                >
-                  {imageUrl ? (
-                    <img
-                      src={imageBase64 || imageUrl}
-                      alt="avatar"
-                      style={{ width: '100%' }}
-                    />
-                  ) : (
-                    uploadButton
-                  )}
-                </Upload>
-              )}
-            </Form.Item>
           </Form>
         </Modal>
       </div>

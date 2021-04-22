@@ -630,7 +630,8 @@ export default class Index extends PureComponent {
     const isImageApp = appUtil.isImageApp(appDetail);
     const isDockerfile = appUtil.isDockerfile(appDetail);
     if (!this.canView()) return <NoPermTip />;
-    const isHelm = true;
+    const isHelm =
+      appDetail.service && appDetail.service.component_type === 'helm';
 
     return (
       <Fragment>

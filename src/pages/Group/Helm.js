@@ -9,7 +9,6 @@ import {
   Button,
   Card,
   Collapse,
-  Divider,
   Form,
   Icon,
   Modal,
@@ -28,7 +27,6 @@ import Markdown from 'react-markdown';
 import ConfirmModal from '../../components/ConfirmModal';
 import Result from '../../components/Result';
 import { batchOperation } from '../../services/app';
-import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import sourceUtil from '../../utils/source-unit';
 import Instance from '../Component/component/Instance/index';
@@ -71,6 +69,10 @@ export default class Index extends PureComponent {
         {
           key: 'configuring',
           value: '配置中'
+        },
+        {
+          key: 'installing',
+          value: '安装中'
         }
       ],
       appType: {
@@ -82,7 +84,8 @@ export default class Index extends PureComponent {
         initailing: 0,
         detecting: 1,
         configuring: 2,
-        installed: 3
+        installing: 3,
+        installed: 4
       },
       checkList: [],
       services: [],
@@ -93,10 +96,7 @@ export default class Index extends PureComponent {
       toDelete: false,
       toEdit: false,
       toEditAppDirector: false,
-      service_alias: [],
       serviceIds: [],
-      linkList: [],
-      jsonDataLength: 0,
       promptModal: false,
       code: '',
       currApp: {},
@@ -116,11 +116,6 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     dispatch({ type: 'application/clearGroupDetail' });
   }
-  onCancel = () => {
-    this.setState({
-      customSwitch: false
-    });
-  };
   onChangeSteps = currentSteps => {
     this.setState({ currentSteps });
   };
@@ -133,10 +128,8 @@ export default class Index extends PureComponent {
     }
   };
   loading = () => {
-    this.handleHelmCheck();
     this.fetchAppDetail();
-    this.loadTopology(true);
-    this.fetchAppDetailState();
+    this.fetchAppDetailState(true);
   };
   handleHelmCheck = () => {
     const { dispatch } = this.props;
@@ -152,102 +145,16 @@ export default class Index extends PureComponent {
             checkList: res && res.list
           });
         }
-      }
-    });
-  };
-
-  loadTopology(isCycle) {
-    const { dispatch } = this.props;
-    const teamName = globalUtil.getCurrTeamName();
-    const regionName = globalUtil.getCurrRegionName();
-    cookie.set('team_name', teamName);
-    cookie.set('region_name', regionName);
-
-    dispatch({
-      type: 'global/fetAllTopology',
-      payload: {
-        region_name: regionName,
-        team_name: teamName,
-        groupId: this.getGroupId()
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          const data = res.bean;
-          if (JSON.stringify(data) === '{}') {
-            return;
-          }
-          const serviceIds = [];
-          const service_alias = [];
-          const { json_data } = data;
-          Object.keys(json_data).map(key => {
-            serviceIds.push(key);
-            if (
-              json_data[key].cur_status == 'running' &&
-              json_data[key].is_internet == true
-            ) {
-              service_alias.push(json_data[key].service_alias);
-            }
-          });
-
-          this.setState(
-            {
-              jsonDataLength: Object.keys(json_data).length,
-              service_alias,
-              serviceIds
-            },
-            () => {
-              this.loadLinks(service_alias.join('-'), isCycle);
-            }
-          );
-        }
-      }
-    });
-  }
-
-  loadLinks(serviceAlias, isCycle) {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'global/queryLinks',
-      payload: {
-        service_alias: serviceAlias,
-        team_name: globalUtil.getCurrTeamName()
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState(
-            {
-              linkList: res.list || []
-            },
-            () => {
-              if (isCycle) {
-                this.handleTimers(
-                  'timer',
-                  () => {
-                    this.fetchAppDetailState();
-                    this.fetchAppDetail();
-                    this.loadTopology(true);
-                  },
-                  10000
-                );
-              }
-            }
-          );
-        }
-      },
-      handleError: err => {
-        this.handleError(err);
         this.handleTimers(
           'timer',
           () => {
-            this.fetchAppDetailState();
-            this.fetchAppDetail();
-            this.loadTopology(true);
+            this.handleHelmCheck();
           },
-          20000
+          8000
         );
       }
     });
-  }
+  };
   handleError = err => {
     const { componentTimer } = this.state;
     if (!componentTimer) {
@@ -303,7 +210,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  fetchAppDetailState = () => {
+  fetchAppDetailState = isCycle => {
     const { dispatch } = this.props;
     const { teamName, appID } = this.props.match.params;
     const { appStateMap } = this.state;
@@ -319,7 +226,7 @@ export default class Index extends PureComponent {
         if (currentSteps < 2) {
           this.handleHelmCheck();
         }
-        if (currentSteps >= 2) {
+        if (currentSteps >= 4) {
           this.handleServices();
           this.fetchFreeComponents();
         }
@@ -328,11 +235,30 @@ export default class Index extends PureComponent {
           appStateLoading: false,
           currentSteps
         });
+        if (isCycle) {
+          this.handleTimers(
+            'timer',
+            () => {
+              this.fetchAppDetailState(true);
+              this.fetchAppDetail();
+            },
+            10000
+          );
+        }
       },
-      handleError: () => {
+      handleError: err => {
         this.setState({
           appStateLoading: false
         });
+        this.handleError(err);
+        this.handleTimers(
+          'timer',
+          () => {
+            this.fetchAppDetailState(true);
+            this.fetchAppDetail();
+          },
+          20000
+        );
       }
     });
   };
@@ -472,7 +398,6 @@ export default class Index extends PureComponent {
           this.setState({
             services: res.list || []
           });
-          console.log('services', res);
           if (res.list && res.list.length > 0) {
             this.fetchAssociatedComponents(res.list[0].service_name);
           }
@@ -591,7 +516,7 @@ export default class Index extends PureComponent {
     });
   };
   AddAssociatedComponents = () => {
-    this.fetchAssociatedComponents();
+    this.fetchAssociatedComponents(false);
     this.cancelAssociatedComponents();
   };
   fetchAssociatedComponents = name => {
@@ -607,10 +532,9 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            activeServices: name,
+            activeServices: activeServices || name,
             associatedComponents: res.list || []
           });
-          console.log('fetchAssociatedComponents', res);
         }
       }
     });
@@ -652,6 +576,14 @@ export default class Index extends PureComponent {
     dispatch(
       routerRedux.push(
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/thirdPartyServices`
+      )
+    );
+  };
+  handleComponent = appAlias => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/overview`
       )
     );
   };
@@ -755,7 +687,7 @@ export default class Index extends PureComponent {
 
   render() {
     const {
-      appPermissions: { isUpgrade, isEdit, isDelete, isUpdate },
+      appPermissions: { isUpgrade, isEdit, isDelete },
       groupDetail,
       buildShapeLoading,
       editGroupLoading,
@@ -766,7 +698,6 @@ export default class Index extends PureComponent {
     const {
       currApp,
       resources,
-      jsonDataLength,
       code,
       promptModal,
       toEdit,
@@ -781,8 +712,7 @@ export default class Index extends PureComponent {
       AssociatedComponents,
       appStateLoading,
       associatedComponents,
-      freeComponents,
-      activeServices
+      freeComponents
     } = this.state;
     const CodeMirrorFormWidth = `${customWidth - (collapsed ? 433 : 118)}px`;
     const ConfingFormWidth = `${customWidth - (collapsed ? 320 : 20)}px`;
@@ -814,8 +744,6 @@ export default class Index extends PureComponent {
       superseded: 'success',
       failed: 'error'
     };
-    const BtnDisabled = !(jsonDataLength > 0);
-
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <Card
@@ -840,16 +768,6 @@ export default class Index extends PureComponent {
               <div style={{ width: '45%' }}>
                 <div className={styles.contentTitle} style={{ width: '100%' }}>
                   <span>{currApp.group_name || '-'}</span>
-                  {isEdit && (
-                    <Icon
-                      style={{
-                        cursor: 'pointer',
-                        marginLeft: '5px'
-                      }}
-                      onClick={this.toEdit}
-                      type="edit"
-                    />
-                  )}
                 </div>
                 <div style={{ marginTop: '10px' }}>{currApp.note}</div>
               </div>
@@ -860,20 +778,6 @@ export default class Index extends PureComponent {
                     status={appStateColor[resources.status] || 'default'}
                     text={appState[resources.status] || '-'}
                   />
-                  {resources.status === 'superseded' && isUpdate && (
-                    <a
-                      className={styles.operationState}
-                      onClick={() => {
-                        this.handleTopology('upgrade');
-                      }}
-                      disabled={BtnDisabled}
-                    >
-                      更新
-                    </a>
-                  )}
-                  {resources.status === 'superseded' && isUpdate && (
-                    <Divider type="vertical" style={{ marginTop: '4px' }} />
-                  )}
                   {isDelete && (
                     <a
                       className={styles.operationState}
@@ -900,7 +804,7 @@ export default class Index extends PureComponent {
                 </div>
                 <div className={styles.connect_Boxs}>
                   <div>服务数量</div>
-                  <div>{currApp.service_num || 0}</div>
+                  <div>{(services && services.length) || 0}</div>
                 </div>
               </div>
             </div>
@@ -1035,7 +939,7 @@ export default class Index extends PureComponent {
           </Card>
         )}
 
-        {currentSteps > 2 && (
+        {currentSteps > 3 && (
           <Card
             type="inner"
             // bordered={0}
@@ -1045,7 +949,9 @@ export default class Index extends PureComponent {
           >
             <Tabs
               style={{ background: '#fff', padding: '0 24px 24px' }}
-              activeKey={activeServices}
+              defaultActiveKey={
+                services && services.length > 0 && services[0].service_name
+              }
               onChange={this.handleTabs}
             >
               {services.map(item => {
@@ -1057,7 +963,12 @@ export default class Index extends PureComponent {
                         关联组件:
                         {associatedComponents.map(items => {
                           return (
-                            <Tag style={{ marginLeft: '5px' }}>
+                            <Tag
+                              style={{ marginLeft: '5px' }}
+                              onClick={() => {
+                                this.handleComponent(items.component_alias);
+                              }}
+                            >
                               {items.component_name}
                             </Tag>
                           );
@@ -1084,14 +995,14 @@ export default class Index extends PureComponent {
             </Tabs>
           </Card>
         )}
-        {currentSteps > 2 && (
+        {currentSteps > 3 && (
           <div className={styles.customCollapseBox}>
             {this.handleConfing(ConfingFormWidth)}
           </div>
         )}
-        {currentSteps < 3 && (
+        {currentSteps < 4 && (
           <Card style={{ marginTop: 16 }} loading={appStateLoading}>
-            {currentSteps < 3 && (
+            {currentSteps < 4 && (
               <Steps
                 type="navigation"
                 current={currentSteps}
@@ -1109,11 +1020,11 @@ export default class Index extends PureComponent {
                 })}
               </Steps>
             )}
-            {currentSteps < 1 && (
+            {(currentSteps < 1 || currentSteps === 3) && (
               <div className={styles.process}>
                 <Result
                   type="ing"
-                  title="初始化中..."
+                  title={currentSteps < 1 ? '初始化中...' : '安装中...'}
                   description="此过程可能比较耗时，请耐心等待"
                   style={{
                     marginTop: 48,
@@ -1139,7 +1050,7 @@ export default class Index extends PureComponent {
                 })}
               </Steps>
             )}
-            {currentSteps > 1 && (
+            {currentSteps === 2 && (
               <div className={styles.customCollapse}>
                 {this.handleConfing(CodeMirrorFormWidth)}
               </div>
