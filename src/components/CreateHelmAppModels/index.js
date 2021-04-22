@@ -1,5 +1,6 @@
 import { Button, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
@@ -17,173 +18,161 @@ class CreateHelmAppModels extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      isShared: window.location.href.indexOf('shared') > -1,
-      previewImage: '',
-      previewVisible: false,
-      tagList: [],
-      Checkboxvalue: !!(props.helmInfo && props.helmInfo.dev_status)
+      userTeamList: [],
+      regionList: [],
+      appName: '',
+      helmInstallLoading: false
     };
   }
-  onChangeCheckbox = () => {
-    this.setState({
-      Checkboxvalue: !this.state.Checkboxvalue
-    });
-  };
+  componentDidMount() {
+    this.fetchCreateAppTeams();
+  }
 
-  handleSubmit = () => {
-    const { form, helmInfo } = this.props;
-    form.validateFields((err, values) => {
-      if (!err) {
-        if (helmInfo) {
-          this.upAppModel(values);
-        } else {
-          this.createAppModel(values);
-        }
-      }
-    });
-  };
-
-  handleCancel = () => this.setState({ previewVisible: false });
-  upAppModel = values => {
-    const { dispatch, eid, helmInfo, onOk, team_name } = this.props;
-    const { imageUrl, tagList, isShared } = this.state;
-
-    const arr = [];
-    if (
-      values.tag_ids &&
-      values.tag_ids.length > 0 &&
-      tagList &&
-      tagList.length > 0
-    ) {
-      values.tag_ids.map(items => {
-        tagList.map(item => {
-          if (items === item.name) {
-            arr.push(parseFloat(item.tag_id));
-          }
-        });
-      });
-    }
-
-    const body = {
-      enterprise_id: eid,
-      name: values.name,
-      pic: imageUrl,
-      tag_ids: arr,
-      app_id: helmInfo.app_id,
-      dev_status: values.dev_status ? 'release' : '',
-      describe: values.describe,
-      scope: isShared && values.scope !== 'enterprise' ? 'team' : values.scope
-    };
-    if (team_name) {
-      body.create_team = team_name;
-    } else if (isShared && values.scope !== 'enterprise') {
-      body.create_team = values.scope;
-    }
+  fetchCreateAppTeams = name => {
+    const { dispatch, eid, form } = this.props;
+    const { setFieldsValue } = form;
     dispatch({
-      type: 'market/upAppModel',
-      payload: body,
+      type: 'global/fetchCreateAppTeams',
+      payload: {
+        name,
+        enterprise_id: eid
+      },
       callback: res => {
         if (res && res.status_code === 200) {
-          onOk && onOk(helmInfo);
+          this.setState(
+            {
+              userTeamList: res.list || []
+            },
+            () => {
+              if (res.list && res.list.length > 0) {
+                const info = res.list[0];
+
+                setFieldsValue({
+                  team_name: info.team_name
+                });
+                if (info.region_list && info.region_list.length > 0) {
+                  this.handleCheckAppName(
+                    true,
+                    info.team_name,
+                    info.region_list[0].region_alias
+                  );
+                }
+                this.handleTeamChange(res.list[0].team_name);
+              }
+            }
+          );
         }
       }
     });
   };
 
-  createAppModel = values => {
-    const {
-      dispatch,
-      eid,
-      onOk,
-      currentTeam,
-      market_id,
-      team_name
-    } = this.props;
-    const { imageUrl, tagList, isShared } = this.state;
-    const arr = [];
-    const tags = [];
-    if (
-      values.tag_ids &&
-      values.tag_ids.length > 0 &&
-      tagList &&
-      tagList.length > 0
-    ) {
-      values.tag_ids.map(items => {
-        tagList.map(item => {
-          if (items === item.name) {
-            tags.push(item.name);
-            arr.push(parseFloat(item.tag_id));
-          }
-        });
-      });
-    }
-
-    let customBody = {};
-
-    if (market_id) {
-      customBody = {
-        enterprise_id: eid,
-        marketName: market_id,
-        name: values.name,
-        logo: imageUrl,
-        introduction: '',
-        app_classification_id: '',
-        team_name: currentTeam && currentTeam.team_name,
-        desc: values.describe,
-        publish_type: 'private',
-        tags
-      };
-
-      dispatch({
-        type: 'market/createMarketAppModel',
-        payload: customBody,
-        callback: res => {
-          if (res && res.status_code === 200) {
-            if (onOk) {
-              onOk();
+  handleCheckAppName = (initial, tenantName, regionNam, name, callbacks) => {
+    const { dispatch, appInfo } = this.props;
+    const appName = (initial && appInfo && appInfo.name) || name;
+    dispatch({
+      type: 'application/checkAppName',
+      payload: {
+        app_name: appName,
+        regionNam,
+        tenantName
+      },
+      callback: res => {
+        let validatorValue = '';
+        if (res && res.status_code === 200) {
+          if (initial) {
+            this.setState({
+              appName: (res.list && res.list.app_name) || ''
+            });
+          } else if (callbacks) {
+            validatorValue =
+              name === (res.list && res.list.app_name) ? '' : '应用名称已存在';
+            if (validatorValue) {
+              callbacks(validatorValue);
+            } else {
+              callbacks();
             }
           }
         }
-      });
-      return null;
-    }
-    customBody = {
-      enterprise_id: eid,
-      name: values.name,
-      pic: imageUrl,
-      scope: isShared && values.scope !== 'enterprise' ? 'team' : values.scope,
-      team_name: currentTeam && currentTeam.team_name,
-      dev_status: values.dev_status,
-      describe: values.describe,
-      tag_ids: arr
-    };
-
-    // if (market_id) {
-    //   customBody.scope_target = { market_id };
-    //   customBody.scope = 'goodrain';
-    //   customBody.source = 'local';
-    // }
-    if (isShared && values.scope !== 'enterprise') {
-      customBody.create_team = values.scope;
-    }
-
-    dispatch({
-      type: 'market/createAppModel',
-      payload: customBody,
-      callback: res => {
-        if (res && res.status_code === 200) {
-          if (onOk) {
-            onOk();
-          }
+      },
+      handleError: () => {
+        if (callbacks) {
+          callbacks();
         }
       }
     });
   };
-
+  handleSubmit = e => {
+    e.preventDefault();
+    const { form, helmInfo, appInfo } = this.props;
+    form.validateFields((err, fieldsValue) => {
+      const info = Object.assign({}, fieldsValue, {
+        app_template_name: (appInfo && appInfo.name) || '',
+        app_store_name: helmInfo && helmInfo.name,
+        app_store_url: helmInfo && helmInfo.url
+      });
+      if (!err) {
+        this.setState({ helmInstallLoading: true });
+        this.handleCreateHelm(info);
+      }
+    });
+  };
+  handleCreateHelm = vals => {
+    const { dispatch, onCancel } = this.props;
+    dispatch({
+      type: 'createApp/installHelmApp',
+      payload: {
+        ...vals,
+        is_deploy: true
+      },
+      callback: res => {
+        if (res.bean.ID && onCancel) {
+          onCancel();
+          dispatch(
+            routerRedux.push(
+              `/team/${vals.team_name}/region/${vals.region}/apps/${res.bean.ID}`
+            )
+          );
+        }
+        this.setState({ helmInstallLoading: false });
+      }
+    });
+  };
+  handleTeamChange = value => {
+    const { form } = this.props;
+    const { setFieldsValue } = form;
+    const { userTeamList } = this.state;
+    let regionList = [];
+    userTeamList.map(item => {
+      if (item.team_name === value) {
+        regionList = item.region_list;
+      }
+    });
+    if (regionList && regionList.length > 0) {
+      this.setState({ regionList }, () => {
+        setFieldsValue({
+          region: regionList[0].region_name
+        });
+        const { getFieldValue } = this.props.form;
+        this.handleCheckAppName(
+          false,
+          value,
+          getFieldValue('app_name'),
+          regionList[0].region_name
+        );
+      });
+    }
+  };
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const { onCancel, title, helmInfo, appInfo } = this.props;
-    const { previewImage, previewVisible, tagList } = this.state;
+    const { onCancel, title, appInfo, form } = this.props;
+    const { getFieldDecorator, getFieldValue } = form;
+    const {
+      regionList,
+      userTeamList,
+      appName,
+      helmInstallLoading
+    } = this.state;
+    const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
+
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -194,35 +183,16 @@ class CreateHelmAppModels extends PureComponent {
         sm: { span: 19 }
       }
     };
-    const arr = [];
-
-    if (
-      helmInfo &&
-      helmInfo.tags &&
-      helmInfo.tags.length > 0 &&
-      tagList &&
-      tagList.length > 0
-    ) {
-      helmInfo.tags.map(items => {
-        arr.push(items.name);
-      });
-    }
 
     const token = cookie.get('token');
     const myheaders = {};
     if (token) {
       myheaders.Authorization = `GRJWT ${token}`;
     }
-
+    const teaName = getFieldValue('team_name');
+    const regionName = getFieldValue('region');
     return (
       <div>
-        <Modal
-          visible={previewVisible}
-          footer={null}
-          onCancel={this.handleCancel}
-        >
-          <img alt="example" style={{ width: '100%' }} src={previewImage} />
-        </Modal>
         <Modal
           title={title}
           visible
@@ -232,32 +202,67 @@ class CreateHelmAppModels extends PureComponent {
           onCancel={onCancel}
           footer={[
             <Button onClick={onCancel}> 取消 </Button>,
-            <Button type="primary" onClick={this.handleSubmit}>
+            <Button
+              type="primary"
+              onClick={this.handleSubmit}
+              loading={helmInstallLoading}
+            >
               确定
             </Button>
           ]}
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
-            <FormItem {...formItemLayout} label="LOGO">
-              <img
-                src={appInfo.versions && appInfo.versions[0].icon}
-                alt="avatar"
-                style={{
-                  minWidth: '44px',
-                  maxWidth: '60px',
-                  minHeight: '44px',
-                  maxHeight: '60px'
-                }}
-              />
-            </FormItem>
-
-            <FormItem {...formItemLayout} label="名称">
-              {getFieldDecorator('name', {
-                initialValue: helmInfo ? helmInfo.name : '',
+            <FormItem {...formItemLayout} label="团队名称">
+              {getFieldDecorator('team_name', {
                 rules: [
                   {
                     required: true,
-                    message: '请输入名称'
+                    message: '请选择团队'
+                  }
+                ]
+              })(
+                <Select
+                  style={{ width: '284px' }}
+                  onChange={this.handleTeamChange}
+                  placeholder="请选择团队"
+                >
+                  {userTeams &&
+                    userTeams.map(item => (
+                      <Option key={item.team_name} value={item.team_name}>
+                        {item.team_alias}
+                      </Option>
+                    ))}
+                </Select>
+              )}
+              <div className={styles.conformDesc}>请选择团队</div>
+            </FormItem>
+            <FormItem {...formItemLayout} label="集群名称">
+              {getFieldDecorator('region', {
+                rules: [
+                  {
+                    required: true,
+                    message: '请选择集群'
+                  }
+                ]
+              })(
+                <Select placeholder="请选择集群" style={{ width: '284px' }}>
+                  {regionList.map(item => (
+                    <Option key={item.region_name} value={item.region_name}>
+                      {item.region_alias}
+                    </Option>
+                  ))}
+                </Select>
+              )}
+              <div className={styles.conformDesc}>请选择集群</div>
+            </FormItem>
+            <FormItem {...formItemLayout} label="应用名称">
+              {getFieldDecorator('app_name', {
+                initialValue: appName,
+                validateTrigger: 'onBlur',
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入应用名称'
                   },
                   {
                     min: 4,
@@ -270,6 +275,17 @@ class CreateHelmAppModels extends PureComponent {
                   {
                     pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/,
                     message: '只支持字母和数字开头结尾'
+                  },
+                  {
+                    validator: (_, value, callback) => {
+                      this.handleCheckAppName(
+                        false,
+                        teaName,
+                        regionName,
+                        value,
+                        callback
+                      );
+                    }
                   }
                 ]
               })(<Input style={{ width: '284px' }} placeholder="请输入名称" />)}
@@ -300,7 +316,9 @@ class CreateHelmAppModels extends PureComponent {
                     })}
                 </Select>
               )}
-              <div className={styles.conformDesc}>请选择应用版本</div>
+              <div className={styles.conformDesc}>
+                请选择创建的应用的应用版本
+              </div>
             </FormItem>
             <FormItem {...formItemLayout} label="应用备注">
               {getFieldDecorator('note', {

@@ -8,6 +8,19 @@ export async function getServiceNameList(params) {
     `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices`
   );
 }
+export async function CheckAppName(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/ensure-app-name`,
+    {
+      method: 'post',
+      handleError,
+      data: {
+        app_name: params.app_name,
+        region_name: params.regionNam
+      }
+    }
+  );
+}
 export async function getAssociatedComponents(params) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/components`,
@@ -30,7 +43,6 @@ export async function getFreeComponents(params) {
 
 export async function CheckHelmApp(body = {}) {
   return request(
-    // 'https://doc.goodrain.org/mock/18/console/teams/{team_name}/groups/{app_id}/detect-process',
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/detect-process`,
     {
       method: 'get',

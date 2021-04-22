@@ -797,6 +797,17 @@ export async function fetchEnterpriseInfo(param) {
     }
   );
 }
+export async function getCreateAppTeams(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/create-app-teams`,
+    {
+      method: 'get',
+      params: {
+        name: param.name
+      }
+    }
+  );
+}
 
 /* save log */
 export async function saveLog(body = {}) {

@@ -4,6 +4,7 @@ import {
   addGroup,
   backup,
   buildCompose,
+  CheckAppName,
   CheckHelmApp,
   CheckK8sServiceName,
   completeShare,
@@ -67,6 +68,12 @@ export default {
     },
     *fetchAssociatedComponents({ payload, callback }, { call }) {
       const response = yield call(getAssociatedComponents, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *checkAppName({ payload, callback, handleError }, { call }) {
+      const response = yield call(CheckAppName, payload, handleError);
       if (callback) {
         callback(response);
       }

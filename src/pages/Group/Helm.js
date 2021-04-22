@@ -87,7 +87,11 @@ export default class Index extends PureComponent {
         installing: 3,
         installed: 4
       },
-      checkList: [],
+      checkList: [
+        { type: 'ChartReady', ready: false, error: '' },
+        { type: 'PreInstalled', ready: false, error: '' },
+        { type: 'ChartParsed', ready: false, error: '' }
+      ],
       services: [],
       freeComponents: [],
       associatedComponents: [],
@@ -133,6 +137,10 @@ export default class Index extends PureComponent {
   };
   handleHelmCheck = () => {
     const { dispatch } = this.props;
+    const { currentSteps } = this.state;
+    if (currentSteps > 2) {
+      return null;
+    }
     dispatch({
       type: 'application/checkHelmApp',
       payload: {
@@ -150,7 +158,7 @@ export default class Index extends PureComponent {
           () => {
             this.handleHelmCheck();
           },
-          8000
+          3000
         );
       }
     });
@@ -213,7 +221,7 @@ export default class Index extends PureComponent {
   fetchAppDetailState = isCycle => {
     const { dispatch } = this.props;
     const { teamName, appID } = this.props.match.params;
-    const { appStateMap } = this.state;
+    const { appStateMap, currentSteps: oldSteps } = this.state;
     dispatch({
       type: 'application/fetchAppDetailState',
       payload: {
@@ -233,7 +241,7 @@ export default class Index extends PureComponent {
         this.setState({
           resources: res.list || {},
           appStateLoading: false,
-          currentSteps
+          currentSteps: currentSteps > oldSteps ? currentSteps : oldSteps
         });
         if (isCycle) {
           this.handleTimers(
@@ -599,6 +607,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
+            currentSteps: 3,
             submitLoading: false
           });
         }
@@ -769,7 +778,7 @@ export default class Index extends PureComponent {
                 <div className={styles.contentTitle} style={{ width: '100%' }}>
                   <span>{currApp.group_name || '-'}</span>
                 </div>
-                <div style={{ marginTop: '10px' }}>{currApp.note}</div>
+                <div className={styles.contentNote}>{currApp.note}</div>
               </div>
               {resources.status && (
                 <div className={styles.helmState}>
@@ -927,6 +936,7 @@ export default class Index extends PureComponent {
               {freeComponents.map(item => {
                 return (
                   <Tag
+                    color="#4d73b1"
                     onClick={() => {
                       this.handleThird(item.component_alias);
                     }}
@@ -942,7 +952,6 @@ export default class Index extends PureComponent {
         {currentSteps > 3 && (
           <Card
             type="inner"
-            // bordered={0}
             loading={appStateLoading}
             title="服务实例"
             bodyStyle={{ padding: '0', background: '#F0F2F5' }}
@@ -964,6 +973,7 @@ export default class Index extends PureComponent {
                         {associatedComponents.map(items => {
                           return (
                             <Tag
+                              color="#4d73b1"
                               style={{ marginLeft: '5px' }}
                               onClick={() => {
                                 this.handleComponent(items.component_alias);
@@ -1006,7 +1016,6 @@ export default class Index extends PureComponent {
               <Steps
                 type="navigation"
                 current={currentSteps}
-                // onChange={this.onChangeSteps}
                 className="site-navigation-steps"
               >
                 {appStates.map((item, index) => {
@@ -1034,21 +1043,23 @@ export default class Index extends PureComponent {
               </div>
             )}
 
-            {currentSteps === 1 && (
-              <Steps className={styles.process}>
-                {checkList.map(item => {
-                  const { ready, error, type } = item;
-                  return (
-                    <Step
-                      title={appType[type]}
-                      status={ready ? 'finish' : error ? 'error' : 'wait'}
-                      description={
-                        <div style={{ color: '#ff4d4f' }}>{error}</div>
-                      }
-                    />
-                  );
-                })}
-              </Steps>
+            {currentSteps < 2 && checkList && checkList.length > 0 && (
+              <div className={styles.process}>
+                <Steps direction="vertical" style={{ paddingLeft: '20%' }}>
+                  {checkList.map(item => {
+                    const { ready, error, type } = item;
+                    return (
+                      <Step
+                        title={appType[type]}
+                        status={ready ? 'finish' : error ? 'error' : 'wait'}
+                        description={
+                          <div style={{ color: '#ff4d4f' }}>{error}</div>
+                        }
+                      />
+                    );
+                  })}
+                </Steps>
+              </div>
             )}
             {currentSteps === 2 && (
               <div className={styles.customCollapse}>

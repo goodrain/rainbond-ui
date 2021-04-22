@@ -20,6 +20,15 @@ const FormItem = Form.Item;
 })
 @Form.create()
 export default class Index extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      appName: ''
+    };
+  }
+  componentDidMount() {
+    this.handleCheckAppName(true);
+  }
   fetchGroup = () => {
     this.props.dispatch({
       type: 'global/fetchGroups',
@@ -28,6 +37,45 @@ export default class Index extends PureComponent {
       }
     });
   };
+
+  handleCheckAppName = (initial, name, callbacks) => {
+    const { dispatch, data } = this.props;
+    const versions =
+      data && data.versions && data.versions.length > 0 && data.versions;
+    const appName = (initial && versions && versions[0].name) || name;
+    dispatch({
+      type: 'application/checkAppName',
+      payload: {
+        app_name: appName,
+        regionNam: globalUtil.getCurrRegionName(),
+        tenantName: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        let validatorValue = '';
+        if (res && res.status_code === 200) {
+          if (initial) {
+            this.setState({
+              appName: (res.list && res.list.app_name) || ''
+            });
+          } else if (callbacks) {
+            validatorValue =
+              name === (res.list && res.list.app_name) ? '' : '应用名称已存在';
+            if (validatorValue) {
+              callbacks(validatorValue);
+            } else {
+              callbacks();
+            }
+          }
+        }
+      },
+      handleError: () => {
+        if (callbacks) {
+          callbacks();
+        }
+      }
+    });
+  };
+
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, data } = this.props;
@@ -40,8 +88,9 @@ export default class Index extends PureComponent {
         app_store_name: data.app_store_name,
         app_store_url: data.url
       });
+      console.log('info', info);
       if (!err && onSubmit) {
-        onSubmit(info, true);
+        // onSubmit(info, true);
       }
     });
   };
@@ -49,6 +98,7 @@ export default class Index extends PureComponent {
   render() {
     const { onCancel, data, form, installLoading = false } = this.props;
     const { getFieldDecorator } = form;
+    const { appName } = this.state;
     const versions =
       data && data.versions && data.versions.length > 0 && data.versions;
     return (
@@ -73,12 +123,26 @@ export default class Index extends PureComponent {
         <Form onSubmit={this.handleSubmit} layout="horizontal">
           <FormItem {...formItemLayout} label="应用名称">
             {getFieldDecorator('app_name', {
-              initialValue: (versions && versions[0].name) || '',
+              initialValue: appName,
+              validateTrigger: 'onBlur',
               rules: [
                 { required: true, message: '请填写应用名称' },
                 {
-                  max: 24,
-                  message: '应用名称最大长度24位'
+                  min: 4,
+                  message: '应用名称最小长度4位'
+                },
+                {
+                  max: 53,
+                  message: '应用名称最大长度53位'
+                },
+                {
+                  pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/,
+                  message: '只支持字母和数字开头结尾'
+                },
+                {
+                  validator: (_, value, callback) => {
+                    this.handleCheckAppName(false, value, callback);
+                  }
                 }
               ]
             })(
