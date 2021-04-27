@@ -559,7 +559,7 @@ export default class Main extends PureComponent {
             team_name: teamName
           },
           callback: () => {
-            if (res && res.status_code === 200) {
+            if (res && res.status_code === 200 && res.bean && res.bean.ID) {
               this.onCancelCreate();
               dispatch(
                 routerRedux.push(

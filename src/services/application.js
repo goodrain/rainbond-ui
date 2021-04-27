@@ -21,6 +21,7 @@ export async function CheckAppName(params, handleError) {
     }
   );
 }
+
 export async function getAssociatedComponents(params) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/components`,
@@ -335,11 +336,12 @@ export async function addGroup(body = {}) {
   );
 }
 
-export async function getServices(body = {}) {
+export async function getServices(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/services`,
     {
-      method: 'get'
+      method: 'get',
+      handleError
     }
   );
 }

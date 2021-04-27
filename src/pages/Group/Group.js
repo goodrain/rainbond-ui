@@ -60,7 +60,6 @@ export default class Index extends PureComponent {
       code: '',
       size: 'large',
       currApp: {},
-      loadingDetail: true,
       rapidCopy: false,
       componentTimer: true,
       customSwitch: false,
@@ -213,7 +212,6 @@ export default class Index extends PureComponent {
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     const { teamName, regionName, appID } = this.props.match.params;
-    this.setState({ loadingDetail: true });
     dispatch({
       type: 'application/fetchGroupDetail',
       payload: {
@@ -224,8 +222,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            currApp: res.bean,
-            loadingDetail: false
+            currApp: res.bean
           });
         }
       },
@@ -481,10 +478,6 @@ export default class Index extends PureComponent {
   render() {
     const {
       groupDetail,
-      appID,
-      currentEnterprise,
-      currentTeam,
-      currentRegionName,
       appPermissions: {
         isShare,
         isBackup,
@@ -511,7 +504,6 @@ export default class Index extends PureComponent {
       }
     } = this.props;
     const {
-      loadingDetail,
       currApp,
       resources,
       rapidCopy,

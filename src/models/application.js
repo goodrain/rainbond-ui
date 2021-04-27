@@ -208,8 +208,8 @@ export default {
         callback(response);
       }
     },
-    *fetchServices({ payload, callback }, { call }) {
-      const response = yield call(getServices, payload);
+    *fetchServices({ payload, callback, handleError }, { call }) {
+      const response = yield call(getServices, payload, handleError);
       if (response && callback) {
         callback(response);
       }

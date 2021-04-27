@@ -55,6 +55,7 @@ export default class Index extends PureComponent {
     super(arg);
 
     this.state = {
+      linkList: [],
       appStateLoading: true,
       activeServices: '',
       appStates: [
@@ -107,6 +108,7 @@ export default class Index extends PureComponent {
       AssociatedComponents: false,
       componentTimer: true,
       submitLoading: false,
+      servicesLoading: true,
       resources: {}
     };
   }
@@ -222,6 +224,7 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     const { teamName, appID } = this.props.match.params;
     const { appStateMap, currentSteps: oldSteps } = this.state;
+    // this.closeTimer();
     dispatch({
       type: 'application/fetchAppDetailState',
       payload: {
@@ -410,7 +413,16 @@ export default class Index extends PureComponent {
             this.fetchAssociatedComponents(res.list[0].service_name);
           }
         }
+        this.cancelServices();
+      },
+      handleError: () => {
+        this.cancelServices();
       }
+    });
+  };
+  cancelServices = () => {
+    this.setState({
+      servicesLoading: false
     });
   };
   handleUpDataHeader = () => {
@@ -418,14 +430,6 @@ export default class Index extends PureComponent {
     dispatch({
       type: 'global/IsUpDataHeader',
       payload: { isUpData: true }
-    });
-  };
-
-  /** 构建拓扑图 */
-  handleTopology = code => {
-    this.setState({
-      promptModal: true,
-      code
     });
   };
 
@@ -629,7 +633,7 @@ export default class Index extends PureComponent {
     };
     return (
       <Form onSubmit={this.handleSubmit} labelAlign="left">
-        <Collapse bordered={false} defaultActiveKey={['1', '2']}>
+        <Collapse bordered={false} defaultActiveKey={['2']}>
           <Panel
             header={
               <div className={styles.customPanelHeader}>
@@ -721,7 +725,9 @@ export default class Index extends PureComponent {
       AssociatedComponents,
       appStateLoading,
       associatedComponents,
-      freeComponents
+      freeComponents,
+      linkList,
+      servicesLoading
     } = this.state;
     const CodeMirrorFormWidth = `${customWidth - (collapsed ? 433 : 118)}px`;
     const ConfingFormWidth = `${customWidth - (collapsed ? 320 : 20)}px`;
@@ -777,26 +783,35 @@ export default class Index extends PureComponent {
               <div style={{ width: '45%' }}>
                 <div className={styles.contentTitle} style={{ width: '100%' }}>
                   <span>{currApp.group_name || '-'}</span>
+                  {isEdit && (
+                    <Icon
+                      style={{
+                        cursor: 'pointer',
+                        marginLeft: '5px'
+                      }}
+                      onClick={this.toEdit}
+                      type="edit"
+                    />
+                  )}
                 </div>
                 <div className={styles.contentNote}>{currApp.note}</div>
               </div>
-              {resources.status && (
-                <div className={styles.helmState}>
+
+              <div className={styles.helmState}>
+                {resources.status && (
                   <Badge
                     className={styles.states}
                     status={appStateColor[resources.status] || 'default'}
                     text={appState[resources.status] || '-'}
                   />
-                  {isDelete && (
-                    <a
-                      className={styles.operationState}
-                      onClick={this.toDelete}
-                    >
-                      删除
-                    </a>
-                  )}
-                </div>
-              )}
+                )}
+                {isDelete && (
+                  <a className={styles.operationState} onClick={this.toDelete}>
+                    删除
+                  </a>
+                )}
+                {/* {linkList.length > 0 && <VisterBtn linkList={linkList} />} */}
+              </div>
             </div>
             <div className={styles.connect_Bot}>
               <div
@@ -805,11 +820,17 @@ export default class Index extends PureComponent {
               >
                 <div className={styles.connect_Boxs}>
                   <div>使用内存</div>
-                  <div>{`${sourceUtil.unit(resources.memory || 0, 'MB')}`}</div>
+                  <div>
+                    {resources.memory
+                      ? `${sourceUtil.unit(resources.memory || 0, 'MB')}`
+                      : '未设置'}
+                  </div>
                 </div>
                 <div className={styles.connect_Boxs}>
                   <div>使用CPU</div>
-                  <div>{(resources.cpu && resources.cpu / 1000) || 0}Core</div>
+                  <div>
+                    {resources.cpu ? `${resources.cpu / 1000}Core` : '未设置'}
+                  </div>
                 </div>
                 <div className={styles.connect_Boxs}>
                   <div>服务数量</div>
@@ -949,60 +970,68 @@ export default class Index extends PureComponent {
           </Card>
         )}
 
-        {currentSteps > 3 && (
+        {currentSteps > 3 && !servicesLoading && (
           <Card
             type="inner"
             loading={appStateLoading}
             title="服务实例"
             bodyStyle={{ padding: '0', background: '#F0F2F5' }}
           >
-            <Tabs
-              style={{ background: '#fff', padding: '0 24px 24px' }}
-              defaultActiveKey={
-                services && services.length > 0 && services[0].service_name
-              }
-              onChange={this.handleTabs}
-            >
-              {services.map(item => {
-                const { service_name: serviceName, pods } = item;
-                return (
-                  <TabPane tab={serviceName} key={serviceName}>
-                    <div>
-                      <div className={styles.associated}>
-                        关联组件:
-                        {associatedComponents.map(items => {
-                          return (
-                            <Tag
-                              color="#4d73b1"
-                              style={{ marginLeft: '5px' }}
+            <div style={{ background: '#fff' }}>
+              {services && services.length > 0 ? (
+                <Tabs
+                  style={{ padding: '0 24px 24px' }}
+                  defaultActiveKey={
+                    services && services.length > 0 && services[0].service_name
+                  }
+                  onChange={this.handleTabs}
+                >
+                  {services.map(item => {
+                    const { service_name: serviceName, pods } = item;
+                    return (
+                      <TabPane tab={serviceName} key={serviceName}>
+                        <div>
+                          <div className={styles.associated}>
+                            关联组件:
+                            {associatedComponents.map(items => {
+                              return (
+                                <Tag
+                                  color="#4d73b1"
+                                  style={{ marginLeft: '5px' }}
+                                  onClick={() => {
+                                    this.handleComponent(items.component_alias);
+                                  }}
+                                >
+                                  {items.component_name}
+                                </Tag>
+                              );
+                            })}
+                            <Icon
+                              style={{ float: 'right' }}
+                              type="plus-circle"
                               onClick={() => {
-                                this.handleComponent(items.component_alias);
+                                this.handleAssociatedComponents(item);
                               }}
-                            >
-                              {items.component_name}
-                            </Tag>
-                          );
-                        })}
-                        <Icon
-                          style={{ float: 'right' }}
-                          type="plus-circle"
-                          onClick={() => {
-                            this.handleAssociatedComponents(item);
-                          }}
-                        />
-                      </div>
-                      <Instance
-                        isHelm
-                        runLoading={false}
-                        new_pods={pods}
-                        old_pods={[]}
-                        appAlias={this.getGroupId()}
-                      />
-                    </div>
-                  </TabPane>
-                );
-              })}
-            </Tabs>
+                            />
+                          </div>
+                          <Instance
+                            isHelm
+                            runLoading={false}
+                            new_pods={pods}
+                            old_pods={[]}
+                            appAlias={this.getGroupId()}
+                          />
+                        </div>
+                      </TabPane>
+                    );
+                  })}
+                </Tabs>
+              ) : (
+                <div style={{ padding: '24px' }}>
+                  当前应用未定义 Service, 无法查询实例列表
+                </div>
+              )}
+            </div>
           </Card>
         )}
         {currentSteps > 3 && (
@@ -1019,11 +1048,14 @@ export default class Index extends PureComponent {
                 className="site-navigation-steps"
               >
                 {appStates.map((item, index) => {
-                  const { value } = item;
+                  const { value, key } = item;
                   return (
                     <Step
                       title={value}
-                      icon={index == currentSteps && <LoadingOutlined />}
+                      icon={
+                        key !== 'configuring' &&
+                        index === currentSteps && <LoadingOutlined />
+                      }
                     />
                   );
                 })}
@@ -1080,6 +1112,7 @@ export default class Index extends PureComponent {
         )}
         {toEdit && (
           <EditGroupName
+            isNoEditName
             group_name={groupDetail.group_name}
             note={groupDetail.note}
             loading={editGroupLoading}

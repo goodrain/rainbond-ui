@@ -88,9 +88,8 @@ export default class Index extends PureComponent {
         app_store_name: data.app_store_name,
         app_store_url: data.url
       });
-      console.log('info', info);
       if (!err && onSubmit) {
-        // onSubmit(info, true);
+        onSubmit(info, true);
       }
     });
   };
@@ -173,7 +172,7 @@ export default class Index extends PureComponent {
           </FormItem>
           <FormItem {...formItemLayout} label="应用备注">
             {getFieldDecorator('note', {
-              initialValue: '',
+              initialValue: versions ? versions[0].description : '',
               rules: [
                 {
                   max: 255,

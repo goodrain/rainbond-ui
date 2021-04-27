@@ -69,6 +69,9 @@ class CreateHelmAppModels extends PureComponent {
   handleCheckAppName = (initial, tenantName, regionNam, name, callbacks) => {
     const { dispatch, appInfo } = this.props;
     const appName = (initial && appInfo && appInfo.name) || name;
+    if (!regionNam) {
+      return null;
+    }
     dispatch({
       type: 'application/checkAppName',
       payload: {

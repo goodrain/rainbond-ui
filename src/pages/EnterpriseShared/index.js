@@ -866,6 +866,9 @@ export default class EnterpriseShared extends PureComponent {
               if (types === 'localsContent') {
                 this.handleAppModel(item);
               }
+              if (types === 'helmContent') {
+                this.installHelmApp(item);
+              }
             }}
           >
             <Col span={3} style={{ display: 'flex' }}>
@@ -1069,20 +1072,6 @@ export default class EnterpriseShared extends PureComponent {
       return null;
     };
 
-    const helmMenu = info => {
-      const installApp = (
-        <Menu.Item>
-          <a
-            onClick={() => {
-              this.installHelmApp(info);
-            }}
-          >
-            安装应用
-          </a>
-        </Menu.Item>
-      );
-      return <Menu>{installApp}</Menu>;
-    };
     const contentStyle = {
       display: 'flex',
       alignItems: 'center',
@@ -1352,7 +1341,7 @@ export default class EnterpriseShared extends PureComponent {
             const { versions } = item;
             return this.handleLists(
               'helmContent',
-              helmMenu,
+              null,
               item,
               versions && versions.length > 0 && versions[0].icon,
               versions
