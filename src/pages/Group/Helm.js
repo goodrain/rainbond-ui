@@ -1091,7 +1091,7 @@ export default class Index extends PureComponent {
           <AccessPrompt
             title={
               isInstall
-                ? '关联组件已创建，请配置网管策略或建立依赖关系访问。'
+                ? '关联组件已创建，请配置网关策略或建立依赖关系访问。'
                 : '当前应用为开发访问权限,是否立即打开?'
             }
             isInstall={isInstall}
