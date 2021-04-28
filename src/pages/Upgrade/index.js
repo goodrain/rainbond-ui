@@ -123,28 +123,31 @@ export default class AppList extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          let appInfo = {};
-          if (res.versions && res.versions.length > 0) {
-            res.versions.map(item => {
-              if (item.version === appDetail.version) {
-                appInfo = item;
-              }
-            });
-          }
-          this.setState({
-            appInfo,
-            versions: res.versions || []
-          });
-
-          this.handleLoading();
+          this.setState(
+            {
+              versions: res.versions || []
+            },
+            () => {
+              this.handleAppVersion(appDetail.version);
+            }
+          );
         }
+        this.handleLoading();
       },
       handleError: res => {
         this.handleLoading();
-        if (res && res.data && res.data.code && res.data.code === 8000) {
-          this.setState({
-            promptTitle: '商店已被删除'
-          });
+        if (res && res.data && res.data.code) {
+          const promptTitle =
+            res.data.code === 8000
+              ? '商店已被删除'
+              : res.data.code === 8003
+              ? '应用模板不存在'
+              : '';
+          if (promptTitle) {
+            this.setState({
+              promptTitle
+            });
+          }
         }
       }
     });
@@ -212,15 +215,10 @@ export default class AppList extends PureComponent {
       },
       callback: res => {
         this.setState({
-          resources: res.list || {},
-          appStateLoading: false
+          resources: res.list || {}
         });
       },
-      handleError: err => {
-        this.setState({
-          appStateLoading: false
-        });
-      }
+      handleError: err => {}
     });
   };
   handleLoading = () => {
@@ -384,7 +382,13 @@ export default class AppList extends PureComponent {
             submitLoading: true
           },
           () => {
-            this.handleEditHelmApp(val, '升级成功', '1');
+            this.handleEditHelmApp(
+              Object.assign({}, val, {
+                values: this.encodeBase64Content(val.values)
+              }),
+              '升级成功',
+              '1'
+            );
           }
         );
       }
@@ -440,7 +444,6 @@ export default class AppList extends PureComponent {
       total,
       page
     };
-    console.log('appDetail', appDetail);
     const ListContent = ({ data: { upgrade_versions, current_version } }) => (
       <div className={styles.listContent}>
         <div className={styles.listContentItem}>
