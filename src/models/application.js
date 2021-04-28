@@ -8,6 +8,7 @@ import {
   CheckHelmApp,
   CheckK8sServiceName,
   completeShare,
+  createAppBatchComponents,
   createShare,
   delBackup,
   deleteCompose,
@@ -70,6 +71,12 @@ export default {
     },
     *fetchAppAccess({ payload, callback }, { call }) {
       const response = yield call(getAppAccess, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *CreateAppBatchComponents({ payload, callback }, { call }) {
+      const response = yield call(createAppBatchComponents, payload);
       if (callback) {
         callback(response);
       }

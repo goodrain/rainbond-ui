@@ -1,5 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-expressions */
+import AccessPrompt from '@/components/AccessPrompt';
 import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
 import CodeMirrorForm from '@/components/CodeMirrorForm';
@@ -26,6 +27,7 @@ import React, { Fragment, PureComponent } from 'react';
 import Markdown from 'react-markdown';
 import ConfirmModal from '../../components/ConfirmModal';
 import Result from '../../components/Result';
+import VisterBtn from '../../components/visitBtnForAlllink';
 import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import sourceUtil from '../../utils/source-unit';
@@ -58,6 +60,7 @@ export default class Index extends PureComponent {
     this.state = {
       linkList: [],
       appStateLoading: true,
+      serviceLoading: false,
       activeServices: '',
       appStates: [
         {
@@ -108,9 +111,13 @@ export default class Index extends PureComponent {
       currApp: {},
       AssociatedComponents: false,
       componentTimer: true,
+      showAccess: false,
+      createComponentLoading: false,
       submitLoading: false,
       servicesLoading: true,
-      resources: {}
+      resources: {},
+      isInstall: false,
+      isAccessPermissions: true
     };
   }
 
@@ -135,8 +142,7 @@ export default class Index extends PureComponent {
     }
   };
   loading = () => {
-    this.fetchAppDetail();
-    this.fetchAppDetailState();
+    this.fetchAppDetail(true);
   };
   handleHelmCheck = () => {
     const { dispatch } = this.props;
@@ -188,7 +194,7 @@ export default class Index extends PureComponent {
     }, times);
   };
 
-  fetchAppDetail = () => {
+  fetchAppDetail = init => {
     const { dispatch } = this.props;
     const { teamName, regionName, appID } = this.props.match.params;
     dispatch({
@@ -200,9 +206,14 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          this.setState({
-            currApp: res.bean
-          });
+          this.setState(
+            {
+              currApp: res.bean
+            },
+            () => {
+              init && this.fetchAppDetailState();
+            }
+          );
         }
       },
       handleError: res => {
@@ -210,6 +221,7 @@ export default class Index extends PureComponent {
         if (!componentTimer) {
           return null;
         }
+        init && this.fetchAppDetailState();
         if (res && res.code === 404) {
           dispatch(
             routerRedux.push(
@@ -235,19 +247,23 @@ export default class Index extends PureComponent {
       callback: res => {
         const currentSteps =
           (res.list && res.list.phase && appStateMap[res.list.phase]) || 0;
-        if (currentSteps < 2) {
-          this.handleHelmCheck();
-        }
-        if (currentSteps >= 4) {
-          this.handleServices();
-          this.fetchFreeComponents();
-          this.fetchAppAccess();
-        }
-        this.setState({
-          resources: res.list || {},
-          appStateLoading: false,
-          currentSteps: currentSteps > oldSteps ? currentSteps : oldSteps
-        });
+        this.setState(
+          {
+            resources: res.list || {},
+            appStateLoading: false,
+            currentSteps: currentSteps > oldSteps ? currentSteps : oldSteps
+          },
+          () => {
+            if (currentSteps < 2) {
+              this.handleHelmCheck();
+            }
+            if (currentSteps >= 4) {
+              this.handleServices();
+              this.fetchFreeComponents();
+              this.fetchAppAccess();
+            }
+          }
+        );
         this.handleTimers(
           'timer',
           () => {
@@ -398,6 +414,14 @@ export default class Index extends PureComponent {
   };
   handleServices = () => {
     const { dispatch } = this.props;
+    const {
+      currentSteps,
+      currApp,
+      serviceLoading,
+      showAccess,
+      isAccessPermissions,
+      freeComponents
+    } = this.state;
     dispatch({
       type: 'application/fetchServices',
       payload: {
@@ -406,11 +430,33 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          this.setState({
-            services: res.list || []
+          const services = res.list || [];
+          const batchServices = [];
+          services.map(item => {
+            batchServices.push({
+              service_name: item.service_name,
+              address: item.address,
+              ports: item.tcp_ports
+            });
           });
-          if (res.list && res.list.length > 0) {
-            this.fetchAssociatedComponents(res.list[0].service_name);
+          if (
+            currApp &&
+            currApp.service_num < 1 &&
+            currentSteps >= 4 &&
+            !serviceLoading &&
+            !showAccess &&
+            isAccessPermissions &&
+            freeComponents &&
+            freeComponents.length < 1
+          ) {
+            this.setState({ showAccess: batchServices });
+          }
+
+          this.setState({
+            services
+          });
+          if (services && services.length > 0) {
+            this.fetchAssociatedComponents(services[0].service_name);
           }
         }
         this.cancelServices();
@@ -487,6 +533,14 @@ export default class Index extends PureComponent {
       )
     );
   };
+  handleJumpStore = target => {
+    const { dispatch, currentEnterprise } = this.props;
+    dispatch(
+      routerRedux.push(
+        `/enterprise/${currentEnterprise.enterprise_id}/shared/${target}`
+      )
+    );
+  };
   beforeUpload = (file, isMessage) => {
     const fileArr = file.name.split('.');
     const { length } = fileArr;
@@ -555,7 +609,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  fetchFreeComponents = () => {
+  fetchFreeComponents = showAccess => {
     const { dispatch } = this.props;
     dispatch({
       type: 'application/fetchFreeComponents',
@@ -568,6 +622,13 @@ export default class Index extends PureComponent {
           this.setState({
             freeComponents: res.list || []
           });
+          if (showAccess) {
+            this.setState({
+              isInstall: true,
+              createComponentLoading: false,
+              showAccess: false
+            });
+          }
         }
       }
     });
@@ -583,10 +644,35 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          console.log('res', res);
+          this.setState({
+            linkList: res.list || []
+          });
         }
       }
     });
+  };
+
+  CreateAppBatchComponents = () => {
+    const { dispatch } = this.props;
+    const { showAccess } = this.state;
+    this.setState(
+      { createComponentLoading: true, isAccessPermissions: false },
+      () => {
+        dispatch({
+          type: 'application/CreateAppBatchComponents',
+          payload: {
+            tenantName: globalUtil.getCurrTeamName(),
+            groupId: this.getGroupId(),
+            data: showAccess
+          },
+          callback: res => {
+            if (res && res.status_code === 200) {
+              this.fetchFreeComponents(showAccess);
+            }
+          }
+        });
+      }
+    );
   };
 
   handleAssociatedComponents = AssociatedComponents => {
@@ -660,6 +746,13 @@ export default class Index extends PureComponent {
           notification.success({ message: '更新成功' });
         }
       }
+    });
+  };
+  handleCancelShowAccess = () => {
+    this.setState({
+      isInstall: false,
+      isAccessPermissions: false,
+      showAccess: false
     });
   };
   handleOperationBtn = type => {
@@ -762,6 +855,7 @@ export default class Index extends PureComponent {
     const {
       currApp,
       resources,
+      isInstall,
       code,
       promptModal,
       toEdit,
@@ -777,6 +871,9 @@ export default class Index extends PureComponent {
       appStateLoading,
       associatedComponents,
       freeComponents,
+      linkList,
+      showAccess,
+      createComponentLoading,
       servicesLoading
     } = this.state;
     const CodeMirrorFormWidth = `${customWidth - (collapsed ? 433 : 118)}px`;
@@ -848,7 +945,7 @@ export default class Index extends PureComponent {
                     删除
                   </a>
                 )}
-                {/* {linkList.length > 0 && <VisterBtn linkList={linkList} />} */}
+                {linkList.length > 0 && <VisterBtn linkList={linkList} />}
               </div>
             </div>
             <div className={styles.connect_Bot}>
@@ -948,7 +1045,7 @@ export default class Index extends PureComponent {
               )}
             </div>
             <div className={styles.conrBot}>
-              <div className={styles.conrBox} style={{ width: '50%' }}>
+              <div className={styles.conrBox} style={{ width: '33.3%' }}>
                 <div>网关策略</div>
                 <div
                   onClick={() => {
@@ -958,7 +1055,7 @@ export default class Index extends PureComponent {
                   <a>{currApp.ingress_num || 0}</a>
                 </div>
               </div>
-              <div className={styles.conrBox} style={{ width: '50%' }}>
+              <div className={styles.conrBox} style={{ width: '33.3%' }}>
                 <div>待升级</div>
                 <div
                   onClick={() => {
@@ -966,6 +1063,17 @@ export default class Index extends PureComponent {
                   }}
                 >
                   <a>{currApp.upgradable_num || 0}</a>
+                </div>
+              </div>
+              <div className={styles.conrBox} style={{ width: '33.3%' }}>
+                <div>商店名称</div>
+                <div
+                  onClick={() => {
+                    currApp.app_store_name &&
+                      this.handleJumpStore(currApp.app_store_name);
+                  }}
+                >
+                  <a>{currApp.app_store_name || '商店已被删除'}</a>
                 </div>
               </div>
             </div>
@@ -979,6 +1087,20 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Row>{pageHeaderContent}</Row>
+        {(showAccess || isInstall) && (
+          <AccessPrompt
+            title={
+              isInstall
+                ? '关联组件已创建，请配置网管策略或建立依赖关系访问。'
+                : '当前应用为开发访问权限,是否立即打开?'
+            }
+            isInstall={isInstall}
+            loading={createComponentLoading}
+            onOk={this.CreateAppBatchComponents}
+            onCancel={this.handleCancelShowAccess}
+          />
+        )}
+
         {AssociatedComponents && (
           <AddAssociatedComponents
             title="添加关联组件"

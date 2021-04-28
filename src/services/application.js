@@ -50,6 +50,15 @@ export async function getAppAccess(params) {
     }
   );
 }
+export async function createAppBatchComponents(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/batch-components`,
+    {
+      method: 'post',
+      data: params.data
+    }
+  );
+}
 
 export async function CheckHelmApp(body = {}) {
   return request(
