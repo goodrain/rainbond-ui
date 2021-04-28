@@ -38,6 +38,7 @@ import {
   getDomainTime,
   getEnterpriseRoles,
   getGuideState,
+  getHelmApplication,
   getJoinTeam,
   getMarketApp,
   getMarketPlugins,
@@ -55,6 +56,7 @@ import {
   getUpdateRecordsInfo,
   getUpdateRecordsList,
   getUpdateRollback,
+  getUpgradeRecordsHelmList,
   getUserCanJoinTeams,
   getuserMessage,
   getVersion,
@@ -467,6 +469,14 @@ export default {
         });
       }
     },
+    *fetchHelmApplication({ payload, callback, handleError }, { call }) {
+      const response = yield call(getHelmApplication, payload, handleError);
+      if (response && callback) {
+        setTimeout(() => {
+          callback(response);
+        });
+      }
+    },
     *CloudAppUpdateOrder({ payload, callback }, { call }) {
       const response = yield call(postUpdateOrder, payload);
       if (response && callback) {
@@ -501,6 +511,14 @@ export default {
     },
     *CloudAppUpdateRecordsList({ payload, callback }, { call }) {
       const response = yield call(getUpdateRecordsList, payload);
+      if (response && callback) {
+        setTimeout(() => {
+          callback(response);
+        });
+      }
+    },
+    *fetchUpgradeRecordsHelmList({ payload, callback }, { call }) {
+      const response = yield call(getUpgradeRecordsHelmList, payload);
       if (response && callback) {
         setTimeout(() => {
           callback(response);

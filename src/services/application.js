@@ -42,6 +42,15 @@ export async function getFreeComponents(params) {
   );
 }
 
+export async function getAppAccess(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/visit`,
+    {
+      method: 'get'
+    }
+  );
+}
+
 export async function CheckHelmApp(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/detect-process`,
@@ -651,6 +660,23 @@ export async function InstallHelmApp(body = {}) {
       method: 'post',
       data: {
         values: body.values
+      }
+    }
+  );
+}
+
+export async function EditHelmApp(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`,
+    {
+      method: 'put',
+      data: {
+        username: body.username,
+        app_name: body.app_name,
+        app_note: body.app_note,
+        values: body.values,
+        version: body.version,
+        revision: body.revision
       }
     }
   );

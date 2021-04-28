@@ -30,6 +30,7 @@ import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import sourceUtil from '../../utils/source-unit';
 import Instance from '../Component/component/Instance/index';
+import infoUtil from '../Upgrade/info-util';
 import AddAssociatedComponents from './AddAssociatedComponents';
 import styles from './Index.less';
 
@@ -135,7 +136,7 @@ export default class Index extends PureComponent {
   };
   loading = () => {
     this.fetchAppDetail();
-    this.fetchAppDetailState(true);
+    this.fetchAppDetailState();
   };
   handleHelmCheck = () => {
     const { dispatch } = this.props;
@@ -220,11 +221,11 @@ export default class Index extends PureComponent {
     });
   };
 
-  fetchAppDetailState = isCycle => {
+  fetchAppDetailState = () => {
     const { dispatch } = this.props;
     const { teamName, appID } = this.props.match.params;
     const { appStateMap, currentSteps: oldSteps } = this.state;
-    // this.closeTimer();
+    this.closeTimer();
     dispatch({
       type: 'application/fetchAppDetailState',
       payload: {
@@ -240,22 +241,21 @@ export default class Index extends PureComponent {
         if (currentSteps >= 4) {
           this.handleServices();
           this.fetchFreeComponents();
+          this.fetchAppAccess();
         }
         this.setState({
           resources: res.list || {},
           appStateLoading: false,
           currentSteps: currentSteps > oldSteps ? currentSteps : oldSteps
         });
-        if (isCycle) {
-          this.handleTimers(
-            'timer',
-            () => {
-              this.fetchAppDetailState(true);
-              this.fetchAppDetail();
-            },
-            10000
-          );
-        }
+        this.handleTimers(
+          'timer',
+          () => {
+            this.fetchAppDetailState();
+            this.fetchAppDetail();
+          },
+          10000
+        );
       },
       handleError: err => {
         this.setState({
@@ -265,7 +265,7 @@ export default class Index extends PureComponent {
         this.handleTimers(
           'timer',
           () => {
-            this.fetchAppDetailState(true);
+            this.fetchAppDetailState();
             this.fetchAppDetail();
           },
           20000
@@ -300,7 +300,7 @@ export default class Index extends PureComponent {
   };
   openComponentTimer = () => {
     this.setState({ componentTimer: true }, () => {
-      this.loadTopology(true);
+      this.fetchAppDetailState(true);
     });
   };
 
@@ -448,7 +448,7 @@ export default class Index extends PureComponent {
           });
           this.handlePromptModalClose();
         }
-        this.loadTopology(false);
+        this.fetchAppDetailState(false);
       });
     } else {
       dispatch({
@@ -466,7 +466,7 @@ export default class Index extends PureComponent {
             });
             this.handlePromptModalClose();
           }
-          this.loadTopology(false);
+          this.fetchAppDetailState(false);
         }
       });
     }
@@ -513,17 +513,20 @@ export default class Index extends PureComponent {
     commonContent = Buffer.from(commonContent, 'base64').toString();
     return commonContent;
   };
-  handleSubmit = e => {
-    e.preventDefault();
+  handleSubmit = type => {
     const { form } = this.props;
     const { validateFields } = form;
-
-    validateFields((err, values) => {
+    validateFields((err, val) => {
       if (!err) {
         this.setState({
           submitLoading: true
         });
-        this.handleInstallHelmApp(this.encodeBase64Content(values.yamls));
+        const values = this.encodeBase64Content(val.yamls);
+        if (type === 'Create') {
+          this.handleInstallHelmApp(values);
+        } else {
+          this.handleEditHelmApp(values);
+        }
       }
     });
   };
@@ -565,6 +568,22 @@ export default class Index extends PureComponent {
           this.setState({
             freeComponents: res.list || []
           });
+        }
+      }
+    });
+  };
+
+  fetchAppAccess = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'application/fetchAppAccess',
+      payload: {
+        tenantName: globalUtil.getCurrTeamName(),
+        groupId: this.getGroupId()
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          console.log('res', res);
         }
       }
     });
@@ -618,10 +637,51 @@ export default class Index extends PureComponent {
       }
     });
   };
+  handleEditHelmApp = values => {
+    const { dispatch } = this.props;
+    const { currApp, resources } = this.state;
+    dispatch({
+      type: 'application/editHelmApp',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: this.getGroupId(),
+        values,
+        username: currApp.username,
+        app_name: currApp.group_name,
+        app_note: currApp.note,
+        version: resources.version
+      },
+      callback: res => {
+        this.setState({
+          submitLoading: false
+        });
+        if (res && res.status_code === 200) {
+          this.fetchAppDetailState();
+          notification.success({ message: '更新成功' });
+        }
+      }
+    });
+  };
+  handleOperationBtn = type => {
+    const { submitLoading } = this.state;
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <Button
+          onClick={() => {
+            this.handleSubmit(type);
+          }}
+          loading={submitLoading}
+          type="primary"
+        >
+          {type === 'Create' ? '创建' : '更新'}
+        </Button>
+      </div>
+    );
+  };
   handleConfing = CodeMirrorFormWidth => {
     const { form } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
-    const { resources, currentSteps, submitLoading } = this.state;
+    const { resources, currentSteps } = this.state;
 
     const formItemLayout = {
       labelCol: {
@@ -681,19 +741,10 @@ export default class Index extends PureComponent {
               name="yamls"
               message="yaml是必须的"
             />
+            {currentSteps > 3 && this.handleOperationBtn('UpDate')}
           </Panel>
         </Collapse>
-        {currentSteps <= 2 && (
-          <div style={{ textAlign: 'center' }}>
-            <Button
-              onClick={this.handleSubmit}
-              loading={submitLoading}
-              type="primary"
-            >
-              创建
-            </Button>
-          </div>
-        )}
+        {currentSteps <= 2 && this.handleOperationBtn('Create')}
       </Form>
     );
   };
@@ -726,7 +777,6 @@ export default class Index extends PureComponent {
       appStateLoading,
       associatedComponents,
       freeComponents,
-      linkList,
       servicesLoading
     } = this.state;
     const CodeMirrorFormWidth = `${customWidth - (collapsed ? 433 : 118)}px`;
@@ -739,18 +789,6 @@ export default class Index extends PureComponent {
       deploy: '构建'
     };
 
-    const appState = {
-      'not-configured': '未配置',
-      unknown: '未知',
-      deployed: '已部署',
-      superseded: '可升级',
-      failed: '失败',
-      uninstalled: '已卸载',
-      uninstalling: '卸载中',
-      'pending-install': '安装中',
-      'pending-upgrade': '升级中',
-      'pending-rollback': '回滚中'
-    };
     const appStateColor = {
       deployed: 'success',
       'pending-install': 'success',
@@ -802,7 +840,7 @@ export default class Index extends PureComponent {
                   <Badge
                     className={styles.states}
                     status={appStateColor[resources.status] || 'default'}
-                    text={appState[resources.status] || '-'}
+                    text={infoUtil.getHelmStatus([resources.status] || '-')}
                   />
                 )}
                 {isDelete && (
@@ -902,6 +940,12 @@ export default class Index extends PureComponent {
                   )}
                 </span>
               </div>
+              {resources.version && (
+                <div>
+                  <span>版本号</span>
+                  <span>{resources.version}</span>
+                </div>
+              )}
             </div>
             <div className={styles.conrBot}>
               <div className={styles.conrBox} style={{ width: '50%' }}>
@@ -948,7 +992,6 @@ export default class Index extends PureComponent {
           <Card
             style={{ marginBottom: 24 }}
             type="inner"
-            // bordered={0}
             loading={appStateLoading}
             title="游离组件"
             bodyStyle={{ padding: 24, background: '#fff' }}

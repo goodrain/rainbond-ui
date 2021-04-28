@@ -17,6 +17,8 @@ import {
   delRestore,
   editAppCreateCompose,
   editGroup,
+  EditHelmApp,
+  getAppAccess,
   getAppDetailState,
   getAppResourcesStatistics,
   getAssociatedComponents,
@@ -66,6 +68,12 @@ export default {
         callback(response);
       }
     },
+    *fetchAppAccess({ payload, callback }, { call }) {
+      const response = yield call(getAppAccess, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *fetchAssociatedComponents({ payload, callback }, { call }) {
       const response = yield call(getAssociatedComponents, payload);
       if (callback) {
@@ -86,6 +94,12 @@ export default {
     },
     *installHelmApp({ payload, callback }, { call }) {
       const response = yield call(InstallHelmApp, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *editHelmApp({ payload, callback }, { call }) {
+      const response = yield call(EditHelmApp, payload);
       if (callback) {
         callback(response);
       }
