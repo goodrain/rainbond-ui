@@ -1,8 +1,8 @@
-import { PureComponent, Fragment } from 'react';
+import { Button, Form, Input, Select, Steps } from 'antd';
 import { connect } from 'dva';
-import { Steps, Form, Input, Select, Button } from 'antd';
-import styles from './index.less';
+import { Fragment, PureComponent } from 'react';
 import userStyles from '../../layouts/UserLayout.less';
+import styles from './index.less';
 
 const Step = Steps.Step;
 const Option = Select.Option;
@@ -16,7 +16,7 @@ export default class Index extends PureComponent {
       teamName: '',
       selectedRegion: '',
       regions: [],
-      current: 0,
+      current: 0
     };
   }
   componentDidMount = () => {
@@ -29,7 +29,7 @@ export default class Index extends PureComponent {
         if (data) {
           this.setState({ regions: data.list });
         }
-      },
+      }
     });
   };
   handleNext = () => {
@@ -52,7 +52,7 @@ export default class Index extends PureComponent {
           payload: values,
           callback: () => {
             this.props.onOk && this.props.onOk();
-          },
+          }
         });
       }
     });
@@ -88,10 +88,10 @@ export default class Index extends PureComponent {
                 style={{
                   display: 'inline-block',
                   verticalAlign: 'middle',
-                  marginBottom: 0,
+                  marginBottom: 0
                 }}
               >
-                {is_public ? '欢迎使用好雨公有云平台' : '欢迎使用好雨Rainbond'}
+                {is_public ? '欢迎使用好雨公有云平台' : '欢迎使用平台'}
               </h1>
               <div className={userStyles.desc}>简单2步, 开启云端之旅</div>
             </div>
@@ -103,7 +103,7 @@ export default class Index extends PureComponent {
                 </Steps>
                 <Form.Item
                   style={{
-                    display: this.state.current === 0 ? 'block' : 'none',
+                    display: this.state.current === 0 ? 'block' : 'none'
                   }}
                   className={styles.formWrap}
                 >
@@ -111,14 +111,14 @@ export default class Index extends PureComponent {
                     rules: [
                       {
                         required: true,
-                        message: '请输入团队名称',
-                      },
-                    ],
+                        message: '请输入团队名称'
+                      }
+                    ]
                   })(<Input placeholder="请为您的团队起个名称吧" />)}
                 </Form.Item>
                 <Form.Item
                   style={{
-                    display: this.state.current === 1 ? 'block' : 'none',
+                    display: this.state.current === 1 ? 'block' : 'none'
                   }}
                   className={styles.formWrap}
                 >
@@ -127,9 +127,9 @@ export default class Index extends PureComponent {
                     rules: [
                       {
                         required: true,
-                        message: '请为团队选择一个集群',
-                      },
-                    ],
+                        message: '请为团队选择一个集群'
+                      }
+                    ]
                   })(
                     <Select
                       onChange={this.handleRegionChange}

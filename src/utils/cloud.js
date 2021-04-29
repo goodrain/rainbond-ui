@@ -190,7 +190,7 @@ const initRainbondSteps = {
   CreateRDS: {
     Title: '创建RDS资源并初始化(预计2分钟)',
     Description:
-      '用于Rainbond Region数据库，默认创建按需付费的高可用,入门级,通用型2GB实例',
+      '用于平台Region数据库，默认创建按需付费的高可用,入门级,通用型2GB实例',
     Status: ''
   },
   CreateNAS: {
@@ -210,12 +210,12 @@ const initRainbondSteps = {
   },
   BoundLoadBalancer: {
     Title: '创建负载均衡TCP监听',
-    Description: '将所需要的端口负载均衡到所有Rainbond网关节点上',
+    Description: '将所需要的端口负载均衡到所有平台网关节点上',
     Status: ''
   },
   SetSecurityGroup: {
     Title: '设置安全组策略',
-    Description: '默认将打开Rainbond网关节点需要对外暴露的端口安全策略',
+    Description: '默认将打开平台网关节点需要对外暴露的端口安全策略',
     Status: ''
   },
   AssignDefaultDomain: {
@@ -224,13 +224,13 @@ const initRainbondSteps = {
     Status: ''
   },
   InitRainbondRegion: {
-    Title: '初始化Rainbond集群',
-    Description: '等待 Rainbond 集群初始化完成',
+    Title: '初始化平台集群',
+    Description: '等待平台集群初始化完成',
     Status: ''
   },
   InitRainbondRegionOperator: {
     Title: '启动集群初始化控制器',
-    Description: 'Rainbond Operator创建并启动',
+    Description: '集群控制器创建并启动',
     Status: ''
   },
   InitRainbondRegionImageHub: {
@@ -241,7 +241,7 @@ const initRainbondSteps = {
   },
   InitRainbondRegionPackage: {
     Title: '系统所需的非组件镜像本地化处理(预计5分钟)',
-    Description: '将Rainbond需要的非组件镜像获取完成并推送到本地镜像仓库',
+    Description: '将平台需要的非组件镜像获取完成并推送到本地镜像仓库',
     Status: ''
   },
   InitRainbondRegionRegionConfig: {
@@ -418,7 +418,7 @@ const providers = [
     name: '阿里云 ACK',
     icon: aliyunIcon,
     describe:
-      '支持阿里云托管类型集群对接，集群可用性由阿里云负责，Rainbond Cloud负责辅助集群创建、Rainbond集群初始化以及后续的资源调度管理',
+      '支持阿里云托管类型集群对接，集群可用性由阿里云负责，平台负责辅助集群创建、平台集群初始化以及后续的资源调度管理',
     disable: false
   }
   // {
@@ -543,10 +543,12 @@ const cloud = {
         notification.warning({ message: '该集群不支持节点扩容动作' });
         break;
       case 7018:
-        notification.warning({ message: 'RainbondCluster 配置不合法，请检查后重试' });
+        notification.warning({
+          message: '集群初始化配置配置不合法，请检查后重试'
+        });
         break;
       case 7019:
-          notification.warning({ message: '无法获取集群的初始化状态' });
+        notification.warning({ message: '无法获取集群的初始化状态' });
         break;
       case 400:
         notification.warning({ message: '请求参数错误' });

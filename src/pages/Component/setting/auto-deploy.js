@@ -247,7 +247,7 @@ export default class AutoDeploy extends PureComponent {
         />
       </svg>
     );
-
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <Card
         style={{
@@ -281,15 +281,16 @@ export default class AutoDeploy extends PureComponent {
                   Git-Webhook
                   <Tooltip
                     title={
-                      <a
-                        href={`${rainbondUtil.documentPlatform_url(
-                          rainbondInfo
-                        )}docs/user-manual/component-dev/auto_build/#基于源代码操作流程`}
-                        target="_blank"
-                        style={{ color: '#fff' }}
-                      >
-                        点击阅读文档
-                      </a>
+                      (platform_url && (
+                        <a
+                          href={`${platform_url}docs/user-manual/component-dev/auto_build/#基于源代码操作流程`}
+                          target="_blank"
+                          style={{ color: '#fff' }}
+                        >
+                          点击阅读文档
+                        </a>
+                      )) ||
+                      ''
                     }
                   >
                     {' '}
@@ -407,15 +408,16 @@ export default class AutoDeploy extends PureComponent {
                 自定义API
                 <Tooltip
                   title={
-                    <a
-                      href={`${rainbondUtil.documentPlatform_url(
-                        rainbondInfo
-                      )}docs/user-manual/component-dev/auto_build/#api-触发自动构建`}
-                      target="_blank"
-                      style={{ color: '#fff' }}
-                    >
-                      点击阅读文档
-                    </a>
+                    (platform_url && (
+                      <a
+                        href={`${platform_url}docs/user-manual/component-dev/auto_build/#api-触发自动构建`}
+                        target="_blank"
+                        style={{ color: '#fff' }}
+                      >
+                        点击阅读文档
+                      </a>
+                    )) ||
+                    ''
                   }
                 >
                   {' '}
@@ -498,16 +500,17 @@ export default class AutoDeploy extends PureComponent {
                   镜像仓库Webhook
                   <Tooltip
                     title={
-                      <a
-                        href={`${rainbondUtil.documentPlatform_url(
-                          rainbondInfo
-                        )}docs/user-manual/component-dev/auto_build/#基于镜像仓库操作流程`}
-                        // eslint-disable-next-line react/jsx-no-target-blank
-                        target="_blank"
-                        style={{ color: '#fff' }}
-                      >
-                        点击阅读文档
-                      </a>
+                      (platform_url && (
+                        <a
+                          href={`${platform_url}docs/user-manual/component-dev/auto_build/#基于镜像仓库操作流程`}
+                          // eslint-disable-next-line react/jsx-no-target-blank
+                          target="_blank"
+                          style={{ color: '#fff' }}
+                        >
+                          点击阅读文档
+                        </a>
+                      )) ||
+                      ''
                     }
                   >
                     <Icon type="question-circle-o" />

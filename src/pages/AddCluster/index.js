@@ -172,7 +172,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '选择(创建)Kubernetes集群'
       },
       {
-        title: '初始化Rainbond集群'
+        title: '初始化平台集群'
       },
       {
         title: '完成对接'
@@ -414,7 +414,7 @@ export default class EnterpriseClusters extends PureComponent {
     return (
       <PageHeaderLayout
         title="添加集群"
-        content="集群是资源的集合，以Kubernetes集群为基础，部署Rainbond Region服务即可成为Rainbond集群资源。"
+        content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={currentStep}>
@@ -431,10 +431,8 @@ export default class EnterpriseClusters extends PureComponent {
               <div onClick={this.addClusterShow} className={styles.import}>
                 <div className={styles.importicon}>{icon}</div>
                 <div className={styles.importDesc}>
-                  <h3>接入已安装 Rainbond 集群</h3>
-                  <p>
-                    导入已经完成安装的 Rainbond 集群，由当前控制台调度管理。
-                  </p>
+                  <h3>接入已安装平台集群</h3>
+                  <p>导入已经完成安装的平台集群，由当前控制台调度管理。</p>
                 </div>
               </div>
             </Col>
@@ -446,9 +444,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>接入Kubernetes集群</h3>
-                  <p>
-                    基于已经安装的 Kubernetes 集群，初始化安装 Rainbond 并接入。
-                  </p>
+                  <p>基于已经安装的 Kubernetes 集群，初始化安装平台并接入。</p>
                 </div>
               </div>
             </Col>
@@ -562,7 +558,7 @@ export default class EnterpriseClusters extends PureComponent {
             onCancel={this.hideInitShow}
             visible
           >
-            <h2 className={styles.initTitle}>欢迎您成为 Rainbond 开源用户！</h2>
+            <h2 className={styles.initTitle}>欢迎您成为平台开源用户！</h2>
             <p>
               在开始您的云原生应用管理之旅前，你需要完成计算资源集群的对接工作。
             </p>
@@ -625,9 +621,9 @@ export default class EnterpriseClusters extends PureComponent {
                 <Col span={8}>
                   <p style={{ marginTop: '16px', textAlign: 'center' }}>
                     <img
-                      alt="扫码加入Rainbond社区钉钉群"
+                      alt="扫码加入平台社区钉钉群"
                       style={{ width: '100%' }}
-                      title="扫码加入Rainbond社区钉钉群"
+                      title="扫码加入平台社区钉钉群"
                       src="https://www.rainbond.com/images/dingding-group.jpeg"
                     />
                   </p>
@@ -635,7 +631,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <Col span={16}>
                   <p style={{ marginTop: '16px', padding: '16px' }}>
                     如果您对接计算资源遇到障碍，或希望了解DevOps流程、企业中台、2B应用交付、多云管理、行业云等需求场景的更多信息，请扫码加入
-                    Rainbond 社区钉钉群。
+                    平台社区钉钉群。
                   </p>
                 </Col>
               </Row>
