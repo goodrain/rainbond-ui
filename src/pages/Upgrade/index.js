@@ -1,17 +1,13 @@
+/* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable camelcase */
-import CodeMirrorForm from '@/components/CodeMirrorForm';
 import {
-  Alert,
   Avatar,
   Button,
-  Col,
   Form,
   List,
   notification,
-  Row,
-  Select,
   Spin,
   Table,
   Tabs,
@@ -35,12 +31,9 @@ import Info from './info';
 import infoUtil from './info-util';
 
 const { TabPane } = Tabs;
-const { Option } = Select;
-const FormItem = Form.Item;
 
 @Form.create()
 @connect(({ user, global, application, teamControl, enterprise }) => ({
-  collapsed: global.collapsed,
   groupDetail: application.groupDetail || {},
   currUser: user.pageUser,
   groups: global.groups || [],
@@ -53,26 +46,20 @@ export default class AppList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      submitLoading: false,
       loadingDetail: true,
       loadingList: true,
       upgradeLoading: true,
       showApp: {},
-      appInfo: {},
-      promptTitle: '',
       showMarketAppDetail: false,
       infoShow: false,
       infoData: null,
-      customWidth: document.body.clientWidth - 145,
       list: [],
-      versions: [],
       activeKey: '1',
       page: 1,
       pageSize: 5,
       total: 0,
       dataList: [],
-      appDetail: {},
-      resources: {}
+      appDetail: {}
     };
   }
 
@@ -106,48 +93,6 @@ export default class AppList extends PureComponent {
             list: res.list,
             loadingList: false
           });
-        }
-      }
-    });
-  };
-  getHelmApplication = () => {
-    const { dispatch, currentEnterprise } = this.props;
-    const { appDetail } = this.state;
-    dispatch({
-      type: 'global/fetchHelmApplication',
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
-        app_name: appDetail.app_name,
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId()
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState(
-            {
-              versions: res.versions || []
-            },
-            () => {
-              this.handleAppVersion(appDetail.version);
-            }
-          );
-        }
-        this.handleLoading();
-      },
-      handleError: res => {
-        this.handleLoading();
-        if (res && res.data && res.data.code) {
-          const promptTitle =
-            res.data.code === 8000
-              ? '商店已被删除'
-              : res.data.code === 8003
-              ? '应用模板不存在'
-              : '';
-          if (promptTitle) {
-            this.setState({
-              promptTitle
-            });
-          }
         }
       }
     });
@@ -204,26 +149,9 @@ export default class AppList extends PureComponent {
       }
     });
   };
-  fetchAppDetailState = () => {
-    const { dispatch } = this.props;
-    const { teamName, appID } = this.props.match.params;
-    dispatch({
-      type: 'application/fetchAppDetailState',
-      payload: {
-        team_name: teamName,
-        group_id: appID
-      },
-      callback: res => {
-        this.setState({
-          resources: res.list || {}
-        });
-      },
-      handleError: err => {}
-    });
-  };
+
   handleLoading = () => {
     this.setState({
-      submitLoading: false,
       loadingList: false,
       upgradeLoading: false
     });
@@ -251,8 +179,7 @@ export default class AppList extends PureComponent {
                 res.bean.app_type &&
                 res.bean.app_type === 'helm'
               ) {
-                this.fetchAppDetailState();
-                this.getHelmApplication();
+                this.handleTabs('2');
               } else {
                 this.getApplication();
               }
@@ -293,9 +220,7 @@ export default class AppList extends PureComponent {
       },
       () => {
         if (appDetail.app_type === 'helm') {
-          key == '2'
-            ? this.getUpgradeRecordsHelmList()
-            : this.getHelmApplication();
+          this.getUpgradeRecordsHelmList();
         } else {
           key == '2' ? this.getUpgradeRecordsList() : this.getApplication();
         }
@@ -332,6 +257,11 @@ export default class AppList extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({ message: msg });
+          dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${this.getGroupId()}`
+            )
+          );
         }
         this.handleTabs(key);
       }
@@ -368,58 +298,16 @@ export default class AppList extends PureComponent {
         upgradeLoading: true
       },
       () => {
-        this.handleEditHelmApp(RollbackInfo, '回滚成功', '2');
+        this.handleEditHelmApp(RollbackInfo, '回滚中、请耐心等待', '2');
       }
     );
   };
-  handleSubmit = () => {
-    const { form } = this.props;
-    const { validateFields } = form;
-    validateFields((err, val) => {
-      if (!err) {
-        this.setState(
-          {
-            submitLoading: true
-          },
-          () => {
-            this.handleEditHelmApp(
-              Object.assign({}, val, {
-                values: this.encodeBase64Content(val.values)
-              }),
-              '升级成功',
-              '1'
-            );
-          }
-        );
-      }
-    });
-  };
-  handleAppVersion = value => {
-    const { versions } = this.state;
-    let info = {};
-    versions.map(item => {
-      if (item.version === value) {
-        info = item;
-      }
-    });
-    if (info.version) {
-      this.setState({
-        appInfo: info
-      });
-    }
-  };
+
   render() {
-    const {
-      currentEnterprise,
-      currentTeam,
-      currentRegionName,
-      form,
-      collapsed
-    } = this.props;
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     const {
       upgradeLoading,
       loadingList,
-      promptTitle,
       list,
       showMarketAppDetail,
       showApp,
@@ -427,15 +315,10 @@ export default class AppList extends PureComponent {
       infoData,
       activeKey,
       page,
-      versions,
       total,
       pageSize,
       dataList,
       appDetail,
-      appInfo,
-      resources,
-      customWidth,
-      submitLoading,
       loadingDetail
     } = this.state;
     const paginationProps = {
@@ -620,24 +503,6 @@ export default class AppList extends PureComponent {
     );
     const isHelm =
       appDetail && appDetail.app_type && appDetail.app_type === 'helm';
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 4 }
-      },
-      wrapperCol: {
-        xs: { span: 20 }
-      }
-    };
-    const formItemLayouts = {
-      labelCol: {
-        xs: { span: 0 }
-      },
-      wrapperCol: {
-        xs: { span: 24 }
-      }
-    };
-    const { getFieldDecorator, setFieldsValue } = form;
-    const CodeMirrorFormWidth = `${customWidth - (collapsed ? 399 : 399)}px`;
 
     return (
       <PageHeaderLayout
@@ -653,113 +518,13 @@ export default class AppList extends PureComponent {
               <Spin />
             ) : (
               <Tabs
-                defaultActiveKey={activeKey}
+                activeKey={activeKey}
                 onChange={this.handleTabs}
                 className={styles.tabss}
               >
-                <TabPane tab="云市应用列表" key="1">
-                  <div className={styles.cardList}>
-                    {!loadingList && promptTitle ? (
-                      <Alert
-                        message={promptTitle}
-                        type="info"
-                        style={{
-                          textAlign: 'center',
-                          width: '300px',
-                          margin: ' 200px auto 0'
-                        }}
-                      />
-                    ) : !loadingList && isHelm ? (
-                      <Row style={{ width: '800px', margin: '0 auto 20px' }}>
-                        <Form>
-                          <Col span={15}>
-                            <div
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                marginBottom: '20px'
-                              }}
-                            >
-                              <img
-                                style={{ width: '60px', marginRight: '10px' }}
-                                alt=""
-                                src={appInfo.icon}
-                              />
-                              <div>
-                                <div>{appInfo.name}</div>
-                                <div>{appInfo.description}</div>
-                              </div>
-                            </div>
-                          </Col>
-                          <Col
-                            span={9}
-                            style={{
-                              position: 'relative',
-                              zIndex: 9,
-                              marginBottom: '20px'
-                            }}
-                          >
-                            <FormItem {...formItemLayout} label="版本">
-                              {getFieldDecorator('app_version', {
-                                initialValue: appDetail.version,
-                                rules: [
-                                  {
-                                    required: true,
-                                    message: '请选择版本'
-                                  }
-                                ]
-                              })(
-                                <Select
-                                  placeholder="请选择版本"
-                                  onChange={this.handleAppVersion}
-                                  style={{ width: '100%' }}
-                                >
-                                  {versions.map(item => {
-                                    const { version } = item;
-                                    return (
-                                      <Option key={version} value={version}>
-                                        {version}
-                                      </Option>
-                                    );
-                                  })}
-                                </Select>
-                              )}
-                            </FormItem>
-                          </Col>
-                          {resources.valuesTemplate && (
-                            <CodeMirrorForm
-                              data={
-                                (resources.valuesTemplate &&
-                                  this.decodeBase64Content(
-                                    resources.valuesTemplate
-                                  )) ||
-                                ''
-                              }
-                              marginTop={20}
-                              width={CodeMirrorFormWidth}
-                              titles="yaml文件"
-                              setFieldsValue={setFieldsValue}
-                              formItemLayout={formItemLayouts}
-                              Form={Form}
-                              getFieldDecorator={getFieldDecorator}
-                              beforeUpload={this.beforeUpload}
-                              mode="yaml"
-                              name="values"
-                              message="yaml是必须的"
-                            />
-                          )}
-                          <div style={{ textAlign: 'center' }}>
-                            <Button
-                              onClick={this.handleSubmit}
-                              loading={submitLoading}
-                              type="primary"
-                            >
-                              升级
-                            </Button>
-                          </div>
-                        </Form>
-                      </Row>
-                    ) : (
+                {!isHelm && (
+                  <TabPane tab="云市应用列表" key="1">
+                    <div className={styles.cardList}>
                       <List
                         rowKey="id"
                         size="large"
@@ -830,10 +595,10 @@ export default class AppList extends PureComponent {
                           </List.Item>
                         )}
                       />
-                    )}
-                  </div>
-                </TabPane>
-                <TabPane tab="云市应用升级记录" key="2">
+                    </div>
+                  </TabPane>
+                )}
+                <TabPane tab={isHelm ? '升级记录' : '云市应用升级记录'} key="2">
                   <Table
                     style={{ padding: '24px' }}
                     loading={upgradeLoading}

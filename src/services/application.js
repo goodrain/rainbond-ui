@@ -668,6 +668,7 @@ export async function InstallHelmApp(body = {}) {
     {
       method: 'post',
       data: {
+        overrides: body.overrides,
         values: body.values
       }
     }
@@ -683,6 +684,7 @@ export async function EditHelmApp(body = {}) {
         username: body.username,
         app_name: body.app_name,
         app_note: body.app_note,
+        overrides: body.overrides,
         values: body.values,
         version: body.version,
         revision: body.revision

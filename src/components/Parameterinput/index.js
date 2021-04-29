@@ -60,7 +60,8 @@ class Parameterinput extends Component {
   render() {
     const {
       keyPlaceholder = '请输入key值',
-      valuePlaceholder = '请输入value值'
+      valuePlaceholder = '请输入value值',
+      isHalf = false
     } = this.props;
     const { values } = this.state;
     return (
@@ -73,7 +74,11 @@ class Parameterinput extends Component {
               item.item_key.indexOf('pass') > -1;
             return (
               <Row
-                style={{ display: 'flex', alignItems: 'center' }}
+                style={{
+                  display: isHalf ? 'inline-block' : 'flex',
+                  alignItems: 'center',
+                  width: isHalf ? '50%' : '100%'
+                }}
                 key={`conifgitem${index}`}
               >
                 <Col span={10}>

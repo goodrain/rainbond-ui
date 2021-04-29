@@ -1,11 +1,14 @@
+/* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-expressions */
 import AccessPrompt from '@/components/AccessPrompt';
 import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
 import CodeMirrorForm from '@/components/CodeMirrorForm';
+import Parameterinput from '@/components/Parameterinput';
 import { LoadingOutlined } from '@ant-design/icons';
 import {
+  Alert,
   Badge,
   Button,
   Card,
@@ -15,9 +18,9 @@ import {
   Modal,
   notification,
   Row,
+  Select,
   Steps,
   Tabs,
-  Tag,
   Tooltip
 } from 'antd';
 import { connect } from 'dva';
@@ -39,6 +42,9 @@ import styles from './Index.less';
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
 const { Step } = Steps;
+const { Option } = Select;
+const FormItem = Form.Item;
+
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
@@ -59,7 +65,9 @@ export default class Index extends PureComponent {
 
     this.state = {
       linkList: [],
+      versions: [],
       appStateLoading: true,
+      appInfoLoading: true,
       serviceLoading: false,
       activeServices: '',
       appStates: [
@@ -101,9 +109,9 @@ export default class Index extends PureComponent {
       freeComponents: [],
       associatedComponents: [],
       currentSteps: 0,
-      customWidth: document.body.clientWidth - 145,
       toDelete: false,
       toEdit: false,
+      promptTitle: false,
       toEditAppDirector: false,
       serviceIds: [],
       promptModal: false,
@@ -116,7 +124,9 @@ export default class Index extends PureComponent {
       submitLoading: false,
       servicesLoading: true,
       resources: {},
+      appInfo: {},
       isInstall: false,
+      isScrollToBottom: true,
       isAccessPermissions: true
     };
   }
@@ -236,7 +246,11 @@ export default class Index extends PureComponent {
   fetchAppDetailState = () => {
     const { dispatch } = this.props;
     const { teamName, appID } = this.props.match.params;
-    const { appStateMap, currentSteps: oldSteps } = this.state;
+    const {
+      appStateMap,
+      currentSteps: oldSteps,
+      isScrollToBottom
+    } = this.state;
     this.closeTimer();
     dispatch({
       type: 'application/fetchAppDetailState',
@@ -257,6 +271,15 @@ export default class Index extends PureComponent {
             if (currentSteps < 2) {
               this.handleHelmCheck();
             }
+            if (currentSteps === 2 && isScrollToBottom) {
+              this.scrollToBottom();
+            }
+            if (currentSteps >= 2) {
+              this.getHelmApplication();
+            } else {
+              this.handleAppInfoLoading();
+            }
+
             if (currentSteps >= 4) {
               this.handleServices();
               this.fetchFreeComponents();
@@ -277,6 +300,7 @@ export default class Index extends PureComponent {
         this.setState({
           appStateLoading: false
         });
+        this.handleAppInfoLoading();
         this.handleError(err);
         this.handleTimers(
           'timer',
@@ -569,17 +593,43 @@ export default class Index extends PureComponent {
   };
   handleSubmit = type => {
     const { form } = this.props;
-    const { validateFields } = form;
+    const { validateFields, setFields } = form;
     validateFields((err, val) => {
       if (!err) {
         this.setState({
           submitLoading: true
         });
         const values = this.encodeBase64Content(val.yamls);
+        let isError = false;
+        const overrides = {};
+
+        if (val.overrides && val.overrides.length > 0) {
+          val.overrides.map(item => {
+            const { item_key: itemKey, item_value: itemValue } = item;
+            if (!itemKey || !itemValue || itemKey === '' || itemValue === '') {
+              isError = true;
+            } else {
+              overrides[itemKey] = itemValue;
+            }
+          });
+        }
+        if (isError) {
+          setFields({
+            overrides: {
+              errors: [new Error('请填写配置项')]
+            }
+          });
+          this.setState({
+            submitLoading: false
+          });
+          return null;
+        }
+
+        const info = Object.assign({}, val, { yamls: values, overrides });
         if (type === 'Create') {
-          this.handleInstallHelmApp(values);
+          this.handleInstallHelmApp(info);
         } else {
-          this.handleEditHelmApp(values);
+          this.handleEditHelmApp(info);
         }
       }
     });
@@ -681,7 +731,9 @@ export default class Index extends PureComponent {
     });
   };
   handleTabs = key => {
-    this.setState({ activeServices: key });
+    this.setState({ activeServices: key }, () => {
+      this.fetchAssociatedComponents(key);
+    });
   };
   cancelAssociatedComponents = () => {
     this.setState({
@@ -711,7 +763,8 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
-        values
+        overrides: values.overrides,
+        values: values.yamls
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -723,28 +776,30 @@ export default class Index extends PureComponent {
       }
     });
   };
+
   handleEditHelmApp = values => {
     const { dispatch } = this.props;
-    const { currApp, resources } = this.state;
+    const { currApp } = this.state;
     dispatch({
       type: 'application/editHelmApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
-        values,
+        overrides: values.overrides,
+        values: values.yamls,
         username: currApp.username,
         app_name: currApp.group_name,
         app_note: currApp.note,
-        version: resources.version
+        version: values.version
       },
       callback: res => {
+        if (res && res.status_code === 200) {
+          this.fetchAppDetailState();
+          notification.success({ message: '更新中、请耐心等待' });
+        }
         this.setState({
           submitLoading: false
         });
-        if (res && res.status_code === 200) {
-          this.fetchAppDetailState();
-          notification.success({ message: '更新成功' });
-        }
       }
     });
   };
@@ -755,27 +810,98 @@ export default class Index extends PureComponent {
       showAccess: false
     });
   };
+  scrollToBottom = () => {
+    const messagesEndRef = document.getElementById('messagesEndRef');
+    if (messagesEndRef) {
+      messagesEndRef.scrollIntoView({ behavior: 'smooth' });
+      this.setState({ isScrollToBottom: false });
+    }
+  };
   handleOperationBtn = type => {
-    const { submitLoading } = this.state;
+    const { submitLoading, promptTitle } = this.state;
     return (
-      <div style={{ textAlign: 'center' }}>
+      <div style={{ textAlign: 'center' }} id="messagesEndRef">
         <Button
           onClick={() => {
             this.handleSubmit(type);
           }}
+          disabled={promptTitle}
           loading={submitLoading}
           type="primary"
         >
-          {type === 'Create' ? '创建' : '更新'}
+          {type === 'Create' ? '启动' : '更新'}
         </Button>
       </div>
     );
   };
-  handleConfing = CodeMirrorFormWidth => {
+  getHelmApplication = () => {
+    const { dispatch, currentEnterprise } = this.props;
+    const { currApp, resources } = this.state;
+    dispatch({
+      type: 'global/fetchHelmApplication',
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        app_name: currApp.group_name,
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: this.getGroupId()
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState(
+            {
+              versions: res.versions || []
+            },
+            () => {
+              this.handleAppVersion(resources.version);
+            }
+          );
+        } else {
+          this.handleAppInfoLoading();
+        }
+      },
+      handleError: res => {
+        if (res && res.data && res.data.code) {
+          const promptTitle =
+            res.data.code === 8000
+              ? '商店已被删除、无法更新。'
+              : res.data.code === 8003
+              ? '应用模板不存在、无法更新。'
+              : '';
+          if (promptTitle) {
+            this.setState({
+              promptTitle
+            });
+          }
+        }
+        this.handleAppInfoLoading();
+      }
+    });
+  };
+
+  handleAppVersion = value => {
+    const { versions } = this.state;
+    let info = {};
+    versions.map(item => {
+      if (item.version === value) {
+        info = item;
+      }
+    });
+    if (info.version) {
+      this.setState({
+        appInfo: info
+      });
+      this.handleAppInfoLoading();
+    }
+  };
+  handleAppInfoLoading = () => {
+    this.setState({
+      appInfoLoading: false
+    });
+  };
+  handleConfing = () => {
     const { form } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
-    const { resources, currentSteps } = this.state;
-
+    const { resources, currentSteps, versions, promptTitle } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 }
@@ -784,14 +910,26 @@ export default class Index extends PureComponent {
         xs: { span: 24 }
       }
     };
+    let overrides = resources.overrides || '';
+    if (overrides && overrides.length > 0) {
+      const arr = [];
+      overrides.map(item => {
+        Object.keys(item).forEach(key => {
+          arr.push({
+            item_key: key,
+            item_value: item[key]
+          });
+        });
+      });
+      overrides = arr;
+    }
     return (
-      <Form onSubmit={this.handleSubmit} labelAlign="left">
+      <Form labelAlign="left">
         <Collapse bordered={false} defaultActiveKey={['2']}>
           <Panel
             header={
               <div className={styles.customPanelHeader}>
-                <h6>详情描述</h6>
-                <p>应用程序信息和用户</p>
+                <h6 style={{ marginBottom: 0 }}>应用介绍</h6>
               </div>
             }
             key="1"
@@ -806,6 +944,47 @@ export default class Index extends PureComponent {
               }
             />
           </Panel>
+          <div className={styles.basisBox}>
+            {promptTitle && <Alert message={promptTitle} type="warning" />}
+
+            {currentSteps > 3 && (
+              <FormItem {...formItemLayout} label="版本">
+                {getFieldDecorator('version', {
+                  initialValue: resources.version || undefined,
+                  rules: [
+                    {
+                      required: true,
+                      message: '请选择版本'
+                    }
+                  ]
+                })(
+                  <Select
+                    placeholder="请选择版本"
+                    style={{ width: '512px' }}
+                    onChange={this.handleAppVersion}
+                  >
+                    {versions.map(item => {
+                      const { version } = item;
+                      return (
+                        <Option key={version} value={version}>
+                          {resources.version == version
+                            ? `${version} 当前版本`
+                            : version}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                )}
+              </FormItem>
+            )}
+            <FormItem {...formItemLayout} label="配置项">
+              {getFieldDecorator('overrides', {
+                initialValue: overrides || [],
+                rules: [{ required: true, message: '请填写配置项' }]
+              })(<Parameterinput isHalf editInfo={overrides || ''} />)}
+            </FormItem>
+          </div>
+
           <Panel
             header={
               <div className={styles.customPanelHeader}>
@@ -817,14 +996,14 @@ export default class Index extends PureComponent {
             className={styles.customPanel}
           >
             <CodeMirrorForm
+              disabled
               data={
-                (resources.valuesTemplate &&
-                  this.decodeBase64Content(resources.valuesTemplate)) ||
+                (resources.values &&
+                  this.decodeBase64Content(resources.values)) ||
                 ''
               }
+              isHeader={false}
               marginTop={20}
-              width={CodeMirrorFormWidth}
-              titles="yaml文件"
               setFieldsValue={setFieldsValue}
               formItemLayout={formItemLayout}
               Form={Form}
@@ -832,7 +1011,7 @@ export default class Index extends PureComponent {
               beforeUpload={this.beforeUpload}
               mode="yaml"
               name="yamls"
-              message="yaml是必须的"
+              message="填写配置"
             />
             {currentSteps > 3 && this.handleOperationBtn('UpDate')}
           </Panel>
@@ -849,7 +1028,6 @@ export default class Index extends PureComponent {
       buildShapeLoading,
       editGroupLoading,
       deleteLoading,
-      collapsed,
       operationPermissions: { isAccess: isControl }
     } = this.props;
     const {
@@ -861,7 +1039,6 @@ export default class Index extends PureComponent {
       toEdit,
       toEditAppDirector,
       toDelete,
-      customWidth,
       currentSteps,
       appStates,
       appType,
@@ -874,10 +1051,11 @@ export default class Index extends PureComponent {
       linkList,
       showAccess,
       createComponentLoading,
+      appInfo,
+      versions,
+      appInfoLoading,
       servicesLoading
     } = this.state;
-    const CodeMirrorFormWidth = `${customWidth - (collapsed ? 433 : 118)}px`;
-    const ConfingFormWidth = `${customWidth - (collapsed ? 320 : 20)}px`;
 
     const codeObj = {
       start: '启动',
@@ -885,7 +1063,6 @@ export default class Index extends PureComponent {
       stop: '停用',
       deploy: '构建'
     };
-
     const appStateColor = {
       deployed: 'success',
       'pending-install': 'success',
@@ -898,7 +1075,7 @@ export default class Index extends PureComponent {
       <div className={styles.pageHeaderContent}>
         <Card
           style={{ padding: 0 }}
-          loading={appStateLoading}
+          loading={appStateLoading || appInfoLoading}
           className={styles.contentl}
         >
           <div>
@@ -913,7 +1090,10 @@ export default class Index extends PureComponent {
               <img
                 style={{ width: '60px', marginRight: '10px' }}
                 alt=""
-                src="https://gw.alipayobjects.com/zos/rmsportal/MjEImQtenlyueSmVEfUD.svg"
+                src={
+                  appInfo.icon ||
+                  'https://gw.alipayobjects.com/zos/rmsportal/MjEImQtenlyueSmVEfUD.svg'
+                }
               />
               <div style={{ width: '45%' }}>
                 <div className={styles.contentTitle} style={{ width: '100%' }}>
@@ -929,7 +1109,9 @@ export default class Index extends PureComponent {
                     />
                   )}
                 </div>
-                <div className={styles.contentNote}>{currApp.note}</div>
+                <div className={styles.contentNote}>
+                  {appInfo.description || currApp.note}
+                </div>
               </div>
 
               <div className={styles.helmState}>
@@ -937,7 +1119,10 @@ export default class Index extends PureComponent {
                   <Badge
                     className={styles.states}
                     status={appStateColor[resources.status] || 'default'}
-                    text={infoUtil.getHelmStatus([resources.status] || '-')}
+                    text={
+                      infoUtil.getHelmStatus &&
+                      infoUtil.getHelmStatus([resources.status] || '-')
+                    }
                   />
                 )}
                 {isDelete && (
@@ -945,7 +1130,9 @@ export default class Index extends PureComponent {
                     删除
                   </a>
                 )}
-                {linkList.length > 0 && <VisterBtn linkList={linkList} />}
+                {linkList.length > 0 && (
+                  <VisterBtn type="link" linkList={linkList} />
+                )}
               </div>
             </div>
             <div className={styles.connect_Bot}>
@@ -1041,6 +1228,16 @@ export default class Index extends PureComponent {
                 <div>
                   <span>版本号</span>
                   <span>{resources.version}</span>
+                  {versions && versions.length > 1 && (
+                    <span
+                      style={{ marginLeft: '5px' }}
+                      onClick={() => {
+                        isUpgrade && this.handleJump('upgrade');
+                      }}
+                    >
+                      <a>去升级</a>
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -1066,7 +1263,7 @@ export default class Index extends PureComponent {
                 </div>
               </div>
               <div className={styles.conrBox} style={{ width: '33.3%' }}>
-                <div>商店名称</div>
+                <div>商店</div>
                 <div
                   onClick={() => {
                     currApp.app_store_name &&
@@ -1092,7 +1289,7 @@ export default class Index extends PureComponent {
             title={
               isInstall
                 ? '关联组件已创建，请配置网关策略或建立依赖关系访问。'
-                : '当前应用为开发访问权限,是否立即打开?'
+                : '当前应用未开放访问权限,是否立即打开?'
             }
             isInstall={isInstall}
             loading={createComponentLoading}
@@ -1119,16 +1316,17 @@ export default class Index extends PureComponent {
             bodyStyle={{ padding: 24, background: '#fff' }}
           >
             <div>
-              {freeComponents.map(item => {
+              {freeComponents.map(items => {
                 return (
-                  <Tag
-                    color="#4d73b1"
+                  <Button
+                    style={{ padding: '0 10px' }}
                     onClick={() => {
-                      this.handleThird(item.component_alias);
+                      this.handleThird(items.component_alias);
                     }}
+                    type="link"
                   >
-                    {item.component_name}
-                  </Tag>
+                    {items.component_name}
+                  </Button>
                 );
               })}
             </div>
@@ -1152,32 +1350,49 @@ export default class Index extends PureComponent {
                   onChange={this.handleTabs}
                 >
                   {services.map(item => {
-                    const { service_name: serviceName, pods } = item;
+                    const {
+                      service_name: serviceName,
+                      pods,
+                      tcp_ports: ports
+                    } = item;
                     return (
                       <TabPane tab={serviceName} key={serviceName}>
                         <div>
                           <div className={styles.associated}>
-                            关联组件:
-                            {associatedComponents.map(items => {
-                              return (
-                                <Tag
-                                  color="#4d73b1"
-                                  style={{ marginLeft: '5px' }}
-                                  onClick={() => {
-                                    this.handleComponent(items.component_alias);
-                                  }}
-                                >
-                                  {items.component_name}
-                                </Tag>
-                              );
-                            })}
-                            <Icon
-                              style={{ float: 'right' }}
-                              type="plus-circle"
-                              onClick={() => {
-                                this.handleAssociatedComponents(item);
+                            <div>关联组件:</div>
+                            <div
+                              style={{
+                                width:
+                                  ports && ports.length > 0
+                                    ? 'calc(100% - 100px)'
+                                    : 'calc(100% - 62px)'
                               }}
-                            />
+                            >
+                              {associatedComponents.map(items => {
+                                return (
+                                  <Button
+                                    style={{ padding: '0 10px' }}
+                                    onClick={() => {
+                                      this.handleComponent(
+                                        items.component_alias
+                                      );
+                                    }}
+                                    type="link"
+                                  >
+                                    {items.component_name}
+                                  </Button>
+                                );
+                              })}
+                            </div>
+                            {ports && ports.length > 0 && (
+                              <Icon
+                                style={{ float: 'right', marginLeft: '20px' }}
+                                type="plus-circle"
+                                onClick={() => {
+                                  this.handleAssociatedComponents(item);
+                                }}
+                              />
+                            )}
                           </div>
                           <Instance
                             isHelm
@@ -1200,9 +1415,7 @@ export default class Index extends PureComponent {
           </Card>
         )}
         {currentSteps > 3 && (
-          <div className={styles.customCollapseBox}>
-            {this.handleConfing(ConfingFormWidth)}
-          </div>
+          <div className={styles.customCollapseBox}>{this.handleConfing()}</div>
         )}
         {currentSteps < 4 && (
           <Card style={{ marginTop: 16 }} loading={appStateLoading}>
@@ -1260,7 +1473,7 @@ export default class Index extends PureComponent {
             )}
             {currentSteps === 2 && (
               <div className={styles.customCollapse}>
-                {this.handleConfing(CodeMirrorFormWidth)}
+                {this.handleConfing()}
               </div>
             )}
           </Card>
