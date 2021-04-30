@@ -1,5 +1,6 @@
 /* eslint-disable react/sort-comp */
 import {
+  Alert,
   Button,
   Checkbox,
   Col,
@@ -305,6 +306,11 @@ export default class RainbondClusterInit extends PureComponent {
               this.setState({ showClusterInitConfig: false });
             }}
           >
+            <Alert
+              message="请注意，默认数据仅作为示例，各字段若需要使用默认值则不要配置该字段。"
+              type="warning"
+              style={{ marginBottom: '16px' }}
+            />
             <CodeMirrorForm
               titles="集群初始化配置包含平台集群的初始化的全部配置"
               setFieldsValue={setFieldsValue}
