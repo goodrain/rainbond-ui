@@ -498,23 +498,16 @@ export default class AutoDeploy extends PureComponent {
                   {' '}
                   <Icon component={dockerSvg} />
                   镜像仓库Webhook
-                  <Tooltip
-                    title={
-                      (platform_url && (
-                        <a
-                          href={`${platform_url}docs/user-manual/component-dev/auto_build/#基于镜像仓库操作流程`}
-                          // eslint-disable-next-line react/jsx-no-target-blank
-                          target="_blank"
-                          style={{ color: '#fff' }}
-                        >
-                          点击阅读文档
-                        </a>
-                      )) ||
-                      ''
-                    }
-                  >
-                    <Icon type="question-circle-o" />
-                  </Tooltip>
+                  {platform_url && (
+                    <Tooltip title="点击阅读文档">
+                      <a
+                        href={`${platform_url}docs/user-manual/component-dev/auto_build/#基于镜像仓库操作流程`}
+                        target="_blank"
+                      >
+                        <Icon type="question-circle-o" />
+                      </a>
+                    </Tooltip>
+                  )}
                 </span>
               }
               key="2"

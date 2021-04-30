@@ -63,7 +63,7 @@ export default class AppExporter extends PureComponent {
     return (
       <DescriptionList
         size="large"
-        title="平台App规范(平台可用)"
+        title="应用模型规范"
         style={{ marginBottom: 32 }}
       >
         <Description term="导出状态">

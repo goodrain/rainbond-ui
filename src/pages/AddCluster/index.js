@@ -52,7 +52,8 @@ export default class EnterpriseClusters extends PureComponent {
       providerAccess: {},
       loading: false,
       initTask: {},
-      initShow: false
+      initShow: false,
+      israinbondTird: rainbondUtil.OauthEnterpriseEnable(enterprise)
     };
   }
   componentWillMount() {
@@ -310,7 +311,8 @@ export default class EnterpriseClusters extends PureComponent {
       loading,
       showInitTaskDetail,
       initTask,
-      initShow
+      initShow,
+      israinbondTird
     } = this.state;
 
     const {
@@ -618,16 +620,19 @@ export default class EnterpriseClusters extends PureComponent {
                 </Paragraph>
               </div>
               <Row>
-                <Col span={8}>
-                  <p style={{ marginTop: '16px', textAlign: 'center' }}>
-                    <img
-                      alt="扫码加入平台社区钉钉群"
-                      style={{ width: '100%' }}
-                      title="扫码加入平台社区钉钉群"
-                      src="https://www.rainbond.com/images/dingding-group.jpeg"
-                    />
-                  </p>
-                </Col>
+                {/* 企业版的不需要显示扫描模块 */}
+                {!israinbondTird && (
+                  <Col span={8}>
+                    <p style={{ marginTop: '16px', textAlign: 'center' }}>
+                      <img
+                        alt="扫码加入平台社区钉钉群"
+                        style={{ width: '100%' }}
+                        title="扫码加入平台社区钉钉群"
+                        src="https://www.rainbond.com/images/dingding-group.jpeg"
+                      />
+                    </p>
+                  </Col>
+                )}
                 <Col span={16}>
                   <p style={{ marginTop: '16px', padding: '16px' }}>
                     如果您对接计算资源遇到障碍，或希望了解DevOps流程、企业中台、2B应用交付、多云管理、行业云等需求场景的更多信息，请扫码加入

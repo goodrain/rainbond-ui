@@ -316,22 +316,16 @@ export default class Index extends PureComponent {
               label={
                 <span>
                   组件地址
-                  <Tooltip
-                    title={
-                      (platform_url && (
-                        <a
-                          href={`${platform_url}docs/component-create/thirdparty-service/thirdparty-create`}
-                          target="_blank"
-                          style={{ color: '#fff' }}
-                        >
-                          点击阅读文档
-                        </a>
-                      )) ||
-                      ''
-                    }
-                  >
-                    <Icon type="question-circle-o" />
-                  </Tooltip>
+                  {platform_url && (
+                    <Tooltip title="点击阅读文档">
+                      <a
+                        target="_blank"
+                        href={`${platform_url}docs/component-create/thirdparty-service/thirdparty-create`}
+                      >
+                        <Icon type="question-circle-o" />
+                      </a>
+                    </Tooltip>
+                  )}
                 </span>
               }
             >
@@ -422,22 +416,16 @@ export default class Index extends PureComponent {
                   label={
                     <span>
                       组件地址
-                      <Tooltip
-                        title={
-                          (platform_url && (
-                            <a
-                              href={`${platform_url}docs/component-create/thirdparty-service/thirdparty-create`}
-                              target="_blank"
-                              style={{ color: '#fff' }}
-                            >
-                              点击阅读文档
-                            </a>
-                          )) ||
-                          ''
-                        }
-                      >
-                        <Icon type="question-circle-o" />
-                      </Tooltip>
+                      {platform_url && (
+                        <Tooltip title="点击阅读文档">
+                          <a
+                            href={`${platform_url}docs/component-create/thirdparty-service/thirdparty-create`}
+                            target="_blank"
+                          >
+                            <Icon type="question-circle-o" />
+                          </a>
+                        </Tooltip>
+                      )}
                     </span>
                   }
                   style={{ textAlign: 'right' }}
