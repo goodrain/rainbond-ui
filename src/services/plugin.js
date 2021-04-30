@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 

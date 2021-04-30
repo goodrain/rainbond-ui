@@ -650,6 +650,7 @@ export default class AppList extends PureComponent {
             backupId={this.state.backup_id}
             groupId={this.getGroupId()}
             currentRegion={regionName}
+            mode={this.state.mode}
             group_uuid={this.state.group_uuid}
             moveBackupMode={this.state.moveBackupMode}
           />

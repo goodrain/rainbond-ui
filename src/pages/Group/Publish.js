@@ -106,7 +106,11 @@ export default class AppPublishList extends PureComponent {
       },
       callback: data => {
         if (data) {
-          this.setState({ recoders: data.list, loading: false });
+          this.setState({
+            recoders: data.list,
+            total: data.bean.total,
+            loading: false
+          });
         }
       }
     });
@@ -150,14 +154,14 @@ export default class AppPublishList extends PureComponent {
         app_id: appID,
         record_id: recordID
       },
-      callback: data => {
+      callback: () => {
         this.fetchPublishRecoder();
       }
     });
   };
 
   cancelPublish = recordID => {
-    if (recordID == undefined || recordID == '') {
+    if (recordID === undefined || recordID === '') {
       notification.warning({ message: '参数异常' });
       return;
     }
@@ -169,7 +173,7 @@ export default class AppPublishList extends PureComponent {
         team_name: teamName,
         share_id: recordID
       },
-      callback: data => {
+      callback: () => {
         this.fetchPublishRecoder();
       }
     });
@@ -350,6 +354,7 @@ export default class AppPublishList extends PureComponent {
                       case 2:
                         return <span style={{ color: '#999999' }}>已取消</span>;
                     }
+                    return '';
                   }
                 },
                 {
@@ -359,7 +364,7 @@ export default class AppPublishList extends PureComponent {
                   render: (val, data) => {
                     return (
                       <div>
-                        {data.status == 0 ? (
+                        {data.status === 0 ? (
                           <div>
                             <a
                               style={{ marginRight: '5px' }}

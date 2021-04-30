@@ -1,24 +1,24 @@
-import React, { PureComponent } from 'react';
-import { Button, Card, Modal, Form, Row, Col } from 'antd';
+import { Button, Card, Col, Form, Modal, Row } from 'antd';
 import { connect } from 'dva';
-import GoConfig from './golang';
-import JavaMavenConfig from './java-maven';
-import JavaJarConfig from './java-jar';
-import JavaWarConfig from './java-war';
-import JavaJDKConfig from './java-jdk';
-import PythonConfig from './python';
-import PHPConfig from './php';
-import StaticConfig from './static';
-import NodeJSConfig from './nodejs';
-import NetCoreConfig from './netcore';
+import React, { PureComponent } from 'react';
 import Dockerinput from '../Dockerinput';
+import GoConfig from './golang';
+import JavaJarConfig from './java-jar';
+import JavaJDKConfig from './java-jdk';
+import JavaMavenConfig from './java-maven';
+import JavaWarConfig from './java-war';
+import NetCoreConfig from './netcore';
+import NodeJSConfig from './nodejs';
+import PHPConfig from './php';
+import PythonConfig from './python';
+import StaticConfig from './static';
 
 const { confirm } = Modal;
 
 @connect(
   ({ user, appControl }) => ({
     currUser: user.currentUser,
-    appDetail: appControl.appDetail,
+    appDetail: appControl.appDetail
   }),
   null,
   null,
@@ -48,7 +48,7 @@ class CodeBuildConfig extends PureComponent {
       NODE_MODULES_CACHE: false,
       NODE_VERBOSE: false,
       arr: [],
-      setObj: props.runtimeInfo ? props.runtimeInfo : '',
+      setObj: props.runtimeInfo ? props.runtimeInfo : ''
     };
   }
 
@@ -86,13 +86,13 @@ class CodeBuildConfig extends PureComponent {
         arr.push({ key: keyName, value: runtimeInfo[i] });
       }
       this.setState({
-        arr,
+        arr
       });
     }
   };
   handleRuntimeInfo = props => {
     this.setState({
-      languageType: props.language,
+      languageType: props.language
     });
   };
 
@@ -105,7 +105,7 @@ class CodeBuildConfig extends PureComponent {
       const {
         BUILD_NO_CACHE,
         BUILD_MAVEN_MIRROR_DISABLE,
-        JDK_TYPE,
+        JDK_TYPE
       } = fieldsValue;
       // not disable cache is not set BUILD_NO_CACHE
       if (!BUILD_NO_CACHE) {
@@ -127,13 +127,13 @@ class CodeBuildConfig extends PureComponent {
 
   handleDisabledName = name => {
     this.setState({
-      [name]: true,
+      [name]: true
     });
   };
 
   handleRadio = name => {
     this.setState({
-      [name]: !this.state[name],
+      [name]: !this.state[name]
     });
   };
 
@@ -146,7 +146,7 @@ class CodeBuildConfig extends PureComponent {
       onOk() {
         _th.handleSubmit();
       },
-      onCancel() {},
+      onCancel() {}
     });
   };
 
@@ -165,20 +165,20 @@ class CodeBuildConfig extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 6,
-        },
+          span: 6
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 18,
-        },
-      },
+          span: 18
+        }
+      }
     };
     const { getFieldDecorator } = this.props.form;
     const { languageType, arr } = this.state;
