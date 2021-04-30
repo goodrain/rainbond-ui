@@ -560,7 +560,7 @@ export default class EnterpriseClusters extends PureComponent {
             onCancel={this.hideInitShow}
             visible
           >
-            <h2 className={styles.initTitle}>欢迎您成为平台开源用户！</h2>
+            <h2 className={styles.initTitle}>欢迎您成为本平台用户！</h2>
             <p>
               在开始您的云原生应用管理之旅前，你需要完成计算资源集群的对接工作。
             </p>
@@ -619,27 +619,28 @@ export default class EnterpriseClusters extends PureComponent {
                   </ul>
                 </Paragraph>
               </div>
-              <Row>
-                {/* 企业版的不需要显示扫描模块 */}
-                {!israinbondTird && (
-                  <Col span={8}>
-                    <p style={{ marginTop: '16px', textAlign: 'center' }}>
-                      <img
-                        alt="扫码加入平台社区钉钉群"
-                        style={{ width: '100%' }}
-                        title="扫码加入平台社区钉钉群"
-                        src="https://www.rainbond.com/images/dingding-group.jpeg"
-                      />
+              {!israinbondTird && (
+                <Row>
+                  {
+                    <Col span={8}>
+                      <p style={{ marginTop: '16px', textAlign: 'center' }}>
+                        <img
+                          alt="扫码加入平台社区钉钉群"
+                          style={{ width: '100%' }}
+                          title="扫码加入平台社区钉钉群"
+                          src="https://www.rainbond.com/images/dingding-group.jpeg"
+                        />
+                      </p>
+                    </Col>
+                  }
+                  <Col span={16}>
+                    <p style={{ marginTop: '16px', padding: '16px' }}>
+                      如果您对接计算资源遇到障碍，或希望了解DevOps流程、企业中台、2B应用交付、多云管理、行业云等需求场景的更多信息，请扫码加入
+                      平台社区钉钉群。
                     </p>
                   </Col>
-                )}
-                <Col span={16}>
-                  <p style={{ marginTop: '16px', padding: '16px' }}>
-                    如果您对接计算资源遇到障碍，或希望了解DevOps流程、企业中台、2B应用交付、多云管理、行业云等需求场景的更多信息，请扫码加入
-                    平台社区钉钉群。
-                  </p>
-                </Col>
-              </Row>
+                </Row>
+              )}
             </div>
             <p style={{ textAlign: 'center', marginTop: '16px' }}>
               <Button onClick={this.hideInitShow} type="primary">
