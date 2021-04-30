@@ -297,6 +297,7 @@ export default class RegisterComponent extends Component {
                 <Input autoComplete="off" size="large" placeholder="验证码" />
               )}
             </Col>
+            {/* 验证码图片 */}
             <Col span={8}>
               <img
                 onClick={this.changeTime}
