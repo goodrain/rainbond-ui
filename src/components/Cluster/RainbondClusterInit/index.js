@@ -189,7 +189,7 @@ export default class RainbondClusterInit extends PureComponent {
                 </li>
                 <li>
                   <span>
-                    Rainbond集群初始化需要以下资源：RDS(1个)、NAS(1个)、SLB(1个)，并将(80、443、8443、6060、10000-11000)端口添加到安全组策略。
+                    平台集群初始化需要以下资源：RDS(1个)、NAS(1个)、SLB(1个)，并将(80、443、8443、6060、10000-11000)端口添加到安全组策略。
                   </span>
                 </li>
                 <li>
@@ -216,7 +216,7 @@ export default class RainbondClusterInit extends PureComponent {
                 </li>
                 <li>
                   <span>
-                    Rainbond
+                    平台
                     集群初始化时默认采用第1、2个节点为网关节点和构建节点，你也可以在Kubernetes节点上增加Annotations来指定对应节点(rainbond.io/gateway-node=true
                     或rainbond.io/chaos-node=true)。
                   </span>
@@ -298,7 +298,7 @@ export default class RainbondClusterInit extends PureComponent {
         {showClusterInitConfig && (
           <Modal
             visible
-            title="设置 RainbondCluster"
+            title="设置集群初始化配置"
             onOk={this.handleSubmit}
             width={800}
             confirmLoading={loading}
@@ -312,7 +312,7 @@ export default class RainbondClusterInit extends PureComponent {
               style={{ marginBottom: '16px' }}
             />
             <CodeMirrorForm
-              titles="RainbondCluster 包含Rainbond集群的初始化的全部配置"
+              titles="集群初始化配置包含平台集群的初始化的全部配置"
               setFieldsValue={setFieldsValue}
               formItemLayout={formItemLayout}
               Form={Form}
@@ -320,7 +320,8 @@ export default class RainbondClusterInit extends PureComponent {
               mode="yaml"
               name="config"
               data={initconfig}
-              message="RainbondCluster 配置是必需的"
+              label="集群初始化配置"
+              message="集群初始化配置配置是必需的"
               width="750px"
             />
           </Modal>

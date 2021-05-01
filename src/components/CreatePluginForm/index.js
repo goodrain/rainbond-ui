@@ -1,7 +1,7 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { Row, Col, Button, Checkbox, Form, Radio, Select, Input } from "antd";
-import ShowRegionKey from "../ShowRegionKey";
+import { Button, Checkbox, Col, Form, Input, Radio, Row, Select } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import ShowRegionKey from '../ShowRegionKey';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;
@@ -24,16 +24,16 @@ export default class Index extends PureComponent {
     this.state = {
       visibleKey: false,
       showUsernameAndPass: !!(data && data.username),
-      checkedList: data && data.username ? ["showUsernameAndPass"] : []
+      checkedList: data && data.username ? ['showUsernameAndPass'] : []
     };
   }
 
   onChange = checkedValues => {
     this.setState({
       checkedList: checkedValues,
-      showUsernameAndPass: checkedValues.includes("showUsernameAndPass"),
-      showKey: checkedValues.includes("showKey"),
-      visibleKey: !this.state.showKey && checkedValues.includes("showKey")
+      showUsernameAndPass: checkedValues.includes('showUsernameAndPass'),
+      showKey: checkedValues.includes('showKey'),
+      visibleKey: !this.state.showKey && checkedValues.includes('showKey')
     });
   };
   handleSubmit = e => {
@@ -42,7 +42,7 @@ export default class Index extends PureComponent {
     const { checkedList } = this.state;
     form.validateFields({ force: true }, (err, fieldsValue) => {
       if (err) return;
-      if (!checkedList.includes("showUsernameAndPass")) {
+      if (!checkedList.includes('showUsernameAndPass')) {
         fieldsValue.password = undefined;
         fieldsValue.username = undefined;
       }
@@ -53,10 +53,10 @@ export default class Index extends PureComponent {
   };
   checkCmd = (rule, value, callback) => {
     const { getFieldValue } = this.props.form;
-    const buildSource = getFieldValue("build_source");
-    if (buildSource === "image") {
+    const buildSource = getFieldValue('build_source');
+    if (buildSource === 'image') {
       if (!value) {
-        callback("请输入镜像地址（名称:tag）如nginx:1.11");
+        callback('请输入镜像地址（名称:tag）如nginx:1.11');
       } else {
         callback();
       }
@@ -66,10 +66,10 @@ export default class Index extends PureComponent {
   };
   checkCode = (rule, value, callback) => {
     const { getFieldValue } = this.props.form;
-    const buildSource = getFieldValue("build_source");
-    if (buildSource === "dockerfile") {
+    const buildSource = getFieldValue('build_source');
+    if (buildSource === 'dockerfile') {
       if (!value) {
-        callback("请输入源码Git地址（必须包含Dockerfile文件)");
+        callback('请输入源码Git地址（必须包含Dockerfile文件)');
         return;
       }
     }
@@ -77,10 +77,10 @@ export default class Index extends PureComponent {
   };
   checkCodeVersion = (rule, value, callback) => {
     const { getFieldValue } = this.props.form;
-    const buildSource = getFieldValue("build_source");
-    if (buildSource === "dockerfile") {
+    const buildSource = getFieldValue('build_source');
+    if (buildSource === 'dockerfile') {
       if (!value) {
-        callback("请输入代码版本");
+        callback('请输入代码版本');
         return;
       }
     }
@@ -91,12 +91,12 @@ export default class Index extends PureComponent {
     const { checkedList, showKey } = this.state;
     return (
       <Checkbox.Group
-        style={{ width: "100%", marginBottom: "10px" }}
+        style={{ width: '100%', marginBottom: '10px' }}
         onChange={this.onChange}
         value={checkedList}
       >
         <Row>
-          <Col span={24} style={{ textAlign: "right" }}>
+          <Col span={24} style={{ textAlign: 'right' }}>
             {isShow && (
               <Checkbox value="showKey" checked={showKey}>
                 配置授权Key
@@ -112,7 +112,7 @@ export default class Index extends PureComponent {
     this.setState({ visibleKey: false });
   };
   hideShowKey = () => {
-    this.handkeDeleteCheckedList("showKey");
+    this.handkeDeleteCheckedList('showKey');
     this.setState({ showKey: false, visibleKey: false });
   };
   handkeDeleteCheckedList = type => {
@@ -130,13 +130,13 @@ export default class Index extends PureComponent {
       Modifys = false,
       isEdit = false,
       allDisabled = false,
-      submitText = "创建插件",
+      submitText = '创建插件',
       isCreate
     } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
     const { showUsernameAndPass, visibleKey } = this.state;
-    let type = getFieldValue("build_source");
-    const defaultType = "image";
+    let type = getFieldValue('build_source');
+    const defaultType = 'image';
     if (!type) {
       type = data.build_source || defaultType;
     }
@@ -144,9 +144,15 @@ export default class Index extends PureComponent {
     return (
       <Form layout="horizontal" hideRequiredMark onSubmit={this.handleSubmit}>
         <Form.Item {...formItemLayout} label="插件名称">
-          {getFieldDecorator("plugin_alias", {
-            initialValue: data.plugin_alias || "",
-            rules: [{ required: true, message: "要创建的插件还没有名字" }]
+          {getFieldDecorator('plugin_alias', {
+            initialValue: data.plugin_alias || '',
+            rules: [
+              { required: true, message: '要创建的插件还没有名字' },
+              {
+                max: 32,
+                message: '最大长度32位'
+              }
+            ]
           })(
             <Input
               disabled={allDisabled}
@@ -155,9 +161,9 @@ export default class Index extends PureComponent {
           )}
         </Form.Item>
         <Form.Item {...formItemLayout} label="安装来源">
-          {getFieldDecorator("build_source", {
+          {getFieldDecorator('build_source', {
             initialValue: data.build_source || defaultType,
-            rules: [{ required: true, message: "请选择插件安装来源" }]
+            rules: [{ required: true, message: '请选择插件安装来源' }]
           })(
             <RadioGroup disabled={allDisabled || isEdit}>
               <Radio value="image">镜像</Radio>
@@ -166,9 +172,9 @@ export default class Index extends PureComponent {
           )}
         </Form.Item>
         <Form.Item {...formItemLayout} label="插件类别">
-          {getFieldDecorator("category", {
-            initialValue: data.category || "net-plugin:up",
-            rules: [{ required: true, message: "请选择插件安装来源" }]
+          {getFieldDecorator('category', {
+            initialValue: data.category || 'net-plugin:up',
+            rules: [{ required: true, message: '请选择插件安装来源' }]
           })(
             <Select disabled={allDisabled || isEdit} placeholder="请选择类别">
               <Option value="net-plugin:up">入口网络</Option>
@@ -182,22 +188,22 @@ export default class Index extends PureComponent {
           )}
         </Form.Item>
         <Form.Item
-          style={{ display: type === "image" ? "" : "none" }}
+          style={{ display: type === 'image' ? '' : 'none' }}
           {...formItemLayout}
           label="镜像地址"
         >
-          {getFieldDecorator("image", {
-            initialValue: data.image || "",
+          {getFieldDecorator('image', {
+            initialValue: data.image || '',
             rules: [{ validator: this.checkCmd }]
           })(<Input placeholder="请输入镜像地址（名称:tag）如nginx:1.11" />)}
         </Form.Item>
         <Form.Item
-          style={{ display: type === "dockerfile" ? "" : "none" }}
+          style={{ display: type === 'dockerfile' ? '' : 'none' }}
           {...formItemLayout}
           label="源码地址"
         >
-          {getFieldDecorator("code_repo", {
-            initialValue: data.code_repo || "",
+          {getFieldDecorator('code_repo', {
+            initialValue: data.code_repo || '',
             rules: [{ validator: this.checkCode }]
           })(
             <Input placeholder="请输入源码Git地址（必须包含Dockerfile文件）" />
@@ -209,25 +215,25 @@ export default class Index extends PureComponent {
             onOk={this.handleVisibleKey}
           />
         )}
-        {this.fetchCheckboxGroup(type && type === "dockerfile")}
+        {this.fetchCheckboxGroup(type && type === 'dockerfile')}
         <Form.Item
-          style={{ display: showUsernameAndPass ? "" : "none" }}
+          style={{ display: showUsernameAndPass ? '' : 'none' }}
           {...formItemLayout}
           label="仓库用户名"
         >
-          {getFieldDecorator("username", {
-            initialValue: data.username || "",
-            rules: [{ required: false, message: "请输入仓库用户名" }]
+          {getFieldDecorator('username', {
+            initialValue: data.username || '',
+            rules: [{ required: false, message: '请输入仓库用户名' }]
           })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
         </Form.Item>
         <Form.Item
-          style={{ display: showUsernameAndPass ? "" : "none" }}
+          style={{ display: showUsernameAndPass ? '' : 'none' }}
           {...formItemLayout}
           label="仓库密码"
         >
-          {getFieldDecorator("password", {
-            initialValue: data.password || "",
-            rules: [{ required: false, message: "请输入仓库密码" }]
+          {getFieldDecorator('password', {
+            initialValue: data.password || '',
+            rules: [{ required: false, message: '请输入仓库密码' }]
           })(
             <Input
               autoComplete="new-password"
@@ -237,19 +243,19 @@ export default class Index extends PureComponent {
           )}
         </Form.Item>
         <Form.Item
-          style={{ display: type === "dockerfile" ? "" : "none" }}
+          style={{ display: type === 'dockerfile' ? '' : 'none' }}
           {...formItemLayout}
           label="代码版本"
         >
-          {getFieldDecorator("code_version", {
-            initialValue: data.code_version || "master",
+          {getFieldDecorator('code_version', {
+            initialValue: data.code_version || 'master',
             rules: [{ validator: this.checkCodeVersion }]
           })(<Input disabled={allDisabled} placeholder="请输入代码版本" />)}
         </Form.Item>
         <Form.Item {...formItemLayout} label="最小内存">
-          {getFieldDecorator("min_memory", {
-            initialValue: data.min_memory || "64",
-            rules: [{ required: true, message: "请选择最小内存" }]
+          {getFieldDecorator('min_memory', {
+            initialValue: data.min_memory || '64',
+            rules: [{ required: true, message: '请选择最小内存' }]
           })(
             <Select disabled={allDisabled}>
               <Option value="64">64M</Option>
@@ -259,35 +265,41 @@ export default class Index extends PureComponent {
           )}
         </Form.Item>
         <Form.Item
-          style={{ display: type === "image" ? "none" : "" }}
+          style={{ display: type === 'image' ? 'none' : '' }}
           {...formItemLayout}
           label="启动命令"
         >
-          {getFieldDecorator("build_cmd", {
-            initialValue: data.build_cmd || "",
-            rules: [{ required: false, message: "请输入插件的启动命令" }]
+          {getFieldDecorator('build_cmd', {
+            initialValue: data.build_cmd || '',
+            rules: [{ required: false, message: '请输入插件的启动命令' }]
           })(
             <Input disabled={allDisabled} placeholder="请输入插件的启动命令" />
           )}
         </Form.Item>
         <Form.Item
-          style={{ display: isEdit ? "" : "none" }}
+          style={{ display: isEdit ? '' : 'none' }}
           {...formItemLayout}
           label="更新说明"
         >
-          {getFieldDecorator("update_info", {
-            initialValue: data.update_info || data.desc || "",
-            rules: [{ required: false, message: "请输入更新说明" }]
+          {getFieldDecorator('update_info', {
+            initialValue: data.update_info || data.desc || '',
+            rules: [{ required: false, message: '请输入更新说明' }]
           })(<Input disabled={allDisabled} placeholder="请输入更新说明" />)}
         </Form.Item>
         <Form.Item
-          style={{ display: !isEdit ? "" : "none" }}
+          style={{ display: !isEdit ? '' : 'none' }}
           {...formItemLayout}
           label="一句话说明"
         >
-          {getFieldDecorator("desc", {
-            initialValue: data.desc || "",
-            rules: [{ required: true, message: "请输入一句话说明" }]
+          {getFieldDecorator('desc', {
+            initialValue: data.desc || '',
+            rules: [
+              { required: true, message: '请输入一句话说明' },
+              {
+                max: 255,
+                message: '最大长度255位'
+              }
+            ]
           })(<Input disabled={allDisabled} placeholder="请输入一句话说明" />)}
         </Form.Item>
         {!allDisabled ? (

@@ -1,3 +1,6 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable camelcase */
 import { Avatar, List, Table, Tabs, Tag } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -11,7 +14,6 @@ import {
 } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
-import sourceUtil from '../../utils/source-unit';
 import styles from './index.less';
 import Info from './info';
 import infoUtil from './info-util';
@@ -242,10 +244,6 @@ export default class AppList extends PureComponent {
               : '暂无升级'}
           </p>
         </div>
-        <div className={styles.listContentItem}>
-          <span>内存</span>
-          <p>{sourceUtil.unit(min_memory || 128, 'MB')}</p>
-        </div>
       </div>
     );
 
@@ -298,16 +296,15 @@ export default class AppList extends PureComponent {
           <a
             onClick={e => {
               e.preventDefault();
-              item.status != 1 &&
+              item.status !== 1 &&
                 this.setState({
                   infoData: item,
                   infoShow: true
                 });
             }}
-            style={{ color: item.status == 1 ? '#000' : '#1890ff' }}
-            href="javascript:;"
+            style={{ color: item.status === 1 ? '#000' : '#1890ff' }}
           >
-            {item.status == 1 ? '-' : '详情'}
+            {item.status === 1 ? '-' : '详情'}
           </a>
         )
       }

@@ -13,7 +13,8 @@ import ShowRegionKey from '../../components/ShowRegionKey';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   buildApp,
-  getCheckuuid, getCreateCheckId,
+  getCheckuuid,
+  getCreateCheckId,
   getCreateCheckResult
 } from '../../services/createApp';
 import globalUtil from '../../utils/global';
@@ -26,7 +27,7 @@ import ModifyUrl from './modify-url';
 @connect(
   ({ user, appControl }) => ({
     currUser: user.currentUser,
-    appDetail: appControl.appDetail,
+    appDetail: appControl.appDetail
   }),
   null,
   null,
@@ -51,7 +52,7 @@ export default class CreateCheck extends React.Component {
       isDeploy: true,
       ServiceGetData: props.ServiceGetData ? props.ServiceGetData : null,
       buildAppLoading: false,
-      isMulti: false,
+      isMulti: false
     };
     this.mount = false;
     this.socketUrl = '';
@@ -80,14 +81,14 @@ export default class CreateCheck extends React.Component {
       type: 'appControl/fetchDetail',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias(),
+        app_alias: this.getAppAlias()
       },
       callback: appDetail => {
         if (appDetail) {
           this.setState({ appDetail: appDetail.service });
           this.getCheckuuid();
         }
-      },
+      }
     });
   };
   getCheckuuid = () => {
@@ -100,7 +101,7 @@ export default class CreateCheck extends React.Component {
         } else {
           this.setState(
             {
-              checkUuid: data.bean.check_uuid,
+              checkUuid: data.bean.check_uuid
             },
             () => {
               this.loopStatus();
@@ -122,7 +123,7 @@ export default class CreateCheck extends React.Component {
     getCreateCheckResult({
       team_name: teamName,
       app_alias: appAlias,
-      check_uuid: this.state.checkUuid,
+      check_uuid: this.state.checkUuid
     })
       .then(data => {
         if (data && this.mount) {
@@ -133,7 +134,7 @@ export default class CreateCheck extends React.Component {
             status,
             errorInfo: errorInfos,
             serviceInfo,
-            isMulti: data.bean.is_multi,
+            isMulti: data.bean.is_multi
           });
         }
       })
@@ -151,7 +152,7 @@ export default class CreateCheck extends React.Component {
     getCreateCheckId(
       {
         team_name: teamName,
-        app_alias: appAlias,
+        app_alias: appAlias
       },
       res => {
         if (res.status === 404) {
@@ -167,7 +168,7 @@ export default class CreateCheck extends React.Component {
         this.setState({
           checkUuid: data.bean.check_uuid,
           eventId: data.bean.check_event_id,
-          appDetail: data.bean,
+          appDetail: data.bean
         });
         if (loopStatus !== false) {
           this.loopStatus();
@@ -210,15 +211,15 @@ export default class CreateCheck extends React.Component {
     buildApp({
       team_name: teamName,
       app_alias: appAlias,
-      is_deploy: isDeploy,
+      is_deploy: isDeploy
     }).then(data => {
       this.setState({ buildAppLoading: false });
       if (data) {
         dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: teamName,
-          },
+            team_name: teamName
+          }
         });
         if (ServiceGetData && isDeploy) {
           refreshCurrent();
@@ -242,7 +243,7 @@ export default class CreateCheck extends React.Component {
   recheck = () => {
     this.setState(
       {
-        status: 'checking',
+        status: 'checking'
       },
       () => {
         this.startCheck();
@@ -315,14 +316,14 @@ export default class CreateCheck extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
-        is_force: true,
+        is_force: true
       },
       callback: () => {
         dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: globalUtil.getCurrTeamName(),
-          },
+            team_name: globalUtil.getCurrTeamName()
+          }
         });
         if (ServiceGetData) {
           handleServiceDataState(true, null, null, null);
@@ -333,7 +334,7 @@ export default class CreateCheck extends React.Component {
             )
           );
         }
-      },
+      }
     });
   };
   cancelModifyUrl = () => {
@@ -364,14 +365,14 @@ export default class CreateCheck extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service_alias,
         user_name: values.user_name,
-        password: values.password,
+        password: values.password
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.cancelModifyUserpass();
         }
-      },
+      }
     });
   };
   handleModifyUrl = values => {
@@ -381,14 +382,14 @@ export default class CreateCheck extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service_alias,
-        git_url: values.git_url,
+        git_url: values.git_url
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.handleCancelEdit();
         }
-      },
+      }
     });
   };
   handleModifyImageName = values => {
@@ -400,14 +401,14 @@ export default class CreateCheck extends React.Component {
         app_alias: appDetail.service_alias,
         docker_cmd: values.docker_cmd,
         user_name: values.username,
-        password: values.password,
+        password: values.password
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.cancelModifyImageName();
         }
-      },
+      }
     });
   };
   handleModifyImageCmd = values => {
@@ -419,14 +420,14 @@ export default class CreateCheck extends React.Component {
         app_alias: appDetail.service_alias,
         docker_cmd: values.docker_cmd,
         user_name: values.username,
-        password: values.password,
+        password: values.password
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.cancelModifyImageCmd();
         }
-      },
+      }
     });
   };
   handleImageSubmit = () => {};
@@ -441,20 +442,20 @@ export default class CreateCheck extends React.Component {
           <div
             key={`error${index}`}
             style={{
-              marginBottom: 16,
+              marginBottom: 16
             }}
           >
             <Icon
               style={{
                 color: '#f5222d',
-                marginRight: 8,
+                marginRight: 8
               }}
               type="close-circle-o"
             />
             <span
               dangerouslySetInnerHTML={{
                 __html: `<span>${item.error_info || ''} ${item.solve_advice ||
-                  ''}</span>`,
+                  ''}</span>`
               }}
             />
           </div>
@@ -494,7 +495,7 @@ export default class CreateCheck extends React.Component {
         actions={ServiceGetData ? '' : actions}
         style={{
           marginTop: 48,
-          marginBottom: 16,
+          marginBottom: 16
         }}
       />
     );
@@ -508,7 +509,7 @@ export default class CreateCheck extends React.Component {
             style={{
               verticalAlign: 'top',
               display: 'inline-block',
-              fontWeight: 'bold',
+              fontWeight: 'bold'
             }}
           >
             {item.key}：
@@ -523,21 +524,21 @@ export default class CreateCheck extends React.Component {
           style={{
             verticalAlign: 'top',
             display: 'inline-block',
-            fontWeight: 'bold',
+            fontWeight: 'bold'
           }}
         >
           {item.key}：
         </span>
         <div
           style={{
-            display: 'inline-block',
+            display: 'inline-block'
           }}
         >
-          {(item.value || []).map((items,index) => (
+          {(item.value || []).map((items, index) => (
             <p
               key={`items${index}`}
               style={{
-                marginBottom: 0,
+                marginBottom: 0
               }}
             >
               {items}
@@ -550,7 +551,7 @@ export default class CreateCheck extends React.Component {
 
   renderSuccessOnChange = () => {
     this.setState({
-      isDeploy: !this.state.isDeploy,
+      isDeploy: !this.state.isDeploy
     });
   };
 
@@ -559,11 +560,11 @@ export default class CreateCheck extends React.Component {
     const { ButtonGroupState, ErrState, handleServiceBotton } = this.props;
     let extra = '';
     if (serviceInfo && serviceInfo.length > 0) {
-      extra = serviceInfo.map((item,index) => (
+      extra = serviceInfo.map((item, index) => (
         <div
           key={`item${index}`}
           style={{
-            marginBottom: 16,
+            marginBottom: 16
           }}
         >
           {this.renderSuccessInfo(item)}
@@ -631,7 +632,7 @@ export default class CreateCheck extends React.Component {
               创建
             </Button>
           </div>
-        </div>,
+        </div>
       ];
     } else {
       actions = [
@@ -671,7 +672,7 @@ export default class CreateCheck extends React.Component {
               </Radio>
             </Tooltip>
           </div>
-        </div>,
+        </div>
       ];
     }
 
@@ -693,7 +694,7 @@ export default class CreateCheck extends React.Component {
               放弃创建{' '}
             </Button>
           </div>
-        </div>,
+        </div>
       ];
     }
 
@@ -727,7 +728,7 @@ export default class CreateCheck extends React.Component {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Rainbond源码支持规范
+                平台源码支持规范
               </a>{' '}
               对代码进行调整。
             </div>
@@ -741,12 +742,7 @@ export default class CreateCheck extends React.Component {
   };
 
   renderMoreService = () => {
-    const {
-      ServiceGetData,
-      isDeploy,
-      appDetail,
-      isMulti,
-    } = this.state;
+    const { ServiceGetData, isDeploy, appDetail, isMulti } = this.state;
     let actions = [];
     if (ServiceGetData && isMulti) {
       actions = [
@@ -758,7 +754,7 @@ export default class CreateCheck extends React.Component {
           <Button type="primary" onClick={this.handleMoreService}>
             进入多组件构建
           </Button>
-        </div>,
+        </div>
       ];
     } else if (ServiceGetData) {
       actions = [
@@ -802,7 +798,7 @@ export default class CreateCheck extends React.Component {
               </Tooltip>
             </div>
           </div>
-        </div>,
+        </div>
       ];
     } else if (appDetail.service_source === 'third_party') {
       actions = [
@@ -820,7 +816,7 @@ export default class CreateCheck extends React.Component {
               进入多组件构建
             </Button>
           </div>
-        </div>,
+        </div>
       ];
     } else {
       actions = [
@@ -831,7 +827,7 @@ export default class CreateCheck extends React.Component {
           <Button type="primary" onClick={this.handleMoreService}>
             进入多服务构建
           </Button>
-        </div>,
+        </div>
       ];
     }
 
@@ -848,11 +844,15 @@ export default class CreateCheck extends React.Component {
               创建
             </Button>
           </div>
-        </div>,
+        </div>
       ];
     }
 
-    const { ButtonGroupState = false, handleServiceBotton, ErrState } = this.props;
+    const {
+      ButtonGroupState = false,
+      handleServiceBotton,
+      ErrState
+    } = this.props;
 
     if (isDeploy) {
       if (ServiceGetData && (!ButtonGroupState || !ErrState)) {
@@ -880,7 +880,7 @@ export default class CreateCheck extends React.Component {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Rainbond源码支持规范
+                平台源码支持规范
               </a>{' '}
               对代码进行调整。
             </div>
@@ -925,7 +925,7 @@ export default class CreateCheck extends React.Component {
         actions={ServiceGetData ? '' : actions}
         style={{
           marginTop: 48,
-          marginBottom: 16,
+          marginBottom: 16
         }}
       />
     );
@@ -941,7 +941,7 @@ export default class CreateCheck extends React.Component {
             <Card bordered={false}>
               <div
                 style={{
-                  minHeight: 400,
+                  minHeight: 400
                 }}
               >
                 {status === 'checking' ? this.renderChecking() : null}
@@ -1006,7 +1006,7 @@ export default class CreateCheck extends React.Component {
             <Card bordered={false}>
               <div
                 style={{
-                  minHeight: 400,
+                  minHeight: 400
                 }}
               >
                 {status === 'checking' ? this.renderChecking() : null}

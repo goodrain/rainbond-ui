@@ -1,14 +1,14 @@
 /* eslint-disable camelcase */
 import {
-    Button,
-    Card,
-    Form,
-    Icon,
-    Input,
-    notification,
-    Pagination,
-    Table,
-    Tooltip
+  Button,
+  Card,
+  Form,
+  Icon,
+  Input,
+  notification,
+  Pagination,
+  Table,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
@@ -105,6 +105,10 @@ class EditableCell extends React.Component {
           message: '请输入变量名称'
         },
         {
+          max: 1024,
+          message: '最大长度1024位'
+        },
+        {
           pattern: /[-._a-zA-Z][-._a-zA-Z0-9]/,
           message: ' 必须由字母、数字和 - . _ 组成，不支持数字开头'
         }
@@ -114,6 +118,10 @@ class EditableCell extends React.Component {
         {
           required: true,
           message: '请输入变量值'
+        },
+        {
+          max: 65535,
+          message: '最大长度65535位'
         }
       ];
       placeholders = '请输入变量值';
@@ -122,6 +130,10 @@ class EditableCell extends React.Component {
         {
           required: false,
           message: '请输入变量说明'
+        },
+        {
+          max: 1024,
+          message: '最大长度1024位'
         }
       ];
 

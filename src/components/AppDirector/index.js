@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
-import { Form, Spin, Modal, Select } from 'antd';
+import { Form, Modal, Select, Spin } from 'antd';
 import { connect } from 'dva';
+import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -21,7 +21,7 @@ export default class AppDirector extends PureComponent {
   componentWillMount() {
     this.fetchTeamMember();
   }
-  onOk = (e) => {
+  onOk = e => {
     e.preventDefault();
     const { form, onOk, group_name: groupName, note } = this.props;
     form.validateFields({ force: true }, (err, vals) => {
@@ -31,7 +31,7 @@ export default class AppDirector extends PureComponent {
       }
     });
   };
-  fetchTeamMember = (value) => {
+  fetchTeamMember = value => {
     const { dispatch, teamName, regionName } = this.props;
     this.setState({
       fetching: true
@@ -45,7 +45,7 @@ export default class AppDirector extends PureComponent {
         page_size: this.state.pageSize,
         page: this.state.page
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState({
             members: data.list || [],
@@ -96,8 +96,10 @@ export default class AppDirector extends PureComponent {
                 onSearch={this.fetchTeamMember}
                 style={{ width: '100%' }}
               >
-                {members.map((d) => (
-                  <Option key={d.nick_name}>{d.user_name}</Option>
+                {members.map(d => (
+                  <Option key={d.nick_name}>
+                    {d.nick_name}/{d.user_name}
+                  </Option>
                 ))}
               </Select>
             )}

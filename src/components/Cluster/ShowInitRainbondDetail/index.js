@@ -83,7 +83,7 @@ class InitRainbondDetail extends PureComponent {
     }
     return (
       <Modal
-        title={title || 'Rainbond 集群初始化进度查询'}
+        title={title || '平台集群初始化进度查询'}
         visible
         maskClosable={false}
         width={600}
