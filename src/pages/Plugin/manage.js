@@ -1,16 +1,16 @@
-import React, { PureComponent, Fragment } from 'react';
+import { Button, Card, Col, Form, Icon, Notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import { Row, Col, Card, Button, Icon, Form, Table, Notification } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import React, { Fragment, PureComponent } from 'react';
 import AddOrEditConfig from '../../components/AddOrEditConfig';
-import ConfirmModal from '../../components/ConfirmModal';
 import BuildPluginVersion from '../../components/buildPluginVersion';
-import ScrollerX from '../../components/ScrollerX';
+import ConfirmModal from '../../components/ConfirmModal';
 import CreatePluginForm from '../../components/CreatePluginForm';
+import ScrollerX from '../../components/ScrollerX';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
-import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import styles from './Index.less';
 
 const ButtonGroup = Button.Group;
@@ -54,7 +54,7 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     this.mount = false;
   }
-  onPageChange = (page) => {
+  onPageChange = page => {
     this.setState({ page }, () => {
       this.getUsedApp();
     });
@@ -77,7 +77,7 @@ export default class Index extends PureComponent {
         page: this.state.page,
         page_size: this.state.page_size
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState({
             apps: data.list || [],
@@ -94,7 +94,7 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId()
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           if (!this.state.currVersion && data.list.length) {
             this.setState(
@@ -120,7 +120,7 @@ export default class Index extends PureComponent {
         plugin_id: this.getId(),
         build_version: this.state.currVersion
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState({ currInfo: data.bean });
           setTimeout(() => {
@@ -138,7 +138,7 @@ export default class Index extends PureComponent {
         plugin_id: this.getId(),
         build_version: this.state.currVersion
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState({ config: data.list });
         }
@@ -149,7 +149,7 @@ export default class Index extends PureComponent {
   getId = () => {
     return this.props.match.params.pluginId;
   };
-  handleSubmit = (val) => {
+  handleSubmit = val => {
     this.props.dispatch({
       type: 'plugin/createPlugin',
       payload: {
@@ -158,7 +158,7 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleVersionChange = (val) => {
+  handleVersionChange = val => {
     const { key } = val;
     if (key === this.state.currVersion) return;
     this.setState(
@@ -177,7 +177,7 @@ export default class Index extends PureComponent {
   hiddenAddConfig = () => {
     this.setState({ showAddConfig: false });
   };
-  handleOpenDelConfigVisible = (data) => {
+  handleOpenDelConfigVisible = data => {
     this.setState({ configVisible: data });
   };
 
@@ -185,7 +185,7 @@ export default class Index extends PureComponent {
     this.setState({ configVisible: false });
   };
 
-  hanldeEditSubmit = (values) => {
+  hanldeEditSubmit = values => {
     this.props.dispatch({
       type: 'plugin/editPluginVersionInfo',
       payload: {
@@ -216,7 +216,7 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleAddConfig = (values) => {
+  handleAddConfig = values => {
     this.props.dispatch({
       type: 'plugin/addPluginVersionConfig',
       payload: {
@@ -231,7 +231,7 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleEditConfig = (values) => {
+  handleEditConfig = values => {
     const { showEditConfig, currVersion } = this.state;
     this.props.dispatch({
       type: 'plugin/editPluginVersionConfig',
@@ -250,7 +250,7 @@ export default class Index extends PureComponent {
       }
     });
   };
-  showEditConfig = (config) => {
+  showEditConfig = config => {
     this.setState({ showEditConfig: config });
   };
   hideEditConfig = () => {
@@ -299,7 +299,7 @@ export default class Index extends PureComponent {
         plugin_id: this.getId(),
         build_version: this.state.currVersion
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState(
             {
@@ -336,7 +336,7 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId()
       },
-      callback: (data) => {
+      callback: data => {
         if (data.bean.step === 1) {
           dispatch(
             routerRedux.push(
@@ -478,14 +478,14 @@ export default class Index extends PureComponent {
                 {
                   title: '依赖元数据类型',
                   dataIndex: 'service_meta_type',
-                  render: (v) => {
+                  render: v => {
                     return pluginUtil.getMetaTypeCN(v);
                   }
                 },
                 {
                   title: '注入类型',
                   dataIndex: 'injection',
-                  render: (v) => {
+                  render: v => {
                     return pluginUtil.getInjectionCN(v);
                   }
                 },
@@ -493,8 +493,8 @@ export default class Index extends PureComponent {
                   title: '配置项',
                   dataIndex: 'options',
                   width: '40%',
-                  render: (v) => {
-                    return (v || []).map((item) => {
+                  render: v => {
+                    return (v || []).map(item => {
                       return (
                         <p className={styles.configGroup}>
                           <span>属性名: {item.attr_name}</span>
