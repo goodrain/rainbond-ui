@@ -609,7 +609,7 @@ export default class Index extends PureComponent {
         });
         const values = this.encodeBase64Content(val.yamls);
         let isError = false;
-        const overrides = {};
+        let overrides = {};
 
         if (val.overrides && val.overrides.length > 0) {
           val.overrides.map(item => {
@@ -620,6 +620,8 @@ export default class Index extends PureComponent {
               overrides[itemKey] = itemValue;
             }
           });
+        } else {
+          overrides = undefined;
         }
         if (isError) {
           setFields({
