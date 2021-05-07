@@ -29,6 +29,7 @@ import {
   getGroupApps,
   getGroupDetail,
   getPluginShareEventInShareApp,
+  getQuetions,
   getServiceNameList,
   getServices,
   getShare,
@@ -40,6 +41,7 @@ import {
   groupMonitorData,
   InstallHelmApp,
   migrateApp,
+  parseChart,
   queryAllBackup,
   queryCopyComponent,
   queryMigrateApp,
@@ -101,6 +103,18 @@ export default {
     },
     *installHelmApp({ payload, callback }, { call }) {
       const response = yield call(InstallHelmApp, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchQuetions({ payload, callback }, { call }) {
+      const response = yield call(getQuetions, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *parseChart({ payload, callback }, { call }) {
+      const response = yield call(parseChart, payload);
       if (callback) {
         callback(response);
       }

@@ -29,6 +29,10 @@ class CodeMirrorForm extends PureComponent {
 
   saveRef = ref => {
     this.CodeMirrorRef = ref;
+    const { saveRef = false } = this.props;
+    if (saveRef) {
+      saveRef(ref);
+    }
   };
 
   handleChangeUpload = info => {

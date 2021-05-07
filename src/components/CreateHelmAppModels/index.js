@@ -1,7 +1,8 @@
-import { Button, Form, Input, Modal, Select } from 'antd';
+import { Button, Checkbox, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import AddGroup from '../../components/AddOrEditGroup';
 import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
@@ -21,15 +22,21 @@ class CreateHelmAppModels extends PureComponent {
       userTeamList: [],
       regionList: [],
       appName: '',
+      groups: [],
+      isDeploy: true,
+      addGroup: false,
+      addAppLoading: false,
       helmInstallLoading: false
     };
   }
   componentDidMount() {
     this.fetchCreateAppTeams();
   }
-
+  onAddGroup = () => {
+    this.setState({ addGroup: true });
+  };
   fetchCreateAppTeams = name => {
-    const { dispatch, eid, form } = this.props;
+    const { dispatch, eid, form, appTypes } = this.props;
     const { setFieldsValue } = form;
     dispatch({
       type: 'global/fetchCreateAppTeams',
@@ -50,7 +57,11 @@ class CreateHelmAppModels extends PureComponent {
                 setFieldsValue({
                   team_name: info.team_name
                 });
-                if (info.region_list && info.region_list.length > 0) {
+                if (
+                  appTypes === 'helmContent' &&
+                  info.region_list &&
+                  info.region_list.length > 0
+                ) {
                   this.handleCheckAppName(
                     true,
                     info.team_name,
@@ -106,7 +117,7 @@ class CreateHelmAppModels extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const { form, helmInfo, appInfo } = this.props;
+    const { form, helmInfo, appInfo, appTypes } = this.props;
     form.validateFields((err, fieldsValue) => {
       const info = Object.assign({}, fieldsValue, {
         app_template_name: (appInfo && appInfo.name) || '',
@@ -115,10 +126,76 @@ class CreateHelmAppModels extends PureComponent {
       });
       if (!err) {
         this.setState({ helmInstallLoading: true });
-        this.handleCreateHelm(info);
+        if (appTypes === 'helmContent') {
+          this.handleCreateHelm(info);
+        } else if (appTypes === 'marketContent') {
+          this.handleCloudCreate(fieldsValue);
+        } else if (appTypes === 'localsContent') {
+          this.handleCreate(fieldsValue);
+        }
       }
     });
   };
+
+  handleCloudCreate = vals => {
+    const { dispatch, appInfo } = this.props;
+    const { isDeploy } = this.state;
+    dispatch({
+      type: 'createApp/installApp',
+      payload: {
+        app_id: appInfo.app_id,
+        ...vals,
+        is_deploy: isDeploy,
+        app_version: vals.version,
+        install_from_cloud: true,
+        marketName: appInfo.local_market_name
+      },
+      callback: () => {
+        this.handleRefresh(vals);
+      }
+    });
+  };
+  handleCreate = vals => {
+    const { dispatch, appInfo } = this.props;
+    const { isDeploy } = this.state;
+    dispatch({
+      type: 'createApp/installApp',
+      payload: {
+        ...vals,
+        app_id: appInfo.app_id,
+        is_deploy: isDeploy,
+        app_version: vals.version,
+        install_from_cloud: false,
+        marketName: 'localApplication'
+      },
+      callback: () => {
+        this.handleRefresh(vals);
+      }
+    });
+  };
+
+  handleRefresh = vals => {
+    const { dispatch, onCancel } = this.props;
+    dispatch({
+      type: 'global/fetchGroups',
+      payload: {
+        team_name: vals.team_name
+      },
+      callback: () => {
+        onCancel();
+        this.jump(vals.team_name, vals.region, vals.group_id);
+        this.handleInstallLoading();
+      }
+    });
+  };
+
+  jump = (teaName, regionName, ID) => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push(`/team/${teaName}/region/${regionName}/apps/${ID}`)
+    );
+  };
+
   handleCreateHelm = vals => {
     const { dispatch, onCancel } = this.props;
     dispatch({
@@ -130,19 +207,18 @@ class CreateHelmAppModels extends PureComponent {
       callback: res => {
         if (res.bean.ID && onCancel) {
           onCancel();
-          dispatch(
-            routerRedux.push(
-              `/team/${vals.team_name}/region/${vals.region}/apps/${res.bean.ID}`
-            )
-          );
+          this.jump(vals.team_name, vals.region, res.bean.ID);
         }
-        this.setState({ helmInstallLoading: false });
+        this.handleInstallLoading();
       }
     });
   };
+  handleInstallLoading = () => {
+    this.setState({ helmInstallLoading: false });
+  };
   handleTeamChange = value => {
-    const { form } = this.props;
-    const { setFieldsValue } = form;
+    const { form, appTypes } = this.props;
+    const { setFieldsValue, getFieldValue } = form;
     const { userTeamList } = this.state;
     let regionList = [];
     userTeamList.map(item => {
@@ -151,30 +227,107 @@ class CreateHelmAppModels extends PureComponent {
       }
     });
     if (regionList && regionList.length > 0) {
+      const regionName = regionList[0].region_name;
       this.setState({ regionList }, () => {
         setFieldsValue({
-          region: regionList[0].region_name
+          region: regionName
         });
-        const { getFieldValue } = this.props.form;
-        this.handleCheckAppName(
-          false,
-          value,
-          getFieldValue('app_name'),
-          regionList[0].region_name
-        );
+        if (appTypes === 'helmContent') {
+          this.handleCheckAppName(
+            false,
+            value,
+            getFieldValue('app_name'),
+            regionName
+          );
+        } else {
+          this.fetchGroup(value, regionName);
+        }
       });
     }
   };
+
+  fetchGroup = (teaName, regionName) => {
+    const { setFieldsValue } = this.props.form;
+    this.props.dispatch({
+      type: 'global/fetchGroups',
+      payload: {
+        team_name: teaName,
+        region_name: regionName
+      },
+      callback: res => {
+        setFieldsValue({
+          group_id: res && res.length > 0 ? res[0].group_id : ''
+        });
+        this.setState({ groups: res });
+        this.cancelAddGroup();
+      }
+    });
+  };
+
+  cancelAddGroup = () => {
+    this.setState({ addGroup: false });
+  };
+  handleAddGroup = vals => {
+    this.setState({ addAppLoading: true });
+    const { dispatch, form } = this.props;
+    const { setFieldsValue, getFieldValue } = form;
+    const teaName = getFieldValue('team_name');
+    const regionName = getFieldValue('region');
+
+    dispatch({
+      type: 'application/addGroup',
+      payload: {
+        team_name: teaName,
+        region_name: regionName,
+        ...vals
+      },
+      callback: group => {
+        if (group) {
+          // 获取群组
+          dispatch({
+            type: 'global/fetchGroups',
+            payload: {
+              team_name: teaName,
+              region_name: regionName
+            },
+            callback: res => {
+              this.setState({ groups: res, addAppLoading: false });
+              setFieldsValue({ group_id: group.group_id });
+              this.cancelAddGroup();
+            }
+          });
+        }
+      }
+    });
+  };
+  renderSuccessOnChange = () => {
+    this.setState({
+      isDeploy: !this.state.isDeploy
+    });
+  };
   render() {
-    const { onCancel, title, appInfo, form } = this.props;
+    const { onCancel, title, appInfo, form, appTypes } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
     const {
       regionList,
       userTeamList,
       appName,
-      helmInstallLoading
+      helmInstallLoading,
+      groups,
+      addGroup,
+      addAppLoading,
+      isDeploy
     } = this.state;
     const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
+    let versions = [];
+
+    if (appTypes === 'localsContent') {
+      versions = appInfo.versions_info && appInfo.versions_info;
+    } else if (appTypes === 'marketContent') {
+      versions = appInfo.versions && appInfo.versions;
+    } else {
+      versions = appInfo.versions && appInfo.versions;
+    }
 
     const formItemLayout = {
       labelCol: {
@@ -196,6 +349,13 @@ class CreateHelmAppModels extends PureComponent {
     const regionName = getFieldValue('region');
     return (
       <div>
+        {addGroup && (
+          <AddGroup
+            loading={addAppLoading}
+            onCancel={this.cancelAddGroup}
+            onOk={this.handleAddGroup}
+          />
+        )}
         <Modal
           title={title}
           visible
@@ -258,49 +418,84 @@ class CreateHelmAppModels extends PureComponent {
               )}
               <div className={styles.conformDesc}>请选择集群</div>
             </FormItem>
-            <FormItem {...formItemLayout} label="应用名称">
-              {getFieldDecorator('app_name', {
-                initialValue: appName,
-                validateTrigger: 'onBlur',
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入应用名称'
-                  },
-                  {
-                    min: 4,
-                    message: '应用名称最小长度4位'
-                  },
-                  {
-                    max: 53,
-                    message: '应用名称最大长度53位'
-                  },
-                  {
-                    pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/,
-                    message: '只支持字母和数字开头结尾'
-                  },
-                  {
-                    validator: (_, value, callback) => {
-                      this.handleCheckAppName(
-                        false,
-                        teaName,
-                        regionName,
-                        value,
-                        callback
-                      );
+
+            {appTypes === 'helmContent' ? (
+              <FormItem {...formItemLayout} label="应用名称">
+                {getFieldDecorator('app_name', {
+                  initialValue: appName,
+                  validateTrigger: 'onBlur',
+                  rules: [
+                    {
+                      required: true,
+                      message: '请输入应用名称'
+                    },
+                    {
+                      min: 4,
+                      message: '应用名称最小长度4位'
+                    },
+                    {
+                      max: 53,
+                      message: '应用名称最大长度53位'
+                    },
+                    {
+                      pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/,
+                      message: '只支持字母和数字开头结尾'
+                    },
+                    {
+                      validator: (_, value, callback) => {
+                        this.handleCheckAppName(
+                          false,
+                          teaName,
+                          regionName,
+                          value,
+                          callback
+                        );
+                      }
                     }
-                  }
-                ]
-              })(<Input style={{ width: '284px' }} placeholder="请输入名称" />)}
-              <div className={styles.conformDesc}>
-                请输入创建的应用模版名称，最多53字.
-              </div>
-            </FormItem>
+                  ]
+                })(
+                  <Input style={{ width: '284px' }} placeholder="请输入名称" />
+                )}
+                <div className={styles.conformDesc}>
+                  请输入创建的应用模版名称，最多53字.
+                </div>
+              </FormItem>
+            ) : (
+              <Form.Item {...formItemLayout} label="选择应用">
+                {getFieldDecorator('group_id', {
+                  rules: [
+                    {
+                      required: true,
+                      message: '请选择'
+                    }
+                  ]
+                })(
+                  <Select
+                    placeholder="请选择应用"
+                    style={{
+                      display: 'inline-block',
+                      width: 220,
+                      marginRight: 15
+                    }}
+                  >
+                    {(groups || []).map(group => (
+                      <Option key={group.group_id} value={group.group_id}>
+                        {group.group_name}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+                <Button onClick={this.onAddGroup}>新建应用</Button>
+                <div className={styles.conformDesc}>
+                  请输入创建的应用模版名称，最多53字.
+                </div>
+              </Form.Item>
+            )}
+
             <FormItem {...formItemLayout} label="应用版本">
               {getFieldDecorator('version', {
-                initialValue: appInfo.versions
-                  ? appInfo.versions[0].version
-                  : '',
+                initialValue:
+                  versions && (versions[0].version || versions[0].app_version),
                 rules: [
                   {
                     required: true,
@@ -309,11 +504,12 @@ class CreateHelmAppModels extends PureComponent {
                 ]
               })(
                 <Select style={{ width: '284px' }}>
-                  {appInfo.versions &&
-                    appInfo.versions.map((item, indexs) => {
+                  {versions &&
+                    versions.map((item, indexs) => {
+                      const val = item.version || item.app_version;
                       return (
-                        <Option key={indexs} value={item.version}>
-                          {item.version}
+                        <Option key={indexs} value={val}>
+                          {val}
                         </Option>
                       );
                     })}
@@ -326,7 +522,7 @@ class CreateHelmAppModels extends PureComponent {
             <FormItem {...formItemLayout} label="应用备注">
               {getFieldDecorator('note', {
                 initialValue: appInfo.versions
-                  ? appInfo.versions[0].description
+                  ? appInfo.versions[0].description || appInfo.describe
                   : '',
                 rules: [
                   {
@@ -342,6 +538,19 @@ class CreateHelmAppModels extends PureComponent {
               )}
               <div className={styles.conformDesc}>请输入创建的应用模版描述</div>
             </FormItem>
+
+            {appTypes !== 'helmContent' && (
+              <FormItem {...formItemLayout} label="构建启动">
+                {getFieldDecorator('is_deploy', {
+                  initialValue: isDeploy
+                })(
+                  <Checkbox
+                    checked={isDeploy}
+                    onChange={this.renderSuccessOnChange}
+                  />
+                )}
+              </FormItem>
+            )}
           </Form>
         </Modal>
       </div>

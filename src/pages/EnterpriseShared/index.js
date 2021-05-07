@@ -112,7 +112,8 @@ export default class EnterpriseShared extends PureComponent {
       upHelmAppMarket: false,
       showCloudMarketAuth: false,
       showApp: {},
-      showMarketAppDetail: false
+      showMarketAppDetail: false,
+      appTypes: false
     };
   }
   componentDidMount() {
@@ -546,9 +547,10 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
-  installHelmApp = appInfo => {
+  installHelmApp = (appInfo, types) => {
     this.setState({
       appInfo,
+      appTypes: types,
       installHelmApp: true
     });
   };
@@ -672,6 +674,7 @@ export default class EnterpriseShared extends PureComponent {
   handleCancelDelete = () => {
     this.setState({
       installHelmApp: null,
+      appTypes: null,
       deleteApp: null,
       visibles: null,
       bouncedText: '',
@@ -816,6 +819,7 @@ export default class EnterpriseShared extends PureComponent {
     this.setState({
       appInfo: null,
       installHelmApp: false,
+      appTypes: null,
       upDataAppModel: false
     });
   };
@@ -851,7 +855,6 @@ export default class EnterpriseShared extends PureComponent {
     const isHelmContent = types === 'helmContent';
     const helmInfo =
       isHelmContent && versions && versions.length > 0 && versions[0];
-
     return (
       <Lists
         key={appId}
@@ -863,9 +866,8 @@ export default class EnterpriseShared extends PureComponent {
               e.stopPropagation();
               if (types === 'localsContent') {
                 this.handleAppModel(item);
-              }
-              if (types === 'helmContent') {
-                this.installHelmApp(item);
+              } else {
+                this.installHelmApp(item, types);
               }
             }}
           >
@@ -993,6 +995,7 @@ export default class EnterpriseShared extends PureComponent {
       helmList,
       tagList,
       appInfo,
+      appTypes,
       visibles,
       bouncedText,
       showCloudMarketAuth,
@@ -1037,7 +1040,17 @@ export default class EnterpriseShared extends PureComponent {
           </a>
         </Menu.Item>
       );
-
+      const InstallApp = isEditApp && (
+        <Menu.Item>
+          <a
+            onClick={() => {
+              this.installHelmApp(info, 'localsContent');
+            }}
+          >
+            安装应用模版
+          </a>
+        </Menu.Item>
+      );
       const editorApp = isEditApp && (
         <Menu.Item>
           <a
@@ -1061,6 +1074,7 @@ export default class EnterpriseShared extends PureComponent {
         return (
           <Menu>
             {isExportApp && exportOperation}
+            {InstallApp}
             {editorApp}
             {delApp}
           </Menu>
@@ -1401,6 +1415,7 @@ export default class EnterpriseShared extends PureComponent {
           <CreateHelmAppModels
             title="安装应用"
             eid={eid}
+            appTypes={appTypes}
             appInfo={appInfo}
             helmInfo={helmInfo}
             onOk={this.handleupDataAppModel}

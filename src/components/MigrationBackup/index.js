@@ -117,7 +117,7 @@ export default class Index extends PureComponent {
                 `/team/${data.bean.migrate_team}/region/${data.bean.migrate_region}/apps/${data.bean.group_id}`
               )
             );
-            location.reload();
+            window.location.reload();
           }
           if (data.bean.status == 'failed') {
             // this.props.onCancel && this.props.onCancel()
@@ -190,15 +190,15 @@ export default class Index extends PureComponent {
         footer={
           this.state.showRestore
             ? [
-              <Button key="back" onClick={this.props.onCancel}>
+                <Button key="back" onClick={this.props.onCancel}>
                   关闭
                 </Button>
               ]
             : [
-              <Button key="back" onClick={this.props.onCancel}>
+                <Button key="back" onClick={this.props.onCancel}>
                   关闭
                 </Button>,
-              <Button key="submit" type="primary" onClick={this.handleSubmit}>
+                <Button key="submit" type="primary" onClick={this.handleSubmit}>
                   迁移
                 </Button>
               ]

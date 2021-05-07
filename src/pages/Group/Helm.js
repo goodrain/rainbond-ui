@@ -1,3 +1,4 @@
+/* eslint-disable import/extensions */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-expressions */
@@ -129,6 +130,7 @@ export default class Index extends PureComponent {
       isScrollToBottom: true,
       isAccessPermissions: true
     };
+    this.CodeMirrorRef = '';
   }
 
   componentDidMount() {
@@ -244,8 +246,10 @@ export default class Index extends PureComponent {
   };
 
   fetchAppDetailState = () => {
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
     const { teamName, appID } = this.props.match.params;
+    const { getFieldValue } = form;
+
     const {
       appStateMap,
       currentSteps: oldSteps,
@@ -275,6 +279,11 @@ export default class Index extends PureComponent {
               this.scrollToBottom();
             }
             if (currentSteps >= 2) {
+              const templateFile = getFieldValue('templateFile');
+              if (res.list && res.list.values && !templateFile) {
+                this.handleTemplateFile(Object.keys(res.list.values)[0]);
+              }
+              // this.fetchQuetions();
               this.getHelmApplication();
             } else {
               this.handleAppInfoLoading();
@@ -756,6 +765,42 @@ export default class Index extends PureComponent {
       )
     );
   };
+
+  fetchQuetions = () => {
+    const { dispatch, currentEnterprise } = this.props;
+    const { currApp } = this.state;
+    dispatch({
+      type: 'application/fetchQuetions',
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        app_name: currApp.group_name
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          console.log('fetchQuetions', res);
+        }
+      }
+    });
+  };
+  parseChart = value => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'application/parseChart',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: this.getGroupId(),
+        version: value
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          if (res.bean && res.bean.values) {
+            this.handleTemplateFile(Object.keys(res.bean.values)[0]);
+          }
+        }
+      }
+    });
+  };
+
   handleInstallHelmApp = values => {
     const { dispatch } = this.props;
     dispatch({
@@ -890,9 +935,31 @@ export default class Index extends PureComponent {
       this.setState({
         appInfo: info
       });
+      this.parseChart(value);
       this.handleAppInfoLoading();
     }
   };
+  handleTemplateFile = value => {
+    const { form } = this.props;
+    const { setFieldsValue } = form;
+    const { resources } = this.state;
+    const { CodeMirrorRef } = this;
+
+    if (resources.values) {
+      const val = this.decodeBase64Content(resources.values[value]);
+      setFieldsValue({
+        yamls: val
+      });
+      setFieldsValue({
+        templateFile: value
+      });
+      if (CodeMirrorRef) {
+        const editor = CodeMirrorRef.getCodeMirror();
+        editor.setValue(val);
+      }
+    }
+  };
+
   handleAppInfoLoading = () => {
     this.setState({
       appInfoLoading: false
@@ -995,25 +1062,52 @@ export default class Index extends PureComponent {
             key="2"
             className={styles.customPanel}
           >
-            <CodeMirrorForm
-              disabled
-              data={
-                (resources.values &&
-                  this.decodeBase64Content(resources.values)) ||
-                ''
-              }
-              isHeader={false}
-              marginTop={20}
-              setFieldsValue={setFieldsValue}
-              formItemLayout={formItemLayout}
-              Form={Form}
-              getFieldDecorator={getFieldDecorator}
-              beforeUpload={this.beforeUpload}
-              mode="yaml"
-              name="yamls"
-              message="填写配置"
-            />
-            {currentSteps > 3 && this.handleOperationBtn('UpDate')}
+            <div>
+              <FormItem {...formItemLayout} label="模版文件">
+                {getFieldDecorator('templateFile', {
+                  initialValue: '',
+                  rules: [{ required: true, message: '请选择模版文件' }]
+                })(
+                  <Select
+                    placeholder="请选择版本"
+                    style={{ width: '512px' }}
+                    onChange={this.handleTemplateFile}
+                  >
+                    {resources.values &&
+                      Object.keys(resources.values).map(key => {
+                        return (
+                          <Option key={key} value={key}>
+                            {key}
+                          </Option>
+                        );
+                      })}
+                  </Select>
+                )}
+              </FormItem>
+              <CodeMirrorForm
+                disabled
+                data=""
+                // data={
+                // (resources.values &&
+                //   this.decodeBase64Content(resources.values)) ||
+                //   ''
+                // }
+                isHeader={false}
+                saveRef={ref => {
+                  this.CodeMirrorRef = ref;
+                }}
+                marginTop={20}
+                setFieldsValue={setFieldsValue}
+                formItemLayout={formItemLayout}
+                Form={Form}
+                getFieldDecorator={getFieldDecorator}
+                beforeUpload={this.beforeUpload}
+                mode="yaml"
+                name="yamls"
+                message="填写配置"
+              />
+              {currentSteps > 3 && this.handleOperationBtn('UpDate')}
+            </div>
           </Panel>
         </Collapse>
         {currentSteps <= 2 && this.handleOperationBtn('Create')}
@@ -1228,16 +1322,6 @@ export default class Index extends PureComponent {
                 <div>
                   <span>版本号</span>
                   <span>{resources.version}</span>
-                  {versions && versions.length > 1 && (
-                    <span
-                      style={{ marginLeft: '5px' }}
-                      onClick={() => {
-                        isUpgrade && this.handleJump('upgrade');
-                      }}
-                    >
-                      <a>去升级</a>
-                    </span>
-                  )}
                 </div>
               )}
             </div>
