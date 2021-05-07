@@ -29,7 +29,6 @@ import {
   getGroupApps,
   getGroupDetail,
   getPluginShareEventInShareApp,
-  getQuetions,
   getServiceNameList,
   getServices,
   getShare,
@@ -103,12 +102,6 @@ export default {
     },
     *installHelmApp({ payload, callback }, { call }) {
       const response = yield call(InstallHelmApp, payload);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *fetchQuetions({ payload, callback }, { call }) {
-      const response = yield call(getQuetions, payload);
       if (callback) {
         callback(response);
       }

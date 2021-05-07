@@ -675,18 +675,6 @@ export async function InstallHelmApp(body = {}) {
   );
 }
 
-export async function getQuetions(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/bitnami/apps/${body.app_name}/quetions`,
-    {
-      method: 'get',
-      params: {
-        app_name: body.app_name
-      }
-    }
-  );
-}
-
 export async function parseChart(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/parse-helm-app`,

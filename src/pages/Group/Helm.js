@@ -283,7 +283,6 @@ export default class Index extends PureComponent {
               if (res.list && res.list.values && !templateFile) {
                 this.handleTemplateFile(Object.keys(res.list.values)[0]);
               }
-              // this.fetchQuetions();
               this.getHelmApplication();
             } else {
               this.handleAppInfoLoading();
@@ -765,23 +764,6 @@ export default class Index extends PureComponent {
       )
     );
   };
-
-  fetchQuetions = () => {
-    const { dispatch, currentEnterprise } = this.props;
-    const { currApp } = this.state;
-    dispatch({
-      type: 'application/fetchQuetions',
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
-        app_name: currApp.group_name
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          console.log('fetchQuetions', res);
-        }
-      }
-    });
-  };
   parseChart = value => {
     const { dispatch } = this.props;
     dispatch({
@@ -897,7 +879,7 @@ export default class Index extends PureComponent {
               versions: res.versions || []
             },
             () => {
-              this.handleAppVersion(resources.version);
+              this.handleAppVersion(resources.version, false);
             }
           );
         } else {
@@ -923,7 +905,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  handleAppVersion = value => {
+  handleAppVersion = (value, isParse) => {
     const { versions } = this.state;
     let info = {};
     versions.map(item => {
@@ -935,7 +917,9 @@ export default class Index extends PureComponent {
       this.setState({
         appInfo: info
       });
-      this.parseChart(value);
+      if (isParse) {
+        this.parseChart(value);
+      }
       this.handleAppInfoLoading();
     }
   };
@@ -1028,7 +1012,9 @@ export default class Index extends PureComponent {
                   <Select
                     placeholder="请选择版本"
                     style={{ width: '512px' }}
-                    onChange={this.handleAppVersion}
+                    onChange={val => {
+                      this.handleAppVersion(val, true);
+                    }}
                   >
                     {versions.map(item => {
                       const { version } = item;
@@ -1047,7 +1033,7 @@ export default class Index extends PureComponent {
             <FormItem {...formItemLayout} label="配置项">
               {getFieldDecorator('overrides', {
                 initialValue: overrides || [],
-                rules: [{ required: true, message: '请填写配置项' }]
+                rules: [{ required: false, message: '请填写配置项' }]
               })(<Parameterinput isHalf editInfo={overrides || ''} />)}
             </FormItem>
           </div>
