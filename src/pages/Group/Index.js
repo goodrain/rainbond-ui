@@ -2,6 +2,7 @@
 import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
 import ApplicationGovernance from '@/components/ApplicationGovernance';
+import { LoadingOutlined } from '@ant-design/icons';
 import {
   Badge,
   Button,
@@ -65,7 +66,8 @@ class Main extends PureComponent {
       rapidCopy: false,
       componentTimer: true,
       customSwitch: false,
-      resources: {}
+      resources: {},
+      upgradable_num: ''
     };
   }
 
@@ -210,7 +212,7 @@ class Main extends PureComponent {
       callback();
     }, times);
   };
-
+  //  157
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     const { teamName, regionName, appID } = this.props.match.params;
@@ -241,6 +243,20 @@ class Main extends PureComponent {
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
             )
           );
+        }
+      }
+    });
+    dispatch({
+      type: 'application/fetchToupgrade',
+      payload: {
+        team_name: teamName,
+        group_id: appID
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            upgradable_num: res.bean.upgradable_num
+          });
         }
       }
     });
@@ -525,7 +541,8 @@ class Main extends PureComponent {
       toDelete,
       type,
       customSwitch,
-      serviceIds
+      serviceIds,
+      upgradable_num
     } = this.state;
     const codeObj = {
       start: '启动',
@@ -796,7 +813,13 @@ class Main extends PureComponent {
                   isUpgrade && this.handleJump('upgrade');
                 }}
               >
-                <a>{currApp.upgradable_num || 0}</a>
+                <a>
+                  {upgradable_num + '' ? (
+                    upgradable_num
+                  ) : (
+                    <LoadingOutlined></LoadingOutlined>
+                  )}
+                </a>
               </div>
             </div>
 

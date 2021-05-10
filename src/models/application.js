@@ -39,7 +39,8 @@ import {
   setGovernancemode,
   startPluginShareEventInShareApp,
   startShareEvent,
-  submitShare
+  submitShare,
+  Toupgrade
 } from '../services/application';
 
 export default {
@@ -126,6 +127,12 @@ export default {
         if (callback) {
           callback(response);
         }
+      }
+    },
+    *fetchToupgrade({ payload, callback }, { call }) {
+      const response = yield call(Toupgrade, payload);
+      if (response && callback) {
+        callback(response);
       }
     },
     *fetchAppDetailState({ payload, callback }, { call }) {
