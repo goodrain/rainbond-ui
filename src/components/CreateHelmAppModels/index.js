@@ -385,7 +385,7 @@ class CreateHelmAppModels extends PureComponent {
                 ]
               })(
                 <Select
-                  style={{ width: '284px' }}
+                  style={{ width: '323px' }}
                   onChange={this.handleTeamChange}
                   placeholder="请选择团队"
                 >
@@ -408,7 +408,7 @@ class CreateHelmAppModels extends PureComponent {
                   }
                 ]
               })(
-                <Select placeholder="请选择集群" style={{ width: '284px' }}>
+                <Select placeholder="请选择集群" style={{ width: '323px' }}>
                   {regionList.map(item => (
                     <Option key={item.region_name} value={item.region_name}>
                       {item.region_alias}
@@ -454,7 +454,7 @@ class CreateHelmAppModels extends PureComponent {
                     }
                   ]
                 })(
-                  <Input style={{ width: '284px' }} placeholder="请输入名称" />
+                  <Input style={{ width: '323px' }} placeholder="请输入名称" />
                 )}
                 <div className={styles.conformDesc}>
                   请输入创建的应用模版名称，最多53字.
@@ -503,7 +503,7 @@ class CreateHelmAppModels extends PureComponent {
                   }
                 ]
               })(
-                <Select style={{ width: '284px' }}>
+                <Select style={{ width: '323px' }}>
                   {versions &&
                     versions.map((item, indexs) => {
                       const val = item.version || item.app_version;
@@ -533,7 +533,7 @@ class CreateHelmAppModels extends PureComponent {
               })(
                 <Input.TextArea
                   placeholder="请填写应用备注信息"
-                  style={{ width: '284px' }}
+                  style={{ width: '323px' }}
                 />
               )}
               <div className={styles.conformDesc}>请输入创建的应用模版描述</div>

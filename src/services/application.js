@@ -234,6 +234,16 @@ export async function getGroupDetail(body = {}, handleError) {
     }
   );
 }
+
+export async function getHelmAppStoresVersions(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.appStoreName}/templates/${body.templateName}/versions/${body.version}`,
+    {
+      handleError
+    }
+  );
+}
+
 /*
 	获取某个应用组的信息
 */

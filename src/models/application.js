@@ -28,6 +28,7 @@ import {
   getFreeComponents,
   getGroupApps,
   getGroupDetail,
+  getHelmAppStoresVersions,
   getPluginShareEventInShareApp,
   getServiceNameList,
   getServices,
@@ -201,10 +202,18 @@ export default {
     },
     *fetchAppDetailState({ payload, callback }, { call }) {
       const response = yield call(getAppDetailState, payload);
-      if (response) {
-        if (response && callback) {
-          callback(response);
-        }
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchHelmAppStoresVersions({ payload, callback, handleError }, { call }) {
+      const response = yield call(
+        getHelmAppStoresVersions,
+        payload,
+        handleError
+      );
+      if (response && callback) {
+        callback(response);
       }
     },
     *fetchAppResourcesStatistics({ payload, callback }, { call }) {

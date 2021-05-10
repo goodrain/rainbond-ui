@@ -1,14 +1,8 @@
+import { Card, Col, Dropdown, Icon, Row } from 'antd';
 import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { Card, Button, Col, Row, Dropdown, Icon, Input } from 'antd';
 import styles from './index.less';
 
-@connect(({}) => ({}))
 export default class EnterpriseTeams extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { stylePro = { marginBottom: '10px' }, Cols, overlay } = this.props;
     const moreSvg = () => (
@@ -42,7 +36,7 @@ export default class EnterpriseTeams extends PureComponent {
     return (
       <Card style={stylePro} hoverable bodyStyle={{ padding: 0 }}>
         <Row type="flex" align="middle" className={styles.pl24}>
-          <Col span={23}>{Cols || ''}</Col>
+          <Col span={overlay ? 23 : 24}>{Cols || ''}</Col>
           {overlay && (
             <Col span={1} className={styles.bor}>
               <Dropdown overlay={overlay} placement="bottomLeft">

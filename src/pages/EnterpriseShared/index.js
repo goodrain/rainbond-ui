@@ -866,8 +866,6 @@ export default class EnterpriseShared extends PureComponent {
               e.stopPropagation();
               if (types === 'localsContent') {
                 this.handleAppModel(item);
-              } else {
-                this.installHelmApp(item, types);
               }
             }}
           >
@@ -927,7 +925,7 @@ export default class EnterpriseShared extends PureComponent {
                 )}
               </div>
             </Col>
-            <Col span={5} className={styles.tags}>
+            <Col span={4} className={styles.tags}>
               {tags &&
                 tags.length > 0 &&
                 tags.map((items, index) => {
@@ -957,6 +955,20 @@ export default class EnterpriseShared extends PureComponent {
                   更多
                 </a>
               )}
+            </Col>
+            <Col
+              span={1}
+              className={styles.tags}
+              style={{ justifyContent: 'center' }}
+            >
+              <span
+                onClick={e => {
+                  e.stopPropagation();
+                  this.installHelmApp(item, types);
+                }}
+              >
+                {globalUtil.fetchSvg('InstallApp')}
+              </span>
             </Col>
           </div>
         }
@@ -1040,17 +1052,6 @@ export default class EnterpriseShared extends PureComponent {
           </a>
         </Menu.Item>
       );
-      const InstallApp = isEditApp && (
-        <Menu.Item>
-          <a
-            onClick={() => {
-              this.installHelmApp(info, 'localsContent');
-            }}
-          >
-            安装应用模版
-          </a>
-        </Menu.Item>
-      );
       const editorApp = isEditApp && (
         <Menu.Item>
           <a
@@ -1074,7 +1075,6 @@ export default class EnterpriseShared extends PureComponent {
         return (
           <Menu>
             {isExportApp && exportOperation}
-            {InstallApp}
             {editorApp}
             {delApp}
           </Menu>

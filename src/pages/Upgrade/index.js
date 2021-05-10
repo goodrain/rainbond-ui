@@ -2,17 +2,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable camelcase */
-import {
-  Avatar,
-  Button,
-  Form,
-  List,
-  notification,
-  Spin,
-  Table,
-  Tabs,
-  Tag
-} from 'antd';
+import { Avatar, Form, List, notification, Spin, Table, Tabs, Tag } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
@@ -239,34 +229,34 @@ export default class AppList extends PureComponent {
       }
     );
   };
-  handleEditHelmApp = (RollbackInfo, msg, key) => {
-    const { dispatch } = this.props;
-    const { appDetail } = this.state;
-    dispatch({
-      type: 'application/editHelmApp',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId(),
-        username: appDetail.username,
-        app_name: appDetail.group_name,
-        app_note: appDetail.note,
-        values: RollbackInfo.values,
-        version: RollbackInfo.app_version,
-        revision: RollbackInfo.revision
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          notification.success({ message: msg });
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${this.getGroupId()}`
-            )
-          );
-        }
-        this.handleTabs(key);
-      }
-    });
-  };
+  // handleEditHelmApp = (RollbackInfo, msg, key) => {
+  //   const { dispatch } = this.props;
+  //   const { appDetail } = this.state;
+  //   dispatch({
+  //     type: 'application/editHelmApp',
+  //     payload: {
+  //       team_name: globalUtil.getCurrTeamName(),
+  //       group_id: this.getGroupId(),
+  //       username: appDetail.username,
+  //       app_name: appDetail.group_name,
+  //       app_note: appDetail.note,
+  //       values: RollbackInfo.values,
+  //       version: RollbackInfo.app_version,
+  //       revision: RollbackInfo.revision
+  //     },
+  //     callback: res => {
+  //       if (res && res.status_code === 200) {
+  //         notification.success({ message: msg });
+  //         dispatch(
+  //           routerRedux.push(
+  //             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${this.getGroupId()}`
+  //           )
+  //         );
+  //       }
+  //       this.handleTabs(key);
+  //     }
+  //   });
+  // };
   encodeBase64Content = commonContent => {
     const base64Content = Buffer.from(commonContent).toString('base64');
     return base64Content;
@@ -292,16 +282,16 @@ export default class AppList extends PureComponent {
     }
     return true;
   };
-  handleRollback = RollbackInfo => {
-    this.setState(
-      {
-        upgradeLoading: true
-      },
-      () => {
-        this.handleEditHelmApp(RollbackInfo, '回滚中、请耐心等待', '2');
-      }
-    );
-  };
+  // handleRollback = RollbackInfo => {
+  //   this.setState(
+  //     {
+  //       upgradeLoading: true
+  //     },
+  //     () => {
+  //       this.handleEditHelmApp(RollbackInfo, '回滚中、请耐心等待', '2');
+  //     }
+  //   );
+  // };
 
   render() {
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
@@ -470,23 +460,6 @@ export default class AppList extends PureComponent {
         dataIndex: 'status',
         key: '4',
         render: status => <span>{infoUtil.getHelmStatus(status)}</span>
-      },
-      {
-        title: '操作',
-        dataIndex: 'revision',
-        key: '4',
-        width: 100,
-        render: (_, data) => (
-          <Button
-            type="link"
-            style={{ marginLeft: '-15px' }}
-            onClick={() => {
-              this.handleRollback(data);
-            }}
-          >
-            回滚
-          </Button>
-        )
       }
     ];
     let breadcrumbList = [];

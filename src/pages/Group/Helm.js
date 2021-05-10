@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 /* eslint-disable import/extensions */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
@@ -13,6 +14,7 @@ import {
   Badge,
   Button,
   Card,
+  Col,
   Collapse,
   Form,
   Icon,
@@ -63,10 +65,221 @@ const FormItem = Form.Item;
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
-
     this.state = {
       linkList: [],
       versions: [],
+      promptMap: {
+        8000: '商店已被删除、无法更新。',
+        8003: '应用模板不存在、无法更新。',
+        8004: '应用版本不存在、无法更新。'
+      },
+      formData: [
+        {
+          variable: 'defaultImage',
+          default: 'true',
+          description: 'Use default Docker image',
+          label: 'Use Default Image',
+          type: 'boolean',
+          show_subquestion_if: false,
+          group: 'Container Images',
+          subquestions: [
+            {
+              variable: 'global.imageRegistry',
+              default: '',
+              description: 'Global Docker image registry',
+              type: 'string',
+              label: 'Global Docker Image Registry'
+            },
+            {
+              variable: 'image.repository',
+              default: 'ranchercharts/bitnami-mariadb',
+              description: 'Docker image name',
+              type: 'string',
+              label: 'MariaDB Image Name'
+            },
+            {
+              variable: 'image.tag',
+              default: '10.3.22-debian-10-r44',
+              description: 'Docker image tag',
+              type: 'string',
+              label: 'MariaDB Image Tag'
+            },
+            {
+              variable: 'metrics.image.repository',
+              default: 'ranchercharts/bitnami-mysqld-exporter',
+              description: 'image name for metrics exporter',
+              type: 'string',
+              label: 'Metrics Image Name',
+              show_if: 'metrics.enabled=true'
+            },
+            {
+              variable: 'metrics.image.tag',
+              default: '0.12.1-debian-10-r42',
+              description: 'image tag for metrics',
+              type: 'string',
+              label: 'Metrics Image Tag',
+              show_if: 'metrics.enabled=true'
+            }
+          ]
+        },
+        {
+          variable: 'db.user',
+          default: 'admin',
+          description: 'Username of new user to create.',
+          type: 'string',
+          label: 'MariaDB Database User',
+          required: true,
+          group: 'Master Settings'
+        },
+        {
+          variable: 'db.password',
+          default: 'admin',
+          description:
+            'Password for the new user, defaults to a random 10-character alphanumeric string if not set',
+          type: 'password',
+          label: 'MariaDB Database Password',
+          group: 'Master Settings'
+        },
+        {
+          variable: 'db.name',
+          default: 'my_database',
+          description: 'Name of database to create',
+          type: 'string',
+          label: 'MariaDB Database Name',
+          required: true,
+          group: 'Master Settings'
+        },
+        {
+          variable: 'master.persistence.enabled',
+          default: false,
+          description: 'Enable persistent volume for MariaDB Master Pod',
+          type: 'boolean',
+          required: true,
+          label: 'Enable Persistent Volume for MariaDB Master Pod',
+          show_subquestion_if: true,
+          group: 'Master Settings',
+          subquestions: [
+            {
+              variable: 'master.persistence.size',
+              default: '8Gi',
+              description: 'MariaDB Persistent Volume Size',
+              type: 'string',
+              label: 'MariaDB Volume Size',
+              required: true
+            },
+            {
+              variable: 'master.persistence.storageClass',
+              default: '',
+              description:
+                'If undefined or  null, uses the default StorageClass. Defaults to null.',
+              type: 'storageclass',
+              label: 'Storage Class for MariaDB'
+            },
+            {
+              variable: 'master.persistence.existingClaim',
+              default: '',
+              description:
+                'If not empty, uses the specified existing PVC instead of creating new one',
+              type: 'pvc',
+              label: 'Existing Persistent Volume Claim for MariaDB Master'
+            }
+          ]
+        },
+        {
+          variable: 'replication.enabled',
+          default: true,
+          description: 'Enable MariaDB Replication',
+          type: 'boolean',
+          required: true,
+          label: 'Enable MariaDB Replication',
+          group: 'Replica Settings',
+          show_subquestion_if: true,
+          subquestions: [
+            {
+              variable: 'slave.replicas',
+              default: 2,
+              description: 'Desired number of slave replicas',
+              type: 'int',
+              required: true,
+              label: 'MariaDB Replica Count',
+              show_subquestion_if: true,
+              group: 'Replica Settings',
+              min: 1,
+              max: 5
+            },
+            {
+              variable: 'slave.persistence.enabled',
+              default: false,
+              description: 'Enable persistent volume for MariaDB Slave',
+              type: 'boolean',
+              required: true,
+              label: 'Enable Persistent Volume for MariaDB Slave',
+              show_subquestion_if: true,
+              subquestions: null
+            },
+            {
+              variable: 'slave.persistence.size',
+              default: '8Gi',
+              description: 'MariaDB Slave Persistent Volume Size',
+              type: 'string',
+              label: 'MariaDB Slave Volume Size',
+              required: true,
+              show_if: 'slave.persistence.enabled=true'
+            },
+            {
+              variable: 'slave.persistence.storageClass',
+              default: '',
+              description:
+                'If undefined or  null, uses the default StorageClass. Defaults to null.',
+              type: 'storageclass',
+              label: 'Storage Class for MariaDB Slave',
+              show_if: 'slave.persistence.enabled=true'
+            }
+          ]
+        },
+        {
+          variable: 'service.type',
+          default: 'NodePort',
+          description: 'MariaDB K8s Service type',
+          type: 'enum',
+          options: ['ClusterIP', 'NodePort'],
+          required: true,
+          label: 'MariaDB Service Type',
+          show_subquestion_if: 'NodePort',
+          group: 'Services and Load Balancing',
+          subquestions: [
+            {
+              variable: 'service.nodePort.master',
+              default: '',
+              description:
+                'NodePort port number(to set explicitly, choose port between 30000-32767)',
+              type: 'int',
+              min: 30000,
+              max: 32767,
+              label: 'Service NodePort number'
+            },
+            {
+              variable: 'service.nodePort.slave',
+              default: '',
+              description:
+                'NodePort port number(to set explicitly, choose port between 30000-32767)',
+              type: 'int',
+              min: 30000,
+              max: 32767,
+              label: 'Service NodePort number'
+            }
+          ]
+        },
+        {
+          variable: 'metrics.enabled',
+          default: false,
+          description: 'Start a side-car prometheus exporter',
+          type: 'boolean',
+          required: true,
+          label: 'Enable Metrics',
+          group: 'Metrics Settings'
+        }
+      ],
       appStateLoading: true,
       appInfoLoading: true,
       serviceLoading: false,
@@ -101,18 +314,13 @@ export default class Index extends PureComponent {
         installing: 3,
         installed: 4
       },
-      checkList: [
-        { type: 'ChartReady', ready: false, error: '' },
-        { type: 'PreInstalled', ready: false, error: '' },
-        { type: 'ChartParsed', ready: false, error: '' }
-      ],
       services: [],
       freeComponents: [],
       associatedComponents: [],
       currentSteps: 0,
       toDelete: false,
       toEdit: false,
-      promptTitle: false,
+      errPrompt: false,
       toEditAppDirector: false,
       serviceIds: [],
       promptModal: false,
@@ -125,10 +333,12 @@ export default class Index extends PureComponent {
       submitLoading: false,
       servicesLoading: true,
       resources: {},
+      versionInfo: {},
       appInfo: {},
       isInstall: false,
       isScrollToBottom: true,
-      isAccessPermissions: true
+      isAccessPermissions: true,
+      upDataVersion: false
     };
     this.CodeMirrorRef = '';
   }
@@ -156,34 +366,34 @@ export default class Index extends PureComponent {
   loading = () => {
     this.fetchAppDetail(true);
   };
-  handleHelmCheck = () => {
-    const { dispatch } = this.props;
-    const { currentSteps } = this.state;
-    if (currentSteps > 2) {
-      return null;
-    }
-    dispatch({
-      type: 'application/checkHelmApp',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId()
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            checkList: res && res.list
-          });
-        }
-        this.handleTimers(
-          'timer',
-          () => {
-            this.handleHelmCheck();
-          },
-          3000
-        );
-      }
-    });
-  };
+  // handleHelmCheck = () => {
+  //   const { dispatch } = this.props;
+  //   const { currentSteps } = this.state;
+  //   if (currentSteps > 2) {
+  //     return null;
+  //   }
+  //   dispatch({
+  //     type: 'application/checkHelmApp',
+  //     payload: {
+  //       team_name: globalUtil.getCurrTeamName(),
+  //       group_id: this.getGroupId()
+  //     },
+  //     callback: res => {
+  //       if (res && res.status_code === 200) {
+  //         this.setState({
+  //           checkList: res && res.list
+  //         });
+  //       }
+  //       this.handleTimers(
+  //         'timer',
+  //         () => {
+  //           this.handleHelmCheck();
+  //         },
+  //         3000
+  //       );
+  //     }
+  //   });
+  // };
   handleError = err => {
     const { componentTimer } = this.state;
     if (!componentTimer) {
@@ -223,7 +433,7 @@ export default class Index extends PureComponent {
               currApp: res.bean
             },
             () => {
-              init && this.fetchAppDetailState();
+              init && this.fetchAppDetailState(init);
             }
           );
         }
@@ -233,7 +443,7 @@ export default class Index extends PureComponent {
         if (!componentTimer) {
           return null;
         }
-        init && this.fetchAppDetailState();
+        init && this.fetchAppDetailState(init);
         if (res && res.code === 404) {
           dispatch(
             routerRedux.push(
@@ -245,17 +455,15 @@ export default class Index extends PureComponent {
     });
   };
 
-  fetchAppDetailState = () => {
-    const { dispatch, form } = this.props;
+  fetchAppDetailState = init => {
+    const { dispatch } = this.props;
     const { teamName, appID } = this.props.match.params;
-    const { getFieldValue } = form;
-
     const {
       appStateMap,
       currentSteps: oldSteps,
       isScrollToBottom
     } = this.state;
-    this.closeTimer();
+
     dispatch({
       type: 'application/fetchAppDetailState',
       payload: {
@@ -263,27 +471,21 @@ export default class Index extends PureComponent {
         group_id: appID
       },
       callback: res => {
+        const info = res.list || {};
         const currentSteps =
-          (res.list && res.list.phase && appStateMap[res.list.phase]) || 0;
+          (info && info.phase && appStateMap[info.phase]) || 0;
         this.setState(
           {
-            resources: res.list || {},
+            resources: info,
             appStateLoading: false,
             currentSteps: currentSteps > oldSteps ? currentSteps : oldSteps
           },
           () => {
-            if (currentSteps < 2) {
-              this.handleHelmCheck();
-            }
             if (currentSteps === 2 && isScrollToBottom) {
               this.scrollToBottom();
             }
             if (currentSteps >= 2) {
-              const templateFile = getFieldValue('templateFile');
-              if (res.list && res.list.values && !templateFile) {
-                this.handleTemplateFile(Object.keys(res.list.values)[0]);
-              }
-              this.getHelmApplication();
+              this.getHelmApplication(init);
             } else {
               this.handleAppInfoLoading();
             }
@@ -300,8 +502,9 @@ export default class Index extends PureComponent {
           () => {
             this.fetchAppDetailState();
             this.fetchAppDetail();
+            this.closeTimer();
           },
-          10000
+          5000
         );
       },
       handleError: err => {
@@ -318,6 +521,37 @@ export default class Index extends PureComponent {
           },
           20000
         );
+      }
+    });
+  };
+
+  fetchHelmAppStoresVersions = version => {
+    const { dispatch, currentEnterprise } = this.props;
+    const { currApp } = this.state;
+    dispatch({
+      type: 'application/fetchHelmAppStoresVersions',
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        version,
+        appStoreName: currApp.app_store_name,
+        templateName: currApp.app_template_name
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState(
+            {
+              versionInfo: res
+            },
+            () => {
+              if (res && res.values) {
+                this.handleTemplateFile(Object.keys(res.values)[0]);
+              }
+            }
+          );
+        }
+      },
+      handleError: res => {
+        this.handleErrPrompt(res);
       }
     });
   };
@@ -348,7 +582,7 @@ export default class Index extends PureComponent {
   };
   openComponentTimer = () => {
     this.setState({ componentTimer: true }, () => {
-      this.fetchAppDetailState(true);
+      this.fetchAppDetailState();
     });
   };
 
@@ -634,7 +868,6 @@ export default class Index extends PureComponent {
           });
           return null;
         }
-
         const info = Object.assign({}, val, { yamls: values, overrides });
         if (type === 'Create') {
           this.handleInstallHelmApp(info);
@@ -766,24 +999,29 @@ export default class Index extends PureComponent {
       )
     );
   };
-  parseChart = value => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'application/parseChart',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId(),
-        version: value
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          if (res.bean && res.bean.values) {
-            this.handleTemplateFile(Object.keys(res.bean.values)[0]);
-          }
-        }
-      }
-    });
-  };
+  // parseChart = value => {
+  //   const { dispatch } = this.props;
+  //   dispatch({
+  //     type: 'application/parseChart',
+  //     payload: {
+  //       team_name: globalUtil.getCurrTeamName(),
+  //       group_id: this.getGroupId(),
+  //       version: value
+  //     },
+  //     callback: res => {
+  //       if (res && res.status_code === 200) {
+  //         if (res.bean && res.bean.values) {
+  //           this.handleTemplateFile(Object.keys(res.bean.values)[0]);
+  //         }
+  //       }
+  //     },
+  //     handleError: () => {
+  //       this.setState({
+  //         upDataVersion: false
+  //       });
+  //     }
+  //   });
+  // };
 
   handleInstallHelmApp = values => {
     const { dispatch } = this.props;
@@ -797,10 +1035,15 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          this.setState({
-            currentSteps: 3,
-            submitLoading: false
-          });
+          this.setState(
+            {
+              currentSteps: 3,
+              submitLoading: false
+            },
+            () => {
+              this.getHelmApplication(true);
+            }
+          );
         }
       }
     });
@@ -847,32 +1090,33 @@ export default class Index extends PureComponent {
     }
   };
   handleOperationBtn = type => {
-    const { submitLoading, promptTitle } = this.state;
+    const { submitLoading, errPrompt, upDataVersion } = this.state;
     return (
       <div style={{ textAlign: 'center' }} id="messagesEndRef">
         <Button
           onClick={() => {
             this.handleSubmit(type);
           }}
-          disabled={promptTitle}
+          disabled={upDataVersion || errPrompt}
           loading={submitLoading}
           type="primary"
         >
-          {type === 'Create' ? '启动' : '更新'}
+          {type === 'Create' ? '安装' : '更新'}
         </Button>
       </div>
     );
   };
-  getHelmApplication = () => {
+  getHelmApplication = (init = false) => {
     const { dispatch, currentEnterprise } = this.props;
-    const { currApp, resources } = this.state;
+    const { currApp } = this.state;
     dispatch({
       type: 'global/fetchHelmApplication',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
-        app_name: currApp.group_name,
+        app_name: currApp.app_template_name,
         team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId()
+        group_id: this.getGroupId(),
+        appStoreName: currApp.app_store_name
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -881,7 +1125,7 @@ export default class Index extends PureComponent {
               versions: res.versions || []
             },
             () => {
-              this.handleAppVersion(resources.version, false);
+              this.handleAppVersion(currApp.version || '9.3.7', init, false);
             }
           );
         } else {
@@ -889,25 +1133,24 @@ export default class Index extends PureComponent {
         }
       },
       handleError: res => {
-        if (res && res.data && res.data.code) {
-          const promptTitle =
-            res.data.code === 8000
-              ? '商店已被删除、无法更新。'
-              : res.data.code === 8003
-              ? '应用模板不存在、无法更新。'
-              : '';
-          if (promptTitle) {
-            this.setState({
-              promptTitle
-            });
-          }
-        }
-        this.handleAppInfoLoading();
+        this.handleErrPrompt(res);
       }
     });
   };
-
-  handleAppVersion = (value, isParse) => {
+  handleErrPrompt = res => {
+    if (res && res.data && res.data.code) {
+      const { promptMap } = this.state;
+      const errPrompt = promptMap[res.data.code] || false;
+      if (errPrompt) {
+        this.setState({
+          errPrompt
+        });
+      }
+    }
+    this.handleAppInfoLoading();
+    this.handleUpDataVersionLoading();
+  };
+  handleAppVersion = (value, isParse, isVersion) => {
     const { versions } = this.state;
     let info = {};
     versions.map(item => {
@@ -920,19 +1163,22 @@ export default class Index extends PureComponent {
         appInfo: info
       });
       if (isParse) {
-        this.parseChart(value);
+        if (isVersion) {
+          this.setState({ upDataVersion: '版本信息更新中、请耐心等待' });
+        }
+        this.fetchHelmAppStoresVersions(value);
       }
-      this.handleAppInfoLoading();
     }
+    this.handleAppInfoLoading();
   };
   handleTemplateFile = value => {
     const { form } = this.props;
     const { setFieldsValue } = form;
-    const { resources } = this.state;
+    const { versionInfo } = this.state;
     const { CodeMirrorRef } = this;
 
-    if (resources.values) {
-      const val = this.decodeBase64Content(resources.values[value]);
+    if (versionInfo.values) {
+      const val = this.decodeBase64Content(versionInfo.values[value]);
       setFieldsValue({
         yamls: val
       });
@@ -944,8 +1190,13 @@ export default class Index extends PureComponent {
         editor.setValue(val);
       }
     }
+    this.handleUpDataVersionLoading();
   };
-
+  handleUpDataVersionLoading = () => {
+    this.setState({
+      upDataVersion: false
+    });
+  };
   handleAppInfoLoading = () => {
     this.setState({
       appInfoLoading: false
@@ -954,7 +1205,15 @@ export default class Index extends PureComponent {
   handleConfing = () => {
     const { form } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
-    const { resources, currentSteps, versions, promptTitle } = this.state;
+    const {
+      versionInfo,
+      resources,
+      currentSteps,
+      versions,
+      errPrompt,
+      upDataVersion,
+      formData
+    } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 }
@@ -982,109 +1241,139 @@ export default class Index extends PureComponent {
           <Panel
             header={
               <div className={styles.customPanelHeader}>
-                <h6 style={{ marginBottom: 0 }}>应用介绍</h6>
+                <h6>应用介绍</h6>
+                <p>应用配置说明和使用方法概述</p>
               </div>
             }
             key="1"
             className={styles.customPanel}
           >
-            <Markdown
-              className={styles.customMD}
-              source={
-                (resources.readme &&
-                  this.decodeBase64Content(resources.readme)) ||
-                ''
-              }
-            />
+            <div style={{ padding: '15px 30px' }}>
+              <Markdown
+                className={styles.customMD}
+                source={
+                  (versionInfo.readme &&
+                    this.decodeBase64Content(versionInfo.readme)) ||
+                  ''
+                }
+              />
+            </div>
           </Panel>
-          <div className={styles.basisBox}>
-            {promptTitle && <Alert message={promptTitle} type="warning" />}
-
-            {currentSteps > 3 && (
-              <FormItem {...formItemLayout} label="版本">
-                {getFieldDecorator('version', {
-                  initialValue: resources.version || undefined,
-                  rules: [
-                    {
-                      required: true,
-                      message: '请选择版本'
-                    }
-                  ]
-                })(
-                  <Select
-                    placeholder="请选择版本"
-                    style={{ width: '512px' }}
-                    onChange={val => {
-                      this.handleAppVersion(val, true);
-                    }}
-                  >
-                    {versions.map(item => {
-                      const { version } = item;
-                      return (
-                        <Option key={version} value={version}>
-                          {resources.version == version
-                            ? `${version} 当前版本`
-                            : version}
-                        </Option>
-                      );
-                    })}
-                  </Select>
-                )}
-              </FormItem>
-            )}
-            <FormItem {...formItemLayout} label="配置项">
-              {getFieldDecorator('overrides', {
-                initialValue: overrides || [],
-                rules: [{ required: false, message: '请填写配置项' }]
-              })(<Parameterinput isHalf editInfo={overrides || ''} />)}
-            </FormItem>
-          </div>
-
           <Panel
             header={
               <div className={styles.customPanelHeader}>
                 <h6>配置选项</h6>
-                <p>粘贴和读取操作要求应答为 yaml格式</p>
+                <p>基于Helm规范应用配置的查看与设置</p>
               </div>
             }
             key="2"
             className={styles.customPanel}
           >
-            <div>
-              <FormItem {...formItemLayout} label="模版文件">
-                {getFieldDecorator('templateFile', {
-                  initialValue: '',
-                  rules: [{ required: true, message: '请选择模版文件' }]
+            <div style={{ padding: '15px 30px' }}>
+              {/* <PublicForm
+                Form={Form}
+                data={formData}
+                upDateQuestions={data => {
+                  this.setState({
+                    formData: data
+                  });
+                }}
+                setFieldsValue={setFieldsValue}
+                formItemLayout={formItemLayout}
+                getFieldDecorator={getFieldDecorator}
+              /> */}
+              <FormItem {...formItemLayout} label="values配置">
+                {getFieldDecorator('overrides', {
+                  initialValue: overrides || [],
+                  rules: [{ required: false, message: '请填写values配置' }]
                 })(
-                  <Select
-                    placeholder="请选择版本"
-                    style={{ width: '512px' }}
-                    onChange={this.handleTemplateFile}
-                  >
-                    {resources.values &&
-                      Object.keys(resources.values).map(key => {
-                        return (
-                          <Option key={key} value={key}>
-                            {key}
-                          </Option>
-                        );
-                      })}
-                  </Select>
+                  <Parameterinput
+                    disableds={upDataVersion || errPrompt}
+                    isHalf
+                    editInfo={overrides || ''}
+                  />
                 )}
               </FormItem>
+              <Row>
+                {currentSteps > 3 && (
+                  <Col span={12}>
+                    <FormItem {...formItemLayout} label="版本">
+                      {getFieldDecorator('version', {
+                        initialValue: resources.version || undefined,
+                        rules: [
+                          {
+                            required: true,
+                            message: '请选择版本'
+                          }
+                        ]
+                      })(
+                        <Select
+                          placeholder="请选择版本"
+                          style={{ width: '96%' }}
+                          disabled={upDataVersion || errPrompt}
+                          onChange={val => {
+                            this.handleAppVersion(val, true, true);
+                          }}
+                        >
+                          {versions.map(item => {
+                            const { version } = item;
+                            return (
+                              <Option key={version} value={version}>
+                                {resources.version == version
+                                  ? `${version} 当前版本`
+                                  : version}
+                              </Option>
+                            );
+                          })}
+                        </Select>
+                      )}
+                    </FormItem>
+                  </Col>
+                )}
+                <Col span={12}>
+                  {upDataVersion && (
+                    <Alert
+                      style={{ marginTop: '40px' }}
+                      message={upDataVersion}
+                      type="warning"
+                    />
+                  )}
+                </Col>
+              </Row>
+              <Col span={12}>
+                <FormItem {...formItemLayout} label="values文件">
+                  {getFieldDecorator('templateFile', {
+                    initialValue: '',
+                    rules: [{ required: true, message: '请选择values文件' }]
+                  })(
+                    <Select
+                      placeholder="请选择版本"
+                      style={{ width: '96%' }}
+                      onChange={this.handleTemplateFile}
+                      disabled={upDataVersion || errPrompt}
+                    >
+                      {versionInfo.values &&
+                        Object.keys(versionInfo.values).map(key => {
+                          return (
+                            <Option key={key} value={key}>
+                              {key}
+                            </Option>
+                          );
+                        })}
+                    </Select>
+                  )}
+                </FormItem>
+              </Col>
               <CodeMirrorForm
                 disabled
                 data=""
-                // data={
-                // (resources.values &&
-                //   this.decodeBase64Content(resources.values)) ||
-                //   ''
-                // }
-                isHeader={false}
+                bg="151718"
+                width="100%"
+                isUpload={false}
                 saveRef={ref => {
                   this.CodeMirrorRef = ref;
                 }}
-                marginTop={20}
+                marginTop={120}
                 setFieldsValue={setFieldsValue}
                 formItemLayout={formItemLayout}
                 Form={Form}
@@ -1124,7 +1413,7 @@ export default class Index extends PureComponent {
       currentSteps,
       appStates,
       appType,
-      checkList,
+      errPrompt,
       services,
       AssociatedComponents,
       appStateLoading,
@@ -1134,7 +1423,6 @@ export default class Index extends PureComponent {
       showAccess,
       createComponentLoading,
       appInfo,
-      versions,
       appInfoLoading,
       servicesLoading
     } = this.state;
@@ -1338,11 +1626,18 @@ export default class Index extends PureComponent {
                 <div>商店</div>
                 <div
                   onClick={() => {
-                    currApp.app_store_name &&
+                    !errPrompt &&
+                      currApp.app_store_name &&
                       this.handleJumpStore(currApp.app_store_name);
                   }}
                 >
-                  <a>{currApp.app_store_name || '商店已被删除'}</a>
+                  <a
+                    style={{
+                      color: errPrompt ? 'rgba(0, 0, 0, 0.45)' : '#4d73b1'
+                    }}
+                  >
+                    {currApp.app_store_name || '商店已被删除'}
+                  </a>
                 </div>
               </div>
             </div>
@@ -1379,6 +1674,15 @@ export default class Index extends PureComponent {
             onOk={this.AddAssociatedComponents}
           />
         )}
+
+        {errPrompt && (
+          <Alert
+            message={errPrompt}
+            type="warning"
+            style={{ marginBottom: '20px' }}
+          />
+        )}
+
         {freeComponents && freeComponents.length > 0 && (
           <Card
             style={{ marginBottom: 24 }}
@@ -1486,7 +1790,7 @@ export default class Index extends PureComponent {
             </div>
           </Card>
         )}
-        {currentSteps > 3 && (
+        {currentSteps > 3 && !errPrompt && (
           <div className={styles.customCollapseBox}>{this.handleConfing()}</div>
         )}
         {currentSteps < 4 && (
@@ -1525,25 +1829,31 @@ export default class Index extends PureComponent {
               </div>
             )}
 
-            {currentSteps < 2 && checkList && checkList.length > 0 && (
-              <div className={styles.process}>
-                <Steps direction="vertical" style={{ paddingLeft: '20%' }}>
-                  {checkList.map(item => {
-                    const { ready, error, type } = item;
-                    return (
-                      <Step
-                        title={appType[type]}
-                        status={ready ? 'finish' : error ? 'error' : 'wait'}
-                        description={
-                          <div style={{ color: '#ff4d4f' }}>{error}</div>
-                        }
-                      />
-                    );
-                  })}
-                </Steps>
-              </div>
-            )}
-            {currentSteps === 2 && (
+            {currentSteps < 2 &&
+              resources.conditions &&
+              resources.conditions.length > 0 && (
+                <div className={styles.process}>
+                  <Steps direction="vertical" style={{ paddingLeft: '20%' }}>
+                    {resources.conditions.map(item => {
+                      const { status, message, type } = item;
+                      if (appType[type]) {
+                        return (
+                          <Step
+                            title={appType[type]}
+                            status={
+                              status ? 'finish' : message ? 'error' : 'wait'
+                            }
+                            description={
+                              <div style={{ color: '#ff4d4f' }}>{message}</div>
+                            }
+                          />
+                        );
+                      }
+                    })}
+                  </Steps>
+                </div>
+              )}
+            {currentSteps === 2 && !errPrompt && (
               <div className={styles.customCollapse}>
                 {this.handleConfing()}
               </div>

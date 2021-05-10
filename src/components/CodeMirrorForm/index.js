@@ -90,9 +90,12 @@ class CodeMirrorForm extends PureComponent {
       action,
       beforeUpload,
       isHeader = true,
+      isUpload = true,
+      isAmplifications = true,
       marginTop = 0,
       disabled = false,
-      titles
+      titles,
+      bg = '#333'
     } = this.props;
     const { fullScreen } = this.state;
     let defaultFullScreenStyle = {
@@ -101,7 +104,7 @@ class CodeMirrorForm extends PureComponent {
       cursor: 'pointer',
       top: 0,
       textAlign: 'right',
-      background: '#333',
+      background: bg,
       lineHeight: '1px',
       padding: '9px 0 6px 0'
     };
@@ -135,6 +138,17 @@ class CodeMirrorForm extends PureComponent {
     };
 
     const token = cookie.get('token');
+
+    const amplifications = (
+      <span
+        style={{ margin: '0 20px' }}
+        onClick={() => {
+          this.setState({ fullScreen: !this.state.fullScreen });
+        }}
+      >
+        {globalUtil.fetchSvg('amplifications')}
+      </span>
+    );
     return (
       <Form.Item
         {...formItemLayout}
@@ -146,6 +160,7 @@ class CodeMirrorForm extends PureComponent {
           initialValue: data || '',
           rules: [{ required: true, message }]
         })(<CodeMirror options={options} ref={this.saveRef} />)}
+        {amplifications}
         {isHeader && (
           <div style={defaultFullScreenStyle}>
             <div
@@ -154,27 +169,22 @@ class CodeMirrorForm extends PureComponent {
               {titles || ''}
             </div>
             <div>
-              <Upload
-                action={
-                  action ||
-                  `${apiconfig.baseUrl}/console/enterprise/team/certificate`
-                }
-                showUploadList={false}
-                withCredentials
-                headers={{ Authorization: `GRJWT ${token}` }}
-                beforeUpload={beforeUpload || false}
-                onChange={this.handleChangeUpload}
-              >
-                {globalUtil.fetchSvg('uploads')}
-              </Upload>
-              <span
-                style={{ margin: '0 20px' }}
-                onClick={() => {
-                  this.setState({ fullScreen: !this.state.fullScreen });
-                }}
-              >
-                {globalUtil.fetchSvg('amplifications')}
-              </span>
+              {isUpload && (
+                <Upload
+                  action={
+                    action ||
+                    `${apiconfig.baseUrl}/console/enterprise/team/certificate`
+                  }
+                  showUploadList={false}
+                  withCredentials
+                  headers={{ Authorization: `GRJWT ${token}` }}
+                  beforeUpload={beforeUpload || false}
+                  onChange={this.handleChangeUpload}
+                >
+                  {globalUtil.fetchSvg('uploads')}
+                </Upload>
+              )}
+              {isAmplifications && amplifications}
             </div>
           </div>
         )}

@@ -374,7 +374,7 @@ export async function getApplication(body = {}) {
 }
 export async function getHelmApplication(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/bitnami/apps/${body.app_name}`,
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.appStoreName}/apps/${body.app_name}`,
     {
       method: 'get',
       handleError
