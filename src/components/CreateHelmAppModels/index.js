@@ -439,7 +439,7 @@ class CreateHelmAppModels extends PureComponent {
                     },
                     {
                       pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/,
-                      message: '只支持字母和数字开头结尾'
+                      message: '只支持小写字母和数字开头结尾'
                     },
                     {
                       validator: (_, value, callback) => {

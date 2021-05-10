@@ -456,8 +456,10 @@ export default class Index extends PureComponent {
   };
 
   fetchAppDetailState = init => {
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
     const { teamName, appID } = this.props.match.params;
+    const { getFieldValue } = form;
+    const templateFile = getFieldValue('templateFile');
     const {
       appStateMap,
       currentSteps: oldSteps,
@@ -485,11 +487,10 @@ export default class Index extends PureComponent {
               this.scrollToBottom();
             }
             if (currentSteps >= 2) {
-              this.getHelmApplication(init);
+              this.getHelmApplication(!templateFile ? true : init);
             } else {
               this.handleAppInfoLoading();
             }
-
             if (currentSteps >= 4) {
               this.handleServices();
               this.fetchFreeComponents();
@@ -1035,15 +1036,10 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          this.setState(
-            {
-              currentSteps: 3,
-              submitLoading: false
-            },
-            () => {
-              this.getHelmApplication(true);
-            }
-          );
+          this.setState({
+            currentSteps: 3,
+            submitLoading: false
+          });
         }
       }
     });
@@ -1125,7 +1121,7 @@ export default class Index extends PureComponent {
               versions: res.versions || []
             },
             () => {
-              this.handleAppVersion(currApp.version || '9.3.7', init, false);
+              this.handleAppVersion(currApp.version, init, false);
             }
           );
         } else {
