@@ -645,7 +645,7 @@ export default class EnterpriseClusters extends PureComponent {
     return (
       <PageHeaderLayout
         title="集群管理"
-        content="集群是资源的集合，以Kubernetes集群为基础，部署Rainbond Region服务即可成为Rainbond集群资源。"
+        content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
       >
         <Row style={{ marginBottom: '20px' }}>
           <Col span={24} style={{ textAlign: 'right' }}>

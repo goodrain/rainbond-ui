@@ -4,25 +4,16 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
 import {
-    Button,
-
-    Checkbox, Col,
-
-
-
-
-    Form,
-
-    Icon, List, Row,
-
-
-
-
-    Select,
-
-
-
-    Spin, Tooltip
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Icon,
+  List,
+  Row,
+  Select,
+  Spin,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -139,7 +130,7 @@ export default class AppList extends PureComponent {
 
   //  查询某云市应用的更新版本
 
-  getUpdatedVersion = (Rollback) => {
+  getUpdatedVersion = Rollback => {
     const { group_id } = this.props;
     const { infoObj } = this.state;
     this.props.dispatch({
@@ -190,7 +181,7 @@ export default class AppList extends PureComponent {
   };
 
   // 查询某云市应用下组件的更新信息
-  getUpdatedInfo = (versions) => {
+  getUpdatedInfo = versions => {
     const version = this.props.form.getFieldValue('upgradeVersions');
     const { group_id, dispatch } = this.props;
     const { infoObj } = this.state;
@@ -236,7 +227,7 @@ export default class AppList extends PureComponent {
     });
   };
 
-  handleChangeVersions = (value) => {
+  handleChangeVersions = value => {
     this.props.form.setFieldsValue({ upgradeVersions: value });
     this.getUpdatedInfo(value);
   };
@@ -272,7 +263,7 @@ export default class AppList extends PureComponent {
     });
   };
   // 创建升级任务
-  createUpgradeTasks = (values) => {
+  createUpgradeTasks = values => {
     const { group_id, form, dispatch } = this.props;
     const { infoObj, upgradeInfo } = this.state;
     const version = form.getFieldValue('upgradeVersions');
@@ -344,7 +335,7 @@ export default class AppList extends PureComponent {
   // }
 
   // 查询某应用的更新记录详情
-  getUpgradeRecordsInfo = (Rollback) => {
+  getUpgradeRecordsInfo = Rollback => {
     const { group_id, dispatch } = this.props;
     const { record_id, upgradeText } = this.state;
     dispatch({
@@ -523,7 +514,7 @@ export default class AppList extends PureComponent {
     ];
   };
 
-  setData = (data) => {
+  setData = data => {
     const {
       image,
       ports,
@@ -688,7 +679,7 @@ export default class AppList extends PureComponent {
                 placement="top"
                 title={
                   item.config_items &&
-                  Object.keys(item.config_items).map((key) => {
+                  Object.keys(item.config_items).map(key => {
                     return <div>{`${key} : ${item.config_items[key]}`}</div>;
                   })
                 }
@@ -829,7 +820,7 @@ export default class AppList extends PureComponent {
                     <Select
                       disabled={textState != 1}
                       size="small"
-                      style={{ width: 80 }}
+                      style={{ width: 120 }}
                       onChange={this.handleChangeVersions}
                     >
                       {upgradeVersions &&
@@ -859,147 +850,159 @@ export default class AppList extends PureComponent {
                       onChange={this.onChange}
                       className={styles.zslGroup}
                     >
-                      <Row
-                        gutter={24}
-                        style={{ height: '400px', overflow: 'auto' }}
-                      >
-                        {upgradeInfo &&
-                          upgradeInfo.length > 0 &&
-                          upgradeInfo.map((item, index) => {
-                            const {
-                              service,
-                              upgrade_info,
-                              update,
-                              service_id: serviceId
-                            } = item;
-                            const upgrades = upgradeRecords.filter(
-                              (items) =>
-                                items.service_id ===
-                                ((service && service.service_id) || serviceId)
-                            );
+                      {conshow ? (
+                        <div
+                          style={{
+                            textAlign: 'center',
+                            width: '100%',
+                            marginTop: '32px'
+                          }}
+                        >
+                          <Spin size="large" />
+                        </div>
+                      ) : (
+                        <Row
+                          gutter={24}
+                          style={{ height: '400px', overflow: 'auto' }}
+                        >
+                          {upgradeInfo &&
+                            upgradeInfo.length > 0 &&
+                            upgradeInfo.map((item, index) => {
+                              const {
+                                service,
+                                upgrade_info,
+                                update,
+                                service_id: serviceId
+                              } = item;
+                              const upgrades = upgradeRecords.filter(
+                                items =>
+                                  items.service_id ===
+                                  ((service && service.service_id) || serviceId)
+                              );
 
-                            let upgradeRecordsStatus = 1;
-                            if (upgrades && upgrades.length > 0) {
-                              upgradeRecordsStatus = upgrades[0].status;
-                            }
+                              let upgradeRecordsStatus = 1;
+                              if (upgrades && upgrades.length > 0) {
+                                upgradeRecordsStatus = upgrades[0].status;
+                              }
 
-                            return (
-                              <Col
-                                span={24}
-                                className={`${styles.zslMt} ${
-                                  type ===
-                                  (service
-                                    ? service.service_id
-                                    : item.service_id)
-                                    ? styles.active
-                                    : ''
-                                }`}
-                                onClick={() => {
-                                  this.handleType(service || item, index);
-                                }}
-                              >
-                                <div style={{ width: '100%' }}>
-                                  <Checkbox
-                                    disabled={
-                                      !!(
-                                        JSON.stringify(
-                                          upgrade_info || update
-                                        ) == '{}' ||
-                                        (upgrade_info
-                                          ? upgrade_info == null
-                                          : update == null)
-                                      )
-                                    }
-                                    value={
-                                      service
-                                        ? service.service_id
-                                        : item.service_id
-                                    }
-                                    style={{ width: '30px' }}
-                                  />
-                                  {service
-                                    ? service.service_cname
-                                    : item.service_cname}
-                                </div>
+                              return (
+                                <Col
+                                  span={24}
+                                  className={`${styles.zslMt} ${
+                                    type ===
+                                    (service
+                                      ? service.service_id
+                                      : item.service_id)
+                                      ? styles.active
+                                      : ''
+                                  }`}
+                                  onClick={() => {
+                                    this.handleType(service || item, index);
+                                  }}
+                                >
+                                  <div style={{ width: '100%' }}>
+                                    <Checkbox
+                                      disabled={
+                                        !!(
+                                          JSON.stringify(
+                                            upgrade_info || update
+                                          ) == '{}' ||
+                                          (upgrade_info
+                                            ? upgrade_info == null
+                                            : update == null)
+                                        )
+                                      }
+                                      value={
+                                        service
+                                          ? service.service_id
+                                          : item.service_id
+                                      }
+                                      style={{ width: '30px' }}
+                                    />
+                                    {service
+                                      ? service.service_cname
+                                      : item.service_cname}
+                                  </div>
 
-                                <div>
-                                  {upgrades &&
-                                  upgrades.length > 0 &&
-                                  (upgrade_info != null || update != null) &&
-                                  JSON.stringify(upgrade_info || update) !=
-                                    '{}' ? (
-                                    <div>
-                                      {upgradeRecordsStatus == 1 ||
-                                      upgradeRecordsStatus == 2 ||
-                                      upgradeRecordsStatus == 4 ? (
-                                        <Icon
-                                          type="sync"
-                                          style={{ color: '#1890ff' }}
-                                          spin
-                                        />
-                                      ) : upgradeRecordsStatus == 3 ||
-                                        (upgradeRecordsStatus == 5 &&
-                                          upgradeRecordsStatus <= 7) ? (
-                                        <Tooltip title="成功">
-                                          <Icon
-                                            type="check"
-                                            style={{ color: '#239B24' }}
-                                          />
-                                        </Tooltip>
-                                      ) : upgradeRecordsStatus == 8 ? (
-                                        <Tooltip title="失败">
-                                          <Icon
-                                            type="close"
-                                            style={{ color: 'red' }}
-                                          />
-                                        </Tooltip>
-                                      ) : (
-                                        <Tooltip title="成功">
-                                          <Icon
-                                            type="check"
-                                            style={{ color: '#239B24' }}
-                                          />
-                                        </Tooltip>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    service &&
-                                    service.type && (
+                                  <div>
+                                    {upgrades &&
+                                    upgrades.length > 0 &&
+                                    (upgrade_info != null || update != null) &&
+                                    JSON.stringify(upgrade_info || update) !=
+                                      '{}' ? (
                                       <div>
-                                        {service.type == 'upgrade' &&
-                                        (upgrade_info != null ||
-                                          update != null) &&
-                                        JSON.stringify(
-                                          upgrade_info || update
-                                        ) != '{}' ? (
-                                          <Tooltip title="可升级">
+                                        {upgradeRecordsStatus == 1 ||
+                                        upgradeRecordsStatus == 2 ||
+                                        upgradeRecordsStatus == 4 ? (
+                                          <Icon
+                                            type="sync"
+                                            style={{ color: '#1890ff' }}
+                                            spin
+                                          />
+                                        ) : upgradeRecordsStatus == 3 ||
+                                          (upgradeRecordsStatus == 5 &&
+                                            upgradeRecordsStatus <= 7) ? (
+                                          <Tooltip title="成功">
                                             <Icon
-                                              type="up"
+                                              type="check"
                                               style={{ color: '#239B24' }}
                                             />
                                           </Tooltip>
-                                        ) : (upgrade_info != null ||
+                                        ) : upgradeRecordsStatus == 8 ? (
+                                          <Tooltip title="失败">
+                                            <Icon
+                                              type="close"
+                                              style={{ color: 'red' }}
+                                            />
+                                          </Tooltip>
+                                        ) : (
+                                          <Tooltip title="成功">
+                                            <Icon
+                                              type="check"
+                                              style={{ color: '#239B24' }}
+                                            />
+                                          </Tooltip>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      service &&
+                                      service.type && (
+                                        <div>
+                                          {service.type == 'upgrade' &&
+                                          (upgrade_info != null ||
                                             update != null) &&
                                           JSON.stringify(
                                             upgrade_info || update
                                           ) != '{}' ? (
-                                          <Tooltip title="新增组件">
-                                            <Icon
-                                              type="plus"
-                                              style={{ color: '#239B24' }}
-                                            />
-                                          </Tooltip>
-                                        ) : (
-                                          ''
-                                        )}
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                              </Col>
-                            );
-                          })}
-                      </Row>
+                                            <Tooltip title="可升级">
+                                              <Icon
+                                                type="up"
+                                                style={{ color: '#239B24' }}
+                                              />
+                                            </Tooltip>
+                                          ) : (upgrade_info != null ||
+                                              update != null) &&
+                                            JSON.stringify(
+                                              upgrade_info || update
+                                            ) != '{}' ? (
+                                            <Tooltip title="新增组件">
+                                              <Icon
+                                                type="plus"
+                                                style={{ color: '#239B24' }}
+                                              />
+                                            </Tooltip>
+                                          ) : (
+                                            ''
+                                          )}
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </Col>
+                              );
+                            })}
+                        </Row>
+                      )}
                     </Checkbox.Group>
                   )}
                 </Form.Item>
@@ -1022,7 +1025,15 @@ export default class AppList extends PureComponent {
                 }}
               >
                 {conshow ? (
-                  <Spin size="large" />
+                  <div
+                    style={{
+                      textAlign: 'center',
+                      width: '100%',
+                      marginTop: '32px'
+                    }}
+                  >
+                    <Spin size="large" />
+                  </div>
                 ) : (
                   <List
                     itemLayout="horizontal"

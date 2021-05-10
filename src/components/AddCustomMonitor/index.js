@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
+import { Form, Input, Modal, notification, Select } from 'antd';
 import { connect } from 'dva';
-import { Form, Input, Modal, Select, notification } from 'antd';
+import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -22,7 +22,7 @@ export default class AddCustomMonitor extends PureComponent {
     this.handlePorts();
   }
 
-  onOk = (e) => {
+  onOk = e => {
     e.preventDefault();
     const { form, onOk } = this.props;
     const { unit, portList } = this.state;
@@ -31,7 +31,7 @@ export default class AddCustomMonitor extends PureComponent {
         // eslint-disable-next-line no-param-reassign
         vals.interval += `${unit}`;
         vals.port = Number(vals.port);
-        const portInfo = portList.filter((item) => {
+        const portInfo = portList.filter(item => {
           return `${vals.port}` === `${item.container_port}`;
         })[0];
         if (!portInfo.is_outer_service && !portInfo.is_inner_service) {
@@ -43,7 +43,7 @@ export default class AddCustomMonitor extends PureComponent {
     });
   };
 
-  handleOpenInner = (vals) => {
+  handleOpenInner = vals => {
     const { dispatch, parameter, onOk: onPropOk } = this.props;
     confirm({
       title: '开通端口',
@@ -71,7 +71,7 @@ export default class AddCustomMonitor extends PureComponent {
     });
   };
 
-  handleChange = (unit) => {
+  handleChange = unit => {
     this.setState({
       // eslint-disable-next-line react/no-unused-state
       unit
@@ -84,7 +84,7 @@ export default class AddCustomMonitor extends PureComponent {
     dispatch({
       type: 'appControl/fetchPorts',
       payload: parameter,
-      callback: (res) => {
+      callback: res => {
         if (res) {
           this.setState({
             portList: res.list
@@ -93,9 +93,9 @@ export default class AddCustomMonitor extends PureComponent {
       }
     });
   };
-  
+
   checkContent = (_, value, callback) => {
-    let num = Number(value);
+    const num = Number(value);
     if (num || num === 0) {
       if (num < 1) {
         callback('最小输入值1');
@@ -142,9 +142,9 @@ export default class AddCustomMonitor extends PureComponent {
       pattern: /^[a-zA-Z]+$/,
       message: '只支持字母组合'
     };
-    const max64 = {
-      max: 64,
-      message: '最大长度64位'
+    const max40 = {
+      max: 40,
+      message: '最大长度40位'
     };
     return (
       <Modal
@@ -163,7 +163,7 @@ export default class AddCustomMonitor extends PureComponent {
               rules: [
                 { required: true, message: '请填写配置名' },
                 letterPattern,
-                max64
+                max40
               ]
             })(<Input disabled={data.name} placeholder="请填写配置名" />)}
           </FormItem>
@@ -173,7 +173,7 @@ export default class AddCustomMonitor extends PureComponent {
               rules: [
                 { required: true, message: '请填写收集任务名称' },
                 letterPattern,
-                max64
+                max40
               ]
             })(<Input placeholder="请填写收集任务名称" />)}
           </FormItem>
@@ -188,6 +188,7 @@ export default class AddCustomMonitor extends PureComponent {
               <Input
                 type="number"
                 min={1}
+                max={65535}
                 addonAfter={selectAfter}
                 defaultValue="收集间隔时间"
               />
@@ -196,7 +197,13 @@ export default class AddCustomMonitor extends PureComponent {
           <FormItem {...formItemLayout} label="指标路径">
             {getFieldDecorator('path', {
               initialValue: data.path || '/metrics',
-              rules: [{ required: true, message: '请填写指标路径' }]
+              rules: [
+                { required: true, message: '请填写指标路径' },
+                {
+                  max: 255,
+                  message: '最大长度255位'
+                }
+              ]
             })(<Input placeholder="请填写指标路径" />)}
           </FormItem>
 
@@ -208,7 +215,7 @@ export default class AddCustomMonitor extends PureComponent {
               rules: [{ required: true, message: '请选择端口号' }]
             })(
               <Select placeholder="请选择端口号">
-                {portList.map((items) => {
+                {portList.map(items => {
                   const { container_port: containerPort, ID } = items;
                   return (
                     <Option value={containerPort} key={ID}>

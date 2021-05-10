@@ -1,10 +1,12 @@
-import React, { PureComponent } from 'react';
-import { Form, Modal, Input, Select, notification } from 'antd';
+/* eslint-disable react/no-redundant-should-component-update */
+/* eslint-disable react/no-unused-state */
+import { Form, Input, Modal, notification, Select } from 'antd';
 import { connect } from 'dva';
-import { getCodeBranch } from '../../../services/app';
-import globalUtil from '../../../utils/global';
-import appUtil from '../../../utils/app';
+import React, { PureComponent } from 'react';
 import ShowRegionKey from '../../../components/ShowRegionKey';
+import { getCodeBranch } from '../../../services/app';
+import appUtil from '../../../utils/app';
+import globalUtil from '../../../utils/global';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -24,7 +26,7 @@ export default class ChangeBuildSource extends PureComponent {
         ? this.props.buildSource.server_type
         : 'git',
       showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource),
-      showImage: appUtil.isImageAppByBuildSource(this.props.buildSource),
+      showImage: appUtil.isImageAppByBuildSource(this.props.buildSource)
     };
   }
   componentDidMount() {
@@ -42,7 +44,7 @@ export default class ChangeBuildSource extends PureComponent {
   changeServerType = value => {
     this.setState({ serverType: value, showUsernameAndPass: false });
   };
-  checkURL = (rule, value, callback) => {
+  checkURL = (_rule, value, callback) => {
     const urlCheck = this.getUrlCheck();
     if (urlCheck.test(value)) {
       callback();
@@ -53,7 +55,7 @@ export default class ChangeBuildSource extends PureComponent {
   loadBranch() {
     getCodeBranch({
       team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias,
+      app_alias: this.props.appAlias
     }).then(data => {
       if (data) {
         this.setState({ branch: data.list });
@@ -61,7 +63,7 @@ export default class ChangeBuildSource extends PureComponent {
     });
   }
   handleSubmit = () => {
-    const form = this.props.form;
+    const { form } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       if (fieldsValue.version_type == 'tag') {
@@ -73,14 +75,14 @@ export default class ChangeBuildSource extends PureComponent {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           service_alias: this.props.appAlias,
-          ...fieldsValue,
+          ...fieldsValue
         },
         callback: () => {
           notification.success({ message: '修改成功，下次构建部署时生效' });
           if (this.props.onOk) {
             this.props.onOk();
           }
-        },
+        }
       });
     });
   };
@@ -88,32 +90,32 @@ export default class ChangeBuildSource extends PureComponent {
     this.setState({ showKey: false });
   };
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(_nextProps, __nextState) {
     return true;
   }
 
   render() {
     const { title, onCancel } = this.props;
-    const branch = this.state.branch;
+    const { branch } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { showUsernameAndPass, showKey } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 3,
-        },
+          span: 3
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 16,
-        },
-      },
+          span: 16
+        }
+      }
     };
     const gitUrl = getFieldValue('git_url');
     let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || '');
@@ -125,7 +127,7 @@ export default class ChangeBuildSource extends PureComponent {
     const isSSH = !isHttp;
 
     const prefixSelector = getFieldDecorator('server_type', {
-      initialValue: this.state.buildSource.server_type,
+      initialValue: this.state.buildSource.server_type
     })(
       <Select onChange={this.changeServerType} style={{ width: 100 }}>
         <Option value="git">Git</Option>
@@ -139,7 +141,7 @@ export default class ChangeBuildSource extends PureComponent {
       codeVersion = codeVersion.substr(4, codeVersion.length);
     }
     const versionSelector = getFieldDecorator('version_type', {
-      initialValue: versionType,
+      initialValue: versionType
     })(
       <Select style={{ width: 100 }}>
         <Option value="branch">分支</Option>
@@ -169,8 +171,14 @@ export default class ChangeBuildSource extends PureComponent {
             label="镜像名称"
           >
             {getFieldDecorator('image', {
-              rules: [{ required: true, message: '镜像名称不能为空' }],
-              initialValue: this.state.buildSource.image,
+              rules: [
+                { required: true, message: '镜像名称不能为空' },
+                {
+                  max: 190,
+                  message: '最大长度190位'
+                }
+              ],
+              initialValue: this.state.buildSource.image
             })(<Input />)}
           </FormItem>
           <FormItem
@@ -179,7 +187,7 @@ export default class ChangeBuildSource extends PureComponent {
             label="启动命令"
           >
             {getFieldDecorator('cmd', {
-              initialValue: this.state.buildSource.cmd,
+              initialValue: this.state.buildSource.cmd
             })(<Input />)}
           </FormItem>
 
@@ -193,7 +201,7 @@ export default class ChangeBuildSource extends PureComponent {
                 this.state.buildSource.user_name ||
                 this.state.buildSource.user ||
                 '',
-              rules: [{ required: false, message: '请输入仓库用户名' }],
+              rules: [{ required: false, message: '请输入仓库用户名' }]
             })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
           </Form.Item>
           <Form.Item
@@ -203,7 +211,7 @@ export default class ChangeBuildSource extends PureComponent {
           >
             {getFieldDecorator('password', {
               initialValue: this.state.buildSource.password || '',
-              rules: [{ required: false, message: '请输入仓库密码' }],
+              rules: [{ required: false, message: '请输入仓库密码' }]
             })(
               <Input
                 autoComplete="new-password"
@@ -224,8 +232,8 @@ export default class ChangeBuildSource extends PureComponent {
                 force: true,
                 rules: [
                   { required: true, message: '请输入仓库地址' },
-                  { validator: this.checkURL, message: '仓库地址不合法' },
-                ],
+                  { validator: this.checkURL, message: '仓库地址不合法' }
+                ]
               })(
                 <Input
                   addonBefore={prefixSelector}
@@ -242,7 +250,7 @@ export default class ChangeBuildSource extends PureComponent {
             >
               {getFieldDecorator('code_version', {
                 initialValue: codeVersion,
-                rules: [{ required: true, message: '请输入代码版本' }],
+                rules: [{ required: true, message: '请输入代码版本' }]
               })(
                 <Input
                   addonBefore={versionSelector}
@@ -293,7 +301,7 @@ export default class ChangeBuildSource extends PureComponent {
                 this.state.buildSource.user_name ||
                 this.state.buildSource.user ||
                 '',
-              rules: [{ required: false, message: '请输入仓库用户名' }],
+              rules: [{ required: false, message: '请输入仓库用户名' }]
             })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
           </Form.Item>
           <Form.Item
@@ -303,7 +311,7 @@ export default class ChangeBuildSource extends PureComponent {
           >
             {getFieldDecorator('password', {
               initialValue: this.state.buildSource.password || '',
-              rules: [{ required: false, message: '请输入仓库密码' }],
+              rules: [{ required: false, message: '请输入仓库密码' }]
             })(
               <Input
                 autoComplete="new-password"

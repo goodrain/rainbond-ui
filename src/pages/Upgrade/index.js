@@ -1,3 +1,8 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable camelcase */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-nested-ternary */
 import { Avatar, List, Table, Tabs, Tag } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -11,7 +16,6 @@ import {
 } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
-import sourceUtil from '../../utils/source-unit';
 import styles from './index.less';
 import Info from './info';
 import infoUtil from './info-util';
@@ -242,10 +246,6 @@ export default class AppList extends PureComponent {
               : '暂无升级'}
           </p>
         </div>
-        <div className={styles.listContentItem}>
-          <span>内存</span>
-          <p>{sourceUtil.unit(min_memory || 128, 'MB')}</p>
-        </div>
       </div>
     );
 
@@ -298,16 +298,15 @@ export default class AppList extends PureComponent {
           <a
             onClick={e => {
               e.preventDefault();
-              item.status != 1 &&
+              item.status !== 1 &&
                 this.setState({
                   infoData: item,
                   infoShow: true
                 });
             }}
-            style={{ color: item.status == 1 ? '#000' : '#1890ff' }}
-            href="javascript:;"
+            style={{ color: item.status === 1 ? '#000' : '#1890ff' }}
           >
-            {item.status == 1 ? '-' : '详情'}
+            {item.status === 1 ? '-' : '详情'}
           </a>
         )
       }
@@ -339,7 +338,7 @@ export default class AppList extends PureComponent {
             onChange={this.callback}
             className={styles.tabss}
           >
-            <TabPane tab="云市应用列表" key="1">
+            <TabPane tab="应用模型列表" key="1">
               <div className={styles.cardList}>
                 <List
                   rowKey="id"
@@ -374,7 +373,7 @@ export default class AppList extends PureComponent {
                             color: item.can_upgrade ? '#1890ff' : '#bfbfbf'
                           }}
                         >
-                          {item.not_upgrade_record_status != 1
+                          {item.not_upgrade_record_status !== 1
                             ? infoUtil.getStatusCN(
                                 item.not_upgrade_record_status
                               )
@@ -389,7 +388,7 @@ export default class AppList extends PureComponent {
                           <Avatar
                             src={
                               item.pic ||
-                              require('../../../public/images/app_icon.jpg')
+                              require('../../../public/images/app_icon.svg')
                             }
                             shape="square"
                             size="large"
@@ -412,7 +411,7 @@ export default class AppList extends PureComponent {
                 />
               </div>
             </TabPane>
-            <TabPane tab="云市应用升级记录" key="2">
+            <TabPane tab="升级记录" key="2">
               <Table
                 columns={columns}
                 dataSource={dataList}
@@ -437,7 +436,7 @@ export default class AppList extends PureComponent {
             group_id={this.getGroupId()}
             setInfoShow={() => {
               this.setState({ infoShow: false }, () => {
-                this.state.activeKey == '2'
+                this.state.activeKey === '2'
                   ? this.getUpgradeRecordsList()
                   : this.getApplication();
               });

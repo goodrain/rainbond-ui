@@ -1,22 +1,22 @@
-import React, { PureComponent, Fragment } from 'react';
-import { Button, Icon, Card, Modal, Form, Input } from 'antd';
+import { Button, Card, Form, Icon, Modal } from 'antd';
 import { connect } from 'dva';
-import Result from '../../components/Result';
 import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
+import CodeMirror from 'react-codemirror';
+import ConfirmModal from '../../components/ConfirmModal';
+import LogProcress from '../../components/LogProcress';
+import Result from '../../components/Result';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
-  getCreateComposeCheckInfo,
-  getCreateComposeCheckResult,
-  getComposeCheckuuid,
   getComposeByComposeId,
+  getComposeCheckuuid,
+  getCreateComposeCheckInfo,
+  getCreateComposeCheckResult
 } from '../../services/createApp';
 import globalUtil from '../../utils/global';
-import LogProcress from '../../components/LogProcress';
-import userUtil from '../../utils/user';
-import regionUtil from '../../utils/region';
 import rainbondUtil from '../../utils/rainbond';
-import ConfirmModal from '../../components/ConfirmModal';
-import CodeMirror from 'react-codemirror';
+import regionUtil from '../../utils/region';
+import userUtil from '../../utils/user';
 
 require('codemirror/mode/yaml/yaml');
 require('codemirror/lib/codemirror.css');
@@ -29,13 +29,13 @@ class ModifyCompose extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      compose: '',
+      compose: ''
     };
   }
   componentDidMount() {
     getComposeByComposeId({
       team_name: globalUtil.getCurrTeamName(),
-      compose_id: this.props.compose_id,
+      compose_id: this.props.compose_id
     }).then(data => {
       if (data && data.bean) {
         this.setState({ compose: data.bean.compose_content });
@@ -56,7 +56,7 @@ class ModifyCompose extends PureComponent {
     const options = {
       lineNumbers: true,
       theme: 'monokai',
-      mode: 'yaml',
+      mode: 'yaml'
     };
 
     if (!this.state.compose) {
@@ -77,9 +77,9 @@ class ModifyCompose extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请输入内容',
-                },
-              ],
+                  message: '请输入内容'
+                }
+              ]
             })(<CodeMirror options={options} placeholder="" />)}
           </Form.Item>
         </Form>
@@ -91,7 +91,7 @@ class ModifyCompose extends PureComponent {
 @connect(
   ({ user, appControl }) => ({
     currUser: user.currentUser,
-    rainbondInfo: global.rainbondInfo,
+    rainbondInfo: global.rainbondInfo
   }),
   null,
   null,
@@ -110,7 +110,7 @@ export default class CreateCheck extends PureComponent {
       serviceInfo: [],
       showEdit: false,
       showDelete: false,
-      modifyCompose: false,
+      modifyCompose: false
     };
     this.mount = false;
     this.socketUrl = '';
@@ -138,7 +138,7 @@ export default class CreateCheck extends PureComponent {
     const params = this.getParams();
     getComposeCheckuuid({
       team_name,
-      ...params,
+      ...params
     }).then(data => {
       if (data) {
         if (!data.bean.check_uuid) {
@@ -158,7 +158,7 @@ export default class CreateCheck extends PureComponent {
       {
         team_name,
         app_alias: appAlias,
-        ...params,
+        ...params
       },
       res => {
         if (res.status === 404) {
@@ -174,7 +174,7 @@ export default class CreateCheck extends PureComponent {
         this.state.check_uuid = data.bean.check_uuid;
         this.setState({
           eventId: data.bean.check_event_id,
-          appDetail: data.bean,
+          appDetail: data.bean
         });
         if (loopStatus !== false) {
           this.loopStatus();
@@ -192,7 +192,7 @@ export default class CreateCheck extends PureComponent {
     getCreateComposeCheckResult({
       team_name,
       check_uuid: this.state.check_uuid,
-      ...params,
+      ...params
     })
       .then(data => {
         if (data && this.mount) {
@@ -202,7 +202,7 @@ export default class CreateCheck extends PureComponent {
           this.setState({
             status,
             errorInfo: error_infos,
-            serviceInfo,
+            serviceInfo
           });
         }
       })
@@ -221,7 +221,7 @@ export default class CreateCheck extends PureComponent {
   getParams() {
     return {
       group_id: this.props.match.params.appID,
-      compose_id: this.props.match.params.composeId,
+      compose_id: this.props.match.params.composeId
     };
   }
   handleCreate = () => {
@@ -238,20 +238,20 @@ export default class CreateCheck extends PureComponent {
           return (
             <div
               style={{
-                marginBottom: 16,
+                marginBottom: 16
               }}
             >
               <Icon
                 style={{
                   color: '#f5222d',
-                  marginRight: 8,
+                  marginRight: 8
                 }}
                 type="close-circle-o"
               />
               <span
                 dangerouslySetInnerHTML={{
                   __html: `<span>${item.error_info || ''} ${item.solve_advice ||
-                    ''}</span>`,
+                    ''}</span>`
                 }}
               />
             </div>
@@ -266,7 +266,7 @@ export default class CreateCheck extends PureComponent {
       </Button>,
       <Button onClick={this.recheck} type="primary">
         重新检测
-      </Button>,
+      </Button>
     ];
 
     return (
@@ -278,7 +278,7 @@ export default class CreateCheck extends PureComponent {
         actions={actions}
         style={{
           marginTop: 48,
-          marginBottom: 16,
+          marginBottom: 16
         }}
       />
     );
@@ -301,14 +301,14 @@ export default class CreateCheck extends PureComponent {
       type: 'application/buildCompose',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...params,
+        ...params
       },
       callback: () => {
         this.props.dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name,
-          },
+            team_name
+          }
         });
         this.props.dispatch(
           routerRedux.replace(
@@ -317,7 +317,7 @@ export default class CreateCheck extends PureComponent {
             }`
           )
         );
-      },
+      }
     });
   };
   renderSuccessInfo = item => {
@@ -326,14 +326,14 @@ export default class CreateCheck extends PureComponent {
         return (
           <div
             style={{
-              paddingLeft: 32,
+              paddingLeft: 32
             }}
           >
             <span
               style={{
                 verticalAlign: 'top',
                 display: 'inline-block',
-                fontWeight: 'bold',
+                fontWeight: 'bold'
               }}
             >
               {item.key}：
@@ -345,28 +345,28 @@ export default class CreateCheck extends PureComponent {
       return (
         <div
           style={{
-            paddingLeft: 32,
+            paddingLeft: 32
           }}
         >
           <span
             style={{
               verticalAlign: 'top',
               display: 'inline-block',
-              fontWeight: 'bold',
+              fontWeight: 'bold'
             }}
           >
             {item.key}：
           </span>
           <div
             style={{
-              display: 'inline-block',
+              display: 'inline-block'
             }}
           >
             {(item.value || []).map(item => {
               return (
                 <p
                   style={{
-                    marginBottom: 0,
+                    marginBottom: 0
                   }}
                 >
                   {item}
@@ -387,7 +387,7 @@ export default class CreateCheck extends PureComponent {
           return (
             <div
               style={{
-                marginBottom: 16,
+                marginBottom: 16
               }}
             >
               <p>组件名称：{item.service_cname}</p>
@@ -395,7 +395,7 @@ export default class CreateCheck extends PureComponent {
                 return (
                   <div
                     style={{
-                      marginBottom: 16,
+                      marginBottom: 16
                     }}
                   >
                     {this.renderSuccessInfo(item)}
@@ -418,8 +418,9 @@ export default class CreateCheck extends PureComponent {
       <Button onClick={this.showDelete} type="default">
         {' '}
         放弃创建{' '}
-      </Button>,
+      </Button>
     ];
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <Result
         type="success"
@@ -427,15 +428,19 @@ export default class CreateCheck extends PureComponent {
         description={
           <div>
             <div>组件检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
-            90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{' '}
-            <a
-              href={`${rainbondUtil.documentPlatform_url(
-                rainbondInfo
-              )}docs/user-manual/app-creation/language-support/`}
-              target="_blank"
-            >
-              rainbond文档
-            </a>{' '}
+            90%以上的用户在检测通过后可部署成功，
+            {(platform_url && (
+              <span>
+                如遇部署失败，可参考
+                <a
+                  href={`${platform_url}docs/user-manual/app-creation/language-support/`}
+                  target="_blank"
+                >
+                  平台文档
+                </a>
+              </span>
+            )) ||
+              ''}{' '}
             对代码包进行调整。
           </div>
         }
@@ -471,7 +476,7 @@ export default class CreateCheck extends PureComponent {
         actions={actions}
         style={{
           marginTop: 48,
-          marginBottom: 16,
+          marginBottom: 16
         }}
       />
     );
@@ -479,7 +484,7 @@ export default class CreateCheck extends PureComponent {
   recheck = () => {
     this.setState(
       {
-        status: 'checking',
+        status: 'checking'
       },
       () => {
         this.startCheck();
@@ -511,11 +516,11 @@ export default class CreateCheck extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: params.group_id,
-        compose_content: vals.yaml_content,
+        compose_content: vals.yaml_content
       },
       callback: data => {
         this.cancelModifyCompose();
-      },
+      }
     });
   };
   handleCancelEdit = () => {
@@ -536,14 +541,14 @@ export default class CreateCheck extends PureComponent {
       type: 'application/deleteCompose',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...params,
+        ...params
       },
       callback: () => {
         this.props.dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: globalUtil.getCurrTeamName(),
-          },
+            team_name: globalUtil.getCurrTeamName()
+          }
         });
 
         this.props.dispatch(
@@ -551,7 +556,7 @@ export default class CreateCheck extends PureComponent {
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
           )
         );
-      },
+      }
     });
   };
   showDelete = () => {
@@ -565,7 +570,7 @@ export default class CreateCheck extends PureComponent {
         <Card bordered={false}>
           <div
             style={{
-              minHeight: 400,
+              minHeight: 400
             }}
           >
             {status === 'checking' ? this.renderChecking() : null}

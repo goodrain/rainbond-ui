@@ -530,7 +530,7 @@ export default class ServiceOverview extends PureComponent {
             >
               <Row className={styles.serviceDetailsBox}>
                 <div className={styles.serviceDetailsL}>
-                  <h6>RAINBOND CLOUD 付费版</h6>
+                  <h6>平台付费版</h6>
                   <ul>
                     <li>接入集群数量无限制</li>
                     <li>团队、用户数量无限制</li>

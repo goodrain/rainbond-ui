@@ -114,7 +114,7 @@ class ParameterForm extends PureComponent {
                     message: '请输入超时时间'
                   }
                 ],
-                initialValue: editInfo ? editInfo.proxy_connect_timeout : '75'
+                initialValue: editInfo ? editInfo.proxy_connect_timeout : '5'
               })(<Input addonAfter="秒" />)}
             </FormItem>
 

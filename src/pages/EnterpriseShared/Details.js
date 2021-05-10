@@ -556,7 +556,7 @@ export default class Main extends PureComponent {
         )}
         <PageHeaderLayout
           title="应用市场管理"
-          content="应用模型是指模型化、标准化的应用制品包，是企业数字资产的应用化产物，可以通过标准的方式安装到任何Rainbond平台或其他支持的云原生平台"
+          content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
             <Card
