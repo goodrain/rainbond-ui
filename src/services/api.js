@@ -517,7 +517,7 @@ export async function getUpdateRecordsList(body = {}) {
 
 export async function getUpgradeRecordsHelmList(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/helm-releases`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/releases`,
     {
       method: 'get'
     }

@@ -158,13 +158,13 @@ export default class Index extends PureComponent {
     };
     return (
       <Form>
-        <Form.Item {...formItemLayout} label="仓库名称">
+        <Form.Item {...formItemLayout} label="商店名称">
           {getFieldDecorator('name', {
             initialValue: (data && data.name) || '',
             rules: [
               {
                 required: true,
-                message: '请填写仓库名称'
+                message: '请填写商店名称'
               },
               {
                 validator: (_, value, callback) => {
@@ -176,20 +176,20 @@ export default class Index extends PureComponent {
             <Input
               disabled={data && data.name}
               type="text"
-              placeholder="请填写仓库名称"
+              placeholder="请填写商店名称"
             />
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="仓库地址">
+        <Form.Item {...formItemLayout} label="商店地址">
           {getFieldDecorator('url', {
             initialValue: (data && data.url) || '',
             rules: [
               {
                 required: true,
-                message: '请填写仓库地址'
+                message: '请填写商店地址'
               }
             ]
-          })(<Input type="text" placeholder="请填写仓库地址" />)}
+          })(<Input type="text" placeholder="请填写商店地址" />)}
         </Form.Item>
         <div style={{ textAlign: 'right', marginTop: '-16px' }}>
           <Checkbox
@@ -200,34 +200,34 @@ export default class Index extends PureComponent {
               });
             }}
           >
-            私有仓库
+            私有商店
           </Checkbox>
         </div>
         {showUsernameAndPass && (
-          <Form.Item {...formItemLayout} label="仓库用户名">
+          <Form.Item {...formItemLayout} label="商店用户名">
             {getFieldDecorator('username', {
               initialValue: (data && data.username) || '',
               rules: [
                 {
                   required: showUsernameAndPass,
-                  message: '请输入仓库用户名'
+                  message: '请输入商店用户名'
                 }
               ]
-            })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+            })(<Input autoComplete="off" placeholder="请输入商店用户名" />)}
           </Form.Item>
         )}
         {showUsernameAndPass && (
-          <Form.Item {...formItemLayout} label="仓库密码">
+          <Form.Item {...formItemLayout} label="商店密码">
             {getFieldDecorator('password', {
               initialValue: (data && data.password) || '',
               rules: [
-                { required: showUsernameAndPass, message: '请输入仓库密码' }
+                { required: showUsernameAndPass, message: '请输入商店密码' }
               ]
             })(
               <Input
                 autoComplete="new-password"
                 type="password"
-                placeholder="请输入仓库密码"
+                placeholder="请输入商店密码"
               />
             )}
           </Form.Item>

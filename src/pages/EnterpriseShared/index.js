@@ -961,14 +961,17 @@ export default class EnterpriseShared extends PureComponent {
               className={styles.tags}
               style={{ justifyContent: 'center' }}
             >
-              <span
+              <div
+                className={styles.installBox}
+                style={{ background: '#fff' }}
                 onClick={e => {
                   e.stopPropagation();
                   this.installHelmApp(item, types);
                 }}
               >
                 {globalUtil.fetchSvg('InstallApp')}
-              </span>
+                <div style={{ background: '#fff' }}>安装</div>
+              </div>
             </Col>
           </div>
         }

@@ -8,6 +8,8 @@ import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
 import CodeMirrorForm from '@/components/CodeMirrorForm';
 import Parameterinput from '@/components/Parameterinput';
+import PublicForm from '@/components/PublicForm';
+import PublicFormStyles from '@/components/PublicForm/index.less';
 import { LoadingOutlined } from '@ant-design/icons';
 import {
   Alert,
@@ -22,6 +24,7 @@ import {
   notification,
   Row,
   Select,
+  Skeleton,
   Steps,
   Tabs,
   Tooltip
@@ -67,11 +70,12 @@ export default class Index extends PureComponent {
     super(arg);
     this.state = {
       linkList: [],
+      versionInfoLoading: true,
       versions: [],
+      noVersion: false,
       promptMap: {
         8000: '商店已被删除、无法更新。',
-        8003: '应用模板不存在、无法更新。',
-        8004: '应用版本不存在、无法更新。'
+        8003: '应用模板不存在、无法更新。'
       },
       formData: [
         {
@@ -487,6 +491,9 @@ export default class Index extends PureComponent {
               this.scrollToBottom();
             }
             if (currentSteps >= 2) {
+              if (init) {
+                this.setState({ versionInfoLoading: init });
+              }
               this.getHelmApplication(!templateFile ? true : init);
             } else {
               this.handleAppInfoLoading();
@@ -541,7 +548,14 @@ export default class Index extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState(
             {
-              versionInfo: res
+              versionInfo: res,
+              versionInfoLoading: false,
+              formData:
+                (res &&
+                  res.questions &&
+                  res.questions.length > 0 &&
+                  res.questions) ||
+                []
             },
             () => {
               if (res && res.values) {
@@ -869,6 +883,27 @@ export default class Index extends PureComponent {
           });
           return null;
         }
+
+        Object.keys(val).forEach(key => {
+          if (
+            key !== 'templateFile' &&
+            key !== 'version' &&
+            key !== 'yamls' &&
+            key !== 'overrides'
+          ) {
+            if (
+              !Object.prototype.toString.call(overrides) ===
+                '[Object Object]' ||
+              overrides === undefined
+            ) {
+              overrides = {};
+            }
+            const setKey = key.replace(new RegExp('\\#-#', 'g'), '.');
+            const setValue = val[key];
+            overrides[setKey] = `${setValue}`;
+          }
+        });
+
         const info = Object.assign({}, val, { yamls: values, overrides });
         if (type === 'Create') {
           this.handleInstallHelmApp(info);
@@ -1086,14 +1121,14 @@ export default class Index extends PureComponent {
     }
   };
   handleOperationBtn = type => {
-    const { submitLoading, errPrompt, upDataVersion } = this.state;
+    const { submitLoading, errPrompt, noVersion, upDataVersion } = this.state;
     return (
       <div style={{ textAlign: 'center' }} id="messagesEndRef">
         <Button
           onClick={() => {
             this.handleSubmit(type);
           }}
-          disabled={upDataVersion || errPrompt}
+          disabled={upDataVersion || errPrompt || noVersion}
           loading={submitLoading}
           type="primary"
         >
@@ -1137,9 +1172,14 @@ export default class Index extends PureComponent {
     if (res && res.data && res.data.code) {
       const { promptMap } = this.state;
       const errPrompt = promptMap[res.data.code] || false;
-      if (errPrompt) {
+      if (res.data.code === 8004) {
         this.setState({
-          errPrompt
+          noVersion: true
+        });
+      } else if (errPrompt) {
+        this.setState({
+          errPrompt,
+          noVersion: false
         });
       }
     }
@@ -1160,7 +1200,10 @@ export default class Index extends PureComponent {
       });
       if (isParse) {
         if (isVersion) {
-          this.setState({ upDataVersion: '版本信息更新中、请耐心等待' });
+          this.setState({
+            upDataVersion: '版本信息更新中、请耐心等待',
+            noVersion: false
+          });
         }
         this.fetchHelmAppStoresVersions(value);
       }
@@ -1203,10 +1246,12 @@ export default class Index extends PureComponent {
     const { getFieldDecorator, setFieldsValue } = form;
     const {
       versionInfo,
+      versionInfoLoading,
       resources,
       currentSteps,
       versions,
       errPrompt,
+      noVersion,
       upDataVersion,
       formData
     } = this.state;
@@ -1245,14 +1290,16 @@ export default class Index extends PureComponent {
             className={styles.customPanel}
           >
             <div style={{ padding: '15px 30px' }}>
-              <Markdown
-                className={styles.customMD}
-                source={
-                  (versionInfo.readme &&
-                    this.decodeBase64Content(versionInfo.readme)) ||
-                  ''
-                }
-              />
+              <Skeleton loading={versionInfoLoading}>
+                <Markdown
+                  className={styles.customMD}
+                  source={
+                    (versionInfo.readme &&
+                      this.decodeBase64Content(versionInfo.readme)) ||
+                    ''
+                  }
+                />
+              </Skeleton>
             </div>
           </Panel>
           <Panel
@@ -1265,122 +1312,137 @@ export default class Index extends PureComponent {
             key="2"
             className={styles.customPanel}
           >
-            <div style={{ padding: '15px 30px' }}>
-              {/* <PublicForm
-                Form={Form}
-                data={formData}
-                upDateQuestions={data => {
-                  this.setState({
-                    formData: data
-                  });
-                }}
-                setFieldsValue={setFieldsValue}
-                formItemLayout={formItemLayout}
-                getFieldDecorator={getFieldDecorator}
-              /> */}
-              <FormItem {...formItemLayout} label="values配置">
-                {getFieldDecorator('overrides', {
-                  initialValue: overrides || [],
-                  rules: [{ required: false, message: '请填写values配置' }]
-                })(
-                  <Parameterinput
-                    disableds={upDataVersion || errPrompt}
-                    isHalf
-                    editInfo={overrides || ''}
+            <Skeleton loading={versionInfoLoading}>
+              <div style={{ padding: '15px 30px' }}>
+                {formData && formData.length > 0 && (
+                  <PublicForm
+                    Form={Form}
+                    data={formData}
+                    upDateQuestions={data => {
+                      this.setState({
+                        formData: data
+                      });
+                    }}
+                    setFieldsValue={setFieldsValue}
+                    formItemLayout={formItemLayout}
+                    getFieldDecorator={getFieldDecorator}
                   />
                 )}
-              </FormItem>
-              <Row>
-                {currentSteps > 3 && (
+                <div className={PublicFormStyles.over_hr}>
+                  <span>通用配置</span>
+                </div>
+                <FormItem {...formItemLayout} label="Values配置">
+                  {getFieldDecorator('overrides', {
+                    initialValue: overrides || [],
+                    rules: [{ required: false, message: '请填写Values配置' }]
+                  })(
+                    <Parameterinput
+                      disableds={upDataVersion || errPrompt || noVersion}
+                      isHalf
+                      editInfo={overrides || ''}
+                    />
+                  )}
+                </FormItem>
+                <Row>
+                  {currentSteps > 3 && (
+                    <Col span={12}>
+                      <FormItem {...formItemLayout} label="版本">
+                        {getFieldDecorator('version', {
+                          initialValue: resources.version || undefined,
+                          rules: [
+                            {
+                              required: true,
+                              message: '请选择版本'
+                            }
+                          ]
+                        })(
+                          <Select
+                            placeholder="请选择版本"
+                            style={{ width: '96%' }}
+                            disabled={upDataVersion || errPrompt}
+                            onChange={val => {
+                              this.handleAppVersion(val, true, true);
+                            }}
+                          >
+                            {versions.map(item => {
+                              const { version } = item;
+                              return (
+                                <Option key={version} value={version}>
+                                  {resources.version == version
+                                    ? `${version} 当前版本`
+                                    : version}
+                                </Option>
+                              );
+                            })}
+                          </Select>
+                        )}
+                      </FormItem>
+                    </Col>
+                  )}
                   <Col span={12}>
-                    <FormItem {...formItemLayout} label="版本">
-                      {getFieldDecorator('version', {
-                        initialValue: resources.version || undefined,
-                        rules: [
-                          {
-                            required: true,
-                            message: '请选择版本'
-                          }
-                        ]
-                      })(
-                        <Select
-                          placeholder="请选择版本"
-                          style={{ width: '96%' }}
-                          disabled={upDataVersion || errPrompt}
-                          onChange={val => {
-                            this.handleAppVersion(val, true, true);
-                          }}
-                        >
-                          {versions.map(item => {
-                            const { version } = item;
+                    {(upDataVersion || noVersion) && (
+                      <Alert
+                        style={{ marginTop: '40px' }}
+                        message={
+                          noVersion
+                            ? '应用版本不存在、请重新选择版本'
+                            : upDataVersion
+                        }
+                        type="warning"
+                      />
+                    )}
+                  </Col>
+                </Row>
+                <Col span={24}>
+                  <FormItem
+                    {...formItemLayout}
+                    label="Values文件"
+                    className={styles.clearStar}
+                  >
+                    {getFieldDecorator('templateFile', {
+                      initialValue: '',
+                      rules: [{ required: true, message: '请选择Values文件' }]
+                    })(
+                      <Select
+                        placeholder="请选择版本"
+                        style={{ width: '100%' }}
+                        onChange={this.handleTemplateFile}
+                        disabled={upDataVersion || errPrompt || noVersion}
+                      >
+                        {versionInfo.values &&
+                          Object.keys(versionInfo.values).map(key => {
                             return (
-                              <Option key={version} value={version}>
-                                {resources.version == version
-                                  ? `${version} 当前版本`
-                                  : version}
+                              <Option key={key} value={key}>
+                                {key}
                               </Option>
                             );
                           })}
-                        </Select>
-                      )}
-                    </FormItem>
-                  </Col>
-                )}
-                <Col span={12}>
-                  {upDataVersion && (
-                    <Alert
-                      style={{ marginTop: '40px' }}
-                      message={upDataVersion}
-                      type="warning"
-                    />
-                  )}
+                      </Select>
+                    )}
+                  </FormItem>
                 </Col>
-              </Row>
-              <Col span={12}>
-                <FormItem {...formItemLayout} label="values文件">
-                  {getFieldDecorator('templateFile', {
-                    initialValue: '',
-                    rules: [{ required: true, message: '请选择values文件' }]
-                  })(
-                    <Select
-                      placeholder="请选择版本"
-                      style={{ width: '96%' }}
-                      onChange={this.handleTemplateFile}
-                      disabled={upDataVersion || errPrompt}
-                    >
-                      {versionInfo.values &&
-                        Object.keys(versionInfo.values).map(key => {
-                          return (
-                            <Option key={key} value={key}>
-                              {key}
-                            </Option>
-                          );
-                        })}
-                    </Select>
-                  )}
-                </FormItem>
-              </Col>
-              <CodeMirrorForm
-                disabled
-                data=""
-                bg="151718"
-                width="100%"
-                isUpload={false}
-                saveRef={ref => {
-                  this.CodeMirrorRef = ref;
-                }}
-                marginTop={120}
-                setFieldsValue={setFieldsValue}
-                formItemLayout={formItemLayout}
-                Form={Form}
-                getFieldDecorator={getFieldDecorator}
-                beforeUpload={this.beforeUpload}
-                mode="yaml"
-                name="yamls"
-                message="填写配置"
-              />
-              {currentSteps > 3 && this.handleOperationBtn('UpDate')}
-            </div>
+                <CodeMirrorForm
+                  disabled
+                  data=""
+                  bg="151718"
+                  width="100%"
+                  isUpload={false}
+                  saveRef={ref => {
+                    this.CodeMirrorRef = ref;
+                  }}
+                  marginTop={120}
+                  setFieldsValue={setFieldsValue}
+                  formItemLayout={formItemLayout}
+                  Form={Form}
+                  getFieldDecorator={getFieldDecorator}
+                  beforeUpload={this.beforeUpload}
+                  mode="yaml"
+                  name="yamls"
+                  message="填写配置"
+                />
+                {currentSteps > 3 && this.handleOperationBtn('UpDate')}
+              </div>
+            </Skeleton>
           </Panel>
         </Collapse>
         {currentSteps <= 2 && this.handleOperationBtn('Create')}
@@ -1398,6 +1460,7 @@ export default class Index extends PureComponent {
       operationPermissions: { isAccess: isControl }
     } = this.props;
     const {
+      versions,
       currApp,
       resources,
       isInstall,
@@ -1422,7 +1485,6 @@ export default class Index extends PureComponent {
       appInfoLoading,
       servicesLoading
     } = this.state;
-
     const codeObj = {
       start: '启动',
       restart: '重启',
@@ -1615,7 +1677,10 @@ export default class Index extends PureComponent {
                     isUpgrade && this.handleJump('upgrade');
                   }}
                 >
-                  <a>{currApp.upgradable_num || 0}</a>
+                  <a>
+                    {(versions && versions.length > 0 && versions.length - 1) ||
+                      0}
+                  </a>
                 </div>
               </div>
               <div className={styles.conrBox} style={{ width: '33.3%' }}>
@@ -1725,16 +1790,21 @@ export default class Index extends PureComponent {
                     const {
                       service_name: serviceName,
                       pods,
+                      oldPods,
                       tcp_ports: ports
                     } = item;
                     return (
                       <TabPane tab={serviceName} key={serviceName}>
                         <div>
                           <div className={styles.associated}>
-                            <div>关联组件:</div>
+                            <div>
+                              <Tooltip title="关联第三方组件，管理访问权限！">
+                                关联组件:
+                              </Tooltip>
+                            </div>
                             <div
                               style={{
-                                width:
+                                maxwidth:
                                   ports && ports.length > 0
                                     ? 'calc(100% - 100px)'
                                     : 'calc(100% - 62px)'
@@ -1770,7 +1840,7 @@ export default class Index extends PureComponent {
                             isHelm
                             runLoading={false}
                             new_pods={pods}
-                            old_pods={[]}
+                            old_pods={oldPods}
                             appAlias={this.getGroupId()}
                           />
                         </div>

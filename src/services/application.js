@@ -10,12 +10,13 @@ export async function getServiceNameList(params) {
 }
 export async function CheckAppName(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/ensure-app-name`,
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/check-resource-name`,
     {
       method: 'post',
       handleError,
       data: {
-        app_name: params.app_name,
+        name: params.app_name,
+        type: 'helmApp',
         region_name: params.regionNam
       }
     }

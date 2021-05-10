@@ -1,4 +1,4 @@
-import { Col, Input, InputNumber, Row, Select, Switch } from 'antd';
+import { Col, Input, InputNumber, Radio, Row, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import styles from './index.less';
@@ -37,44 +37,41 @@ class PublicForm extends PureComponent {
     });
   };
   handleFormItem = data => {
-    return (
-      data &&
-      data.map((item, index) => {
-        const {
-          subquestions,
-          default: defaults,
-          group,
-          show_subquestion_if = false
-        } = item;
-        console.log('1group', group !== data[index < 1 ? 0 : index - 1].group);
-        return (
-          <Fragment>
-            {group !==
-            data[index >= data.length ? data.length : index + 1].group ? (
-              <Col span={24}>
-                {this.FormItemBox(item)}
-                {defaults == show_subquestion_if &&
-                  subquestions &&
-                  subquestions.length > 0 &&
-                  subquestions.map(items => {
-                    return this.FormItemBox(items);
-                  })}
-              </Col>
-            ) : (
-              <Fragment>
-                {this.FormItemBox(item)}
-                {defaults == show_subquestion_if &&
-                  subquestions &&
-                  subquestions.length > 0 &&
-                  subquestions.map(items => {
-                    return this.FormItemBox(items);
-                  })}
-              </Fragment>
-            )}
-          </Fragment>
-        );
-      })
-    );
+    return data.map((item, index) => {
+      const {
+        type,
+        subquestions,
+        default: defaults,
+        group,
+        show_subquestion_if = false
+      } = item;
+      const box = (
+        <Fragment>
+          {this.FormItemBox(item)}
+          {(type !== 'boolean' || defaults == show_subquestion_if) &&
+            subquestions &&
+            subquestions.length > 0 &&
+            subquestions.map(items => {
+              return this.FormItemBox(items);
+            })}
+        </Fragment>
+      );
+      return (
+        <Fragment>
+          {group !==
+          data[index + 1 >= data.length ? index - 1 : index + 1].group ? (
+            <Col span={24}>
+              <div className={styles.over_hr}>
+                <span>{group}</span>
+              </div>
+              {box}
+            </Col>
+          ) : (
+            box
+          )}
+        </Fragment>
+      );
+    });
   };
   FormItemBox = item => {
     const { Form, getFieldDecorator } = this.props;
@@ -96,11 +93,12 @@ class PublicForm extends PureComponent {
       description,
       label,
       type,
-      show_subquestion_if = false,
-      group,
-      subquestions
+      min = ''
     } = item;
     const box = this.handleBox(item, type, defaults);
+
+    const setVariable = variable.replace(new RegExp('\\.', 'g'), '#-#');
+
     if (box) {
       return (
         <Col span={12}>
@@ -109,14 +107,14 @@ class PublicForm extends PureComponent {
             label={label}
             className={styles.antd_form}
           >
-            {getFieldDecorator(variable, {
+            {getFieldDecorator(setVariable, {
               rules: [
                 {
                   required,
                   message: `${label}必须设置`
                 }
               ],
-              initialValue: defaults && defaults === 'true' ? true : defaults
+              initialValue: min || `${defaults}`
             })(box)}
             <div>{description}</div>
           </FormItem>
@@ -130,14 +128,25 @@ class PublicForm extends PureComponent {
       return <Input placeholder="请输入" />;
     } else if (type === 'boolean') {
       return (
-        <Switch
-          checkedChildren="开"
-          unCheckedChildren="关"
-          onChange={value => {
-            this.onChangeSwitch(value, item);
+        <Radio.Group
+          defaultChecked={`${defaults}`}
+          onChange={e => {
+            this.onChangeSwitch(e.target.value, item);
           }}
-          defaultChecked={defaults && defaults === 'true' ? true : defaults}
-        />
+          value={this.state.value}
+        >
+          <Radio value="true">是</Radio>
+          <Radio value="false">否</Radio>
+        </Radio.Group>
+
+        // <Switch
+        //   checkedChildren="开"
+        //   unCheckedChildren="关"
+        //   onChange={value => {
+        //     this.onChangeSwitch(value, item);
+        //   }}
+        //   defaultChecked={defaults && defaults === 'true' ? true : defaults}
+        // />
       );
     } else if (type === 'int') {
       return (
@@ -160,6 +169,14 @@ class PublicForm extends PureComponent {
             })}
         </Select>
       );
+    } else if (type === 'password') {
+      return (
+        <Input
+          autoComplete="new-password"
+          type="password"
+          placeholder="请输入密码"
+        />
+      );
     }
     return null;
   };
@@ -168,125 +185,6 @@ class PublicForm extends PureComponent {
     return (
       <Fragment>
         <Row>{this.handleFormItem(data)}</Row>
-        {/* <FormItem
-          {...formItemLayout}
-          label="请求超时时间"
-          className={styles.antd_form}
-        >
-          {getFieldDecorator('proxy_send_timeout', {
-            rules: [
-              {
-                required: true,
-                message: '请输入请求超时时间'
-              }
-            ],
-            initialValue: editInfo ? editInfo.proxy_send_timeout : '60'
-          })(<Input addonAfter="秒" />)}
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="响应超时时间"
-          className={styles.antd_form}
-        >
-          {getFieldDecorator('proxy_read_timeout', {
-            rules: [
-              {
-                required: true,
-                message: '请输入响应超时时间'
-              }
-            ],
-            initialValue: editInfo ? editInfo.proxy_read_timeout : '60'
-          })(<Input addonAfter="秒" />)}
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="上传限制"
-          className={styles.antd_form}
-        >
-          {getFieldDecorator('proxy_body_size', {
-            rules: [
-              {
-                required: true,
-                message: '请输入'
-              },
-              ...customRules
-            ],
-            initialValue: editInfo ? editInfo.proxy_body_size : '0'
-          })(<Input addonAfter="Mb" />)}
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="缓冲区数量"
-          className={styles.antd_form}
-        >
-          {getFieldDecorator('proxy_buffer_numbers', {
-            rules: customRules,
-            initialValue: editInfo ? editInfo.proxy_buffer_numbers : '4'
-          })(<Input />)}
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="缓冲区大小"
-          className={styles.antd_form}
-        >
-          {getFieldDecorator('proxy_buffer_size', {
-            rules: customRules,
-            initialValue: editInfo ? editInfo.proxy_buffer_size : '4'
-          })(<Input addonAfter="K" placeholder="请输入缓冲区大小" />)}
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="WebSocket支持"
-          className={styles.antd_form}
-        >
-          {getFieldDecorator('WebSocket', {
-            rules: [
-              {
-                required: false
-              }
-            ],
-            initialValue: WebSocket
-          })(
-            <Switch
-              checkedChildren="开"
-              unCheckedChildren="关"
-              checked={WebSocket}
-              onClick={() => {
-                this.onChangeWebSocket();
-              }}
-            />
-          )}
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="开启ProxyBuffer"
-          className={styles.antd_form}
-        >
-          {getFieldDecorator('proxy_buffering', {
-            rules: [
-              {
-                required: false
-              }
-            ],
-            initialValue: proxyBuffering
-          })(
-            <Switch
-              checkedChildren="开"
-              unCheckedChildren="关"
-              checked={proxyBuffering}
-              onClick={() => {
-                this.setState({ proxyBuffering: !proxyBuffering });
-              }}
-            />
-          )}
-        </FormItem>
-        <FormItem {...formItemLayout} label="自定义请求头">
-          {getFieldDecorator('set_headers', {
-            initialValue: editInfo ? editInfo.set_headers : ''
-          })(
-            <Parameterinput editInfo={editInfo ? editInfo.set_headers : ''} />
-          )}
-        </FormItem> */}
       </Fragment>
     );
   }

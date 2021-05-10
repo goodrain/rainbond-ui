@@ -55,11 +55,11 @@ export default class Index extends PureComponent {
         if (res && res.status_code === 200) {
           if (initial) {
             this.setState({
-              appName: (res.list && res.list.app_name) || ''
+              appName: (res.list && res.list.name) || ''
             });
           } else if (callbacks) {
             validatorValue =
-              name === (res.list && res.list.app_name) ? '' : '应用名称已存在';
+              name === (res.list && res.list.name) ? '' : '应用名称已存在';
             if (validatorValue) {
               callbacks(validatorValue);
             } else {
