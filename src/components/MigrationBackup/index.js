@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-indent */
 import {
   Alert,
   Button,
@@ -45,6 +46,13 @@ export default class Index extends PureComponent {
   }
 
   onRegionChange = value => {
+    const { mode, currentRegion } = this.props;
+    if (mode !== 'full-online' && value !== currentRegion) {
+      notification.warning({
+        message: '当前备份模式是本地模式，不能进行跨集群迁移'
+      });
+      return;
+    }
     this.setState({ regionName: value });
   };
 
@@ -62,6 +70,7 @@ export default class Index extends PureComponent {
     this.setState({ teamsData: teamsArr });
   };
   handleSubmit = () => {
+    const { mode, currentRegion } = this.props;
     const { teamsName } = this.state;
     const { regionName } = this.state;
     if (teamsName === '') {
@@ -70,6 +79,12 @@ export default class Index extends PureComponent {
     }
     if (regionName === '') {
       notification.warning({ message: '请选择迁移集群' });
+      return;
+    }
+    if (mode !== 'full-online' && regionName !== currentRegion) {
+      notification.warning({
+        message: '当前备份模式是本地模式，不能进行跨集群迁移'
+      });
       return;
     }
     this.props.dispatch({
@@ -111,7 +126,7 @@ export default class Index extends PureComponent {
             showRestore: true,
             restore_status: data.bean.status
           });
-          if (data.bean.status == 'success') {
+          if (data.bean.status === 'success') {
             this.props.dispatch(
               routerRedux.push(
                 `/team/${data.bean.migrate_team}/region/${data.bean.migrate_region}/apps/${data.bean.group_id}`
@@ -119,10 +134,10 @@ export default class Index extends PureComponent {
             );
             window.location.reload();
           }
-          if (data.bean.status == 'failed') {
+          if (data.bean.status === 'failed') {
             // this.props.onCancel && this.props.onCancel()
           }
-          if (data.bean.status == 'starting') {
+          if (data.bean.status === 'starting') {
             setTimeout(() => {
               this.queryMigrateApp();
             }, 2000);

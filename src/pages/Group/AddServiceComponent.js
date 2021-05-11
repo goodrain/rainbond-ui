@@ -276,7 +276,7 @@ export default class AddServiceComponent extends PureComponent {
                     })}
                 </Row>
                 <Row style={{ marginBottom: '2px' }}>
-                  {rainbondUtil.documentEnable(rainbondInfo) && (
+                  {rainbondUtil.documentPlatform_url(rainbondInfo) && (
                     <Alert
                       message={
                         <p className={styles.prompt}>

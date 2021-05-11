@@ -600,7 +600,7 @@ export default class AppList extends PureComponent {
             group_id={this.getGroupId()}
             setInfoShow={() => {
               this.setState({ infoShow: false }, () => {
-                this.state.activeKey == '2'
+                this.state.activeKey === '2'
                   ? this.getUpgradeRecordsList()
                   : this.getApplication();
               });

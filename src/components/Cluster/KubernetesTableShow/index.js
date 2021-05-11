@@ -320,7 +320,7 @@ export default class KubernetesClusterShow extends PureComponent {
             {row.rainbond_init === true && (
               <Popconfirm
                 placement="top"
-                title="卸载后不可恢复，确认要卸载当前集群的 Rainbond 服务吗？"
+                title="卸载后不可恢复，确认要卸载当前集群的平台服务吗？"
                 onConfirm={() => {
                   this.uninstallCluster(row.cluster_id || row.name);
                 }}
@@ -387,7 +387,7 @@ export default class KubernetesClusterShow extends PureComponent {
               <Paragraph className={styles.describe}>
                 <ul>
                   <li>
-                    <span>目前 Rainbond 支持阿里云托管集群自动化购买</span>
+                    <span>目前平台支持阿里云托管集群自动化购买</span>
                   </li>
                   <li>
                     <span>
@@ -428,7 +428,7 @@ export default class KubernetesClusterShow extends PureComponent {
             {selectClusterName && (
               <span style={{ marginRight: '16px' }}>
                 已选择集群: {selectClusterName},
-                该集群符合Rainbond接入规则，可以开始Rainbond集群初始化。
+                该集群符合平台接入规则，可以开始平台集群初始化。
               </span>
             )}
             {!selectClusterName &&

@@ -289,7 +289,6 @@ export default class CloudApp extends PureComponent {
                   title={
                     <a
                       style={{ color: '#384551' }}
-                      href="javascript:;"
                       onClick={() => {
                         this.showMarketAppDetail(item);
                       }}

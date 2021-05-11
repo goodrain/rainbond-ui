@@ -25,7 +25,6 @@ import PropTypes from 'prop-types';
 import React, { Fragment, PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
 import styless from '../../components/CreateTeam/index.less';
-import ManageAppGuide from '../../components/ManageAppGuide';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import VisitBtn from '../../components/VisitBtn';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -1450,7 +1449,6 @@ class Main extends PureComponent {
             onCancel={this.hideMoveGroup}
           />
         )}
-        <ManageAppGuide />
       </PageHeaderLayout>
     );
   }

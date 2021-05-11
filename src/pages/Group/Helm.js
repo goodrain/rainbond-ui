@@ -348,7 +348,7 @@ export default class Index extends PureComponent {
   }
 
   componentDidMount() {
-    this.loading();
+    this.fetchAppDetail(true);
   }
 
   componentWillUnmount() {
@@ -367,37 +367,7 @@ export default class Index extends PureComponent {
       clearInterval(this.timer);
     }
   };
-  loading = () => {
-    this.fetchAppDetail(true);
-  };
-  // handleHelmCheck = () => {
-  //   const { dispatch } = this.props;
-  //   const { currentSteps } = this.state;
-  //   if (currentSteps > 2) {
-  //     return null;
-  //   }
-  //   dispatch({
-  //     type: 'application/checkHelmApp',
-  //     payload: {
-  //       team_name: globalUtil.getCurrTeamName(),
-  //       group_id: this.getGroupId()
-  //     },
-  //     callback: res => {
-  //       if (res && res.status_code === 200) {
-  //         this.setState({
-  //           checkList: res && res.list
-  //         });
-  //       }
-  //       this.handleTimers(
-  //         'timer',
-  //         () => {
-  //           this.handleHelmCheck();
-  //         },
-  //         3000
-  //       );
-  //     }
-  //   });
-  // };
+
   handleError = err => {
     const { componentTimer } = this.state;
     if (!componentTimer) {
@@ -488,7 +458,7 @@ export default class Index extends PureComponent {
           },
           () => {
             if (currentSteps === 2 && isScrollToBottom) {
-              this.scrollToBottom();
+              this.scrollToBottom('messagesEndRef');
             }
             if (currentSteps >= 2) {
               if (init) {
@@ -1035,29 +1005,6 @@ export default class Index extends PureComponent {
       )
     );
   };
-  // parseChart = value => {
-  //   const { dispatch } = this.props;
-  //   dispatch({
-  //     type: 'application/parseChart',
-  //     payload: {
-  //       team_name: globalUtil.getCurrTeamName(),
-  //       group_id: this.getGroupId(),
-  //       version: value
-  //     },
-  //     callback: res => {
-  //       if (res && res.status_code === 200) {
-  //         if (res.bean && res.bean.values) {
-  //           this.handleTemplateFile(Object.keys(res.bean.values)[0]);
-  //         }
-  //       }
-  //     },
-  //     handleError: () => {
-  //       this.setState({
-  //         upDataVersion: false
-  //       });
-  //     }
-  //   });
-  // };
 
   handleInstallHelmApp = values => {
     const { dispatch } = this.props;
@@ -1097,7 +1044,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          this.fetchAppDetailState();
+          this.handleServices();
           notification.success({ message: '更新中、请耐心等待' });
         }
         this.setState({
@@ -1113,8 +1060,8 @@ export default class Index extends PureComponent {
       showAccess: false
     });
   };
-  scrollToBottom = () => {
-    const messagesEndRef = document.getElementById('messagesEndRef');
+  scrollToBottom = box => {
+    const messagesEndRef = document.getElementById(box);
     if (messagesEndRef) {
       messagesEndRef.scrollIntoView({ behavior: 'smooth' });
       this.setState({ isScrollToBottom: false });

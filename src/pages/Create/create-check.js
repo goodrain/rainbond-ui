@@ -728,7 +728,7 @@ export default class CreateCheck extends React.Component {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Rainbond源码支持规范
+                平台源码支持规范
               </a>{' '}
               对代码进行调整。
             </div>
@@ -880,7 +880,7 @@ export default class CreateCheck extends React.Component {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Rainbond源码支持规范
+                平台源码支持规范
               </a>{' '}
               对代码进行调整。
             </div>
