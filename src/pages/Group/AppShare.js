@@ -689,8 +689,8 @@ export default class Main extends PureComponent {
         comdata.map(app => {
           const apptab = app.props.tab;
           let appvalue = null;
-          app.props.form.validateFields((err, val) => {
-            if (!err) {
+          app.props.form.validateFields((errs, val) => {
+            if (!errs) {
               appvalue = val;
             }
           });
@@ -775,9 +775,9 @@ export default class Main extends PureComponent {
               );
             }
           },
-          handleError: err => {
+          handleError: errs => {
             this.setState({ submitLoading: false });
-            const data = err && err.data;
+            const data = errs && errs.data;
             const msg = data && data.msg_show;
             if (data && data.code && data.code === 10501) {
               notification.warning({ message: '提示', description: msg });
@@ -1276,47 +1276,35 @@ export default class Main extends PureComponent {
                     }}
                   >
                     {apps.map(apptit => {
+                      const id = apptit.service_share_uuid;
                       return (
                         <TabPane
-                          key={apptit.service_share_uuid}
+                          key={id}
                           tab={
                             <span className={mytabcss.cont}>
                               <a
                                 tab={apptit.service_cname}
                                 onClick={() => {
-                                  this.tabClick(apptit.service_share_uuid);
+                                  this.tabClick(id);
                                 }}
                               >
                                 {apptit.service_cname}
                               </a>
                             </span>
                           }
-                        />
+                        >
+                          <AppInfo
+                            key={id}
+                            form={form}
+                            app={apptit}
+                            getref={this.save}
+                            tab={apptit.service_alias}
+                            ID={apptit.service_id}
+                          />
+                        </TabPane>
                       );
                     })}
                   </Tabs>
-                  {apps.map(apptit => {
-                    const id = apptit.service_share_uuid;
-                    return (
-                      <div
-                        style={{
-                          display:
-                            sharearrs.includes(tabk) && id === tabk
-                              ? 'block'
-                              : 'none'
-                        }}
-                      >
-                        <AppInfo
-                          key={id}
-                          form={form}
-                          app={apptit}
-                          getref={this.save}
-                          tab={apptit.service_alias}
-                          ID={apptit.service_id}
-                        />
-                      </div>
-                    );
-                  })}
                 </div>
               </div>
             </div>
