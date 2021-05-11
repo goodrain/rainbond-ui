@@ -66,7 +66,8 @@ class Main extends PureComponent {
       componentTimer: true,
       customSwitch: false,
       resources: {},
-      upgradableNum: ''
+      upgradableNum: 0,
+      upgradableNumLoading: true
     };
   }
 
@@ -252,8 +253,10 @@ class Main extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          const info = res.bean;
           this.setState({
-            upgradableNum: res.bean.upgradable_num
+            upgradableNumLoading: false,
+            upgradableNum: (info && info.upgradable_num) || 0
           });
         }
       }
@@ -540,6 +543,7 @@ class Main extends PureComponent {
       type,
       customSwitch,
       serviceIds,
+      upgradableNumLoading,
       upgradableNum
     } = this.state;
     const codeObj = {
@@ -811,7 +815,7 @@ class Main extends PureComponent {
                   isUpgrade && this.handleJump('upgrade');
                 }}
               >
-                <a>{upgradableNum + '' ? upgradableNum : <Spin></Spin>}</a>
+                <a>{upgradableNumLoading ? <Spin /> : upgradableNum}</a>
               </div>
             </div>
 
