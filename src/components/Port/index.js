@@ -21,6 +21,7 @@ import appPortUtil from '../../utils/appPort-util';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
 
+const { Option } = Select;
 const FormItem = Form.Item;
 
 @connect(({ region, appControl }) => {
@@ -288,13 +289,13 @@ export default class Index extends PureComponent {
     const { teams } = currUser;
     const teamName = globalUtil.getCurrTeamName();
     const currenTeams = teams.filter(item => {
-      return item.team_name == teamName;
+      return item.team_name === teamName;
     });
 
     const region =
       currenTeams && currenTeams.length > 0 ? currenTeams[0].region : [];
     const currentRegion = region.filter(item => {
-      return item.team_region_name == globalUtil.getCurrRegionName();
+      return item.team_region_name === globalUtil.getCurrRegionName();
     });
 
     return (
@@ -359,7 +360,7 @@ export default class Index extends PureComponent {
               ) : (
                 <div>
                   {port.protocol}
-                  <a onClick={this.showEditProtocol} href="javascript:;">
+                  <a onClick={this.showEditProtocol}>
                     <Icon type="edit" />
                   </a>
                 </div>

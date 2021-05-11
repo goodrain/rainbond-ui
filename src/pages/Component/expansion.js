@@ -825,7 +825,7 @@ export default class Index extends PureComponent {
                         style={{ background: '#F9FAFC', textAlign: 'center' }}
                       />
                       <div className={styles.remindDesc}>
-                        查询详细的组件实例信息，请复制查询命令到Rainbond管理节点查询
+                        查询详细的组件实例信息,请复制查询命令到集群管理节点查询
                       </div>
                     </div>
 

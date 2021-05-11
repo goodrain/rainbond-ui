@@ -1,20 +1,20 @@
-import React, { PureComponent } from 'react';
+import { Alert, Button, Card, Modal, notification, Table } from 'antd';
 import { connect } from 'dva';
-import { Button, Table, Modal, notification, Card } from 'antd';
+import React, { PureComponent } from 'react';
 import { unOpenRegion } from '../../services/team';
 import globalUtil from '../../utils/global';
 
 // 开通集群
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
-  enterprise: global.enterprise,
+  enterprise: global.enterprise
 }))
 class OpenRegion extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       selectedRowKeys: [],
-      regions: [],
+      regions: []
     };
   }
   componentDidMount() {
@@ -22,19 +22,25 @@ class OpenRegion extends PureComponent {
   }
 
   getUnRelationedApp = () => {
-    unOpenRegion({
-      team_name: globalUtil.getCurrTeamName(),
-    }).then(data => {
-      if (data) {
-        this.setState({ regions: data.list || [] });
-      }
-    });
+    let { teamName } = this.props;
+    if (!teamName) {
+      teamName = globalUtil.getCurrTeamName();
+    }
+    if (teamName) {
+      unOpenRegion({
+        team_name: teamName
+      }).then(data => {
+        if (data) {
+          this.setState({ regions: data.list || [] });
+        }
+      });
+    }
   };
 
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
       notification.warning({
-        message: '请选择要开通的集群',
+        message: '请选择要开通的集群'
       });
       return;
     }
@@ -52,15 +58,14 @@ class OpenRegion extends PureComponent {
   };
   render() {
     const mode = this.props.mode || 'modal';
-    const { enterprise } = this.props;
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
         this.setState({
           selectedRowKeys: selectedRows.map(item => {
             return item.region_name;
-          }),
+          })
         });
-      },
+      }
     };
 
     if (mode === 'modal') {
@@ -72,15 +77,13 @@ class OpenRegion extends PureComponent {
           onOk={this.handleSubmit}
           onCancel={this.handleCancel}
         >
-          {this.state.regions.length == 0 &&
-            enterprise &&
-            !enterprise.is_enterprise && (
-              <div style={{ width: '100%', textAlign: 'center' }}>
-                <a href="https://www.goodrain.com/info.html" target="_blank">
-                  多云管理功能请咨询企业服务
-                </a>
-              </div>
-            )}
+          {this.state.regions.length === 0 && (
+            <Alert
+              type="warning"
+              style={{ marginBottom: '16px' }}
+              message="暂无其他集群，请到集群管理面板中添加更多集群"
+            />
+          )}
           <Table
             size="small"
             pagination={false}
@@ -88,13 +91,13 @@ class OpenRegion extends PureComponent {
             rowSelection={rowSelection}
             columns={[
               {
-                title: '集群',
-                dataIndex: 'region_alias',
+                title: '名称',
+                dataIndex: 'region_alias'
               },
               {
                 title: '简介',
-                dataIndex: 'desc',
-              },
+                dataIndex: 'desc'
+              }
             ]}
           />
         </Modal>
@@ -111,12 +114,12 @@ class OpenRegion extends PureComponent {
           columns={[
             {
               title: '集群',
-              dataIndex: 'region_alias',
+              dataIndex: 'region_alias'
             },
             {
               title: '简介',
-              dataIndex: 'desc',
-            },
+              dataIndex: 'desc'
+            }
           ]}
         />
         <div style={{ textAlign: 'right', paddingTop: 16 }}>

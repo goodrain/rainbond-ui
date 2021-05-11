@@ -47,7 +47,7 @@ export default class ClusterLink extends PureComponent {
         title: '选择(创建)Kubernetes集群'
       },
       {
-        title: '初始化Rainbond集群'
+        title: '初始化平台集群'
       },
       {
         title: '完成对接'
@@ -65,7 +65,7 @@ export default class ClusterLink extends PureComponent {
     return (
       <PageHeaderLayout
         title="添加集群"
-        content="集群是资源的集合，以Kubernetes集群为基础，部署Rainbond Region服务即可成为Rainbond集群资源。"
+        content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={3}>

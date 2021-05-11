@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
 /* eslint-disable consistent-return */
-import React, { PureComponent } from 'react';
+import { Alert, Button, Modal, notification, Select } from 'antd';
 import { connect } from 'dva';
-import { Modal, Alert, Button, notification, Select } from 'antd';
+import React, { PureComponent } from 'react';
 import styles from '../../components/CreateTeam/index.less';
 import DescriptionList from '../../components/DescriptionList';
 const { confirm } = Modal;
@@ -63,7 +63,7 @@ export default class AppExporter extends PureComponent {
     return (
       <DescriptionList
         size="large"
-        title="RainbondApp规范(Rainbond平台可用)"
+        title="应用模型规范"
         style={{ marginBottom: 32 }}
       >
         <Description term="导出状态">
@@ -164,7 +164,7 @@ export default class AppExporter extends PureComponent {
       );
     }
   };
-  getStatus = (status) => {
+  getStatus = status => {
     if (!status.is_export_before) {
       return '未导出';
     }
@@ -182,7 +182,7 @@ export default class AppExporter extends PureComponent {
     const { exportVersionList, exportVersion } = this.state;
     if (exportVersion && exportVersion.length > 0) {
       const currentVersionInfo = exportVersionList.filter(
-        (item) => item.version === exportVersion[0]
+        item => item.version === exportVersion[0]
       );
       if (currentVersionInfo.length > 0) {
         this.setState({
@@ -192,7 +192,7 @@ export default class AppExporter extends PureComponent {
     }
   };
 
-  handleRelease = (type) => {
+  handleRelease = type => {
     const { versionInfo } = this.state;
     const th = this;
     if (versionInfo.dev_status === '') {
@@ -219,7 +219,7 @@ export default class AppExporter extends PureComponent {
       onCancel();
     }
   };
-  handleExporter = (format) => {
+  handleExporter = format => {
     const { app, eid, dispatch } = this.props;
     const { exportVersion } = this.state;
     dispatch({
@@ -230,7 +230,7 @@ export default class AppExporter extends PureComponent {
         app_versions: exportVersion,
         format
       },
-      callback: (data) => {
+      callback: data => {
         if (data && data.bean) {
           notification.success({ message: '操作成功，开始导出，请稍等！' });
           this.queryExport();
@@ -252,7 +252,7 @@ export default class AppExporter extends PureComponent {
           app_version: group_version
         }
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           if (
             (data.list &&
@@ -290,7 +290,7 @@ export default class AppExporter extends PureComponent {
       }
     });
   };
-  download = (downloadPath) => {
+  download = downloadPath => {
     let aEle = document.querySelector('#down-a-element');
     if (!aEle) {
       aEle = document.createElement('a');
@@ -307,7 +307,7 @@ export default class AppExporter extends PureComponent {
     }
   };
 
-  handleChange = (value) => {
+  handleChange = value => {
     this.setState(
       {
         exportVersion: [value]
@@ -348,7 +348,7 @@ export default class AppExporter extends PureComponent {
             onChange={this.handleChange}
             size="small"
           >
-            {exportVersionList.map((item) => {
+            {exportVersionList.map(item => {
               const { version } = item;
               return (
                 <Option key={`key:${version}`} value={version}>

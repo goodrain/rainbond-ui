@@ -1,34 +1,14 @@
 import {
-  Alert, Button,
-
-
-
-
-
-
-  Col, Form,
-
-
-
-
-
-
-
-
-  Icon, Input,
-
-
-  Modal, Radio,
-
-
-  Row, Select,
-
-
-
-
-
-
-
+  Alert,
+  Button,
+  Col,
+  Form,
+  Icon,
+  Input,
+  Modal,
+  Radio,
+  Row,
+  Select,
   Tooltip
 } from 'antd';
 import { connect } from 'dva';
@@ -36,7 +16,6 @@ import React, { Fragment, PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
-
 
 const FormItem = Form.Item;
 
@@ -86,7 +65,7 @@ export default class Index extends PureComponent {
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
   };
-  handleAddGroup = (vals) => {
+  handleAddGroup = vals => {
     const { setFieldsValue } = this.props.form;
 
     this.props.dispatch({
@@ -95,7 +74,7 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         ...vals
       },
-      callback: (group) => {
+      callback: group => {
         if (group) {
           // 获取群组
           this.props.dispatch({
@@ -118,7 +97,7 @@ export default class Index extends PureComponent {
       visible: true
     });
   };
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
@@ -141,7 +120,7 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleChangeEndpointsType = (types) => {
+  handleChangeEndpointsType = types => {
     this.props.form.setFieldsValue({
       static: ['']
     });
@@ -161,13 +140,13 @@ export default class Index extends PureComponent {
     });
   };
 
-  handleCancel = (e) => {
+  handleCancel = e => {
     this.setState({
       visible: false
     });
   };
 
-  add = (typeName) => {
+  add = typeName => {
     const staticList = this.state.staticList;
     this.setState({ staticList: staticList.concat('') });
     this.props.form.setFieldsValue({
@@ -175,7 +154,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  remove = (index) => {
+  remove = index => {
     const staticList = this.state.staticList;
     staticList.splice(index, 1);
     this.setValues(staticList);
@@ -205,7 +184,7 @@ export default class Index extends PureComponent {
       return;
     }
     if (typeof value === 'object') {
-      value.map((item) => {
+      value.map(item => {
         if (item == '') {
           callback('请输入组件地址');
           return;
@@ -256,6 +235,7 @@ export default class Index extends PureComponent {
       this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
     const showCreateGroup =
       this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
@@ -302,7 +282,7 @@ export default class Index extends PureComponent {
                   )
                 }
               >
-                {(groups || []).map((group) => (
+                {(groups || []).map(group => (
                   <Option key={group.group_id} value={group.group_id}>
                     {group.group_name}
                   </Option>
@@ -336,21 +316,16 @@ export default class Index extends PureComponent {
               label={
                 <span>
                   组件地址
-                  <Tooltip
-                    title={
+                  {platform_url && (
+                    <Tooltip title="点击阅读文档">
                       <a
-                        href={`${rainbondUtil.documentPlatform_url(
-                          rainbondInfo
-                        )}docs/component-create/thirdparty-service/thirdparty-create`}
                         target="_blank"
-                        style={{ color: '#fff' }}
+                        href={`${platform_url}docs/component-create/thirdparty-service/thirdparty-create`}
                       >
-                        点击阅读文档
+                        <Icon type="question-circle-o" />
                       </a>
-                    }
-                  >
-                    <Icon type="question-circle-o" />
-                  </Tooltip>
+                    </Tooltip>
+                  )}
                 </span>
               }
             >
@@ -441,21 +416,16 @@ export default class Index extends PureComponent {
                   label={
                     <span>
                       组件地址
-                      <Tooltip
-                        title={
+                      {platform_url && (
+                        <Tooltip title="点击阅读文档">
                           <a
-                            href={`${rainbondUtil.documentPlatform_url(
-                              rainbondInfo
-                            )}docs/component-create/thirdparty-service/thirdparty-create`}
+                            href={`${platform_url}docs/component-create/thirdparty-service/thirdparty-create`}
                             target="_blank"
-                            style={{ color: '#fff' }}
                           >
-                            点击阅读文档
+                            <Icon type="question-circle-o" />
                           </a>
-                        }
-                      >
-                        <Icon type="question-circle-o" />
-                      </Tooltip>
+                        </Tooltip>
+                      )}
                     </span>
                   }
                   style={{ textAlign: 'right' }}

@@ -1,8 +1,8 @@
-import React, { PureComponent } from 'react';
-import { Modal, Form, Button, Input, notification } from 'antd';
-import { connect } from 'dva';
-import styles from '../CreateTeam/index.less';
+import { Button, Form, Input, Modal, notification } from 'antd';
 import axios from 'axios';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 @Form.create()
@@ -11,7 +11,7 @@ export default class Consulting extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false,
+      loading: false
     };
   }
 
@@ -22,14 +22,14 @@ export default class Consulting extends PureComponent {
       if (!err) {
         this.setState(
           {
-            loading: true,
+            loading: true
           },
           () => {
             axios
               .post(
                 `https://log.rainbond.com/visitors`,
                 Object.assign(values, {
-                  source: '开源Rainbond',
+                  source: '开源Rainbond'
                 })
               )
               .then(res => {
@@ -51,12 +51,12 @@ export default class Consulting extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
-      },
+        sm: { span: 14 }
+      }
     };
 
     return (
@@ -70,7 +70,7 @@ export default class Consulting extends PureComponent {
           <Button onClick={onCancel}> 取消 </Button>,
           <Button type="primary" loading={loading} onClick={this.handleSubmit}>
             申请
-          </Button>,
+          </Button>
         ]}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal">
@@ -79,9 +79,9 @@ export default class Consulting extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请填写姓名',
-                },
-              ],
+                  message: '请填写姓名'
+                }
+              ]
             })(<Input placeholder="请填写姓名" />)}
           </FormItem>
 
@@ -91,9 +91,9 @@ export default class Consulting extends PureComponent {
                 { required: true, message: '请填写手机号!' },
                 {
                   pattern: /^1\d{10}$/,
-                  message: '手机号格式错误！',
-                },
-              ],
+                  message: '手机号格式错误！'
+                }
+              ]
             })(<Input type="text" placeholder="请填写手机号!" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="公司名称" hasFeedback>
@@ -102,9 +102,9 @@ export default class Consulting extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请填写公司名称',
-                },
-              ],
+                  message: '请填写公司名称'
+                }
+              ]
             })(<Input placeholder="请填写公司名称" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="职位" hasFeedback>
@@ -112,9 +112,9 @@ export default class Consulting extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请填写职位',
-                },
-              ],
+                  message: '请填写职位'
+                }
+              ]
             })(<Input placeholder="请填写职位" />)}
           </FormItem>
         </Form>
