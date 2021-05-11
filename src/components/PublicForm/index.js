@@ -37,35 +37,41 @@ class PublicForm extends PureComponent {
     });
   };
   handleFormItem = data => {
+    const setGroup = [];
     return data.map((item, index) => {
       const {
         type,
         subquestions,
         default: defaults,
         group,
-        show_subquestion_if = false
+        show_subquestion_if = 'false'
       } = item;
       const box = (
         <Fragment>
           {this.FormItemBox(item)}
-          {(type !== 'boolean' || defaults == show_subquestion_if) &&
-            subquestions &&
+          {subquestions &&
             subquestions.length > 0 &&
+            (type !== 'boolean' || `${defaults}` == `${show_subquestion_if}`) &&
             subquestions.map(items => {
               return this.FormItemBox(items);
             })}
         </Fragment>
       );
+      const setIndex = index < 1 ? 0 : index - 1;
+      if (index > 0) {
+        setGroup.push(data[setIndex].group);
+      }
       return (
         <Fragment>
-          {group !==
-          data[index + 1 >= data.length ? index - 1 : index + 1].group ? (
-            <Col span={24}>
-              <div className={styles.over_hr}>
-                <span>{group}</span>
-              </div>
+          {!setGroup.includes(group) ? (
+            <Fragment>
+              <Col span={24}>
+                <div className={styles.over_hr}>
+                  <span>{group}</span>
+                </div>
+              </Col>
               {box}
-            </Col>
+            </Fragment>
           ) : (
             box
           )}
@@ -96,7 +102,6 @@ class PublicForm extends PureComponent {
       min = ''
     } = item;
     const box = this.handleBox(item, type, defaults);
-
     const setVariable = variable.replace(new RegExp('\\.', 'g'), '#-#');
 
     if (box) {
@@ -114,7 +119,7 @@ class PublicForm extends PureComponent {
                   message: `${label}必须设置`
                 }
               ],
-              initialValue: min || `${defaults}`
+              initialValue: min || (defaults && `${defaults}`)
             })(box)}
             <div>{description}</div>
           </FormItem>
@@ -133,24 +138,15 @@ class PublicForm extends PureComponent {
           onChange={e => {
             this.onChangeSwitch(e.target.value, item);
           }}
-          value={this.state.value}
         >
           <Radio value="true">是</Radio>
           <Radio value="false">否</Radio>
         </Radio.Group>
-
-        // <Switch
-        //   checkedChildren="开"
-        //   unCheckedChildren="关"
-        //   onChange={value => {
-        //     this.onChangeSwitch(value, item);
-        //   }}
-        //   defaultChecked={defaults && defaults === 'true' ? true : defaults}
-        // />
       );
     } else if (type === 'int') {
       return (
         <InputNumber
+          style={{ width: '100%' }}
           min={item.min || 1}
           max={item.max || 255}
           placeholder="节点数量"
