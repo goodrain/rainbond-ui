@@ -509,6 +509,7 @@ export default class AppList extends PureComponent {
       loading,
       deleteLoading
     } = this.state;
+    const backupSuccess = isMigrate && data.status === 'success';
     const columns = [
       {
         title: '备份时间',
@@ -559,9 +560,8 @@ export default class AppList extends PureComponent {
         render: (val, data) => {
           return (
             <div>
-              {/* {data.status === 'starting' ( */}
               <Fragment>
-                {isMigrate && data.status === 'success' && (
+                {backupSuccess && (
                   <a
                     style={{ marginRight: '5px' }}
                     onClick={this.handleRecovery.bind(this, data)}
@@ -569,7 +569,7 @@ export default class AppList extends PureComponent {
                     恢复
                   </a>
                 )}
-                {isMigrate && data.status === 'success' && (
+                {backupSuccess && (
                   <a
                     style={{ marginRight: '5px' }}
                     onClick={this.handleMove.bind(this, data)}
@@ -587,9 +587,6 @@ export default class AppList extends PureComponent {
                 )}
                 {<a onClick={this.handleDel.bind(this, data)}>删除</a>}
               </Fragment>
-              {/* ) : (
-                ''
-              )} */}
               {data.status === 'failed' ? (
                 <Fragment>
                   <a onClick={this.handleDel.bind(this, data)}>删除</a>
