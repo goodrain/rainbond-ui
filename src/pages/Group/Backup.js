@@ -509,7 +509,6 @@ export default class AppList extends PureComponent {
       loading,
       deleteLoading
     } = this.state;
-    const backupSuccess = isMigrate && data.status === 'success';
     const columns = [
       {
         title: '备份时间',
@@ -558,6 +557,7 @@ export default class AppList extends PureComponent {
         title: '操作',
         dataIndex: 'action',
         render: (val, data) => {
+          const backupSuccess = isMigrate && data.status === 'success';
           return (
             <div>
               <Fragment>
