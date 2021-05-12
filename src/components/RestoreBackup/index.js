@@ -1,40 +1,17 @@
-import {
-  Button, Form,
-
-  Icon,
-
-
-
-
-
-  Modal, notification,
-  Select,
-
-
-
-  Spin
-} from 'antd';
+/* eslint-disable react/jsx-indent */
+/* eslint-disable no-nested-ternary */
+import { Button, Form, Icon, Modal, notification, Spin } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
 
-const FormItem = Form.Item;
-const { Option } = Select;
-
-const appRestore = {
-  starting: '迁移中',
-  success: '成功',
-  failed: '失败'
-};
-
-@connect(({ user, global }) => ({ currUser: user.currentUser }))
+@connect(({ user }) => ({ currUser: user.currentUser }))
 @Form.create()
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      backup_id: this.props.backupId,
       restore_id: '',
       showRestore: false,
       restore_status: '',
@@ -72,7 +49,7 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     this.mount = false;
   }
-  handleRestore = e => {
+  handleRestore = () => {
     const { propsParams, backupId, groupId, dispatch } = this.props;
     dispatch({
       type: 'application/migrateApp',
@@ -97,9 +74,9 @@ export default class Index extends PureComponent {
     });
   };
 
-  handleSubmit = e => {
+  handleSubmit = () => {
     const { restore } = this.state;
-    const { dispatch } = this.props;
+    const { dispatch, onCancel } = this.props;
     dispatch({
       type: 'application/delRestore',
       payload: {
@@ -110,8 +87,12 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data) {
           notification.success({ message: '删除成功', duration: '2' });
-          restore && this.JumpAddress();
-          this.props.onCancel & this.props.onCancel();
+          if (restore) {
+            this.JumpAddress();
+          }
+          if (onCancel) {
+            onCancel();
+          }
         }
       }
     });
@@ -120,15 +101,15 @@ export default class Index extends PureComponent {
   // 查询恢复情况
   queryMigrateApp = () => {
     if (!this.mount) return;
-    const { restore_id } = this.state;
+    const { restore_id: restoreId } = this.state;
     const { propsParams, dispatch, groupId } = this.props;
-    const team_name = propsParams && propsParams.teamName;
-    const region_name = propsParams && propsParams.regionName;
+    const teamName = propsParams && propsParams.teamName;
+    const regionName = propsParams && propsParams.regionName;
     dispatch({
       type: 'application/queryMigrateApp',
       payload: {
-        team_name,
-        restore_id,
+        team_name: teamName,
+        restore_id: restoreId,
         group_id: groupId
       },
       callback: data => {
@@ -146,7 +127,7 @@ export default class Index extends PureComponent {
           } else if (info.status == 'success') {
             this.setState({
               restore: true,
-              restoreUrl: `/team/${team_name}/region/${region_name}/apps/${info.group_id}`
+              restoreUrl: `/team/${teamName}/region/${regionName}/apps/${info.group_id}`
             });
           }
         }
@@ -155,15 +136,22 @@ export default class Index extends PureComponent {
   };
 
   JumpAddress = () => {
-    const { dispatch, onCancel } = this.props;
+    const { dispatch } = this.props;
     const { restoreUrl } = this.state;
     dispatch(routerRedux.push(restoreUrl));
   };
 
   render() {
-    const { restore, restore_status, isFinished, showRestore } = this.state;
+    const {
+      restore_status: restoreStatus,
+      isFinished,
+      showRestore
+    } = this.state;
     const { onCancel } = this.props;
-
+    const cenStyle = {
+      textAlign: 'center',
+      fontSize: '14px'
+    };
     if (isFinished === '') {
       return null;
     }
@@ -176,47 +164,43 @@ export default class Index extends PureComponent {
           !showRestore
             ? [
                 <Button key="back" onClick={onCancel}>
-                关闭
+                  关闭
                 </Button>,
                 <Button
-                key="submit"
-                type="primary"
-                onClick={this.handleRestore}
-              >
+                  key="submit"
+                  type="primary"
+                  onClick={this.handleRestore}
+                >
                   恢复
-              </Button>
+                </Button>
               ]
-            : restore_status == 'success'
+            : restoreStatus == 'success'
             ? [
                 <Button key="back" onClick={this.JumpAddress}>
-                关闭
+                  关闭
                 </Button>,
                 <Button key="submit" type="primary" onClick={this.handleSubmit}>
-                确认
+                  确认
                 </Button>
               ]
             : [
                 <Button key="back" onClick={onCancel}>
-                关闭
+                  关闭
                 </Button>
               ]
         }
       >
         {showRestore ? (
           <div>
-            {restore_status == 'starting' ? (
+            {restoreStatus == 'starting' && (
               <div>
                 <p style={{ textAlign: 'center' }}>
                   <Spin />
                 </p>
-                <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                  恢复中，请稍后(请勿关闭弹窗)
-                </p>
+                <p style={cenStyle}>恢复中，请稍后(请勿关闭弹窗)</p>
               </div>
-            ) : (
-              ''
             )}
-            {restore_status == 'success' ? (
+            {restoreStatus == 'success' && (
               <div>
                 <p
                   style={{
@@ -227,14 +211,10 @@ export default class Index extends PureComponent {
                 >
                   <Icon type="check-circle-o" />
                 </p>
-                <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                  恢复成功，是否删除原备份？
-                </p>
+                <p style={cenStyle}>恢复成功，是否删除当前应用？</p>
               </div>
-            ) : (
-              ''
             )}
-            {restore_status == 'failed' ? (
+            {restoreStatus == 'failed' && (
               <div>
                 <p
                   style={{
@@ -245,12 +225,8 @@ export default class Index extends PureComponent {
                 >
                   <Icon type="close-circle-o" />
                 </p>
-                <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                  恢复失败，请重新恢复
-                </p>
+                <p style={cenStyle}>恢复失败，请重新恢复</p>
               </div>
-            ) : (
-              ''
             )}
           </div>
         ) : isFinished ? (

@@ -177,10 +177,7 @@ export async function getMembers(
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/users`, {
     method: 'get',
-    params: {
-      page: body.page,
-      page_size: body.pageSize
-    }
+    params: body
   });
 }
 

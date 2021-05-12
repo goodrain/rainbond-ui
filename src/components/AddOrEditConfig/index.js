@@ -1,3 +1,4 @@
+/* eslint-disable no-loop-func */
 /* eslint-disable react/no-multi-comp */
 /*
   添加或者修改插件配置
@@ -221,7 +222,6 @@ class EnvGroup extends PureComponent {
       onDidMount(this);
     }
   }
-
   check() {
     let res = true;
     for (let i = 0; i < this.groupItem.length; i++) {
@@ -250,10 +250,11 @@ class EnvGroup extends PureComponent {
     let setGroup = [].concat(group);
     if (setGroup.length === 1) return;
     setGroup = group.filter(item => !!item).filter(item => item.key !== key);
-    this.setState({ group: setGroup });
-    if (onChange) {
-      onChange(this.state.group.map(item => item.value));
-    }
+    this.setState({ group: setGroup }, () => {
+      if (onChange) {
+        onChange(setGroup.map(item => item.value));
+      }
+    });
   };
   handleChange = (index, val) => {
     const { onChange } = this.props;
