@@ -1,6 +1,8 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable camelcase */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-nested-ternary */
 import { Avatar, List, Table, Tabs, Tag } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -336,7 +338,7 @@ export default class AppList extends PureComponent {
             onChange={this.callback}
             className={styles.tabss}
           >
-            <TabPane tab="云市应用列表" key="1">
+            <TabPane tab="应用模型列表" key="1">
               <div className={styles.cardList}>
                 <List
                   rowKey="id"
@@ -371,7 +373,7 @@ export default class AppList extends PureComponent {
                             color: item.can_upgrade ? '#1890ff' : '#bfbfbf'
                           }}
                         >
-                          {item.not_upgrade_record_status != 1
+                          {item.not_upgrade_record_status !== 1
                             ? infoUtil.getStatusCN(
                                 item.not_upgrade_record_status
                               )
@@ -386,7 +388,7 @@ export default class AppList extends PureComponent {
                           <Avatar
                             src={
                               item.pic ||
-                              require('../../../public/images/app_icon.jpg')
+                              require('../../../public/images/app_icon.svg')
                             }
                             shape="square"
                             size="large"
@@ -409,7 +411,7 @@ export default class AppList extends PureComponent {
                 />
               </div>
             </TabPane>
-            <TabPane tab="云市应用升级记录" key="2">
+            <TabPane tab="升级记录" key="2">
               <Table
                 columns={columns}
                 dataSource={dataList}
@@ -434,7 +436,7 @@ export default class AppList extends PureComponent {
             group_id={this.getGroupId()}
             setInfoShow={() => {
               this.setState({ infoShow: false }, () => {
-                this.state.activeKey == '2'
+                this.state.activeKey === '2'
                   ? this.getUpgradeRecordsList()
                   : this.getApplication();
               });

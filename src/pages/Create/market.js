@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable react/jsx-indent-props */
@@ -615,8 +616,9 @@ export default class Main extends PureComponent {
                 alt={item.title}
                 src={
                   cloud
-                    ? item.logo
-                    : item.pic || require('../../../public/images/app_icon.jpg')
+                    ? item.logo ||
+                      require('../../../public/images/app_icon.svg')
+                    : item.pic || require('../../../public/images/app_icon.svg')
                 }
                 height={handleType ? 154 : 80}
                 onClick={() => {
@@ -747,7 +749,7 @@ export default class Main extends PureComponent {
       app_name: appName,
       cloudApp_name: cloudAppName
     } = this.state;
-    const setHideOnSinglePage = moreState ? true : false;
+    const setHideOnSinglePage = !!moreState;
     const paginationProps = {
       current: moreState ? 1 : page,
       pageSize: moreState ? 3 : pageSize,
@@ -777,24 +779,25 @@ export default class Main extends PureComponent {
       }
     }
 
-    const mores = (
-      handleType && moreState && (
-        ( scopeMax==='localApplication' && list && list.length > 0 ) || ( scopeMax!='localApplication' && cloudList && cloudList.length>0 )
-        ) && (
+    const mores = handleType &&
+      moreState &&
+      ((scopeMax === 'localApplication' && list && list.length > 0) ||
+        (scopeMax != 'localApplication' &&
+          cloudList &&
+          cloudList.length > 0)) && (
         <div
           style={{
             textAlign: 'right',
             height: '70px',
-            marginTop:'-40px',
+            marginTop: '-40px',
             position: 'relative',
-            zIndex:99
+            zIndex: 99
           }}
         >
           <a onClick={this.loadMore}>查看更多...</a>
-         </div>
-      )
-    )
-    
+        </div>
+      );
+
     const cardList = (
       <List
         bordered={false}
@@ -1023,7 +1026,15 @@ export default class Main extends PureComponent {
                 />
               )}
               {scopeMax === 'localApplication' ? (
-                <div style={{marginBottom:!moreState&&handleType&& handleType === 'Service' && '40px'}}>
+                <div
+                  style={{
+                    marginBottom:
+                      !moreState &&
+                      handleType &&
+                      handleType === 'Service' &&
+                      '40px'
+                  }}
+                >
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
               ) : (
@@ -1053,8 +1064,6 @@ export default class Main extends PureComponent {
                 </div>
               )}
               {mores}
-
-          
             </PageHeaderLayout>
           </div>
         )}

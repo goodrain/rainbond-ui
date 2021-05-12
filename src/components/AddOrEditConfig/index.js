@@ -98,16 +98,18 @@ class EvnOption extends React.Component {
         </Form.Item>
         <Form.Item>
           {getFieldDecorator('protocol', {
-            initialValue: data.protocol || '',
+            initialValue:
+              (data.protocol && data.protocol.toString().split(',')) || '',
             rules: [{ required: false, message: '协议' }]
           })(
             <Select
+              mode="multiple"
               onChange={values => {
-                this.handleOnchange('protocal', values);
+                this.handleOnchange('protocol', values);
               }}
               style={{ width: 100 }}
             >
-              <Option value="">协议</Option>
+              <Option value="">所有协议</Option>
               {protocols.map(item => (
                 <Option value={item}>{item}</Option>
               ))}
@@ -323,10 +325,10 @@ class EnvGroup extends PureComponent {
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 4
   },
   wrapperCol: {
-    span: 19
+    span: 20
   }
 };
 
@@ -344,6 +346,14 @@ export default class Index extends PureComponent {
     const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
+        if (fieldsValue.options) {
+          fieldsValue.options.map(item => {
+            if (item.protocol) {
+              item.protocol = item.protocol.join(',');
+            }
+            return item;
+          });
+        }
         onSubmit(fieldsValue);
       }
     });
@@ -397,7 +407,7 @@ export default class Index extends PureComponent {
               validateFirst: true
             })(<Input placeholder="请输入配置组名" />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="依赖元数据类型">
+          <Form.Item {...formItemLayout} label="依赖元数据">
             {getFieldDecorator('service_meta_type', {
               initialValue: data.service_meta_type || 'un_define',
               rules: [{ required: true, message: '请输入配置组名' }]
