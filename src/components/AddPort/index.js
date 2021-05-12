@@ -1,17 +1,6 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Alert,
-  Select,
-  Modal,
-  Input
-} from "antd";
+import { Form, Input, Modal, Select } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
 const FormItem = Form.Item;
 
 @Form.create()
@@ -34,7 +23,7 @@ export default class AddPort extends PureComponent {
     const { getFieldValue } = this.props.form;
     if (this.props.isImageApp || this.props.isDockerfile) {
       if (value < 1 || value > 65534) {
-        callback("端口范围为1-65534");
+        callback('端口范围为1-65534');
         return;
       }
     }
@@ -63,9 +52,9 @@ export default class AddPort extends PureComponent {
       >
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="端口">
-            {getFieldDecorator("port", {
+            {getFieldDecorator('port', {
               rules: [
-                { required: true, message: "请添写端口" },
+                { required: true, message: '请添写端口' },
                 { validator: this.handleCheckPort }
               ]
             })(
@@ -73,18 +62,18 @@ export default class AddPort extends PureComponent {
                 type="number"
                 placeholder={
                   this.props.isImageApp || this.props.isDockerfile
-                    ? "请填写端口,范围1-65535"
-                    : "请填写端口,范围1025-65535"
+                    ? '请填写端口,范围1-65535'
+                    : '请填写端口,范围1025-65535'
                 }
               />
             )}
           </FormItem>
           <FormItem {...formItemLayout} label="协议">
-            {getFieldDecorator("protocol", {
-              initialValue: "http",
-              rules: [{ required: true, message: "请添加端口" }]
+            {getFieldDecorator('protocol', {
+              initialValue: 'http',
+              rules: [{ required: true, message: '请添加端口' }]
             })(
-              <Select>
+              <Select getPopupContainer={triggerNode => triggerNode.parentNode}>
                 {protocols.map(item => {
                   return <Option value={item}>{item}</Option>;
                 })}

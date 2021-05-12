@@ -562,6 +562,7 @@ class CreateAppModels extends PureComponent {
                 ]
               })(
                 <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
                   mode="tags"
                   style={{ width: '100%' }}
                   onSelect={this.handleOnSelect}

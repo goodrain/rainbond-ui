@@ -1,7 +1,7 @@
-import React, { PureComponent } from "react";
-import { Modal, Form, Select, Button } from "antd";
-import { connect } from "dva";
-import styles from "../CreateTeam/index.less";
+import { Button, Form, Modal, Select } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -9,7 +9,7 @@ const { Option } = Select;
 @Form.create()
 @connect(({ user, loading }) => ({
   currUser: user.currentUser,
-  Loading: loading.effects["global/joinTeam"]
+  Loading: loading.effects['global/joinTeam']
 }))
 export default class JoinTeam extends PureComponent {
   constructor(arg) {
@@ -24,7 +24,7 @@ export default class JoinTeam extends PureComponent {
   loadTeams = () => {
     const { enterpriseID } = this.props;
     this.props.dispatch({
-      type: "global/getUserCanJoinTeams",
+      type: 'global/getUserCanJoinTeams',
       payload: {
         enterpriseID
       },
@@ -76,17 +76,18 @@ export default class JoinTeam extends PureComponent {
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <FormItem {...formItemLayout} label="团队名称" hasFeedback>
-            {getFieldDecorator("team_name", {
-              initialValue: (teamList && teamList[0].team_name) || "",
+            {getFieldDecorator('team_name', {
+              initialValue: (teamList && teamList[0].team_name) || '',
               rules: [
                 {
                   required: true,
-                  message: "请选择团队"
+                  message: '请选择团队'
                 }
               ]
             })(
               <Select
-                style={{ width: "100%" }}
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                style={{ width: '100%' }}
                 onChange={this.handleTeamChange}
                 placeholder="请选择一个团队"
               >

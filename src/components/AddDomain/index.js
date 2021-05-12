@@ -16,7 +16,7 @@ export default class AddDomain extends PureComponent {
     e.preventDefault();
     this.props.form.validateFields(
       {
-        force: true,
+        force: true
       },
       (err, values) => {
         if (!err) {
@@ -47,20 +47,20 @@ export default class AddDomain extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 5,
-        },
+          span: 5
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 16,
-        },
-      },
+          span: 16
+        }
+      }
     };
     const protocol = getFieldValue('protocol') || 'http';
     const { isAddLicense, certificates, addLicense } = this.props;
@@ -83,11 +83,11 @@ export default class AddDomain extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请添加端口',
-                },
-              ],
+                  message: '请添加端口'
+                }
+              ]
             })(
-              <Select>
+              <Select getPopupContainer={triggerNode => triggerNode.parentNode}>
                 <Option value="http">HTTP</Option>
                 <Option value="https">HTTPS</Option>
                 <Option value="httptohttps">HTTP转HTTPS</Option>
@@ -100,13 +100,13 @@ export default class AddDomain extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请添加域名',
+                  message: '请添加域名'
                 },
                 {
                   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                  message: '请填写正确的域名格式，支持泛域名',
-                },
-              ],
+                  message: '请填写正确的域名格式，支持泛域名'
+                }
+              ]
             })(<Input placeholder="请填写域名" />)}
           </FormItem>
           {protocol == 'http' ? (
@@ -118,11 +118,12 @@ export default class AddDomain extends PureComponent {
                 rules: [
                   { required: true },
                   {
-                    validator: this.checkKey,
-                  },
-                ],
+                    validator: this.checkKey
+                  }
+                ]
               })(
                 <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder="请选择证书"
                   dropdownRender={menu => (
                     <div>
@@ -133,7 +134,7 @@ export default class AddDomain extends PureComponent {
                           <div
                             style={{
                               padding: '4px 8px',
-                              cursor: 'pointer',
+                              cursor: 'pointer'
                             }}
                             onMouseDown={e => e.preventDefault()}
                             onClick={() => {
@@ -176,7 +177,7 @@ export default class AddDomain extends PureComponent {
               style={{
                 wordBreak: 'break-all',
                 wordWrap: 'break-word',
-                color: '#1890ff',
+                color: '#1890ff'
               }}
             >
               点击进入访问策略设置

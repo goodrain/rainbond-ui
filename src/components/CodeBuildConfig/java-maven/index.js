@@ -163,6 +163,7 @@ class Index extends PureComponent {
             ]
           })(
             <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
               placeholder="请选择Maven配置"
               style={{ width: '300px', marginRight: '20px' }}
             >

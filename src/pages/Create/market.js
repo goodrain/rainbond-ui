@@ -692,7 +692,10 @@ export default class Main extends PureComponent {
               }
             ]
           })(
-            <Select style={{ width: '220px' }}>
+            <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
+              style={{ width: '220px' }}
+            >
               {versionList.map((item, index) => {
                 return (
                   <Option key={index} value={item.version || item.app_version}>
@@ -777,24 +780,25 @@ export default class Main extends PureComponent {
       }
     }
 
-    const mores = (
-      handleType && moreState && (
-        ( scopeMax==='localApplication' && list && list.length > 0 ) || ( scopeMax!='localApplication' && cloudList && cloudList.length>0 )
-        ) && (
+    const mores = handleType &&
+      moreState &&
+      ((scopeMax === 'localApplication' && list && list.length > 0) ||
+        (scopeMax != 'localApplication' &&
+          cloudList &&
+          cloudList.length > 0)) && (
         <div
           style={{
             textAlign: 'right',
             height: '70px',
-            marginTop:'-40px',
+            marginTop: '-40px',
             position: 'relative',
-            zIndex:99
+            zIndex: 99
           }}
         >
           <a onClick={this.loadMore}>查看更多...</a>
-         </div>
-      )
-    )
-    
+        </div>
+      );
+
     const cardList = (
       <List
         bordered={false}
@@ -1023,7 +1027,15 @@ export default class Main extends PureComponent {
                 />
               )}
               {scopeMax === 'localApplication' ? (
-                <div style={{marginBottom:!moreState&&handleType&& handleType === 'Service' && '40px'}}>
+                <div
+                  style={{
+                    marginBottom:
+                      !moreState &&
+                      handleType &&
+                      handleType === 'Service' &&
+                      '40px'
+                  }}
+                >
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
               ) : (
@@ -1053,8 +1065,6 @@ export default class Main extends PureComponent {
                 </div>
               )}
               {mores}
-
-          
             </PageHeaderLayout>
           </div>
         )}

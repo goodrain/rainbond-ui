@@ -193,7 +193,10 @@ export default class Index extends PureComponent {
               initialValue: data.content || '服务费',
               rules: [{ required: true, message: '' }]
             })(
-              <Select placeholder="">
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                placeholder=""
+              >
                 <Select.Option value="服务费">服务费</Select.Option>
                 <Select.Option value="技术服务费">技术服务费</Select.Option>
               </Select>

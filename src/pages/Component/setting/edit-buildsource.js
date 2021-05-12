@@ -129,7 +129,11 @@ export default class ChangeBuildSource extends PureComponent {
     const prefixSelector = getFieldDecorator('server_type', {
       initialValue: this.state.buildSource.server_type
     })(
-      <Select onChange={this.changeServerType} style={{ width: 100 }}>
+      <Select
+        getPopupContainer={triggerNode => triggerNode.parentNode}
+        onChange={this.changeServerType}
+        style={{ width: 100 }}
+      >
         <Option value="git">Git</Option>
         <Option value="svn">Svn</Option>
       </Select>
@@ -143,7 +147,10 @@ export default class ChangeBuildSource extends PureComponent {
     const versionSelector = getFieldDecorator('version_type', {
       initialValue: versionType
     })(
-      <Select style={{ width: 100 }}>
+      <Select
+        getPopupContainer={triggerNode => triggerNode.parentNode}
+        style={{ width: 100 }}
+      >
         <Option value="branch">分支</Option>
         <Option value="tag">Tag</Option>
       </Select>

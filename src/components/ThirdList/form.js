@@ -182,6 +182,7 @@ class Index extends React.Component {
                 rules: [{ required: true, message: '请选择' }]
               })(
                 <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder="请选择要所属应用"
                   style={{
                     display: 'inline-block',
@@ -231,7 +232,10 @@ class Index extends React.Component {
                 initialValue: tags && tags.length > 0 && tags[0],
                 rules: [{ required: true, message: '请输入代码版本' }]
               })(
-                <Select placeholder="请输入代码版本">
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder="请输入代码版本"
+                >
                   <OptGroup
                     label={
                       <Tabs

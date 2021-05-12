@@ -1,20 +1,10 @@
-import React, { Component } from "react";
-import {
-  Form,
-  Checkbox,
-  Row,
-  Col,
-  Select,
-  Input,
-  Button,
-  Icon,
-  notification
-} from "antd";
+import { Col, Input, Row, Select } from 'antd';
+import React from 'react';
 
 class PriceInput extends React.Component {
   static getDerivedStateFromProps(nextProps, nextState) {
     // Should be a controlled component.
-    if ("value" in nextProps) {
+    if ('value' in nextProps) {
       return {
         ...(nextProps.value || {})
       };
@@ -25,7 +15,7 @@ class PriceInput extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      available_port: "",
+      available_port: '',
       ip: undefined
     };
   }
@@ -43,7 +33,7 @@ class PriceInput extends React.Component {
   handleCurrencyChange = (ip, obj) => {
     const { domain_port } = this.props;
     const key = obj && obj.key && obj.key ? Number(obj.key) : 0;
-    if (!("value" in this.props)) {
+    if (!('value' in this.props)) {
       this.setState({ ip });
     }
 
@@ -87,8 +77,9 @@ class PriceInput extends React.Component {
         <Col span={12}>
           <Select
             // value={ip}
+            getPopupContainer={triggerNode => triggerNode.parentNode}
             onChange={this.handleCurrencyChange}
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
             placeholder="域名"
             defaultValue={
               current_enpoint && current_enpoint.length > 0
@@ -105,7 +96,7 @@ class PriceInput extends React.Component {
             })}
           </Select>
         </Col>
-        <Col span={2} style={{ textAlign: "center" }}>
+        <Col span={2} style={{ textAlign: 'center' }}>
           :
         </Col>
         <Col span={8}>
