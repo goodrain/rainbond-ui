@@ -224,7 +224,6 @@ class EnvGroup extends PureComponent {
       onDidMount(this);
     }
   }
-
   check() {
     let res = true;
     for (let i = 0; i < this.groupItem.length; i++) {
@@ -255,7 +254,7 @@ class EnvGroup extends PureComponent {
     setGroup = group.filter(item => !!item).filter(item => item.key !== key);
     this.setState({ group: setGroup }, () => {
       if (onChange) {
-        onChange(group.map(item => item.value));
+        onChange(setGroup.map(item => item.value));
       }
     });
   };
