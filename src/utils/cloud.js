@@ -473,8 +473,8 @@ const cloud = {
     }
     const code = res.data ? res.data.code : res.code;
     switch (code) {
-      case 4001:
-        notification.warning({ message: '请求Token过期，请尝试重新登录' });
+      case 2003:
+        notification.warning({ message: '用户手机号已注册' });
         break;
       case 3000:
         notification.warning({ message: '用户已存在' });
@@ -493,6 +493,9 @@ const cloud = {
         break;
       case 3005:
         notification.warning({ message: '不允许删除管理员' });
+        break;
+      case 4001:
+        notification.warning({ message: '请求Token过期，请尝试重新登录' });
         break;
       case 7002:
         notification.warning({
@@ -543,10 +546,12 @@ const cloud = {
         notification.warning({ message: '该集群不支持节点扩容动作' });
         break;
       case 7018:
-        notification.warning({ message: 'RainbondCluster 配置不合法，请检查后重试' });
+        notification.warning({
+          message: 'RainbondCluster 配置不合法，请检查后重试'
+        });
         break;
       case 7019:
-          notification.warning({ message: '无法获取集群的初始化状态' });
+        notification.warning({ message: '无法获取集群的初始化状态' });
         break;
       case 400:
         notification.warning({ message: '请求参数错误' });
