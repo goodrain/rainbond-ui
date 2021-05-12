@@ -322,8 +322,17 @@ export default class Index extends React.Component {
         ...startProbe,
         is_used: isUsed
       },
-      callback: () => {
-        this.fetchStartProbe();
+      callback: res => {
+        if (res && res.status_code) {
+          if (res.status_code === 200) {
+            this.fetchStartProbe();
+            if (isUsed) {
+              notification.success({ message: '启用成功,请更新组件后生效' });
+            } else {
+              notification.success({ message: '禁用成功,请更新组件后生效' });
+            }
+          }
+        }
       }
     });
   };
@@ -353,9 +362,14 @@ export default class Index extends React.Component {
           ...vals,
           old_mode: startProbe.mode
         },
-        callback: () => {
-          this.onCancelEditStartProbe();
-          this.fetchStartProbe();
+        callback: res => {
+          if (res && res.status_code) {
+            if (res.status_code === 200) {
+              this.onCancelEditStartProbe();
+              this.fetchStartProbe();
+              notification.success({ message: '编辑成功,请更新组件后生效!' });
+            }
+          }
         }
       });
     } else {
@@ -765,7 +779,7 @@ export default class Index extends React.Component {
             }}
             title={
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                健康检测
+                健康检测1
                 {startProbe && (
                   <div>
                     <a
