@@ -202,6 +202,7 @@ class CreateUserForm extends PureComponent {
                   rules: [{ required: false, message: '请选择用户角色!' }]
                 })(
                   <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
                     mode="multiple"
                     style={{ width: '100%' }}
                     placeholder="请选择用户角色"

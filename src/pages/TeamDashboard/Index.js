@@ -721,7 +721,7 @@ export default class Index extends PureComponent {
             <FormattedMessage id="team.appNum" />
           </p>
           <div>
-            <div style={{ color: 'rgba(0,0,0,.85)' }}>
+            <div style={{ color: 'rgba(0,0,0,.85)' }} className={styles.hands}>
               {index.overviewInfo.team_app_num || 0}
             </div>
           </div>
@@ -731,7 +731,7 @@ export default class Index extends PureComponent {
             <Badge status="processing" />
             <FormattedMessage id="team.componentNum" />
           </p>
-          <div style={{ color: 'rgba(0,0,0,.85)' }}>
+          <div style={{ color: 'rgba(0,0,0,.85)' }} className={styles.hands}>
             {index.overviewInfo.team_service_num || 0}
           </div>
         </div>
@@ -759,7 +759,7 @@ export default class Index extends PureComponent {
             <Badge status="warning" />
             <FormattedMessage id="team.memoryUsage" />
           </p>
-          <div>
+          <div className={styles.hands}>
             <Tooltip
               style={{ color: 'rgba(0,0,0,.85)' }}
               title={`${sourceUtil.unit(
@@ -779,7 +779,7 @@ export default class Index extends PureComponent {
             <Badge status="warning" />
             <FormattedMessage id="team.diskUsage" />
           </p>
-          <div>
+          <div className={styles.hands}>
             <Tooltip
               style={{ color: 'rgba(0,0,0,.85)' }}
               title={`${sourceUtil.unit(
@@ -803,7 +803,8 @@ export default class Index extends PureComponent {
             style={{
               wordBreak: 'break-all',
               wordWrap: 'break-word',
-              color: 'rgba(0,0,0,.85)'
+              color: 'rgba(0,0,0,.85)',
+              cursor: 'default'
             }}
           >
             {index.overviewInfo.share_app_num || 0}
@@ -1068,7 +1069,10 @@ export default class Index extends PureComponent {
                                 </div>
                                 <div>
                                   <span>发布记录：</span>
-                                  <a style={{ color: 'rgba(0, 0, 0, 0.65)' }}>
+                                  <a
+                                    style={{ color: 'rgba(0, 0, 0, 0.65)' }}
+                                    className={styles.hands}
+                                  >
                                     {share_record_num}
                                   </a>
                                 </div>
