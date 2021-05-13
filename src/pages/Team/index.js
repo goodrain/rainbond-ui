@@ -207,14 +207,17 @@ export default class Index extends PureComponent {
         </div>
       </div>
     );
+    const isEnterpriseAdmin = teamUtil.canDeleteTeam(currUser);
     const extraContent = (
       <div className={styles.extraContent}>
         <div className={styles.extraBtns}>
-          <Button onClick={this.showExitTeam} type="dashed">
-            退出团队
-          </Button>
+          {!isEnterpriseAdmin && (
+            <Button onClick={this.showExitTeam} type="dashed">
+              退出团队
+            </Button>
+          )}
           <Button
-            disabled={!teamUtil.canDeleteTeam(currUser)}
+            disabled={!isEnterpriseAdmin}
             onClick={this.showDelTeam}
             type="dashed"
           >
