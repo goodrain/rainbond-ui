@@ -99,7 +99,11 @@ class CreateOAuthForm extends PureComponent {
               initialValue: oauthInfo ? oauthInfo.oauth_type : 'github',
               rules: [{ required: true, message: '请选择oauth_type类型' }]
             })(
-              <Select disabled={edit} placeholder="请选择要oauth_type类型">
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                disabled={edit}
+                placeholder="请选择要oauth_type类型"
+              >
                 {oauthList &&
                   oauthList.map(item => (
                     <Option key={item} value={item}>

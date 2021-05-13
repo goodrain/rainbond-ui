@@ -1,8 +1,8 @@
-import React, { PureComponent } from 'react';
-import { Modal, Form, Select } from 'antd';
+import { Form, Modal, Select } from 'antd';
 import { connect } from 'dva';
-import styles from '../CreateTeam/index.less';
+import React, { PureComponent } from 'react';
 import roleUtil from '../../utils/role';
+import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -28,7 +28,7 @@ export default class AddAdmin extends PureComponent {
     this.loadTeams();
     this.loadRoles();
   }
-  onSearch = (value) => {
+  onSearch = value => {
     this.loadTeams(value);
   };
 
@@ -40,7 +40,7 @@ export default class AddAdmin extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: (res) => {
+      callback: res => {
         if (res) {
           this.setState({
             roles: res.list || []
@@ -50,13 +50,13 @@ export default class AddAdmin extends PureComponent {
     });
   };
 
-  loadTeams = (name) => {
+  loadTeams = name => {
     const { dispatch, eid } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseUsers',
       payload: { enterprise_id: eid, page: 1, page_size: 999, name },
 
-      callback: (res) => {
+      callback: res => {
         if (res) {
           this.setState({ adminList: res.list });
         }
@@ -113,6 +113,7 @@ export default class AddAdmin extends PureComponent {
               ]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 showSearch
                 style={{ width: 300 }}
                 placeholder="请输入用户名称"
@@ -126,7 +127,7 @@ export default class AddAdmin extends PureComponent {
               >
                 {adminList &&
                   adminList.length > 0 &&
-                  adminList.map((item) => {
+                  adminList.map(item => {
                     const { nick_name: name, user_id: id } = item;
                     return (
                       <Option key={id} value={id}>
@@ -148,6 +149,7 @@ export default class AddAdmin extends PureComponent {
               ]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 mode="multiple"
                 placeholder="请选择角色"
                 style={{ width: 300 }}

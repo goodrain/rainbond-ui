@@ -276,7 +276,10 @@ export default class Index extends PureComponent {
           <Col md={8} sm={24}>
             <FormItem label="组件状态">
               {getFieldDecorator('service_status', { initialValue: 'all' })(
-                <Select placeholder="请选择">
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder="请选择"
+                >
                   {status.map(item => (
                     <Option key={item.value} value={item.value}>
                       {item.text}

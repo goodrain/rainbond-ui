@@ -694,7 +694,10 @@ export default class Main extends PureComponent {
               }
             ]
           })(
-            <Select style={{ width: '220px' }}>
+            <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
+              style={{ width: '220px' }}
+            >
               {versionList.map((item, index) => {
                 return (
                   <Option key={index} value={item.version || item.app_version}>

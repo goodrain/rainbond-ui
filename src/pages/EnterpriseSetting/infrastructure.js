@@ -413,7 +413,7 @@ class Infrastructure extends PureComponent {
           <Col span={3}>用户注册</Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              控制用户是否可以注册功能
+              控制用户是否可以注册功能。
             </span>
           </Col>
 
@@ -536,7 +536,7 @@ class Infrastructure extends PureComponent {
           <Col span={3}>对象存储</Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              对象存储用于云端备份功能，存储应用的备份文件
+              对象存储用于云端备份功能，存储应用的备份文件。
             </span>
           </Col>
           <Col span={4} style={{ textAlign: 'right' }}>
@@ -569,7 +569,7 @@ class Infrastructure extends PureComponent {
           <Col span={3}>基础信息</Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              可以修改网站的标题、企业名称、LOGO、网页图标
+              可以修改网站的标题、企业名称、LOGO、网页图标。
             </span>
           </Col>
           <Col span={4} style={{ textAlign: 'right' }}>

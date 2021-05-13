@@ -97,6 +97,7 @@ class CreateTeam extends PureComponent {
               ]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 mode="multiple"
                 style={{ width: '100%' }}
                 placeholder="选择集群"

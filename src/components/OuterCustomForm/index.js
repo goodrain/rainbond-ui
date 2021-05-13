@@ -267,6 +267,7 @@ export default class Index extends PureComponent {
               rules: [{ required: true, message: '请选择' }]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder="请选择要所属应用"
                 style={{
                   display: 'inline-block',
@@ -386,6 +387,7 @@ export default class Index extends PureComponent {
                   initialValue: ''
                 })(
                   <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
                     onChange={this.handleChange}
                     placeholder="请选择类型"
                     style={{

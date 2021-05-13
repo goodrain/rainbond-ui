@@ -56,6 +56,7 @@ class UpdateMemory extends PureComponent {
         onCancel={this.props.onCancel}
       >
         <Select
+          getPopupContainer={triggerNode => triggerNode.parentNode}
           style={{ width: '100%' }}
           value={this.state.memory}
           onChange={this.handleChange}
@@ -141,6 +142,7 @@ class ConfigItems extends PureComponent {
           }
         >
           <Select
+            getPopupContainer={triggerNode => triggerNode.parentNode}
             onChange={val => {
               this.onChange(val, index);
             }}
@@ -174,6 +176,7 @@ class ConfigItems extends PureComponent {
           }
         >
           <Select
+            getPopupContainer={triggerNode => triggerNode.parentNode}
             disabled={!item.is_change}
             onChange={val => {
               this.onChange(val.join(','), index);
@@ -299,7 +302,11 @@ class ConfigDownstreamPort extends PureComponent {
               }}
             >
               下游应用:{' '}
-              <Select onChange={this.handleAppChange} value={currApp}>
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                onChange={this.handleAppChange}
+                value={currApp}
+              >
                 {apps.map(
                   item =>
                     item && (
@@ -316,7 +323,11 @@ class ConfigDownstreamPort extends PureComponent {
             <span style={{ marginRight: 24 }}>
               {' '}
               端口号 :{' '}
-              <Select onChange={this.handlePortChange} value={currPort}>
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                onChange={this.handlePortChange}
+                value={currPort}
+              >
                 {ports.map(item => (
                   <Option value={item}>{item}</Option>
                 ))}
@@ -383,7 +394,11 @@ class ConfigUpstreamPort extends PureComponent {
               }}
             >
               端口号:{' '}
-              <Select onChange={this.handlePortChange} value={currPort}>
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                onChange={this.handlePortChange}
+                value={currPort}
+              >
                 {data.map(item => (
                   <Option key={item.port} value={item.port}>
                     {item.port}

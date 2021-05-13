@@ -347,7 +347,13 @@ export default class RoleList extends PureComponent {
           <div className={styles.AuthModuleWrap}>
             <FormItem {...formItemLayout} label="角色名称">
               {getFieldDecorator('name', {
-                rules: [{ required: true, message: '请输入角色名称!' }]
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入角色名称!'
+                  },
+                  { max: 32, message: '角色名称不能大于32个字符' }
+                ]
               })(<Input placeholder="请输入角色名称" />)}
             </FormItem>
             {permissions && (

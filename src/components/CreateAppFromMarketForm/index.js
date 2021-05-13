@@ -147,6 +147,7 @@ export default class Index extends PureComponent {
               ]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 onChange={this.handleChangeVersion}
                 style={{ width: '220px' }}
               >
@@ -181,6 +182,7 @@ export default class Index extends PureComponent {
               ]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder="请选择应用"
                 style={{
                   display: 'inline-block',
