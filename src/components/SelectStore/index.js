@@ -1,7 +1,7 @@
+import { Button, Form, Modal, Select } from 'antd';
 import React, { PureComponent } from 'react';
-import { Button, Modal, Form, Select } from 'antd';
-import styles from '../CreateTeam/index.less';
 import { fetchMarketAuthority } from '../../utils/authority';
+import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -12,7 +12,7 @@ class SelectStore extends PureComponent {
     super(arg);
     this.state = {
       actions: [],
-      storeList: [],
+      storeList: []
     };
   }
   componentDidMount() {
@@ -24,7 +24,7 @@ class SelectStore extends PureComponent {
     dispatch({
       type: 'enterprise/fetchEnterpriseStoreList',
       payload: {
-        enterprise_id,
+        enterprise_id
       },
       callback: data => {
         if (data) {
@@ -37,7 +37,7 @@ class SelectStore extends PureComponent {
           }
           this.setState({ storeList: newList, loading: false });
         }
-      },
+      }
     });
   };
   handleSubmit = () => {
@@ -57,12 +57,12 @@ class SelectStore extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
-      },
+        sm: { span: 14 }
+      }
     };
     return (
       <Modal
@@ -77,7 +77,7 @@ class SelectStore extends PureComponent {
             <Button type="primary" onClick={this.handleSubmit}>
               确定
             </Button>
-          ),
+          )
         ]}
       >
         {stores ? (
@@ -92,11 +92,14 @@ class SelectStore extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: '请选择发布的商店',
-                  },
-                ],
+                    message: '请选择发布的商店'
+                  }
+                ]
               })(
-                <Select placeholder="请选择发布的商店">
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder="请选择发布的商店"
+                >
                   {stores.map((item, index) => {
                     const { name, alias } = item;
                     return (

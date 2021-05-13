@@ -4,25 +4,16 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
 import {
-    Button,
-
-    Checkbox, Col,
-
-
-
-
-    Form,
-
-    Icon, List, Row,
-
-
-
-
-    Select,
-
-
-
-    Spin, Tooltip
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Icon,
+  List,
+  Row,
+  Select,
+  Spin,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -139,7 +130,7 @@ export default class AppList extends PureComponent {
 
   //  查询某云市应用的更新版本
 
-  getUpdatedVersion = (Rollback) => {
+  getUpdatedVersion = Rollback => {
     const { group_id } = this.props;
     const { infoObj } = this.state;
     this.props.dispatch({
@@ -190,7 +181,7 @@ export default class AppList extends PureComponent {
   };
 
   // 查询某云市应用下组件的更新信息
-  getUpdatedInfo = (versions) => {
+  getUpdatedInfo = versions => {
     const version = this.props.form.getFieldValue('upgradeVersions');
     const { group_id, dispatch } = this.props;
     const { infoObj } = this.state;
@@ -236,7 +227,7 @@ export default class AppList extends PureComponent {
     });
   };
 
-  handleChangeVersions = (value) => {
+  handleChangeVersions = value => {
     this.props.form.setFieldsValue({ upgradeVersions: value });
     this.getUpdatedInfo(value);
   };
@@ -272,7 +263,7 @@ export default class AppList extends PureComponent {
     });
   };
   // 创建升级任务
-  createUpgradeTasks = (values) => {
+  createUpgradeTasks = values => {
     const { group_id, form, dispatch } = this.props;
     const { infoObj, upgradeInfo } = this.state;
     const version = form.getFieldValue('upgradeVersions');
@@ -344,7 +335,7 @@ export default class AppList extends PureComponent {
   // }
 
   // 查询某应用的更新记录详情
-  getUpgradeRecordsInfo = (Rollback) => {
+  getUpgradeRecordsInfo = Rollback => {
     const { group_id, dispatch } = this.props;
     const { record_id, upgradeText } = this.state;
     dispatch({
@@ -523,7 +514,7 @@ export default class AppList extends PureComponent {
     ];
   };
 
-  setData = (data) => {
+  setData = data => {
     const {
       image,
       ports,
@@ -688,7 +679,7 @@ export default class AppList extends PureComponent {
                 placement="top"
                 title={
                   item.config_items &&
-                  Object.keys(item.config_items).map((key) => {
+                  Object.keys(item.config_items).map(key => {
                     return <div>{`${key} : ${item.config_items[key]}`}</div>;
                   })
                 }
@@ -827,6 +818,7 @@ export default class AppList extends PureComponent {
                     rules: [{ required: false, message: '请选择' }]
                   })(
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       disabled={textState != 1}
                       size="small"
                       style={{ width: 80 }}
@@ -873,7 +865,7 @@ export default class AppList extends PureComponent {
                               service_id: serviceId
                             } = item;
                             const upgrades = upgradeRecords.filter(
-                              (items) =>
+                              items =>
                                 items.service_id ===
                                 ((service && service.service_id) || serviceId)
                             );

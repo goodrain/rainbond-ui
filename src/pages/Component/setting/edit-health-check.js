@@ -132,6 +132,7 @@ export default class EditHealthCheck extends PureComponent {
                 rules: [{ required: true, message: '请输入' }]
               })(
                 <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
                   onSearch={val => {
                     this.handleList(val);
                   }}
@@ -154,6 +155,7 @@ export default class EditHealthCheck extends PureComponent {
                 rules: [{ required: true, message: '请输入' }]
               })(
                 <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
                   showSearch
                   onSearch={val => {
                     this.handleList(val);

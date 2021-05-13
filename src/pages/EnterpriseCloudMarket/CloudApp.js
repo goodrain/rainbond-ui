@@ -297,6 +297,9 @@ export default class CloudApp extends PureComponent {
                       {item.app_name}
                       {!loading && (
                         <Select
+                          getPopupContainer={triggerNode =>
+                            triggerNode.parentNode
+                          }
                           style={{ marginLeft: '18px' }}
                           defaultValue={item.version[0]}
                           onChange={version => {

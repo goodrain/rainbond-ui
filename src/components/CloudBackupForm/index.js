@@ -55,7 +55,7 @@ export default class CloudBackupForm extends PureComponent {
                 }
               ]
             })(
-              <Select>
+              <Select getPopupContainer={triggerNode => triggerNode.parentNode}>
                 {providers.map(item => {
                   return (
                     <Option key={item.key} value={item.key}>

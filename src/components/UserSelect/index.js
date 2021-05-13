@@ -1,12 +1,10 @@
-import React from 'react';
-import { connect } from 'dva';
 import { Select, Spin } from 'antd';
-import debounce from 'lodash.debounce';
+import { connect } from 'dva';
+import React from 'react';
 import globalUtil from '../../utils/global';
 
 const Option = Select.Option;
 @connect()
-
 class UserRemoteSelect extends React.Component {
   constructor(props) {
     super(props);
@@ -14,7 +12,7 @@ class UserRemoteSelect extends React.Component {
     this.state = {
       data: [],
       value: [],
-      fetching: false,
+      fetching: false
     };
   }
   componentDidMount() {
@@ -25,7 +23,7 @@ class UserRemoteSelect extends React.Component {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
 
-   dispatch({
+    dispatch({
       type: 'user/searchEnterpriseNoTeamUser',
       payload: {
         team_name,
@@ -38,13 +36,13 @@ class UserRemoteSelect extends React.Component {
           const data = response.list || [];
           this.setState({ data, fetching: false });
         }
-      },
+      }
     });
   };
   handleChange = value => {
     this.setState({
       value,
-      fetching: false,
+      fetching: false
     });
     this.props.onChange && this.props.onChange(value);
   };
@@ -52,6 +50,7 @@ class UserRemoteSelect extends React.Component {
     const { fetching, data, value } = this.state;
     return (
       <Select
+        getPopupContainer={triggerNode => triggerNode.parentNode}
         mode="multiple"
         labelInValue
         value={value}

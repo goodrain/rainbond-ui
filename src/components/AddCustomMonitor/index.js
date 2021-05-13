@@ -125,6 +125,7 @@ export default class AddCustomMonitor extends PureComponent {
     };
     const selectAfter = (
       <Select
+        getPopupContainer={triggerNode => triggerNode.parentNode}
         defaultValue={unit}
         style={{ width: 80 }}
         onChange={this.handleChange}
@@ -214,7 +215,10 @@ export default class AddCustomMonitor extends PureComponent {
                 (portList.length > 0 ? portList[0].container_port : ''),
               rules: [{ required: true, message: '请选择端口号' }]
             })(
-              <Select placeholder="请选择端口号">
+              <Select
+                placeholder="请选择端口号"
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+              >
                 {portList.map(items => {
                   const { container_port: containerPort, ID } = items;
                   return (

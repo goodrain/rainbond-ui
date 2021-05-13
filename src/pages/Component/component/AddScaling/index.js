@@ -1,33 +1,27 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import {
-  Button,
-  Form,
-  InputNumber,
-  Select,
-  Modal
-} from "antd";
-import styles from "./AddScaling.less";
-import Testimg from "../../../../../public/images/test.png";
-import Shangxian from "../../../../../public/images/shangxian.png";
-import Indicators from "../../../../../public/images/indicators.png";
+import { Button, Form, InputNumber, Modal, Select } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import Indicators from '../../../../../public/images/indicators.png';
+import Shangxian from '../../../../../public/images/shangxian.png';
+import Testimg from '../../../../../public/images/test.png';
+import styles from './AddScaling.less';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 @connect(({ loading }) => ({
-  changeScalingRules: loading.effects["appControl/changeScalingRules"],
-  addScalingRules: loading.effects["appControl/addScalingRules"]
+  changeScalingRules: loading.effects['appControl/changeScalingRules'],
+  addScalingRules: loading.effects['appControl/addScalingRules']
 }))
 class AddScaling extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       selectMemoryList: [
-        { value: "memoryaverage_value", name: "内存使用量" },
-        { value: "memoryutilization", name: "内存使用率" },
-        { value: "cpuaverage_value", name: "CPU使用量" },
-        { value: "cpuutilization", name: "CPU使用率" }
+        { value: 'memoryaverage_value', name: '内存使用量' },
+        { value: 'memoryutilization', name: '内存使用率' },
+        { value: 'cpuaverage_value', name: 'CPU使用量' },
+        { value: 'cpuutilization', name: 'CPU使用率' }
       ]
     };
   }
@@ -58,11 +52,11 @@ class AddScaling extends PureComponent {
     let num = Number(value);
     if (num || num === 0) {
       if (num < min) {
-        callback("最小输入值" + min);
+        callback('最小输入值' + min);
         return;
       }
       if (num > 65535) {
-        callback("最大输入值65535");
+        callback('最大输入值65535');
         return;
       }
     }
@@ -82,8 +76,8 @@ class AddScaling extends PureComponent {
     const { selectMemoryList } = this.state;
     let propsData = data ? data : false;
 
-    const minNumber = getFieldValue("minNum") || 0;
-    const selectMemoryDesc = getFieldValue("selectMemory");
+    const minNumber = getFieldValue('minNum') || 0;
+    const selectMemoryDesc = getFieldValue('selectMemory');
 
     const formItemLayout = {
       labelCol: {
@@ -100,7 +94,7 @@ class AddScaling extends PureComponent {
       <div>
         <Modal
           className={styles.TelescopicModal}
-          title={editRules ? "添加指标" : "自动伸缩"}
+          title={editRules ? '添加指标' : '自动伸缩'}
           visible={isvisable}
           onOk={this.handleSubmit}
           onCancel={onClose}
@@ -125,21 +119,21 @@ class AddScaling extends PureComponent {
                   </div>
                 }
                 {...formItemLayout}
-                style={{ textAlign: "left" }}
+                style={{ textAlign: 'left' }}
               >
-                {getFieldDecorator("minNum", {
+                {getFieldDecorator('minNum', {
                   initialValue: 1,
                   rules: [
                     {
-                      pattern: new RegExp(/^[0-9]\d*$/, "g"),
-                      message: "请输入数字"
+                      pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                      message: '请输入数字'
                     },
-                    { required: true, message: "请输入最小数量" },
+                    { required: true, message: '请输入最小数量' },
                     { validator: this.checkContent }
                   ]
                 })(
                   <InputNumber
-                    style={{ width: "100%" }}
+                    style={{ width: '100%' }}
                     placeholder="请输入最小数量"
                   />
                 )}
@@ -156,22 +150,22 @@ class AddScaling extends PureComponent {
                   </div>
                 }
                 {...formItemLayout}
-                style={{ textAlign: "left" }}
+                style={{ textAlign: 'left' }}
               >
-                {getFieldDecorator("maxNum", {
+                {getFieldDecorator('maxNum', {
                   initialValue: propsData ? propsData.max_replicas : 1,
                   rules: [
                     {
-                      pattern: new RegExp(/^[0-9]\d*$/, "g"),
-                      message: "请输入数字"
+                      pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                      message: '请输入数字'
                     },
-                    { required: true, message: "请输入最大数量" },
+                    { required: true, message: '请输入最大数量' },
                     { validator: this.checkContent }
                   ]
                 })(
                   <InputNumber
                     placeholder="请输入最大数量"
-                    style={{ width: "100%" }}
+                    style={{ width: '100%' }}
                     min={minNumber}
                   />
                 )}
@@ -188,21 +182,23 @@ class AddScaling extends PureComponent {
                   指标&nbsp;:
                 </div>
               }
-              style={{ textAlign: "left" }}
+              style={{ textAlign: 'left' }}
             >
-              {getFieldDecorator("selectMemory", {
+              {getFieldDecorator('selectMemory', {
                 initialValue:
                   isaddindicators && memoryList && memoryList.length > 0
                     ? memoryList[0].value
-                    : "memoryaverage_value",
+                    : 'memoryaverage_value',
                 rules: [
                   {
                     required: true,
-                    message: "请选择需要的指标"
+                    message: '请选择需要的指标'
                   }
                 ]
               })(
-                <Select>
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                >
                   {(isaddindicators && memoryList && memoryList.length > 0
                     ? memoryList
                     : selectMemoryList
@@ -226,17 +222,17 @@ class AddScaling extends PureComponent {
                 </div>
               }
               {...formItemLayout}
-              style={{ textAlign: "left" }}
+              style={{ textAlign: 'left' }}
             >
-              {getFieldDecorator("value", {
+              {getFieldDecorator('value', {
                 initialValue: propsData ? propsData.max_replicas : 1,
 
                 rules: [
                   {
-                    pattern: new RegExp(/^[0-9]\d*$/, "g"),
-                    message: "请输入数字"
+                    pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                    message: '请输入数字'
                   },
-                  { required: true, message: "请输入数字" },
+                  { required: true, message: '请输入数字' },
                   { validator: this.checkContent }
                 ]
               })(
@@ -244,21 +240,21 @@ class AddScaling extends PureComponent {
                   placeholder="请输入数字"
                   min={1}
                   max={65535}
-                  style={{ width: "100%" }}
+                  style={{ width: '100%' }}
                 />
               )}
               <div className={styles.conformDesc}>
                 当
-                {selectMemoryDesc === "memoryaverage_value" ||
-                  selectMemoryDesc === "memoryutilization"
-                  ? "内存"
-                  : "cpu"}
+                {selectMemoryDesc === 'memoryaverage_value' ||
+                selectMemoryDesc === 'memoryutilization'
+                  ? '内存'
+                  : 'cpu'}
                 使用
-                {
-                  selectMemoryDesc === "memoryaverage_value" ||
-                    selectMemoryDesc === "cpuaverage_value"
-                    ? '量' : '率'
-                }超过或低于该目标值时, 实例数量会增加或减少
+                {selectMemoryDesc === 'memoryaverage_value' ||
+                selectMemoryDesc === 'cpuaverage_value'
+                  ? '量'
+                  : '率'}
+                超过或低于该目标值时, 实例数量会增加或减少
               </div>
             </FormItem>
           </Form>

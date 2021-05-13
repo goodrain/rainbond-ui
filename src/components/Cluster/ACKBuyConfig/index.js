@@ -133,7 +133,10 @@ export default class ACKBuyConfig extends PureComponent {
                   initialValue: 'cn-hangzhou',
                   rules: [{ required: true, message: '集群创建区域必选' }]
                 })(
-                  <Select placeholder="区域">
+                  <Select
+                    placeholder="区域"
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                  >
                     {cloud.getAllAliyunRegions().map(item => {
                       return (
                         <Option key={item.RegionId} value={item.RegionId}>
@@ -168,6 +171,7 @@ export default class ACKBuyConfig extends PureComponent {
                     rules: [{ required: true, message: '资源配置必须指定' }]
                   })(
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       onChange={this.changeWorkerType}
                       placeholder="集群名称"
                     >
