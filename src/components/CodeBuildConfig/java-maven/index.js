@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import MavenConfiguration from '@/components/MavenConfiguration';
 import globalUtil from '@/utils/global';
 import roleUtil from '@/utils/role';
@@ -54,11 +55,9 @@ class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({ MavenList: res.list }, () => {
-            if (MavenName) {
-              setFieldsValue({
-                BUILD_MAVEN_SETTING_NAME: MavenName
-              });
-            }
+            setFieldsValue({
+              BUILD_MAVEN_SETTING_NAME: MavenName || ''
+            });
           });
         }
       }
@@ -106,6 +105,18 @@ class Index extends PureComponent {
       activeMaven,
       mavenPermissions
     } = this.state;
+    let isDefault = false;
+    const Default_BUILD_MAVEN_SETTING_NAME =
+      (envs && envs.BUILD_MAVEN_SETTING_NAME) ||
+      (MavenList.length > 0 && MavenList[0].name) ||
+      '';
+
+    MavenList.map(item => {
+      if (item.name === MavenList) {
+        isDefault = true;
+      }
+    });
+
     return (
       <div>
         <JavaJDK form={form} envs={envs} />
@@ -151,10 +162,7 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="Maven配置">
           {getFieldDecorator('BUILD_MAVEN_SETTING_NAME', {
-            initialValue:
-              (envs && envs.BUILD_MAVEN_SETTING_NAME) ||
-              (MavenList.length > 0 && MavenList[0].name) ||
-              '',
+            initialValue: isDefault && Default_BUILD_MAVEN_SETTING_NAME,
             rules: [
               {
                 required: true,
