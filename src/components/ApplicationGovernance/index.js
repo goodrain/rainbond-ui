@@ -323,7 +323,10 @@ export default class ApplicationGovernance extends PureComponent {
                     }
                   ]
                 })(
-                  <Select style={{ width: '357px' }}>
+                  <Select
+                    style={{ width: '357px' }}
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                  >
                     {list.map(item => {
                       return (
                         <Option key={item.key} value={item.key}>

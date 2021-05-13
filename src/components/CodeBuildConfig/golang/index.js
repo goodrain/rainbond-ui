@@ -6,10 +6,6 @@ const RadioGroup = Radio.Group;
 
 @connect(null, null, null, { withRef: true })
 class Index extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const formItemLayout = {
       labelCol: {
@@ -44,15 +40,15 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="Golang版本">
           {getFieldDecorator('BUILD_GOVERSION', {
-            initialValue: (envs && envs.BUILD_GOVERSION) || 'go1.12'
+            initialValue: (envs && envs.BUILD_GOVERSION) || 'go1.11'
           })(
             <RadioGroup>
               <Radio value="go1.16.2">go1.16</Radio>
               <Radio value="go1.15.10">go1.15</Radio>
               <Radio value="go1.14.15">go1.14</Radio>
               <Radio value="go1.13.15">go1.13</Radio>
-              <Radio value="go1.12">go1.12(默认)</Radio>
-              <Radio value="go1.11">go1.11</Radio>
+              <Radio value="go1.12">go1.12</Radio>
+              <Radio value="go1.11">go1.11(默认)</Radio>
               <Radio value="go1.10">go1.10</Radio>
               <Radio value="go1.9">go1.9</Radio>
               <Radio value="go1.8">go1.8</Radio>

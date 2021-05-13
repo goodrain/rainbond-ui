@@ -176,7 +176,11 @@ export default class Index extends PureComponent {
             initialValue: data.category || 'net-plugin:up',
             rules: [{ required: true, message: '请选择插件安装来源' }]
           })(
-            <Select disabled={allDisabled || isEdit} placeholder="请选择类别">
+            <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
+              disabled={allDisabled || isEdit}
+              placeholder="请选择类别"
+            >
               <Option value="net-plugin:up">入口网络</Option>
               <Option value="net-plugin:down">出口网络</Option>
               <Option value="net-plugin:in-and-out">出口入口共治网络</Option>
@@ -257,7 +261,10 @@ export default class Index extends PureComponent {
             initialValue: data.min_memory || '64',
             rules: [{ required: true, message: '请选择最小内存' }]
           })(
-            <Select disabled={allDisabled}>
+            <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
+              disabled={allDisabled}
+            >
               <Option value="64">64M</Option>
               <Option value="128">128M</Option>
               <Option value="256">256M</Option>

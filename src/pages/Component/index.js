@@ -107,7 +107,7 @@ class MoveGroup extends PureComponent {
                 }
               ]
             })(
-              <Select>
+              <Select getPopupContainer={triggerNode => triggerNode.parentNode}>
                 {groups &&
                   groups.length > 0 &&
                   groups.map(group => {

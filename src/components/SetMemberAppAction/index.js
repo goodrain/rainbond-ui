@@ -88,7 +88,10 @@ class ConfirmModal extends PureComponent {
                 }
               ]
             })(
-              <Select mode="multiple">
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                mode="multiple"
+              >
                 {members.map((member, index) => {
                   return (
                     <Select.Option key={index} value={member.user_id}>

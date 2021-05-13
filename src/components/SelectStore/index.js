@@ -100,7 +100,10 @@ class SelectStore extends PureComponent {
                   }
                 ]
               })(
-                <Select placeholder="请选择发布的商店">
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder="请选择发布的商店"
+                >
                   {stores.map(item => {
                     const { name, alias } = item;
                     return (

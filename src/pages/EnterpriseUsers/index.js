@@ -213,11 +213,18 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false
     });
   };
-  handleSearch = e => {
-    this.loadUser();
+  handleSearch = () => {
+    this.setState(
+      {
+        page: 1
+      },
+      () => {
+        this.loadUser();
+      }
+    );
   };
-  handelChange = e => {
-    this.setState({ name: e.target.value });
+  handelChange = value => {
+    this.setState({ name: value && value.trim() });
   };
   render() {
     const {
@@ -321,7 +328,7 @@ export default class EnterpriseUsers extends PureComponent {
               <FormItem>
                 <Input
                   placeholder="搜索用户"
-                  onChange={this.handelChange.bind(this)}
+                  onChange={e => this.handelChange(e.target.value)}
                   onPressEnter={this.handleSearch}
                   style={{ width: 250 }}
                 />

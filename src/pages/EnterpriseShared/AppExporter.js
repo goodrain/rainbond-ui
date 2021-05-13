@@ -344,6 +344,7 @@ export default class AppExporter extends PureComponent {
         <div style={{ marginBottom: '30px' }}>
           导出版本：
           <Select
+            getPopupContainer={triggerNode => triggerNode.parentNode}
             defaultValue={exportVersion}
             onChange={this.handleChange}
             size="small"

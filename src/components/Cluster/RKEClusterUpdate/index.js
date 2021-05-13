@@ -96,6 +96,7 @@ class EditableCell extends React.Component {
         })(
           dataIndex === 'roles' ? (
             <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
               ref={node => (this.input = node)}
               onPressEnter={this.save}
               onBlur={this.save}

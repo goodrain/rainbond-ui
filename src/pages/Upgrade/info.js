@@ -818,6 +818,7 @@ export default class AppList extends PureComponent {
                     rules: [{ required: false, message: '请选择' }]
                   })(
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       disabled={textState != 1}
                       size="small"
                       style={{ width: 120 }}

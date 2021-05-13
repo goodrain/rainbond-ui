@@ -104,6 +104,7 @@ class EvnOption extends React.Component {
           })(
             <Select
               mode="multiple"
+              getPopupContainer={triggerNode => triggerNode.parentNode}
               onChange={values => {
                 this.handleOnchange('protocol', values);
               }}
@@ -122,6 +123,7 @@ class EvnOption extends React.Component {
             rules: [{ required: true, message: '属性名' }]
           })(
             <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
               onChange={values => {
                 this.handleOnchange('attr_type', values);
               }}
@@ -169,6 +171,7 @@ class EvnOption extends React.Component {
             rules: [{ required: false, message: '默认值' }]
           })(
             <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
               onChange={values => {
                 this.handleOnchange('is_change', values);
               }}

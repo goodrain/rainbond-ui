@@ -113,6 +113,7 @@ class ConfirmModal extends PureComponent {
               ]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 mode="multiple"
                 placeholder="请选择角色"
                 style={{ width: '100%' }}

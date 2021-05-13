@@ -132,6 +132,7 @@ export default class Index extends PureComponent {
                     ]
                   })(
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       onChange={this.handleRegionChange}
                       style={{ width: '100%' }}
                     >

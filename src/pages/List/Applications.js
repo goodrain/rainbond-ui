@@ -169,6 +169,9 @@ export default class FilterCardList extends PureComponent {
                       {}
                     )(
                       <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
                         onChange={this.handleFormSubmit}
                         placeholder="不限"
                         style={{ maxWidth: 200, width: '100%' }}
@@ -185,6 +188,9 @@ export default class FilterCardList extends PureComponent {
                       {}
                     )(
                       <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
                         onChange={this.handleFormSubmit}
                         placeholder="不限"
                         style={{ maxWidth: 200, width: '100%' }}

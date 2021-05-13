@@ -1114,6 +1114,9 @@ export default class Main extends PureComponent {
                       ]
                     })(
                       <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
                         style={{ width: 280 }}
                         onChange={this.changeCurrentModel}
                         placeholder="选择发布的应用模版"
