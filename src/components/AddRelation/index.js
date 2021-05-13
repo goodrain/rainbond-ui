@@ -116,6 +116,7 @@ export default class AddRelation extends PureComponent {
           </FormItem>
           <FormItem>
             <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
               size="small"
               style={{ width: 100 }}
               value={this.state.condition}

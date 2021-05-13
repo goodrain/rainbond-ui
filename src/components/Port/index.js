@@ -1,15 +1,12 @@
 import {
-    Button, Form,
-
-    Icon,
-
-
-    Modal,
-
-    notification, Select, Switch,
-
-
-    Table
+  Button,
+  Form,
+  Icon,
+  Modal,
+  notification,
+  Select,
+  Switch,
+  Table
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -24,7 +21,7 @@ const FormItem = Form.Item;
 @connect(({ region, appControl }) => {
   return {
     appDetail: appControl.appDetail,
-    protocols: region.protocols || [],
+    protocols: region.protocols || []
   };
 })
 class ChangeProtocol extends PureComponent {
@@ -34,7 +31,7 @@ class ChangeProtocol extends PureComponent {
       value: this.props.protocol || 'http',
       visibleModal: false,
       agreement: '',
-      NotHttpConnectInfo: [],
+      NotHttpConnectInfo: []
     };
   }
   onChange = value => {
@@ -53,16 +50,17 @@ class ChangeProtocol extends PureComponent {
         layout="inline"
         style={{
           position: 'relative',
-          top: -8,
+          top: -8
         }}
       >
         <FormItem>
           <Select
+            getPopupContainer={triggerNode => triggerNode.parentNode}
             onChange={this.onChange}
             size="small"
             value={this.state.value}
             style={{
-              width: 80,
+              width: 80
             }}
           >
             {protocols.map(item => {
@@ -89,7 +87,7 @@ class ChangeProtocol extends PureComponent {
 
 @connect(({ user, appControl }) => ({
   currUser: user.currentUser,
-  appDetail: appControl.appDetail,
+  appDetail: appControl.appDetail
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -99,7 +97,7 @@ export default class Index extends PureComponent {
       showEditAlias: null,
       showDomain: false,
       showPort: false,
-      list: [],
+      list: []
     };
   }
   onSubmitProtocol = protocol => {
@@ -163,7 +161,7 @@ export default class Index extends PureComponent {
       type: 'gateWay/fetchEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: record.service_name,
+        app_alias: record.service_name
       },
       callback: data => {
         if (data) {
@@ -176,16 +174,16 @@ export default class Index extends PureComponent {
           this.setState({
             visibleModal: true,
             agreement: record,
-            NotHttpConnectInfo: dataList || [],
+            NotHttpConnectInfo: dataList || []
           });
         }
-      },
+      }
     });
   };
   rowKey = (record, index) => index;
   handeModalCancel = () => {
     this.setState({
-      visibleModal: false,
+      visibleModal: false
     });
   };
 
@@ -207,15 +205,15 @@ export default class Index extends PureComponent {
         type: 'appControl/getInstanceList',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          app_alias: appDetail.service.service_alias,
+          app_alias: appDetail.service.service_alias
         },
         callback: res => {
           if (res && res.status_code === 200) {
             this.setState({
-              list: res.list,
+              list: res.list
             });
           }
-        },
+        }
       });
     }
   };
@@ -231,20 +229,20 @@ export default class Index extends PureComponent {
             title: '变量名',
             dataIndex: 'attr_name',
             key: 'attr_name',
-            align: 'center',
+            align: 'center'
           },
           {
             title: '变量值',
             dataIndex: 'attr_value',
             key: 'attr_value',
-            align: 'center',
+            align: 'center'
           },
           {
             title: '说明',
             dataIndex: 'name',
             key: 'name',
-            align: 'center',
-          },
+            align: 'center'
+          }
         ]}
         pagination={false}
         dataSource={infoArr}
@@ -259,7 +257,7 @@ export default class Index extends PureComponent {
     const showAlias = appPortUtil.getShowAlias(port);
     const domains = appPortUtil.getDomains(port);
     const tcp_domains = appPortUtil.getTcpDomains(port);
-    let {showDomain} = this.props;
+    let { showDomain } = this.props;
     const DomainText = this.domainsText(domains);
     const { agreement } = this.state;
     // 是否显示对外访问地址,创建过程中不显示
@@ -283,7 +281,7 @@ export default class Index extends PureComponent {
       });
     }
 
-    const {teams} = currUser;
+    const { teams } = currUser;
     const teamName = globalUtil.getCurrTeamName();
     const currenTeams = teams.filter(item => {
       return item.team_name == teamName;
@@ -300,28 +298,28 @@ export default class Index extends PureComponent {
         className={styles.table}
         style={{
           width: '100%',
-          marginBottom: 8,
+          marginBottom: 8
         }}
       >
         <thead>
           <tr>
             <th
               style={{
-                width: 60,
+                width: 60
               }}
             >
               端口号
             </th>
             <th
               style={{
-                width: 100,
+                width: 100
               }}
             >
               端口协议
             </th>
             <th
               style={{
-                width: '50%',
+                width: '50%'
               }}
             >
               服务信息
@@ -329,7 +327,7 @@ export default class Index extends PureComponent {
             {showDomain && (
               <th
                 style={{
-                  width: '30%',
+                  width: '30%'
                 }}
               >
                 访问策略
@@ -337,7 +335,7 @@ export default class Index extends PureComponent {
             )}
             <th
               style={{
-                width: 100,
+                width: 100
               }}
             >
               操作
@@ -368,7 +366,7 @@ export default class Index extends PureComponent {
                 style={{
                   borderBottom: '1px solid #e8e8e8',
                   marginBottom: 8,
-                  paddingBottom: 8,
+                  paddingBottom: 8
                 }}
               >
                 <p>
@@ -454,7 +452,7 @@ export default class Index extends PureComponent {
                                 onClick={() => {
                                   this.props.onDeleteDomain({
                                     port: port.container_port,
-                                    domain: domain.domain_name,
+                                    domain: domain.domain_name
                                   });
                                 }}
                                 className={styles.removePort}
@@ -504,7 +502,7 @@ export default class Index extends PureComponent {
                                 onClick={() => {
                                   this.props.onDeleteDomain({
                                     port: port.container_port,
-                                    domain: domain.domain_name,
+                                    domain: domain.domain_name
                                   });
                                 }}
                                 className={styles.removePort}
@@ -591,7 +589,7 @@ export default class Index extends PureComponent {
                     style={{
                       wordBreak: 'break-all',
                       wordWrap: 'break-word',
-                      color: '#1890ff',
+                      color: '#1890ff'
                     }}
                   >
                     <Button size="small">管理访问策略</Button>

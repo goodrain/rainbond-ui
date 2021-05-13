@@ -1,11 +1,5 @@
 /* eslint-disable camelcase */
-import {
-  Button,
-  Drawer,
-  Form,
-
-  Select
-} from 'antd';
+import { Button, Drawer, Form, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
@@ -18,7 +12,7 @@ const { Option } = Select;
   currUser: user.currentUser,
   groups: global.groups,
   addTcpLoading: loading.effects['gateWay/addTcp'],
-  editTcpLoading: loading.effects['gateWay/editTcp'],
+  editTcpLoading: loading.effects['gateWay/editTcp']
 }))
 class DrawerForm extends PureComponent {
   constructor(props) {
@@ -28,7 +22,7 @@ class DrawerForm extends PureComponent {
       portList: [],
       domain_port: '',
       end_point: '',
-      isPerform: true,
+      isPerform: true
     };
   }
   resolveOk = e => {
@@ -47,15 +41,15 @@ class DrawerForm extends PureComponent {
     this.props.dispatch({
       type: 'gateWay/querydomain_port',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
         if (data) {
           this.setState({
-            domain_port: data.list,
+            domain_port: data.list
           });
         }
-      },
+      }
     });
     const { editInfo } = this.props;
     if (editInfo) {
@@ -75,7 +69,7 @@ class DrawerForm extends PureComponent {
       type: 'application/fetchApps',
       payload: {
         group_id: groupObj.key,
-        team_name,
+        team_name
       },
       callback: data => {
         if (data) {
@@ -84,18 +78,18 @@ class DrawerForm extends PureComponent {
               if (isPerform && editInfo) {
                 this.handlePorts(editInfo.service_id, true);
                 this.props.form.setFieldsValue({
-                  service_id: editInfo.service_id,
+                  service_id: editInfo.service_id
                 });
               } else {
                 this.handlePorts(data.list[0].service_id, false);
                 this.props.form.setFieldsValue({
-                  service_id: data.list[0].service_id,
+                  service_id: data.list[0].service_id
                 });
               }
             }
           });
         }
-      },
+      }
     });
   };
   /** 获取端口 */
@@ -115,7 +109,7 @@ class DrawerForm extends PureComponent {
           service_obj.length > 0 &&
           service_obj[0].service_alias &&
           service_obj[0].service_alias,
-        team_name,
+        team_name
       },
       callback: data => {
         if (data) {
@@ -123,20 +117,20 @@ class DrawerForm extends PureComponent {
             if (data.list && data.list.length > 0) {
               if (isPerform && editInfo) {
                 this.setState({
-                  isPerform: false,
+                  isPerform: false
                 });
                 this.props.form.setFieldsValue({
-                  container_port: editInfo.container_port,
+                  container_port: editInfo.container_port
                 });
               } else {
                 this.props.form.setFieldsValue({
-                  container_port: data.list[0].container_port,
+                  container_port: data.list[0].container_port
                 });
               }
             }
           });
         }
-      },
+      }
     });
   };
   handleChange = data => {};
@@ -162,19 +156,19 @@ class DrawerForm extends PureComponent {
       editInfo,
       addTcpLoading,
       editTcpLoading,
-      appID,
+      appID
     } = this.props;
     const { getFieldDecorator } = this.props.form;
     const { domain_port } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 },
+        sm: { span: 4 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 },
-      },
+        sm: { span: 18 }
+      }
     };
 
     let rule_round;
@@ -187,8 +181,8 @@ class DrawerForm extends PureComponent {
       current_enpoint = [
         {
           ip: end_pointArr[0],
-          available_port: end_pointArr[1],
-        },
+          available_port: end_pointArr[1]
+        }
       ];
     }
 
@@ -206,14 +200,14 @@ class DrawerForm extends PureComponent {
             closable
             zIndex={1001}
             style={{
-              overflow: 'auto',
+              overflow: 'auto'
             }}
           >
             <Form>
               <h3
                 style={{
                   borderBottom: '1px solid #BBBBBB',
-                  marginBottom: '10px',
+                  marginBottom: '10px'
                 }}
               >
                 路由规则
@@ -222,7 +216,7 @@ class DrawerForm extends PureComponent {
               <FormItem {...formItemLayout} label="IP">
                 {getFieldDecorator('end_point', {
                   rules: [{ required: true, validator: this.checkport }],
-                  initialValue: editInfo ? current_enpoint[0] : domain_port[0],
+                  initialValue: editInfo ? current_enpoint[0] : domain_port[0]
                 })(
                   <PortInput
                     current_enpoint={current_enpoint}
@@ -234,7 +228,7 @@ class DrawerForm extends PureComponent {
               <h3
                 style={{
                   borderBottom: '1px solid #BBBBBB',
-                  marginBottom: '10px',
+                  marginBottom: '10px'
                 }}
               >
                 访问目标
@@ -252,11 +246,12 @@ class DrawerForm extends PureComponent {
                     : editInfo && editInfo.g_id && editInfo.group_name
                     ? {
                         key: editInfo.g_id,
-                        label: editInfo.group_name,
+                        label: editInfo.group_name
                       }
-                    : undefined,
+                    : undefined
                 })(
                   <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
                     labelInValue
                     disabled={appID}
                     placeholder="请选择要所属应用"
@@ -285,9 +280,13 @@ class DrawerForm extends PureComponent {
                       : this.state.serviceComponentList &&
                         this.state.serviceComponentList.length > 0
                       ? this.state.serviceComponentList[0].service_id
-                      : undefined,
+                      : undefined
                 })(
-                  <Select placeholder="请选择组件" onChange={this.handlePorts}>
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder="请选择组件"
+                    onChange={this.handlePorts}
+                  >
                     {(this.state.serviceComponentList || []).map(
                       (service, index) => {
                         return (
@@ -312,9 +311,12 @@ class DrawerForm extends PureComponent {
                       ? editInfo.container_port
                       : this.state.portList && this.state.portList.length > 0
                       ? this.state.portList[0].container_port
-                      : undefined,
+                      : undefined
                 })(
-                  <Select placeholder="请选择端口号">
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder="请选择端口号"
+                  >
                     {(this.state.portList || []).map((port, index) => {
                       return (
                         <Option value={port.container_port} key={index}>
@@ -331,9 +333,12 @@ class DrawerForm extends PureComponent {
                 style={{ zIndex: 10011 }}
               >
                 {getFieldDecorator('rule_extensions', {
-                  initialValue: rule_round || 'round-robin',
+                  initialValue: rule_round || 'round-robin'
                 })(
-                  <Select placeholder="请选择负载均衡类型">
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder="请选择负载均衡类型"
+                  >
                     <Option value="round-robin">轮询</Option>
                   </Select>
                 )}
@@ -350,12 +355,12 @@ class DrawerForm extends PureComponent {
                 left: 0,
                 background: '#fff',
                 borderRadius: '0 0 4px 4px',
-                zIndex: 99999,
+                zIndex: 99999
               }}
             >
               <Button
                 style={{
-                  marginRight: 8,
+                  marginRight: 8
                 }}
                 onClick={onClose}
               >

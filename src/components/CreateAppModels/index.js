@@ -496,6 +496,7 @@ class CreateAppModels extends PureComponent {
                 })(
                   isShared ? (
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       placeholder="请选择发布范围"
                       dropdownRender={menu => (
                         <div>
@@ -561,6 +562,7 @@ class CreateAppModels extends PureComponent {
                 ]
               })(
                 <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
                   mode="tags"
                   style={{ width: '100%' }}
                   onSelect={this.handleOnSelect}
