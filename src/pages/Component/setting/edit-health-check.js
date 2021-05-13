@@ -89,7 +89,7 @@ export default class EditHealthCheck extends PureComponent {
   };
 
   render() {
-    const { title, onCancel, ports } = this.props;
+    const { title, onCancel, ports, loading = false } = this.props;
     const data = this.props.data || {};
     const formItemLayout = {
       labelCol: {
@@ -120,6 +120,7 @@ export default class EditHealthCheck extends PureComponent {
         maskClosable={false}
         onCancel={onCancel}
         visible
+        confirmLoading={loading}
       >
         <Form onSubmit={this.handleSubmit}>
           {prolist && prolist.length > 0 ? (

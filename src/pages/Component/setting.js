@@ -76,7 +76,8 @@ export default class Index extends React.Component {
       page: 1,
       page_size: 5,
       total: 0,
-      env_name: ''
+      env_name: '',
+      loading: false
     };
   }
   componentDidMount() {
@@ -353,6 +354,9 @@ export default class Index extends React.Component {
   };
   handleEditHealth = vals => {
     const { startProbe } = this.props;
+    this.setState({
+      loading: true
+    });
     if (appProbeUtil.isStartProbeUsed(this.state.editStartHealth)) {
       this.props.dispatch({
         type: 'appControl/editStartProbe',
@@ -429,7 +433,7 @@ export default class Index extends React.Component {
     this.setState({ viewRunHealth: null });
   };
   onCancelEditStartProbe = () => {
-    this.setState({ editStartHealth: null });
+    this.setState({ editStartHealth: null, loading: false });
   };
   onCancelEditRunProbe = () => {
     this.setState({ editRunHealth: null });
@@ -662,7 +666,14 @@ export default class Index extends React.Component {
       teamControl,
       componentPermissions: { isDeploytype, isCharacteristic, isHealth }
     } = this.props;
-    const { viewStartHealth, is_fix, tags, tabData, isShow } = this.state;
+    const {
+      viewStartHealth,
+      is_fix,
+      tags,
+      tabData,
+      isShow,
+      loading
+    } = this.state;
 
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const formItemLayout = {
@@ -779,7 +790,7 @@ export default class Index extends React.Component {
             }}
             title={
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                健康检测1
+                健康检测
                 {startProbe && (
                   <div>
                     <a
@@ -909,6 +920,7 @@ export default class Index extends React.Component {
             title="健康检测"
             data={this.state.editStartHealth}
             onCancel={this.onCancelEditStartProbe}
+            loading={loading}
           />
         )}
         {this.state.toEditAction && (
