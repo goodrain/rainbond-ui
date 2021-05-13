@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
@@ -597,7 +598,7 @@ export default class Index extends PureComponent {
         dataIndex: 'metric',
         key: 'metric',
         width: '70%',
-        render: (text, record) => (
+        render: (_, record) => (
           <Tooltip title={record.metric.host}>
             <div
               style={{
@@ -620,22 +621,18 @@ export default class Index extends PureComponent {
         dataIndex: 'value',
         key: 'value',
         width: '30%',
-        sorter: (a, b) => a.range - b.range,
-        render: (text, record) => (
-          // <Trend flag={record.status === 1 ? 'down' : 'up'}>
+        render: (_, record) => (
           <span
             style={{
               wordBreak: 'break-all',
               wordWrap: 'break-word',
               marginRight: 4,
               display: 'inline-block'
-              // minHeight: "35px"
             }}
           >
             {record.value[1]}
           </span>
         ),
-        // </Trend>
         align: 'right'
       }
     ];
@@ -646,7 +643,7 @@ export default class Index extends PureComponent {
         dataIndex: 'metric',
         key: 'metric',
         width: '65%',
-        render: (text, record) => (
+        render: (_, record) => (
           <Link
             to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
               record.metric.service_alias
@@ -674,8 +671,7 @@ export default class Index extends PureComponent {
         dataIndex: 'value',
         key: 'value',
         width: '35%',
-        sorter: (a, b) => a.range - b.range,
-        render: (text, record) => (
+        render: (_, record) => (
           <span
             style={{
               display: 'inline-block',
