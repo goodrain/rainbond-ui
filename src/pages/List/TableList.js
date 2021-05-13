@@ -1,32 +1,31 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
 import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Input,
-  Select,
-  Icon,
   Button,
-  Dropdown,
-  Menu,
-  InputNumber,
+  Card,
+  Col,
   DatePicker,
+  Dropdown,
+  Form,
+  Icon,
+  Input,
+  InputNumber,
+  Menu,
+  message,
   Modal,
-  message
-} from "antd";
-import StandardTable from "../../components/StandardTable";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-
-import styles from "./TableList.less";
+  Row,
+  Select
+} from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import StandardTable from '../../components/StandardTable';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import styles from './TableList.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const getValue = obj =>
   Object.keys(obj)
     .map(key => obj[key])
-    .join(",");
+    .join(',');
 
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, handleAdd, handleModalVisible } = props;
@@ -44,9 +43,9 @@ const CreateForm = Form.create()(props => {
       onCancel={() => handleModalVisible()}
     >
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="描述">
-        {form.getFieldDecorator("desc", {
+        {form.getFieldDecorator('desc', {
           rules: [
-            { required: true, message: "Please input some description..." }
+            { required: true, message: 'Please input some description...' }
           ]
         })(<Input placeholder="请输入" />)}
       </FormItem>
@@ -70,7 +69,7 @@ export default class TableList extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: "rule/fetch"
+      type: 'rule/fetch'
     });
   }
 
@@ -95,7 +94,7 @@ export default class TableList extends PureComponent {
     }
 
     dispatch({
-      type: "rule/fetch",
+      type: 'rule/fetch',
       payload: params
     });
   };
@@ -107,7 +106,7 @@ export default class TableList extends PureComponent {
       formValues: {}
     });
     dispatch({
-      type: "rule/fetch",
+      type: 'rule/fetch',
       payload: {}
     });
   };
@@ -125,11 +124,11 @@ export default class TableList extends PureComponent {
     if (!selectedRows) return;
 
     switch (e.key) {
-      case "remove":
+      case 'remove':
         dispatch({
-          type: "rule/remove",
+          type: 'rule/remove',
           payload: {
-            no: selectedRows.map(row => row.no).join(",")
+            no: selectedRows.map(row => row.no).join(',')
           },
           callback: () => {
             this.setState({
@@ -167,7 +166,7 @@ export default class TableList extends PureComponent {
       });
 
       dispatch({
-        type: "rule/fetch",
+        type: 'rule/fetch',
         payload: values
       });
     });
@@ -181,13 +180,13 @@ export default class TableList extends PureComponent {
 
   handleAdd = fields => {
     this.props.dispatch({
-      type: "rule/add",
+      type: 'rule/add',
       payload: {
         description: fields.desc
       }
     });
 
-    message.success("添加成功");
+    message.success('添加成功');
     this.setState({
       modalVisible: false
     });
@@ -200,13 +199,17 @@ export default class TableList extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="规则编号">
-              {getFieldDecorator("no")(<Input placeholder="请输入" />)}
+              {getFieldDecorator('no')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="使用状态">
-              {getFieldDecorator("status")(
-                <Select placeholder="请选择" style={{ width: "100%" }}>
+              {getFieldDecorator('status')(
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder="请选择"
+                  style={{ width: '100%' }}
+                >
                   <Option value="0">关闭</Option>
                   <Option value="1">运行中</Option>
                 </Select>
@@ -238,13 +241,13 @@ export default class TableList extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="规则编号">
-              {getFieldDecorator("no")(<Input placeholder="请输入" />)}
+              {getFieldDecorator('no')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="使用状态">
-              {getFieldDecorator("status")(
-                <Select placeholder="请选择" style={{ width: "100%" }}>
+              {getFieldDecorator('status')(
+                <Select placeholder="请选择" style={{ width: '100%' }}>
                   <Option value="0">关闭</Option>
                   <Option value="1">运行中</Option>
                 </Select>
@@ -253,8 +256,8 @@ export default class TableList extends PureComponent {
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="调用次数">
-              {getFieldDecorator("number")(
-                <InputNumber style={{ width: "100%" }} />
+              {getFieldDecorator('number')(
+                <InputNumber style={{ width: '100%' }} />
               )}
             </FormItem>
           </Col>
@@ -262,9 +265,9 @@ export default class TableList extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="更新日期">
-              {getFieldDecorator("date")(
+              {getFieldDecorator('date')(
                 <DatePicker
-                  style={{ width: "100%" }}
+                  style={{ width: '100%' }}
                   placeholder="请输入更新日期"
                 />
               )}
@@ -272,8 +275,8 @@ export default class TableList extends PureComponent {
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="使用状态">
-              {getFieldDecorator("status3")(
-                <Select placeholder="请选择" style={{ width: "100%" }}>
+              {getFieldDecorator('status3')(
+                <Select placeholder="请选择" style={{ width: '100%' }}>
                   <Option value="0">关闭</Option>
                   <Option value="1">运行中</Option>
                 </Select>
@@ -282,8 +285,8 @@ export default class TableList extends PureComponent {
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="使用状态">
-              {getFieldDecorator("status4")(
-                <Select placeholder="请选择" style={{ width: "100%" }}>
+              {getFieldDecorator('status4')(
+                <Select placeholder="请选择" style={{ width: '100%' }}>
                   <Option value="0">关闭</Option>
                   <Option value="1">运行中</Option>
                 </Select>
@@ -291,8 +294,8 @@ export default class TableList extends PureComponent {
             </FormItem>
           </Col>
         </Row>
-        <div style={{ overflow: "hidden" }}>
-          <span style={{ float: "right", marginBottom: 24 }}>
+        <div style={{ overflow: 'hidden' }}>
+          <span style={{ float: 'right', marginBottom: 24 }}>
             <Button type="primary" htmlType="submit">
               查询
             </Button>

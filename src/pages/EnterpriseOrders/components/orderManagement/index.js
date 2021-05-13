@@ -297,6 +297,7 @@ export default class EnterpriseClusters extends PureComponent {
             <Form layout="inline" style={{ display: 'inline-block' }}>
               <FormItem>
                 <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
                   defaultValue=""
                   style={{ width: 120 }}
                   onChange={this.handelChange}

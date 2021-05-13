@@ -387,6 +387,9 @@ class DrawerForm extends PureComponent {
                           : editInfo.certificate_id
                     })(
                       <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
                         placeholder="请绑定证书"
                         onSelect={this.handeCertificateSelect}
                         dropdownRender={menu => (
@@ -448,7 +451,12 @@ class DrawerForm extends PureComponent {
                           }
                         ]
                       })(
-                        <Select placeholder="请选择签发证书认证配置">
+                        <Select
+                          getPopupContainer={triggerNode =>
+                            triggerNode.parentNode
+                          }
+                          placeholder="请选择签发证书认证配置"
+                        >
                           {Object.keys(AutomaticCertificateDeleteValue).map(
                             item => {
                               return <Option value={item}>{item}</Option>;
@@ -479,7 +487,12 @@ class DrawerForm extends PureComponent {
                     {getFieldDecorator('rule_extensions_round', {
                       initialValue: rule_round || 'round-robin'
                     })(
-                      <Select placeholder="请选择负载均衡类型">
+                      <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
+                        placeholder="请选择负载均衡类型"
+                      >
                         <Option value="round-robin">负载均衡算法：轮询</Option>
                         <Option value="cookie-session-affinity">
                           负载均衡算法：会话保持
@@ -518,6 +531,7 @@ class DrawerForm extends PureComponent {
                     undefined
               })(
                 <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
                   labelInValue
                   disabled={appID}
                   placeholder="请选择要所属应用"
@@ -544,7 +558,11 @@ class DrawerForm extends PureComponent {
                     ? this.state.serviceComponentList[0].service_id
                     : undefined
               })(
-                <Select placeholder="请选择组件" onChange={this.handlePorts}>
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder="请选择组件"
+                  onChange={this.handlePorts}
+                >
                   {(this.state.serviceComponentList || []).map(
                     (service, index) => {
                       return (
@@ -571,7 +589,10 @@ class DrawerForm extends PureComponent {
                     : undefined,
                 rules: [{ required: true, message: '请选择端口号' }]
               })(
-                <Select placeholder="请选择端口号">
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder="请选择端口号"
+                >
                   {(this.state.portList || []).map((port, index) => {
                     return (
                       <Option value={port.container_port} key={index}>

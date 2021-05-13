@@ -1,19 +1,18 @@
-import React, { Component } from 'react';
-import moment from 'moment';
-import { connect } from 'dva';
 import {
-  Form,
-  Card,
-  Select,
-  List,
-  Tag,
-  Icon,
   Avatar,
-  Row,
-  Col,
   Button,
+  Card,
+  Col,
+  Form,
+  Icon,
+  List,
+  Row,
+  Select,
+  Tag
 } from 'antd';
-
+import { connect } from 'dva';
+import moment from 'moment';
+import React, { Component } from 'react';
 import StandardFormRow from '../../components/StandardFormRow';
 import TagSelect from '../../components/TagSelect';
 import styles from './Articles.less';
@@ -26,7 +25,7 @@ const pageSize = 5;
 @Form.create()
 @connect(({ list, loading }) => ({
   list,
-  loading: loading.models.list,
+  loading: loading.models.list
 }))
 export default class SearchList extends Component {
   componentDidMount() {
@@ -36,7 +35,7 @@ export default class SearchList extends Component {
   setOwner = () => {
     const { form } = this.props;
     form.setFieldsValue({
-      owner: ['wzj'],
+      owner: ['wzj']
     });
   };
 
@@ -44,8 +43,8 @@ export default class SearchList extends Component {
     this.props.dispatch({
       type: 'list/appendFetch',
       payload: {
-        count: pageSize,
-      },
+        count: pageSize
+      }
     });
   };
 
@@ -53,31 +52,31 @@ export default class SearchList extends Component {
     const {
       form,
       list: { list },
-      loading,
+      loading
     } = this.props;
     const { getFieldDecorator } = form;
 
     const owners = [
       {
         id: 'wzj',
-        name: '我自己',
+        name: '我自己'
       },
       {
         id: 'wjh',
-        name: '吴家豪',
+        name: '吴家豪'
       },
       {
         id: 'zxx',
-        name: '周星星',
+        name: '周星星'
       },
       {
         id: 'zly',
-        name: '赵丽颖',
+        name: '赵丽颖'
       },
       {
         id: 'ym',
-        name: '姚明',
-      },
+        name: '姚明'
+      }
     ];
 
     const IconText = ({ type, text }) => (
@@ -88,7 +87,7 @@ export default class SearchList extends Component {
     );
 
     const ListContent = ({
-      data: { content, updatedAt, avatar, owner, href },
+      data: { content, updatedAt, avatar, owner, href }
     }) => (
       <div className={styles.listContent}>
         <div className={styles.description}>{content}</div>
@@ -108,8 +107,8 @@ export default class SearchList extends Component {
       wrapperCol: {
         xs: { span: 24 },
         sm: { span: 24 },
-        md: { span: 12 },
-      },
+        md: { span: 12 }
+      }
     };
 
     const loadMore =
@@ -163,9 +162,12 @@ export default class SearchList extends Component {
                 <Col lg={16} md={24} sm={24} xs={24}>
                   <FormItem>
                     {getFieldDecorator('owner', {
-                      initialValue: ['wjh', 'zxx'],
+                      initialValue: ['wjh', 'zxx']
                     })(
                       <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
                         mode="multiple"
                         style={{ maxWidth: 286, width: '100%' }}
                         placeholder="选择 owner"
@@ -240,7 +242,7 @@ export default class SearchList extends Component {
                 actions={[
                   <IconText type="star-o" text={item.star} />,
                   <IconText type="like-o" text={item.like} />,
-                  <IconText type="message" text={item.message} />,
+                  <IconText type="message" text={item.message} />
                 ]}
                 extra={<div className={styles.listItemExtra} />}
               >

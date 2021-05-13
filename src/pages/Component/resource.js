@@ -895,6 +895,7 @@ export default class Index extends PureComponent {
                     ]
                   })(
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       onChange={this.handleProvinceChange}
                       placeholder="请选择OAuth服务"
                     >
@@ -919,6 +920,7 @@ export default class Index extends PureComponent {
                     rules: [{ required: true, message: '请选择项目' }]
                   })(
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       onChange={this.handleProjectChange}
                       dropdownRender={menu => (
                         <div>
@@ -989,7 +991,10 @@ export default class Index extends PureComponent {
                     initialValue: buildSource ? buildSource.code_version : '',
                     rules: [{ required: true, message: '请输入代码版本' }]
                   })(
-                    <Select placeholder="请输入代码版本">
+                    <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
+                      placeholder="请输入代码版本"
+                    >
                       <OptGroup
                         label={
                           <Tabs
