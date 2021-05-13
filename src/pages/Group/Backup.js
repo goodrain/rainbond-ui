@@ -321,20 +321,18 @@ export default class AppList extends PureComponent {
         this.fetchBackup();
       },
       handleError: res => {
-        if (res) {
-          if (res.data && res.data.code) {
-            if (res.data.code === 4122) {
-              this.setState({
-                warningText: '备份有异常 ：组件使用了自定义存储，是否强制备份',
-                componentList: res.data.data.list || []
-              });
-            }
-            if (res.data.code === 4121) {
-              this.setState({
-                warningText: '备份有异常 ：有状态组件未停止，是否强制备份',
-                componentList: res.data.data.list || []
-              });
-            }
+        if (res && res.data && res.data.code) {
+          const { code } = res.data;
+          if (code === 4122 || code === 4121) {
+            this.setState({
+              warningText:
+                code === 4122
+                  ? '备份有异常 ：组件使用了自定义存储，是否强制备份'
+                  : '备份有异常 ：有状态组件未停止，是否强制备份',
+              componentList: res.data.data.list || []
+            });
+          } else if (res.data.msg_show) {
+            notification.warning({ message: res.data.msg_show });
           }
         }
       }
