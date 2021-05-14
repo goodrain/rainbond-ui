@@ -18,6 +18,7 @@ import {
   getAppResourcesStatistics,
   getBackup,
   getBackupStatus,
+  getComponentVersion,
   getGroupApps,
   getGroupDetail,
   getPluginShareEventInShareApp,
@@ -127,6 +128,12 @@ export default {
         if (callback) {
           callback(response);
         }
+      }
+    },
+    *fetchComponentVersion({ payload, callback, handleError }, { call }) {
+      const response = yield call(getComponentVersion, payload, handleError);
+      if (response && callback) {
+        callback(response);
       }
     },
     *fetchToupgrade({ payload, callback }, { call }) {
