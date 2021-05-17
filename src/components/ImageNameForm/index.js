@@ -2,8 +2,8 @@ import { Button, Form, Input, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
+import Application from '../../components/Application';
 import globalUtil from '../../utils/global';
-
 const { Option } = Select;
 
 const formItemLayout = {
@@ -83,17 +83,29 @@ export default class Index extends PureComponent {
   };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, createAppByDockerrunLoading } = this.props;
+    const {
+      groups,
+      createAppByDockerrunLoading,
+      showCreateGroup,
+      handleType
+    } = this.props;
     const data = this.props.data || {};
     const showSubmitBtn =
       this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
-    const showCreateGroup =
+    const showCreateGroups =
       this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
     const disableds = this.props.disableds || [];
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Application
+            handleType={handleType}
+            showCreateGroup={showCreateGroup}
+            team_name={globalUtil.getCurrTeamName()}
+            region_name={globalUtil.getCurrRegionName()}
+            data={data}
+          />
+          {/* <Form.Item {...formItemLayout} label="应用名称">
             {getFieldDecorator('group_id', {
               initialValue:
                 this.props.handleType && this.props.handleType === 'Service'
@@ -109,7 +121,7 @@ export default class Index extends PureComponent {
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 disabled={disableds.indexOf('group_id') > -1}
-                placeholder="请选择要所属应用"
+                placeholder="请选择要所属应用111"
                 style={{
                   display: 'inline-block',
                   width:
@@ -133,7 +145,7 @@ export default class Index extends PureComponent {
             this.props.handleType === 'Service' ? null : showCreateGroup ? (
               <Button onClick={this.onAddGroup}>新建应用</Button>
             ) : null}
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',

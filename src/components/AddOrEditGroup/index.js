@@ -1,17 +1,35 @@
 import { Form, Input, Modal } from 'antd';
+import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
-
 const FormItem = Form.Item;
-
+@connect()
 @Form.create()
 export default class EditGroupName extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      addGroupLoading: false
+    };
+  }
+  handleCannelLoading = () => {
+    this.setState({
+      addGroupLoading: false
+    });
+  };
   onOk = e => {
     e.preventDefault();
-    const { form, onOk } = this.props;
+    const { form, onOk, dispatch, team_name, region_name } = this.props;
     form.validateFields({ force: true }, (err, vals) => {
       if (!err && onOk) {
-        onOk(vals);
+        this.setState({
+          addGroupLoading: true
+        });
+        // 新建应用的异步
+        setTimeout(() => {
+          this.handleCannelLoading();
+          onOk(vals);
+        }, 2000);
       }
     });
   };
@@ -24,6 +42,7 @@ export default class EditGroupName extends PureComponent {
       note,
       loading = false
     } = this.props;
+    const { addGroupLoading } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -39,7 +58,7 @@ export default class EditGroupName extends PureComponent {
       <Modal
         title={title || '新建应用'}
         visible
-        confirmLoading={loading}
+        confirmLoading={addGroupLoading}
         className={styles.TelescopicModal}
         onCancel={onCancel}
         onOk={this.onOk}

@@ -9,7 +9,6 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
-
 const FormItem = Form.Item;
 /* eslint react/no-array-index-key: 0 */
 
@@ -30,7 +29,8 @@ export default class AppList extends PureComponent {
       page: 1,
       query: '',
       pageSize: 10,
-      operationPermissions: this.handlePermissions('queryAppInfo')
+      operationPermissions: this.handlePermissions('queryAppInfo'),
+      addGroup: false
     };
   }
   componentWillMount() {
@@ -142,7 +142,7 @@ export default class AppList extends PureComponent {
       operationPermissions: { isCreate }
     } = this.state;
     let breadcrumbList = [];
-
+    console.log(addGroup, 'addGroup');
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
       currentTeam,
@@ -178,7 +178,7 @@ export default class AppList extends PureComponent {
               style={{ float: 'right', marginBottom: '20px' }}
               onClick={this.onAddGroup}
             >
-              新建应用
+              新建应用11
             </Button>
           )}
         </Row>

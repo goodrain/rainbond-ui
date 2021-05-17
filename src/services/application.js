@@ -275,6 +275,7 @@ export async function editGroup(body = {}) {
 /*
   组
 */
+
 export async function addGroup(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups`,

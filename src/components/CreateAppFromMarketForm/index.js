@@ -1,10 +1,10 @@
 import { Button, Form, Modal, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import AddGroup from '../../components/AddOrEditGroup';
+import Application from '../../components/Application';
+// import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
-
 const { Option } = Select;
 const formItemLayout = {
   labelCol: {
@@ -170,8 +170,16 @@ export default class Index extends PureComponent {
               </Select>
             )}
           </Form.Item>
-
-          <Form.Item {...formItemLayout} label="选择应用">
+          <Application
+            showCreateGroup
+            team_name={globalUtil.getCurrTeamName()}
+            region_name={globalUtil.getCurrRegionName()}
+            data={data}
+            selectWidth={220}
+            labelName="选择应用"
+            placeholder="请选择应用"
+          />
+          {/* <Form.Item {...formItemLayout} label="选择应用">
             {getFieldDecorator('group_id', {
               initialValue: data.groupd_id,
               rules: [
@@ -183,7 +191,7 @@ export default class Index extends PureComponent {
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择应用"
+                placeholder="请选择应用111"
                 style={{
                   display: 'inline-block',
                   width: 220,
@@ -198,7 +206,7 @@ export default class Index extends PureComponent {
               </Select>
             )}
             <Button onClick={this.onAddGroup}>新建应用</Button>
-          </Form.Item>
+          </Form.Item> */}
           {this.state.addGroup && (
             <AddGroup
               onCancel={this.cancelAddGroup}

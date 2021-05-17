@@ -4,7 +4,7 @@
 import { Button, Checkbox, Col, Form, Input, Row, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import AddGroup from '../../components/AddOrEditGroup';
+import Application from '../../components/Application';
 import ShowRegionKey from '../../components/ShowRegionKey';
 import globalUtil from '../../utils/global';
 
@@ -245,7 +245,16 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Application
+            handleType={handleType}
+            showCreateGroup={showCreateGroup}
+            team_name={globalUtil.getCurrTeamName()}
+            region_name={globalUtil.getCurrRegionName()}
+            data={data}
+            form={form}
+          />
+          {/* start */}
+          {/* <Form.Item {...formItemLayout} label="应用名称">
             {getFieldDecorator('group_id', {
               initialValue:
                 handleType && handleType === 'Service'
@@ -254,7 +263,7 @@ export default class Index extends PureComponent {
               rules: [{ required: true, message: '请选择' }]
             })(
               <Select
-                placeholder="请选择要所属应用"
+                placeholder="请选择要所属应用111"
                 style={{
                   display: 'inline-block',
                   width: handleType && handleType === 'Service' ? '' : 292,
@@ -273,7 +282,8 @@ export default class Index extends PureComponent {
             handleType === 'Service' ? null : showCreateGroups ? (
               <Button onClick={this.onAddGroup}>新建应用</Button>
             ) : null}
-          </Form.Item>
+          </Form.Item> */}
+          {/* end */}
           <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
@@ -299,7 +309,6 @@ export default class Index extends PureComponent {
           {gitUrl &&
             isHttp &&
             this.fetchCheckboxGroup('showUsernameAndPass', serverType)}
-
           {showUsernameAndPass && isHttp && (
             <Form.Item {...formItemLayout} label="仓库用户名">
               {getFieldDecorator('username_1', {
@@ -322,7 +331,6 @@ export default class Index extends PureComponent {
               )}
             </Form.Item>
           )}
-
           {subdirectories && serverType !== 'svn' && (
             <Form.Item {...formItemLayout} label="子目录路径">
               {getFieldDecorator('subdirectories', {
@@ -342,7 +350,6 @@ export default class Index extends PureComponent {
               />
             )}
           </Form.Item>
-
           {showSubmitBtns ? (
             <Form.Item
               wrapperCol={{

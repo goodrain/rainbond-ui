@@ -14,9 +14,9 @@ import {
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
+import Application from '../../components/Application';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
-
 const FormItem = Form.Item;
 
 const RadioGroup = Radio.Group;
@@ -215,7 +215,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, rainbondInfo } = this.props;
+    const { groups, rainbondInfo, handleType, showCreateGroup } = this.props;
     const {
       showUsernameAndPass,
       showKey,
@@ -233,11 +233,20 @@ export default class Index extends PureComponent {
     const data = this.props.data || {};
     const showSubmitBtn =
       this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
-    const showCreateGroup =
+    const showCreateGroups =
       this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+          <Application
+            handleType={handleType}
+            showCreateGroup={showCreateGroup}
+            team_name={globalUtil.getCurrTeamName()}
+            region_name={globalUtil.getCurrRegionName()}
+            data={data}
+            selectWidth={handleType && handleType === 'Service' ? 350 : 277}
+            formItemLayout={formItemLayout}
+          />
           <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
@@ -267,7 +276,7 @@ export default class Index extends PureComponent {
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择要所属应用"
+                placeholder="请选择要所属应用111"
                 style={{
                   display: 'inline-block',
                   width:
