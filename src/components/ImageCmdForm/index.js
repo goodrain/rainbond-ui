@@ -1,7 +1,6 @@
 import { Button, Form, Input, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import AddGroup from '../../components/AddOrEditGroup';
 import Application from '../../components/Application';
 import globalUtil from '../../utils/global';
 const { Option } = Select;
@@ -87,7 +86,8 @@ export default class Index extends PureComponent {
       groups,
       createAppByDockerrunLoading,
       showCreateGroup,
-      handleType
+      handleType,
+      form
     } = this.props;
     const data = this.props.data || {};
     const showSubmitBtn =
@@ -104,44 +104,9 @@ export default class Index extends PureComponent {
             team_name={globalUtil.getCurrTeamName()}
             region_name={globalUtil.getCurrRegionName()}
             data={data}
+            form={form}
           />
-          {/* <Form.Item {...formItemLayout} label="应用名称">
-            {getFieldDecorator('group_id', {
-              initialValue:
-                this.props.handleType && this.props.handleType === 'Service'
-                  ? Number(this.props.groupId)
-                  : data.group_id,
-              rules: [{ required: true, message: '请选择' }]
-            })(
-              <Select
-                getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择要所属应用111"
-                style={{
-                  display: 'inline-block',
-                  width:
-                    this.props.handleType && this.props.handleType === 'Service'
-                      ? ''
-                      : 292,
-                  marginRight: 15
-                }}
-                disabled={
-                  this.props.handleType && this.props.handleType === 'Service'
-                    ? true
-                    : false
-                }
-              >
-                {(groups || []).map(group => {
-                  return (
-                    <Option value={group.group_id}>{group.group_name}</Option>
-                  );
-                })}
-              </Select>
-            )}
-            {this.props.handleType &&
-            this.props.handleType === 'Service' ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>新建应用</Button>
-            ) : null}
-          </Form.Item> */}
+
           <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
@@ -231,9 +196,6 @@ export default class Index extends PureComponent {
             </Form.Item>
           ) : null}
         </Form>
-        {this.state.addGroup && (
-          <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
-        )}
       </Fragment>
     );
   }

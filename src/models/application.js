@@ -171,8 +171,8 @@ export default {
         callback(response);
       }
     },
-    *addGroup({ payload, callback }, { call }) {
-      const response = yield call(addGroup, payload);
+    *addGroup({ payload, callback, handleError }, { call }) {
+      const response = yield call(addGroup, payload, handleError);
       if (response && callback) {
         callback(response.bean);
       }

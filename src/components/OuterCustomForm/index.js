@@ -13,7 +13,6 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import AddGroup from '../../components/AddOrEditGroup';
 import Application from '../../components/Application';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
@@ -264,44 +263,6 @@ export default class Index extends PureComponent {
                 }}
               />
             )}
-          </Form.Item>
-
-          <Form.Item {...formItemLayout} label="应用名称">
-            {getFieldDecorator('group_id', {
-              initialValue:
-                this.props.handleType && this.props.handleType === 'Service'
-                  ? Number(this.props.groupId)
-                  : data.group_id,
-              rules: [{ required: true, message: '请选择' }]
-            })(
-              <Select
-                getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择要所属应用111"
-                style={{
-                  display: 'inline-block',
-                  width:
-                    this.props.handleType && this.props.handleType === 'Service'
-                      ? 350
-                      : 277,
-                  marginRight: 15
-                }}
-                disabled={
-                  !!(
-                    this.props.handleType && this.props.handleType === 'Service'
-                  )
-                }
-              >
-                {(groups || []).map(group => (
-                  <Option key={group.group_id} value={group.group_id}>
-                    {group.group_name}
-                  </Option>
-                ))}
-              </Select>
-            )}
-            {this.props.handleType &&
-            this.props.handleType === 'Service' ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>创建新应用</Button>
-            ) : null}
           </Form.Item>
 
           <FormItem {...formItemLayout} label="组件注册方式">
@@ -587,10 +548,6 @@ export default class Index extends PureComponent {
             </Form.Item>
           ) : null}
         </Form>
-        {this.state.addGroup && (
-          <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
-        )}
-        {/* {showKey && isSSH && <ShowRegionKey onCancel={this.hideShowKey} />} */}
       </Fragment>
     );
   }

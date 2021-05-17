@@ -1,7 +1,6 @@
 import { Button, Form, Input, Modal, Select, Tabs, Tag } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import AddGroup from '../../components/AddOrEditGroup';
 import Application from '../../components/Application';
 import configureGlobal from '../../utils/configureGlobal';
 import globalUtil from '../../utils/global';
@@ -203,7 +202,7 @@ export default class Index extends PureComponent {
 
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, createAppByCodeLoading, rainbondInfo } = this.props;
+    const { groups, createAppByCodeLoading, rainbondInfo, form } = this.props;
     const data = this.props.data || {};
     const HeartSvg = () => (
       <svg
@@ -226,26 +225,8 @@ export default class Index extends PureComponent {
           team_name={globalUtil.getCurrTeamName()}
           region_name={globalUtil.getCurrRegionName()}
           data={data}
+          form={form}
         />
-
-        {/* <Form.Item {...formItemLayout} label="应用名称">
-          {getFieldDecorator('group_id', {
-            initialValue: data.groupd_id ? data.groupd_id : undefined,
-            rules: [{ required: true, message: '请选择' }]
-          })(
-            <Select
-              placeholder="请选择要所属应用"
-              style={{ display: 'inline-block', width: 292, marginRight: 15 }}
-            >
-              {(groups || []).map(group => (
-                <Option key={group.group_id} value={group.group_id}>
-                  {group.group_name}
-                </Option>
-              ))}
-            </Select>
-          )}
-          <Button onClick={this.onAddGroup}>新建应用</Button>
-        </Form.Item> */}
         <Form.Item {...formItemLayout} label="组件名称">
           {getFieldDecorator('service_cname', {
             initialValue: data.service_cname || '',
@@ -257,7 +238,6 @@ export default class Index extends PureComponent {
             />
           )}
         </Form.Item>
-
         <Form.Item {...formItemLayout} label={<span>Demo</span>}>
           {getFieldDecorator('git_url', {
             initialValue:
@@ -344,9 +324,6 @@ export default class Index extends PureComponent {
             确认创建
           </Button>
         </Form.Item>
-        {this.state.addGroup && (
-          <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
-        )}
       </Form>
     );
   }

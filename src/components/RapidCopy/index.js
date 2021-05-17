@@ -391,6 +391,8 @@ export default class Index extends PureComponent {
               <AddGroup
                 onCancel={this.cancelAddGroup}
                 onOk={this.handleAddGroup}
+                team_name={team_name}
+                region_name={region_name}
               />
             )}
 

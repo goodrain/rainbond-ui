@@ -1,4 +1,4 @@
-import { Form, Input, Modal } from 'antd';
+import { Form, Input, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
@@ -19,17 +19,55 @@ export default class EditGroupName extends PureComponent {
   };
   onOk = e => {
     e.preventDefault();
-    const { form, onOk, dispatch, team_name, region_name } = this.props;
+    const {
+      form,
+      onOk,
+      dispatch,
+      team_name,
+      region_name,
+      onGroupId
+    } = this.props;
     form.validateFields({ force: true }, (err, vals) => {
-      if (!err && onOk) {
+      if (!err) {
         this.setState({
           addGroupLoading: true
         });
         // 新建应用的异步
-        setTimeout(() => {
-          this.handleCannelLoading();
-          onOk(vals);
-        }, 2000);
+        dispatch({
+          type: 'application/addGroup',
+          payload: {
+            team_name,
+            ...vals
+          },
+          callback: res => {
+            if (res) {
+              // 获取群组
+              dispatch({
+                type: 'global/fetchGroups',
+                payload: {
+                  team_name,
+                  region_name
+                },
+                callback: () => {
+                  if (res) {
+                    notification.success({ message: '新建应用成功！' });
+                    onOk(vals);
+                    onGroupId(res.group_id);
+                    this.handleCannelLoading();
+                  }
+                }
+              });
+            }
+          },
+          handleError: error => {
+            console.log(error, 'error');
+            if (error && error.status) {
+              if (error.status === 400)
+                notification.error({ message: error.data.msg_show });
+              this.handleCannelLoading();
+            }
+          }
+        });
       }
     });
   };

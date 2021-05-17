@@ -19,7 +19,7 @@ const formItemLayouts = {
   null,
   { withRef: true }
 )
-// @Form.create()
+@Form.create()
 class Application extends PureComponent {
   constructor(props) {
     super(props);
@@ -31,6 +31,11 @@ class Application extends PureComponent {
     this.setState({
       addGroup: true
     });
+  };
+  handleGroupId = id => {
+    const { form } = this.props;
+    const { setFieldsValue } = form;
+    setFieldsValue({ group_id: id });
   };
   handleOk = vals => {
     console.log(vals);
@@ -98,6 +103,7 @@ class Application extends PureComponent {
             onCancel={this.handleCancel}
             team_name={team_name}
             region_name={region_name}
+            onGroupId={this.handleGroupId}
           />
         )}
       </Fragment>

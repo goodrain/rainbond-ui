@@ -276,10 +276,11 @@ export async function editGroup(body = {}) {
   组
 */
 
-export async function addGroup(body = {}) {
+export async function addGroup(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups`,
     {
+      handleError,
       method: 'post',
       params: {
         region_name: body.region_name

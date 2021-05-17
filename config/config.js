@@ -47,11 +47,11 @@ export default {
   routes: routerConfig,
   proxy: {
     '/console': {
-      target: 'http://4000.gr7c60a0.2c9v614j.17f4cc.grapps.cn',
+      target: 'http://4000.greb482e.mehc4gqk.ad2eea.grapps.cn/',
       changeOrigin: true
     },
     '/data': {
-      target: 'http://4000.gr7c60a0.2c9v614j.17f4cc.grapps.cn',
+      target: 'http://4000.greb482e.mehc4gqk.ad2eea.grapps.cn/',
       changeOrigin: true
     }
   }
