@@ -214,7 +214,13 @@ export default class Index extends PureComponent {
   };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, rainbondInfo, handleType, showCreateGroup } = this.props;
+    const {
+      groups,
+      rainbondInfo,
+      handleType,
+      showCreateGroup,
+      form
+    } = this.props;
     const {
       showUsernameAndPass,
       showKey,
@@ -245,6 +251,7 @@ export default class Index extends PureComponent {
             data={data}
             selectWidth={handleType && handleType === 'Service' ? 350 : 277}
             formItemLayout={formItemLayout}
+            form={form}
           />
           <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator('service_cname', {

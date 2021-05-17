@@ -30,7 +30,8 @@ export default class AppList extends PureComponent {
       query: '',
       pageSize: 10,
       operationPermissions: this.handlePermissions('queryAppInfo'),
-      addGroup: false
+      addGroup: false,
+      addGroupLoading: false
     };
   }
   componentWillMount() {
@@ -86,7 +87,7 @@ export default class AppList extends PureComponent {
     );
   };
   cancelAddGroup = () => {
-    this.setState({ addGroup: false });
+    this.setState({ addGroup: false, addGroupLoading: false });
   };
 
   handleSearch = () => {
@@ -100,21 +101,12 @@ export default class AppList extends PureComponent {
   };
 
   handleAddGroup = vals => {
-    const { teamName } = this.props.match.params;
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: teamName,
-        ...vals
-      },
-      callback: res => {
-        if (res) {
-          notification.success({ message: '新建成功' });
-          this.getTeamAppList();
-          this.cancelAddGroup();
-        }
-      }
+    this.setState({
+      addGroupLoading: true
     });
+    notification.success({ message: '新建成功' });
+    this.getTeamAppList();
+    this.cancelAddGroup();
   };
 
   jumpToAllbackup = () => {
@@ -139,7 +131,8 @@ export default class AppList extends PureComponent {
       pageSize,
       total,
       addGroup,
-      operationPermissions: { isCreate }
+      operationPermissions: { isCreate },
+      addGroupLoading
     } = this.state;
     let breadcrumbList = [];
     console.log(addGroup, 'addGroup');
@@ -178,7 +171,7 @@ export default class AppList extends PureComponent {
               style={{ float: 'right', marginBottom: '20px' }}
               onClick={this.onAddGroup}
             >
-              新建应用11
+              新建应用
             </Button>
           )}
         </Row>
@@ -188,6 +181,10 @@ export default class AppList extends PureComponent {
             <AddGroup
               onCancel={this.cancelAddGroup}
               onOk={this.handleAddGroup}
+              team_name={globalUtil.getCurrTeamName()}
+              region_name={globalUtil.getCurrRegionName()}
+              isGet
+              loading={addGroupLoading}
             />
           )}
           <ScrollerX sm={800}>

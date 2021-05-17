@@ -32,13 +32,10 @@ class Application extends PureComponent {
       addGroup: true
     });
   };
-  handleGroupId = id => {
+  handleOk = (vals, res) => {
     const { form } = this.props;
     const { setFieldsValue } = form;
-    setFieldsValue({ group_id: id });
-  };
-  handleOk = vals => {
-    console.log(vals);
+    setFieldsValue({ group_id: res.group_id });
     this.handleCancel();
   };
   handleCancel = () => {
@@ -103,7 +100,6 @@ class Application extends PureComponent {
             onCancel={this.handleCancel}
             team_name={team_name}
             region_name={region_name}
-            onGroupId={this.handleGroupId}
           />
         )}
       </Fragment>

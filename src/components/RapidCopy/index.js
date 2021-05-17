@@ -49,7 +49,8 @@ export default class Index extends PureComponent {
       checkAllList: [],
       indeterminate: false,
       checkAll: true,
-      addGroup: false
+      addGroup: false,
+      addGroupLoading: false
     };
   }
   componentDidMount() {
@@ -135,7 +136,7 @@ export default class Index extends PureComponent {
     this.setState({ Loading: false, loading: false });
   };
   cancelAddGroup = () => {
-    this.setState({ addGroup: false });
+    this.setState({ addGroup: false, addGroupLoading: false });
   };
   fetchCopyComponent = () => {
     const { dispatch, groupDetail } = this.props;
@@ -167,7 +168,10 @@ export default class Index extends PureComponent {
     });
   };
 
-  handleAddGroup = vals => {
+  handleAddGroup = (vals, res) => {
+    this.setState({
+      addGroupLoading: true
+    });
     const { getFieldValue } = this.props.form;
     const { userTeamList } = this.state;
     const teamRegion = getFieldValue('teamRegion');
@@ -179,23 +183,10 @@ export default class Index extends PureComponent {
       regionName = arrs && arrs[0].value[1];
     }
     this.handleOpenLoging();
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: teamName || globalUtil.getCurrTeamName(),
-        region_name: regionName || globalUtil.getCurrRegionName(),
-        ...vals
-      },
-      callback: group => {
-        console.log('group', group);
-        if (group) {
-          // 获取群组
-          this.fetchTeamApps(teamName, regionName, group.group_id);
-          this.cancelAddGroup();
-        }
-        this.handleCloseLoging();
-      }
-    });
+
+    this.fetchTeamApps(teamName, regionName, res.group_id);
+    this.cancelAddGroup();
+    this.handleCloseLoging();
   };
 
   // 应用
@@ -338,7 +329,8 @@ export default class Index extends PureComponent {
       Loading,
       addGroup,
       indeterminate,
-      checkAll
+      checkAll,
+      addGroupLoading
     } = this.state;
     const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
     let defaultTeamRegion = '';
@@ -393,6 +385,8 @@ export default class Index extends PureComponent {
                 onOk={this.handleAddGroup}
                 team_name={team_name}
                 region_name={region_name}
+                loading={addGroupLoading}
+                isGet
               />
             )}
 

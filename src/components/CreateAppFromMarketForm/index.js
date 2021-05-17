@@ -90,7 +90,7 @@ export default class Index extends PureComponent {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { groups, onCancel, showCreate } = this.props;
+    const { groups, onCancel, showCreate, form } = this.props;
     const data = this.props.data || {};
 
     const versionsInfo =
@@ -178,35 +178,8 @@ export default class Index extends PureComponent {
             selectWidth={220}
             labelName="选择应用"
             placeholder="请选择应用"
+            form={form}
           />
-          {/* <Form.Item {...formItemLayout} label="选择应用">
-            {getFieldDecorator('group_id', {
-              initialValue: data.groupd_id,
-              rules: [
-                {
-                  required: true,
-                  message: '请选择'
-                }
-              ]
-            })(
-              <Select
-                getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择应用111"
-                style={{
-                  display: 'inline-block',
-                  width: 220,
-                  marginRight: 15
-                }}
-              >
-                {(groups || []).map(group => (
-                  <Option key={group.group_id} value={group.group_id}>
-                    {group.group_name}
-                  </Option>
-                ))}
-              </Select>
-            )}
-            <Button onClick={this.onAddGroup}>新建应用</Button>
-          </Form.Item> */}
           {this.state.addGroup && (
             <AddGroup
               onCancel={this.cancelAddGroup}

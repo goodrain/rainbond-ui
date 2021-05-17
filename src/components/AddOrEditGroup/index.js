@@ -25,7 +25,8 @@ export default class EditGroupName extends PureComponent {
       dispatch,
       team_name,
       region_name,
-      onGroupId
+      loading = false,
+      isGet
     } = this.props;
     form.validateFields({ force: true }, (err, vals) => {
       if (!err) {
@@ -37,10 +38,11 @@ export default class EditGroupName extends PureComponent {
           type: 'application/addGroup',
           payload: {
             team_name,
+            region_name,
             ...vals
           },
           callback: res => {
-            if (res) {
+            if (!isGet && res) {
               // 获取群组
               dispatch({
                 type: 'global/fetchGroups',
@@ -51,12 +53,13 @@ export default class EditGroupName extends PureComponent {
                 callback: () => {
                   if (res) {
                     notification.success({ message: '新建应用成功！' });
-                    onOk(vals);
-                    onGroupId(res.group_id);
+                    onOk(vals, res);
                     this.handleCannelLoading();
                   }
                 }
               });
+            } else {
+              onOk(vals, res);
             }
           },
           handleError: error => {
@@ -96,7 +99,7 @@ export default class EditGroupName extends PureComponent {
       <Modal
         title={title || '新建应用'}
         visible
-        confirmLoading={addGroupLoading}
+        confirmLoading={loading || addGroupLoading}
         className={styles.TelescopicModal}
         onCancel={onCancel}
         onOk={this.onOk}

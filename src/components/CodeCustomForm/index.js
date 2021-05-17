@@ -253,37 +253,6 @@ export default class Index extends PureComponent {
             data={data}
             form={form}
           />
-          {/* start */}
-          {/* <Form.Item {...formItemLayout} label="应用名称">
-            {getFieldDecorator('group_id', {
-              initialValue:
-                handleType && handleType === 'Service'
-                  ? Number(groupId)
-                  : data.group_id,
-              rules: [{ required: true, message: '请选择' }]
-            })(
-              <Select
-                placeholder="请选择要所属应用111"
-                style={{
-                  display: 'inline-block',
-                  width: handleType && handleType === 'Service' ? '' : 292,
-                  marginRight: 15
-                }}
-                disabled={!!(handleType && handleType === 'Service')}
-              >
-                {(groups || []).map(group => (
-                  <Option key={group.group_id} value={group.group_id}>
-                    {group.group_name}
-                  </Option>
-                ))}
-              </Select>
-            )}
-            {handleType &&
-            handleType === 'Service' ? null : showCreateGroups ? (
-              <Button onClick={this.onAddGroup}>新建应用</Button>
-            ) : null}
-          </Form.Item> */}
-          {/* end */}
           <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
@@ -384,9 +353,6 @@ export default class Index extends PureComponent {
             </Form.Item>
           ) : null}
         </Form>
-        {this.state.addGroup && (
-          <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
-        )}
         {visibleKey && isSSH && (
           <ShowRegionKey
             onCancel={this.hideShowKey}

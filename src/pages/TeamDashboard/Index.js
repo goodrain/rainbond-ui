@@ -82,7 +82,8 @@ export default class Index extends PureComponent {
       guidevisible: false,
       GuideList: [],
       loadingOverview: false,
-      loadedOverview: false
+      loadedOverview: false,
+      addGroupLoading: false
     };
   }
 
@@ -551,33 +552,25 @@ export default class Index extends PureComponent {
   }
 
   handleOkApplication = vals => {
+    this.setState({
+      addGroupLoading: true
+    });
     const { dispatch } = this.props;
+    notification.success({ message: '添加成功' });
+    this.handleCancelApplication();
+    this.getTeamAppList();
     dispatch({
-      type: 'application/addGroup',
+      type: 'global/fetchGroups',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_name: vals.group_name,
-        note: vals.note
-      },
-      callback: res => {
-        if (res) {
-          notification.success({ message: '添加成功' });
-          this.handleCancelApplication();
-          this.getTeamAppList();
-          dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName()
-            }
-          });
-        }
+        team_name: globalUtil.getCurrTeamName()
       }
     });
   };
 
   handleCancelApplication = () => [
     this.setState({
-      addApplication: false
+      addApplication: false,
+      addGroupLoading: false
     })
   ];
 
@@ -701,7 +694,8 @@ export default class Index extends PureComponent {
       domainList,
       serviceList,
       loadingOverview,
-      loadedOverview
+      loadedOverview,
+      addGroupLoading
     } = this.state;
 
     const isCreate = roleUtil.queryAppInfo(
@@ -1188,6 +1182,10 @@ export default class Index extends PureComponent {
                   title="新建应用"
                   onCancel={this.handleCancelApplication}
                   onOk={this.handleOkApplication}
+                  team_name={globalUtil.getCurrTeamName()}
+                  region_name={globalUtil.getCurrRegionName()}
+                  isGet
+                  loading={addGroupLoading}
                 />
               )}
             </div>
