@@ -575,15 +575,9 @@ export default class AppList extends PureComponent {
                   </a>
                 )}
               </Fragment>
-              {data.status === 'starting' ||
-              data.status === 'success' ||
-              data.status === 'failed' ? (
-                <Fragment>
-                  <a onClick={this.handleDel.bind(this, data)}>删除</a>
-                </Fragment>
-              ) : (
-                ''
-              )}
+              <Fragment>
+                <a onClick={this.handleDel.bind(this, data)}>删除</a>
+              </Fragment>
             </div>
           );
         }
