@@ -187,7 +187,6 @@ export default class Index extends PureComponent {
         ...vals
       },
       callback: group => {
-        console.log('group', group);
         if (group) {
           // 获取群组
           this.fetchTeamApps(teamName, regionName, group.group_id);
@@ -299,7 +298,7 @@ export default class Index extends PureComponent {
       ...item,
       ...row
     });
-    this.setState({ inputValue: '', dataSource: newData });
+    this.setState({ dataSource: newData });
   };
 
   handleOverDiv = content => {
@@ -318,11 +317,10 @@ export default class Index extends PureComponent {
     callback();
   };
 
-  save = (item, isCodeApp) => {
-    const { inputValue } = this.state;
+  save = (item, isCodeApp, val) => {
     const names = isCodeApp ? 'code_version' : 'version';
     const str = item;
-    str.build_source[names] = inputValue;
+    str.build_source[names] = val;
     this.handleSave({ ...str });
   };
 
@@ -542,19 +540,14 @@ export default class Index extends PureComponent {
                       })(
                         <Input
                           addonBefore={versionSelector}
-                          onPressEnter={() => {
-                            this.save(item, isCodeApp);
+                          onPressEnter={e => {
+                            this.save(item, isCodeApp, e.target.value);
                           }}
-                          onBlur={() => {
-                            this.save(item, isCodeApp);
+                          onBlur={e => {
+                            this.save(item, isCodeApp, e.target.value);
                           }}
                           style={{
                             width: '268px'
-                          }}
-                          onChange={e => {
-                            this.setState({
-                              inputValue: e.target.value
-                            });
                           }}
                         />
                       )}
