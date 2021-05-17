@@ -344,6 +344,9 @@ export default class AppList extends PureComponent {
             });
           } else if (res.data.msg_show) {
             notification.warning({ message: res.data.msg_show });
+            this.setState({
+              loading: false
+            });
           }
         }
       }
@@ -571,9 +574,10 @@ export default class AppList extends PureComponent {
                     导出
                   </a>
                 )}
-                {<a onClick={this.handleDel.bind(this, data)}>删除</a>}
               </Fragment>
-              {data.status === 'failed' ? (
+              {data.status === 'starting' ||
+              data.status === 'success' ||
+              data.status === 'failed' ? (
                 <Fragment>
                   <a onClick={this.handleDel.bind(this, data)}>删除</a>
                 </Fragment>
