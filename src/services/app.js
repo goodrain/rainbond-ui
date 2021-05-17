@@ -983,8 +983,8 @@ export async function addInnerEnvs(body = {}) {
       method: 'post',
       data: {
         name: body.name,
-        attr_name: body.attr_name,
-        attr_value: body.attr_value,
+        attr_name: body.attr_name || '',
+        attr_value: body.attr_value || '',
         scope: body.scope ? body.scope : 'inner',
         is_change: true
       }
@@ -1032,7 +1032,7 @@ export async function addOuterEnvs(body = {}) {
       data: {
         name: body.name,
         attr_name: body.attr_name,
-        attr_value: body.attr_value,
+        attr_value: body.attr_value || '',
         scope: 'outer'
       }
     }
@@ -1050,7 +1050,7 @@ export async function editEvns(body = {}) {
       method: 'put',
       data: {
         name: body.name,
-        attr_value: body.attr_value
+        attr_value: body.attr_value || ''
       }
     }
   );

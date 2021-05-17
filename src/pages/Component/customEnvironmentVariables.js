@@ -610,7 +610,7 @@ export default class Index extends React.Component {
                   dataIndex: 'local_vol_path',
                   key: '1',
                   width: '20%',
-                  render: (data, index) => (
+                  render: data => (
                     <Tooltip title={data}>
                       <span style={wraps}>{data}</span>
                     </Tooltip>
@@ -621,7 +621,7 @@ export default class Index extends React.Component {
                   dataIndex: 'dep_vol_name',
                   key: '2',
                   width: '15%',
-                  render: (data, index) => (
+                  render: data => (
                     <Tooltip title={data}>
                       <span style={wraps}>{data}</span>
                     </Tooltip>
@@ -632,7 +632,7 @@ export default class Index extends React.Component {
                   dataIndex: 'dep_vol_path',
                   key: '3',
                   width: '20%',
-                  render: (data, index) => (
+                  render: data => (
                     <Tooltip title={data}>
                       <span style={wraps}>{data}</span>
                     </Tooltip>
