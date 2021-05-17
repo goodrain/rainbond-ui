@@ -35,16 +35,18 @@ class Index extends PureComponent {
   }
 
   onCancel = MavenName => {
-    this.fetchMavensettings(MavenName);
+    this.fetchMavensettings();
+    const { setFieldsValue } = this.props.form;
+    setFieldsValue({
+      BUILD_MAVEN_SETTING_NAME: MavenName || ''
+    });
     this.setState({
       mavenVisible: false
     });
   };
 
-  fetchMavensettings = MavenName => {
-    const { dispatch, currentEnterprise, form } = this.props;
-    const { setFieldsValue } = form;
-
+  fetchMavensettings = () => {
+    const { dispatch, currentEnterprise } = this.props;
     dispatch({
       type: 'appControl/fetchMavensettings',
       payload: {
@@ -54,11 +56,7 @@ class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          this.setState({ MavenList: res.list }, () => {
-            setFieldsValue({
-              BUILD_MAVEN_SETTING_NAME: MavenName || ''
-            });
-          });
+          this.setState({ MavenList: res.list });
         }
       }
     });
@@ -106,16 +104,17 @@ class Index extends PureComponent {
       mavenPermissions
     } = this.state;
     let isDefault = false;
+    const envBUILD_MAVEN_SETTING_NAME = envs && envs.BUILD_MAVEN_SETTING_NAME;
+    const mavenLists = MavenList && MavenList.length > 0 && MavenList[0].name;
     const Default_BUILD_MAVEN_SETTING_NAME =
-      (envs && envs.BUILD_MAVEN_SETTING_NAME) ||
-      (MavenList.length > 0 && MavenList[0].name) ||
-      '';
-
-    MavenList.map(item => {
-      if (item.name === MavenList) {
-        isDefault = true;
-      }
-    });
+      envBUILD_MAVEN_SETTING_NAME || mavenLists || '';
+    if (mavenLists) {
+      MavenList.map(item => {
+        if (item.name === envBUILD_MAVEN_SETTING_NAME) {
+          isDefault = true;
+        }
+      });
+    }
 
     return (
       <div>
@@ -162,7 +161,9 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="Maven配置">
           {getFieldDecorator('BUILD_MAVEN_SETTING_NAME', {
-            initialValue: isDefault && Default_BUILD_MAVEN_SETTING_NAME,
+            initialValue:
+              (!envBUILD_MAVEN_SETTING_NAME || isDefault) &&
+              Default_BUILD_MAVEN_SETTING_NAME,
             rules: [
               {
                 required: true,
