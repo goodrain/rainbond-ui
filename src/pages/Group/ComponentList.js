@@ -594,6 +594,7 @@ export default class ComponentList extends Component {
               }
               dataSource={apps || []}
               footer={() => footer}
+              scroll={{ y: 240 }}
             />
           </ScrollerX>
           {batchDeleteShow && (
