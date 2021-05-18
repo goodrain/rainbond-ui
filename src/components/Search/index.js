@@ -23,14 +23,15 @@ class Search extends Component {
     this.handleSearch();
   };
   render() {
-    const { type } = this.props;
+    const { type, appID } = this.props;
+    const appPlaceholder =
+      type === 'HTTP' ? '搜索域名/应用/组件' : '搜索端口/应用/组件';
+    const teamPlaceholder = type === 'HTTP' ? '搜索域名/组件' : '搜索端口/组件';
     return (
       <Form layout="inline" style={{ display: 'inline-block' }}>
         <FormItem>
           <Input
-            placeholder={
-              type === 'HTTP' ? '搜索域名/组件' : '搜索端口/应用/组件'
-            }
+            placeholder={(!appID && appPlaceholder) || teamPlaceholder}
             onChange={this.handelChange}
             onPressEnter={this.handleEnter}
             style={{ width: 250 }}

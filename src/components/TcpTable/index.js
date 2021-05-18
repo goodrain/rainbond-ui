@@ -551,7 +551,7 @@ export default class TcpTable extends PureComponent {
             marginBottom: '20px'
           }}
         >
-          <Search onSearch={this.handleSearch} />
+          <Search onSearch={this.handleSearch} appID={appID} />
           {isCreate && (
             <Button
               type="primary"
