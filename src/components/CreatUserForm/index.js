@@ -53,7 +53,10 @@ class CreateUserForm extends PureComponent {
   };
 
   checkAccountPass = (_, value, callback) => {
-    if (!value) {
+    const { userInfo } = this.props;
+    if (userInfo && !value) {
+      callback();
+    } else if (!value) {
       callback('请填写密码');
     } else if (value && value.length < 8) {
       callback('密码长度至少为8位');
@@ -140,7 +143,12 @@ class CreateUserForm extends PureComponent {
                     validator: this.checkAccountPass
                   }
                 ]
-              })(<Input.Password placeholder="请填写密码" />)}
+              })(
+                <Input.Password
+                  autoComplete="new-password"
+                  placeholder="请填写密码"
+                />
+              )}
             </FormItem>
           )}
 
@@ -153,7 +161,12 @@ class CreateUserForm extends PureComponent {
                     validator: this.checkAccountPass
                   }
                 ]
-              })(<Input.Password placeholder="留空则不修改密码" />)}
+              })(
+                <Input.Password
+                  autoComplete="new-password"
+                  placeholder="留空则不修改密码"
+                />
+              )}
             </FormItem>
           )}
 
