@@ -81,7 +81,7 @@ class CodeMirrorForm extends PureComponent {
       label,
       name,
       message,
-      width,
+      width: proWidth,
       mode,
       action,
       beforeUpload,
@@ -109,7 +109,7 @@ class CodeMirrorForm extends PureComponent {
     } else {
       defaultFullScreenStyle = Object.assign(defaultFullScreenStyle, {
         position: 'absolute',
-        width,
+        width: proWidth || '100%',
         zIndex: 4
       });
     }
@@ -131,7 +131,11 @@ class CodeMirrorForm extends PureComponent {
       <Form.Item
         {...formItemLayout}
         label={label}
-        className={fullScreen && styles.fullScreens}
+        className={
+          fullScreen
+            ? `${styles.fullScreens} ${styles.childrenWidth}`
+            : styles.childrenWidth
+        }
       >
         {getFieldDecorator(name, {
           initialValue: data || '',
