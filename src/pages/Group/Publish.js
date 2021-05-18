@@ -1,4 +1,4 @@
-import { Button, Card, notification, Popconfirm, Table } from 'antd';
+import { Button, Card, notification, Popconfirm, Popover, Table } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
@@ -14,7 +14,7 @@ import {
 } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
-
+import style from './publish.less';
 @connect(({ list, loading, teamControl, enterprise }) => ({
   list,
   loading: loading.models.list,
@@ -271,14 +271,32 @@ export default class AppPublishList extends PureComponent {
                 {
                   title: '版本号(别名)',
                   dataIndex: 'version',
-                  align: 'center',
+                  align: 'left',
                   render: (val, data) => {
+                    const Title = (
+                      <div className={style.version}>
+                        <span>{val}</span>
+                        <span>
+                          {data.version_alias ? `(${data.version_alias})` : ''}
+                        </span>
+                      </div>
+                    );
                     if (val) {
                       return (
-                        <p style={{ marginBottom: 0 }}>
-                          {val}
-                          {data.version_alias ? `(${data.version_alias})` : ''}
-                        </p>
+                        <Popover
+                          style={{
+                            marginBottom: 0
+                          }}
+                          content={data.app_version_info || '暂无版本描述'}
+                          title={Title}
+                        >
+                          <div className={style.version}>
+                            {val}
+                            {data.version_alias
+                              ? `(${data.version_alias})`
+                              : ''}
+                          </div>
+                        </Popover>
                       );
                     }
                     return <span style={{ color: '#999999' }}>未指定</span>;
