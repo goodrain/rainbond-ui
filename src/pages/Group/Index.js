@@ -73,6 +73,7 @@ class Main extends PureComponent {
 
   componentDidMount() {
     this.loading();
+    this.handleWaitLevel();
   }
 
   componentWillUnmount() {
@@ -245,6 +246,10 @@ class Main extends PureComponent {
         }
       }
     });
+  };
+  handleWaitLevel = () => {
+    const { dispatch } = this.props;
+    const { teamName, regionName, appID } = this.props.match.params;
     dispatch({
       type: 'application/fetchToupgrade',
       payload: {
@@ -262,7 +267,6 @@ class Main extends PureComponent {
       }
     });
   };
-
   fetchAppDetailState = () => {
     const { dispatch } = this.props;
     const { teamName, appID } = this.props.match.params;
@@ -812,7 +816,9 @@ class Main extends PureComponent {
               <div>待升级</div>
               <div
                 onClick={() => {
-                  isUpgrade && this.handleJump('upgrade');
+                  !upgradableNumLoading &&
+                    isUpgrade &&
+                    this.handleJump('upgrade');
                 }}
               >
                 <a>{upgradableNumLoading ? <Spin /> : upgradableNum}</a>
