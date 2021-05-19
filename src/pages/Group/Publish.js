@@ -226,6 +226,7 @@ export default class AppPublishList extends PureComponent {
       currentRegionName,
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
+    const versionAlias = (data.version_alias && data.version_alias) || '';
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -276,9 +277,7 @@ export default class AppPublishList extends PureComponent {
                     const Title = (
                       <div className={style.version}>
                         <span>{val}</span>
-                        <span>
-                          {data.version_alias ? `(${data.version_alias})` : ''}
-                        </span>
+                        <span>{versionAlias}</span>
                       </div>
                     );
                     if (val) {
@@ -292,9 +291,7 @@ export default class AppPublishList extends PureComponent {
                         >
                           <div className={style.version}>
                             {val}
-                            {data.version_alias
-                              ? `(${data.version_alias})`
-                              : ''}
+                            {versionAlias}
                           </div>
                         </Popover>
                       );
