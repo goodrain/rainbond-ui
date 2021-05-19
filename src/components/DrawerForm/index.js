@@ -279,9 +279,20 @@ class DrawerForm extends PureComponent {
       routingConfiguration,
       licenseList,
       isAddLicense,
-      automaticCertificateVisible
+      automaticCertificateVisible,
+      serviceComponentList,
+      portList
     } = this.state;
     const dividers = <Divider style={{ margin: '4px 0' }} />;
+    const serviceId = editInfo && editInfo.service_id && editInfo.service_id;
+    const serviceComponentLists =
+      serviceComponentList &&
+      serviceComponentList.length > 0 &&
+      serviceComponentList[0].service_id;
+    const containerPorts =
+      editInfo && editInfo.container_port && editInfo.container_port;
+    const portLists =
+      portList && portList.length > 0 && portList[0].container_port;
     return (
       <div>
         <Drawer
@@ -515,11 +526,7 @@ class DrawerForm extends PureComponent {
             >
               访问目标
             </h3>
-            <FormItem
-              {...formItemLayout}
-              label="应用名称"
-              style={{ zIndex: 999 }}
-            >
+            <FormItem {...formItemLayout} label="应用名称">
               {getFieldDecorator('group_id', {
                 rules: [{ required: true, message: '请选择' }],
                 initialValue: appID
@@ -547,16 +554,10 @@ class DrawerForm extends PureComponent {
                 </Select>
               )}
             </FormItem>
-            <FormItem {...formItemLayout} label="组件" style={{ zIndex: 999 }}>
+            <FormItem {...formItemLayout} label="组件">
               {getFieldDecorator('service_id', {
                 rules: [{ required: true, message: '请选择' }],
-                initialValue:
-                  editInfo && editInfo.service_id
-                    ? editInfo.service_id
-                    : this.state.serviceComponentList &&
-                      this.state.serviceComponentList.length > 0
-                    ? this.state.serviceComponentList[0].service_id
-                    : undefined
+                initialValue: serviceId || serviceComponentLists || undefined
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -578,15 +579,11 @@ class DrawerForm extends PureComponent {
             <FormItem
               {...formItemLayout}
               label="端口号"
-              style={{ zIndex: 999, marginBottom: '150px' }}
+              style={{ marginBottom: '150px' }}
             >
               {getFieldDecorator('container_port', {
-                initialValue:
-                  editInfo && editInfo.container_port
-                    ? editInfo.container_port
-                    : this.state.portList && this.state.portList.length > 0
-                    ? this.state.portList[0].container_port
-                    : undefined,
+                initialValue: containerPorts || portLists || undefined,
+
                 rules: [{ required: true, message: '请选择端口号' }]
               })(
                 <Select
