@@ -344,6 +344,7 @@ export default class AppList extends PureComponent {
             });
           } else if (res.data.msg_show) {
             notification.warning({ message: res.data.msg_show });
+
             this.setState({
               loading: false
             });
