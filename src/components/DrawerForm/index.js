@@ -288,7 +288,7 @@ class DrawerForm extends PureComponent {
     const serviceComponentLists =
       serviceComponentList &&
       serviceComponentList.length > 0 &&
-      serviceComponentList.length;
+      serviceComponentList[0].service_id;
     const containerPorts =
       editInfo && editInfo.container_port && editInfo.container_port;
     const portLists =
