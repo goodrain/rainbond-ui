@@ -1,5 +1,5 @@
 /* eslint-disable import/first */
-import { Button, Form, Input, Select, Spin, Switch, Tabs } from 'antd';
+import { Button, Form, Icon, Input, Select, Spin, Switch, Tabs } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
 import Application from '../../../public/images/application.svg';
@@ -267,7 +267,16 @@ class Index extends React.Component {
                 </Select>
               )}
             </Form.Item>
-            <Form.Item {...formItemLayout} label="子目录路径">
+            <Form.Item
+              className={styles.clearConform}
+              {...formItemLayout}
+              label={
+                <div className={styles.clearConformMinTitle}>
+                  <Icon type="unordered-list" />
+                  子目录路径&nbsp;:
+                </div>
+              }
+            >
               {getFieldDecorator('subdirectories')(
                 <Input placeholder="请输入子目录路径" />
               )}
