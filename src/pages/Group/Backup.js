@@ -316,6 +316,11 @@ export default class AppList extends PureComponent {
       loading: false
     });
   };
+  cancelLoading = () => {
+    this.setState({
+      loading: false
+    });
+  };
   handleBackup = data => {
     this.setState({
       loading: true
@@ -349,6 +354,7 @@ export default class AppList extends PureComponent {
             });
           }
         }
+        this.cancelLoading();
       }
     });
   };
