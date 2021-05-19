@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /*
    快速复制
 */
@@ -485,34 +486,33 @@ export default class Index extends PureComponent {
               onChange={this.onGroupChange}
             >
               {dataSource.map((item, index) => {
-                const { service_cname, build_source, service_id } = item;
                 const {
-                  code_version,
+                  service_cname: serviceCname,
+                  build_source: buildSource,
+                  service_id: serviceId
+                } = item;
+                const {
+                  code_version: codeVersion,
                   version,
                   image,
-                  git_url,
-                  rain_app_name,
-                  service_source
-                } = build_source;
-
-                const isImageApp = appUtil.isImageAppByBuildSource(
-                  build_source
-                );
+                  git_url: gitUrl,
+                  rain_app_name: rainAppName,
+                  service_source: serviceSource
+                } = buildSource || {};
+                const isImageApp = appUtil.isImageAppByBuildSource(buildSource);
                 const isMarketApp = appUtil.isMarketAppByBuildSource(
-                  build_source
+                  buildSource
                 );
-                const isCodeApp = appUtil.isCodeAppByBuildSource(build_source);
-                const versions = isCodeApp ? code_version : version;
-                const isThirdParty = service_source === 'third_party';
+                const isCodeApp = appUtil.isCodeAppByBuildSource(buildSource);
+                const versions = isCodeApp ? codeVersion : version;
+                const isThirdParty = serviceSource === 'third_party';
 
                 const tit = isImageApp
                   ? image
                   : isCodeApp
-                  ? git_url
+                  ? gitUrl
                   : isMarketApp
-                  ? rain_app_name
-                  : isThirdParty
-                  ? '第三方组件'
+                  ? rainAppName
                   : '';
 
                 let versionConetent = '';
@@ -529,7 +529,7 @@ export default class Index extends PureComponent {
                 if (isImageApp || isCodeApp) {
                   versionConetent = (
                     <FormItem>
-                      {getFieldDecorator(service_id, {
+                      {getFieldDecorator(serviceId, {
                         initialValue: versions || '',
                         rules: [
                           {
@@ -558,14 +558,14 @@ export default class Index extends PureComponent {
                 }
 
                 return (
-                  <div className={styles.tabTr} key={service_id}>
-                    <Tooltip title={service_cname}>
+                  <div className={styles.tabTr} key={serviceId}>
+                    <Tooltip title={serviceCname}>
                       <div className={`${styles.w300} ${styles.over}`}>
-                        <Checkbox value={index}>{service_cname}</Checkbox>
+                        <Checkbox value={index}>{serviceCname}</Checkbox>
                       </div>
                     </Tooltip>
 
-                    <Tooltip title={tit}>
+                    <Tooltip title={isThirdParty ? '第三方组件' : tit}>
                       <div className={`${styles.w500} ${styles.over}`}>
                         <div
                           style={{
@@ -582,18 +582,10 @@ export default class Index extends PureComponent {
                             ? '组件库:'
                             : isThirdParty
                             ? '第三方组件'
-                            : '-'}
+                            : ''}
                         </div>
                         <div className={`${styles.w380} ${styles.over}`}>
-                          {isImageApp
-                            ? image
-                            : isCodeApp
-                            ? git_url
-                            : isMarketApp
-                            ? rain_app_name
-                            : isThirdParty
-                            ? ''
-                            : '-'}
+                          {isThirdParty ? '-' : tit}
                         </div>
                       </div>
                     </Tooltip>
