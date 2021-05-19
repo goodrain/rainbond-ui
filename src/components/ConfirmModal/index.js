@@ -12,6 +12,7 @@ class ConfirmModal extends PureComponent {
       onCancel,
       desc,
       subDesc,
+      loading = false,
       deleteLoading = false
     } = this.props;
     return (
@@ -25,7 +26,7 @@ class ConfirmModal extends PureComponent {
           <Button onClick={onCancel}> 取消 </Button>,
           <Button
             type="primary"
-            loading={deleteLoading}
+            loading={loading || deleteLoading}
             disabled={this.props.disabled}
             onClick={onOk}
           >
