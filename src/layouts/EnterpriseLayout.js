@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable react/sort-comp */
 import { Layout } from 'antd';
 import classNames from 'classnames';
@@ -27,8 +28,6 @@ import globalUtil from '../utils/global';
 import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
 import Context from './MenuContext';
-
-const qs = require('query-string');
 
 const { Content } = Layout;
 
@@ -88,9 +87,6 @@ class EnterpriseLayout extends PureComponent {
     );
     this.state = {
       isMobile,
-      isInit: false,
-      showWelcomeCreateTeam: false,
-      canCancelOpenRegion: true,
       enterpriseList: [],
       enterpriseInfo: false,
       ready: false
@@ -98,7 +94,6 @@ class EnterpriseLayout extends PureComponent {
   }
 
   componentDidMount() {
-    // fetch enterprise info
     this.getEnterpriseList();
   }
 
@@ -109,17 +104,27 @@ class EnterpriseLayout extends PureComponent {
       type: 'global/fetchEnterpriseList',
       callback: res => {
         if (res && res.status_code === 200) {
+          const ready = !!(res.list && res.list.length > 0);
           this.setState(
             {
               enterpriseList: res.list,
-              ready: true
+              ready
             },
             () => {
-              this.redirectEnterpriseView();
-              this.load();
+              if (ready) {
+                this.redirectEnterpriseView();
+                this.load();
+              } else {
+                this.handleJumpLogin();
+              }
             }
           );
+        } else {
+          this.handleJumpLogin();
         }
+      },
+      handleError: () => {
+        this.handleJumpLogin();
       }
     });
   };
@@ -175,7 +180,10 @@ class EnterpriseLayout extends PureComponent {
       breadcrumbNameMap: this.breadcrumbNameMap
     };
   }
-
+  handleJumpLogin = () => {
+    const { dispatch } = this.props;
+    dispatch(routerRedux.push('/user/login'));
+  };
   redirectEnterpriseView = () => {
     const {
       dispatch,
@@ -186,39 +194,37 @@ class EnterpriseLayout extends PureComponent {
       }
     } = this.props;
     const { enterpriseList } = this.state;
-    if (!eid || eid === 'auto') {
-      if (enterpriseList.length > 0) {
-        let selectE = null;
-        enterpriseList.map(item => {
-          if (item.enterprise_id === currentUser.enterprise_id) {
-            selectE = item;
-          }
-          return item;
-        });
-        if (selectE == null) {
-          selectE = enterpriseList[0];
+    if ((!eid || eid === 'auto') && enterpriseList.length > 0) {
+      let selectE = null;
+      enterpriseList.map(item => {
+        if (item.enterprise_id === currentUser.enterprise_id) {
+          selectE = item;
         }
-        globalUtil.putLog(Object.assign(rainbondInfo, selectE));
-        this.fetchEnterpriseInfo(selectE.enterprise_id);
-        this.setState({ enterpriseInfo: selectE });
-        dispatch(
-          routerRedux.replace(`/enterprise/${selectE.enterprise_id}/index`)
-        );
-      } else {
-        dispatch(routerRedux.push('/user/login'));
+        return item;
+      });
+      if (selectE == null) {
+        selectE = enterpriseList[0];
       }
+      this.handlePutLog(rainbondInfo, selectE);
+      this.fetchEnterpriseInfo(selectE.enterprise_id);
+      this.setState({ enterpriseInfo: selectE });
+      dispatch(
+        routerRedux.replace(`/enterprise/${selectE.enterprise_id}/index`)
+      );
     } else {
       enterpriseList.map(item => {
         if (item.enterprise_id === eid) {
           this.fetchEnterpriseInfo(eid);
-          globalUtil.putLog(Object.assign(rainbondInfo, item));
+          this.handlePutLog(rainbondInfo, item);
           this.setState({ enterpriseInfo: item });
         }
         return item;
       });
     }
   };
-
+  handlePutLog = (rainbondInfo, item) => {
+    globalUtil.putLog(Object.assign(rainbondInfo, item));
+  };
   fetchEnterpriseInfo = eid => {
     if (!eid) {
       return null;
