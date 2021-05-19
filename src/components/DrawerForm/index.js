@@ -547,7 +547,7 @@ class DrawerForm extends PureComponent {
                 </Select>
               )}
             </FormItem>
-            <FormItem {...formItemLayout} label="组件" style={{ zIndex: 999 }}>
+            <FormItem {...formItemLayout} label="组件" style={{ zIndex: 998 }}>
               {getFieldDecorator('service_id', {
                 rules: [{ required: true, message: '请选择' }],
                 initialValue:
@@ -578,7 +578,7 @@ class DrawerForm extends PureComponent {
             <FormItem
               {...formItemLayout}
               label="端口号"
-              style={{ zIndex: 999, marginBottom: '150px' }}
+              style={{ zIndex: 997, marginBottom: '150px' }}
             >
               {getFieldDecorator('container_port', {
                 initialValue:
