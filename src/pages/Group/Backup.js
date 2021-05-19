@@ -316,6 +316,11 @@ export default class AppList extends PureComponent {
       loading: false
     });
   };
+  cancelLoading = () => {
+    this.setState({
+      loading: false
+    });
+  };
   handleBackup = data => {
     this.setState({
       loading: true
@@ -332,6 +337,7 @@ export default class AppList extends PureComponent {
         this.fetchBackup();
       },
       handleError: res => {
+        this.cancelLoading();
         if (res && res.data && res.data.code) {
           const { code } = res.data;
           if (code === 4122 || code === 4121) {
@@ -344,9 +350,7 @@ export default class AppList extends PureComponent {
             });
           } else if (res.data.msg_show) {
             notification.warning({ message: res.data.msg_show });
-            this.setState({
-              loading: false
-            });
+            this.cancelLoading();
           }
         }
       }
