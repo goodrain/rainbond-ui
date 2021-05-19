@@ -36,7 +36,8 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false,
       text: '',
       delVisible: false,
-      name: ''
+      name: '',
+      loading: false
     };
   }
   componentWillMount() {
@@ -61,6 +62,9 @@ export default class EnterpriseUsers extends PureComponent {
     );
   };
   handleCreatUser = values => {
+    this.setState({
+      loading: true
+    });
     const {
       dispatch,
       match: {
@@ -106,7 +110,8 @@ export default class EnterpriseUsers extends PureComponent {
     const info = userInfo;
     info.real_name = values.real_name;
     info.password = values.password;
-
+    info.email = values.email;
+    info.phone = values.phone;
     const {
       dispatch,
       match: {
@@ -189,7 +194,8 @@ export default class EnterpriseUsers extends PureComponent {
     this.setState({
       userVisible: false,
       text: '',
-      userInfo: false
+      userInfo: false,
+      loading: false
     });
   };
 
@@ -236,7 +242,8 @@ export default class EnterpriseUsers extends PureComponent {
       userVisible,
       page,
       pageSize,
-      total
+      total,
+      loading
     } = this.state;
 
     const {
@@ -313,7 +320,7 @@ export default class EnterpriseUsers extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="用户管理"
+        title="用户管理 "
         content="企业用户查询、添加和修改相关功能，用户需要操作应用或组件相关资源时需要将其分配到相应的团队"
       >
         <Row
@@ -375,6 +382,7 @@ export default class EnterpriseUsers extends PureComponent {
               title={text}
               onOk={this.handleCreatUser}
               onCancel={this.cancelCreatUser}
+              loading={loading}
             />
           )}
 
