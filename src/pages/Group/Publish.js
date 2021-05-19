@@ -226,7 +226,7 @@ export default class AppPublishList extends PureComponent {
       currentRegionName,
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
-    const versionAlias = (data.version_alias && data.version_alias) || '';
+
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -274,6 +274,8 @@ export default class AppPublishList extends PureComponent {
                   dataIndex: 'version',
                   align: 'left',
                   render: (val, data) => {
+                    const versionAlias =
+                      (data.version_alias && `(${data.version_alias})`) || '';
                     const Title = (
                       <div className={style.version}>
                         <span>{val}</span>
