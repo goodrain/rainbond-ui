@@ -55,13 +55,10 @@ export default class ComponentList extends Component {
       operationState: false,
       query: '',
       changeQuery: '',
-      tableDataLoading: false
+      tableDataLoading: true
     };
   }
   componentDidMount() {
-    this.setState({
-      tableDataLoading: true
-    });
     this.updateApp();
     document
       .querySelector('.ant-table-footer')
@@ -582,7 +579,7 @@ export default class ComponentList extends Component {
           </Form>
           <ScrollerX sm={750}>
             <Table
-              style={{ position: 'relative' }}
+              style={{ position: 'relative', overflow: 'hidden' }}
               pagination={pagination}
               rowSelection={rowSelection}
               columns={columns}
