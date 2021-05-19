@@ -101,15 +101,17 @@ class Index extends React.Component {
     if (tagsLoading) {
       return null;
     }
-    form.validateFields((err, fieldsValue) => {
-      if (err) {
-        return;
-      }
-      fieldsValue.project_id = thirdInfo.project_id;
-      fieldsValue.project_url = thirdInfo.project_url;
-      fieldsValue.project_full_name = thirdInfo.project_full_name;
-      if (onSubmit) {
-        onSubmit(fieldsValue);
+    form.validateFields((err, values) => {
+      if (!err) {
+        const info = Object.assign({}, values);
+        info.project_id = thirdInfo.project_id;
+        info.project_url = values.subdirectories
+          ? `${thirdInfo.project_url}?dir=${values.subdirectories}`
+          : thirdInfo.project_url;
+        info.project_full_name = thirdInfo.project_full_name;
+        if (onSubmit) {
+          onSubmit(info);
+        }
       }
     });
   };
@@ -263,6 +265,11 @@ class Index extends React.Component {
                     )}
                   </OptGroup>
                 </Select>
+              )}
+            </Form.Item>
+            <Form.Item {...formItemLayout} label="子目录路径">
+              {getFieldDecorator('subdirectories')(
+                <Input placeholder="请输入子目录路径" />
               )}
             </Form.Item>
             <Form.Item
