@@ -78,12 +78,12 @@ class CreateTeam extends PureComponent {
                 },
                 {
                   max: 10,
-                  message: '团队名称最多10个字'
+                  message: '最大长度10位'
                 }
               ]
             })(<Input placeholder="请输入团队名称" />)}
             <div className={styles.conformDesc}>
-              请输入创建的团队名称，最多10个字
+              请输入创建的团队名称，最大长度10位
             </div>
           </FormItem>
 

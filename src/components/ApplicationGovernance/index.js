@@ -282,7 +282,7 @@ export default class ApplicationGovernance extends PureComponent {
                             },
                             {
                               max: 63,
-                              message: '内部域名最多63个位'
+                              message: '最大长度63位'
                             },
                             {
                               pattern: /^[a-z]([a-z0-9-_]*[-a-z0-9]*[a-z0-9])?$/,
