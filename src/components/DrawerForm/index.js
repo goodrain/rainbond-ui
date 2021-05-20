@@ -222,6 +222,13 @@ class DrawerForm extends PureComponent {
       routingConfiguration: !this.state.routingConfiguration
     });
   };
+  weightCheck = (_, value) => {
+    if (value > 100 || value < 0) {
+      return Promise.reject('权重的数值限制在0-100之间');
+    } else {
+      return Promise.resolve();
+    }
+  };
   render() {
     const {
       onClose,
@@ -380,9 +387,10 @@ class DrawerForm extends PureComponent {
                 </FormItem>
                 <FormItem {...formItemLayout} label="权重">
                   {getFieldDecorator('the_weight', {
-                    initialValue: editInfo.the_weight || 100
+                    initialValue: editInfo.the_weight || 100,
+                    rules: [{ required: false, validator: this.weightCheck }]
                   })(
-                    <InputNumber min={1} max={100} style={{ width: '100%' }} />
+                    <InputNumber min={0} max={100} style={{ width: '100%' }} />
                   )}
                 </FormItem>
                 {licenseList && (
