@@ -791,7 +791,7 @@ class Main extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>模型发布</div>
+              <div>模版发布</div>
               <div
                 onClick={() => {
                   isShare && this.handleJump('publish');

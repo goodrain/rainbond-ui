@@ -168,7 +168,7 @@ class EditName extends PureComponent {
                 },
                 {
                   max: 24,
-                  message: '建议组件名称少于24个字符。'
+                  message: '最大长度24位'
                 }
               ]
             })(

@@ -34,7 +34,7 @@ export default class MoveTeam extends PureComponent {
                   required: true,
                   message: '不能为空!'
                 },
-                { max: 32, message: '团队名称不能大于32个字符' }
+                { max: 32, message: '最大长度32位' }
               ]
             })(<Input placeholder="请输入新的团队名称" />)}
           </FormItem>

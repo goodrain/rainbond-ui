@@ -1,27 +1,27 @@
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
 import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
   Alert,
-  Modal,
+  Button,
+  Card,
+  Col,
+  Form,
+  Icon,
   Input,
-  notification
+  Modal,
+  notification,
+  Row
 } from 'antd';
+import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
+import AddDomain from '../../components/AddDomain';
+import AddPort from '../../components/AddPort';
+import ConfirmModal from '../../components/ConfirmModal';
 import NoPermTip from '../../components/NoPermTip';
 import Port from '../../components/Port';
-import ConfirmModal from '../../components/ConfirmModal';
-import AddDomain from '../../components/AddDomain';
+import ScrollerX from '../../components/ScrollerX';
 import SubDomain from '../../components/SubDomain';
 import SubPort from '../../components/SubPort';
-import ScrollerX from '../../components/ScrollerX';
-import AddPort from '../../components/AddPort';
-import globalUtil from '../../utils/global';
 import appUtil from '../../utils/app';
+import globalUtil from '../../utils/global';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -103,11 +103,12 @@ class EditAlias extends PureComponent {
                 },
                 {
                   max: 63,
-                  message: '内部域名最多63个位'
+                  message: '最大长度63位'
                 },
                 {
                   pattern: /^[a-z]([a-z0-9-_]*[-a-z0-9]*[a-z0-9])?$/,
-                  message: '必须由小写的字母、数字和- _组成，并且必须以字母开始、数字和字母结束'
+                  message:
+                    '必须由小写的字母、数字和- _组成，并且必须以字母开始、数字和字母结束'
                 }
               ]
             })(<Input placeholder="请填写内部域名" />)}
