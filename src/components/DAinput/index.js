@@ -1,97 +1,136 @@
+import { Col, Icon, Input, notification, Row } from 'antd';
 import React, { Component } from 'react';
-import { Form, Checkbox, Row, Col, Select, Input, Button, Icon } from 'antd';
 
-let uuid = 0;
 class DAinput extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            values: [{ key: '', value: '' }]
-        }
-    }
-    componentDidMount(){
-        this.initFromProps();
-    }
-    add = () => {
-        var values = this.state.values;
-        this.setState({ values: values.concat({ key: '', value: '' }) })
-    }
-    componentWillReceiveProps(nextProps) {
-        if ('value' in nextProps) {
-            const value = nextProps.value;
-            this.initFromProps(value);
-        }
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      values: [{ key: '', value: '' }]
+    };
+  }
+  componentDidMount() {
+    this.initFromProps();
+  }
 
-    initFromProps(value) {
-        var value = value || this.props.value;
-        if (value) {
-            var res = [];
-            var valArr = value.split(';');
-            for (var i = 0; i < valArr.length; i++) {
-                res.push({ key: valArr[i].split('=')[0], value: valArr[i].split('=')[1] });
-            }
-            this.setValues(res);
-        }
+  componentWillReceiveProps(nextProps) {
+    if ('value' in nextProps) {
+      const { value } = nextProps;
+      this.initFromProps(value);
     }
-    setValues(arr) {
-        arr = arr || [];
-        if (!arr.length) { arr.push({ key: '', value: '' }) };
-        this.setState({ values: arr });
+  }
+  onKeyChange = (value, index) => {
+    const { values } = this.state;
+    values[index].key = value;
+    this.triggerChange(values);
+    this.setValues(values);
+  };
+  onValueChange = (value, index) => {
+    const { values } = this.state;
+    values[index].value = value;
+    this.triggerChange(values);
+    this.setValues(values);
+  };
+  setValues(arr) {
+    const setArr = arr || [];
+    if (!setArr.length) {
+      setArr.push({ key: '', value: '' });
     }
-    remove = (index) => {
-        var values = this.state.values;
-        values.splice(index, 1);
-        this.setValues(values);
-        this.triggerChange(values);
+    this.setState({ values: setArr });
+  }
+  initFromProps(value) {
+    const setValue = value || this.props.value;
+    if (setValue) {
+      const res = [];
+      const valArr = setValue.split(';');
+      for (let i = 0; i < valArr.length; i++) {
+        res.push({
+          key: valArr[i].split('=')[0],
+          value: valArr[i].split('=')[1]
+        });
+      }
+      this.setValues(res);
     }
-    triggerChange(values) {
-        var res = [];
-        for (var i = 0; i < values.length; i++) {
+  }
+  add = () => {
+    const { values } = this.state;
+    if (values.length > 100) {
+      notification.warning({
+        message: '最多添加100个'
+      });
+      return null;
+    }
+    this.setState({ values: values.concat({ key: '', value: '' }) });
+  };
 
-            res.push(values[i].key + '=' + values[i].value);
+  remove = index => {
+    const { values } = this.state;
+    values.splice(index, 1);
+    this.setValues(values);
+    this.triggerChange(values);
+  };
+  triggerChange(values) {
+    const res = [];
+    for (let i = 0; i < values.length; i++) {
+      res.push(`${values[i].key}=${values[i].value}`);
+    }
+    const { onChange } = this.props;
+    if (onChange) {
+      onChange(res.join(';'));
+    }
+  }
 
-
-        }
-        var onChange = this.props.onChange;
-        onChange && onChange(res.join(';'));
-    }
-    onKeyChange = (index, e) => {
-        var values = this.state.values;
-        values[index].key = e.target.value;
-        this.triggerChange(values);
-        this.setValues(values);
-
-    }
-    onValueChange = (index, e) => {
-        var values = this.state.values;
-        values[index].value = e.target.value;
-        this.triggerChange(values);
-        this.setValues(values);
-    }
-    render() {
-        const keyPlaceholder = this.props.keyPlaceholder || '请输入key值';
-        const valuePlaceholder = this.props.valuePlaceholder || '请输入value值';
-        const values = this.state.values;
-        return (
-            <div>
-                {
-                    values.map((item, index) => {
-                        uuid++;
-                        return (<Row key={index}>
-                            <Col span={9}><Input name="key" onChange={this.onKeyChange.bind(this, index)} value={item.key} placeholder={keyPlaceholder} /></Col>
-                            <Col span={2} style={{ textAlign: 'center' }}>:</Col>
-                            <Col span={9}><Input name="value" onChange={this.onValueChange.bind(this, index)} value={item.value} placeholder={valuePlaceholder} /></Col>
-                            <Col span={4} style={{ textAlign: 'center' }}>
-                                {index == 0 ? <Icon type="plus-circle" onClick={this.add} style={{ fontSize: "20px" }} /> : <Icon type="minus-circle" style={{ fontSize: "20px" }} onClick={this.remove.bind(this, index)} />}
-                            </Col>
-                        </Row>)
-                    })
-                }
-            </div>
-        )
-    }
+  render() {
+    const keyPlaceholder = this.props.keyPlaceholder || '请输入key值';
+    const valuePlaceholder = this.props.valuePlaceholder || '请输入value值';
+    const { values } = this.state;
+    return (
+      <div>
+        {values.map((item, index) => {
+          const first = index === 0;
+          return (
+            <Row key={index}>
+              <Col span={9}>
+                <Input
+                  name="key"
+                  onChange={e => {
+                    this.onKeyChange(e.target.value, index);
+                  }}
+                  value={item.key}
+                  placeholder={keyPlaceholder}
+                />
+              </Col>
+              <Col span={2} style={{ textAlign: 'center' }}>
+                :
+              </Col>
+              <Col span={9}>
+                <Input
+                  name="value"
+                  onChange={e => {
+                    this.onValueChange(e.target.value, index);
+                  }}
+                  value={item.value}
+                  placeholder={valuePlaceholder}
+                />
+              </Col>
+              <Col span={4} style={{ textAlign: 'center' }}>
+                <Icon
+                  type={first ? 'plus-circle' : 'minus-circle'}
+                  style={{ fontSize: '20px' }}
+                  onClick={() => {
+                    if (first) {
+                      this.add();
+                    } else {
+                      this.remove(index);
+                    }
+                  }}
+                />
+              </Col>
+            </Row>
+          );
+        })}
+      </div>
+    );
+  }
 }
-
 
 export default DAinput;

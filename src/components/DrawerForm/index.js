@@ -224,10 +224,35 @@ class DrawerForm extends PureComponent {
   };
   weightCheck = (_, value) => {
     if (value > 100 || value < 0) {
+      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject('权重的数值限制在0-100之间');
-    } else {
-      return Promise.resolve();
     }
+    return Promise.resolve();
+  };
+  checkLength = (_, values, callback) => {
+    const valArr = values.split(';');
+    const arr = [];
+    for (let i = 0; i < valArr.length; i++) {
+      arr.push({
+        key: valArr[i].split('=')[0],
+        value: valArr[i].split('=')[1]
+      });
+    }
+    if (arr && arr.length > 0) {
+      let isMax = false;
+      arr.map(item => {
+        const { key, value } = item;
+        if (key.length > 255 || value.length > 255) {
+          isMax = true;
+        }
+      });
+      if (isMax) {
+        callback('最大长度255');
+        return;
+      }
+      callback();
+    }
+    callback();
   };
   render() {
     const {
@@ -281,7 +306,13 @@ class DrawerForm extends PureComponent {
     );
     const AutomaticCertificateDeleteValue =
       JSON.parse(AutomaticCertificateValue) || false;
-
+    const appKey = appID && { key: appID };
+    const appKeys = editInfo &&
+      editInfo.g_id &&
+      editInfo.group_name && {
+        key: editInfo.g_id,
+        label: editInfo.group_name
+      };
     const {
       routingConfiguration,
       licenseList,
@@ -292,14 +323,19 @@ class DrawerForm extends PureComponent {
     } = this.state;
     const dividers = <Divider style={{ margin: '4px 0' }} />;
     const serviceId = editInfo && editInfo.service_id && editInfo.service_id;
-    const serviceComponentLists =
+    const serviceIds =
       serviceComponentList &&
       serviceComponentList.length > 0 &&
       serviceComponentList[0].service_id;
-    const containerPorts =
+    const containerPort =
       editInfo && editInfo.container_port && editInfo.container_port;
-    const portLists =
+    const containerPorts =
       portList && portList.length > 0 && portList[0].container_port;
+    const checkLengths = [
+      {
+        validator: this.checkLength
+      }
+    ];
     return (
       <div>
         <Drawer
@@ -354,6 +390,7 @@ class DrawerForm extends PureComponent {
                     required: false,
                     message: '/'
                   },
+                  { max: 65530, message: '最大长度65530' },
                   {
                     pattern: /^\/+.*/,
                     message: '请输入绝对路径'
@@ -377,12 +414,14 @@ class DrawerForm extends PureComponent {
               <div>
                 <FormItem {...formItemLayout} label="请求头">
                   {getFieldDecorator('domain_heander', {
-                    initialValue: editInfo.domain_heander
+                    initialValue: editInfo.domain_heander,
+                    rules: checkLengths
                   })(<DAinput />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="Cookie">
                   {getFieldDecorator('domain_cookie', {
-                    initialValue: editInfo.domain_cookie
+                    initialValue: editInfo.domain_cookie,
+                    rules: checkLengths
                   })(<DAinput />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="权重">
@@ -394,11 +433,7 @@ class DrawerForm extends PureComponent {
                   )}
                 </FormItem>
                 {licenseList && (
-                  <FormItem
-                    {...formItemLayout}
-                    label="HTTPs证书"
-                    style={{ zIndex: 999 }}
-                  >
+                  <FormItem {...formItemLayout} label="HTTPs证书">
                     {getFieldDecorator('certificate_id', {
                       initialValue:
                         AutomaticCertificate && editInfo.auto_ssl
@@ -537,13 +572,7 @@ class DrawerForm extends PureComponent {
             <FormItem {...formItemLayout} label="应用名称">
               {getFieldDecorator('group_id', {
                 rules: [{ required: true, message: '请选择' }],
-                initialValue: appID
-                  ? { key: appID }
-                  : (editInfo && {
-                      key: editInfo.g_id,
-                      label: editInfo.group_name
-                    }) ||
-                    undefined
+                initialValue: appKey || appKeys || undefined
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -565,22 +594,20 @@ class DrawerForm extends PureComponent {
             <FormItem {...formItemLayout} label="组件">
               {getFieldDecorator('service_id', {
                 rules: [{ required: true, message: '请选择' }],
-                initialValue: serviceId || serviceComponentLists || undefined
+                initialValue: serviceId || serviceIds || undefined
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder="请选择组件"
                   onChange={this.handlePorts}
                 >
-                  {(this.state.serviceComponentList || []).map(
-                    (service, index) => {
-                      return (
-                        <Option value={`${service.service_id}`} key={index}>
-                          {service.service_cname}
-                        </Option>
-                      );
-                    }
-                  )}
+                  {(serviceComponentList || []).map((service, index) => {
+                    return (
+                      <Option value={`${service.service_id}`} key={index}>
+                        {service.service_cname}
+                      </Option>
+                    );
+                  })}
                 </Select>
               )}
             </FormItem>
@@ -590,15 +617,14 @@ class DrawerForm extends PureComponent {
               style={{ marginBottom: '150px' }}
             >
               {getFieldDecorator('container_port', {
-                initialValue: containerPorts || portLists || undefined,
-
+                initialValue: containerPort || containerPorts || undefined,
                 rules: [{ required: true, message: '请选择端口号' }]
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder="请选择端口号"
                 >
-                  {(this.state.portList || []).map((port, index) => {
+                  {(portList || []).map((port, index) => {
                     return (
                       <Option value={port.container_port} key={index}>
                         {port.container_port}
