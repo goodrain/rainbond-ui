@@ -912,9 +912,10 @@ export async function fetchUserTeams(param) {
 }
 
 /* 查询企业列表 */
-export async function fetchEnterpriseList() {
+export async function fetchEnterpriseList(handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprises`, {
-    method: 'get'
+    method: 'get',
+    handleError
   });
 }
 
