@@ -41,7 +41,7 @@ const { Paragraph } = Typography;
 export default class EnterpriseClusters extends PureComponent {
   constructor(props) {
     super(props);
-    const { user } = this.props;
+    const { user, enterprise } = this.props;
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
@@ -295,7 +295,13 @@ export default class EnterpriseClusters extends PureComponent {
                   message: '请提供具有足够权限的Secret Key'
                 }
               ]
-            })(<Input type="password" placeholder="Secret Key" />)}
+            })(
+              <Input
+                autoComplete="new-password"
+                type="password"
+                placeholder="Secret Key"
+              />
+            )}
           </Form.Item>
         </Col>
       </Form>
@@ -621,18 +627,16 @@ export default class EnterpriseClusters extends PureComponent {
               </div>
               {!israinbondTird && (
                 <Row>
-                  {
-                    <Col span={8}>
-                      <p style={{ marginTop: '16px', textAlign: 'center' }}>
-                        <img
-                          alt="扫码加入平台社区钉钉群"
-                          style={{ width: '100%' }}
-                          title="扫码加入平台社区钉钉群"
-                          src="https://www.rainbond.com/images/dingding-group.jpeg"
-                        />
-                      </p>
-                    </Col>
-                  }
+                  <Col span={8}>
+                    <p style={{ marginTop: '16px', textAlign: 'center' }}>
+                      <img
+                        alt="扫码加入平台社区钉钉群"
+                        style={{ width: '100%' }}
+                        title="扫码加入平台社区钉钉群"
+                        src="https://www.rainbond.com/images/dingding-group.jpeg"
+                      />
+                    </p>
+                  </Col>
                   <Col span={16}>
                     <p style={{ marginTop: '16px', padding: '16px' }}>
                       如果您对接计算资源遇到障碍，或希望了解DevOps流程、企业中台、2B应用交付、多云管理、行业云等需求场景的更多信息，请扫码加入

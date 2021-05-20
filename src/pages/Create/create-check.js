@@ -76,6 +76,7 @@ export default class CreateCheck extends React.Component {
     this.mount = false;
     this.unbindEvent();
   }
+
   getDetail = () => {
     this.props.dispatch({
       type: 'appControl/fetchDetail',
@@ -116,6 +117,22 @@ export default class CreateCheck extends React.Component {
     const { ServiceGetData } = this.state;
     return ServiceGetData || this.props.match.params.appAlias;
   }
+  getParameter = () => {
+    const { ServiceGetData } = this.state;
+    return {
+      appAlias: ServiceGetData || this.props.match.params.appAlias,
+      teamName: globalUtil.getCurrTeamName(),
+      regionName: globalUtil.getCurrRegionName()
+    };
+  };
+
+  handleJump = targets => {
+    const { dispatch } = this.props;
+    const { teamName, regionName } = this.getParameter();
+    dispatch(
+      routerRedux.replace(`/team/${teamName}/region/${regionName}/${targets}`)
+    );
+  };
   loopStatus = () => {
     if (!this.mount) return;
     const appAlias = this.getAppAlias();
@@ -147,8 +164,7 @@ export default class CreateCheck extends React.Component {
       });
   };
   startCheck = loopStatus => {
-    const appAlias = this.getAppAlias();
-    const teamName = globalUtil.getCurrTeamName();
+    const { appAlias, teamName } = this.getParameter();
     getCreateCheckId(
       {
         team_name: teamName,
@@ -156,11 +172,7 @@ export default class CreateCheck extends React.Component {
       },
       res => {
         if (res.status === 404) {
-          this.props.dispatch(
-            routerRedux.replace(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
-            )
-          );
+          this.handleJump('exception/404');
         }
       }
     ).then(data => {
@@ -176,35 +188,25 @@ export default class CreateCheck extends React.Component {
       }
     });
   };
-  handleCreate = () => {};
   handleSetting = () => {
-    const appAlias = this.getAppAlias();
-    this.props.dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-setting/${appAlias}`
-      )
-    );
+    const { appAlias } = this.getParameter();
+    this.handleJump(`create/create-setting/${appAlias}`);
   };
   // 进入多模块构建
   handleMoreService = () => {
-    const { handleServiceDataState, dispatch } = this.props;
-
+    const { handleServiceDataState } = this.props;
     const { ServiceGetData, checkUuid, isMulti } = this.state;
-    const appAlias = this.getAppAlias();
+    const { appAlias } = this.getParameter();
     if (ServiceGetData && !isMulti) {
       handleServiceDataState(true, null, null, null);
     } else {
-      dispatch(
-        routerRedux.push(
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-moreService/${appAlias}/${checkUuid}`
-        )
-      );
+      this.handleJump(`create/create-moreService/${appAlias}/${checkUuid}`);
     }
   };
 
   handleBuild = () => {
-    const appAlias = this.getAppAlias();
-    const teamName = globalUtil.getCurrTeamName();
+    const { appAlias, teamName } = this.getParameter();
+
     const { refreshCurrent, dispatch } = this.props;
     const { isDeploy, ServiceGetData, appDetail } = this.state;
     this.setState({ buildAppLoading: true });
@@ -224,17 +226,9 @@ export default class CreateCheck extends React.Component {
         if (ServiceGetData && isDeploy) {
           refreshCurrent();
         } else if (appDetail.service_source === 'third_party') {
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/thirdPartyServices`
-            )
-          );
+          this.handleJump(`components/${appAlias}/thirdPartyServices`);
         } else {
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/overview`
-            )
-          );
+          this.handleJump(`components/${appAlias}/overview`);
         }
       }
     });
@@ -308,13 +302,13 @@ export default class CreateCheck extends React.Component {
     }
   };
   handleDelete = () => {
-    const appAlias = this.getAppAlias();
+    const { appAlias, teamName } = this.getParameter();
     const { handleServiceDataState, dispatch } = this.props;
     const { ServiceGetData } = this.state;
     dispatch({
       type: 'appControl/deleteApp',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: teamName,
         app_alias: appAlias,
         is_force: true
       },
@@ -322,17 +316,13 @@ export default class CreateCheck extends React.Component {
         dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: globalUtil.getCurrTeamName()
+            team_name: teamName
           }
         });
         if (ServiceGetData) {
           handleServiceDataState(true, null, null, null);
         } else {
-          dispatch(
-            routerRedux.replace(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-            )
-          );
+          this.handleJump(`index`);
         }
       }
     });
@@ -357,12 +347,13 @@ export default class CreateCheck extends React.Component {
   };
   handleModifyUserpass = values => {
     const { appDetail } = this.state;
+    const { teamName } = this.getParameter();
     this.props.dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
         service_cname: values.service_cname ? values.service_cname : '',
         git_url: values.git_url ? values.git_url : '',
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: teamName,
         app_alias: appDetail.service_alias,
         user_name: values.user_name,
         password: values.password
@@ -377,10 +368,11 @@ export default class CreateCheck extends React.Component {
   };
   handleModifyUrl = values => {
     const { appDetail } = this.state;
+    const { teamName } = this.getParameter();
     this.props.dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: teamName,
         app_alias: appDetail.service_alias,
         git_url: values.git_url
       },
@@ -743,13 +735,13 @@ export default class CreateCheck extends React.Component {
 
   renderMoreService = () => {
     const { ServiceGetData, isDeploy, appDetail, isMulti } = this.state;
+    const mr8 = { marginRight: '8px' };
     let actions = [];
     if (ServiceGetData && isMulti) {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button onClick={this.showDelete} type="default">
-            {' '}
-            放弃创建{' '}
+          <Button onClick={this.showDelete} type="default" style={mr8}>
+            放弃创建
           </Button>
           <Button type="primary" onClick={this.handleMoreService}>
             进入多组件构建
@@ -759,23 +751,17 @@ export default class CreateCheck extends React.Component {
     } else if (ServiceGetData) {
       actions = [
         <div style={{ display: 'flex' }}>
-          <Button
-            onClick={this.showDelete}
-            type="default"
-            style={{ marginRight: '8px' }}
-          >
-            {' '}
-            放弃创建{' '}
+          <Button onClick={this.showDelete} type="default" style={mr8}>
+            放弃创建
           </Button>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
               onClick={this.handleBuild}
               type="primary"
-              style={{ marginRight: '8px' }}
+              style={mr8}
               loading={this.state.buildAppLoading}
             >
-              {' '}
-              创建{' '}
+              创建
             </Button>
             <div>
               <Tooltip
@@ -807,7 +793,7 @@ export default class CreateCheck extends React.Component {
             <Button
               onClick={this.handleBuild}
               type="primary"
-              style={{ marginRight: '8px' }}
+              style={mr8}
               loading={this.state.buildAppLoading}
             >
               放弃创建
@@ -838,7 +824,7 @@ export default class CreateCheck extends React.Component {
             <Button
               onClick={this.handleBuild}
               type="primary"
-              style={{ marginRight: '8px' }}
+              style={mr8}
               loading={this.state.buildAppLoading}
             >
               创建
