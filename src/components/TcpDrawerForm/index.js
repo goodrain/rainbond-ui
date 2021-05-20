@@ -21,21 +21,10 @@ class DrawerForm extends PureComponent {
       serviceComponentList: [],
       portList: [],
       domain_port: '',
-      end_point: '',
       isPerform: true
     };
   }
-  resolveOk = e => {
-    e.preventDefault();
-    const { onOk } = this.props;
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        values.default_port =
-          values.end_point && values.end_point.available_port;
-        onOk && onOk(values);
-      }
-    });
-  };
+
   componentDidMount() {
     const { appID } = this.props;
     this.props.dispatch({
@@ -59,6 +48,17 @@ class DrawerForm extends PureComponent {
       this.handleServices({ key: appID });
     }
   }
+  resolveOk = e => {
+    e.preventDefault();
+    const { onOk } = this.props;
+    this.props.form.validateFields((err, values) => {
+      if (!err && onOk) {
+        const info = Object.assign({}, values);
+        info.default_port = values.end_point && values.end_point.available_port;
+        onOk(info);
+      }
+    });
+  };
   /** 获取服务组件 */
   handleServices = groupObj => {
     const { isPerform } = this.state;
@@ -135,19 +135,18 @@ class DrawerForm extends PureComponent {
   };
   handleChange = data => {};
   checkport = (rules, value, callback) => {
-    const { tcpType, editInfo } = this.props;
-    if (!value.ip || !value.available_port) {
+    if (!value.ip || (value.available_port !== 0 && !value.available_port)) {
       callback('请输入完整的ip和端口');
       return;
     }
     if (
       value.available_port &&
-      value.available_port >= 1 &&
+      value.available_port >= 10000 &&
       value.available_port <= 65534
     ) {
       callback();
     } else {
-      callback('请输入正确的端口:1-65534');
+      callback('请输入正确的端口:10000-65534');
     }
   };
   render() {
@@ -156,10 +155,11 @@ class DrawerForm extends PureComponent {
       editInfo,
       addTcpLoading,
       editTcpLoading,
-      appID
+      appID,
+      form
     } = this.props;
-    const { getFieldDecorator } = this.props.form;
-    const { domain_port } = this.state;
+    const { getFieldDecorator } = form;
+    const { domain_port, serviceComponentList, portList } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -185,6 +185,23 @@ class DrawerForm extends PureComponent {
         }
       ];
     }
+    const appKey = appID && { key: appID };
+    const appKeys = editInfo &&
+      editInfo.g_id &&
+      editInfo.group_name && {
+        key: editInfo.g_id,
+        label: editInfo.group_name
+      };
+
+    const serviceId = editInfo && editInfo.service_id && editInfo.service_id;
+    const serviceIds =
+      serviceComponentList &&
+      serviceComponentList.length > 0 &&
+      serviceComponentList[0].service_id;
+    const containerPort =
+      editInfo && editInfo.container_port && editInfo.container_port;
+    const containerPorts =
+      portList && portList.length > 0 && portList[0].container_port;
 
     return (
       <div>
@@ -197,8 +214,6 @@ class DrawerForm extends PureComponent {
             onClose={onClose}
             visible={this.props.visible}
             maskClosable={false}
-            closable
-            zIndex={1001}
             style={{
               overflow: 'auto'
             }}
@@ -234,21 +249,10 @@ class DrawerForm extends PureComponent {
                 访问目标
               </h3>
 
-              <FormItem
-                {...formItemLayout}
-                label="应用名称"
-                style={{ zIndex: 10011 }}
-              >
+              <FormItem {...formItemLayout} label="应用名称">
                 {getFieldDecorator('group_id', {
                   rules: [{ required: true, message: '请选择应用' }],
-                  initialValue: appID
-                    ? { key: appID }
-                    : editInfo && editInfo.g_id && editInfo.group_name
-                    ? {
-                        key: editInfo.g_id,
-                        label: editInfo.group_name
-                      }
-                    : undefined
+                  initialValue: appKey || appKeys || undefined
                 })(
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -267,57 +271,36 @@ class DrawerForm extends PureComponent {
                   </Select>
                 )}
               </FormItem>
-              <FormItem
-                {...formItemLayout}
-                label="组件"
-                style={{ zIndex: 10011 }}
-              >
+              <FormItem {...formItemLayout} label="组件">
                 {getFieldDecorator('service_id', {
                   rules: [{ required: true, message: '请选择' }],
-                  initialValue:
-                    editInfo && editInfo.service_id
-                      ? editInfo.service_id
-                      : this.state.serviceComponentList &&
-                        this.state.serviceComponentList.length > 0
-                      ? this.state.serviceComponentList[0].service_id
-                      : undefined
+                  initialValue: serviceId || serviceIds || undefined
                 })(
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
                     placeholder="请选择组件"
                     onChange={this.handlePorts}
                   >
-                    {(this.state.serviceComponentList || []).map(
-                      (service, index) => {
-                        return (
-                          <Option value={`${service.service_id}`} key={index}>
-                            {service.service_cname}
-                          </Option>
-                        );
-                      }
-                    )}
+                    {(serviceComponentList || []).map((service, index) => {
+                      return (
+                        <Option value={`${service.service_id}`} key={index}>
+                          {service.service_cname}
+                        </Option>
+                      );
+                    })}
                   </Select>
                 )}
               </FormItem>
-              <FormItem
-                {...formItemLayout}
-                label="端口号"
-                style={{ zIndex: 10011 }}
-              >
+              <FormItem {...formItemLayout} label="端口号">
                 {getFieldDecorator('container_port', {
-                  rules: [{ required: true, message: '请选择端口号' }],
-                  initialValue:
-                    editInfo && editInfo.container_port
-                      ? editInfo.container_port
-                      : this.state.portList && this.state.portList.length > 0
-                      ? this.state.portList[0].container_port
-                      : undefined
+                  initialValue: containerPort || containerPorts || undefined,
+                  rules: [{ required: true, message: '请选择端口号' }]
                 })(
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
                     placeholder="请选择端口号"
                   >
-                    {(this.state.portList || []).map((port, index) => {
+                    {(portList || []).map((port, index) => {
                       return (
                         <Option value={port.container_port} key={index}>
                           {port.container_port}
@@ -327,11 +310,7 @@ class DrawerForm extends PureComponent {
                   </Select>
                 )}
               </FormItem>
-              <FormItem
-                {...formItemLayout}
-                label="负载均衡"
-                style={{ zIndex: 10011 }}
-              >
+              <FormItem {...formItemLayout} label="负载均衡">
                 {getFieldDecorator('rule_extensions', {
                   initialValue: rule_round || 'round-robin'
                 })(
