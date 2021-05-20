@@ -105,22 +105,20 @@ class Index extends PureComponent {
       mavenPermissions
     } = this.state;
     const envBUILD_MAVEN_SETTING_NAME = envs && envs.BUILD_MAVEN_SETTING_NAME;
-    const mavenFirstName =
-      MavenList && MavenList.length > 0 && MavenList[0].name;
+    const mavens = MavenList && MavenList.length > 0;
     let Default_BUILD_MAVEN_SETTING_NAME = '';
-    if (mavenFirstName && envBUILD_MAVEN_SETTING_NAME) {
+    if (mavens && envBUILD_MAVEN_SETTING_NAME) {
       MavenList.map(item => {
         if (item.name === envBUILD_MAVEN_SETTING_NAME) {
           Default_BUILD_MAVEN_SETTING_NAME = envBUILD_MAVEN_SETTING_NAME;
         }
       });
     }
-    if (mavenFirstName && !Default_BUILD_MAVEN_SETTING_NAME) {
-      const defaultMaven = MavenList.filter(item => item.is_defaults);
-      Default_BUILD_MAVEN_SETTING_NAME =
-        defaultMaven && defaultMaven.length > 0
-          ? defaultMaven[0].name
-          : mavenFirstName;
+    if (mavens && !Default_BUILD_MAVEN_SETTING_NAME) {
+      const defaultMaven = MavenList.filter(item => item.is_default);
+      if (defaultMaven && defaultMaven.length > 0) {
+        Default_BUILD_MAVEN_SETTING_NAME = defaultMaven[0].name;
+      }
     }
 
     return (
