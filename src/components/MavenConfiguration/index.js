@@ -1,4 +1,5 @@
-import globalUtil from '@//utils/global';
+/* eslint-disable import/extensions */
+import globalUtil from '@/utils/global';
 import {
   Button,
   Col,
@@ -10,6 +11,7 @@ import {
   Modal,
   notification,
   Row,
+  Skeleton,
   Spin
 } from 'antd';
 import { connect } from 'dva';
@@ -75,7 +77,7 @@ export default class AddAdmin extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           if (res.list && res.list.length === 0) {
-            this.setState({ isEditor: false });
+            this.setState({ isEditor: false, mavenInfo: {} });
           } else {
             this.handleEditorConfiguration();
           }
@@ -194,7 +196,6 @@ export default class AddAdmin extends PureComponent {
             () => {
               this.onCancelDelete();
               this.fetchMavensettings(true);
-
               notification.success({ message: '删除成功' });
             }
           );
@@ -314,7 +315,7 @@ export default class AddAdmin extends PureComponent {
       <Modal
         title="Maven配置文件管理"
         visible
-        width="800px"
+        width={800}
         className={styles.TelescopicModal}
         onCancel={() => {
           onCancel(mavenInfo && mavenInfo.name);
@@ -351,7 +352,7 @@ export default class AddAdmin extends PureComponent {
                 </Col>
               </Row>
 
-              {mavenList.length > 0 && (
+              {mavenList && mavenList.length > 0 && (
                 <Menu
                   onClick={this.handleClick}
                   mode="inline"
@@ -418,7 +419,10 @@ export default class AddAdmin extends PureComponent {
                     />
                   )}
                 </FormItem>
-                {!contentLoading && (
+                <Skeleton
+                  className={styles.mavenSkeleton}
+                  loading={contentLoading}
+                >
                   <CodeMirrorForm
                     name="content"
                     mode="application/xml"
@@ -432,7 +436,7 @@ export default class AddAdmin extends PureComponent {
                     beforeUpload={this.beforeUpload}
                     data={mavenInfo.content || ''}
                   />
-                )}
+                </Skeleton>
               </Form>
             </Content>
           </Layout>
