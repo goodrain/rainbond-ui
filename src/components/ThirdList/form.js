@@ -1,5 +1,17 @@
 /* eslint-disable import/first */
-import { Button, Form, Icon, Input, Select, Spin, Switch, Tabs } from 'antd';
+import {
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Icon,
+  Input,
+  Row,
+  Select,
+  Spin,
+  Switch,
+  Tabs
+} from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
 import Application from '../../../public/images/application.svg';
@@ -49,7 +61,9 @@ class Index extends React.Component {
       tags: [],
       tabType: 'branches',
       tagsLoading: true,
-      Loading: true
+      Loading: true,
+      showSubdirectories: false,
+      checkedList: []
     };
   }
   componentWillMount() {
@@ -142,9 +156,21 @@ class Index extends React.Component {
       }
     });
   };
-
+  onChange = checkedValues => {
+    this.setState({
+      checkedList: checkedValues,
+      showSubdirectories: checkedValues.includes('subdirectories')
+    });
+  };
   render() {
-    const { tags, addGroup, tagsLoading, Loading } = this.state;
+    const {
+      tags,
+      addGroup,
+      tagsLoading,
+      Loading,
+      checkedList,
+      showSubdirectories
+    } = this.state;
     const { getFieldDecorator } = this.props.form;
     const {
       groups,
@@ -267,20 +293,34 @@ class Index extends React.Component {
                 </Select>
               )}
             </Form.Item>
-            <Form.Item
-              className={styles.clearConform}
-              {...formItemLayout}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <Icon type="unordered-list" />
-                  子目录路径&nbsp;:
-                </div>
-              }
+            <Checkbox.Group
+              style={{ width: '100%', marginBottom: '10px' }}
+              onChange={this.onChange}
+              value={checkedList}
             >
-              {getFieldDecorator('subdirectories')(
-                <Input placeholder="请输入子目录路径" />
-              )}
-            </Form.Item>
+              <Row>
+                <Col span={24} style={{ textAlign: 'right' }}>
+                  <Checkbox value="subdirectories">填写子目录路径</Checkbox>
+                </Col>
+              </Row>
+            </Checkbox.Group>
+
+            {showSubdirectories && (
+              <Form.Item
+                className={styles.clearConform}
+                {...formItemLayout}
+                label={
+                  <div className={styles.clearConformMinTitle}>
+                    <Icon type="unordered-list" />
+                    子目录路径&nbsp;:
+                  </div>
+                }
+              >
+                {getFieldDecorator('subdirectories')(
+                  <Input placeholder="请输入子目录路径" />
+                )}
+              </Form.Item>
+            )}
             <Form.Item
               className={styles.clearConform}
               {...formItemLayoutOrder}
