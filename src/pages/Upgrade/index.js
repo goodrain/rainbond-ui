@@ -37,7 +37,8 @@ export default class AppList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false,
+      upgradeLoading: true,
+      recordLoading: true,
       isComponent: false,
       showApp: {},
       showMarketAppDetail: false,
@@ -88,6 +89,7 @@ export default class AppList extends PureComponent {
             list: res.list
           });
         }
+        this.handleCancelLoading();
       }
     });
   };
@@ -110,12 +112,11 @@ export default class AppList extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          if (res.list && res.list.length > 0) {
-            this.setState({
-              dataList: res.list
-            });
-          }
+          this.setState({
+            dataList: res.list || []
+          });
         }
+        this.handleCancelLoading();
       }
     });
   };
@@ -161,6 +162,8 @@ export default class AppList extends PureComponent {
   callback = key => {
     this.setState(
       {
+        upgradeLoading: true,
+        recordLoading: true,
         activeKey: key
       },
       () => {
@@ -193,10 +196,17 @@ export default class AppList extends PureComponent {
     });
   };
 
+  handleCancelLoading = () => {
+    this.setState({
+      upgradeLoading: false,
+      recordLoading: false
+    });
+  };
   render() {
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     const {
-      loading,
+      recordLoading,
+      upgradeLoading,
       list,
       showMarketAppDetail,
       showApp,
@@ -357,22 +367,15 @@ export default class AppList extends PureComponent {
                 <List
                   rowKey="id"
                   size="large"
-                  loading={loading}
+                  loading={upgradeLoading}
                   dataSource={[...list]}
                   renderItem={item => {
                     const notUpgradeRecordStatus =
                       item.not_upgrade_record_status;
-                    const isUpgrade =
-                      item.data &&
-                      item.data.upgrade_versions &&
-                      item.data.upgrade_versions.length > 0;
                     return (
                       <List.Item
                         actions={[
                           <a
-                            style={{
-                              color: !isUpgrade && 'rgba(0, 0, 0, 0.45)'
-                            }}
                             onClick={e => {
                               e.preventDefault();
                               if (item.can_upgrade) {
@@ -385,18 +388,26 @@ export default class AppList extends PureComponent {
                               }
                             }}
                           >
-                            {notUpgradeRecordStatus !== 1
-                              ? infoUtil.getStatusCN(notUpgradeRecordStatus)
-                              : item.can_upgrade
-                              ? '升级'
-                              : '无可升级的变更'}
+                            {notUpgradeRecordStatus !== 1 ? (
+                              infoUtil.getStatusCN(notUpgradeRecordStatus)
+                            ) : item.can_upgrade ? (
+                              '升级'
+                            ) : (
+                              <span
+                                style={{
+                                  color: 'rgba(0, 0, 0, 0.45)'
+                                }}
+                              >
+                                无可升级的变更
+                              </span>
+                            )}
                           </a>,
                           <a
                             onClick={() => {
                               this.showComponentVersion(item);
                             }}
                           >
-                            查看组件版本
+                            查看组件
                           </a>
                         ]}
                       >
@@ -431,6 +442,7 @@ export default class AppList extends PureComponent {
             </TabPane>
             <TabPane tab="升级记录" key="2">
               <Table
+                loading={recordLoading}
                 columns={columns}
                 dataSource={dataList}
                 pagination={paginationProps}

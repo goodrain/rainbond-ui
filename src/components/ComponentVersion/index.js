@@ -1,7 +1,15 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-param-reassign */
 import cloud from '@/utils/cloud';
-import { Button, Form, Modal, notification, Select, Table } from 'antd';
+import {
+  Button,
+  Form,
+  Modal,
+  notification,
+  Select,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -149,12 +157,13 @@ export default class componentVersion extends PureComponent {
         ]
       }
     ];
+
     const columns = [
       {
         title: '组件名称',
         dataIndex: 'service_cname',
         key: 'service_cname',
-        width: '40%',
+        width: 180,
         render: (v, data) => {
           return (
             <Link
@@ -162,6 +171,19 @@ export default class componentVersion extends PureComponent {
             >
               {v}
             </Link>
+          );
+        }
+      },
+      {
+        title: '当前版本',
+        dataIndex: 'current_version',
+        key: 'current_version',
+        width: 180,
+        render: val => {
+          return (
+            <Tooltip title={val}>
+              <div className={styles.over}>{val}</div>
+            </Tooltip>
           );
         }
       },
@@ -175,10 +197,7 @@ export default class componentVersion extends PureComponent {
             <Form>
               <FormItem style={{ margin: 0 }}>
                 {getFieldDecorator(`${data.service_alias}`, {
-                  initialValue:
-                    setVal ||
-                    (dataPro.current_version &&
-                      `当前版本:${dataPro.current_version}`),
+                  initialValue: setVal || `无`,
                   rules: [
                     {
                       required: true,
@@ -205,7 +224,8 @@ export default class componentVersion extends PureComponent {
         title: '操作',
         dataIndex: 'component_id',
         rowKey: 'component_id',
-        width: 130,
+        align: 'center',
+        width: 150,
         render: (_, data) => {
           if (data.upgradable_versions && data.upgradable_versions.length > 0) {
             return (
@@ -226,7 +246,7 @@ export default class componentVersion extends PureComponent {
                 color: 'rgba(0, 0, 0, 0.45)'
               }}
             >
-              无可升级的变更
+              无可升级的版本
             </span>
           );
         }
@@ -234,7 +254,7 @@ export default class componentVersion extends PureComponent {
     ];
     return (
       <Modal
-        title={title || '组件版本'}
+        title={title || '组件列表'}
         visible
         width={800}
         confirmLoading={loading}
