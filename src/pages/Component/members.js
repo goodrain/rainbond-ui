@@ -140,54 +140,6 @@ export default class Index extends React.Component {
       action: e.target.value
     });
   };
-  handleState = () => {
-    const arr = this.state.list || [{ status: '-' }];
-    let healthy = 0;
-    let unhealthy = 0;
-    let Unknown = 0;
-    let nos = '';
-    arr.map(item => {
-      const { status } = item;
-      if (status == 'healthy') {
-        healthy++;
-      } else if (status == 'unhealthy') {
-        unhealthy++;
-      } else if (status == 'Unknown' || status == 'unknown') {
-        Unknown++;
-      } else {
-        nos = '-';
-      }
-      return item;
-    });
-    if (
-      healthy != 0 &&
-      unhealthy == 0 &&
-      Unknown === 0 &&
-      Unknown === 0 &&
-      nos == ''
-    ) {
-      return (
-        <span>
-          (<span style={{ color: 'green' }}>健康</span>)
-        </span>
-      );
-    } else if (healthy != 0 && (unhealthy != 0 || Unknown != 0)) {
-      return (
-        <span>
-          (<span style={{ color: 'green' }}>部分健康</span>)
-        </span>
-      );
-    } else if (healthy == 0 && unhealthy != 0 && Unknown == 0 && nos == '') {
-      return (
-        <span>
-          (<span style={{ color: 'red' }}>不健康</span>)
-        </span>
-      );
-    } else if (healthy == 0 && unhealthy == 0 && Unknown != 0 && nos == '') {
-      return '(未知)';
-    }
-    return '(-)';
-  };
 
   handleStartProbeStart = isUsed => {
     const { startProbe } = this.props;
@@ -205,7 +157,7 @@ export default class Index extends React.Component {
     });
   };
 
-  handleStates = data => {
+  handleState = data => {
     if (appProbeUtil.isStartProbeUsed(data)) {
       if (appProbeUtil.isStartProbeStart(data)) {
         return '已启用';
@@ -292,7 +244,7 @@ export default class Index extends React.Component {
             {startProbe && (
               <div style={{ display: 'flex' }}>
                 <div style={{ width: '33%', textAlign: 'center' }}>
-                  当前状态:{this.handleState()}
+                  当前状态:{this.handleState(startProbe)}
                 </div>
                 <div style={{ width: '33%', textAlign: 'center' }}>
                   检测方式:{startProbe.scheme ? startProbe.scheme : '未设置'}
