@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import React from 'react';
 import globalUtil from '../../utils/global';
 
-const Option = Select.Option;
+const { Option } = Select;
 @connect()
 class UserRemoteSelect extends React.Component {
   constructor(props) {
