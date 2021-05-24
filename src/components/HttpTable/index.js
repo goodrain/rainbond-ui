@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import { Button, Card, Modal, notification, Row, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -36,7 +37,7 @@ export default class HttpTable extends PureComponent {
       appStatusVisable: false,
       record: '',
       parameterVisible: false,
-      parameterList: null
+      parameterInfo: null
     };
   }
   componentWillMount() {
@@ -122,40 +123,13 @@ export default class HttpTable extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          const arr = [];
           if (res.bean && res.bean.value) {
-            if (
-              res.bean.value.set_headers &&
-              res.bean.value.set_headers.length > 1
-            ) {
-              let haveUpgrade = false;
-              let haveConnection = false;
-              res.bean.value.set_headers.map(item => {
-                if (item.key != 'Connection' && item.key != 'Upgrade') {
-                  arr.push(item);
-                }
-                if (item.key == 'Connection') {
-                  haveUpgrade = true;
-                }
-                if (item.key == 'Upgrade') {
-                  haveConnection = true;
-                }
-              });
-              res.bean.value.set_headers = arr;
-              res.bean.value.WebSocket = haveUpgrade && haveConnection;
-              this.setState({
-                parameterVisible: values,
-                parameterList: res.bean && res.bean.value
-              });
-            } else {
-              res.bean.value.WebSocket = false;
-              this.setState({
-                parameterVisible: values,
-                parameterList: res.bean && res.bean.value
-              });
-            }
+            this.setState({
+              parameterVisible: values,
+              parameterInfo: res.bean && res.bean.value
+            });
           } else {
-            this.setState({ parameterVisible: values, parameterList: null });
+            this.setState({ parameterVisible: values, parameterInfo: null });
           }
         }
       }
@@ -244,10 +218,6 @@ export default class HttpTable extends PureComponent {
   };
   handleOkParameter = values => {
     const { dispatch } = this.props;
-    const arr = [
-      { key: 'Connection', value: '"Upgrade"' },
-      { key: 'Upgrade', value: '$http_upgrade' }
-    ];
     const value = {
       proxy_buffer_numbers: Number(values.proxy_buffer_numbers),
       proxy_buffer_size: Number(values.proxy_buffer_size),
@@ -256,16 +226,8 @@ export default class HttpTable extends PureComponent {
       proxy_read_timeout: Number(values.proxy_read_timeout),
       proxy_send_timeout: Number(values.proxy_send_timeout),
       proxy_buffering: values.proxy_buffering ? 'on' : 'off',
-      set_headers:
-        values.set_headers && values.WebSocket
-          ? values.set_headers.length == 1 && values.set_headers[0].key == ''
-            ? arr
-            : values.set_headers.concat(arr)
-          : values.set_headers
-          ? values.set_headers
-          : values.WebSocket
-          ? arr
-          : []
+      WebSocket: values.WebSocket,
+      set_headers: values.set_headers
     };
     dispatch({
       type: 'gateWay/editParameter',
@@ -475,7 +437,7 @@ export default class HttpTable extends PureComponent {
   handleCloseParameter = () => {
     this.setState({
       parameterVisible: false,
-      parameterList: null
+      parameterInfo: null
     });
   };
   render() {
@@ -496,7 +458,7 @@ export default class HttpTable extends PureComponent {
       page_size,
       whetherOpenForm,
       appStatusVisable,
-      parameterList
+      parameterInfo
     } = this.state;
 
     const columns = [
@@ -720,7 +682,7 @@ export default class HttpTable extends PureComponent {
             onOk={this.handleOkParameter}
             onClose={this.handleCloseParameter}
             visible={parameterVisible}
-            editInfo={parameterList}
+            editInfo={parameterInfo}
           />
         )}
         {informationConnect && (
