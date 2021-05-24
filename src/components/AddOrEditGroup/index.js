@@ -52,7 +52,7 @@ export default class EditGroupName extends PureComponent {
                 { required: true, message: '请填写应用名称' },
                 {
                   max: 24,
-                  message: '应用名称最大长度24位'
+                  message: '最大长度24位'
                 }
               ]
             })(<Input placeholder="请填写应用名称" />)}

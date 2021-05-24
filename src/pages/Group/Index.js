@@ -468,8 +468,8 @@ class Main extends PureComponent {
               message: res.msg_show || '构建成功',
               duration: '3'
             });
-            this.handlePromptModalClose();
           }
+          this.handlePromptModalClose();
           this.loadTopology(false);
         }
       });
