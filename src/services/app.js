@@ -143,14 +143,7 @@ export function getActionLogDetail(
 /*
 	部署应用
 */
-export function deploy(
-  body = {
-    team_name,
-    app_alias,
-    group_version,
-    is_upgrate
-  }
-) {
+export function deploy(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/deploy`,
     {
@@ -158,7 +151,8 @@ export function deploy(
       data: {
         is_upgrate: !!body.is_upgrate,
         group_version: body.group_version
-      }
+      },
+      handleError
     }
   );
 }
