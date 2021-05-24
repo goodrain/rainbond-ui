@@ -160,6 +160,7 @@ export default class Main extends PureComponent {
         scope: v ? '' : this.state.scope,
         page_size: v ? 9 : this.state.pageSize,
         page: v ? 1 : this.state.page,
+        need_install: true,
         is_complete: 1
       },
       callback: data => {
@@ -592,7 +593,11 @@ export default class Main extends PureComponent {
           <GoodrainRZ style={{ marginLeft: 6, marginTop: 6 }} />
         )}
         <Card
-          className={PluginStyles.cards}
+          className={
+            handleType
+              ? `${PluginStyles.cards} ${PluginStyles.clearAvatar}`
+              : PluginStyles.cards
+          }
           actions={handleType ? fastactions : defaultActions}
         >
           <Card.Meta

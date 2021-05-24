@@ -279,7 +279,11 @@ class Index extends React.Component {
                     {!tagsLoading && tags && tags.length > 0 ? (
                       tags.map(item => {
                         return (
-                          <Option key={item} value={item}>
+                          <Option
+                            key={item}
+                            value={item}
+                            style={{ textAlign: 'left' }}
+                          >
                             {item}
                           </Option>
                         );

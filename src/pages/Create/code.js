@@ -19,7 +19,7 @@ import CodeDemo from './code-demo';
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
     enterprise: global.enterprise,
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
@@ -45,19 +45,19 @@ export default class Main extends PureComponent {
       match,
       currentEnterprise,
       currentTeam,
-      currentRegionName,
+      currentRegionName
     } = this.props;
 
     const map = {
       custom: CodeCustom,
-      demo: CodeDemo,
+      demo: CodeDemo
     };
 
     const tabList = [
       {
         key: 'custom',
-        tab: '自定义源码',
-      },
+        tab: '自定义源码'
+      }
     ];
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
       tabList.push({ key: 'demo', tab: '官方DEMO' });
@@ -66,19 +66,21 @@ export default class Main extends PureComponent {
     if (servers && servers.length > 0) {
       servers.map(item => {
         const { name, service_id, oauth_type } = item;
-        let tabName = `${name}项目`;
-        if (oauth_type === 'github') {
-          tabName = 'Github项目';
-        } else if (oauth_type === 'gitlab') {
-          tabName = 'Gitlab项目';
-        } else if (oauth_type === 'gitee') {
-          tabName = 'Gitee项目';
-        }
+        const typeMap = {
+          github: 'Github',
+          gitlab: 'Gitlab',
+          gitee: 'Gitee'
+        };
+        const setName = typeMap[oauth_type] || '';
+        const tabName = setName
+          ? `${setName} ${name && `(${name})`}`
+          : `${name}项目`;
+
         map[service_id] = CodeGitRepostory;
         tabList.push({
           key: service_id,
           types: oauth_type,
-          tab: tabName,
+          tab: tabName
         });
         return tabList;
       });

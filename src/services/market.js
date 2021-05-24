@@ -119,7 +119,8 @@ export async function fetchAppModels(param) {
         scope: param.scope,
         app_name: param.app_name,
         is_complete: param.is_complete,
-        tags: JSON.stringify(param.tags)
+        tags: JSON.stringify(param.tags),
+        need_install: param.need_install
       }
     }
   );
