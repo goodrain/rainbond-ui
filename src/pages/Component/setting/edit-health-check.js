@@ -4,7 +4,7 @@ import KVinput from '../../../components/KVinput';
 import appProbeUtil from '../../../utils/appProbe-util';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 const RadioGroup = Radio.Group;
 
 // 设置、编辑健康监测
@@ -12,21 +12,28 @@ const RadioGroup = Radio.Group;
 export default class EditHealthCheck extends PureComponent {
   constructor(props) {
     super(props);
+    const { ports } = this.props;
+    const HeavyList = ports ? this.handleHeavyList(ports) : [];
     this.state = {
-      list: this.props.ports ? this.handleHeavyList(this.props.ports) : [],
-      prolist: this.props.ports ? this.handleHeavyList(this.props.ports) : []
+      list: HeavyList,
+      prolist: HeavyList
     };
   }
-
+  onChanges = e => {
+    this.props.form.setFieldsValue({
+      mode: e.target.value
+    });
+  };
   handleSubmit = e => {
     e.preventDefault();
-    this.props.form.validateFields(
+    const { form, onOk } = this.props;
+    form.validateFields(
       {
         force: true
       },
       (err, vals) => {
-        if (!err) {
-          this.props.onOk && this.props.onOk(vals);
+        if (!err && onOk) {
+          onOk(vals);
         }
       }
     );
@@ -46,7 +53,7 @@ export default class EditHealthCheck extends PureComponent {
   };
 
   handleHeavyList = arr => {
-    let arrs = [];
+    const arrs = [];
     arr.map(item => {
       arrs.push(item.container_port);
     });
@@ -57,16 +64,16 @@ export default class EditHealthCheck extends PureComponent {
     if (value == null && value == '') {
       return;
     }
-    let arr = this.state.list ? this.state.list : [];
+    const arr = this.state.list ? this.state.list : [];
 
-    value && arr.unshift(value + '');
+    value && arr.unshift(`${value}`);
     if ((arr && arr.length > 0 && arr[0] == 'null') || arr[0] == '') {
       return;
     }
-    var res = [arr[0]];
-    for (var i = 1; i < arr.length; i++) {
-      var repeat = false;
-      for (var j = 0; j < res.length; j++) {
+    const res = [arr[0]];
+    for (let i = 1; i < arr.length; i++) {
+      let repeat = false;
+      for (let j = 0; j < res.length; j++) {
         if (arr[i] == res[j]) {
           repeat = true;
           break;
@@ -82,14 +89,9 @@ export default class EditHealthCheck extends PureComponent {
       port: value
     });
   };
-  onChanges = e => {
-    this.props.form.setFieldsValue({
-      mode: e.target.value
-    });
-  };
 
   render() {
-    const { title, onCancel, ports, loading = false } = this.props;
+    const { title, onCancel, form, types, loading = false } = this.props;
     const data = this.props.data || {};
     const formItemLayout = {
       labelCol: {
@@ -109,9 +111,26 @@ export default class EditHealthCheck extends PureComponent {
         }
       }
     };
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { getFieldDecorator, getFieldValue } = form;
     const { list, prolist } = this.state;
     const scheme = getFieldValue('scheme') || 'tcp';
+    const secondBox = (
+      <span
+        style={{
+          marginLeft: 8
+        }}
+      >
+        秒
+      </span>
+    );
+    const numberBox = (
+      <Input
+        type="number"
+        style={{
+          width: '80%'
+        }}
+      />
+    );
     return (
       <Modal
         width={700}
@@ -123,55 +142,29 @@ export default class EditHealthCheck extends PureComponent {
         confirmLoading={loading}
       >
         <Form onSubmit={this.handleSubmit}>
-          {prolist && prolist.length > 0 ? (
-            <FormItem {...formItemLayout} label="检测端口">
-              {getFieldDecorator('port', {
-                initialValue:
-                  appProbeUtil.getPort(data) ||
-                  (list && list.length ? list[0] : ''),
-                rules: [{ required: true, message: '请输入' }]
-              })(
-                <Select
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  onSearch={val => {
-                    this.handleList(val);
-                  }}
-                >
-                  {list &&
-                    list.map(port => (
-                      <Option key={port} value={port}>
-                        {port}
-                      </Option>
-                    ))}
-                </Select>
-              )}
-            </FormItem>
-          ) : (
-            <FormItem {...formItemLayout} label="检测端口">
-              {getFieldDecorator('port', {
-                initialValue:
-                  appProbeUtil.getPort(data) ||
-                  (list && list.length ? list[0] : ''),
-                rules: [{ required: true, message: '请输入' }]
-              })(
-                <Select
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  showSearch
-                  onSearch={val => {
-                    this.handleList(val);
-                  }}
-                >
-                  {list &&
-                    list.map(port => (
-                      <Option key={port} value={port}>
-                        {port}
-                      </Option>
-                    ))}
-                </Select>
-              )}
-            </FormItem>
-          )}
-
+          <FormItem {...formItemLayout} label="检测端口">
+            {getFieldDecorator('port', {
+              initialValue:
+                appProbeUtil.getPort(data) ||
+                (list && list.length ? list[0] : ''),
+              rules: [{ required: true, message: '请输入' }]
+            })(
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                showSearch={!(prolist && prolist.length > 0)}
+                onSearch={val => {
+                  this.handleList(val);
+                }}
+              >
+                {list &&
+                  list.map(port => (
+                    <Option key={port} value={port}>
+                      {port}
+                    </Option>
+                  ))}
+              </Select>
+            )}
+          </FormItem>
           <FormItem {...formItemLayout} label="探针协议">
             {getFieldDecorator('scheme', {
               initialValue: data.scheme || 'tcp'
@@ -192,14 +185,13 @@ export default class EditHealthCheck extends PureComponent {
           </FormItem>
           <FormItem {...formItemLayout} label="不健康处理方式:">
             {getFieldDecorator('mode', {
-              initialValue:
-                data.mode || (this.props.types && 'ignore') || 'readiness',
+              initialValue: data.mode || (types && 'ignore') || 'readiness',
               rules: [{ required: true, message: '请选择' }]
             })(
               <RadioGroup onChange={this.onChanges}>
-                <Radio value={'readiness'}>下线</Radio>
-                {!this.props.types && <Radio value={'liveness'}>重启</Radio>}
-                {this.props.types && <Radio value={'ignore'}>忽略</Radio>}
+                <Radio value="readiness">下线</Radio>
+                {!types && <Radio value="liveness">重启</Radio>}
+                {types && <Radio value="ignore">忽略</Radio>}
               </RadioGroup>
             )}
           </FormItem>
@@ -239,21 +231,8 @@ export default class EditHealthCheck extends PureComponent {
                   message: '请填写初始化等候时间'
                 }
               ]
-            })(
-              <Input
-                type="number"
-                style={{
-                  width: '80%'
-                }}
-              />
-            )}
-            <span
-              style={{
-                marginLeft: 8
-              }}
-            >
-              秒
-            </span>
+            })(numberBox)}
+            {secondBox}
           </FormItem>
           <FormItem {...formItemLayout} label="检测间隔时间">
             {getFieldDecorator('period_second', {
@@ -264,21 +243,8 @@ export default class EditHealthCheck extends PureComponent {
                   message: '请填写检测间隔时间'
                 }
               ]
-            })(
-              <Input
-                type="number"
-                style={{
-                  width: '80%'
-                }}
-              />
-            )}
-            <span
-              style={{
-                marginLeft: 8
-              }}
-            >
-              秒
-            </span>
+            })(numberBox)}
+            {secondBox}
           </FormItem>
           <FormItem {...formItemLayout} label="检测超时时间">
             {getFieldDecorator('timeout_second', {
@@ -289,21 +255,8 @@ export default class EditHealthCheck extends PureComponent {
                   message: '请填写检测超时时间'
                 }
               ]
-            })(
-              <Input
-                type="number"
-                style={{
-                  width: '80%'
-                }}
-              />
-            )}
-            <span
-              style={{
-                marginLeft: 8
-              }}
-            >
-              秒
-            </span>
+            })(numberBox)}
+            {secondBox}
           </FormItem>
           <FormItem {...formItemLayout} label="连续成功次数">
             {getFieldDecorator('success_threshold', {
@@ -314,14 +267,7 @@ export default class EditHealthCheck extends PureComponent {
                   message: '请填写连续成功次数'
                 }
               ]
-            })(
-              <Input
-                type="number"
-                style={{
-                  width: '80%'
-                }}
-              />
-            )}
+            })(numberBox)}
           </FormItem>
         </Form>
       </Modal>

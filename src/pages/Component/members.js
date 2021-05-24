@@ -3,15 +3,12 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
-import { Card, Form, Input, Modal, Radio } from 'antd';
+import { Card, Form } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
 import appProbeUtil from '../../utils/appProbe-util';
 import globalUtil from '../../utils/global';
 import EditHealthCheck from './setting/edit-health-check';
-
-const FormItem = Form.Item;
-const RadioGroup = Radio.Group;
 
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -34,9 +31,8 @@ export default class Index extends React.Component {
   constructor(arg) {
     super(arg);
     this.state = {
-      healthList: null,
       showHealth: false,
-      isScheme: '',
+      loading: true,
       list: []
     };
   }
@@ -46,72 +42,58 @@ export default class Index extends React.Component {
     this.fetchPorts();
     this.fetchBaseInfo();
     this.fetchTags();
+    this.handleGetList();
   }
-  fetchBaseInfo = () => {
+  handleParameter = () => {
+    return {
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: this.props.appAlias
+    };
+  };
+
+  handleGetList = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'appControl/fetchBaseInfo',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+      type: 'appControl/getInstanceList',
+      payload: this.handleParameter(),
+      callback: res => {
+        this.setState({
+          list: (res && res.list) || [],
+          loading: false
+        });
       }
     });
   };
-  fetchPorts = () => {
+  fetchInterface = type => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'appControl/fetchPorts',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
-      },
-      callback: () => {}
+      type,
+      payload: this.handleParameter()
     });
   };
+  fetchBaseInfo = () => {
+    this.fetchInterface('appControl/fetchBaseInfo');
+  };
+  fetchPorts = () => {
+    this.fetchInterface('appControl/fetchPorts');
+  };
   fetchTags = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'appControl/fetchTags',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
-      },
-      callback: () => {}
-    });
+    this.fetchInterface('appControl/fetchTags');
   };
 
   fetchStartProbe() {
-    this.props.dispatch({
-      type: 'appControl/fetchStartProbe',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
-      }
-    });
+    this.fetchInterface('appControl/fetchStartProbe');
   }
 
-  handleSubmit = vals => {
-    this.props.dispatch({
-      type: 'appControl/addStartProbe',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        ...vals
-      },
-      callback: () => {
-        this.handleCancel();
-        this.fetchStartProbe();
-      }
-    });
-  };
-
   handleSubmitEdit = vals => {
-    const { startProbe } = this.props;
-    this.props.dispatch({
+    this.setState({
+      healthCheckLoading: true
+    });
+    const { startProbe, dispatch } = this.props;
+    dispatch({
       type: 'appControl/editStartProbe',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        ...this.handleParameter(),
         ...vals,
         old_mode: startProbe.mode
       },
@@ -123,23 +105,12 @@ export default class Index extends React.Component {
   };
 
   handleCancel = () => {
-    this.setState({ showHealth: false });
+    this.setState({ showHealth: false, healthCheckLoading: false });
   };
   openCancel = () => {
     this.setState({ showHealth: true });
   };
 
-  onChange = e => {
-    this.props.form.setFieldsValue({
-      attr_value: e.target.value
-    });
-    this.setState({ isScheme: e.target.value });
-  };
-  onChanges = e => {
-    this.props.form.setFieldsValue({
-      action: e.target.value
-    });
-  };
   handleState = () => {
     const arr = this.state.list || [{ status: '-' }];
     let healthy = 0;
@@ -190,12 +161,11 @@ export default class Index extends React.Component {
   };
 
   handleStartProbeStart = isUsed => {
-    const { startProbe } = this.props;
-    this.props.dispatch({
+    const { startProbe, dispatch } = this.props;
+    dispatch({
       type: 'appControl/editStartProbe',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        ...this.handleParameter(),
         ...startProbe,
         is_used: isUsed
       },
@@ -204,37 +174,24 @@ export default class Index extends React.Component {
       }
     });
   };
-
-  handleStates = data => {
-    if (appProbeUtil.isStartProbeUsed(data)) {
-      if (appProbeUtil.isStartProbeStart(data)) {
-        return '已启用';
-      }
-      return '已禁用';
-    }
-    return '未设置';
-  };
   render() {
     const { baseInfo, startProbe, ports } = this.props;
     if (typeof baseInfo.build_upgrade !== 'boolean') {
       return null;
     }
-    const { getFieldDecorator } = this.props.form;
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 6 }
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 }
-      }
+    const { showHealth, loading, healthCheckLoading } = this.state;
+    const probeMap = {
+      readiness: '下线',
+      liveness: '重启',
+      ignore: '忽略'
     };
-    const { healthList, showHealth, isScheme, list } = this.state;
+    const isStartProbe = JSON.stringify(startProbe) != '{}';
+    const setWidth = { width: '33%', textAlign: 'center' };
     return (
       <div>
         {startProbe && (
           <Card
+            loading={loading}
             title={
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 健康检测
@@ -250,10 +207,10 @@ export default class Index extends React.Component {
                         this.openCancel();
                       }}
                     >
-                      {JSON.stringify(startProbe) != '{}' ? '编辑' : '设置'}
+                      {isStartProbe ? '编辑' : '设置'}
                     </a>
                   )}
-                  {JSON.stringify(startProbe) != '{}' &&
+                  {isStartProbe &&
                   appProbeUtil.isStartProbeStart(startProbe) ? (
                     <a
                       onClick={() => {
@@ -269,7 +226,7 @@ export default class Index extends React.Component {
                       禁用
                     </a>
                   ) : (
-                    JSON.stringify(startProbe) != '{}' && (
+                    isStartProbe && (
                       <a
                         onClick={() => {
                           this.handleStartProbeStart(true);
@@ -291,113 +248,27 @@ export default class Index extends React.Component {
           >
             {startProbe && (
               <div style={{ display: 'flex' }}>
-                <div style={{ width: '33%', textAlign: 'center' }}>
-                  当前状态:{this.handleState()}
+                <div style={setWidth}>当前状态:{this.handleState()}</div>
+                <div style={setWidth}>
+                  检测方式:{startProbe.scheme || '未设置'}
                 </div>
-                <div style={{ width: '33%', textAlign: 'center' }}>
-                  检测方式:{startProbe.scheme ? startProbe.scheme : '未设置'}
-                </div>
-                <div style={{ width: '33%', textAlign: 'center' }}>
+                <div style={setWidth}>
                   不健康处理方式:
-                  {startProbe.mode == 'readiness'
-                    ? '下线'
-                    : startProbe.mode == 'liveness'
-                    ? '重启'
-                    : startProbe.mode == 'ignore'
-                    ? '忽略'
-                    : '未设置'}
+                  {probeMap[startProbe.mode] || '未设置'}
                 </div>
               </div>
             )}
           </Card>
         )}
         {showHealth && (
-          <Modal
-            title="编辑健康检测"
-            onOk={() => {
-              this.handleSubmit();
-            }}
-            onCancel={this.handleCancel}
-            visible={showHealth}
-          >
-            {healthList && (
-              <Form onSubmit={this.handleSubmit}>
-                <FormItem {...formItemLayout} label="检测方式">
-                  {getFieldDecorator('Scheme', {
-                    initialValue: healthList.Scheme || '',
-                    rules: [{ required: true, message: '请输入检测方式' }]
-                  })(
-                    <RadioGroup onChange={this.onChange}>
-                      <Radio value="HTTP">HTTP</Radio>
-                      <Radio value="TCP">TCP</Radio>
-                    </RadioGroup>
-                  )}
-                </FormItem>
-                <FormItem {...formItemLayout} label="检测端口">
-                  {getFieldDecorator('port', {
-                    initialValue: healthList.port || '',
-                    rules: [{ required: true, message: '请输入检测端口' }]
-                  })(
-                    <Input placeholder="请输入端口" style={{ width: '90%' }} />
-                  )}
-                </FormItem>
-                <FormItem {...formItemLayout} label="不健康处理方式:">
-                  {getFieldDecorator('action', {
-                    initialValue: healthList.action || '',
-                    rules: [{ required: true, message: '请选择' }]
-                  })(
-                    <RadioGroup onChange={this.onChanges}>
-                      <Radio value="offline">下线</Radio>
-                      <Radio value="ignore">忽略</Radio>
-                    </RadioGroup>
-                  )}
-                </FormItem>
-                {isScheme == 'HTTP' && (
-                  <FormItem {...formItemLayout} label="URI">
-                    {getFieldDecorator('path', {
-                      initialValue: healthList.path || ''
-                    })(
-                      <Input placeholder="请输入URI" style={{ width: '90%' }} />
-                    )}
-                  </FormItem>
-                )}
-                <FormItem {...formItemLayout} label="检测间隔时间">
-                  {getFieldDecorator('time_interval', {
-                    initialValue: healthList.time_interval || ''
-                  })(
-                    <Input
-                      type="number"
-                      style={{ width: '90%' }}
-                      placeholder="请输入间隔时间"
-                    />
-                  )}
-                  <span style={{ marginLeft: 8 }}> 秒</span>
-                </FormItem>
-
-                <FormItem {...formItemLayout} label="允许错误次数">
-                  {getFieldDecorator('max_error_num', {
-                    initialValue: healthList.max_error_num || ''
-                  })(
-                    <Input
-                      type="number"
-                      style={{ width: '90%' }}
-                      placeholder="请输入允许错误次数"
-                    />
-                  )}
-                  <span style={{ marginLeft: 8 }}> 秒</span>
-                </FormItem>
-              </Form>
-            )}
-          </Modal>
-        )}
-        {this.state.showHealth && (
           <EditHealthCheck
-            ports={ports}
-            onOk={this.handleSubmitEdit}
             title="健康检测"
-            data={startProbe}
-            onCancel={this.handleCancel}
             types="third"
+            ports={ports}
+            loading={healthCheckLoading}
+            data={startProbe}
+            onOk={this.handleSubmitEdit}
+            onCancel={this.handleCancel}
           />
         )}
       </div>
