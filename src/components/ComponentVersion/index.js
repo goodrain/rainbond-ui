@@ -32,6 +32,7 @@ export default class componentVersion extends PureComponent {
   componentDidMount() {
     this.fetchComponentVersion();
   }
+
   onOk = e => {
     e.preventDefault();
     const { form, onOk } = this.props;
@@ -42,7 +43,7 @@ export default class componentVersion extends PureComponent {
     });
   };
 
-  fetchComponentVersion = serviceAlias => {
+  fetchComponentVersion = () => {
     const { dispatch, form, data = {}, team_name, group_id } = this.props;
     const { setFieldsValue } = form;
 
@@ -55,33 +56,18 @@ export default class componentVersion extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          if (serviceAlias) {
-            let setServiceAlias = '';
-            if (res.list && res.list.length > 0) {
-              res.list.map(item => {
-                const { upgradable_versions: version } = item;
-                if (serviceAlias === item.service_alias) {
-                  setServiceAlias =
-                    (version && version.length > 0 && version[0]) ||
-                    (data.current_version &&
-                      `当前版本:${data.current_version}`);
-                }
-              });
-            }
-            setFieldsValue({ [serviceAlias]: setServiceAlias });
-          }
           this.setState({
-            loading: false,
             list: res.list
           });
         }
+        this.handleCancel();
       },
       handleError: errs => {
-        cloud.handleCloudAPIError(errs);
-        this.handleCancel();
+        this.handleError(errs);
       }
     });
   };
+
   handleDeploy = data => {
     const { team_name: teamName, dispatch, ok } = this.props;
     const { form } = this.props;
@@ -100,7 +86,7 @@ export default class componentVersion extends PureComponent {
           },
           callback: res => {
             if (res && res.status_code === 200) {
-              this.fetchComponentVersion(serviceAlias);
+              this.fetchComponentVersion();
               if (ok) {
                 ok();
               }
@@ -108,12 +94,16 @@ export default class componentVersion extends PureComponent {
             }
           },
           handleError: errs => {
-            cloud.handleCloudAPIError(errs);
-            this.handleCancel();
+            this.handleError(errs);
           }
         });
       }
     });
+  };
+
+  handleError = errs => {
+    cloud.handleCloudAPIError(errs);
+    this.handleCancel();
   };
 
   handleCancel = () => {
@@ -121,6 +111,7 @@ export default class componentVersion extends PureComponent {
       loading: false
     });
   };
+
   render() {
     const {
       title,
@@ -132,31 +123,6 @@ export default class componentVersion extends PureComponent {
     } = this.props;
     const { list, loading } = this.state;
     const { getFieldDecorator } = form;
-
-    const dataSource = [
-      {
-        component_name: 'pariatur laborum fugiat',
-        component_id: 'voluptate in ut do',
-        component_key: 'ut',
-        upgradable_versions: [
-          'dolore mollit est',
-          'mollit ullamco eu est',
-          'labore consectetur ut dolor proident'
-        ]
-      },
-      {
-        component_name: 'dolor',
-        component_id: 'commodo est',
-        component_key: 'dolor sunt Excepteur dolore enim',
-        upgradable_versions: [
-          'dolore quis',
-          'incididunt',
-          'labore cillum',
-          'elit adipisicing',
-          'laboris in in tempor'
-        ]
-      }
-    ];
 
     const columns = [
       {
