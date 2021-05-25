@@ -1,10 +1,11 @@
-import { Button, Form, Input, Modal, notification } from 'antd';
+import { Button, Form, Input, Modal, notification, Typography } from 'antd';
 import axios from 'axios';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
+const { Paragraph } = Typography;
 @Form.create()
 @connect()
 export default class Consulting extends PureComponent {
@@ -33,10 +34,12 @@ export default class Consulting extends PureComponent {
                 })
               )
               .then(res => {
-                if (res.status == 200) {
+                if (res.status === 200) {
                   this.setState({ loading: false });
                   notification.success({ message: '获取成功,稍后将与您联系' });
-                  onOk && onOk();
+                  if (onOk) {
+                    onOk();
+                  }
                 }
               });
           }
@@ -73,6 +76,21 @@ export default class Consulting extends PureComponent {
           </Button>
         ]}
       >
+        <div style={{ background: 'rgba(22, 184, 248, 0.1)', padding: '16px' }}>
+          <h3>获取企业版授权，获得以下能力：</h3>
+          <Paragraph className={styles.describe}>
+            <ul>
+              <li>
+                【授权】交付客户商业化场景的产品授权（开源版本进行商业交付违背开源协议）
+              </li>
+              <li>【功能】应用状态全局监控与报警。</li>
+              <li>【功能】站内信支持。</li>
+              <li>【功能】操作日志审计。</li>
+              <li>【功能】集群监控可视化和报警。</li>
+              <li>【服务】多种级别的售后支持服务可选。</li>
+            </ul>
+          </Paragraph>
+        </div>
         <Form onSubmit={this.handleSubmit} layout="horizontal">
           <FormItem {...formItemLayout} label="姓名" hasFeedback>
             {getFieldDecorator('name', {
