@@ -11,10 +11,11 @@ import {
   InputNumber,
   Modal,
   Row,
-  Select
+  Select,
+  Skeleton
 } from 'antd';
 import { connect } from 'dva';
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import teamUtil from '../../utils/team';
@@ -37,12 +38,12 @@ class DrawerForm extends PureComponent {
     const { editInfo } = this.props;
     this.state = {
       serviceComponentList: [],
+      serviceComponentLoading: true,
       portList: [],
       licenseList: [],
       isAddLicense: false,
       page: 1,
       page_size: 10,
-      service_id: '',
       group_name: '',
       descriptionVisible: false,
       rule_extensions_visible: false,
@@ -62,8 +63,8 @@ class DrawerForm extends PureComponent {
   }
 
   heandleEditInfo = props => {
-    const { page, page_size } = this.state;
     const { dispatch, editInfo, appID } = props;
+    const { page, page_size } = this.state;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
       type: 'appControl/fetchCertificates',
@@ -80,11 +81,12 @@ class DrawerForm extends PureComponent {
         }
       }
     });
-    if (editInfo) {
-      this.handleServices({ key: editInfo.g_id });
-    }
-    if (appID) {
-      this.handleServices({ key: appID });
+    if (editInfo || appID) {
+      this.handleServices({ key: (editInfo && editInfo.g_id) || appID });
+    } else {
+      this.setState({
+        serviceComponentLoading: false
+      });
     }
   };
 
@@ -131,64 +133,66 @@ class DrawerForm extends PureComponent {
     dispatch({
       type: 'application/fetchApps',
       payload: {
+        page_size: -1,
         group_id: groupObj.key,
         team_name
       },
       callback: data => {
-        if (data) {
-          this.setState({ serviceComponentList: data.list }, () => {
+        this.setState(
+          {
+            serviceComponentList: data.list || [],
+            serviceComponentLoading: false
+          },
+          () => {
             if (data.list && data.list.length > 0) {
+              let serviceId = data.list[0].service_id;
               if (isPerform && editInfo) {
-                this.handlePorts(editInfo.service_id, true);
-                this.props.form.setFieldsValue({
-                  service_id: editInfo.service_id
-                });
-              } else {
-                this.handlePorts(data.list[0].service_id, false);
-                this.props.form.setFieldsValue({
-                  service_id: data.list[0].service_id
-                });
+                serviceId = editInfo.service_id;
               }
+              this.handlePorts(serviceId);
+              this.props.form.setFieldsValue({
+                service_id: serviceId
+              });
             }
-          });
-        }
+          }
+        );
       }
     });
   };
   /** 获取端口 */
   handlePorts = service_id => {
-    const { dispatch, editInfo } = this.props;
-    const { isPerform } = this.state;
+    const { dispatch, editInfo, form } = this.props;
+    const { isPerform, serviceComponentList } = this.state;
+    const { setFieldsValue } = form;
     const team_name = globalUtil.getCurrTeamName();
-    const service_obj = this.state.serviceComponentList.filter(item => {
+    const service_obj = serviceComponentList.filter(item => {
       return item.service_id == service_id;
     });
+    const serviceAlias =
+      service_obj && service_obj.length > 0 && service_obj[0].service_alias;
+    if (!serviceAlias) {
+      return null;
+    }
     dispatch({
       type: 'appControl/fetchPorts',
       payload: {
-        app_alias:
-          service_obj &&
-          service_obj.length > 0 &&
-          service_obj[0].service_alias &&
-          service_obj[0].service_alias,
+        app_alias: serviceAlias,
         team_name
       },
       callback: data => {
         if (data) {
-          this.setState({ portList: data.list }, () => {
+          this.setState({ portList: data.list || [] }, () => {
             if (data.list && data.list.length > 0) {
+              let containerPort = data.list[0].container_port;
               if (isPerform && editInfo) {
                 this.setState({
                   isPerform: false
                 });
-                this.props.form.setFieldsValue({
-                  container_port: editInfo.container_port
-                });
-              } else {
-                this.props.form.setFieldsValue({
-                  container_port: data.list[0].container_port
-                });
+                containerPort = editInfo.container_port;
               }
+              setFieldsValue({
+                container_port: containerPort
+              });
             }
           });
         }
@@ -319,6 +323,7 @@ class DrawerForm extends PureComponent {
       isAddLicense,
       automaticCertificateVisible,
       serviceComponentList,
+      serviceComponentLoading,
       portList
     } = this.state;
     const dividers = <Divider style={{ margin: '4px 0' }} />;
@@ -569,71 +574,78 @@ class DrawerForm extends PureComponent {
             >
               访问目标
             </h3>
-            <FormItem {...formItemLayout} label="应用名称">
-              {getFieldDecorator('group_id', {
-                rules: [{ required: true, message: '请选择' }],
-                initialValue: appKey || appKeys || undefined
-              })(
-                <Select
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  labelInValue
-                  disabled={appID}
-                  placeholder="请选择要所属应用"
-                  onChange={this.handleServices}
+            <Skeleton loading={serviceComponentLoading} active>
+              <Fragment>
+                <FormItem {...formItemLayout} label="应用名称">
+                  {getFieldDecorator('group_id', {
+                    rules: [{ required: true, message: '请选择' }],
+                    initialValue: appKey || appKeys || undefined
+                  })(
+                    <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
+                      labelInValue
+                      disabled={appID}
+                      placeholder="请选择要所属应用"
+                      onChange={this.handleServices}
+                    >
+                      {(groups || []).map(group => {
+                        return (
+                          <Option
+                            value={`${group.group_id}`}
+                            key={group.group_id}
+                          >
+                            {group.group_name}
+                          </Option>
+                        );
+                      })}
+                    </Select>
+                  )}
+                </FormItem>
+                <FormItem {...formItemLayout} label="组件">
+                  {getFieldDecorator('service_id', {
+                    rules: [{ required: true, message: '请选择' }],
+                    initialValue: serviceId || serviceIds || undefined
+                  })(
+                    <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
+                      placeholder="请选择组件"
+                      onChange={this.handlePorts}
+                    >
+                      {(serviceComponentList || []).map((service, index) => {
+                        return (
+                          <Option value={`${service.service_id}`} key={index}>
+                            {service.service_cname}
+                          </Option>
+                        );
+                      })}
+                    </Select>
+                  )}
+                </FormItem>
+                <FormItem
+                  {...formItemLayout}
+                  label="端口号"
+                  style={{ marginBottom: '150px' }}
                 >
-                  {(groups || []).map(group => {
-                    return (
-                      <Option value={`${group.group_id}`} key={group.group_id}>
-                        {group.group_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-            <FormItem {...formItemLayout} label="组件">
-              {getFieldDecorator('service_id', {
-                rules: [{ required: true, message: '请选择' }],
-                initialValue: serviceId || serviceIds || undefined
-              })(
-                <Select
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder="请选择组件"
-                  onChange={this.handlePorts}
-                >
-                  {(serviceComponentList || []).map((service, index) => {
-                    return (
-                      <Option value={`${service.service_id}`} key={index}>
-                        {service.service_cname}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="端口号"
-              style={{ marginBottom: '150px' }}
-            >
-              {getFieldDecorator('container_port', {
-                initialValue: containerPort || containerPorts || undefined,
-                rules: [{ required: true, message: '请选择端口号' }]
-              })(
-                <Select
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder="请选择端口号"
-                >
-                  {(portList || []).map((port, index) => {
-                    return (
-                      <Option value={port.container_port} key={index}>
-                        {port.container_port}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
+                  {getFieldDecorator('container_port', {
+                    initialValue: containerPort || containerPorts || undefined,
+                    rules: [{ required: true, message: '请选择端口号' }]
+                  })(
+                    <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
+                      placeholder="请选择端口号"
+                    >
+                      {(portList || []).map((port, index) => {
+                        return (
+                          <Option value={port.container_port} key={index}>
+                            {port.container_port}
+                          </Option>
+                        );
+                      })}
+                    </Select>
+                  )}
+                </FormItem>
+              </Fragment>
+            </Skeleton>
           </Form>
           <div
             style={{
