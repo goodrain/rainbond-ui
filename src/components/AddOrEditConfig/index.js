@@ -107,12 +107,14 @@ class EvnOption extends React.Component {
             rules: [{ required: false, message: '协议' }]
           })(
             <Select
+              showArrow
               mode="multiple"
               getPopupContainer={triggerNode => triggerNode.parentNode}
               onChange={values => {
                 this.handleOnchange('protocol', values);
               }}
               style={{ width: 100 }}
+              placeholder="选择协议"
             >
               <Option value="">所有协议</Option>
               {protocols.map(item => (

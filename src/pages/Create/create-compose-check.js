@@ -1,3 +1,6 @@
+/* eslint-disable react/no-multi-comp */
+/* eslint-disable no-unused-vars */
+/* eslint-disable camelcase */
 import { Button, Card, Form, Icon, Modal } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -44,10 +47,11 @@ class ModifyCompose extends PureComponent {
   }
   handleSubmit = e => {
     e.preventDefault();
-    const form = this.props.form;
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
+      if (!err && onSubmit) {
+        onSubmit(fieldsValue);
+      }
     });
   };
   render() {
@@ -89,7 +93,7 @@ class ModifyCompose extends PureComponent {
 }
 
 @connect(
-  ({ user, appControl }) => ({
+  ({ user }) => ({
     currUser: user.currentUser,
     rainbondInfo: global.rainbondInfo
   }),
@@ -104,11 +108,8 @@ export default class CreateCheck extends PureComponent {
       // failure、checking、success
       status: '',
       check_uuid: '',
-      group_id: '',
-      compose_id: '',
       errorInfo: [],
       serviceInfo: [],
-      showEdit: false,
       showDelete: false,
       modifyCompose: false
     };
@@ -126,11 +127,15 @@ export default class CreateCheck extends PureComponent {
     }
   }
 
-  componentDidMount(loopStatus) {
+  componentDidMount() {
     const team_name = globalUtil.getCurrTeamName();
     this.getCheckuuid();
     this.mount = true;
     this.bindEvent();
+  }
+  componentWillUnmount() {
+    this.mount = false;
+    this.unbindEvent();
   }
   getCheckuuid = () => {
     const appAlias = this.getAppAlias();
@@ -150,6 +155,15 @@ export default class CreateCheck extends PureComponent {
       }
     });
   };
+  getParams() {
+    return {
+      group_id: this.props.match.params.appID,
+      compose_id: this.props.match.params.composeId
+    };
+  }
+  getAppAlias() {
+    return this.props.match.params.appAlias;
+  }
   startCheck = loopStatus => {
     const appAlias = this.getAppAlias();
     const team_name = globalUtil.getCurrTeamName();
@@ -182,9 +196,7 @@ export default class CreateCheck extends PureComponent {
       }
     });
   };
-  getAppAlias() {
-    return this.props.match.params.appAlias;
-  }
+
   loopStatus = () => {
     if (!this.mount) return;
     const params = this.getParams();
@@ -214,75 +226,17 @@ export default class CreateCheck extends PureComponent {
         }
       });
   };
-  componentWillUnmount() {
-    this.mount = false;
-    this.unbindEvent();
-  }
-  getParams() {
-    return {
-      group_id: this.props.match.params.appID,
-      compose_id: this.props.match.params.composeId
-    };
-  }
+
   handleCreate = () => {
     const appAlias = this.getAppAlias();
   };
   showModifyCompose = () => {
     this.setState({ modifyCompose: true });
   };
-  renderError = () => {
-    const errorInfo = this.state.errorInfo;
-    const extra = (
-      <div>
-        {errorInfo.map(item => {
-          return (
-            <div
-              style={{
-                marginBottom: 16
-              }}
-            >
-              <Icon
-                style={{
-                  color: '#f5222d',
-                  marginRight: 8
-                }}
-                type="close-circle-o"
-              />
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: `<span>${item.error_info || ''} ${item.solve_advice ||
-                    ''}</span>`
-                }}
-              />
-            </div>
-          );
-        })}
-      </div>
-    );
-    const actions = [
-      <Button onClick={this.showDelete} type="default">
-        {' '}
-        放弃创建{' '}
-      </Button>,
-      <Button onClick={this.recheck} type="primary">
-        重新检测
-      </Button>
-    ];
-
-    return (
-      <Result
-        type="error"
-        title="组件检测未通过"
-        description="请核对并修改以下信息后，再重新检测。"
-        extra={extra}
-        actions={actions}
-        style={{
-          marginTop: 48,
-          marginBottom: 16
-        }}
-      />
-    );
+  showDelete = () => {
+    this.setState({ showDelete: true });
   };
+
   handleSetting = () => {
     const params = this.getParams();
     this.props.dispatch(
@@ -295,7 +249,7 @@ export default class CreateCheck extends PureComponent {
   };
   handleBuild = () => {
     const team_name = globalUtil.getCurrTeamName();
-    const appDetail = this.state.appDetail;
+    const { appDetail } = this.state;
     const params = this.getParams();
     this.props.dispatch({
       type: 'application/buildCompose',
@@ -320,63 +274,109 @@ export default class CreateCheck extends PureComponent {
       }
     });
   };
-  renderSuccessInfo = item => {
-    if (item.value) {
-      if (typeof item.value === 'string') {
-        return (
-          <div
-            style={{
-              paddingLeft: 32
-            }}
-          >
-            <span
-              style={{
-                verticalAlign: 'top',
-                display: 'inline-block',
-                fontWeight: 'bold'
-              }}
-            >
-              {item.key}：
-            </span>
-            {item.value}
-          </div>
+  handleDelete = () => {
+    const params = this.getParams();
+    this.props.dispatch({
+      type: 'application/deleteCompose',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        ...params
+      },
+      callback: () => {
+        this.props.dispatch({
+          type: 'global/fetchGroups',
+          payload: {
+            team_name: globalUtil.getCurrTeamName()
+          }
+        });
+
+        this.props.dispatch(
+          routerRedux.replace(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
+          )
         );
       }
-      return (
-        <div
-          style={{
-            paddingLeft: 32
-          }}
-        >
-          <span
-            style={{
-              verticalAlign: 'top',
-              display: 'inline-block',
-              fontWeight: 'bold'
-            }}
-          >
-            {item.key}：
-          </span>
-          <div
-            style={{
-              display: 'inline-block'
-            }}
-          >
-            {(item.value || []).map(item => {
-              return (
-                <p
-                  style={{
-                    marginBottom: 0
-                  }}
-                >
-                  {item}
-                </p>
-              );
-            })}
-          </div>
-        </div>
-      );
+    });
+  };
+  unbindEvent = () => {
+    document.removeEventListener('click', this.handleClick);
+  };
+  bindEvent = () => {
+    document.addEventListener('click', this.handleClick, false);
+  };
+
+  recheck = () => {
+    this.setState(
+      {
+        status: 'checking'
+      },
+      () => {
+        this.startCheck();
+      }
+    );
+  };
+  cancelModifyCompose = () => {
+    this.setState({ modifyCompose: false });
+  };
+  handleClick = e => {
+    let parent = e.target;
+
+    while (parent) {
+      if (parent === document.body) {
+        return;
+      }
+      const actionType = parent.getAttribute('action_type');
+      if (actionType === 'modify_compose') {
+        this.setState({ modifyCompose: true });
+        return;
+      }
+      parent = parent.parentNode;
     }
+  };
+  handleModifyCompose = vals => {
+    const params = this.getParams();
+    this.props.dispatch({
+      type: 'application/editAppCreateCompose',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: params.group_id,
+        compose_content: vals.yaml_content
+      },
+      callback: data => {
+        this.cancelModifyCompose();
+      }
+    });
+  };
+  renderChecking = () => {
+    const actions = (
+      <Button onClick={this.showDelete} type="default">
+        放弃创建
+      </Button>
+    );
+
+    const extra = (
+      <div>
+        {this.state.eventId && (
+          <LogProcress
+            socketUrl={this.socketUrl}
+            eventId={this.state.eventId}
+          />
+        )}
+      </div>
+    );
+    return (
+      <Result
+        type="ing"
+        title="组件构建源检测中..."
+        extra={extra}
+        description="此过程可能比较耗时，请耐心等待"
+        actions={actions}
+        style={{
+          marginTop: 48,
+          marginBottom: 16
+        }}
+      />
+    );
   };
   renderSuccess = () => {
     const { rainbondInfo } = this.props;
@@ -450,29 +450,109 @@ export default class CreateCheck extends PureComponent {
       />
     );
   };
-  renderChecking = () => {
-    const actions = (
-      <Button onClick={this.showDelete} type="default">
-        放弃创建
-      </Button>
-    );
-
+  renderSuccessInfo = item => {
+    if (item.value) {
+      if (typeof item.value === 'string') {
+        return (
+          <div
+            style={{
+              paddingLeft: 32
+            }}
+          >
+            <span
+              style={{
+                verticalAlign: 'top',
+                display: 'inline-block',
+                fontWeight: 'bold'
+              }}
+            >
+              {item.key}：
+            </span>
+            {item.value}
+          </div>
+        );
+      }
+      return (
+        <div
+          style={{
+            paddingLeft: 32
+          }}
+        >
+          <span
+            style={{
+              verticalAlign: 'top',
+              display: 'inline-block',
+              fontWeight: 'bold'
+            }}
+          >
+            {item.key}：
+          </span>
+          <div
+            style={{
+              display: 'inline-block'
+            }}
+          >
+            {(item.value || []).map(item => {
+              return (
+                <p
+                  style={{
+                    marginBottom: 0
+                  }}
+                >
+                  {item}
+                </p>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+  };
+  renderError = () => {
+    const { errorInfo } = this.state;
     const extra = (
       <div>
-        {this.state.eventId && (
-          <LogProcress
-            socketUrl={this.socketUrl}
-            eventId={this.state.eventId}
-          />
-        )}
+        {errorInfo.map(item => {
+          return (
+            <div
+              style={{
+                marginBottom: 16
+              }}
+            >
+              <Icon
+                style={{
+                  color: '#f5222d',
+                  marginRight: 8
+                }}
+                type="close-circle-o"
+              />
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: `<span>${item.error_info || ''} ${item.solve_advice ||
+                    ''}</span>`
+                }}
+              />
+            </div>
+          );
+        })}
       </div>
     );
+    const actions = [
+      <Button onClick={this.showDelete} type="default">
+        {' '}
+        放弃创建{' '}
+      </Button>,
+      <Button onClick={this.recheck} type="primary">
+        重新检测
+      </Button>
+    ];
+
     return (
       <Result
-        type="ing"
-        title="组件构建源检测中..."
+        type="error"
+        title="组件检测未通过"
+        description="请核对并修改以下信息后，再重新检测。"
         extra={extra}
-        description="此过程可能比较耗时，请耐心等待"
         actions={actions}
         style={{
           marginTop: 48,
@@ -481,89 +561,8 @@ export default class CreateCheck extends PureComponent {
       />
     );
   };
-  recheck = () => {
-    this.setState(
-      {
-        status: 'checking'
-      },
-      () => {
-        this.startCheck();
-      }
-    );
-  };
-  cancelModifyCompose = () => {
-    this.setState({ modifyCompose: false });
-  };
-  handleClick = e => {
-    let parent = e.target;
-
-    while (parent) {
-      if (parent === document.body) {
-        return;
-      }
-      const actionType = parent.getAttribute('action_type');
-      if (actionType === 'modify_compose') {
-        this.setState({ modifyCompose: true });
-        return;
-      }
-      parent = parent.parentNode;
-    }
-  };
-  handleModifyCompose = vals => {
-    const params = this.getParams();
-    this.props.dispatch({
-      type: 'application/editAppCreateCompose',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: params.group_id,
-        compose_content: vals.yaml_content
-      },
-      callback: data => {
-        this.cancelModifyCompose();
-      }
-    });
-  };
-  handleCancelEdit = () => {
-    this.setState({ showEdit: false });
-  };
-  handleCancelShowKey = () => {
-    this.setState({ showKey: false });
-  };
-  bindEvent = () => {
-    document.addEventListener('click', this.handleClick, false);
-  };
-  unbindEvent = () => {
-    document.removeEventListener('click', this.handleClick);
-  };
-  handleDelete = () => {
-    const params = this.getParams();
-    this.props.dispatch({
-      type: 'application/deleteCompose',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...params
-      },
-      callback: () => {
-        this.props.dispatch({
-          type: 'global/fetchGroups',
-          payload: {
-            team_name: globalUtil.getCurrTeamName()
-          }
-        });
-
-        this.props.dispatch(
-          routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-          )
-        );
-      }
-    });
-  };
-  showDelete = () => {
-    this.setState({ showDelete: true });
-  };
   render() {
-    const status = this.state.status;
+    const { status, modifyCompose, showDelete } = this.state;
     const params = this.getParams();
     return (
       <PageHeaderLayout>
@@ -578,14 +577,14 @@ export default class CreateCheck extends PureComponent {
             {status === 'failure' ? this.renderError() : null}
           </div>
         </Card>
-        {this.state.modifyCompose ? (
+        {modifyCompose ? (
           <ModifyCompose
             compose_id={params.compose_id}
             onSubmit={this.handleModifyCompose}
             onCancel={this.cancelModifyCompose}
           />
         ) : null}
-        {this.state.showDelete && (
+        {showDelete && (
           <ConfirmModal
             onOk={this.handleDelete}
             title="放弃创建"
