@@ -5,6 +5,7 @@ import moment from 'moment';
 import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreatUser from '../../components/CreatUserForm';
+import CurrentTeams from '../../components/CurrentTeams';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cloud from '../../utils/cloud';
 import userUtil from '../../utils/user';
@@ -32,6 +33,7 @@ export default class EnterpriseUsers extends PureComponent {
       adminer,
       adminList: [],
       total: 0,
+      currentUserInfo: false,
       userVisible: false,
       userInfo: false,
       text: '',
@@ -232,6 +234,12 @@ export default class EnterpriseUsers extends PureComponent {
   handelChange = value => {
     this.setState({ name: value && value.trim() });
   };
+  handleCurrentUserId = currentUserInfo => {
+    this.setState({
+      currentUserInfo
+    });
+  };
+
   render() {
     const {
       adminList,
@@ -243,6 +251,7 @@ export default class EnterpriseUsers extends PureComponent {
       page,
       pageSize,
       total,
+      currentUserInfo,
       loading
     } = this.state;
 
@@ -257,7 +266,17 @@ export default class EnterpriseUsers extends PureComponent {
         title: '用户名称',
         dataIndex: 'nick_name',
         rowKey: 'nick_name',
-        align: 'center'
+        align: 'center',
+        render: (val, data) => (
+          <Button
+            type="link"
+            onClick={() => {
+              this.handleCurrentUserId(data);
+            }}
+          >
+            {val}
+          </Button>
+        )
       },
       {
         title: '姓名',
@@ -385,7 +404,15 @@ export default class EnterpriseUsers extends PureComponent {
               loading={loading}
             />
           )}
-
+          {currentUserInfo && (
+            <CurrentTeams
+              eid={eid}
+              userInfo={currentUserInfo}
+              onCancel={() => {
+                this.handleCurrentUserId(false);
+              }}
+            />
+          )}
           <Table
             pagination={{
               current: page,

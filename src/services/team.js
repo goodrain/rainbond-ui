@@ -55,18 +55,14 @@ export async function createRole(body = {}) {
 
 /* fetch teams Role list */
 export async function getTeamRoles(body = {}) {
-  return request(
-    // `https://doc.goodrain.org/mock/18/console/teams/${body.team_name}/roles`,
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles`,
-    {
-      method: 'get'
-    }
-  );
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/roles`, {
+    method: 'get',
+    params: body
+  });
 }
 /* fetch teams Role Permissions list */
 export async function getTeamRolesPermissions(body = {}) {
   return request(
-    // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles/{role_id}/perms`,
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
     {
       method: 'get'
@@ -77,7 +73,6 @@ export async function getTeamRolesPermissions(body = {}) {
 /* fetch team user Permissions */
 export async function getTeamUserPermissions(body = {}, handleError) {
   return request(
-    // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/users/{user_id}/perms`,
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${body.user_id}/perms`,
     {
       method: 'get',
@@ -193,7 +188,15 @@ export async function getTeamMembers(body = {}) {
     }
   );
 }
-
+export async function getUserTeamsRoles(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${body.user_id}/roles`,
+    {
+      method: 'get',
+      params: body
+    }
+  );
+}
 /*
 	添加成员
 */

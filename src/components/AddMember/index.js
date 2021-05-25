@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Select } from 'antd';
+import { Form, Input, Modal, Select, Skeleton } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
@@ -14,27 +14,64 @@ class ConfirmModal extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      roles: []
+      roles: [],
+      currentRoles: [],
+      roleLoading: true,
+      currentRolesLoading: true
     };
   }
   componentDidMount() {
     this.loadRoles();
+    const { viewName } = this.props;
+    if (viewName === 'enterprise') {
+      this.fetchTeamUserRoles();
+    } else {
+      this.handleCloseCurrentRolesLoading();
+    }
   }
+  fetchTeamUserRoles = () => {
+    const { dispatch, userId, eid, teamName } = this.props;
+    dispatch({
+      type: 'teamControl/fetchUserTeamsRoles',
+      payload: {
+        tenantName: teamName,
+        team_name: teamName,
+        enterprise_id: eid,
+        user_id: userId,
+        page: 1,
+        page_size: -1
+      },
+      callback: res => {
+        this.setState(
+          {
+            currentRoles: (res.bean && res.bean.roles) || []
+          },
+          () => {
+            this.handleCloseCurrentRolesLoading();
+          }
+        );
+      }
+    });
+  };
+
   loadRoles = () => {
-    const { dispatch } = this.props;
+    const { dispatch, teamName } = this.props;
     dispatch({
       type: 'teamControl/fetchTeamRoles',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        page_size: 10000,
+        team_name: teamName || globalUtil.getCurrTeamName(),
+        page_size: -1,
         page: 1
       },
       callback: data => {
-        if (data) {
-          this.setState({
+        this.setState(
+          {
             roles: data.list || []
-          });
-        }
+          },
+          () => {
+            this.handleCloseRoleLoading();
+          }
+        );
       }
     });
   };
@@ -46,18 +83,35 @@ class ConfirmModal extends PureComponent {
       }
     });
   };
+  handleCloseRoleLoading = () => {
+    this.setState({
+      roleLoading: false
+    });
+  };
+  handleCloseCurrentRolesLoading = () => {
+    this.setState({
+      currentRolesLoading: false
+    });
+  };
   render() {
-    const { onCancel, data, form } = this.props;
+    const { onCancel, data, form, nickName, title, loading } = this.props;
     const { getFieldDecorator } = form;
-    const { roles } = this.state;
-
+    const {
+      roles,
+      currentRoles,
+      roleLoading,
+      currentRolesLoading
+    } = this.state;
     const initialValueRoles = [];
-
-    if (data && data.roles) {
-      data.roles.map(item => {
+    const arr =
+      (currentRoles && currentRoles.length > 0 && currentRoles) ||
+      (data && data.roles && data.roles.length > 0 && data.roles) ||
+      [];
+    arr.map(item => {
+      if (item.role_id) {
         initialValueRoles.push(Number(item.role_id));
-      });
-    }
+      }
+    });
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -71,65 +125,68 @@ class ConfirmModal extends PureComponent {
 
     return (
       <Modal
-        title={data ? '编辑成员' : '添加成员'}
+        confirmLoading={loading}
+        title={title || (data ? '编辑成员' : '添加成员')}
         visible
         onOk={this.handleSubmit}
         onCancel={onCancel}
       >
-        <Form onSubmit={this.handleSubmit}>
-          {data ? (
-            <FormItem {...formItemLayout} label="用户名" hasFeedback>
-              {getFieldDecorator('user_name', {
-                initialValue: data.nick_name || '',
-                rules: [
-                  {
-                    required: false,
-                    message: '请输入用户名称'
-                  }
-                ]
-              })(<Input disabled placeholder="请输入用户名称" />)}
-            </FormItem>
-          ) : (
-            <FormItem {...formItemLayout} label="选择用户" hasFeedback>
-              {getFieldDecorator('user_ids', {
+        <Skeleton loading={roleLoading || currentRolesLoading}>
+          <Form onSubmit={this.handleSubmit}>
+            {data ? (
+              <FormItem {...formItemLayout} label="用户名">
+                {getFieldDecorator('user_name', {
+                  initialValue: nickName || data.nick_name || '',
+                  rules: [
+                    {
+                      required: false,
+                      message: '请输入用户名称'
+                    }
+                  ]
+                })(<Input disabled placeholder="请输入用户名称" />)}
+              </FormItem>
+            ) : (
+              <FormItem {...formItemLayout} label="选择用户">
+                {getFieldDecorator('user_ids', {
+                  rules: [
+                    {
+                      required: true,
+                      message: '请选择要添加的用户'
+                    }
+                  ]
+                })(<UserSelect />)}
+              </FormItem>
+            )}
+
+            <FormItem {...formItemLayout} label="选择角色">
+              {getFieldDecorator('role_ids', {
+                initialValue: initialValueRoles,
                 rules: [
                   {
                     required: true,
-                    message: '请选择要添加的用户'
+                    message: '请选择角色'
                   }
                 ]
-              })(<UserSelect />)}
+              })(
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  mode="multiple"
+                  placeholder="请选择角色"
+                  style={{ width: '100%' }}
+                >
+                  {roles.map(item => {
+                    const { ID, name } = item;
+                    return (
+                      <Option key={ID} value={ID}>
+                        {roleUtil.actionMap(name)}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              )}
             </FormItem>
-          )}
-
-          <FormItem {...formItemLayout} label="选择角色">
-            {getFieldDecorator('role_ids', {
-              initialValue: initialValueRoles,
-              rules: [
-                {
-                  required: true,
-                  message: '请选择角色'
-                }
-              ]
-            })(
-              <Select
-                getPopupContainer={triggerNode => triggerNode.parentNode}
-                mode="multiple"
-                placeholder="请选择角色"
-                style={{ width: '100%' }}
-              >
-                {roles.map(item => {
-                  const { ID, name } = item;
-                  return (
-                    <Option key={ID} value={ID}>
-                      {roleUtil.actionMap(name)}
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
-          </FormItem>
-        </Form>
+          </Form>
+        </Skeleton>
       </Modal>
     );
   }
