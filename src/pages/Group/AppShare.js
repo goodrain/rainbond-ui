@@ -1192,7 +1192,13 @@ export default class Main extends PureComponent {
                   <Form.Item {...formItemLayout} label="版本别名">
                     {getFieldDecorator('version_alias', {
                       initialValue:
-                        (versionInfo && versionInfo.version_alias) || ''
+                        (versionInfo && versionInfo.version_alias) || '',
+                      rules: [
+                        {
+                          max: 64,
+                          message: '最大长度64位'
+                        }
+                      ]
                     })(
                       <Input
                         style={{ width: 280 }}
@@ -1210,8 +1216,8 @@ export default class Main extends PureComponent {
                         '',
                       rules: [
                         {
-                          required: false,
-                          message: '请输入版本说明'
+                          max: 255,
+                          message: '最大长度255位'
                         }
                       ]
                     })(
