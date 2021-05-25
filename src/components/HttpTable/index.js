@@ -1,13 +1,24 @@
 /* eslint-disable no-nested-ternary */
-import { Button, Card, Modal, notification, Row, Table, Tooltip } from 'antd';
+import {
+  Button,
+  Card,
+  Icon,
+  Modal,
+  notification,
+  Row,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import DrawerForm from '../DrawerForm';
 import InfoConnectModal from '../InfoConnectModal';
 import ParameterForm from '../ParameterForm';
 import Search from '../Search';
+import styles from './index.less';
 
 @connect(({ user, global, loading, teamControl, enterprise }) => ({
   currUser: user.currentUser,
@@ -329,24 +340,40 @@ export default class HttpTable extends PureComponent {
       }
     );
   };
+  handleCopy = values => {
+    return (
+      <CopyToClipboard
+        text={values}
+        onCopy={() => notification.success({ message: '复制成功' })}
+      >
+        <Icon type="copy" />
+      </CopyToClipboard>
+    );
+  };
   seeHighRoute = values => {
+    const domainHeander = values.domain_heander;
+    const domainCookie = values.domain_cookie;
+    const domainPath = values.domain_path;
     const title = (
-      <ul style={{ padding: '0', margin: '0' }}>
-        <li style={{ whiteSpace: 'nowrap' }}>
+      <ul className={styles.routings}>
+        <li>
           <span>请求头：</span>
-          <span>{values.domain_heander}</span>
+          <span>{domainHeander || '-'}</span>
+          {domainHeander && this.handleCopy(domainHeander)}
         </li>
-        <li style={{ whiteSpace: 'nowrap' }}>
+        <li>
           <span>Cookie：</span>
-          <span>{values.domain_cookie}</span>
+          <span>{domainCookie || '-'}</span>
+          {domainCookie && this.handleCopy(domainCookie)}
         </li>
-        <li style={{ whiteSpace: 'nowrap' }}>
+        <li>
           <span>Path：</span>
-          <span>{values.domain_path}</span>
+          <span>{domainPath || '-'}</span>
+          {domainPath && this.handleCopy(domainPath)}
         </li>
-        <li style={{ whiteSpace: 'nowrap' }}>
+        <li>
           <span>权重：</span>
-          <span>{values.the_weight}</span>
+          <span>{values.the_weight || '-'}</span>
         </li>
       </ul>
     );
