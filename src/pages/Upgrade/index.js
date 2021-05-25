@@ -293,17 +293,18 @@ export default class AppList extends PureComponent {
         dataIndex: 'version',
         key: '3',
         width: '30%',
-        render: (text, data) => (
-          <span>
+        render: (_, data) => (
+          <div>
             {data.old_version && data.version ? (
-              <span>
-                <a href="javascript:;">{data.old_version}</a>升级到
-                <a href="javascript:;">{data.version}</a>
-              </span>
+              <div>
+                <span className={styles.versions}>{data.old_version}</span>
+                升级到
+                <span className={styles.versions}>{data.version}</span>
+              </div>
             ) : (
               '-'
             )}
-          </span>
+          </div>
         )
       },
       {

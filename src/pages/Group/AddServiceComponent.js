@@ -46,12 +46,16 @@ export default class AddServiceComponent extends PureComponent {
   }
   getGitServerName = item => {
     const { oauth_type: type, name = '' } = item;
-    const map = {
-      github: 'Github项目',
-      gitlab: 'Gitlab项目',
-      gitee: 'Gitee项目'
+    const typeMap = {
+      github: 'Github',
+      gitlab: 'Gitlab',
+      gitee: 'Gitee'
     };
-    return map[type] || `${name}项目`;
+    const setName = typeMap[type] || '';
+    const tabName = setName
+      ? `${setName} ${name && `(${name})`}`
+      : `${name}项目`;
+    return tabName;
   };
 
   toAddService = () => {
