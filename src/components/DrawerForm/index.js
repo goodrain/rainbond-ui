@@ -104,13 +104,13 @@ class DrawerForm extends PureComponent {
     const { onOk, form } = this.props;
     const { group_name } = this.state;
     form.validateFields((err, values) => {
-      console.log('values', values);
-      if (!err) {
+      if (!err && onOk) {
+        const info = Object.assign({}, values);
         if (values.certificate_id === 'auto_ssl') {
-          values.auto_ssl = true;
-          values.certificate_id = undefined;
+          info.auto_ssl = true;
+          info.certificate_id = undefined;
         }
-        onOk && onOk(values, group_name);
+        onOk(info, group_name);
       }
     });
   };
@@ -233,13 +233,15 @@ class DrawerForm extends PureComponent {
     return Promise.resolve();
   };
   checkLength = (_, values, callback) => {
-    const valArr = values.split(';');
+    const valArr = values && values.split(';');
     const arr = [];
-    for (let i = 0; i < valArr.length; i++) {
-      arr.push({
-        key: valArr[i].split('=')[0],
-        value: valArr[i].split('=')[1]
-      });
+    if (valArr && valArr.length > 0) {
+      for (let i = 0; i < valArr.length; i++) {
+        arr.push({
+          key: valArr[i].split('=')[0],
+          value: valArr[i].split('=')[1]
+        });
+      }
     }
     if (arr && arr.length > 0) {
       let isMax = false;

@@ -340,41 +340,48 @@ export default class HttpTable extends PureComponent {
       }
     );
   };
-  handleCopy = values => {
-    return (
-      <CopyToClipboard
-        text={values}
-        onCopy={() => notification.success({ message: '复制成功' })}
-      >
-        <Icon type="copy" />
-      </CopyToClipboard>
-    );
-  };
+
   seeHighRoute = values => {
     const domainHeander = values.domain_heander;
     const domainCookie = values.domain_cookie;
     const domainPath = values.domain_path;
+    const setArr = [
+      {
+        name: '请求头',
+        val: domainHeander
+      },
+      {
+        name: 'Cookie',
+        val: domainCookie
+      },
+      {
+        name: 'Path',
+        val: domainPath
+      },
+      {
+        name: '权重',
+        val: values.the_weight
+      }
+    ];
     const title = (
       <ul className={styles.routings}>
-        <li>
-          <span>请求头：</span>
-          <span>{domainHeander || '-'}</span>
-          {domainHeander && this.handleCopy(domainHeander)}
-        </li>
-        <li>
-          <span>Cookie：</span>
-          <span>{domainCookie || '-'}</span>
-          {domainCookie && this.handleCopy(domainCookie)}
-        </li>
-        <li>
-          <span>Path：</span>
-          <span>{domainPath || '-'}</span>
-          {domainPath && this.handleCopy(domainPath)}
-        </li>
-        <li>
-          <span>权重：</span>
-          <span>{values.the_weight || '-'}</span>
-        </li>
+        {setArr.map(item => {
+          const { name, val } = item;
+          return (
+            <li>
+              <div>{name}：</div>
+              <div>{val || '-'}</div>
+              {val && (
+                <CopyToClipboard
+                  text={val}
+                  onCopy={() => notification.success({ message: '复制成功' })}
+                >
+                  <Icon type="copy" />
+                </CopyToClipboard>
+              )}
+            </li>
+          );
+        })}
       </ul>
     );
     return (
