@@ -216,7 +216,10 @@ export default class AutoDeploy extends PureComponent {
       url,
       service_source
     } = this.state;
-    const setUrl = url.replace('http://127.0.0.1:5000', window.location.host);
+    const setUrl = url.replace(
+      'http://127.0.0.1:5000',
+      `${window.location.protocol}//${window.location.host}`
+    );
 
     const dockerSvg = () => (
       <svg viewBox="0 0 30 50" version="1.1" width="20px" height="20px">
