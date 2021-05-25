@@ -238,7 +238,7 @@ class CreateOAuthForm extends PureComponent {
             })(
               <Input
                 placeholder="请输入回调地址"
-                suffix={<span>/console/oauth/redirect</span>}
+                addonAfter="/console/oauth/redirect"
               />
             )}
 
