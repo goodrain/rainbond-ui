@@ -98,17 +98,16 @@ class DrawerForm extends PureComponent {
       }
     );
   };
-  handleOk = e => {
-    e.preventDefault();
-    const { onOk } = this.props;
+  handleOk = () => {
+    const { onOk, form } = this.props;
     const { group_name } = this.state;
-    this.props.form.validateFields((err, values) => {
+    form.validateFields((err, values) => {
+      console.log('values', values);
       if (!err) {
         if (values.certificate_id === 'auto_ssl') {
           values.auto_ssl = true;
           values.certificate_id = undefined;
         }
-
         onOk && onOk(values, group_name);
       }
     });
@@ -248,7 +247,6 @@ class DrawerForm extends PureComponent {
       });
       if (isMax) {
         callback('最大长度255');
-        return;
       }
       callback();
     }
