@@ -1,8 +1,7 @@
-import { Button, Icon, Modal, notification, Table } from 'antd';
+import { Button, Modal, notification, Table } from 'antd';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import userUtil from '../../utils/user';
+import roleUtil from '../../utils/role';
 import AddMember from '../AddMember';
 import styles from '../CreateTeam/index.less';
 
@@ -12,10 +11,7 @@ import styles from '../CreateTeam/index.less';
 class currentTeams extends PureComponent {
   constructor(props) {
     super(props);
-    const { user } = this.props;
-    const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
-      adminer,
       page: 1,
       pageSize: 10,
       total: 0,
@@ -26,68 +22,31 @@ class currentTeams extends PureComponent {
     };
   }
   componentDidMount() {
-    this.fetchCurrentTeams();
+    this.getEnterpriseTeams();
   }
-  onJumpTeam = (teamName, region) => {
-    const { dispatch } = this.props;
-    dispatch(routerRedux.push(`/team/${teamName}/region/${region}/index`));
-  };
+
   onPageChange = page => {
     this.setState({ page }, () => {
-      this.fetchCurrentTeams();
+      this.getEnterpriseTeams();
     });
   };
-  fetchCurrentTeams = () => {
-    const { dispatch, userInfo, eid } = this.props;
+  getEnterpriseTeams = () => {
+    const { dispatch, eid } = this.props;
+    const { page, pageSize } = this.state;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: 'global/fetchEnterpriseTeams',
       payload: {
-        enterprise_id: eid,
-        user_id: userInfo && userInfo.user_id,
-        page: 1,
-        page_size: 10
+        page,
+        page_size: pageSize,
+        enterprise_id: eid
       },
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            list: res.list,
+            total: (res.bean && res.bean.total_count) || 1,
+            list: (res.bean && res.bean.list) || [],
             Loading: false
           });
-        }
-      }
-    });
-  };
-
-  showRegions = (teamName, regions, ismanagement = false) => {
-    return regions.map(item => {
-      return (
-        <Button
-          key={`${item.region_name}region`}
-          className={styles.regionShow}
-          onClick={() => {
-            if (ismanagement) {
-              this.handleJoinTeams(teamName, item.region_name);
-            } else {
-              this.onJumpTeam(teamName, item.region_name);
-            }
-          }}
-        >
-          {item.region_alias}
-          <Icon type="right" />
-        </Button>
-      );
-    });
-  };
-  handleJoinTeams = (teamName, region) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'teamControl/joinTeam',
-      payload: {
-        team_name: teamName
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.onJumpTeam(teamName, region);
         }
       }
     });
@@ -111,7 +70,7 @@ class currentTeams extends PureComponent {
         role_ids: data.role_ids
       },
       callback: () => {
-        this.fetchCurrentTeams();
+        this.getEnterpriseTeams();
         notification.success({ message: '修改成功' });
         this.handleRole(false);
       }
@@ -136,7 +95,6 @@ class currentTeams extends PureComponent {
       list,
       Loading,
       toEditAction,
-      adminer,
       editRoleLoading
     } = this.state;
     const th = this;
@@ -144,17 +102,7 @@ class currentTeams extends PureComponent {
       {
         title: '团队名称',
         dataIndex: 'team_alias',
-        rowKey: 'team_alias',
-        align: 'center'
-      },
-      {
-        title: '集群',
-        dataIndex: 'team_name',
-        rowKey: 'team_name',
-        align: 'center',
-        render(val, data) {
-          return th.showRegions(val, data.region_list, true);
-        }
+        rowKey: 'team_alias'
       },
       {
         title: '角色',
@@ -162,22 +110,22 @@ class currentTeams extends PureComponent {
         render(val) {
           return (
             <span>
-              {val && val.length > 0
-                ? val.map(item => {
-                    return (
-                      <span style={{ marginRight: '8px' }} key={`role${item}`}>
-                        {item}
-                      </span>
-                    );
-                  })
-                : '-'}
+              {val && val.length > 0 ? (
+                val.map(item => {
+                  return (
+                    <span style={{ marginRight: '8px' }} key={`role${item}`}>
+                      {roleUtil.actionMap(item)}
+                    </span>
+                  );
+                })
+              ) : (
+                <span style={{ color: 'rgba(0,0,0,.45)' }}>尚未加入</span>
+              )}
             </span>
           );
         }
-      }
-    ];
-    if (adminer) {
-      columns.push({
+      },
+      {
         title: '操作',
         dataIndex: 'action',
         align: 'center',
@@ -189,12 +137,13 @@ class currentTeams extends PureComponent {
                 th.handleRole(data);
               }}
             >
-              修改角色
+              设置角色
             </a>
           );
         }
-      });
-    }
+      }
+    ];
+
     return (
       <Fragment>
         <Modal
@@ -226,7 +175,7 @@ class currentTeams extends PureComponent {
         {toEditAction && (
           <AddMember
             viewName="enterprise"
-            title="修改角色"
+            title="设置角色"
             eid={eid}
             loading={editRoleLoading}
             data={toEditAction}

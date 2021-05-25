@@ -34,6 +34,7 @@ class ConfirmModal extends PureComponent {
     dispatch({
       type: 'teamControl/fetchUserTeamsRoles',
       payload: {
+        tenantName: teamName,
         team_name: teamName,
         enterprise_id: eid,
         user_id: userId,
@@ -107,7 +108,9 @@ class ConfirmModal extends PureComponent {
       (data && data.roles && data.roles.length > 0 && data.roles) ||
       [];
     arr.map(item => {
-      initialValueRoles.push(Number(item.role_id));
+      if (item.role_id) {
+        initialValueRoles.push(Number(item.role_id));
+      }
     });
     const formItemLayout = {
       labelCol: {
