@@ -183,6 +183,10 @@ class AddKey extends PureComponent {
                 {
                   required: true,
                   message: '请填写证书名称'
+                },
+                {
+                  max: 64,
+                  message: '最大长度64位'
                 }
               ]
             })(<Input placeholder="请填写证书名称" />)}

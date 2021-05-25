@@ -1,14 +1,6 @@
-import React, { PureComponent, Fragment } from 'react';
+import { Button, Drawer, Form, Input, message, Radio } from 'antd';
 import { connect } from 'dva';
-import {
-  Button,
-  Drawer,
-  Form,
-  Input,
-  Radio,
-  message,
-} from 'antd';
-
+import React, { Fragment, PureComponent } from 'react';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const FormItem = Form.Item;
@@ -16,7 +8,7 @@ const RadioGroup = Radio.Group;
 
 @connect(({ loading }) => ({
   editLicenseLoading: loading.effects['gateWay/editLicense'],
-  addLicenseLoading: loading.effects['gateWay/addLicense'],
+  addLicenseLoading: loading.effects['gateWay/addLicense']
 }))
 class LicenseDrawer extends PureComponent {
   constructor(props) {
@@ -55,27 +47,26 @@ class LicenseDrawer extends PureComponent {
       editData = {},
       addLicenseLoading,
       editLicenseLoading,
-      form,
+      form
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
 
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 },
+        sm: { span: 5 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 },
-      },
+        sm: { span: 19 }
+      }
     };
 
     const codeMirrorConfiguration = {
       setFieldsValue,
       formItemLayout,
       Form,
-      width: '328px',
-      getFieldDecorator,
+      getFieldDecorator
     };
     const certificateList = [
       {
@@ -84,7 +75,7 @@ class LicenseDrawer extends PureComponent {
         label: '公钥证书',
         messages: '请输入证书名称',
         uploadName: 'public_key_btn',
-        mode: 'javascript',
+        mode: 'javascript'
       },
       {
         value: editData.private_key,
@@ -92,8 +83,8 @@ class LicenseDrawer extends PureComponent {
         label: '私钥',
         messages: '请输入私钥',
         uploadName: 'private_key_btn',
-        mode: 'javascript',
-      },
+        mode: 'javascript'
+      }
     ];
     return (
       <div>
@@ -106,19 +97,25 @@ class LicenseDrawer extends PureComponent {
           visible={this.props.visible}
           maskClosable={false}
           style={{
-            overflow: 'auto',
+            overflow: 'auto'
           }}
         >
           <Form onSubmit={this.handleSubmit}>
             <FormItem {...formItemLayout} label="证书名称">
               {getFieldDecorator('alias', {
-                rules: [{ required: true, message: '请输入证书名称!' }],
+                rules: [
+                  { required: true, message: '请输入证书名称!' },
+                  {
+                    max: 64,
+                    message: '最大长度64位'
+                  }
+                ]
               })(<Input placeholder="请输入证书名称" />)}
             </FormItem>
             <FormItem {...formItemLayout} label="证书类型">
               {getFieldDecorator('certificate_type', {
                 initialValue: '服务端证书',
-                rules: [{ required: true }],
+                rules: [{ required: true }]
               })(
                 <RadioGroup>
                   <Radio value="服务端证书">服务端证书</Radio>
@@ -153,12 +150,12 @@ class LicenseDrawer extends PureComponent {
                 left: 0,
                 background: '#fff',
                 borderRadius: '0 0 4px 4px',
-                zIndex: 4,
+                zIndex: 4
               }}
             >
               <Button
                 style={{
-                  marginRight: 8,
+                  marginRight: 8
                 }}
                 onClick={onClose}
               >
