@@ -133,21 +133,17 @@ class DrawerForm extends PureComponent {
       }
     });
   };
-  handleChange = data => {};
-  checkport = (rules, value, callback) => {
-    if (!value.ip || (value.available_port !== 0 && !value.available_port)) {
+  checkport = (_, value, callback) => {
+    const availablPort = value.available_port;
+    if (!value.ip || (availablPort !== 0 && !availablPort)) {
       callback('请输入完整的ip和端口');
       return;
     }
-    if (
-      value.available_port &&
-      value.available_port >= 10000 &&
-      value.available_port <= 65534
-    ) {
-      callback();
-    } else {
-      callback('请输入正确的端口:10000-65534');
+    const internalTcps = [80, 443, 6060, 8443, 10254, 18080, 18081];
+    if (availablPort && internalTcps.includes(availablPort)) {
+      callback('该端口属于内部端口、请重新输入');
     }
+    callback();
   };
   render() {
     const {
@@ -236,7 +232,6 @@ class DrawerForm extends PureComponent {
                   <PortInput
                     current_enpoint={current_enpoint}
                     domain_port={domain_port}
-                    onChange={this.handleChange}
                   />
                 )}
               </FormItem>
