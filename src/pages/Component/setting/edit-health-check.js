@@ -12,17 +12,31 @@ const RadioGroup = Radio.Group;
 export default class EditHealthCheck extends PureComponent {
   constructor(props) {
     super(props);
-    const { ports } = this.props;
+    const { ports, data } = this.props;
     const HeavyList = ports ? this.handleHeavyList(ports) : [];
     this.state = {
+      isRestart: this.handleUnhealthyTreatment(data && data.mode),
       list: HeavyList,
       prolist: HeavyList
     };
   }
   onChanges = e => {
-    this.props.form.setFieldsValue({
-      mode: e.target.value
+    const val = e.target.value;
+    const { setFieldsValue } = this.props.form;
+    const isRestart = this.handleUnhealthyTreatment(val);
+    const info = {
+      mode: val
+    };
+    if (isRestart) {
+      info.success_threshold = '1';
+    }
+    setFieldsValue(info);
+    this.setState({
+      isRestart
     });
+  };
+  handleUnhealthyTreatment = val => {
+    return val === 'liveness';
   };
   handleSubmit = e => {
     e.preventDefault();
@@ -38,7 +52,7 @@ export default class EditHealthCheck extends PureComponent {
       }
     );
   };
-  checkPath = (rule, value, callback) => {
+  checkPath = (_, value, callback) => {
     const visitType = this.props.form.getFieldValue('scheme');
     if (visitType == 'tcp') {
       callback();
@@ -51,7 +65,13 @@ export default class EditHealthCheck extends PureComponent {
     }
     callback('请填写路径!');
   };
-
+  checkNums = (_, value, callback) => {
+    if (value && value < 1) {
+      callback(`最小值为1`);
+      return;
+    }
+    callback();
+  };
   handleHeavyList = arr => {
     const arrs = [];
     arr.map(item => {
@@ -112,7 +132,7 @@ export default class EditHealthCheck extends PureComponent {
       }
     };
     const { getFieldDecorator, getFieldValue } = form;
-    const { list, prolist } = this.state;
+    const { list, prolist, isRestart } = this.state;
     const scheme = getFieldValue('scheme') || 'tcp';
     const secondBox = (
       <span
@@ -123,14 +143,21 @@ export default class EditHealthCheck extends PureComponent {
         秒
       </span>
     );
-    const numberBox = (
+    const numberBox = (disabled = false) => (
       <Input
+        disabled={disabled}
         type="number"
+        min={1}
         style={{
           width: '80%'
         }}
       />
     );
+    const checkNum = [
+      {
+        validator: this.checkNums
+      }
+    ];
     return (
       <Modal
         width={700}
@@ -229,9 +256,10 @@ export default class EditHealthCheck extends PureComponent {
                 {
                   required: true,
                   message: '请填写初始化等候时间'
-                }
+                },
+                ...checkNum
               ]
-            })(numberBox)}
+            })(numberBox())}
             {secondBox}
           </FormItem>
           <FormItem {...formItemLayout} label="检测间隔时间">
@@ -241,9 +269,10 @@ export default class EditHealthCheck extends PureComponent {
                 {
                   required: true,
                   message: '请填写检测间隔时间'
-                }
+                },
+                ...checkNum
               ]
-            })(numberBox)}
+            })(numberBox())}
             {secondBox}
           </FormItem>
           <FormItem {...formItemLayout} label="检测超时时间">
@@ -253,21 +282,23 @@ export default class EditHealthCheck extends PureComponent {
                 {
                   required: true,
                   message: '请填写检测超时时间'
-                }
+                },
+                ...checkNum
               ]
-            })(numberBox)}
+            })(numberBox())}
             {secondBox}
           </FormItem>
           <FormItem {...formItemLayout} label="连续成功次数">
             {getFieldDecorator('success_threshold', {
-              initialValue: data.success_threshold || '1',
+              initialValue: isRestart ? '1' : data.success_threshold || '1',
               rules: [
                 {
                   required: true,
                   message: '请填写连续成功次数'
-                }
+                },
+                ...checkNum
               ]
-            })(numberBox)}
+            })(numberBox(isRestart))}
           </FormItem>
         </Form>
       </Modal>
