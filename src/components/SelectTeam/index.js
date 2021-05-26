@@ -35,13 +35,12 @@ export default class SelectTeam extends PureComponent {
   };
   loadUserTeams = () => {
     this.setState({ loading: true });
-    const { dispatch, currentUser, currentEnterprise } = this.props;
+    const { dispatch, currentEnterprise } = this.props;
     const { page, page_size, queryName } = this.state;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: 'global/fetchMyTeams',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
-        user_id: currentUser.user_id,
         name: queryName,
         page,
         page_size

@@ -97,12 +97,11 @@ export default class Index extends PureComponent {
 
   // 团队
   getUserTeams = () => {
-    const { dispatch, currentUser, currentEnterprise } = this.props;
+    const { dispatch, currentEnterprise } = this.props;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: 'global/fetchMyTeams',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
-        user_id: currentUser.user_id,
         page: 1,
         page_size: 999
       },

@@ -12,9 +12,6 @@ class currentTeams extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      page: 1,
-      pageSize: 10,
-      total: 0,
       list: [],
       toEditAction: false,
       editRoleLoading: true,
@@ -25,26 +22,18 @@ class currentTeams extends PureComponent {
     this.getEnterpriseTeams();
   }
 
-  onPageChange = page => {
-    this.setState({ page }, () => {
-      this.getEnterpriseTeams();
-    });
-  };
   getEnterpriseTeams = () => {
-    const { dispatch, eid } = this.props;
-    const { page, pageSize } = this.state;
+    const { dispatch, eid, userInfo } = this.props;
     dispatch({
-      type: 'global/fetchEnterpriseTeams',
+      type: 'global/fetchUserTeams',
       payload: {
-        page,
-        page_size: pageSize,
+        user_id: userInfo && userInfo.user_id,
         enterprise_id: eid
       },
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            total: (res.bean && res.bean.total_count) || 1,
-            list: (res.bean && res.bean.list) || [],
+            list: (res && res.list) || [],
             Loading: false
           });
         }
@@ -88,15 +77,7 @@ class currentTeams extends PureComponent {
 
   render() {
     const { onCancel, title, userInfo, eid } = this.props;
-    const {
-      page,
-      pageSize,
-      total,
-      list,
-      Loading,
-      toEditAction,
-      editRoleLoading
-    } = this.state;
+    const { list, Loading, toEditAction, editRoleLoading } = this.state;
     const th = this;
     const columns = [
       {
@@ -162,12 +143,7 @@ class currentTeams extends PureComponent {
           <Table
             loading={Loading}
             scroll={{ y: 300 }}
-            pagination={{
-              current: page,
-              pageSize,
-              total,
-              onChange: this.onPageChange
-            }}
+            pagination={false}
             dataSource={list}
             columns={columns}
           />
