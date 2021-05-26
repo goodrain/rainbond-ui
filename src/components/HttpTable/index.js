@@ -1,4 +1,5 @@
 /* eslint-disable no-nested-ternary */
+import ConfirmModal from '@/components/ConfirmModal';
 import {
   Button,
   Card,
@@ -35,6 +36,8 @@ export default class HttpTable extends PureComponent {
       informationConnect: false,
       outerEnvs: [],
       dataList: [],
+      toDeleteHttp: false,
+      deleteLoading: false,
       loading: true,
       page_num: 1,
       page_size: 10,
@@ -299,9 +302,20 @@ export default class HttpTable extends PureComponent {
       }
     });
   };
-
-  handleDelete = values => {
+  handleToDeleteHttp = val => {
+    this.setState({
+      toDeleteHttp: val
+    });
+  };
+  handleDeleteLoading = deleteLoading => {
+    this.setState({
+      deleteLoading
+    });
+  };
+  handleDelete = () => {
+    this.handleDeleteLoading(true);
     const { dispatch } = this.props;
+    const { toDeleteHttp: values } = this.state;
     dispatch({
       type: 'gateWay/deleteHttp',
       payload: {
@@ -312,10 +326,12 @@ export default class HttpTable extends PureComponent {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        if (data) {
-          notification.success({ message: data ? data.msg_show : '删除成功' });
-          this.reload();
-        }
+        notification.success({
+          message: (data && data.msg_show) || '删除成功'
+        });
+        this.handleToDeleteHttp(false);
+        this.handleDeleteLoading(false);
+        this.reload();
       }
     });
   };
@@ -488,6 +504,8 @@ export default class HttpTable extends PureComponent {
       informationConnect,
       outerEnvs,
       total,
+      toDeleteHttp,
+      deleteLoading,
       page_num,
       page_size,
       whetherOpenForm,
@@ -623,7 +641,7 @@ export default class HttpTable extends PureComponent {
               {isDelete && (
                 <a
                   onClick={() => {
-                    this.handleDelete(record);
+                    this.handleToDeleteHttp(record);
                   }}
                 >
                   删除
@@ -640,7 +658,7 @@ export default class HttpTable extends PureComponent {
                 {isDelete && (
                   <a
                     onClick={() => {
-                      this.handleDelete(record);
+                      this.handleToDeleteHttp(record);
                     }}
                   >
                     删除
@@ -719,6 +737,19 @@ export default class HttpTable extends PureComponent {
             editInfo={parameterInfo}
           />
         )}
+        {toDeleteHttp && (
+          <ConfirmModal
+            onOk={this.handleDelete}
+            loading={deleteLoading}
+            title="删除策略"
+            subDesc="此操作不可恢复"
+            desc="确定要删除此策略吗?"
+            onCancel={() => {
+              this.handleToDeleteHttp(false);
+            }}
+          />
+        )}
+
         {informationConnect && (
           <InfoConnectModal
             visible={informationConnect}
