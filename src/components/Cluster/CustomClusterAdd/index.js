@@ -88,6 +88,7 @@ class EditClusterInfo extends PureComponent {
     const { form, onCancel } = this.props;
     const { loading } = this.state;
     const { getFieldDecorator, setFieldsValue } = form;
+    const p16 = { padding: '0 16px' };
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 }
@@ -107,7 +108,7 @@ class EditClusterInfo extends PureComponent {
         onCancel={onCancel}
       >
         <Form labelAlign="left" onSubmit={this.handleSubmit}>
-          <Col style={{ display: 'flex' }}>
+          <Col style={p16}>
             <Form.Item label="集群名称">
               {getFieldDecorator('name', {
                 initialValue: '',
@@ -122,7 +123,7 @@ class EditClusterInfo extends PureComponent {
               })(<Input placeholder="集群名称,请确保其保持唯一" />)}
             </Form.Item>
           </Col>
-          <Col style={{ padding: '0 16px' }}>
+          <Col style={p16}>
             <CodeMirrorForm
               titles="Kubeconfig 配置文件,需确保当前网络可以正常与 Kubernetes API 进行通信"
               setFieldsValue={setFieldsValue}

@@ -8,7 +8,6 @@ import {
   Form,
   Input,
   InputNumber,
-  message,
   Modal,
   Popconfirm,
   Row,
@@ -27,15 +26,24 @@ const { Paragraph } = Typography;
 
 const EditableContext = React.createContext();
 
-const EditableRow = ({ form, index, ...props }) => (
-  <EditableContext.Provider value={form}>
-    <tr {...props} />
-  </EditableContext.Provider>
-);
+const EditableRow = ({ form, index, ...props }) => {
+  return (
+    <EditableContext.Provider value={form}>
+      <tr {...props} />
+    </EditableContext.Provider>
+  );
+};
 
 const EditableFormRow = Form.create()(EditableRow);
 
 class EditableCell extends React.Component {
+  componentWillMount() {
+    const { handleClustersMount } = this.props;
+    if (handleClustersMount) {
+      handleClustersMount(this);
+    }
+  }
+
   state = {
     editing: false
   };
@@ -48,11 +56,10 @@ class EditableCell extends React.Component {
       }
     });
   };
-
-  save = e => {
+  save = (e, targets) => {
     const { record, handleSave } = this.props;
     this.form.validateFields((error, values) => {
-      if (error && error[e.currentTarget.id]) {
+      if (error && error[targets || (e && e.currentTarget.id)]) {
         return;
       }
       this.toggleEdit();
@@ -62,7 +69,7 @@ class EditableCell extends React.Component {
 
   renderCell = form => {
     this.form = form;
-    const { children, dataIndex, record, title } = this.props;
+    const { children, dataIndex, record, title, dataSource } = this.props;
     const { editing } = this.state;
     const rules = [
       {
@@ -70,7 +77,8 @@ class EditableCell extends React.Component {
         message: `${title} 是必需的`
       }
     ];
-    if (dataIndex === 'ip' || dataIndex === 'internalIP') {
+    const ips = dataIndex === 'ip' || dataIndex === 'internalIP';
+    if (ips) {
       rules.push({
         message: '请输入正确的IP地址',
         pattern: new RegExp(
@@ -79,7 +87,8 @@ class EditableCell extends React.Component {
         )
       });
     }
-    if (dataIndex === 'sshPort') {
+    const sshPort = dataIndex === 'sshPort';
+    if (sshPort) {
       rules.push({
         message: '请输入正确的端口号',
         min: 1,
@@ -87,18 +96,21 @@ class EditableCell extends React.Component {
         pattern: new RegExp(/^[1-9]\d*$/, 'g')
       });
     }
-    return editing ? (
+    const initialValues = record[dataIndex];
+    return editing || (ips && !initialValues) ? (
       <Form.Item style={{ margin: 0 }}>
         {form.getFieldDecorator(dataIndex, {
           rules,
-          initialValue: record[dataIndex]
+          initialValue: initialValues
         })(
           dataIndex === 'roles' ? (
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               ref={node => (this.input = node)}
               onPressEnter={this.save}
-              onBlur={this.save}
+              onBlur={() => {
+                this.save(false, dataIndex);
+              }}
               allowClear
               mode="multiple"
             >
@@ -106,8 +118,9 @@ class EditableCell extends React.Component {
               <Select.Option value="etcd">ETCD</Select.Option>
               <Select.Option value="worker">计算</Select.Option>
             </Select>
-          ) : dataIndex === 'sshPort' ? (
+          ) : sshPort ? (
             <InputNumber
+              style={{ width: '100%' }}
               ref={node => (this.input = node)}
               onPressEnter={this.save}
               onBlur={this.save}
@@ -116,7 +129,18 @@ class EditableCell extends React.Component {
             />
           ) : (
             <Input
-              ref={node => (this.input = node)}
+              placeholder={`请输入${title}`}
+              ref={node => {
+                this.input = node;
+                if (
+                  dataIndex === 'ip' &&
+                  !initialValues &&
+                  dataSource &&
+                  dataSource.length > 1
+                ) {
+                  node.focus();
+                }
+              }}
               onPressEnter={this.save}
               onBlur={this.save}
             />
@@ -127,7 +151,7 @@ class EditableCell extends React.Component {
       <Tooltip title="点击修改">
         <div
           className="editable-cell-value-wrap"
-          style={{ paddingRight: 24, cursor: 'pointer' }}
+          style={{ cursor: 'pointer' }}
           onClick={this.toggleEdit}
         >
           {children}
@@ -137,16 +161,7 @@ class EditableCell extends React.Component {
   };
 
   render() {
-    const {
-      editable,
-      dataIndex,
-      title,
-      record,
-      index,
-      handleSave,
-      children,
-      ...restProps
-    } = this.props;
+    const { editable, children, ...restProps } = this.props;
     return (
       <td {...restProps}>
         {editable ? (
@@ -168,14 +183,19 @@ export default class RKEClusterConfig extends PureComponent {
       loading: false,
       dataSource: [],
       count: 0,
+      isCheck: false,
       initNodeCmd: ''
     };
+    this.clusters = null;
   }
 
   componentDidMount = () => {
     this.loadInitNodeCmd();
+    this.handleAdd();
   };
-
+  handleClustersMount = com => {
+    this.clusters = com;
+  };
   loadInitNodeCmd = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -190,36 +210,31 @@ export default class RKEClusterConfig extends PureComponent {
     const { form, dispatch, eid, onOK } = this.props;
     const { dataSource } = this.state;
     form.validateFields((err, fieldsValue) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      if (dataSource.length < 1) {
-        message.warning('请定义集群节点');
-      }
-      this.setState({ loading: true });
-      dispatch({
-        type: 'cloud/createKubernetesCluster',
-        payload: {
-          enterprise_id: eid,
-          provider_name: 'rke',
-          nodes: dataSource,
-          ...fieldsValue
-        },
-        callback: data => {
-          if (data && onOK) {
-            onOK(data);
+      if (!err) {
+        this.setState({ loading: true });
+        dispatch({
+          type: 'cloud/createKubernetesCluster',
+          payload: {
+            enterprise_id: eid,
+            provider_name: 'rke',
+            nodes: dataSource,
+            ...fieldsValue
+          },
+          callback: data => {
+            if (data && onOK) {
+              onOK(data);
+            }
+          },
+          handleError: res => {
+            if (res && res.data && res.data.code === 7005 && onOK) {
+              onOK(res.data.data);
+              return;
+            }
+            cloud.handleCloudAPIError(res);
+            this.setState({ loading: false });
           }
-        },
-        handleError: res => {
-          if (res && res.data && res.data.code === 7005) {
-            onOK(res.data.data);
-            return;
-          }
-          cloud.handleCloudAPIError(res);
-          this.setState({ loading: false });
-        }
-      });
+        });
+      }
     });
   };
 
@@ -227,30 +242,37 @@ export default class RKEClusterConfig extends PureComponent {
     const dataSource = [...this.state.dataSource];
     this.setState({ dataSource: dataSource.filter(item => item.key !== key) });
   };
-
+  handleEnvGroup = (callback, handleError) => {
+    if (this.clusters && this.clusters.form) {
+      this.clusters.form.validateFields(err => {
+        if (!err && callback) {
+          return callback();
+        }
+      });
+    } else if (handleError) {
+      handleError();
+    }
+    return false;
+  };
   handleAdd = () => {
     const { count, dataSource } = this.state;
-    let init = `192.168.1.${count + 1}`;
-    if (dataSource.length > 0 && dataSource[dataSource.length - 1].ip !== '') {
-      const ips = dataSource[dataSource.length - 1].ip.split('.');
-      if (ips.length > 3) {
-        init = `${ips.slice(0, 3).join('.')}.${Number(ips[3]) + 1}`;
-      }
-    }
     const newData = {
       key: count,
-      ip: init,
-      internalIP: init,
+      ip: '',
+      internalIP: '',
       sshPort: 22,
       roles: ['etcd', 'controlplane', 'worker']
     };
     if (count > 2) {
       newData.roles = ['worker'];
     }
-    this.setState({
-      dataSource: [...dataSource, newData],
-      count: count + 1
-    });
+    const updata = () => {
+      this.setState({
+        dataSource: [...dataSource, newData],
+        count: count + 1
+      });
+    };
+    this.handleEnvGroup(updata, updata);
   };
 
   handleSave = row => {
@@ -275,10 +297,37 @@ export default class RKEClusterConfig extends PureComponent {
         return '未知';
     }
   };
+  handleStartCheck = () => {
+    let next = false;
+    this.props.form.validateFields(err => {
+      if (!err) {
+        next = true;
+      } else {
+        this.handleCheck(false);
+      }
+    });
+
+    this.handleEnvGroup(
+      () => {
+        if (next) {
+          this.handleCheck(true);
+        }
+      },
+      () => {
+        this.handleCheck(false);
+      }
+    );
+  };
+  handleCheck = isCheck => {
+    this.setState({
+      isCheck
+    });
+  };
+
   render() {
-    const { onCancel } = this.props;
-    const { getFieldDecorator } = this.props.form;
-    const { loading, dataSource, initNodeCmd } = this.state;
+    const { onCancel, form } = this.props;
+    const { getFieldDecorator } = form;
+    const { loading, dataSource, initNodeCmd, isCheck } = this.state;
     const components = {
       body: {
         row: EditableFormRow,
@@ -289,25 +338,25 @@ export default class RKEClusterConfig extends PureComponent {
       {
         title: 'IP 地址',
         dataIndex: 'ip',
-        width: '150px',
+        width: 150,
         editable: true
       },
       {
         title: '内网 IP 地址',
         dataIndex: 'internalIP',
-        width: '150px',
+        width: 170,
         editable: true
       },
       {
         title: 'SSH 端口',
         dataIndex: 'sshPort',
-        width: '100px',
+        width: 140,
         editable: true
       },
       {
         title: '节点类型',
         dataIndex: 'roles',
-        width: '220px',
+        width: 160,
         editable: true,
         render: text =>
           text.map(item => <Tag color="blue">{this.nodeRole(item)}</Tag>)
@@ -315,15 +364,20 @@ export default class RKEClusterConfig extends PureComponent {
       {
         title: '操作',
         dataIndex: 'name',
-        render: (text, record) =>
-          this.state.dataSource.length > 1 ? (
+        width: 80,
+        align: 'center',
+        render: (_, record) => {
+          return dataSource.length > 1 ? (
             <Popconfirm
               title="确定要删除吗?"
               onConfirm={() => this.handleDelete(record.key)}
             >
               <a>删除</a>
             </Popconfirm>
-          ) : null
+          ) : (
+            '-'
+          );
+        }
       }
     ];
     const columnEdits = columns.map(col => {
@@ -337,6 +391,8 @@ export default class RKEClusterConfig extends PureComponent {
           editable: col.editable,
           dataIndex: col.dataIndex,
           title: col.title,
+          dataSource,
+          handleClustersMount: this.handleClustersMount,
           handleSave: this.handleSave
         })
       };
@@ -346,15 +402,20 @@ export default class RKEClusterConfig extends PureComponent {
         visible
         title="基于主机安装 Kubernetes 集群"
         className={styles.TelescopicModal}
-        width={800}
+        width={900}
         destroyOnClose
         footer={
           <Popconfirm
             title="确定已完成所有节点的初始化并开始安装集群吗?"
+            visible={isCheck}
             onConfirm={this.createCluster}
+            onCancel={() => {
+              this.handleCheck(false);
+            }}
           >
-            {' '}
-            <Button type="primary">开始安装</Button>
+            <Button type="primary" onClick={this.handleStartCheck}>
+              开始安装
+            </Button>
           </Popconfirm>
         }
         confirmLoading={loading}
@@ -435,7 +496,7 @@ export default class RKEClusterConfig extends PureComponent {
           </Row>
           <Row style={{ padding: '0 16px' }}>
             <span style={{ fontWeight: 600, color: 'red' }}>
-              请在所有节点先执行以下初始化命令（执行用户需要具有sudo权限）：
+              请在开始安装前所有节点先执行以下初始化命令（执行用户需要具有sudo权限）：
             </span>
             <Col span={24} style={{ marginTop: '16px' }}>
               <span className={styles.cmd}>{initNodeCmd}</span>
