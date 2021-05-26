@@ -134,20 +134,16 @@ class DrawerForm extends PureComponent {
     });
   };
   handleChange = data => {};
-  checkport = (rules, value, callback) => {
+  checkport = (_, value, callback) => {
     if (!value.ip || (value.available_port !== 0 && !value.available_port)) {
       callback('请输入完整的ip和端口');
       return;
     }
-    if (
-      value.available_port &&
-      value.available_port >= 10000 &&
-      value.available_port <= 65534
-    ) {
-      callback();
-    } else {
-      callback('请输入正确的端口:10000-65534');
+    const internalTcps = [80, 443, 6060, 8443, 10254, 18080, 18081];
+    if (value.available_port && internalTcps.includes(value.available_port)) {
+      callback('该端口属于内部端口、请重新输入');
     }
+    callback();
   };
   render() {
     const {
