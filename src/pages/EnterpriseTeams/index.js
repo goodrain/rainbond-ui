@@ -373,24 +373,28 @@ export default class EnterpriseTeams extends PureComponent {
   };
 
   showRegions = (team_name, regions, ismanagement = false) => {
-    return regions.map(item => {
-      return (
-        <Button
-          key={`${item.region_name}region`}
-          className={styles.regionShow}
-          onClick={() => {
-            if (ismanagement) {
-              this.handleJoinTeams(team_name, item.region_name);
-            } else {
-              this.onJumpTeam(team_name, item.region_name);
-            }
-          }}
-        >
-          {item.region_alias}
-          <Icon type="right" />
-        </Button>
-      );
-    });
+    return (
+      regions &&
+      regions.length > 0 &&
+      regions.map(item => {
+        return (
+          <Button
+            key={`${item.region_name}region`}
+            className={styles.regionShow}
+            onClick={() => {
+              if (ismanagement) {
+                this.handleJoinTeams(team_name, item.region_name);
+              } else {
+                this.onJumpTeam(team_name, item.region_name);
+              }
+            }}
+          >
+            {item.region_alias}
+            <Icon type="right" />
+          </Button>
+        );
+      })
+    );
   };
   handleJoinTeams = (teamName, region) => {
     const { dispatch } = this.props;
@@ -776,16 +780,18 @@ export default class EnterpriseTeams extends PureComponent {
                   <Col span={6}>{team_alias}</Col>
                   <Col span={3}>{owner_name}</Col>
                   <Col span={3}>
-                    {roles.map(role => {
-                      return (
-                        <span
-                          style={{ marginRight: '8px' }}
-                          key={`role${role}`}
-                        >
-                          {roleUtil.actionMap(role)}
-                        </span>
-                      );
-                    })}
+                    {roles &&
+                      roles.length > 0 &&
+                      roles.map(role => {
+                        return (
+                          <span
+                            style={{ marginRight: '8px' }}
+                            key={`role${role}`}
+                          >
+                            {roleUtil.actionMap(role)}
+                          </span>
+                        );
+                      })}
                   </Col>
                   <Col span={11}>
                     {this.showRegions(team_name, region_list)}

@@ -113,7 +113,7 @@ class EvnOption extends React.Component {
               onChange={values => {
                 this.handleOnchange('protocol', values);
               }}
-              style={{ width: 100 }}
+              style={{ width: 120 }}
               placeholder="选择协议"
             >
               <Option value="">所有协议</Option>
@@ -334,10 +334,10 @@ class EnvGroup extends PureComponent {
 
 const formItemLayout = {
   labelCol: {
-    span: 4
+    span: 3
   },
   wrapperCol: {
-    span: 20
+    span: 21
   }
 };
 
@@ -393,7 +393,7 @@ export default class Index extends PureComponent {
     return (
       <Modal
         title={title || '新增配置组'}
-        width={1000}
+        width={1100}
         visible
         confirmLoading={loading}
         onOk={this.handleSubmit}
