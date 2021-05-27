@@ -115,8 +115,8 @@ class CreateUserForm extends PureComponent {
                     message: '最大长度24位'
                   },
                   {
-                    pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
-                    message: '只支持字母、数字、中文、_和-组合'
+                    pattern: /^[a-zA-Z0-9_\-]+$/,
+                    message: '只支持字母、数字、_和-组合'
                   }
                 ]
               })(<Input autoComplete="off" placeholder="请填写用户名!" />)}

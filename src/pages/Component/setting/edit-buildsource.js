@@ -35,6 +35,9 @@ export default class ChangeBuildSource extends PureComponent {
       this.loadBranch();
     }
   }
+  shouldComponentUpdate() {
+    return true;
+  }
   getUrlCheck() {
     if (this.state.serverType == 'svn') {
       return /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
@@ -90,14 +93,9 @@ export default class ChangeBuildSource extends PureComponent {
     this.setState({ showKey: false });
   };
 
-  shouldComponentUpdate(_nextProps, __nextState) {
-    return true;
-  }
-
   render() {
-    const { title, onCancel } = this.props;
-    const { branch } = this.state;
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { title, onCancel, appBuidSourceLoading, form } = this.props;
+    const { getFieldDecorator, getFieldValue } = form;
     const { showUsernameAndPass, showKey } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -167,6 +165,7 @@ export default class ChangeBuildSource extends PureComponent {
       <Modal
         width={700}
         title={title}
+        confirmLoading={appBuidSourceLoading}
         onOk={this.handleSubmit}
         onCancel={onCancel}
         visible

@@ -39,7 +39,7 @@ export default class EnterpriseUsers extends PureComponent {
       text: '',
       delVisible: false,
       name: '',
-      loading: false
+      Loading: false
     };
   }
   componentWillMount() {
@@ -65,7 +65,7 @@ export default class EnterpriseUsers extends PureComponent {
   };
   handleCreatUser = values => {
     this.setState({
-      loading: true
+      Loading: true
     });
     const {
       dispatch,
@@ -90,6 +90,7 @@ export default class EnterpriseUsers extends PureComponent {
           this.cancelCreatUser();
           notification.success({ message: data.msg_show || '' });
         }
+        this.handleCloseLoading();
       },
       handleError: res => {
         if (
@@ -103,6 +104,7 @@ export default class EnterpriseUsers extends PureComponent {
         } else {
           cloud.handleCloudAPIError(res);
         }
+        this.handleCloseLoading();
       }
     });
   };
@@ -132,10 +134,13 @@ export default class EnterpriseUsers extends PureComponent {
           this.loadUser();
           notification.success({ message: '编辑成功' });
         }
+        this.handleCloseLoading();
       }
     });
   };
-
+  handleCloseLoading = () => {
+    this.setState({ Loading: false });
+  };
   handleDelete = () => {
     const { userInfo } = this.state;
     const {
@@ -197,7 +202,7 @@ export default class EnterpriseUsers extends PureComponent {
       userVisible: false,
       text: '',
       userInfo: false,
-      loading: false
+      Loading: false
     });
   };
 
@@ -251,8 +256,8 @@ export default class EnterpriseUsers extends PureComponent {
       page,
       pageSize,
       total,
-      currentUserInfo,
-      loading
+      Loading,
+      currentUserInfo
     } = this.state;
 
     const {
@@ -397,11 +402,11 @@ export default class EnterpriseUsers extends PureComponent {
           {userVisible && (
             <CreatUser
               eid={eid}
+              loading={Loading}
               userInfo={userInfo}
               title={text}
               onOk={this.handleCreatUser}
               onCancel={this.cancelCreatUser}
-              loading={loading}
             />
           )}
           {currentUserInfo && (

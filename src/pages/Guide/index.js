@@ -1,3 +1,9 @@
+/* eslint-disable import/no-named-default */
+/* eslint-disable react/jsx-no-target-blank */
+/* eslint-disable react/no-unused-state */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable react/sort-comp */
+/* eslint-disable camelcase */
 import {
   Button,
   Card,
@@ -12,7 +18,10 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import EditGroupName from '../../components/AddOrEditGroup';
+import {
+  default as AddGroup,
+  default as EditGroupName
+} from '../../components/AddOrEditGroup';
 import configureGlobal from '../../utils/configureGlobal';
 import globalUtil from '../../utils/global';
 import guideUtil from '../../utils/guide';

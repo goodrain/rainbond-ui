@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable react/sort-comp */
 import {
   Button,
   Card,
@@ -63,19 +65,14 @@ export default class Index extends React.Component {
       tabData: [],
       showAddMember: false,
       toEditAction: null,
-      toDeleteMember: null,
       memberslist: null,
-      buildSource: null,
-      changeBuildSource: false,
       showMarketAppDetail: false,
       showApp: {},
       // appStatus: null,
       visibleAppSetting: false,
       tags: [],
-      isInput: false,
       page: 1,
       page_size: 5,
-      total: 0,
       env_name: '',
       loading: false
     };
@@ -155,11 +152,6 @@ export default class Index extends React.Component {
         page,
         page_size,
         env_name
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({ total: res.bean.total });
-        }
       }
     });
   };
@@ -282,7 +274,7 @@ export default class Index extends React.Component {
         ID: transfer.ID,
         scope: transfer.scope == 'inner' ? 'outer' : 'inner'
       },
-      callback: res => {
+      callback: () => {
         this.cancelTransfer();
         this.fetchInnerEnvs();
         notification.success({ message: '操作成功' });
@@ -367,12 +359,10 @@ export default class Index extends React.Component {
           old_mode: startProbe.mode
         },
         callback: res => {
-          if (res && res.status_code) {
-            if (res.status_code === 200) {
-              this.onCancelEditStartProbe();
-              this.fetchStartProbe();
-              notification.success({ message: '编辑成功,请更新组件后生效!' });
-            }
+          if (res && res.status_code && res.status_code === 200) {
+            this.onCancelEditStartProbe();
+            this.fetchStartProbe();
+            notification.success({ message: '编辑成功,请更新组件后生效!' });
           }
         }
       });
@@ -575,7 +565,7 @@ export default class Index extends React.Component {
   handleChange = checked => {
     const { onChecked } = this.props;
     if (onChecked) {
-      onChecked && onChecked(checked);
+      onChecked(checked);
       setTimeout(() => {
         this.fetchBaseInfo();
       }, 1000);
@@ -585,33 +575,6 @@ export default class Index extends React.Component {
     this.setState({
       visibleAppSetting: false,
       isShow: false
-    });
-  };
-  modifyText = () => {
-    this.setState({ isInput: true });
-  };
-  handlePressenter = e => {
-    const { dispatch } = this.props;
-    const service_name = e.target.value;
-    const { baseInfo } = this.props;
-    if (service_name == baseInfo.service_name) {
-      this.setState({ isInput: false });
-      return;
-    }
-    dispatch({
-      type: 'appControl/updateServiceName',
-      payload: {
-        service_name,
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
-      },
-      callback: data => {
-        if (data) {
-          this.fetchBaseInfo();
-          notification.success({ message: '修改成功' });
-          this.setState({ isInput: false });
-        }
-      }
     });
   };
 
@@ -664,18 +627,11 @@ export default class Index extends React.Component {
       ports,
       baseInfo,
       teamControl,
+      form,
       componentPermissions: { isDeploytype, isCharacteristic, isHealth }
     } = this.props;
-    const {
-      viewStartHealth,
-      is_fix,
-      tags,
-      tabData,
-      isShow,
-      loading
-    } = this.state;
-
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { viewStartHealth, tags, tabData, isShow, loading } = this.state;
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -904,10 +860,10 @@ export default class Index extends React.Component {
           />
         )}
 
-        {this.state.viewStartHealth && (
+        {viewStartHealth && (
           <ViewHealthCheck
             title="健康检查查看"
-            data={this.state.viewStartHealth}
+            data={viewStartHealth}
             onCancel={() => {
               this.setState({ viewStartHealth: null });
             }}

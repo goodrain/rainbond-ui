@@ -155,22 +155,6 @@ class AppInfo extends PureComponent {
                       生成随机值
                     </Checkbox>
                   )}
-                  {getFieldDecorator(
-                    `connectIsChange||${item.attr_name}||${ID}`,
-                    {
-                      valuePropName: 'checked',
-                      initialValue: item.is_change
-                    }
-                  )(
-                    <Checkbox
-                      onChange={this.handleIsChange.bind(
-                        this,
-                        `connectIsChange||${item.attr_name}||${ID}`
-                      )}
-                    >
-                      可修改
-                    </Checkbox>
-                  )}
                 </FormItem>
               </Col>
             ))}
@@ -201,7 +185,7 @@ class AppInfo extends PureComponent {
           <Divider />
           <Row>
             {app.service_env_map_list.map(item => {
-              const { attr_name, attr_value, is_change } = item;
+              const { attr_name, attr_value } = item;
               return (
                 <Col span={8}>
                   <FormItem label={attr_name} style={{ padding: 16 }}>
@@ -214,19 +198,6 @@ class AppInfo extends PureComponent {
                         }
                       ]
                     })(<Input />)}
-                    {getFieldDecorator(`envIschange||${attr_name}||${ID}`, {
-                      valuePropName: 'checked',
-                      initialValue: is_change
-                    })(
-                      <Checkbox
-                        onChange={this.handleIsChange.bind(
-                          this,
-                          `envIschange||${attr_name}||${ID}`
-                        )}
-                      >
-                        可修改
-                      </Checkbox>
-                    )}
                   </FormItem>
                 </Col>
               );
@@ -699,47 +670,35 @@ export default class Main extends PureComponent {
             if (option.service_alias == apptab) {
               // eslint-disable-next-line no-restricted-syntax
               for (const index in appvalue) {
-                var indexarr = [];
+                let indexarr = [];
                 indexarr = index.split('||');
                 const firstInfo =
                   indexarr && indexarr.length > 0 && indexarr[0];
                 if (firstInfo) {
                   const isConnect = firstInfo === 'connect';
-                  const isConnectIsChange = firstInfo === 'connectIsChange';
                   const isEnv = firstInfo === 'env';
-                  const isEnvIschange = firstInfo === 'envIschange';
 
-                  if (
-                    (isConnect && indexarr[2] != 'random') ||
-                    isConnectIsChange
-                  ) {
+                  if (isConnect && indexarr[2] != 'random') {
                     option.service_connect_info_map_list.map(serapp => {
                       if (
-                        isConnectIsChange &&
-                        serapp.attr_name === indexarr[1] &&
-                        ID === indexarr[2]
-                      ) {
-                        serapp.is_change = appvalue[index];
-                      } else if (
                         isConnect &&
                         indexarr[2] != 'random' &&
                         serapp.attr_name == indexarr[1] &&
                         ID === indexarr[3]
                       ) {
                         serapp[indexarr[2]] = appvalue[index];
+                        serapp.is_change = true;
                       }
                     });
                   }
 
-                  if (isEnv || isEnvIschange) {
+                  if (isEnv) {
                     option.service_env_map_list.map(serapp => {
                       const { attr_name: attrName } = serapp;
                       if (attrName === indexarr[1] && ID === indexarr[2]) {
                         if (isEnv) {
                           serapp.attr_value = appvalue[index];
-                        }
-                        if (isEnvIschange) {
-                          serapp.is_change = appvalue[index];
+                          serapp.is_change = true;
                         }
                       }
                     });

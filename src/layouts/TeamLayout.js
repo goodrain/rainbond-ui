@@ -32,8 +32,6 @@ import AppHeader from './components/AppHeader';
 import TeamHeader from './components/TeamHeader';
 import Context from './MenuContext';
 
-const qs = require('query-string');
-
 const { Content } = Layout;
 
 const query = {
@@ -138,7 +136,6 @@ class TeamLayout extends PureComponent {
     const { teamName, regionName } = this.props.match.params;
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
-    console.log(cookie.get('region_name'));
     dispatch({
       type: 'global/getTeamOverview',
       payload: {
