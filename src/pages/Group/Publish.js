@@ -15,6 +15,7 @@ import {
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import style from './publish.less';
+
 @connect(({ list, loading, teamControl, enterprise }) => ({
   list,
   loading: loading.models.list,
@@ -262,11 +263,15 @@ export default class AppPublishList extends PureComponent {
                 {
                   title: '发布模版名称',
                   dataIndex: 'app_model_name',
-                  render: val => {
+                  render: (val, data) => {
                     if (val) {
                       return val;
                     }
-                    return <span style={{ color: '#999999' }}>未指定</span>;
+                    return (
+                      <span style={{ color: '#999999' }}>
+                        {data.status === 0 ? '未指定' : '无法连接应用商店'}
+                      </span>
+                    );
                   }
                 },
                 {
