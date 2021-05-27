@@ -49,18 +49,19 @@ class currentTeams extends PureComponent {
 
   handleEditRole = data => {
     this.setState({ editRoleLoading: true });
-    const { dispatch, userInfo } = this.props;
+    const { dispatch, eid, userInfo } = this.props;
     const { toEditAction } = this.state;
     dispatch({
-      type: 'teamControl/editMember',
+      type: 'user/editUserRoles',
       payload: {
+        enterprise_id: eid,
         team_name: toEditAction.team_name,
         user_id: userInfo && userInfo.user_id,
         role_ids: data.role_ids
       },
       callback: () => {
         this.getEnterpriseTeams();
-        notification.success({ message: '修改成功' });
+        notification.success({ message: '设置成功' });
         this.handleRole(false);
       }
     });

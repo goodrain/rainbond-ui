@@ -22,8 +22,13 @@ class ConfirmModal extends PureComponent {
   }
   componentDidMount() {
     this.loadRoles();
-    const { viewName } = this.props;
-    if (viewName === 'enterprise') {
+    const { viewName, data } = this.props;
+    if (
+      viewName === 'enterprise' &&
+      data &&
+      data.roles &&
+      data.roles.length > 0
+    ) {
       this.fetchTeamUserRoles();
     } else {
       this.handleCloseCurrentRolesLoading();
