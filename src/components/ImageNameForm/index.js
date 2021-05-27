@@ -85,20 +85,19 @@ export default class Index extends PureComponent {
       createAppByDockerrunLoading,
       handleType,
       ButtonGroupState,
-      showSubmitBtn = false,
-      showCreateGroup = false
+      groupId,
+      showSubmitBtn = true,
+      showCreateGroup = true
     } = this.props;
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
+    const isService = handleType && handleType === 'Service';
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="应用名称">
             {getFieldDecorator('group_id', {
-              initialValue:
-                handleType && handleType === 'Service'
-                  ? Number(this.props.groupId)
-                  : data.group_id,
+              initialValue: isService ? Number(groupId) : data.group_id,
               rules: [
                 {
                   required: true,
@@ -111,17 +110,17 @@ export default class Index extends PureComponent {
                 placeholder="请选择要所属应用"
                 style={{
                   display: 'inline-block',
-                  width: handleType && handleType === 'Service' ? '' : 292,
+                  width: isService ? '' : 292,
                   marginRight: 15
                 }}
-                disabled={!!(handleType && handleType === 'Service')}
+                disabled={!!isService}
               >
                 {(groups || []).map(group => (
                   <Option value={group.group_id}>{group.group_name}</Option>
                 ))}
               </Select>
             )}
-            {handleType && handleType === 'Service' ? null : showCreateGroup ? (
+            {isService ? null : showCreateGroup ? (
               <Button onClick={this.onAddGroup}>新建应用</Button>
             ) : null}
           </Form.Item>
@@ -204,7 +203,7 @@ export default class Index extends PureComponent {
               }}
               label=""
             >
-              {handleType && handleType === 'Service' && ButtonGroupState
+              {isService && ButtonGroupState
                 ? this.props.handleServiceBotton(
                     <Button
                       onClick={this.handleSubmit}
