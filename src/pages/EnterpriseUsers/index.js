@@ -114,7 +114,6 @@ export default class EnterpriseUsers extends PureComponent {
     const info = userInfo;
     info.real_name = values.real_name;
     info.password = values.password;
-    info.email = values.email;
     info.phone = values.phone;
     const {
       dispatch,
