@@ -178,6 +178,16 @@ export default class Index extends PureComponent {
     staticList[index] = e.target.value;
     this.setValues(staticList, typeName);
   };
+  handleIsRepeat = arr => {
+    const hash = {};
+    for (const i in arr) {
+      if (hash[arr[i]]) {
+        return true;
+      }
+      hash[arr[i]] = true;
+    }
+    return false;
+  };
 
   validAttrName = (rule, value, callback) => {
     if (!value) {
@@ -198,6 +208,9 @@ export default class Index extends PureComponent {
           !rege.test(item || '')
         ) {
           callback('请输入正确的地址');
+        }
+        if (this.handleIsRepeat(value)) {
+          callback('组件地址不能相同');
         }
       });
     }

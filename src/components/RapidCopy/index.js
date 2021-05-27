@@ -48,7 +48,6 @@ export default class Index extends PureComponent {
       app_page: 1,
       apps: [],
       checkedList: [],
-      inputValue: '',
       checkAllList: [],
       indeterminate: false,
       checkAll: true,
@@ -228,10 +227,17 @@ export default class Index extends PureComponent {
   };
 
   handleSubmit = () => {
+    const { checkedList } = this.state;
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        this.setState({ Loading: true });
-        this.AddCopyTeamApps(values);
+        if (checkedList && checkedList.length > 20) {
+          notification.warning({
+            message: '应用复制最多20个组件'
+          });
+        } else {
+          this.setState({ Loading: true });
+          this.AddCopyTeamApps(values);
+        }
       }
     });
   };

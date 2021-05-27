@@ -113,6 +113,12 @@ class DrawerForm extends PureComponent {
           info.auto_ssl = true;
           info.certificate_id = undefined;
         }
+        if (values.domain_heander === '=') {
+          info.domain_heander = '';
+        }
+        if (values.domain_cookie === '=') {
+          info.domain_cookie = '';
+        }
         onOk(info, group_name);
       }
     });
@@ -375,6 +381,10 @@ class DrawerForm extends PureComponent {
       portList && portList.length > 0 && portList[0].container_port;
     const checkLengths = [
       {
+        pattern: /^[^\s]*$/,
+        message: '禁止输入空格'
+      },
+      {
         validator: this.checkLength
       }
     ];
@@ -433,7 +443,7 @@ class DrawerForm extends PureComponent {
                     required: false,
                     message: '/'
                   },
-                  { max: 65530, message: '最大长度65530' },
+                  { max: 1024, message: '最大长度1024' },
                   {
                     pattern: /^\/+.*/,
                     message: '请输入绝对路径'
