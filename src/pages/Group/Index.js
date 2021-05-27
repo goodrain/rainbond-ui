@@ -1,3 +1,7 @@
+/* eslint-disable consistent-return */
+/* eslint-disable eqeqeq */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
 /* eslint-disable no-unused-expressions */
 import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
@@ -26,6 +30,7 @@ import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import sourceUtil from '../../utils/source-unit';
+import userUtil from '../../utils/user';
 import AddServiceComponent from './AddServiceComponent';
 import AddThirdParty from './AddThirdParty';
 import AppShape from './AppShape';
@@ -53,7 +58,6 @@ class Main extends PureComponent {
       toDelete: false,
       toEdit: false,
       toEditAppDirector: false,
-      service_alias: [],
       serviceIds: [],
       linkList: [],
       jsonDataLength: 0,
@@ -61,7 +65,6 @@ class Main extends PureComponent {
       code: '',
       size: 'large',
       currApp: {},
-      loadingDetail: true,
       rapidCopy: false,
       componentTimer: true,
       customSwitch: false,
@@ -126,7 +129,7 @@ class Main extends PureComponent {
           Object.keys(json_data).map(key => {
             serviceIds.push(key);
             if (
-              json_data[key].cur_status == 'running' &&
+              json_data[key].cur_status === 'running' &&
               json_data[key].is_internet == true
             ) {
               service_alias.push(json_data[key].service_alias);
@@ -136,7 +139,6 @@ class Main extends PureComponent {
           this.setState(
             {
               jsonDataLength: Object.keys(json_data).length,
-              service_alias,
               serviceIds
             },
             () => {
@@ -179,19 +181,32 @@ class Main extends PureComponent {
         }
       },
       handleError: err => {
-        this.handleError(err);
-        this.handleTimers(
-          'timer',
-          () => {
-            this.fetchAppDetailState();
-            this.fetchAppDetail();
-            this.loadTopology(true);
-          },
-          20000
-        );
+        this.handleTeamPermissions(() => {
+          this.handleError(err);
+          this.handleTimers(
+            'timer',
+            () => {
+              this.fetchAppDetail();
+              this.loadTopology(true);
+            },
+            20000
+          );
+        });
       }
     });
   }
+  handleTeamPermissions = callback => {
+    const { currUser } = this.props;
+    const teamPermissions = userUtil.getTeamByTeamPermissions(
+      currUser.teams,
+      globalUtil.getCurrTeamName()
+    );
+    if (teamPermissions && teamPermissions.length !== 0) {
+      callback();
+    } else {
+      this.closeComponentTimer();
+    }
+  };
   handleError = err => {
     const { componentTimer } = this.state;
     if (!componentTimer) {
@@ -216,7 +231,6 @@ class Main extends PureComponent {
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     const { teamName, regionName, appID } = this.props.match.params;
-    this.setState({ loadingDetail: true });
     dispatch({
       type: 'application/fetchGroupDetail',
       payload: {
@@ -227,8 +241,7 @@ class Main extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            currApp: res.bean,
-            loadingDetail: false
+            currApp: res.bean
           });
         }
       },
@@ -249,7 +262,7 @@ class Main extends PureComponent {
   };
   handleWaitLevel = () => {
     const { dispatch } = this.props;
-    const { teamName, regionName, appID } = this.props.match.params;
+    const { teamName, appID } = this.props.match.params;
     dispatch({
       type: 'application/fetchToupgrade',
       payload: {
@@ -501,12 +514,10 @@ class Main extends PureComponent {
     );
   };
   render() {
+    const { teamName, regionName } = this.props.match.params;
     const {
       groupDetail,
-      appID,
-      currentEnterprise,
-      currentTeam,
-      currentRegionName,
+      editGroupLoading,
       appPermissions: {
         isShare,
         isBackup,
@@ -520,7 +531,6 @@ class Main extends PureComponent {
         isCopy
       },
       buildShapeLoading,
-      editGroupLoading,
       deleteLoading,
       appConfigGroupPermissions: { isAccess: isConfigGroup },
       componentPermissions,
@@ -533,7 +543,6 @@ class Main extends PureComponent {
       }
     } = this.props;
     const {
-      loadingDetail,
       currApp,
       resources,
       rapidCopy,
@@ -839,8 +848,6 @@ class Main extends PureComponent {
         </div>
       </div>
     );
-    const teamName = globalUtil.getCurrTeamName();
-    const regionName = globalUtil.getCurrRegionName();
     return (
       <Fragment>
         <Row>{pageHeaderContent}</Row>
@@ -979,7 +986,7 @@ class Main extends PureComponent {
         {toDelete && (
           <ConfirmModal
             title="删除应用"
-            desc="确定要此删除此应用吗？"
+            desc="确定要删除此应用吗？"
             subDesc="此操作不可恢复"
             loading={deleteLoading}
             onOk={this.handleDelete}
@@ -988,6 +995,8 @@ class Main extends PureComponent {
         )}
         {toEdit && (
           <EditGroupName
+            teamName={teamName}
+            regionName={regionName}
             group_name={groupDetail.group_name}
             note={groupDetail.note}
             loading={editGroupLoading}

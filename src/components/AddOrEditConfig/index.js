@@ -290,6 +290,10 @@ class EnvGroup extends PureComponent {
   render() {
     let { group } = this.state;
     group = group.filter(item => !!item);
+    const IconStyle = {
+      cursor: 'pointer',
+      fontSize: 20
+    };
     return (
       <div>
         {(group || []).map(item => (
@@ -308,20 +312,14 @@ class EnvGroup extends PureComponent {
                 onClick={() => {
                   this.handlePlus(item.key);
                 }}
-                style={{
-                  cursor: 'pointer',
-                  fontSize: 20
-                }}
+                style={IconStyle}
                 type="plus"
               />
               <Icon
                 onClick={() => {
                   this.handleMinus(item.key);
                 }}
-                style={{
-                  cursor: 'pointer',
-                  fontSize: 20
-                }}
+                style={IconStyle}
                 type="minus"
               />
             </div>

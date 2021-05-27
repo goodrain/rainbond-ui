@@ -13,6 +13,7 @@ import {
   getTeamByName,
   gitlabRegister,
   login,
+  logout,
   putAccessToken,
   putCollectionViewInfo,
   query as queryUsers,
@@ -188,23 +189,26 @@ export default {
       }
     },
 
-    *logout(_, { put }) {
-      try {
-        // get location pathname
-        const urlParams = new URL(window.location.href);
-        // const pathname = yield select(state => state.routing.location.pathname);
-        // add the parameters in the url
-        // urlParams.searchParams.set("redirect", pathname);
-        window.history.replaceState(null, 'login', urlParams.href);
-      } finally {
-        // yield put(routerRedux.push('/user/login')); Login out after permission
-        // changes to admin or user The refresh will automatically redirect to the login
-        // page
-        yield put({ type: 'tologout' });
+    *logout({ payload }, { call, put }) {
+      const response = yield call(logout, payload);
+      if (response) {
+        try {
+          // get location pathname
+          const urlParams = new URL(window.location.href);
+          // const pathname = yield select(state => state.routing.location.pathname);
+          // add the parameters in the url
+          // urlParams.searchParams.set("redirect", pathname);
+          window.history.replaceState(null, 'login', urlParams.href);
+        } finally {
+          // yield put(routerRedux.push('/user/login')); Login out after permission
+          // changes to admin or user The refresh will automatically redirect to the login
+          // page
+          yield put({ type: 'tologout' });
 
-        yield put({ type: 'saveCurrentUser', payload: null });
+          yield put({ type: 'saveCurrentUser', payload: null });
 
-        yield put(routerRedux.push('/user/login'));
+          yield put(routerRedux.push('/user/login'));
+        }
       }
     },
     *register({ payload, complete }, { call, put, select }) {
@@ -303,8 +307,9 @@ export default {
         type: payload.type
       };
     },
-    tologout() {
+    tologout(state) {
       userUtil.removeCookie();
+      return { ...state };
     },
     save(state, action) {
       return {

@@ -1,4 +1,6 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
+/* eslint-disable react/sort-comp */
 /*
    快速复制
 */

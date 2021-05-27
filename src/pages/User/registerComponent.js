@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/alt-text */
-import { Button, Col, Form, Input, Progress, Row } from 'antd';
+import { Button, Col, Form, Input, Row } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Component } from 'react';
@@ -11,12 +11,6 @@ import rainbondUtil from '../../utils/rainbond';
 import styles from './Register.less';
 
 const FormItem = Form.Item;
-
-const passwordProgressMap = {
-  ok: 'success',
-  pass: 'normal',
-  poor: 'exception'
-};
 
 @connect(({ user, loading, global }) => ({
   register: user.register,
@@ -34,7 +28,9 @@ export default class RegisterComponent extends Component {
     help: '',
     time: Date.now()
   };
-
+  componentDidMount() {
+    userUtil.removeCookie();
+  }
   componentWillUnmount() {
     clearInterval(this.interval);
   }
@@ -61,19 +57,16 @@ export default class RegisterComponent extends Component {
       (err, values) => {
         if (!err) {
           userUtil.removeCookie();
+          const info = Object.assign({}, values);
+          if (!values.name) {
+            info.name = values.user_name;
+          }
           if (onSubmit) {
-            onSubmit(values);
+            onSubmit(info);
           }
         }
       }
     );
-  };
-
-  handleConfirmBlur = e => {
-    const { value } = e.target;
-    this.setState({
-      confirmDirty: this.state.confirmDirty || !!value
-    });
   };
 
   checkConfirm = (rule, value, callback) => {
@@ -120,22 +113,6 @@ export default class RegisterComponent extends Component {
       time: Date.now()
     });
   };
-  renderPasswordProgress = () => {
-    const { form } = this.props;
-    const value = form.getFieldValue('password');
-    const passwordStatus = this.getPasswordStatus();
-    return value && value.length ? (
-      <div className={styles[`progress-${passwordStatus}`]}>
-        <Progress
-          status={passwordProgressMap[passwordStatus]}
-          className={styles.progress}
-          strokeWidth={6}
-          percent={value.length * 10 > 100 ? 100 : value.length * 10}
-          showInfo={false}
-        />
-      </div>
-    ) : null;
-  };
 
   render() {
     const {
@@ -143,12 +120,12 @@ export default class RegisterComponent extends Component {
       submitting,
       thirdsubmitting,
       type,
-      user_info,
+      user_info: userInfo,
       rainbondInfo
     } = this.props;
     const { getFieldDecorator } = form;
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
-    const { time, help } = this.state;
+    const { help, time } = this.state;
     return (
       <Form onSubmit={this.handleSubmit}>
         {firstRegist && (
@@ -169,7 +146,7 @@ export default class RegisterComponent extends Component {
           <Col span="12" style={{ padding: '0 8px 0 0' }}>
             <FormItem>
               {getFieldDecorator('real_name', {
-                initialValue: user_info ? user_info.oauth_user_name : '',
+                initialValue: userInfo ? userInfo.oauth_user_name : '',
                 rules: [
                   { required: true, message: '请输入姓名' },
                   {
@@ -199,8 +176,8 @@ export default class RegisterComponent extends Component {
                     message: '最大长度24位'
                   },
                   {
-                    pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
-                    message: '只支持字母、数字、中文、_和-组合'
+                    pattern: /^[a-zA-Z0-9_\-]+$/,
+                    message: '只支持字母、数字、_和-组合'
                   }
                 ]
               })(
@@ -213,7 +190,7 @@ export default class RegisterComponent extends Component {
           <Col span="12" style={{ padding: '0 8px 0 0' }}>
             <FormItem>
               {getFieldDecorator('email', {
-                initialValue: user_info ? user_info.oauth_user_email : '',
+                initialValue: userInfo ? userInfo.oauth_user_email : '',
                 rules: [
                   {
                     required: true,

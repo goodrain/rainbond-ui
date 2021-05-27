@@ -26,6 +26,8 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 
+const { confirm } = Modal;
+
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
   list,
@@ -34,6 +36,7 @@ import userUtil from '../../utils/user';
   enterprise: global.enterprise,
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
+  delclusterLongin: loading.effects['region/deleteEnterpriseCluster'],
   overviewInfo: index.overviewInfo
 }))
 @Form.create()
@@ -70,7 +73,22 @@ export default class EnterpriseClusters extends PureComponent {
     this.loadClusters();
   }
 
-  handleDelete = () => {
+  handleMandatoryDelete = () => {
+    const th = this;
+    confirm({
+      title: '当前集群中还存在组件、是否强制删除',
+      content: '删除后可通过相同的集群ID重新添加恢复已有租户和应用的管理',
+      okText: '确认',
+      cancelText: '取消',
+      onOk() {
+        th.handleDelete(true);
+        return new Promise((resolve, reject) => {
+          setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
+        }).catch(err => console.log(err));
+      }
+    });
+  };
+  handleDelete = (force = false) => {
     const { regionInfo } = this.state;
     const {
       dispatch,
@@ -82,13 +100,22 @@ export default class EnterpriseClusters extends PureComponent {
       type: 'region/deleteEnterpriseCluster',
       payload: {
         region_id: regionInfo.region_id,
-        enterprise_id: eid
+        enterprise_id: eid,
+        force
       },
       callback: res => {
         if (res && res._condition === 200) {
           this.loadClusters();
-          this.cancelClusters();
           notification.success({ message: '删除成功' });
+        }
+        this.cancelClusters();
+      },
+      handleError: res => {
+        if (res && res.data && res.data.code === 10050) {
+          this.setState({
+            delVisible: false
+          });
+          this.handleMandatoryDelete();
         }
       }
     });
@@ -223,8 +250,7 @@ export default class EnterpriseClusters extends PureComponent {
           this.setState({ loadTenants: false });
         }
       },
-      handleError: err => {
-        console.log(err);
+      handleError: () => {
         this.setState({ loadTenants: false });
       }
     });
@@ -273,8 +299,7 @@ export default class EnterpriseClusters extends PureComponent {
               });
               this.loadRegionTenants();
             },
-            handleError: herr => {
-              console.log(herr);
+            handleError: () => {
               notification.warning({
                 message: '设置失败咯，请稍后重试'
               });
@@ -319,6 +344,14 @@ export default class EnterpriseClusters extends PureComponent {
 
   render() {
     const {
+      delclusterLongin,
+      match: {
+        params: { eid }
+      },
+      clusterLoading,
+      form
+    } = this.props;
+    const {
       clusters,
       text,
       regionInfo,
@@ -326,9 +359,7 @@ export default class EnterpriseClusters extends PureComponent {
       showTenantList,
       tenants,
       loadTenants,
-      regionAlias
-    } = this.state;
-    const {
+      regionAlias,
       tenantTotal,
       tenantPage,
       tenantPageSize,
@@ -337,19 +368,13 @@ export default class EnterpriseClusters extends PureComponent {
       limitSummitLoading,
       initLimitValue
     } = this.state;
-    const { getFieldDecorator } = this.props.form;
+    const { getFieldDecorator } = form;
     const pagination = {
       onChange: this.handleTenantPageChange,
       total: tenantTotal,
       pageSize: tenantPageSize,
       current: tenantPage
     };
-    const {
-      match: {
-        params: { eid }
-      },
-      clusterLoading
-    } = this.props;
 
     const colorbj = (color, bg) => {
       return {
@@ -665,10 +690,11 @@ export default class EnterpriseClusters extends PureComponent {
         <Card>
           {delVisible && (
             <ConfirmModal
-              onOk={this.handleDelete}
+              loading={delclusterLongin}
               title="删除集群"
               subDesc="此操作不可恢复"
               desc="确定要删除此集群吗？"
+              onOk={() => this.handleDelete(false)}
               onCancel={this.cancelClusters}
             />
           )}

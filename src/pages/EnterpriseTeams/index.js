@@ -61,6 +61,7 @@ export default class EnterpriseTeams extends PureComponent {
       total: 1,
       joinTeam: false,
       delTeamLoading: false,
+      showOpenRegion: false,
       initShow: false
     };
   }

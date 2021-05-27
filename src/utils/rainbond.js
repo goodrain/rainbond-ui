@@ -23,7 +23,7 @@ export default {
       enterpriseInfo.favicon &&
       enterpriseInfo.favicon.enable &&
       enterpriseInfo.favicon.value) ||
-    '/static/dists/favicon.ico',
+    '/favicon.ico',
   // 获取网站标题
   fetchSiteTitle: enterpriseInfo =>
     (enterpriseInfo &&

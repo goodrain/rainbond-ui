@@ -5,12 +5,7 @@ import request from '../utils/request';
 /*
 	获取集群下的协议
 */
-export async function getProtocols(
-  body = {
-    team_name,
-    region_name
-  }
-) {
+export async function getProtocols(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/protocols`,
     {
@@ -104,11 +99,15 @@ export async function fetchEnterpriseCluster(param) {
 }
 
 /** 删除集群 */
-export async function deleteEnterpriseCluster(params) {
+export async function deleteEnterpriseCluster(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_id}`,
     {
-      method: 'DELETE'
+      method: 'DELETE',
+      data: {
+        force: params.force
+      },
+      handleError
     }
   );
 }

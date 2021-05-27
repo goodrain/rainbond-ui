@@ -334,31 +334,46 @@ class Main extends PureComponent {
     }
     return null;
   };
+  handleTeamPermissions = callback => {
+    const { currUser } = this.props;
+    const teamPermissions = userUtil.getTeamByTeamPermissions(
+      currUser.teams,
+      globalUtil.getCurrTeamName()
+    );
+    if (teamPermissions && teamPermissions.length !== 0) {
+      callback();
+    } else {
+      this.closeComponentTimer();
+    }
+  };
+
   handleError = err => {
     const { componentTimer } = this.state;
     const { appDetail, dispatch } = this.props;
-    if (!componentTimer) {
-      return null;
-    }
-    if (err && err.status === 404) {
-      this.closeComponentTimer();
-      if (!this.destroy) {
-        dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-              appDetail.service.group_id
-            }`
-          )
-        );
+    this.handleTeamPermissions(() => {
+      if (!componentTimer) {
+        return null;
       }
-      return null;
-    }
-    if (err && err.data && err.data.msg_show) {
-      notification.warning({
-        message: `请求错误`,
-        description: err.data.msg_show
-      });
-    }
+      if (err && err.status === 404) {
+        this.closeComponentTimer();
+        if (!this.destroy) {
+          dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                appDetail.service.group_id
+              }`
+            )
+          );
+        }
+        return null;
+      }
+      if (err && err.data && err.data.msg_show) {
+        notification.warning({
+          message: `请求错误`,
+          description: err.data.msg_show
+        });
+      }
+    });
     return null;
   };
   handleTimers = (timerName, callback, times) => {

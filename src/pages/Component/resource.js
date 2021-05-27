@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-indent */
+/* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react/sort-comp */
 /* eslint-disable camelcase */
 /* eslint-disable eqeqeq */
@@ -67,7 +69,6 @@ export default class Index extends PureComponent {
       fullList: [],
       tabList: [],
       OauthLoading: true,
-      isAddComponents: false,
       page: 1
     };
   }
@@ -275,6 +276,7 @@ export default class Index extends PureComponent {
             },
             () => {
               if (this.state.create_status == 'failure') {
+                notification.warning({ message: '更新语言失败' });
               } else {
                 this.handleDetectGetLanguage();
               }
@@ -294,7 +296,7 @@ export default class Index extends PureComponent {
 
   // 获取类型
   handleCodeWarehouseType = props => {
-    const { dispatch, type } = props;
+    const { dispatch } = props;
     const { tabType, buildSource } = this.state;
     const oauth_service_id = this.props.form.getFieldValue('oauth_service_id');
     const project_full_name = this.props.form.getFieldValue('full_name');

@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-indent */
+/* eslint-disable no-nested-ternary */
 import { Button, Form, Input, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
@@ -16,7 +18,7 @@ const formItemLayout = {
 };
 
 @connect(
-  ({ user, global, loading }) => ({
+  ({ global, loading }) => ({
     groups: global.groups,
     createAppByDockerrunLoading:
       loading.effects['createApp/createAppByDockerrun']
@@ -30,9 +32,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      codeType: 'Git',
       showUsernameAndPass: false,
-      showKey: false,
       addGroup: false
     };
   }
@@ -68,27 +68,27 @@ export default class Index extends PureComponent {
       }
     });
   };
-  hideShowKey = () => {
-    this.setState({ showKey: false });
-  };
+
   handleSubmit = e => {
     e.preventDefault();
-    const form = this.props.form;
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) {
-        return;
+      if (!err && onSubmit) {
+        onSubmit(fieldsValue);
       }
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
     });
   };
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, createAppByDockerrunLoading } = this.props;
+    const { getFieldDecorator } = this.props.form;
+    const {
+      groups,
+      createAppByDockerrunLoading,
+      handleType,
+      ButtonGroupState,
+      showSubmitBtn = false,
+      showCreateGroup = false
+    } = this.props;
     const data = this.props.data || {};
-    const showSubmitBtn =
-      this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
-    const showCreateGroup =
-      this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
     const disableds = this.props.disableds || [];
     return (
       <Fragment>
@@ -96,7 +96,7 @@ export default class Index extends PureComponent {
           <Form.Item {...formItemLayout} label="应用名称">
             {getFieldDecorator('group_id', {
               initialValue:
-                this.props.handleType && this.props.handleType === 'Service'
+                handleType && handleType === 'Service'
                   ? Number(this.props.groupId)
                   : data.group_id,
               rules: [
@@ -108,29 +108,20 @@ export default class Index extends PureComponent {
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                disabled={disableds.indexOf('group_id') > -1}
                 placeholder="请选择要所属应用"
                 style={{
                   display: 'inline-block',
-                  width:
-                    this.props.handleType && this.props.handleType === 'Service'
-                      ? ''
-                      : 292,
+                  width: handleType && handleType === 'Service' ? '' : 292,
                   marginRight: 15
                 }}
-                disabled={
-                  this.props.handleType && this.props.handleType === 'Service'
-                    ? true
-                    : false
-                }
+                disabled={!!(handleType && handleType === 'Service')}
               >
                 {(groups || []).map(group => (
                   <Option value={group.group_id}>{group.group_name}</Option>
                 ))}
               </Select>
             )}
-            {this.props.handleType &&
-            this.props.handleType === 'Service' ? null : showCreateGroup ? (
+            {handleType && handleType === 'Service' ? null : showCreateGroup ? (
               <Button onClick={this.onAddGroup}>新建应用</Button>
             ) : null}
           </Form.Item>
@@ -162,7 +153,7 @@ export default class Index extends PureComponent {
             })(<Input placeholder="请输入镜像名称, 如 nginx : 1.11" />)}
           </Form.Item>
           <div style={{ textAlign: 'right' }}>
-            这是一个私有仓库?{' '}
+            这是一个私有仓库?
             <a
               onClick={() => {
                 this.setState({ showUsernameAndPass: true });
@@ -213,9 +204,7 @@ export default class Index extends PureComponent {
               }}
               label=""
             >
-              {this.props.handleType &&
-              this.props.handleType === 'Service' &&
-              this.props.ButtonGroupState
+              {handleType && handleType === 'Service' && ButtonGroupState
                 ? this.props.handleServiceBotton(
                     <Button
                       onClick={this.handleSubmit}

@@ -539,8 +539,7 @@ export default class CreateCheck extends PureComponent {
     );
     const actions = [
       <Button onClick={this.showDelete} type="default">
-        {' '}
-        放弃创建{' '}
+        放弃创建
       </Button>,
       <Button onClick={this.recheck} type="primary">
         重新检测
