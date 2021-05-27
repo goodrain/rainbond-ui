@@ -363,7 +363,6 @@ export default class KubernetesClusterShow extends PureComponent {
         disabled:
           record.state !== 'running' ||
           linkedClusters.get(record.cluster_id) ||
-          record.rainbond_init ||
           (record.parameters && record.parameters.DisableRainbondInit), // Column configuration not to be checked
         name: record.name,
         title: record.parameters && record.parameters.Message
