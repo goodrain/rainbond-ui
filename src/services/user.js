@@ -12,6 +12,19 @@ export async function fetchAccessToken() {
     method: 'get'
   });
 }
+
+export async function upDataUserRoles(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/users/${param.user_id}/teams/${param.team_name}/roles`,
+    {
+      method: 'post',
+      data: {
+        role_ids: param.role_ids
+      }
+    }
+  );
+}
+
 /* New access to token data */
 
 export async function addAccessToken(data, handleError) {

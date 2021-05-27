@@ -24,7 +24,8 @@ import {
   queryThirdCertification,
   queryThirdInfo,
   queryThirdLoginBinding,
-  register
+  register,
+  upDataUserRoles
 } from '../services/user';
 import { setAuthority } from '../utils/authority';
 import cookie from '../utils/cookie';
@@ -48,7 +49,12 @@ export default {
         callback(data);
       }
     },
-
+    *editUserRoles({ payload, callback }, { call }) {
+      const response = yield call(upDataUserRoles, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *addAccessToken({ payload, callback, handleError }, { call }) {
       const data = yield call(addAccessToken, payload, handleError);
       if (data && callback) {
