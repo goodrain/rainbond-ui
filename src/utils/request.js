@@ -219,6 +219,9 @@ export default function request(url, options) {
           window.g_app._store.dispatch({
             type: 'global/showNeedLogin'
           });
+          if (newOptions.handleError) {
+            newOptions.handleError(error);
+          }
           return;
         }
 

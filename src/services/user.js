@@ -152,13 +152,14 @@ export async function queryCertificationThird(body = { service_id }) {
 }
 
 /* 绑定第三方 */
-export async function queryThirdBinding(body = { service_id, oauth_user_id }) {
+export async function queryThirdBinding(body = {}, handleError) {
   return request(`${apiconfig.baseUrl}/console/oauth/user/link`, {
     method: 'post',
     data: {
       service_id: body.service_id,
       oauth_user_id: body.oauth_user_id
-    }
+    },
+    handleError
   });
 }
 

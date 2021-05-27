@@ -41,32 +41,32 @@ export default {
   },
 
   effects: {
-    *fetchAccessToken({ payload, callback }, { call, put }) {
+    *fetchAccessToken({ payload, callback }, { call }) {
       const data = yield call(fetchAccessToken, payload);
       if (data && callback) {
         callback(data);
       }
     },
 
-    *addAccessToken({ payload, callback, handleError }, { call, put }) {
+    *addAccessToken({ payload, callback, handleError }, { call }) {
       const data = yield call(addAccessToken, payload, handleError);
       if (data && callback) {
         callback(data);
       }
     },
-    *putAccessToken({ payload, callback }, { call, put }) {
+    *putAccessToken({ payload, callback }, { call }) {
       const data = yield call(putAccessToken, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    *deleteAccessToke({ payload, callback }, { call, put }) {
+    *deleteAccessToke({ payload, callback }, { call }) {
       const data = yield call(deleteAccessToke, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    *getTeamByName({ payload, callback, fail }, { call, put, select }) {
+    *getTeamByName({ payload, callback, fail }, { call, put }) {
       const response = yield call(getTeamByName, payload);
       if (response) {
         yield put({ type: 'saveOtherTeam', team: response.bean });
@@ -77,7 +77,7 @@ export default {
         fail && fail();
       }
     },
-    *changePass({ payload, callback }, { call, put, select }) {
+    *changePass({ payload, callback }, { call, put }) {
       const response = yield call(changePass, payload);
       if (response) {
         yield put({ type: 'tologout' });
@@ -85,7 +85,7 @@ export default {
         callback && callback();
       }
     },
-    *searchEnterpriseNoTeamUser({ payload, callback }, { call, put, select }) {
+    *searchEnterpriseNoTeamUser({ payload, callback }, { call }) {
       const response = yield call(fetchEnterpriseNoTeamUser, payload);
       if (response) {
         callback && callback(response);
@@ -93,10 +93,7 @@ export default {
     },
 
     // 第三方认证
-    *fetchThirdCertification(
-      { payload, callback, handleError },
-      { call, put, select }
-    ) {
+    *fetchThirdCertification({ payload, callback, handleError }, { call }) {
       const response = yield call(
         queryThirdCertification,
         payload,
@@ -137,45 +134,42 @@ export default {
       }
     },
     // 第三方认证信息
-    *fetchThirdInfo({ payload, callback }, { call, put, select }) {
+    *fetchThirdInfo({ payload, callback }, { call }) {
       const response = yield call(queryThirdInfo, payload);
       if (response) {
         callback && callback(response);
       }
     },
     // 第三方认证类型
-    *fetchOauthType({ payload, callback }, { call, put, select }) {
+    *fetchOauthType({ payload, callback }, { call }) {
       const response = yield call(queryOauthType, payload);
       if (response) {
         callback && callback(response);
       }
     },
     // 登录后三方用户与用户绑定接口
-    *fetchThirdBinding({ payload, callback }, { call, put, select }) {
-      const response = yield call(queryThirdBinding, payload);
+    *fetchThirdBinding({ payload, callback, handleError }, { call }) {
+      const response = yield call(queryThirdBinding, payload, handleError);
       if (response) {
         callback && callback(response);
       }
     },
     // 登录成功三方用户与用户绑定接口
-    *fetchThirdLoginBinding(
-      { payload, callback, handleError },
-      { call, put, select }
-    ) {
+    *fetchThirdLoginBinding({ payload, callback, handleError }, { call }) {
       const response = yield call(queryThirdLoginBinding, payload, handleError);
       if (response) {
         callback && callback(response);
       }
     },
     // 重新认证
-    *fetchCertificationThird({ payload, callback }, { call, put, select }) {
+    *fetchCertificationThird({ payload, callback }, { call }) {
       const response = yield call(queryCertificationThird, payload);
       if (response) {
         callback && callback(response);
       }
     },
 
-    *login({ payload, callback }, { call, put, select }) {
+    *login({ payload, callback }, { call, put }) {
       const response = yield call(login, payload);
       if (response) {
         yield put({ type: 'changeLoginStatus', payload: response });
@@ -185,7 +179,7 @@ export default {
         }
       }
     },
-    *thirdLogin({ payload, callback }, { call, put, select }) {
+    *thirdLogin({ payload, callback }, { call, put }) {
       const response = yield call(login, payload);
 
       if (response) {
@@ -194,7 +188,7 @@ export default {
       }
     },
 
-    *logout(_, { put, select }) {
+    *logout(_, { put }) {
       try {
         // get location pathname
         const urlParams = new URL(window.location.href);
@@ -279,13 +273,13 @@ export default {
       }
       callback && callback(response);
     },
-    *gitlabRegister({ payload, callback }, { call, put }) {
+    *gitlabRegister({ payload, callback }, { call }) {
       const response = yield call(gitlabRegister, payload);
       if (response) {
         callback && callback(response.bean);
       }
     },
-    *createGitlabProject({ payload, callback }, { call, put }) {
+    *createGitlabProject({ payload, callback }, { call }) {
       const response = yield call(createGitlabProject, payload);
       if (response) {
         callback && callback(response.bean);
@@ -309,7 +303,7 @@ export default {
         type: payload.type
       };
     },
-    tologout(state, action) {
+    tologout() {
       userUtil.removeCookie();
     },
     save(state, action) {

@@ -10,7 +10,6 @@ import LoginComponent from './loginComponent';
 const code = rainbondUtil.OauthParameter('code');
 const service_id = rainbondUtil.OauthParameter('service_id');
 const oauth_user_id = rainbondUtil.OauthParameter('oauth_user_id');
-const oauth_type = rainbondUtil.OauthParameter('oauth_type');
 
 @connect(({ loading, global }) => ({
   login: {},
@@ -59,7 +58,9 @@ export default class LoginPage extends Component {
               callback: res => {
                 if (res && res.status && res.status === 400) {
                   message.warning('认证失败，请重新认证', 1, () => {
-                    dispatch(routerRedux.replace('/user/login'));
+                    dispatch(
+                      routerRedux.replace('/user/login?disable_auto_login=true')
+                    );
                   });
                 } else if (res && res.status_code === 200) {
                   message.success('认证成功', 1, () => {
@@ -68,7 +69,7 @@ export default class LoginPage extends Component {
                     if (!redirect || redirect == '') {
                       redirect = '/';
                     }
-                    console.log('third login success, redirect to ' + redirect);
+                    console.log(`third login success, redirect to ${redirect}`);
                     if (redirect.startsWith('/')) {
                       dispatch(routerRedux.push(redirect));
                     } else {
@@ -89,8 +90,6 @@ export default class LoginPage extends Component {
     const { rainbondInfo, isRegist } = this.props;
     const { user_info } = this.state;
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
-    const code = rainbondUtil.OauthParameter('code');
-    const service_id = rainbondUtil.OauthParameter('service_id');
     let oauthServer = null;
     // eslint-disable-next-line no-unused-expressions
     rainbondUtil.OauthbEnable(rainbondInfo) &&
@@ -101,13 +100,17 @@ export default class LoginPage extends Component {
           oauthServer = item;
         }
       });
+    const oauthServerName = (oauthServer && oauthServer.name) || '';
+    const oauthUserName = (user_info && user_info.oauth_user_name) || '';
+    const welcome = oauthServerName && `来自${oauthServerName}登录的`;
+    const jumpAddress = targets => {
+      return `/user/third/${targets}?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`;
+    };
     return (
       <div className={styles.main}>
         <Alert
           style={{ margin: '24px 0' }}
-          message={`来自${oauthServer && oauthServer.name}登录的
-          ${user_info && user_info.oauth_user_name}
-          您好！你需要补充完整平台账号信息`}
+          message={`${welcome}${oauthUserName}您好！你需要补充完整平台账号信息`}
           type="info"
         />
         <Row style={{ marginBottom: '24px' }}>
@@ -117,20 +120,12 @@ export default class LoginPage extends Component {
             style={{ background: '#CDE2FF' }}
           >
             {!firstRegist && (
-              <Link
-                to={`/user/third/login?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`}
-              >
-                已有账号，马上绑定
-              </Link>
+              <Link to={jumpAddress('login')}>已有账号，马上绑定</Link>
             )}
           </Col>
           {isRegist && (
             <Col span={10} className={styles.boxJump} offset={4}>
-              <Link
-                to={`/user/third/register?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`}
-              >
-                未有账号，创建账号
-              </Link>
+              <Link to={jumpAddress('register')}>未有账号，创建账号</Link>
             </Col>
           )}
         </Row>
