@@ -5,6 +5,7 @@ import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import styles from '../../components/CreateTeam/index.less';
 import DescriptionList from '../../components/DescriptionList';
+
 const { confirm } = Modal;
 const { Option } = Select;
 const { Description } = DescriptionList;
@@ -344,6 +345,7 @@ export default class AppExporter extends PureComponent {
         <div style={{ marginBottom: '30px' }}>
           导出版本：
           <Select
+            style={{ width: '300px' }}
             getPopupContainer={triggerNode => triggerNode.parentNode}
             defaultValue={exportVersion}
             onChange={this.handleChange}
