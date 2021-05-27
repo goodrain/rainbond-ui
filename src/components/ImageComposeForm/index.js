@@ -1,11 +1,12 @@
-import React, { PureComponent, Fragment } from 'react';
+import { Button, Card, Form, Input } from 'antd';
 import { connect } from 'dva';
-import { Card, Form, Button, Input } from 'antd';
+import React, { Fragment, PureComponent } from 'react';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
+
 @connect(
   ({ global, loading }) => ({
     groups: global.groups,
-    createAppByCompose: loading.effects['createApp/createAppByCompose'],
+    createAppByCompose: loading.effects['createApp/createAppByCompose']
   }),
   null,
   null,
@@ -16,7 +17,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      showUsernameAndPass: false,
+      showUsernameAndPass: false
     };
   }
   handleSubmit = e => {
@@ -31,16 +32,19 @@ export default class Index extends PureComponent {
   render() {
     const formItemLayout = {
       labelCol: {
-        span: 5,
+        span: 5
       },
       wrapperCol: {
-        span: 19,
-      },
+        span: 19
+      }
     };
-    const { form, data = {}, createAppByCompose } = this.props;
+    const {
+      form,
+      data = {},
+      createAppByCompose,
+      showSubmitBtn = true
+    } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
-    const showSubmitBtn =
-      this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
     return (
       <Fragment>
         <Card style={{ width: '800px', margin: '0 auto' }} bordered={false}>
@@ -52,7 +56,7 @@ export default class Index extends PureComponent {
             <Form.Item {...formItemLayout} label="应用名称">
               {getFieldDecorator('group_name', {
                 initialValue: data.group_name || '',
-                rules: [{ required: true, message: '应用名称' }],
+                rules: [{ required: true, message: '应用名称' }]
               })(<Input style={{ maxWidth: 300 }} placeholder="应用名称" />)}
             </Form.Item>
             <CodeMirrorForm
@@ -88,7 +92,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('user_name', {
                 initialValue: data.user_name || '',
-                rules: [{ required: false, message: '请输入仓库用户名' }],
+                rules: [{ required: false, message: '请输入仓库用户名' }]
               })(
                 <Input
                   style={{ maxWidth: 300 }}
@@ -104,7 +108,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('password', {
                 initialValue: data.password || '',
-                rules: [{ required: false, message: '请输入仓库密码' }],
+                rules: [{ required: false, message: '请输入仓库密码' }]
               })(
                 <Input
                   autoComplete="new-password"
@@ -120,8 +124,8 @@ export default class Index extends PureComponent {
                   xs: { span: 24, offset: 0 },
                   sm: {
                     span: formItemLayout.wrapperCol.span,
-                    offset: formItemLayout.labelCol.span,
-                  },
+                    offset: formItemLayout.labelCol.span
+                  }
                 }}
                 label=""
               >

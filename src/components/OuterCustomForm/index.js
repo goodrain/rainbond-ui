@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-nested-ternary */
 import {
   Alert,
   Button,
@@ -49,7 +51,6 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      showUsernameAndPass: false,
       showKey: false,
       addGroup: false,
       serverType: 'git',
@@ -99,7 +100,7 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const form = this.props.form;
+    const { form } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) {
         if (
@@ -147,7 +148,7 @@ export default class Index extends PureComponent {
   };
 
   add = typeName => {
-    const staticList = this.state.staticList;
+    const { staticList } = this.state;
     this.setState({ staticList: staticList.concat('') });
     this.props.form.setFieldsValue({
       [typeName]: staticList.concat('')
@@ -155,7 +156,7 @@ export default class Index extends PureComponent {
   };
 
   remove = index => {
-    const staticList = this.state.staticList;
+    const { staticList } = this.state;
     staticList.splice(index, 1);
     this.setValues(staticList);
   };
@@ -173,7 +174,7 @@ export default class Index extends PureComponent {
   };
 
   onKeyChange = (index, typeName, e) => {
-    const staticList = this.state.staticList;
+    const { staticList } = this.state;
     staticList[index] = e.target.value;
     this.setValues(staticList, typeName);
   };
@@ -214,28 +215,20 @@ export default class Index extends PureComponent {
     callback();
   };
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, rainbondInfo } = this.props;
     const {
-      showUsernameAndPass,
-      showKey,
-      endpointsType,
-      staticList
-    } = this.state;
-    const gitUrl = getFieldValue('git_url');
-    let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || '');
-    let urlCheck = '';
-    if (this.state.serverType == 'svn') {
-      isHttp = true;
-      urlCheck = /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
-    }
-    const isSSH = !isHttp;
+      groups,
+      rainbondInfo,
+      form,
+      handleType,
+      groupId,
+      showSubmitBtn = true,
+      showCreateGroup = true
+    } = this.props;
+    const { getFieldDecorator } = form;
+    const { endpointsType, staticList } = this.state;
     const data = this.props.data || {};
-    const showSubmitBtn =
-      this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
-    const showCreateGroup =
-      this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
+    const isService = handleType && handleType === 'Service';
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
@@ -248,10 +241,7 @@ export default class Index extends PureComponent {
                 placeholder="请输入组件名称"
                 style={{
                   display: 'inline-block',
-                  width:
-                    this.props.handleType && this.props.handleType === 'Service'
-                      ? 350
-                      : 277,
+                  width: isService ? 350 : 277,
                   marginRight: 15
                 }}
               />
@@ -260,10 +250,7 @@ export default class Index extends PureComponent {
 
           <Form.Item {...formItemLayout} label="应用名称">
             {getFieldDecorator('group_id', {
-              initialValue:
-                this.props.handleType && this.props.handleType === 'Service'
-                  ? Number(this.props.groupId)
-                  : data.group_id,
+              initialValue: isService ? Number(groupId) : data.group_id,
               rules: [{ required: true, message: '请选择' }]
             })(
               <Select
@@ -271,17 +258,10 @@ export default class Index extends PureComponent {
                 placeholder="请选择要所属应用"
                 style={{
                   display: 'inline-block',
-                  width:
-                    this.props.handleType && this.props.handleType === 'Service'
-                      ? 350
-                      : 277,
+                  width: isService ? 350 : 277,
                   marginRight: 15
                 }}
-                disabled={
-                  !!(
-                    this.props.handleType && this.props.handleType === 'Service'
-                  )
-                }
+                disabled={!!isService}
               >
                 {(groups || []).map(group => (
                   <Option key={group.group_id} value={group.group_id}>
@@ -290,8 +270,7 @@ export default class Index extends PureComponent {
                 ))}
               </Select>
             )}
-            {this.props.handleType &&
-            this.props.handleType === 'Service' ? null : showCreateGroup ? (
+            {isService ? null : showCreateGroup ? (
               <Button onClick={this.onAddGroup}>创建新应用</Button>
             ) : null}
           </Form.Item>

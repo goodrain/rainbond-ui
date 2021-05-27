@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-indent */
+/* eslint-disable no-nested-ternary */
 /* eslint-disable import/first */
 import {
   Button,
@@ -164,6 +166,17 @@ class Index extends React.Component {
   };
   render() {
     const {
+      groups,
+      createAppByCodeLoading,
+      ServiceComponent,
+      thirdInfo,
+      groupId,
+      form,
+      showSubmitBtn = true,
+      showCreateGroup = true
+    } = this.props;
+    const { getFieldDecorator } = form;
+    const {
       tags,
       addGroup,
       tagsLoading,
@@ -171,20 +184,6 @@ class Index extends React.Component {
       checkedList,
       showSubdirectories
     } = this.state;
-    const { getFieldDecorator } = this.props.form;
-    const {
-      groups,
-      createAppByCodeLoading,
-      ServiceComponent,
-      thirdInfo,
-      groupId
-    } = this.props;
-    const showCreateGroup =
-      this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
-
-    const showSubmitBtn =
-      this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
-
     return (
       <Fragment>
         <Spin spinning={Loading}>
