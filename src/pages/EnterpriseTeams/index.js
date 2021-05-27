@@ -108,17 +108,15 @@ export default class EnterpriseTeams extends PureComponent {
   getUserTeams = () => {
     const {
       dispatch,
-      user,
       match: {
         params: { eid }
       }
     } = this.props;
     const { page, page_size, name } = this.state;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: 'global/fetchMyTeams',
       payload: {
         enterprise_id: eid,
-        user_id: user.user_id,
         page,
         page_size,
         name
