@@ -453,7 +453,7 @@ export default class RKEClusterConfig extends PureComponent {
           </Row>
           <Row style={{ padding: '0 16px' }}>
             <span style={{ fontWeight: 600, color: 'red' }}>
-              请在所有节点先执行以下初始化命令（执行用户需要具有sudo权限）：
+              请在开始扩容前在新加节点先执行以下初始化命令（执行用户需要具有sudo权限）：
             </span>
             <Col span={24} style={{ marginTop: '16px' }}>
               <span className={styles.cmd}>{initNodeCmd}</span>
