@@ -220,7 +220,11 @@ class Index extends React.Component {
                   disabled={!!ServiceComponent}
                 >
                   {(groups || []).map(group => (
-                    <Option key={group.group_id} value={group.group_id}>
+                    <Option
+                      key={group.group_id}
+                      value={group.group_id}
+                      style={{ textAlign: 'left' }}
+                    >
                       {group.group_name}
                     </Option>
                   ))}
