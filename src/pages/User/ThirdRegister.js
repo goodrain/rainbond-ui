@@ -12,6 +12,7 @@ import RegisterComponent from './registerComponent';
 const oauth_user_id = rainbondUtil.OauthParameter('oauth_user_id');
 const code = rainbondUtil.OauthParameter('code');
 const service_id = rainbondUtil.OauthParameter('service_id');
+const loginUrl = '/user/login?disable_auto_login=true';
 
 @connect(({ user, global }) => ({
   register: user.register,
@@ -92,7 +93,7 @@ export default class Register extends Component {
   handleError = () => {
     const { dispatch } = this.props;
     message.warning('认证失败，请重新认证', 1, () => {
-      dispatch(routerRedux.push(`/user/login`));
+      dispatch(routerRedux.push(loginUrl));
     });
   };
 
@@ -103,7 +104,7 @@ export default class Register extends Component {
         routerRedux.replace(
           code && service_id && oauth_user_id
             ? `/user/login?code=${code}&service_id=${service_id}`
-            : '/user/login'
+            : loginUrl
         )
       );
       return null;

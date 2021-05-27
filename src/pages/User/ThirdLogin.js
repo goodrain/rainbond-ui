@@ -58,7 +58,9 @@ export default class LoginPage extends Component {
               callback: res => {
                 if (res && res.status && res.status === 400) {
                   message.warning('认证失败，请重新认证', 1, () => {
-                    dispatch(routerRedux.replace('/user/login'));
+                    dispatch(
+                      routerRedux.replace('/user/login?disable_auto_login=true')
+                    );
                   });
                 } else if (res && res.status_code === 200) {
                   message.success('认证成功', 1, () => {
