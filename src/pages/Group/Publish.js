@@ -1,4 +1,12 @@
-import { Button, Card, notification, Popconfirm, Popover, Table } from 'antd';
+import {
+  Button,
+  Card,
+  notification,
+  Popconfirm,
+  Popover,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
@@ -199,6 +207,16 @@ export default class AppPublishList extends PureComponent {
     }
   };
 
+  handleBox = val => {
+    return (
+      <div className={style.version}>
+        <Tooltip placement="topLeft" title={val}>
+          {val}
+        </Tooltip>
+      </div>
+    );
+  };
+
   render() {
     let breadcrumbList = [];
     const {
@@ -269,7 +287,7 @@ export default class AppPublishList extends PureComponent {
                     }
                     return (
                       <span style={{ color: '#999999' }}>
-                        {data.status === 0 ? '未指定' : '无法连接应用商店'}
+                        {data.status === 0 ? '未指定' : '-'}
                       </span>
                     );
                   }
@@ -281,20 +299,19 @@ export default class AppPublishList extends PureComponent {
                   render: (val, data) => {
                     const versionAlias =
                       (data.version_alias && `(${data.version_alias})`) || '';
-                    const Title = (
-                      <div className={style.version}>
-                        <span>{val}</span>
-                        <span>{versionAlias}</span>
-                      </div>
-                    );
                     if (val) {
+                      const appVersionInfo = data.app_version_info;
                       return (
                         <Popover
                           style={{
                             marginBottom: 0
                           }}
-                          content={data.app_version_info || '暂无版本描述'}
-                          title={Title}
+                          content={
+                            appVersionInfo
+                              ? this.handleBox(appVersionInfo)
+                              : '暂无版本描述'
+                          }
+                          title={this.handleBox(`${val}${versionAlias}`)}
                         >
                           <div className={style.version}>
                             {val}
