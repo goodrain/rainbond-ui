@@ -138,6 +138,7 @@ export default function request(url, options) {
         });
       const res = response.data.data || {};
       res._code = response.status;
+      res.response_data = response.data || {};
       res.status_code = response.status;
       res._condition = response.data.code;
       res.business_code = response.data.code;
