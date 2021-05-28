@@ -45,7 +45,8 @@ export default class AddAdmin extends PureComponent {
       loading: true,
       contentLoading: true,
       toDelete: false,
-      mavenInfo: {}
+      mavenInfo: {},
+      isDefaultMaven: false
     };
   }
   componentDidMount() {
@@ -244,8 +245,9 @@ export default class AddAdmin extends PureComponent {
       });
     });
   };
-  handleDeleteClick = () => {
+  handleDeleteClick = isDefaultMaven => {
     this.setState({
+      isDefaultMaven,
       toDelete: true
     });
   };
@@ -266,7 +268,8 @@ export default class AddAdmin extends PureComponent {
       loading,
       mavenInfo,
       toDelete,
-      contentLoading
+      contentLoading,
+      isDefaultMaven
     } = this.state;
     const footer = [
       <Button
@@ -326,7 +329,12 @@ export default class AddAdmin extends PureComponent {
           <ConfirmModal
             loading={DeleteMavensettingsLoading}
             title="删除此Maven配置"
-            desc="确定要删除此Maven配置吗?"
+            desc={
+              isDefaultMaven
+                ? '该配置为集群下的默认Maven配置，若删除，整个集群使用该配置的组件均会受到影响，是否确认删除？'
+                : '确定要删除此Maven配置吗?'
+            }
+            subDesc="此操作不可恢复"
             onCancel={this.onCancelDelete}
             onOk={this.handleDelete}
           />
@@ -360,7 +368,7 @@ export default class AddAdmin extends PureComponent {
                   style={{ height: '100%' }}
                 >
                   {mavenList.map(item => {
-                    const { name } = item;
+                    const { is_default = false, name } = item;
                     return (
                       <Menu.Item key={name}>
                         <Row>
@@ -372,12 +380,14 @@ export default class AddAdmin extends PureComponent {
                               overflow: 'hidden'
                             }}
                           >
-                            {name}
+                            {is_default ? `默认(${name})` : name}
                           </Col>
                           <Col span={2}>
                             <Icon
                               type="delete"
-                              onClick={this.handleDeleteClick}
+                              onClick={() => {
+                                this.handleDeleteClick(is_default);
+                              }}
                               style={{ cursor: 'pointer' }}
                             />
                           </Col>
