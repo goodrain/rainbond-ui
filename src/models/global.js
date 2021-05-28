@@ -621,8 +621,8 @@ export default {
       }
     },
 
-    *upEnterpriseUsers({ payload, callback }, { call }) {
-      const response = yield call(upEnterpriseUsers, payload);
+    *upEnterpriseUsers({ payload, callback, handleError }, { call }) {
+      const response = yield call(upEnterpriseUsers, payload, handleError);
       if (response && callback) {
         callback(response);
       }

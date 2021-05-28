@@ -63,7 +63,7 @@ export default class EnterpriseUsers extends PureComponent {
       }
     );
   };
-  handleCreatUser = values => {
+  handleUser = values => {
     this.setState({
       Loading: true
     });
@@ -74,69 +74,45 @@ export default class EnterpriseUsers extends PureComponent {
       }
     } = this.props;
     const { userInfo } = this.state;
+    let info = values;
+    let setType = 'global/creatUser';
+    let setMessage = '新增成功';
     if (userInfo) {
-      this.upUser(values);
-      return null;
+      info = Object.assign({}, userInfo, info);
+      setType = 'global/upEnterpriseUsers';
+      setMessage = '编辑成功';
     }
     dispatch({
-      type: 'global/creatUser',
+      type: setType,
       payload: {
         enterprise_id: eid,
-        ...values
+        ...info
       },
-      callback: data => {
-        if (data && data._condition === 200) {
+      callback: res => {
+        if (res && res._condition === 200) {
+          this.canceUser();
           this.loadUser();
-          this.cancelCreatUser();
-          notification.success({ message: data.msg_show || '' });
+          notification.success({ message: setMessage });
         }
         this.handleCloseLoading();
       },
-      handleError: res => {
+      handleError: err => {
         if (
-          res &&
-          res.data &&
-          res.data.code &&
-          res.data.code < 600 &&
-          res.data.msg_show
+          err &&
+          err.data &&
+          err.data.code &&
+          err.data.code < 600 &&
+          err.data.msg_show
         ) {
-          notification.warning({ message: res.data.msg_show });
+          notification.warning({ message: err.data.msg_show });
         } else {
-          cloud.handleCloudAPIError(res);
+          cloud.handleCloudAPIError(err);
         }
         this.handleCloseLoading();
       }
     });
   };
 
-  upUser = values => {
-    const { userInfo } = this.state;
-    const info = userInfo;
-    info.real_name = values.real_name;
-    info.password = values.password;
-    info.phone = values.phone;
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch({
-      type: 'global/upEnterpriseUsers',
-      payload: {
-        ...info,
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res._condition === 200) {
-          this.cancelCreatUser();
-          this.loadUser();
-          notification.success({ message: '编辑成功' });
-        }
-        this.handleCloseLoading();
-      }
-    });
-  };
   handleCloseLoading = () => {
     this.setState({ Loading: false });
   };
@@ -196,7 +172,7 @@ export default class EnterpriseUsers extends PureComponent {
     });
   };
 
-  cancelCreatUser = () => {
+  canceUser = () => {
     this.setState({
       userVisible: false,
       text: '',
@@ -404,8 +380,8 @@ export default class EnterpriseUsers extends PureComponent {
               loading={Loading}
               userInfo={userInfo}
               title={text}
-              onOk={this.handleCreatUser}
-              onCancel={this.cancelCreatUser}
+              onOk={this.handleUser}
+              onCancel={this.canceUser}
             />
           )}
           {currentUserInfo && (
