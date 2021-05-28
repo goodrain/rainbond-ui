@@ -1157,6 +1157,7 @@ const global = {
       vertical: '垂直扩展组件',
       'horizontal-service': '水平扩展组件',
       horizontal: '水平扩展组件',
+      'stop-tennant': '停止租户',
       'set-language': '设置组件语言',
       'delete-service': '删除组件',
       'upgrade-service': '升级组件',

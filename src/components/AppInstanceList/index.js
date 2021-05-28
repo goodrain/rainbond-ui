@@ -47,7 +47,7 @@ class InstanceList extends PureComponent {
         grid={{ gutter: 16, column: 4 }}
         dataSource={this.state.list}
         renderItem={item => (
-          <List.Item className={style.item} key={item.pod_name}>
+          <List.Item className={style.cen} key={item.pod_name}>
             <WaterWave
               className={style.instance}
               height={120}

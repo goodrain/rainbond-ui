@@ -111,7 +111,7 @@ class BackupStatus extends PureComponent {
     const data = this.props.data || {};
     return (
       <span>
-        {this.state.map[data.status]}{' '}
+        {this.state.map[data.status]}
         {data.status === 'starting' && (
           <Icon style={{ marginLeft: 8 }} type="loading" spin />
         )}
@@ -448,7 +448,7 @@ export default class AppList extends PureComponent {
     });
   };
   // 删除应用备份
-  handleDel = (data, e) => {
+  handleDel = data => {
     this.setState({ showDel: true, backup_id: data.backup_id });
   };
   handleDelete = () => {
@@ -548,39 +548,33 @@ export default class AppList extends PureComponent {
       {
         title: '操作',
         dataIndex: 'action',
-        render: (val, data) => {
-          const backupSuccess = isMigrate && data.status === 'success';
+        render: (_, data) => {
+          const isSuccess = data.status === 'success';
+          const migrateSuccess = isMigrate && isSuccess;
+          const exportSuccess =
+            data.mode === 'full-online' && isSuccess && isExport;
+          const box = (text, fun) => {
+            return (
+              <a
+                style={{ marginRight: '5px' }}
+                onClick={() => {
+                  this[fun](data);
+                }}
+              >
+                {text}
+              </a>
+            );
+          };
           return (
             <div>
-              <Fragment>
-                {backupSuccess && (
-                  <a
-                    style={{ marginRight: '5px' }}
-                    onClick={this.handleRecovery.bind(this, data)}
-                  >
-                    恢复
-                  </a>
-                )}
-                {backupSuccess && (
-                  <a
-                    style={{ marginRight: '5px' }}
-                    onClick={this.handleMove.bind(this, data)}
-                  >
-                    迁移
-                  </a>
-                )}
-                {data.mode === 'full-online' && isExport && (
-                  <a
-                    style={{ marginRight: '5px' }}
-                    onClick={this.handleExport.bind(this, data)}
-                  >
-                    导出
-                  </a>
-                )}
-              </Fragment>
-              <Fragment>
-                <a onClick={this.handleDel.bind(this, data)}>删除</a>
-              </Fragment>
+              {migrateSuccess && (
+                <Fragment>
+                  {box('恢复', 'handleRecovery')}
+                  {box('迁移', 'handleMove')}
+                </Fragment>
+              )}
+              {exportSuccess && box('导出', 'handleExport')}
+              {box('删除', 'handleDel')}
             </div>
           );
         }
