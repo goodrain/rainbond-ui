@@ -27,6 +27,7 @@ import Authorized from '../utils/Authorized';
 import globalUtil from '../utils/global';
 import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
+import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
 
 const { Content } = Layout;
@@ -252,6 +253,7 @@ class EnterpriseLayout extends PureComponent {
 
   render() {
     const {
+      memoryTip,
       currentUser,
       collapsed,
       location,
@@ -395,6 +397,7 @@ class EnterpriseLayout extends PureComponent {
         {showAuthCompany && (
           <AuthCompany eid={eid} marketName={showAuthCompany} currStep={0} />
         )}
+        {memoryTip && <MemoryTip memoryTip={memoryTip} />}
 
         {orders && BillingFunction && (
           <ServiceOrder

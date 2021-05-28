@@ -147,9 +147,9 @@ const global = {
     }
     return '';
   },
-  getAppID() {
+  getAppID(url) {
     const reg = /apps\/([^\/]+)/;
-    const hash = location.hash || '';
+    const hash = url || location.hash || '';
     const match = hash.match(reg);
     if (match) {
       return match[1];
