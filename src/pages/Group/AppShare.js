@@ -890,7 +890,7 @@ export default class Main extends PureComponent {
   };
   removeComponent = component_share_key => {
     const { share_service_list } = this.state;
-    const dep_components = [];
+    const dep_service_name = [];
     if (share_service_list.length === 1) {
       message.info('请至少发布一个组件');
       return;
@@ -898,20 +898,14 @@ export default class Main extends PureComponent {
     share_service_list.map(component => {
       component.dep_service_map_list.map(c => {
         if (c.dep_service_key === component_share_key) {
-          dep_components.push(c.dep_service_key);
+          dep_service_name.push(component.service_cname);
         }
         return c;
       });
       return component;
     });
-    if (dep_components.length > 0) {
-      const dep_service_name = [];
-      share_service_list.map(c => {
-        if (dep_components.indexOf(c.service_share_uuid) > -1) {
-          dep_service_name.push(c.service_cname);
-        }
-        return c;
-      });
+
+    if (dep_service_name.length > 0) {
       this.setState({
         del_component_share_key: component_share_key,
         dep_service_name,

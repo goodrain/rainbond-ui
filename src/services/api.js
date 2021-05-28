@@ -1189,7 +1189,7 @@ export async function toCreatUser(params, handleError) {
 }
 
 /** 编辑用户 */
-export async function upEnterpriseUsers(params) {
+export async function upEnterpriseUsers(params = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/user/${params.user_id}`,
     {
@@ -1203,7 +1203,8 @@ export async function upEnterpriseUsers(params) {
         password: params.password,
         re_password: params.password,
         role_ids: params.role_ids
-      }
+      },
+      handleError
     }
   );
 }
