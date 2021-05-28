@@ -445,13 +445,15 @@ export default {
       const count = yield select(state => state.global.notices.length);
       yield put({ type: 'user/changeNotifyCount', payload: count });
     },
-    *fetchGroups({ payload, callback }, { put, call }) {
+    *fetchGroups({ payload = {}, callback }, { put, call }) {
       const response = yield call(getTeamRegionGroups, payload);
       if (response) {
-        yield put({
-          type: 'saveGroups',
-          payload: response.list || []
-        });
+        if (!payload || !(payload && payload.noSaveGroups)) {
+          yield put({
+            type: 'saveGroups',
+            payload: response.list || []
+          });
+        }
         if (callback) {
           setTimeout(() => {
             callback(response.list);

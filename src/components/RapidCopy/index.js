@@ -190,7 +190,7 @@ export default class Index extends PureComponent {
       callback: group => {
         if (group) {
           // 获取群组
-          this.fetchTeamApps(teamName, regionName, group.group_id);
+          this.fetchTeamApps(teamName, regionName, group.group_id, false);
           this.cancelAddGroup();
         }
         this.handleCloseLoging();
@@ -199,13 +199,14 @@ export default class Index extends PureComponent {
   };
 
   // 应用
-  fetchTeamApps = (teamName, regionName, groupId) => {
+  fetchTeamApps = (teamName, regionName, groupId, noSaveGroups = true) => {
     const { dispatch, form } = this.props;
     const { app_page, app_page_size } = this.state;
     const { setFieldsValue } = form;
     dispatch({
       type: 'global/fetchGroups',
       payload: {
+        noSaveGroups,
         query: '',
         team_name: teamName || globalUtil.getCurrTeamName(),
         region_name: regionName || globalUtil.getCurrRegionName(),
