@@ -4,6 +4,7 @@
 /*
    快速复制
 */
+import { getTeamRegionGroups } from '@/services/team';
 import {
   Button,
   Checkbox,
@@ -44,8 +45,6 @@ export default class Index extends PureComponent {
       Loading: true,
       loading: true,
       dataSource: [],
-      app_page_size: 10,
-      app_page: 1,
       apps: [],
       checkedList: [],
       checkAllList: [],
@@ -200,30 +199,26 @@ export default class Index extends PureComponent {
 
   // 应用
   fetchTeamApps = (teamName, regionName, groupId) => {
-    const { dispatch, form } = this.props;
-    const { app_page, app_page_size } = this.state;
+    const { form } = this.props;
     const { setFieldsValue } = form;
-    dispatch({
-      type: 'global/fetchGroups',
-      payload: {
-        query: '',
-        team_name: teamName || globalUtil.getCurrTeamName(),
-        region_name: regionName || globalUtil.getCurrRegionName(),
-        page: app_page,
-        page_size: app_page_size
-      },
-      callback: data => {
-        if (data) {
-          if (teamName) {
-            setFieldsValue({
-              apps: groupId || (data.length > 0 ? data[0].group_id : '')
-            });
-          }
-          this.setState({ apps: data });
+    getTeamRegionGroups({
+      query: '',
+      team_name: teamName || globalUtil.getCurrTeamName(),
+      region_name: regionName || globalUtil.getCurrRegionName()
+    })
+      .then(res => {
+        const list = (res && res.list) || [];
+        if (teamName) {
+          setFieldsValue({
+            apps: groupId || (list.length > 0 ? list[0].group_id : '')
+          });
         }
+        this.setState({ apps: list });
         this.handleCloseLoging();
-      }
-    });
+      })
+      .catch(() => {
+        this.handleCloseLoging();
+      });
   };
 
   handleSubmit = () => {
