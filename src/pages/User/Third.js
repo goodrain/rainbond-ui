@@ -146,12 +146,16 @@ export default class ThirdLogin extends Component {
 
   handleError = err => {
     const { dispatch } = this.props;
-    if (err && err.status === 500) {
-      message.warning('第三方认证失败，请重新认证', 1, () => {
-        dispatch(routerRedux.push(loginUrl));
-      });
-    } else if (err.msg_show) {
-      message.warning(err.msg_show);
+    const status = err && err.status;
+    if (err && (status || err.msg_show)) {
+      message.warning(
+        (status && status === 500 && '第三方认证失败，请重新认证') ||
+          err.msg_show,
+        1,
+        () => {
+          dispatch(routerRedux.push(loginUrl));
+        }
+      );
     }
   };
   handleSuccess = () => {
