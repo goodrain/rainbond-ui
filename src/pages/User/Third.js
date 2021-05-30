@@ -44,40 +44,46 @@ export default class ThirdLogin extends Component {
             code,
             service_id
           },
-          callback: resdata => {
-            if (resdata && resdata.status && resdata.status === 400) {
-              this.setState(
-                {
-                  resultState: 'error',
-                  title: '第三方认证未通过',
-                  desc: '认证失败,请重新认证'
-                },
-                () => {
-                  dispatch(routerRedux.push(`/`));
-                }
-              );
-            } else if (resdata && resdata.status_code === 200) {
-              this.setState(
-                {
-                  resultState: 'success',
-                  title: '第三方认证通过',
-                  desc: ''
-                },
-                () => {
-                  if (resdata.bean && resdata.bean.token) {
-                    cookie.set('token', resdata.bean.token);
+          callback: res => {
+            if (res) {
+              if (
+                res.response_data &&
+                res.response_data.status &&
+                res.response_data.status === 400 &&
+                res.msg_show
+              ) {
+                message.warning(res.msg_show);
+              }
+              if (res.status && res.status === 400) {
+                this.setState(
+                  {
+                    resultState: 'error',
+                    title: '第三方认证未通过',
+                    desc: '认证失败,请重新认证'
+                  },
+                  () => {
+                    dispatch(routerRedux.push(`/`));
                   }
-                  this.handleSuccess();
-                }
-              );
+                );
+              } else if (res.status_code && res.status_code === 200) {
+                this.setState(
+                  {
+                    resultState: 'success',
+                    title: '第三方认证通过',
+                    desc: ''
+                  },
+                  () => {
+                    if (res.bean && res.bean.token) {
+                      cookie.set('token', res.bean.token);
+                    }
+                    this.handleSuccess();
+                  }
+                );
+              }
             }
           },
-          handleError: res => {
-            if (res && res.status === 500) {
-              message.warning('第三方认证失败，请重新认证', 1, () => {
-                dispatch(routerRedux.push(loginUrl));
-              });
-            }
+          handleError: err => {
+            this.handleError(err);
           }
         });
         return null;
@@ -128,12 +134,8 @@ export default class ThirdLogin extends Component {
             }
           }
         },
-        handleError: res => {
-          if (res && res.status === 500) {
-            message.warning('第三方认证失败，请重新认证', 1, () => {
-              dispatch(routerRedux.push(loginUrl));
-            });
-          }
+        handleError: err => {
+          this.handleError(err);
         }
       });
     } else {
@@ -142,7 +144,21 @@ export default class ThirdLogin extends Component {
     }
   }
 
-  handleSuccess() {
+  handleError = err => {
+    const { dispatch } = this.props;
+    const status = err && err.status;
+    if (err && (status || err.msg_show)) {
+      message.warning(
+        (status && status === 500 && '第三方认证失败，请重新认证') ||
+          err.msg_show,
+        1,
+        () => {
+          dispatch(routerRedux.push(loginUrl));
+        }
+      );
+    }
+  };
+  handleSuccess = () => {
     const { dispatch } = this.props;
     let redirect = window.localStorage.getItem('redirect');
     if (!redirect || redirect === '') {
@@ -154,7 +170,7 @@ export default class ThirdLogin extends Component {
     } else {
       window.location.href = redirect;
     }
-  }
+  };
 
   render() {
     const { resultState, title, desc } = this.state;
