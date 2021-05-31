@@ -1136,6 +1136,8 @@ const global = {
       AbnormalExited: '组件异常退出',
       AbnormalRecovery: '恢复正常',
       '': '-',
+      tenant_lack_of_memory: '超过租户限额',
+      'cluster_lack_of_memory	': '集群资源不足',
       'create-service': '创建组件',
       'batch-build-service': '批量构建组件',
       'batch-start-service': '批量启动组件',
