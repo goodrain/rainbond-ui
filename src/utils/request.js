@@ -225,14 +225,16 @@ export default function request(url, options) {
             break;
         }
         if (isNext) {
+          // Service maturity
           if (code >= 20001 && code <= 20003) {
             handleStoreDispatch('global/showOrders', {
               code
             });
             return;
           }
-
-          if (code === 10406 || code === 20800) {
+          // 10406: Cluster resource shortage
+          // 10413: Insufficient tenant resources
+          if (code === 10406 || code === 10413 || code === 20800) {
             const AppID = globalUtil.getAppID(url);
             if (code === 20800 && TEAM_NAME && REGION_NAME && AppID) {
               push(
