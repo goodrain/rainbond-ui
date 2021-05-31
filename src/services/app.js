@@ -2461,20 +2461,15 @@ export async function editAppCreateInfo(
 	is_force:	true直接删除，false进入回收站
 	未创建成功的直接删除、 已经创建的进入回收站
 */
-export async function deleteApp(
-  body = {
-    team_name,
-    app_alias,
-    is_force
-  }
-) {
+export async function deleteApp(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/delete`,
     {
       method: 'delete',
       data: {
         is_force: true
-      }
+      },
+      handleError
     }
   );
 }

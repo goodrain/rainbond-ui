@@ -49,6 +49,7 @@ export default class Index extends PureComponent {
       <Fragment>
         <Card style={{ width: '800px', margin: '0 auto' }} bordered={false}>
           <Form
+            autocomplete="off"
             onSubmit={this.handleSubmit}
             layout="horizontal"
             hideRequiredMark
@@ -57,7 +58,13 @@ export default class Index extends PureComponent {
               {getFieldDecorator('group_name', {
                 initialValue: data.group_name || '',
                 rules: [{ required: true, message: '应用名称' }]
-              })(<Input style={{ maxWidth: 300 }} placeholder="应用名称" />)}
+              })(
+                <Input
+                  style={{ maxWidth: 300 }}
+                  placeholder="应用名称"
+                  autocomplete="off"
+                />
+              )}
             </Form.Item>
             <CodeMirrorForm
               setFieldsValue={setFieldsValue}
