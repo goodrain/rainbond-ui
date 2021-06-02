@@ -1094,7 +1094,7 @@ const global = {
       cluster_lack_of_memory: '集群资源不足'
     };
     if (type && status[type]) {
-      return <span style={{ color: '#F5212D' }}>({status[type]})</span>;
+      return <span>(&nbsp;{status[type]}&nbsp;)</span>;
     }
     return type || '';
   },
