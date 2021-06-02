@@ -46,6 +46,10 @@ export default class ImageHubForm extends PureComponent {
                   {
                     required: true,
                     message: '请输入仓库地址'
+                  },
+                  {
+                    max: 255,
+                    message: '最大长度255位'
                   }
                 ]
               })(<Input placeholder="请输入仓库地址" />)}
@@ -56,8 +60,8 @@ export default class ImageHubForm extends PureComponent {
               initialValue: data.namespace || '',
               rules: [
                 {
-                  required: false,
-                  message: '请输入命名空间'
+                  max: 255,
+                  message: '最大长度255位'
                 },
                 {
                   pattern: /^[a-zA-Z][\da-zA-Z]*$/,
@@ -71,8 +75,8 @@ export default class ImageHubForm extends PureComponent {
               initialValue: data.hub_user || '',
               rules: [
                 {
-                  required: false,
-                  message: '请输入用户名'
+                  max: 64,
+                  message: '最大长度64位'
                 }
               ]
             })(<Input placeholder="请输入用户名" />)}
@@ -82,8 +86,8 @@ export default class ImageHubForm extends PureComponent {
               initialValue: data.hub_password || '',
               rules: [
                 {
-                  required: false,
-                  message: '请输入密码'
+                  max: 64,
+                  message: '最大长度64位'
                 }
               ]
             })(<Input type="password" placeholder="请输入密码" />)}

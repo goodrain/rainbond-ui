@@ -273,7 +273,13 @@ export default class Index extends PureComponent {
           <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
-              rules: [{ required: true, message: '要创建的组件还没有名字' }]
+              rules: [
+                { required: true, message: '要创建的组件还没有名字' },
+                {
+                  max: 24,
+                  message: '最大长度24位'
+                }
+              ]
             })(<Input placeholder="请为创建的组件起个名字吧" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="仓库地址">
