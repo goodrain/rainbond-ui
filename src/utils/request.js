@@ -195,9 +195,7 @@ export default function request(url, options) {
             );
             break;
           case 10405:
-            handleStoreDispatch('global/showNeedLogin', {
-              market_name: resData.data.bean.name
-            });
+            handleStoreDispatch('global/showNeedLogin');
             if (newOptions.handleError) {
               newOptions.handleError(error);
             }
