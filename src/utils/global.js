@@ -1091,7 +1091,7 @@ const global = {
   fetchReason(type) {
     const status = {
       tenant_lack_of_memory: '超过租户限额',
-      'cluster_lack_of_memory	': '集群资源不足'
+      cluster_lack_of_memory: '集群资源不足'
     };
     if (type && status[type]) {
       return <span style={{ color: '#F5212D' }}>({status[type]})</span>;
