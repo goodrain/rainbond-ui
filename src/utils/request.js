@@ -234,15 +234,21 @@ export default function request(url, options) {
           }
           // 10406: Cluster resource shortage
           // 10413: Insufficient tenant resources
+          // 20800: Component build failed
           if (code === 10406 || code === 10413 || code === 20800) {
             const AppID = globalUtil.getAppID(url);
-            if (code === 20800 && TEAM_NAME && REGION_NAME && AppID) {
+            if (TEAM_NAME && REGION_NAME && AppID) {
               push(
                 `/team/${TEAM_NAME}/region/${REGION_NAME}/components/${AppID}/overview`
               );
             }
+            const tipMap = {
+              10406: '团队使用内存已超过限额，请联系企业管理员增加限额',
+              10413: '集群资源不足,请联系企业管理员增加资源',
+              20800: '构建失败,请重新构建'
+            };
             handleStoreDispatch('global/showMemoryTip', {
-              message: resData.msg_show
+              message: tipMap[code]
             });
             return;
           }

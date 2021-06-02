@@ -123,7 +123,7 @@ class TeamLayout extends PureComponent {
         type: 'user/fetchCurrent',
         callback: res => {
           if (res && res.status_code === 200) {
-            this.getTeamOverview(res.bean.user_id);
+            this.getTeamOverview(res.bean && res.bean.user_id);
           }
         }
       });
