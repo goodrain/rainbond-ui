@@ -54,7 +54,12 @@ class SelectStore extends PureComponent {
     });
   };
   render() {
-    const { onCancel, visible, form } = this.props;
+    const {
+      onCancel,
+      visible,
+      form,
+      loading: submitLoading = false
+    } = this.props;
     const { getFieldDecorator } = form;
     const { storeList, loading } = this.state;
     const stores = storeList && storeList.length > 0 && storeList;
@@ -78,7 +83,11 @@ class SelectStore extends PureComponent {
         footer={[
           <Button onClick={onCancel}> 取消 </Button>,
           stores && (
-            <Button type="primary" onClick={this.handleSubmit}>
+            <Button
+              type="primary"
+              onClick={this.handleSubmit}
+              loading={submitLoading}
+            >
               确定
             </Button>
           )
@@ -90,7 +99,7 @@ class SelectStore extends PureComponent {
             layout="horizontal"
             hideRequiredMark
           >
-            <FormItem {...formItemLayout} label="发布商店" hasFeedback>
+            <FormItem {...formItemLayout} label="发布商店">
               {getFieldDecorator('store_id', {
                 initialValue: stores[0].name || '',
                 rules: [

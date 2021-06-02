@@ -66,7 +66,14 @@ export async function fetchMarketsTab(param) {
     }
   );
 }
-
+export async function fetchOrganizations(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/cloud/markets/${param.market_id}/organizations`,
+    {
+      method: 'get'
+    }
+  );
+}
 /* 添加本地标签 */
 export async function createTag(param) {
   return request(

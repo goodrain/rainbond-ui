@@ -1036,6 +1036,8 @@ export default class Main extends PureComponent {
       breadcrumbList.push({ title: '发布到组件库' });
     }
     const marketId = record.scope_target && record.scope_target.store_id;
+    const marketVersion =
+      record.scope_target && record.scope_target.store_version;
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
@@ -1348,7 +1350,8 @@ export default class Main extends PureComponent {
               eid={currentEnterprise.enterprise_id}
               onOk={this.handleCreateAppModel}
               defaultScope="team"
-              market_id={marketId}
+              marketId={marketId}
+              marketVersion={marketVersion}
               onCancel={this.hideCreateAppModel}
             />
           )}
