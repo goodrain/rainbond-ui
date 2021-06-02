@@ -1065,27 +1065,38 @@ const global = {
     return adviceType[type] || type;
   },
   fetchOperation(finalstatus, status) {
-    if (finalstatus == '') {
+    if (finalstatus === '') {
       return (
         <span style={{ color: '#F69C49', paddingLeft: '5px' }}>进行中</span>
       );
     }
     if (
-      finalstatus == 'timeout' ||
-      (finalstatus == 'complete' && status == 'timeout')
+      finalstatus === 'timeout' ||
+      (finalstatus === 'complete' && status === 'timeout')
     ) {
       return <span style={{ color: 'rgba(0, 0, 0, 0.65)' }}>操作已超时</span>;
     }
 
-    if (finalstatus == 'empty' || finalstatus == 'emptycomplete') {
+    if (finalstatus === 'empty' || finalstatus === 'emptycomplete') {
       return <span />;
     }
+    // eslint-disable-next-line default-case
     switch (status) {
       case 'success':
         return <span style={{ color: '#39AA56' }}>成功</span>;
       case 'failure':
         return <span style={{ color: '#F5212D' }}>失败</span>;
     }
+  },
+  fetchReason(type) {
+    const status = {
+      tenant_lack_of_memory: '超过租户限额',
+      'cluster_lack_of_memory	': '集群资源不足'
+    };
+    if (type && status[type]) {
+      return <span style={{ color: '#F5212D' }}>({status[type]})</span>;
+    }
+    return type || '';
   },
   fetchAccessText(text) {
     const AccessText = {
@@ -1136,8 +1147,6 @@ const global = {
       AbnormalExited: '组件异常退出',
       AbnormalRecovery: '恢复正常',
       '': '-',
-      tenant_lack_of_memory: '超过租户限额',
-      'cluster_lack_of_memory	': '集群资源不足',
       'create-service': '创建组件',
       'batch-build-service': '批量构建组件',
       'batch-start-service': '批量启动组件',

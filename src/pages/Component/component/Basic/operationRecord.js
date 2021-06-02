@@ -125,13 +125,12 @@ class Index extends PureComponent {
                             color: globalUtil.fetchAbnormalcolor(OptType)
                           }}
                         >
-                          {globalUtil.fetchStateOptTypeText(
-                            (Status === 'failure' && Reason) || OptType
-                          )}
+                          {globalUtil.fetchStateOptTypeText(OptType)}
                           &nbsp;
                         </span>
                         {globalUtil.fetchOperation(FinalStatus, Status)}
                         &nbsp;
+                        {Status === 'failure' && globalUtil.fetchReason(Reason)}
                         {Messages}
                       </Tooltip>
                     </div>
