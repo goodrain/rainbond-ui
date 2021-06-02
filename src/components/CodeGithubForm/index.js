@@ -46,7 +46,7 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const form = this.props.form;
+    const { form } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       const codeId = fieldsValue.git_project_id;
@@ -171,9 +171,7 @@ export default class Index extends PureComponent {
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               disabled={
-                this.props.handleType && this.props.handleType === 'Service'
-                  ? true
-                  : false
+                !!(this.props.handleType && this.props.handleType === 'Service')
               }
               style={{
                 display: 'inline-block',
@@ -203,6 +201,10 @@ export default class Index extends PureComponent {
               {
                 required: true,
                 message: '要创建的组件还没有名字'
+              },
+              {
+                max: 24,
+                message: '最大长度24位'
               }
             ]
           })(<Input placeholder="请为创建的组件起个名字吧" />)}

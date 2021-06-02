@@ -131,6 +131,10 @@ export default class Index extends PureComponent {
                 {
                   required: true,
                   message: '要创建的组件还没有名字'
+                },
+                {
+                  max: 24,
+                  message: '最大长度24位'
                 }
               ]
             })(

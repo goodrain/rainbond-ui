@@ -88,6 +88,10 @@ class EvnOption extends React.Component {
                 message: '请输入属性名'
               },
               {
+                max: 32,
+                message: '最大长度32位'
+              },
+              {
                 validator: this.validAttrName
               }
             ]
@@ -144,7 +148,13 @@ class EvnOption extends React.Component {
         <Form.Item>
           {getFieldDecorator('attr_default_value', {
             initialValue: data.attr_default_value || '',
-            rules: [{ required: false, message: '默认值' }]
+            rules: [
+              { required: false, message: '默认值' },
+              {
+                max: 128,
+                message: '最大长度128位'
+              }
+            ]
           })(
             <Input
               onChange={e => {
@@ -159,7 +169,13 @@ class EvnOption extends React.Component {
           <Tooltip title="单选或多选的可选值， 多个用逗号分割，如：value1, value2">
             {getFieldDecorator('attr_alt_value', {
               initialValue: data.attr_alt_value || '',
-              rules: [{ validator: this.checkAttrAltValue }]
+              rules: [
+                {
+                  max: 1024,
+                  message: '最大长度1024位'
+                },
+                { validator: this.checkAttrAltValue }
+              ]
             })(
               <Input
                 onChange={e => {
@@ -191,7 +207,13 @@ class EvnOption extends React.Component {
         <Form.Item>
           {getFieldDecorator('attr_info', {
             initialValue: data.attr_info || '',
-            rules: [{ required: false, message: '默认值' }]
+            rules: [
+              { required: false, message: '默认值' },
+              {
+                max: 32,
+                message: '最大长度32位'
+              }
+            ]
           })(
             <Input
               onChange={e => {
@@ -405,7 +427,13 @@ export default class Index extends PureComponent {
           >
             {getFieldDecorator('config_name', {
               initialValue: data.config_name || '',
-              rules: [{ required: true, message: '请输入配置组名' }],
+              rules: [
+                { required: true, message: '请输入配置组名' },
+                {
+                  max: 32,
+                  message: '最大长度32位'
+                }
+              ],
               validateFirst: true
             })(<Input placeholder="请输入配置组名" />)}
           </Form.Item>

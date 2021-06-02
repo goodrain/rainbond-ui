@@ -119,6 +119,12 @@ export default class PlatformBasicInformationForm extends PureComponent {
           </FormItem>
           <FormItem {...formItemLayout} label="文档地址">
             {getFieldDecorator('doc_url', {
+              rules: [
+                {
+                  max: 255,
+                  message: '最大长度255位'
+                }
+              ],
               initialValue: data.doc_url || ''
             })(<Input placeholder="请输入文档地址" />)}
           </FormItem>

@@ -180,7 +180,13 @@ class AccesstokenForm extends PureComponent {
           <Fragment>
             <FormItem {...formItemLayout} label="用途">
               {getFieldDecorator('note', {
-                rules: [{ required: true, message: '请输入用途!' }],
+                rules: [
+                  { required: true, message: '请输入用途!' },
+                  {
+                    max: 32,
+                    message: '最大长度32位'
+                  }
+                ],
                 initialValue: ''
               })(<Input placeholder="请输入用途" />)}
             </FormItem>

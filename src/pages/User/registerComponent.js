@@ -25,7 +25,6 @@ export default class RegisterComponent extends Component {
   state = {
     confirmDirty: false,
     visible: false,
-    help: '',
     time: Date.now()
   };
   componentDidMount() {
@@ -69,42 +68,21 @@ export default class RegisterComponent extends Component {
     );
   };
 
-  checkConfirm = (rule, value, callback) => {
+  checkPassword = (rule, value, callback) => {
     const { form } = this.props;
-    if (value && value !== form.getFieldValue('password')) {
+    if (value && value.length < 8) {
+      callback('密码长度至少为8位');
+    } else if (value && value.length > 16) {
+      callback('最大长度16位');
+    } else if (
+      rule &&
+      rule.field === 'password_repeat' &&
+      value &&
+      value !== form.getFieldValue('password')
+    ) {
       callback('两次输入的密码不匹配!');
     } else {
       callback();
-    }
-  };
-
-  checkPassword = (rule, value, callback) => {
-    if (!value) {
-      this.setState({
-        help: '请输入密码！',
-        visible: !!value
-      });
-      callback('error');
-    } else {
-      this.setState({ help: '' });
-      if (!this.state.visible) {
-        this.setState({
-          visible: !!value
-        });
-      }
-      if (value.length < 8) {
-        this.setState({
-          help: '密码不能少于8位！',
-          visible: !!value
-        });
-        callback('error');
-      } else {
-        const { form } = this.props;
-        if (value && this.state.confirmDirty) {
-          form.validateFields(['confirm'], { force: true });
-        }
-        callback();
-      }
     }
   };
 
@@ -125,7 +103,18 @@ export default class RegisterComponent extends Component {
     } = this.props;
     const { getFieldDecorator } = form;
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
-    const { help, time } = this.state;
+    const { time } = this.state;
+    const checks = message => {
+      return [
+        {
+          required: true,
+          message
+        },
+        {
+          validator: this.checkPassword
+        }
+      ];
+    };
     return (
       <Form onSubmit={this.handleSubmit}>
         {firstRegist && (
@@ -224,33 +213,21 @@ export default class RegisterComponent extends Component {
             </FormItem>
           </Col>
         </Row>
-        <FormItem help={help}>
+        <FormItem>
           {getFieldDecorator('password', {
-            rules: [
-              {
-                validator: this.checkPassword
-              }
-            ]
+            rules: checks('请输入密码')
           })(
             <Input
               size="large"
               type="password"
-              placeholder="密码不能少于8位！"
+              placeholder="请输入密码"
               autoComplete="new-password"
             />
           )}
         </FormItem>
         <FormItem>
           {getFieldDecorator('password_repeat', {
-            rules: [
-              {
-                required: true,
-                message: '请确认密码！'
-              },
-              {
-                validator: this.checkConfirm
-              }
-            ]
+            rules: checks('请确认密码')
           })(
             <Input
               size="large"
@@ -268,6 +245,14 @@ export default class RegisterComponent extends Component {
                   {
                     required: true,
                     message: '请输入验证码！'
+                  },
+                  {
+                    min: 4,
+                    message: '请输入4位的验证码'
+                  },
+                  {
+                    max: 4,
+                    message: '请输入正确的验证码'
                   }
                 ]
               })(
