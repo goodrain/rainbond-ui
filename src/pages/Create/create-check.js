@@ -2,7 +2,7 @@
 /* eslint-disable react/no-danger */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-undef */
-import { Button, Card, Icon, Modal, Radio, Tooltip } from 'antd';
+import { Button, Card, Icon, Modal, notification, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React from 'react';
@@ -335,6 +335,16 @@ export default class CreateCheck extends React.Component {
           handleServiceDataState(true, null, null, null);
         } else {
           this.handleJump(`index`);
+        }
+        this.handleDeleteLoading(false);
+      },
+      handleError: err => {
+        if (err && err.data) {
+          if (err.data.code && err.data.code === 404) {
+            this.handleJump(`index`);
+          } else if (err.data.msg_show) {
+            notification.warning({ message: err.data.msg_show });
+          }
         }
         this.handleDeleteLoading(false);
       }

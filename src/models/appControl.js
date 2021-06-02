@@ -1060,8 +1060,8 @@ export default {
         callback(response);
       }
     },
-    *deleteApp({ payload, callback }, { call }) {
-      const response = yield call(deleteApp, payload);
+    *deleteApp({ payload, callback, handleError }, { call }) {
+      const response = yield call(deleteApp, payload, handleError);
       if (response && callback) {
         callback(response);
       }
