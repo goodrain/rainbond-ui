@@ -279,7 +279,10 @@ export default {
     *fetchCurrent({ callback, handleError }, { call, put }) {
       const response = yield call(getDetail, handleError);
       if (response) {
-        yield put({ type: 'saveCurrentUser', payload: response.bean });
+        yield put({
+          type: 'saveCurrentUser',
+          payload: response && response.bean
+        });
       }
       callback && callback(response);
     },
