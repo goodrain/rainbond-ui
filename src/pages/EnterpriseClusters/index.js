@@ -402,7 +402,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '类型',
         dataIndex: 'region_type',
         align: 'center',
-        width: '100px',
+        width: 100,
         render: val => {
           return (
             <span>
@@ -440,7 +440,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '安装方式',
         dataIndex: 'provider',
         align: 'center',
-        width: '150px',
+        width: 150,
         render: item => {
           switch (item) {
             case 'ack':
@@ -482,7 +482,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '内存(GB)',
         dataIndex: 'total_memory',
         align: 'center',
-        width: '200px',
+        width: 200,
         render: (_, item) => {
           return (
             <a
@@ -500,13 +500,13 @@ export default class EnterpriseClusters extends PureComponent {
         title: '版本',
         dataIndex: 'rbd_version',
         align: 'center',
-        width: '350px'
+        width: 350
       },
       {
         title: '状态',
         dataIndex: 'status',
         align: 'center',
-        width: '150px',
+        width: 150,
         render: (val, data) => {
           if (data.health_status === 'failure') {
             return <span style={{ color: 'red' }}>通信异常</span>;
@@ -562,7 +562,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '操作',
         dataIndex: 'method',
         align: 'center',
-        width: '240px',
+        width: 240,
         render: (_, item) => {
           const mlist = [
             <a
@@ -713,6 +713,7 @@ export default class EnterpriseClusters extends PureComponent {
             message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
           />
           <Table
+            scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
             loading={clusterLoading}
             dataSource={clusters}
             columns={columns}
