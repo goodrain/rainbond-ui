@@ -14,7 +14,7 @@ import {
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import apiconfig from '../../../config/api.config';
-import { fetchOrganizations } from '../../services/market';
+import { fetchAppModelsTags, fetchOrganizations } from '../../services/market';
 import cookie from '../../utils/cookie';
 import userUtil from '../../utils/user';
 import styles from '../CreateTeam/index.less';
@@ -47,6 +47,9 @@ class CreateAppModels extends PureComponent {
       page_size: 10,
       adminer,
       teamList: [],
+      organizations: [],
+      organizationsLoading: true,
+      tagLoading: true,
       isAddLicense: false,
       enterpriseTeamsLoading: true
     };
@@ -60,20 +63,18 @@ class CreateAppModels extends PureComponent {
     this.fetchOrganizations();
   }
   getTags = () => {
-    const { dispatch, eid } = this.props;
-    dispatch({
-      type: 'market/fetchAppModelsTags',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            tagList: res.list
-          });
-        }
-      }
-    });
+    const { eid } = this.props;
+    fetchAppModelsTags({
+      enterprise_id: eid
+    })
+      .then(res => {
+        this.setState({
+          tagList: (res && res.list) || []
+        });
+      })
+      .finally(() => {
+        this.handleTagLoading(false);
+      });
   };
 
   getBase64 = file => {
@@ -195,6 +196,12 @@ class CreateAppModels extends PureComponent {
     });
   };
 
+  handleTagLoading = loading => {
+    this.setState({
+      tagLoading: loading
+    });
+  };
+
   createTag = name => {
     const { dispatch, eid } = this.props;
     dispatch({
@@ -217,14 +224,24 @@ class CreateAppModels extends PureComponent {
       fetchOrganizations({
         market_id: marketId,
         enterprise_id: eid
-      }).then(res => {
-        this.setState({
-          organizations: (res && res.list) || []
+      })
+        .then(res => {
+          this.setState({
+            organizations: (res && res.list) || []
+          });
+        })
+        .finally(() => {
+          this.handleOrganizationsLoading(false);
         });
-      });
+    } else {
+      this.handleOrganizationsLoading(false);
     }
   };
-
+  handleOrganizationsLoading = loading => {
+    this.setState({
+      organizationsLoading: loading
+    });
+  };
   upAppModel = values => {
     const { dispatch, eid, appInfo, onOk, team_name } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
@@ -384,11 +401,13 @@ class CreateAppModels extends PureComponent {
       previewImage,
       previewVisible,
       tagList,
+      tagLoading,
       imageBase64,
       teamList,
       isAddLicense,
       isShared,
       enterpriseTeamsLoading,
+      organizationsLoading,
       organizations,
       submitLoading
     } = this.state;
@@ -449,6 +468,7 @@ class CreateAppModels extends PureComponent {
             <Button onClick={onCancel}> 取消 </Button>,
             <Button
               type="primary"
+              disabled={organizationsLoading || tagLoading}
               onClick={this.handleSubmit}
               loading={submitLoading}
             >
@@ -456,194 +476,205 @@ class CreateAppModels extends PureComponent {
             </Button>
           ]}
         >
-          <Form onSubmit={this.handleSubmit} layout="horizontal">
-            <FormItem {...formItemLayout} label="名称">
-              {getFieldDecorator('name', {
-                initialValue: appName || (appInfo ? appInfo.app_name : ''),
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入名称'
-                  },
-                  {
-                    max: 32,
-                    message: '最大长度32位'
-                  }
-                ]
-              })(<Input placeholder="请输入名称" />)}
-              <div className={styles.conformDesc}>
-                请输入创建的应用模版名称，最大长度32位.
-              </div>
-            </FormItem>
-            {!marketId && (
-              <FormItem {...formItemLayout} label="发布范围">
-                {getFieldDecorator('scope', {
-                  initialValue: appInfo
-                    ? isShared && appInfo.scope && appInfo.scope === 'team'
-                      ? appInfo.create_team
-                      : appInfo.scope
-                    : defaultScope || 'enterprise',
+          <Spin spinning={organizationsLoading || tagLoading}>
+            <Form onSubmit={this.handleSubmit} layout="horizontal">
+              <FormItem {...formItemLayout} label="名称">
+                {getFieldDecorator('name', {
+                  initialValue: appName || (appInfo ? appInfo.app_name : ''),
                   rules: [
                     {
                       required: true,
                       message: '请输入名称'
+                    },
+                    {
+                      max: 32,
+                      message: '最大长度32位'
                     }
                   ]
-                })(
-                  isShared ? (
-                    <Select
-                      getPopupContainer={triggerNode => triggerNode.parentNode}
-                      placeholder="请选择发布范围"
-                      dropdownRender={menu => (
-                        <div>
-                          {menu}
-                          {isAddLicense && (
-                            <div>
-                              <Divider style={{ margin: '4px 0' }} />
-                              {enterpriseTeamsLoading ? (
-                                <Spin size="small" />
-                              ) : (
-                                <div
-                                  style={{
-                                    padding: '4px 8px',
-                                    cursor: 'pointer'
-                                  }}
-                                  onMouseDown={e => e.preventDefault()}
-                                  onClick={() => {
-                                    this.addTeams();
-                                  }}
-                                >
-                                  <Icon type="plus" /> 加载更多
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    >
-                      <Option value="enterprise" key="enterprise">
-                        <div style={{ borderBottom: '1px solid #ccc' }}>
-                          当前企业
-                        </div>
-                      </Option>
+                })(<Input placeholder="请输入名称" />)}
+                <div className={styles.conformDesc}>
+                  请输入创建的应用模版名称，最大长度32位.
+                </div>
+              </FormItem>
+              {!marketId && (
+                <FormItem {...formItemLayout} label="发布范围">
+                  {getFieldDecorator('scope', {
+                    initialValue: appInfo
+                      ? isShared && appInfo.scope && appInfo.scope === 'team'
+                        ? appInfo.create_team
+                        : appInfo.scope
+                      : defaultScope || 'enterprise',
+                    rules: [
+                      {
+                        required: true,
+                        message: '请输入名称'
+                      }
+                    ]
+                  })(
+                    isShared ? (
+                      <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
+                        placeholder="请选择发布范围"
+                        dropdownRender={menu => (
+                          <div>
+                            {menu}
+                            {isAddLicense && (
+                              <div>
+                                <Divider style={{ margin: '4px 0' }} />
+                                {enterpriseTeamsLoading ? (
+                                  <Spin size="small" />
+                                ) : (
+                                  <div
+                                    style={{
+                                      padding: '4px 8px',
+                                      cursor: 'pointer'
+                                    }}
+                                    onMouseDown={e => e.preventDefault()}
+                                    onClick={() => {
+                                      this.addTeams();
+                                    }}
+                                  >
+                                    <Icon type="plus" /> 加载更多
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      >
+                        <Option value="enterprise" key="enterprise">
+                          <div style={{ borderBottom: '1px solid #ccc' }}>
+                            当前企业
+                          </div>
+                        </Option>
 
-                      {teamList &&
-                        teamList.map(item => {
+                        {teamList &&
+                          teamList.map(item => {
+                            return (
+                              <Option
+                                key={item.team_name}
+                                value={item.team_name}
+                              >
+                                {item.team_alias}
+                              </Option>
+                            );
+                          })}
+                      </Select>
+                    ) : (
+                      <Radio.Group name="scope">
+                        <Radio value="team">当前团队</Radio>
+                        <Radio value="enterprise">企业</Radio>
+                      </Radio.Group>
+                    )
+                  )}
+                  <div className={styles.conformDesc}>发布模型的可视范围</div>
+                </FormItem>
+              )}
+              {marketId && marketVersion && marketVersion === '2.0' && (
+                <FormItem {...formItemLayout} label="行业名称">
+                  {getFieldDecorator('org_id', {
+                    rules: [
+                      {
+                        required: true,
+                        message: '请选择行业'
+                      }
+                    ]
+                  })(
+                    <Select placeholder="请选择行业">
+                      {organizations &&
+                        organizations.length > 0 &&
+                        organizations.map(item => {
                           return (
-                            <Option key={item.team_name} value={item.team_name}>
-                              {item.team_alias}
-                            </Option>
+                            <Option value={item.org_id}>{item.name}</Option>
                           );
                         })}
                     </Select>
-                  ) : (
-                    <Radio.Group name="scope">
-                      <Radio value="team">当前团队</Radio>
-                      <Radio value="enterprise">企业</Radio>
-                    </Radio.Group>
-                  )
-                )}
-                <div className={styles.conformDesc}>发布模型的可视范围</div>
-              </FormItem>
-            )}
-            {marketId && marketVersion && marketVersion === '2.0' && (
-              <FormItem {...formItemLayout} label="行业名称">
-                {getFieldDecorator('org_id', {
+                  )}
+                </FormItem>
+              )}
+              <Form.Item {...formItemLayout} label="分类标签">
+                {getFieldDecorator('tag_ids', {
+                  initialValue: arr,
                   rules: [
                     {
-                      required: true,
-                      message: '请选择行业'
+                      required: false,
+                      message: '请添加标签'
                     }
                   ]
                 })(
-                  <Select placeholder="请选择行业">
-                    {organizations &&
-                      organizations.length > 0 &&
-                      organizations.map(item => {
-                        return <Option value={item.org_id}>{item.name}</Option>;
-                      })}
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    mode="tags"
+                    style={{ width: '100%' }}
+                    onSelect={this.handleOnSelect}
+                    tokenSeparators={[',']}
+                    placeholder="请选择分类标签"
+                  >
+                    {tagList.map(item => {
+                      const { tag_id, name } = item;
+                      return (
+                        <Option key={tag_id} value={name} label={name}>
+                          {name}
+                        </Option>
+                      );
+                    })}
                   </Select>
                 )}
+              </Form.Item>
+              <FormItem {...formItemLayout} label="描述">
+                {getFieldDecorator('describe', {
+                  initialValue: appInfo
+                    ? appInfo.describe || appInfo.app_describe
+                    : '',
+                  rules: [
+                    {
+                      required: false,
+                      message: '请输入描述'
+                    }
+                  ]
+                })(<TextArea placeholder="请输入描述" />)}
+                <div className={styles.conformDesc}>
+                  请输入创建的应用模版描述
+                </div>
               </FormItem>
-            )}
-            <Form.Item {...formItemLayout} label="分类标签">
-              {getFieldDecorator('tag_ids', {
-                initialValue: arr,
-                rules: [
-                  {
-                    required: false,
-                    message: '请添加标签'
-                  }
-                ]
-              })(
-                <Select
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  mode="tags"
-                  style={{ width: '100%' }}
-                  onSelect={this.handleOnSelect}
-                  tokenSeparators={[',']}
-                  placeholder="请选择分类标签"
-                >
-                  {tagList.map(item => {
-                    const { tag_id, name } = item;
-                    return (
-                      <Option key={tag_id} value={name} label={name}>
-                        {name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </Form.Item>
-            <FormItem {...formItemLayout} label="描述">
-              {getFieldDecorator('describe', {
-                initialValue: appInfo
-                  ? appInfo.describe || appInfo.app_describe
-                  : '',
-                rules: [
-                  {
-                    required: false,
-                    message: '请输入描述'
-                  }
-                ]
-              })(<TextArea placeholder="请输入描述" />)}
-              <div className={styles.conformDesc}>请输入创建的应用模版描述</div>
-            </FormItem>
-            <Form.Item {...formItemLayout} label="LOGO">
-              {getFieldDecorator('pic', {
-                initialValue: appInfo ? appInfo.pic : '',
-                rules: [
-                  {
-                    required: false,
-                    message: '请上传图标'
-                  }
-                ]
-              })(
-                <Upload
-                  className="logo-uploader"
-                  name="file"
-                  accept="image/jpg,image/jpeg,image/png"
-                  action={apiconfig.imageUploadUrl}
-                  listType="picture-card"
-                  headers={myheaders}
-                  showUploadList={false}
-                  onChange={this.handleLogoChange}
-                  onRemove={this.handleLogoRemove}
-                  onPreview={this.handlePreview}
-                >
-                  {imageUrl ? (
-                    <img
-                      src={imageBase64 || imageUrl}
-                      alt="avatar"
-                      style={{ width: '100%' }}
-                    />
-                  ) : (
-                    uploadButton
-                  )}
-                </Upload>
-              )}
-            </Form.Item>
-          </Form>
+              <Form.Item {...formItemLayout} label="LOGO">
+                {getFieldDecorator('pic', {
+                  initialValue: appInfo ? appInfo.pic : '',
+                  rules: [
+                    {
+                      required: false,
+                      message: '请上传图标'
+                    }
+                  ]
+                })(
+                  <Upload
+                    className="logo-uploader"
+                    name="file"
+                    accept="image/jpg,image/jpeg,image/png"
+                    action={apiconfig.imageUploadUrl}
+                    listType="picture-card"
+                    headers={myheaders}
+                    showUploadList={false}
+                    onChange={this.handleLogoChange}
+                    onRemove={this.handleLogoRemove}
+                    onPreview={this.handlePreview}
+                  >
+                    {imageUrl ? (
+                      <img
+                        src={imageBase64 || imageUrl}
+                        alt="avatar"
+                        style={{ width: '100%' }}
+                      />
+                    ) : (
+                      uploadButton
+                    )}
+                  </Upload>
+                )}
+              </Form.Item>
+            </Form>
+          </Spin>
         </Modal>
       </div>
     );

@@ -70,7 +70,8 @@ export async function fetchOrganizations(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/cloud/markets/${param.market_id}/organizations`,
     {
-      method: 'get'
+      method: 'get',
+      showMessage: false
     }
   );
 }
