@@ -445,8 +445,8 @@ export default {
       const count = yield select(state => state.global.notices.length);
       yield put({ type: 'user/changeNotifyCount', payload: count });
     },
-    *fetchGroups({ payload, callback }, { put, call }) {
-      const response = yield call(getTeamRegionGroups, payload);
+    *fetchGroups({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(getTeamRegionGroups, payload, handleError);
       if (response) {
         yield put({
           type: 'saveGroups',

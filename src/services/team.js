@@ -363,7 +363,7 @@ export async function getTeamRegionAppsStatus(
 /*
 	获取团队在某个集群下的所有应用组
 */
-export async function getTeamRegionGroups(body) {
+export async function getTeamRegionGroups(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview/groups`,
     {
@@ -371,7 +371,8 @@ export async function getTeamRegionGroups(body) {
       params: {
         query: body.query,
         region_name: body.region_name
-      }
+      },
+      handleError
     }
   );
 }

@@ -58,21 +58,10 @@ export default class SelectApp extends PureComponent {
     this.handleOut();
     this.setState({ showCreateApp: true });
   };
-  handleCreateApp = vals => {
-    const { dispatch, currentTeam } = this.props;
-    dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: currentTeam.team_name,
-        group_name: vals.group_name,
-        note: vals.note
-      },
-      callback: () => {
-        notification.success({ message: formatMessage({ id: 'add.success' }) });
-        this.cancelCreateApp();
-        this.loadTeamApps();
-      }
-    });
+  handleCreateApp = () => {
+    notification.success({ message: formatMessage({ id: 'add.success' }) });
+    this.cancelCreateApp();
+    this.loadTeamApps();
   };
   cancelCreateApp = () => {
     this.handleOut();
@@ -96,7 +85,6 @@ export default class SelectApp extends PureComponent {
       active,
       currentTeamPermissionsInfo
     } = this.props;
-    const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps`;
     const {
       teamApps,
       loading,
@@ -104,8 +92,11 @@ export default class SelectApp extends PureComponent {
       currentApp,
       visible
     } = this.state;
+    const teamName = currentTeam.team_name;
+    const regionName = currentRegion.team_region_name;
+    const currentTeamAppsPageLink = `/team/${teamName}/region/${regionName}/apps`;
     const isCreateApp = roleUtil.canCreateApp(currentTeamPermissionsInfo);
-    const currentAPPLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${currentAppID}`;
+    const currentAPPLink = `/team/${teamName}/region/${regionName}/apps/${currentAppID}`;
     const dropdown = (
       <div className={style.dropBox}>
         <div>
@@ -128,7 +119,7 @@ export default class SelectApp extends PureComponent {
           <div className={style.dropBoxList}>
             <ul>
               {teamApps.map(item => {
-                const link = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${item.group_id}`;
+                const link = `/team/${teamName}/region/${regionName}/apps/${item.group_id}`;
                 return (
                   <li key={item.group_id}>
                     <Link to={link} title={item.group_name}>
@@ -187,6 +178,9 @@ export default class SelectApp extends PureComponent {
 
         {showCreateApp && (
           <EditGroupName
+            regionName={regionName}
+            teamName={teamName}
+            isGetGroups={false}
             title={formatMessage({ id: 'header.app.create' })}
             onCancel={this.cancelCreateApp}
             onOk={this.handleCreateApp}

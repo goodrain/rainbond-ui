@@ -571,29 +571,11 @@ export default class Index extends PureComponent {
     });
   }
 
-  handleOkApplication = vals => {
+  handleOkApplication = () => {
     const { dispatch } = this.props;
-    dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_name: vals.group_name,
-        note: vals.note
-      },
-      callback: res => {
-        if (res) {
-          notification.success({ message: '添加成功' });
-          this.handleCancelApplication();
-          this.getTeamAppList();
-          dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName()
-            }
-          });
-        }
-      }
-    });
+    notification.success({ message: '添加成功' });
+    this.handleCancelApplication();
+    this.getTeamAppList();
   };
 
   handleCancelApplication = () => [

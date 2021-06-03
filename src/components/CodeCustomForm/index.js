@@ -6,7 +6,6 @@ import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
 import ShowRegionKey from '../../components/ShowRegionKey';
-import globalUtil from '../../utils/global';
 
 const { Option } = Select;
 
@@ -88,33 +87,10 @@ export default class Index extends PureComponent {
     }
   };
 
-  handleAddGroup = vals => {
-    const { form, dispatch } = this.props;
-    const { setFieldsValue } = form;
-
-    dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: res => {
-        if (res) {
-          // 获取群组
-          dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: res.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+  handleAddGroup = groupId => {
+    const { setFieldsValue } = this.props.form;
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
   hideShowKey = () => {
     this.handkeDeleteCheckedList('showKey');
@@ -201,7 +177,8 @@ export default class Index extends PureComponent {
       showUsernameAndPass,
       subdirectories,
       serverType,
-      visibleKey
+      visibleKey,
+      addGroup
     } = this.state;
 
     const gitUrl = getFieldValue('git_url');
@@ -379,7 +356,7 @@ export default class Index extends PureComponent {
             </Form.Item>
           ) : null}
         </Form>
-        {this.state.addGroup && (
+        {addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}
         {visibleKey && isSSH && (

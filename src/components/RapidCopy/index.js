@@ -4,6 +4,7 @@
 /*
    快速复制
 */
+import { addGroup } from '@/services/application';
 import { getTeamRegionGroups } from '@/services/team';
 import {
   Button,
@@ -179,22 +180,21 @@ export default class Index extends PureComponent {
       regionName = arrs && arrs[0].value[1];
     }
     this.handleOpenLoging();
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: teamName || globalUtil.getCurrTeamName(),
-        region_name: regionName || globalUtil.getCurrRegionName(),
-        ...vals
-      },
-      callback: group => {
+    addGroup({
+      team_name: teamName || globalUtil.getCurrTeamName(),
+      region_name: regionName || globalUtil.getCurrRegionName(),
+      ...vals
+    })
+      .then(group => {
         if (group) {
           // 获取群组
-          this.fetchTeamApps(teamName, regionName, group.group_id);
+          this.fetchTeamApps(teamName, regionName, group.bean.group_id);
           this.cancelAddGroup();
         }
+      })
+      .finally(() => {
         this.handleCloseLoging();
-      }
-    });
+      });
   };
 
   // 应用
@@ -390,6 +390,8 @@ export default class Index extends PureComponent {
           <div className={styles.copyBox}>
             {addGroup && (
               <AddGroup
+                isAddGroup={false}
+                loading={loading}
                 onCancel={this.cancelAddGroup}
                 onOk={this.handleAddGroup}
               />

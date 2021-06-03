@@ -99,22 +99,10 @@ export default class AppList extends PureComponent {
     this.handleSearch();
   };
 
-  handleAddGroup = vals => {
-    const { teamName } = this.props.match.params;
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: teamName,
-        ...vals
-      },
-      callback: res => {
-        if (res) {
-          notification.success({ message: '新建成功' });
-          this.getTeamAppList();
-          this.cancelAddGroup();
-        }
-      }
-    });
+  handleAddGroup = () => {
+    notification.success({ message: '新建成功' });
+    this.getTeamAppList();
+    this.cancelAddGroup();
   };
 
   jumpToAllbackup = () => {
@@ -186,6 +174,9 @@ export default class AppList extends PureComponent {
         <Card>
           {addGroup && (
             <AddGroup
+              teamName={teamName}
+              regionName={regionName}
+              isGetGroups={false}
               onCancel={this.cancelAddGroup}
               onOk={this.handleAddGroup}
             />

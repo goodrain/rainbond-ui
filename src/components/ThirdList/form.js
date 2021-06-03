@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable import/first */
@@ -21,7 +22,6 @@ import Branches from '../../../public/images/branches.svg';
 import Component from '../../../public/images/component.svg';
 import Unlock from '../../../public/images/unlock.svg';
 import AddGroup from '../../components/AddOrEditGroup';
-import globalUtil from '../../utils/global';
 import styles from './Index.less';
 
 const { Option, OptGroup } = Select;
@@ -84,7 +84,7 @@ class Index extends React.Component {
   onAddGroup = () => {
     this.setState({ addGroup: true });
   };
-  // get repostory tag or branchs
+
   handleCodeWarehouseType = props => {
     const { dispatch, type, thirdInfo } = props;
     const { tabType } = this.state;
@@ -132,31 +132,10 @@ class Index extends React.Component {
     });
   };
 
-  handleAddGroup = vals => {
+  handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          this.props.dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
   onChange = checkedValues => {
     this.setState({
