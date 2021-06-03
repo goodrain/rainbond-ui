@@ -116,38 +116,15 @@ export default class Index extends PureComponent {
     })
   ];
 
-  handleOkApplication = vals => {
+  handleOkApplication = groupId => {
     const { dispatch } = this.props;
-    const { GuideList } = this.state;
-    dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_name: vals.group_name,
-        note: vals.note
-      },
-      callback: res => {
-        if (res) {
-          notification.success({ message: '添加成功' });
-          this.handleCancelApplication();
-          dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName()
-            },
-            callback: () => {
-              this.props.dispatch(
-                routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                    res.group_id
-                  }`
-                )
-              );
-            }
-          });
-        }
-      }
-    });
+    notification.success({ message: '添加成功' });
+    this.handleCancelApplication();
+    dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${groupId}`
+      )
+    );
   };
 
   handleShare = group_id => {
@@ -185,11 +162,10 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { form } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) {
-        return;
+      if (!err) {
+        this.handleShare(fieldsValue.group_id);
+        this.setState({ ServiceVisible: false });
       }
-      this.handleShare(fieldsValue.group_id);
-      this.setState({ ServiceVisible: false });
     });
   };
 
@@ -200,37 +176,15 @@ export default class Index extends PureComponent {
     this.setState({ addGroup: false });
   };
 
-  handleAddGroup = vals => {
+  handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
-
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          this.props.dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
 
   handleOnchange = () => {
-    const groupId = this.props.form.getFieldValue('group_id');
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
+    const groupId = form.getFieldValue('group_id');
     dispatch({
       type: 'application/fetchApps',
       payload: {
@@ -901,8 +855,16 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { current, GuideList, SpinState } = this.state;
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const {
+      current,
+      GuideList,
+      SpinState,
+      ServiceVisible,
+      addGroup,
+      addApplication
+    } = this.state;
+    const { groups, form } = this.props;
+    const { getFieldDecorator } = form;
     let num = 0;
     const steps = [
       {
@@ -1070,10 +1032,10 @@ export default class Index extends PureComponent {
               })}
             </div>
 
-            {this.state.ServiceVisible && (
+            {ServiceVisible && (
               <Modal
                 title="请选择或创建一个应用"
-                visible={this.state.ServiceVisible}
+                visible
                 onOk={this.handleSubmit}
                 onCancel={() => {
                   this.setState({ ServiceVisible: false });
@@ -1096,7 +1058,7 @@ export default class Index extends PureComponent {
                           marginRight: 15
                         }}
                       >
-                        {(this.props.groups || []).map(group => (
+                        {(groups || []).map(group => (
                           <Option key={group.group_id} value={group.group_id}>
                             {group.group_name}
                           </Option>
@@ -1108,14 +1070,14 @@ export default class Index extends PureComponent {
               </Modal>
             )}
 
-            {this.state.addGroup && (
+            {addGroup && (
               <AddGroup
                 onCancel={this.cancelAddGroup}
                 onOk={this.handleAddGroup}
               />
             )}
 
-            {this.state.addApplication && (
+            {addApplication && (
               <EditGroupName
                 title="新建应用"
                 onCancel={this.handleCancelApplication}

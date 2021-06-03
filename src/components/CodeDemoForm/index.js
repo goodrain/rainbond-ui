@@ -45,37 +45,17 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const { form } = this.props;
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
-    });
-  };
-  handleAddGroup = vals => {
-    const { setFieldsValue } = this.props.form;
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          this.props.dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
+      if (!err && onSubmit) {
+        onSubmit(fieldsValue);
       }
     });
+  };
+  handleAddGroup = groupId => {
+    const { setFieldsValue } = this.props.form;
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
   fetchGroup = () => {
     this.props.dispatch({
