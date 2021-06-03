@@ -689,7 +689,7 @@ export default class Main extends PureComponent {
         layout="horizontal"
         hideRequiredMark
       >
-        <Form.Item {...formItemLayout} label="安装版本">
+        <Form.Item {...formItemLayout} label="选择版本">
           {getFieldDecorator('group_version', {
             initialValue: versionList[0].version || versionList[0].app_version,
             rules: [
@@ -703,9 +703,12 @@ export default class Main extends PureComponent {
               getPopupContainer={triggerNode => triggerNode.parentNode}
               style={{ width: '220px' }}
             >
-              {versionList.map((item, index) => {
+              {versionList.map(item => {
                 return (
-                  <Option key={index} value={item.version || item.app_version}>
+                  <Option
+                    key={item.version}
+                    value={item.version || item.app_version}
+                  >
                     {item.version || item.app_version}
                   </Option>
                 );
@@ -1000,7 +1003,16 @@ export default class Main extends PureComponent {
               </div>
             }
           >
-            <p>{installBounced.describe}</p>
+            {installBounced.describe && (
+              <p
+                style={{
+                  background: 'rgba(22, 184, 248, 0.1)',
+                  padding: '8px'
+                }}
+              >
+                {installBounced.describe}
+              </p>
+            )}
             {this.renderFormComponent()}
           </Modal>
         )}

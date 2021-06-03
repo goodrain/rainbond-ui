@@ -373,6 +373,19 @@ export async function getApplication(body = {}) {
   );
 }
 
+/* 获取某个升级应用的详情，进入升级页面时调用 */
+export async function getApplicationUpgradeDetail(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps/${body.upgradeGroupID}`,
+    {
+      method: 'get',
+      params: {
+        app_model_key: body.app_model_key
+      }
+    }
+  );
+}
+
 /* 获取企业详情 */
 export async function getCompanyInfo(body = {}) {
   return request(`${apiconfig.baseUrl}/console/enterprise/account`, {
@@ -442,7 +455,6 @@ export async function postUpdateOrder(body = {}) {
 }
 
 /* 创建升级任务 */
-
 export async function postUpdatedTasks(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-tasks`,
@@ -452,7 +464,8 @@ export async function postUpdatedTasks(body = {}) {
         upgrade_record_id: body.upgrade_record_id,
         group_key: body.group_key,
         version: body.version,
-        services: body.services
+        services: body.services,
+        upgrade_group_id: body.upgrade_group_id
       }
     }
   );
@@ -466,7 +479,8 @@ export async function getUpdatedVersion(body = {}) {
     {
       method: 'get',
       params: {
-        group_key: body.group_key
+        group_key: body.group_key,
+        upgrade_group_id: body.upgrade_group_id
       }
     }
   );
@@ -480,9 +494,10 @@ export async function getUpdatedInfo(body = {}) {
     {
       method: 'get',
       params: {
-        group_key: body.group_key,
+        group_key: body.app_model_key,
         version: body.version,
-        market_name: body.marketName
+        market_name: body.marketName,
+        upgrade_group_id: body.upgradeGroupID
       }
     }
   );

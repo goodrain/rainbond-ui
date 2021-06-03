@@ -5,7 +5,7 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-nested-ternary */
 import ComponentVersion from '@/components/ComponentVersion';
-import { Avatar, List, Table, Tabs, Tag } from 'antd';
+import { Avatar, List, Table, Tabs, Tag, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -19,8 +19,7 @@ import {
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import styles from './index.less';
-import Info from './info';
-import infoUtil from './info-util';
+import infoUtil from './UpgradeInfo/info-util';
 
 const { TabPane } = Tabs;
 
@@ -43,7 +42,6 @@ export default class AppList extends PureComponent {
       showApp: {},
       showMarketAppDetail: false,
       infoShow: false,
-      infoData: null,
       list: [],
       activeKey: '1',
       page: 1,
@@ -120,6 +118,26 @@ export default class AppList extends PureComponent {
       }
     });
   };
+
+  getVersionChangeShow = record => {
+    if (record.market_name) {
+      return (
+        <div>
+          通过应用商店（{record.market_name}）从版本
+          <span className={styles.versions}>{record.old_version}</span>
+          升级到
+          <span className={styles.versions}>{record.version}</span>
+        </div>
+      );
+    }
+    return (
+      <div>
+        从版本<span className={styles.versions}>{record.old_version}</span>
+        升级到
+        <span className={styles.versions}>{record.version}</span>
+      </div>
+    );
+  };
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     this.setState({ loadingDetail: true });
@@ -145,7 +163,17 @@ export default class AppList extends PureComponent {
       }
     });
   };
-
+  openInfoPage = item => {
+    const { team_name, group_id } = this.getParameter();
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push(
+        `/team/${team_name}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}/upgrade/${
+          item.upgrade_group_id
+        }?app_id=${item.group_key}`
+      )
+    );
+  };
   showMarketAppDetail = app => {
     this.setState({
       showApp: app,
@@ -167,7 +195,7 @@ export default class AppList extends PureComponent {
         activeKey: key
       },
       () => {
-        key == '2' ? this.getUpgradeRecordsList() : this.getApplication();
+        key === '2' ? this.getUpgradeRecordsList() : this.getApplication();
       }
     );
   };
@@ -211,7 +239,6 @@ export default class AppList extends PureComponent {
       showMarketAppDetail,
       showApp,
       infoShow,
-      infoData,
       activeKey,
       page,
       total,
@@ -232,7 +259,9 @@ export default class AppList extends PureComponent {
     const ListContent = ({ data: { upgrade_versions, current_version } }) => (
       <div className={styles.listContent}>
         <div className={styles.listContentItem}>
-          <span>当前版本</span>
+          <Tooltip title="当前版本是指安装的组件中最大的版本号，因此升级其中一个组件该版本号跟随增加。">
+            <span>当前版本</span>
+          </Tooltip>
           <p>
             <Tag
               style={{
@@ -248,10 +277,12 @@ export default class AppList extends PureComponent {
           </p>
         </div>
         <div className={styles.listContentItem}>
-          <span>可升级版本</span>
+          <Tooltip title="可升级版本是指比当前版本号大的版本">
+            <span>可升级版本</span>
+          </Tooltip>
           <p>
             {upgrade_versions && upgrade_versions.length > 0
-              ? upgrade_versions.map((item, index) => {
+              ? upgrade_versions.map(item => {
                   return (
                     <Tag
                       style={{
@@ -261,13 +292,13 @@ export default class AppList extends PureComponent {
                       }}
                       color="green"
                       size="small"
-                      key={index}
+                      key={item}
                     >
                       {item}
                     </Tag>
                   );
                 })
-              : '暂无升级'}
+              : '暂无'}
           </p>
         </div>
       </div>
@@ -282,7 +313,7 @@ export default class AppList extends PureComponent {
         render: text => <span>{text}</span>
       },
       {
-        title: '名字',
+        title: '应用模版名称',
         dataIndex: 'group_name',
         key: '2',
         width: '20%',
@@ -293,19 +324,7 @@ export default class AppList extends PureComponent {
         dataIndex: 'version',
         key: '3',
         width: '30%',
-        render: (_, data) => (
-          <div>
-            {data.old_version && data.version ? (
-              <div>
-                <span className={styles.versions}>{data.old_version}</span>
-                升级到
-                <span className={styles.versions}>{data.version}</span>
-              </div>
-            ) : (
-              '-'
-            )}
-          </div>
-        )
+        render: (_, data) => this.getVersionChangeShow(data)
       },
       {
         title: '状态',
@@ -319,21 +338,7 @@ export default class AppList extends PureComponent {
         dataIndex: 'tenant_id',
         key: '5',
         width: '15%',
-        render: (text, item) => (
-          <a
-            onClick={e => {
-              e.preventDefault();
-              item.status !== 1 &&
-                this.setState({
-                  infoData: item,
-                  infoShow: true
-                });
-            }}
-            style={{ color: item.status === 1 ? '#000' : '#1890ff' }}
-          >
-            {item.status === 1 ? '-' : '详情'}
-          </a>
-        )
+        render: (text, item) => item
       }
     ];
     let breadcrumbList = [];
@@ -348,6 +353,21 @@ export default class AppList extends PureComponent {
       currentRegionName,
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
+
+    const get_method_show = item => {
+      if (item.can_upgrade) {
+        return '升级';
+      }
+      return (
+        <span
+          style={{
+            color: 'rgba(0, 0, 0, 0.45)'
+          }}
+        >
+          无更新版本
+        </span>
+      );
+    };
 
     return (
       <PageHeaderLayout
@@ -371,8 +391,6 @@ export default class AppList extends PureComponent {
                   loading={upgradeLoading}
                   dataSource={[...list]}
                   renderItem={item => {
-                    const notUpgradeRecordStatus =
-                      item.not_upgrade_record_status;
                     return (
                       <List.Item
                         actions={[
@@ -380,28 +398,11 @@ export default class AppList extends PureComponent {
                             onClick={e => {
                               e.preventDefault();
                               if (item.can_upgrade) {
-                                this.setState({
-                                  infoData: item,
-                                  infoShow: item.not_upgrade_record_id
-                                    ? true
-                                    : !!item.can_upgrade
-                                });
+                                this.openInfoPage(item);
                               }
                             }}
                           >
-                            {notUpgradeRecordStatus !== 1 ? (
-                              infoUtil.getStatusCN(notUpgradeRecordStatus)
-                            ) : item.can_upgrade ? (
-                              '升级'
-                            ) : (
-                              <span
-                                style={{
-                                  color: 'rgba(0, 0, 0, 0.45)'
-                                }}
-                              >
-                                无可升级的变更
-                              </span>
-                            )}
+                            {get_method_show(item)}
                           </a>,
                           <a
                             onClick={() => {
@@ -464,21 +465,6 @@ export default class AppList extends PureComponent {
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
             app={showApp}
-          />
-        )}
-
-        {infoShow && (
-          <Info
-            data={infoData}
-            activeKey={this.state.activeKey}
-            group_id={this.getGroupId()}
-            setInfoShow={() => {
-              this.setState({ infoShow: false }, () => {
-                this.state.activeKey === '2'
-                  ? this.getUpgradeRecordsList()
-                  : this.getApplication();
-              });
-            }}
           />
         )}
       </PageHeaderLayout>

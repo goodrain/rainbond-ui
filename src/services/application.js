@@ -181,10 +181,11 @@ export async function getGroupDetail(body = {}, handleError) {
   );
 }
 
-export async function getComponentVersion(body = {}, handleError) {
+export async function getUpgradeComponentList(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/rainbondapps/${body.template_name}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps/${body.upgrade_group_id}/components`,
     {
+      params: { app_model_key: body.app_model_key },
       handleError
     }
   );

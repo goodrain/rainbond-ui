@@ -30,6 +30,7 @@ import {
   getAllRegion,
   getAllRegionFee,
   getApplication,
+  getApplicationUpgradeDetail,
   getCloudPlugin,
   getCompanyInfo,
   getConfigurationDetails,
@@ -467,6 +468,14 @@ export default {
         });
       }
     },
+    *getApplicationUpgradeDetail({ payload, callback }, { call }) {
+      const response = yield call(getApplicationUpgradeDetail, payload);
+      if (response && callback) {
+        setTimeout(() => {
+          callback(response);
+        });
+      }
+    },
     *CloudAppUpdateOrder({ payload, callback }, { call }) {
       const response = yield call(postUpdateOrder, payload);
       if (response && callback) {
@@ -491,8 +500,8 @@ export default {
         });
       }
     },
-    *CloudAppUpdatedTasks({ payload, callback }, { call }) {
-      const response = yield call(postUpdatedTasks, payload);
+    *CloudAppUpdatedTasks({ payload, callback, handleError }, { call }) {
+      const response = yield call(postUpdatedTasks, payload, handleError);
       if (response && callback) {
         setTimeout(() => {
           callback(response);
