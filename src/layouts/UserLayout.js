@@ -82,7 +82,12 @@ class UserLayout extends React.PureComponent {
             </Link>
           </div>
         </div>
-        <div className={styles.content}>
+        <div
+          className={[
+            `${styles.content}`,
+            !isEnterpriseEdition && styles.contentHaveFooter
+          ].join(' ')}
+        >
           <div className={styles.contentBox}>
             <div className={styles.contentBoxLeft}>
               <img src={cloud} alt="云原生应用管理平台" />
