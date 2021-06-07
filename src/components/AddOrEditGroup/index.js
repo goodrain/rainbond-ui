@@ -36,7 +36,8 @@ export default class EditGroupName extends PureComponent {
           this.handleLoading(true);
           addGroup({
             ...parameters,
-            ...vals
+            ...vals,
+            noModels: true
           })
             .then(res => {
               const groupId = res && res.bean && res.bean.group_id;

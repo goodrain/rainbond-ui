@@ -204,7 +204,8 @@ export default class Index extends PureComponent {
     getTeamRegionGroups({
       query: '',
       team_name: teamName || globalUtil.getCurrTeamName(),
-      region_name: regionName || globalUtil.getCurrRegionName()
+      region_name: regionName || globalUtil.getCurrRegionName(),
+      noModels: true
     })
       .then(res => {
         const list = (res && res.list) || [];
