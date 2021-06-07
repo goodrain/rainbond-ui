@@ -305,7 +305,8 @@ export async function addGroup(body = {}) {
         region_name: body.region_name,
         app_name: body.group_name,
         note: body.note
-      }
+      },
+      noModels: body.noModels
     }
   );
 }

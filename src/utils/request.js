@@ -273,7 +273,8 @@ export default function request(url, options) {
               return;
             }
             notification.warning({ message: '警告', description: msg });
-          } else {
+          }
+          if (newOptions.noModels) {
             return Promise.reject(error);
           }
         }
@@ -282,7 +283,9 @@ export default function request(url, options) {
         if (newOptions.handleError) {
           return newOptions.handleError(error);
         }
-        return Promise.reject(error);
+        if (newOptions.noModels) {
+          return Promise.reject(error);
+        }
       }
     });
 }
