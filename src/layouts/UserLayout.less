@@ -13,10 +13,14 @@
     }
   }
 }
+.contentHaveFooter {
+  height: calc(100vh - 162px) !important;
+}
 .content {
   display: flex;
   align-items: center;
-  height: calc(100vh - 186px);
+  height: calc(100vh - 64px);
+
   .contentBox {
     width: 1200px;
     display: flex;
@@ -36,6 +40,11 @@
       height: 549px;
       display: flex;
       overflow: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .contentBoxRight::-webkit-scrollbar {
+      display: none;
     }
   }
 }
