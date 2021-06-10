@@ -19,6 +19,7 @@ import {
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import styles from './index.less';
+import Info from './UpgradeInfo/info';
 import infoUtil from './UpgradeInfo/info-util';
 
 const { TabPane } = Tabs;
@@ -42,6 +43,7 @@ export default class AppList extends PureComponent {
       showApp: {},
       showMarketAppDetail: false,
       infoShow: false,
+      infoData: null,
       list: [],
       activeKey: '1',
       page: 1,
@@ -239,6 +241,7 @@ export default class AppList extends PureComponent {
       showMarketAppDetail,
       showApp,
       infoShow,
+      infoData,
       activeKey,
       page,
       total,
@@ -338,7 +341,21 @@ export default class AppList extends PureComponent {
         dataIndex: 'tenant_id',
         key: '5',
         width: '15%',
-        render: (text, item) => item
+        render: (text, item) => (
+          <a
+            onClick={e => {
+              e.preventDefault();
+              item.status !== 1 &&
+                this.setState({
+                  infoData: item,
+                  infoShow: true
+                });
+            }}
+            style={{ color: item.status === 1 ? '#000' : '#1890ff' }}
+          >
+            {item.status === 1 ? '-' : '详情'}
+          </a>
+        )
       }
     ];
     let breadcrumbList = [];
@@ -465,6 +482,20 @@ export default class AppList extends PureComponent {
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
             app={showApp}
+          />
+        )}
+        {infoShow && (
+          <Info
+            data={infoData}
+            activeKey={activeKey}
+            group_id={this.getGroupId()}
+            setInfoShow={() => {
+              this.setState({ infoShow: false }, () => {
+                activeKey === '2'
+                  ? this.getUpgradeRecordsList()
+                  : this.getApplication();
+              });
+            }}
           />
         )}
       </PageHeaderLayout>
