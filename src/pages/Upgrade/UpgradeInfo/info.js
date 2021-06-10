@@ -32,6 +32,7 @@ export default class AppList extends PureComponent {
     super(props);
     this.state = {
       type: '',
+      record_id: '',
       indexs: 0,
       infoObj: props.data ? props.data : '',
       upgradeVersions: [],
@@ -722,7 +723,7 @@ export default class AppList extends PureComponent {
   //  回滚某次更新Rollback
   getUpgradeRollback = () => {
     const { group_id, form, dispatch } = this.props;
-    const { rollbackLoading } = this.state;
+    const { rollbackLoading, infoObj } = this.state;
     form.validateFields((err, values) => {
       if (!err && !rollbackLoading) {
         this.setState(
@@ -735,14 +736,14 @@ export default class AppList extends PureComponent {
               payload: {
                 team_name: globalUtil.getCurrTeamName(),
                 group_id,
-                record_id: this.state.infoObj.ID,
+                record_id: infoObj.ID,
                 service_ids: values.services
               },
               callback: res => {
                 if (res && res.status_code === 200) {
                   this.setState(
                     {
-                      record_id: res.bean.ID
+                      record_id: infoObj.ID
                     },
                     () => {
                       this.getUpgradeRecordsInfo('Rollback');
