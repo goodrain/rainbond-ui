@@ -41,6 +41,7 @@ export default class AppPublishList extends PureComponent {
       page: 1,
       pageSize: 10,
       total: 0,
+      storeLoading: false,
       selectStoreShow: false
     };
   }
@@ -145,12 +146,12 @@ export default class AppPublishList extends PureComponent {
   hideSelectStoreShow = () => {
     this.setState({ selectStoreShow: false });
   };
-
+  handleStoreLoading = loading => {
+    this.setState({ storeLoading: loading });
+  };
   handleSelectStore = values => {
+    this.handleStoreLoading(true);
     const selectStore = values.store_id;
-    if (!selectStore) {
-      notification.warning({ message: '未选择正确的应用商店' });
-    }
     this.handleShare('goodrain', { store_id: selectStore });
   };
   deleteRecord = recordID => {
@@ -205,6 +206,7 @@ export default class AppPublishList extends PureComponent {
         )
       );
     }
+    this.handleStoreLoading(false);
   };
 
   handleBox = val => {
@@ -227,7 +229,8 @@ export default class AppPublishList extends PureComponent {
       pageSize,
       total,
       selectStoreShow,
-      recoders
+      recoders,
+      storeLoading
     } = this.state;
     const {
       currentEnterprise,
@@ -443,6 +446,7 @@ export default class AppPublishList extends PureComponent {
           </ScrollerX>
         </Card>
         <SelectStore
+          loading={storeLoading}
           dispatch={dispatch}
           enterprise_id={currentEnterprise.enterprise_id}
           visible={selectStoreShow}

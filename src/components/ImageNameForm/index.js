@@ -4,7 +4,6 @@ import { Button, Form, Input, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
-import globalUtil from '../../utils/global';
 
 const { Option } = Select;
 
@@ -42,31 +41,10 @@ export default class Index extends PureComponent {
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
   };
-  handleAddGroup = vals => {
+  handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          this.props.dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
 
   handleSubmit = e => {
@@ -218,7 +196,7 @@ export default class Index extends PureComponent {
                     </Button>,
                     false
                   )
-                : !this.props.handleType && (
+                : !handleType && (
                     <Button
                       onClick={this.handleSubmit}
                       type="primary"

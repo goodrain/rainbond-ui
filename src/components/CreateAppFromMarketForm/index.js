@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import { Button, Form, Modal, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -33,31 +34,10 @@ export default class Index extends PureComponent {
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
   };
-  handleAddGroup = vals => {
+  handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          this.props.dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
 
   handleChangeVersion = () => {};

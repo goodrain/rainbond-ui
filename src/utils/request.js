@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-shadow */
 /* eslint-disable no-void */
 /* eslint-disable no-unused-expressions */
@@ -54,6 +55,19 @@ function handleStoreDispatch(type, payload = {}) {
   });
 }
 
+function handleData(response) {
+  let res = {};
+  if (response) {
+    res = (response.data && response.data.data) || {};
+    res._code = response.status;
+    res.response_data = response.data || {};
+    res.status_code = response.status;
+    res._condition = response.data && response.data.code;
+    res.business_code = response.data && response.data.code;
+    res.msg_show = response.data && response.data.msg_show;
+  }
+  return res;
+}
 /**
  * Requests a URL, returning a promise.
  *
@@ -145,14 +159,7 @@ export default function request(url, options) {
         window.g_app._store.dispatch({
           type: 'global/hiddenLoading'
         });
-      const res = response.data.data || {};
-      res._code = response.status;
-      res.response_data = response.data || {};
-      res.status_code = response.status;
-      res._condition = response.data.code;
-      res.business_code = response.data.code;
-      res.msg_show = response.data.msg_show;
-      return res;
+      return handleData(response);
     })
     .catch(error => {
       if (showLoading) {
@@ -267,12 +274,17 @@ export default function request(url, options) {
             }
             notification.warning({ message: '警告', description: msg });
           }
+          if (newOptions.noModels) {
+            return Promise.reject(error);
+          }
         }
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log('Error', error.message);
         if (newOptions.handleError) {
-          newOptions.handleError(error);
+          return newOptions.handleError(error);
+        }
+        if (newOptions.noModels) {
+          return Promise.reject(error);
         }
       }
     });

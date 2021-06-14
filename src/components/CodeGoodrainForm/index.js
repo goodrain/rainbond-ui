@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-indent */
+/* eslint-disable react/sort-comp */
 /* eslint-disable react/no-multi-comp */
 import { Button, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
@@ -12,14 +14,18 @@ const FormItem = Form.Item;
 class CreateNewProject extends PureComponent {
   handleOk = e => {
     e.preventDefault();
-    this.props.form.validateFields({ force: true }, (err, vals) => {
-      if (!err) {
-        this.props.onOk && this.props.onOk(vals);
+    const { form, onOk } = this.props;
+    form.validateFields({ force: true }, (err, vals) => {
+      if (!err && onOk) {
+        onOk(vals);
       }
     });
   };
   handleCancel = () => {
-    this.props.onCancel && this.props.onCancel();
+    const { onCancel } = this.props;
+    if (onCancel) {
+      onCancel();
+    }
   };
   render() {
     const { getFieldDecorator } = this.props.form;
@@ -95,7 +101,7 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const { form } = this.props;
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       const codeId = fieldsValue.git_project_id;
@@ -105,34 +111,15 @@ export default class Index extends PureComponent {
       if (selectedProject.length) {
         fieldsValue.git_url = selectedProject[0].code_repos;
       }
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
-    });
-  };
-  handleAddGroup = vals => {
-    const { setFieldsValue } = this.props.form;
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          this.props.dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
+      if (onSubmit) {
+        onSubmit(fieldsValue);
       }
     });
+  };
+  handleAddGroup = groupId => {
+    const { setFieldsValue } = this.props.form;
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
   fetchGroup = () => {
     this.props.dispatch({
@@ -238,34 +225,27 @@ export default class Index extends PureComponent {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { groups } = this.props;
+    const { groups, handleType, groupId, ButtonGroupState } = this.props;
     const data = this.props.data || {};
-    const codeList = this.state.codeList || [];
+    const { codeList, branchs, addGroup, showCreateProject } = this.state;
     const defaultProject = this.getDefaultProjectId();
-    const branchs = this.state.branchs || [];
+    const isService = handleType && handleType === 'Service';
+
     return (
       <Form layout="horizontal" hideRequiredMark>
         <Form.Item {...formItemLayout} label="应用名称">
           {getFieldDecorator('group_id', {
-            initialValue:
-              this.props.handleType && this.props.handleType === 'Service'
-                ? Number(this.props.groupId)
-                : data.groupd_id,
+            initialValue: isService ? Number(groupId) : data.groupd_id,
             rules: [{ required: true, message: '请选择' }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               style={{
                 display: 'inline-block',
-                width:
-                  this.props.handleType && this.props.handleType === 'Service'
-                    ? ''
-                    : 290,
+                width: isService ? '' : 290,
                 marginRight: 15
               }}
-              disabled={
-                !!(this.props.handleType && this.props.handleType === 'Service')
-              }
+              disabled={!!isService}
             >
               {(groups || []).map(group => (
                 <Option key={group.group_id} value={group.group_id}>
@@ -274,8 +254,7 @@ export default class Index extends PureComponent {
               ))}
             </Select>
           )}
-          {this.props.handleType &&
-          this.props.handleType === 'Service' ? null : (
+          {isService ? null : (
             <Button onClick={this.onAddGroup}>新建应用</Button>
           )}
         </Form.Item>
@@ -331,9 +310,7 @@ export default class Index extends PureComponent {
           }}
           label=""
         >
-          {this.props.handleType &&
-          this.props.handleType === 'Service' &&
-          this.props.ButtonGroupState
+          {isService && ButtonGroupState
             ? this.props.handleServiceBotton(
                 <Button
                   disabled={!codeList.length}
@@ -344,7 +321,7 @@ export default class Index extends PureComponent {
                 </Button>,
                 false
               )
-            : !this.props.handleType && (
+            : !handleType && (
                 <Button
                   disabled={!codeList.length}
                   onClick={this.handleSubmit}
@@ -354,10 +331,10 @@ export default class Index extends PureComponent {
                 </Button>
               )}
         </Form.Item>
-        {this.state.addGroup && (
+        {addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}
-        {this.state.showCreateProject && (
+        {showCreateProject && (
           <CreateNewProject
             onOk={this.handleCreateProject}
             onCancel={this.handleCancelCreateProject}

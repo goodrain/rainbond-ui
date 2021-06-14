@@ -3,7 +3,8 @@ import request from '../utils/request';
 /* 获取企业数据备份记录 */
 export async function loadBackups(body = {}) {
   return request(`/console/enterprise/${body.enterprise_id}/backups`, {
-    method: 'get'
+    method: 'get',
+    noModels: body.noModels
   });
 }
 

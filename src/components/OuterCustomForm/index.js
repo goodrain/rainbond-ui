@@ -21,7 +21,6 @@ import {
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
-import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 
 const FormItem = Form.Item;
@@ -68,32 +67,10 @@ export default class Index extends PureComponent {
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
   };
-  handleAddGroup = vals => {
+  handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
-
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          this.props.dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
   handleChange = () => {
     this.setState({
@@ -241,7 +218,7 @@ export default class Index extends PureComponent {
       showCreateGroup = true
     } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
-    const { endpointsType, staticList } = this.state;
+    const { endpointsType, staticList, addGroup } = this.state;
     const data = this.props.data || {};
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     const isService = handleType && handleType === 'Service';
@@ -553,7 +530,7 @@ export default class Index extends PureComponent {
             </Form.Item>
           ) : null}
         </Form>
-        {this.state.addGroup && (
+        {addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}
       </Fragment>
