@@ -59,8 +59,8 @@ class EditClusterInfo extends PureComponent {
         sm: { span: 13 }
       }
     };
-    const rulesApiUrl = /(http|https):\/\/[\w\-_]+([\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
-    const rulesWebSocketUrl = /(ws|wss):\/\/[\w\-_]+([\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
+    const rulesApiUrl = /(http|https):\/\/+([\w]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
+    const rulesWebSocketUrl = /(ws|wss):\/\/+([\w]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
 
     return (
       <Modal
