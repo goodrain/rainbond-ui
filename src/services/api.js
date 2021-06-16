@@ -372,6 +372,15 @@ export async function getApplication(body = {}) {
     }
   );
 }
+/* 基于记录重新部署 */
+export async function getAppRedeploy(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/deploy`,
+    {
+      method: 'post'
+    }
+  );
+}
 
 /* 获取企业详情 */
 export async function getCompanyInfo(body = {}) {
@@ -428,7 +437,7 @@ export async function getTeamOverview(body = {}, handleError) {
 /* 创建升级任务 */
 export async function postUpdatedTasks(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-tasks`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.upgrade_record_id}/upgrade`,
     {
       method: 'post',
       data: {
@@ -499,7 +508,9 @@ export async function getUpdateRecordsInfo(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}`,
     {
       method: 'get',
-      params: {}
+      params: {
+        record_id: body.record_id
+      }
     }
   );
 }

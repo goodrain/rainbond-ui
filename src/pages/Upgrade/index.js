@@ -5,15 +5,14 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-nested-ternary */
 import ComponentVersion from '@/components/ComponentVersion';
-import { Avatar, List, Modal, Table, Tabs, Tag, Tooltip } from 'antd';
+import { Avatar, Button, List, Modal, Table, Tabs, Tag, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
-  getAppLastUpgradeRecord,
-  getAppModelLastUpgradeRecord,
+  getAppModelLastRecord,
   postUpgradeRecord,
   rollbackUpgrade
 } from '../../services/app';
@@ -26,6 +25,8 @@ import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import styles from './index.less';
+import RollsBackRecordDetails from './RollbackInfo/details';
+import RollsBackRecordList from './RollbackInfo/index';
 import infoUtil from './UpgradeInfo/info-util';
 
 const { TabPane } = Tabs;
@@ -43,6 +44,8 @@ export default class AppList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      isDeploymentFailure: false,
+      isPartiallyCompleted: false,
       upgradeLoading: true,
       recordLoading: true,
       isComponent: false,
@@ -55,7 +58,11 @@ export default class AppList extends PureComponent {
       total: 0,
       dataList: [],
       appDetail: {},
-      showLastUpgradeRecord: false
+      backUpgradeLoading: false,
+      showLastUpgradeRecord: false,
+      showLastRollbackRecord: false,
+      rollbackRecords: false,
+      rollbackRecordDetails: false
     };
   }
 
@@ -72,23 +79,37 @@ export default class AppList extends PureComponent {
 
   componentDidMount() {
     this.fetchAppDetail();
-    this.getApplication();
-    this.getAppLastUpgradeRecord();
+    this.fetchApplication();
+    this.fetchAppLastUpgradeRecord();
   }
 
   onUpgrade = item => {
     const { team_name, group_id } = this.getParameter();
-    getAppModelLastUpgradeRecord({
+    getAppModelLastRecord({
       appID: group_id,
       team_name,
       upgrade_group_id: item.upgrade_group_id
     }).then(re => {
       // last upgrade record partial success.
-      if (re.bean && re.bean.status === 6) {
-        this.setState({ showUpgradeConfirm: true, upgradeItem: item });
-        return;
+      const status = re.bean && re.bean.status;
+      if (status) {
+        if ([6, 10].includes(status)) {
+          this.setState({
+            isDeploymentFailure: status === 10,
+            isPartiallyCompleted: status === 6,
+            showLastUpgradeRecord: true,
+            upgradeItem: item
+          });
+          return;
+        }
+        if ([3, 8].includes(status)) {
+          this.createNewRecord(item);
+          return;
+        }
+        this.openInfoPage(re.bean);
+      } else {
+        this.createNewRecord(item);
       }
-      this.openInfoPage(item);
     });
   };
 
@@ -101,41 +122,6 @@ export default class AppList extends PureComponent {
     };
   };
 
-  getAppLastUpgradeRecord = () => {
-    const { team_name, group_id } = this.getParameter();
-    getAppLastUpgradeRecord({
-      team_name,
-      appID: group_id,
-      noModels: true
-    })
-      .then(re => {
-        if (re.bean) {
-          this.setState({
-            lastRecord: re.bean,
-            showLastUpgradeRecord: !re.bean.is_finished
-          });
-        }
-      })
-      .catch(err => {
-        handleAPIError(err);
-      });
-  };
-
-  // 查询当前组下的云市应用
-  getApplication = () => {
-    this.props.dispatch({
-      type: 'global/application',
-      payload: this.getParameter(),
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            list: res.list
-          });
-        }
-        this.handleCancelLoading();
-      }
-    });
-  };
   getGroupId = () => {
     const { params } = this.props.match;
     return params.appID;
@@ -182,6 +168,71 @@ export default class AppList extends PureComponent {
         <span className={styles.versions}>{record.version}</span>
       </div>
     );
+  };
+  // 查询当前组下的云市应用
+  fetchApplication = () => {
+    this.props.dispatch({
+      type: 'global/application',
+      payload: this.getParameter(),
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            list: res.list
+          });
+        }
+        this.handleCancelLoading();
+      }
+    });
+  };
+
+  fetchAppLastUpgradeRecord = () => {
+    const { team_name, group_id } = this.getParameter();
+    getAppModelLastRecord({
+      team_name,
+      appID: group_id,
+      noModels: true
+    })
+      .then(re => {
+        const info = re.bean;
+        if (info && JSON.stringify(info) !== '{}') {
+          this.setState({
+            lastRecord: info,
+            showLastUpgradeRecord: [2].includes(info.status)
+          });
+        }
+      })
+      .catch(err => {
+        handleAPIError(err);
+      });
+  };
+
+  fetchAppLastRollbackRecord = item => {
+    const { team_name, group_id } = this.getParameter();
+    getAppModelLastRecord({
+      team_name,
+      appID: group_id,
+      record_type: 'rollback',
+      noModels: true
+    })
+      .then(re => {
+        const info = re.bean;
+        if (info && JSON.stringify(info) !== '{}') {
+          const showLastRollbackRecord = [4].includes(info.status);
+          if (showLastRollbackRecord) {
+            this.setState({
+              lastRecord: info,
+              showLastRollbackRecord
+            });
+          } else {
+            this.onUpgrade(item);
+          }
+        } else {
+          this.onUpgrade(item);
+        }
+      })
+      .catch(err => {
+        handleAPIError(err);
+      });
   };
 
   createNewRecord = item => {
@@ -232,7 +283,7 @@ export default class AppList extends PureComponent {
       routerRedux.push(
         `/team/${team_name}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}/upgrade/${
           item.upgrade_group_id
-        }?app_id=${item.group_key}`
+        }/record/${item.ID}?app_id=${item.group_key}`
       )
     );
   };
@@ -244,10 +295,21 @@ export default class AppList extends PureComponent {
   };
   showRollback = item => {
     this.setState({
-      showRollbackConfirm: true,
+      showRollbackConfirm: item,
       rollbackRecord: item
     });
   };
+  showRollbackList = item => {
+    this.setState({
+      rollbackRecords: item
+    });
+  };
+  showRollbackDetails = item => {
+    this.setState({
+      rollbackRecordDetails: item
+    });
+  };
+
   hideMarketAppDetail = () => {
     this.setState({
       showApp: {},
@@ -263,7 +325,7 @@ export default class AppList extends PureComponent {
         activeKey: key
       },
       () => {
-        key === '2' ? this.getUpgradeRecordsList() : this.getApplication();
+        key === '2' ? this.getUpgradeRecordsList() : this.fetchApplication();
       }
     );
   };
@@ -280,6 +342,7 @@ export default class AppList extends PureComponent {
     );
   };
   rollbackUpgrade = () => {
+    this.handleBackUpgradeLoading(true);
     const { rollbackRecord } = this.state;
     const { team_name, group_id } = this.getParameter();
     rollbackUpgrade({
@@ -288,11 +351,19 @@ export default class AppList extends PureComponent {
       record_id: rollbackRecord.ID
     })
       .then(re => {
-        // TODO
+        this.handleBackUpgradeLoading(false);
+        this.showRollback(false);
+        this.showRollbackDetails(re && re.bean);
       })
       .catch(err => {
+        this.handleBackUpgradeLoading(false);
         handleAPIError(err);
       });
+  };
+  handleBackUpgradeLoading = loading => {
+    this.setState({
+      backUpgradeLoading: loading
+    });
   };
   showComponentVersion = info => {
     this.setState({
@@ -330,9 +401,14 @@ export default class AppList extends PureComponent {
       loadingDetail,
       lastRecord,
       showLastUpgradeRecord,
-      showUpgradeConfirm,
+      showLastRollbackRecord,
       upgradeItem,
-      showRollbackConfirm
+      isDeploymentFailure,
+      isPartiallyCompleted,
+      showRollbackConfirm,
+      rollbackRecords,
+      rollbackRecordDetails,
+      backUpgradeLoading
     } = this.state;
 
     const paginationProps = {
@@ -417,7 +493,7 @@ export default class AppList extends PureComponent {
         dataIndex: 'status',
         key: '4',
         width: '15%',
-        render: status => <span>{infoUtil.getStatusCN(status)}</span>
+        render: status => <span>{infoUtil.getStatusText(status)}</span>
       },
       {
         title: '操作',
@@ -425,14 +501,26 @@ export default class AppList extends PureComponent {
         key: '5',
         width: '15%',
         render: (_, item) => (
-          <a
-            onClick={e => {
-              e.preventDefault();
-              this.showRollback(item);
-            }}
-          >
-            回滚
-          </a>
+          <div>
+            {item.can_rollback && (
+              <a
+                onClick={e => {
+                  e.preventDefault();
+                  this.showRollback(item);
+                }}
+              >
+                回滚
+              </a>
+            )}
+            <a
+              onClick={e => {
+                e.preventDefault();
+                this.showRollbackList(item);
+              }}
+            >
+              回滚记录
+            </a>
+          </div>
         )
       }
     ];
@@ -450,18 +538,18 @@ export default class AppList extends PureComponent {
     );
 
     const get_method_show = item => {
-      if (item.can_upgrade) {
-        return '升级';
-      }
-      return (
-        <span
-          style={{
-            color: 'rgba(0, 0, 0, 0.45)'
-          }}
-        >
-          无更新版本
-        </span>
-      );
+      // if (item.can_upgrade) {
+      return '升级';
+      // }
+      // return (
+      //   <span
+      //     style={{
+      //       color: 'rgba(0, 0, 0, 0.45)'
+      //     }}
+      //   >
+      //     无更新版本
+      //   </span>
+      // );
     };
     return (
       <PageHeaderLayout
@@ -490,9 +578,11 @@ export default class AppList extends PureComponent {
                         <a
                           onClick={e => {
                             e.preventDefault();
-                            if (item.can_upgrade) {
-                              this.onUpgrade(item);
-                            }
+                            this.fetchAppLastRollbackRecord(item);
+                            // this.onUpgrade(item);
+                            // if (item.can_upgrade) {
+                            //   this.onUpgrade(item);
+                            // }
                           }}
                         >
                           {get_method_show(item)}
@@ -537,6 +627,7 @@ export default class AppList extends PureComponent {
           </TabPane>
           <TabPane tab="升级记录" key="2">
             <Table
+              style={{ padding: '24px' }}
               loading={recordLoading}
               columns={columns}
               dataSource={dataList}
@@ -549,7 +640,7 @@ export default class AppList extends PureComponent {
           <ComponentVersion
             onCancel={this.handleCancelComponent}
             data={isComponent}
-            ok={this.getApplication}
+            ok={this.fetchApplication}
             {...this.getParameter()}
           />
         )}
@@ -560,51 +651,93 @@ export default class AppList extends PureComponent {
             app={showApp}
           />
         )}
-        {showLastUpgradeRecord && lastRecord && (
+        {showLastUpgradeRecord && (lastRecord || upgradeItem) && (
           <Modal
             visible
             title="升级提示"
             onCancel={() => {
               this.setState({ showLastUpgradeRecord: false });
+              if (upgradeItem) {
+                this.createNewRecord(upgradeItem);
+              }
             }}
             okText="继续"
+            cancelText={upgradeItem ? '新升级' : '取消'}
             onOk={() => {
-              this.openInfoPage(lastRecord);
+              this.openInfoPage(lastRecord || upgradeItem);
             }}
           >
             <span>
-              应用模型 {lastRecord.group_name}
-              存在未完成的升级任务，是否继续完成上次任务？
+              应用模型
+              <span style={{ color: '4d73b1' }}>
+                {(lastRecord && lastRecord.group_name) ||
+                  (upgradeItem && upgradeItem.group_name)}
+              </span>
+              {isPartiallyCompleted
+                ? '上次升级任务部分组件更新成功，是否继续重试？'
+                : isDeploymentFailure
+                ? '上次升级任务部署失败，是否继续重试？'
+                : '存在未完成的升级任务，是否继续完成上次任务？'}
             </span>
           </Modal>
         )}
-        {showUpgradeConfirm && upgradeItem && (
+        {showLastRollbackRecord && (
           <Modal
             visible
-            title="升级提示"
+            title="回滚提示"
             onCancel={() => {
-              this.setState({ showUpgradeConfirm: false });
-              this.createNewRecord(upgradeItem);
+              this.setState({ showLastRollbackRecord: false });
             }}
-            cancelText="新升级"
-            okText="继续"
-            onOk={() => {
-              this.setState({ showUpgradeConfirm: false });
-              this.openInfoPage(upgradeItem);
-            }}
+            footer={[
+              <Button
+                style={{ marginTop: '20px' }}
+                onClick={() => {
+                  this.setState({ showLastRollbackRecord: false });
+                }}
+              >
+                关闭
+              </Button>
+            ]}
           >
             <span>
-              应用模型 {upgradeItem.group_name}{' '}
-              上次升级任务部分组件更新成功，是否继续重试？
+              应用模型
+              <span style={{ color: '4d73b1' }}>
+                {lastRecord && lastRecord.group_name}
+              </span>
+              存在未完成的回滚任务，无法继续升级
             </span>
           </Modal>
         )}
+        {rollbackRecords && (
+          <RollsBackRecordList
+            {...this.getParameter()}
+            info={rollbackRecords}
+            showRollbackDetails={item => {
+              this.showRollbackDetails(item);
+            }}
+            onCancel={() => {
+              this.showRollbackList(false);
+            }}
+          />
+        )}
+        {rollbackRecordDetails && (
+          <RollsBackRecordDetails
+            {...this.getParameter()}
+            info={rollbackRecordDetails}
+            onCancel={() => {
+              this.showRollbackDetails(false);
+            }}
+          />
+        )}
+
         {showRollbackConfirm && (
           <Modal
             visible
+            width={1000}
+            confirmLoading={backUpgradeLoading}
             title="回滚确认"
             onCancel={() => {
-              this.setState({ showRollbackConfirm: false });
+              this.showRollback(false);
             }}
             onOk={() => {
               this.rollbackUpgrade();

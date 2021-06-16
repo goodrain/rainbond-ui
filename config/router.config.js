@@ -204,7 +204,7 @@ export default [
           },
           {
             path:
-              '/team/:teamName/region/:regionName/apps/:appID/upgrade/:upgradeGroupID',
+              '/team/:teamName/region/:regionName/apps/:appID/upgrade/:upgradeGroupID/record/:recordID',
             component: './Upgrade/UpgradeInfo',
             name: 'UpgradeInfo',
             authority: ['admin', 'user']

@@ -56,7 +56,6 @@ export default class AppList extends PureComponent {
       upgradeInfo: [],
       upgrade_info: '',
       upgradeRecords: [],
-      text: this.props.activeKey == 2 ? '回滚' : '升级',
       upgradeText: '升级',
       textState: 1,
       service_id: [],
@@ -132,6 +131,7 @@ export default class AppList extends PureComponent {
       teamName,
       regionName,
       appID,
+      recordID,
       upgradeGroupID
     } = this.props.match.params;
     const { app_id } = this.props.location.query;
@@ -139,6 +139,7 @@ export default class AppList extends PureComponent {
       team_name: teamName,
       region_name: regionName,
       group_id: appID,
+      record_id: recordID,
       upgradeGroupID,
       app_model_key: app_id
     };
@@ -146,7 +147,7 @@ export default class AppList extends PureComponent {
 
   // 查询某应用的更新记录详情
   getUpgradeRecordsInfo = () => {
-    const { team_name, group_id } = this.getParameter();
+    const { team_name, group_id, upgradeGroupID } = this.getParameter();
     const { dispatch } = this.props;
     const { upgradeDetail, upgradeInfo } = this.state;
     dispatch({
@@ -154,6 +155,7 @@ export default class AppList extends PureComponent {
       payload: {
         team_name,
         group_id,
+        upgrade_group_id: upgradeGroupID,
         record_id: upgradeDetail.record.ID
       },
       callback: res => {
@@ -183,8 +185,7 @@ export default class AppList extends PureComponent {
               upgradeInfo: newUpgradeInfo,
               record: info,
               textState: info.status,
-              text: infoUtil.getStatusCNS(info.status),
-              upgradeText: this.showBtnText(info),
+              upgradeText: infoUtil.getStatusText(info.status),
               upgradeLoading: false,
               rollbackLoading: false
             },
@@ -544,65 +545,34 @@ export default class AppList extends PureComponent {
     if (!record) {
       return null;
     }
-    if (record.status == 1) {
+    const { status } = record;
+    const statusMap = {
+      1: '升级任务未开始',
+      2: '的升级任务执行中',
+      3: '的升级任务执行成功',
+      8: '的升级任务执行失败',
+      10: '的升级任务执行部署失败'
+    };
+    const types = {
+      1: 'info',
+      2: 'warning',
+      3: 'success',
+      8: 'error',
+      10: 'error'
+    };
+    if ([1, 2, 3, 8].includes(status)) {
       return (
         <Alert
           showIcon
-          message={`${record.group_name} 当前版本 ${record.old_version} 升级任务未开始`}
-        />
-      );
-    }
-    if (record.status == 2) {
-      return (
-        <Alert
-          showIcon
-          type="warning"
-          message={`${record.group_name} 从版本 ${record.old_version} 升级到版本 ${record.version} 的升级任务执行中`}
-        />
-      );
-    }
-    if (record.status == 3) {
-      return (
-        <Alert
-          showIcon
-          type="success"
-          message={`${record.group_name} 从版本 ${record.old_version} 升级到版本 ${record.version} 的升级任务执行成功`}
-        />
-      );
-    }
-    if (record.status == 8) {
-      return (
-        <Alert
-          showIcon
-          type="error"
-          message={`${record.group_name} 从版本 ${record.old_version} 升级到版本 ${record.version} 的升级任务执行失败`}
+          type={types[status]}
+          message={`${record.group_name} 
+          ${status === 1 ? '当前版本' : '从版本'} 
+          ${record.old_version} 
+          ${statusMap[status]}`}
         />
       );
     }
     return null;
-  };
-
-  showBtnText = info => {
-    switch (info.status) {
-      case 1: {
-        return '未升级';
-      }
-      case 2: {
-        return '升级中';
-      }
-      case 6: {
-        return '升级完成';
-      }
-      case 3: {
-        return '升级完成';
-      }
-      case 8: {
-        return '升级失败';
-      }
-      default: {
-        return '升级';
-      }
-    }
   };
 
   returnListPage = () => {
@@ -710,6 +680,49 @@ export default class AppList extends PureComponent {
     });
   };
 
+  handleRetry = () => {
+    const { form, dispatch } = this.props;
+
+    const { upgradeLoading, upgradeDetail } = this.state;
+    form.validateFields(err => {
+      if (!err && !upgradeLoading) {
+        this.setState(
+          {
+            upgradeLoading: true
+          },
+          () => {
+            const { team_name, group_id } = this.getParameter();
+            dispatch({
+              type: 'global/fetchAppRedeploy',
+              payload: {
+                team_name,
+                group_id,
+                record_id: upgradeDetail.record.ID
+              },
+              callback: res => {
+                if (res && res.status_code === 200) {
+                  this.setState(
+                    {
+                      record_id: res.bean.ID
+                    },
+                    () => {
+                      this.getUpgradeRecordsInfo();
+                    }
+                  );
+                }
+              },
+              handleError: err => {
+                handleAPIError(err);
+                this.getUpgradeRecordsInfo();
+              }
+            });
+          }
+        );
+      }
+    });
+  };
+
+  // 应用详情
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     this.setState({ loadingDetail: true });
@@ -750,6 +763,8 @@ export default class AppList extends PureComponent {
             {
               upgradeDetail: res.bean,
               record: res.bean.record,
+              upgradeText: infoUtil.getStatusText(res.bean.record.status),
+              textState: res.bean.record.status,
               loadingUpgradeDetail: false
             },
             () => {
@@ -757,6 +772,7 @@ export default class AppList extends PureComponent {
               if (record.version) {
                 this.handleChangeVersion(record.version, () => {
                   if (record.status == 2) {
+                    // 获取升级记录信息
                     this.getUpgradeRecordsInfo();
                   }
                 });
@@ -1017,12 +1033,24 @@ export default class AppList extends PureComponent {
                   this.handleSubmit();
                 }
               }}
-              disabled={!selectVersion || UpgradeLoading}
+              disabled={
+                !selectVersion || UpgradeLoading || [6, 10].includes(textState)
+              }
               loading={UpgradeLoading}
-              style={{ marginRight: '5px' }}
             >
               {upgradeText}
             </Button>
+
+            {[6, 10].includes(textState) && (
+              <Button
+                type="primary"
+                onClick={this.handleRetry}
+                loading={upgradeLoading}
+                style={{ marginLeft: '16px' }}
+              >
+                重试
+              </Button>
+            )}
           </Row>
         </div>
       </PageHeaderLayout>

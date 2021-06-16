@@ -3086,7 +3086,7 @@ export async function deleteComponsentTrace(params) {
     }
   );
 }
-
+// 获取App最新升级记录
 export async function getAppLastUpgradeRecord(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/last-upgrade-record`,
@@ -3097,14 +3097,15 @@ export async function getAppLastUpgradeRecord(body = {}) {
     }
   );
 }
-
-export async function getAppModelLastUpgradeRecord(body = {}) {
+// 获取应用上次记录
+export async function getAppModelLastRecord(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/last-upgrade-record`,
     {
       method: 'get',
       noModels: body.noModels,
       params: {
+        record_type: body.record_type || 'upgrade',
         upgrade_group_id: body.upgrade_group_id
       },
       showMessage: false
@@ -3119,6 +3120,7 @@ export async function getApplicationUpgradeDetail(body = {}) {
     {
       method: 'get',
       params: {
+        record_id: body.record_id,
         app_model_key: body.app_model_key
       },
       noModels: body.noModels,
@@ -3134,8 +3136,30 @@ export async function postUpgradeRecord(body = {}) {
     {
       method: 'post',
       data: {
-        upgrade_group_id: body.upgrade_group_id,
+        upgrade_group_id: body.upgrade_group_id
       },
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+/* 获取回滚记录列表 */
+export async function getRollsBackRecordList(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/rollback-records`,
+    {
+      method: 'get',
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+/* 获取回滚记录详情 */
+export async function getRollsBackRecordDetails(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}`,
+    {
+      method: 'get',
       noModels: body.noModels,
       showMessage: false
     }
@@ -3148,6 +3172,18 @@ export async function rollbackUpgrade(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/upgrade-records/${body.record_id}/rollback`,
     {
       method: 'post',
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+
+/* 应用升级记录回滚列表 */
+export async function rollbackUpgradeList(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/upgrade-records/${body.record_id}/rollback-records`,
+    {
+      method: 'get',
       noModels: body.noModels,
       showMessage: false
     }

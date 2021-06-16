@@ -30,6 +30,7 @@ import {
   getAllRegion,
   getAllRegionFee,
   getApplication,
+  getAppRedeploy,
   getCloudPlugin,
   getCompanyInfo,
   getConfigurationDetails,
@@ -484,6 +485,14 @@ export default {
     },
     *CloudAppUpdatedTasks({ payload, callback, handleError }, { call }) {
       const response = yield call(postUpdatedTasks, payload, handleError);
+      if (response && callback) {
+        setTimeout(() => {
+          callback(response);
+        });
+      }
+    },
+    *fetchAppRedeploy({ payload, callback, handleError }, { call }) {
+      const response = yield call(getAppRedeploy, payload, handleError);
       if (response && callback) {
         setTimeout(() => {
           callback(response);
