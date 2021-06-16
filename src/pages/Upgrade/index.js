@@ -5,21 +5,27 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-nested-ternary */
 import ComponentVersion from '@/components/ComponentVersion';
-import { Avatar, List, Table, Tabs, Tag, Tooltip } from 'antd';
+import { Avatar, List, Modal, Table, Tabs, Tag, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
+  getAppLastUpgradeRecord,
+  getAppModelLastUpgradeRecord,
+  postUpgradeRecord,
+  rollbackUpgrade
+} from '../../services/app';
+import {
   createApp,
   createEnterprise,
   createTeam
 } from '../../utils/breadcrumb';
+import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import styles from './index.less';
-import Info from './UpgradeInfo/info';
 import infoUtil from './UpgradeInfo/info-util';
 
 const { TabPane } = Tabs;
@@ -42,15 +48,14 @@ export default class AppList extends PureComponent {
       isComponent: false,
       showApp: {},
       showMarketAppDetail: false,
-      infoShow: false,
-      infoData: null,
       list: [],
       activeKey: '1',
       page: 1,
       pageSize: 5,
       total: 0,
       dataList: [],
-      appDetail: {}
+      appDetail: {},
+      showLastUpgradeRecord: false
     };
   }
 
@@ -68,7 +73,25 @@ export default class AppList extends PureComponent {
   componentDidMount() {
     this.fetchAppDetail();
     this.getApplication();
+    this.getAppLastUpgradeRecord();
   }
+
+  onUpgrade = item => {
+    const { team_name, group_id } = this.getParameter();
+    getAppModelLastUpgradeRecord({
+      appID: group_id,
+      team_name,
+      upgrade_group_id: item.upgrade_group_id
+    }).then(re => {
+      // last upgrade record partial success.
+      if (re.bean && re.bean.status === 6) {
+        this.setState({ showUpgradeConfirm: true, upgradeItem: item });
+        return;
+      }
+      this.openInfoPage(item);
+    });
+  };
+
   getParameter = () => {
     const { teamName, regionName, appID } = this.props.match.params;
     return {
@@ -76,6 +99,26 @@ export default class AppList extends PureComponent {
       region_name: regionName,
       group_id: appID
     };
+  };
+
+  getAppLastUpgradeRecord = () => {
+    const { team_name, group_id } = this.getParameter();
+    getAppLastUpgradeRecord({
+      team_name,
+      appID: group_id,
+      noModels: true
+    })
+      .then(re => {
+        if (re.bean) {
+          this.setState({
+            lastRecord: re.bean,
+            showLastUpgradeRecord: !re.bean.is_finished
+          });
+        }
+      })
+      .catch(err => {
+        handleAPIError(err);
+      });
   };
 
   // 查询当前组下的云市应用
@@ -140,6 +183,23 @@ export default class AppList extends PureComponent {
       </div>
     );
   };
+
+  createNewRecord = item => {
+    const { team_name, group_id } = this.getParameter();
+    postUpgradeRecord({
+      team_name,
+      appID: group_id,
+      upgrade_group_id: item.upgrade_group_id,
+      noModels: true
+    })
+      .then(re => {
+        this.openInfoPage(re.bean);
+      })
+      .catch(err => {
+        handleAPIError(err);
+      });
+  };
+
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     this.setState({ loadingDetail: true });
@@ -182,6 +242,12 @@ export default class AppList extends PureComponent {
       showMarketAppDetail: true
     });
   };
+  showRollback = item => {
+    this.setState({
+      showRollbackConfirm: true,
+      rollbackRecord: item
+    });
+  };
   hideMarketAppDetail = () => {
     this.setState({
       showApp: {},
@@ -213,7 +279,21 @@ export default class AppList extends PureComponent {
       }
     );
   };
-
+  rollbackUpgrade = () => {
+    const { rollbackRecord } = this.state;
+    const { team_name, group_id } = this.getParameter();
+    rollbackUpgrade({
+      team_name,
+      appID: group_id,
+      record_id: rollbackRecord.ID
+    })
+      .then(re => {
+        // TODO
+      })
+      .catch(err => {
+        handleAPIError(err);
+      });
+  };
   showComponentVersion = info => {
     this.setState({
       isComponent: info
@@ -240,8 +320,6 @@ export default class AppList extends PureComponent {
       list,
       showMarketAppDetail,
       showApp,
-      infoShow,
-      infoData,
       activeKey,
       page,
       total,
@@ -249,7 +327,12 @@ export default class AppList extends PureComponent {
       dataList,
       appDetail,
       isComponent,
-      loadingDetail
+      loadingDetail,
+      lastRecord,
+      showLastUpgradeRecord,
+      showUpgradeConfirm,
+      upgradeItem,
+      showRollbackConfirm
     } = this.state;
 
     const paginationProps = {
@@ -337,23 +420,18 @@ export default class AppList extends PureComponent {
         render: status => <span>{infoUtil.getStatusCN(status)}</span>
       },
       {
-        title: '组件详情',
+        title: '操作',
         dataIndex: 'tenant_id',
         key: '5',
         width: '15%',
-        render: (text, item) => (
+        render: (_, item) => (
           <a
             onClick={e => {
               e.preventDefault();
-              item.status !== 1 &&
-                this.setState({
-                  infoData: item,
-                  infoShow: true
-                });
+              this.showRollback(item);
             }}
-            style={{ color: item.status === 1 ? '#000' : '#1890ff' }}
           >
-            {item.status === 1 ? '-' : '详情'}
+            回滚
           </a>
         )
       }
@@ -385,7 +463,6 @@ export default class AppList extends PureComponent {
         </span>
       );
     };
-
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -394,81 +471,80 @@ export default class AppList extends PureComponent {
         content="当前应用内具有从应用市场或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作"
         extraContent={null}
       >
-        {!infoShow && (
-          <Tabs
-            defaultActiveKey={activeKey}
-            onChange={this.callback}
-            className={styles.tabss}
-          >
-            <TabPane tab="应用模型列表" key="1">
-              <div className={styles.cardList}>
-                <List
-                  rowKey="id"
-                  size="large"
-                  loading={upgradeLoading}
-                  dataSource={[...list]}
-                  renderItem={item => {
-                    return (
-                      <List.Item
-                        actions={[
-                          <a
-                            onClick={e => {
-                              e.preventDefault();
-                              if (item.can_upgrade) {
-                                this.openInfoPage(item);
-                              }
-                            }}
-                          >
-                            {get_method_show(item)}
-                          </a>,
+        <Tabs
+          defaultActiveKey={activeKey}
+          onChange={this.callback}
+          className={styles.tabss}
+        >
+          <TabPane tab="应用模型列表" key="1">
+            <div className={styles.cardList}>
+              <List
+                rowKey="id"
+                size="large"
+                loading={upgradeLoading}
+                dataSource={[...list]}
+                renderItem={item => {
+                  return (
+                    <List.Item
+                      actions={[
+                        <a
+                          onClick={e => {
+                            e.preventDefault();
+                            if (item.can_upgrade) {
+                              this.onUpgrade(item);
+                            }
+                          }}
+                        >
+                          {get_method_show(item)}
+                        </a>,
+                        <a
+                          onClick={() => {
+                            this.showComponentVersion(item);
+                          }}
+                        >
+                          查看组件
+                        </a>
+                      ]}
+                    >
+                      <List.Item.Meta
+                        avatar={
+                          <Avatar
+                            src={
+                              item.pic ||
+                              require('../../../public/images/app_icon.svg')
+                            }
+                            shape="square"
+                            size="large"
+                          />
+                        }
+                        title={
                           <a
                             onClick={() => {
-                              this.showComponentVersion(item);
+                              this.showMarketAppDetail(item);
                             }}
                           >
-                            查看组件
+                            {item.group_name}
                           </a>
-                        ]}
-                      >
-                        <List.Item.Meta
-                          avatar={
-                            <Avatar
-                              src={
-                                item.pic ||
-                                require('../../../public/images/app_icon.svg')
-                              }
-                              shape="square"
-                              size="large"
-                            />
-                          }
-                          title={
-                            <a
-                              onClick={() => {
-                                this.showMarketAppDetail(item);
-                              }}
-                            >
-                              {item.group_name}
-                            </a>
-                          }
-                          description={item.describe}
-                        />
-                        <ListContent data={item} />
-                      </List.Item>
-                    );
-                  }}
-                />
-              </div>
-            </TabPane>
-            <TabPane tab="升级记录" key="2">
-              <Table
-                loading={recordLoading}
-                columns={columns}
-                dataSource={dataList}
-                pagination={paginationProps}
+                        }
+                        description={item.describe}
+                      />
+                      <ListContent data={item} />
+                    </List.Item>
+                  );
+                }}
               />
-            </TabPane>
-          </Tabs>
-        )}
+            </div>
+          </TabPane>
+          <TabPane tab="升级记录" key="2">
+            <Table
+              loading={recordLoading}
+              columns={columns}
+              dataSource={dataList}
+              pagination={paginationProps}
+            />
+          </TabPane>
+        </Tabs>
+
         {isComponent && (
           <ComponentVersion
             onCancel={this.handleCancelComponent}
@@ -484,19 +560,61 @@ export default class AppList extends PureComponent {
             app={showApp}
           />
         )}
-        {infoShow && (
-          <Info
-            data={infoData}
-            activeKey={activeKey}
-            group_id={this.getGroupId()}
-            setInfoShow={() => {
-              this.setState({ infoShow: false }, () => {
-                activeKey === '2'
-                  ? this.getUpgradeRecordsList()
-                  : this.getApplication();
-              });
+        {showLastUpgradeRecord && lastRecord && (
+          <Modal
+            visible
+            title="升级提示"
+            onCancel={() => {
+              this.setState({ showLastUpgradeRecord: false });
             }}
-          />
+            okText="继续"
+            onOk={() => {
+              this.openInfoPage(lastRecord);
+            }}
+          >
+            <span>
+              应用模型 {lastRecord.group_name}
+              存在未完成的升级任务，是否继续完成上次任务？
+            </span>
+          </Modal>
+        )}
+        {showUpgradeConfirm && upgradeItem && (
+          <Modal
+            visible
+            title="升级提示"
+            onCancel={() => {
+              this.setState({ showUpgradeConfirm: false });
+              this.createNewRecord(upgradeItem);
+            }}
+            cancelText="新升级"
+            okText="继续"
+            onOk={() => {
+              this.setState({ showUpgradeConfirm: false });
+              this.openInfoPage(upgradeItem);
+            }}
+          >
+            <span>
+              应用模型 {upgradeItem.group_name}{' '}
+              上次升级任务部分组件更新成功，是否继续重试？
+            </span>
+          </Modal>
+        )}
+        {showRollbackConfirm && (
+          <Modal
+            visible
+            title="回滚确认"
+            onCancel={() => {
+              this.setState({ showRollbackConfirm: false });
+            }}
+            onOk={() => {
+              this.rollbackUpgrade();
+            }}
+          >
+            <span style={{ color: 'red' }}>确认要回滚当前升级吗？</span>
+            <span style={{ display: 'block', marginTop: '16px' }}>
+              回滚过程新增的组件不会进行删除，因此若该升级存在新增组件，回滚成功后版本依然是新版本。需要手动删除新增组件后版本即可正常回滚。
+            </span>
+          </Modal>
         )}
       </PageHeaderLayout>
     );

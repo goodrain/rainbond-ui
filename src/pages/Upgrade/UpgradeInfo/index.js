@@ -20,6 +20,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import { getApplicationUpgradeDetail } from '../../../services/app';
 import {
   createApp,
   createEnterprise,
@@ -547,7 +548,7 @@ export default class AppList extends PureComponent {
       return (
         <Alert
           showIcon
-          message={`当前版本 ${record.old_version} ,升级任务未开始`}
+          message={`${record.group_name} 当前版本 ${record.old_version} 升级任务未开始`}
         />
       );
     }
@@ -556,7 +557,7 @@ export default class AppList extends PureComponent {
         <Alert
           showIcon
           type="warning"
-          message={`从版本 ${record.old_version} 升级到版本 ${record.version} 的升级任务执行中`}
+          message={`${record.group_name} 从版本 ${record.old_version} 升级到版本 ${record.version} 的升级任务执行中`}
         />
       );
     }
@@ -565,7 +566,7 @@ export default class AppList extends PureComponent {
         <Alert
           showIcon
           type="success"
-          message={`从版本 ${record.old_version} 升级到版本 ${record.version} 的升级任务执行成功`}
+          message={`${record.group_name} 从版本 ${record.old_version} 升级到版本 ${record.version} 的升级任务执行成功`}
         />
       );
     }
@@ -574,7 +575,7 @@ export default class AppList extends PureComponent {
         <Alert
           showIcon
           type="error"
-          message={`从版本 ${record.old_version} 升级到版本 ${record.version} 的升级任务执行失败`}
+          message={`${record.group_name} 从版本 ${record.old_version} 升级到版本 ${record.version} 的升级任务执行失败`}
         />
       );
     }
@@ -736,12 +737,10 @@ export default class AppList extends PureComponent {
   };
   // get upgrade info, it will return upgrade event, app_info and upgrade_versions.
   fetchUpgradeDetail = () => {
-    const { dispatch } = this.props;
     this.setState({ loadingUpgradeDetail: true });
-    dispatch({
-      type: 'global/getApplicationUpgradeDetail',
-      payload: this.getParameter(),
-      callback: res => {
+
+    getApplicationUpgradeDetail(this.getParameter())
+      .then(res => {
         if (res && res.status_code === 200) {
           let upgrade_versions = [];
           if (res.bean && res.bean.versions) {
@@ -771,8 +770,9 @@ export default class AppList extends PureComponent {
             }
           );
         }
-      }
-    });
+        return null;
+      })
+      .catch(err => handleAPIError(err));
   };
 
   render() {

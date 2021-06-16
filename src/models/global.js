@@ -30,7 +30,6 @@ import {
   getAllRegion,
   getAllRegionFee,
   getApplication,
-  getApplicationUpgradeDetail,
   getCloudPlugin,
   getCompanyInfo,
   getConfigurationDetails,
@@ -63,7 +62,6 @@ import {
   isPubCloud,
   joinTeam,
   postUpdatedTasks,
-  postUpdateOrder,
   putMsgAction,
   queryCodeWarehouseInfo,
   queryCodeWarehouseType,
@@ -462,22 +460,6 @@ export default {
     },
     *application({ payload, callback }, { call }) {
       const response = yield call(getApplication, payload);
-      if (response && callback) {
-        setTimeout(() => {
-          callback(response);
-        });
-      }
-    },
-    *getApplicationUpgradeDetail({ payload, callback }, { call }) {
-      const response = yield call(getApplicationUpgradeDetail, payload);
-      if (response && callback) {
-        setTimeout(() => {
-          callback(response);
-        });
-      }
-    },
-    *CloudAppUpdateOrder({ payload, callback }, { call }) {
-      const response = yield call(postUpdateOrder, payload);
       if (response && callback) {
         setTimeout(() => {
           callback(response);

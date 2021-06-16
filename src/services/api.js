@@ -373,19 +373,6 @@ export async function getApplication(body = {}) {
   );
 }
 
-/* 获取某个升级应用的详情，进入升级页面时调用 */
-export async function getApplicationUpgradeDetail(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps/${body.upgradeGroupID}`,
-    {
-      method: 'get',
-      params: {
-        app_model_key: body.app_model_key
-      }
-    }
-  );
-}
-
 /* 获取企业详情 */
 export async function getCompanyInfo(body = {}) {
   return request(`${apiconfig.baseUrl}/console/enterprise/account`, {
@@ -434,22 +421,6 @@ export async function getTeamOverview(body = {}, handleError) {
       },
       method: 'get',
       handleError
-    }
-  );
-}
-
-/* 生成升级订单 */
-
-export async function postUpdateOrder(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records`,
-    {
-      method: 'post',
-      data: {
-        group_key: body.group_key,
-        market_name: body.marketName,
-        is_from_cloud: body.isFromCloud
-      }
     }
   );
 }

@@ -3086,3 +3086,70 @@ export async function deleteComponsentTrace(params) {
     }
   );
 }
+
+export async function getAppLastUpgradeRecord(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/last-upgrade-record`,
+    {
+      method: 'get',
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+
+export async function getAppModelLastUpgradeRecord(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/last-upgrade-record`,
+    {
+      method: 'get',
+      noModels: body.noModels,
+      params: {
+        upgrade_group_id: body.upgrade_group_id
+      },
+      showMessage: false
+    }
+  );
+}
+
+/* 获取某个升级应用的详情，进入升级页面时调用 */
+export async function getApplicationUpgradeDetail(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps/${body.upgradeGroupID}`,
+    {
+      method: 'get',
+      params: {
+        app_model_key: body.app_model_key
+      },
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+
+/* 生成新的升级任务 */
+export async function postUpgradeRecord(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/upgrade-records`,
+    {
+      method: 'post',
+      data: {
+        upgrade_group_id: body.upgrade_group_id,
+      },
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+
+/* 应用升级记录回滚 */
+export async function rollbackUpgrade(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/upgrade-records/${body.record_id}/rollback`,
+    {
+      method: 'post',
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
