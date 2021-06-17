@@ -447,7 +447,8 @@ export function vertical(
     {
       method: 'post',
       data: {
-        new_memory: body.new_memory
+        new_memory: body.new_memory,
+        new_gpu: body.new_gpu
       }
     }
   );

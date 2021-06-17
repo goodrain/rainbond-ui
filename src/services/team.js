@@ -638,3 +638,13 @@ export async function stopComponentInTenant(body, handleError) {
     }
   );
 }
+
+export async function fetchFeatures(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/features`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
