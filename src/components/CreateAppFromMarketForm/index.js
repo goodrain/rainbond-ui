@@ -70,7 +70,7 @@ export default class Index extends PureComponent {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { groups, onCancel, showCreate } = this.props;
+    const { groups, onCancel, showCreate, addAppLoading } = this.props;
     const data = this.props.data || {};
 
     const versionsInfo =
@@ -99,6 +99,7 @@ export default class Index extends PureComponent {
             type="primary"
             style={{ marginRight: '5px' }}
             disabled={this.props.disabled}
+            loading={addAppLoading}
           >
             安装
           </Button>,
