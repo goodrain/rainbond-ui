@@ -208,7 +208,10 @@ class TeamLayout extends PureComponent {
     const { currentUser, dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
-
+    dispatch({
+      type: 'teamControl/fetchFeatures',
+      payload: { team_name: teamName, region_name: regionName }
+    });
     dispatch({ type: 'teamControl/fetchCurrentTeam', payload: team });
     dispatch({
       type: 'teamControl/fetchCurrentTeamPermissions',

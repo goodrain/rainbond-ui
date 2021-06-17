@@ -17,7 +17,8 @@ export default class EditHealthCheck extends PureComponent {
     this.state = {
       isRestart: this.handleUnhealthyTreatment(data && data.mode),
       list: HeavyList,
-      prolist: HeavyList
+      prolist: HeavyList,
+      showHTTP: data.scheme === 'http'
     };
   }
   onChanges = e => {
@@ -54,12 +55,12 @@ export default class EditHealthCheck extends PureComponent {
   };
   checkPath = (_, value, callback) => {
     const visitType = this.props.form.getFieldValue('scheme');
-    if (visitType == 'tcp') {
+    if (visitType === 'tcp') {
       callback();
       return;
     }
 
-    if (visitType != 'tcp' && value) {
+    if (visitType !== 'tcp' && value) {
       callback();
       return;
     }
@@ -81,13 +82,13 @@ export default class EditHealthCheck extends PureComponent {
   };
 
   handleList = value => {
-    if (value == null && value == '') {
+    if (value == null && value === '') {
       return;
     }
     const arr = this.state.list ? this.state.list : [];
 
     value && arr.unshift(`${value}`);
-    if ((arr && arr.length > 0 && arr[0] == 'null') || arr[0] == '') {
+    if ((arr && arr.length > 0 && arr[0] === 'null') || arr[0] === '') {
       return;
     }
     const res = [arr[0]];
@@ -132,7 +133,7 @@ export default class EditHealthCheck extends PureComponent {
       }
     };
     const { getFieldDecorator, getFieldValue } = form;
-    const { list, prolist, isRestart } = this.state;
+    const { list, prolist, isRestart, showHTTP } = this.state;
     const scheme = getFieldValue('scheme') || 'tcp';
     const secondBox = (
       <span
@@ -197,6 +198,9 @@ export default class EditHealthCheck extends PureComponent {
               initialValue: data.scheme || 'tcp'
             })(
               <RadioGroup
+                onChange={e => {
+                  this.setState({ showHTTP: e.target.value === 'http' });
+                }}
                 options={[
                   {
                     label: 'tcp',
@@ -226,7 +230,7 @@ export default class EditHealthCheck extends PureComponent {
             {...formItemLayout}
             label="http请求头"
             style={{
-              display: scheme === 'tcp' ? 'none' : ''
+              display: !showHTTP ? 'none' : ''
             }}
           >
             {getFieldDecorator('http_header', {
@@ -237,7 +241,7 @@ export default class EditHealthCheck extends PureComponent {
             {...formItemLayout}
             label="路径"
             style={{
-              display: scheme === 'tcp' ? 'none' : ''
+              display: !showHTTP ? 'none' : ''
             }}
           >
             {getFieldDecorator('path', {

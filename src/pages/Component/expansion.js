@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 import {
   Alert,
   Button,
@@ -25,6 +26,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import NoPermTip from '../../components/NoPermTip';
 import { horizontal, vertical } from '../../services/app';
 import globalUtil from '../../utils/global';
+import licenseUtil from '../../utils/license';
 import sourceUtil from '../../utils/source';
 import AddScaling from './component/AddScaling';
 import styles from './Index.less';
@@ -32,12 +34,13 @@ import styles from './Index.less';
 const { Option } = Select;
 
 @connect(
-  ({ user, appControl }) => ({
+  ({ user, appControl, teamControl }) => ({
     currUser: user.currentUser,
     baseInfo: appControl.baseInfo,
     extendInfo: appControl.extendInfo,
     instances: appControl.pods,
-    scaling: appControl.scalingRules
+    scaling: appControl.scalingRules,
+    features: teamControl.features
   }),
   null,
   null,
@@ -48,8 +51,6 @@ export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      node: 0,
-      memory: 0,
       new_pods:
         this.props.instances && this.props.instances.new_pods
           ? this.props.instances.new_pods
@@ -73,14 +74,13 @@ export default class Index extends PureComponent {
       addindicators: false,
       toDeleteMnt: false,
       deleteType: '',
-      errorDesc: '',
-      errorType: '',
       editInfo: false,
       automaLoading: true,
       errorMinNum: '',
       errorMaxNum: '',
       errorCpuValue: '',
-      errorMemoryValue: ''
+      errorMemoryValue: '',
+      enableGPU: licenseUtil.haveFeature(this.props.features, 'GPU')
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -126,10 +126,12 @@ export default class Index extends PureComponent {
   }
   handleVertical = () => {
     const memory = this.props.form.getFieldValue('memory');
+    const gpu = Number(this.props.form.getFieldValue('gpu'));
     vertical({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      new_memory: memory
+      new_memory: memory,
+      new_gpu: gpu
     }).then(data => {
       if (data && !data.status) {
         notification.success({ message: '操作成功，执行中' });
@@ -748,7 +750,8 @@ export default class Index extends PureComponent {
       errorMinNum,
       errorMaxNum,
       errorCpuValue,
-      errorMemoryValue
+      errorMemoryValue,
+      enableGPU
     } = this.state;
     if (!extendInfo) {
       return null;
@@ -797,7 +800,6 @@ export default class Index extends PureComponent {
                   }
                 );
               }}
-              href="javascript:;"
             >
               刷新
             </a>
@@ -863,96 +865,147 @@ export default class Index extends PureComponent {
           />
         )}
         <Card className={styles.clerBorder} border={false} title="手动伸缩">
+          {!enableGPU && (
+            <Alert
+              style={{ marginBottom: '16px' }}
+              type="warning"
+              closable
+              message="当前产品授权不支持 GPU 调度，需要 GPU 共享调度能力请获取企业版授权。"
+            />
+          )}
           <Row gutter={16}>
-            <Col lg={12} md={12} sm={24}>
-              <Form
-                layout="inline"
-                hideRequiredMark
-                className={styles.fromItem}
-              >
-                <Form.Item
-                  labelCol={{ span: 3 }}
-                  wrapperCol={{ span: 19 }}
-                  label="内存"
-                  style={{ width: '100%' }}
-                >
-                  {getFieldDecorator('memory', {
-                    initialValue: `${extendInfo.current_memory}`
-                  })(
-                    <Select
-                      getPopupContainer={triggerNode => triggerNode.parentNode}
-                      className={styles.memorySelect}
-                    >
-                      {(extendInfo.memory_list || []).map(item => (
-                        <Option key={item} value={item}>
-                          {sourceUtil.getMemoryAndUnit(item)}
-                        </Option>
-                      ))}
-                    </Select>
-                  )}{' '}
+            <Col lg={16} md={16} sm={24}>
+              <Row>
+                <Col span={20}>
+                  <Form
+                    layout="inline"
+                    hideRequiredMark
+                    className={styles.fromItem}
+                  >
+                    <Row>
+                      <Col span={12}>
+                        <Form.Item
+                          labelCol={{ span: 6 }}
+                          wrapperCol={{ span: 18 }}
+                          label="内存"
+                          style={{ width: '100%' }}
+                        >
+                          {getFieldDecorator('memory', {
+                            initialValue: `${extendInfo.current_memory}`
+                          })(
+                            <Select
+                              getPopupContainer={triggerNode =>
+                                triggerNode.parentNode
+                              }
+                              className={styles.memorySelect}
+                            >
+                              {(extendInfo.memory_list || []).map(item => (
+                                <Option key={item} value={item}>
+                                  {sourceUtil.getMemoryAndUnit(item)}
+                                </Option>
+                              ))}
+                            </Select>
+                          )}{' '}
+                        </Form.Item>
+                        <div className={styles.remindDesc}>
+                          CPU 限制值目前基于比例算法基于设置内存值计算。
+                        </div>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
+                          labelCol={{ span: 6 }}
+                          wrapperCol={{ span: 18 }}
+                          style={{ width: '100%' }}
+                          label="GPU显存"
+                        >
+                          {getFieldDecorator('gpu', {
+                            initialValue: `${extendInfo.current_gpu}`
+                          })(
+                            <Input
+                              disabled={!enableGPU}
+                              type="number"
+                              addonAfter="MiB"
+                            />
+                          )}
+                        </Form.Item>
+                        <div className={styles.remindDesc}>
+                          GPU
+                          设置为0则不分配GPU资源，请求显存超过集群中单颗显卡的最大可用容量时无法进行调度。
+                        </div>
+                      </Col>
+                    </Row>
+                  </Form>
+                </Col>
+                <Col span={4}>
                   <Button
                     onClick={this.handleVertical}
                     size="default"
                     type="primary"
                     style={{
-                      marginLeft: '14px'
+                      marginLeft: '14px',
+                      marginTop: '4px'
                     }}
                   >
                     设置
                   </Button>
-                  <div
-                    style={{
-                      marginLeft: '5px'
-                    }}
-                    className={styles.remindDesc}
-                  >
-                    单实例最大内存，最大CPU将根据内存自动计算
-                  </div>
-                </Form.Item>
-              </Form>
+                </Col>
+              </Row>
             </Col>
-            <Col lg={12} md={12} sm={24}>
-              <Form
-                layout="inline"
-                hideRequiredMark
-                className={styles.fromItem}
-              >
-                <Form.Item
-                  label="实例数量"
-                  labelCol={{ span: 4 }}
-                  wrapperCol={{ span: 20 }}
-                  style={{ width: '100%' }}
-                >
-                  {getFieldDecorator('node', {
-                    initialValue: extendInfo.current_node
-                  })(
-                    <Select
-                      getPopupContainer={triggerNode => triggerNode.parentNode}
-                      className={styles.nodeSelect}
+            <Col lg={8} md={8} sm={24}>
+              <Row>
+                <Col span={20}>
+                  <Form
+                    layout="inline"
+                    hideRequiredMark
+                    className={styles.fromItem}
+                  >
+                    <Form.Item
+                      label="实例数量"
+                      labelCol={{ span: 6 }}
+                      wrapperCol={{ span: 18 }}
+                      style={{ width: '100%' }}
                     >
-                      {(extendInfo.node_list || []).map(item => (
-                        <Option key={item} value={item}>
-                          {item}
-                        </Option>
-                      ))}
-                    </Select>
-                  )}{' '}
+                      {getFieldDecorator('node', {
+                        initialValue: extendInfo.current_node
+                      })(
+                        <Select
+                          getPopupContainer={triggerNode =>
+                            triggerNode.parentNode
+                          }
+                          className={styles.nodeSelect}
+                        >
+                          {(extendInfo.node_list || []).map(item => (
+                            <Option key={item} value={item}>
+                              {item}
+                            </Option>
+                          ))}
+                        </Select>
+                      )}
+                    </Form.Item>
+                  </Form>
+                </Col>
+                <Col span={4}>
                   <Button
                     disabled={notAllowScaling}
                     onClick={this.handleHorizontal}
                     size="default"
                     type="primary"
                     style={{
-                      marginLeft: '14px'
+                      marginLeft: '14px',
+                      marginTop: '4px'
                     }}
                   >
                     设置
                   </Button>
+                </Col>
+              </Row>
+              <Row>
+                <Col span={24}>
                   <div className={styles.remindDesc}>
                     该值定义组件实例数量的初始值，实际值可能被自动伸缩调整
                   </div>
-                </Form.Item>
-              </Form>
+                </Col>
+              </Row>
             </Col>
           </Row>
         </Card>
