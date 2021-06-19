@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable react/no-redundant-should-component-update */
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import dateUtil from '../../utils/date-util';
@@ -14,7 +16,6 @@ export default class Index extends PureComponent {
     this.eventId = this.props.eventId;
   }
   componentDidMount() {
-    const { resover } = this.props;
     this.createTmpElement();
     if (this.socketUrl) {
       const isThrough = dateUtil.isWebSocketOpen(this.socketUrl);
