@@ -435,7 +435,7 @@ export async function getTeamOverview(body = {}, handleError) {
 }
 
 /* 创建升级任务 */
-export async function postUpdatedTasks(body = {}) {
+export async function postUpdatedTasks(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.upgrade_record_id}/upgrade`,
     {
@@ -446,7 +446,8 @@ export async function postUpdatedTasks(body = {}) {
         version: body.version,
         services: body.services,
         upgrade_group_id: body.upgrade_group_id
-      }
+      },
+      handleError
     }
   );
 }

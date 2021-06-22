@@ -112,9 +112,10 @@ export default class rollsBackRecordDetails extends PureComponent {
     const { recordLoading, list, textState, upgradeLoading } = this.state;
 
     const gridStyle = {
-      width: '50%',
+      width: list && list.length === 1 ? '100%' : '50%',
       textAlign: 'center'
     };
+    const isRetry = [7, 10].includes(textState);
     return (
       <Modal
         visible
@@ -132,21 +133,26 @@ export default class rollsBackRecordDetails extends PureComponent {
         <Card
           title="组件列表"
           loading={recordLoading}
-          onClick={[7, 10].includes(textState) && this.handleRetry}
           extra={
-            <Button type="primary" loading={upgradeLoading}>
-              {[7, 10].includes(textState)
-                ? '重试'
-                : infoUtil.getStatusCNS(textState)}
+            <Button
+              type="primary"
+              loading={upgradeLoading}
+              onClick={isRetry ? this.handleRetry : onCancel}
+            >
+              {isRetry ? '重试' : infoUtil.getStatusCNS(textState)}
             </Button>
           }
         >
           {list &&
+            list.length > 0 &&
             list.map(item => {
-              const { ID, status, service_cname } = item;
+              const { ID, status, service_cname: name } = item;
               return (
                 <Card.Grid key={ID} style={gridStyle}>
-                  {service_cname} 状态：{infoUtil.getStatusCNS(status)}
+                  {name} 状态：
+                  <span style={{ color: infoUtil.getStatusColor(status) }}>
+                    {infoUtil.getStatusCNS(status)}
+                  </span>
                 </Card.Grid>
               );
             })}

@@ -54,7 +54,7 @@ export default class AppList extends PureComponent {
       list: [],
       activeKey: '1',
       page: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 0,
       dataList: [],
       appDetail: {},
@@ -142,7 +142,8 @@ export default class AppList extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            dataList: res.list || []
+            dataList: res.list || [],
+            total: res.bean && res.bean.total
           });
         }
         this.handleCancelLoading();
@@ -536,21 +537,6 @@ export default class AppList extends PureComponent {
       currentRegionName,
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
-
-    const get_method_show = item => {
-      // if (item.can_upgrade) {
-      return '升级';
-      // }
-      // return (
-      //   <span
-      //     style={{
-      //       color: 'rgba(0, 0, 0, 0.45)'
-      //     }}
-      //   >
-      //     无更新版本
-      //   </span>
-      // );
-    };
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -579,13 +565,9 @@ export default class AppList extends PureComponent {
                           onClick={e => {
                             e.preventDefault();
                             this.fetchAppLastRollbackRecord(item);
-                            // this.onUpgrade(item);
-                            // if (item.can_upgrade) {
-                            //   this.onUpgrade(item);
-                            // }
                           }}
                         >
-                          {get_method_show(item)}
+                          升级
                         </a>,
                         <a
                           onClick={() => {

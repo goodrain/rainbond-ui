@@ -1,11 +1,13 @@
+/* eslint-disable prefer-destructuring */
 import { notification } from 'antd';
 
-// Uniform handling of API errors.
 export default function handleAPIError(err) {
   let data = null;
   let messages = null;
-  if (err.response) {
-    data = err.response && err.response.data;
+  if (err.response && err.response.data) {
+    data = err.response.data;
+  } else if (err.data) {
+    data = err.data;
   }
   if (data) {
     switch (data.code) {
