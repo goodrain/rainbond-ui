@@ -70,9 +70,14 @@ export default class Index extends PureComponent {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { groups, onCancel, showCreate } = this.props;
+    const {
+      groups,
+      onCancel,
+      showCreate,
+      addAppLoading,
+      disabled
+    } = this.props;
     const data = this.props.data || {};
-
     const versionsInfo =
       showCreate &&
       showCreate.versions_info &&
@@ -98,7 +103,7 @@ export default class Index extends PureComponent {
             onClick={this.handleSubmit}
             type="primary"
             style={{ marginRight: '5px' }}
-            disabled={this.props.disabled}
+            loading={addAppLoading || disabled}
           >
             安装
           </Button>,

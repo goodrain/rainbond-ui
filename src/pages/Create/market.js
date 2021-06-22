@@ -86,7 +86,8 @@ export default class Main extends PureComponent {
       moreState: moreState || null,
       is_deploy: true,
       marketTab: [],
-      currentKey: ''
+      currentKey: '',
+      addAppLoading: false
     };
     this.mount = false;
   }
@@ -105,7 +106,7 @@ export default class Main extends PureComponent {
   }
 
   onCancelCreate = () => {
-    this.setState({ showCreate: null });
+    this.setState({ showCreate: null, addAppLoading: false });
   };
   getCloudRecommendApps = v => {
     const { currentKey } = this.state;
@@ -366,6 +367,9 @@ export default class Main extends PureComponent {
     });
   };
   handleCreate = (vals, is_deploy) => {
+    this.setState({
+      addAppLoading: true
+    });
     const { dispatch } = this.props;
     const { showCreate: app, currentKey } = this.state;
     const teamName = globalUtil.getCurrTeamName();
@@ -388,6 +392,8 @@ export default class Main extends PureComponent {
             team_name: teamName
           },
           callback: () => {
+            // 关闭弹框
+            this.onCancelCreate();
             dispatch(
               routerRedux.push(
                 `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
@@ -402,8 +408,12 @@ export default class Main extends PureComponent {
   };
 
   handleCloudCreate = (vals, is_deploy) => {
+    this.setState({
+      addAppLoading: true
+    });
     const { scopeMax, currentKey } = this.state;
     const app = this.state.showCreate;
+
     this.props.dispatch({
       type: 'createApp/installApp',
       payload: {
@@ -418,7 +428,7 @@ export default class Main extends PureComponent {
         marketName: currentKey
       },
       callback: () => {
-        // 刷新左侧按钮
+        // 刷新左侧按钮;
         this.props.dispatch({
           type: 'global/fetchGroups',
           payload: {
@@ -758,7 +768,8 @@ export default class Main extends PureComponent {
       showApp,
       is_deploy: isDeploy,
       app_name: appName,
-      cloudApp_name: cloudAppName
+      cloudApp_name: cloudAppName,
+      addAppLoading
     } = this.state;
     const setHideOnSinglePage = !!moreState;
     const paginationProps = {
@@ -953,6 +964,7 @@ export default class Main extends PureComponent {
             }
             onCancel={this.onCancelCreate}
             showCreate={showCreate}
+            addAppLoading={addAppLoading}
           />
         )}
 

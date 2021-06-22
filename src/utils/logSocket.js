@@ -17,13 +17,10 @@ function LogSocket(op) {
   this.onComplete = option.onComplete || noop;
   this.onFail = option.onFail || noop;
   this.interval = option.interval || 10;
-  if (
-    this.url &&
-    /(ws|wss):\/\/[\w\-_]+([\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/.test(
-      this.url
-    )
-  ) {
+  try {
     this.init();
+  } catch (e) {
+    console.log(e);
   }
 }
 
