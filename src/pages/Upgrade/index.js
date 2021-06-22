@@ -501,9 +501,9 @@ export default class AppList extends PureComponent {
         dataIndex: 'tenant_id',
         key: '5',
         width: '15%',
-        render: (_, item) => (
-          <div>
-            {item.can_rollback && (
+        render: (_, item) =>
+          item.can_rollback && (
+            <div>
               <a
                 onClick={e => {
                   e.preventDefault();
@@ -512,17 +512,17 @@ export default class AppList extends PureComponent {
               >
                 回滚
               </a>
-            )}
-            <a
-              onClick={e => {
-                e.preventDefault();
-                this.showRollbackList(item);
-              }}
-            >
-              回滚记录
-            </a>
-          </div>
-        )
+
+              <a
+                onClick={e => {
+                  e.preventDefault();
+                  this.showRollbackList(item);
+                }}
+              >
+                回滚记录
+              </a>
+            </div>
+          )
       }
     ];
     let breadcrumbList = [];
@@ -715,7 +715,6 @@ export default class AppList extends PureComponent {
         {showRollbackConfirm && (
           <Modal
             visible
-            width={1000}
             confirmLoading={backUpgradeLoading}
             title="回滚确认"
             onCancel={() => {
@@ -725,9 +724,9 @@ export default class AppList extends PureComponent {
               this.rollbackUpgrade();
             }}
           >
-            <span style={{ color: 'red' }}>确认要回滚当前升级吗？</span>
+            <span style={{ color: 'red' }}>确认要回滚吗？</span>
             <span style={{ display: 'block', marginTop: '16px' }}>
-              回滚过程新增的组件不会进行删除，因此若该升级存在新增组件，回滚成功后版本依然是新版本。需要手动删除新增组件后版本即可正常回滚。
+              回滚过程不会删除新增组件。
             </span>
           </Modal>
         )}
