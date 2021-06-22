@@ -25,3 +25,4 @@ jsconfig.json
 .vscode/settings.json
 /build/dist
 .scannerwork
+local_release.sh

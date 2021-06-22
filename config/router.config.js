@@ -203,6 +203,13 @@ export default [
             title: '云市应用升级'
           },
           {
+            path:
+              '/team/:teamName/region/:regionName/apps/:appID/upgrade/:upgradeGroupID/record/:recordID',
+            component: './Upgrade/UpgradeInfo',
+            name: 'UpgradeInfo',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/team/:teamName/region/:regionName/apps/:appID/configgroups',
             component: './Configuration',
             name: 'Configuration',
