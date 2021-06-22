@@ -18,7 +18,7 @@ import {
   getAppResourcesStatistics,
   getBackup,
   getBackupStatus,
-  getComponentVersion,
+  getUpgradeComponentList,
   getGroupApps,
   getGroupDetail,
   getPluginShareEventInShareApp,
@@ -131,7 +131,7 @@ export default {
       }
     },
     *fetchComponentVersion({ payload, callback, handleError }, { call }) {
-      const response = yield call(getComponentVersion, payload, handleError);
+      const response = yield call(getUpgradeComponentList, payload, handleError);
       if (response && callback) {
         callback(response);
       }

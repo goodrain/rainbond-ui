@@ -1,6 +1,6 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-param-reassign */
-import cloud from '@/utils/cloud';
 import {
   Button,
   Form,
@@ -13,6 +13,7 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
+import handleAPIError from '../../utils/error';
 import styles from '../CreateTeam/index.less';
 
 const { Option } = Select;
@@ -51,7 +52,8 @@ export default class componentVersion extends PureComponent {
       type: 'application/fetchComponentVersion',
       payload: {
         team_name,
-        template_name: data.group_key,
+        app_model_key: data.group_key,
+        upgrade_group_id: data.upgrade_group_id,
         group_id
       },
       callback: res => {
@@ -102,7 +104,7 @@ export default class componentVersion extends PureComponent {
   };
 
   handleError = errs => {
-    cloud.handleCloudAPIError(errs);
+    handleAPIError(errs);
     this.handleCancel();
   };
 
