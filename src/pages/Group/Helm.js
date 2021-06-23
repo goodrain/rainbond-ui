@@ -1100,7 +1100,7 @@ export default class Index extends PureComponent {
                         })(
                           <Select
                             placeholder="请选择版本"
-                            style={{ width: '96%' }}
+                            style={{ width: '95%' }}
                             disabled={upDataVersion || errPrompt}
                             onChange={val => {
                               this.handleAppVersion(val, true, true);
@@ -1135,7 +1135,7 @@ export default class Index extends PureComponent {
                     )}
                   </Col>
                 </Row>
-                <Col span={24}>
+                <Col span={24} style={{ position: 'relative', zIndex: 1 }}>
                   <FormItem
                     {...formItemLayout}
                     label="Values文件"

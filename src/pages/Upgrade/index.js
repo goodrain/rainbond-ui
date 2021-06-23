@@ -289,6 +289,7 @@ export default class AppList extends PureComponent {
   handleLoading = () => {
     this.setState({
       loadingList: false,
+      recordLoading: false,
       upgradeLoading: false
     });
   };
@@ -401,7 +402,7 @@ export default class AppList extends PureComponent {
         if (appDetail.app_type === 'helm') {
           this.getUpgradeRecordsHelmList();
         } else {
-          key == '2' ? this.getUpgradeRecordsList() : this.getApplication();
+          key === '2' ? this.getUpgradeRecordsList() : this.getApplication();
         }
       }
     );
@@ -679,7 +680,6 @@ export default class AppList extends PureComponent {
     );
     const isHelm =
       appDetail && appDetail.app_type && appDetail.app_type === 'helm';
-
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -754,7 +754,7 @@ export default class AppList extends PureComponent {
                   </div>
                 </TabPane>
               )}
-              <TabPane tab={isHelm ? '升级记录' : '云市应用升级记录'} key="2">
+              <TabPane tab="升级记录" key="2">
                 <Table
                   style={{ padding: '24px' }}
                   loading={recordLoading || upgradeLoading}
