@@ -100,8 +100,7 @@ class AccountLayout extends PureComponent {
       rainbondInfo,
       collapsed,
       enterprise,
-      location,
-      location: { pathname }
+      location
     } = this.props;
 
     const { enterpriseList, isMobiles, ready } = this.state;
@@ -219,7 +218,7 @@ class AccountLayout extends PureComponent {
   }
 }
 
-export default connect(({ user, global, order }) => ({
+export default connect(({ user, global }) => ({
   currentUser: user.currentUser,
   rainbondInfo: global.rainbondInfo,
   collapsed: global.collapsed,

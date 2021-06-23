@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { Form, Input, Select, Button, Icon, message } from 'antd';
+import { Button, Form, Input } from 'antd';
 import { connect } from 'dva';
+import React, { Component } from 'react';
 
 const FormItem = Form.Item;
 
@@ -9,7 +9,7 @@ class Search extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      search_conditions: '',
+      search_conditions: ''
     };
   }
   handleSearch = e => {
@@ -23,11 +23,15 @@ class Search extends Component {
     this.handleSearch();
   };
   render() {
+    const { type, appID } = this.props;
+    const appPlaceholder =
+      type === 'HTTP' ? '搜索域名/应用/组件' : '搜索端口/应用/组件';
+    const teamPlaceholder = type === 'HTTP' ? '搜索域名/组件' : '搜索端口/组件';
     return (
       <Form layout="inline" style={{ display: 'inline-block' }}>
         <FormItem>
           <Input
-            placeholder="搜索域名/应用/组件"
+            placeholder={(!appID && appPlaceholder) || teamPlaceholder}
             onChange={this.handelChange}
             onPressEnter={this.handleEnter}
             style={{ width: 250 }}

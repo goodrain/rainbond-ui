@@ -9,6 +9,7 @@ import {
   Popconfirm,
   Row,
   Table,
+  Tooltip,
   Typography
 } from 'antd';
 import copy from 'copy-to-clipboard';
@@ -207,8 +208,16 @@ export default class KubernetesClusterShow extends PureComponent {
     const columns = [
       {
         title: '名称(ID)',
+        width: 120,
         dataIndex: 'name',
-        render: (text, row) => `${text}(${row.cluster_id})`
+        render: (text, row) => {
+          const val = `${text}(${row.cluster_id})`;
+          return (
+            <Tooltip title={val}>
+              <div className={istyles.nameID}>{val}</div>
+            </Tooltip>
+          );
+        }
       },
       {
         title: '类型',
@@ -354,7 +363,6 @@ export default class KubernetesClusterShow extends PureComponent {
         disabled:
           record.state !== 'running' ||
           linkedClusters.get(record.cluster_id) ||
-          record.rainbond_init ||
           (record.parameters && record.parameters.DisableRainbondInit), // Column configuration not to be checked
         name: record.name,
         title: record.parameters && record.parameters.Message

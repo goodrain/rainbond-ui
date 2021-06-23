@@ -133,7 +133,10 @@ export default class ACKBuyConfig extends PureComponent {
                   initialValue: 'cn-hangzhou',
                   rules: [{ required: true, message: '集群创建区域必选' }]
                 })(
-                  <Select placeholder="区域">
+                  <Select
+                    placeholder="区域"
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                  >
                     {cloud.getAllAliyunRegions().map(item => {
                       return (
                         <Option key={item.RegionId} value={item.RegionId}>
@@ -155,7 +158,7 @@ export default class ACKBuyConfig extends PureComponent {
                       pattern: /^[a-z0-9A-Z-]+$/,
                       message: '只支持字母、数字和中划线组合'
                     },
-                    { max: 24, message: '集群名称不能超过24字符' }
+                    { max: 24, message: '最大长度24位' }
                   ]
                 })(<Input placeholder="集群名称,请确保其保持唯一" />)}
               </Form.Item>
@@ -168,6 +171,7 @@ export default class ACKBuyConfig extends PureComponent {
                     rules: [{ required: true, message: '资源配置必须指定' }]
                   })(
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       onChange={this.changeWorkerType}
                       placeholder="集群名称"
                     >

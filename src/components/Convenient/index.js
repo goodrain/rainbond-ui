@@ -1,27 +1,25 @@
 import {
-    Alert,
-    Button,
-    Col,
-    Divider,
-    Form,
-    Icon,
-    Modal,
-    notification,
-    Row,
-    Select,
-    Spin
+  Alert,
+  Button,
+  Col,
+  Divider,
+  Form,
+  Icon,
+  Modal,
+  notification,
+  Row,
+  Select,
+  Spin
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 
 @Form.create()
-@connect(({ user }) => ({
-  user: user.currentUser
-}))
+@connect()
 export default class Convenient extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -132,16 +130,14 @@ export default class Convenient extends PureComponent {
   getUserTeams = () => {
     const {
       dispatch,
-      user,
       match: {
         params: { eid }
       }
     } = this.props;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: 'global/fetchMyTeams',
       payload: {
         enterprise_id: eid,
-        user_id: user.user_id,
         page: 1,
         page_size: 999
       },
@@ -337,6 +333,7 @@ export default class Convenient extends PureComponent {
                 <FormItem {...formItemLayout} label="团队视图" hasFeedback>
                   {getFieldDecorator('team_name')(
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       style={{ width: '100%' }}
                       onChange={this.handleTeamChange}
                       placeholder="请选择团队"
@@ -355,7 +352,11 @@ export default class Convenient extends PureComponent {
               <Col span={12}>
                 <FormItem {...formItemLayout} label="" hasFeedback>
                   {getFieldDecorator('region')(
-                    <Select placeholder="请选择集群" style={{ width: '100%' }}>
+                    <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
+                      placeholder="请选择集群"
+                      style={{ width: '100%' }}
+                    >
                       {region_list &&
                         region_list.map(item => (
                           <Option
@@ -375,6 +376,7 @@ export default class Convenient extends PureComponent {
                 <FormItem {...formItemLayout} label="应用视图" hasFeedback>
                   {getFieldDecorator('apps')(
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       style={{ width: '100%' }}
                       placeholder="请选择应用"
                       dropdownRender={menu => (
@@ -417,6 +419,7 @@ export default class Convenient extends PureComponent {
                 <FormItem {...formItemLayout} label="组件视图" hasFeedback>
                   {getFieldDecorator('component')(
                     <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
                       placeholder="请选择组件"
                       dropdownRender={menu => (
                         <div>

@@ -1,19 +1,32 @@
-import { Button, Card, Modal, notification, Row, Table, Tooltip } from 'antd';
+/* eslint-disable no-nested-ternary */
+import ConfirmModal from '@/components/ConfirmModal';
+import {
+  Button,
+  Card,
+  Icon,
+  Modal,
+  notification,
+  Row,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import DrawerForm from '../DrawerForm';
 import InfoConnectModal from '../InfoConnectModal';
 import ParameterForm from '../ParameterForm';
 import Search from '../Search';
+import styles from './index.less';
 
 @connect(({ user, global, loading, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   groups: global.groups,
   currentTeam: teamControl.currentTeam,
   currentEnterprise: enterprise.currentEnterprise,
-  addHttpLoading: loading.effects['appControl/fetchCertificates'],
+  addHttpLoading: loading.effects['appControl/fetchCertificates']
 }))
 export default class HttpTable extends PureComponent {
   constructor(props) {
@@ -23,6 +36,8 @@ export default class HttpTable extends PureComponent {
       informationConnect: false,
       outerEnvs: [],
       dataList: [],
+      toDeleteHttp: false,
+      deleteLoading: false,
       loading: true,
       page_num: 1,
       page_size: 10,
@@ -36,7 +51,7 @@ export default class HttpTable extends PureComponent {
       appStatusVisable: false,
       record: '',
       parameterVisible: false,
-      parameterList: null,
+      parameterInfo: null
     };
   }
   componentWillMount() {
@@ -66,17 +81,17 @@ export default class HttpTable extends PureComponent {
         team_name: currentTeam.team_name,
         page_num,
         page_size,
-        search_conditions: http_search,
+        search_conditions: http_search
       },
       callback: data => {
         if (data) {
           this.setState({
             dataList: data.list,
             loading: false,
-            total: data.bean.total,
+            total: data.bean.total
           });
         }
-      },
+      }
     });
   };
   queryTeamHTTPRule = () => {
@@ -88,23 +103,23 @@ export default class HttpTable extends PureComponent {
         team_name: currentTeam.team_name,
         page_num,
         page_size,
-        search_conditions: http_search,
+        search_conditions: http_search
       },
       callback: data => {
         if (data) {
           this.setState({
             dataList: data.list,
             loading: false,
-            total: data.bean.total,
+            total: data.bean.total
           });
         }
-      },
+      }
     });
   };
   reload() {
     this.setState(
       {
-        page_num: 1,
+        page_num: 1
       },
       () => {
         this.load();
@@ -118,47 +133,20 @@ export default class HttpTable extends PureComponent {
       type: 'gateWay/getParameter',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        rule_id: values.http_rule_id,
+        rule_id: values.http_rule_id
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          const arr = [];
           if (res.bean && res.bean.value) {
-            if (
-              res.bean.value.set_headers &&
-              res.bean.value.set_headers.length > 1
-            ) {
-              let haveUpgrade = false;
-              let haveConnection = false;
-              res.bean.value.set_headers.map(item => {
-                if (item.key != 'Connection' && item.key != 'Upgrade') {
-                  arr.push(item);
-                }
-                if (item.key == 'Connection') {
-                  haveUpgrade = true;
-                }
-                if (item.key == 'Upgrade') {
-                  haveConnection = true;
-                }
-              });
-              res.bean.value.set_headers = arr;
-              res.bean.value.WebSocket = haveUpgrade && haveConnection;
-              this.setState({
-                parameterVisible: values,
-                parameterList: res.bean && res.bean.value,
-              });
-            } else {
-              res.bean.value.WebSocket = false;
-              this.setState({
-                parameterVisible: values,
-                parameterList: res.bean && res.bean.value,
-              });
-            }
+            this.setState({
+              parameterVisible: values,
+              parameterInfo: res.bean && res.bean.value
+            });
           } else {
-            this.setState({ parameterVisible: values, parameterList: null });
+            this.setState({ parameterVisible: values, parameterInfo: null });
           }
         }
-      },
+      }
     });
   };
 
@@ -180,13 +168,13 @@ export default class HttpTable extends PureComponent {
         payload: {
           values,
           group_name,
-          team_name: globalUtil.getCurrTeamName(),
+          team_name: globalUtil.getCurrTeamName()
         },
         callback: data => {
           if (data && data.bean.is_outer_service == false) {
             this.setState({
               values,
-              group_name,
+              group_name
             });
             this.whether_open(values, group_name);
             return;
@@ -195,11 +183,11 @@ export default class HttpTable extends PureComponent {
             notification.success({ message: data.msg_show || '添加成功' });
             this.setState({
               drawerVisible: false,
-              editInfo: '',
+              editInfo: ''
             });
             this.reload();
           }
-        },
+        }
       });
     } else {
       dispatch({
@@ -208,30 +196,30 @@ export default class HttpTable extends PureComponent {
           values,
           group_name: group_name || editInfo.group_name,
           team_name: globalUtil.getCurrTeamName(),
-          http_rule_id: editInfo.http_rule_id,
+          http_rule_id: editInfo.http_rule_id
         },
         callback: data => {
           if (data) {
             notification.success({ message: data.msg_show || '编辑成功' });
             this.setState({
               drawerVisible: false,
-              editInfo: '',
+              editInfo: ''
             });
             this.load();
           }
-        },
+        }
       });
     }
   };
   whether_open = () => {
     this.setState({
-      whetherOpenForm: true,
+      whetherOpenForm: true
     });
   };
   resolveOk = () => {
     this.setState(
       {
-        whetherOpenForm: false,
+        whetherOpenForm: false
       },
       () => {
         const { values, group_name } = this.state;
@@ -244,10 +232,6 @@ export default class HttpTable extends PureComponent {
   };
   handleOkParameter = values => {
     const { dispatch } = this.props;
-    const arr = [
-      { key: 'Connection', value: '"Upgrade"' },
-      { key: 'Upgrade', value: '$http_upgrade' },
-    ];
     const value = {
       proxy_buffer_numbers: Number(values.proxy_buffer_numbers),
       proxy_buffer_size: Number(values.proxy_buffer_size),
@@ -256,29 +240,21 @@ export default class HttpTable extends PureComponent {
       proxy_read_timeout: Number(values.proxy_read_timeout),
       proxy_send_timeout: Number(values.proxy_send_timeout),
       proxy_buffering: values.proxy_buffering ? 'on' : 'off',
-      set_headers:
-        values.set_headers && values.WebSocket
-          ? values.set_headers.length == 1 && values.set_headers[0].key == ''
-            ? arr
-            : values.set_headers.concat(arr)
-          : values.set_headers
-          ? values.set_headers
-          : values.WebSocket
-          ? arr
-          : [],
+      WebSocket: values.WebSocket,
+      set_headers: values.set_headers
     };
     dispatch({
       type: 'gateWay/editParameter',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         rule_id: this.state.parameterVisible.http_rule_id,
-        value,
+        value
       },
       callback: data => {
         if (data) {
           this.handleCloseParameter();
         }
-      },
+      }
     });
   };
 
@@ -289,16 +265,16 @@ export default class HttpTable extends PureComponent {
       type: 'gateWay/fetchEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: record.service_alias,
+        app_alias: record.service_alias
       },
       callback: data => {
         if (data) {
           this.setState({
             outerEnvs: data.list || [],
-            informationConnect: true,
+            informationConnect: true
           });
         }
-      },
+      }
     });
   };
 
@@ -314,21 +290,32 @@ export default class HttpTable extends PureComponent {
       payload: {
         http_rule_id: values.http_rule_id,
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: values.service_alias,
+        service_alias: values.service_alias
       },
       callback: data => {
         if (data) {
           this.setState({
             editInfo: data.bean,
-            drawerVisible: true,
+            drawerVisible: true
           });
         }
-      },
+      }
     });
   };
-
-  handleDelete = values => {
+  handleToDeleteHttp = val => {
+    this.setState({
+      toDeleteHttp: val
+    });
+  };
+  handleDeleteLoading = deleteLoading => {
+    this.setState({
+      deleteLoading
+    });
+  };
+  handleDelete = () => {
+    this.handleDeleteLoading(true);
     const { dispatch } = this.props;
+    const { toDeleteHttp: values } = this.state;
     dispatch({
       type: 'gateWay/deleteHttp',
       payload: {
@@ -336,14 +323,16 @@ export default class HttpTable extends PureComponent {
         domain_name: values.domain_name,
         service_id: values.service_id,
         http_rule_id: values.http_rule_id,
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        if (data) {
-          notification.success({ message: data ? data.msg_show : '删除成功' });
-          this.reload();
-        }
-      },
+        notification.success({
+          message: (data && data.msg_show) || '删除成功'
+        });
+        this.handleToDeleteHttp(false);
+        this.handleDeleteLoading(false);
+        this.reload();
+      }
     });
   };
   saveForm = form => {
@@ -356,33 +345,59 @@ export default class HttpTable extends PureComponent {
     }
   };
   handleSearch = search_conditions => {
-    this.setState({ 
-      http_search: search_conditions, 
-      loading: true,
-      page_num: 1,
-    }, () => {
-      this.load();
-    });
+    this.setState(
+      {
+        http_search: search_conditions,
+        loading: true,
+        page_num: 1
+      },
+      () => {
+        this.load();
+      }
+    );
   };
+
   seeHighRoute = values => {
+    const domainHeander = values.domain_heander;
+    const domainCookie = values.domain_cookie;
+    const domainPath = values.domain_path;
+    const setArr = [
+      {
+        name: '请求头',
+        val: domainHeander
+      },
+      {
+        name: 'Cookie',
+        val: domainCookie
+      },
+      {
+        name: 'Path',
+        val: domainPath
+      },
+      {
+        name: '权重',
+        val: values.the_weight
+      }
+    ];
     const title = (
-      <ul style={{ padding: '0', margin: '0' }}>
-        <li style={{ whiteSpace: 'nowrap' }}>
-          <span>请求头：</span>
-          <span>{values.domain_heander}</span>
-        </li>
-        <li style={{ whiteSpace: 'nowrap' }}>
-          <span>Cookie：</span>
-          <span>{values.domain_cookie}</span>
-        </li>
-        <li style={{ whiteSpace: 'nowrap' }}>
-          <span>Path：</span>
-          <span>{values.domain_path}</span>
-        </li>
-        <li style={{ whiteSpace: 'nowrap' }}>
-          <span>权重：</span>
-          <span>{values.the_weight}</span>
-        </li>
+      <ul className={styles.routings}>
+        {setArr.map(item => {
+          const { name, val } = item;
+          return (
+            <li>
+              <div>{name}：</div>
+              <div>{val || '-'}</div>
+              {val && (
+                <CopyToClipboard
+                  text={val}
+                  onCopy={() => notification.success({ message: '复制成功' })}
+                >
+                  <Icon type="copy" />
+                </CopyToClipboard>
+              )}
+            </li>
+          );
+        })}
       </ul>
     );
     return (
@@ -405,11 +420,11 @@ export default class HttpTable extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: record.service_alias,
-        port: record.container_port,
+        port: record.container_port
       },
       callback: () => {
         this.load();
-      },
+      }
     });
   };
   justifyAppStatus = record => {
@@ -419,7 +434,7 @@ export default class HttpTable extends PureComponent {
       type: 'gateWay/query_app_status',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: record.service_alias,
+        app_alias: record.service_alias
       },
       callback: data => {
         if (data && data.bean.status == 'closed') {
@@ -428,7 +443,7 @@ export default class HttpTable extends PureComponent {
         } else if (data && data.bean.status == 'undeploy') {
           notification.warning({
             message: '当前组件属于未部署状态',
-            duration: 5,
+            duration: 5
           });
           that.props.dispatch(
             routerRedux.push(
@@ -440,7 +455,7 @@ export default class HttpTable extends PureComponent {
         } else {
           winHandler.location.href = record.domain_name;
         }
-      },
+      }
     });
   };
 
@@ -451,7 +466,7 @@ export default class HttpTable extends PureComponent {
       type: 'gateWay/startApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: record.service_alias,
+        app_alias: record.service_alias
       },
       callback: data => {
         if (data) {
@@ -460,26 +475,26 @@ export default class HttpTable extends PureComponent {
             this.load();
           });
         }
-      },
+      }
     });
   };
   handleAppStatusClosed = () => {
     this.setState({
-      appStatusVisable: false,
+      appStatusVisable: false
     });
   };
 
   handleCloseParameter = () => {
     this.setState({
       parameterVisible: false,
-      parameterList: null,
+      parameterInfo: null
     });
   };
   render() {
     const {
       addHttpLoading,
       appID,
-      operationPermissions: { isCreate, isEdit, isDelete },
+      operationPermissions: { isCreate, isEdit, isDelete }
     } = this.props;
     const {
       dataList,
@@ -489,11 +504,13 @@ export default class HttpTable extends PureComponent {
       informationConnect,
       outerEnvs,
       total,
+      toDeleteHttp,
+      deleteLoading,
       page_num,
       page_size,
       whetherOpenForm,
       appStatusVisable,
-      parameterList,
+      parameterInfo
     } = this.state;
 
     const columns = [
@@ -517,7 +534,7 @@ export default class HttpTable extends PureComponent {
               {text}
             </a>
           );
-        },
+        }
       },
       {
         title: '类型',
@@ -527,7 +544,7 @@ export default class HttpTable extends PureComponent {
         width: 100,
         render: text => {
           return text == '0' ? <span>默认</span> : <span>自定义</span>;
-        },
+        }
       },
       {
         title: '高级路由',
@@ -537,7 +554,7 @@ export default class HttpTable extends PureComponent {
         width: 100,
         render: (text, record) => {
           return text == '0' ? <span>无</span> : this.seeHighRoute(record);
-        },
+        }
       },
       {
         title: '证书',
@@ -547,7 +564,7 @@ export default class HttpTable extends PureComponent {
         width: 40,
         render: text => {
           return text ? <span>{text}</span> : <span>无</span>;
-        },
+        }
       },
       {
         title: '应用',
@@ -569,7 +586,7 @@ export default class HttpTable extends PureComponent {
               {text}
             </Link>
           );
-        },
+        }
       },
       {
         title: '组件(端口)',
@@ -591,7 +608,7 @@ export default class HttpTable extends PureComponent {
               {text}({record.container_port})
             </Link>
           );
-        },
+        }
       },
       {
         title: '操作',
@@ -624,7 +641,7 @@ export default class HttpTable extends PureComponent {
               {isDelete && (
                 <a
                   onClick={() => {
-                    this.handleDelete(record);
+                    this.handleToDeleteHttp(record);
                   }}
                 >
                   删除
@@ -641,7 +658,7 @@ export default class HttpTable extends PureComponent {
                 {isDelete && (
                   <a
                     onClick={() => {
-                      this.handleDelete(record);
+                      this.handleToDeleteHttp(record);
                     }}
                   >
                     删除
@@ -659,8 +676,8 @@ export default class HttpTable extends PureComponent {
               </div>
             </Tooltip>
           );
-        },
-      },
+        }
+      }
     ];
     return (
       <div>
@@ -669,10 +686,10 @@ export default class HttpTable extends PureComponent {
             display: 'flex',
             alignItems: 'center',
             width: '100%',
-            marginBottom: '20px',
+            marginBottom: '20px'
           }}
         >
-          <Search onSearch={this.handleSearch} />
+          <Search onSearch={this.handleSearch} type="HTTP" appID={appID} />
           {isCreate && (
             <Button
               type="primary"
@@ -697,7 +714,7 @@ export default class HttpTable extends PureComponent {
               page_num,
               pageSize: page_size,
               onChange: this.onPageChange,
-              current: page_num,
+              current: page_num
             }}
           />
         </Card>
@@ -717,9 +734,22 @@ export default class HttpTable extends PureComponent {
             onOk={this.handleOkParameter}
             onClose={this.handleCloseParameter}
             visible={parameterVisible}
-            editInfo={parameterList}
+            editInfo={parameterInfo}
           />
         )}
+        {toDeleteHttp && (
+          <ConfirmModal
+            onOk={this.handleDelete}
+            loading={deleteLoading}
+            title="删除策略"
+            subDesc="此操作不可恢复"
+            desc="确定要删除此策略吗?"
+            onCancel={() => {
+              this.handleToDeleteHttp(false);
+            }}
+          />
+        )}
+
         {informationConnect && (
           <InfoConnectModal
             visible={informationConnect}
@@ -736,7 +766,7 @@ export default class HttpTable extends PureComponent {
             footer={[
               <Button type="primary" size="small" onClick={this.resolveOk}>
                 确定
-              </Button>,
+              </Button>
             ]}
             zIndex={9999}
           >

@@ -8,6 +8,7 @@ import {
   editRole,
   editTeamName,
   exitTeam,
+  fetchFeatures,
   getJoinTeamUsers,
   getMembers,
   getRegionKey,
@@ -16,6 +17,7 @@ import {
   getTeamRoles,
   getTeamRolesPermissions,
   getTeamUserPermissions,
+  getUserTeamsRoles,
   joinTeam,
   moveTeam,
   openRegion,
@@ -40,7 +42,8 @@ export default {
     currentTeam: {},
     currentRegionName: '',
     // team Permissions info
-    currentTeamPermissionsInfo: null
+    currentTeamPermissionsInfo: null,
+    features: []
   },
   effects: {
     *fetchTeamUserPermissions(
@@ -114,6 +117,12 @@ export default {
     },
     *fetchTeamMember({ payload, callback }, { call }) {
       const response = yield call(getTeamMembers, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchUserTeamsRoles({ payload, callback }, { call }) {
+      const response = yield call(getUserTeamsRoles, payload);
       if (response && callback) {
         callback(response);
       }
@@ -230,6 +239,15 @@ export default {
       if (response && callback) {
         callback(response);
       }
+    },
+    *fetchFeatures({ payload }, { call, put }) {
+      const response = yield call(fetchFeatures, payload);
+      if (response) {
+        yield put({
+          type: 'saveRegionFeatures',
+          payload: response.list
+        });
+      }
     }
   },
   reducers: {
@@ -262,6 +280,12 @@ export default {
       return {
         ...state,
         regions: action.payload
+      };
+    },
+    saveRegionFeatures(state, action) {
+      return {
+        ...state,
+        features: action.payload
       };
     }
   }

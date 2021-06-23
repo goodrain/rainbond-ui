@@ -97,7 +97,8 @@ export default class Main extends PureComponent {
         total: 0,
         page: 1,
         query: ''
-      }
+      },
+      addAppLoading: false
     };
     this.mount = false;
   }
@@ -116,7 +117,7 @@ export default class Main extends PureComponent {
   }
 
   onCancelCreate = () => {
-    this.setState({ showCreate: null, helmCreate: null });
+    this.setState({ showCreate: null, helmCreate: null, addAppLoading: false });
   };
   getCloudRecommendApps = v => {
     const { currentKey } = this.state;
@@ -171,6 +172,7 @@ export default class Main extends PureComponent {
         scope: v ? '' : this.state.scope,
         page_size: v ? 9 : this.state.pageSize,
         page: v ? 1 : this.state.page,
+        need_install: true,
         is_complete: 1
       },
       callback: data => {
@@ -507,6 +509,9 @@ export default class Main extends PureComponent {
     });
   };
   handleCreate = (vals, is_deploy) => {
+    this.setState({
+      addAppLoading: true
+    });
     const { dispatch } = this.props;
     const { showCreate: app, currentKey } = this.state;
     const teamName = globalUtil.getCurrTeamName();
@@ -529,6 +534,8 @@ export default class Main extends PureComponent {
             team_name: teamName
           },
           callback: () => {
+            // 关闭弹框
+            this.onCancelCreate();
             dispatch(
               routerRedux.push(
                 `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
@@ -580,8 +587,12 @@ export default class Main extends PureComponent {
     });
   };
   handleCloudCreate = (vals, is_deploy) => {
+    this.setState({
+      addAppLoading: true
+    });
     const { scopeMax, currentKey } = this.state;
     const app = this.state.showCreate;
+
     this.props.dispatch({
       type: 'createApp/installApp',
       payload: {
@@ -596,7 +607,7 @@ export default class Main extends PureComponent {
         marketName: currentKey
       },
       callback: () => {
-        // 刷新左侧按钮
+        // 刷新左侧按钮;
         this.props.dispatch({
           type: 'global/fetchGroups',
           payload: {
@@ -773,7 +784,11 @@ export default class Main extends PureComponent {
           <GoodrainRZ style={{ marginLeft: 6, marginTop: 6 }} />
         )}
         <Card
-          className={PluginStyles.cards}
+          className={
+            handleType
+              ? `${PluginStyles.cards} ${PluginStyles.clearAvatar}`
+              : PluginStyles.cards
+          }
           actions={handleType ? fastactions : defaultActions}
         >
           <Card.Meta
@@ -866,7 +881,7 @@ export default class Main extends PureComponent {
         layout="horizontal"
         hideRequiredMark
       >
-        <Form.Item {...formItemLayout} label="安装版本">
+        <Form.Item {...formItemLayout} label="选择版本">
           {getFieldDecorator('group_version', {
             initialValue: versionList[0].version || versionList[0].app_version,
             rules: [
@@ -876,10 +891,16 @@ export default class Main extends PureComponent {
               }
             ]
           })(
-            <Select style={{ width: '220px' }}>
-              {versionList.map((item, index) => {
+            <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
+              style={{ width: '220px' }}
+            >
+              {versionList.map(item => {
                 return (
-                  <Option key={index} value={item.version || item.app_version}>
+                  <Option
+                    key={item.version}
+                    value={item.version || item.app_version}
+                  >
                     {item.version || item.app_version}
                   </Option>
                 );
@@ -934,7 +955,8 @@ export default class Main extends PureComponent {
       helmList,
       helmPag,
       helmLoading,
-      helmCreate
+      helmCreate,
+      addAppLoading
     } = this.state;
     const setHideOnSinglePage = !!moreState;
     const paginationProps = {
@@ -1171,6 +1193,7 @@ export default class Main extends PureComponent {
             }
             onCancel={this.onCancelCreate}
             showCreate={showCreate}
+            addAppLoading={addAppLoading}
           />
         )}
 
@@ -1220,7 +1243,16 @@ export default class Main extends PureComponent {
               </div>
             }
           >
-            <p>{installBounced.describe}</p>
+            {installBounced.describe && (
+              <p
+                style={{
+                  background: 'rgba(22, 184, 248, 0.1)',
+                  padding: '8px'
+                }}
+              >
+                {installBounced.describe}
+              </p>
+            )}
             {this.renderFormComponent()}
           </Modal>
         )}

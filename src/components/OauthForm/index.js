@@ -61,10 +61,10 @@ class CreateOAuthForm extends PureComponent {
     const { edit, oauthList } = this.state;
     const formItemLayout = {
       labelCol: {
-        span: 6
+        span: 8
       },
       wrapperCol: {
-        span: 18
+        span: 16
       }
     };
     const oauthType = getFieldValue('oauth_type') || 'github';
@@ -99,7 +99,11 @@ class CreateOAuthForm extends PureComponent {
               initialValue: oauthInfo ? oauthInfo.oauth_type : 'github',
               rules: [{ required: true, message: '请选择oauth_type类型' }]
             })(
-              <Select disabled={edit} placeholder="请选择要oauth_type类型">
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                disabled={edit}
+                placeholder="请选择要oauth_type类型"
+              >
                 {oauthList &&
                   oauthList.map(item => (
                     <Option key={item} value={item}>
@@ -234,7 +238,7 @@ class CreateOAuthForm extends PureComponent {
             })(
               <Input
                 placeholder="请输入回调地址"
-                suffix={<span>/console/oauth/redirect</span>}
+                addonAfter="/console/oauth/redirect"
               />
             )}
 

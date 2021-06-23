@@ -140,13 +140,18 @@ class CodeBuildConfig extends PureComponent {
   showConfirm = () => {
     // eslint-disable-next-line no-underscore-dangle
     const _th = this;
-    confirm({
-      title: '确认修改吗?',
-      content: '',
-      onOk() {
-        _th.handleSubmit();
-      },
-      onCancel() {}
+    const { form } = this.props;
+    const { validateFields } = form;
+    validateFields(err => {
+      if (err) return;
+      confirm({
+        title: '确认修改吗?',
+        content: '',
+        onOk() {
+          _th.handleSubmit();
+        },
+        onCancel() {}
+      });
     });
   };
 

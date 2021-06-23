@@ -1,12 +1,12 @@
+import { Form, Input, Modal } from 'antd';
 import React, { PureComponent } from 'react';
-import { Form, Modal, Input } from 'antd';
 import styless from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 
 @Form.create()
 export default class CollectionView extends PureComponent {
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
     const { form, onOk } = this.props;
     const { validateFields } = form;
@@ -55,12 +55,12 @@ export default class CollectionView extends PureComponent {
                 { required: true, message: '请输入名称' },
                 {
                   max: 10,
-                  message: '收藏名称最多10个字'
+                  message: '最大长度10位'
                 }
               ]
             })(<Input placeholder="请输入名称" />)}
             <div className={styless.conformDesc}>
-              请输入收藏名称，最多10个字
+              请输入收藏名称，最大长度10位
             </div>
           </FormItem>
         </Form>

@@ -1,11 +1,5 @@
 /* eslint-disable camelcase */
-import {
-  Button,
-  Drawer,
-  Form,
-
-  Select
-} from 'antd';
+import { Button, Drawer, Form, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
@@ -18,7 +12,7 @@ const { Option } = Select;
   currUser: user.currentUser,
   groups: global.groups,
   addTcpLoading: loading.effects['gateWay/addTcp'],
-  editTcpLoading: loading.effects['gateWay/editTcp'],
+  editTcpLoading: loading.effects['gateWay/editTcp']
 }))
 class DrawerForm extends PureComponent {
   constructor(props) {
@@ -27,35 +21,24 @@ class DrawerForm extends PureComponent {
       serviceComponentList: [],
       portList: [],
       domain_port: '',
-      end_point: '',
-      isPerform: true,
+      isPerform: true
     };
   }
-  resolveOk = e => {
-    e.preventDefault();
-    const { onOk } = this.props;
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        values.default_port =
-          values.end_point && values.end_point.available_port;
-        onOk && onOk(values);
-      }
-    });
-  };
+
   componentDidMount() {
     const { appID } = this.props;
     this.props.dispatch({
       type: 'gateWay/querydomain_port',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
         if (data) {
           this.setState({
-            domain_port: data.list,
+            domain_port: data.list
           });
         }
-      },
+      }
     });
     const { editInfo } = this.props;
     if (editInfo) {
@@ -65,6 +48,17 @@ class DrawerForm extends PureComponent {
       this.handleServices({ key: appID });
     }
   }
+  resolveOk = e => {
+    e.preventDefault();
+    const { onOk } = this.props;
+    this.props.form.validateFields((err, values) => {
+      if (!err && onOk) {
+        const info = Object.assign({}, values);
+        info.default_port = values.end_point && values.end_point.available_port;
+        onOk(info);
+      }
+    });
+  };
   /** 获取服务组件 */
   handleServices = groupObj => {
     const { isPerform } = this.state;
@@ -75,7 +69,7 @@ class DrawerForm extends PureComponent {
       type: 'application/fetchApps',
       payload: {
         group_id: groupObj.key,
-        team_name,
+        team_name
       },
       callback: data => {
         if (data) {
@@ -84,18 +78,18 @@ class DrawerForm extends PureComponent {
               if (isPerform && editInfo) {
                 this.handlePorts(editInfo.service_id, true);
                 this.props.form.setFieldsValue({
-                  service_id: editInfo.service_id,
+                  service_id: editInfo.service_id
                 });
               } else {
                 this.handlePorts(data.list[0].service_id, false);
                 this.props.form.setFieldsValue({
-                  service_id: data.list[0].service_id,
+                  service_id: data.list[0].service_id
                 });
               }
             }
           });
         }
-      },
+      }
     });
   };
   /** 获取端口 */
@@ -115,7 +109,7 @@ class DrawerForm extends PureComponent {
           service_obj.length > 0 &&
           service_obj[0].service_alias &&
           service_obj[0].service_alias,
-        team_name,
+        team_name
       },
       callback: data => {
         if (data) {
@@ -123,38 +117,33 @@ class DrawerForm extends PureComponent {
             if (data.list && data.list.length > 0) {
               if (isPerform && editInfo) {
                 this.setState({
-                  isPerform: false,
+                  isPerform: false
                 });
                 this.props.form.setFieldsValue({
-                  container_port: editInfo.container_port,
+                  container_port: editInfo.container_port
                 });
               } else {
                 this.props.form.setFieldsValue({
-                  container_port: data.list[0].container_port,
+                  container_port: data.list[0].container_port
                 });
               }
             }
           });
         }
-      },
+      }
     });
   };
-  handleChange = data => {};
-  checkport = (rules, value, callback) => {
-    const { tcpType, editInfo } = this.props;
-    if (!value.ip || !value.available_port) {
+  checkport = (_, value, callback) => {
+    const availablPort = value.available_port;
+    if (!value.ip || (availablPort !== 0 && !availablPort)) {
       callback('请输入完整的ip和端口');
       return;
     }
-    if (
-      value.available_port &&
-      value.available_port >= 1 &&
-      value.available_port <= 65534
-    ) {
-      callback();
-    } else {
-      callback('请输入正确的端口:1-65534');
+    const internalTcps = [80, 443, 6060, 8443, 10254, 18080, 18081];
+    if (availablPort && internalTcps.includes(availablPort)) {
+      callback('该端口属于内部端口、请重新输入');
     }
+    callback();
   };
   render() {
     const {
@@ -163,18 +152,19 @@ class DrawerForm extends PureComponent {
       addTcpLoading,
       editTcpLoading,
       appID,
+      form
     } = this.props;
-    const { getFieldDecorator } = this.props.form;
-    const { domain_port } = this.state;
+    const { getFieldDecorator } = form;
+    const { domain_port, serviceComponentList, portList } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 },
+        sm: { span: 4 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 },
-      },
+        sm: { span: 18 }
+      }
     };
 
     let rule_round;
@@ -187,10 +177,27 @@ class DrawerForm extends PureComponent {
       current_enpoint = [
         {
           ip: end_pointArr[0],
-          available_port: end_pointArr[1],
-        },
+          available_port: end_pointArr[1]
+        }
       ];
     }
+    const appKey = appID && { key: appID };
+    const appKeys = editInfo &&
+      editInfo.g_id &&
+      editInfo.group_name && {
+        key: editInfo.g_id,
+        label: editInfo.group_name
+      };
+
+    const serviceId = editInfo && editInfo.service_id && editInfo.service_id;
+    const serviceIds =
+      serviceComponentList &&
+      serviceComponentList.length > 0 &&
+      serviceComponentList[0].service_id;
+    const containerPort =
+      editInfo && editInfo.container_port && editInfo.container_port;
+    const containerPorts =
+      portList && portList.length > 0 && portList[0].container_port;
 
     return (
       <div>
@@ -203,17 +210,15 @@ class DrawerForm extends PureComponent {
             onClose={onClose}
             visible={this.props.visible}
             maskClosable={false}
-            closable
-            zIndex={1001}
             style={{
-              overflow: 'auto',
+              overflow: 'auto'
             }}
           >
             <Form>
               <h3
                 style={{
                   borderBottom: '1px solid #BBBBBB',
-                  marginBottom: '10px',
+                  marginBottom: '10px'
                 }}
               >
                 路由规则
@@ -222,41 +227,30 @@ class DrawerForm extends PureComponent {
               <FormItem {...formItemLayout} label="IP">
                 {getFieldDecorator('end_point', {
                   rules: [{ required: true, validator: this.checkport }],
-                  initialValue: editInfo ? current_enpoint[0] : domain_port[0],
+                  initialValue: editInfo ? current_enpoint[0] : domain_port[0]
                 })(
                   <PortInput
                     current_enpoint={current_enpoint}
                     domain_port={domain_port}
-                    onChange={this.handleChange}
                   />
                 )}
               </FormItem>
               <h3
                 style={{
                   borderBottom: '1px solid #BBBBBB',
-                  marginBottom: '10px',
+                  marginBottom: '10px'
                 }}
               >
                 访问目标
               </h3>
 
-              <FormItem
-                {...formItemLayout}
-                label="应用名称"
-                style={{ zIndex: 10011 }}
-              >
+              <FormItem {...formItemLayout} label="应用名称">
                 {getFieldDecorator('group_id', {
                   rules: [{ required: true, message: '请选择应用' }],
-                  initialValue: appID
-                    ? { key: appID }
-                    : editInfo && editInfo.g_id && editInfo.group_name
-                    ? {
-                        key: editInfo.g_id,
-                        label: editInfo.group_name,
-                      }
-                    : undefined,
+                  initialValue: appKey || appKeys || undefined
                 })(
                   <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
                     labelInValue
                     disabled={appID}
                     placeholder="请选择要所属应用"
@@ -272,50 +266,36 @@ class DrawerForm extends PureComponent {
                   </Select>
                 )}
               </FormItem>
-              <FormItem
-                {...formItemLayout}
-                label="组件"
-                style={{ zIndex: 10011 }}
-              >
+              <FormItem {...formItemLayout} label="组件">
                 {getFieldDecorator('service_id', {
                   rules: [{ required: true, message: '请选择' }],
-                  initialValue:
-                    editInfo && editInfo.service_id
-                      ? editInfo.service_id
-                      : this.state.serviceComponentList &&
-                        this.state.serviceComponentList.length > 0
-                      ? this.state.serviceComponentList[0].service_id
-                      : undefined,
+                  initialValue: serviceId || serviceIds || undefined
                 })(
-                  <Select placeholder="请选择组件" onChange={this.handlePorts}>
-                    {(this.state.serviceComponentList || []).map(
-                      (service, index) => {
-                        return (
-                          <Option value={`${service.service_id}`} key={index}>
-                            {service.service_cname}
-                          </Option>
-                        );
-                      }
-                    )}
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder="请选择组件"
+                    onChange={this.handlePorts}
+                  >
+                    {(serviceComponentList || []).map((service, index) => {
+                      return (
+                        <Option value={`${service.service_id}`} key={index}>
+                          {service.service_cname}
+                        </Option>
+                      );
+                    })}
                   </Select>
                 )}
               </FormItem>
-              <FormItem
-                {...formItemLayout}
-                label="端口号"
-                style={{ zIndex: 10011 }}
-              >
+              <FormItem {...formItemLayout} label="端口号">
                 {getFieldDecorator('container_port', {
-                  rules: [{ required: true, message: '请选择端口号' }],
-                  initialValue:
-                    editInfo && editInfo.container_port
-                      ? editInfo.container_port
-                      : this.state.portList && this.state.portList.length > 0
-                      ? this.state.portList[0].container_port
-                      : undefined,
+                  initialValue: containerPort || containerPorts || undefined,
+                  rules: [{ required: true, message: '请选择端口号' }]
                 })(
-                  <Select placeholder="请选择端口号">
-                    {(this.state.portList || []).map((port, index) => {
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder="请选择端口号"
+                  >
+                    {(portList || []).map((port, index) => {
                       return (
                         <Option value={port.container_port} key={index}>
                           {port.container_port}
@@ -325,15 +305,14 @@ class DrawerForm extends PureComponent {
                   </Select>
                 )}
               </FormItem>
-              <FormItem
-                {...formItemLayout}
-                label="负载均衡"
-                style={{ zIndex: 10011 }}
-              >
+              <FormItem {...formItemLayout} label="负载均衡">
                 {getFieldDecorator('rule_extensions', {
-                  initialValue: rule_round || 'round-robin',
+                  initialValue: rule_round || 'round-robin'
                 })(
-                  <Select placeholder="请选择负载均衡类型">
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder="请选择负载均衡类型"
+                  >
                     <Option value="round-robin">轮询</Option>
                   </Select>
                 )}
@@ -350,12 +329,12 @@ class DrawerForm extends PureComponent {
                 left: 0,
                 background: '#fff',
                 borderRadius: '0 0 4px 4px',
-                zIndex: 99999,
+                zIndex: 99999
               }}
             >
               <Button
                 style={{
-                  marginRight: 8,
+                  marginRight: 8
                 }}
                 onClick={onClose}
               >

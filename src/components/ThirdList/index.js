@@ -1,3 +1,7 @@
+/* eslint-disable react/jsx-no-target-blank */
+/* eslint-disable react/no-danger */
+/* eslint-disable react/jsx-indent */
+/* eslint-disable no-nested-ternary */
 /* eslint-disable react/sort-comp */
 /* eslint-disable camelcase */
 import {
@@ -14,6 +18,7 @@ import {
   Row,
   Skeleton,
   Spin,
+  Table,
   Tooltip
 } from 'antd';
 import { connect } from 'dva';
@@ -224,23 +229,38 @@ class Index extends React.Component {
       thirdInfo,
       create_loading,
       total,
-      page
+      page,
+      create_status,
+      error_infos,
+      service_info
     } = this.state;
     const { handleType } = this.props;
     const ServiceComponent = handleType && handleType === 'Service';
+    const serviceInfos = service_info && service_info.length > 0;
+    const columns = [
+      {
+        title: '组件名称',
+        dataIndex: 'name',
+        render: data => <span>{data || thirdInfo.project_name}</span>
+      },
+      {
+        title: '语言',
+        dataIndex: 'language'
+      }
+    ];
     return (
       <div
         style={{
           background: ServiceComponent ? '#fff ' : '#F0F2F5'
         }}
       >
-        {this.state.detection && (
+        {detection && (
           <Modal
             visible={detection}
             onCancel={this.handleDetection}
             title="检测语言"
             footer={
-              !this.state.create_status
+              !create_status
                 ? [
                     <Button key="back" onClick={this.handleDetection}>
                       关闭
@@ -254,7 +274,7 @@ class Index extends React.Component {
                       检测
                     </Button>
                   ]
-                : this.state.create_status == 'Success'
+                : create_status == 'Success'
                 ? [
                     <Button key="back" onClick={this.handleDetection}>
                       关闭
@@ -275,8 +295,7 @@ class Index extends React.Component {
             }
           >
             <div>
-              {this.state.create_status == 'Checking' ||
-              this.state.create_status == 'Complete' ? (
+              {create_status == 'Checking' || create_status == 'Complete' ? (
                 <div>
                   <p style={{ textAlign: 'center' }}>
                     <Spin />
@@ -288,7 +307,7 @@ class Index extends React.Component {
               ) : (
                 ''
               )}
-              {this.state.create_status == 'Failure' ? (
+              {create_status == 'Failure' ? (
                 <div>
                   <p
                     style={{
@@ -305,8 +324,9 @@ class Index extends React.Component {
                       type="close-circle-o"
                     />
                   </p>
-                  {this.state.error_infos &&
-                    this.state.error_infos.map(items => {
+
+                  {error_infos &&
+                    error_infos.map(items => {
                       return (
                         <div>
                           <span
@@ -317,15 +337,14 @@ class Index extends React.Component {
                           />
                         </div>
                       );
-                      // <p style={{ textAlign: 'center', fontSize: '14px' }}>{item.key}:{item.value} </p>
                     })}
                 </div>
               ) : (
                 ''
               )}
-              {this.state.create_status == 'Success' ? (
+              {create_status == 'Success' ? (
                 <div>
-                  <p
+                  <div
                     style={{
                       textAlign: 'center',
                       color: '#28cb75',
@@ -333,21 +352,32 @@ class Index extends React.Component {
                     }}
                   >
                     <Icon type="check-circle-o" />
-                  </p>
-
-                  {this.state.service_info &&
-                    this.state.service_info.map(item => {
-                      return (
-                        <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                          检测语言:{item.language}{' '}
-                        </p>
-                      );
-                    })}
+                  </div>
+                  {serviceInfos && (
+                    <Table
+                      title={() =>
+                        service_info.length > 1 && (
+                          <div
+                            style={{
+                              textAlign: 'center',
+                              fontSize: '20px',
+                              color: '#000'
+                            }}
+                          >
+                            {`${service_info[0].language} 多模块`}
+                          </div>
+                        )
+                      }
+                      dataSource={service_info}
+                      columns={columns}
+                      pagination={false}
+                    />
+                  )}
                 </div>
               ) : (
                 ''
               )}
-              {this.state.create_status == 'Failed' ? (
+              {create_status == 'Failed' ? (
                 <div>
                   <p
                     style={{
@@ -366,7 +396,7 @@ class Index extends React.Component {
                 ''
               )}
 
-              {!this.state.create_status && (
+              {!create_status && (
                 <div>
                   <p style={{ textAlign: 'center', fontSize: '14px' }}>
                     确定要检测语言吗?
@@ -383,7 +413,6 @@ class Index extends React.Component {
             className={styles.lists}
             header={
               <Input.Search
-                ref="searchs"
                 placeholder="请输入搜索内容"
                 enterButton="搜索"
                 size="large"

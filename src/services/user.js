@@ -1,3 +1,7 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable camelcase */
+/* eslint-disable guard-for-in */
+/* eslint-disable func-names */
 /* eslint-disable no-undef */
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
@@ -8,6 +12,19 @@ export async function fetchAccessToken() {
     method: 'get'
   });
 }
+
+export async function upDataUserRoles(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/users/${param.user_id}/teams/${param.team_name}/roles`,
+    {
+      method: 'post',
+      data: {
+        role_ids: param.role_ids
+      }
+    }
+  );
+}
+
 /* New access to token data */
 
 export async function addAccessToken(data, handleError) {
@@ -152,13 +169,14 @@ export async function queryCertificationThird(body = { service_id }) {
 }
 
 /* 绑定第三方 */
-export async function queryThirdBinding(body = { service_id, oauth_user_id }) {
+export async function queryThirdBinding(body = {}, handleError) {
   return request(`${apiconfig.baseUrl}/console/oauth/user/link`, {
     method: 'post',
     data: {
       service_id: body.service_id,
       oauth_user_id: body.oauth_user_id
-    }
+    },
+    handleError
   });
 }
 

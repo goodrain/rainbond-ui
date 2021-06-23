@@ -282,12 +282,12 @@ export default class ApplicationGovernance extends PureComponent {
                             },
                             {
                               max: 63,
-                              message: '内部域名最多63个位'
+                              message: '最大长度63位'
                             },
                             {
-                              pattern: /^[a-z]([a-z0-9-_]*[-a-z0-9]*[a-z0-9])?$/,
+                              pattern: /^[a-z]([-a-z0-9]*[a-z0-9])?$/,
                               message:
-                                '必须由小写的字母、数字和- _组成，并且必须以字母开始、数字和字母结束'
+                                '必须由小写字母、数字和-组成，并且必须以小写字母开始,数字和小写字母结束'
                             }
                           ]
                         }
@@ -323,7 +323,10 @@ export default class ApplicationGovernance extends PureComponent {
                     }
                   ]
                 })(
-                  <Select style={{ width: '357px' }}>
+                  <Select
+                    style={{ width: '357px' }}
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                  >
                     {list.map(item => {
                       return (
                         <Option key={item.key} value={item.key}>

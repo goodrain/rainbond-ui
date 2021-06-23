@@ -521,16 +521,17 @@ export default class Enterprise extends PureComponent {
                 <img src={EnterpriseInfo} alt="" />
                 <span>企业信息</span>
               </div>
-              {!enterpriseEdition && enterpriseVersion !== 'cloud'}{' '}
-              <div
-                className={styles.enterpriseName}
-                onClick={this.handelConsulting}
-              >
-                <a>获取商业解决方案</a>
-              </div>
               {enterpriseInfo && (
                 <div className={styles.enterpriseName}>
                   企业名称：{enterpriseInfo.enterprise_alias}
+                  {!enterpriseEdition && enterpriseVersion !== 'cloud' && (
+                    <a
+                      style={{ marginLeft: 32 }}
+                      onClick={this.handelConsulting}
+                    >
+                      获取商业解决方案
+                    </a>
+                  )}
                 </div>
               )}
               {enterpriseInfo && (

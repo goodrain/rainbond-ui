@@ -130,7 +130,10 @@ class CreateAppMarket extends PureComponent {
                 }
               ]
             })(
-              <Select placeholder="请选择应用市场类型">
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                placeholder="请选择应用市场类型"
+              >
                 {marketType.map(item => {
                   return <Option key={item.key}>{item.name}</Option>;
                 })}

@@ -1,21 +1,10 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Dropdown,
-  notification,
-  Select,
-  Input,
-  Modal
-} from "antd";
-import AddGroup from "../../components/AddOrEditGroup";
-import globalUtil from "../../utils/global";
+/* eslint-disable react/jsx-indent */
+/* eslint-disable no-nested-ternary */
+import { Button, Form, Input, Select } from 'antd';
+import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
+import AddGroup from '../../components/AddOrEditGroup';
+
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -29,10 +18,10 @@ const formItemLayout = {
 };
 
 @connect(
-  ({ user, global, loading }) => ({
+  ({ global, loading }) => ({
     groups: global.groups,
     createAppByDockerrunLoading:
-      loading.effects["createApp/createAppByDockerrun"]
+      loading.effects['createApp/createAppByDockerrun']
   }),
   null,
   null,
@@ -43,9 +32,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      codeType: "Git",
       showUsernameAndPass: false,
-      showKey: false,
       addGroup: false
     };
   }
@@ -55,79 +42,51 @@ export default class Index extends PureComponent {
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
   };
-  handleAddGroup = vals => {
+  handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
-
-    this.props.dispatch({
-      type: "application/addGroup",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          //获取群组
-          this.props.dispatch({
-            type: "global/fetchGroups",
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
-  };
-  hideShowKey = () => {
-    this.setState({ showKey: false });
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
   handleSubmit = e => {
     e.preventDefault();
-    const form = this.props.form;
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
+      if (!err && onSubmit) {
+        onSubmit(fieldsValue);
+      }
     });
   };
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, createAppByDockerrunLoading } = this.props;
+    const {
+      groups,
+      createAppByDockerrunLoading,
+      form,
+      groupId,
+      handleType,
+      ButtonGroupState,
+      showSubmitBtn = true,
+      showCreateGroup = true
+    } = this.props;
+    const { getFieldDecorator } = form;
     const data = this.props.data || {};
-    const showSubmitBtn =
-      this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
-    const showCreateGroup =
-      this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
-
+    const isService = handleType && handleType === 'Service';
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="应用名称">
-            {getFieldDecorator("group_id", {
-              initialValue:
-                this.props.handleType && this.props.handleType === "Service"
-                  ? Number(this.props.groupId)
-                  : data.group_id,
-              rules: [{ required: true, message: "请选择" }]
+            {getFieldDecorator('group_id', {
+              initialValue: isService ? Number(groupId) : data.group_id,
+              rules: [{ required: true, message: '请选择' }]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder="请选择要所属应用"
                 style={{
-                  display: "inline-block",
-                  width:
-                    this.props.handleType && this.props.handleType === "Service"
-                      ? ""
-                      : 292,
+                  display: 'inline-block',
+                  width: isService ? '' : 292,
                   marginRight: 15
                 }}
-                disabled={
-                  this.props.handleType && this.props.handleType === "Service"
-                    ? true
-                    : false
-                }
+                disabled={!!isService}
               >
                 {(groups || []).map(group => {
                   return (
@@ -136,29 +95,34 @@ export default class Index extends PureComponent {
                 })}
               </Select>
             )}
-            {this.props.handleType &&
-            this.props.handleType === "Service" ? null : showCreateGroup ? (
+            {isService ? null : showCreateGroup ? (
               <Button onClick={this.onAddGroup}>新建应用</Button>
             ) : null}
           </Form.Item>
           <Form.Item {...formItemLayout} label="组件名称">
-            {getFieldDecorator("service_cname", {
-              initialValue: data.service_cname || "",
-              rules: [{ required: true, message: "要创建的组件还没有名字" }]
+            {getFieldDecorator('service_cname', {
+              initialValue: data.service_cname || '',
+              rules: [
+                { required: true, message: '要创建的组件还没有名字' },
+                {
+                  max: 24,
+                  message: '最大长度24位'
+                }
+              ]
             })(<Input placeholder="请为创建的组件起个名字吧" />)}
           </Form.Item>
 
           <Form.Item {...formItemLayout} label="命令">
-            {getFieldDecorator("docker_cmd", {
-              initialValue: data.docker_cmd || "",
-              rules: [{ required: true, message: "请输入DockerRun命令" }]
+            {getFieldDecorator('docker_cmd', {
+              initialValue: data.docker_cmd || '',
+              rules: [{ required: true, message: '请输入DockerRun命令' }]
             })(
               <TextArea placeholder="例如： docker run -d -p 8080:8080 -e PWD=1qa2ws --name=tomcat_demo tomcat" />
             )}
           </Form.Item>
 
-          <div style={{ textAlign: "right", marginTop:"-16px" }}>
-            这是一个私有仓库?{" "}
+          <div style={{ textAlign: 'right', marginTop: '-16px' }}>
+            这是一个私有仓库?
             <a
               onClick={() => {
                 this.setState({ showUsernameAndPass: true });
@@ -169,23 +133,23 @@ export default class Index extends PureComponent {
             </a>
           </div>
           <Form.Item
-            style={{ display: this.state.showUsernameAndPass ? "" : "none" }}
+            style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
             {...formItemLayout}
             label="仓库用户名"
           >
-            {getFieldDecorator("user_name", {
-              initialValue: data.user_name || "",
-              rules: [{ required: false, message: "请输入仓库用户名" }]
+            {getFieldDecorator('user_name', {
+              initialValue: data.user_name || '',
+              rules: [{ required: false, message: '请输入仓库用户名' }]
             })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
           </Form.Item>
           <Form.Item
-            style={{ display: this.state.showUsernameAndPass ? "" : "none" }}
+            style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
             {...formItemLayout}
             label="仓库密码"
           >
-            {getFieldDecorator("password", {
-              initialValue: data.password || "",
-              rules: [{ required: false, message: "请输入仓库密码" }]
+            {getFieldDecorator('password', {
+              initialValue: data.password || '',
+              rules: [{ required: false, message: '请输入仓库密码' }]
             })(
               <Input
                 autoComplete="new-password"
@@ -205,9 +169,7 @@ export default class Index extends PureComponent {
               }}
               label=""
             >
-              {this.props.handleType &&
-              this.props.handleType === "Service" &&
-              this.props.ButtonGroupState
+              {isService && ButtonGroupState
                 ? this.props.handleServiceBotton(
                     <Button
                       onClick={this.handleSubmit}
@@ -218,7 +180,7 @@ export default class Index extends PureComponent {
                     </Button>,
                     false
                   )
-                : !this.props.handleType && (
+                : !handleType && (
                     <Button
                       onClick={this.handleSubmit}
                       type="primary"

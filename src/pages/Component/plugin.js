@@ -1,28 +1,29 @@
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
+/* eslint-disable no-sparse-arrays */
 import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Input,
   Button,
+  Card,
+  Col,
+  Form,
   Icon,
+  Input,
   List,
-  Radio,
-  notification,
   Modal,
+  notification,
+  Radio,
+  Row,
   Select,
   Spin,
-  Tooltip,
+  Tooltip
 } from 'antd';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
-import styles from './Index.less';
+import NoPermTip from '../../components/NoPermTip';
+import appPluginUtil from '../../utils/appPlugin';
 import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
-import appPluginUtil from '../../utils/appPlugin';
-import NoPermTip from '../../components/NoPermTip';
+import styles from './Index.less';
 
 const { Option } = Select;
 
@@ -34,7 +35,7 @@ class UpdateMemory extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      memory: this.props.memory,
+      memory: this.props.memory
     };
   }
   handleOk = () => {
@@ -55,6 +56,7 @@ class UpdateMemory extends PureComponent {
         onCancel={this.props.onCancel}
       >
         <Select
+          getPopupContainer={triggerNode => triggerNode.parentNode}
           style={{ width: '100%' }}
           value={this.state.memory}
           onChange={this.handleChange}
@@ -98,7 +100,7 @@ class ConfigItems extends PureComponent {
       return (
         <FormItem
           style={{
-            width: '90%',
+            width: '90%'
           }}
           label={
             <Tooltip title={item.attr_info || item.attr_name}>
@@ -127,7 +129,7 @@ class ConfigItems extends PureComponent {
       return (
         <FormItem
           style={{
-            width: '90%',
+            width: '90%'
           }}
           label={
             <Tooltip title={item.attr_info || item.attr_name}>
@@ -140,6 +142,7 @@ class ConfigItems extends PureComponent {
           }
         >
           <Select
+            getPopupContainer={triggerNode => triggerNode.parentNode}
             onChange={val => {
               this.onChange(val, index);
             }}
@@ -160,7 +163,7 @@ class ConfigItems extends PureComponent {
       return (
         <FormItem
           style={{
-            width: '90%',
+            width: '90%'
           }}
           label={
             <Tooltip title={item.attr_info || item.attr_name}>
@@ -173,6 +176,7 @@ class ConfigItems extends PureComponent {
           }
         >
           <Select
+            getPopupContainer={triggerNode => triggerNode.parentNode}
             disabled={!item.is_change}
             onChange={val => {
               this.onChange(val.join(','), index);
@@ -211,12 +215,12 @@ class ConfigItems extends PureComponent {
 class ConfigDownstreamPort extends PureComponent {
   constructor(props) {
     super(props);
-    const data = this.props.data;
+    const { data } = this.props;
     this.state = {
       currApp: data[0].dest_service_alias,
       currPort: data[0].port,
       config_name: data[0].config_group_name,
-      currAppLoading: false,
+      currAppLoading: false
     };
   }
   getAppByName = appAlias =>
@@ -225,13 +229,13 @@ class ConfigDownstreamPort extends PureComponent {
     const apps = this.getAppByName(appAlias);
     this.setState(
       {
-        currAppLoading: true,
+        currAppLoading: true
       },
       () => {
         this.setState({
           currApp: appAlias,
           currPort: apps[0].port,
-          currAppLoading: false,
+          currAppLoading: false
         });
       }
     );
@@ -239,7 +243,7 @@ class ConfigDownstreamPort extends PureComponent {
   handlePortChange = port => {
     this.setState(
       {
-        currAppLoading: true,
+        currAppLoading: true
       },
       () => {
         this.setState({ currPort: port, currAppLoading: false });
@@ -251,13 +255,13 @@ class ConfigDownstreamPort extends PureComponent {
     return apps.map(item => item.port);
   };
   getCurrData = () => {
-    const currPort = this.state.currPort;
-    const currApp = this.state.currApp;
+    const { currPort } = this.state;
+    const { currApp } = this.state;
     const apps = this.getAppByName(currApp);
     return apps.filter(item => item.port === currPort)[0];
   };
   getApps = () => {
-    const data = this.props.data;
+    const { data } = this.props;
     const n = [];
     const apps = [];
     data.map(item => {
@@ -266,7 +270,7 @@ class ConfigDownstreamPort extends PureComponent {
         apps.push({
           dest_service_alias: item.dest_service_alias,
           dest_service_cname: item.dest_service_cname,
-          port: item.port,
+          port: item.port
         });
       }
     });
@@ -278,14 +282,14 @@ class ConfigDownstreamPort extends PureComponent {
       currPort,
       currApp,
       config_name: configName,
-      currAppLoading,
+      currAppLoading
     } = this.state;
     const ports = this.getCurrPorts();
     const apps = this.getApps();
     return (
       <Card
         style={{
-          marginBottom: 24,
+          marginBottom: 24
         }}
         type="inner"
         title={
@@ -294,11 +298,15 @@ class ConfigDownstreamPort extends PureComponent {
             <span
               style={{
                 marginRight: 24,
-                marginLeft: 16,
+                marginLeft: 16
               }}
             >
               下游应用:{' '}
-              <Select onChange={this.handleAppChange} value={currApp}>
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                onChange={this.handleAppChange}
+                value={currApp}
+              >
                 {apps.map(
                   item =>
                     item && (
@@ -315,7 +323,11 @@ class ConfigDownstreamPort extends PureComponent {
             <span style={{ marginRight: 24 }}>
               {' '}
               端口号 :{' '}
-              <Select onChange={this.handlePortChange} value={currPort}>
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                onChange={this.handlePortChange}
+                value={currPort}
+              >
                 {ports.map(item => (
                   <Option value={item}>{item}</Option>
                 ))}
@@ -342,19 +354,19 @@ class ConfigDownstreamPort extends PureComponent {
 class ConfigUpstreamPort extends PureComponent {
   constructor(props) {
     super(props);
-    const data = this.props.data;
+    const { data } = this.props;
     if (data.length > 0) {
       this.state = {
         currAppLoading: false,
         currPort: data[0].port,
-        config_name: data[0].config_group_name,
+        config_name: data[0].config_group_name
       };
     }
   }
   handlePortChange = port => {
     this.setState(
       {
-        currAppLoading: true,
+        currAppLoading: true
       },
       () => {
         this.setState({ currPort: port, currAppLoading: false });
@@ -363,13 +375,13 @@ class ConfigUpstreamPort extends PureComponent {
   };
   getCurrData = port => this.props.data.filter(item => item.port === port)[0];
   render() {
-    const data = this.props.data;
+    const { data } = this.props;
     const { currAppLoading, config_name, currPort } = this.state;
     const currData = this.getCurrData(currPort);
     return (
       <Card
         style={{
-          marginBottom: 24,
+          marginBottom: 24
         }}
         type="inner"
         title={
@@ -378,11 +390,15 @@ class ConfigUpstreamPort extends PureComponent {
             <span
               style={{
                 marginRight: 24,
-                marginLeft: 16,
+                marginLeft: 16
               }}
             >
               端口号:{' '}
-              <Select onChange={this.handlePortChange} value={currPort}>
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                onChange={this.handlePortChange}
+                value={currPort}
+              >
                 {data.map(item => (
                   <Option key={item.port} value={item.port}>
                     {item.port}
@@ -416,7 +432,7 @@ class ConfigUnDefine extends PureComponent {
     return (
       <Card
         style={{
-          marginBottom: 24,
+          marginBottom: 24
         }}
         type="inner"
         title={<div>{configName}</div>}
@@ -472,7 +488,7 @@ class PluginConfigs extends PureComponent {
 @connect(
   ({ user, loading }) => ({
     currUser: user.currentUser,
-    loading: loading.appControl,
+    loading: loading.appControl
   }),
   null,
   null,
@@ -487,7 +503,7 @@ export default class Index extends PureComponent {
       category: '',
       type: 'installed',
       showDeletePlugin: null,
-      openedPlugin: {},
+      openedPlugin: {}
     };
     this.isInit = true;
   }
@@ -499,7 +515,7 @@ export default class Index extends PureComponent {
   // 是否可以浏览当前界面
   canView() {
     const {
-      componentPermissions: { isPlugin },
+      componentPermissions: { isPlugin }
     } = this.props;
     return isPlugin;
   }
@@ -511,7 +527,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name,
         app_alias,
-        category: this.state.category,
+        category: this.state.category
       },
       callback: data => {
         if (data) {
@@ -525,13 +541,13 @@ export default class Index extends PureComponent {
             }
           }
         }
-      },
+      }
     });
   };
   handleCategoryChange = e => {
     this.setState(
       {
-        category: e.target.value,
+        category: e.target.value
       },
       () => {
         this.getPlugins();
@@ -549,12 +565,12 @@ export default class Index extends PureComponent {
       payload: {
         team_name,
         app_alias,
-        plugin_id: plugin.plugin_id,
+        plugin_id: plugin.plugin_id
       },
       callback: () => {
         this.getPlugins();
         notification.success({ message: '启用成功' });
-      },
+      }
     });
   };
   handleStopPlugin = plugin => {
@@ -565,17 +581,17 @@ export default class Index extends PureComponent {
       payload: {
         team_name,
         app_alias,
-        plugin_id: plugin.plugin_id,
+        plugin_id: plugin.plugin_id
       },
       callback: () => {
         this.getPlugins();
         notification.success({ message: '停用成功' });
-      },
+      }
     });
   };
   // 判断是否展开配置
   isOpenedPlugin = plugin => {
-    const openedPlugin = this.state.openedPlugin;
+    const { openedPlugin } = this.state;
     return !!openedPlugin[plugin.plugin_id];
   };
   openPlugin = plugin => {
@@ -587,14 +603,14 @@ export default class Index extends PureComponent {
         team_name,
         app_alias,
         plugin_id: plugin.plugin_id,
-        build_version: plugin.build_version,
+        build_version: plugin.build_version
       },
       callback: data => {
         if (data) {
           this.state.openedPlugin[plugin.plugin_id] = data.bean || {};
           this.forceUpdate();
         }
-      },
+      }
     });
   };
   closePlugin = plugin => {
@@ -610,11 +626,11 @@ export default class Index extends PureComponent {
         team_name,
         app_alias,
         plugin_id,
-        data,
+        data
       },
       callback: () => {
         notification.success({ message: '修改成功' });
-      },
+      }
     });
   };
   onUpdateMemory = plugin => {
@@ -624,7 +640,7 @@ export default class Index extends PureComponent {
     this.setState({ updateMemory: null });
   };
   renderInstalled = () => {
-    const installedList = this.state.installedList;
+    const { installedList } = this.state;
     const loading = this.state.unInstalledList === null;
     return (
       <List
@@ -694,7 +710,7 @@ export default class Index extends PureComponent {
                 >
                   {' '}
                   卸载{' '}
-                </a>,
+                </a>
               ]}
             >
               <List.Item.Meta
@@ -718,14 +734,14 @@ export default class Index extends PureComponent {
                       {' '}
                       <span
                         style={{
-                          marginRight: 24,
+                          marginRight: 24
                         }}
                       >
                         类别： {pluginUtil.getCategoryCN(item.category)}
                       </span>{' '}
                       <span
                         style={{
-                          marginRight: 24,
+                          marginRight: 24
                         }}
                       >
                         {' '}
@@ -746,12 +762,12 @@ export default class Index extends PureComponent {
                 <div
                   style={{
                     textAlign: 'right',
-                    marginBottom: 80,
+                    marginBottom: 80
                   }}
                 >
                   <Button
                     style={{
-                      marginRight: 8,
+                      marginRight: 8
                     }}
                     onClick={() => {
                       this.handleUpdateConfig(
@@ -780,7 +796,7 @@ export default class Index extends PureComponent {
     );
   };
   renderUnInstalled = () => {
-    const unInstalledList = this.state.unInstalledList;
+    const { unInstalledList } = this.state;
     const loading = this.state.unInstalledList === null;
     if (!unInstalledList.length) {
       return (
@@ -813,7 +829,7 @@ export default class Index extends PureComponent {
               >
                 {' '}
                 开通{' '}
-              </a>,
+              </a>
             ]}
           >
             <List.Item.Meta
@@ -837,7 +853,7 @@ export default class Index extends PureComponent {
                     {' '}
                     <span
                       style={{
-                        marginRight: 24,
+                        marginRight: 24
                       }}
                     >
                       类别： {pluginUtil.getCategoryCN(item.category)}
@@ -855,7 +871,7 @@ export default class Index extends PureComponent {
   };
   // 是否有已安装的插件
   hasInstalled = () => {
-    const installedList = this.state.installedList;
+    const { installedList } = this.state;
     return installedList && !!installedList.length;
   };
   installPlugin = plugin => {
@@ -867,13 +883,13 @@ export default class Index extends PureComponent {
         team_name,
         app_alias,
         plugin_id: plugin.plugin_id,
-        build_version: plugin.build_version,
+        build_version: plugin.build_version
       },
       callback: () => {
         notification.success({ message: '开通成功,需要更新才能生效' });
         this.getPlugins();
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
   onDeletePlugin = plugin => {
@@ -891,7 +907,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name,
         app_alias,
-        plugin_id: plugin.plugin_id,
+        plugin_id: plugin.plugin_id
       },
       callback: () => {
         delete this.state.openedPlugin[plugin.plugin_id];
@@ -899,7 +915,7 @@ export default class Index extends PureComponent {
         this.cancelDeletePlugin();
         this.getPlugins();
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
   handleUpdateMemory = memory => {
@@ -912,23 +928,23 @@ export default class Index extends PureComponent {
         team_name,
         app_alias,
         plugin_id: plugin.plugin_id,
-        min_memory: memory,
+        min_memory: memory
       },
       callback: () => {
         this.getPlugins();
         this.cancelUpdateMemory();
         notification.success({ message: '操作成功' });
-      },
+      }
     });
   };
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const type = this.state.type;
+    const { type } = this.state;
     return (
       <Card>
         <p
           style={{
-            overflow: 'hidden',
+            overflow: 'hidden'
           }}
         >
           <RadioGroup
@@ -936,7 +952,7 @@ export default class Index extends PureComponent {
             value={type}
             style={{
               marginRight: 16,
-              float: 'left',
+              float: 'left'
             }}
           >
             <RadioButton value="installed">已开通</RadioButton>
@@ -947,7 +963,7 @@ export default class Index extends PureComponent {
             defaultValue=""
             style={{
               marginRight: 16,
-              float: 'right',
+              float: 'right'
             }}
           >
             <RadioButton value="">全部</RadioButton>

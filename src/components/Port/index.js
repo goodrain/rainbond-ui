@@ -61,6 +61,7 @@ class ChangeProtocol extends PureComponent {
       >
         <FormItem>
           <Select
+            getPopupContainer={triggerNode => triggerNode.parentNode}
             onChange={this.onChange}
             size="small"
             value={this.state.value}

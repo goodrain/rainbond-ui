@@ -1,5 +1,20 @@
+/* eslint-disable react/sort-comp */
+/* eslint-disable react/jsx-indent */
+/* eslint-disable no-nested-ternary */
 /* eslint-disable import/first */
-import { Button, Form, Input, Select, Spin, Switch, Tabs } from 'antd';
+import {
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Icon,
+  Input,
+  Row,
+  Select,
+  Spin,
+  Switch,
+  Tabs
+} from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
 import Application from '../../../public/images/application.svg';
@@ -7,7 +22,6 @@ import Branches from '../../../public/images/branches.svg';
 import Component from '../../../public/images/component.svg';
 import Unlock from '../../../public/images/unlock.svg';
 import AddGroup from '../../components/AddOrEditGroup';
-import globalUtil from '../../utils/global';
 import styles from './Index.less';
 
 const { Option, OptGroup } = Select;
@@ -49,7 +63,9 @@ class Index extends React.Component {
       tags: [],
       tabType: 'branches',
       tagsLoading: true,
-      Loading: true
+      Loading: true,
+      showSubdirectories: false,
+      checkedList: []
     };
   }
   componentWillMount() {
@@ -68,7 +84,7 @@ class Index extends React.Component {
   onAddGroup = () => {
     this.setState({ addGroup: true });
   };
-  // get repostory tag or branchs
+
   handleCodeWarehouseType = props => {
     const { dispatch, type, thirdInfo } = props;
     const { tabType } = this.state;
@@ -101,62 +117,52 @@ class Index extends React.Component {
     if (tagsLoading) {
       return null;
     }
-    form.validateFields((err, fieldsValue) => {
-      if (err) {
-        return;
-      }
-      fieldsValue.project_id = thirdInfo.project_id;
-      fieldsValue.project_url = thirdInfo.project_url;
-      fieldsValue.project_full_name = thirdInfo.project_full_name;
-      if (onSubmit) {
-        onSubmit(fieldsValue);
-      }
-    });
-  };
-
-  handleAddGroup = vals => {
-    const { setFieldsValue } = this.props.form;
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          this.props.dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
+    form.validateFields((err, values) => {
+      if (!err) {
+        const info = Object.assign({}, values);
+        info.project_id = thirdInfo.project_id;
+        info.project_url = values.subdirectories
+          ? `${thirdInfo.project_url}?dir=${values.subdirectories}`
+          : thirdInfo.project_url;
+        info.project_full_name = thirdInfo.project_full_name;
+        if (onSubmit) {
+          onSubmit(info);
         }
       }
     });
   };
 
+  handleAddGroup = groupId => {
+    const { setFieldsValue } = this.props.form;
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
+  };
+  onChange = checkedValues => {
+    this.setState({
+      checkedList: checkedValues,
+      showSubdirectories: checkedValues.includes('subdirectories')
+    });
+  };
   render() {
-    const { tags, addGroup, tagsLoading, Loading } = this.state;
-    const { getFieldDecorator } = this.props.form;
     const {
       groups,
       createAppByCodeLoading,
       ServiceComponent,
       thirdInfo,
-      groupId
+      groupId,
+      form,
+      showSubmitBtn = true,
+      showCreateGroup = true
     } = this.props;
-    const showCreateGroup =
-      this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
-
-    const showSubmitBtn =
-      this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
-
+    const { getFieldDecorator } = form;
+    const {
+      tags,
+      addGroup,
+      tagsLoading,
+      Loading,
+      checkedList,
+      showSubdirectories
+    } = this.state;
     return (
       <Fragment>
         <Spin spinning={Loading}>
@@ -182,6 +188,7 @@ class Index extends React.Component {
                 rules: [{ required: true, message: '请选择' }]
               })(
                 <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder="请选择要所属应用"
                   style={{
                     display: 'inline-block',
@@ -191,7 +198,11 @@ class Index extends React.Component {
                   disabled={!!ServiceComponent}
                 >
                   {(groups || []).map(group => (
-                    <Option key={group.group_id} value={group.group_id}>
+                    <Option
+                      key={group.group_id}
+                      value={group.group_id}
+                      style={{ textAlign: 'left' }}
+                    >
                       {group.group_name}
                     </Option>
                   ))}
@@ -231,7 +242,10 @@ class Index extends React.Component {
                 initialValue: tags && tags.length > 0 && tags[0],
                 rules: [{ required: true, message: '请输入代码版本' }]
               })(
-                <Select placeholder="请输入代码版本">
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder="请输入代码版本"
+                >
                   <OptGroup
                     label={
                       <Tabs
@@ -247,7 +261,11 @@ class Index extends React.Component {
                     {!tagsLoading && tags && tags.length > 0 ? (
                       tags.map(item => {
                         return (
-                          <Option key={item} value={item}>
+                          <Option
+                            key={item}
+                            value={item}
+                            style={{ textAlign: 'left' }}
+                          >
                             {item}
                           </Option>
                         );
@@ -261,6 +279,34 @@ class Index extends React.Component {
                 </Select>
               )}
             </Form.Item>
+            <Checkbox.Group
+              style={{ width: '100%', marginBottom: '10px' }}
+              onChange={this.onChange}
+              value={checkedList}
+            >
+              <Row>
+                <Col span={24} style={{ textAlign: 'right' }}>
+                  <Checkbox value="subdirectories">填写子目录路径</Checkbox>
+                </Col>
+              </Row>
+            </Checkbox.Group>
+
+            {showSubdirectories && (
+              <Form.Item
+                className={styles.clearConform}
+                {...formItemLayout}
+                label={
+                  <div className={styles.clearConformMinTitle}>
+                    <Icon type="unordered-list" />
+                    子目录路径&nbsp;:
+                  </div>
+                }
+              >
+                {getFieldDecorator('subdirectories')(
+                  <Input placeholder="请输入子目录路径" />
+                )}
+              </Form.Item>
+            )}
             <Form.Item
               className={styles.clearConform}
               {...formItemLayoutOrder}

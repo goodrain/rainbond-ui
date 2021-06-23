@@ -66,6 +66,8 @@ class TenantSelect extends Component {
 
     return (
       <Select
+        allowClear
+        getPopupContainer={triggerNode => triggerNode.parentNode}
         showSearch
         placeholder={placeholder}
         value={tenant}

@@ -22,6 +22,13 @@
     background: hsla(0, 0%, 53%, 0.1);
   }
 };
+.clearAvatar {
+  :global {
+    .ant-card-meta-avatar {
+      padding-right: 0px !important;
+    }
+  }
+}
 .cardList {
   margin-bottom: -24px;
 
@@ -279,6 +286,9 @@
 }
 
 @media screen and (max-width: @screen-sm) {
+  .stepDescription {
+    left: 8px;
+  }
   .pageHeaderContent {
     padding-bottom: 30px;
   }
@@ -305,8 +315,6 @@
     display: inline-block;
   }
 }
-
-@import '~antd/lib/style/themes/default.less';
 
 .headerList {
   margin-bottom: 4px;
@@ -354,10 +362,4 @@
 
 .textSecondary {
   color: @text-color-secondary;
-}
-
-@media screen and (max-width: @screen-sm) {
-  .stepDescription {
-    left: 8px;
-  }
 }

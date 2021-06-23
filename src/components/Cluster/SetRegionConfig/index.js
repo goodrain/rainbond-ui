@@ -89,7 +89,8 @@ export default class SetRegionConfig extends PureComponent {
             }
           }
         },
-        handleError: () => {
+        handleError: errs => {
+          cloud.handleCloudAPIError(errs);
           this.setState({ commitloading: false });
         }
       });
@@ -211,7 +212,7 @@ export default class SetRegionConfig extends PureComponent {
                   initialValue: clusterTitle,
                   rules: [
                     { required: true, message: '请填写集群名称!' },
-                    { max: 24, message: '集群名称不能超过24字符' }
+                    { max: 24, message: '最大长度24位' }
                   ]
                 })(<Input placeholder="请填写集群名称" />)}
               </Form.Item>

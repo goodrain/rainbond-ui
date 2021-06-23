@@ -5,13 +5,17 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable import/extensions */
 /* eslint-disable react/sort-comp */
-import React, { Fragment, PureComponent } from 'react';
 import { Button, Col, DatePicker, Form, Row } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
-import RangeChart from './rangeChart';
+import React, { Fragment, PureComponent } from 'react';
+import {
+  arrayMove,
+  SortableContainer,
+  SortableElement
+} from 'react-sortable-hoc';
 import styless from './index.less';
+import RangeChart from './rangeChart';
 
 const { RangePicker } = DatePicker;
 
@@ -45,7 +49,7 @@ export default class ChartTitle extends PureComponent {
 
     return true;
   }
-  disabledDate = (current) => {
+  disabledDate = current => {
     // Can not select days before today and today
     return current && current > moment().endOf('day');
   };
@@ -75,18 +79,17 @@ export default class ChartTitle extends PureComponent {
     e.preventDefault();
     const { handleSorting, RangeData = [] } = this.props;
     if (oldIndex !== newIndex && RangeData && RangeData.length > 0) {
+      const arr = arrayMove(RangeData, oldIndex, newIndex);
       const graphIds = [];
-      RangeData.map((item) => {
-        const { sequence, graph_id: id } = item;
-        if (sequence === oldIndex || sequence === newIndex) {
-          graphIds.push(id);
-        }
+
+      arr.map(item => {
+        graphIds.push(item.graph_id);
       });
       handleSorting(graphIds);
     }
   };
 
-  handleChangeTimes = (values) => {
+  handleChangeTimes = values => {
     let startTime = '';
     let endTime = '';
 
@@ -135,11 +138,7 @@ export default class ChartTitle extends PureComponent {
     const SortableItem = SortableElement(({ value }) => {
       const { title, promql, sequence, ID } = value;
       return (
-        <div
-          key={ID}
-          index={sequence}
-          className={styless.RangeChartBox}
-        >
+        <div key={ID} index={sequence} className={styless.RangeChartBox}>
           <RangeChart
             key={ID}
             moduleName="CustomMonitor"
@@ -167,7 +166,7 @@ export default class ChartTitle extends PureComponent {
     const SortableList = SortableContainer(({ items }) => {
       return (
         <div style={gridStyles}>
-          {items.map((item) => {
+          {items.map(item => {
             return (
               <SortableItem
                 style={{ zIndex: 10 }}
@@ -188,7 +187,7 @@ export default class ChartTitle extends PureComponent {
               separator="至"
               style={{ width: '390px' }}
               disabledDate={this.disabledDate}
-              onChange={(value) => {
+              onChange={value => {
                 this.handleChangeTimes(value);
               }}
               defaultValue={[
@@ -212,7 +211,7 @@ export default class ChartTitle extends PureComponent {
 
         {moduleName === 'ResourceMonitoring' ? (
           <Row style={{ padding: '-8px' }}>
-            {RangeData.map((item) => {
+            {RangeData.map(item => {
               return (
                 <Col span={12} key={item} style={{ padding: '8px' }}>
                   <RangeChart {...parameter} type={item} />
@@ -231,7 +230,7 @@ export default class ChartTitle extends PureComponent {
             />
           </div>
         ) : (
-          RangeData.map((item) => {
+          RangeData.map(item => {
             return (
               <div style={{ marginTop: '20px' }}>
                 <RangeChart key={item} {...parameter} type={item} />

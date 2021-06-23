@@ -13,7 +13,7 @@ const dateUtil = {
             <p>消息通道为ws，请切换为http协议访问本系统</p>
           </div>
         ),
-        onOk() {},
+        onOk() {}
       });
       return null;
     }
@@ -47,7 +47,7 @@ const dateUtil = {
       ss() {
         const val = dates.getSeconds();
         return val < 10 ? `0${val}` : val;
-      },
+      }
     };
     for (const k in map) {
       format = format.replace(k, map[k]);
@@ -117,6 +117,6 @@ const dateUtil = {
     }
 
     return getShowData(date);
-  },
+  }
 };
 export default dateUtil;

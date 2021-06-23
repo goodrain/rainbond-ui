@@ -49,9 +49,7 @@ export default class AddVolumes extends PureComponent {
         visible
         maskClosable={false}
         style={{
-          height: 'calc(100% - 55px)',
-          overflow: 'auto',
-          paddingBottom: 53
+          overflow: 'auto'
         }}
       >
         <Form onSubmit={this.handleSubmit} labelAlign="left">
@@ -116,23 +114,19 @@ export default class AddVolumes extends PureComponent {
             setFieldsValue={setFieldsValue}
             formItemLayout={formItemLayout}
             Form={Form}
+            style={{ marginBottom: '20px' }}
             getFieldDecorator={getFieldDecorator}
             name="file_content"
             label="配置文件内容"
             message="请编辑内容"
-            width="452px"
             data={data.file_content || ''}
           />
         </Form>
         <div
           style={{
-            position: 'absolute',
-            bottom: 0,
-            width: '100%',
             borderTop: '1px solid #e8e8e8',
             padding: '10px 16px',
             textAlign: 'right',
-            left: 0,
             background: '#fff',
             borderRadius: '0 0 4px 4px'
           }}

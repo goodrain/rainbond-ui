@@ -5,6 +5,7 @@ import moment from 'moment';
 import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreatUser from '../../components/CreatUserForm';
+import CurrentTeams from '../../components/CurrentTeams';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cloud from '../../utils/cloud';
 import userUtil from '../../utils/user';
@@ -32,11 +33,13 @@ export default class EnterpriseUsers extends PureComponent {
       adminer,
       adminList: [],
       total: 0,
+      currentUserInfo: false,
       userVisible: false,
       userInfo: false,
       text: '',
       delVisible: false,
-      name: ''
+      name: '',
+      Loading: false
     };
   }
   componentWillMount() {
@@ -60,7 +63,10 @@ export default class EnterpriseUsers extends PureComponent {
       }
     );
   };
-  handleCreatUser = values => {
+  handleUser = values => {
+    this.setState({
+      Loading: true
+    });
     const {
       dispatch,
       match: {
@@ -68,67 +74,48 @@ export default class EnterpriseUsers extends PureComponent {
       }
     } = this.props;
     const { userInfo } = this.state;
+    let info = values;
+    let setType = 'global/creatUser';
+    let setMessage = '新增成功';
     if (userInfo) {
-      this.upUser(values);
-      return null;
+      info = Object.assign({}, userInfo, info);
+      setType = 'global/upEnterpriseUsers';
+      setMessage = '编辑成功';
     }
     dispatch({
-      type: 'global/creatUser',
+      type: setType,
       payload: {
         enterprise_id: eid,
-        ...values
-      },
-      callback: data => {
-        if (data && data._condition === 200) {
-          this.loadUser();
-          this.cancelCreatUser();
-          notification.success({ message: data.msg_show || '' });
-        }
-      },
-      handleError: res => {
-        if (
-          res &&
-          res.data &&
-          res.data.code &&
-          res.data.code < 600 &&
-          res.data.msg_show
-        ) {
-          notification.warning({ message: res.data.msg_show });
-        } else {
-          cloud.handleCloudAPIError(res);
-        }
-      }
-    });
-  };
-
-  upUser = values => {
-    const { userInfo } = this.state;
-    const info = userInfo;
-    info.real_name = values.real_name;
-    info.password = values.password;
-
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch({
-      type: 'global/upEnterpriseUsers',
-      payload: {
-        ...info,
-        enterprise_id: eid
+        ...info
       },
       callback: res => {
         if (res && res._condition === 200) {
-          this.cancelCreatUser();
+          this.canceUser();
           this.loadUser();
-          notification.success({ message: '编辑成功' });
+          notification.success({ message: setMessage });
         }
+        this.handleCloseLoading();
+      },
+      handleError: err => {
+        if (
+          err &&
+          err.data &&
+          err.data.code &&
+          err.data.code < 600 &&
+          err.data.msg_show
+        ) {
+          notification.warning({ message: err.data.msg_show });
+        } else {
+          cloud.handleCloudAPIError(err);
+        }
+        this.handleCloseLoading();
       }
     });
   };
 
+  handleCloseLoading = () => {
+    this.setState({ Loading: false });
+  };
   handleDelete = () => {
     const { userInfo } = this.state;
     const {
@@ -185,11 +172,12 @@ export default class EnterpriseUsers extends PureComponent {
     });
   };
 
-  cancelCreatUser = () => {
+  canceUser = () => {
     this.setState({
       userVisible: false,
       text: '',
-      userInfo: false
+      userInfo: false,
+      Loading: false
     });
   };
 
@@ -213,12 +201,25 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false
     });
   };
-  handleSearch = e => {
-    this.loadUser();
+  handleSearch = () => {
+    this.setState(
+      {
+        page: 1
+      },
+      () => {
+        this.loadUser();
+      }
+    );
   };
-  handelChange = e => {
-    this.setState({ name: e.target.value });
+  handelChange = value => {
+    this.setState({ name: value && value.trim() });
   };
+  handleCurrentUserId = currentUserInfo => {
+    this.setState({
+      currentUserInfo
+    });
+  };
+
   render() {
     const {
       adminList,
@@ -229,7 +230,9 @@ export default class EnterpriseUsers extends PureComponent {
       userVisible,
       page,
       pageSize,
-      total
+      total,
+      Loading,
+      currentUserInfo
     } = this.state;
 
     const {
@@ -243,7 +246,17 @@ export default class EnterpriseUsers extends PureComponent {
         title: '用户名称',
         dataIndex: 'nick_name',
         rowKey: 'nick_name',
-        align: 'center'
+        align: 'center',
+        render: (val, data) => (
+          <Button
+            type="link"
+            onClick={() => {
+              this.handleCurrentUserId(data);
+            }}
+          >
+            {val}
+          </Button>
+        )
       },
       {
         title: '姓名',
@@ -306,7 +319,7 @@ export default class EnterpriseUsers extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="用户管理"
+        title="用户管理 "
         content="企业用户查询、添加和修改相关功能，用户需要操作应用或组件相关资源时需要将其分配到相应的团队"
       >
         <Row
@@ -321,7 +334,7 @@ export default class EnterpriseUsers extends PureComponent {
               <FormItem>
                 <Input
                   placeholder="搜索用户"
-                  onChange={this.handelChange.bind(this)}
+                  onChange={e => this.handelChange(e.target.value)}
                   onPressEnter={this.handleSearch}
                   style={{ width: 250 }}
                 />
@@ -364,13 +377,22 @@ export default class EnterpriseUsers extends PureComponent {
           {userVisible && (
             <CreatUser
               eid={eid}
+              loading={Loading}
               userInfo={userInfo}
               title={text}
-              onOk={this.handleCreatUser}
-              onCancel={this.cancelCreatUser}
+              onOk={this.handleUser}
+              onCancel={this.canceUser}
             />
           )}
-
+          {currentUserInfo && (
+            <CurrentTeams
+              eid={eid}
+              userInfo={currentUserInfo}
+              onCancel={() => {
+                this.handleCurrentUserId(false);
+              }}
+            />
+          )}
           <Table
             pagination={{
               current: page,

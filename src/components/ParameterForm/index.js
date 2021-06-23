@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { Button, Drawer, Form, Input, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -14,16 +15,21 @@ const FormItem = Form.Item;
 class ParameterForm extends PureComponent {
   constructor(props) {
     super(props);
+    const { editInfo } = this.props;
     this.state = {
       proxyBuffering: !!(
-        props.editInfo &&
-        props.editInfo.proxy_buffering &&
-        props.editInfo.proxy_buffering === 'on'
+        editInfo &&
+        editInfo.proxy_buffering &&
+        editInfo.proxy_buffering === 'on'
       ),
-      WebSocket: !!(props.editInfo && props.editInfo.WebSocket)
+      WebSocket: !!(editInfo && editInfo.WebSocket),
+      webSockets: [
+        { item_key: 'Connection', item_value: 'Upgrade' },
+        { item_key: 'Upgrade', item_value: '$http_upgrade' }
+      ]
     };
   }
-  onChangeWebSocket = e => {
+  onChangeWebSocket = () => {
     const { setFieldsValue } = this.props.form;
     this.setState({ WebSocket: !this.state.WebSocket }, () => {
       setFieldsValue({ WebSocket: this.state.WebSocket });
@@ -33,12 +39,54 @@ class ParameterForm extends PureComponent {
   handleOk = e => {
     e.preventDefault();
     const { onOk, form } = this.props;
+    const { webSockets } = this.state;
     form.validateFields((err, values) => {
       if (!err && onOk) {
-        onOk(values);
+        const info = Object.assign({}, values);
+        const setWebSocket = values.WebSocket;
+        let setHeaders = Array.isArray(values.set_headers)
+          ? values.set_headers
+          : [];
+        const isWebSocket = this.handleSetWebSocket(setHeaders);
+        const firstHeaders = setHeaders && setHeaders.length === 1;
+        if (
+          firstHeaders &&
+          (!setHeaders[0].item_key || !setHeaders[0].item_value)
+        ) {
+          setHeaders = [];
+        }
+        if (setWebSocket && !isWebSocket) {
+          setHeaders = [...setHeaders, ...webSockets];
+        }
+        info.set_headers = setHeaders;
+        onOk(info);
       }
     });
   };
+  handleSetWebSocket = (data, newHeaders) => {
+    const arr = [];
+    const [first, second] = this.state.webSockets;
+    let results = false;
+
+    if (data && data.length > 0) {
+      data.map(item => {
+        const { item_key, item_value } = item;
+        if (
+          (item_key === first.item_key && item_value === first.item_value) ||
+          (item_key === second.item_key && item_value === second.item_value)
+        ) {
+          results = true;
+        } else {
+          arr.push(item);
+        }
+      });
+    }
+    if (newHeaders) {
+      return arr;
+    }
+    return results;
+  };
+
   checkContent = (_, value, callback) => {
     const num = Number(value);
     if (num) {
@@ -87,6 +135,8 @@ class ParameterForm extends PureComponent {
         sm: { span: 18 }
       }
     };
+    const setHeaders = editInfo && editInfo.set_headers;
+    const defaultSetHeaders = this.handleSetWebSocket(setHeaders, true);
     return (
       <div>
         <Drawer
@@ -192,11 +242,6 @@ class ParameterForm extends PureComponent {
               className={styles.antd_form}
             >
               {getFieldDecorator('WebSocket', {
-                rules: [
-                  {
-                    required: false
-                  }
-                ],
                 initialValue: WebSocket
               })(
                 <Switch
@@ -215,11 +260,6 @@ class ParameterForm extends PureComponent {
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_buffering', {
-                rules: [
-                  {
-                    required: false
-                  }
-                ],
                 initialValue: proxyBuffering
               })(
                 <Switch
@@ -235,12 +275,8 @@ class ParameterForm extends PureComponent {
 
             <FormItem {...formItemLayout} label="自定义请求头">
               {getFieldDecorator('set_headers', {
-                initialValue: editInfo ? editInfo.set_headers : ''
-              })(
-                <Parameterinput
-                  editInfo={editInfo ? editInfo.set_headers : ''}
-                />
-              )}
+                initialValue: defaultSetHeaders
+              })(<Parameterinput editInfo={defaultSetHeaders} />)}
             </FormItem>
           </Form>
           <div

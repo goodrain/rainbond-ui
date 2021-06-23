@@ -81,25 +81,23 @@ export default class Index extends PureComponent {
           overlay={
             <Menu>
               {links.map(item => {
-                if (item && item.url.length > 0 && item.url[0]) {
-                  return (
-                    <Menu.Item key={item}>
-                      <a
-                        target="_blank"
-                        rel="noreferrer"
-                        href={
-                          item.url[0].includes('http') ||
-                          item.url[0].includes('https')
-                            ? item.url[0]
-                            : `http://${item.url[0]}`
-                        }
-                      >
-                        {item.service_cname}{' '}
-                      </a>
-                    </Menu.Item>
-                  );
-                }
-                return null;
+                const setUrl = item.url && item.url.length > 0 && item.url[0];
+                return (
+                  <Menu.Item key={item}>
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={
+                        setUrl &&
+                        (setUrl.includes('http') || setUrl.includes('https')
+                          ? setUrl
+                          : `http://${setUrl}`)
+                      }
+                    >
+                      {item.service_cname}
+                    </a>
+                  </Menu.Item>
+                );
               })}
             </Menu>
           }

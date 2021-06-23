@@ -11,10 +11,12 @@ import {
   InputNumber,
   Modal,
   Row,
-  Select
+  Select,
+  Skeleton,
+  Spin
 } from 'antd';
 import { connect } from 'dva';
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import teamUtil from '../../utils/team';
@@ -36,13 +38,15 @@ class DrawerForm extends PureComponent {
     super(props);
     const { editInfo } = this.props;
     this.state = {
+      componentLoading: false,
+      portLoading: false,
       serviceComponentList: [],
+      serviceComponentLoading: true,
       portList: [],
       licenseList: [],
       isAddLicense: false,
       page: 1,
       page_size: 10,
-      service_id: '',
       group_name: '',
       descriptionVisible: false,
       rule_extensions_visible: false,
@@ -62,8 +66,8 @@ class DrawerForm extends PureComponent {
   }
 
   heandleEditInfo = props => {
-    const { page, page_size } = this.state;
     const { dispatch, editInfo, appID } = props;
+    const { page, page_size } = this.state;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
       type: 'appControl/fetchCertificates',
@@ -80,11 +84,12 @@ class DrawerForm extends PureComponent {
         }
       }
     });
-    if (editInfo) {
-      this.handleServices({ key: editInfo.g_id });
-    }
-    if (appID) {
-      this.handleServices({ key: appID });
+    if (editInfo || appID) {
+      this.handleServices({ key: (editInfo && editInfo.g_id) || appID });
+    } else {
+      this.setState({
+        serviceComponentLoading: false
+      });
     }
   };
 
@@ -98,25 +103,32 @@ class DrawerForm extends PureComponent {
       }
     );
   };
-  handleOk = e => {
-    e.preventDefault();
-    const { onOk } = this.props;
+  handleOk = () => {
+    const { onOk, form } = this.props;
     const { group_name } = this.state;
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
+    form.validateFields((err, values) => {
+      if (!err && onOk) {
+        const info = Object.assign({}, values);
         if (values.certificate_id === 'auto_ssl') {
-          values.auto_ssl = true;
-          values.certificate_id = undefined;
+          info.auto_ssl = true;
+          info.certificate_id = undefined;
         }
-
-        onOk && onOk(values, group_name);
+        if (values.domain_heander === '=') {
+          info.domain_heander = '';
+        }
+        if (values.domain_cookie === '=') {
+          info.domain_cookie = '';
+        }
+        onOk(info, group_name);
       }
     });
   };
   /** 获取组件 */
   handleServices = groupObj => {
+    this.handleComponentLoading(true);
+    const { dispatch, editInfo, groups, form } = this.props;
+    const { setFieldsValue } = form;
     const { isPerform } = this.state;
-    const { dispatch, editInfo, groups } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     /** 获取对应的group_name */
     let group_obj = null;
@@ -131,67 +143,99 @@ class DrawerForm extends PureComponent {
     dispatch({
       type: 'application/fetchApps',
       payload: {
+        page_size: -1,
         group_id: groupObj.key,
         team_name
       },
       callback: data => {
-        if (data) {
-          this.setState({ serviceComponentList: data.list }, () => {
-            if (data.list && data.list.length > 0) {
-              if (isPerform && editInfo) {
-                this.handlePorts(editInfo.service_id, true);
-                this.props.form.setFieldsValue({
-                  service_id: editInfo.service_id
-                });
-              } else {
-                this.handlePorts(data.list[0].service_id, false);
-                this.props.form.setFieldsValue({
-                  service_id: data.list[0].service_id
-                });
+        const list = (data && data.list) || [];
+        this.setState(
+          {
+            serviceComponentList: list,
+            serviceComponentLoading: false
+          },
+          () => {
+            let serviceId =
+              (list && list.length > 0 && list[0].service_id) || undefined;
+            const info = {};
+            if (serviceId) {
+              const services = list.filter(item => {
+                return item.service_id === (editInfo && editInfo.service_id);
+              });
+              if (isPerform && services.length > 0) {
+                serviceId = editInfo.service_id;
               }
+              this.handlePorts(serviceId);
+            } else {
+              info.container_port = undefined;
             }
-          });
-        }
+            info.service_id = serviceId;
+            setFieldsValue(info);
+          }
+        );
+        this.handleComponentLoading(false);
       }
     });
   };
+  handleComponentLoading = loading => {
+    this.setState({
+      componentLoading: loading
+    });
+  };
+  handlePortLoading = loading => {
+    this.setState({
+      portLoading: loading
+    });
+  };
+
   /** 获取端口 */
   handlePorts = service_id => {
-    const { dispatch, editInfo } = this.props;
-    const { isPerform } = this.state;
+    this.handlePortLoading(true);
+    const { dispatch, editInfo, form } = this.props;
+    const { isPerform, serviceComponentList } = this.state;
+    const { setFieldsValue } = form;
     const team_name = globalUtil.getCurrTeamName();
-    const service_obj = this.state.serviceComponentList.filter(item => {
-      return item.service_id == service_id;
+    const service_obj = serviceComponentList.filter(item => {
+      return item.service_id === service_id;
     });
+    const serviceAlias =
+      service_obj && service_obj.length > 0 && service_obj[0].service_alias;
+    if (!serviceAlias) {
+      setFieldsValue({
+        container_port: undefined
+      });
+      this.handlePortLoading(false);
+      return null;
+    }
     dispatch({
       type: 'appControl/fetchPorts',
       payload: {
-        app_alias:
-          service_obj &&
-          service_obj.length > 0 &&
-          service_obj[0].service_alias &&
-          service_obj[0].service_alias,
+        app_alias: serviceAlias,
         team_name
       },
       callback: data => {
-        if (data) {
-          this.setState({ portList: data.list }, () => {
-            if (data.list && data.list.length > 0) {
-              if (isPerform && editInfo) {
-                this.setState({
-                  isPerform: false
-                });
-                this.props.form.setFieldsValue({
-                  container_port: editInfo.container_port
-                });
-              } else {
-                this.props.form.setFieldsValue({
-                  container_port: data.list[0].container_port
-                });
-              }
+        const list = (data && data.list) || [];
+        this.setState({ portList: list }, () => {
+          let containerPort =
+            (list && list.length > 0 && list[0].container_port) || undefined;
+          if (containerPort) {
+            const containerPorts = list.filter(item => {
+              return (
+                item.container_port === (editInfo && editInfo.container_port)
+              );
+            });
+            if (isPerform && containerPorts.length > 0) {
+              this.setState({
+                isPerform: false
+              });
+              containerPort = editInfo.container_port;
             }
+          }
+          setFieldsValue({
+            container_port: containerPort
           });
-        }
+        });
+        this.handlePortLoading(false);
       }
     });
   };
@@ -221,6 +265,39 @@ class DrawerForm extends PureComponent {
     this.setState({
       routingConfiguration: !this.state.routingConfiguration
     });
+  };
+  weightCheck = (_, value) => {
+    if (value > 100 || value < 0) {
+      // eslint-disable-next-line prefer-promise-reject-errors
+      return Promise.reject('权重的数值限制在0-100之间');
+    }
+    return Promise.resolve();
+  };
+  checkLength = (_, values, callback) => {
+    const valArr = values && values.split(';');
+    const arr = [];
+    if (valArr && valArr.length > 0) {
+      for (let i = 0; i < valArr.length; i++) {
+        arr.push({
+          key: valArr[i].split('=')[0],
+          value: valArr[i].split('=')[1]
+        });
+      }
+    }
+    if (arr && arr.length > 0) {
+      let isMax = false;
+      arr.map(item => {
+        const { key, value } = item;
+        if (key.length > 255 || value.length > 255) {
+          isMax = true;
+        }
+      });
+      if (isMax) {
+        callback('最大长度255');
+      }
+      callback();
+    }
+    callback();
   };
   render() {
     const {
@@ -274,14 +351,44 @@ class DrawerForm extends PureComponent {
     );
     const AutomaticCertificateDeleteValue =
       JSON.parse(AutomaticCertificateValue) || false;
-
+    const appKey = appID && { key: appID };
+    const appKeys = editInfo &&
+      editInfo.g_id &&
+      editInfo.group_name && {
+        key: editInfo.g_id,
+        label: editInfo.group_name
+      };
     const {
       routingConfiguration,
       licenseList,
       isAddLicense,
-      automaticCertificateVisible
+      automaticCertificateVisible,
+      serviceComponentList,
+      serviceComponentLoading,
+      componentLoading,
+      portLoading,
+      portList
     } = this.state;
     const dividers = <Divider style={{ margin: '4px 0' }} />;
+    const serviceId = editInfo && editInfo.service_id && editInfo.service_id;
+    const serviceIds =
+      serviceComponentList &&
+      serviceComponentList.length > 0 &&
+      serviceComponentList[0].service_id;
+    const containerPort =
+      editInfo && editInfo.container_port && editInfo.container_port;
+    const containerPorts =
+      portList && portList.length > 0 && portList[0].container_port;
+    const checkLengths = [
+      {
+        pattern: /^[^\s]*$/,
+        message: '禁止输入空格'
+      },
+      {
+        validator: this.checkLength
+      }
+    ];
+    const isOk = !(componentLoading || portLoading);
     return (
       <div>
         <Drawer
@@ -336,6 +443,7 @@ class DrawerForm extends PureComponent {
                     required: false,
                     message: '/'
                   },
+                  { max: 1024, message: '最大长度1024' },
                   {
                     pattern: /^\/+.*/,
                     message: '请输入绝对路径'
@@ -359,27 +467,26 @@ class DrawerForm extends PureComponent {
               <div>
                 <FormItem {...formItemLayout} label="请求头">
                   {getFieldDecorator('domain_heander', {
-                    initialValue: editInfo.domain_heander
+                    initialValue: editInfo.domain_heander,
+                    rules: checkLengths
                   })(<DAinput />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="Cookie">
                   {getFieldDecorator('domain_cookie', {
-                    initialValue: editInfo.domain_cookie
+                    initialValue: editInfo.domain_cookie,
+                    rules: checkLengths
                   })(<DAinput />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="权重">
                   {getFieldDecorator('the_weight', {
-                    initialValue: editInfo.the_weight || 100
+                    initialValue: editInfo.the_weight || 100,
+                    rules: [{ required: false, validator: this.weightCheck }]
                   })(
-                    <InputNumber min={1} max={100} style={{ width: '100%' }} />
+                    <InputNumber min={0} max={100} style={{ width: '100%' }} />
                   )}
                 </FormItem>
                 {licenseList && (
-                  <FormItem
-                    {...formItemLayout}
-                    label="HTTPs证书"
-                    style={{ zIndex: 999 }}
-                  >
+                  <FormItem {...formItemLayout} label="HTTPs证书">
                     {getFieldDecorator('certificate_id', {
                       initialValue:
                         AutomaticCertificate && editInfo.auto_ssl
@@ -387,6 +494,9 @@ class DrawerForm extends PureComponent {
                           : editInfo.certificate_id
                     })(
                       <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
                         placeholder="请绑定证书"
                         onSelect={this.handeCertificateSelect}
                         dropdownRender={menu => (
@@ -448,7 +558,12 @@ class DrawerForm extends PureComponent {
                           }
                         ]
                       })(
-                        <Select placeholder="请选择签发证书认证配置">
+                        <Select
+                          getPopupContainer={triggerNode =>
+                            triggerNode.parentNode
+                          }
+                          placeholder="请选择签发证书认证配置"
+                        >
                           {Object.keys(AutomaticCertificateDeleteValue).map(
                             item => {
                               return <Option value={item}>{item}</Option>;
@@ -479,7 +594,12 @@ class DrawerForm extends PureComponent {
                     {getFieldDecorator('rule_extensions_round', {
                       initialValue: rule_round || 'round-robin'
                     })(
-                      <Select placeholder="请选择负载均衡类型">
+                      <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
+                        placeholder="请选择负载均衡类型"
+                      >
                         <Option value="round-robin">负载均衡算法：轮询</Option>
                         <Option value="cookie-session-affinity">
                           负载均衡算法：会话保持
@@ -502,86 +622,87 @@ class DrawerForm extends PureComponent {
             >
               访问目标
             </h3>
-            <FormItem
-              {...formItemLayout}
-              label="应用名称"
-              style={{ zIndex: 999 }}
-            >
-              {getFieldDecorator('group_id', {
-                rules: [{ required: true, message: '请选择' }],
-                initialValue: appID
-                  ? { key: appID }
-                  : (editInfo && {
-                      key: editInfo.g_id,
-                      label: editInfo.group_name
-                    }) ||
-                    undefined
-              })(
-                <Select
-                  labelInValue
-                  disabled={appID}
-                  placeholder="请选择要所属应用"
-                  onChange={this.handleServices}
-                >
-                  {(groups || []).map(group => {
-                    return (
-                      <Option value={`${group.group_id}`} key={group.group_id}>
-                        {group.group_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-            <FormItem {...formItemLayout} label="组件" style={{ zIndex: 999 }}>
-              {getFieldDecorator('service_id', {
-                rules: [{ required: true, message: '请选择' }],
-                initialValue:
-                  editInfo && editInfo.service_id
-                    ? editInfo.service_id
-                    : this.state.serviceComponentList &&
-                      this.state.serviceComponentList.length > 0
-                    ? this.state.serviceComponentList[0].service_id
-                    : undefined
-              })(
-                <Select placeholder="请选择组件" onChange={this.handlePorts}>
-                  {(this.state.serviceComponentList || []).map(
-                    (service, index) => {
-                      return (
-                        <Option value={`${service.service_id}`} key={index}>
-                          {service.service_cname}
-                        </Option>
-                      );
-                    }
+            <Skeleton loading={serviceComponentLoading} active>
+              <Fragment>
+                <FormItem {...formItemLayout} label="应用名称">
+                  {getFieldDecorator('group_id', {
+                    rules: [{ required: true, message: '请选择' }],
+                    initialValue: appKey || appKeys || undefined
+                  })(
+                    <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
+                      labelInValue
+                      disabled={appID}
+                      placeholder="请选择要所属应用"
+                      onChange={this.handleServices}
+                    >
+                      {(groups || []).map(group => {
+                        return (
+                          <Option
+                            value={`${group.group_id}`}
+                            key={group.group_id}
+                          >
+                            {group.group_name}
+                          </Option>
+                        );
+                      })}
+                    </Select>
                   )}
-                </Select>
-              )}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="端口号"
-              style={{ zIndex: 999, marginBottom: '150px' }}
-            >
-              {getFieldDecorator('container_port', {
-                initialValue:
-                  editInfo && editInfo.container_port
-                    ? editInfo.container_port
-                    : this.state.portList && this.state.portList.length > 0
-                    ? this.state.portList[0].container_port
-                    : undefined,
-                rules: [{ required: true, message: '请选择端口号' }]
-              })(
-                <Select placeholder="请选择端口号">
-                  {(this.state.portList || []).map((port, index) => {
-                    return (
-                      <Option value={port.container_port} key={index}>
-                        {port.container_port}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
+                </FormItem>
+                <Spin spinning={componentLoading}>
+                  <FormItem {...formItemLayout} label="组件">
+                    {getFieldDecorator('service_id', {
+                      rules: [{ required: true, message: '请选择' }],
+                      initialValue: serviceId || serviceIds || undefined
+                    })(
+                      <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
+                        placeholder="请选择组件"
+                        onChange={this.handlePorts}
+                      >
+                        {(serviceComponentList || []).map((service, index) => {
+                          return (
+                            <Option value={`${service.service_id}`} key={index}>
+                              {service.service_cname}
+                            </Option>
+                          );
+                        })}
+                      </Select>
+                    )}
+                  </FormItem>
+                </Spin>
+                <Spin spinning={!isOk}>
+                  <FormItem
+                    {...formItemLayout}
+                    label="端口号"
+                    style={{ marginBottom: '150px' }}
+                  >
+                    {getFieldDecorator('container_port', {
+                      initialValue:
+                        containerPort || containerPorts || undefined,
+                      rules: [{ required: true, message: '请选择端口号' }]
+                    })(
+                      <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
+                        placeholder="请选择端口号"
+                      >
+                        {(portList || []).map((port, index) => {
+                          return (
+                            <Option value={port.container_port} key={index}>
+                              {port.container_port}
+                            </Option>
+                          );
+                        })}
+                      </Select>
+                    )}
+                  </FormItem>
+                </Spin>
+              </Fragment>
+            </Skeleton>
           </Form>
           <div
             style={{
@@ -606,7 +727,12 @@ class DrawerForm extends PureComponent {
               取消
             </Button>
             <Button
-              onClick={this.handleOk}
+              onClick={() => {
+                if (isOk) {
+                  this.handleOk();
+                }
+              }}
+              style={{ cursor: !isOk && 'no-drop' }}
               type="primary"
               loading={addHttpStrategyLoading || editHttpStrategyLoading}
             >

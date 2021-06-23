@@ -117,7 +117,7 @@ export default class BackupManage extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    loadBackups({ enterprise_id: eid })
+    loadBackups({ enterprise_id: eid, noModels: true })
       .then(data => {
         this.setState({ backups: data.list, backupLoading: false });
       })

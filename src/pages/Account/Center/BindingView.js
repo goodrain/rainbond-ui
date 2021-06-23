@@ -1,6 +1,6 @@
-import React, { Component, Fragment } from 'react';
-import { connect } from 'dva';
 import { List } from 'antd';
+import { connect } from 'dva';
+import React, { Component, Fragment } from 'react';
 import oauthUtil from '../../../utils/oauth';
 import rainbondUtil from '../../../utils/rainbond';
 
@@ -29,7 +29,7 @@ class BindingView extends Component {
         <List
           itemLayout="horizontal"
           dataSource={oauthList}
-          renderItem={(item) => {
+          renderItem={item => {
             const {
               service_name: serviceName,
               is_authenticated: isAuthenticated,
@@ -48,14 +48,21 @@ class BindingView extends Component {
             return (
               <List.Item
                 actions={[
-                  <span>
-                    <a
-                      href={isAuthenticated ? 'javascript:;' : authURL}
-                      style={{ color: isAuthenticated ? 'green' : '#1890ff' }}
-                      target={isAuthenticated ? 'inherit' : '_blank'}
-                    >
-                      {certificationText || '去认证'}
-                    </a>
+                  <span
+                    style={{ color: isAuthenticated ? 'green' : '#4d73b1' }}
+                  >
+                    {isAuthenticated
+                      ? certificationText
+                      : authURL && (
+                          // eslint-disable-next-line react/jsx-indent
+                          <a
+                            rel="noreferrer"
+                            href={`${authURL}&&type=certification`}
+                            target="_blank"
+                          >
+                            {certificationText || '去认证'}
+                          </a>
+                        )}
                   </span>
                 ]}
               >

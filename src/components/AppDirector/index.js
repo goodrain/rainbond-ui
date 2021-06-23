@@ -90,6 +90,7 @@ export default class AppDirector extends PureComponent {
               ]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 showSearch
                 notFoundContent={fetching ? <Spin size="small" /> : null}
                 filterOption={false}

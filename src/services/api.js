@@ -372,12 +372,23 @@ export async function getApplication(body = {}) {
     }
   );
 }
+
 export async function getHelmApplication(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.appStoreName}/apps/${body.app_name}`,
     {
       method: 'get',
       handleError
+    }
+  );
+}
+
+/* 基于记录重新部署 */
+export async function getAppRedeploy(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/deploy`,
+    {
+      method: 'post'
     }
   );
 }
@@ -434,35 +445,20 @@ export async function getTeamOverview(body = {}, handleError) {
   );
 }
 
-/* 生成升级订单 */
-
-export async function postUpdateOrder(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records`,
-    {
-      method: 'post',
-      data: {
-        group_key: body.group_key,
-        market_name: body.marketName,
-        is_from_cloud: body.isFromCloud
-      }
-    }
-  );
-}
-
 /* 创建升级任务 */
-
-export async function postUpdatedTasks(body = {}) {
+export async function postUpdatedTasks(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-tasks`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.upgrade_record_id}/upgrade`,
     {
       method: 'post',
       data: {
         upgrade_record_id: body.upgrade_record_id,
         group_key: body.group_key,
         version: body.version,
-        services: body.services
-      }
+        services: body.services,
+        upgrade_group_id: body.upgrade_group_id
+      },
+      handleError
     }
   );
 }
@@ -475,7 +471,8 @@ export async function getUpdatedVersion(body = {}) {
     {
       method: 'get',
       params: {
-        group_key: body.group_key
+        group_key: body.group_key,
+        upgrade_group_id: body.upgrade_group_id
       }
     }
   );
@@ -489,9 +486,10 @@ export async function getUpdatedInfo(body = {}) {
     {
       method: 'get',
       params: {
-        group_key: body.group_key,
+        group_key: body.app_model_key,
         version: body.version,
-        market_name: body.marketName
+        market_name: body.marketName,
+        upgrade_group_id: body.upgradeGroupID
       }
     }
   );
@@ -531,7 +529,9 @@ export async function getUpdateRecordsInfo(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}`,
     {
       method: 'get',
-      params: {}
+      params: {
+        record_id: body.record_id
+      }
     }
   );
 }
@@ -926,6 +926,20 @@ export async function deleteEnterpriseAdmin(param) {
 }
 
 /* 获取当前用户团队列表（搜索） */
+export async function fetchMyTeams(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/myteams`,
+    {
+      method: 'get',
+      params: {
+        page: param.page,
+        page_size: param.page_size,
+        name: param.name
+      }
+    }
+  );
+}
+
 export async function fetchUserTeams(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/user/${param.user_id}/teams`,
@@ -941,9 +955,10 @@ export async function fetchUserTeams(param) {
 }
 
 /* 查询企业列表 */
-export async function fetchEnterpriseList() {
+export async function fetchEnterpriseList(handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprises`, {
-    method: 'get'
+    method: 'get',
+    handleError
   });
 }
 
@@ -1203,7 +1218,7 @@ export async function toCreatUser(params, handleError) {
 }
 
 /** 编辑用户 */
-export async function upEnterpriseUsers(params) {
+export async function upEnterpriseUsers(params = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/user/${params.user_id}`,
     {
@@ -1217,7 +1232,8 @@ export async function upEnterpriseUsers(params) {
         password: params.password,
         re_password: params.password,
         role_ids: params.role_ids
-      }
+      },
+      handleError
     }
   );
 }

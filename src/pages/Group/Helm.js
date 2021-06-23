@@ -41,7 +41,7 @@ import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import sourceUtil from '../../utils/source-unit';
 import Instance from '../Component/component/Instance/index';
-import infoUtil from '../Upgrade/info-util';
+import infoUtil from '../Upgrade/UpgradeInfo/info-util';
 import AddAssociatedComponents from './AddAssociatedComponents';
 import styles from './Index.less';
 

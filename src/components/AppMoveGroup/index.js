@@ -1,10 +1,9 @@
 /* eslint-disable prettier/prettier */
+import { Form, Modal, notification, Select } from 'antd';
 import React, { PureComponent } from 'react';
-import { Form, notification, Modal, Select } from 'antd';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-
 
 @Form.create()
 export default class MoveGroup extends PureComponent {
@@ -44,7 +43,7 @@ export default class MoveGroup extends PureComponent {
                 }
               ]
             })(
-              <Select>
+              <Select getPopupContainer={triggerNode => triggerNode.parentNode}>
                 {groups.map(group => {
                   return (
                     <Option key={group.group_id} value={group.group_id}>

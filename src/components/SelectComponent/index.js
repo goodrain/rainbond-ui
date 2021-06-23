@@ -39,7 +39,7 @@ export default class SelectComponent extends PureComponent {
           region_name: currentRegion.team_region_name,
           group_id: currentAppID,
           page: 1,
-          page_size: 50,
+          page_size: -1,
           query: queryName
         },
         callback: data => {

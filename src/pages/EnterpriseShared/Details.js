@@ -452,14 +452,10 @@ export default class Main extends PureComponent {
   render() {
     const {
       loading,
-      form,
-      match: {
-        params: { appId }
-      }
+      form
     } = this.props;
     const {
       appInfo,
-      isShared,
       isAddLicense,
       tagList,
       imageUrl,
@@ -476,7 +472,7 @@ export default class Main extends PureComponent {
       total,
       appStoreAdmin: { isEditApp, isEditVersionApp, isDeleteAppVersion }
     } = this.state;
-    const { getFieldDecorator, getFieldValue } = form;
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -485,16 +481,6 @@ export default class Main extends PureComponent {
       wrapperCol: {
         xs: { span: 24 },
         sm: { span: 19 }
-      }
-    };
-    const formItemLayouts = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 3 }
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 21 }
       }
     };
     const token = cookie.get('token');
@@ -598,7 +584,7 @@ export default class Main extends PureComponent {
                             ]
                           })(<Input placeholder="请输入名称" />)}
                           <div className={styles.conformDesc}>
-                            请输入应用模版名称，最多32字.
+                            请输入应用模版名称，最大长度32位.
                           </div>
                         </div>
                       </FormItem>
@@ -620,6 +606,9 @@ export default class Main extends PureComponent {
                           ]
                         })(
                           <Select
+                            getPopupContainer={triggerNode =>
+                              triggerNode.parentNode
+                            }
                             placeholder="请选择发布范围"
                             dropdownRender={menu => (
                               <div>
@@ -684,6 +673,9 @@ export default class Main extends PureComponent {
                           ]
                         })(
                           <Select
+                            getPopupContainer={triggerNode =>
+                              triggerNode.parentNode
+                            }
                             mode="tags"
                             style={{ width: '100%' }}
                             onSelect={this.handleOnSelect}
@@ -798,7 +790,7 @@ export default class Main extends PureComponent {
                           src={imageBase64 || imageUrl}
                           alt="LOGO"
                           style={{
-                            margin: '0 30px',
+                            margin: '0 auto',
                             maxWidth: '60px',
                             maxHeight: '60px'
                           }}
@@ -808,8 +800,10 @@ export default class Main extends PureComponent {
                         appInfo.app_name && (
                           <div
                             style={{
-                              margin: '0 30px'
-                            }}
+                            margin: '0 auto',
+                            maxWidth: '60px',
+                            maxHeight: '60px'
+                          }}
                           >
                             {defaulAppImg}
                           </div>

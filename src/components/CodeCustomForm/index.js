@@ -1,12 +1,11 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-void */
 /* eslint-disable no-nested-ternary */
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Form, Button, Select, Input, Checkbox, Row, Col } from "antd";
-import AddGroup from "../../components/AddOrEditGroup";
-import globalUtil from "../../utils/global";
-import ShowRegionKey from "../../components/ShowRegionKey";
+import { Button, Checkbox, Col, Form, Input, Row, Select } from 'antd';
+import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
+import AddGroup from '../../components/AddOrEditGroup';
+import ShowRegionKey from '../../components/ShowRegionKey';
 
 const { Option } = Select;
 
@@ -23,7 +22,7 @@ const formItemLayout = {
   ({ user, global, loading }) => ({
     currUser: user.currentUser,
     groups: global.groups,
-    createAppByCodeLoading: loading.effects["createApp/createAppByCode"]
+    createAppByCodeLoading: loading.effects['createApp/createAppByCode']
   }),
   null,
   null,
@@ -37,7 +36,7 @@ export default class Index extends PureComponent {
       showUsernameAndPass: false,
       showKey: false,
       addGroup: false,
-      serverType: "git",
+      serverType: 'git',
       subdirectories: false,
       checkedList: [],
       visibleKey: false
@@ -57,21 +56,21 @@ export default class Index extends PureComponent {
   onChange = checkedValues => {
     this.setState({
       checkedList: checkedValues,
-      showUsernameAndPass: checkedValues.includes("showUsernameAndPass"),
-      subdirectories: checkedValues.includes("subdirectories"),
-      showKey: checkedValues.includes("showKey"),
-      visibleKey: !this.state.showKey && checkedValues.includes("showKey")
+      showUsernameAndPass: checkedValues.includes('showUsernameAndPass'),
+      subdirectories: checkedValues.includes('subdirectories'),
+      showKey: checkedValues.includes('showKey'),
+      visibleKey: !this.state.showKey && checkedValues.includes('showKey')
     });
   };
   getDefaultBranchName = () => {
-    if (this.state.serverType == "svn") {
-      return "trunk";
+    if (this.state.serverType == 'svn') {
+      return 'trunk';
     }
-    return "master";
+    return 'master';
   };
 
   getUrlCheck() {
-    if (this.state.serverType == "svn") {
+    if (this.state.serverType == 'svn') {
       return /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     return /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
@@ -84,40 +83,17 @@ export default class Index extends PureComponent {
     if (urlCheck.test(value)) {
       callback();
     } else {
-      callback("非法仓库地址");
+      callback('非法仓库地址');
     }
   };
 
-  handleAddGroup = vals => {
-    const { form, dispatch } = this.props;
-    const { setFieldsValue } = form;
-
-    dispatch({
-      type: "application/addGroup",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: res => {
-        if (res) {
-          // 获取群组
-          dispatch({
-            type: "global/fetchGroups",
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: res.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+  handleAddGroup = groupId => {
+    const { setFieldsValue } = this.props.form;
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
   hideShowKey = () => {
-    this.handkeDeleteCheckedList("showKey");
+    this.handkeDeleteCheckedList('showKey');
     this.setState({ showKey: false, visibleKey: false });
   };
   handleVisibleKey = () => {
@@ -138,11 +114,11 @@ export default class Index extends PureComponent {
       if (err) {
         return;
       }
-      if (fieldsValue.version_type == "tag") {
+      if (fieldsValue.version_type == 'tag') {
         // eslint-disable-next-line no-param-reassign
         fieldsValue.code_version = `tag:${fieldsValue.code_version}`;
       }
-      if (fieldsValue.subdirectories && fieldsValue.server_type !== "svg") {
+      if (fieldsValue.subdirectories && fieldsValue.server_type !== 'svg') {
         // eslint-disable-next-line no-param-reassign
         fieldsValue.git_url = `${fieldsValue.git_url}?dir=${fieldsValue.subdirectories}`;
       }
@@ -154,26 +130,26 @@ export default class Index extends PureComponent {
 
   fetchCheckboxGroup = (type, serverType) => {
     const { checkedList, showKey } = this.state;
-    const isSubdirectories = serverType !== "svn";
+    const isSubdirectories = serverType !== 'svn';
     return (
       <Checkbox.Group
-        style={{ width: "100%", marginBottom: "10px" }}
+        style={{ width: '100%', marginBottom: '10px' }}
         onChange={this.onChange}
         value={checkedList}
       >
         <Row>
-          <Col span={isSubdirectories ? 16 : 24} style={{ textAlign: "right" }}>
-            {type === "showKey" && (
+          <Col span={isSubdirectories ? 16 : 24} style={{ textAlign: 'right' }}>
+            {type === 'showKey' && (
               <Checkbox value="showKey" checked={showKey}>
                 配置授权Key
               </Checkbox>
             )}
-            {type === "showUsernameAndPass" && (
+            {type === 'showUsernameAndPass' && (
               <Checkbox value="showUsernameAndPass">填写仓库账号密码</Checkbox>
             )}
           </Col>
           {isSubdirectories && (
-            <Col span={8} style={{ textAlign: "right" }}>
+            <Col span={8} style={{ textAlign: 'right' }}>
               <Checkbox value="subdirectories">填写子目录路径</Checkbox>
             </Col>
           )}
@@ -190,7 +166,7 @@ export default class Index extends PureComponent {
       handleType,
       groupId,
       data = {},
-      showSubmitBtn,
+      showSubmitBtn = true,
       ButtonGroupState,
       handleServiceBotton,
       showCreateGroup
@@ -201,59 +177,63 @@ export default class Index extends PureComponent {
       showUsernameAndPass,
       subdirectories,
       serverType,
-      visibleKey
+      visibleKey,
+      addGroup
     } = this.state;
 
-    const gitUrl = getFieldValue("git_url");
+    const gitUrl = getFieldValue('git_url');
 
-    let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || "");
+    let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || '');
     // eslint-disable-next-line no-unused-vars
     let urlCheck = /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
-    if (serverType == "svn") {
+    if (serverType == 'svn') {
       isHttp = true;
       urlCheck = /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     const isSSH = !isHttp;
-    const showSubmitBtns = showSubmitBtn === void 0 ? true : showSubmitBtn;
     const showCreateGroups =
       showCreateGroup === void 0 ? true : showCreateGroup;
-    const prefixSelector = getFieldDecorator("server_type", {
+    const prefixSelector = getFieldDecorator('server_type', {
       initialValue: data.server_type || serverType
     })(
-      <Select onChange={this.onChangeServerType} style={{ width: 100 }}>
+      <Select
+        onChange={this.onChangeServerType}
+        style={{ width: 100 }}
+        getPopupContainer={triggerNode => triggerNode.parentNode}
+      >
         <Option value="git">Git</Option>
         <Option value="svn">Svn</Option>
       </Select>
     );
-    const versionSelector = getFieldDecorator("version_type", {
-      initialValue: this.state.version_type || "branch"
+    const versionSelector = getFieldDecorator('version_type', {
+      initialValue: this.state.version_type || 'branch'
     })(
-      <Select style={{ width: 100 }}>
+      <Select
+        style={{ width: 100 }}
+        getPopupContainer={triggerNode => triggerNode.parentNode}
+      >
         <Option value="branch">分支</Option>
         <Option value="tag">Tag</Option>
       </Select>
     );
     // const serverType = getFieldValue("server_type");
-
+    const isService = handleType && handleType === 'Service';
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="应用名称">
-            {getFieldDecorator("group_id", {
-              initialValue:
-                handleType && handleType === "Service"
-                  ? Number(groupId)
-                  : data.group_id,
-              rules: [{ required: true, message: "请选择" }]
+            {getFieldDecorator('group_id', {
+              initialValue: isService ? Number(groupId) : data.group_id,
+              rules: [{ required: true, message: '请选择' }]
             })(
               <Select
                 placeholder="请选择要所属应用"
                 style={{
-                  display: "inline-block",
-                  width: handleType && handleType === "Service" ? "" : 292,
+                  display: 'inline-block',
+                  width: isService ? '' : 292,
                   marginRight: 15
                 }}
-                disabled={!!(handleType && handleType === "Service")}
+                disabled={!!isService}
               >
                 {(groups || []).map(group => (
                   <Option key={group.group_id} value={group.group_id}>
@@ -263,23 +243,29 @@ export default class Index extends PureComponent {
               </Select>
             )}
             {handleType &&
-            handleType === "Service" ? null : showCreateGroups ? (
+            handleType === 'Service' ? null : showCreateGroups ? (
               <Button onClick={this.onAddGroup}>新建应用</Button>
             ) : null}
           </Form.Item>
           <Form.Item {...formItemLayout} label="组件名称">
-            {getFieldDecorator("service_cname", {
-              initialValue: data.service_cname || "",
-              rules: [{ required: true, message: "要创建的组件还没有名字" }]
+            {getFieldDecorator('service_cname', {
+              initialValue: data.service_cname || '',
+              rules: [
+                { required: true, message: '要创建的组件还没有名字' },
+                {
+                  max: 24,
+                  message: '最大长度24位'
+                }
+              ]
             })(<Input placeholder="请为创建的组件起个名字吧" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="仓库地址">
-            {getFieldDecorator("git_url", {
-              initialValue: data.git_url || "",
+            {getFieldDecorator('git_url', {
+              initialValue: data.git_url || '',
               force: true,
               rules: [
-                { required: true, message: "请输入仓库地址" },
-                { validator: this.checkURL, message: "仓库地址不合法" }
+                { required: true, message: '请输入仓库地址' },
+                { validator: this.checkURL, message: '仓库地址不合法' }
               ]
             })(
               <Input
@@ -288,24 +274,24 @@ export default class Index extends PureComponent {
               />
             )}
           </Form.Item>
-          {gitUrl && isSSH && this.fetchCheckboxGroup("showKey", serverType)}
+          {gitUrl && isSSH && this.fetchCheckboxGroup('showKey', serverType)}
           {gitUrl &&
             isHttp &&
-            this.fetchCheckboxGroup("showUsernameAndPass", serverType)}
+            this.fetchCheckboxGroup('showUsernameAndPass', serverType)}
 
           {showUsernameAndPass && isHttp && (
             <Form.Item {...formItemLayout} label="仓库用户名">
-              {getFieldDecorator("username_1", {
-                initialValue: data.username || "",
-                rules: [{ required: false, message: "请输入仓库用户名" }]
+              {getFieldDecorator('username_1', {
+                initialValue: data.username || '',
+                rules: [{ required: false, message: '请输入仓库用户名' }]
               })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
             </Form.Item>
           )}
           {showUsernameAndPass && isHttp && (
             <Form.Item {...formItemLayout} label="仓库密码">
-              {getFieldDecorator("password_1", {
-                initialValue: data.password || "",
-                rules: [{ required: false, message: "请输入仓库密码" }]
+              {getFieldDecorator('password_1', {
+                initialValue: data.password || '',
+                rules: [{ required: false, message: '请输入仓库密码' }]
               })(
                 <Input
                   autoComplete="new-password"
@@ -316,18 +302,18 @@ export default class Index extends PureComponent {
             </Form.Item>
           )}
 
-          {subdirectories && serverType !== "svn" && (
+          {subdirectories && serverType !== 'svn' && (
             <Form.Item {...formItemLayout} label="子目录路径">
-              {getFieldDecorator("subdirectories", {
-                initialValue: "",
-                rules: [{ required: true, message: "请输入子目录路径" }]
+              {getFieldDecorator('subdirectories', {
+                initialValue: '',
+                rules: [{ required: true, message: '请输入子目录路径' }]
               })(<Input placeholder="请输入子目录路径" />)}
             </Form.Item>
           )}
           <Form.Item {...formItemLayout} label="代码版本">
-            {getFieldDecorator("code_version", {
+            {getFieldDecorator('code_version', {
               initialValue: data.code_version || this.getDefaultBranchName(),
-              rules: [{ required: true, message: "请输入代码版本" }]
+              rules: [{ required: true, message: '请输入代码版本' }]
             })(
               <Input
                 addonBefore={versionSelector}
@@ -336,7 +322,7 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
 
-          {showSubmitBtns ? (
+          {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
@@ -347,7 +333,7 @@ export default class Index extends PureComponent {
               }}
               label=""
             >
-              {handleType && handleType === "Service" && ButtonGroupState
+              {isService && ButtonGroupState
                 ? handleServiceBotton(
                     <Button
                       onClick={this.handleSubmit}
@@ -370,7 +356,7 @@ export default class Index extends PureComponent {
             </Form.Item>
           ) : null}
         </Form>
-        {this.state.addGroup && (
+        {addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}
         {visibleKey && isSSH && (

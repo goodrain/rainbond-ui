@@ -1,6 +1,5 @@
-/* eslint-disable no-nested-ternary */
 /* eslint-disable import/extensions */
-/* eslint-disable no-unused-expressions */
+/* eslint-disable no-nested-ternary */
 import globalUtil from '@/utils/global';
 import roleUtil from '@/utils/role';
 import { Spin } from 'antd';
@@ -9,7 +8,6 @@ import React, { Fragment, PureComponent } from 'react';
 import Group from './Group';
 import Helm from './Helm';
 
-// eslint-disable-next-line react/no-multi-comp
 @connect(
   ({ teamControl, application }) => ({
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,

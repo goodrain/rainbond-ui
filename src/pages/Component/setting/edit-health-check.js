@@ -1,16 +1,10 @@
-import React, { PureComponent } from "react";
-import {
-  Form,
-  Select,
-  Radio,
-  Modal,
-  Input,
-} from "antd";
-import KVinput from "../../../components/KVinput";
-import appProbeUtil from "../../../utils/appProbe-util";
+import { Form, Input, Modal, Radio, Select } from 'antd';
+import React, { PureComponent } from 'react';
+import KVinput from '../../../components/KVinput';
+import appProbeUtil from '../../../utils/appProbe-util';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 const RadioGroup = Radio.Group;
 
 // 设置、编辑健康监测
@@ -18,61 +12,89 @@ const RadioGroup = Radio.Group;
 export default class EditHealthCheck extends PureComponent {
   constructor(props) {
     super(props);
+    const { ports, data } = this.props;
+    const HeavyList = ports ? this.handleHeavyList(ports) : [];
     this.state = {
-      list: this.props.ports ? this.handleHeavyList(this.props.ports) : [],
-      prolist: this.props.ports ? this.handleHeavyList(this.props.ports) : [],
+      isRestart: this.handleUnhealthyTreatment(data && data.mode),
+      list: HeavyList,
+      prolist: HeavyList,
+      showHTTP: data.scheme === 'http'
     };
   }
-
-  handleSubmit = (e) => {
+  onChanges = e => {
+    const val = e.target.value;
+    const { setFieldsValue } = this.props.form;
+    const isRestart = this.handleUnhealthyTreatment(val);
+    const info = {
+      mode: val
+    };
+    if (isRestart) {
+      info.success_threshold = '1';
+    }
+    setFieldsValue(info);
+    this.setState({
+      isRestart
+    });
+  };
+  handleUnhealthyTreatment = val => {
+    return val === 'liveness';
+  };
+  handleSubmit = e => {
     e.preventDefault();
-    this.props.form.validateFields(
+    const { form, onOk } = this.props;
+    form.validateFields(
       {
-        force: true,
+        force: true
       },
       (err, vals) => {
-        if (!err) {
-          this.props.onOk && this.props.onOk(vals);
+        if (!err && onOk) {
+          onOk(vals);
         }
-      },
+      }
     );
   };
-  checkPath = (rule, value, callback) => {
-    const visitType = this.props.form.getFieldValue("scheme");
-    if (visitType == "tcp") {
+  checkPath = (_, value, callback) => {
+    const visitType = this.props.form.getFieldValue('scheme');
+    if (visitType === 'tcp') {
       callback();
       return;
     }
 
-    if (visitType != "tcp" && value) {
+    if (visitType !== 'tcp' && value) {
       callback();
       return;
     }
-    callback("请填写路径!");
+    callback('请填写路径!');
   };
-
-  handleHeavyList = (arr) => {
-    let arrs = [];
-    arr.map((item) => {
+  checkNums = (_, value, callback) => {
+    if (value && value < 1) {
+      callback(`最小值为1`);
+      return;
+    }
+    callback();
+  };
+  handleHeavyList = arr => {
+    const arrs = [];
+    arr.map(item => {
       arrs.push(item.container_port);
     });
-    return arrs
-  }
+    return arrs;
+  };
 
-  handleList = (value) => {
-    if (value == null && value == "") {
+  handleList = value => {
+    if (value == null && value === '') {
       return;
     }
-    let arr = this.state.list ? this.state.list : [];
+    const arr = this.state.list ? this.state.list : [];
 
-    value && arr.unshift(value + "")
-    if (arr && arr.length > 0 && arr[0] == "null" || arr[0] == "") {
-      return
+    value && arr.unshift(`${value}`);
+    if ((arr && arr.length > 0 && arr[0] === 'null') || arr[0] === '') {
+      return;
     }
-    var res = [arr[0]];
-    for (var i = 1; i < arr.length; i++) {
-      var repeat = false;
-      for (var j = 0; j < res.length; j++) {
+    const res = [arr[0]];
+    for (let i = 1; i < arr.length; i++) {
+      let repeat = false;
+      for (let j = 0; j < res.length; j++) {
         if (arr[i] == res[j]) {
           repeat = true;
           break;
@@ -83,104 +105,124 @@ export default class EditHealthCheck extends PureComponent {
       }
     }
 
-    this.setState({ list: res })
+    this.setState({ list: res });
     this.props.form.setFieldsValue({
-      port: value,
+      port: value
     });
   };
-  onChanges = (e) => {
-    this.props.form.setFieldsValue({
-      mode: e.target.value,
-    })
-}
 
   render() {
-    const {
-      title, onCancel, ports,
-    } = this.props;
+    const { title, onCancel, form, types, loading = false } = this.props;
     const data = this.props.data || {};
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 6,
-        },
+          span: 6
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 16,
-        },
-      },
-    };
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { list,prolist } = this.state;
-    const scheme = getFieldValue("scheme") || "tcp";
-    return (
-      <Modal width={700} title={title} onOk={this.handleSubmit} maskClosable={false} onCancel={onCancel} visible>
-        <Form onSubmit={this.handleSubmit}>
-        {prolist && prolist.length>0 ? 
-          <FormItem {...formItemLayout} label="检测端口">
-            { getFieldDecorator("port", {
-              initialValue: appProbeUtil.getPort(data) || (list && list.length ? list[0] : ""),
-              rules: [{ required: true, message: "请输入" }],
-            })(<Select onSearch={(val) => { this.handleList(val) }}>
-              {list && list.map(port =>
-                <Option key={port}
-                  value={port}
-                >{port}
-                </Option>)
-              }
-            </Select>)}
-          </FormItem>:
-        
-        <FormItem {...formItemLayout} label="检测端口">
-            { getFieldDecorator("port", {
-              initialValue: appProbeUtil.getPort(data) || (list && list.length ? list[0] : ""),
-              rules: [{ required: true, message: "请输入" }],
-            })(<Select showSearch onSearch={(val) => { this.handleList(val) }}>
-              {list && list.map(port =>
-                <Option key={port}
-                  value={port}
-                >{port}
-                </Option>)
-              }
-            </Select>)}
-          </FormItem>
-        
+          span: 16
         }
-
-
-
+      }
+    };
+    const { getFieldDecorator, getFieldValue } = form;
+    const { list, prolist, isRestart, showHTTP } = this.state;
+    const scheme = getFieldValue('scheme') || 'tcp';
+    const secondBox = (
+      <span
+        style={{
+          marginLeft: 8
+        }}
+      >
+        秒
+      </span>
+    );
+    const numberBox = (disabled = false) => (
+      <Input
+        disabled={disabled}
+        type="number"
+        min={1}
+        style={{
+          width: '80%'
+        }}
+      />
+    );
+    const checkNum = [
+      {
+        validator: this.checkNums
+      }
+    ];
+    return (
+      <Modal
+        width={700}
+        title={title}
+        onOk={this.handleSubmit}
+        maskClosable={false}
+        onCancel={onCancel}
+        visible
+        confirmLoading={loading}
+      >
+        <Form onSubmit={this.handleSubmit}>
+          <FormItem {...formItemLayout} label="检测端口">
+            {getFieldDecorator('port', {
+              initialValue:
+                appProbeUtil.getPort(data) ||
+                (list && list.length ? list[0] : ''),
+              rules: [{ required: true, message: '请输入' }]
+            })(
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                showSearch={!(prolist && prolist.length > 0)}
+                onSearch={val => {
+                  this.handleList(val);
+                }}
+              >
+                {list &&
+                  list.map(port => (
+                    <Option key={port} value={port}>
+                      {port}
+                    </Option>
+                  ))}
+              </Select>
+            )}
+          </FormItem>
           <FormItem {...formItemLayout} label="探针协议">
-            {getFieldDecorator("scheme", {
-              initialValue: data.scheme || "tcp",
-            })(<RadioGroup
-              options={[
-                {
-                  label: "tcp",
-                  value: "tcp",
-                },
-                {
-                  label: "http",
-                  value: "http",
-                },
-              ]}
-            />)}
+            {getFieldDecorator('scheme', {
+              initialValue: data.scheme || 'tcp'
+            })(
+              <RadioGroup
+                onChange={e => {
+                  this.setState({ showHTTP: e.target.value === 'http' });
+                }}
+                options={[
+                  {
+                    label: 'tcp',
+                    value: 'tcp'
+                  },
+                  {
+                    label: 'http',
+                    value: 'http'
+                  }
+                ]}
+              />
+            )}
           </FormItem>
           <FormItem {...formItemLayout} label="不健康处理方式:">
-            {getFieldDecorator("mode", {
-              initialValue: data.mode || this.props.types&&"ignore"|| "readiness",
-              rules: [{ required: true, message: "请选择" }],
+            {getFieldDecorator('mode', {
+              initialValue: data.mode || (types && 'ignore') || 'readiness',
+              rules: [{ required: true, message: '请选择' }]
             })(
               <RadioGroup onChange={this.onChanges}>
-                <Radio value={"readiness"}>下线</Radio>
-                {!this.props.types&&<Radio value={"liveness"}>重启</Radio>}
-                {this.props.types&&<Radio value={"ignore"}>忽略</Radio>}
+                <Radio value="readiness">下线</Radio>
+                {!types && <Radio value="liveness">重启</Radio>}
+                {types && <Radio value="ignore">忽略</Radio>}
               </RadioGroup>
             )}
           </FormItem>
@@ -188,113 +230,79 @@ export default class EditHealthCheck extends PureComponent {
             {...formItemLayout}
             label="http请求头"
             style={{
-              display: scheme === "tcp" ? "none" : "",
+              display: !showHTTP ? 'none' : ''
             }}
           >
-            {getFieldDecorator("http_header", {
-              initialValue: data.http_header || "",
+            {getFieldDecorator('http_header', {
+              initialValue: data.http_header || ''
             })(<KVinput />)}
           </FormItem>
           <FormItem
             {...formItemLayout}
             label="路径"
             style={{
-              display: scheme === "tcp" ? "none" : "",
+              display: !showHTTP ? 'none' : ''
             }}
           >
-            {getFieldDecorator("path", {
-              initialValue: data.path || "",
+            {getFieldDecorator('path', {
+              initialValue: data.path || '',
               rules: [
                 {
-                  validator: this.checkPath,
-                },
-              ],
+                  validator: this.checkPath
+                }
+              ]
             })(<Input placeholder="响应码2xx、3xx为正常" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="初始化等候时间">
-            {getFieldDecorator("initial_delay_second", {
-              initialValue: data.initial_delay_second || "2",
+            {getFieldDecorator('initial_delay_second', {
+              initialValue: data.initial_delay_second || '2',
               rules: [
                 {
                   required: true,
-                  message: "请填写初始化等候时间",
+                  message: '请填写初始化等候时间'
                 },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                width: "80%",
-              }}
-            />)}
-            <span
-              style={{
-                marginLeft: 8,
-              }}
-            >
-              秒
-            </span>
+                ...checkNum
+              ]
+            })(numberBox())}
+            {secondBox}
           </FormItem>
           <FormItem {...formItemLayout} label="检测间隔时间">
-            {getFieldDecorator("period_second", {
-              initialValue: data.period_second || "3",
+            {getFieldDecorator('period_second', {
+              initialValue: data.period_second || '3',
               rules: [
                 {
                   required: true,
-                  message: "请填写检测间隔时间",
+                  message: '请填写检测间隔时间'
                 },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                width: "80%",
-              }}
-            />)}
-            <span
-              style={{
-                marginLeft: 8,
-              }}
-            >
-              秒
-            </span>
+                ...checkNum
+              ]
+            })(numberBox())}
+            {secondBox}
           </FormItem>
           <FormItem {...formItemLayout} label="检测超时时间">
-            {getFieldDecorator("timeout_second", {
-              initialValue: data.timeout_second || "20",
+            {getFieldDecorator('timeout_second', {
+              initialValue: data.timeout_second || '20',
               rules: [
                 {
                   required: true,
-                  message: "请填写检测超时时间",
+                  message: '请填写检测超时时间'
                 },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                width: "80%",
-              }}
-            />)}
-            <span
-              style={{
-                marginLeft: 8,
-              }}
-            >
-              秒
-            </span>
+                ...checkNum
+              ]
+            })(numberBox())}
+            {secondBox}
           </FormItem>
           <FormItem {...formItemLayout} label="连续成功次数">
-            {getFieldDecorator("success_threshold", {
-              initialValue: data.success_threshold || "1",
+            {getFieldDecorator('success_threshold', {
+              initialValue: isRestart ? '1' : data.success_threshold || '1',
               rules: [
                 {
                   required: true,
-                  message: "请填写连续成功次数",
+                  message: '请填写连续成功次数'
                 },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                width: "80%",
-              }}
-            />)}
+                ...checkNum
+              ]
+            })(numberBox(isRestart))}
           </FormItem>
         </Form>
       </Modal>

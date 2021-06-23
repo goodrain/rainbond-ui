@@ -66,10 +66,8 @@ export async function fetchMarketsTab(param) {
     }
   );
 }
-
 export async function fetchHelmMarketsTab(param) {
   return request(
-    // 'https://doc.goodrain.org/mock/18/console/proxy/enterprise-server/api/v1/enterprises/{eid}/appstores',
     `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${param.enterprise_id}/appstores`,
     {
       method: 'get'
@@ -81,6 +79,15 @@ export async function fetchHelmMarkets(param) {
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/helm/${param.repo_name}/apps`,
     {
       method: 'get'
+    }
+  );
+}
+export async function fetchOrganizations(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/cloud/markets/${param.market_id}/organizations`,
+    {
+      method: 'get',
+      showMessage: false
     }
   );
 }
@@ -136,7 +143,8 @@ export async function fetchAppModels(param) {
         scope: param.scope,
         app_name: param.app_name,
         is_complete: param.is_complete,
-        tags: JSON.stringify(param.tags)
+        tags: JSON.stringify(param.tags),
+        need_install: param.need_install
       }
     }
   );
@@ -247,7 +255,6 @@ export async function getBindingMarketsList(body, handleError) {
 }
 export async function getHelmAppStore(body, handleError) {
   return request(
-    // 'https://doc.goodrain.org/mock/18/console/proxy/enterprise-server/api/v1/enterprises/{enterprise_id}/appstores/{name}/apps',
     `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.name}/apps`,
     {
       method: 'get',

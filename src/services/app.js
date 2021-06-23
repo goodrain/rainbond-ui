@@ -143,22 +143,16 @@ export function getActionLogDetail(
 /*
 	部署应用
 */
-export function deploy(
-  body = {
-    team_name,
-    app_alias,
-    group_version,
-    is_upgrate
-  }
-) {
+export function deploy(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/deploy`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/market_service/upgrade`,
     {
       method: 'post',
       data: {
         is_upgrate: !!body.is_upgrate,
         group_version: body.group_version
-      }
+      },
+      handleError
     }
   );
 }
@@ -453,7 +447,8 @@ export function vertical(
     {
       method: 'post',
       data: {
-        new_memory: body.new_memory
+        new_memory: body.new_memory,
+        new_gpu: body.new_gpu
       }
     }
   );
@@ -983,8 +978,8 @@ export async function addInnerEnvs(body = {}) {
       method: 'post',
       data: {
         name: body.name,
-        attr_name: body.attr_name,
-        attr_value: body.attr_value,
+        attr_name: body.attr_name || '',
+        attr_value: body.attr_value || '',
         scope: body.scope ? body.scope : 'inner',
         is_change: true
       }
@@ -1032,7 +1027,7 @@ export async function addOuterEnvs(body = {}) {
       data: {
         name: body.name,
         attr_name: body.attr_name,
-        attr_value: body.attr_value,
+        attr_value: body.attr_value || '',
         scope: 'outer'
       }
     }
@@ -1050,7 +1045,7 @@ export async function editEvns(body = {}) {
       method: 'put',
       data: {
         name: body.name,
-        attr_value: body.attr_value
+        attr_value: body.attr_value || ''
       }
     }
   );
@@ -2477,20 +2472,15 @@ export async function editAppCreateInfo(
 	is_force:	true直接删除，false进入回收站
 	未创建成功的直接删除、 已经创建的进入回收站
 */
-export async function deleteApp(
-  body = {
-    team_name,
-    app_alias,
-    is_force
-  }
-) {
+export async function deleteApp(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/delete`,
     {
       method: 'delete',
       data: {
         is_force: true
-      }
+      },
+      handleError
     }
   );
 }
@@ -3104,6 +3094,109 @@ export async function deleteComponsentTrace(params) {
     `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/trace`,
     {
       method: 'delete'
+    }
+  );
+}
+// 获取App最新升级记录
+export async function getAppLastUpgradeRecord(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/last-upgrade-record`,
+    {
+      method: 'get',
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+// 获取应用上次记录
+export async function getAppModelLastRecord(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/last-upgrade-record`,
+    {
+      method: 'get',
+      noModels: body.noModels,
+      params: {
+        record_type: body.record_type || 'upgrade',
+        upgrade_group_id: body.upgrade_group_id
+      },
+      showMessage: false
+    }
+  );
+}
+
+/* 获取某个升级应用的详情，进入升级页面时调用 */
+export async function getApplicationUpgradeDetail(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps/${body.upgradeGroupID}`,
+    {
+      method: 'get',
+      params: {
+        record_id: body.record_id,
+        app_model_key: body.app_model_key
+      },
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+
+/* 生成新的升级任务 */
+export async function postUpgradeRecord(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/upgrade-records`,
+    {
+      method: 'post',
+      data: {
+        upgrade_group_id: body.upgrade_group_id
+      },
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+/* 获取回滚记录列表 */
+export async function getRollsBackRecordList(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/rollback-records`,
+    {
+      method: 'get',
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+/* 获取回滚记录详情 */
+export async function getRollsBackRecordDetails(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}`,
+    {
+      method: 'get',
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+
+/* 应用升级记录回滚 */
+export async function rollbackUpgrade(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/upgrade-records/${body.record_id}/rollback`,
+    {
+      method: 'post',
+      noModels: body.noModels,
+      showMessage: false
+    }
+  );
+}
+
+/* 应用升级记录回滚列表 */
+export async function rollbackUpgradeList(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/upgrade-records/${body.record_id}/rollback-records`,
+    {
+      method: 'get',
+      noModels: body.noModels,
+      showMessage: false
     }
   );
 }

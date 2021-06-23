@@ -8,11 +8,13 @@ import AppCreateSetting from '../../components/AppCreateSetting';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
+import roleUtil from '../../utils/role';
 
 @connect(
-  ({ loading }) => ({
+  ({ loading, teamControl }) => ({
     buildAppsLoading: loading.effects['createApp/buildApps'],
-    deleteAppLoading: loading.effects['appControl/deleteApp']
+    deleteAppLoading: loading.effects['appControl/deleteApp'],
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
@@ -22,6 +24,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      appPermissions: this.handlePermissions('queryAppInfo'),
       appDetail: null
     };
   }
@@ -31,10 +34,16 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     this.props.dispatch({ type: 'appControl/clearDetail' });
   }
-
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
+  };
   loadDetail = () => {
     const { dispatch } = this.props;
-    const { team_name, app_alias, region_name } = this.fetchParameter();
+    const { team_name, app_alias } = this.fetchParameter();
     dispatch({
       type: 'appControl/fetchDetail',
       payload: {
@@ -46,15 +55,9 @@ export default class Index extends PureComponent {
       },
       handleError: data => {
         const code = httpResponseUtil.getCode(data);
-        if (code) {
+        if (code && code === 404) {
           // 应用不存在
-          if (code === 404) {
-            dispatch(
-              routerRedux.push(
-                `/team/${team_name}/region/${region_name}/exception/404`
-              )
-            );
-          }
+          this.handleJump(`exception/404`);
         }
       }
     });
@@ -65,7 +68,7 @@ export default class Index extends PureComponent {
 
   handleBuild = () => {
     const { dispatch } = this.props;
-    const { team_name, app_alias, region_name } = this.fetchParameter();
+    const { team_name, app_alias } = this.fetchParameter();
     dispatch({
       type: 'createApp/buildApps',
       payload: {
@@ -80,18 +83,14 @@ export default class Index extends PureComponent {
               team_name
             }
           });
-          dispatch(
-            routerRedux.push(
-              `/team/${team_name}/region/${region_name}/components/${app_alias}/overview`
-            )
-          );
+          this.handleJump(`components/${app_alias}/overview`);
         }
       }
     });
   };
   handleDelete = () => {
     const { dispatch } = this.props;
-    const { team_name, app_alias, region_name } = this.fetchParameter();
+    const { team_name, app_alias } = this.fetchParameter();
     dispatch({
       type: 'appControl/deleteApp',
       payload: {
@@ -106,12 +105,18 @@ export default class Index extends PureComponent {
             team_name
           }
         });
-        dispatch(
-          routerRedux.replace(`/team/${team_name}/region/${region_name}/index`)
-        );
+        this.handleJump('index');
       }
     });
   };
+  handleJump = targets => {
+    const { dispatch } = this.props;
+    const { team_name, region_name } = this.fetchParameter();
+    dispatch(
+      routerRedux.replace(`/team/${team_name}/region/${region_name}/${targets}`)
+    );
+  };
+
   showDelete = () => {
     this.setState({ showDelete: true });
   };
@@ -124,6 +129,10 @@ export default class Index extends PureComponent {
   };
   render() {
     const { buildAppsLoading, deleteAppLoading } = this.props;
+    const {
+      showDelete,
+      appPermissions: { isDelete }
+    } = this.state;
     const appDetail = this.state.appDetail || {};
     if (!appDetail.service) {
       return null;
@@ -169,11 +178,13 @@ export default class Index extends PureComponent {
             >
               确认创建
             </Button>
-            <Button onClick={this.showDelete} type="default">
-              放弃创建
-            </Button>
+            {isDelete && (
+              <Button onClick={this.showDelete} type="default">
+                放弃创建
+              </Button>
+            )}
           </div>
-          {this.state.showDelete && (
+          {showDelete && (
             <ConfirmModal
               loading={deleteAppLoading}
               onOk={this.handleDelete}

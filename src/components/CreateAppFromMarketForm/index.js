@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import { Button, Form, Modal, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -33,31 +34,10 @@ export default class Index extends PureComponent {
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
   };
-  handleAddGroup = vals => {
+  handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          this.props.dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
 
   handleChangeVersion = () => {};
@@ -90,9 +70,14 @@ export default class Index extends PureComponent {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { groups, onCancel, showCreate } = this.props;
+    const {
+      groups,
+      onCancel,
+      showCreate,
+      addAppLoading,
+      disabled
+    } = this.props;
     const data = this.props.data || {};
-
     const versionsInfo =
       showCreate &&
       showCreate.versions_info &&
@@ -118,7 +103,7 @@ export default class Index extends PureComponent {
             onClick={this.handleSubmit}
             type="primary"
             style={{ marginRight: '5px' }}
-            disabled={this.props.disabled}
+            loading={addAppLoading || disabled}
           >
             安装
           </Button>,
@@ -147,6 +132,7 @@ export default class Index extends PureComponent {
               ]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 onChange={this.handleChangeVersion}
                 style={{ width: '220px' }}
               >
@@ -181,6 +167,7 @@ export default class Index extends PureComponent {
               ]
             })(
               <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder="请选择应用"
                 style={{
                   display: 'inline-block',
