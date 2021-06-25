@@ -507,6 +507,7 @@ class Main extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.getAppAlias(),
         group_version: groupVersion || '',
+        isUpgrade: !!groupVersion,
         is_upgrate: build_upgrade
       },
       callback: res => {
@@ -1340,7 +1341,7 @@ class Main extends PureComponent {
                     type="primary"
                     loading={deployLoading}
                     onClick={() => {
-                      this.handleOkBuild();
+                      this.handleOkBuild(true);
                     }}
                   >
                     构建
