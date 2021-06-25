@@ -1341,7 +1341,7 @@ class Main extends PureComponent {
                     type="primary"
                     loading={deployLoading}
                     onClick={() => {
-                      this.handleOkBuild(true);
+                      this.handleOkBuild();
                     }}
                   >
                     构建
