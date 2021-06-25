@@ -2,6 +2,7 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable react/sort-comp */
+import CodeMirrorForm from '@/components/CodeMirrorForm';
 import {
   Alert,
   Button,
@@ -11,6 +12,7 @@ import {
   InputNumber,
   message,
   Modal,
+  notification,
   Popconfirm,
   Row,
   Select,
@@ -167,11 +169,13 @@ export default class RKEClusterConfig extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      yamlVal: '',
       loading: false,
       dataSource: [],
       count: 0,
       initNodeCmd: ''
     };
+    this.CodeMirrorRef = '';
   }
 
   componentDidMount = () => {
@@ -180,7 +184,10 @@ export default class RKEClusterConfig extends PureComponent {
   };
 
   setNodeList = () => {
-    const { nodeList } = this.props;
+    const { nodeList, rkeConfig, form } = this.props;
+    const { setFieldsValue } = form;
+    const { CodeMirrorRef } = this;
+
     for (let i = 0; i < nodeList.length; i++) {
       nodeList[i].key = `key${i}`;
       if (!nodeList[i].sshPort || nodeList[i].sshPort === 0) {
@@ -188,7 +195,32 @@ export default class RKEClusterConfig extends PureComponent {
       }
       nodeList[i].disable = true;
     }
+    if (rkeConfig) {
+      const val = this.decodeBase64Content(rkeConfig);
+      setFieldsValue({
+        yamls: val
+      });
+      this.setState({
+        yamlVal: val
+      });
+      if (CodeMirrorRef) {
+        const editor = CodeMirrorRef.getCodeMirror();
+        editor.setValue(val);
+      }
+    }
+
     this.setState({ dataSource: nodeList, count: nodeList.length });
+  };
+
+  encodeBase64Content = commonContent => {
+    const base64Content = Buffer.from(commonContent).toString('base64');
+    return base64Content;
+  };
+
+  decodeBase64Content = base64Content => {
+    let commonContent = base64Content.replace(/\s/g, '+');
+    commonContent = Buffer.from(commonContent, 'base64').toString();
+    return commonContent;
   };
 
   loadInitNodeCmd = () => {
@@ -202,32 +234,37 @@ export default class RKEClusterConfig extends PureComponent {
   };
 
   updateCluster = () => {
-    const { dispatch, eid, onOK, clusterID } = this.props;
+    const { dispatch, eid, onOK, clusterID, form } = this.props;
     const { dataSource } = this.state;
     if (dataSource.length < 1) {
       message.warning('请定义集群节点');
     }
-    this.setState({ loading: true });
-    dispatch({
-      type: 'cloud/updateKubernetesCluster',
-      payload: {
-        enterprise_id: eid,
-        clusterID,
-        provider: 'rke',
-        nodes: dataSource
-      },
-      callback: data => {
-        if (data && onOK) {
-          onOK(data);
-        }
-      },
-      handleError: res => {
-        if (res && res.data && res.data.code === 7005) {
-          onOK(res.data.data);
-          return;
-        }
-        cloud.handleCloudAPIError(res);
-        this.setState({ loading: false });
+    form.validateFields((error, values) => {
+      if (!error) {
+        this.setState({ loading: true });
+        dispatch({
+          type: 'cloud/updateKubernetesCluster',
+          payload: {
+            enterprise_id: eid,
+            clusterID,
+            provider: 'rke',
+            nodes: dataSource,
+            rkeConfig: this.encodeBase64Content(values.yamls)
+          },
+          callback: data => {
+            if (data && onOK) {
+              onOK((data && data.response_data) || {});
+            }
+          },
+          handleError: res => {
+            if (res && res.data && res.data.code === 7005) {
+              onOK(res.data.data);
+              return;
+            }
+            cloud.handleCloudAPIError(res);
+            this.setState({ loading: false });
+          }
+        });
       }
     });
   };
@@ -289,6 +326,22 @@ export default class RKEClusterConfig extends PureComponent {
     });
     this.setState({ dataSource: newData });
   };
+  beforeUpload = (file, isMessage) => {
+    const fileArr = file.name.split('.');
+    const { length } = fileArr;
+    const isRightType =
+      fileArr[length - 1] === 'yaml' || fileArr[length - 1] === 'yml';
+    if (!isRightType) {
+      if (isMessage) {
+        notification.warning({
+          message: '请上传以.yaml、.yml结尾的 Region Config 文件'
+        });
+      }
+      return false;
+    }
+    return true;
+  };
+
   nodeRole = role => {
     switch (role) {
       case 'controlplane':
@@ -303,8 +356,16 @@ export default class RKEClusterConfig extends PureComponent {
   };
   render() {
     const { onCancel } = this.props;
-    const { getFieldDecorator } = this.props.form;
-    const { loading, dataSource, initNodeCmd } = this.state;
+    const { getFieldDecorator, setFieldsValue } = this.props.form;
+    const { loading, dataSource, initNodeCmd, yamlVal } = this.state;
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 3 }
+      },
+      wrapperCol: {
+        xs: { span: 24 }
+      }
+    };
     const components = {
       body: {
         row: EditableFormRow,
@@ -380,17 +441,16 @@ export default class RKEClusterConfig extends PureComponent {
     return (
       <Modal
         visible
-        title="扩容 Kubernetes 集群"
+        title="配置 Kubernetes 集群"
         className={styles.TelescopicModal}
         width={800}
         destroyOnClose
         footer={
           <Popconfirm
-            title="确定已完成所有节点的初始化并开始扩容集群吗?"
+            title="确定已完成所有节点的初始化并开始配置集群吗?"
             onConfirm={this.updateCluster}
           >
-            {' '}
-            <Button type="primary">开始扩容</Button>
+            <Button type="primary">开始配置</Button>
           </Popconfirm>
         }
         confirmLoading={loading}
@@ -399,7 +459,7 @@ export default class RKEClusterConfig extends PureComponent {
       >
         <Alert
           type="warning"
-          message="集群节点扩容特别是管理节点、ETCD节点扩容具有一定风险，请选择合适的时间进行"
+          message="集群节点配置特别是管理节点、ETCD节点配置具有一定风险，请选择合适的时间进行"
         />
         <Form>
           <Row>
@@ -424,7 +484,7 @@ export default class RKEClusterConfig extends PureComponent {
                     </span>
                   </li>
                   <li>
-                    <span>Kubernetes 集群扩容成功后自动纳入平台管理。</span>
+                    <span>Kubernetes 集群配置成功后自动纳入平台管理。</span>
                   </li>
                 </ul>
               </Paragraph>
@@ -451,9 +511,28 @@ export default class RKEClusterConfig extends PureComponent {
               </Button>
             </Col>
           </Row>
+          <CodeMirrorForm
+            data={yamlVal || ''}
+            label="集群配置"
+            bg="151718"
+            width="100%"
+            isUpload={false}
+            saveRef={ref => {
+              this.CodeMirrorRef = ref;
+            }}
+            marginTop={120}
+            setFieldsValue={setFieldsValue}
+            formItemLayout={formItemLayout}
+            Form={Form}
+            getFieldDecorator={getFieldDecorator}
+            beforeUpload={this.beforeUpload}
+            mode="yaml"
+            name="yamls"
+            message="填写集群配置"
+          />
           <Row style={{ padding: '0 16px' }}>
             <span style={{ fontWeight: 600, color: 'red' }}>
-              请在开始扩容前在新加节点先执行以下初始化命令（执行用户需要具有sudo权限）：
+              请在开始配置前在新加节点先执行以下初始化命令（执行用户需要具有sudo权限）：
             </span>
             <Col span={24} style={{ marginTop: '16px' }}>
               <span className={styles.cmd}>{initNodeCmd}</span>

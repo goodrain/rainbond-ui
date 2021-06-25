@@ -435,12 +435,16 @@ export default class EnterpriseClusters extends PureComponent {
           <Row>
             <h3>自建基础设施</h3>
             <Divider />
+
             <Col span={8}>
-              <div onClick={this.addClusterShow} className={styles.import}>
-                <div className={styles.importicon}>{icon}</div>
+              <div
+                onClick={() => this.toClusterList('rke')}
+                className={styles.import}
+              >
+                <div className={styles.importicon}>{hostIcon}</div>
                 <div className={styles.importDesc}>
-                  <h3>接入已安装平台集群</h3>
-                  <p>导入已经完成安装的平台集群，由当前控制台调度管理。</p>
+                  <h3>从主机开始安装</h3>
+                  <p>提供至少一台主机，自动完成集群的安装和接入。</p>
                 </div>
               </div>
             </Col>
@@ -457,14 +461,11 @@ export default class EnterpriseClusters extends PureComponent {
               </div>
             </Col>
             <Col span={8}>
-              <div
-                onClick={() => this.toClusterList('rke')}
-                className={styles.import}
-              >
-                <div className={styles.importicon}>{hostIcon}</div>
+              <div onClick={this.addClusterShow} className={styles.import}>
+                <div className={styles.importicon}>{icon}</div>
                 <div className={styles.importDesc}>
-                  <h3>从主机开始安装</h3>
-                  <p>提供至少一台主机，自动完成集群的安装和接入。</p>
+                  <h3>接入已安装平台集群</h3>
+                  <p>导入已经完成安装的平台集群，由当前控制台调度管理。</p>
                 </div>
               </div>
             </Col>

@@ -457,7 +457,7 @@ export default class EnterpriseClusters extends PureComponent {
               );
             case 'rke':
               return (
-                <Tooltip title="支持节点扩容">
+                <Tooltip title="支持节点配置">
                   <span style={{ marginRight: '8px' }} key={item}>
                     基于主机自建
                   </span>
@@ -592,7 +592,7 @@ export default class EnterpriseClusters extends PureComponent {
               <Link
                 to={`/enterprise/${eid}/provider/rke/kclusters?clusterID=${item.provider_cluster_id}&updateKubernetes=true`}
               >
-                节点扩容
+                节点配置
               </Link>
             );
           }

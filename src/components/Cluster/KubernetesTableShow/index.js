@@ -148,6 +148,7 @@ export default class KubernetesClusterShow extends PureComponent {
         this.setState({
           showUpdateKubernetes: true,
           nodeList: re.nodeList,
+          rkeConfig: re.rkeConfig,
           updateClusterID: clusterID
         });
       })
@@ -323,7 +324,7 @@ export default class KubernetesClusterShow extends PureComponent {
               )}
             {row.state === 'running' && selectProvider === 'rke' && (
               <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
-                节点扩容
+                节点配置
               </a>
             )}
             {row.rainbond_init === true && (
@@ -383,6 +384,7 @@ export default class KubernetesClusterShow extends PureComponent {
       kubeConfig,
       showUpdateKubernetes,
       nodeList,
+      rkeConfig,
       updateClusterID,
       showUpdateKubernetesTasks,
       updateTask
@@ -541,6 +543,7 @@ export default class KubernetesClusterShow extends PureComponent {
             }}
             clusterID={updateClusterID}
             nodeList={nodeList}
+            rkeConfig={rkeConfig}
           />
         )}
         {showUpdateKubernetesTasks && (
