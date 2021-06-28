@@ -131,8 +131,7 @@ class AppInfo extends PureComponent {
                       initialValue: item.attr_value,
                       rules: [
                         {
-                          required: true,
-                          message: '不能为空'
+                          required: false
                         }
                       ]
                     }
