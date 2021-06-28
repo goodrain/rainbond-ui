@@ -1,17 +1,19 @@
+/* eslint-disable no-const-assign */
 /* eslint-disable react/sort-comp */
 /* eslint-disable react/no-multi-comp */
-import { Button, Card, Icon } from 'antd';
+import { Button, Card, Icon, List, Progress } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
-import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import regionUtil from '../../utils/region';
 import userUtil from '../../utils/user';
 import { openInNewTab } from '../../utils/utils';
+import LogShow from '../Component/component/LogShow';
+import styles from './Index.less';
 
 @connect(({ user, loading }) => ({
   currUser: user.currentUser,
@@ -20,19 +22,17 @@ import { openInNewTab } from '../../utils/utils';
 class ShareEvent extends React.Component {
   constructor(props) {
     super(props);
+    const { data, currUser } = this.props;
     this.state = {
-      data: this.props.data || {},
-      eventId: this.props.data.event_id || '',
-      status: this.props.data.event_status || 'not_start'
+      data: data || {},
+      eventId: (data && data.event_id) || '',
+      status: (data && data.event_status) || 'not_start',
+      opened: false
     };
     this.mount = false;
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
-    const region = userUtil.hasTeamAndRegion(
-      this.props.currUser,
-      teamName,
-      regionName
-    );
+    const region = userUtil.hasTeamAndRegion(currUser, teamName, regionName);
     if (region) {
       this.socketUrl = regionUtil.getEventWebSocketUrl(region);
     }
@@ -42,60 +42,54 @@ class ShareEvent extends React.Component {
     this.checkStatus();
   };
   checkStatus = () => {
+    const { receiveStartShare } = this.props;
     const { status } = this.state;
-    if (status === 'not_start' && this.props.receiveStartShare) {
-      this.props.receiveStartShare(this.startShareEvent);
+    if (status === 'not_start' && receiveStartShare) {
+      receiveStartShare(this.startShareEvent);
     }
-    if (status === 'start') {
-      this.getShareStatus();
-    }
-    if (status === 'success') {
-      this.onSuccess();
-    }
-
-    if (status === 'failure') {
-      this.onFail();
-    }
+    this.handleStatus();
   };
   componentWillUnmount = () => {
     this.mount = false;
   };
-  onSuccess = () => {
-    this.props.onSuccess && this.props.onSuccess();
-  };
-  onFail = () => {
-    this.props.onFail && this.props.onFail(this);
-  };
+
   reStart = () => {
     this.setState({ eventId: '' });
     this.startShareEvent();
   };
+
+  fetchParams = () => {
+    const { shareId } = this.props;
+    const { data } = this.state;
+    return {
+      team_name: globalUtil.getCurrTeamName(),
+      share_id: shareId,
+      event_id: data && data.ID
+    };
+  };
+
   getShareStatus = () => {
-    if (this.state.status !== 'start' || !this.mount) return;
+    const { dispatch } = this.props;
+    const { status, data } = this.state;
+
+    if (status !== 'start' || !this.mount) return;
+    // 查询发布状态
     let dispatchtype = 'application/getShareStatus';
-    if (this.state.data.type === 'plugin') {
+    if (data && data.type === 'plugin') {
+      // 共享插件状态
       dispatchtype = 'application/getPluginShareEventInShareApp';
     }
-    this.props.dispatch({
+    dispatch({
       type: dispatchtype,
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        share_id: this.props.share_id,
-        event_id: this.state.data.ID
-      },
-      callback: data => {
-        if (data) {
+      payload: this.fetchParams(),
+      callback: res => {
+        if (res && res.bean) {
           this.setState(
             {
-              status: data.bean.event_status
+              status: res.bean.event_status
             },
             () => {
-              if (this.state.status === 'success') {
-                this.onSuccess();
-              }
-              if (this.state.status === 'failure') {
-                this.onFail();
-              }
+              this.handleStatus();
               setTimeout(() => {
                 this.getShareStatus();
               }, 5000);
@@ -105,31 +99,41 @@ class ShareEvent extends React.Component {
       }
     });
   };
+  handleStatus = () => {
+    const { onSuccess, onFail } = this.props;
+    const { status } = this.state;
+    if (status === 'start') {
+      this.getShareStatus();
+    }
+    if (status === 'success' && onSuccess) {
+      onSuccess();
+    }
+    if (status === 'failure' && onFail) {
+      onFail(this);
+    }
+  };
   startShareEvent = () => {
-    const event = this.props.data;
+    const { data, dispatch } = this.props;
+    // 开始分享事件
     let dispatchtype = 'application/startShareEvent';
-    if (event.type === 'plugin') {
+    if (data.type === 'plugin') {
+      // 在共享应用中启动插件共享事件
       dispatchtype = 'application/startPluginShareEventInShareApp';
     }
-    this.props.dispatch({
+
+    dispatch({
       type: dispatchtype,
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        share_id: this.props.share_id,
-        event_id: event.ID
-      },
-      callback: data => {
-        if (data) {
+      payload: this.fetchParams(),
+      callback: res => {
+        if (res && res.bean) {
           this.setState(
             {
-              eventId: data.bean.event_id,
-              status: data.bean.event_status
+              eventId: res.bean.event_id,
+              status: res.bean.event_status
             },
             () => {
+              // 共享发布状态
               this.getShareStatus();
-              if (this.props.onStartSuccess) {
-                this.props.onStartSuccess();
-              }
             }
           );
         }
@@ -137,10 +141,8 @@ class ShareEvent extends React.Component {
     });
   };
   renderStatus = () => {
-    if (this.state.status === 'start') {
-      return <Icon type="sync" className="roundloading" />;
-    }
-    if (this.state.status === 'success') {
+    const { status } = this.state;
+    if (status === 'success') {
       return (
         <Icon
           type="check-circle"
@@ -150,55 +152,65 @@ class ShareEvent extends React.Component {
         />
       );
     }
-    if (this.state.status === 'failure') {
-      return <Icon type="close-circle" />;
+    if (status === 'failure') {
+      return <Icon type="close-circle" style={{ color: 'red' }} />;
     }
-    return null;
+    return <Icon type="sync" className="roundloading" />;
   };
+  handleCancel = () => {
+    this.setState({ opened: !this.state.opened });
+  };
+
   render() {
-    const data = this.state.data || {};
-    const { eventId, opened } = this.state;
+    const { eventId, opened, data, status } = this.state;
+    const datas = data || {};
+    const isFailure = status && status === 'failure';
+    const isSuccess = status && status === 'success';
+    const isShowSocket = !isFailure || !isSuccess;
+    const isLogs = isFailure || !isSuccess;
     return (
-      <div
-        style={{
-          marginBottom: 24
-        }}
-      >
-        <div style={{ padding: '16px', background: '#f2f4f5' }}>
-          {data.type === 'plugin'
-            ? `插件: ${data.plugin_name}`
-            : `组件: ${data.service_name}`}
-          {`  `}
-          {this.renderStatus()}
-          <div style={{ float: 'right' }}>
-            {!opened ? (
-              <a
-                onClick={() => {
-                  this.setState({ opened: true });
-                }}
-              >
-                <Icon type="down" />
-              </a>
-            ) : (
-              <a
-                onClick={() => {
-                  this.setState({ opened: false });
-                }}
-              >
-                <Icon type="up" />
-              </a>
-            )}
-          </div>
-        </div>
-        <div style={{ padding: '16px', background: '#f2f4f5' }}>
-          {eventId && (
-            <LogProcress
-              opened={opened}
-              socketUrl={this.socketUrl}
-              eventId={eventId}
+      <div>
+        <List.Item>
+          <Card style={{ width: '100%' }} hoverable>
+            <List.Item.Meta
+              title={
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <div>
+                    <span style={{ marginRight: '10px' }}>
+                      {this.renderStatus()}
+                    </span>
+                    {datas.type === 'plugin'
+                      ? `插件: ${datas.plugin_name}`
+                      : `组件: ${datas.service_name}`}
+                  </div>
+                  <div>
+                    {isLogs && [<a onClick={this.handleCancel}>日志</a>]}
+                  </div>
+                </div>
+              }
             />
-          )}
-        </div>
+          </Card>
+        </List.Item>
+
+        {opened && (
+          <LogShow
+            title="日志"
+            width="1000px"
+            onOk={this.handleCancel}
+            onCancel={this.handleCancel}
+            showSocket={isShowSocket}
+            EventID={eventId}
+            opened={opened}
+            socketUrl={this.socketUrl}
+            socket={this.props.socket}
+          />
+        )}
       </div>
     );
   }
@@ -209,46 +221,32 @@ export default class shareCheck extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      // failure、checking、success
       status: 'checking',
       shareEventList: [],
       successNum: 0,
       showDelete: false,
-      startShareCallback: [],
-      completeLoading: false,
-      isStart: false
+      completeLoading: false
     };
     this.fails = [];
     this.mount = false;
   }
   receiveStartShare = callback => {
-    this.state.startShareCallback.push(callback);
-    if (!this.state.isStart) {
-      this.state.isStart = true;
+    if (callback) {
       callback();
     }
   };
-  handleStartShareSuccess = () => {
-    this.state.startShareCallback.shift();
-    if (this.state.startShareCallback[0]) {
-      this.state.startShareCallback[0]();
-    }
-  };
+
   componentDidMount() {
     this.mount = true;
     this.getShareEventInfo();
   }
 
   getShareEventInfo = () => {
-    const params = this.getParams();
     this.props.dispatch({
       type: 'application/getShareEventInfo',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        share_id: params.shareId
-      },
+      payload: this.getParams(),
       callback: data => {
-        if (data) {
+        if (data && data.bean) {
           this.setState({
             shareEventList: data.bean.event_list || [],
             status: !data.bean.is_compelte ? 'checking' : 'success'
@@ -258,7 +256,8 @@ export default class shareCheck extends PureComponent {
     });
   };
   getParams = () => ({
-    shareId: this.props.match.params.shareId,
+    team_name: globalUtil.getCurrTeamName(),
+    share_id: this.props.match.params.shareId,
     appID: this.props.match.params.appID
   });
   componentWillUnmount() {
@@ -266,7 +265,8 @@ export default class shareCheck extends PureComponent {
   }
   handleSuccess = () => {
     this.state.successNum++;
-    if (this.state.successNum === this.state.shareEventList.length) {
+    const { successNum, shareEventList } = this.state;
+    if (successNum === shareEventList.length) {
       this.setState({ status: 'success' });
     }
   };
@@ -274,59 +274,7 @@ export default class shareCheck extends PureComponent {
     this.fails.push(com);
     this.setState({ status: 'failure' });
   };
-  renderChecking = () => {};
-  renderError = () => {
-    const extra = <div />;
-    const actions = [
-      <Button onClick={this.showDelete} type="default">
-        {' '}
-        放弃创建{' '}
-      </Button>,
-      <Button onClick={this.recheck} type="primary">
-        重新检测
-      </Button>
-    ];
 
-    return (
-      <Result
-        type="error"
-        title="应用发布失败"
-        description="请核对并修改以下信息后，再重新检测。"
-        extra={extra}
-        actions={actions}
-        style={{
-          marginTop: 48,
-          marginBottom: 16
-        }}
-      />
-    );
-  };
-  renderSuccess = () => {
-    const extra = <div />;
-    const actions = [
-      <Button onClick={this.handleBuild} type="primary">
-        {' '}
-        构建应用{' '}
-      </Button>,
-      <Button type="default" onClick={this.handleSetting}>
-        高级设置
-      </Button>,
-      <Button onClick={this.showDelete} type="default">
-        {' '}
-        放弃创建{' '}
-      </Button>
-    ];
-    return (
-      <Result
-        type="success"
-        title="应用发布成功"
-        description="您可以执行以下操作"
-        extra={extra}
-        actions={actions}
-        style={{ marginTop: 48, marginBottom: 16 }}
-      />
-    );
-  };
   handleReStart = () => {
     if (!this.fails.length) return;
     this.fails.forEach(item => {
@@ -337,64 +285,73 @@ export default class shareCheck extends PureComponent {
   };
   handleCompleteShare = () => {
     this.setState({ completeLoading: true });
-    const params = this.getParams();
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'application/completeShare',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        share_id: params.shareId
-      },
+      payload: this.getParams(),
       callback: data => {
         if (data && data.app_market_url) {
           openInNewTab(data.app_market_url);
         }
-        this.props.dispatch(
-          routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-              params.appID
-            }/publish`
-          )
-        );
+        this.handJump(`/publish`);
       }
     });
   };
   handleGiveUp = () => {
-    const params = this.getParams();
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'application/giveupShare',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        share_id: params.shareId
-      },
+      payload: this.getParams(),
       callback: () => {
         this.hideShowDelete();
-        this.props.dispatch(
-          routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-              params.appID
-            }`
-          )
-        );
+        this.handJump();
       }
     });
   };
+
+  handJump = (target = '') => {
+    const { dispatch } = this.props;
+    const params = this.getParams();
+    dispatch(
+      routerRedux.replace(
+        `/team/${
+          params.team_name
+        }/region/${globalUtil.getCurrRegionName()}/apps/${
+          params.appID
+        }${target}`
+      )
+    );
+  };
+  GetPercent = (num, total) => {
+    const nums = parseFloat(num);
+    const totals = parseFloat(total);
+    return total <= 0 ? 0 : `${Math.round((nums / totals) * 10000) / 100.0}`;
+  };
   renderBody = () => {
     const params = this.getParams();
-    const eventList = this.state.shareEventList;
-    const { status } = this.state;
-    const { completeLoading } = this.state;
+    const { shareEventList, status, completeLoading, successNum } = this.state;
+    const shareAll = (shareEventList && shareEventList.length) || 0;
     const extra = (
       <div>
-        {(eventList || []).map(item => (
-          <ShareEvent
-            receiveStartShare={this.receiveStartShare}
-            onStartSuccess={this.handleStartShareSuccess}
-            onFail={this.handleFail}
-            onSuccess={this.handleSuccess}
-            share_id={params.shareId}
-            data={item}
-          />
-        ))}
+        <List
+          grid={{
+            gutter: 16,
+            column: 3
+          }}
+          bordered={false}
+          loading={false}
+          itemLayout="horizontal"
+          dataSource={shareEventList || []}
+          renderItem={item => (
+            <ShareEvent
+              receiveStartShare={this.receiveStartShare}
+              onFail={this.handleFail}
+              onSuccess={this.handleSuccess}
+              shareId={params.share_id}
+              data={item}
+            />
+          )}
+        />
       </div>
     );
     let type = '';
@@ -414,8 +371,7 @@ export default class shareCheck extends PureComponent {
           onClick={this.handleCompleteShare}
           type="primary"
         >
-          {' '}
-          确认发布{' '}
+          确认发布
         </Button>
       ];
     }
@@ -431,11 +387,10 @@ export default class shareCheck extends PureComponent {
     }
     if (status === 'failure') {
       type = 'error';
-      desc = '请查看以下日志确认问题后重新同步';
+      desc = '请查看以下日志确认问题后重试';
       actions = [
         <Button onClick={this.handleReStart} type="primary">
-          {' '}
-          重新同步{' '}
+          重试
         </Button>,
         <Button onClick={this.showDelete} type="default">
           放弃发布
@@ -444,15 +399,27 @@ export default class shareCheck extends PureComponent {
     }
     return (
       <Result
+        className={styles.lists}
         type={type}
         title={title}
         extra={extra}
-        description={desc}
         actions={actions}
-        style={{
-          marginTop: 48,
-          marginBottom: 16
-        }}
+        description={
+          <div>
+            {desc}
+            {status !== 'success' && (
+              <Progress
+                style={{ padding: '24px 40px' }}
+                percent={
+                  successNum === shareAll
+                    ? 100
+                    : this.GetPercent(successNum, shareAll)
+                }
+                status={status === 'failure' ? 'exception' : 'line'}
+              />
+            )}
+          </div>
+        }
       />
     );
   };
@@ -464,17 +431,12 @@ export default class shareCheck extends PureComponent {
   };
   render() {
     const { loading } = this.props;
-    const { shareEventList } = this.state;
+    const { shareEventList, showDelete } = this.state;
     if (!shareEventList.length) return null;
     return (
       <PageHeaderLayout>
-        <Card bordered={false}>
-          {this.renderBody()}
-          {status === 'checking' && this.renderChecking()}
-          {status === 'success' && this.renderSuccess()}
-          {status === 'failure' && this.renderError()}
-        </Card>
-        {this.state.showDelete && (
+        <Card bordered={false}>{this.renderBody()}</Card>
+        {showDelete && (
           <ConfirmModal
             disabled={loading.effects['application/giveupShare']}
             onOk={this.handleGiveUp}

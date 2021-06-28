@@ -533,13 +533,7 @@ export async function getShareEventInfo(
 /*
     执行发布事件
 */
-export async function startShareEvent(
-  body = {
-    team_name,
-    share_id,
-    event_id
-  }
-) {
+export async function startShareEvent(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${body.event_id}`,
     { method: 'post' }
@@ -581,13 +575,7 @@ export async function getPluginShareEventInShareApp(
 /*
     查询发布状态
 */
-export async function getShareStatus(
-  body = {
-    team_name,
-    share_id,
-    event_id
-  }
-) {
+export async function getShareStatus(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${body.event_id}`,
     { method: 'get' }
