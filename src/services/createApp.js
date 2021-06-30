@@ -58,12 +58,7 @@ export async function createThirdPartyServices(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/third_party`,
     {
       method: 'post',
-      data: {
-        group_id: body.group_id,
-        service_cname: body.service_cname,
-        endpoints_type: body.endpoints_type,
-        endpoints: body.endpoints ? body.endpoints : ''
-      }
+      data: body
     }
   );
 }

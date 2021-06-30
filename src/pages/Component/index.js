@@ -859,8 +859,12 @@ class Main extends PureComponent {
       componentPermissions: { isRestart, isStop, isDelete, isEdit },
       appPermissions: { isEdit: isAppEdit }
     } = this.props;
-    const { status, isShowThirdParty } = this.state;
-
+    const { status } = this.state;
+    // Temporary logic that all third party components need to be implemented can be turned off.
+    let canStop = isStop;
+    if (appDetail.is_third && appDetail.endpoints_type !== 'kubernetes') {
+      canStop = false;
+    }
     return (
       <Fragment>
         <div style={{ display: 'flex' }}>
@@ -900,9 +904,7 @@ class Main extends PureComponent {
               )}
               {!appDetail.is_third && isRestart && <Divider type="vertical" />}
 
-              {isStop &&
-              !appStatusUtil.canStart(status) &&
-              !isShowThirdParty ? (
+              {canStop && !appStatusUtil.canStart(status) ? (
                 <span>
                   <a
                     style={{
@@ -920,10 +922,10 @@ class Main extends PureComponent {
                   </a>
                   <Divider type="vertical" />
                 </span>
-              ) : isStop &&
+              ) : canStop &&
                 status &&
                 status.status &&
-                status.status == 'upgrade' ? (
+                status.status === 'upgrade' ? (
                 <span>
                   <a
                     onClick={() => {
@@ -1038,10 +1040,13 @@ class Main extends PureComponent {
     if (!status.status) {
       return null;
     }
-
+    let canStart = isStart;
+    if (appDetail.is_third && appDetail.endpoints_type !== 'kubernetes') {
+      canStart = false;
+    }
     const action = (
       <div>
-        {isStart && !isShowThirdParty && !appStatusUtil.canStop(status) && (
+        {canStart && !appStatusUtil.canStop(status) && (
           <Button
             disabled={!appStatusUtil.canStart(status)}
             onClick={() => {
@@ -1083,7 +1088,7 @@ class Main extends PureComponent {
               构建
             </Button>
           </Tooltip>
-        ) : status && status.status == 'undeploy' && isConstruct ? (
+        ) : status && status.status === 'undeploy' && isConstruct ? (
           <Button
             onClick={this.handleOpenBuild}
             loading={buildInformationLoading}
@@ -1101,9 +1106,9 @@ class Main extends PureComponent {
           )
         )}
 
-        {status.status == 'undeploy' ||
-        status.status == 'closed' ||
-        status.status == 'stopping' ||
+        {status.status === 'undeploy' ||
+        status.status === 'closed' ||
+        status.status === 'stopping' ||
         isShowThirdParty
           ? ''
           : isUpdate && (
@@ -1116,19 +1121,17 @@ class Main extends PureComponent {
               </Button>
             )}
 
-        {appDetail.service.service_source == 'market' &&
+        {appDetail.service.service_source === 'market' &&
           appStatusUtil.canVisit(status) &&
           !isShowThirdParty &&
           isAccess &&
           visitBtns}
-        {appDetail.service.service_source != 'market' &&
+        {appDetail.service.service_source !== 'market' &&
           appStatusUtil.canVisit(status) &&
           !isShowThirdParty &&
           isAccess &&
           visitBtns}
         {isShowThirdParty && isAccess && visitBtns}
-
-        {/* {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)} */}
       </div>
     );
     const tabs = [
