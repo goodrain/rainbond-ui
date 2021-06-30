@@ -253,6 +253,16 @@ export async function installApp(body = {}) {
   );
 }
 
+export async function installHelmApp(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups`,
+    {
+      method: 'post',
+      data: body
+    }
+  );
+}
+
 /*
    根据compose_id获取应用
 */

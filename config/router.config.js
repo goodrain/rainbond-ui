@@ -101,7 +101,7 @@ export default [
             authority: ['admin', 'user']
           },
           {
-            path: '/enterprise/:eid/shared',
+            path: '/enterprise/:eid/shared/:marketName',
             component: './EnterpriseShared',
             name: 'EnterpriseShared',
             authority: ['admin', 'user']

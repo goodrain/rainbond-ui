@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react/sort-comp */
 import { Button, Checkbox, Divider, Form, message, Modal } from 'antd';
 import { PureComponent } from 'react';
@@ -100,15 +101,21 @@ class BatchEditPublishComponent extends PureComponent {
                   style={{
                     width: '100%',
                     textAlign: 'left',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    padding: 0
                   }}
                 >
                   <Checkbox
                     checked
                     value={apptit.service_share_uuid}
-                    style={{ marginRight: '10px' }}
-                  />
-                  {apptit.service_cname}
+                    style={{
+                      width: '100%',
+                      marginRight: '10px',
+                      padding: '5px 15px'
+                    }}
+                  >
+                    {apptit.service_cname}
+                  </Checkbox>
                 </Button>
               </div>
             );

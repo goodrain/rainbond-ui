@@ -53,34 +53,32 @@
       }
     }
   }
+}
+.cards {
+  :global {
+    .ant-card-actions > li > span {
+      width: 100%;
+    }
 
-  .cards {
-    :global {
-      .ant-card-actions > li > span {
-        width: 100%;
+    .ant-card-meta-title {
+      margin-bottom: 2px;
+
+      & > a {
+        color: @heading-color;
       }
+    }
 
-      .ant-card-meta-title {
-        margin-bottom: 2px;
+    .ant-card-actions {
+      background: #f7f9fa !important;
+    }
 
-        & > a {
-          color: @heading-color;
-        }
-      }
-
-      .ant-card-actions {
-        background: #f7f9fa;
-      }
-
-      .ant-card-body:hover {
-        .ant-card-meta-title > a {
-          color: @primary-color;
-        }
+    .ant-card-body:hover {
+      .ant-card-meta-title > a {
+        color: @primary-color;
       }
     }
   }
 }
-
 .extraImg {
   margin-top: -60px;
   text-align: center;
@@ -288,6 +286,9 @@
 }
 
 @media screen and (max-width: @screen-sm) {
+  .stepDescription {
+    left: 8px;
+  }
   .pageHeaderContent {
     padding-bottom: 30px;
   }
@@ -314,8 +315,6 @@
     display: inline-block;
   }
 }
-
-@import '~antd/lib/style/themes/default.less';
 
 .headerList {
   margin-bottom: 4px;
@@ -363,10 +362,4 @@
 
 .textSecondary {
   color: @text-color-secondary;
-}
-
-@media screen and (max-width: @screen-sm) {
-  .stepDescription {
-    left: 8px;
-  }
 }

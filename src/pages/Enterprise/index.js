@@ -702,7 +702,10 @@ export default class Enterprise extends PureComponent {
                           </div>
                         </li>
                         <li>
-                          <Link to={`/enterprise/${eid}/shared`} style={colors}>
+                          <Link
+                            to={`/enterprise/${eid}/shared/local`}
+                            style={colors}
+                          >
                             {overviewInfo && overviewInfo.shared_apps}
                           </Link>
                         </li>

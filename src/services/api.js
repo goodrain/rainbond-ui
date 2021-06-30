@@ -382,6 +382,16 @@ export async function getAppRedeploy(body = {}) {
   );
 }
 
+export async function getHelmApplication(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.appStoreName}/apps/${body.app_name}`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
 /* 获取企业详情 */
 export async function getCompanyInfo(body = {}) {
   return request(`${apiconfig.baseUrl}/console/enterprise/account`, {
@@ -498,6 +508,15 @@ export async function getUpdateRecordsList(body = {}) {
         page_size: body.pageSize ? body.pageSize : '',
         status__gt: body.status__gt ? body.status__gt : 1
       }
+    }
+  );
+}
+
+export async function getUpgradeRecordsHelmList(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/releases`,
+    {
+      method: 'get'
     }
   );
 }
@@ -792,6 +811,17 @@ export async function fetchEnterpriseInfo(param) {
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/info`,
     {
       method: 'get'
+    }
+  );
+}
+export async function getCreateAppTeams(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/create-app-teams`,
+    {
+      method: 'get',
+      params: {
+        name: param.name
+      }
     }
   );
 }

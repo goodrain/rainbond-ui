@@ -1,0 +1,49 @@
+@import '~antd/lib/style/themes/default.less';
+.antd_form {
+  margin-bottom: 8px !important;
+  :global {
+    .ant-input-group-addon {
+      width: 44px !important;
+    }
+  }
+}
+.ulStyle {
+  list-style: none;
+  :global {
+    li {
+      margin-bottom: 5px !important;
+    }
+  }
+}
+.over_hr {
+  display: block;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-bottom: 10px !important;
+  padding-top: 10px !important;
+  span {
+    position: relative;
+    display: inline-block;
+    text-transform: uppercase;
+    font-size: 13px;
+  }
+  span:before {
+    right: 100%;
+    margin-right: 15px;
+    content: '';
+  }
+  span:before,
+  span:after {
+    position: absolute;
+    top: 50%;
+    width: 9999px;
+    height: 1px;
+    background: #ecf0f1;
+  }
+  span:after {
+    left: 100%;
+    margin-left: 15px;
+    content: '';
+  }
+}

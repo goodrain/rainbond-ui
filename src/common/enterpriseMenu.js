@@ -1,7 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
-import { isUrl } from "../utils/utils";
-import userUtil from "../utils/user";
-import rainbondUtil from "../utils/rainbond";
+import rainbondUtil from '../utils/rainbond';
+import userUtil from '../utils/user';
+import { isUrl } from '../utils/utils';
 
 function menuData(eid, currentUser) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
@@ -49,51 +49,51 @@ function menuData(eid, currentUser) {
   );
   const menuArr = [
     {
-      name: "总览",
-      icon: "dashboard",
+      name: '总览',
+      icon: 'dashboard',
       path: `/enterprise/${eid}/index`,
-      authority: ["admin", "user"]
+      authority: ['admin', 'user']
     },
     {
       name: '应用市场',
       icon: 'share-alt',
-      path: `/enterprise/${eid}/shared`,
-      authority: ["admin", "user"]
+      path: `/enterprise/${eid}/shared/local`,
+      authority: ['admin', 'user']
     }
   ];
   if (rainbondUtil.isEnableBillingFunction()) {
     menuArr.push({
-      name: "订购",
+      name: '订购',
       icon: orderSvg,
       path: `/enterprise/${eid}/orders/overviewService`,
-      authority: ["admin", "user"]
+      authority: ['admin', 'user']
     });
   }
   menuArr.push({
-    name: "团队",
-    icon: "team",
+    name: '团队',
+    icon: 'team',
     path: `/enterprise/${eid}/teams`,
-    authority: ["admin", "user"]
+    authority: ['admin', 'user']
   });
   if (adminer) {
     menuArr.push(
       {
-        name: "集群",
+        name: '集群',
         icon: clusterSvg,
         path: `/enterprise/${eid}/clusters`,
-        authority: ["admin", "user"]
+        authority: ['admin', 'user']
       },
       {
-        name: "用户",
-        icon: "user",
+        name: '用户',
+        icon: 'user',
         path: `/enterprise/${eid}/users`,
-        authority: ["admin", "user"]
+        authority: ['admin', 'user']
       },
       {
-        name: "设置",
-        icon: "setting",
+        name: '设置',
+        icon: 'setting',
         path: `/enterprise/${eid}/setting`,
-        authority: ["admin", "user"]
+        authority: ['admin', 'user']
       }
     );
   }
@@ -101,7 +101,7 @@ function menuData(eid, currentUser) {
   return menuArr;
 }
 
-function formatter(data, parentPath = "", parentAuthority) {
+function formatter(data, parentPath = '', parentAuthority) {
   return data.map(item => {
     let { path } = item;
     if (!isUrl(path)) {

@@ -29,6 +29,10 @@ class CodeMirrorForm extends PureComponent {
 
   saveRef = ref => {
     this.CodeMirrorRef = ref;
+    const { saveRef = false } = this.props;
+    if (saveRef) {
+      saveRef(ref);
+    }
   };
 
   handleChangeUpload = info => {
@@ -85,7 +89,13 @@ class CodeMirrorForm extends PureComponent {
       mode,
       action,
       beforeUpload,
-      titles
+      isHeader = true,
+      isUpload = true,
+      isAmplifications = true,
+      marginTop = 0,
+      disabled = false,
+      titles,
+      bg = '#333'
     } = this.props;
     const { fullScreen } = this.state;
     let defaultFullScreenStyle = {
@@ -94,7 +104,7 @@ class CodeMirrorForm extends PureComponent {
       cursor: 'pointer',
       top: 0,
       textAlign: 'right',
-      background: '#333',
+      background: bg,
       lineHeight: '1px',
       padding: '9px 0 6px 0'
     };
@@ -123,10 +133,22 @@ class CodeMirrorForm extends PureComponent {
       smartIndent: true,
       matchBrackets: true,
       scrollbarStyle: null,
-      showCursorWhenSelecting: true
+      showCursorWhenSelecting: true,
+      readOnly: disabled
     };
 
     const token = cookie.get('token');
+
+    const amplifications = (
+      <span
+        style={{ margin: '0 20px' }}
+        onClick={() => {
+          this.setState({ fullScreen: !this.state.fullScreen });
+        }}
+      >
+        {globalUtil.fetchSvg('amplifications')}
+      </span>
+    );
     return (
       <Form.Item
         {...formItemLayout}
@@ -141,36 +163,34 @@ class CodeMirrorForm extends PureComponent {
           initialValue: data || '',
           rules: [{ required: true, message }]
         })(<CodeMirror options={options} ref={this.saveRef} />)}
-        <div style={defaultFullScreenStyle}>
-          <div
-            style={{ lineHeight: '20px', paddingLeft: '30px', color: '#fff' }}
-          >
-            {titles || ''}
-          </div>
-          <div>
-            <Upload
-              action={
-                action ||
-                `${apiconfig.baseUrl}/console/enterprise/team/certificate`
-              }
-              showUploadList={false}
-              withCredentials
-              headers={{ Authorization: `GRJWT ${token}` }}
-              beforeUpload={beforeUpload || false}
-              onChange={this.handleChangeUpload}
+        {amplifications}
+        {isHeader && (
+          <div style={defaultFullScreenStyle}>
+            <div
+              style={{ lineHeight: '20px', paddingLeft: '30px', color: '#fff' }}
             >
-              {globalUtil.fetchSvg('uploads')}
-            </Upload>
-            <span
-              style={{ margin: '0 20px' }}
-              onClick={() => {
-                this.setState({ fullScreen: !this.state.fullScreen });
-              }}
-            >
-              {globalUtil.fetchSvg('amplifications')}
-            </span>
+              {titles || ''}
+            </div>
+            <div>
+              {isUpload && (
+                <Upload
+                  action={
+                    action ||
+                    `${apiconfig.baseUrl}/console/enterprise/team/certificate`
+                  }
+                  showUploadList={false}
+                  withCredentials
+                  headers={{ Authorization: `GRJWT ${token}` }}
+                  beforeUpload={beforeUpload || false}
+                  onChange={this.handleChangeUpload}
+                >
+                  {globalUtil.fetchSvg('uploads')}
+                </Upload>
+              )}
+              {isAmplifications && amplifications}
+            </div>
           </div>
-        </div>
+        )}
       </Form.Item>
     );
   }

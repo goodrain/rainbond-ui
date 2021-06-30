@@ -1,35 +1,42 @@
 import {
   appExport,
   cancelImportApp,
+  CheckWarehouseAppName,
   createAppMarket,
   createAppModel,
   createMarketAppModel,
   createTag,
+  delAppVersion,
   deleteAppMarket,
+  deleteHelmAppStore,
   deleteTag,
   fetchAppModels,
-  getAppMarketInfo,
-  postBindingMarkets,
-  getBindingMarketsList,
   fetchAppModelsTags,
-  getAppModelsDetails,
-  delAppVersion,
+  fetchHelmMarkets,
+  fetchHelmMarketsTab,
   fetchMarkets,
   fetchMarketsTab,
+  getAppMarketInfo,
+  getAppModelsDetails,
+  getBindingMarketsList,
+  getHelmAppStore,
   getMarketApp,
   getRecommendMarketAppList,
   importApp,
   importDir,
+  postBindingMarkets,
+  postHelmAppStore,
   queryExport,
   queryImportApp,
   queryImportDirApp,
   queryImportingApp,
   queryImportRecord,
+  storehubCheck,
   upAppMarket,
   upAppModel,
-  upDataTag,
   upDataAppVersionInfo,
-  storehubCheck
+  upDataTag,
+  upHelmAppStore
 } from '../services/market';
 
 export default {
@@ -50,6 +57,36 @@ export default {
     },
     *addBindingMarkets({ payload, callback, handleError }, { call }) {
       const response = yield call(postBindingMarkets, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *addHelmAppStore({ payload, callback, handleError }, { call }) {
+      const response = yield call(postHelmAppStore, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *upHelmAppStore({ payload, callback }, { call }) {
+      const response = yield call(upHelmAppStore, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *checkWarehouseAppName({ payload, callback, handleError }, { call }) {
+      const response = yield call(CheckWarehouseAppName, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *deleteHelmAppStore({ payload, callback }, { call }) {
+      const response = yield call(deleteHelmAppStore, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchHelmAppStore({ payload, callback, handleError }, { call }) {
+      const response = yield call(getHelmAppStore, payload, handleError);
       if (response && callback) {
         callback(response);
       }
@@ -122,6 +159,18 @@ export default {
     },
     *fetchMarketsTab({ payload, callback }, { call }) {
       const response = yield call(fetchMarketsTab, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchHelmMarketsTab({ payload, callback }, { call }) {
+      const response = yield call(fetchHelmMarketsTab, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchHelmMarkets({ payload, callback }, { call }) {
+      const response = yield call(fetchHelmMarkets, payload);
       if (response && callback) {
         callback(response);
       }

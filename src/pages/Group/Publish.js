@@ -335,7 +335,7 @@ export default class AppPublishList extends PureComponent {
                       case '':
                         return (
                           <Link
-                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared`}
+                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared/local`}
                           >
                             应用市场
                           </Link>
@@ -343,7 +343,7 @@ export default class AppPublishList extends PureComponent {
                       case 'team':
                         return (
                           <Link
-                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared`}
+                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared/local`}
                           >
                             应用市场(团队)
                           </Link>
@@ -351,7 +351,7 @@ export default class AppPublishList extends PureComponent {
                       case 'enterprise':
                         return (
                           <Link
-                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared`}
+                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared/local`}
                           >
                             应用市场(企业)
                           </Link>
