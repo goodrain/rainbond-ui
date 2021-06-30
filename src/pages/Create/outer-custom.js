@@ -10,7 +10,7 @@ import styles from './Index.less';
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
-  groups: global.groups,
+  groups: global.groups
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -30,7 +30,7 @@ export default class Index extends PureComponent {
       type: 'application/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...vals,
+        ...vals
       },
       callback: group => {
         if (group) {
@@ -39,42 +39,27 @@ export default class Index extends PureComponent {
             type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName(),
+              region_name: globalUtil.getCurrRegionName()
             },
             callback: () => {
               setFieldsValue({ group_id: group.group_id });
               this.cancelAddGroup();
-            },
+            }
           });
         }
-      },
+      }
     });
   };
-  hideShowKey = () => {
-    this.setState({ showKey: false });
-  };
+
   handleSubmit = value => {
     const teamName = globalUtil.getCurrTeamName();
-    let endpoints = {};
-    if (value.endpoints_type == 'static') {
-      endpoints = value.static;
-    } else if (value.endpoints_type == 'api') {
-      endpoints = value.api;
-    } else {
-      endpoints.type = value.type;
-      endpoints.servers = value.servers;
-      endpoints.key = value.key;
-      endpoints.username = value.username;
-      endpoints.password = value.password;
-    }
     this.props.dispatch({
       type: 'createApp/createThirdPartyServices',
       payload: {
         team_name: teamName,
         group_id: value.group_id,
         service_cname: value.service_cname,
-        endpoints_type: value.endpoints_type,
-        endpoints: JSON.stringify(endpoints) == '{}' ? '' : endpoints,
+        ...value
       },
       callback: data => {
         if (data) {
@@ -90,7 +75,7 @@ export default class Index extends PureComponent {
             this.props.handleType === 'Service' &&
             this.props.handleServiceBotton(null, null);
         }
-      },
+      }
     });
   };
   render() {

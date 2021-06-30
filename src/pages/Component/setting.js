@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
 import {
@@ -768,7 +769,6 @@ export default class Index extends React.Component {
                         onClick={() => {
                           this.handleStartProbeStart(false);
                         }}
-                        href="javascript:;"
                         style={{ fontSize: '14px', fontWeight: 400 }}
                       >
                         禁用
@@ -779,7 +779,6 @@ export default class Index extends React.Component {
                           onClick={() => {
                             this.handleStartProbeStart(true);
                           }}
-                          href="javascript:;"
                           style={{ fontSize: '14px', fontWeight: 400 }}
                         >
                           启用
@@ -801,11 +800,11 @@ export default class Index extends React.Component {
                 </div>
                 <div style={{ width: '33%', textAlign: 'center' }}>
                   不健康处理方式:
-                  {startProbe.mode == 'readiness'
+                  {startProbe.mode === 'readiness'
                     ? '下线'
-                    : startProbe.mode == 'liveness'
+                    : startProbe.mode === 'liveness'
                     ? '重启'
-                    : startProbe.mode == 'ignore'
+                    : startProbe.mode === 'ignore'
                     ? '忽略'
                     : '未设置'}
                 </div>

@@ -352,14 +352,16 @@ export default class Index extends PureComponent {
               title="服务实例"
               extra={
                 <div>
-                  <Button
-                    style={{ marginRight: '5px' }}
-                    onClick={() => {
-                      this.addInstance();
-                    }}
-                  >
-                    新增
-                  </Button>
+                  {appDetail.register_way !== 'kubernetes' && (
+                    <Button
+                      style={{ marginRight: '5px' }}
+                      onClick={() => {
+                        this.addInstance();
+                      }}
+                    >
+                      新增
+                    </Button>
+                  )}
 
                   <Button
                     onClick={() => {
@@ -374,12 +376,13 @@ export default class Index extends PureComponent {
               <Row>
                 <Col span={12}>
                   <p>
-                    注册方式：{' '}
+                    <b style={{ marginRight: 16 }}>注册方式:</b>
                     {appDetail.register_way ? appDetail.register_way : ''}
                   </p>
                   {appDetail.api_url && (
                     <p>
-                      API地址： {appDetail.api_url ? appDetail.api_url : ''}
+                      <b style={{ marginRight: 16 }}>API地址:</b>
+                      {appDetail.api_url ? appDetail.api_url : ''}
                       <div style={{ margin: '5px 0' }}>
                         <span>
                           秘钥： <a>{secret_key}</a>
@@ -406,13 +409,29 @@ export default class Index extends PureComponent {
                     </p>
                   )}
                   {endpoint_num && (
-                    <p>当前实例数: {endpoint_num > 0 ? endpoint_num : ''}</p>
+                    <p>
+                      <b style={{ marginRight: 16 }}>当前实例数:</b>
+                      {endpoint_num > 0 ? endpoint_num : ''}
+                    </p>
+                  )}
+                  {appDetail.endpoints_type === 'kubernetes' && (
+                    <p>
+                      <b style={{ marginRight: 16 }}>Service:</b>
+                      {appDetail.kubernetes.namespace}/
+                      {appDetail.kubernetes.serviceName}
+                    </p>
                   )}
                   {appDetail.discovery_type && (
-                    <p>动态类型: {appDetail.discovery_type}</p>
+                    <p>
+                      <b style={{ marginRight: 16 }}>动态类型:</b>
+                      {appDetail.discovery_type}
+                    </p>
                   )}
                   {appDetail.discovery_key && (
-                    <p>动态key: {appDetail.discovery_key}</p>
+                    <p>
+                      <b style={{ marginRight: 16 }}>动态key:</b>
+                      {appDetail.discovery_key}
+                    </p>
                   )}
                 </Col>
                 {appDetail.api_url && (
