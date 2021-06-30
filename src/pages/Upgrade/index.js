@@ -16,7 +16,6 @@ import {
   Form,
   List,
   Modal,
-  notification,
   Spin,
   Table,
   Tabs,
@@ -146,10 +145,10 @@ export default class AppList extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            list: res.list,
-            loadingList: false
+            list: res.list
           });
         }
+        this.handleCancelLoading();
       }
     });
   };
@@ -278,10 +277,11 @@ export default class AppList extends PureComponent {
         if (res && res.status_code === 200) {
           if (res.list && res.list.length > 0) {
             this.setState({
-              dataList: res.list
+              list: res.list
             });
           }
         }
+        this.handleCancelLoading();
       }
     });
   };
@@ -348,7 +348,6 @@ export default class AppList extends PureComponent {
       }
     });
   };
-
   openInfoPage = item => {
     const { team_name, group_id } = this.getParameter();
     const { dispatch } = this.props;
@@ -419,32 +418,6 @@ export default class AppList extends PureComponent {
       }
     );
   };
-
-  encodeBase64Content = commonContent => {
-    const base64Content = Buffer.from(commonContent).toString('base64');
-    return base64Content;
-  };
-
-  decodeBase64Content = base64Content => {
-    let commonContent = base64Content.replace(/\s/g, '+');
-    commonContent = Buffer.from(commonContent, 'base64').toString();
-    return commonContent;
-  };
-  beforeUpload = (file, isMessage) => {
-    const fileArr = file.name.split('.');
-    const { length } = fileArr;
-    const isRightType =
-      fileArr[length - 1] === 'yaml' || fileArr[length - 1] === 'yml';
-    if (!isRightType) {
-      if (isMessage) {
-        notification.warning({
-          message: '请上传以.yaml、.yml结尾的 Region Config 文件'
-        });
-      }
-      return false;
-    }
-    return true;
-  };
   rollbackUpgrade = () => {
     this.handleBackUpgradeLoading(true);
     const { rollbackRecord } = this.state;
@@ -483,6 +456,7 @@ export default class AppList extends PureComponent {
 
   handleCancelLoading = () => {
     this.setState({
+      loadingList: false,
       upgradeLoading: false,
       recordLoading: false
     });

@@ -53,7 +53,9 @@ import {
   getService,
   getTeamAppList,
   getTeamOverview,
-  getUpdatedInfo, getUpdateRecordsInfo,
+  getUpdatedInfo,
+  getUpdatedVersion,
+  getUpdateRecordsInfo,
   getUpdateRecordsList,
   getUpdateRollback,
   getUpgradeRecordsHelmList,
@@ -470,6 +472,14 @@ export default {
     },
     *fetchHelmApplication({ payload, callback, handleError }, { call }) {
       const response = yield call(getHelmApplication, payload, handleError);
+      if (response && callback) {
+        setTimeout(() => {
+          callback(response);
+        });
+      }
+    },
+    *CloudAppUpdatedVersion({ payload, callback }, { call }) {
+      const response = yield call(getUpdatedVersion, payload);
       if (response && callback) {
         setTimeout(() => {
           callback(response);

@@ -203,7 +203,8 @@ class EditName extends PureComponent {
     moveGroupLoading: loading.effects['appControl/moveGroup'],
     editNameLoading: loading.effects['appControl/editName'],
     updateRollingLoading: loading.effects['appControl/putUpdateRolling'],
-    deployLoading: loading.effects['appControl/putDeploy'],
+    deployLoading:
+      loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
     buildInformationLoading: loading.effects['appControl/getBuildInformation']
   }),
   null,
@@ -502,7 +503,7 @@ class Main extends PureComponent {
       return;
     }
     dispatch({
-      type: 'appControl/putDeploy',
+      type: groupVersion ? 'appControl/putUpgrade' : 'appControl/putDeploy',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.getAppAlias(),

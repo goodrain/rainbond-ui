@@ -81,9 +81,7 @@ export default class rollsBackRecordList extends PureComponent {
         width: '30%',
         render: (_, record) => (
           <div>
-            从版本<span className={styless.versions}>{record.version}</span>
-            回滚到
-            <span className={styless.versions}>{record.old_version}</span>
+            回滚到<span className={styless.versions}>{record.version}</span>
           </div>
         )
       },

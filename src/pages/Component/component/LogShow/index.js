@@ -3,7 +3,9 @@ import { Button, Modal } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
 import Ansi from '../../../../components/Ansi';
+import dateUtil from '../../../../utils/date-util';
 import globalUtil from '../../../../utils/global';
+import LogSocket from '../../../../utils/logSocket';
 import styles from './index.less';
 
 @connect(
@@ -69,40 +71,80 @@ class Index extends React.Component {
       }
     });
   }
+  handleMessage = data => {
+    const logs = this.state.logs || [];
+    if (data.message.indexOf('id') !== -1) {
+      try {
+        const m = JSON.parse(data.message);
+        if (m && m.id !== undefined) {
+          const { dockerprogress } = this.state;
+          if (dockerprogress.get(m.id) !== undefined) {
+            dockerprogress.set(m.id, m);
+          } else {
+            dockerprogress.set(m.id, m);
+            logs.push(data);
+          }
+          this.setState({
+            dockerprogress,
+            logs,
+            dynamic: true
+          });
+          return;
+        }
+      } catch (err) {
+        logs.push(data);
+      }
+    } else {
+      logs.push(data);
+    }
+    if (this.refs.box) {
+      this.refs.box.scrollTop = this.refs.box.scrollHeight;
+    }
+    this.setState({ logs, dynamic: true });
+  };
   showSocket() {
-    const { EventID, socket } = this.props;
-    if (socket) {
+    const { EventID, socket, socketUrl } = this.props;
+    if (socketUrl) {
+      const { onClose, onSuccess, onTimeout, onFail, onComplete } = this.props;
+      const isThrough = dateUtil.isWebSocketOpen(socketUrl);
+      if (isThrough && isThrough === 'through') {
+        this.socket = new LogSocket({
+          eventId: EventID,
+          url: socketUrl,
+          onClose: () => {
+            if (onClose) {
+              onClose();
+            }
+          },
+          onSuccess: data => {
+            if (onSuccess) {
+              onSuccess(data);
+            }
+          },
+          onTimeout: data => {
+            if (onTimeout) {
+              onTimeout(data);
+            }
+          },
+          onFail: data => {
+            if (onFail) {
+              onFail(data);
+            }
+          },
+          onMessage: data => {
+            this.handleMessage(data);
+          },
+          onComplete: () => {
+            if (onComplete) {
+              onComplete();
+            }
+          }
+        });
+      }
+    } else if (socket) {
       socket.watchEventLog(
         message => {
-          const logs = this.state.logs || [];
-          if (message.message.indexOf('id') !== -1) {
-            try {
-              const m = JSON.parse(message.message);
-              if (m && m.id !== undefined) {
-                const { dockerprogress } = this.state;
-                if (dockerprogress.get(m.id) !== undefined) {
-                  dockerprogress.set(m.id, m);
-                } else {
-                  dockerprogress.set(m.id, m);
-                  logs.push(message);
-                }
-                this.setState({
-                  dockerprogress,
-                  logs,
-                  dynamic: true
-                });
-                return;
-              }
-            } catch (err) {
-              logs.push(message);
-            }
-          } else {
-            logs.push(message);
-          }
-          if (this.refs.box) {
-            this.refs.box.scrollTop = this.refs.box.scrollHeight;
-          }
-          this.setState({ logs, dynamic: true });
+          this.handleMessage(message);
         },
         () => {
           this.setState({
@@ -195,7 +237,7 @@ class Index extends React.Component {
         bodyText = `${bodyText}\n${item.message}`;
       });
     }
-    const isDownloadb = bodyText.length >= 1024*1024 && !dynamic;
+    const isDownloadb = bodyText.length >= 1024 * 1024 && !dynamic;
 
     return (
       <Modal

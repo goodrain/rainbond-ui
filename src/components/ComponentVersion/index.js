@@ -80,7 +80,7 @@ export default class componentVersion extends PureComponent {
           loading: true
         });
         dispatch({
-          type: 'appControl/putDeploy',
+          type: 'appControl/putUpgrade',
           payload: {
             team_name: teamName,
             app_alias: serviceAlias,

@@ -421,13 +421,17 @@ export default class Index extends PureComponent {
                       />
                     )}
                     <Form>
-                      <Form.Item {...formItemLayout} label="">
+                      <Form.Item {...formItemLayout}>
                         {getFieldDecorator('url', {
                           initialValue: defaultMarketUrl || '',
                           rules: [
                             {
                               required: true,
                               message: '请填写需要进行绑定的应用市场的URL'
+                            },
+                            {
+                              max: 255,
+                              message: '最大长度255位'
                             }
                           ]
                         })(

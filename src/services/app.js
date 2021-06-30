@@ -156,6 +156,20 @@ export function deploy(body = {}, handleError) {
     }
   );
 }
+export function upgrade(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/market_service/upgrade`,
+    {
+      method: 'post',
+      data: {
+        is_upgrate: !!body.is_upgrate,
+        group_version: body.group_version
+      },
+      handleError
+    }
+  );
+}
+
 /*
 	更新滚动
 */

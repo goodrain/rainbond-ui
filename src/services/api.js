@@ -372,6 +372,15 @@ export async function getApplication(body = {}) {
     }
   );
 }
+/* 基于记录重新部署 */
+export async function getAppRedeploy(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/deploy`,
+    {
+      method: 'post'
+    }
+  );
+}
 
 export async function getHelmApplication(body = {}, handleError) {
   return request(
@@ -379,16 +388,6 @@ export async function getHelmApplication(body = {}, handleError) {
     {
       method: 'get',
       handleError
-    }
-  );
-}
-
-/* 基于记录重新部署 */
-export async function getAppRedeploy(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/deploy`,
-    {
-      method: 'post'
     }
   );
 }
