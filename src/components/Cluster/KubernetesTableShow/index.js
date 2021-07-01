@@ -25,7 +25,7 @@ import {
 } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
-import RKEClusterUpdate from '../RKEClusterUpdate';
+import RKEClusterUpdate from '../RKEClusterAdd';
 import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
 import istyles from './index.less';
 
@@ -148,6 +148,7 @@ export default class KubernetesClusterShow extends PureComponent {
         this.setState({
           showUpdateKubernetes: true,
           nodeList: re.nodeList,
+          rkeConfig: re.rkeConfig,
           updateClusterID: clusterID
         });
       })
@@ -321,11 +322,13 @@ export default class KubernetesClusterShow extends PureComponent {
                   <a>删除</a>
                 </Popconfirm>
               )}
-            {row.state === 'running' && selectProvider === 'rke' && (
+
+            {selectProvider === 'rke' && (
               <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
-                节点扩容
+                集群配置
               </a>
             )}
+
             {row.rainbond_init === true && (
               <Popconfirm
                 placement="top"
@@ -383,6 +386,7 @@ export default class KubernetesClusterShow extends PureComponent {
       kubeConfig,
       showUpdateKubernetes,
       nodeList,
+      rkeConfig,
       updateClusterID,
       showUpdateKubernetesTasks,
       updateTask
@@ -541,6 +545,7 @@ export default class KubernetesClusterShow extends PureComponent {
             }}
             clusterID={updateClusterID}
             nodeList={nodeList}
+            rkeConfig={rkeConfig}
           />
         )}
         {showUpdateKubernetesTasks && (

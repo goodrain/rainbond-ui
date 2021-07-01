@@ -60,7 +60,7 @@ class UpdateClusterDetail extends PureComponent {
     }
     return (
       <Modal
-        title={title || 'Kubernetes 集群扩容进度查询'}
+        title={title || 'Kubernetes 集群配置进度查询'}
         visible
         maskClosable={false}
         width={600}
@@ -75,7 +75,7 @@ class UpdateClusterDetail extends PureComponent {
         <Row loading={loading} className={styles.box}>
           <Alert
             style={{ marginBottom: '16px' }}
-            message="扩容流程预计耗时10分钟，请耐心等待，若遇到错误请反馈到社区"
+            message="配置流程预计耗时10分钟，请耐心等待，若遇到错误请反馈到社区"
             type="info"
             showIcon
           />
