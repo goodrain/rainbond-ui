@@ -26,7 +26,19 @@ class CodeMirrorForm extends PureComponent {
     };
     this.CodeMirrorRef = '';
   }
-
+  componentWillReceiveProps(nextProps) {
+    const { name, data, setFieldsValue } = this.props;
+    const { CodeMirrorRef } = this;
+    if (data !== nextProps.data && CodeMirrorRef) {
+      setFieldsValue({
+        [name]: nextProps.data
+      });
+      if (CodeMirrorRef) {
+        const editor = CodeMirrorRef.getCodeMirror();
+        editor.setValue(nextProps.data);
+      }
+    }
+  }
   saveRef = ref => {
     this.CodeMirrorRef = ref;
     const { saveRef = false } = this.props;
@@ -92,10 +104,10 @@ class CodeMirrorForm extends PureComponent {
       isHeader = true,
       isUpload = true,
       isAmplifications = true,
-      marginTop = 0,
       disabled = false,
       titles,
-      bg = '#333'
+      bg = '#333',
+      help
     } = this.props;
     const { fullScreen } = this.state;
     let defaultFullScreenStyle = {
@@ -153,6 +165,7 @@ class CodeMirrorForm extends PureComponent {
       <Form.Item
         {...formItemLayout}
         label={label}
+        help={help && <span style={{ color: 'red' }}>{help}</span>}
         className={
           fullScreen
             ? `${styles.fullScreens} ${styles.childrenWidth}`

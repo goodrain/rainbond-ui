@@ -167,12 +167,12 @@ const updateKubernetesSteps = {
   },
   InitClusterConfig: {
     Title: '初始化集群配置',
-    Description: '初始化扩容集群所需要的配置数据',
+    Description: '初始化配置集群所需要的配置数据',
     Status: ''
   },
   UpdateKubernetes: {
-    Title: '扩容集群',
-    Description: '连接所有节点完成节点的扩容，耗时取决于网络状况。',
+    Title: '配置集群',
+    Description: '连接所有节点完成节点的配置，耗时取决于网络状况。',
     Status: ''
   }
 };
@@ -543,7 +543,7 @@ const cloud = {
         notification.warning({ message: '集群不支持重新安装' });
         break;
       case 7017:
-        notification.warning({ message: '该集群不支持节点扩容动作' });
+        notification.warning({ message: '该集群不支持节点配置动作' });
         break;
       case 7018:
         notification.warning({
