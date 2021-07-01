@@ -132,7 +132,7 @@ class EditClusterInfo extends PureComponent {
                 initialValue: '',
                 rules: [
                   { required: true, message: '请填写集群名称!' },
-                  { max: 24, message: '集群名称不能超过24字符' }
+                  { max: 24, message: '最大长度24位' }
                 ]
               })(<Input placeholder="请填写集群名称" />)}
             </FormItem>

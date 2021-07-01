@@ -6,7 +6,6 @@ import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
 import ShowRegionKey from '../../components/ShowRegionKey';
-import globalUtil from '../../utils/global';
 
 const { Option } = Select;
 
@@ -88,33 +87,10 @@ export default class Index extends PureComponent {
     }
   };
 
-  handleAddGroup = vals => {
-    const { form, dispatch } = this.props;
-    const { setFieldsValue } = form;
-
-    dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: res => {
-        if (res) {
-          // 获取群组
-          dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: res.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+  handleAddGroup = groupId => {
+    const { setFieldsValue } = this.props.form;
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
   hideShowKey = () => {
     this.handkeDeleteCheckedList('showKey');
@@ -190,7 +166,7 @@ export default class Index extends PureComponent {
       handleType,
       groupId,
       data = {},
-      showSubmitBtn,
+      showSubmitBtn = true,
       ButtonGroupState,
       handleServiceBotton,
       showCreateGroup
@@ -201,7 +177,8 @@ export default class Index extends PureComponent {
       showUsernameAndPass,
       subdirectories,
       serverType,
-      visibleKey
+      visibleKey,
+      addGroup
     } = this.state;
 
     const gitUrl = getFieldValue('git_url');
@@ -214,7 +191,6 @@ export default class Index extends PureComponent {
       urlCheck = /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     const isSSH = !isHttp;
-    const showSubmitBtns = showSubmitBtn === void 0 ? true : showSubmitBtn;
     const showCreateGroups =
       showCreateGroup === void 0 ? true : showCreateGroup;
     const prefixSelector = getFieldDecorator('server_type', {
@@ -241,26 +217,23 @@ export default class Index extends PureComponent {
       </Select>
     );
     // const serverType = getFieldValue("server_type");
-
+    const isService = handleType && handleType === 'Service';
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="应用名称">
             {getFieldDecorator('group_id', {
-              initialValue:
-                handleType && handleType === 'Service'
-                  ? Number(groupId)
-                  : data.group_id,
+              initialValue: isService ? Number(groupId) : data.group_id,
               rules: [{ required: true, message: '请选择' }]
             })(
               <Select
                 placeholder="请选择要所属应用"
                 style={{
                   display: 'inline-block',
-                  width: handleType && handleType === 'Service' ? '' : 292,
+                  width: isService ? '' : 292,
                   marginRight: 15
                 }}
-                disabled={!!(handleType && handleType === 'Service')}
+                disabled={!!isService}
               >
                 {(groups || []).map(group => (
                   <Option key={group.group_id} value={group.group_id}>
@@ -277,7 +250,13 @@ export default class Index extends PureComponent {
           <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
-              rules: [{ required: true, message: '要创建的组件还没有名字' }]
+              rules: [
+                { required: true, message: '要创建的组件还没有名字' },
+                {
+                  max: 24,
+                  message: '最大长度24位'
+                }
+              ]
             })(<Input placeholder="请为创建的组件起个名字吧" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="仓库地址">
@@ -343,7 +322,7 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
 
-          {showSubmitBtns ? (
+          {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
@@ -354,7 +333,7 @@ export default class Index extends PureComponent {
               }}
               label=""
             >
-              {handleType && handleType === 'Service' && ButtonGroupState
+              {isService && ButtonGroupState
                 ? handleServiceBotton(
                     <Button
                       onClick={this.handleSubmit}
@@ -377,7 +356,7 @@ export default class Index extends PureComponent {
             </Form.Item>
           ) : null}
         </Form>
-        {this.state.addGroup && (
+        {addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}
         {visibleKey && isSSH && (

@@ -53,7 +53,10 @@ class CreateUserForm extends PureComponent {
   };
 
   checkAccountPass = (_, value, callback) => {
-    if (!value) {
+    const { userInfo } = this.props;
+    if (userInfo && !value) {
+      callback();
+    } else if (!value) {
       callback('请填写密码');
     } else if (value && value.length < 8) {
       callback('密码长度至少为8位');
@@ -65,7 +68,15 @@ class CreateUserForm extends PureComponent {
   };
 
   render() {
-    const { eid, onCancel, title, userInfo, form } = this.props;
+    const {
+      eid,
+      onCancel,
+      title,
+      userInfo,
+      form,
+      loading = false
+    } = this.props;
+
     const { getFieldDecorator } = form;
     const { authorityList } = this.state;
     const formItemLayout = {
@@ -86,6 +97,7 @@ class CreateUserForm extends PureComponent {
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={onCancel}
+        confirmLoading={loading}
       >
         <Form onSubmit={this.handleSubmit}>
           {!userInfo && (
@@ -103,14 +115,13 @@ class CreateUserForm extends PureComponent {
                     message: '最大长度24位'
                   },
                   {
-                    pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
-                    message: '只支持字母、数字、中文、_和-组合'
+                    pattern: /^[a-zA-Z0-9_\-]+$/,
+                    message: '只支持字母、数字、_和-组合'
                   }
                 ]
               })(<Input autoComplete="off" placeholder="请填写用户名!" />)}
             </FormItem>
           )}
-
           <FormItem {...formItemLayout} label="姓名">
             {getFieldDecorator('real_name', {
               initialValue: (userInfo && userInfo.real_name) || '',
@@ -129,7 +140,6 @@ class CreateUserForm extends PureComponent {
               <Input autoComplete="off" type="text" placeholder="请填写姓名!" />
             )}
           </FormItem>
-
           {!userInfo && (
             <FormItem {...formItemLayout} label="密码">
               {getFieldDecorator('password', {
@@ -140,10 +150,48 @@ class CreateUserForm extends PureComponent {
                     validator: this.checkAccountPass
                   }
                 ]
-              })(<Input.Password placeholder="请填写密码" />)}
+              })(
+                <Input.Password
+                  autoComplete="new-password"
+                  placeholder="请填写密码"
+                />
+              )}
             </FormItem>
           )}
-
+          {!userInfo && (
+            <FormItem {...formItemLayout} label="邮箱">
+              {getFieldDecorator('email', {
+                initialValue: (userInfo && userInfo.email) || '',
+                rules: [
+                  { required: true, message: '请填写邮箱!' },
+                  { type: 'email', message: '邮箱格式不正确!' }
+                ]
+              })(
+                <Input
+                  type="text"
+                  placeholder="请填写邮箱!"
+                  autoComplete="off"
+                />
+              )}
+            </FormItem>
+          )}
+          <FormItem {...formItemLayout} label="电话">
+            {getFieldDecorator('phone', {
+              initialValue: (userInfo && userInfo.phone) || '',
+              rules: [
+                {
+                  pattern: /^[0-9]{11}$/,
+                  message: '请输入正确的手机号'
+                }
+              ]
+            })(
+              <Input
+                type="text"
+                placeholder="请填写手机号"
+                autoComplete="off"
+              />
+            )}
+          </FormItem>
           {userInfo && (
             <FormItem {...formItemLayout} label="设置新密码">
               {getFieldDecorator('password', {
@@ -153,43 +201,16 @@ class CreateUserForm extends PureComponent {
                     validator: this.checkAccountPass
                   }
                 ]
-              })(<Input.Password placeholder="留空则不修改密码" />)}
+              })(
+                <Input.Password
+                  autoComplete="new-password"
+                  placeholder="留空则不修改密码"
+                />
+              )}
             </FormItem>
           )}
-
           {!userInfo && (
             <div>
-              <FormItem {...formItemLayout} label="邮箱">
-                {getFieldDecorator('email', {
-                  rules: [
-                    { required: true, message: '请填写邮箱!' },
-                    { type: 'email', message: '邮箱格式不正确!' }
-                  ]
-                })(
-                  <Input
-                    type="text"
-                    placeholder="请填写邮箱!"
-                    autoComplete="off"
-                  />
-                )}
-              </FormItem>
-              <FormItem {...formItemLayout} label="电话">
-                {getFieldDecorator('phone', {
-                  rules: [
-                    {
-                      pattern: /^[0-9]{11}$/,
-                      message: '请输入正确的手机号'
-                    }
-                  ]
-                })(
-                  <Input
-                    type="text"
-                    placeholder="请填写手机号"
-                    autoComplete="off"
-                  />
-                )}
-              </FormItem>
-
               <FormItem {...formItemLayout} label="所属团队">
                 {getFieldDecorator('tenant_name', {
                   rules: [{ required: false, message: '请选择团队!' }]
@@ -201,7 +222,6 @@ class CreateUserForm extends PureComponent {
                   />
                 )}
               </FormItem>
-
               <FormItem {...formItemLayout} label="角色权限">
                 {getFieldDecorator('role_ids', {
                   initialValue: [],

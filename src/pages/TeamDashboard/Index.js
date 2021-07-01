@@ -94,7 +94,14 @@ export default class Index extends PureComponent {
   }
 
   componentDidMount() {
-    this.loadOverview();
+    const { currUser } = this.props;
+    const teamPermissions = userUtil.getTeamByTeamPermissions(
+      currUser.teams,
+      globalUtil.getCurrTeamName()
+    );
+    if (teamPermissions && teamPermissions.length !== 0) {
+      this.loadOverview();
+    }
   }
   componentWillUnmount() {
     this.handleClearTimeout(this.loadAppsTimer);
@@ -348,18 +355,22 @@ export default class Index extends PureComponent {
   };
 
   handleError = err => {
-    if (err && err.data && err.data.msg_show) {
-      notification.warning({
-        message: `请求错误`,
-        description: err.data.msg_show
-      });
-    }
+    this.handleTeamPermissions(() => {
+      if (err && err.data && err.data.msg_show) {
+        notification.warning({
+          message: `警告`,
+          description: err.data.msg_show
+        });
+      }
+    });
   };
 
   handleTimers = (timerName, callback, times) => {
-    this[timerName] = setTimeout(() => {
-      callback();
-    }, times);
+    this.handleTeamPermissions(() => {
+      this[timerName] = setTimeout(() => {
+        callback();
+      }, times);
+    });
   };
 
   isPublicRegion() {
@@ -482,6 +493,16 @@ export default class Index extends PureComponent {
       }
     });
   };
+  handleTeamPermissions = callback => {
+    const { currUser } = this.props;
+    const teamPermissions = userUtil.getTeamByTeamPermissions(
+      currUser.teams,
+      globalUtil.getCurrTeamName()
+    );
+    if (teamPermissions && teamPermissions.length !== 0) {
+      callback();
+    }
+  };
 
   renderActivities() {
     const list = this.props.events || [];
@@ -550,29 +571,11 @@ export default class Index extends PureComponent {
     });
   }
 
-  handleOkApplication = vals => {
+  handleOkApplication = () => {
     const { dispatch } = this.props;
-    dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_name: vals.group_name,
-        note: vals.note
-      },
-      callback: res => {
-        if (res) {
-          notification.success({ message: '添加成功' });
-          this.handleCancelApplication();
-          this.getTeamAppList();
-          dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName()
-            }
-          });
-        }
-      }
-    });
+    notification.success({ message: '添加成功' });
+    this.handleCancelApplication();
+    this.getTeamAppList();
   };
 
   handleCancelApplication = () => [

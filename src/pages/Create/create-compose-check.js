@@ -1,22 +1,25 @@
-import React, { PureComponent, Fragment } from 'react';
-import { Button, Icon, Card, Modal, Form, Input } from 'antd';
+/* eslint-disable react/no-multi-comp */
+/* eslint-disable no-unused-vars */
+/* eslint-disable camelcase */
+import { Button, Card, Form, Icon, Modal } from 'antd';
 import { connect } from 'dva';
-import Result from '../../components/Result';
 import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
+import CodeMirror from 'react-codemirror';
+import ConfirmModal from '../../components/ConfirmModal';
+import LogProcress from '../../components/LogProcress';
+import Result from '../../components/Result';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
-  getCreateComposeCheckInfo,
-  getCreateComposeCheckResult,
-  getComposeCheckuuid,
   getComposeByComposeId,
+  getComposeCheckuuid,
+  getCreateComposeCheckInfo,
+  getCreateComposeCheckResult
 } from '../../services/createApp';
 import globalUtil from '../../utils/global';
-import LogProcress from '../../components/LogProcress';
-import userUtil from '../../utils/user';
-import regionUtil from '../../utils/region';
 import rainbondUtil from '../../utils/rainbond';
-import ConfirmModal from '../../components/ConfirmModal';
-import CodeMirror from 'react-codemirror';
+import regionUtil from '../../utils/region';
+import userUtil from '../../utils/user';
 
 require('codemirror/mode/yaml/yaml');
 require('codemirror/lib/codemirror.css');
@@ -29,13 +32,13 @@ class ModifyCompose extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      compose: '',
+      compose: ''
     };
   }
   componentDidMount() {
     getComposeByComposeId({
       team_name: globalUtil.getCurrTeamName(),
-      compose_id: this.props.compose_id,
+      compose_id: this.props.compose_id
     }).then(data => {
       if (data && data.bean) {
         this.setState({ compose: data.bean.compose_content });
@@ -44,10 +47,11 @@ class ModifyCompose extends PureComponent {
   }
   handleSubmit = e => {
     e.preventDefault();
-    const form = this.props.form;
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
+      if (!err && onSubmit) {
+        onSubmit(fieldsValue);
+      }
     });
   };
   render() {
@@ -56,7 +60,7 @@ class ModifyCompose extends PureComponent {
     const options = {
       lineNumbers: true,
       theme: 'monokai',
-      mode: 'yaml',
+      mode: 'yaml'
     };
 
     if (!this.state.compose) {
@@ -77,9 +81,9 @@ class ModifyCompose extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请输入内容',
-                },
-              ],
+                  message: '请输入内容'
+                }
+              ]
             })(<CodeMirror options={options} placeholder="" />)}
           </Form.Item>
         </Form>
@@ -89,9 +93,9 @@ class ModifyCompose extends PureComponent {
 }
 
 @connect(
-  ({ user, appControl }) => ({
+  ({ user }) => ({
     currUser: user.currentUser,
-    rainbondInfo: global.rainbondInfo,
+    rainbondInfo: global.rainbondInfo
   }),
   null,
   null,
@@ -104,13 +108,10 @@ export default class CreateCheck extends PureComponent {
       // failure、checking、success
       status: '',
       check_uuid: '',
-      group_id: '',
-      compose_id: '',
       errorInfo: [],
       serviceInfo: [],
-      showEdit: false,
       showDelete: false,
-      modifyCompose: false,
+      modifyCompose: false
     };
     this.mount = false;
     this.socketUrl = '';
@@ -126,11 +127,15 @@ export default class CreateCheck extends PureComponent {
     }
   }
 
-  componentDidMount(loopStatus) {
+  componentDidMount() {
     const team_name = globalUtil.getCurrTeamName();
     this.getCheckuuid();
     this.mount = true;
     this.bindEvent();
+  }
+  componentWillUnmount() {
+    this.mount = false;
+    this.unbindEvent();
   }
   getCheckuuid = () => {
     const appAlias = this.getAppAlias();
@@ -138,7 +143,7 @@ export default class CreateCheck extends PureComponent {
     const params = this.getParams();
     getComposeCheckuuid({
       team_name,
-      ...params,
+      ...params
     }).then(data => {
       if (data) {
         if (!data.bean.check_uuid) {
@@ -150,6 +155,15 @@ export default class CreateCheck extends PureComponent {
       }
     });
   };
+  getParams() {
+    return {
+      group_id: this.props.match.params.appID,
+      compose_id: this.props.match.params.composeId
+    };
+  }
+  getAppAlias() {
+    return this.props.match.params.appAlias;
+  }
   startCheck = loopStatus => {
     const appAlias = this.getAppAlias();
     const team_name = globalUtil.getCurrTeamName();
@@ -158,7 +172,7 @@ export default class CreateCheck extends PureComponent {
       {
         team_name,
         app_alias: appAlias,
-        ...params,
+        ...params
       },
       res => {
         if (res.status === 404) {
@@ -174,7 +188,7 @@ export default class CreateCheck extends PureComponent {
         this.state.check_uuid = data.bean.check_uuid;
         this.setState({
           eventId: data.bean.check_event_id,
-          appDetail: data.bean,
+          appDetail: data.bean
         });
         if (loopStatus !== false) {
           this.loopStatus();
@@ -182,9 +196,7 @@ export default class CreateCheck extends PureComponent {
       }
     });
   };
-  getAppAlias() {
-    return this.props.match.params.appAlias;
-  }
+
   loopStatus = () => {
     if (!this.mount) return;
     const params = this.getParams();
@@ -192,7 +204,7 @@ export default class CreateCheck extends PureComponent {
     getCreateComposeCheckResult({
       team_name,
       check_uuid: this.state.check_uuid,
-      ...params,
+      ...params
     })
       .then(data => {
         if (data && this.mount) {
@@ -202,7 +214,7 @@ export default class CreateCheck extends PureComponent {
           this.setState({
             status,
             errorInfo: error_infos,
-            serviceInfo,
+            serviceInfo
           });
         }
       })
@@ -214,75 +226,17 @@ export default class CreateCheck extends PureComponent {
         }
       });
   };
-  componentWillUnmount() {
-    this.mount = false;
-    this.unbindEvent();
-  }
-  getParams() {
-    return {
-      group_id: this.props.match.params.appID,
-      compose_id: this.props.match.params.composeId,
-    };
-  }
+
   handleCreate = () => {
     const appAlias = this.getAppAlias();
   };
   showModifyCompose = () => {
     this.setState({ modifyCompose: true });
   };
-  renderError = () => {
-    const errorInfo = this.state.errorInfo;
-    const extra = (
-      <div>
-        {errorInfo.map(item => {
-          return (
-            <div
-              style={{
-                marginBottom: 16,
-              }}
-            >
-              <Icon
-                style={{
-                  color: '#f5222d',
-                  marginRight: 8,
-                }}
-                type="close-circle-o"
-              />
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: `<span>${item.error_info || ''} ${item.solve_advice ||
-                    ''}</span>`,
-                }}
-              />
-            </div>
-          );
-        })}
-      </div>
-    );
-    const actions = [
-      <Button onClick={this.showDelete} type="default">
-        {' '}
-        放弃创建{' '}
-      </Button>,
-      <Button onClick={this.recheck} type="primary">
-        重新检测
-      </Button>,
-    ];
-
-    return (
-      <Result
-        type="error"
-        title="组件检测未通过"
-        description="请核对并修改以下信息后，再重新检测。"
-        extra={extra}
-        actions={actions}
-        style={{
-          marginTop: 48,
-          marginBottom: 16,
-        }}
-      />
-    );
+  showDelete = () => {
+    this.setState({ showDelete: true });
   };
+
   handleSetting = () => {
     const params = this.getParams();
     this.props.dispatch(
@@ -295,20 +249,20 @@ export default class CreateCheck extends PureComponent {
   };
   handleBuild = () => {
     const team_name = globalUtil.getCurrTeamName();
-    const appDetail = this.state.appDetail;
+    const { appDetail } = this.state;
     const params = this.getParams();
     this.props.dispatch({
       type: 'application/buildCompose',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...params,
+        ...params
       },
       callback: () => {
         this.props.dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name,
-          },
+            team_name
+          }
         });
         this.props.dispatch(
           routerRedux.replace(
@@ -317,169 +271,44 @@ export default class CreateCheck extends PureComponent {
             }`
           )
         );
-      },
+      }
     });
   };
-  renderSuccessInfo = item => {
-    if (item.value) {
-      if (typeof item.value === 'string') {
-        return (
-          <div
-            style={{
-              paddingLeft: 32,
-            }}
-          >
-            <span
-              style={{
-                verticalAlign: 'top',
-                display: 'inline-block',
-                fontWeight: 'bold',
-              }}
-            >
-              {item.key}：
-            </span>
-            {item.value}
-          </div>
+  handleDelete = () => {
+    const params = this.getParams();
+    this.props.dispatch({
+      type: 'application/deleteCompose',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        ...params
+      },
+      callback: () => {
+        this.props.dispatch({
+          type: 'global/fetchGroups',
+          payload: {
+            team_name: globalUtil.getCurrTeamName()
+          }
+        });
+
+        this.props.dispatch(
+          routerRedux.replace(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
+          )
         );
       }
-      return (
-        <div
-          style={{
-            paddingLeft: 32,
-          }}
-        >
-          <span
-            style={{
-              verticalAlign: 'top',
-              display: 'inline-block',
-              fontWeight: 'bold',
-            }}
-          >
-            {item.key}：
-          </span>
-          <div
-            style={{
-              display: 'inline-block',
-            }}
-          >
-            {(item.value || []).map(item => {
-              return (
-                <p
-                  style={{
-                    marginBottom: 0,
-                  }}
-                >
-                  {item}
-                </p>
-              );
-            })}
-          </div>
-        </div>
-      );
-    }
+    });
   };
-  renderSuccess = () => {
-    const { rainbondInfo } = this.props;
-    const serviceInfo = this.state.serviceInfo || [];
-    const extra = (
-      <div>
-        {serviceInfo.map(item => {
-          return (
-            <div
-              style={{
-                marginBottom: 16,
-              }}
-            >
-              <p>组件名称：{item.service_cname}</p>
-              {(item.service_info || []).map(item => {
-                return (
-                  <div
-                    style={{
-                      marginBottom: 16,
-                    }}
-                  >
-                    {this.renderSuccessInfo(item)}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
-    );
-    const actions = [
-      <Button onClick={this.handleBuild} type="primary">
-        {' '}
-        构建组件{' '}
-      </Button>,
-      <Button type="default" onClick={this.handleSetting}>
-        高级设置
-      </Button>,
-      <Button onClick={this.showDelete} type="default">
-        {' '}
-        放弃创建{' '}
-      </Button>,
-    ];
-    return (
-      <Result
-        type="success"
-        title="组件检测通过"
-        description={
-          <div>
-            <div>组件检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
-            90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{' '}
-            <a
-              href={`${rainbondUtil.documentPlatform_url(
-                rainbondInfo
-              )}docs/user-manual/app-creation/language-support/`}
-              target="_blank"
-            >
-              rainbond文档
-            </a>{' '}
-            对代码包进行调整。
-          </div>
-        }
-        extra={extra}
-        actions={actions}
-        style={{ marginTop: 48, marginBottom: 16 }}
-      />
-    );
+  unbindEvent = () => {
+    document.removeEventListener('click', this.handleClick);
   };
-  renderChecking = () => {
-    const actions = (
-      <Button onClick={this.showDelete} type="default">
-        放弃创建
-      </Button>
-    );
+  bindEvent = () => {
+    document.addEventListener('click', this.handleClick, false);
+  };
 
-    const extra = (
-      <div>
-        {this.state.eventId && (
-          <LogProcress
-            socketUrl={this.socketUrl}
-            eventId={this.state.eventId}
-          />
-        )}
-      </div>
-    );
-    return (
-      <Result
-        type="ing"
-        title="组件构建源检测中..."
-        extra={extra}
-        description="此过程可能比较耗时，请耐心等待"
-        actions={actions}
-        style={{
-          marginTop: 48,
-          marginBottom: 16,
-        }}
-      />
-    );
-  };
   recheck = () => {
     this.setState(
       {
-        status: 'checking',
+        status: 'checking'
       },
       () => {
         this.startCheck();
@@ -511,61 +340,235 @@ export default class CreateCheck extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: params.group_id,
-        compose_content: vals.yaml_content,
+        compose_content: vals.yaml_content
       },
       callback: data => {
         this.cancelModifyCompose();
-      },
+      }
     });
   };
-  handleCancelEdit = () => {
-    this.setState({ showEdit: false });
-  };
-  handleCancelShowKey = () => {
-    this.setState({ showKey: false });
-  };
-  bindEvent = () => {
-    document.addEventListener('click', this.handleClick, false);
-  };
-  unbindEvent = () => {
-    document.removeEventListener('click', this.handleClick);
-  };
-  handleDelete = () => {
-    const params = this.getParams();
-    this.props.dispatch({
-      type: 'application/deleteCompose',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...params,
-      },
-      callback: () => {
-        this.props.dispatch({
-          type: 'global/fetchGroups',
-          payload: {
-            team_name: globalUtil.getCurrTeamName(),
-          },
-        });
+  renderChecking = () => {
+    const actions = (
+      <Button onClick={this.showDelete} type="default">
+        放弃创建
+      </Button>
+    );
 
-        this.props.dispatch(
-          routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-          )
-        );
-      },
-    });
+    const extra = (
+      <div>
+        {this.state.eventId && (
+          <LogProcress
+            socketUrl={this.socketUrl}
+            eventId={this.state.eventId}
+          />
+        )}
+      </div>
+    );
+    return (
+      <Result
+        type="ing"
+        title="组件构建源检测中..."
+        extra={extra}
+        description="此过程可能比较耗时，请耐心等待"
+        actions={actions}
+        style={{
+          marginTop: 48,
+          marginBottom: 16
+        }}
+      />
+    );
   };
-  showDelete = () => {
-    this.setState({ showDelete: true });
+  renderSuccess = () => {
+    const { rainbondInfo } = this.props;
+    const serviceInfo = this.state.serviceInfo || [];
+    const extra = (
+      <div>
+        {serviceInfo.map(item => {
+          return (
+            <div
+              style={{
+                marginBottom: 16
+              }}
+            >
+              <p>组件名称：{item.service_cname}</p>
+              {(item.service_info || []).map(item => {
+                return (
+                  <div
+                    style={{
+                      marginBottom: 16
+                    }}
+                  >
+                    {this.renderSuccessInfo(item)}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    );
+    const actions = [
+      <Button onClick={this.handleBuild} type="primary">
+        {' '}
+        构建组件{' '}
+      </Button>,
+      <Button type="default" onClick={this.handleSetting}>
+        高级设置
+      </Button>,
+      <Button onClick={this.showDelete} type="default">
+        {' '}
+        放弃创建{' '}
+      </Button>
+    ];
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
+    return (
+      <Result
+        type="success"
+        title="组件检测通过"
+        description={
+          <div>
+            <div>组件检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
+            90%以上的用户在检测通过后可部署成功，
+            {(platform_url && (
+              <span>
+                如遇部署失败，可参考
+                <a
+                  href={`${platform_url}docs/user-manual/app-creation/language-support/`}
+                  target="_blank"
+                >
+                  平台文档
+                </a>
+              </span>
+            )) ||
+              ''}{' '}
+            对代码包进行调整。
+          </div>
+        }
+        extra={extra}
+        actions={actions}
+        style={{ marginTop: 48, marginBottom: 16 }}
+      />
+    );
+  };
+  renderSuccessInfo = item => {
+    if (item.value) {
+      if (typeof item.value === 'string') {
+        return (
+          <div
+            style={{
+              paddingLeft: 32
+            }}
+          >
+            <span
+              style={{
+                verticalAlign: 'top',
+                display: 'inline-block',
+                fontWeight: 'bold'
+              }}
+            >
+              {item.key}：
+            </span>
+            {item.value}
+          </div>
+        );
+      }
+      return (
+        <div
+          style={{
+            paddingLeft: 32
+          }}
+        >
+          <span
+            style={{
+              verticalAlign: 'top',
+              display: 'inline-block',
+              fontWeight: 'bold'
+            }}
+          >
+            {item.key}：
+          </span>
+          <div
+            style={{
+              display: 'inline-block'
+            }}
+          >
+            {(item.value || []).map(item => {
+              return (
+                <p
+                  style={{
+                    marginBottom: 0
+                  }}
+                >
+                  {item}
+                </p>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+  };
+  renderError = () => {
+    const { errorInfo } = this.state;
+    const extra = (
+      <div>
+        {errorInfo.map(item => {
+          return (
+            <div
+              style={{
+                marginBottom: 16
+              }}
+            >
+              <Icon
+                style={{
+                  color: '#f5222d',
+                  marginRight: 8
+                }}
+                type="close-circle-o"
+              />
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: `<span>${item.error_info || ''} ${item.solve_advice ||
+                    ''}</span>`
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+    );
+    const actions = [
+      <Button onClick={this.showDelete} type="default">
+        放弃创建
+      </Button>,
+      <Button onClick={this.recheck} type="primary">
+        重新检测
+      </Button>
+    ];
+
+    return (
+      <Result
+        type="error"
+        title="组件检测未通过"
+        description="请核对并修改以下信息后，再重新检测。"
+        extra={extra}
+        actions={actions}
+        style={{
+          marginTop: 48,
+          marginBottom: 16
+        }}
+      />
+    );
   };
   render() {
-    const status = this.state.status;
+    const { status, modifyCompose, showDelete } = this.state;
     const params = this.getParams();
     return (
       <PageHeaderLayout>
         <Card bordered={false}>
           <div
             style={{
-              minHeight: 400,
+              minHeight: 400
             }}
           >
             {status === 'checking' ? this.renderChecking() : null}
@@ -573,14 +576,14 @@ export default class CreateCheck extends PureComponent {
             {status === 'failure' ? this.renderError() : null}
           </div>
         </Card>
-        {this.state.modifyCompose ? (
+        {modifyCompose ? (
           <ModifyCompose
             compose_id={params.compose_id}
             onSubmit={this.handleModifyCompose}
             onCancel={this.cancelModifyCompose}
           />
         ) : null}
-        {this.state.showDelete && (
+        {showDelete && (
           <ConfirmModal
             onOk={this.handleDelete}
             title="放弃创建"

@@ -116,7 +116,7 @@ class EditableCell extends React.Component {
     } else if (dataIndex === 'attr_value') {
       rulesList = [
         {
-          required: true,
+          required: false,
           message: '请输入变量值'
         },
         {
@@ -204,6 +204,7 @@ class EnvironmentVariable extends React.Component {
   onShowSizeChange = (page, page_size) => {
     this.setState(
       {
+        addVariable: false,
         page,
         page_size,
         editingID: ''
@@ -216,6 +217,7 @@ class EnvironmentVariable extends React.Component {
   onPageChange = page => {
     this.setState(
       {
+        addVariable: false,
         page,
         editingID: ''
       },

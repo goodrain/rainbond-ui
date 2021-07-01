@@ -1,6 +1,11 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable react/sort-comp */
 /*
    快速复制
 */
+import { addGroup } from '@/services/application';
+import { getTeamRegionGroups } from '@/services/team';
 import {
   Button,
   Checkbox,
@@ -41,11 +46,8 @@ export default class Index extends PureComponent {
       Loading: true,
       loading: true,
       dataSource: [],
-      app_page_size: 10,
-      app_page: 1,
       apps: [],
       checkedList: [],
-      inputValue: '',
       checkAllList: [],
       indeterminate: false,
       checkAll: true,
@@ -96,12 +98,11 @@ export default class Index extends PureComponent {
 
   // 团队
   getUserTeams = () => {
-    const { dispatch, currentUser, currentEnterprise } = this.props;
+    const { dispatch, currentEnterprise } = this.props;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: 'global/fetchMyTeams',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
-        user_id: currentUser.user_id,
         page: 1,
         page_size: 999
       },
@@ -179,58 +180,60 @@ export default class Index extends PureComponent {
       regionName = arrs && arrs[0].value[1];
     }
     this.handleOpenLoging();
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: teamName || globalUtil.getCurrTeamName(),
-        region_name: regionName || globalUtil.getCurrRegionName(),
-        ...vals
-      },
-      callback: group => {
-        console.log('group', group);
+    addGroup({
+      team_name: teamName || globalUtil.getCurrTeamName(),
+      region_name: regionName || globalUtil.getCurrRegionName(),
+      ...vals
+    })
+      .then(group => {
         if (group) {
           // 获取群组
-          this.fetchTeamApps(teamName, regionName, group.group_id);
+          this.fetchTeamApps(teamName, regionName, group.bean.group_id);
           this.cancelAddGroup();
         }
+      })
+      .finally(() => {
         this.handleCloseLoging();
-      }
-    });
+      });
   };
 
   // 应用
   fetchTeamApps = (teamName, regionName, groupId) => {
-    const { dispatch, form } = this.props;
-    const { app_page, app_page_size } = this.state;
+    const { form } = this.props;
     const { setFieldsValue } = form;
-    dispatch({
-      type: 'global/fetchGroups',
-      payload: {
-        query: '',
-        team_name: teamName || globalUtil.getCurrTeamName(),
-        region_name: regionName || globalUtil.getCurrRegionName(),
-        page: app_page,
-        page_size: app_page_size
-      },
-      callback: data => {
-        if (data) {
-          if (teamName) {
-            setFieldsValue({
-              apps: groupId || (data.length > 0 ? data[0].group_id : '')
-            });
-          }
-          this.setState({ apps: data });
+    getTeamRegionGroups({
+      query: '',
+      team_name: teamName || globalUtil.getCurrTeamName(),
+      region_name: regionName || globalUtil.getCurrRegionName(),
+      noModels: true
+    })
+      .then(res => {
+        const list = (res && res.list) || [];
+        if (teamName) {
+          setFieldsValue({
+            apps: groupId || (list.length > 0 ? list[0].group_id : '')
+          });
         }
+        this.setState({ apps: list });
         this.handleCloseLoging();
-      }
-    });
+      })
+      .catch(() => {
+        this.handleCloseLoging();
+      });
   };
 
   handleSubmit = () => {
+    const { checkedList } = this.state;
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        this.setState({ Loading: true });
-        this.AddCopyTeamApps(values);
+        if (checkedList && checkedList.length > 20) {
+          notification.warning({
+            message: '应用复制最多20个组件'
+          });
+        } else {
+          this.setState({ Loading: true });
+          this.AddCopyTeamApps(values);
+        }
       }
     });
   };
@@ -299,7 +302,7 @@ export default class Index extends PureComponent {
       ...item,
       ...row
     });
-    this.setState({ inputValue: '', dataSource: newData });
+    this.setState({ dataSource: newData });
   };
 
   handleOverDiv = content => {
@@ -318,11 +321,10 @@ export default class Index extends PureComponent {
     callback();
   };
 
-  save = (item, isCodeApp) => {
-    const { inputValue } = this.state;
+  save = (item, isCodeApp, val) => {
     const names = isCodeApp ? 'code_version' : 'version';
     const str = item;
-    str.build_source[names] = inputValue;
+    str.build_source[names] = val;
     this.handleSave({ ...str });
   };
 
@@ -389,6 +391,8 @@ export default class Index extends PureComponent {
           <div className={styles.copyBox}>
             {addGroup && (
               <AddGroup
+                isAddGroup={false}
+                loading={loading}
                 onCancel={this.cancelAddGroup}
                 onOk={this.handleAddGroup}
               />
@@ -487,41 +491,40 @@ export default class Index extends PureComponent {
               onChange={this.onGroupChange}
             >
               {dataSource.map((item, index) => {
-                const { service_cname, build_source, service_id } = item;
                 const {
-                  code_version,
+                  service_cname: serviceCname,
+                  build_source: buildSource,
+                  service_id: serviceId
+                } = item;
+                const {
+                  code_version: codeVersion,
                   version,
                   image,
-                  git_url,
-                  rain_app_name,
-                  service_source
-                } = build_source;
-
-                const isImageApp = appUtil.isImageAppByBuildSource(
-                  build_source
-                );
+                  git_url: gitUrl,
+                  rain_app_name: rainAppName,
+                  service_source: serviceSource
+                } = buildSource || {};
+                const isImageApp = appUtil.isImageAppByBuildSource(buildSource);
                 const isMarketApp = appUtil.isMarketAppByBuildSource(
-                  build_source
+                  buildSource
                 );
-                const isCodeApp = appUtil.isCodeAppByBuildSource(build_source);
-                const versions = isCodeApp ? code_version : version;
-                const isThirdParty = service_source === 'third_party';
+                const isCodeApp = appUtil.isCodeAppByBuildSource(buildSource);
+                const versions = isCodeApp ? codeVersion : version;
+                const isThirdParty = serviceSource === 'third_party';
 
                 const tit = isImageApp
                   ? image
                   : isCodeApp
-                  ? git_url
+                  ? gitUrl
                   : isMarketApp
-                  ? rain_app_name
-                  : isThirdParty
-                  ? '第三方组件'
+                  ? rainAppName
                   : '';
 
                 let versionConetent = '';
                 const versionSelector = (
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
-                    style={{ width: 70 }}
+                    style={{ width: 90 }}
                     defaultValue={isImageApp ? 'Tag' : 'branch'}
                   >
                     {!isImageApp && <Option value="branch">分支</Option>}
@@ -531,7 +534,7 @@ export default class Index extends PureComponent {
                 if (isImageApp || isCodeApp) {
                   versionConetent = (
                     <FormItem>
-                      {getFieldDecorator(service_id, {
+                      {getFieldDecorator(serviceId, {
                         initialValue: versions || '',
                         rules: [
                           {
@@ -542,19 +545,14 @@ export default class Index extends PureComponent {
                       })(
                         <Input
                           addonBefore={versionSelector}
-                          onPressEnter={() => {
-                            this.save(item, isCodeApp);
+                          onPressEnter={e => {
+                            this.save(item, isCodeApp, e.target.value);
                           }}
-                          onBlur={() => {
-                            this.save(item, isCodeApp);
+                          onBlur={e => {
+                            this.save(item, isCodeApp, e.target.value);
                           }}
                           style={{
                             width: '268px'
-                          }}
-                          onChange={e => {
-                            this.setState({
-                              inputValue: e.target.value
-                            });
                           }}
                         />
                       )}
@@ -565,14 +563,14 @@ export default class Index extends PureComponent {
                 }
 
                 return (
-                  <div className={styles.tabTr} key={service_id}>
-                    <Tooltip title={service_cname}>
+                  <div className={styles.tabTr} key={serviceId}>
+                    <Tooltip title={serviceCname}>
                       <div className={`${styles.w300} ${styles.over}`}>
-                        <Checkbox value={index}>{service_cname}</Checkbox>
+                        <Checkbox value={index}>{serviceCname}</Checkbox>
                       </div>
                     </Tooltip>
 
-                    <Tooltip title={tit}>
+                    <Tooltip title={isThirdParty ? '第三方组件' : tit}>
                       <div className={`${styles.w500} ${styles.over}`}>
                         <div
                           style={{
@@ -589,22 +587,17 @@ export default class Index extends PureComponent {
                             ? '组件库:'
                             : isThirdParty
                             ? '第三方组件'
-                            : '-'}
+                            : ''}
                         </div>
                         <div className={`${styles.w380} ${styles.over}`}>
-                          {isImageApp
-                            ? image
-                            : isCodeApp
-                            ? git_url
-                            : isMarketApp
-                            ? rain_app_name
-                            : isThirdParty
-                            ? ''
-                            : '-'}
+                          {isThirdParty ? '-' : tit}
                         </div>
                       </div>
                     </Tooltip>
-                    <div className={`${styles.w300} ${styles.over}`}>
+                    <div
+                      className={`${styles.w300} ${styles.over}`}
+                      style={{ height: '80px' }}
+                    >
                       {versionConetent}
                     </div>
                   </div>

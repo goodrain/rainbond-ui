@@ -13,6 +13,11 @@ import {
   // putVariable,
   addTags,
   addVolume,
+  batchDelete,
+  batchMove,
+  batchReStart,
+  batchStart,
+  batchStop,
   bindDomain,
   cancelAutoDeploy,
   changeApplicationState,
@@ -31,6 +36,7 @@ import {
   deleteTag,
   deleteVariable,
   deleteVolume,
+  deploy,
   editAppCreateInfo,
   editEvns,
   editMavensettings,
@@ -115,30 +121,24 @@ import {
   putMirrorCommand,
   putTransfer,
   queryScalingRecord,
+  restart,
   setCodeBranch,
   setMemberAction,
-  startPlugin,
-  stopPlugin,
-  updatePluginMemory,
-  deploy,
-  updateRolling,
-  batchReStart,
-  batchDelete,
-  batchStart,
-  batchStop,
-  batchMove,
-  restart,
   start,
+  startPlugin,
   stop,
+  stopPlugin,
   SubDomain,
   SubPort,
   TelescopicInfo,
   unbindDomain,
   unInstallPlugin,
   updateComponentDeployType,
+  updatePluginMemory,
+  updateRolling,
   updateServiceName,
+  upgrade
 } from '../services/app';
-
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
 
@@ -262,8 +262,14 @@ export default {
         callback(response);
       }
     },
-    *putDeploy({ payload, callback }, { call }) {
-      const response = yield call(deploy, payload);
+    *putDeploy({ payload, callback, handleError }, { call }) {
+      const response = yield call(deploy, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *putUpgrade({ payload, callback, handleError }, { call }) {
+      const response = yield call(upgrade, payload, handleError);
       if (response && callback) {
         callback(response);
       }
@@ -1061,8 +1067,8 @@ export default {
         callback(response);
       }
     },
-    *deleteApp({ payload, callback }, { call }) {
-      const response = yield call(deleteApp, payload);
+    *deleteApp({ payload, callback, handleError }, { call }) {
+      const response = yield call(deleteApp, payload, handleError);
       if (response && callback) {
         callback(response);
       }

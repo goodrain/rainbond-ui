@@ -1,3 +1,4 @@
+/* eslint-disable no-sparse-arrays */
 import {
   Button,
   Card,
@@ -214,7 +215,7 @@ class ConfigItems extends PureComponent {
 class ConfigDownstreamPort extends PureComponent {
   constructor(props) {
     super(props);
-    const data = this.props.data;
+    const { data } = this.props;
     this.state = {
       currApp: data[0].dest_service_alias,
       currPort: data[0].port,
@@ -254,13 +255,13 @@ class ConfigDownstreamPort extends PureComponent {
     return apps.map(item => item.port);
   };
   getCurrData = () => {
-    const currPort = this.state.currPort;
-    const currApp = this.state.currApp;
+    const { currPort } = this.state;
+    const { currApp } = this.state;
     const apps = this.getAppByName(currApp);
     return apps.filter(item => item.port === currPort)[0];
   };
   getApps = () => {
-    const data = this.props.data;
+    const { data } = this.props;
     const n = [];
     const apps = [];
     data.map(item => {
@@ -353,7 +354,7 @@ class ConfigDownstreamPort extends PureComponent {
 class ConfigUpstreamPort extends PureComponent {
   constructor(props) {
     super(props);
-    const data = this.props.data;
+    const { data } = this.props;
     if (data.length > 0) {
       this.state = {
         currAppLoading: false,
@@ -374,7 +375,7 @@ class ConfigUpstreamPort extends PureComponent {
   };
   getCurrData = port => this.props.data.filter(item => item.port === port)[0];
   render() {
-    const data = this.props.data;
+    const { data } = this.props;
     const { currAppLoading, config_name, currPort } = this.state;
     const currData = this.getCurrData(currPort);
     return (
@@ -590,7 +591,7 @@ export default class Index extends PureComponent {
   };
   // 判断是否展开配置
   isOpenedPlugin = plugin => {
-    const openedPlugin = this.state.openedPlugin;
+    const { openedPlugin } = this.state;
     return !!openedPlugin[plugin.plugin_id];
   };
   openPlugin = plugin => {
@@ -639,7 +640,7 @@ export default class Index extends PureComponent {
     this.setState({ updateMemory: null });
   };
   renderInstalled = () => {
-    const installedList = this.state.installedList;
+    const { installedList } = this.state;
     const loading = this.state.unInstalledList === null;
     return (
       <List
@@ -795,7 +796,7 @@ export default class Index extends PureComponent {
     );
   };
   renderUnInstalled = () => {
-    const unInstalledList = this.state.unInstalledList;
+    const { unInstalledList } = this.state;
     const loading = this.state.unInstalledList === null;
     if (!unInstalledList.length) {
       return (
@@ -870,7 +871,7 @@ export default class Index extends PureComponent {
   };
   // 是否有已安装的插件
   hasInstalled = () => {
-    const installedList = this.state.installedList;
+    const { installedList } = this.state;
     return installedList && !!installedList.length;
   };
   installPlugin = plugin => {
@@ -938,7 +939,7 @@ export default class Index extends PureComponent {
   };
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const type = this.state.type;
+    const { type } = this.state;
     return (
       <Card>
         <p

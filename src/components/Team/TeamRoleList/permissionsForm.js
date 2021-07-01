@@ -352,7 +352,7 @@ export default class RoleList extends PureComponent {
                     required: true,
                     message: '请输入角色名称!'
                   },
-                  { max: 32, message: '角色名称不能大于32个字符' }
+                  { max: 32, message: '最大长度32位' }
                 ]
               })(<Input placeholder="请输入角色名称" />)}
             </FormItem>

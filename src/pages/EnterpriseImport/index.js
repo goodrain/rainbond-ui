@@ -294,16 +294,14 @@ export default class EnterpriseShared extends PureComponent {
   getUserTeams = () => {
     const {
       dispatch,
-      user,
       match: {
         params: { eid }
       }
     } = this.props;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: 'global/fetchMyTeams',
       payload: {
         enterprise_id: eid,
-        user_id: user.user_id,
         page: 1,
         page_size: 999
       },
@@ -387,7 +385,7 @@ export default class EnterpriseShared extends PureComponent {
           <Card bodyStyle={{ padding: '0 0 0 27px' }} className={styles.mb10}>
             <Row className={styles.box}>
               <Col span={23} className={styles.con}>
-                上传Rainbond APP文件
+                上传APP文件
                 {percents && (
                   <Progress
                     percent={parseInt(percents)}

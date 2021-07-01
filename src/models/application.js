@@ -18,6 +18,7 @@ import {
   getAppResourcesStatistics,
   getBackup,
   getBackupStatus,
+  getUpgradeComponentList,
   getGroupApps,
   getGroupDetail,
   getPluginShareEventInShareApp,
@@ -39,7 +40,8 @@ import {
   setGovernancemode,
   startPluginShareEventInShareApp,
   startShareEvent,
-  submitShare
+  submitShare,
+  Toupgrade
 } from '../services/application';
 
 export default {
@@ -126,6 +128,18 @@ export default {
         if (callback) {
           callback(response);
         }
+      }
+    },
+    *fetchComponentVersion({ payload, callback, handleError }, { call }) {
+      const response = yield call(getUpgradeComponentList, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchToupgrade({ payload, callback }, { call }) {
+      const response = yield call(Toupgrade, payload);
+      if (response && callback) {
+        callback(response);
       }
     },
     *fetchAppDetailState({ payload, callback }, { call }) {

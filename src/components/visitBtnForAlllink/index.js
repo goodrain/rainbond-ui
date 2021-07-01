@@ -1,5 +1,5 @@
-import React, { PureComponent } from 'react';
 import { Button, Dropdown, Menu, Tooltip } from 'antd';
+import React, { PureComponent } from 'react';
 
 /*
   access_type : no_port|无端口、
@@ -37,11 +37,12 @@ export default class Index extends PureComponent {
 
     if (links.length === 1) {
       let singleLink;
-      if (links[0] && links[0].url && links[0].url[0])
+      if (links[0] && links[0].url && links[0].url[0]) {
         singleLink =
           links[0].url[0].includes('http') || links[0].url[0].includes('https')
             ? links[0].url[0]
             : `http://${links[0].url[0]}`;
+      }
       return singleLink ? (
         <Tooltip
           title="跳转到组件对外访问端口对应的域名地址"
@@ -67,21 +68,25 @@ export default class Index extends PureComponent {
         <Dropdown
           overlay={
             <Menu>
-              {links.map(item => (
-                <Menu.Item key={item}>
-                  <a
-                    target="_blank"
-                    href={
-                      item.url[0].includes('http') ||
-                      item.url[0].includes('https')
-                        ? item.url[0]
-                        : `http://${item.url[0]}`
-                    }
-                  >
-                    {item.service_cname}{' '}
-                  </a>
-                </Menu.Item>
-              ))}
+              {links.map(item => {
+                const setUrl = item.url && item.url.length > 0 && item.url[0];
+                return (
+                  <Menu.Item key={item}>
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={
+                        setUrl &&
+                        (setUrl.includes('http') || setUrl.includes('https')
+                          ? setUrl
+                          : `http://${setUrl}`)
+                      }
+                    >
+                      {item.service_cname}
+                    </a>
+                  </Menu.Item>
+                );
+              })}
             </Menu>
           }
           placement="bottomRight"

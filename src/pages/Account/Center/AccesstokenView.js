@@ -194,7 +194,7 @@ class BindingView extends Component {
     return (
       <Fragment>
         <Alert
-          message="访问令牌用于访问 在线 Cloud API, 访问令牌的权限与你的账号权限一致"
+          message="访问令牌用于访问平台API, 访问令牌的权限与你的账号权限一致"
           type="info"
           showIcon
           style={{ margin: '20px' }}

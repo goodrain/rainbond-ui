@@ -1,49 +1,41 @@
-import { Checkbox, Form, Modal, Select } from 'antd';
+import { Form, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
 import RolePermsSelect from '../RolePermsSelect';
 
 const FormItem = Form.Item;
-const CheckboxGroup = Checkbox.Group;
 
 @connect(({ teamControl }) => ({
   teamControl
 }))
 @Form.create()
 class ConfirmModal extends PureComponent {
-  constructor(arg) {
-    super(arg);
-    this.state = {
-      actions: []
-    };
-  }
   componentDidMount() {
     this.loadMembers();
   }
   handleSubmit = () => {
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        this.props.onOk && this.props.onOk(values);
+    const { onOk, form } = this.props;
+    form.validateFields((err, values) => {
+      if (!err && onOk) {
+        onOk(values);
       }
     });
   };
   loadMembers = () => {
     const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
     dispatch({
       type: 'teamControl/fetchMember',
       payload: {
-        team_name,
-        region_name,
+        team_name: globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName(),
         page_size: 200
       }
     });
   };
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const { onOk, onCancel, actions, title } = this.props;
+    const { onCancel, actions, form } = this.props;
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -54,19 +46,6 @@ class ConfirmModal extends PureComponent {
         sm: { span: 14 }
       }
     };
-    const tailFormItemLayout = {
-      wrapperCol: {
-        xs: {
-          span: 24,
-          offset: 0
-        },
-        sm: {
-          span: 14,
-          offset: 6
-        }
-      }
-    };
-
     const options = actions || [];
     const members = this.props.members || [];
     return (

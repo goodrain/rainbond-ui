@@ -1,4 +1,12 @@
-import { Button, Card, notification, Popconfirm, Table } from 'antd';
+import {
+  Button,
+  Card,
+  notification,
+  Popconfirm,
+  Popover,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
@@ -14,6 +22,7 @@ import {
 } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import style from './publish.less';
 
 @connect(({ list, loading, teamControl, enterprise }) => ({
   list,
@@ -32,6 +41,7 @@ export default class AppPublishList extends PureComponent {
       page: 1,
       pageSize: 10,
       total: 0,
+      storeLoading: false,
       selectStoreShow: false
     };
   }
@@ -106,7 +116,11 @@ export default class AppPublishList extends PureComponent {
       },
       callback: data => {
         if (data) {
-          this.setState({ recoders: data.list, loading: false });
+          this.setState({
+            recoders: data.list,
+            total: data.bean.total,
+            loading: false
+          });
         }
       }
     });
@@ -132,12 +146,12 @@ export default class AppPublishList extends PureComponent {
   hideSelectStoreShow = () => {
     this.setState({ selectStoreShow: false });
   };
-
+  handleStoreLoading = loading => {
+    this.setState({ storeLoading: loading });
+  };
   handleSelectStore = values => {
+    this.handleStoreLoading(true);
     const selectStore = values.store_id;
-    if (!selectStore) {
-      notification.warning({ message: '未选择正确的应用商店' });
-    }
     this.handleShare('goodrain', { store_id: selectStore });
   };
   deleteRecord = recordID => {
@@ -150,14 +164,14 @@ export default class AppPublishList extends PureComponent {
         app_id: appID,
         record_id: recordID
       },
-      callback: data => {
+      callback: () => {
         this.fetchPublishRecoder();
       }
     });
   };
 
   cancelPublish = recordID => {
-    if (recordID == undefined || recordID == '') {
+    if (recordID === undefined || recordID === '') {
       notification.warning({ message: '参数异常' });
       return;
     }
@@ -169,7 +183,7 @@ export default class AppPublishList extends PureComponent {
         team_name: teamName,
         share_id: recordID
       },
-      callback: data => {
+      callback: () => {
         this.fetchPublishRecoder();
       }
     });
@@ -192,6 +206,17 @@ export default class AppPublishList extends PureComponent {
         )
       );
     }
+    this.handleStoreLoading(false);
+  };
+
+  handleBox = val => {
+    return (
+      <div className={style.version}>
+        <Tooltip placement="topLeft" title={val}>
+          {val}
+        </Tooltip>
+      </div>
+    );
   };
 
   render() {
@@ -204,7 +229,8 @@ export default class AppPublishList extends PureComponent {
       pageSize,
       total,
       selectStoreShow,
-      recoders
+      recoders,
+      storeLoading
     } = this.state;
     const {
       currentEnterprise,
@@ -222,6 +248,7 @@ export default class AppPublishList extends PureComponent {
       currentRegionName,
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
+
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -257,24 +284,43 @@ export default class AppPublishList extends PureComponent {
                 {
                   title: '发布模版名称',
                   dataIndex: 'app_model_name',
-                  render: val => {
+                  render: (val, data) => {
                     if (val) {
                       return val;
                     }
-                    return <span style={{ color: '#999999' }}>未指定</span>;
+                    return (
+                      <span style={{ color: '#999999' }}>
+                        {data.status === 0 ? '未指定' : '-'}
+                      </span>
+                    );
                   }
                 },
                 {
                   title: '版本号(别名)',
                   dataIndex: 'version',
-                  align: 'center',
+                  align: 'left',
                   render: (val, data) => {
+                    const versionAlias =
+                      (data.version_alias && `(${data.version_alias})`) || '';
                     if (val) {
+                      const appVersionInfo = data.app_version_info;
                       return (
-                        <p style={{ marginBottom: 0 }}>
-                          {val}
-                          {data.version_alias ? `(${data.version_alias})` : ''}
-                        </p>
+                        <Popover
+                          style={{
+                            marginBottom: 0
+                          }}
+                          content={
+                            appVersionInfo
+                              ? this.handleBox(appVersionInfo)
+                              : '暂无版本描述'
+                          }
+                          title={this.handleBox(`${val}${versionAlias}`)}
+                        >
+                          <div className={style.version}>
+                            {val}
+                            {versionAlias}
+                          </div>
+                        </Popover>
                       );
                     }
                     return <span style={{ color: '#999999' }}>未指定</span>;
@@ -350,6 +396,7 @@ export default class AppPublishList extends PureComponent {
                       case 2:
                         return <span style={{ color: '#999999' }}>已取消</span>;
                     }
+                    return '';
                   }
                 },
                 {
@@ -359,7 +406,7 @@ export default class AppPublishList extends PureComponent {
                   render: (val, data) => {
                     return (
                       <div>
-                        {data.status == 0 ? (
+                        {data.status === 0 ? (
                           <div>
                             <a
                               style={{ marginRight: '5px' }}
@@ -399,6 +446,7 @@ export default class AppPublishList extends PureComponent {
           </ScrollerX>
         </Card>
         <SelectStore
+          loading={storeLoading}
           dispatch={dispatch}
           enterprise_id={currentEnterprise.enterprise_id}
           visible={selectStoreShow}

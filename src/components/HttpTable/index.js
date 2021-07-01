@@ -1,12 +1,25 @@
-import { Button, Card, Modal, notification, Row, Table, Tooltip } from 'antd';
+/* eslint-disable no-nested-ternary */
+import ConfirmModal from '@/components/ConfirmModal';
+import {
+  Button,
+  Card,
+  Icon,
+  Modal,
+  notification,
+  Row,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import DrawerForm from '../DrawerForm';
 import InfoConnectModal from '../InfoConnectModal';
 import ParameterForm from '../ParameterForm';
 import Search from '../Search';
+import styles from './index.less';
 
 @connect(({ user, global, loading, teamControl, enterprise }) => ({
   currUser: user.currentUser,
@@ -23,6 +36,8 @@ export default class HttpTable extends PureComponent {
       informationConnect: false,
       outerEnvs: [],
       dataList: [],
+      toDeleteHttp: false,
+      deleteLoading: false,
       loading: true,
       page_num: 1,
       page_size: 10,
@@ -36,7 +51,7 @@ export default class HttpTable extends PureComponent {
       appStatusVisable: false,
       record: '',
       parameterVisible: false,
-      parameterList: null
+      parameterInfo: null
     };
   }
   componentWillMount() {
@@ -122,40 +137,13 @@ export default class HttpTable extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          const arr = [];
           if (res.bean && res.bean.value) {
-            if (
-              res.bean.value.set_headers &&
-              res.bean.value.set_headers.length > 1
-            ) {
-              let haveUpgrade = false;
-              let haveConnection = false;
-              res.bean.value.set_headers.map(item => {
-                if (item.key != 'Connection' && item.key != 'Upgrade') {
-                  arr.push(item);
-                }
-                if (item.key == 'Connection') {
-                  haveUpgrade = true;
-                }
-                if (item.key == 'Upgrade') {
-                  haveConnection = true;
-                }
-              });
-              res.bean.value.set_headers = arr;
-              res.bean.value.WebSocket = haveUpgrade && haveConnection;
-              this.setState({
-                parameterVisible: values,
-                parameterList: res.bean && res.bean.value
-              });
-            } else {
-              res.bean.value.WebSocket = false;
-              this.setState({
-                parameterVisible: values,
-                parameterList: res.bean && res.bean.value
-              });
-            }
+            this.setState({
+              parameterVisible: values,
+              parameterInfo: res.bean && res.bean.value
+            });
           } else {
-            this.setState({ parameterVisible: values, parameterList: null });
+            this.setState({ parameterVisible: values, parameterInfo: null });
           }
         }
       }
@@ -244,10 +232,6 @@ export default class HttpTable extends PureComponent {
   };
   handleOkParameter = values => {
     const { dispatch } = this.props;
-    const arr = [
-      { key: 'Connection', value: '"Upgrade"' },
-      { key: 'Upgrade', value: '$http_upgrade' }
-    ];
     const value = {
       proxy_buffer_numbers: Number(values.proxy_buffer_numbers),
       proxy_buffer_size: Number(values.proxy_buffer_size),
@@ -256,16 +240,8 @@ export default class HttpTable extends PureComponent {
       proxy_read_timeout: Number(values.proxy_read_timeout),
       proxy_send_timeout: Number(values.proxy_send_timeout),
       proxy_buffering: values.proxy_buffering ? 'on' : 'off',
-      set_headers:
-        values.set_headers && values.WebSocket
-          ? values.set_headers.length == 1 && values.set_headers[0].key == ''
-            ? arr
-            : values.set_headers.concat(arr)
-          : values.set_headers
-          ? values.set_headers
-          : values.WebSocket
-          ? arr
-          : []
+      WebSocket: values.WebSocket,
+      set_headers: values.set_headers
     };
     dispatch({
       type: 'gateWay/editParameter',
@@ -326,9 +302,20 @@ export default class HttpTable extends PureComponent {
       }
     });
   };
-
-  handleDelete = values => {
+  handleToDeleteHttp = val => {
+    this.setState({
+      toDeleteHttp: val
+    });
+  };
+  handleDeleteLoading = deleteLoading => {
+    this.setState({
+      deleteLoading
+    });
+  };
+  handleDelete = () => {
+    this.handleDeleteLoading(true);
     const { dispatch } = this.props;
+    const { toDeleteHttp: values } = this.state;
     dispatch({
       type: 'gateWay/deleteHttp',
       payload: {
@@ -339,10 +326,12 @@ export default class HttpTable extends PureComponent {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        if (data) {
-          notification.success({ message: data ? data.msg_show : '删除成功' });
-          this.reload();
-        }
+        notification.success({
+          message: (data && data.msg_show) || '删除成功'
+        });
+        this.handleToDeleteHttp(false);
+        this.handleDeleteLoading(false);
+        this.reload();
       }
     });
   };
@@ -367,25 +356,48 @@ export default class HttpTable extends PureComponent {
       }
     );
   };
+
   seeHighRoute = values => {
+    const domainHeander = values.domain_heander;
+    const domainCookie = values.domain_cookie;
+    const domainPath = values.domain_path;
+    const setArr = [
+      {
+        name: '请求头',
+        val: domainHeander
+      },
+      {
+        name: 'Cookie',
+        val: domainCookie
+      },
+      {
+        name: 'Path',
+        val: domainPath
+      },
+      {
+        name: '权重',
+        val: values.the_weight
+      }
+    ];
     const title = (
-      <ul style={{ padding: '0', margin: '0' }}>
-        <li style={{ whiteSpace: 'nowrap' }}>
-          <span>请求头：</span>
-          <span>{values.domain_heander}</span>
-        </li>
-        <li style={{ whiteSpace: 'nowrap' }}>
-          <span>Cookie：</span>
-          <span>{values.domain_cookie}</span>
-        </li>
-        <li style={{ whiteSpace: 'nowrap' }}>
-          <span>Path：</span>
-          <span>{values.domain_path}</span>
-        </li>
-        <li style={{ whiteSpace: 'nowrap' }}>
-          <span>权重：</span>
-          <span>{values.the_weight}</span>
-        </li>
+      <ul className={styles.routings}>
+        {setArr.map(item => {
+          const { name, val } = item;
+          return (
+            <li>
+              <div>{name}：</div>
+              <div>{val || '-'}</div>
+              {val && (
+                <CopyToClipboard
+                  text={val}
+                  onCopy={() => notification.success({ message: '复制成功' })}
+                >
+                  <Icon type="copy" />
+                </CopyToClipboard>
+              )}
+            </li>
+          );
+        })}
       </ul>
     );
     return (
@@ -475,7 +487,7 @@ export default class HttpTable extends PureComponent {
   handleCloseParameter = () => {
     this.setState({
       parameterVisible: false,
-      parameterList: null
+      parameterInfo: null
     });
   };
   render() {
@@ -492,11 +504,13 @@ export default class HttpTable extends PureComponent {
       informationConnect,
       outerEnvs,
       total,
+      toDeleteHttp,
+      deleteLoading,
       page_num,
       page_size,
       whetherOpenForm,
       appStatusVisable,
-      parameterList
+      parameterInfo
     } = this.state;
 
     const columns = [
@@ -627,7 +641,7 @@ export default class HttpTable extends PureComponent {
               {isDelete && (
                 <a
                   onClick={() => {
-                    this.handleDelete(record);
+                    this.handleToDeleteHttp(record);
                   }}
                 >
                   删除
@@ -644,7 +658,7 @@ export default class HttpTable extends PureComponent {
                 {isDelete && (
                   <a
                     onClick={() => {
-                      this.handleDelete(record);
+                      this.handleToDeleteHttp(record);
                     }}
                   >
                     删除
@@ -675,7 +689,7 @@ export default class HttpTable extends PureComponent {
             marginBottom: '20px'
           }}
         >
-          <Search onSearch={this.handleSearch} type="HTTP" />
+          <Search onSearch={this.handleSearch} type="HTTP" appID={appID} />
           {isCreate && (
             <Button
               type="primary"
@@ -720,9 +734,22 @@ export default class HttpTable extends PureComponent {
             onOk={this.handleOkParameter}
             onClose={this.handleCloseParameter}
             visible={parameterVisible}
-            editInfo={parameterList}
+            editInfo={parameterInfo}
           />
         )}
+        {toDeleteHttp && (
+          <ConfirmModal
+            onOk={this.handleDelete}
+            loading={deleteLoading}
+            title="删除策略"
+            subDesc="此操作不可恢复"
+            desc="确定要删除此策略吗?"
+            onCancel={() => {
+              this.handleToDeleteHttp(false);
+            }}
+          />
+        )}
+
         {informationConnect && (
           <InfoConnectModal
             visible={informationConnect}

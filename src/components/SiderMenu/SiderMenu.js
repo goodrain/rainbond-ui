@@ -38,14 +38,13 @@ export default class SiderMenu extends PureComponent {
   }
 
   getUserTeams = () => {
-    const { dispatch, currentUser, currentEnterprise } = this.props;
+    const { dispatch, currentEnterprise } = this.props;
     const { page, page_size: pageSize, name } = this.state;
     this.setState({ eid: currentEnterprise.enterprise_id });
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: 'global/fetchMyTeams',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
-        user_id: currentUser.user_id,
         page,
         page_size: pageSize,
         name

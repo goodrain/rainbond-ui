@@ -74,6 +74,10 @@ export default class CloudBackupForm extends PureComponent {
                 {
                   required: true,
                   message: '请输入endpoint'
+                },
+                {
+                  max: 255,
+                  message: '最大长度255位'
                 }
               ]
             })(<Input placeholder="请输入endpoint" />)}
@@ -85,6 +89,10 @@ export default class CloudBackupForm extends PureComponent {
                 {
                   required: true,
                   message: '请输入bucket_name'
+                },
+                {
+                  max: 255,
+                  message: '最大长度255位'
                 }
               ]
             })(<Input placeholder="请输入bucket_name" />)}
@@ -97,6 +105,10 @@ export default class CloudBackupForm extends PureComponent {
                 {
                   required: true,
                   message: '请提供具有足够权限的Access Key'
+                },
+                {
+                  max: 1024,
+                  message: '最大长度1024位'
                 }
               ]
             })(<Input placeholder="Access Key" />)}
@@ -108,6 +120,10 @@ export default class CloudBackupForm extends PureComponent {
                 {
                   required: true,
                   message: '请提供具有足够权限的Secret Key'
+                },
+                {
+                  max: 1024,
+                  message: '最大长度1024位'
                 }
               ]
             })(<Input type="password" placeholder="Secret Key" />)}

@@ -1,32 +1,29 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 import {
-  Card,
-  Form,
   Button,
-  notification,
-  Upload,
-  Icon,
+  Card,
   Checkbox,
+  Col,
+  Form,
+  Icon,
+  notification,
   Row,
-  Col
-} from "antd";
-import globalUtil from "../../utils/global";
+  Upload
+} from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import globalUtil from '../../utils/global';
 
 const appstatus = {
-  pending: "等待中",
-  importing: "导入中",
-  success: "成功",
-  failed: "失败"
+  pending: '等待中',
+  importing: '导入中',
+  success: '成功',
+  failed: '失败'
 };
 
-@connect(
-  ({ user, global }) => ({ groups: global.groups }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect(({ user, global }) => ({ groups: global.groups }), null, null, {
+  withRef: true
+})
 @Form.create()
 export default class Index extends PureComponent {
   constructor(props) {
@@ -35,7 +32,7 @@ export default class Index extends PureComponent {
       fileList: [],
       existFileList: [],
       record: {},
-      event_id: "",
+      event_id: '',
       file_list: [],
       import_file_status: [],
       autoQuery: true
@@ -52,7 +49,7 @@ export default class Index extends PureComponent {
   }
   cancelImport = () => {
     this.props.dispatch({
-      type: "market/cancelImportApp",
+      type: 'market/cancelImportApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         event_id: this.state.event_id
@@ -66,8 +63,8 @@ export default class Index extends PureComponent {
     });
   };
   complete = () => {
-    this.props.onOK && this.props.onOK()
-  }
+    this.props.onOK && this.props.onOK();
+  };
   closeAutoQuery = () => {
     this.autoQuery = false;
     this.setState({ autoQuery: false });
@@ -76,7 +73,7 @@ export default class Index extends PureComponent {
     const file = this.state.fileList;
     if (file.length == 0) {
       notification.info({
-        message: "您还没有上传文件"
+        message: '您还没有上传文件'
       });
       return;
     }
@@ -91,10 +88,10 @@ export default class Index extends PureComponent {
     const file_name = file[0].name;
     const event_id = file[0].response.data.bean.event_id;
     this.props.dispatch({
-      type: "market/importApp",
+      type: 'market/importApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        scope: "enterprise",
+        scope: 'enterprise',
         event_id: event_id,
         file_name: file_name
       },
@@ -110,7 +107,7 @@ export default class Index extends PureComponent {
     let fileList = info.fileList;
     fileList = fileList.filter(file => {
       if (file.response) {
-        return file.response.msg === "success";
+        return file.response.msg === 'success';
       }
       return true;
     });
@@ -134,27 +131,27 @@ export default class Index extends PureComponent {
   handleSubmit = () => {
     if (this.state.file_list.length == 0) {
       notification.warning({
-        message: "请至少选择一个应用"
+        message: '请至少选择一个应用'
       });
       return;
     }
-    var fileStr = "";
+    var fileStr = '';
     this.state.file_list.map(order => {
-      fileStr += order + ",";
+      fileStr += order + ',';
     });
     fileStr = fileStr.slice(0, fileStr.length - 1);
     this.props.dispatch({
-      type: "market/importApp",
+      type: 'market/importApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        scope: "enterprise",
+        scope: 'enterprise',
         event_id: this.state.event_id,
         file_name: fileStr
       },
       callback: data => {
         if (data) {
           notification.success({
-            message: "开始导入应用"
+            message: '开始导入应用'
           });
           this.closeAutoQuery();
           this.openQueryImportStatus();
@@ -164,7 +161,7 @@ export default class Index extends PureComponent {
   };
   queryImportRecord = () => {
     this.props.dispatch({
-      type: "market/queryImportRecord",
+      type: 'market/queryImportRecord',
       payload: {
         team_name: globalUtil.getCurrTeamName()
       },
@@ -182,7 +179,7 @@ export default class Index extends PureComponent {
   queryImportStatus = () => {
     if (!this.autoQueryStatus) return;
     this.props.dispatch({
-      type: "market/queryImportApp",
+      type: 'market/queryImportApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         event_id: this.state.event_id
@@ -190,27 +187,27 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data) {
           this.setState({ import_file_status: data.list });
-          if (data.bean && data.bean.status == "uploading") {
-            return
+          if (data.bean && data.bean.status == 'uploading') {
+            return;
           }
-          if (data.bean && data.bean.status == "partial_success") {
+          if (data.bean && data.bean.status == 'partial_success') {
             notification.success({
-              message: "部分应用导入失败，你可以重试或取消导入"
+              message: '部分应用导入失败，你可以重试或取消导入'
             });
-            return
+            return;
           }
-          if (data.bean && data.bean.status == "success") {
+          if (data.bean && data.bean.status == 'success') {
             notification.success({
-              message: "导入完成"
+              message: '导入完成'
             });
-            this.props.onOK && this.props.onOK()
-            return
+            this.props.onOK && this.props.onOK();
+            return;
           }
-          if (data.bean && data.bean.status == "failed") {
+          if (data.bean && data.bean.status == 'failed') {
             notification.success({
-              message: "应用导入失败"
+              message: '应用导入失败'
             });
-            return
+            return;
           }
           setTimeout(() => {
             this.queryImportStatus();
@@ -223,7 +220,7 @@ export default class Index extends PureComponent {
   handleQueryImportDir = () => {
     if (this.autoQuery) {
       this.props.dispatch({
-        type: "market/queryImportDirApp",
+        type: 'market/queryImportDirApp',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           event_id: this.state.event_id
@@ -243,19 +240,19 @@ export default class Index extends PureComponent {
   };
   reImportApp = file_name => {
     this.props.dispatch({
-      type: "market/importApp",
+      type: 'market/importApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        scope: "enterprise",
+        scope: 'enterprise',
         event_id: this.state.event_id,
         file_name: file_name
       },
       callback: data => {
         if (data) {
           notification.success({
-            message: "开始重新导入"
+            message: '开始重新导入'
           });
-          this.openQueryImportStatus()
+          this.openQueryImportStatus();
         }
       }
     });
@@ -268,22 +265,20 @@ export default class Index extends PureComponent {
           <div>
             <div style={{ paddingBottom: 8 }}>
               <span style={{ marginRight: 8 }}>
-                你可以将Rainbond APP文件复制到集群管理节点目录:
+                你可以将APP文件复制到集群管理节点目录:
               </span>
               <a style={{ marginRight: 16 }}>{this.state.record.source_dir}</a>
               <CopyToClipboard
                 text={this.state.record.source_dir}
                 onCopy={() => {
-                  notification.success({ message: "复制成功" });
+                  notification.success({ message: '复制成功' });
                 }}
               >
                 <Button size="small">复制</Button>
               </CopyToClipboard>
             </div>
-            <div style={{ borderBottom: "solid #ccc 1px", paddingBottom: 16 }}>
-              <span style={{ marginRight: 8 }}>
-                你也可以直接上传Rainbond APP文件:
-              </span>
+            <div style={{ borderBottom: 'solid #ccc 1px', paddingBottom: 16 }}>
+              <span style={{ marginRight: 8 }}>你也可以直接上传APP文件:</span>
               <Upload
                 name="appTarFile"
                 accept=".zip,.tar"
@@ -294,7 +289,8 @@ export default class Index extends PureComponent {
                 headers={myheaders}
               >
                 <Button size="small">
-                  <Icon type="upload" />请选择文件
+                  <Icon type="upload" />
+                  请选择文件
                 </Button>
               </Upload>
             </div>
@@ -303,7 +299,8 @@ export default class Index extends PureComponent {
                 {this.autoQuery ? (
                   <div style={{ marginBottom: 16 }}>
                     <p style={{ fontSize: 16 }}>
-                      正在自动识别已上传Rainbond APP文件...<a
+                      正在自动识别已上传APP文件...
+                      <a
                         onClick={() => {
                           this.closeAutoQuery();
                         }}
@@ -313,24 +310,24 @@ export default class Index extends PureComponent {
                     </p>
                   </div>
                 ) : (
-                    <a
-                      style={{ fontSize: 16 }}
-                      onClick={() => {
-                        this.openAutoQuery();
-                      }}
-                    >
-                      打开自动识别
+                  <a
+                    style={{ fontSize: 16 }}
+                    onClick={() => {
+                      this.openAutoQuery();
+                    }}
+                  >
+                    打开自动识别
                   </a>
-                  )}
+                )}
                 {this.state.existFileList.length > 0 && (
                   <Checkbox.Group
                     onChange={this.onFileChange}
-                    style={{ display: "block" }}
+                    style={{ display: 'block' }}
                   >
                     <Row>
                       {this.state.existFileList.map(order => {
                         return (
-                          <Col key={"col" + order} span={8}>
+                          <Col key={'col' + order} span={8}>
                             <Checkbox key={order} value={order}>
                               {order}
                             </Checkbox>
@@ -342,24 +339,24 @@ export default class Index extends PureComponent {
                 )}
               </div>
             ) : (
-                <div style={{ paddingBottom: 16 }}>
-                  <p style={{ fontSize: 16 }}>正在导入应用:</p>
-                  <ul>
-                    {this.state.import_file_status.map(app => {
-                      return (
-                        <li style={{ lineHeight: "30px", paddingBottom: "5px" }}>
-                          {app.file_name}
-                          <span style={{ padding: "0 5px" }}>
-                            {appstatus[app.status]}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
+              <div style={{ paddingBottom: 16 }}>
+                <p style={{ fontSize: 16 }}>正在导入应用:</p>
+                <ul>
+                  {this.state.import_file_status.map(app => {
+                    return (
+                      <li style={{ lineHeight: '30px', paddingBottom: '5px' }}>
+                        {app.file_name}
+                        <span style={{ padding: '0 5px' }}>
+                          {appstatus[app.status]}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
 
-            <div style={{ textAlign: "center", marginTop: 32 }}>
+            <div style={{ textAlign: 'center', marginTop: 32 }}>
               {this.state.import_file_status.length == 0 && (
                 <Button
                   type="primary"

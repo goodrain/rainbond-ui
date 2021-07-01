@@ -1,15 +1,22 @@
 .fullScreens {
-    :global {
-      .CodeMirror {
-        position: fixed !important;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: auto !important;
-        width: 100% !important;
-        z-index: 9;
-      }
+  :global {
+    .CodeMirror {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: auto !important;
+      width: 100% !important;
+      z-index: 9;
     }
   }
-  
+}
+.childrenWidth {
+  :global {
+    .ant-form-item-children {
+      width: 100%;
+      display: inline-block;
+    }
+  }
+}

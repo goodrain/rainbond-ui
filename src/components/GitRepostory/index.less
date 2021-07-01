@@ -1,5 +1,5 @@
-@import "~antd/lib/style/themes/default.less";
-@import "../../utils/utils.less";
+@import '~antd/lib/style/themes/default.less';
+@import '../../utils/utils.less';
 
 :global {
   td a {
@@ -8,8 +8,8 @@
 }
 
 .formWrap {
-  width : 90%;
-  margin: 0 auto
+  width: 90%;
+  margin: 0 auto;
 }
 
 .ClearCard {
@@ -18,37 +18,36 @@
       padding: 0 !important;
     }
   }
-
 }
 
 .pageHeaderContent {
   display: flex;
 
   .avatar {
-    flex         : 0 1 72px;
+    flex: 0 1 72px;
     margin-bottom: 8px;
 
-    &>span {
+    & > span {
       border-radius: 72px;
-      display      : block;
-      width        : 72px;
-      height       : 72px;
+      display: block;
+      width: 72px;
+      height: 72px;
     }
   }
 
   .content {
-    position   : relative;
-    top        : 4px;
+    position: relative;
+    top: 4px;
     margin-left: 24px;
-    flex       : 1 1 auto;
-    color      : @text-color-secondary;
+    flex: 1 1 auto;
+    color: @text-color-secondary;
     line-height: 22px;
 
     .contentTitle {
-      font-size    : 20px;
-      line-height  : 28px;
-      font-weight  : 500;
-      color        : @heading-color;
+      font-size: 20px;
+      line-height: 28px;
+      font-weight: 500;
+      color: @heading-color;
       margin-bottom: 12px;
     }
   }
@@ -56,48 +55,47 @@
 
 .extraContent {
   .clearfix();
-  float      : right;
+  float: right;
   white-space: nowrap;
 
   :global {
     .ant-btn-group {
-      margin-right: 10px
+      margin-right: 10px;
     }
-
   }
 
   .statItem {
-    padding : 0 32px;
+    padding: 0 32px;
     position: relative;
-    display : inline-block;
+    display: inline-block;
 
-    >p:first-child {
-      color        : @text-color-secondary;
-      font-size    : @font-size-base;
-      line-height  : 22px;
+    > p:first-child {
+      color: @text-color-secondary;
+      font-size: @font-size-base;
+      line-height: 22px;
       margin-bottom: 4px;
     }
 
-    >p {
-      color      : @heading-color;
-      font-size  : 30px;
+    > p {
+      color: @heading-color;
+      font-size: 30px;
       line-height: 38px;
-      margin     : 0;
+      margin: 0;
 
-      >span {
-        color    : @text-color-secondary;
+      > span {
+        color: @text-color-secondary;
         font-size: 20px;
       }
     }
 
     &:after {
       background-color: @border-color-split;
-      position        : absolute;
-      top             : 8px;
-      right           : 0;
-      width           : 1px;
-      height          : 40px;
-      content         : '';
+      position: absolute;
+      top: 8px;
+      right: 0;
+      width: 1px;
+      height: 40px;
+      content: '';
     }
 
     &:last-child {
@@ -111,11 +109,8 @@
 
   .ant-btn-group {
     margin-right: 10px;
-
-    .right-btn {}
   }
 }
-
 
 @media screen and (max-width: @screen-xl) and (min-width: @screen-lg) {
   .activeCard {
@@ -145,11 +140,11 @@
   }
 
   .extraContent {
-    float       : none;
+    float: none;
     margin-right: 0;
 
     .statItem {
-      padding   : 0 16px;
+      padding: 0 16px;
       text-align: left;
 
       &:after {
@@ -187,7 +182,7 @@
   }
 
   .formWrap {
-    width: 300px
+    width: 300px;
   }
 }
 
@@ -198,8 +193,6 @@
     }
   }
 }
-
-
 
 .tableList {
   .tableListOperator {
@@ -212,57 +205,52 @@
 }
 
 .statuscn {
-  display   : block;
+  display: block;
   text-align: center;
 }
-
 
 .charContent {
   height: 90px;
 
   .statusIconWraper {
-    textAlign: center;
-    padding  : 20px 0;
-    height   : 85px;
+    text-align: center;
+    padding: 20px 0;
+    height: 85px;
   }
-
-
 
   .charContentTit {
-    text-align    : left;
-    font-size     : 30px;
+    text-align: left;
+    font-size: 30px;
     vertical-align: bottom;
-    color         : rgba(0, 0, 0, 0.85);
-    margin-bottom : 0px;
+    color: rgba(0, 0, 0, 0.85);
+    margin-bottom: 0px;
 
     .sub {
-      font-size: 12px
+      font-size: 12px;
     }
   }
-
-  .charContentMain {}
 }
 
 .logs {
   min-height: 120px;
-  overflow  : hidden;
+  overflow: hidden;
 }
 
 .pluginList {
-  min-height   : 120px;
-  margin-bottom: 0
+  min-height: 120px;
+  margin-bottom: 0;
 }
 
 .logItem {
   margin-bottom: 20px;
 
   .logItemDate {
-    padding-top : 5px;
-    text-align  : right;
-    float       : left;
-    width       : 100px;
+    padding-top: 5px;
+    text-align: right;
+    float: left;
+    width: 100px;
     margin-right: 40px;
-    position    : relative;
+    position: relative;
 
     .time,
     .date {
@@ -271,59 +259,59 @@
   }
 
   .logItemDate:after {
-    content   : '';
-    position  : absolute;
-    right     : -20px;
-    top       : 0;
-    bottom    : -10000px;
-    width     : 2px;
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: 0;
+    bottom: -10000px;
+    width: 2px;
     background: #e8e8e8;
   }
 
   .logItemDate:before {
-    content      : '';
-    position     : absolute;
-    width        : 10px;
-    height       : 10px;
-    top          : 13px;
-    right        : -24px;
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: 13px;
+    right: -24px;
     border-radius: 50%;
-    background   : #e8e8e8;
-    border       : 2px solid #fff;
-    box-shadow   : 0 0 0 1px #e8e8e8;
-    z-index      : 9;
+    background: #e8e8e8;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #e8e8e8;
+    z-index: 9;
   }
 
   .logItemMain {
-    overflow     : hidden;
-    border       : 1px solid #e8e8e8;
+    overflow: hidden;
+    border: 1px solid #e8e8e8;
     border-radius: 4px;
-    padding      : 10px 15px;
+    padding: 10px 15px;
 
     .hd {
       overflow: hidden;
 
       .tit {
-        float      : left;
+        float: left;
         font-weight: bold;
       }
 
       .btns {
-        float    : right;
+        float: right;
         font-size: 14px;
 
         .btn {
           margin-left: 10px;
-          cursor     : pointer;
+          cursor: pointer;
         }
       }
     }
 
     .codeVersion {
-      padding  : 6px 0;
+      padding: 6px 0;
       font-size: 12px;
-      color    : #b7b7b7;
-      overflow : hidden;
+      color: #b7b7b7;
+      overflow: hidden;
 
       .versionInfo {
         float: left;
@@ -337,7 +325,7 @@
     :global {
       .ant-btn-group {
         margin-bottom: 6px;
-        margin-top   : 6px;
+        margin-top: 6px;
       }
     }
 
@@ -346,37 +334,33 @@
 
       p {
         margin-bottom: 0;
-        color        : #999;
-        line-height  : 1.2;
+        color: #999;
+        line-height: 1.2;
       }
     }
   }
 }
 
 .success {
-
   .logItemDate:before {
-    background: #28cb75
+    background: #28cb75;
   }
-
 }
 
 .fail {
-
   .logItemDate:before {
-    background: #da4f49
+    background: #da4f49;
   }
-
 }
 
-@import "~antd/lib/style/themes/default.less";
-@import "../../utils/utils.less";
+@import '~antd/lib/style/themes/default.less';
+@import '../../utils/utils.less';
 
 .iconGroup {
   i {
-    transition : color 0.32s;
-    color      : @text-color-secondary;
-    cursor     : pointer;
+    transition: color 0.32s;
+    color: @text-color-secondary;
+    cursor: pointer;
     margin-left: 16px;
 
     &:hover {
@@ -386,8 +370,8 @@
 }
 
 .rankingList {
-  margin    : 25px 0 0;
-  padding   : 0;
+  margin: 25px 0 0;
+  padding: 0;
   list-style: none;
 
   li {
@@ -395,28 +379,28 @@
     margin-top: 16px;
 
     span {
-      color      : @text-color;
-      font-size  : 14px;
+      color: @text-color;
+      font-size: 14px;
       line-height: 22px;
     }
 
     span:first-child {
       background-color: @background-color-base;
-      border-radius   : 20px;
-      display         : inline-block;
-      font-size       : 12px;
-      font-weight     : 600;
-      margin-right    : 24px;
-      height          : 20px;
-      line-height     : 20px;
-      width           : 20px;
-      text-align      : center;
+      border-radius: 20px;
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 24px;
+      height: 20px;
+      line-height: 20px;
+      width: 20px;
+      text-align: center;
     }
 
     span.active {
       //background-color: @primary-color;
-      background-color  : #314659;
-      color             : #fff;
+      background-color: #314659;
+      color: #fff;
     }
 
     span:last-child {
@@ -426,11 +410,11 @@
 }
 
 .salesExtra {
-  display     : inline-block;
+  display: inline-block;
   margin-right: 24px;
 
   a {
-    color      : @text-color;
+    color: @text-color;
     margin-left: 24px;
 
     &:hover {
@@ -457,15 +441,15 @@
       padding-left: 16px;
 
       .ant-tabs-nav .ant-tabs-tab {
-        padding-top   : 16px;
+        padding-top: 16px;
         padding-bottom: 14px;
-        line-height   : 24px;
+        line-height: 24px;
       }
     }
 
     .ant-tabs-extra-content {
       padding-right: 24px;
-      line-height  : 55px;
+      line-height: 55px;
     }
 
     .ant-card-head {
@@ -480,8 +464,8 @@
 
 .salesTypeRadio {
   position: absolute;
-  left    : 24px;
-  bottom  : 15px;
+  left: 24px;
+  bottom: 15px;
 }
 
 .offlineCard {
@@ -495,18 +479,18 @@
     }
 
     .ant-tabs-nav-container-scrolling {
-      padding-left : 40px;
+      padding-left: 40px;
       padding-right: 40px;
     }
 
     .ant-tabs-tab-prev-icon:before {
       position: relative;
-      left    : 6px;
+      left: 6px;
     }
 
     .ant-tabs-tab-next-icon:before {
       position: relative;
-      right   : 6px;
+      right: 6px;
     }
   }
 
@@ -517,7 +501,7 @@
 
 .trendText {
   margin-left: 8px;
-  color      : @heading-color;
+  color: @heading-color;
 }
 
 @media screen and (max-width: @screen-lg) {

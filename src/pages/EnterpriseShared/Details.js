@@ -343,7 +343,7 @@ export default class Main extends PureComponent {
           enterprise_id: eid,
           name: appInfo ? appInfo.app_name : values.name,
           pic: imageUrl,
-          tag_ids: tagId ? tagId : arr,
+          tag_ids: tagId || arr,
           app_id: appId,
           describe: appInfo ? appInfo.describe : values.describe,
           details: details || (values.details && values.details.toHTML()),
@@ -452,14 +452,10 @@ export default class Main extends PureComponent {
   render() {
     const {
       loading,
-      form,
-      match: {
-        params: { appId }
-      }
+      form
     } = this.props;
     const {
       appInfo,
-      isShared,
       isAddLicense,
       tagList,
       imageUrl,
@@ -476,7 +472,7 @@ export default class Main extends PureComponent {
       total,
       appStoreAdmin: { isEditApp, isEditVersionApp, isDeleteAppVersion }
     } = this.state;
-    const { getFieldDecorator, getFieldValue } = form;
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -485,16 +481,6 @@ export default class Main extends PureComponent {
       wrapperCol: {
         xs: { span: 24 },
         sm: { span: 19 }
-      }
-    };
-    const formItemLayouts = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 3 }
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 21 }
       }
     };
     const token = cookie.get('token');
@@ -556,7 +542,7 @@ export default class Main extends PureComponent {
         )}
         <PageHeaderLayout
           title="应用市场管理"
-          content="应用模型是指模型化、标准化的应用制品包，是企业数字资产的应用化产物，可以通过标准的方式安装到任何Rainbond平台或其他支持的云原生平台"
+          content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
             <Card
@@ -598,7 +584,7 @@ export default class Main extends PureComponent {
                             ]
                           })(<Input placeholder="请输入名称" />)}
                           <div className={styles.conformDesc}>
-                            请输入应用模版名称，最多32字.
+                            请输入应用模版名称，最大长度32位.
                           </div>
                         </div>
                       </FormItem>
@@ -804,7 +790,7 @@ export default class Main extends PureComponent {
                           src={imageBase64 || imageUrl}
                           alt="LOGO"
                           style={{
-                            margin: '0 30px',
+                            margin: '0 auto',
                             maxWidth: '60px',
                             maxHeight: '60px'
                           }}
@@ -814,8 +800,10 @@ export default class Main extends PureComponent {
                         appInfo.app_name && (
                           <div
                             style={{
-                              margin: '0 30px'
-                            }}
+                            margin: '0 auto',
+                            maxWidth: '60px',
+                            maxHeight: '60px'
+                          }}
                           >
                             {defaulAppImg}
                           </div>

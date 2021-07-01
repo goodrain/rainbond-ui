@@ -49,6 +49,7 @@ export async function createKubernetesCluster(body, handleError) {
     {
       method: 'post',
       data: {
+        encodedRKEConfig: body.encodedRKEConfig,
         name: body.name,
         provider_name: body.provider_name,
         resourceType: body.resourceType,
@@ -186,7 +187,17 @@ export async function getInitNodeCmd(handleError) {
     handleError
   });
 }
-
+export async function rkeconfig(body) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/prune-update-rkeconfig`,
+    {
+      method: 'post',
+      data: body,
+      noModels: true,
+      showMessage: false
+    }
+  );
+}
 export async function queryCreateLog(body, handleError) {
   return request(
     `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/createlog`,

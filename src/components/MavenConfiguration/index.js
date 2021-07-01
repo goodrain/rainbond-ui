@@ -1,4 +1,5 @@
-import globalUtil from '@//utils/global';
+/* eslint-disable import/extensions */
+import globalUtil from '@/utils/global';
 import {
   Button,
   Col,
@@ -10,6 +11,7 @@ import {
   Modal,
   notification,
   Row,
+  Skeleton,
   Spin
 } from 'antd';
 import { connect } from 'dva';
@@ -43,7 +45,8 @@ export default class AddAdmin extends PureComponent {
       loading: true,
       contentLoading: true,
       toDelete: false,
-      mavenInfo: {}
+      mavenInfo: {},
+      isDefaultMaven: false
     };
   }
   componentDidMount() {
@@ -75,7 +78,7 @@ export default class AddAdmin extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           if (res.list && res.list.length === 0) {
-            this.setState({ isEditor: false });
+            this.setState({ isEditor: false, mavenInfo: {} });
           } else {
             this.handleEditorConfiguration();
           }
@@ -194,7 +197,6 @@ export default class AddAdmin extends PureComponent {
             () => {
               this.onCancelDelete();
               this.fetchMavensettings(true);
-
               notification.success({ message: '删除成功' });
             }
           );
@@ -243,8 +245,9 @@ export default class AddAdmin extends PureComponent {
       });
     });
   };
-  handleDeleteClick = () => {
+  handleDeleteClick = isDefaultMaven => {
     this.setState({
+      isDefaultMaven,
       toDelete: true
     });
   };
@@ -265,7 +268,8 @@ export default class AddAdmin extends PureComponent {
       loading,
       mavenInfo,
       toDelete,
-      contentLoading
+      contentLoading,
+      isDefaultMaven
     } = this.state;
     const footer = [
       <Button
@@ -314,7 +318,7 @@ export default class AddAdmin extends PureComponent {
       <Modal
         title="Maven配置文件管理"
         visible
-        width="800px"
+        width={800}
         className={styles.TelescopicModal}
         onCancel={() => {
           onCancel(mavenInfo && mavenInfo.name);
@@ -325,7 +329,12 @@ export default class AddAdmin extends PureComponent {
           <ConfirmModal
             loading={DeleteMavensettingsLoading}
             title="删除此Maven配置"
-            desc="确定要删除此Maven配置吗?"
+            desc={
+              isDefaultMaven
+                ? '该配置为集群下的默认Maven配置，若删除，整个集群使用该配置的组件均会受到影响，是否确认删除？'
+                : '确定要删除此Maven配置吗?'
+            }
+            subDesc="此操作不可恢复"
             onCancel={this.onCancelDelete}
             onOk={this.handleDelete}
           />
@@ -351,7 +360,7 @@ export default class AddAdmin extends PureComponent {
                 </Col>
               </Row>
 
-              {mavenList.length > 0 && (
+              {mavenList && mavenList.length > 0 && (
                 <Menu
                   onClick={this.handleClick}
                   mode="inline"
@@ -359,7 +368,7 @@ export default class AddAdmin extends PureComponent {
                   style={{ height: '100%' }}
                 >
                   {mavenList.map(item => {
-                    const { name } = item;
+                    const { is_default = false, name } = item;
                     return (
                       <Menu.Item key={name}>
                         <Row>
@@ -371,12 +380,14 @@ export default class AddAdmin extends PureComponent {
                               overflow: 'hidden'
                             }}
                           >
-                            {name}
+                            {is_default ? `默认(${name})` : name}
                           </Col>
                           <Col span={2}>
                             <Icon
                               type="delete"
-                              onClick={this.handleDeleteClick}
+                              onClick={() => {
+                                this.handleDeleteClick(is_default);
+                              }}
                               style={{ cursor: 'pointer' }}
                             />
                           </Col>
@@ -418,7 +429,10 @@ export default class AddAdmin extends PureComponent {
                     />
                   )}
                 </FormItem>
-                {!contentLoading && (
+                <Skeleton
+                  className={styles.mavenSkeleton}
+                  loading={contentLoading}
+                >
                   <CodeMirrorForm
                     name="content"
                     mode="application/xml"
@@ -432,7 +446,7 @@ export default class AddAdmin extends PureComponent {
                     beforeUpload={this.beforeUpload}
                     data={mavenInfo.content || ''}
                   />
-                )}
+                </Skeleton>
               </Form>
             </Content>
           </Layout>

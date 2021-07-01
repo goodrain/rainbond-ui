@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import ConfirmModal from '@/components/ConfirmModal';
 import {
   Button,
   Card,
@@ -30,6 +31,8 @@ export default class TcpTable extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      toDeleteHttp: false,
+      deleteLoading: false,
       TcpDrawerVisible: false,
       page_num: 1,
       page_size: 10,
@@ -144,8 +147,20 @@ export default class TcpTable extends PureComponent {
   handleCancel = () => {
     this.setState({ informationConnectVisible: false });
   };
-  handleDelete = values => {
+  handleToDeleteHttp = val => {
+    this.setState({
+      toDeleteHttp: val
+    });
+  };
+  handleDeleteLoading = deleteLoading => {
+    this.setState({
+      deleteLoading
+    });
+  };
+  handleDelete = () => {
+    this.handleDeleteLoading(true);
     const { dispatch } = this.props;
+    const { toDeleteHttp: values } = this.state;
     dispatch({
       type: 'gateWay/deleteTcp',
       payload: {
@@ -154,10 +169,12 @@ export default class TcpTable extends PureComponent {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        if (data) {
-          notification.success({ message: '删除成功' });
-          this.reload();
-        }
+        notification.success({
+          message: (data && data.msg_show) || '删除成功'
+        });
+        this.handleToDeleteHttp(false);
+        this.handleDeleteLoading(false);
+        this.reload();
       }
     });
   };
@@ -378,6 +395,8 @@ export default class TcpTable extends PureComponent {
       total,
       page_num,
       page_size,
+      toDeleteHttp,
+      deleteLoading,
       dataList,
       innerEnvs,
       informationConnectVisible,
@@ -442,7 +461,7 @@ export default class TcpTable extends PureComponent {
         render: (text, record) => {
           return record.is_outer_service == 0 &&
             record.service_source != 'third_party' ? (
-            <a href="javascript:void(0)" disabled>
+              <a href="javascript:void(0)" disabled>
               {text}
             </a>
           ) : (
@@ -465,7 +484,7 @@ export default class TcpTable extends PureComponent {
         render: (text, record) => {
           return record.is_outer_service == 0 &&
             record.service_source != 'third_party' ? (
-            <a href="javascript:void(0)" disabled>
+              <a href="javascript:void(0)" disabled>
               {record.service_cname}({text})
             </a>
           ) : (
@@ -488,11 +507,13 @@ export default class TcpTable extends PureComponent {
         render: (_, record) => {
           return record.is_outer_service == 1 ||
             record.service_source == 'third_party' ? (
-            <div>
+              <div>
               {isEdit && (
                 <a
                   style={{ marginRight: '10px' }}
-                  onClick={this.handleConectInfo.bind(this, record)}
+                  onClick={() => {
+                    this.handleConectInfo(record);
+                  }}
                 >
                   连接信息
                 </a>
@@ -500,13 +521,21 @@ export default class TcpTable extends PureComponent {
               {isEdit && (
                 <a
                   style={{ marginRight: '10px' }}
-                  onClick={this.handleEdit.bind(this, record)}
+                  onClick={() => {
+                    this.handleEdit(record);
+                  }}
                 >
                   编辑
                 </a>
               )}
               {isDelete && (
-                <a onClick={this.handleDelete.bind(this, record)}>删除</a>
+                <a
+                  onClick={() => {
+                    this.handleToDeleteHttp(record);
+                  }}
+                >
+                  删除
+                </a>
               )}
             </div>
           ) : (
@@ -519,7 +548,9 @@ export default class TcpTable extends PureComponent {
                 {isDelete && (
                   <a
                     style={{ marginRight: '10px' }}
-                    onClick={this.handleDelete.bind(this, record)}
+                    onClick={() => {
+                      this.handleToDeleteHttp(record);
+                    }}
                   >
                     删除
                   </a>
@@ -543,6 +574,19 @@ export default class TcpTable extends PureComponent {
 
     return (
       <div>
+        {toDeleteHttp && (
+          <ConfirmModal
+            onOk={this.handleDelete}
+            loading={deleteLoading}
+            title="删除策略"
+            subDesc="此操作不可恢复"
+            desc="确定要删除此策略吗?"
+            onCancel={() => {
+              this.handleToDeleteHttp(false);
+            }}
+          />
+        )}
+
         <Row
           style={{
             display: 'flex',
@@ -551,7 +595,7 @@ export default class TcpTable extends PureComponent {
             marginBottom: '20px'
           }}
         >
-          <Search onSearch={this.handleSearch} />
+          <Search onSearch={this.handleSearch} appID={appID} />
           {isCreate && (
             <Button
               type="primary"

@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-shadow */
 /* eslint-disable no-void */
 /* eslint-disable no-unused-expressions */
@@ -47,6 +48,26 @@ function checkStatus(response) {
   throw error;
 }
 
+function handleStoreDispatch(type, payload = {}) {
+  window.g_app._store.dispatch({
+    type,
+    payload
+  });
+}
+
+function handleData(response) {
+  let res = {};
+  if (response) {
+    res = (response.data && response.data.data) || {};
+    res._code = response.status;
+    res.response_data = response.data || {};
+    res.status_code = response.status;
+    res._condition = response.data && response.data.code;
+    res.business_code = response.data && response.data.code;
+    res.msg_show = response.data && response.data.msg_show;
+  }
+  return res;
+}
 /**
  * Requests a URL, returning a promise.
  *
@@ -85,6 +106,9 @@ export default function request(url, options) {
   const token = cookie.get('token');
   const teamName = cookie.get('team_name');
   const regionName = cookie.get('region_name');
+  const currRegionName = globalUtil.getCurrRegionName();
+  const currTeamName = globalUtil.getCurrTeamName();
+
   let interfaceRegionName = '';
   let interfaceTeamName = '';
   if (token && newOptions.passAuthorization) {
@@ -107,11 +131,10 @@ export default function request(url, options) {
     interfaceRegionName = newOptions.data.region_name;
     interfaceTeamName = newOptions.data.team_name;
   }
-
-  newOptions.headers.X_REGION_NAME =
-    interfaceRegionName || globalUtil.getCurrRegionName() || regionName;
-  newOptions.headers.X_TEAM_NAME =
-    interfaceTeamName || globalUtil.getCurrTeamName() || teamName;
+  const REGION_NAME = interfaceRegionName || currRegionName || regionName;
+  const TEAM_NAME = interfaceTeamName || currTeamName || teamName;
+  newOptions.headers.X_REGION_NAME = REGION_NAME;
+  newOptions.headers.X_TEAM_NAME = TEAM_NAME;
 
   newOptions.url = url;
   // newOptions.withCredentials = true;
@@ -136,19 +159,11 @@ export default function request(url, options) {
         window.g_app._store.dispatch({
           type: 'global/hiddenLoading'
         });
-      const res = response.data.data || {};
-      res._code = response.status;
-      res.status_code = response.status;
-      res._condition = response.data.code;
-      res.business_code = response.data.code;
-      res.msg_show = response.data.msg_show;
-      return res;
+      return handleData(response);
     })
     .catch(error => {
       if (showLoading) {
-        window.g_app._store.dispatch({
-          type: 'global/hiddenLoading'
-        });
+        handleStoreDispatch('global/hiddenLoading');
       }
 
       if (error.response) {
@@ -161,126 +176,115 @@ export default function request(url, options) {
         } catch (e) {
           console.log(e);
         }
-        if (resData.code === 10410) {
-          window.g_app._store.dispatch({
-            type: 'global/showPayTip'
-          });
-          return;
-        }
 
-        if (resData.code >= 20001 && resData.code <= 20003) {
-          window.g_app._store.dispatch({
-            type: 'global/showOrders',
-            payload: {
-              code: resData.code
-            }
-          });
-          return;
-        }
-
-        if (resData.code === 10406) {
-          window.g_app._store.dispatch({
-            type: 'global/showMemoryTip',
-            payload: {
-              message: resData.msg_show
-            }
-          });
-
-          return;
-        }
-        if (resData.code === 10409) {
-          cookie.setGuide('appStore', 'true');
-          notification.warning({ message: '与云市连接超时,请检查网络' });
-          return;
-        }
-        if (resData.code === 10408) {
-          window.g_app._store.dispatch({
-            type: 'global/showNoMoneyTip',
-            payload: {
-              message: resData.msg_show
-            }
-          });
-
-          return;
-        }
-        if (resData.code === 10407) {
-          cookie.setGuide('appStore', 'true');
-          window.g_app._store.dispatch({
-            type: 'global/showAuthCompany',
-            payload: {
-              market_name: resData.data.bean.name
-            }
-          });
-
-          return;
-        }
-
-        if (resData.code === 10405) {
-          window.g_app._store.dispatch({
-            type: 'global/showNeedLogin'
-          });
-          return;
-        }
-
-        if (resData.code === 10402) {
-          const regionName = globalUtil.getCurrRegionName();
-          const teamName = globalUtil.getCurrTeamName();
-          push(`/team/${teamName}/region/${regionName}/exception/403`);
-        }
-
-        if (resData.code === 10400) {
-          window.g_app._store.dispatch({
-            type: 'global/setNouse',
-            payload: {
+        const { code = '' } = resData;
+        let isNext = false;
+        switch (code) {
+          case 10403:
+            // 访问资源所属团队与当前团队不一致
+            location.href = globalUtil.replaceUrlTeam(
+              resData.data.bean.service_team_name
+            );
+            break;
+          case 10404:
+            // 访问资源集群与当前集群不一致
+            location.href = globalUtil.replaceUrlRegion(
+              resData.data.bean.service_region
+            );
+            break;
+          case 10400:
+            handleStoreDispatch('global/setNouse', {
               isNouse: true
+            });
+            break;
+          case 10402:
+            push(
+              `/team/${currTeamName}/region/${currRegionName}/exception/403`
+            );
+            break;
+          case 10405:
+            handleStoreDispatch('global/showNeedLogin');
+            if (newOptions.handleError) {
+              newOptions.handleError(error);
             }
-          });
-          return;
+            break;
+          case 10407:
+            cookie.setGuide('appStore', 'true');
+            handleStoreDispatch('global/showAuthCompany', {
+              market_name: resData.data.bean.name
+            });
+            break;
+          case 10408:
+            handleStoreDispatch('global/showNoMoneyTip', {
+              message: resData.msg_show
+            });
+            break;
+          case 10409:
+            cookie.setGuide('appStore', 'true');
+            notification.warning({ message: '与云市连接超时,请检查网络' });
+            break;
+          case 10410:
+            handleStoreDispatch('global/showPayTip');
+            break;
+          default:
+            isNext = true;
+            break;
         }
-        if (resData.code === 10421) {
-          return;
-        }
-        // cluster request error, ignore it
-        if (resData.code === 10411) {
-          console.log(resData);
-          return;
-        }
-
-        // 访问资源集群与当前集群不一致
-        if (resData.code === 10404) {
-          location.href = globalUtil.replaceUrlRegion(
-            resData.data.bean.service_region
-          );
-          return;
-        }
-
-        // 访问资源所属团队与当前团队不一致
-        if (resData.code === 10403) {
-          location.href = globalUtil.replaceUrlTeam(
-            resData.data.bean.service_team_name
-          );
-          return;
-        }
-
-        if (newOptions.handleError) {
-          newOptions.handleError(response);
-          return;
-        }
-
-        const msg = resData.msg_show || resData.msg || resData.detail;
-        if (msg && newOptions.showMessage === true) {
-          if (msg.indexOf('身份认证信息未提供') > -1) {
-            push({ type: 'global/showNeedLogin' });
+        if (isNext) {
+          // Service maturity
+          if (code >= 20001 && code <= 20003) {
+            handleStoreDispatch('global/showOrders', {
+              code
+            });
             return;
           }
-
-          notification.warning({ message: '警告', description: msg });
+          // 10406: Cluster resource shortage
+          // 10413: Insufficient tenant resources
+          // 20800: Component build failed
+          if (code === 10406 || code === 10413 || code === 20800) {
+            const AppID = globalUtil.getAppID(url);
+            if (TEAM_NAME && REGION_NAME && AppID) {
+              push(
+                `/team/${TEAM_NAME}/region/${REGION_NAME}/components/${AppID}/overview`
+              );
+            }
+            const tipMap = {
+              10406: '团队使用内存已超过限额，请联系企业管理员增加限额',
+              10413: '集群资源不足,请联系企业管理员增加资源',
+              20800: '构建失败,请重新构建'
+            };
+            handleStoreDispatch('global/showMemoryTip', {
+              message: tipMap[code]
+            });
+            return;
+          }
+          // cluster request error, ignore it
+          if (code === 10421 || code === 10411) {
+            return;
+          }
+          if (newOptions.handleError) {
+            newOptions.handleError(response);
+            return;
+          }
+          const msg = resData.msg_show || resData.msg || resData.detail;
+          if (msg && newOptions.showMessage === true) {
+            if (msg.indexOf('身份认证信息未提供') > -1) {
+              push({ type: 'global/showNeedLogin' });
+              return;
+            }
+            notification.warning({ message: '警告', description: msg });
+          }
+          if (newOptions.noModels) {
+            return Promise.reject(error);
+          }
         }
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log('Error', error.message);
         if (newOptions.handleError) {
-          newOptions.handleError(error);
+          return newOptions.handleError(error);
+        }
+        if (newOptions.noModels) {
+          return Promise.reject(error);
         }
       }
     });

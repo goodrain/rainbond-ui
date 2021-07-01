@@ -1,18 +1,18 @@
-import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import OuterCustom from './outer-custom';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
-import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import OuterCustom from './outer-custom';
 
 @connect(
   ({ enterprise, teamControl }) => ({
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
@@ -36,12 +36,12 @@ export default class Main extends PureComponent {
       currentEnterprise,
       currentTeam,
       currentRegionName,
-      match,
+      match
     } = this.props;
     let { type } = match.params;
 
     const map = {
-      outer: OuterCustom,
+      outer: OuterCustom
     };
 
     let breadcrumbList = [];

@@ -61,10 +61,10 @@ class CreateOAuthForm extends PureComponent {
     const { edit, oauthList } = this.state;
     const formItemLayout = {
       labelCol: {
-        span: 6
+        span: 8
       },
       wrapperCol: {
-        span: 18
+        span: 16
       }
     };
     const oauthType = getFieldValue('oauth_type') || 'github';
@@ -238,7 +238,7 @@ class CreateOAuthForm extends PureComponent {
             })(
               <Input
                 placeholder="请输入回调地址"
-                suffix={<span>/console/oauth/redirect</span>}
+                addonAfter="/console/oauth/redirect"
               />
             )}
 

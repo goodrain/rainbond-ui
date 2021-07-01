@@ -131,8 +131,7 @@ class AppInfo extends PureComponent {
                       initialValue: item.attr_value,
                       rules: [
                         {
-                          required: true,
-                          message: '不能为空'
+                          required: false
                         }
                       ]
                     }
@@ -153,22 +152,6 @@ class AppInfo extends PureComponent {
                       )}
                     >
                       生成随机值
-                    </Checkbox>
-                  )}
-                  {getFieldDecorator(
-                    `connectIsChange||${item.attr_name}||${ID}`,
-                    {
-                      valuePropName: 'checked',
-                      initialValue: item.is_change
-                    }
-                  )(
-                    <Checkbox
-                      onChange={this.handleIsChange.bind(
-                        this,
-                        `connectIsChange||${item.attr_name}||${ID}`
-                      )}
-                    >
-                      可修改
                     </Checkbox>
                   )}
                 </FormItem>
@@ -201,7 +184,7 @@ class AppInfo extends PureComponent {
           <Divider />
           <Row>
             {app.service_env_map_list.map(item => {
-              const { attr_name, attr_value, is_change } = item;
+              const { attr_name, attr_value } = item;
               return (
                 <Col span={8}>
                   <FormItem label={attr_name} style={{ padding: 16 }}>
@@ -214,19 +197,6 @@ class AppInfo extends PureComponent {
                         }
                       ]
                     })(<Input />)}
-                    {getFieldDecorator(`envIschange||${attr_name}||${ID}`, {
-                      valuePropName: 'checked',
-                      initialValue: is_change
-                    })(
-                      <Checkbox
-                        onChange={this.handleIsChange.bind(
-                          this,
-                          `envIschange||${attr_name}||${ID}`
-                        )}
-                      >
-                        可修改
-                      </Checkbox>
-                    )}
                   </FormItem>
                 </Col>
               );
@@ -689,8 +659,8 @@ export default class Main extends PureComponent {
         comdata.map(app => {
           const apptab = app.props.tab;
           let appvalue = null;
-          app.props.form.validateFields((err, val) => {
-            if (!err) {
+          app.props.form.validateFields((errs, val) => {
+            if (!errs) {
               appvalue = val;
             }
           });
@@ -699,47 +669,35 @@ export default class Main extends PureComponent {
             if (option.service_alias == apptab) {
               // eslint-disable-next-line no-restricted-syntax
               for (const index in appvalue) {
-                var indexarr = [];
+                let indexarr = [];
                 indexarr = index.split('||');
                 const firstInfo =
                   indexarr && indexarr.length > 0 && indexarr[0];
                 if (firstInfo) {
                   const isConnect = firstInfo === 'connect';
-                  const isConnectIsChange = firstInfo === 'connectIsChange';
                   const isEnv = firstInfo === 'env';
-                  const isEnvIschange = firstInfo === 'envIschange';
 
-                  if (
-                    (isConnect && indexarr[2] != 'random') ||
-                    isConnectIsChange
-                  ) {
+                  if (isConnect && indexarr[2] != 'random') {
                     option.service_connect_info_map_list.map(serapp => {
                       if (
-                        isConnectIsChange &&
-                        serapp.attr_name === indexarr[1] &&
-                        ID === indexarr[2]
-                      ) {
-                        serapp.is_change = appvalue[index];
-                      } else if (
                         isConnect &&
                         indexarr[2] != 'random' &&
                         serapp.attr_name == indexarr[1] &&
                         ID === indexarr[3]
                       ) {
                         serapp[indexarr[2]] = appvalue[index];
+                        serapp.is_change = true;
                       }
                     });
                   }
 
-                  if (isEnv || isEnvIschange) {
+                  if (isEnv) {
                     option.service_env_map_list.map(serapp => {
                       const { attr_name: attrName } = serapp;
                       if (attrName === indexarr[1] && ID === indexarr[2]) {
                         if (isEnv) {
                           serapp.attr_value = appvalue[index];
-                        }
-                        if (isEnvIschange) {
-                          serapp.is_change = appvalue[index];
+                          serapp.is_change = true;
                         }
                       }
                     });
@@ -775,9 +733,9 @@ export default class Main extends PureComponent {
               );
             }
           },
-          handleError: err => {
+          handleError: errs => {
             this.setState({ submitLoading: false });
-            const data = err && err.data;
+            const data = errs && errs.data;
             const msg = data && data.msg_show;
             if (data && data.code && data.code === 10501) {
               notification.warning({ message: '提示', description: msg });
@@ -931,7 +889,7 @@ export default class Main extends PureComponent {
   };
   removeComponent = component_share_key => {
     const { share_service_list } = this.state;
-    const dep_components = [];
+    const dep_service_name = [];
     if (share_service_list.length === 1) {
       message.info('请至少发布一个组件');
       return;
@@ -939,20 +897,14 @@ export default class Main extends PureComponent {
     share_service_list.map(component => {
       component.dep_service_map_list.map(c => {
         if (c.dep_service_key === component_share_key) {
-          dep_components.push(c.dep_service_key);
+          dep_service_name.push(component.service_cname);
         }
         return c;
       });
       return component;
     });
-    if (dep_components.length > 0) {
-      const dep_service_name = [];
-      share_service_list.map(c => {
-        if (dep_components.indexOf(c.service_share_uuid) > -1) {
-          dep_service_name.push(c.service_cname);
-        }
-        return c;
-      });
+
+    if (dep_service_name.length > 0) {
       this.setState({
         del_component_share_key: component_share_key,
         dep_service_name,
@@ -1048,7 +1000,7 @@ export default class Main extends PureComponent {
 
     const {
       shareModal,
-      sharearrs,
+      dep_service_name,
       models,
       appDetail,
       showCreateAppModel,
@@ -1083,6 +1035,8 @@ export default class Main extends PureComponent {
       breadcrumbList.push({ title: '发布到组件库' });
     }
     const marketId = record.scope_target && record.scope_target.store_id;
+    const marketVersion =
+      record.scope_target && record.scope_target.store_version;
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
@@ -1192,7 +1146,13 @@ export default class Main extends PureComponent {
                   <Form.Item {...formItemLayout} label="版本别名">
                     {getFieldDecorator('version_alias', {
                       initialValue:
-                        (versionInfo && versionInfo.version_alias) || ''
+                        (versionInfo && versionInfo.version_alias) || '',
+                      rules: [
+                        {
+                          max: 64,
+                          message: '最大长度64位'
+                        }
+                      ]
                     })(
                       <Input
                         style={{ width: 280 }}
@@ -1210,8 +1170,8 @@ export default class Main extends PureComponent {
                         '',
                       rules: [
                         {
-                          required: false,
-                          message: '请输入版本说明'
+                          max: 255,
+                          message: '最大长度255位'
                         }
                       ]
                     })(
@@ -1279,47 +1239,35 @@ export default class Main extends PureComponent {
                     }}
                   >
                     {apps.map(apptit => {
+                      const id = apptit.service_share_uuid;
                       return (
                         <TabPane
-                          key={apptit.service_share_uuid}
+                          key={id}
                           tab={
                             <span className={mytabcss.cont}>
                               <a
                                 tab={apptit.service_cname}
                                 onClick={() => {
-                                  this.tabClick(apptit.service_share_uuid);
+                                  this.tabClick(id);
                                 }}
                               >
                                 {apptit.service_cname}
                               </a>
                             </span>
                           }
-                        />
+                        >
+                          <AppInfo
+                            key={id}
+                            form={form}
+                            app={apptit}
+                            getref={this.save}
+                            tab={apptit.service_alias}
+                            ID={apptit.service_id}
+                          />
+                        </TabPane>
                       );
                     })}
                   </Tabs>
-                  {apps.map(apptit => {
-                    const id = apptit.service_share_uuid;
-                    return (
-                      <div
-                        style={{
-                          display:
-                            sharearrs.includes(tabk) && id === tabk
-                              ? 'block'
-                              : 'none'
-                        }}
-                      >
-                        <AppInfo
-                          key={id}
-                          form={form}
-                          app={apptit}
-                          getref={this.save}
-                          tab={apptit.service_alias}
-                          ID={apptit.service_id}
-                        />
-                      </div>
-                    );
-                  })}
                 </div>
               </div>
             </div>
@@ -1368,13 +1316,16 @@ export default class Main extends PureComponent {
             >
               <div>
                 该组件被需要发布的
-                {this.state.dep_service_name &&
-                  this.state.dep_service_name.length > 0 &&
-                  this.state.dep_service_name.map((item, index) => {
+                {dep_service_name &&
+                  dep_service_name.length > 0 &&
+                  dep_service_name.map((item, index) => {
                     return (
-                      <a style={{ marginLeft: '5px' }} key={index}>
+                      <span
+                        style={{ marginLeft: '5px', color: '#4d73b1' }}
+                        key={index}
+                      >
                         {item}
-                      </a>
+                      </span>
                     );
                   })}
                 组件依赖, 确认要取消该组件的发布吗？
@@ -1398,7 +1349,8 @@ export default class Main extends PureComponent {
               eid={currentEnterprise.enterprise_id}
               onOk={this.handleCreateAppModel}
               defaultScope="team"
-              market_id={marketId}
+              marketId={marketId}
+              marketVersion={marketVersion}
               onCancel={this.hideCreateAppModel}
             />
           )}

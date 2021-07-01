@@ -2,7 +2,7 @@
 /* eslint-disable react/no-danger */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-undef */
-import { Button, Card, Icon, Modal, Radio, Tooltip } from 'antd';
+import { Button, Card, Icon, Modal, notification, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React from 'react';
@@ -13,20 +13,23 @@ import ShowRegionKey from '../../components/ShowRegionKey';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   buildApp,
-  getCheckuuid, getCreateCheckId,
+  getCheckuuid,
+  getCreateCheckId,
   getCreateCheckResult
 } from '../../services/createApp';
 import globalUtil from '../../utils/global';
 import regionUtil from '../../utils/region';
+import roleUtil from '../../utils/role';
 import userUtil from '../../utils/user';
 import ModifyImageCmd from './modify-image-cmd';
 import ModifyImageName from './modify-image-name';
 import ModifyUrl from './modify-url';
 
 @connect(
-  ({ user, appControl }) => ({
+  ({ user, appControl, teamControl }) => ({
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
     currUser: user.currentUser,
-    appDetail: appControl.appDetail,
+    appDetail: appControl.appDetail
   }),
   null,
   null,
@@ -37,12 +40,14 @@ export default class CreateCheck extends React.Component {
     super(props);
     this.state = {
       // failure、checking、success
+      appPermissions: this.handlePermissions('queryAppInfo'),
       status: '',
       checkUuid: '',
       errorInfo: [],
       serviceInfo: [],
       eventId: '',
       appDetail: {},
+      deleteLoading: false,
       showDelete: false,
       modifyUrl: false,
       modifyUserpass: false,
@@ -51,7 +56,7 @@ export default class CreateCheck extends React.Component {
       isDeploy: true,
       ServiceGetData: props.ServiceGetData ? props.ServiceGetData : null,
       buildAppLoading: false,
-      isMulti: false,
+      isMulti: false
     };
     this.mount = false;
     this.socketUrl = '';
@@ -75,19 +80,29 @@ export default class CreateCheck extends React.Component {
     this.mount = false;
     this.unbindEvent();
   }
+
+  getParameter = () => {
+    const { ServiceGetData } = this.state;
+    return {
+      appAlias: ServiceGetData || this.props.match.params.appAlias,
+      teamName: globalUtil.getCurrTeamName(),
+      regionName: globalUtil.getCurrRegionName()
+    };
+  };
+
   getDetail = () => {
     this.props.dispatch({
       type: 'appControl/fetchDetail',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias(),
+        app_alias: this.getAppAlias()
       },
       callback: appDetail => {
         if (appDetail) {
           this.setState({ appDetail: appDetail.service });
           this.getCheckuuid();
         }
-      },
+      }
     });
   };
   getCheckuuid = () => {
@@ -100,7 +115,7 @@ export default class CreateCheck extends React.Component {
         } else {
           this.setState(
             {
-              checkUuid: data.bean.check_uuid,
+              checkUuid: data.bean.check_uuid
             },
             () => {
               this.loopStatus();
@@ -115,6 +130,20 @@ export default class CreateCheck extends React.Component {
     const { ServiceGetData } = this.state;
     return ServiceGetData || this.props.match.params.appAlias;
   }
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
+  };
+  handleJump = targets => {
+    const { dispatch } = this.props;
+    const { teamName, regionName } = this.getParameter();
+    dispatch(
+      routerRedux.replace(`/team/${teamName}/region/${regionName}/${targets}`)
+    );
+  };
   loopStatus = () => {
     if (!this.mount) return;
     const appAlias = this.getAppAlias();
@@ -122,7 +151,7 @@ export default class CreateCheck extends React.Component {
     getCreateCheckResult({
       team_name: teamName,
       app_alias: appAlias,
-      check_uuid: this.state.checkUuid,
+      check_uuid: this.state.checkUuid
     })
       .then(data => {
         if (data && this.mount) {
@@ -133,7 +162,7 @@ export default class CreateCheck extends React.Component {
             status,
             errorInfo: errorInfos,
             serviceInfo,
-            isMulti: data.bean.is_multi,
+            isMulti: data.bean.is_multi
           });
         }
       })
@@ -146,20 +175,15 @@ export default class CreateCheck extends React.Component {
       });
   };
   startCheck = loopStatus => {
-    const appAlias = this.getAppAlias();
-    const teamName = globalUtil.getCurrTeamName();
+    const { appAlias, teamName } = this.getParameter();
     getCreateCheckId(
       {
         team_name: teamName,
-        app_alias: appAlias,
+        app_alias: appAlias
       },
       res => {
         if (res.status === 404) {
-          this.props.dispatch(
-            routerRedux.replace(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
-            )
-          );
+          this.handleJump('exception/404');
         }
       }
     ).then(data => {
@@ -167,7 +191,7 @@ export default class CreateCheck extends React.Component {
         this.setState({
           checkUuid: data.bean.check_uuid,
           eventId: data.bean.check_event_id,
-          appDetail: data.bean,
+          appDetail: data.bean
         });
         if (loopStatus !== false) {
           this.loopStatus();
@@ -175,65 +199,47 @@ export default class CreateCheck extends React.Component {
       }
     });
   };
-  handleCreate = () => {};
   handleSetting = () => {
-    const appAlias = this.getAppAlias();
-    this.props.dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-setting/${appAlias}`
-      )
-    );
+    const { appAlias } = this.getParameter();
+    this.handleJump(`create/create-setting/${appAlias}`);
   };
   // 进入多模块构建
   handleMoreService = () => {
-    const { handleServiceDataState, dispatch } = this.props;
-
+    const { handleServiceDataState } = this.props;
     const { ServiceGetData, checkUuid, isMulti } = this.state;
-    const appAlias = this.getAppAlias();
+    const { appAlias } = this.getParameter();
     if (ServiceGetData && !isMulti) {
       handleServiceDataState(true, null, null, null);
     } else {
-      dispatch(
-        routerRedux.push(
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-moreService/${appAlias}/${checkUuid}`
-        )
-      );
+      this.handleJump(`create/create-moreService/${appAlias}/${checkUuid}`);
     }
   };
 
   handleBuild = () => {
-    const appAlias = this.getAppAlias();
-    const teamName = globalUtil.getCurrTeamName();
+    const { appAlias, teamName } = this.getParameter();
+
     const { refreshCurrent, dispatch } = this.props;
     const { isDeploy, ServiceGetData, appDetail } = this.state;
     this.setState({ buildAppLoading: true });
     buildApp({
       team_name: teamName,
       app_alias: appAlias,
-      is_deploy: isDeploy,
+      is_deploy: isDeploy
     }).then(data => {
       this.setState({ buildAppLoading: false });
       if (data) {
         dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: teamName,
-          },
+            team_name: teamName
+          }
         });
         if (ServiceGetData && isDeploy) {
           refreshCurrent();
         } else if (appDetail.service_source === 'third_party') {
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/thirdPartyServices`
-            )
-          );
+          this.handleJump(`components/${appAlias}/thirdPartyServices`);
         } else {
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/overview`
-            )
-          );
+          this.handleJump(`components/${appAlias}/overview`);
         }
       }
     });
@@ -242,7 +248,7 @@ export default class CreateCheck extends React.Component {
   recheck = () => {
     this.setState(
       {
-        status: 'checking',
+        status: 'checking'
       },
       () => {
         this.startCheck();
@@ -307,34 +313,45 @@ export default class CreateCheck extends React.Component {
     }
   };
   handleDelete = () => {
-    const appAlias = this.getAppAlias();
+    const { appAlias, teamName } = this.getParameter();
     const { handleServiceDataState, dispatch } = this.props;
     const { ServiceGetData } = this.state;
+    this.handleDeleteLoading(true);
     dispatch({
       type: 'appControl/deleteApp',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: teamName,
         app_alias: appAlias,
-        is_force: true,
+        is_force: true
       },
       callback: () => {
         dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: globalUtil.getCurrTeamName(),
-          },
+            team_name: teamName
+          }
         });
         if (ServiceGetData) {
           handleServiceDataState(true, null, null, null);
         } else {
-          dispatch(
-            routerRedux.replace(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-            )
-          );
+          this.handleJump(`index`);
         }
+        this.handleDeleteLoading(false);
       },
+      handleError: err => {
+        if (err && err.data) {
+          if (err.data.code && err.data.code === 404) {
+            this.handleJump(`index`);
+          } else if (err.data.msg_show) {
+            notification.warning({ message: err.data.msg_show });
+          }
+        }
+        this.handleDeleteLoading(false);
+      }
     });
+  };
+  handleDeleteLoading = deleteLoading => {
+    this.setState({ deleteLoading });
   };
   cancelModifyUrl = () => {
     this.setState({ modifyUrl: false });
@@ -356,39 +373,41 @@ export default class CreateCheck extends React.Component {
   };
   handleModifyUserpass = values => {
     const { appDetail } = this.state;
+    const { teamName } = this.getParameter();
     this.props.dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
         service_cname: values.service_cname ? values.service_cname : '',
         git_url: values.git_url ? values.git_url : '',
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: teamName,
         app_alias: appDetail.service_alias,
         user_name: values.user_name,
-        password: values.password,
+        password: values.password
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.cancelModifyUserpass();
         }
-      },
+      }
     });
   };
   handleModifyUrl = values => {
     const { appDetail } = this.state;
+    const { teamName } = this.getParameter();
     this.props.dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: teamName,
         app_alias: appDetail.service_alias,
-        git_url: values.git_url,
+        git_url: values.git_url
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.handleCancelEdit();
         }
-      },
+      }
     });
   };
   handleModifyImageName = values => {
@@ -400,14 +419,14 @@ export default class CreateCheck extends React.Component {
         app_alias: appDetail.service_alias,
         docker_cmd: values.docker_cmd,
         user_name: values.username,
-        password: values.password,
+        password: values.password
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.cancelModifyImageName();
         }
-      },
+      }
     });
   };
   handleModifyImageCmd = values => {
@@ -419,42 +438,44 @@ export default class CreateCheck extends React.Component {
         app_alias: appDetail.service_alias,
         docker_cmd: values.docker_cmd,
         user_name: values.username,
-        password: values.password,
+        password: values.password
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.cancelModifyImageCmd();
         }
-      },
+      }
     });
   };
-  handleImageSubmit = () => {};
   showDelete = () => {
     this.setState({ showDelete: true });
   };
   renderError = () => {
-    const { errorInfo } = this.state;
+    const {
+      errorInfo,
+      appPermissions: { isDelete }
+    } = this.state;
     const extra = (
       <div>
         {errorInfo.map((item, index) => (
           <div
             key={`error${index}`}
             style={{
-              marginBottom: 16,
+              marginBottom: 16
             }}
           >
             <Icon
               style={{
                 color: '#f5222d',
-                marginRight: 8,
+                marginRight: 8
               }}
               type="close-circle-o"
             />
             <span
               dangerouslySetInnerHTML={{
                 __html: `<span>${item.error_info || ''} ${item.solve_advice ||
-                  ''}</span>`,
+                  ''}</span>`
               }}
             />
           </div>
@@ -473,9 +494,11 @@ export default class CreateCheck extends React.Component {
         >
           重新检测
         </Button>
-        <Button onClick={this.showDelete} type="default">
-          放弃创建
-        </Button>
+        {isDelete && (
+          <Button onClick={this.showDelete} type="default">
+            放弃创建
+          </Button>
+        )}
       </div>
     );
 
@@ -494,7 +517,7 @@ export default class CreateCheck extends React.Component {
         actions={ServiceGetData ? '' : actions}
         style={{
           marginTop: 48,
-          marginBottom: 16,
+          marginBottom: 16
         }}
       />
     );
@@ -508,7 +531,7 @@ export default class CreateCheck extends React.Component {
             style={{
               verticalAlign: 'top',
               display: 'inline-block',
-              fontWeight: 'bold',
+              fontWeight: 'bold'
             }}
           >
             {item.key}：
@@ -523,21 +546,21 @@ export default class CreateCheck extends React.Component {
           style={{
             verticalAlign: 'top',
             display: 'inline-block',
-            fontWeight: 'bold',
+            fontWeight: 'bold'
           }}
         >
           {item.key}：
         </span>
         <div
           style={{
-            display: 'inline-block',
+            display: 'inline-block'
           }}
         >
-          {(item.value || []).map((items,index) => (
+          {(item.value || []).map((items, index) => (
             <p
               key={`items${index}`}
               style={{
-                marginBottom: 0,
+                marginBottom: 0
               }}
             >
               {items}
@@ -550,20 +573,26 @@ export default class CreateCheck extends React.Component {
 
   renderSuccessOnChange = () => {
     this.setState({
-      isDeploy: !this.state.isDeploy,
+      isDeploy: !this.state.isDeploy
     });
   };
 
   renderSuccess = () => {
-    const { ServiceGetData, isDeploy, appDetail, serviceInfo } = this.state;
     const { ButtonGroupState, ErrState, handleServiceBotton } = this.props;
+    const {
+      ServiceGetData,
+      isDeploy,
+      appDetail,
+      serviceInfo,
+      appPermissions: { isDelete }
+    } = this.state;
     let extra = '';
     if (serviceInfo && serviceInfo.length > 0) {
-      extra = serviceInfo.map((item,index) => (
+      extra = serviceInfo.map((item, index) => (
         <div
           key={`item${index}`}
           style={{
-            marginBottom: 16,
+            marginBottom: 16
           }}
         >
           {this.renderSuccessInfo(item)}
@@ -574,13 +603,15 @@ export default class CreateCheck extends React.Component {
     if (ServiceGetData) {
       actions = [
         <div key="action" style={{ display: 'flex' }}>
-          <Button
-            onClick={this.showDelete}
-            type="default"
-            style={{ marginRight: '8px' }}
-          >
-            放弃创建
-          </Button>
+          {isDelete && (
+            <Button
+              onClick={this.showDelete}
+              type="default"
+              style={{ marginRight: '8px' }}
+            >
+              放弃创建
+            </Button>
+          )}
           <Button
             type="default"
             onClick={this.handleSetting}
@@ -631,14 +662,16 @@ export default class CreateCheck extends React.Component {
               创建
             </Button>
           </div>
-        </div>,
+        </div>
       ];
     } else {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button onClick={this.showDelete} type="default">
-            放弃创建
-          </Button>
+          {isDelete && (
+            <Button onClick={this.showDelete} type="default">
+              放弃创建
+            </Button>
+          )}
           <Button type="default" onClick={this.handleSetting}>
             高级设置
           </Button>
@@ -671,7 +704,7 @@ export default class CreateCheck extends React.Component {
               </Radio>
             </Tooltip>
           </div>
-        </div>,
+        </div>
       ];
     }
 
@@ -685,15 +718,15 @@ export default class CreateCheck extends React.Component {
               style={{ marginRight: '8px' }}
               loading={this.state.buildAppLoading}
             >
-              {' '}
-              创建{' '}
+              创建
             </Button>
-            <Button onClick={this.showDelete} type="default">
-              {' '}
-              放弃创建{' '}
-            </Button>
+            {isDelete && (
+              <Button onClick={this.showDelete} type="default">
+                放弃创建
+              </Button>
+            )}
           </div>
-        </div>,
+        </div>
       ];
     }
 
@@ -727,7 +760,7 @@ export default class CreateCheck extends React.Component {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Rainbond源码支持规范
+                平台源码支持规范
               </a>{' '}
               对代码进行调整。
             </div>
@@ -746,40 +779,39 @@ export default class CreateCheck extends React.Component {
       isDeploy,
       appDetail,
       isMulti,
+      appPermissions: { isDelete }
     } = this.state;
+    const mr8 = { marginRight: '8px' };
     let actions = [];
     if (ServiceGetData && isMulti) {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button onClick={this.showDelete} type="default">
-            {' '}
-            放弃创建{' '}
-          </Button>
+          {isDelete && (
+            <Button onClick={this.showDelete} type="default" style={mr8}>
+              放弃创建
+            </Button>
+          )}
           <Button type="primary" onClick={this.handleMoreService}>
             进入多组件构建
           </Button>
-        </div>,
+        </div>
       ];
     } else if (ServiceGetData) {
       actions = [
         <div style={{ display: 'flex' }}>
-          <Button
-            onClick={this.showDelete}
-            type="default"
-            style={{ marginRight: '8px' }}
-          >
-            {' '}
-            放弃创建{' '}
-          </Button>
+          {isDelete && (
+            <Button onClick={this.showDelete} type="default" style={mr8}>
+              放弃创建
+            </Button>
+          )}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
               onClick={this.handleBuild}
               type="primary"
-              style={{ marginRight: '8px' }}
+              style={mr8}
               loading={this.state.buildAppLoading}
             >
-              {' '}
-              创建{' '}
+              创建
             </Button>
             <div>
               <Tooltip
@@ -802,36 +834,40 @@ export default class CreateCheck extends React.Component {
               </Tooltip>
             </div>
           </div>
-        </div>,
+        </div>
       ];
     } else if (appDetail.service_source === 'third_party') {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Button
-              onClick={this.handleBuild}
-              type="primary"
-              style={{ marginRight: '8px' }}
-              loading={this.state.buildAppLoading}
-            >
-              放弃创建
-            </Button>
+            {isDelete && (
+              <Button
+                onClick={this.handleBuild}
+                type="primary"
+                style={mr8}
+                loading={this.state.buildAppLoading}
+              >
+                放弃创建
+              </Button>
+            )}
             <Button type="primary" onClick={this.handleMoreService}>
               进入多组件构建
             </Button>
           </div>
-        </div>,
+        </div>
       ];
     } else {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button onClick={this.showDelete} type="default">
-            放弃创建
-          </Button>
+          {isDelete && (
+            <Button onClick={this.showDelete} type="default">
+              放弃创建
+            </Button>
+          )}
           <Button type="primary" onClick={this.handleMoreService}>
             进入多服务构建
           </Button>
-        </div>,
+        </div>
       ];
     }
 
@@ -842,17 +878,21 @@ export default class CreateCheck extends React.Component {
             <Button
               onClick={this.handleBuild}
               type="primary"
-              style={{ marginRight: '8px' }}
+              style={mr8}
               loading={this.state.buildAppLoading}
             >
               创建
             </Button>
           </div>
-        </div>,
+        </div>
       ];
     }
 
-    const { ButtonGroupState = false, handleServiceBotton, ErrState } = this.props;
+    const {
+      ButtonGroupState = false,
+      handleServiceBotton,
+      ErrState
+    } = this.props;
 
     if (isDeploy) {
       if (ServiceGetData && (!ButtonGroupState || !ErrState)) {
@@ -880,7 +920,7 @@ export default class CreateCheck extends React.Component {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Rainbond源码支持规范
+                平台源码支持规范
               </a>{' '}
               对代码进行调整。
             </div>
@@ -894,9 +934,12 @@ export default class CreateCheck extends React.Component {
   };
 
   renderChecking = () => {
-    const { ServiceGetData } = this.state;
     const { ButtonGroupState = false, handleServiceBotton } = this.props;
-    const actions = (
+    const {
+      ServiceGetData,
+      appPermissions: { isDelete }
+    } = this.state;
+    const actions = isDelete && (
       <Button onClick={this.showDelete} type="default">
         放弃创建
       </Button>
@@ -925,147 +968,89 @@ export default class CreateCheck extends React.Component {
         actions={ServiceGetData ? '' : actions}
         style={{
           marginTop: 48,
-          marginBottom: 16,
+          marginBottom: 16
         }}
       />
     );
   };
 
   render() {
-    const { status, isMulti, appDetail } = this.state;
-    const { ServiceGetData } = this.state;
+    const {
+      status,
+      isMulti,
+      appDetail,
+      ServiceGetData,
+      modifyImageName,
+      modifyImageCmd,
+      modifyUrl,
+      modifyUserpass,
+      showKey,
+      deleteLoading,
+      showDelete
+    } = this.state;
+    const box = (
+      <Card bordered={false}>
+        <div
+          style={{
+            minHeight: 400
+          }}
+        >
+          {status === 'checking' && this.renderChecking()}
+          {status === 'success' && isMulti !== true && this.renderSuccess()}
+          {status === 'success' && isMulti === true && this.renderMoreService()}
+          {status === 'failure' && this.renderError()}
+        </div>
+      </Card>
+    );
     return (
       <div>
-        {ServiceGetData ? (
-          <div>
-            <Card bordered={false}>
-              <div
-                style={{
-                  minHeight: 400,
-                }}
-              >
-                {status === 'checking' ? this.renderChecking() : null}
-                {status === 'success' && isMulti !== true
-                  ? this.renderSuccess()
-                  : null}
-                {status === 'success' && isMulti === true
-                  ? this.renderMoreService()
-                  : null}
-                {status === 'failure' ? this.renderError() : null}
-              </div>
-            </Card>
+        {ServiceGetData ? box : <PageHeaderLayout>{box}</PageHeaderLayout>}
 
-            {this.state.modifyUrl ? (
-              <ModifyUrl
-                data={appDetail}
-                onSubmit={this.handleModifyUrl}
-                onCancel={this.cancelModifyUrl}
-              />
-            ) : null}
+        {modifyImageName && (
+          <ModifyImageName
+            data={appDetail}
+            onSubmit={this.handleModifyImageName}
+            onCancel={this.cancelModifyImageName}
+          />
+        )}
+        {modifyImageCmd && (
+          <ModifyImageCmd
+            data={appDetail}
+            onSubmit={this.handleModifyImageCmd}
+            onCancel={this.cancelModifyImageCmd}
+          />
+        )}
 
-            {this.state.modifyImageName ? (
-              <ModifyImageName
-                data={appDetail}
-                onSubmit={this.handleModifyImageName}
-                onCancel={this.cancelModifyImageName}
-              />
-            ) : null}
-            {this.state.modifyImageCmd ? (
-              <ModifyImageCmd
-                data={appDetail}
-                onSubmit={this.handleModifyImageCmd}
-                onCancel={this.cancelModifyImageCmd}
-              />
-            ) : null}
+        {modifyUrl && (
+          <ModifyUrl
+            data={appDetail}
+            onSubmit={this.handleModifyUrl}
+            onCancel={this.cancelModifyUrl}
+          />
+        )}
 
-            {this.state.modifyUserpass ? (
-              <ModifyUrl
-                showUsernameAndPass
-                data={appDetail}
-                onSubmit={this.handleModifyUserpass}
-                onCancel={this.cancelModifyUserpass}
-              />
-            ) : null}
-            {this.state.showKey ? (
-              <ShowRegionKey onCancel={this.handleCancelShowKey} />
-            ) : null}
-            {this.state.showDelete && (
-              <ConfirmModal
-                onOk={this.handleDelete}
-                title="放弃创建"
-                subDesc="此操作不可恢复"
-                desc="确定要放弃创建此组件吗？"
-                onCancel={() => {
-                  this.setState({ showDelete: false });
-                }}
-              />
-            )}
-          </div>
-        ) : (
-          <PageHeaderLayout>
-            <Card bordered={false}>
-              <div
-                style={{
-                  minHeight: 400,
-                }}
-              >
-                {status === 'checking' ? this.renderChecking() : null}
-                {status === 'success' && isMulti !== true
-                  ? this.renderSuccess()
-                  : null}
-                {status === 'success' && isMulti === true
-                  ? this.renderMoreService()
-                  : null}
-                {status === 'failure' ? this.renderError() : null}
-              </div>
-            </Card>
+        {modifyUserpass && (
+          <ModifyUrl
+            showUsernameAndPass
+            data={appDetail}
+            onSubmit={this.handleModifyUserpass}
+            onCancel={this.cancelModifyUserpass}
+          />
+        )}
 
-            {this.state.modifyUrl ? (
-              <ModifyUrl
-                data={appDetail}
-                onSubmit={this.handleModifyUrl}
-                onCancel={this.cancelModifyUrl}
-              />
-            ) : null}
+        {showKey && <ShowRegionKey onCancel={this.handleCancelShowKey} />}
 
-            {this.state.modifyImageName ? (
-              <ModifyImageName
-                data={appDetail}
-                onSubmit={this.handleModifyImageName}
-                onCancel={this.cancelModifyImageName}
-              />
-            ) : null}
-            {this.state.modifyImageCmd ? (
-              <ModifyImageCmd
-                data={appDetail}
-                onSubmit={this.handleModifyImageCmd}
-                onCancel={this.cancelModifyImageCmd}
-              />
-            ) : null}
-
-            {this.state.modifyUserpass ? (
-              <ModifyUrl
-                showUsernameAndPass
-                data={appDetail}
-                onSubmit={this.handleModifyUserpass}
-                onCancel={this.cancelModifyUserpass}
-              />
-            ) : null}
-            {this.state.showKey ? (
-              <ShowRegionKey onCancel={this.handleCancelShowKey} />
-            ) : null}
-            {this.state.showDelete && (
-              <ConfirmModal
-                onOk={this.handleDelete}
-                title="放弃创建"
-                subDesc="此操作不可恢复"
-                desc="确定要放弃创建此组件吗？"
-                onCancel={() => {
-                  this.setState({ showDelete: false });
-                }}
-              />
-            )}
-          </PageHeaderLayout>
+        {showDelete && (
+          <ConfirmModal
+            onOk={this.handleDelete}
+            loading={deleteLoading}
+            title="放弃创建"
+            subDesc="此操作不可恢复"
+            desc="确定要放弃创建此组件吗？"
+            onCancel={() => {
+              this.setState({ showDelete: false });
+            }}
+          />
         )}
       </div>
     );

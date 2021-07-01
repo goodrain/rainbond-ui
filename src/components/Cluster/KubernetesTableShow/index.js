@@ -9,6 +9,7 @@ import {
   Popconfirm,
   Row,
   Table,
+  Tooltip,
   Typography
 } from 'antd';
 import copy from 'copy-to-clipboard';
@@ -24,7 +25,7 @@ import {
 } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
-import RKEClusterUpdate from '../RKEClusterUpdate';
+import RKEClusterUpdate from '../RKEClusterAdd';
 import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
 import istyles from './index.less';
 
@@ -147,6 +148,7 @@ export default class KubernetesClusterShow extends PureComponent {
         this.setState({
           showUpdateKubernetes: true,
           nodeList: re.nodeList,
+          rkeConfig: re.rkeConfig,
           updateClusterID: clusterID
         });
       })
@@ -207,8 +209,16 @@ export default class KubernetesClusterShow extends PureComponent {
     const columns = [
       {
         title: '名称(ID)',
+        width: 120,
         dataIndex: 'name',
-        render: (text, row) => `${text}(${row.cluster_id})`
+        render: (text, row) => {
+          const val = `${text}(${row.cluster_id})`;
+          return (
+            <Tooltip title={val}>
+              <div className={istyles.nameID}>{val}</div>
+            </Tooltip>
+          );
+        }
       },
       {
         title: '类型',
@@ -312,15 +322,17 @@ export default class KubernetesClusterShow extends PureComponent {
                   <a>删除</a>
                 </Popconfirm>
               )}
-            {row.state === 'running' && selectProvider === 'rke' && (
+
+            {selectProvider === 'rke' && (
               <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
-                节点扩容
+                集群配置
               </a>
             )}
+
             {row.rainbond_init === true && (
               <Popconfirm
                 placement="top"
-                title="卸载后不可恢复，确认要卸载当前集群的 Rainbond 服务吗？"
+                title="卸载后不可恢复，确认要卸载当前集群的平台服务吗？"
                 onConfirm={() => {
                   this.uninstallCluster(row.cluster_id || row.name);
                 }}
@@ -354,7 +366,6 @@ export default class KubernetesClusterShow extends PureComponent {
         disabled:
           record.state !== 'running' ||
           linkedClusters.get(record.cluster_id) ||
-          record.rainbond_init ||
           (record.parameters && record.parameters.DisableRainbondInit), // Column configuration not to be checked
         name: record.name,
         title: record.parameters && record.parameters.Message
@@ -375,6 +386,7 @@ export default class KubernetesClusterShow extends PureComponent {
       kubeConfig,
       showUpdateKubernetes,
       nodeList,
+      rkeConfig,
       updateClusterID,
       showUpdateKubernetesTasks,
       updateTask
@@ -387,7 +399,7 @@ export default class KubernetesClusterShow extends PureComponent {
               <Paragraph className={styles.describe}>
                 <ul>
                   <li>
-                    <span>目前 Rainbond 支持阿里云托管集群自动化购买</span>
+                    <span>目前平台支持阿里云托管集群自动化购买</span>
                   </li>
                   <li>
                     <span>
@@ -428,7 +440,7 @@ export default class KubernetesClusterShow extends PureComponent {
             {selectClusterName && (
               <span style={{ marginRight: '16px' }}>
                 已选择集群: {selectClusterName},
-                该集群符合Rainbond接入规则，可以开始Rainbond集群初始化。
+                该集群符合平台接入规则，可以开始平台集群初始化。
               </span>
             )}
             {!selectClusterName &&
@@ -533,6 +545,7 @@ export default class KubernetesClusterShow extends PureComponent {
             }}
             clusterID={updateClusterID}
             nodeList={nodeList}
+            rkeConfig={rkeConfig}
           />
         )}
         {showUpdateKubernetesTasks && (

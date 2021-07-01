@@ -25,7 +25,6 @@ import PropTypes from 'prop-types';
 import React, { Fragment, PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
 import styless from '../../components/CreateTeam/index.less';
-import ManageAppGuide from '../../components/ManageAppGuide';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import VisitBtn from '../../components/VisitBtn';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -169,7 +168,7 @@ class EditName extends PureComponent {
                 },
                 {
                   max: 24,
-                  message: '建议组件名称少于24个字符。'
+                  message: '最大长度24位'
                 }
               ]
             })(
@@ -204,7 +203,8 @@ class EditName extends PureComponent {
     moveGroupLoading: loading.effects['appControl/moveGroup'],
     editNameLoading: loading.effects['appControl/editName'],
     updateRollingLoading: loading.effects['appControl/putUpdateRolling'],
-    deployLoading: loading.effects['appControl/putDeploy'],
+    deployLoading:
+      loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
     buildInformationLoading: loading.effects['appControl/getBuildInformation']
   }),
   null,
@@ -335,31 +335,46 @@ class Main extends PureComponent {
     }
     return null;
   };
+  handleTeamPermissions = callback => {
+    const { currUser } = this.props;
+    const teamPermissions = userUtil.getTeamByTeamPermissions(
+      currUser.teams,
+      globalUtil.getCurrTeamName()
+    );
+    if (teamPermissions && teamPermissions.length !== 0) {
+      callback();
+    } else {
+      this.closeComponentTimer();
+    }
+  };
+
   handleError = err => {
     const { componentTimer } = this.state;
     const { appDetail, dispatch } = this.props;
-    if (!componentTimer) {
-      return null;
-    }
-    if (err && err.status === 404) {
-      this.closeComponentTimer();
-      if (!this.destroy) {
-        dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-              appDetail.service.group_id
-            }`
-          )
-        );
+    this.handleTeamPermissions(() => {
+      if (!componentTimer) {
+        return null;
       }
-      return null;
-    }
-    if (err && err.data && err.data.msg_show) {
-      notification.warning({
-        message: `请求错误`,
-        description: err.data.msg_show
-      });
-    }
+      if (err && err.status === 404) {
+        this.closeComponentTimer();
+        if (!this.destroy) {
+          dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                appDetail.service.group_id
+              }`
+            )
+          );
+        }
+        return null;
+      }
+      if (err && err.data && err.data.msg_show) {
+        notification.warning({
+          message: `请求错误`,
+          description: err.data.msg_show
+        });
+      }
+    });
     return null;
   };
   handleTimers = (timerName, callback, times) => {
@@ -488,7 +503,7 @@ class Main extends PureComponent {
       return;
     }
     dispatch({
-      type: 'appControl/putDeploy',
+      type: groupVersion ? 'appControl/putUpgrade' : 'appControl/putDeploy',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.getAppAlias(),
@@ -1450,7 +1465,6 @@ class Main extends PureComponent {
             onCancel={this.hideMoveGroup}
           />
         )}
-        <ManageAppGuide />
       </PageHeaderLayout>
     );
   }

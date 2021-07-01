@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
-import React, { PureComponent } from 'react';
 import { Button, Icon, Modal } from 'antd';
-import styles from './index.less';
+import React, { PureComponent } from 'react';
 import styless from '../CreateTeam/index.less';
+import styles from './index.less';
 
 class ConfirmModal extends PureComponent {
   render() {
@@ -12,7 +12,8 @@ class ConfirmModal extends PureComponent {
       onCancel,
       desc,
       subDesc,
-      loading = false
+      loading = false,
+      deleteLoading = false
     } = this.props;
     return (
       <Modal
@@ -25,7 +26,7 @@ class ConfirmModal extends PureComponent {
           <Button onClick={onCancel}> 取消 </Button>,
           <Button
             type="primary"
-            loading={loading}
+            loading={loading || deleteLoading}
             disabled={this.props.disabled}
             onClick={onOk}
           >

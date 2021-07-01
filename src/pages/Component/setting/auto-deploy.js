@@ -213,8 +213,14 @@ export default class AutoDeploy extends PureComponent {
       status,
       tabLoading,
       support_type,
+      url,
       service_source
     } = this.state;
+    const setUrl = url.replace(
+      'http://127.0.0.1:5000',
+      `${window.location.protocol}//${window.location.host}`
+    );
+
     const dockerSvg = () => (
       <svg viewBox="0 0 30 50" version="1.1" width="20px" height="20px">
         <path
@@ -247,7 +253,7 @@ export default class AutoDeploy extends PureComponent {
         />
       </svg>
     );
-
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <Card
         style={{
@@ -281,15 +287,16 @@ export default class AutoDeploy extends PureComponent {
                   Git-Webhook
                   <Tooltip
                     title={
-                      <a
-                        href={`${rainbondUtil.documentPlatform_url(
-                          rainbondInfo
-                        )}docs/user-manual/component-dev/auto_build/#基于源代码操作流程`}
-                        target="_blank"
-                        style={{ color: '#fff' }}
-                      >
-                        点击阅读文档
-                      </a>
+                      (platform_url && (
+                        <a
+                          href={`${platform_url}docs/user-manual/component-dev/auto_build/#基于源代码操作流程`}
+                          target="_blank"
+                          style={{ color: '#fff' }}
+                        >
+                          点击阅读文档
+                        </a>
+                      )) ||
+                      ''
                     }
                   >
                     {' '}
@@ -328,9 +335,9 @@ export default class AutoDeploy extends PureComponent {
                     </Description>
                     <Description term="Webhook">
                       <div style={{ marginLeft: '34px' }}>
-                        <a>{this.state.url} </a>
+                        <a>{setUrl} </a>
                         <CopyToClipboard
-                          text={this.state.url}
+                          text={setUrl}
                           onCopy={() => {
                             notification.success({ message: '复制成功' });
                           }}
@@ -407,18 +414,18 @@ export default class AutoDeploy extends PureComponent {
                 自定义API
                 <Tooltip
                   title={
-                    <a
-                      href={`${rainbondUtil.documentPlatform_url(
-                        rainbondInfo
-                      )}docs/user-manual/component-dev/auto_build/#api-触发自动构建`}
-                      target="_blank"
-                      style={{ color: '#fff' }}
-                    >
-                      点击阅读文档
-                    </a>
+                    (platform_url && (
+                      <a
+                        href={`${platform_url}docs/user-manual/component-dev/auto_build/#api-触发自动构建`}
+                        target="_blank"
+                        style={{ color: '#fff' }}
+                      >
+                        点击阅读文档
+                      </a>
+                    )) ||
+                    ''
                   }
                 >
-                  {' '}
                   <Icon type="question-circle-o" />
                 </Tooltip>
               </span>
@@ -448,9 +455,9 @@ export default class AutoDeploy extends PureComponent {
                   col="1"
                 >
                   <Description term="API">
-                    <a>{this.state.url} </a>
+                    <a>{setUrl} </a>
                     <CopyToClipboard
-                      text={this.state.url}
+                      text={setUrl}
                       onCopy={() => {
                         notification.success({ message: '复制成功' });
                       }}
@@ -496,22 +503,16 @@ export default class AutoDeploy extends PureComponent {
                   {' '}
                   <Icon component={dockerSvg} />
                   镜像仓库Webhook
-                  <Tooltip
-                    title={
+                  {platform_url && (
+                    <Tooltip title="点击阅读文档">
                       <a
-                        href={`${rainbondUtil.documentPlatform_url(
-                          rainbondInfo
-                        )}docs/user-manual/component-dev/auto_build/#基于镜像仓库操作流程`}
-                        // eslint-disable-next-line react/jsx-no-target-blank
+                        href={`${platform_url}docs/user-manual/component-dev/auto_build/#基于镜像仓库操作流程`}
                         target="_blank"
-                        style={{ color: '#fff' }}
                       >
-                        点击阅读文档
+                        <Icon type="question-circle-o" />
                       </a>
-                    }
-                  >
-                    <Icon type="question-circle-o" />
-                  </Tooltip>
+                    </Tooltip>
+                  )}
                 </span>
               }
               key="2"
@@ -539,9 +540,9 @@ export default class AutoDeploy extends PureComponent {
                     col="1"
                   >
                     <Description term="Webhook">
-                      <a>{this.state.url} </a>
+                      <a>{setUrl} </a>
                       <CopyToClipboard
-                        text={this.state.url}
+                        text={setUrl}
                         onCopy={() => {
                           notification.success({ message: '复制成功' });
                         }}

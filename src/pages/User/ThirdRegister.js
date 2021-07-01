@@ -12,6 +12,7 @@ import RegisterComponent from './registerComponent';
 const oauth_user_id = rainbondUtil.OauthParameter('oauth_user_id');
 const code = rainbondUtil.OauthParameter('code');
 const service_id = rainbondUtil.OauthParameter('service_id');
+const loginUrl = '/user/login?disable_auto_login=true';
 
 @connect(({ user, global }) => ({
   register: user.register,
@@ -44,6 +45,7 @@ export default class Register extends Component {
 
   handleSubmit = values => {
     const { dispatch } = this.props;
+
     if (code && service_id && oauth_user_id) {
       dispatch({
         type: 'user/thirdRegister',
@@ -74,16 +76,25 @@ export default class Register extends Component {
                     }
                   });
                 } else {
-                  message.warning('认证失败，请重新认证', 1, () => {
-                    dispatch(routerRedux.replace('/user/login'));
-                  });
+                  this.handleError();
                 }
+              },
+              handleError: () => {
+                this.handleError();
               }
             });
+          } else {
+            this.handleError();
           }
         }
       });
     }
+  };
+  handleError = () => {
+    const { dispatch } = this.props;
+    message.warning('认证失败，请重新认证', 1, () => {
+      dispatch(routerRedux.push(loginUrl));
+    });
   };
 
   render() {
@@ -93,7 +104,7 @@ export default class Register extends Component {
         routerRedux.replace(
           code && service_id && oauth_user_id
             ? `/user/login?code=${code}&service_id=${service_id}`
-            : '/user/login'
+            : loginUrl
         )
       );
       return null;
@@ -111,24 +122,24 @@ export default class Register extends Component {
         }
         return item;
       });
+    const oauthServerName = (oauthServer && oauthServer.name) || '';
+    const oauthUserName = (user_info && user_info.oauth_user_name) || '';
+    const welcome = oauthServerName && `来自${oauthServerName}登录的`;
+    const jumpAddress = targets => {
+      return `/user/third/${targets}?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`;
+    };
     return (
       <div className={styles.main}>
         <Alert
           style={{ margin: '24px 0' }}
-          message={`来自${oauthServer && oauthServer.name}登录的
-          ${user_info && user_info.oauth_user_name}
-          您好！你需要补充完整平台账号信息`}
+          message={`${welcome}${oauthUserName}您好！你需要补充完整平台账号信息`}
           type="info"
         />
 
         <Row style={{ marginBottom: '24px' }}>
           <Col span={10} className={styles.boxJump}>
             {!firstRegist && (
-              <Link
-                to={`/user/third/login?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`}
-              >
-                已有账号，马上绑定
-              </Link>
+              <Link to={jumpAddress('login')}>已有账号，马上绑定</Link>
             )}
           </Col>
           <Col
@@ -137,11 +148,7 @@ export default class Register extends Component {
             className={styles.boxJump}
             offset={4}
           >
-            <Link
-              to={`/user/third/register?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`}
-            >
-              未有账号，创建账号
-            </Link>
+            <Link to={jumpAddress('register')}>未有账号，创建账号</Link>
           </Col>
         </Row>
         <RegisterComponent

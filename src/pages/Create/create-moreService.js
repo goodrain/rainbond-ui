@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { Button, notification, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -6,30 +7,39 @@ import AppCreateMoreService from '../../components/AppCreateMoreService';
 import ConfirmModal from '../../components/ConfirmModal';
 import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
-import httpResponseUtil from '../../utils/httpResponse';
+import roleUtil from '../../utils/role';
 
-@connect(null, null, null, {
-  withRef: true
-})
+@connect(
+  ({ teamControl }) => ({
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+  }),
+  null,
+  null,
+  { withRef: true }
+)
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      // property、deploy
-      type: 'property',
-      appDetail: null,
+      appPermissions: this.handlePermissions('queryAppInfo'),
       data: null,
       JavaMavenData: [],
       is_deploy: true,
+      deleteLoading: false,
       buildState: false
     };
   }
   componentDidMount() {
-    // this.loadDetail();
     this.getMultipleModulesInfo();
   }
   componentWillUnmount() {
     this.props.dispatch({ type: 'appControl/clearDetail' });
+  }
+  getCheck_uuid() {
+    return this.props.match.params.check_uuid;
+  }
+  getAppAlias() {
+    return this.props.match.params.appAlias;
   }
 
   getMultipleModulesInfo = () => {
@@ -48,49 +58,24 @@ export default class Index extends PureComponent {
       }
     });
   };
-  getAppAlias() {
-    return this.props.match.params.appAlias;
-  }
-  getCheck_uuid() {
-    return this.props.match.params.check_uuid;
-  }
-  loadDetail = () => {
-    this.props.dispatch({
-      type: 'appControl/fetchDetail',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias()
-      },
-      callback: data => {
-        this.setState({ appDetail: data });
-      },
-      handleError: data => {
-        const code = httpResponseUtil.getCode(data);
-        if (code) {
-          // 应用不存在
-          if (code === 404) {
-            this.props.dispatch(
-              routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
-              )
-            );
-          }
-        }
-      }
-    });
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
   };
 
   handleBuild = () => {
     this.setState({ buildState: true });
     const { JavaMavenData, is_deploy } = this.state;
     if (JavaMavenData.length > 0) {
-      const teamName = globalUtil.getCurrTeamName();
-      const appAlias = this.getAppAlias();
+      const { team_name, app_alias } = this.fetchParameter();
       this.props.dispatch({
         type: 'appControl/createService',
         payload: {
-          team_name: teamName,
-          app_alias: appAlias,
+          team_name,
+          app_alias,
           service_infos: JavaMavenData
         },
         callback: res => {
@@ -122,14 +107,13 @@ export default class Index extends PureComponent {
   };
 
   fetchGroups = groupId => {
-    const teamName = globalUtil.getCurrTeamName();
-    const regionName = globalUtil.getCurrRegionName();
+    const { team_name, region_name } = this.fetchParameter();
     const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchGroups',
       payload: {
-        team_name: teamName,
-        region_name: regionName
+        team_name,
+        region_name
       },
       callback: () => {
         notification.success({
@@ -137,19 +121,16 @@ export default class Index extends PureComponent {
           duration: '3'
         });
         this.setState({ buildState: false });
-        dispatch(
-          routerRedux.push(
-            `/team/${teamName}/region/${regionName}/apps/${groupId}`
-          )
-        );
+        this.handleJump(`apps/${groupId}`);
       }
     });
   };
 
   handleDelete = () => {
-    const team_name = globalUtil.getCurrTeamName();
-    const app_alias = this.getAppAlias();
-    this.props.dispatch({
+    const { team_name, app_alias } = this.fetchParameter();
+    const { dispatch } = this.props;
+    this.handleDeleteLoading(true);
+    dispatch({
       type: 'appControl/deleteApp',
       payload: {
         team_name,
@@ -157,25 +138,47 @@ export default class Index extends PureComponent {
         is_force: true
       },
       callback: () => {
-        this.props.dispatch(
-          routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-          )
-        );
+        this.handleDeleteLoading(false);
+        this.handleJump(`index`);
       }
     });
   };
+
+  handleDeleteLoading = deleteLoading => {
+    this.setState({ deleteLoading });
+  };
+
   showDelete = () => {
     this.setState({ showDelete: true });
   };
-
+  fetchParameter = () => {
+    return {
+      team_name: globalUtil.getCurrTeamName(),
+      region_name: globalUtil.getCurrRegionName(),
+      app_alias: this.getAppAlias()
+    };
+  };
+  handleJump = targets => {
+    const { dispatch } = this.props;
+    const { team_name, region_name } = this.fetchParameter();
+    dispatch(
+      routerRedux.replace(`/team/${team_name}/region/${region_name}/${targets}`)
+    );
+  };
   renderSuccessOnChange = () => {
     this.setState({
       is_deploy: !this.state.is_deploy
     });
   };
   render() {
-    const { data, is_deploy, buildState } = this.state;
+    const {
+      data,
+      is_deploy,
+      buildState,
+      showDelete,
+      deleteLoading,
+      appPermissions: { isDelete }
+    } = this.state;
     const arr = data;
     if (arr && arr.length > 0) {
       arr.map((item, index) => {
@@ -251,14 +254,17 @@ export default class Index extends PureComponent {
                   </Radio>
                 </Tooltip>
               </div>
-              <Button onClick={this.showDelete} type="default">
-                放弃创建
-              </Button>
+              {isDelete && (
+                <Button onClick={this.showDelete} type="default">
+                  放弃创建
+                </Button>
+              )}
             </div>
           </div>
-          {this.state.showDelete && (
+          {showDelete && (
             <ConfirmModal
               onOk={this.handleDelete}
+              loading={deleteLoading}
               title="放弃创建"
               subDesc="此操作不可恢复"
               desc="确定要放弃创建此组件吗？"

@@ -1,3 +1,9 @@
+/* eslint-disable import/no-named-default */
+/* eslint-disable react/jsx-no-target-blank */
+/* eslint-disable react/no-unused-state */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable react/sort-comp */
+/* eslint-disable camelcase */
 import {
   Button,
   Card,
@@ -12,7 +18,10 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import EditGroupName from '../../components/AddOrEditGroup';
+import {
+  default as AddGroup,
+  default as EditGroupName
+} from '../../components/AddOrEditGroup';
 import configureGlobal from '../../utils/configureGlobal';
 import globalUtil from '../../utils/global';
 import guideUtil from '../../utils/guide';
@@ -107,38 +116,15 @@ export default class Index extends PureComponent {
     })
   ];
 
-  handleOkApplication = vals => {
+  handleOkApplication = groupId => {
     const { dispatch } = this.props;
-    const { GuideList } = this.state;
-    dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_name: vals.group_name,
-        note: vals.note
-      },
-      callback: res => {
-        if (res) {
-          notification.success({ message: '添加成功' });
-          this.handleCancelApplication();
-          dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName()
-            },
-            callback: () => {
-              this.props.dispatch(
-                routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                    res.group_id
-                  }`
-                )
-              );
-            }
-          });
-        }
-      }
-    });
+    notification.success({ message: '添加成功' });
+    this.handleCancelApplication();
+    dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${groupId}`
+      )
+    );
   };
 
   handleShare = group_id => {
@@ -176,11 +162,10 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { form } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) {
-        return;
+      if (!err) {
+        this.handleShare(fieldsValue.group_id);
+        this.setState({ ServiceVisible: false });
       }
-      this.handleShare(fieldsValue.group_id);
-      this.setState({ ServiceVisible: false });
     });
   };
 
@@ -191,37 +176,15 @@ export default class Index extends PureComponent {
     this.setState({ addGroup: false });
   };
 
-  handleAddGroup = vals => {
+  handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
-
-    this.props.dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          this.props.dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
-            },
-            callback: () => {
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
 
   handleOnchange = () => {
-    const groupId = this.props.form.getFieldValue('group_id');
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
+    const groupId = form.getFieldValue('group_id');
     dispatch({
       type: 'application/fetchApps',
       payload: {
@@ -280,39 +243,47 @@ export default class Index extends PureComponent {
         </p>
         <p>
           1. 应用拓扑图可视化，便捷观察所有组件的运行状态{' '}
-          <a
-            href={`${platform_url}docs/user-manual/app-manage/app-topology/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-manage/app-topology/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           2. 应用生命周期管理，涉及应用启停、升级和构建
-          <a
-            href={`${platform_url}docs/user-manual/app-manage/operation/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-manage/operation/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           3. 应用发布到企业应用市场{' '}
-          <a
-            href={`${platform_url}docs/user-manual/app-manage/share-app/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-manage/share-app/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           4. 应用整体的备份和恢复以及跨团队或集群迁移{' '}
-          <a
-            href={`${platform_url}docs/user-manual/app-manage/app-backup/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-manage/app-backup/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         {this.lineShow()}
         <p style={{ textAlign: 'center' }}>
@@ -386,39 +357,47 @@ export default class Index extends PureComponent {
         </p>
         <p>
           1. 如何支持各类型开发语言
-          <a
-            href={`${platform_url}docs/user-manual/app-creation/language-support/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-creation/language-support/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           2. Maven私服仓库如何对接到平台
-          <a
-            href={`${platform_url}docs/advanced-scenarios/devops/connection-maven-repository/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/advanced-scenarios/devops/connection-maven-repository/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           3. 基于Git代码仓库的自动化持续构建
-          <a
-            href={`${platform_url}docs/advanced-scenarios/devops/autobuild/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/advanced-scenarios/devops/autobuild/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           4. 服务配置文件动态配置{' '}
-          <a
-            href={`${platform_url}docs/user-manual/app-service-manage/service-volume/#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-service-manage/service-volume/#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         {this.lineShow()}
         <p>
@@ -432,16 +411,13 @@ export default class Index extends PureComponent {
             this.completedShow()
           ) : (
             <div>
-              <Button style={{ marginRight: '10px' }}>
-                <a
-                  href={`${rainbondUtil.documentPlatform_url(
-                    rainbondInfo
-                  )}video.html`}
-                  target="_blank"
-                >
-                  查看视频教程
-                </a>
-              </Button>
+              {platform_url && (
+                <Button style={{ marginRight: '10px' }}>
+                  <a href={`${platform_url}video.html`} target="_blank">
+                    查看视频教程
+                  </a>
+                </Button>
+              )}
               <Button
                 type="primary"
                 onClick={() => {
@@ -485,21 +461,25 @@ export default class Index extends PureComponent {
         </p>
         <p>
           1. 支持基于Docker镜像创建组件的规范{' '}
-          <a
-            href={`${platform_url}docs/user-manual/app-creation/image-support/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-creation/image-support/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           2. 支持基于DockerCompose便捷创建多个组件的规范
-          <a
-            href={`${platform_url}docs/user-manual/app-creation/image-support/docker-compose/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-creation/image-support/docker-compose/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         {this.lineShow()}
         <p style={{ textAlign: 'center' }}>
@@ -617,30 +597,36 @@ export default class Index extends PureComponent {
         </p>
         <p>
           1. 组件建立依赖关系包含的通信原理（组件注册/组件发现){' '}
-          <a
-            href={`${platform_url}docs/user-manual/app-service-manage/service-rely/#%E6%9C%8D%E5%8A%A1%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-service-manage/service-rely/#%E6%9C%8D%E5%8A%A1%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           2. 组件公用连接信息变量如何设置
-          <a
-            href={`${platform_url}docs/user-manual/app-service-manage/service-rely/#%E6%9C%8D%E5%8A%A1%E8%BF%9E%E6%8E%A5%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-service-manage/service-rely/#%E6%9C%8D%E5%8A%A1%E8%BF%9E%E6%8E%A5%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           3. 了解如何建立组件依赖关系{' '}
-          <a
-            href={`${platform_url}docs/user-manual/app-service-manage/service-rely/#%E6%9C%8D%E5%8A%A1%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-service-manage/service-rely/#%E6%9C%8D%E5%8A%A1%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         {this.lineShow()}
         <p>
@@ -682,21 +668,25 @@ export default class Index extends PureComponent {
         </p>
         <p>
           1. 应用发布到企业应用市场{' '}
-          <a
-            href={`${platform_url}docs/user-manual/app-manage/share-app/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-manage/share-app/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           2. 应用支持基于应用市场一键安装的关键因素{' '}
-          <a
-            href={`${platform_url}docs/user-manual/app-store/app-specification/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/app-store/app-specification/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           3. SaaS化应用市场如何建立{' '}
@@ -749,30 +739,36 @@ export default class Index extends PureComponent {
         </p>
         <p>
           1. HTTP访问策略配置{' '}
-          <a
-            href={`${platform_url}docs/user-manual/gateway/traffic-control/#%E6%B7%BB%E5%8A%A0-http-%E7%AD%96%E7%95%A5`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/gateway/traffic-control/#%E6%B7%BB%E5%8A%A0-http-%E7%AD%96%E7%95%A5`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           2. HTTPs证书管理{' '}
-          <a
-            href={`${platform_url}docs/user-manual/gateway/cert-management/`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/gateway/cert-management/`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         <p>
           3. TCP访问策略配置{' '}
-          <a
-            href={`${platform_url}docs/user-manual/gateway/traffic-control/#tcp-%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5`}
-            target="_blank"
-          >
-            [参考文档]
-          </a>
+          {platform_url && (
+            <a
+              href={`${platform_url}docs/user-manual/gateway/traffic-control/#tcp-%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5`}
+              target="_blank"
+            >
+              [参考文档]
+            </a>
+          )}
         </p>
         {this.lineShow()}
         <p>
@@ -859,8 +855,16 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { current, GuideList, SpinState } = this.state;
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const {
+      current,
+      GuideList,
+      SpinState,
+      ServiceVisible,
+      addGroup,
+      addApplication
+    } = this.state;
+    const { groups, form } = this.props;
+    const { getFieldDecorator } = form;
     let num = 0;
     const steps = [
       {
@@ -1028,10 +1032,10 @@ export default class Index extends PureComponent {
               })}
             </div>
 
-            {this.state.ServiceVisible && (
+            {ServiceVisible && (
               <Modal
                 title="请选择或创建一个应用"
-                visible={this.state.ServiceVisible}
+                visible
                 onOk={this.handleSubmit}
                 onCancel={() => {
                   this.setState({ ServiceVisible: false });
@@ -1054,7 +1058,7 @@ export default class Index extends PureComponent {
                           marginRight: 15
                         }}
                       >
-                        {(this.props.groups || []).map(group => (
+                        {(groups || []).map(group => (
                           <Option key={group.group_id} value={group.group_id}>
                             {group.group_name}
                           </Option>
@@ -1066,14 +1070,14 @@ export default class Index extends PureComponent {
               </Modal>
             )}
 
-            {this.state.addGroup && (
+            {addGroup && (
               <AddGroup
                 onCancel={this.cancelAddGroup}
                 onOk={this.handleAddGroup}
               />
             )}
 
-            {this.state.addApplication && (
+            {addApplication && (
               <EditGroupName
                 title="新建应用"
                 onCancel={this.handleCancelApplication}

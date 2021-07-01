@@ -55,18 +55,14 @@ export async function createRole(body = {}) {
 
 /* fetch teams Role list */
 export async function getTeamRoles(body = {}) {
-  return request(
-    // `https://doc.goodrain.org/mock/18/console/teams/${body.team_name}/roles`,
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles`,
-    {
-      method: 'get'
-    }
-  );
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/roles`, {
+    method: 'get',
+    params: body
+  });
 }
 /* fetch teams Role Permissions list */
 export async function getTeamRolesPermissions(body = {}) {
   return request(
-    // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles/{role_id}/perms`,
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
     {
       method: 'get'
@@ -77,7 +73,6 @@ export async function getTeamRolesPermissions(body = {}) {
 /* fetch team user Permissions */
 export async function getTeamUserPermissions(body = {}, handleError) {
   return request(
-    // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/users/{user_id}/perms`,
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${body.user_id}/perms`,
     {
       method: 'get',
@@ -193,7 +188,15 @@ export async function getTeamMembers(body = {}) {
     }
   );
 }
-
+export async function getUserTeamsRoles(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${body.user_id}/roles`,
+    {
+      method: 'get',
+      params: body
+    }
+  );
+}
 /*
 	添加成员
 */
@@ -360,7 +363,7 @@ export async function getTeamRegionAppsStatus(
 /*
 	获取团队在某个集群下的所有应用组
 */
-export async function getTeamRegionGroups(body) {
+export async function getTeamRegionGroups(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview/groups`,
     {
@@ -368,7 +371,9 @@ export async function getTeamRegionGroups(body) {
       params: {
         query: body.query,
         region_name: body.region_name
-      }
+      },
+      noModels: body.noModels,
+      handleError
     }
   );
 }
@@ -629,6 +634,16 @@ export async function stopComponentInTenant(body, handleError) {
       data: {
         region_name: body.region_name
       },
+      handleError
+    }
+  );
+}
+
+export async function fetchFeatures(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/features`,
+    {
+      method: 'get',
       handleError
     }
   );

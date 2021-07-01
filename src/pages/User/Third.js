@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 import { message } from 'antd';
 import { connect } from 'dva';
@@ -7,6 +8,8 @@ import Result from '../../components/Result';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
+
+const loginUrl = '/user/login?disable_auto_login=true';
 
 @connect()
 export default class ThirdLogin extends Component {
@@ -26,10 +29,10 @@ export default class ThirdLogin extends Component {
     if (
       code &&
       service_id &&
-      code != 'None' &&
-      service_id != 'None' &&
-      code != '' &&
-      service_id != ''
+      code !== 'None' &&
+      service_id !== 'None' &&
+      code !== '' &&
+      service_id !== ''
     ) {
       const token = cookie.get('token');
       // if user login
@@ -41,42 +44,46 @@ export default class ThirdLogin extends Component {
             code,
             service_id
           },
-          callback: resdata => {
-            if (resdata && resdata.status && resdata.status === 400) {
-              this.setState(
-                {
-                  resultState: 'error',
-                  title: '第三方认证未通过',
-                  desc: '认证失败,请重新认证'
-                },
-                () => {
-                  dispatch(routerRedux.push(`/`));
-                }
-              );
-            } else if (resdata && resdata.status_code === 200) {
-              this.setState(
-                {
-                  resultState: 'success',
-                  title: '第三方认证通过',
-                  desc: ''
-                },
-                () => {
-                  if (resdata.bean && resdata.bean.token) {
-                    cookie.set('token', resdata.bean.token);
+          callback: res => {
+            if (res) {
+              if (
+                res.response_data &&
+                res.response_data.status &&
+                res.response_data.status === 400 &&
+                res.msg_show
+              ) {
+                message.warning(res.msg_show);
+              }
+              if (res.status && res.status === 400) {
+                this.setState(
+                  {
+                    resultState: 'error',
+                    title: '第三方认证未通过',
+                    desc: '认证失败,请重新认证'
+                  },
+                  () => {
+                    dispatch(routerRedux.push(`/`));
                   }
-                  this.handleSuccess();
-                }
-              );
+                );
+              } else if (res.status_code && res.status_code === 200) {
+                this.setState(
+                  {
+                    resultState: 'success',
+                    title: '第三方认证通过',
+                    desc: ''
+                  },
+                  () => {
+                    if (res.bean && res.bean.token) {
+                      cookie.set('token', res.bean.token);
+                    }
+                    this.handleSuccess();
+                  }
+                );
+              }
             }
           },
-          handleError: res => {
-            if (res && res.status === 500) {
-              message.warning('第三方认证失败，请重新认证', 1, () => {
-                dispatch(
-                  routerRedux.push(`/user/login?disable_auto_login=true`)
-                );
-              });
-            }
+          handleError: err => {
+            this.handleError(err);
           }
         });
         return null;
@@ -91,17 +98,15 @@ export default class ThirdLogin extends Component {
           domain: window.location.host
         },
         callback: res => {
-          if (res && res.status_code === 400) {
+          if (res && (res.status_code === 400 || res.status_code === 401)) {
             this.setState(
               {
                 resultState: 'error',
                 title: '第三方认证未通过',
-                desc: '未成功获取access_token,请重新认证。'
+                desc: res.msg_show || '未成功获取access_token,请重新认证。'
               },
               () => {
-                dispatch(
-                  routerRedux.push(`/user/login?disable_auto_login=true`)
-                );
+                dispatch(routerRedux.push(loginUrl));
               }
             );
           } else if (res && res.status_code === 200) {
@@ -129,21 +134,31 @@ export default class ThirdLogin extends Component {
             }
           }
         },
-        handleError: res => {
-          if (res && res.status === 500) {
-            message.warning('第三方认证失败，请重新认证', 1, () => {
-              dispatch(routerRedux.push(`/user/login?disable_auto_login=true`));
-            });
-          }
+        handleError: err => {
+          this.handleError(err);
         }
       });
     } else {
       globalUtil.removeCookie();
-      dispatch(routerRedux.replace('/user/login?disable_auto_login=true'));
+      dispatch(routerRedux.replace(loginUrl));
     }
   }
 
-  handleSuccess() {
+  handleError = err => {
+    const { dispatch } = this.props;
+    const status = err && err.status;
+    if (err && (status || err.msg_show)) {
+      message.warning(
+        (status && status === 500 && '第三方认证失败，请重新认证') ||
+          err.msg_show,
+        1,
+        () => {
+          dispatch(routerRedux.push(loginUrl));
+        }
+      );
+    }
+  };
+  handleSuccess = () => {
     const { dispatch } = this.props;
     let redirect = window.localStorage.getItem('redirect');
     if (!redirect || redirect === '') {
@@ -155,7 +170,7 @@ export default class ThirdLogin extends Component {
     } else {
       window.location.href = redirect;
     }
-  }
+  };
 
   render() {
     const { resultState, title, desc } = this.state;

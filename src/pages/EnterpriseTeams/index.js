@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+/* eslint-disable array-callback-return */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable react/sort-comp */
@@ -23,6 +25,7 @@ import WarningImg from '../../../public/images/warning.png';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreateTeam from '../../components/CreateTeam';
 import JoinTeam from '../../components/JoinTeam';
+import OpenRegion from '../../components/OpenRegion';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import roleUtil from '../../utils/role';
 import userUtil from '../../utils/user';
@@ -58,6 +61,7 @@ export default class EnterpriseTeams extends PureComponent {
       total: 1,
       joinTeam: false,
       delTeamLoading: false,
+      showOpenRegion: false,
       initShow: false
     };
   }
@@ -105,17 +109,15 @@ export default class EnterpriseTeams extends PureComponent {
   getUserTeams = () => {
     const {
       dispatch,
-      user,
       match: {
         params: { eid }
       }
     } = this.props;
     const { page, page_size, name } = this.state;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: 'global/fetchMyTeams',
       payload: {
         enterprise_id: eid,
-        user_id: user.user_id,
         page,
         page_size,
         name
@@ -370,24 +372,28 @@ export default class EnterpriseTeams extends PureComponent {
   };
 
   showRegions = (team_name, regions, ismanagement = false) => {
-    return regions.map(item => {
-      return (
-        <Button
-          key={`${item.region_name}region`}
-          className={styles.regionShow}
-          onClick={() => {
-            if (ismanagement) {
-              this.handleJoinTeams(team_name, item.region_name);
-            } else {
-              this.onJumpTeam(team_name, item.region_name);
-            }
-          }}
-        >
-          {item.region_alias}
-          <Icon type="right" />
-        </Button>
-      );
-    });
+    return (
+      regions &&
+      regions.length > 0 &&
+      regions.map(item => {
+        return (
+          <Button
+            key={`${item.region_name}region`}
+            className={styles.regionShow}
+            onClick={() => {
+              if (ismanagement) {
+                this.handleJoinTeams(team_name, item.region_name);
+              } else {
+                this.onJumpTeam(team_name, item.region_name);
+              }
+            }}
+          >
+            {item.region_alias}
+            <Icon type="right" />
+          </Button>
+        );
+      })
+    );
   };
   handleJoinTeams = (teamName, region) => {
     const { dispatch } = this.props;
@@ -403,6 +409,26 @@ export default class EnterpriseTeams extends PureComponent {
       }
     });
   };
+
+  handleOpenRegion = regions => {
+    const { openRegionTeamName } = this.state;
+    this.props.dispatch({
+      type: 'teamControl/openRegion',
+      payload: {
+        team_name: openRegionTeamName,
+        region_names: regions.join(',')
+      },
+      callback: () => {
+        this.load();
+        this.cancelOpenRegion();
+      }
+    });
+  };
+
+  cancelOpenRegion = () => {
+    this.setState({ showOpenRegion: false, openRegionTeamName: '' });
+  };
+
   onJumpTeam = (team_name, region) => {
     const { dispatch } = this.props;
     dispatch(routerRedux.push(`/team/${team_name}/region/${region}/index`));
@@ -507,6 +533,18 @@ export default class EnterpriseTeams extends PureComponent {
               }}
             >
               关闭所有组件
+            </a>
+          </Menu.Item>
+          <Menu.Item>
+            <a
+              onClick={() => {
+                this.setState({
+                  showOpenRegion: true,
+                  openRegionTeamName: exitTeamName
+                });
+              }}
+            >
+              开通集群
             </a>
           </Menu.Item>
           <Menu.Item>
@@ -741,16 +779,18 @@ export default class EnterpriseTeams extends PureComponent {
                   <Col span={6}>{team_alias}</Col>
                   <Col span={3}>{owner_name}</Col>
                   <Col span={3}>
-                    {roles.map(role => {
-                      return (
-                        <span
-                          style={{ marginRight: '8px' }}
-                          key={`role${role}`}
-                        >
-                          {roleUtil.actionMap(role)}
-                        </span>
-                      );
-                    })}
+                    {roles &&
+                      roles.length > 0 &&
+                      roles.map(role => {
+                        return (
+                          <span
+                            style={{ marginRight: '8px' }}
+                            key={`role${role}`}
+                          >
+                            {roleUtil.actionMap(role)}
+                          </span>
+                        );
+                      })}
                   </Col>
                   <Col span={11}>
                     {this.showRegions(team_name, region_list)}
@@ -833,6 +873,13 @@ export default class EnterpriseTeams extends PureComponent {
             subDesc="此操作不可恢复"
             desc="确定要删除此团队和团队下的所有资源吗？"
             onCancel={this.hideDelTeam}
+          />
+        )}
+        {this.state.showOpenRegion && (
+          <OpenRegion
+            onSubmit={this.handleOpenRegion}
+            onCancel={this.cancelOpenRegion}
+            teamName={this.state.openRegionTeamName}
           />
         )}
 

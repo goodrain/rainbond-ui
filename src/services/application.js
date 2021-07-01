@@ -8,7 +8,14 @@ export async function getServiceNameList(params) {
     `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `
   );
 }
-
+export async function Toupgrade(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/groups/${params.group_id}/upgradable_num`,
+    {
+      method: 'get'
+    }
+  );
+}
 export async function CheckK8sServiceName(params) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.tenantName}/checkK8sServiceName `,
@@ -173,6 +180,17 @@ export async function getGroupDetail(body = {}, handleError) {
     }
   );
 }
+
+export async function getUpgradeComponentList(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps/${body.upgrade_group_id}/components`,
+    {
+      params: { app_model_key: body.app_model_key },
+      handleError
+    }
+  );
+}
+
 /*
 	获取某个应用组的信息
 */
@@ -288,7 +306,8 @@ export async function addGroup(body = {}) {
         region_name: body.region_name,
         app_name: body.group_name,
         note: body.note
-      }
+      },
+      noModels: body.noModels
     }
   );
 }
@@ -514,13 +533,7 @@ export async function getShareEventInfo(
 /*
     执行发布事件
 */
-export async function startShareEvent(
-  body = {
-    team_name,
-    share_id,
-    event_id
-  }
-) {
+export async function startShareEvent(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${body.event_id}`,
     { method: 'post' }
@@ -562,13 +575,7 @@ export async function getPluginShareEventInShareApp(
 /*
     查询发布状态
 */
-export async function getShareStatus(
-  body = {
-    team_name,
-    share_id,
-    event_id
-  }
-) {
+export async function getShareStatus(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${body.event_id}`,
     { method: 'get' }

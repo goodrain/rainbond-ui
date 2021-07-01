@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { Button, Card, Col, Form, Icon, Notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -519,7 +520,6 @@ export default class Index extends PureComponent {
                       <Fragment>
                         {isEdit && (
                           <a
-                            href="javascript:;"
                             onClick={() => {
                               this.showEditConfig(data);
                             }}
@@ -532,7 +532,6 @@ export default class Index extends PureComponent {
                         )}
                         {isDelete && (
                           <a
-                            href="javascript:;"
                             onClick={() => {
                               this.handleOpenDelConfigVisible(data);
                             }}

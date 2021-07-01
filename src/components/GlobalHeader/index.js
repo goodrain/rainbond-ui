@@ -1,16 +1,11 @@
+/* eslint-disable react/jsx-no-target-blank */
+/* eslint-disable import/extensions */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/sort-comp */
 /* eslint-disable prettier/prettier */
-import rainbondUtil from "@/utils/rainbond";
-import {
-  Avatar,
-  Dropdown,
-  Icon,
-  Layout,
-  Menu,
-  notification,
-  Spin
-} from 'antd';
+import rainbondUtil from '@/utils/rainbond';
+import { Avatar, Dropdown, Icon, Layout, Menu, notification, Spin } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Debounce from 'lodash-decorators/debounce';
@@ -132,7 +127,7 @@ export default class GlobalHeader extends PureComponent {
       </div>
     );
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
-
+    const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <Header className={styles.header}>
         <Icon
@@ -143,25 +138,6 @@ export default class GlobalHeader extends PureComponent {
         />
         {customHeader && customHeader()}
         <div className={styles.right}>
-          {/* {rainbondUtil.isEnableBillingFunction() &&
-            enterpriseServiceInfo.type === "free" && (
-              <Button type="primary" onClick={this.handleVip}>
-                升级付费服务
-              </Button>
-            )} */}
-          {/* {rainbondUtil.documentEnable(rainbondInfo) && (
-            <Tooltip title="平台使用手册">
-              <a
-                target="_blank"
-                href={`${rainbondUtil.documentPlatform_url(rainbondInfo)}docs/`}
-                rel="noopener noreferrer"
-                className={styles.action}
-              >
-                <Icon type="question-circle-o" />
-              </a>
-            </Tooltip>
-          )} */}
-          
           {enterpriseEdition ? (
             <span className={styles.action} style={{ color: '#fff' }}>
               企业版
@@ -177,16 +153,17 @@ export default class GlobalHeader extends PureComponent {
               开源版
             </a>
           )}
-          {
-          rainbondUtil.documentPlatform_url(rainbondInfo) && 
-          <a
-            className={styles.action}
-            style={{ color: '#fff' }}
-            href={`${rainbondUtil.documentPlatform_url(rainbondInfo)}docs/`}
-            target="_blank"
-            rel="noopener noreferrer" 
-          >参考手册
-          </a>}
+          {platformUrl && (
+            <a
+              className={styles.action}
+              style={{ color: '#fff' }}
+              href={`${platformUrl}docs/`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              平台使用手册
+            </a>
+          )}
           {currentUser ? (
             <Dropdown overlay={menu}>
               <span className={`${styles.action} ${styles.account}`}>

@@ -65,6 +65,24 @@ class Index extends PureComponent {
             rules: [{ type: 'url', message: '输入数据不是合法的URL' }]
           })(<Input />)}
         </Form.Item>
+        <Form.Item
+          {...formItemLayout}
+          label="构建模块"
+          help="未指定情况下默认构建所有模块"
+        >
+          {getFieldDecorator('BUILD_GO_INSTALL_PACKAGE_SPEC', {
+            initialValue: (envs && envs.BUILD_GO_INSTALL_PACKAGE_SPEC) || ''
+          })(<Input placeholder="" />)}
+        </Form.Item>
+        <Form.Item
+          {...formItemLayout}
+          label="启动命令"
+          help="构建的二进制都将置于bin目录下，启动命令示例: bin/xxx-server "
+        >
+          {getFieldDecorator('BUILD_PROCFILE', {
+            initialValue: (envs && envs.BUILD_PROCFILE) || ''
+          })(<Input placeholder="" />)}
+        </Form.Item>
       </div>
     );
   }
