@@ -322,9 +322,13 @@ export default class KubernetesClusterShow extends PureComponent {
                   <a>删除</a>
                 </Popconfirm>
               )}
-            <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
-              集群配置
-            </a>
+
+            {selectProvider === 'rke' && (
+              <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
+                集群配置
+              </a>
+            )}
+
             {row.rainbond_init === true && (
               <Popconfirm
                 placement="top"
