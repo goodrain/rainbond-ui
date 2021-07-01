@@ -524,7 +524,7 @@ export default class Index extends PureComponent {
                 const versionSelector = (
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
-                    style={{ width: 70 }}
+                    style={{ width: 90 }}
                     defaultValue={isImageApp ? 'Tag' : 'branch'}
                   >
                     {!isImageApp && <Option value="branch">分支</Option>}
@@ -594,7 +594,10 @@ export default class Index extends PureComponent {
                         </div>
                       </div>
                     </Tooltip>
-                    <div className={`${styles.w300} ${styles.over}`}>
+                    <div
+                      className={`${styles.w300} ${styles.over}`}
+                      style={{ height: '80px' }}
+                    >
                       {versionConetent}
                     </div>
                   </div>
