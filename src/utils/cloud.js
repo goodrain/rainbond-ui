@@ -553,6 +553,9 @@ const cloud = {
       case 7019:
         notification.warning({ message: '无法获取集群的初始化状态' });
         break;
+      case 8002:
+        notification.warning({ message: '应用商店地址不是合法的Helm仓库地址或通信不畅，请确认' });
+        break;
       case 400:
         notification.warning({ message: '请求参数错误' });
         break;

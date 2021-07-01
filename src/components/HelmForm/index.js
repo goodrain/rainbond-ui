@@ -6,9 +6,19 @@
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-expressions */
-import { Button, Checkbox, Form, Input, Radio, Select, Tabs } from 'antd';
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  Radio,
+  Select,
+  Tabs
+} from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import cloud from '../../utils/cloud';
 
 const RadioGroup = Radio.Group;
 const { TabPane } = Tabs;
@@ -62,7 +72,7 @@ export default class Index extends PureComponent {
             this.handleClose();
           },
           handleError: res => {
-            this.handleError(res);
+            cloud.handleCloudAPIError(res);
             this.handleClose();
           }
         });
@@ -71,7 +81,7 @@ export default class Index extends PureComponent {
   };
 
   handleUpHelmAppStore = () => {
-    const { dispatch, form, eid, onCancel, onOk } = this.props;
+    const { dispatch, form, eid, onOk } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
         this.setState({
@@ -110,7 +120,7 @@ export default class Index extends PureComponent {
     }
     const pattern = /^[a-z][a-zA-Z0-9]+$/;
     if (!name.match(pattern)) {
-      return callbacks('只支持字母开头、字母和数字组合');
+      return callbacks('只支持小写字母开头、字母和数字组合');
     }
 
     dispatch({
@@ -138,6 +148,7 @@ export default class Index extends PureComponent {
     });
   };
   handleError = res => {
+    console.log(res);
     if (res && res.data && res.data.code) {
       notification.warning({
         message: '仓库名称已存在'
@@ -145,7 +156,7 @@ export default class Index extends PureComponent {
     }
   };
   render() {
-    const { rainbondInfo, form, data, onCancel, isEditor = false } = this.props;
+    const { form, data, onCancel, isEditor = false } = this.props;
     const { createLoading, showUsernameAndPass } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
@@ -158,6 +169,7 @@ export default class Index extends PureComponent {
     };
     return (
       <Form>
+        <Alert message="当前版本仅支持 Helm 仓库对接应用商店。" type="info" />
         <Form.Item {...formItemLayout} label="商店名称">
           {getFieldDecorator('name', {
             initialValue: (data && data.name) || '',

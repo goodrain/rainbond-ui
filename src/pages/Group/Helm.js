@@ -1,9 +1,11 @@
+/* eslint-disable camelcase */
+/* eslint-disable array-callback-return */
+/* eslint-disable consistent-return */
 /* eslint-disable global-require */
 /* eslint-disable import/extensions */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-expressions */
-import AccessPrompt from '@/components/AccessPrompt';
 import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
 import CodeMirrorForm from '@/components/CodeMirrorForm';
@@ -22,6 +24,7 @@ import {
   Icon,
   Modal,
   notification,
+  Popover,
   Row,
   Select,
   Skeleton,
@@ -34,6 +37,7 @@ import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import Markdown from 'react-markdown';
+import { Link } from 'umi';
 import ConfirmModal from '../../components/ConfirmModal';
 import Result from '../../components/Result';
 import VisterBtn from '../../components/visitBtnForAlllink';
@@ -42,7 +46,6 @@ import globalUtil from '../../utils/global';
 import sourceUtil from '../../utils/source-unit';
 import Instance from '../Component/component/Instance/index';
 import infoUtil from '../Upgrade/UpgradeInfo/info-util';
-import AddAssociatedComponents from './AddAssociatedComponents';
 import styles from './Index.less';
 
 const { TabPane } = Tabs;
@@ -80,24 +83,22 @@ export default class Index extends PureComponent {
       formData: [],
       appStateLoading: true,
       appInfoLoading: true,
-      serviceLoading: false,
-      activeServices: '',
       appStates: [
         {
           key: 'initailing',
-          value: '初始化中'
+          value: '初始化'
         },
         {
           key: 'detecting',
-          value: '检测中'
+          value: '检测'
         },
         {
           key: 'configuring',
-          value: '配置中'
+          value: '配置'
         },
         {
           key: 'installing',
-          value: '安装中'
+          value: '安装'
         }
       ],
       appType: {
@@ -112,9 +113,7 @@ export default class Index extends PureComponent {
         installing: 3,
         installed: 4
       },
-      services: [],
-      freeComponents: [],
-      associatedComponents: [],
+      components: [],
       currentSteps: 0,
       toDelete: false,
       toEdit: false,
@@ -124,18 +123,12 @@ export default class Index extends PureComponent {
       promptModal: false,
       code: '',
       currApp: {},
-      AssociatedComponents: false,
       componentTimer: true,
-      showAccess: false,
-      createComponentLoading: false,
       submitLoading: false,
-      servicesLoading: true,
       resources: {},
       versionInfo: {},
       appInfo: {},
-      isInstall: false,
       isScrollToBottom: true,
-      isAccessPermissions: true,
       upDataVersion: false
     };
     this.CodeMirrorRef = '';
@@ -265,8 +258,7 @@ export default class Index extends PureComponent {
               this.handleAppInfoLoading();
             }
             if (currentSteps >= 4) {
-              this.handleServices();
-              this.fetchFreeComponents();
+              this.fetchHelmComponents();
               this.fetchAppAccess();
             }
           }
@@ -398,7 +390,7 @@ export default class Index extends PureComponent {
       },
       callback: list => {
         if (list && list.length) {
-          if (grid == list[0].group_id) {
+          if (grid === list[0].group_id) {
             this.newAddress(grid);
           } else {
             this.props.dispatch(
@@ -457,65 +449,6 @@ export default class Index extends PureComponent {
           }
         });
       }
-    });
-  };
-  handleServices = () => {
-    const { dispatch } = this.props;
-    const {
-      currentSteps,
-      currApp,
-      serviceLoading,
-      showAccess,
-      isAccessPermissions,
-      freeComponents
-    } = this.state;
-    dispatch({
-      type: 'application/fetchServices',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId()
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          const services = res.list || [];
-          const batchServices = [];
-          services.map(item => {
-            batchServices.push({
-              service_name: item.service_name,
-              address: item.address,
-              ports: item.tcp_ports
-            });
-          });
-          if (
-            currApp &&
-            currApp.service_num < 1 &&
-            currentSteps >= 4 &&
-            !serviceLoading &&
-            !showAccess &&
-            isAccessPermissions &&
-            freeComponents &&
-            freeComponents.length < 1
-          ) {
-            this.setState({ showAccess: batchServices });
-          }
-
-          this.setState({
-            services
-          });
-          if (services && services.length > 0) {
-            this.fetchAssociatedComponents(services[0].service_name);
-          }
-        }
-        this.cancelServices();
-      },
-      handleError: () => {
-        this.cancelServices();
-      }
-    });
-  };
-  cancelServices = () => {
-    this.setState({
-      servicesLoading: false
     });
   };
   handleUpDataHeader = () => {
@@ -679,35 +612,11 @@ export default class Index extends PureComponent {
       }
     });
   };
-  AddAssociatedComponents = () => {
-    this.fetchAssociatedComponents(false);
-    this.cancelAssociatedComponents();
-  };
-  fetchAssociatedComponents = name => {
-    const { dispatch } = this.props;
-    const { activeServices } = this.state;
-    dispatch({
-      type: 'application/fetchAssociatedComponents',
-      payload: {
-        service_name: activeServices || name,
-        tenantName: globalUtil.getCurrTeamName(),
-        groupId: this.getGroupId()
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            activeServices: activeServices || name,
-            associatedComponents: res.list || []
-          });
-        }
-      }
-    });
-  };
 
-  fetchFreeComponents = showAccess => {
+  fetchHelmComponents = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'application/fetchFreeComponents',
+      type: 'application/fetchHelmComponents',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         groupId: this.getGroupId()
@@ -715,15 +624,8 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            freeComponents: res.list || []
+            components: res.list || []
           });
-          if (showAccess) {
-            this.setState({
-              isInstall: true,
-              createComponentLoading: false,
-              showAccess: false
-            });
-          }
         }
       }
     });
@@ -744,45 +646,6 @@ export default class Index extends PureComponent {
           });
         }
       }
-    });
-  };
-
-  CreateAppBatchComponents = () => {
-    const { dispatch } = this.props;
-    const { showAccess } = this.state;
-    this.setState(
-      { createComponentLoading: true, isAccessPermissions: false },
-      () => {
-        dispatch({
-          type: 'application/CreateAppBatchComponents',
-          payload: {
-            tenantName: globalUtil.getCurrTeamName(),
-            groupId: this.getGroupId(),
-            data: showAccess
-          },
-          callback: res => {
-            if (res && res.status_code === 200) {
-              this.fetchFreeComponents(showAccess);
-            }
-          }
-        });
-      }
-    );
-  };
-
-  handleAssociatedComponents = AssociatedComponents => {
-    this.setState({
-      AssociatedComponents
-    });
-  };
-  handleTabs = key => {
-    this.setState({ activeServices: key }, () => {
-      this.fetchAssociatedComponents(key);
-    });
-  };
-  cancelAssociatedComponents = () => {
-    this.setState({
-      AssociatedComponents: false
     });
   };
   handleThird = appAlias => {
@@ -846,13 +709,6 @@ export default class Index extends PureComponent {
           submitLoading: false
         });
       }
-    });
-  };
-  handleCancelShowAccess = () => {
-    this.setState({
-      isInstall: false,
-      isAccessPermissions: false,
-      showAccess: false
     });
   };
   scrollToBottom = () => {
@@ -1110,7 +966,7 @@ export default class Index extends PureComponent {
                               const { version } = item;
                               return (
                                 <Option key={version} value={version}>
-                                  {resources.version == version
+                                  {resources.version === version
                                     ? `${version} 当前版本`
                                     : version}
                                 </Option>
@@ -1146,19 +1002,21 @@ export default class Index extends PureComponent {
                       rules: [{ required: true, message: '请选择Values文件' }]
                     })(
                       <Select
-                        placeholder="请选择版本"
+                        placeholder="请选择Values文件"
                         style={{ width: '100%' }}
                         onChange={this.handleTemplateFile}
                         disabled={upDataVersion || errPrompt || noVersion}
                       >
                         {versionInfo.values &&
-                          Object.keys(versionInfo.values).map(key => {
-                            return (
-                              <Option key={key} value={key}>
-                                {key}
-                              </Option>
-                            );
-                          })}
+                          Object.keys(versionInfo.values)
+                            .reverse()
+                            .map(key => {
+                              return (
+                                <Option key={key} value={key}>
+                                  {key}
+                                </Option>
+                              );
+                            })}
                       </Select>
                     )}
                   </FormItem>
@@ -1205,7 +1063,6 @@ export default class Index extends PureComponent {
       versions,
       currApp,
       resources,
-      isInstall,
       code,
       promptModal,
       toEdit,
@@ -1215,17 +1072,11 @@ export default class Index extends PureComponent {
       appStates,
       appType,
       errPrompt,
-      services,
-      AssociatedComponents,
       appStateLoading,
-      associatedComponents,
-      freeComponents,
+      components,
       linkList,
-      showAccess,
-      createComponentLoading,
       appInfo,
-      appInfoLoading,
-      servicesLoading
+      appInfoLoading
     } = this.state;
     const codeObj = {
       start: '启动',
@@ -1326,7 +1177,7 @@ export default class Index extends PureComponent {
                 </div>
                 <div className={styles.connect_Boxs}>
                   <div>服务数量</div>
-                  <div>{(services && services.length) || 0}</div>
+                  <div>{(components && components.length) || 0}</div>
                 </div>
               </div>
             </div>
@@ -1450,33 +1301,9 @@ export default class Index extends PureComponent {
     );
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
-
     return (
       <Fragment>
         <Row>{pageHeaderContent}</Row>
-        {(showAccess || isInstall) && (
-          <AccessPrompt
-            title={
-              isInstall
-                ? '关联组件已创建，请配置网关策略或建立依赖关系访问。'
-                : '当前应用未开放访问权限,是否立即打开?'
-            }
-            isInstall={isInstall}
-            loading={createComponentLoading}
-            onOk={this.CreateAppBatchComponents}
-            onCancel={this.handleCancelShowAccess}
-          />
-        )}
-
-        {AssociatedComponents && (
-          <AddAssociatedComponents
-            title="添加关联组件"
-            groupId={this.getGroupId()}
-            data={AssociatedComponents}
-            onCancel={this.cancelAssociatedComponents}
-            onOk={this.AddAssociatedComponents}
-          />
-        )}
 
         {errPrompt && (
           <Alert
@@ -1486,33 +1313,7 @@ export default class Index extends PureComponent {
           />
         )}
 
-        {freeComponents && freeComponents.length > 0 && (
-          <Card
-            style={{ marginBottom: 24 }}
-            type="inner"
-            loading={appStateLoading}
-            title="游离组件"
-            bodyStyle={{ padding: 24, background: '#fff' }}
-          >
-            <div>
-              {freeComponents.map(items => {
-                return (
-                  <Button
-                    style={{ padding: '0 10px' }}
-                    onClick={() => {
-                      this.handleThird(items.component_alias);
-                    }}
-                    type="link"
-                  >
-                    {items.component_name}
-                  </Button>
-                );
-              })}
-            </div>
-          </Card>
-        )}
-
-        {currentSteps > 3 && !servicesLoading && (
+        {currentSteps > 3 && (
           <Card
             type="inner"
             loading={appStateLoading}
@@ -1520,64 +1321,38 @@ export default class Index extends PureComponent {
             bodyStyle={{ padding: '0', background: '#F0F2F5' }}
           >
             <div style={{ background: '#fff' }}>
-              {services && services.length > 0 ? (
+              {components && components.length > 0 ? (
                 <Tabs
                   style={{ padding: '0 24px 24px' }}
                   defaultActiveKey={
-                    services && services.length > 0 && services[0].service_name
+                    components &&
+                    components.length > 0 &&
+                    components[0] &&
+                    components[0].service_name
                   }
-                  onChange={this.handleTabs}
                 >
-                  {services.map(item => {
-                    const {
-                      service_name: serviceName,
-                      pods,
-                      oldPods,
-                      tcp_ports: ports
-                    } = item;
-                    return (
-                      <TabPane tab={serviceName} key={serviceName}>
-                        <div>
-                          <div className={styles.associated}>
-                            <div>
-                              <Tooltip title="关联第三方组件，管理访问权限！">
-                                关联组件:
-                              </Tooltip>
-                            </div>
-                            <div
-                              style={{
-                                maxwidth:
-                                  ports && ports.length > 0
-                                    ? 'calc(100% - 100px)'
-                                    : 'calc(100% - 62px)'
-                              }}
-                            >
-                              {associatedComponents.map(items => {
-                                return (
-                                  <Button
-                                    style={{ padding: '0 10px' }}
-                                    onClick={() => {
-                                      this.handleComponent(
-                                        items.component_alias
-                                      );
-                                    }}
-                                    type="link"
-                                  >
-                                    {items.component_name}
-                                  </Button>
-                                );
-                              })}
-                            </div>
-                            {ports && ports.length > 0 && (
-                              <Icon
-                                style={{ float: 'right', marginLeft: '20px' }}
-                                type="plus-circle"
-                                onClick={() => {
-                                  this.handleAssociatedComponents(item);
-                                }}
-                              />
-                            )}
-                          </div>
+                  {components.map(item => {
+                    if (item.service) {
+                      const { service_alias, service_region } = item;
+                      const {
+                        service_name: serviceName,
+                        pods,
+                        oldPods
+                      } = item.service;
+                      const content = (
+                        <Link
+                          to={`/team/${teamName}/region/${service_region}/components/${service_alias}/overview`}
+                        >
+                          组件详情
+                        </Link>
+                      );
+                      return (
+                        <TabPane
+                          tab={
+                            <Popover content={content}>{serviceName}</Popover>
+                          }
+                          key={serviceName}
+                        >
                           <Instance
                             isHelm
                             runLoading={false}
@@ -1585,9 +1360,9 @@ export default class Index extends PureComponent {
                             old_pods={oldPods}
                             appAlias={this.getGroupId()}
                           />
-                        </div>
-                      </TabPane>
-                    );
+                        </TabPane>
+                      );
+                    }
                   })}
                 </Tabs>
               ) : (

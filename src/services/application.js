@@ -17,7 +17,7 @@ export async function CheckAppName(params, handleError) {
       data: {
         name: params.app_name,
         type: 'helmApp',
-        region_name: params.regionNam
+        region_name: params.regionName
       }
     }
   );
@@ -34,9 +34,9 @@ export async function getAssociatedComponents(params) {
     }
   );
 }
-export async function getFreeComponents(params) {
+export async function getHelmComponents(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/orphan-components`,
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/helmapp-components`,
     {
       method: 'get'
     }
@@ -679,7 +679,7 @@ export async function completeShare(
   );
 }
 
-export async function InstallHelmApp(body = {}) {
+export async function InstallHelmApp(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/install`,
     {
@@ -687,7 +687,8 @@ export async function InstallHelmApp(body = {}) {
       data: {
         overrides: body.overrides,
         values: body.values
-      }
+      },
+      handleError
     }
   );
 }

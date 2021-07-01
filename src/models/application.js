@@ -25,7 +25,7 @@ import {
   getAssociatedComponents,
   getBackup,
   getBackupStatus,
-  getFreeComponents,
+  getHelmComponents,
   getGroupApps,
   getGroupDetail,
   getHelmAppStoresVersions,
@@ -67,8 +67,8 @@ export default {
     plugins: []
   },
   effects: {
-    *fetchFreeComponents({ payload, callback }, { call }) {
-      const response = yield call(getFreeComponents, payload);
+    *fetchHelmComponents({ payload, callback }, { call }) {
+      const response = yield call(getHelmComponents, payload);
       if (callback) {
         callback(response);
       }
@@ -103,8 +103,8 @@ export default {
         callback(response);
       }
     },
-    *installHelmApp({ payload, callback }, { call }) {
-      const response = yield call(InstallHelmApp, payload);
+    *installHelmApp({ payload, callback, handleError }, { call }) {
+      const response = yield call(InstallHelmApp, payload, handleError);
       if (callback) {
         callback(response);
       }

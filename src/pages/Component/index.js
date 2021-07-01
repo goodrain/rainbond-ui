@@ -772,7 +772,7 @@ class Main extends PureComponent {
     const buildType = appDetail.service.service_source;
     const text = appDetail.rain_app_name;
     const { status } = this.state;
-    if (buildType == 'market' && status && status.status != 'undeploy') {
+    if (buildType === 'market' && status && status.status !== 'undeploy') {
       dispatch({
         type: 'appControl/getBuildInformation',
         payload: {

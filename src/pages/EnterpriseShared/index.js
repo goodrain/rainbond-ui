@@ -1430,8 +1430,8 @@ export default class EnterpriseShared extends PureComponent {
             onOk={this.handleDeleteAppMarket}
             loading={deleteAppMarketLoading}
             subDesc="此操作不可恢复"
-            desc={`确定要删除此${marketInfo.alias}吗?`}
-            title={`删除${marketInfo.alias}`}
+            desc="确定要删除此商店吗?"
+            title="删除应用商店"
             onCancel={this.handleCloseDeleteAppMarket}
           />
         )}
@@ -1440,8 +1440,8 @@ export default class EnterpriseShared extends PureComponent {
             onOk={this.handleDeleteHelmAppMarket}
             loading={deleteHelmAppMarketLoading}
             subDesc="此操作不可恢复"
-            desc={`确定要删除此${helmInfo.name}吗?`}
-            title={`删除${helmInfo.name}`}
+            desc="确定要删除此商店吗?"
+            title="删除Helm应用商店"
             onCancel={this.handleCloseDeleteHelmAppMarket}
           />
         )}

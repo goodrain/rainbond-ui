@@ -47,7 +47,7 @@ export default class Index extends PureComponent {
       type: 'application/checkAppName',
       payload: {
         app_name: appName,
-        regionNam: globalUtil.getCurrRegionName(),
+        regionName: globalUtil.getCurrRegionName(),
         tenantName: globalUtil.getCurrTeamName()
       },
       callback: res => {

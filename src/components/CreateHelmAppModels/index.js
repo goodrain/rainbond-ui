@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 import { Button, Checkbox, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -36,8 +37,7 @@ class CreateHelmAppModels extends PureComponent {
     this.setState({ addGroup: true });
   };
   fetchCreateAppTeams = name => {
-    const { dispatch, eid, form, appTypes } = this.props;
-    const { setFieldsValue } = form;
+    const { dispatch, eid } = this.props;
     dispatch({
       type: 'global/fetchCreateAppTeams',
       payload: {
@@ -52,22 +52,6 @@ class CreateHelmAppModels extends PureComponent {
             },
             () => {
               if (res.list && res.list.length > 0) {
-                const info = res.list[0];
-
-                setFieldsValue({
-                  team_name: info.team_name
-                });
-                if (
-                  appTypes === 'helmContent' &&
-                  info.region_list &&
-                  info.region_list.length > 0
-                ) {
-                  this.handleCheckAppName(
-                    true,
-                    info.team_name,
-                    info.region_list[0].region_alias
-                  );
-                }
                 this.handleTeamChange(res.list[0].team_name);
               }
             }
@@ -77,17 +61,17 @@ class CreateHelmAppModels extends PureComponent {
     });
   };
 
-  handleCheckAppName = (initial, tenantName, regionNam, name, callbacks) => {
+  handleCheckAppName = (initial, tenantName, regionName, name, callbacks) => {
     const { dispatch, appInfo } = this.props;
     const appName = (initial && appInfo && appInfo.name) || name;
-    if (!regionNam) {
+    if (!regionName) {
       return null;
     }
     dispatch({
       type: 'application/checkAppName',
       payload: {
         app_name: appName,
-        regionNam,
+        regionName,
         tenantName
       },
       callback: res => {
@@ -183,7 +167,7 @@ class CreateHelmAppModels extends PureComponent {
       },
       callback: () => {
         onCancel();
-        this.jump(vals.team_name, vals.region, vals.group_id);
+        this.jump(vals.team_name, vals.region_name, vals.group_id);
         this.handleInstallLoading();
       }
     });
@@ -207,7 +191,7 @@ class CreateHelmAppModels extends PureComponent {
       callback: res => {
         if (res.bean.ID && onCancel) {
           onCancel();
-          this.jump(vals.team_name, vals.region, res.bean.ID);
+          this.jump(vals.team_name, vals.region_name, res.bean.ID);
         }
         this.handleInstallLoading();
       }
@@ -216,13 +200,13 @@ class CreateHelmAppModels extends PureComponent {
   handleInstallLoading = () => {
     this.setState({ helmInstallLoading: false });
   };
-  handleTeamChange = value => {
+  handleTeamChange = teamName => {
     const { form, appTypes } = this.props;
     const { setFieldsValue, getFieldValue } = form;
     const { userTeamList } = this.state;
     let regionList = [];
     userTeamList.map(item => {
-      if (item.team_name === value) {
+      if (item.team_name === teamName) {
         regionList = item.region_list;
       }
     });
@@ -233,14 +217,16 @@ class CreateHelmAppModels extends PureComponent {
           region: regionName
         });
         if (appTypes === 'helmContent') {
-          this.handleCheckAppName(
-            false,
-            value,
-            getFieldValue('app_name'),
-            regionName
-          );
+          if (getFieldValue('app_name') !== '') {
+            this.handleCheckAppName(
+              false,
+              teamName,
+              regionName,
+              getFieldValue('app_name')
+            );
+          }
         } else {
-          this.fetchGroup(value, regionName);
+          this.fetchGroup(teamName, regionName);
         }
       });
     }
@@ -346,7 +332,7 @@ class CreateHelmAppModels extends PureComponent {
       myheaders.Authorization = `GRJWT ${token}`;
     }
     const teaName = getFieldValue('team_name');
-    const regionName = getFieldValue('region');
+    const regionName = getFieldValue('region_name');
     return (
       <div>
         {addGroup && (
@@ -382,7 +368,9 @@ class CreateHelmAppModels extends PureComponent {
                     required: true,
                     message: '请选择团队'
                   }
-                ]
+                ],
+                initialValue:
+                  userTeams && userTeams.length > 0 && userTeams[0].team_name
               })(
                 <Select
                   style={{ width: '323px' }}
@@ -397,10 +385,12 @@ class CreateHelmAppModels extends PureComponent {
                     ))}
                 </Select>
               )}
-              <div className={styles.conformDesc}>请选择团队</div>
+              <div className={styles.conformDesc}>
+                请选择安装该应用模版的团队
+              </div>
             </FormItem>
             <FormItem {...formItemLayout} label="集群名称">
-              {getFieldDecorator('region', {
+              {getFieldDecorator('region_name', {
                 rules: [
                   {
                     required: true,
@@ -416,7 +406,7 @@ class CreateHelmAppModels extends PureComponent {
                   ))}
                 </Select>
               )}
-              <div className={styles.conformDesc}>请选择集群</div>
+              <div className={styles.conformDesc}>选择安装该应用模版的集群</div>
             </FormItem>
 
             {appTypes === 'helmContent' ? (
@@ -457,7 +447,7 @@ class CreateHelmAppModels extends PureComponent {
                   <Input style={{ width: '323px' }} placeholder="请输入名称" />
                 )}
                 <div className={styles.conformDesc}>
-                  请输入创建的应用模版名称，最多53字.
+                  请输入创建的应用名称，最多不超过53字符。
                 </div>
               </FormItem>
             ) : (
@@ -486,9 +476,7 @@ class CreateHelmAppModels extends PureComponent {
                   </Select>
                 )}
                 <Button onClick={this.onAddGroup}>新建应用</Button>
-                <div className={styles.conformDesc}>
-                  请输入创建的应用模版名称，最多53字.
-                </div>
+                <div className={styles.conformDesc}>请选择安装的目标应用</div>
               </Form.Item>
             )}
 
@@ -505,19 +493,17 @@ class CreateHelmAppModels extends PureComponent {
               })(
                 <Select style={{ width: '323px' }}>
                   {versions &&
-                    versions.map((item, indexs) => {
+                    versions.map(item => {
                       const val = item.version || item.app_version;
                       return (
-                        <Option key={indexs} value={val}>
+                        <Option key={item.version} value={val}>
                           {val}
                         </Option>
                       );
                     })}
                 </Select>
               )}
-              <div className={styles.conformDesc}>
-                请选择创建的应用的应用版本
-              </div>
+              <div className={styles.conformDesc}>请选择应用的版本。</div>
             </FormItem>
             <FormItem {...formItemLayout} label="应用备注">
               {getFieldDecorator('note', {
