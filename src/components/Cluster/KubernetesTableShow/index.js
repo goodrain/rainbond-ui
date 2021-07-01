@@ -25,7 +25,7 @@ import {
 } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
-import RKEClusterUpdate from '../RKEClusterUpdate';
+import RKEClusterUpdate from '../RKEClusterAdd';
 import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
 import istyles from './index.less';
 
@@ -322,11 +322,9 @@ export default class KubernetesClusterShow extends PureComponent {
                   <a>删除</a>
                 </Popconfirm>
               )}
-            {row.state === 'running' && selectProvider === 'rke' && (
-              <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
-                节点配置
-              </a>
-            )}
+            <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
+              集群配置
+            </a>
             {row.rainbond_init === true && (
               <Popconfirm
                 placement="top"

@@ -1,28 +1,38 @@
+/* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-return-assign */
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable react/sort-comp */
+import CodeMirrorForm from '@/components/CodeMirrorForm';
 import {
+  Alert,
   Button,
   Col,
   Form,
   Input,
   InputNumber,
+  message,
   Modal,
+  notification,
   Popconfirm,
   Row,
   Select,
   Table,
+  Tabs,
   Tag,
   Tooltip,
   Typography
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { rkeconfig } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from './index.less';
 
 const { Paragraph } = Typography;
+const { TabPane } = Tabs;
+const ipRegs = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
+const portRegs = /^[1-9]\d*$/;
 
 const EditableContext = React.createContext();
 
@@ -43,11 +53,9 @@ class EditableCell extends React.Component {
       handleClustersMount(this);
     }
   }
-
   state = {
     editing: false
   };
-
   toggleEdit = () => {
     const editing = !this.state.editing;
     this.setState({ editing }, () => {
@@ -56,14 +64,15 @@ class EditableCell extends React.Component {
       }
     });
   };
+
   save = (e, targets) => {
     const { record, handleSave } = this.props;
     this.form.validateFields((error, values) => {
+      handleSave({ ...record, ...values });
       if (error && error[targets || (e && e.currentTarget.id)]) {
         return;
       }
       this.toggleEdit();
-      handleSave({ ...record, ...values });
     });
   };
 
@@ -81,10 +90,7 @@ class EditableCell extends React.Component {
     if (ips) {
       rules.push({
         message: '请输入正确的IP地址',
-        pattern: new RegExp(
-          /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/,
-          'g'
-        )
+        pattern: new RegExp(ipRegs, 'g')
       });
     }
     const sshPort = dataIndex === 'sshPort';
@@ -93,7 +99,7 @@ class EditableCell extends React.Component {
         message: '请输入正确的端口号',
         min: 1,
         max: 65536,
-        pattern: new RegExp(/^[1-9]\d*$/, 'g')
+        pattern: new RegExp(portRegs, 'g')
       });
     }
     const initialValues = record[dataIndex];
@@ -184,17 +190,66 @@ export default class RKEClusterConfig extends PureComponent {
       dataSource: [],
       count: 0,
       isCheck: false,
-      initNodeCmd: ''
+      yamlVal: '',
+      initNodeCmd: '',
+      activeKey: '1',
+      helpError: '',
+      helpType: ''
     };
-    this.clusters = null;
+    this.clusters = [];
   }
 
   componentDidMount = () => {
+    const { clusterID } = this.props;
     this.loadInitNodeCmd();
-    this.handleAdd();
+    if (clusterID) {
+      this.setNodeList();
+    } else {
+      this.fetchRkeconfig();
+      this.handleAdd();
+    }
   };
+  setNodeList = () => {
+    const { nodeList, rkeConfig, form } = this.props;
+    const { setFieldsValue } = form;
+    if (nodeList && nodeList.length > 0) {
+      for (let i = 0; i < nodeList.length; i++) {
+        nodeList[i].key = Math.random();
+        if (!nodeList[i].sshPort || nodeList[i].sshPort === 0) {
+          nodeList[i].sshPort = 22;
+        }
+        nodeList[i].disable = true;
+      }
+    }
+
+    if (rkeConfig) {
+      const val = this.decodeBase64Content(rkeConfig);
+      setFieldsValue({
+        yamls: val
+      });
+      this.setState({
+        yamlVal: val
+      });
+    }
+
+    this.setState({
+      dataSource: nodeList,
+      count: (nodeList && nodeList.length) || 0
+    });
+  };
+
   handleClustersMount = com => {
     this.clusters = com;
+  };
+  encodeBase64Content = commonContent => {
+    const base64Content = Buffer.from(commonContent).toString('base64');
+    return base64Content;
+  };
+
+  decodeBase64Content = base64Content => {
+    let commonContent = base64Content.replace(/\s/g, '+');
+    commonContent = Buffer.from(commonContent, 'base64').toString();
+    return commonContent;
   };
   loadInitNodeCmd = () => {
     const { dispatch } = this.props;
@@ -205,50 +260,178 @@ export default class RKEClusterConfig extends PureComponent {
       }
     });
   };
+  fetchRkeconfig = (obj = {}, isNext) => {
+    const { form, eid } = this.props;
+    const { activeKey } = this.state;
+    const { setFieldsValue } = form;
+    const info = Object.assign({}, obj, { enterprise_id: eid });
+    rkeconfig(info)
+      .then(res => {
+        if (res && res.status_code === 200 && res.response_data) {
+          const data = res.response_data || {};
+          const { encodeRKEConfig, nodes } = data;
+          const val = this.decodeBase64Content(encodeRKEConfig);
+          setFieldsValue({
+            yamls: val
+          });
+          let helpError = '';
+          let helpType = '';
+          if (nodes) {
+            if (nodes && nodes.length) {
+              nodes.map(item => {
+                item.key = Math.random();
+                if (isNext) {
+                  if (!ipRegs.test(item.ip || '')) {
+                    helpError = '请输入正确的IP地址';
+                    helpType = 'ip';
+                  } else if (!ipRegs.test(item.internalIP || '')) {
+                    helpError = '请输入正确的IP地址';
+                    helpType = 'internalIP';
+                  } else if (!portRegs.test(item.sshPort || '')) {
+                    helpError = '请输入正确的端口号';
+                    helpType = 'sshPort';
+                  } else if (item.sshPort > 65536) {
+                    helpType = 'sshPort';
+                    helpError = '端口号最大65536';
+                  } else if (!item.roles) {
+                    helpType = 'roles';
+                    helpError = '节点类型是必须的';
+                  }
+                }
+              });
+            }
+            if (helpError) {
+              this.handleCheck(false);
+            }
+            this.setState({
+              helpType,
+              helpError,
+              dataSource: nodes
+            });
+          }
+          this.setState({
+            yamlVal: val
+          });
+          if (activeKey === '1' && isNext && helpError) {
+            notification.warning({ message: helpError });
+          }
+          if (isNext && !helpError) {
+            this.handleStartCheck(isNext);
+          }
+        }
+      })
+      .catch(err => {
+        if (err) {
+          const code = err.data ? err.data.code : err.code;
 
-  createCluster = () => {
-    const { form, dispatch, eid, onOK } = this.props;
-    const { dataSource } = this.state;
-    form.validateFields((err, fieldsValue) => {
-      if (!err) {
+          if (!code) {
+            if (isNext) {
+              this.setState({
+                activeKey: '2'
+              });
+            }
+            this.setState({
+              isCheck: false,
+              helpType: 'RKE',
+              helpError: 'RKE集群配置不合格、请重新配置'
+            });
+            return null;
+          }
+        }
+        this.handleCheck(false);
+        cloud.handleCloudAPIError(err);
+      });
+  };
+
+  updateCluster = () => {
+    const { dispatch, eid, clusterID, form } = this.props;
+    const { dataSource, yamlVal } = this.state;
+    if (dataSource && dataSource.length === 0) {
+      message.warning('请定义集群节点');
+    }
+    form.validateFields((error, values) => {
+      if (!error) {
         this.setState({ loading: true });
         dispatch({
-          type: 'cloud/createKubernetesCluster',
+          type: 'cloud/updateKubernetesCluster',
           payload: {
             enterprise_id: eid,
-            provider_name: 'rke',
-            nodes: dataSource,
-            ...fieldsValue
+            clusterID,
+            provider: 'rke',
+            encodedRKEConfig: this.encodeBase64Content(values.yamls || yamlVal)
           },
           callback: data => {
-            if (data && onOK) {
-              onOK(data);
-            }
+            this.handleOk(data && data.response_data);
           },
           handleError: res => {
-            if (res && res.data && res.data.code === 7005 && onOK) {
-              onOK(res.data.data);
-              return;
-            }
-            cloud.handleCloudAPIError(res);
-            this.setState({ loading: false });
+            this.handleError(res);
           }
         });
       }
     });
   };
 
+  createCluster = () => {
+    const { form, dispatch, eid, clusterID } = this.props;
+    if (clusterID) {
+      this.updateCluster();
+      return null;
+    }
+    form.validateFields((err, fieldsValue) => {
+      if (!err) {
+        this.setState({ loading: true });
+
+        dispatch({
+          type: 'cloud/createKubernetesCluster',
+          payload: {
+            enterprise_id: eid,
+            provider_name: 'rke',
+            encodedRKEConfig: this.encodeBase64Content(fieldsValue.yamls),
+            ...fieldsValue
+          },
+          callback: data => {
+            this.handleOk(data);
+          },
+          handleError: res => {
+            this.handleError(res);
+          }
+        });
+      }
+    });
+  };
+  handleOk = data => {
+    const { onOK } = this.props;
+    if (data && onOK) {
+      onOK(data || {});
+    }
+  };
+  handleError = res => {
+    const { onOK } = this.props;
+    if (res && res.data && res.data.code === 7005 && onOK) {
+      onOK(res.data.data);
+      return;
+    }
+    cloud.handleCloudAPIError(res);
+    this.setState({ loading: false });
+  };
   handleDelete = key => {
     const dataSource = [...this.state.dataSource];
     this.setState({ dataSource: dataSource.filter(item => item.key !== key) });
   };
+
   handleEnvGroup = (callback, handleError) => {
     if (this.clusters && this.clusters.form) {
-      this.clusters.form.validateFields(err => {
-        if (!err && callback) {
-          return callback();
+      this.clusters.form.validateFields(
+        {
+          force: true
+        },
+        err => {
+          if (!err && callback) {
+            return callback();
+          }
+          handleError();
         }
-      });
+      );
     } else if (handleError) {
       handleError();
     }
@@ -257,7 +440,7 @@ export default class RKEClusterConfig extends PureComponent {
   handleAdd = () => {
     const { count, dataSource } = this.state;
     const newData = {
-      key: count,
+      key: Math.random(),
       ip: '',
       internalIP: '',
       sshPort: 22,
@@ -285,6 +468,21 @@ export default class RKEClusterConfig extends PureComponent {
     });
     this.setState({ dataSource: newData });
   };
+  beforeUpload = (file, isMessage) => {
+    const fileArr = file.name.split('.');
+    const { length } = fileArr;
+    const isRightType =
+      fileArr[length - 1] === 'yaml' || fileArr[length - 1] === 'yml';
+    if (!isRightType) {
+      if (isMessage) {
+        notification.warning({
+          message: '请上传以.yaml、.yml结尾的 Region Config 文件'
+        });
+      }
+      return false;
+    }
+    return true;
+  };
   nodeRole = role => {
     switch (role) {
       case 'controlplane':
@@ -297,37 +495,89 @@ export default class RKEClusterConfig extends PureComponent {
         return '未知';
     }
   };
-  handleStartCheck = () => {
+  handleStartCheck = isNext => {
     let next = false;
-    this.props.form.validateFields(err => {
-      if (!err) {
-        next = true;
-      } else {
-        this.handleCheck(false);
-      }
-    });
-
     this.handleEnvGroup(
       () => {
-        if (next) {
-          this.handleCheck(true);
-        }
+        next = true;
       },
       () => {
+        this.handleActiveKey('1');
         this.handleCheck(false);
       }
     );
+
+    this.props.form.validateFields(err => {
+      if (next && err && err.yamls) {
+        this.handleActiveKey('2');
+        next = false;
+      }
+      if (err && err.yamls) {
+        this.setState({
+          isCheck: false,
+          helpType: 'RKE',
+          helpError: '填写RKE集群配置'
+        });
+      }
+      if (!err && next) {
+        this.handleCheck(next);
+      }
+    });
+    if (next && isNext) {
+      this.createCluster();
+    }
   };
   handleCheck = isCheck => {
     this.setState({
       isCheck
     });
   };
-
+  handleActiveKey = activeKey => {
+    this.setState({
+      activeKey
+    });
+  };
+  handleTabs = (key, isNext = false) => {
+    const { dataSource, yamlVal } = this.state;
+    const { form } = this.props;
+    const { getFieldValue } = form;
+    const info = {};
+    const yamls = getFieldValue('yamls') || yamlVal;
+    if (yamls || (dataSource && dataSource.length > 0)) {
+      if (key === '2') {
+        info.nodes = dataSource;
+        info.encodedRKEConfig = yamls && this.encodeBase64Content(yamls);
+      } else {
+        info.encodedRKEConfig = yamls && this.encodeBase64Content(yamls);
+      }
+    }
+    this.fetchRkeconfig(info, isNext);
+    if (!isNext) {
+      this.handleActiveKey(`${key}`);
+    }
+  };
   render() {
-    const { onCancel, form } = this.props;
-    const { getFieldDecorator } = form;
-    const { loading, dataSource, initNodeCmd, isCheck } = this.state;
+    const { onCancel, form, clusterID } = this.props;
+    const { getFieldDecorator, setFieldsValue } = form;
+    const {
+      helpType,
+      helpError,
+      loading,
+      dataSource,
+      initNodeCmd,
+      isCheck,
+      activeKey,
+      yamlVal
+    } = this.state;
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 3 }
+      },
+      wrapperCol: {
+        xs: { span: 24 }
+      }
+    };
+
     const components = {
       body: {
         row: EditableFormRow,
@@ -359,6 +609,8 @@ export default class RKEClusterConfig extends PureComponent {
         width: 160,
         editable: true,
         render: text =>
+          text &&
+          text.length > 0 &&
           text.map(item => <Tag color="blue">{this.nodeRole(item)}</Tag>)
       },
       {
@@ -386,35 +638,52 @@ export default class RKEClusterConfig extends PureComponent {
       }
       return {
         ...col,
-        onCell: record => ({
-          record,
-          editable: col.editable,
-          dataIndex: col.dataIndex,
-          title: col.title,
-          dataSource,
-          handleClustersMount: this.handleClustersMount,
-          handleSave: this.handleSave
-        })
+        onCell: record => {
+          return {
+            record,
+            helpType,
+            helpError,
+            index: record.key,
+            editable: col.editable,
+            dataIndex: col.dataIndex,
+            title: col.title,
+            dataSource,
+            handleClustersMount: this.handleClustersMount,
+            handleSave: this.handleSave
+          };
+        }
       };
     });
     return (
       <Modal
         visible
-        title="基于主机安装 Kubernetes 集群"
+        title={
+          clusterID ? '配置 Kubernetes 集群' : '基于主机安装 Kubernetes 集群'
+        }
         className={styles.TelescopicModal}
         width={900}
         destroyOnClose
         footer={
           <Popconfirm
-            title="确定已完成所有节点的初始化并开始安装集群吗?"
+            title={`确定已完成所有节点的初始化并开始
+            ${clusterID ? '配置' : '安装'}
+            集群吗?`}
             visible={isCheck}
-            onConfirm={this.createCluster}
+            onConfirm={() => {
+              this.handleTabs(activeKey === '1' ? '2' : '1', true);
+            }}
             onCancel={() => {
               this.handleCheck(false);
             }}
           >
-            <Button type="primary" onClick={this.handleStartCheck}>
-              开始安装
+            <Button
+              type="primary"
+              onClick={() => {
+                this.handleStartCheck();
+              }}
+              loading={loading}
+            >
+              {clusterID ? '更新集群' : '开始安装'}
             </Button>
           </Popconfirm>
         }
@@ -422,6 +691,12 @@ export default class RKEClusterConfig extends PureComponent {
         onCancel={onCancel}
         maskClosable={false}
       >
+        {clusterID && (
+          <Alert
+            type="warning"
+            message="集群节点配置特别是管理节点、ETCD节点配置具有一定风险，请选择合适的时间进行"
+          />
+        )}
         <Form>
           <Row>
             <Col span={24} style={{ padding: '16px' }}>
@@ -434,8 +709,8 @@ export default class RKEClusterConfig extends PureComponent {
                   </li>
                   <li>
                     <span>
-                      请确保提供的主机的 IP 地址的<b>SSH 端口</b>和
-                      <b>6443端口</b>
+                      请确保提供的主机{!clusterID && '的 IP 地址的'}
+                      <b>SSH 端口</b>和<b>6443端口</b>
                       都可以被当前网络直接访问。
                     </span>
                   </li>
@@ -447,8 +722,8 @@ export default class RKEClusterConfig extends PureComponent {
                   </li>
                   <li>
                     <span>
-                      如果你的主机已经安装 Docker，请确保不能大于 <b>19.03.x</b>{' '}
-                      和低于
+                      如果你的主机已经安装 Docker，请确保不能大于
+                      <b>19.03.x</b> 和低于
                       <b>1.13.x</b> 版本。
                     </span>
                   </li>
@@ -456,47 +731,87 @@ export default class RKEClusterConfig extends PureComponent {
               </Paragraph>
             </Col>
           </Row>
-          <Row>
-            <Col span={12} style={{ padding: '0 16px' }}>
-              <Form.Item label="集群名称">
-                {getFieldDecorator('name', {
-                  initialValue: '',
-                  rules: [
-                    { required: true, message: '集群名称必填' },
-                    {
-                      pattern: /^[a-z0-9A-Z-]+$/,
-                      message: '只支持字母、数字和中划线组合'
-                    },
-                    { max: 24, message: '最大长度24位' }
-                  ]
-                })(<Input placeholder="集群名称,请确保其保持唯一" />)}
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row>
-            <Col span={24} style={{ padding: '0 16px' }}>
-              <Form.Item label="节点列表">
-                {getFieldDecorator('nodeLists', {
-                  initialValue: ''
-                })(
-                  <Table
-                    dataSource={dataSource}
-                    columns={columnEdits}
-                    components={components}
-                    bordered
-                    rowClassName={() => 'editable-row'}
-                    pagination={false}
-                  />
-                )}
-              </Form.Item>
-              <Button onClick={this.handleAdd} style={{ marginBottom: 16 }}>
-                增加节点
-              </Button>
-            </Col>
-          </Row>
+          {!clusterID && (
+            <Row>
+              <Col span={12} style={{ padding: '0 16px' }}>
+                <Form.Item label="集群名称">
+                  {getFieldDecorator('name', {
+                    initialValue: '',
+                    rules: [
+                      { required: true, message: '集群名称必填' },
+                      {
+                        pattern: /^[a-z0-9A-Z-]+$/,
+                        message: '只支持字母、数字和中划线组合'
+                      },
+                      { max: 24, message: '最大长度24位' }
+                    ]
+                  })(<Input placeholder="集群名称,请确保其保持唯一" />)}
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
+
+          <Tabs
+            activeKey={activeKey}
+            onChange={key => {
+              this.handleTabs(key);
+            }}
+          >
+            <TabPane tab="可视化配置" key="1">
+              <div>
+                <Row>
+                  <Col span={24} style={{ padding: '0 16px' }}>
+                    <Form.Item label="节点列表">
+                      {getFieldDecorator('nodeLists', {
+                        initialValue: ''
+                      })(
+                        <Table
+                          dataSource={dataSource}
+                          columns={columnEdits}
+                          components={components}
+                          bordered
+                          rowClassName={() => 'editable-row'}
+                          pagination={false}
+                        />
+                      )}
+                    </Form.Item>
+                    <Button
+                      onClick={this.handleAdd}
+                      style={{ marginBottom: 16 }}
+                    >
+                      增加节点
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+            </TabPane>
+            <TabPane tab="自定义配置" key="2" />
+          </Tabs>
+
+          <div style={{ display: activeKey === '1' ? 'none' : 'block' }}>
+            {((clusterID && activeKey === '2') || !clusterID) && (
+              <CodeMirrorForm
+                help={helpError}
+                data={yamlVal || ''}
+                label="RKE集群配置"
+                bg="151718"
+                width="100%"
+                marginTop={120}
+                setFieldsValue={setFieldsValue}
+                formItemLayout={formItemLayout}
+                Form={Form}
+                getFieldDecorator={getFieldDecorator}
+                beforeUpload={this.beforeUpload}
+                mode="yaml"
+                name="yamls"
+                message="填写RKE集群配置"
+              />
+            )}
+          </div>
           <Row style={{ padding: '0 16px' }}>
             <span style={{ fontWeight: 600, color: 'red' }}>
-              请在开始安装前所有节点先执行以下初始化命令（执行用户需要具有sudo权限）：
+              请在开始{clusterID ? '配置前在新加' : '安装前所有'}
+              节点先执行以下初始化命令（执行用户需要具有sudo权限）：
             </span>
             <Col span={24} style={{ marginTop: '16px' }}>
               <span className={styles.cmd}>{initNodeCmd}</span>
