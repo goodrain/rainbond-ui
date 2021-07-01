@@ -497,15 +497,20 @@ export default class RKEClusterConfig extends PureComponent {
   };
   handleStartCheck = isNext => {
     let next = false;
-    this.handleEnvGroup(
-      () => {
-        next = true;
-      },
-      () => {
-        this.handleActiveKey('1');
-        this.handleCheck(false);
-      }
-    );
+    const { activeKey } = this.state;
+    if (activeKey === '1') {
+      this.handleEnvGroup(
+        () => {
+          next = true;
+        },
+        () => {
+          this.handleActiveKey('1');
+          this.handleCheck(false);
+        }
+      );
+    } else {
+      next = true;
+    }
 
     this.props.form.validateFields(err => {
       if (next && err && err.yamls) {
