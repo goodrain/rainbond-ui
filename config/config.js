@@ -5,12 +5,12 @@ let publcPath = '/static/dists/';
 if (process.env.SEPARATION === 'true') {
   publcPath = `/`;
 }
-const isHash = process.env.ROUTE_MODE === 'hash';
+const isHistory = process.env.ROUTE_MODE === 'history';
 
 export default {
-  history: isHash ? 'hash' : 'browser',
+  history: isHistory ? 'browser' : 'hash',
   publicPath: publcPath,
-  hash: isHash,
+  hash: !isHistory,
   plugins: [
     [
       'umi-plugin-react',
