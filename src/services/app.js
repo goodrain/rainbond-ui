@@ -145,7 +145,7 @@ export function getActionLogDetail(
 */
 export function deploy(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/market_service/upgrade`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/deploy`,
     {
       method: 'post',
       data: {
