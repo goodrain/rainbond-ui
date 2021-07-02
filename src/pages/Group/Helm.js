@@ -317,7 +317,7 @@ export default class Index extends PureComponent {
             },
             () => {
               if (res && res.values) {
-                this.handleTemplateFile(Object.keys(res.values)[0]);
+                this.handleTemplateFile(Object.keys(res.values).reverse()[0]);
               }
             }
           );
@@ -874,6 +874,9 @@ export default class Index extends PureComponent {
       });
       overrides = arr;
     }
+    const valueFiles = versionInfo.values
+      ? Object.keys(versionInfo.values).reverse()
+      : [];
     return (
       <Form labelAlign="left">
         <Collapse bordered={false} defaultActiveKey={['2']}>
@@ -998,7 +1001,7 @@ export default class Index extends PureComponent {
                     className={styles.clearStar}
                   >
                     {getFieldDecorator('templateFile', {
-                      initialValue: '',
+                      initialValue: valueFiles.length > 0 && valueFiles[0],
                       rules: [{ required: true, message: '请选择Values文件' }]
                     })(
                       <Select
@@ -1007,16 +1010,13 @@ export default class Index extends PureComponent {
                         onChange={this.handleTemplateFile}
                         disabled={upDataVersion || errPrompt || noVersion}
                       >
-                        {versionInfo.values &&
-                          Object.keys(versionInfo.values)
-                            .reverse()
-                            .map(key => {
-                              return (
-                                <Option key={key} value={key}>
-                                  {key}
-                                </Option>
-                              );
-                            })}
+                        {valueFiles.map(key => {
+                          return (
+                            <Option key={key} value={key}>
+                              {key}
+                            </Option>
+                          );
+                        })}
                       </Select>
                     )}
                   </FormItem>

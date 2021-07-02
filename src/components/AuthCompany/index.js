@@ -8,6 +8,7 @@
 /* eslint-disable no-unused-expressions */
 import {
   Alert,
+  Badge,
   Button,
   Card,
   Checkbox,
@@ -351,10 +352,15 @@ export default class Index extends PureComponent {
             />
             <TabPane
               tab={
-                <span className={PluginStyles.verticalCen}>
-                  {globalUtil.fetchSvg('HelmSvg')}
-                  Helm商店
-                </span>
+                <Badge count="Beta">
+                  <span
+                    className={PluginStyles.verticalCen}
+                    style={{ width: 100, display: 'block' }}
+                  >
+                    {globalUtil.fetchSvg('HelmSvg')}
+                    Helm商店
+                  </span>
+                </Badge>
               }
               key="helmStore"
             />
