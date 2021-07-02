@@ -46,13 +46,53 @@ const global = {
     cookie.remove('enterprise_edition', { domain: '' });
     cookie.remove('platform_url', { domain: '' });
   },
-  putClusterInfoLog(eid, clusters) {
+  putInstallClusterLog(enterpriseInfo, rainbondInfo, obj) {
+    if (
+      !enterpriseInfo ||
+      (enterpriseInfo && enterpriseInfo.disable_install_cluster_log)
+    ) {
+      return null;
+    }
+    const defaultOptions = {
+      credentials: 'same-origin',
+      url: 'https://log.rainbond.com/log',
+      method: 'post'
+    };
+    const stateMap = {
+      initial: 'start',
+      success: 'complete',
+      running: 'complete',
+      offline: 'failure'
+    };
+    const stepMap = {
+      custom: 'createK8s',
+      rke: 'createRainbond'
+    };
+    if (obj.status) {
+      obj.status = stateMap[obj.status] || obj.status;
+    }
+    if (obj.install_step) {
+      obj.install_step = stepMap[obj.install_step] || obj.install_step;
+    }
     try {
-      const defaultOptions = {
-        credentials: 'same-origin'
-      };
-      defaultOptions.url = 'https://log.rainbond.com/log';
-      defaultOptions.method = 'post';
+      defaultOptions.data = JSON.stringify({
+        e_name: rainbondInfo.enterprise_alias,
+        version: rainbondInfo.version && rainbondInfo.version.value,
+        ...obj
+      });
+      defaultOptions.data = JSON.parse(defaultOptions.data);
+      axios(defaultOptions);
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  putClusterInfoLog(eid, clusters) {
+    const defaultOptions = {
+      credentials: 'same-origin',
+      url: 'https://log.rainbond.com/log',
+      method: 'post'
+    };
+    try {
       defaultOptions.data = JSON.stringify({
         eid,
         cluster_sizes: clusters.length,
@@ -70,12 +110,12 @@ const global = {
     }
   },
   putRegistLog(info) {
+    const defaultOptions = {
+      credentials: 'same-origin',
+      url: 'https://log.rainbond.com/log',
+      method: 'post'
+    };
     try {
-      const defaultOptions = {
-        credentials: 'same-origin'
-      };
-      defaultOptions.url = 'https://log.rainbond.com/log';
-      defaultOptions.method = 'post';
       defaultOptions.data = JSON.stringify({
         eid: info.enterprise_id,
         e_name: info.enterprise_alias,
@@ -97,13 +137,13 @@ const global = {
     if (!info || (info && !info.enterprise_id)) {
       return null;
     }
+    const defaultOptions = {
+      credentials: 'same-origin',
+      url: 'https://log.rainbond.com/log',
+      method: 'post'
+    };
     try {
-      const defaultOptions = {
-        credentials: 'same-origin'
-      };
       const { title, version } = info;
-      defaultOptions.url = 'https://log.rainbond.com/log';
-      defaultOptions.method = 'post';
       defaultOptions.data = JSON.stringify({
         url: window.location.href,
         eid: info.enterprise_id,

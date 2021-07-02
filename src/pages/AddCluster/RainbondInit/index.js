@@ -93,7 +93,7 @@ export default class RainbondInit extends PureComponent {
   render() {
     const {
       match: {
-        params: { eid, provider, clusterID }
+        params: { eid, provider, clusterID, taskID }
       }
     } = this.props;
     return (
@@ -114,6 +114,7 @@ export default class RainbondInit extends PureComponent {
               eid={eid}
               completeInit={this.completeInit}
               selectProvider={provider}
+              taskID={taskID}
               clusterID={clusterID}
               preStep={this.preStep}
             />
