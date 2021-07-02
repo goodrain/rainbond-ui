@@ -122,7 +122,8 @@ const global = {
   },
   getCurrEnterpriseId() {
     const reg = /enterprise\/([^\/]+)/;
-    const hash = location.hash || '';
+    const hash = window.location.hash || window.location.pathname || '';
+
     const match = hash.match(reg);
     if (match) {
       return match[1];
@@ -131,7 +132,8 @@ const global = {
   },
   getCurrTeamName() {
     const reg = /team\/([^\/]+)/;
-    const hash = location.hash || '';
+    const hash = window.location.hash || window.location.pathname || '';
+
     const match = hash.match(reg);
     if (match) {
       return match[1];
@@ -140,7 +142,8 @@ const global = {
   },
   getComponentID() {
     const reg = /components\/([^\/]+)/;
-    const hash = location.hash || '';
+    const hash = window.location.hash || window.location.pathname || '';
+
     const match = hash.match(reg);
     if (match) {
       return match[1];
@@ -149,7 +152,7 @@ const global = {
   },
   getAppID(url) {
     const reg = /apps\/([^\/]+)/;
-    const hash = url || location.hash || '';
+    const hash = url || window.location.hash || window.location.pathname || '';
     const match = hash.match(reg);
     if (match) {
       return match[1];
@@ -158,7 +161,8 @@ const global = {
   },
   getCurrRegionName() {
     const reg = /region\/([^\/]+)/;
-    const hash = location.hash || '';
+    const hash = window.location.hash || window.location.pathname || '';
+
     const match = hash.match(reg);
     if (match) {
       return match[1];
