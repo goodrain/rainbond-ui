@@ -204,6 +204,7 @@ class EnvironmentVariable extends React.Component {
   onShowSizeChange = (page, page_size) => {
     this.setState(
       {
+        addVariable: false,
         page,
         page_size,
         editingID: ''
