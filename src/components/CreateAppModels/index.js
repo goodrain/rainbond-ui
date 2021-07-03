@@ -623,7 +623,7 @@ class CreateAppModels extends PureComponent {
                   </Select>
                 )}
               </Form.Item>
-              <FormItem {...formItemLayout} label="描述">
+              <FormItem {...formItemLayout} label="简介">
                 {getFieldDecorator('describe', {
                   initialValue: appInfo
                     ? appInfo.describe || appInfo.app_describe
@@ -631,12 +631,12 @@ class CreateAppModels extends PureComponent {
                   rules: [
                     {
                       required: false,
-                      message: '请输入描述'
+                      message: '请输入简介'
                     }
                   ]
-                })(<TextArea placeholder="请输入描述" />)}
+                })(<TextArea placeholder="请输入简介" />)}
                 <div className={styles.conformDesc}>
-                  请输入创建的应用模版描述
+                  请输入创建的应用模版简介
                 </div>
               </FormItem>
               <Form.Item {...formItemLayout} label="LOGO">
