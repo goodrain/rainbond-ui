@@ -525,11 +525,12 @@ export async function giveupShare(
   body = {
     team_name,
     share_id
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/giveup`,
-    { method: 'delete' }
+    { method: 'delete', handleError }
   );
 }
 
@@ -671,11 +672,12 @@ export async function completeShare(
     team_name,
     share_id,
     event_id
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/complete`,
-    { method: 'post' }
+    { method: 'post', handleError }
   );
 }
 
