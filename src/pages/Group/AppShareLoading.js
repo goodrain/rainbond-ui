@@ -174,12 +174,11 @@ class ShareEvent extends React.Component {
   };
 
   render() {
-    const { eventId, openedEventId, data, status } = this.state;
+    const { openedEventId, data, status } = this.state;
     const datas = data || {};
-    const isFailure = status && status === 'failure';
     const isSuccess = status && status === 'success';
     const isShowSocket = !isSuccess;
-    const isLogs = isFailure || !isSuccess;
+    const isLogs = !isSuccess && datas.event_id;
     return (
       <div>
         <List.Item>
@@ -202,16 +201,15 @@ class ShareEvent extends React.Component {
                       : `组件: ${datas.service_name}`}
                   </div>
                   <div>
-                    {isLogs &&
-                      datas.event_id && [
-                        <a
-                          onClick={() => {
-                            this.handleOpenedEventId(datas.event_id);
-                          }}
-                        >
-                          日志
-                        </a>
-                      ]}
+                    {isLogs && [
+                      <a
+                        onClick={() => {
+                          this.handleOpenedEventId(datas.event_id);
+                        }}
+                      >
+                        日志
+                      </a>
+                    ]}
                   </div>
                 </div>
               }
