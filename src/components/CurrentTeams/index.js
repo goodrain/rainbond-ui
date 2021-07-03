@@ -51,8 +51,12 @@ class currentTeams extends PureComponent {
     this.setState({ editRoleLoading: true });
     const { dispatch, eid, userInfo } = this.props;
     const { toEditAction } = this.state;
+    let type = 'user/editUserRoles';
+    if (toEditAction.roles && toEditAction.roles.length > 0) {
+      type = 'teamControl/editMember';
+    }
     dispatch({
-      type: 'user/editUserRoles',
+      type,
       payload: {
         enterprise_id: eid,
         team_name: toEditAction.team_name,
