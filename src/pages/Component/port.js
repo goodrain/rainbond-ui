@@ -634,6 +634,8 @@ export default class Index extends PureComponent {
     const isImageApp = appUtil.isImageApp(appDetail);
     const isDockerfile = appUtil.isDockerfile(appDetail);
     if (!this.canView()) return <NoPermTip />;
+    const isHelm =
+      appDetail.service && appDetail.service.component_type === 'helm';
 
     return (
       <Fragment>
@@ -648,17 +650,19 @@ export default class Index extends PureComponent {
               }}
             />
           </Col>
-          <Col
-            span={12}
-            style={{
-              textAlign: 'right'
-            }}
-          >
-            <Button onClick={this.showAddPort} type="primary">
-              <Icon type="plus" />
-              添加端口
-            </Button>
-          </Col>
+          {!isHelm && (
+            <Col
+              span={12}
+              style={{
+                textAlign: 'right'
+              }}
+            >
+              <Button onClick={this.showAddPort} type="primary">
+                <Icon type="plus" />
+                添加端口
+              </Button>
+            </Col>
+          )}
         </Row>
         {!ports.length ? (
           <Card>

@@ -5,7 +5,69 @@ import request from '../utils/request';
 
 export async function getServiceNameList(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices`
+  );
+}
+export async function CheckAppName(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/check-resource-name`,
+    {
+      method: 'post',
+      handleError,
+      data: {
+        name: params.app_name,
+        type: 'helmApp',
+        region_name: params.regionName
+      }
+    }
+  );
+}
+
+export async function getAssociatedComponents(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/components`,
+    {
+      method: 'get',
+      params: {
+        service_name: params.service_name
+      }
+    }
+  );
+}
+export async function getHelmComponents(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/helmapp-components`,
+    {
+      method: 'get'
+    }
+  );
+}
+
+export async function getAppAccess(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/visit`,
+    {
+      method: 'get'
+    }
+  );
+}
+export async function createAppBatchComponents(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.groupId}/batch-components`,
+    {
+      method: 'post',
+      data: params.data
+    }
+  );
+}
+
+export async function CheckHelmApp(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/detect-process`,
+    {
+      method: 'get',
+      params: body
+    }
   );
 }
 export async function Toupgrade(params) {
@@ -18,7 +80,7 @@ export async function Toupgrade(params) {
 }
 export async function CheckK8sServiceName(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/checkK8sServiceName `,
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/checkK8sServiceName`,
     {
       method: 'post',
       data: {
@@ -30,7 +92,7 @@ export async function CheckK8sServiceName(params) {
 
 export async function SetCheckK8sServiceName(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `,
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices`,
     {
       method: 'put',
       data: params.arr
@@ -39,7 +101,7 @@ export async function SetCheckK8sServiceName(params) {
 }
 export async function setGovernancemode(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/governancemode `,
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/governancemode`,
     {
       method: 'put',
       data: {
@@ -181,6 +243,15 @@ export async function getGroupDetail(body = {}, handleError) {
   );
 }
 
+export async function getHelmAppStoresVersions(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.appStoreName}/templates/${body.templateName}/versions/${body.version}`,
+    {
+      handleError
+    }
+  );
+}
+
 export async function getUpgradeComponentList(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps/${body.upgrade_group_id}/components`,
@@ -308,6 +379,16 @@ export async function addGroup(body = {}) {
         note: body.note
       },
       noModels: body.noModels
+    }
+  );
+}
+
+export async function getServices(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/services`,
+    {
+      method: 'get',
+      handleError
     }
   );
 }
@@ -444,11 +525,12 @@ export async function giveupShare(
   body = {
     team_name,
     share_id
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/giveup`,
-    { method: 'delete' }
+    { method: 'delete', handleError }
   );
 }
 
@@ -590,11 +672,69 @@ export async function completeShare(
     team_name,
     share_id,
     event_id
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/complete`,
-    { method: 'post' }
+    { method: 'post', handleError }
+  );
+}
+
+export async function InstallHelmApp(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/install`,
+    {
+      method: 'post',
+      data: {
+        overrides: body.overrides,
+        values: body.values
+      },
+      handleError
+    }
+  );
+}
+
+export async function parseChart(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/parse-helm-app`,
+    {
+      method: 'post',
+      data: {
+        version: body.version
+      }
+    }
+  );
+}
+
+export async function EditHelmApp(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`,
+    {
+      method: 'put',
+      data: {
+        username: body.username,
+        app_name: body.app_name,
+        app_note: body.app_note,
+        overrides: body.overrides,
+        values: body.values,
+        version: body.version,
+        revision: body.revision
+      }
+    }
+  );
+}
+
+export async function AddAssociatedComponents(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/components`,
+    {
+      method: 'post',
+      data: {
+        service_name: body.service_name,
+        port: body.port
+      }
+    }
   );
 }
 

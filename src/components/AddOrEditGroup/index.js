@@ -81,6 +81,7 @@ export default class EditGroupName extends PureComponent {
       form,
       group_name: groupName,
       note,
+      isNoEditName = false,
       loading = false
     } = this.props;
     const { getFieldDecorator } = form;
@@ -115,7 +116,7 @@ export default class EditGroupName extends PureComponent {
                   message: '最大长度24位'
                 }
               ]
-            })(<Input placeholder="请填写应用名称" />)}
+            })(<Input disabled={isNoEditName} placeholder="请填写应用名称" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="应用备注">
             {getFieldDecorator('note', {

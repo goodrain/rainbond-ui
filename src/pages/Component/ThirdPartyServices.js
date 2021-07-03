@@ -232,7 +232,6 @@ export default class Index extends PureComponent {
         span: 19
       }
     };
-
     const columns = [
       {
         title: '实例地址',
@@ -261,8 +260,12 @@ export default class Index extends PureComponent {
             </span>
           );
         }
-      },
-      {
+      }
+    ];
+    const isHelm =
+      appDetail.service && appDetail.service.component_type === 'helm';
+    if (!isHelm) {
+      columns.push({
         title: '操作',
         dataIndex: 'ep_id',
         key: '3',
@@ -282,29 +285,28 @@ export default class Index extends PureComponent {
             )}
           </div>
         )
-      }
-    ];
-
-    let num = 0;
-    if (
-      appDetail &&
-      appDetail.register_way &&
-      appDetail.register_way === 'static' &&
-      appDetail.service &&
-      appDetail.service.service_source &&
-      appDetail.service.service_source === 'third_party' &&
-      list &&
-      list.length > 0
-    ) {
-      list.map(item => {
-        if (
-          !rege.test(item.address) &&
-          (regs.test(item.address) || rega.test(item.address))
-        ) {
-          num++;
-        }
       });
     }
+    // let num = 0;
+    // if (
+    //   appDetail &&
+    //   appDetail.register_way &&
+    //   appDetail.register_way === 'static' &&
+    //   appDetail.service &&
+    //   appDetail.service.service_source &&
+    //   appDetail.service.service_source === 'third_party' &&
+    //   list &&
+    //   list.length > 0
+    // ) {
+    //   list.map(item => {
+    //     if (
+    //       !rege.test(item.address) &&
+    //       (regs.test(item.address) || rega.test(item.address))
+    //     ) {
+    //       num++;
+    //     }
+    //   });
+    // }
     const secret_key =
       api_service_key ||
       (appDetail.api_service_key ? appDetail.api_service_key : '');
@@ -351,35 +353,40 @@ export default class Index extends PureComponent {
             <Card
               title="服务实例"
               extra={
-                <div>
-                  <Button
-                    style={{ marginRight: '5px' }}
-                    onClick={() => {
-                      this.addInstance();
-                    }}
-                  >
-                    新增
-                  </Button>
+                isHelm ? null : (
+                  <div>
+                    {appDetail.register_way !== 'kubernetes' && (
+                      <Button
+                        style={{ marginRight: '5px' }}
+                        onClick={() => {
+                          this.addInstance();
+                        }}
+                      >
+                        新增
+                      </Button>
+                    )}
 
-                  <Button
-                    onClick={() => {
-                      this.handleGetList();
-                    }}
-                  >
-                    刷新
-                  </Button>
-                </div>
+                    <Button
+                      onClick={() => {
+                        this.handleGetList();
+                      }}
+                    >
+                      刷新
+                    </Button>
+                  </div>
+                )
               }
             >
               <Row>
                 <Col span={12}>
                   <p>
-                    注册方式：{' '}
+                    <b style={{ marginRight: 16 }}>注册方式:</b>
                     {appDetail.register_way ? appDetail.register_way : ''}
                   </p>
                   {appDetail.api_url && (
                     <p>
-                      API地址： {appDetail.api_url ? appDetail.api_url : ''}
+                      <b style={{ marginRight: 16 }}>API地址:</b>
+                      {appDetail.api_url ? appDetail.api_url : ''}
                       <div style={{ margin: '5px 0' }}>
                         <span>
                           秘钥： <a>{secret_key}</a>
@@ -406,13 +413,29 @@ export default class Index extends PureComponent {
                     </p>
                   )}
                   {endpoint_num && (
-                    <p>当前实例数: {endpoint_num > 0 ? endpoint_num : ''}</p>
+                    <p>
+                      <b style={{ marginRight: 16 }}>当前实例数:</b>
+                      {endpoint_num > 0 ? endpoint_num : ''}
+                    </p>
+                  )}
+                  {appDetail.endpoints_type === 'kubernetes' && (
+                    <p>
+                      <b style={{ marginRight: 16 }}>Service:</b>
+                      {appDetail.kubernetes.namespace}/
+                      {appDetail.kubernetes.serviceName}
+                    </p>
                   )}
                   {appDetail.discovery_type && (
-                    <p>动态类型: {appDetail.discovery_type}</p>
+                    <p>
+                      <b style={{ marginRight: 16 }}>动态类型:</b>
+                      {appDetail.discovery_type}
+                    </p>
                   )}
                   {appDetail.discovery_key && (
-                    <p>动态key: {appDetail.discovery_key}</p>
+                    <p>
+                      <b style={{ marginRight: 16 }}>动态key:</b>
+                      {appDetail.discovery_key}
+                    </p>
                   )}
                 </Col>
                 {appDetail.api_url && (

@@ -1,21 +1,9 @@
-import React, { PureComponent } from 'react';
-import {
-  Button,
-  Icon,
-  Modal,
-  Form,
-  message,
-  Tooltip,
-  Card,
-  Row,
-  Col,
-  Table,
-} from 'antd';
+import { Col, Form, message, Modal, Row, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
-import dateUtil from '../../../../utils/date-util';
-import styles from '../../Index.less';
 import moment from 'moment';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
+import styles from '../../Index.less';
 
 @connect()
 @Form.create()
@@ -24,46 +12,86 @@ class Index extends PureComponent {
     super(props);
     this.state = {
       visible: false,
-      instanceInfo: null,
+      instanceInfo: null
     };
   }
   componentDidMount() {}
 
-  showModal = pod_name => {
-    this.props.dispatch({
+  showModal = podName => {
+    const { isHelm = false } = this.props;
+    if (isHelm) {
+      this.fetchHelmInstanceDetails(podName);
+    } else {
+      this.fetchInstanceDetails(podName);
+    }
+  };
+  fetchHelmInstanceDetails = podName => {
+    const { dispatch, appAlias } = this.props;
+    dispatch({
+      type: 'appControl/fetchHelmInstanceDetails',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appAlias,
+        pod_name: podName
+      },
+      callback: res => {
+        console.log('fetchHelmInstanceDetails', res.bean);
+        if (res) {
+          const isVisible = JSON.stringify(res.bean) === '{}';
+          console.log('isVisible', isVisible);
+
+          this.setState({
+            instanceInfo: res.bean,
+            visible: !isVisible
+          });
+          message.destroy();
+          if (isVisible) {
+            message.warning('暂无实例详情');
+          }
+        }
+      }
+    });
+  };
+  fetchInstanceDetails = podName => {
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/fetchInstanceDetails',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        pod_name,
+        app_alias: appAlias,
+        pod_name: podName
       },
       callback: res => {
         if (res) {
+          const isVisible = JSON.stringify(res.bean) === '{}';
           this.setState({
             instanceInfo: res.bean,
-            visible: JSON.stringify(res.bean) !== '{}',
+            visible: !isVisible
           });
           message.destroy();
-          JSON.stringify(res.bean) === '{}' && message.warning('暂无实例详情');
+          if (isVisible) {
+            message.warning('暂无实例详情');
+          }
         }
-      },
+      }
     });
   };
-
   handleOk = () => {
     this.setState({
-      visible: false,
+      visible: false
     });
   };
 
   handleCancel = () => {
     this.setState({
-      visible: false,
+      visible: false
     });
   };
   handleMore = () => {
     const { handleMore } = this.props;
-    handleMore && handleMore(false);
+    if (handleMore) {
+      handleMore(false);
+    }
   };
 
   containerState = state => {
@@ -88,7 +116,7 @@ class Index extends PureComponent {
           {list &&
             list.length > 0 &&
             list.map(item => {
-              const { pod_status, pod_name } = item;
+              const { pod_status: podStatus, pod_name: podName } = item;
               return (
                 <Col
                   xs={wd}
@@ -96,22 +124,22 @@ class Index extends PureComponent {
                   md={wd}
                   lg={wd}
                   xl={wd}
-                  key={pod_name}
+                  key={podName}
                   className={styles.boxImg}
                 >
                   <Tooltip title="点击查看详情">
                     <div
                       className={styles.nodeBox}
                       onClick={() => {
-                        this.showModal(pod_name);
+                        this.showModal(podName);
                       }}
                       style={{
                         cursor: 'pointer',
-                        background: globalUtil.fetchStateColor(pod_status),
+                        background: globalUtil.fetchStateColor(podStatus)
                       }}
                     />
                   </Tooltip>
-                  <p>{globalUtil.fetchStateText(pod_status)}</p>
+                  <p>{globalUtil.fetchStateText(podStatus)}</p>
                 </Col>
               );
             })}
@@ -120,20 +148,15 @@ class Index extends PureComponent {
     );
   };
   render() {
-    const { new_pods, old_pods, status, runLoading } = this.props;
-    const { instanceInfo } = this.state;
+    const { new_pods: newPods, old_pods: oldPods } = this.props;
+    const { instanceInfo, visible } = this.state;
+    const isOldPods = oldPods && oldPods.length > 0;
     return (
-      <Card
-        bordered={0}
-        loading={runLoading}
-        title="运行实例"
-        style={{ margin: '20px 0', minHeight: '170px' }}
-        bodyStyle={{ padding: '0', background: '#F0F2F5' }}
-      >
+      <div>
         <Modal
           title={instanceInfo && instanceInfo.name}
           width="1000px"
-          visible={this.state.visible}
+          visible={visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}
           bodyStyle={{ height: '500px', overflow: 'auto' }}
@@ -147,7 +170,7 @@ class Index extends PureComponent {
                     <li>
                       <span>所在节点:</span>
                       <Tooltip title={instanceInfo.node_ip}>
-                        <span>{instanceInfo.node_ip || ''}</span>
+                        <span>{instanceInfo.node_ip || '-'}</span>
                       </Tooltip>
                     </li>
                     <li>
@@ -162,7 +185,7 @@ class Index extends PureComponent {
                     <li>
                       <span>实例IP地址:</span>
                       <Tooltip title={instanceInfo.ip}>
-                        <span>{instanceInfo.ip}</span>
+                        <span>{instanceInfo.ip || '-'}</span>
                       </Tooltip>
                     </li>
 
@@ -176,7 +199,7 @@ class Index extends PureComponent {
                         style={{
                           color: globalUtil.fetchStateColor(
                             instanceInfo.status.type_str
-                          ),
+                          )
                         }}
                       >
                         {globalUtil.fetchStateText(
@@ -226,7 +249,7 @@ class Index extends PureComponent {
                     style={{
                       padding: '10px',
                       color: 'rgba(0, 0, 0, 0.85)',
-                      fontSize: '14px',
+                      fontSize: '14px'
                     }}
                   >
                     实例中的容器
@@ -245,20 +268,20 @@ class Index extends PureComponent {
                           <Tooltip title={image}>
                             <span className={styles.wordText}>{image}</span>
                           </Tooltip>
-                        ),
+                        )
                       },
                       {
                         title: '内存',
                         dataIndex: 'limit_memory',
                         key: 'limit_memory',
                         width: '10%',
-                        render: limit_memory => (
-                          <Tooltip title={limit_memory}>
+                        render: limitMemory => (
+                          <Tooltip title={limitMemory}>
                             <span className={styles.wordText}>
-                              {limit_memory}
+                              {limitMemory || '-'}
                             </span>
                           </Tooltip>
-                        ),
+                        )
                       },
                       {
                         title: 'CPU',
@@ -266,10 +289,8 @@ class Index extends PureComponent {
                         key: 'request_cpu',
                         width: '10%',
                         render: val => (
-                          <span className={styles.wordText}>
-                            {val || ''}
-                          </span>
-                        ),
+                          <span className={styles.wordText}>{val || '-'}</span>
+                        )
                       },
                       {
                         title: '创建时间',
@@ -279,19 +300,20 @@ class Index extends PureComponent {
                         render: started =>
                           moment(started)
                             .locale('zh-cn')
-                            .format('YYYY-MM-DD HH:mm:ss'),
+                            .format('YYYY-MM-DD HH:mm:ss')
                       },
                       {
                         title: '状态',
                         dataIndex: 'state',
                         key: 'state',
+                        align: 'center',
                         width: '10%',
 
                         render: state => (
                           <span className={styles.wordText}>
-                            {this.containerState(state)}
+                            {(state && this.containerState(state)) || '-'}
                           </span>
-                        ),
+                        )
                       },
                       {
                         title: '说明',
@@ -300,15 +322,15 @@ class Index extends PureComponent {
                         width: '10%',
                         render: reason => (
                           <span className={styles.wordText}>
-                            {reason || ''}
+                            {reason || '-'}
                           </span>
-                        ),
-                      },
+                        )
+                      }
                     ]}
                     pagination={{
                       hideOnSinglePage: true,
                       pageSize: 999,
-                      current: 1,
+                      current: 1
                     }}
                   />
                 </div>
@@ -320,7 +342,7 @@ class Index extends PureComponent {
                     style={{
                       padding: '10px',
                       color: 'rgba(0, 0, 0, 0.85)',
-                      fontSize: '14px',
+                      fontSize: '14px'
                     }}
                   >
                     事件
@@ -336,7 +358,7 @@ class Index extends PureComponent {
                         width: '10%',
                         render: type => (
                           <span className={styles.wordText}>{type}</span>
-                        ),
+                        )
                       },
                       {
                         title: '原因',
@@ -347,7 +369,7 @@ class Index extends PureComponent {
                           <Tooltip title={reason}>
                             <span className={styles.wordText}>{reason}</span>
                           </Tooltip>
-                        ),
+                        )
                       },
                       {
                         title: '时间',
@@ -356,24 +378,24 @@ class Index extends PureComponent {
                         width: '25%',
                         render: age => (
                           <span className={styles.wordText}>{age}</span>
-                        ),
+                        )
                       },
                       {
                         title: '说明',
                         dataIndex: 'message',
                         key: 'message',
                         width: '50%',
-                        render: message => (
-                          <Tooltip title={message}>
-                            <span className={styles.wordText}>{message}</span>
+                        render: messages => (
+                          <Tooltip title={messages}>
+                            <span className={styles.wordText}>{messages}</span>
                           </Tooltip>
-                        ),
-                      },
+                        )
+                      }
                     ]}
                     pagination={{
                       hideOnSinglePage: true,
                       pageSize: 999,
-                      current: 1,
+                      current: 1
                     }}
                   />
                 </div>
@@ -384,12 +406,12 @@ class Index extends PureComponent {
         <Row
           gutter={24}
           style={{
-            margin: old_pods && old_pods.length > 0 ? '10px 0' : '0',
-            borderTop:
-              old_pods && old_pods.length > 0 ? 'none' : '1px solid #e8e8e8',
+            margin: isOldPods ? '10px 0' : '0'
+            // borderTop:
+            //   old_pods && old_pods.length > 0 ? 'none' : '1px solid #e8e8e8'
           }}
         >
-          {old_pods && old_pods.length > 0 && (
+          {isOldPods && (
             <Col
               xs={10}
               xm={10}
@@ -398,12 +420,12 @@ class Index extends PureComponent {
               xl={10}
               style={{ background: '#fff', padding: '15px 0' }}
             >
-              {old_pods &&
-                this.schedulingBox(old_pods, old_pods && old_pods.length)}
+              {oldPods &&
+                this.schedulingBox(oldPods, oldPods && oldPods.length)}
             </Col>
           )}
 
-          {old_pods && old_pods.length > 0 && (
+          {isOldPods && (
             <Col xs={4} xm={4} md={4} lg={4} xl={4}>
               <div>
                 <p style={{ marginTop: '40px', textAlign: 'center' }}>
@@ -414,29 +436,28 @@ class Index extends PureComponent {
           )}
 
           <Col
-            xs={old_pods && old_pods.length > 0 ? 10 : 24}
-            xm={old_pods && old_pods.length > 0 ? 10 : 24}
-            md={old_pods && old_pods.length > 0 ? 10 : 24}
-            lg={old_pods && old_pods.length > 0 ? 10 : 24}
-            xl={old_pods && old_pods.length > 0 ? 10 : 24}
+            xs={isOldPods ? 10 : 24}
+            xm={isOldPods ? 10 : 24}
+            md={isOldPods ? 10 : 24}
+            lg={isOldPods ? 10 : 24}
+            xl={isOldPods ? 10 : 24}
             style={{ background: '#fff', padding: '15px 0' }}
           >
-            {new_pods &&
-              this.schedulingBox(new_pods, old_pods && old_pods.length)}
+            {newPods && this.schedulingBox(newPods, oldPods && oldPods.length)}
           </Col>
         </Row>
-        {!new_pods && !old_pods && (
+        {!newPods && !oldPods && (
           <div
             style={{
               background: '#fff',
               paddingBottom: '30px',
-              textAlign: 'center',
+              textAlign: 'center'
             }}
           >
             暂无运行实例
           </div>
         )}
-      </Card>
+      </div>
     );
   }
 }

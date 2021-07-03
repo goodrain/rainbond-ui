@@ -1,12 +1,13 @@
 import {
+  buildApp,
   createAppByCode,
-  createThirtAppByCodes,
-  createThirdPartyServices,
   createAppByCompose,
   createAppByDockerrun,
-  buildApp,
+  createThirdPartyServices,
+  createThirtAppByCodes,
+  getAppsByComposeId,
   installApp,
-  getAppsByComposeId
+  installHelmApp
 } from '../services/createApp';
 
 export default {
@@ -28,6 +29,12 @@ export default {
     },
     *installApp({ payload, callback }, { call }) {
       const data = yield call(installApp, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *installHelmApp({ payload, callback }, { call }) {
+      const data = yield call(installHelmApp, payload);
       if (data && callback) {
         callback(data);
       }

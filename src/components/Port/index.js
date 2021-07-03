@@ -1,6 +1,8 @@
-/* eslint-disable react/sort-comp */
-/* eslint-disable no-unused-expressions */
+/* eslint-disable react/jsx-no-target-blank */
+/* eslint-disable no-script-url */
 /* eslint-disable react/no-multi-comp */
+/* eslint-disable eqeqeq */
+/* eslint-disable no-unused-expressions */
 import {
   Button,
   Form,
@@ -102,6 +104,9 @@ export default class Index extends PureComponent {
       list: []
     };
   }
+  componentDidMount() {
+    this.handleGetList();
+  }
   onSubmitProtocol = protocol => {
     this.props.onSubmitProtocol &&
       this.props.onSubmitProtocol(
@@ -189,9 +194,6 @@ export default class Index extends PureComponent {
     });
   };
 
-  componentDidMount() {
-    this.handleGetList();
-  }
   handleGetList = () => {
     const { appDetail, dispatch } = this.props;
     if (
@@ -225,7 +227,6 @@ export default class Index extends PureComponent {
       <Table
         rowKey={this.rowKey}
         className={styles.tdPadding}
-        bordered
         columns={[
           {
             title: '变量名',
@@ -253,7 +254,7 @@ export default class Index extends PureComponent {
     );
   };
   render() {
-    const { port, currUser } = this.props;
+    const { port, currUser, appDetail } = this.props;
     const outerUrl = appPortUtil.getOuterUrl(port);
     const innerUrl = appPortUtil.getInnerUrl(port);
     const showAlias = appPortUtil.getShowAlias(port);
@@ -262,26 +263,29 @@ export default class Index extends PureComponent {
     let { showDomain } = this.props;
     const DomainText = this.domainsText(domains);
     const { agreement } = this.state;
+    const isHelm =
+      appDetail.service && appDetail.service.component_type === 'helm';
+
     // 是否显示对外访问地址,创建过程中不显示
     const showOuterUrl =
       this.props.showOuterUrl === void 0 ? true : this.props.showOuterUrl;
     showDomain = showDomain === void 0 ? true : showDomain;
-    let num = 0;
-    const { list } = this.state;
-    const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
-    const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
-    const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+    // const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
+    // const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
+    // const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 
-    if (list && list.length > 0) {
-      list.map(item => {
-        if (
-          !rege.test(item.address) &&
-          (regs.test(item.address || '') || rega.test(item.address || ''))
-        ) {
-          num++;
-        }
-      });
-    }
+    // const { list } = this.state;
+    // let num = 0;
+    // if (list && list.length > 0) {
+    //   list.map(item => {
+    //     if (
+    //       !rege.test(item.address) &&
+    //       (regs.test(item.address || '') || rega.test(item.address || ''))
+    //     ) {
+    //       num++;
+    //     }
+    //   });
+    // }
 
     const { teams } = currUser;
     const teamName = globalUtil.getCurrTeamName();
@@ -601,9 +605,11 @@ export default class Index extends PureComponent {
             )}
             <td>
               <p>
-                <Button onClick={this.handleDelete} size="small">
-                  删除
-                </Button>
+                {!isHelm && (
+                  <Button onClick={this.handleDelete} size="small">
+                    删除
+                  </Button>
+                )}
               </p>
             </td>
           </tr>

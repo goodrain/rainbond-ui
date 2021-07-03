@@ -2172,6 +2172,16 @@ export async function fetchInstanceDetails(
     }
   );
 }
+
+export async function fetchHelmInstanceDetails(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_alias}/pods/${body.pod_name}`,
+    {
+      method: 'get'
+    }
+  );
+}
+
 /*
 	获取操作日志
 */

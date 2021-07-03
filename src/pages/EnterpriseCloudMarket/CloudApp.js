@@ -199,7 +199,7 @@ export default class CloudApp extends PureComponent {
   handleClose = () => {
     const { dispatch, eid } = this.props;
 
-    dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
+    dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
   };
 
   render() {

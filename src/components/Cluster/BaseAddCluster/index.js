@@ -2,12 +2,16 @@
 import { Col, Form, Input, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import globalUtil from '../../../utils/global';
 import CodeMirrorForm from '../../CodeMirrorForm';
 import styles from '../../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 
-@connect()
+@connect(({ global }) => ({
+  rainbondInfo: global.rainbondInfo,
+  enterprise: global.enterprise
+}))
 class EditClusterInfo extends PureComponent {
   handleSubmit = () => {
     const { form } = this.props;
@@ -57,8 +61,7 @@ class EditClusterInfo extends PureComponent {
   };
 
   createClusters = values => {
-    const { onOk } = this.props;
-    const { dispatch, eid } = this.props;
+    const { onOk, dispatch, eid, rainbondInfo, enterprise } = this.props;
     dispatch({
       type: 'region/createEnterpriseCluster',
       payload: {
@@ -71,6 +74,13 @@ class EditClusterInfo extends PureComponent {
       callback: res => {
         if (res && res._condition === 200) {
           notification.success({ message: '添加成功' });
+          globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
+            eid,
+            status: 'complete',
+            install_step: 'directly',
+            provider: 'directly'
+          });
+
           if (onOk) {
             onOk();
           }

@@ -3,7 +3,7 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
-import { Button, notification } from 'antd';
+import { Button, Card, notification } from 'antd';
 import { connect } from 'dva';
 import PropTypes from 'prop-types';
 import React, { Fragment, PureComponent } from 'react';
@@ -779,14 +779,22 @@ export default class Index extends PureComponent {
           />
         )}
         {!more && (
-          <Instance
-            status={status}
-            runLoading={runLoading}
-            new_pods={new_pods}
-            old_pods={old_pods}
-            appAlias={this.props.appAlias}
-            socket={socket && socket}
-          />
+          <Card
+            bordered={0}
+            loading={runLoading}
+            title="运行实例"
+            style={{ margin: '20px 0', minHeight: '170px' }}
+            bodyStyle={{ padding: '0', background: '#F0F2F5' }}
+          >
+            <Instance
+              status={status}
+              runLoading={runLoading}
+              new_pods={new_pods}
+              old_pods={old_pods}
+              appAlias={this.props.appAlias}
+              socket={socket && socket}
+            />
+          </Card>
         )}
         {!more && (
           <OperationRecord

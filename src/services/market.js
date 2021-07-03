@@ -66,6 +66,22 @@ export async function fetchMarketsTab(param) {
     }
   );
 }
+export async function fetchHelmMarketsTab(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${param.enterprise_id}/appstores`,
+    {
+      method: 'get'
+    }
+  );
+}
+export async function fetchHelmMarkets(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/helm/${param.repo_name}/apps`,
+    {
+      method: 'get'
+    }
+  );
+}
 export async function fetchOrganizations(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/cloud/markets/${param.market_id}/organizations`,
@@ -164,6 +180,14 @@ export async function deleteAppMarket(body) {
   );
 }
 
+export async function deleteHelmAppStore(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.name}`,
+    {
+      method: 'DELETE'
+    }
+  );
+}
 /* up  App  Market */
 export async function upAppMarket(body) {
   return request(
@@ -174,6 +198,29 @@ export async function upAppMarket(body) {
     }
   );
 }
+
+export async function upHelmAppStore(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.name}`,
+    {
+      method: 'PUT',
+      data: body
+    }
+  );
+}
+export async function CheckWarehouseAppName(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.name}`,
+    {
+      method: 'get',
+      handleError,
+      params: {
+        name: body.name
+      }
+    }
+  );
+}
+
 /* get  App  Market Info */
 export async function getAppMarketInfo(body) {
   return request(
@@ -206,6 +253,28 @@ export async function getBindingMarketsList(body, handleError) {
     }
   );
 }
+export async function getHelmAppStore(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.name}/apps`,
+    {
+      method: 'get',
+      handleError,
+      params: body
+    }
+  );
+}
+
+export async function postHelmAppStore(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores`,
+    {
+      method: 'post',
+      data: body,
+      handleError
+    }
+  );
+}
+
 /* create  App  Market */
 export async function createAppMarket(body) {
   return request(

@@ -1,11 +1,11 @@
-import React, { PureComponent, createElement } from 'react';
-import PropTypes from 'prop-types';
-import { routerRedux } from 'dva/router';
-import { connect } from 'dva';
-
-import pathToRegexp from 'path-to-regexp';
-import { Breadcrumb, Tabs, Icon } from 'antd';
+/* eslint-disable no-nested-ternary */
+import globalUtil from '@/utils/global';
+import { Breadcrumb, Icon, Tabs } from 'antd';
 import classNames from 'classnames';
+import { connect } from 'dva';
+import pathToRegexp from 'path-to-regexp';
+import PropTypes from 'prop-types';
+import React, { createElement, PureComponent } from 'react';
 import styles from './index.less';
 
 const { TabPane } = Tabs;
@@ -25,7 +25,7 @@ export default class PageHeader extends PureComponent {
     routes: PropTypes.array,
     params: PropTypes.object,
     location: PropTypes.object,
-    breadcrumbNameMap: PropTypes.object,
+    breadcrumbNameMap: PropTypes.object
   };
   onChange = key => {
     if (this.props.onTabChange) {
@@ -38,7 +38,7 @@ export default class PageHeader extends PureComponent {
       params: this.props.params || this.context.params,
       routerLocation: this.props.location || this.context.location,
       breadcrumbNameMap:
-        this.props.breadcrumbNameMap || this.context.breadcrumbNameMap || {},
+        this.props.breadcrumbNameMap || this.context.breadcrumbNameMap || {}
     };
   };
   // Generated according to props
@@ -57,7 +57,7 @@ export default class PageHeader extends PureComponent {
               ? createElement(
                   linkElement,
                   {
-                    [linkElement === 'a' ? 'href' : 'to']: item.href,
+                    [linkElement === 'a' ? 'href' : 'to']: item.href
                   },
                   item.title
                 )
@@ -83,7 +83,7 @@ export default class PageHeader extends PureComponent {
           {createElement(
             isLinkable ? linkElement : 'span',
             {
-              [linkElement === 'a' ? 'href' : 'to']: url,
+              [linkElement === 'a' ? 'href' : 'to']: url
             },
             currentBreadcrumb.name
           )}
@@ -106,7 +106,7 @@ export default class PageHeader extends PureComponent {
       routes,
       params,
       routerLocation,
-      breadcrumbNameMap,
+      breadcrumbNameMap
     } = this.getBreadcrumbProps();
 
     if (breadcrumbList && breadcrumbList.length) {
@@ -141,7 +141,7 @@ export default class PageHeader extends PureComponent {
         linkElement,
         {
           href: paths.join('/') || '/',
-          to: paths.join('/') || '/',
+          to: paths.join('/') || '/'
         },
         route.breadcrumbName
       )
@@ -158,7 +158,7 @@ export default class PageHeader extends PureComponent {
       tabList,
       className,
       tabActiveKey,
-      dispatch,
+      isSvg
     } = this.props;
     const clsString = classNames(styles.pageHeader, className);
     // const { teamName, regionName } = this.props.match.params;
@@ -168,43 +168,61 @@ export default class PageHeader extends PureComponent {
     }
     const breadcrumb = this.conversionBreadcrumbList();
     const activeKeyProps = {
-      defaultActiveKey: tabDefaultValue && tabDefaultValue.key,
+      defaultActiveKey: tabDefaultValue && tabDefaultValue.key
     };
     if (tabActiveKey !== undefined) {
       activeKeyProps.activeKey = tabActiveKey;
     }
 
     return (
-        <div className={clsString}>
-          {/* disable breadcrumb */}
-          {/* {breadcrumb} */}
-          <div className={styles.detail}>
-            {logo && <div className={styles.logo}>{logo}</div>}
-            <div className={styles.main}>
-              <div className={styles.row}>
-                {title && <h1 className={styles.title}>{title}</h1>}
-                {action && <div className={styles.action}>{action}</div>}
-              </div>
-              <div className={styles.row}>
-                {content && <div className={styles.content}>{content}</div>}
-                {extraContent && (
-                  <div className={styles.extraContent}>{extraContent}</div>
-                )}
-              </div>
+      <div className={clsString}>
+        {/* disable breadcrumb */}
+        {/* {breadcrumb} */}
+        <div className={styles.detail}>
+          {logo && <div className={styles.logo}>{logo}</div>}
+          <div className={styles.main}>
+            <div className={styles.row}>
+              {title && <h1 className={styles.title}>{title}</h1>}
+              {action && <div className={styles.action}>{action}</div>}
+            </div>
+            <div className={styles.row}>
+              {content && <div className={styles.content}>{content}</div>}
+              {extraContent && (
+                <div className={styles.extraContent}>{extraContent}</div>
+              )}
             </div>
           </div>
-          {tabList && tabList.length && (
-            <Tabs
-              className={styles.tabs}
-              {...activeKeyProps}
-              onChange={this.onChange}
-            >
-              {tabList.map(item => (
-                <TabPane tab={item.tab} key={item.key} />
-              ))}
-            </Tabs>
-          )}
         </div>
+        {tabList && tabList.length && (
+          <Tabs
+            className={styles.tabs}
+            {...activeKeyProps}
+            onChange={this.onChange}
+          >
+            {tabList.map(item => {
+              const { key, tab } = item;
+              return (
+                <TabPane
+                  tab={
+                    <span className={styles.verticalCen}>
+                      {isSvg &&
+                        globalUtil.fetchSvg(
+                          key === 'localApplication'
+                            ? 'localMarket'
+                            : key.indexOf('Helm-') > -1
+                            ? 'HelmSvg'
+                            : 'cloudMarket'
+                        )}
+                      {tab}
+                    </span>
+                  }
+                  key={key}
+                />
+              );
+            })}
+          </Tabs>
+        )}
+      </div>
     );
   }
 }

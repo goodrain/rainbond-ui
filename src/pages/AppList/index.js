@@ -1,4 +1,13 @@
-import { Button, Card, Form, Input, notification, Row, Table } from 'antd';
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  notification,
+  Row,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
@@ -9,6 +18,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import styles from '../Create/Index.less';
 
 const FormItem = Form.Item;
 /* eslint react/no-array-index-key: 0 */
@@ -202,8 +212,12 @@ export default class AppList extends PureComponent {
                   render: (val, data) => {
                     return (
                       <Link
+                        className={styles.verticalCen}
                         to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}`}
                       >
+                        {globalUtil.fetchSvg(
+                          data.app_type === 'helm' ? 'HelmSvg' : 'localMarket'
+                        )}
                         {val}
                       </Link>
                     );
@@ -293,7 +307,9 @@ export default class AppList extends PureComponent {
                   width: 100,
                   render: val => {
                     return (
-                      <p style={{ marginBottom: 0, color: '#999999' }}>{val}</p>
+                      <Tooltip placement="top" title={val}>
+                        <p className={styles.groupnote}>{val}</p>
+                      </Tooltip>
                     );
                   }
                 }

@@ -11,6 +11,7 @@ import RKEClusterConfig from '../../../components/Cluster/RKEClusterAdd';
 import ShowKubernetesCreateDetail from '../../../components/Cluster/ShowKubernetesCreateDetail';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import cloud from '../../../utils/cloud';
+import globalUtil from '../../../utils/global';
 import userUtil from '../../../utils/user';
 
 const { Step } = Steps;
@@ -100,8 +101,8 @@ export default class EnterpriseClusters extends PureComponent {
     });
   };
 
-  loadKubernetesCluster = () => {
-    const { dispatch } = this.props;
+  loadKubernetesCluster = task => {
+    const { dispatch, rainbondInfo, enterprise } = this.props;
     const {
       match: {
         params: { eid, provider }
@@ -116,6 +117,20 @@ export default class EnterpriseClusters extends PureComponent {
       },
       callback: data => {
         if (data && data.clusters && data.clusters.length > 0) {
+          if (task && task.taskID) {
+            const infos = data.clusters.filter(item => item.name === task.name);
+            if (infos && infos.length > 0) {
+              globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
+                eid,
+                taskID: task.taskID,
+                status: infos[0].state,
+                message: infos[0].message,
+                install_step: provider,
+                provider
+              });
+            }
+          }
+
           this.setState({
             k8sClusters: data.clusters,
             loading: false
@@ -208,6 +223,27 @@ export default class EnterpriseClusters extends PureComponent {
     return steps;
   };
 
+  handleStartLog = (task, callback) => {
+    if (task && task.taskID) {
+      const {
+        enterprise,
+        rainbondInfo,
+        match: {
+          params: { eid, provider }
+        }
+      } = this.props;
+      globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
+        eid,
+        taskID: task.taskID,
+        status: 'start',
+        install_step: 'createK8s',
+        provider
+      });
+    }
+    if (callback) {
+      callback(task);
+    }
+  };
   renderCreateClusterShow = () => {
     const {
       match: {
@@ -239,9 +275,11 @@ export default class EnterpriseClusters extends PureComponent {
             onCancel={() => {
               this.cancelAddCluster();
             }}
-            onOK={() => {
+            onOK={task => {
+              this.handleStartLog(task, () => {
+                this.loadKubernetesCluster(task);
+              });
               this.cancelAddCluster();
-              this.loadKubernetesCluster();
             }}
           />
         );
@@ -255,7 +293,7 @@ export default class EnterpriseClusters extends PureComponent {
             onOK={task => {
               this.setState({ lastTask: task, showTaskDetail: true });
               this.cancelAddCluster();
-              this.loadKubernetesCluster();
+              this.loadKubernetesCluster(task);
             }}
           />
         );

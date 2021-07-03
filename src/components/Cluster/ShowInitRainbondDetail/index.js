@@ -3,10 +3,14 @@ import { Alert, Button, Modal, Row, Timeline } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import cloud from '../../../utils/cloud';
+import globalUtil from '../../../utils/global';
 import modelstyles from '../../CreateTeam/index.less';
 import styles from '../ShowKubernetesCreateDetail/index.less';
 
-@connect()
+@connect(({ global }) => ({
+  rainbondInfo: global.rainbondInfo,
+  enterprise: global.enterprise
+}))
 class InitRainbondDetail extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -47,7 +51,14 @@ class InitRainbondDetail extends PureComponent {
     });
   };
   loadTaskEvents = () => {
-    const { dispatch, eid, taskID } = this.props;
+    const {
+      dispatch,
+      eid,
+      taskID,
+      rainbondInfo,
+      enterprise,
+      providerName
+    } = this.props;
     dispatch({
       type: 'cloud/loadTaskEvents',
       payload: {
@@ -57,6 +68,17 @@ class InitRainbondDetail extends PureComponent {
       callback: data => {
         if (data) {
           const { complete, steps } = cloud.showInitRainbondSteps(data.events);
+
+          if (complete && steps.length > 0) {
+            globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
+              eid,
+              taskID,
+              status: steps[steps.length - 1].Status,
+              message: steps[steps.length - 1].Message,
+              install_step: 'createRainbond',
+              provider: providerName
+            });
+          }
           this.setState({
             complete,
             loading: false,

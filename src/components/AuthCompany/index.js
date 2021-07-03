@@ -8,6 +8,7 @@
 /* eslint-disable no-unused-expressions */
 import {
   Alert,
+  Badge,
   Button,
   Card,
   Checkbox,
@@ -16,14 +17,23 @@ import {
   Input,
   Modal,
   notification,
-  Row
+  Radio,
+  Row,
+  Select,
+  Tabs
 } from 'antd';
 import axios from 'axios';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import PluginStyles from '../../pages/Create/Index.less';
 import cookie from '../../utils/cookie';
+import globalUtil from '../../utils/global';
 import Ellipsis from '../Ellipsis';
+import HelmForm from '../HelmForm';
+
+const RadioGroup = Radio.Group;
+const { TabPane } = Tabs;
+const { Option } = Select;
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
@@ -39,6 +49,7 @@ export default class Index extends PureComponent {
       alertText: false,
       marketUrl: '',
       accessKey: '',
+      activeKeyStore: 'rainbondStore',
       marketList: [],
       checkedValues: []
     };
@@ -120,6 +131,7 @@ export default class Index extends PureComponent {
       }
     });
   };
+
   handleNextStep = (stpe, parameter) => {
     this.setState({ loading: true }, () => {
       if (stpe === 1) {
@@ -273,20 +285,30 @@ export default class Index extends PureComponent {
     cookie.setGuide('appStore', 'true');
     this.props.dispatch({ type: 'global/hideAuthCompany' });
   };
+  handleTabs = key => {
+    this.setState({ activeKeyStore: key });
+  };
+
   render() {
+    const {
+      title = '企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
+      onCancel,
+      onOk,
+      rainbondInfo,
+      form,
+      eid,
+      isHelm = false
+    } = this.props;
     const {
       currStep: step,
       loading,
       marketList,
       marketUrl,
-      alertText
+      alertText,
+      activeKeyStore
     } = this.state;
-    const {
-      title = '企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
-      onCancel,
-      rainbondInfo
-    } = this.props;
-    const { getFieldDecorator } = this.props.form;
+
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         span: 0
@@ -313,44 +335,72 @@ export default class Index extends PureComponent {
         onCancel={onCancel || this.hidden}
         footer={null}
       >
-        <div>
-          {step === 2 && !loading && (
-            <div>
-              <Alert
-                message={message}
-                type="success"
-                style={{ marginBottom: '24px' }}
-              />
-              <iframe
-                src={`${marketUrl}/certification/login`}
-                style={{
-                  width: '100%',
-                  height: '400px'
-                }}
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                scrolling="auto"
-                frameBorder="no"
-                border="0"
-                marginWidth="0"
-                marginHeight="0"
-              />
-            </div>
-          )}
-          {step !== 2 && (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center'
-              }}
-            >
+        {isHelm && (
+          <Tabs
+            defaultActiveKey={activeKeyStore}
+            style={{ marginTop: '-24px' }}
+            onChange={this.handleTabs}
+          >
+            <TabPane
+              tab={
+                <span className={PluginStyles.verticalCen}>
+                  {globalUtil.fetchSvg('cloudMarket')}
+                  RainStore商店
+                </span>
+              }
+              key="rainbondStore"
+            />
+            <TabPane
+              tab={
+                <Badge count="Beta">
+                  <span
+                    className={PluginStyles.verticalCen}
+                    style={{ width: 100, display: 'block' }}
+                  >
+                    {globalUtil.fetchSvg('HelmSvg')}
+                    Helm商店
+                  </span>
+                </Badge>
+              }
+              key="helmStore"
+            />
+          </Tabs>
+        )}
+
+        {activeKeyStore === 'rainbondStore' ? (
+          <div>
+            {step === 2 && !loading && (
+              <div>
+                <Alert
+                  message={message}
+                  type="success"
+                  style={{ marginBottom: '16px' }}
+                />
+                <iframe
+                  src={`${marketUrl}/certification/login`}
+                  style={{
+                    width: '100%',
+                    height: '400px'
+                  }}
+                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                  scrolling="auto"
+                  frameBorder="no"
+                  border="0"
+                  marginWidth="0"
+                  marginHeight="0"
+                />
+              </div>
+            )}
+            {step !== 2 && (
               <div
                 style={{
-                  textAlign: 'center'
+                  display: 'flex',
+                  justifyContent: 'center'
                 }}
               >
                 {step === 0 && (
                   <div>
-                    <p style={{ fontSize: '18px', marginBottom: '40px' }}>
+                    <p style={{ fontSize: '18px', margin: '8px 0 20px' }}>
                       请先进行应用市场认证
                     </p>
                     <Button
@@ -366,7 +416,7 @@ export default class Index extends PureComponent {
                 )}
                 {step === 1 && (
                   <div>
-                    <p style={{ fontSize: '18px', marginBottom: '40px' }}>
+                    <p style={{ fontSize: '18px', margin: '8px 0 20px' }}>
                       请填写需要进行绑定的应用市场的URL
                     </p>
                     {alertText && (
@@ -411,7 +461,7 @@ export default class Index extends PureComponent {
                 )}
                 {step === 4 && (
                   <div>
-                    <p style={{ fontSize: '18px', marginBottom: '30px' }}>
+                    <p style={{ fontSize: '18px', margin: '8px 0 20px' }}>
                       认证成功，选择需要绑定的商店
                     </p>
                     <Form className={PluginStyles.customGroup}>
@@ -436,7 +486,10 @@ export default class Index extends PureComponent {
                                   <Col
                                     span={24}
                                     key={url}
-                                    style={{ position: 'relative', padding: 0 }}
+                                    style={{
+                                      position: 'relative',
+                                      padding: 0
+                                    }}
                                   >
                                     <Checkbox
                                       value={domain}
@@ -494,9 +547,11 @@ export default class Index extends PureComponent {
                   </div>
                 )}
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        ) : (
+          <HelmForm onCancel={onCancel} data={false} eid={eid} onOk={onOk} />
+        )}
       </Modal>
     );
   }
