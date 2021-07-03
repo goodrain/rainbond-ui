@@ -90,7 +90,7 @@ class ShareEvent extends React.Component {
               status: res.bean.event_status
             },
             () => {
-              this.handleStatus();
+              this.handleSendStatus();
               setTimeout(() => {
                 this.getShareStatus();
               }, 5000);
@@ -101,11 +101,16 @@ class ShareEvent extends React.Component {
     });
   };
   handleStatus = () => {
-    const { onSuccess, onFail } = this.props;
     const { status } = this.state;
     if (status === 'start') {
       this.getShareStatus();
+    } else {
+      this.handleSendStatus();
     }
+  };
+  handleSendStatus = () => {
+    const { status } = this.state;
+    const { onSuccess, onFail } = this.props;
     if (status === 'success' && onSuccess) {
       onSuccess();
     }
