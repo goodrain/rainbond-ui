@@ -63,12 +63,15 @@ export default class Index extends PureComponent {
       rapidCopy: false,
       componentTimer: true,
       customSwitch: false,
-      resources: {}
+      resources: {},
+      upgradableNum: 0,
+      upgradableNumLoading: true
     };
   }
 
   componentDidMount() {
     this.loading();
+    this.handleWaitLevel();
   }
 
   componentWillUnmount() {
@@ -241,7 +244,24 @@ export default class Index extends PureComponent {
       }
     });
   };
-
+  handleWaitLevel = () => {
+    const { dispatch } = this.props;
+    const { teamName, appID } = this.props.match.params;
+    dispatch({
+      type: 'application/fetchToupgrade',
+      payload: {
+        team_name: teamName,
+        group_id: appID
+      },
+      callback: res => {
+        const info = (res && res.bean) || {};
+        this.setState({
+          upgradableNumLoading: false,
+          upgradableNum: (info && info.upgradable_num) || 0
+        });
+      }
+    });
+  };
   fetchAppDetailState = () => {
     const { dispatch } = this.props;
     const { teamName, appID } = this.props.match.params;
@@ -516,7 +536,9 @@ export default class Index extends PureComponent {
       toDelete,
       type,
       customSwitch,
-      serviceIds
+      serviceIds,
+      upgradableNumLoading,
+      upgradableNum
     } = this.state;
     const codeObj = {
       start: '启动',
@@ -784,10 +806,12 @@ export default class Index extends PureComponent {
               <div>待升级</div>
               <div
                 onClick={() => {
-                  isUpgrade && this.handleJump('upgrade');
+                  !upgradableNumLoading &&
+                    isUpgrade &&
+                    this.handleJump('upgrade');
                 }}
               >
-                <a>{currApp.upgradable_num || 0}</a>
+                <a>{upgradableNumLoading ? <Spin /> : upgradableNum}</a>
               </div>
             </div>
 
@@ -954,6 +978,7 @@ export default class Index extends PureComponent {
         )}
         {toEdit && (
           <EditGroupName
+            isAddGroup={false}
             group_name={groupDetail.group_name}
             note={groupDetail.note}
             loading={editGroupLoading}
