@@ -91,8 +91,9 @@ export default class RainbondClusterInit extends PureComponent {
           cloud.handleCloudAPIError(res);
         }
       });
+    } else {
+      notification.warning({ message: '请阅读并同意注意事项' });
     }
-    notification.warning('请阅读并同意注意事项');
   };
 
   loadTask = noopen => {
@@ -295,7 +296,6 @@ export default class RainbondClusterInit extends PureComponent {
               上一步
             </Button>
             <Button
-              disabled={!checked}
               loading={loading}
               onClick={this.initRainbondCluster}
               type="primary"

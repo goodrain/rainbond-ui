@@ -11,6 +11,12 @@ export default function handleAPIError(err) {
   }
   if (data) {
     switch (data.code) {
+      case 10411:
+        messages = '当前集群不可用';
+        break;
+      case 10412:
+        messages = '当前集群不存在';
+        break;
       case 20900:
         messages = '找不到升级记录';
         break;

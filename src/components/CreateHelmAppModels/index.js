@@ -26,7 +26,6 @@ class CreateHelmAppModels extends PureComponent {
       groups: [],
       isDeploy: true,
       addGroup: false,
-      addAppLoading: false,
       helmInstallLoading: false
     };
   }
@@ -34,7 +33,13 @@ class CreateHelmAppModels extends PureComponent {
     this.fetchCreateAppTeams();
   }
   onAddGroup = () => {
-    this.setState({ addGroup: true });
+    const { form } = this.props;
+    const { validateFields } = form;
+    validateFields(['team_name', 'region_name'], err => {
+      if (!err) {
+        this.setState({ addGroup: true });
+      }
+    });
   };
   fetchCreateAppTeams = name => {
     const { dispatch, eid } = this.props;
@@ -214,7 +219,7 @@ class CreateHelmAppModels extends PureComponent {
       const regionName = regionList[0].region_name;
       this.setState({ regionList }, () => {
         setFieldsValue({
-          region: regionName
+          region_name: regionName
         });
         if (appTypes === 'helmContent') {
           if (getFieldValue('app_name') !== '') {
@@ -228,6 +233,15 @@ class CreateHelmAppModels extends PureComponent {
         } else {
           this.fetchGroup(teamName, regionName);
         }
+      });
+    } else {
+      this.setState({
+        regionList: [],
+        groups: []
+      });
+      setFieldsValue({
+        region_name: undefined,
+        group_id: undefined
       });
     }
   };
@@ -253,38 +267,12 @@ class CreateHelmAppModels extends PureComponent {
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
   };
-  handleAddGroup = vals => {
-    this.setState({ addAppLoading: true });
-    const { dispatch, form } = this.props;
-    const { setFieldsValue, getFieldValue } = form;
-    const teaName = getFieldValue('team_name');
-    const regionName = getFieldValue('region');
-
-    dispatch({
-      type: 'application/addGroup',
-      payload: {
-        team_name: teaName,
-        region_name: regionName,
-        ...vals
-      },
-      callback: group => {
-        if (group) {
-          // 获取群组
-          dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: teaName,
-              region_name: regionName
-            },
-            callback: res => {
-              this.setState({ groups: res, addAppLoading: false });
-              setFieldsValue({ group_id: group.group_id });
-              this.cancelAddGroup();
-            }
-          });
-        }
-      }
-    });
+  handleAddGroup = (groupId, groups) => {
+    const { form } = this.props;
+    const { setFieldsValue } = form;
+    this.setState({ groups: groups || [] });
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
   };
   renderSuccessOnChange = () => {
     this.setState({
@@ -301,7 +289,6 @@ class CreateHelmAppModels extends PureComponent {
       helmInstallLoading,
       groups,
       addGroup,
-      addAppLoading,
       isDeploy
     } = this.state;
     const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
@@ -337,7 +324,8 @@ class CreateHelmAppModels extends PureComponent {
       <div>
         {addGroup && (
           <AddGroup
-            loading={addAppLoading}
+            teamName={teaName}
+            regionName={regionName}
             onCancel={this.cancelAddGroup}
             onOk={this.handleAddGroup}
           />
@@ -369,8 +357,7 @@ class CreateHelmAppModels extends PureComponent {
                     message: '请选择团队'
                   }
                 ],
-                initialValue:
-                  userTeams && userTeams.length > 0 && userTeams[0].team_name
+                initialValue: (userTeams && userTeams[0].team_name) || undefined
               })(
                 <Select
                   style={{ width: '323px' }}
@@ -391,6 +378,7 @@ class CreateHelmAppModels extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="集群名称">
               {getFieldDecorator('region_name', {
+                initialValue: undefined,
                 rules: [
                   {
                     required: true,
@@ -456,7 +444,7 @@ class CreateHelmAppModels extends PureComponent {
                   rules: [
                     {
                       required: true,
-                      message: '请选择'
+                      message: '请选择应用'
                     }
                   ]
                 })(
