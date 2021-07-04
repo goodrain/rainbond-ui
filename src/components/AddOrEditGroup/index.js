@@ -1,7 +1,9 @@
+/* eslint-disable no-nested-ternary */
 import { Form, Input, Modal } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { addGroup } from '../../services/application';
+import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
 
@@ -45,8 +47,8 @@ export default class EditGroupName extends PureComponent {
                 dispatch({
                   type: 'global/fetchGroups',
                   payload: parameters,
-                  callback: () => {
-                    onOk(groupId);
+                  callback: groups => {
+                    onOk(groupId, groups);
                     this.handleLoading(false);
                   },
                   handleError: () => {
@@ -60,7 +62,8 @@ export default class EditGroupName extends PureComponent {
                 this.handleLoading(false);
               }
             })
-            .catch(() => {
+            .catch(errs => {
+              handleAPIError(errs);
               this.handleLoading(false);
             });
         } else {

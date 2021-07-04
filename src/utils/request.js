@@ -176,7 +176,6 @@ export default function request(url, options) {
         } catch (e) {
           console.log(e);
         }
-
         const { code = '' } = resData;
         let isNext = false;
         switch (code) {
@@ -260,6 +259,9 @@ export default function request(url, options) {
           }
           // cluster request error, ignore it
           if (code === 10421 || code === 10411) {
+            if (newOptions.noModels) {
+              return Promise.reject(error);
+            }
             return;
           }
           if (newOptions.handleError) {
