@@ -1456,6 +1456,7 @@ export default class Index extends PureComponent {
         {toEdit && (
           <EditGroupName
             isNoEditName
+            isAddGroup={false}
             group_name={groupDetail.group_name}
             note={groupDetail.note}
             loading={editGroupLoading}
