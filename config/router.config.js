@@ -100,12 +100,7 @@ export default [
             name: 'EnterpriseSetting',
             authority: ['admin', 'user']
           },
-          {
-            path: '/enterprise/:eid/shared/:marketName',
-            component: './EnterpriseShared',
-            name: 'EnterpriseShared',
-            authority: ['admin', 'user']
-          },
+
           {
             path: '/enterprise/:eid/shared/app/:appId',
             component: './EnterpriseShared/Details',
@@ -122,6 +117,12 @@ export default [
             path: '/enterprise/:eid/shared/import',
             component: './EnterpriseImport',
             name: 'EnterpriseImport',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/shared/:marketName',
+            component: './EnterpriseShared',
+            name: 'EnterpriseShared',
             authority: ['admin', 'user']
           },
           {
