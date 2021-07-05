@@ -111,8 +111,14 @@ export default class RainbondClusterInit extends PureComponent {
         clusterID,
         providerName: selectProvider
       },
-      callback: data => {
-        if (data) {
+      callback: res => {
+        if (
+          res &&
+          res.status_code === 200 &&
+          res.response_data &&
+          res.response_data.data
+        ) {
+          const { data } = res.response_data;
           this.setState({ task: data });
           if (data.status === 'inited') {
             if (completeInit) {
@@ -178,7 +184,6 @@ export default class RainbondClusterInit extends PureComponent {
   render() {
     const { preStep, eid, selectProvider, form } = this.props;
     const {
-      checked,
       showInitDetail,
       loading,
       task,
