@@ -47,15 +47,8 @@ export default class ThirdLogin extends Component {
           },
           callback: res => {
             if (res) {
-              if (
-                res.response_data &&
-                res.response_data.status &&
-                res.response_data.status === 400 &&
-                res.msg_show
-              ) {
-                message.warning(res.msg_show);
-              }
-              if (res.status && res.status === 400) {
+              const status = res.response_data && res.response_data.status;
+              if (status && status === 400) {
                 this.setState(
                   {
                     resultState: 'error',
@@ -63,7 +56,9 @@ export default class ThirdLogin extends Component {
                     desc: '认证失败,请重新认证'
                   },
                   () => {
-                    dispatch(routerRedux.push(`/`));
+                    setTimeout(() => {
+                      this.handleLoginUrl();
+                    }, 1000);
                   }
                 );
               } else if (res.status_code && res.status_code === 200) {
@@ -80,7 +75,11 @@ export default class ThirdLogin extends Component {
                     this.handleSuccess();
                   }
                 );
+              } else {
+                this.handleLoginUrl();
               }
+            } else {
+              this.handleLoginUrl();
             }
           },
           handleError: err => {
