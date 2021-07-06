@@ -16,11 +16,14 @@ const cookie = {
     )};expires=${exp.toGMTString()}${domain}${path}`;
     document.cookie = cookie;
   },
-  setCookie(cname, cvalue, exdays) {
-    const d = new Date();
-    d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
-    const expires = `expires=${d.toUTCString()}`;
-    document.cookie = `${cname}=${cvalue}; ${expires}`;
+  setCookie(name, value, option = {}) {
+    const domain = option.domain ? `;domain=${option.domain}` : '';
+    const path = option.path != void 0 ? `;path=${option.path}` : ';path=/';
+    const date = new Date();
+    date.setTime(date.getTime() - 1 * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${escape(
+      value
+    )}; expire=${date.toGMTString()};${domain}${path}`;
   },
   setGuide(name, value, option = {}) {
     const Days = 1;
@@ -34,7 +37,7 @@ const cookie = {
     document.cookie = cookie;
   },
   remove(name) {
-    this.setCookie(name, '', -1);
+    this.setCookie(name, '');
   }
 };
 
