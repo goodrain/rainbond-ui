@@ -17,7 +17,7 @@ export default () => (
       {
         key: 'poc',
         title: '企业服务',
-        href: 'https://goodrain.goodrain.com/page/price#customForm',
+        href: 'https://goodrain.com',
         blankTarget: true
       },
       {
