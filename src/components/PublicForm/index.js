@@ -36,24 +36,49 @@ class PublicForm extends PureComponent {
       }
     });
   };
+  handleIsNext = str => {
+    const { getFieldValue } = this.props;
+    if (str && str.indexOf('=') > -1) {
+      const name = str.split('=')[0];
+      const keys = name.replace(new RegExp('\\.', 'g'), '#-#');
+      const vals = getFieldValue(keys) || false;
+      const results = `${name}=${vals}`;
+      if (str.indexOf(results) < 0) {
+        return false;
+      }
+      return true;
+    }
+    return true;
+  };
+
   handleFormItem = data => {
     const setGroup = [];
+
     return data.map((item, index) => {
       const {
         type,
         subquestions,
         default: defaults,
         group,
-        show_subquestion_if = 'false'
+        show_subquestion_if,
+        showSubquestionIf,
+        show_if,
+        showIf
       } = item;
+      const isSubquestions = subquestions && subquestions.length > 0;
+      const isShowSubquestionIf = showSubquestionIf || show_subquestion_if;
+      const isShowIf = show_if || showIf || false;
+      const isNext = this.handleIsNext(isShowIf);
+
       const box = (
         <Fragment>
-          {this.FormItemBox(item)}
-          {subquestions &&
-            subquestions.length > 0 &&
-            (type !== 'boolean' || `${defaults}` == `${show_subquestion_if}`) &&
+          {isNext && this.FormItemBox(item)}
+          {isSubquestions &&
+            (type !== 'boolean' || `${defaults}` == `${isShowSubquestionIf}`) &&
+            isNext &&
             subquestions.map(items => {
-              return this.FormItemBox(items);
+              const isShowIfs = items.show_if || items.showIf || false;
+              return this.handleIsNext(isShowIfs) && this.FormItemBox(items);
             })}
         </Fragment>
       );
@@ -103,7 +128,6 @@ class PublicForm extends PureComponent {
     } = item;
     const box = this.handleBox(item, type, defaults);
     const setVariable = variable.replace(new RegExp('\\.', 'g'), '#-#');
-
     if (box) {
       return (
         <Col span={12}>
@@ -119,9 +143,9 @@ class PublicForm extends PureComponent {
                   message: `${label}必须设置`
                 }
               ],
-              initialValue: min || (defaults && `${defaults}`)
+              initialValue: (defaults && `${defaults}`) || min
             })(box)}
-            <div>{description}</div>
+            <div className={styles.description}>{description}</div>
           </FormItem>
         </Col>
       );
