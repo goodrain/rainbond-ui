@@ -220,6 +220,8 @@ class Main extends PureComponent {
     super(arg);
     this.state = {
       actionIng: false,
+      groupDetail: {},
+      loadingDetail: true,
       status: {},
       showDeleteApp: false,
       showEditName: false,
@@ -270,10 +272,6 @@ class Main extends PureComponent {
     this.setState({ showDeleteApp: true });
   };
 
-  getAppAlias() {
-    return this.props.match.params.appAlias;
-  }
-
   getWebSocketUrl(service_id) {
     const currTeam = userUtil.getTeamByTeamName(
       this.props.currUser,
@@ -292,12 +290,15 @@ class Main extends PureComponent {
   }
 
   getStatus = isCycle => {
+    const { dispatch } = this.props;
     const { componentTimer } = this.state;
-    this.props.dispatch({
+    const { team_name, app_alias } = this.fetchParameter();
+
+    dispatch({
       type: 'appControl/fetchComponentState',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias()
+        team_name,
+        app_alias
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -350,7 +351,9 @@ class Main extends PureComponent {
 
   handleError = err => {
     const { componentTimer } = this.state;
-    const { appDetail, dispatch } = this.props;
+    const { dispatch } = this.props;
+    const { group_id } = this.fetchParameter();
+
     this.handleTeamPermissions(() => {
       if (!componentTimer) {
         return null;
@@ -359,11 +362,7 @@ class Main extends PureComponent {
         this.closeComponentTimer();
         if (!this.destroy) {
           dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                appDetail.service.group_id
-              }`
-            )
+            routerRedux.push(`${this.fetchPrefixUrl()}apps/${group_id}`)
           );
         }
         return null;
@@ -388,12 +387,11 @@ class Main extends PureComponent {
   };
 
   handleTabChange = key => {
-    const { dispatch, match } = this.props;
-    const { appAlias } = match.params;
+    const { dispatch } = this.props;
+    const { app_alias } = this.fetchParameter();
+
     dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/${key}`
-      )
+      routerRedux.push(`${this.fetchPrefixUrl()}components/${app_alias}/${key}`)
     );
   };
 
@@ -404,16 +402,17 @@ class Main extends PureComponent {
   };
 
   loadBuildState = appDetail => {
+    const { team_name, serviceAlias } = this.fetchParameter();
+    const { dispatch } = this.props;
     if (
       appDetail &&
       appDetail.service &&
       appDetail.service.service_source === 'market'
     ) {
-      const serviceAlias = appDetail.service.service_alias;
-      this.props.dispatch({
+      dispatch({
         type: 'appControl/getBuildInformation',
         payload: {
-          team_name: globalUtil.getCurrTeamName(),
+          team_name,
           app_alias: serviceAlias
         },
         callback: res => {
@@ -427,14 +426,27 @@ class Main extends PureComponent {
       });
     }
   };
+  fetchPrefixUrl = () => {
+    const { team_name, region_name } = this.fetchParameter();
+    return `/team/${team_name}/region/${region_name}/`;
+  };
   loadDetail = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const {
+      app_alias,
+      team_name,
+      group_id,
+      serviceAlias
+    } = this.fetchParameter();
+    const prefixUrl = this.fetchPrefixUrl();
+    dispatch({
       type: 'appControl/fetchDetail',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias()
+        team_name,
+        app_alias
       },
       callback: appDetail => {
+        this.fetchAppDetail();
         this.loadBuildState(appDetail);
         if (appDetail.service.service_source) {
           this.setState({
@@ -451,19 +463,15 @@ class Main extends PureComponent {
           ) {
             this.getStatus(false);
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
-            this.props.dispatch(
+            dispatch(
               routerRedux.replace(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${
-                  appDetail.service.service_alias
-                }`
+                `${prefixUrl}create/create-check/${serviceAlias}`
               )
             );
           } else {
-            this.props.dispatch(
+            dispatch(
               routerRedux.replace(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-check/${
-                  appDetail.service.group_id
-                }/${appDetail.service.compose_id}`
+                `${prefixUrl}create/create-compose-check/${group_id}/${appDetail.service.compose_id}`
               )
             );
           }
@@ -479,16 +487,53 @@ class Main extends PureComponent {
           return null;
         }
         if (data.status === 404) {
-          this.props.dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
-            )
-          );
+          dispatch(routerRedux.push(`${prefixUrl}exception/404`));
         }
         return null;
       }
     });
   };
+  fetchParameter = () => {
+    const { appDetail, match } = this.props;
+    const service = appDetail && appDetail.service && appDetail.service;
+    return {
+      app_alias: match && match.params && match.params.appAlias,
+      team_name: globalUtil.getCurrTeamName(),
+      region_name: globalUtil.getCurrRegionName(),
+      serviceAlias: service && service.service_alias,
+      group_id: service && service.group_id,
+      group_name: service && service.group_name,
+      service_cname: service && service.service_cname
+    };
+  };
+  // 应用详情
+  fetchAppDetail = () => {
+    const { dispatch } = this.props;
+    const { team_name, region_name, group_id } = this.fetchParameter();
+
+    dispatch({
+      type: 'application/fetchGroupDetail',
+      payload: {
+        team_name,
+        region_name,
+        group_id
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            groupDetail: res.bean,
+            loadingDetail: false
+          });
+        }
+      },
+      handleError: res => {
+        if (res && res.code === 404) {
+          dispatch(routerRedux.push(`${this.fetchPrefixUrl()}apps`));
+        }
+      }
+    });
+  };
+
   handleshowDeployTips = showonoff => {
     this.setState({ showDeployTips: showonoff });
   };
@@ -502,11 +547,13 @@ class Main extends PureComponent {
       notification.warning({ message: `正在执行操作，请稍后` });
       return;
     }
+    const { team_name, app_alias } = this.fetchParameter();
+
     dispatch({
       type: groupVersion ? 'appControl/putUpgrade' : 'appControl/putDeploy',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias(),
+        team_name,
+        app_alias,
         group_version: groupVersion || '',
         is_upgrate: build_upgrade
       },
@@ -533,9 +580,11 @@ class Main extends PureComponent {
       notification.warning({ message: `正在执行操作，请稍后` });
       return;
     }
+    const { team_name, app_alias } = this.fetchParameter();
+
     rollback({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.getAppAlias(),
+      team_name,
+      app_alias,
       deploy_version: datas.build_version
         ? datas.build_version
         : datas.deploy_version
@@ -614,13 +663,14 @@ class Main extends PureComponent {
     }
   }
   handleDeleteApp = () => {
-    const teamName = globalUtil.getCurrTeamName();
-    const { dispatch, appDetail } = this.props;
+    const { dispatch } = this.props;
+    const { team_name, app_alias, group_id } = this.fetchParameter();
+
     dispatch({
       type: 'appControl/deleteApp',
       payload: {
-        team_name: teamName,
-        app_alias: this.getAppAlias()
+        team_name,
+        app_alias
       },
       callback: () => {
         this.closeComponentTimer();
@@ -628,15 +678,11 @@ class Main extends PureComponent {
         dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: teamName
+            team_name
           }
         });
         dispatch(
-          routerRedux.replace(
-            `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
-              appDetail.service.group_id
-            }`
-          )
+          routerRedux.replace(`${this.fetchPrefixUrl()}apps/${group_id}`)
         );
       }
     });
@@ -648,9 +694,8 @@ class Main extends PureComponent {
     this.setState({ showEditName: false });
   };
   handleEditName = data => {
-    const team_name = globalUtil.getCurrTeamName();
-    const { appDetail, dispatch } = this.props;
-    const serviceAlias = appDetail.service.service_alias;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    const { dispatch } = this.props;
     dispatch({
       type: 'appControl/editName',
       payload: {
@@ -679,9 +724,8 @@ class Main extends PureComponent {
     this.setState({ showMoveGroup: false });
   };
   handleMoveGroup = data => {
-    const team_name = globalUtil.getCurrTeamName();
-    const { appDetail, dispatch } = this.props;
-    const serviceAlias = appDetail.service.service_alias;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    const { dispatch } = this.props;
     dispatch({
       type: 'appControl/moveGroup',
       payload: {
@@ -723,11 +767,13 @@ class Main extends PureComponent {
       putStop: '操作成功，关闭中',
       putUpdateRolling: '操作成功，更新中'
     };
+    const { team_name, app_alias } = this.fetchParameter();
+
     dispatch({
       type: `appControl/${state}`,
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias()
+        team_name,
+        app_alias
       },
       callback: res => {
         if (res) {
@@ -745,12 +791,14 @@ class Main extends PureComponent {
   };
 
   handleChecked = value => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { team_name, app_alias } = this.fetchParameter();
+    dispatch({
       type: 'appControl/changeApplicationState',
       payload: {
         build_upgrade: value,
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias()
+        team_name,
+        app_alias
       },
       callback: data => {
         if (data) {
@@ -768,15 +816,16 @@ class Main extends PureComponent {
   };
   handleOpenBuild = () => {
     const { appDetail, dispatch } = this.props;
-    const serviceAlias = appDetail.service.service_alias;
     const buildType = appDetail.service.service_source;
     const text = appDetail.rain_app_name;
     const { status } = this.state;
+    const { team_name, serviceAlias } = this.fetchParameter();
+
     if (buildType === 'market' && status && status.status !== 'undeploy') {
       dispatch({
         type: 'appControl/getBuildInformation',
         payload: {
-          team_name: globalUtil.getCurrTeamName(),
+          team_name,
           app_alias: serviceAlias
         },
         callback: res => {
@@ -844,12 +893,11 @@ class Main extends PureComponent {
     this.handleOperation(parameter);
   };
   toWebConsole = () => {
-    const { appDetail } = this.props;
-    this.props.dispatch(
+    const { dispatch } = this.props;
+    const { serviceAlias } = this.fetchParameter();
+    dispatch(
       routerRedux.replace(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-          appDetail.service.service_alias
-        }/webconsole`
+        `${this.fetchPrefixUrl()}components/${serviceAlias}/webconsole`
       )
     );
   };
@@ -859,12 +907,14 @@ class Main extends PureComponent {
       componentPermissions: { isRestart, isStop, isDelete, isEdit },
       appPermissions: { isEdit: isAppEdit }
     } = this.props;
-    const { status } = this.state;
+    const { status, groupDetail, loadingDetail } = this.state;
     // Temporary logic that all third party components need to be implemented can be turned off.
     let canStop = isStop;
     if (appDetail.is_third && appDetail.endpoints_type !== 'kubernetes') {
       canStop = false;
     }
+    const isHelm =
+      groupDetail && groupDetail.app_type && groupDetail.app_type === 'helm';
     return (
       <Fragment>
         <div style={{ display: 'flex' }}>
@@ -938,7 +988,7 @@ class Main extends PureComponent {
                 </span>
               ) : null}
 
-              {isAppEdit && (
+              {isAppEdit && !loadingDetail && !isHelm && (
                 <a
                   onClick={() => {
                     this.handleDropClick('moveGroup');
@@ -950,7 +1000,9 @@ class Main extends PureComponent {
                   修改所属应用
                 </a>
               )}
-              {isEdit && <Divider type="vertical" />}
+              {isEdit && !loadingDetail && !isHelm && (
+                <Divider type="vertical" />
+              )}
               {isDelete && (
                 <a
                   onClick={() => {
@@ -1015,7 +1067,8 @@ class Main extends PureComponent {
       promptModal,
       showDeleteApp,
       showEditName,
-      showMoveGroup
+      showMoveGroup,
+      groupDetail
     } = this.state;
     const { getFieldDecorator } = form;
     const codeObj = {
@@ -1028,7 +1081,13 @@ class Main extends PureComponent {
     if (!appDetail.service) {
       return null;
     }
-    const appAlias = this.getAppAlias();
+    const {
+      serviceAlias,
+      app_alias: appAlias,
+      group_id,
+      group_name: appName,
+      service_cname: componentName
+    } = this.fetchParameter();
     const visitBtns = (
       <VisitBtn
         timers={componentTimer}
@@ -1044,6 +1103,7 @@ class Main extends PureComponent {
     if (appDetail.is_third && appDetail.endpoints_type !== 'kubernetes') {
       canStart = false;
     }
+
     const action = (
       <div>
         {canStart && !appStatusUtil.canStop(status) && (
@@ -1060,9 +1120,7 @@ class Main extends PureComponent {
         {isVisitWebTerminal && !isShowThirdParty && (
           <Button>
             <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                appDetail.service.service_alias
-              }/webconsole`}
+              to={`${this.fetchPrefixUrl()}components/${serviceAlias}/webconsole`}
               target="_blank"
             >
               Web终端
@@ -1267,22 +1325,22 @@ class Main extends PureComponent {
         currentTeam,
         currentRegionName,
         {
-          appName: appDetail.service.group_name,
-          appID: appDetail.service.group_id
+          appName,
+          appID: group_id
         }
       ),
       currentTeam,
       currentRegionName,
       {
-        componentName: appDetail.service.service_cname,
-        componentID: appDetail.service.service_alias
+        componentName,
+        componentID: serviceAlias
       }
     );
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         action={action}
-        title={this.renderTitle(appDetail.service.service_cname)}
+        title={this.renderTitle(componentName)}
         onTabChange={this.handleTabChange}
         tabActiveKey={type}
         tabList={tabList}
@@ -1420,6 +1478,7 @@ class Main extends PureComponent {
 
         {Com ? (
           <Com
+            groupDetail={groupDetail}
             appPermissions={appPermissions}
             componentPermissions={componentPermissions}
             timers={componentTimer}
@@ -1453,7 +1512,7 @@ class Main extends PureComponent {
         {showEditName && (
           <EditName
             loading={editNameLoading}
-            name={appDetail.service.service_cname}
+            name={componentName}
             onOk={this.handleEditName}
             onCancel={this.hideEditName}
             title="修改组件名称"
@@ -1462,7 +1521,7 @@ class Main extends PureComponent {
         {showMoveGroup && (
           <MoveGroup
             loading={moveGroupLoading}
-            currGroup={appDetail.service.group_id}
+            currGroup={group_id}
             groups={groups}
             onOk={this.handleMoveGroup}
             onCancel={this.hideMoveGroup}

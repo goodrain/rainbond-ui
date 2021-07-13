@@ -146,9 +146,7 @@ export default class Index extends PureComponent {
   onChangeSteps = currentSteps => {
     this.setState({ currentSteps });
   };
-  getGroupId() {
-    return this.props.appID;
-  }
+
   closeTimer = () => {
     if (this.timer) {
       clearInterval(this.timer);
@@ -181,19 +179,20 @@ export default class Index extends PureComponent {
 
   fetchAppDetail = init => {
     const { dispatch } = this.props;
-    const { teamName, regionName, appID } = this.props.match.params;
+    const { team_name, region_name, group_id } = this.fetchParameter();
+
     dispatch({
       type: 'application/fetchGroupDetail',
       payload: {
-        team_name: teamName,
-        region_name: regionName,
-        group_id: appID
+        team_name,
+        region_name,
+        group_id
       },
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState(
             {
-              currApp: res.bean
+              currApp: res.bean || {}
             },
             () => {
               init && this.fetchAppDetailState(init);
@@ -208,11 +207,7 @@ export default class Index extends PureComponent {
         }
         init && this.fetchAppDetailState(init);
         if (res && res.code === 404) {
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
-            )
-          );
+          dispatch(routerRedux.push(`${this.fetchPrefixUrl()}apps`));
         }
       }
     });
@@ -361,52 +356,46 @@ export default class Index extends PureComponent {
 
   handleDelete = () => {
     const { dispatch } = this.props;
+    const { team_name, group_id } = this.fetchParameter();
+
     dispatch({
       type: 'application/delete',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId()
+        team_name,
+        group_id
       },
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({ message: '删除成功' });
           this.closeComponentTimer();
           this.cancelDelete(false);
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
-            )
-          );
+          dispatch(routerRedux.push(`${this.fetchPrefixUrl()}apps`));
         }
       }
     });
   };
 
   newAddress = grid => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { team_name } = this.fetchParameter();
+    dispatch({
       type: 'global/fetchGroups',
       payload: {
-        team_name: globalUtil.getCurrTeamName()
+        team_name
       },
       callback: list => {
         if (list && list.length) {
           if (grid === list[0].group_id) {
             this.newAddress(grid);
           } else {
-            this.props.dispatch(
+            dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                  list[0].group_id
-                }`
+                `${this.fetchPrefixUrl()}apps/${list[0].group_id}`
               )
             );
           }
         } else {
-          this.props.dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-            )
-          );
+          dispatch(routerRedux.push(`${this.fetchPrefixUrl()}index`));
         }
       }
     });
@@ -425,11 +414,13 @@ export default class Index extends PureComponent {
   };
   handleEdit = vals => {
     const { dispatch } = this.props;
+    const { team_name, group_id } = this.fetchParameter();
+
     dispatch({
       type: 'application/editGroup',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId(),
+        team_name,
+        group_id,
         group_name: vals.group_name,
         note: vals.note,
         username: vals.username
@@ -445,7 +436,7 @@ export default class Index extends PureComponent {
         dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: globalUtil.getCurrTeamName()
+            team_name
           }
         });
       }
@@ -462,10 +453,12 @@ export default class Index extends PureComponent {
   handlePromptModalOpen = () => {
     const { code, serviceIds } = this.state;
     const { dispatch } = this.props;
+    const { team_name, group_id } = this.fetchParameter();
+
     if (code === 'restart') {
       batchOperation({
         action: code,
-        team_name: globalUtil.getCurrTeamName(),
+        team_name,
         serviceIds: serviceIds && serviceIds.join(',')
       }).then(res => {
         if (res && res.status_code === 200) {
@@ -480,8 +473,8 @@ export default class Index extends PureComponent {
       dispatch({
         type: 'global/buildShape',
         payload: {
-          tenantName: globalUtil.getCurrTeamName(),
-          group_id: this.getGroupId(),
+          tenantName: team_name,
+          group_id,
           action: code
         },
         callback: res => {
@@ -508,18 +501,14 @@ export default class Index extends PureComponent {
   handleJump = target => {
     const { dispatch, appID } = this.props;
     dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/${target}`
-      )
+      routerRedux.push(`${this.fetchPrefixUrl()}apps/${appID}/${target}`)
     );
   };
   handleJumpStore = target => {
-    const { dispatch, currentEnterprise } = this.props;
-    dispatch(
-      routerRedux.push(
-        `/enterprise/${currentEnterprise.enterprise_id}/shared/${target}`
-      )
-    );
+    const { dispatch } = this.props;
+    const { enterprise_id } = this.fetchParameter();
+
+    dispatch(routerRedux.push(`/enterprise/${enterprise_id}/shared/${target}`));
   };
   beforeUpload = (file, isMessage) => {
     const fileArr = file.name.split('.');
@@ -615,11 +604,13 @@ export default class Index extends PureComponent {
 
   fetchHelmComponents = () => {
     const { dispatch } = this.props;
+    const { team_name, group_id } = this.fetchParameter();
+
     dispatch({
       type: 'application/fetchHelmComponents',
       payload: {
-        tenantName: globalUtil.getCurrTeamName(),
-        groupId: this.getGroupId()
+        tenantName: team_name,
+        groupId: group_id
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -633,11 +624,13 @@ export default class Index extends PureComponent {
 
   fetchAppAccess = () => {
     const { dispatch } = this.props;
+    const { team_name, group_id } = this.fetchParameter();
+
     dispatch({
       type: 'application/fetchAppAccess',
       payload: {
-        tenantName: globalUtil.getCurrTeamName(),
-        groupId: this.getGroupId()
+        tenantName: team_name,
+        groupId: group_id
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -652,7 +645,7 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/thirdPartyServices`
+        `${this.fetchPrefixUrl()}components/${appAlias}/thirdPartyServices`
       )
     );
   };
@@ -660,17 +653,19 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/overview`
+        `${this.fetchPrefixUrl()}components/${appAlias}/overview`
       )
     );
   };
   handleInstallHelmApp = values => {
     const { dispatch } = this.props;
+    const { team_name, group_id } = this.fetchParameter();
+
     dispatch({
       type: 'application/installHelmApp',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId(),
+        team_name,
+        group_id,
         overrides: values.overrides,
         values: values.yamls
       },
@@ -688,11 +683,13 @@ export default class Index extends PureComponent {
   handleEditHelmApp = values => {
     const { dispatch } = this.props;
     const { currApp } = this.state;
+    const { team_name, group_id } = this.fetchParameter();
+
     dispatch({
       type: 'application/editHelmApp',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId(),
+        team_name,
+        group_id,
         overrides: values.overrides,
         values: values.yamls,
         username: currApp.username,
@@ -735,16 +732,18 @@ export default class Index extends PureComponent {
       </div>
     );
   };
+
   getHelmApplication = (init = false) => {
-    const { dispatch, currentEnterprise } = this.props;
+    const { dispatch } = this.props;
+    const { enterprise_id, team_name, group_id } = this.fetchParameter();
     const { currApp } = this.state;
     dispatch({
       type: 'global/fetchHelmApplication',
       payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
+        enterprise_id,
         app_name: currApp.app_template_name,
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId(),
+        team_name,
+        group_id,
         appStoreName: currApp.app_store_name
       },
       callback: res => {
@@ -765,6 +764,20 @@ export default class Index extends PureComponent {
         this.handleErrPrompt(res);
       }
     });
+  };
+
+  fetchParameter = () => {
+    const { currentEnterprise, appID } = this.props;
+    return {
+      enterprise_id: currentEnterprise.enterprise_id,
+      team_name: globalUtil.getCurrTeamName(),
+      region_name: globalUtil.getCurrRegionName(),
+      group_id: appID
+    };
+  };
+  fetchPrefixUrl = () => {
+    const { team_name, region_name } = this.fetchParameter();
+    return `/team/${team_name}/region/${region_name}/`;
   };
   handleErrPrompt = res => {
     if (res && res.data && res.data.code) {
@@ -839,6 +852,7 @@ export default class Index extends PureComponent {
       appInfoLoading: false
     });
   };
+
   handleConfing = () => {
     const { form } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
@@ -1299,8 +1313,12 @@ export default class Index extends PureComponent {
         </Card>
       </div>
     );
-    const teamName = globalUtil.getCurrTeamName();
-    const regionName = globalUtil.getCurrRegionName();
+
+    const {
+      team_name: teamName,
+      region_name: regionName,
+      group_id: groupId
+    } = this.fetchParameter();
     return (
       <Fragment>
         <Row>{pageHeaderContent}</Row>
@@ -1324,12 +1342,7 @@ export default class Index extends PureComponent {
               {components && components.length > 0 ? (
                 <Tabs
                   style={{ padding: '0 24px 24px' }}
-                  defaultActiveKey={
-                    components &&
-                    components.length > 0 &&
-                    components[0] &&
-                    components[0].service_name
-                  }
+                  defaultActiveKey={components[0].service_id}
                 >
                   {components.map(item => {
                     if (item.service) {
@@ -1339,9 +1352,10 @@ export default class Index extends PureComponent {
                         pods,
                         oldPods
                       } = item.service;
+                      const { service_id } = item;
                       const content = (
                         <Link
-                          to={`/team/${teamName}/region/${service_region}/components/${service_alias}/overview`}
+                          to={`/team/${teamName}/region/${service_region}/components/${service_alias}/thirdPartyServices`}
                         >
                           组件详情
                         </Link>
@@ -1351,14 +1365,15 @@ export default class Index extends PureComponent {
                           tab={
                             <Popover content={content}>{serviceName}</Popover>
                           }
-                          key={serviceName}
+                          key={service_id}
                         >
                           <Instance
                             isHelm
+                            key={service_id}
                             runLoading={false}
                             new_pods={pods}
                             old_pods={oldPods}
-                            appAlias={this.getGroupId()}
+                            appAlias={groupId}
                           />
                         </TabPane>
                       );
