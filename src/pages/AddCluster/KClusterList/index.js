@@ -395,6 +395,7 @@ export default class EnterpriseClusters extends PureComponent {
             <ShowKubernetesCreateDetail
               onCancel={this.cancelShowCreateDetail}
               eid={eid}
+              selectProvider={provider}
               taskID={lastTask.taskID}
             />
           )}

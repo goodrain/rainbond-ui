@@ -1,10 +1,11 @@
 /* eslint-disable react/no-array-index-key */
-import { Alert, Button, Modal, Row, Timeline } from 'antd';
+import { Alert, Button, Modal, Popover, Row, Timeline } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
 import modelstyles from '../../CreateTeam/index.less';
+import ClusterCreationLog from '../ClusterCreationLog';
 import styles from './index.less';
 
 @connect(({ global }) => ({
@@ -17,7 +18,9 @@ class ShowKubernetesCreateDetail extends PureComponent {
     this.state = {
       loading: true,
       complete: false,
-      steps: []
+      steps: [],
+      clusterID: '',
+      showCreateLog: false
     };
   }
   componentDidMount() {
@@ -75,6 +78,7 @@ class ShowKubernetesCreateDetail extends PureComponent {
             });
           }
           this.setState({
+            clusterID: data.clusterID,
             complete,
             loading: false,
             steps
@@ -97,10 +101,13 @@ class ShowKubernetesCreateDetail extends PureComponent {
       }
     });
   };
+  queryCreateLog = () => {
+    this.setState({ showCreateLog: true });
+  };
 
   render() {
-    const { onCancel, title } = this.props;
-    const { steps, loading, complete } = this.state;
+    const { onCancel, title, eid, selectProvider } = this.props;
+    const { steps, loading, complete, showCreateLog, clusterID } = this.state;
     let pending = '进行中';
     if (complete) {
       pending = false;
@@ -119,24 +126,71 @@ class ShowKubernetesCreateDetail extends PureComponent {
           </Button>
         ]}
       >
+        {showCreateLog && (
+          <ClusterCreationLog
+            eid={eid}
+            clusterID={clusterID}
+            selectProvider={selectProvider}
+            onCancel={() => {
+              this.setState({ showCreateLog: false });
+            }}
+          />
+        )}
+
         <Alert
           style={{ marginBottom: '16px' }}
-          message="集群安装过程预计10分钟，请耐心等待，若遇到错误请反馈到社区"
+          message={
+            <span>
+              集群安装过程预计10分钟，请耐心等待，若遇到错误请加入
+              <Popover
+                placement="bottom"
+                content={
+                  <img
+                    alt="扫码加入社区钉钉群"
+                    style={{ width: '200px' }}
+                    title="扫码加入社区钉钉群"
+                    src="https://www.rainbond.com/images/dingding-group.jpeg"
+                  />
+                }
+                title={
+                  <div style={{ textAlign: 'center' }}>钉钉群号31096419</div>
+                }
+              >
+                <Button type="link" style={{ padding: 0 }}>
+                  钉钉群
+                </Button>
+              </Popover>
+              获取官方支持
+            </span>
+          }
           type="info"
           showIcon
         />
         <Row loading={loading} className={styles.box}>
           <Timeline loading={loading} pending={pending}>
             {steps.map((item, index) => {
+              const { Status, Title, Description, Message } = item;
               return (
                 <Timeline.Item color={item.Color} key={`step${index}`}>
-                  <h4>{item.Title}</h4>
-                  <p>{item.Description}</p>
-                  <p>{item.Message}</p>
+                  <h4>{Title}</h4>
+                  <p>{Description}</p>
+                  <p>{Message}</p>
+                  {Status === 'failure' && (
+                    <div>
+                      <Button
+                        type="link"
+                        style={{ padding: 0 }}
+                        onClick={this.queryCreateLog}
+                      >
+                        查看日志
+                      </Button>
+                    </div>
+                  )}
                 </Timeline.Item>
               );
             })}
           </Timeline>
+
           {complete && <span>已结束</span>}
         </Row>
       </Modal>

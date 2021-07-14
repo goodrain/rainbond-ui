@@ -17,7 +17,6 @@ import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import CodeMirror from 'react-codemirror';
 import { Link } from 'umi';
-import Ansi from '../../../components/Ansi';
 import {
   getKubeConfig,
   getUpdateKubernetesTask,
@@ -25,6 +24,7 @@ import {
 } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
+import ClusterCreationLog from '../ClusterCreationLog';
 import RKEClusterUpdate from '../RKEClusterAdd';
 import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
 import istyles from './index.less';
@@ -37,7 +37,7 @@ export default class KubernetesClusterShow extends PureComponent {
     super(props);
     this.state = {
       selectClusterName: '',
-      createLog: '',
+      clusterID: '',
       showCreateLog: false
     };
   }
@@ -71,25 +71,7 @@ export default class KubernetesClusterShow extends PureComponent {
     });
   }
   queryCreateLog = row => {
-    const { dispatch, eid, selectProvider } = this.props;
-    dispatch({
-      type: 'cloud/queryCreateLog',
-      payload: {
-        enterprise_id: eid,
-        provider_name: selectProvider,
-        clusterID: row.cluster_id
-      },
-      callback: data => {
-        if (data) {
-          // to load create event
-          const content = data.content.split('\n');
-          this.setState({ createLog: content, showCreateLog: true });
-        }
-      },
-      handleError: res => {
-        cloud.handleCloudAPIError(res);
-      }
-    });
+    this.setState({ showCreateLog: true, clusterID: row.cluster_id });
   };
 
   reInstallCluster = clusterID => {
@@ -196,14 +178,6 @@ export default class KubernetesClusterShow extends PureComponent {
     });
   };
 
-  getLineHtml = (lineNumber, line) => {
-    return (
-      <div className={istyles.logline} key={lineNumber}>
-        <a>{lineNumber}</a>
-        <Ansi>{line}</Ansi>
-      </div>
-    );
-  };
   render() {
     const { selectProvider, linkedClusters, eid } = this.props;
     const columns = [
@@ -294,20 +268,23 @@ export default class KubernetesClusterShow extends PureComponent {
                   对接
                 </Link>
               )}
-            {row.create_log_path &&
-              (row.create_log_path.startsWith('http') ? (
-                <a href={row.create_log_path} target="_blank" rel="noreferrer">
-                  查看日志
-                </a>
-              ) : (
-                <a
-                  onClick={() => {
-                    this.queryCreateLog(row);
-                  }}
-                >
-                  查看日志
-                </a>
-              ))}
+            <Button
+              type="link"
+              style={{ padding: 0 }}
+              onClick={() => {
+                if (
+                  row.create_log_path &&
+                  row.create_log_path.startsWith('http')
+                ) {
+                  window.open(row.create_log_path, '_blank');
+                } else {
+                  this.queryCreateLog(row);
+                }
+              }}
+            >
+              查看日志
+            </Button>
+
             {!row.rainbond_init &&
               (selectProvider === 'rke' || selectProvider === 'custom') && (
                 <Popconfirm
@@ -381,7 +358,7 @@ export default class KubernetesClusterShow extends PureComponent {
     } = this.props;
     const {
       selectClusterName,
-      createLog,
+      clusterID,
       showCreateLog,
       kubeConfig,
       showUpdateKubernetes,
@@ -478,23 +455,14 @@ export default class KubernetesClusterShow extends PureComponent {
           dataSource={data}
         />
         {showCreateLog && (
-          <Modal
-            visible
-            width={1000}
-            maskClosable={false}
+          <ClusterCreationLog
+            eid={eid}
+            clusterID={clusterID}
+            selectProvider={selectProvider}
             onCancel={() => {
-              this.setState({ showCreateLog: false });
+              this.setState({ showCreateLog: false, clusterID: '' });
             }}
-            title="集群创建日志"
-            bodyStyle={{ background: '#000' }}
-            footer={null}
-          >
-            <div className={istyles.cmd}>
-              {createLog.map((line, index) => {
-                return this.getLineHtml(index + 1, line);
-              })}
-            </div>
-          </Modal>
+          />
         )}
         {kubeConfig && (
           <Modal
