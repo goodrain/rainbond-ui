@@ -44,7 +44,7 @@ class UpdateClusterDetail extends PureComponent {
               taskID: task.taskID,
               status: steps[steps.length - 1].Status,
               message: steps[steps.length - 1].Message,
-              install_step: 'createK8s',
+              install_step: 'updateRKE',
               provider: 'rke'
             });
           }
