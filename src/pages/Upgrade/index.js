@@ -145,7 +145,7 @@ export default class AppList extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            list: res.list
+            dataList: res.list || []
           });
         }
         this.handleCancelLoading();
@@ -183,7 +183,7 @@ export default class AppList extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            dataList: res.list || [],
+            list: res.list || [],
             total: res.bean && res.bean.total
           });
         }
@@ -275,11 +275,9 @@ export default class AppList extends PureComponent {
       callback: res => {
         this.handleLoading();
         if (res && res.status_code === 200) {
-          if (res.list && res.list.length > 0) {
-            this.setState({
-              list: res.list
-            });
-          }
+          this.setState({
+            list: res.list || []
+          });
         }
         this.handleCancelLoading();
       }
@@ -678,7 +676,7 @@ export default class AppList extends PureComponent {
                       rowKey="id"
                       size="large"
                       loading={loadingList}
-                      dataSource={[...list]}
+                      dataSource={[...dataList]}
                       renderItem={item => (
                         <List.Item
                           actions={[
@@ -733,7 +731,7 @@ export default class AppList extends PureComponent {
                   style={{ padding: '24px' }}
                   loading={recordLoading || upgradeLoading}
                   columns={isHelm ? helmColumns : columns}
-                  dataSource={dataList}
+                  dataSource={list}
                   pagination={paginationProps}
                 />
               </TabPane>
