@@ -64,15 +64,9 @@ const global = {
       running: 'complete',
       offline: 'failure'
     };
-    const stepMap = {
-      custom: 'createK8s',
-      rke: 'createRainbond'
-    };
+
     if (obj.status) {
       obj.status = stateMap[obj.status] || obj.status;
-    }
-    if (obj.install_step) {
-      obj.install_step = stepMap[obj.install_step] || obj.install_step;
     }
     try {
       defaultOptions.data = JSON.stringify({

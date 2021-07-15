@@ -125,7 +125,7 @@ export default class EnterpriseClusters extends PureComponent {
                 taskID: task.taskID,
                 status: infos[0].state,
                 message: infos[0].message,
-                install_step: provider,
+                install_step: 'createK8s',
                 provider
               });
             }
