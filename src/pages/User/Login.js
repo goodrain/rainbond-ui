@@ -89,6 +89,7 @@ export default class LoginPage extends Component {
     ) {
       oauthServicesList = rainbondInfo.oauth_services.value;
     }
+    const inlineBlock = { display: 'inline-block' };
     return (
       <div className={styles.main} style={{ marginTop: '100px' }}>
         <h3>用户登录</h3>
@@ -104,7 +105,7 @@ export default class LoginPage extends Component {
                 {oauthInfo && (
                   <div className={styles.thirdCol} key={oauthInfo.client_id}>
                     <Tooltip placement="top" title={oauthInfo.name}>
-                      <a href={url} title={oauthInfo.name}>
+                      <a style={inlineBlock} href={url} title={oauthInfo.name}>
                         {icon}
                       </a>
                     </Tooltip>
@@ -115,7 +116,11 @@ export default class LoginPage extends Component {
                   return (
                     <div className={styles.thirdCol} key={service_id}>
                       <Tooltip placement="top" title={name}>
-                        <a href={oauthUtil.getAuthredictURL(item)} title={name}>
+                        <a
+                          style={inlineBlock}
+                          href={oauthUtil.getAuthredictURL(item)}
+                          title={name}
+                        >
                           {oauthUtil.getIcon(item)}
                         </a>
                       </Tooltip>

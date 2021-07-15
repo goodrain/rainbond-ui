@@ -6,6 +6,7 @@ import { routerRedux } from 'dva/router';
 import React, { Component } from 'react';
 import Result from '../../components/Result';
 import cookie from '../../utils/cookie';
+import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 
@@ -46,15 +47,8 @@ export default class ThirdLogin extends Component {
           },
           callback: res => {
             if (res) {
-              if (
-                res.response_data &&
-                res.response_data.status &&
-                res.response_data.status === 400 &&
-                res.msg_show
-              ) {
-                message.warning(res.msg_show);
-              }
-              if (res.status && res.status === 400) {
+              const status = res.response_data && res.response_data.status;
+              if (status && status === 400) {
                 this.setState(
                   {
                     resultState: 'error',
@@ -62,7 +56,9 @@ export default class ThirdLogin extends Component {
                     desc: '认证失败,请重新认证'
                   },
                   () => {
-                    dispatch(routerRedux.push(`/`));
+                    setTimeout(() => {
+                      this.handleLoginUrl();
+                    }, 1000);
                   }
                 );
               } else if (res.status_code && res.status_code === 200) {
@@ -79,7 +75,11 @@ export default class ThirdLogin extends Component {
                     this.handleSuccess();
                   }
                 );
+              } else {
+                this.handleLoginUrl();
               }
+            } else {
+              this.handleLoginUrl();
             }
           },
           handleError: err => {
@@ -98,40 +98,52 @@ export default class ThirdLogin extends Component {
           domain: window.location.host
         },
         callback: res => {
-          if (res && (res.status_code === 400 || res.status_code === 401)) {
-            this.setState(
-              {
-                resultState: 'error',
-                title: '第三方认证未通过',
-                desc: res.msg_show || '未成功获取access_token,请重新认证。'
-              },
-              () => {
-                dispatch(routerRedux.push(loginUrl));
+          if (res) {
+            const status = res.response_data && res.response_data.status;
+            if (
+              status &&
+              (status === 400 || status === 401 || status === 404)
+            ) {
+              this.setState(
+                {
+                  resultState: 'error',
+                  title: '第三方认证未通过',
+                  desc: res.msg_show || '未成功获取access_token,请重新认证。'
+                },
+                () => {
+                  setTimeout(() => {
+                    this.handleLoginUrl();
+                  }, 1000);
+                }
+              );
+            } else if (res.status_code === 200) {
+              const data = res.bean;
+              if (data && data.token) {
+                cookie.set('token', data.token);
+                this.handleSuccess();
+                return null;
               }
-            );
-          } else if (res && res.status_code === 200) {
-            const data = res.bean;
-            if (data && data.token) {
-              cookie.set('token', data.token);
-              this.handleSuccess();
-              return null;
-            }
-            if (data && data.result) {
-              // if not login
-              if (!data.result.is_authenticated) {
-                dispatch(
-                  routerRedux.push(
-                    `/user/third/register?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
-                  )
-                );
-              } else {
-                dispatch(
-                  routerRedux.push(
-                    `/user/third/login?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
-                  )
-                );
+              if (data && data.result) {
+                // if not login
+                if (!data.result.is_authenticated) {
+                  dispatch(
+                    routerRedux.push(
+                      `/user/third/register?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
+                    )
+                  );
+                } else {
+                  dispatch(
+                    routerRedux.push(
+                      `/user/third/login?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
+                    )
+                  );
+                }
               }
+            } else {
+              this.handleLoginUrl();
             }
+          } else {
+            this.handleLoginUrl();
           }
         },
         handleError: err => {
@@ -143,20 +155,20 @@ export default class ThirdLogin extends Component {
       dispatch(routerRedux.replace(loginUrl));
     }
   }
-
-  handleError = err => {
+  handleLoginUrl = () => {
     const { dispatch } = this.props;
-    const status = err && err.status;
-    if (err && (status || err.msg_show)) {
-      message.warning(
-        (status && status === 500 && '第三方认证失败，请重新认证') ||
-          err.msg_show,
-        1,
-        () => {
-          dispatch(routerRedux.push(loginUrl));
-        }
-      );
+    dispatch(routerRedux.push(loginUrl));
+  };
+  handleError = err => {
+    const status = (err && err.status) || (err.response && err.response.status);
+    if (status && status === 500) {
+      message.warning('第三方认证失败，请重新认证');
+    } else {
+      handleAPIError(err);
     }
+    setTimeout(() => {
+      this.handleLoginUrl();
+    }, 1000);
   };
   handleSuccess = () => {
     const { dispatch } = this.props;

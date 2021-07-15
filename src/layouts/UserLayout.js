@@ -46,13 +46,16 @@ class UserLayout extends React.PureComponent {
               return null;
             });
           }
-          if (isOauth && oauthInfo && isLogin) {
-            const isDisableAutoLogin = query.disable_auto_login;
-            if (oauthInfo.is_auto_login && isDisableAutoLogin !== 'true') {
-              globalUtil.removeCookie();
-              window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
-            }
-            this.isRender(!oauthInfo.is_auto_login);
+          const isDisableAutoLogin = query && query.disable_auto_login;
+          if (
+            isOauth &&
+            oauthInfo &&
+            isLogin &&
+            oauthInfo.is_auto_login &&
+            isDisableAutoLogin !== 'true'
+          ) {
+            globalUtil.removeCookie();
+            window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
           } else {
             this.isRender(true);
           }
