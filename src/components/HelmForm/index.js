@@ -118,9 +118,9 @@ export default class Index extends PureComponent {
     if (name.length > 32) {
       return callbacks('最大长度32位');
     }
-    const pattern = /^[a-z][a-zA-Z0-9]+$/;
+    const pattern = /^[a-z][a-z0-9]+$/;
     if (!name.match(pattern)) {
-      return callbacks('只支持小写字母开头、字母和数字组合');
+      return callbacks('只支持小写字母开头、小写字母和数字组合');
     }
 
     dispatch({
@@ -148,7 +148,6 @@ export default class Index extends PureComponent {
     });
   };
   handleError = res => {
-    console.log(res);
     if (res && res.data && res.data.code) {
       notification.warning({
         message: '仓库名称已存在'
@@ -199,6 +198,10 @@ export default class Index extends PureComponent {
               {
                 required: true,
                 message: '请填写商店地址'
+              },
+              {
+                pattern: /^[^\s]*$/,
+                message: '禁止输入空格'
               }
             ]
           })(<Input type="text" placeholder="请填写商店地址" />)}

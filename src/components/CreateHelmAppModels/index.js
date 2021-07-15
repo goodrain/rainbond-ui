@@ -42,7 +42,8 @@ class CreateHelmAppModels extends PureComponent {
     });
   };
   fetchCreateAppTeams = name => {
-    const { dispatch, eid } = this.props;
+    const { dispatch, eid, form, appTypes } = this.props;
+    const { setFieldsValue } = form;
     dispatch({
       type: 'global/fetchCreateAppTeams',
       payload: {
@@ -57,7 +58,22 @@ class CreateHelmAppModels extends PureComponent {
             },
             () => {
               if (res.list && res.list.length > 0) {
-                this.handleTeamChange(res.list[0].team_name);
+                const info = res.list[0];
+                setFieldsValue({
+                  team_name: info.team_name
+                });
+                if (
+                  appTypes === 'helmContent' &&
+                  info.region_list &&
+                  info.region_list.length > 0
+                ) {
+                  this.handleCheckAppName(
+                    true,
+                    info.team_name,
+                    info.region_list[0].region_name
+                  );
+                }
+                this.handleTeamChange(info.team_name);
               }
             }
           );
@@ -82,13 +98,13 @@ class CreateHelmAppModels extends PureComponent {
       callback: res => {
         let validatorValue = '';
         if (res && res.status_code === 200) {
+          const appname = (res.list && res.list.name) || '';
           if (initial) {
             this.setState({
-              appName: (res.list && res.list.name) || ''
+              appName: appname
             });
           } else if (callbacks) {
-            validatorValue =
-              name === (res.list && res.list.name) ? '' : '应用名称已存在';
+            validatorValue = name === appname ? '' : '应用名称已存在';
             if (validatorValue) {
               callbacks(validatorValue);
             } else {
@@ -221,15 +237,13 @@ class CreateHelmAppModels extends PureComponent {
         setFieldsValue({
           region_name: regionName
         });
-        if (appTypes === 'helmContent') {
-          if (getFieldValue('app_name') !== '') {
-            this.handleCheckAppName(
-              false,
-              teamName,
-              regionName,
-              getFieldValue('app_name')
-            );
-          }
+        if (appTypes === 'helmContent' && getFieldValue('app_name') !== '') {
+          this.handleCheckAppName(
+            false,
+            teamName,
+            regionName,
+            getFieldValue('app_name')
+          );
         } else {
           this.fetchGroup(teamName, regionName);
         }
