@@ -140,7 +140,14 @@ class EnterpriseLayout extends PureComponent {
       },
       callback: res => {
         const adminer = userUtil.isCompanyAdmin(currentUser);
-        if (res && res.list && res.list.length == 0 && adminer) {
+        const currentAddress = window.location.href;
+        if (
+          res &&
+          res.list &&
+          res.list.length == 0 &&
+          adminer &&
+          currentAddress.indexOf(`/enterprise/${eid}/provider/`) === -1
+        ) {
           dispatch(routerRedux.push(`/enterprise/${eid}/addCluster?init=true`));
         }
       }
