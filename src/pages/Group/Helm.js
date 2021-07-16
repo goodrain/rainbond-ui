@@ -841,7 +841,7 @@ export default class Index extends PureComponent {
   };
   handleConfing = () => {
     const { form } = this.props;
-    const { getFieldDecorator, setFieldsValue } = form;
+    const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
     const {
       versionInfo,
       versionInfoLoading,
@@ -926,6 +926,7 @@ export default class Index extends PureComponent {
                     }}
                     setFieldsValue={setFieldsValue}
                     formItemLayout={formItemLayout}
+                    getFieldValue={getFieldValue}
                     getFieldDecorator={getFieldDecorator}
                   />
                 )}
