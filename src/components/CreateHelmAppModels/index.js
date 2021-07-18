@@ -42,8 +42,7 @@ class CreateHelmAppModels extends PureComponent {
     });
   };
   fetchCreateAppTeams = name => {
-    const { dispatch, eid, form, appTypes } = this.props;
-    const { setFieldsValue } = form;
+    const { dispatch, eid } = this.props;
     dispatch({
       type: 'global/fetchCreateAppTeams',
       payload: {
@@ -52,28 +51,14 @@ class CreateHelmAppModels extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          const list = res.list || [];
           this.setState(
             {
-              userTeamList: res.list || []
+              userTeamList: list
             },
             () => {
-              if (res.list && res.list.length > 0) {
-                const info = res.list[0];
-                setFieldsValue({
-                  team_name: info.team_name
-                });
-                if (
-                  appTypes === 'helmContent' &&
-                  info.region_list &&
-                  info.region_list.length > 0
-                ) {
-                  this.handleCheckAppName(
-                    true,
-                    info.team_name,
-                    info.region_list[0].region_name
-                  );
-                }
-                this.handleTeamChange(info.team_name);
+              if (list && list.length > 0) {
+                this.handleTeamChange(list[0].team_name);
               }
             }
           );
@@ -82,33 +67,29 @@ class CreateHelmAppModels extends PureComponent {
     });
   };
 
-  handleCheckAppName = (initial, tenantName, regionName, name, callbacks) => {
-    const { dispatch, appInfo } = this.props;
-    const appName = (initial && appInfo && appInfo.name) || name;
+  handleCheckAppName = (tenantName, regionName, name, callbacks) => {
+    const { dispatch } = this.props;
     if (!regionName) {
       return null;
     }
     dispatch({
       type: 'application/checkAppName',
       payload: {
-        app_name: appName,
+        app_name: name,
         regionName,
         tenantName
       },
       callback: res => {
-        let validatorValue = '';
         if (res && res.status_code === 200) {
-          const appname = (res.list && res.list.name) || '';
-          if (initial) {
-            this.setState({
-              appName: appname
-            });
-          } else if (callbacks) {
-            validatorValue = name === appname ? '' : '应用名称已存在';
-            if (validatorValue) {
-              callbacks(validatorValue);
-            } else {
+          const appName = (res.list && res.list.name) || '';
+          this.handleFieldsValue({
+            app_name: appName
+          });
+          if (callbacks) {
+            if (name === appName) {
               callbacks();
+            } else {
+              callbacks('应用名称已存在');
             }
           }
         }
@@ -140,6 +121,12 @@ class CreateHelmAppModels extends PureComponent {
         }
       }
     });
+  };
+
+  handleFieldsValue = info => {
+    const { form } = this.props;
+    const { setFieldsValue } = form;
+    setFieldsValue(info);
   };
 
   handleCloudCreate = vals => {
@@ -222,7 +209,7 @@ class CreateHelmAppModels extends PureComponent {
     this.setState({ helmInstallLoading: false });
   };
   handleTeamChange = teamName => {
-    const { form, appTypes } = this.props;
+    const { form, appTypes, appInfo } = this.props;
     const { setFieldsValue, getFieldValue } = form;
     const { userTeamList } = this.state;
     let regionList = [];
@@ -237,13 +224,9 @@ class CreateHelmAppModels extends PureComponent {
         setFieldsValue({
           region_name: regionName
         });
-        if (appTypes === 'helmContent' && getFieldValue('app_name') !== '') {
-          this.handleCheckAppName(
-            false,
-            teamName,
-            regionName,
-            getFieldValue('app_name')
-          );
+        const appName = getFieldValue('app_name') || (appInfo && appInfo.name);
+        if (appTypes === 'helmContent') {
+          this.handleCheckAppName(teamName, regionName, appName);
         } else {
           this.fetchGroup(teamName, regionName);
         }
@@ -254,6 +237,7 @@ class CreateHelmAppModels extends PureComponent {
         groups: []
       });
       setFieldsValue({
+        team_name: teamName || undefined,
         region_name: undefined,
         group_id: undefined
       });
@@ -436,7 +420,6 @@ class CreateHelmAppModels extends PureComponent {
                     {
                       validator: (_, value, callback) => {
                         this.handleCheckAppName(
-                          false,
                           teaName,
                           regionName,
                           value,
