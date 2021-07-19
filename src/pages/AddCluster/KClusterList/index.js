@@ -34,13 +34,15 @@ export default class EnterpriseClusters extends PureComponent {
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
+      isInitializeClusterVersion: false,
       showBuyClusterConfig: false,
       k8sClusters: [],
       loading: true,
       selectClusterID: '',
       showTaskDetail: false,
       linkedClusters: new Map(),
-      lastTask: {}
+      lastTask: {},
+      clusterID: ''
     };
   }
   componentWillMount() {
@@ -70,7 +72,10 @@ export default class EnterpriseClusters extends PureComponent {
     );
   };
   selectCluster = row => {
-    this.setState({ selectClusterID: row.clusterID });
+    this.setState({
+      selectClusterID: row.clusterID,
+      isInitializeClusterVersion: row.can_init
+    });
   };
 
   loadLastTask = () => {
@@ -88,7 +93,7 @@ export default class EnterpriseClusters extends PureComponent {
       },
       callback: data => {
         if (data) {
-          this.setState({ lastTask: data });
+          this.setState({ lastTask: data, clusterID: data.clusterID });
           // to load create event
           if (data.status === 'start') {
             this.setState({ showTaskDetail: true });
@@ -101,9 +106,9 @@ export default class EnterpriseClusters extends PureComponent {
     });
   };
 
-  loadKubernetesCluster = task => {
-    const { dispatch, rainbondInfo, enterprise } = this.props;
+  loadKubernetesCluster = () => {
     const {
+      dispatch,
       match: {
         params: { eid, provider }
       }
@@ -117,20 +122,6 @@ export default class EnterpriseClusters extends PureComponent {
       },
       callback: data => {
         if (data && data.clusters && data.clusters.length > 0) {
-          if (task && task.taskID) {
-            const infos = data.clusters.filter(item => item.name === task.name);
-            if (infos && infos.length > 0) {
-              globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
-                eid,
-                taskID: task.taskID,
-                status: infos[0].state,
-                message: infos[0].message,
-                install_step: provider,
-                provider
-              });
-            }
-          }
-
           this.setState({
             k8sClusters: data.clusters,
             loading: false
@@ -147,6 +138,25 @@ export default class EnterpriseClusters extends PureComponent {
         cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       }
+    });
+  };
+  handleStartLog = taskID => {
+    if (!taskID) {
+      return false;
+    }
+    const {
+      match: {
+        params: { eid, provider }
+      },
+      rainbondInfo,
+      enterprise
+    } = this.props;
+    globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
+      eid,
+      taskID,
+      status: 'start',
+      install_step: 'createK8s',
+      provider
     });
   };
   loadRainbondClusters = () => {
@@ -223,27 +233,6 @@ export default class EnterpriseClusters extends PureComponent {
     return steps;
   };
 
-  handleStartLog = (task, callback) => {
-    if (task && task.taskID) {
-      const {
-        enterprise,
-        rainbondInfo,
-        match: {
-          params: { eid, provider }
-        }
-      } = this.props;
-      globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
-        eid,
-        taskID: task.taskID,
-        status: 'start',
-        install_step: 'createK8s',
-        provider
-      });
-    }
-    if (callback) {
-      callback(task);
-    }
-  };
   renderCreateClusterShow = () => {
     const {
       match: {
@@ -260,7 +249,12 @@ export default class EnterpriseClusters extends PureComponent {
               this.cancelAddCluster();
             }}
             onOK={task => {
-              this.setState({ lastTask: task, showTaskDetail: true });
+              this.setState({
+                lastTask: task,
+                showTaskDetail: true,
+                clusterID: task.clusterID
+              });
+              this.handleStartLog(task && task.taskID);
               this.cancelAddCluster();
               this.loadKubernetesCluster();
             }}
@@ -276,9 +270,11 @@ export default class EnterpriseClusters extends PureComponent {
               this.cancelAddCluster();
             }}
             onOK={task => {
-              this.handleStartLog(task, () => {
-                this.loadKubernetesCluster(task);
+              this.setState({
+                clusterID: task.clusterID
               });
+              this.handleStartLog(task && task.taskID);
+              this.loadKubernetesCluster();
               this.cancelAddCluster();
             }}
           />
@@ -291,7 +287,12 @@ export default class EnterpriseClusters extends PureComponent {
               this.cancelAddCluster();
             }}
             onOK={task => {
-              this.setState({ lastTask: task, showTaskDetail: true });
+              this.setState({
+                lastTask: task,
+                showTaskDetail: true,
+                clusterID: task.clusterID
+              });
+              this.handleStartLog(task && task.taskID);
               this.cancelAddCluster();
               this.loadKubernetesCluster(task);
             }}
@@ -305,18 +306,21 @@ export default class EnterpriseClusters extends PureComponent {
       k8sClusters,
       showBuyClusterConfig,
       loading,
+      isInitializeClusterVersion,
       selectClusterID,
       showTaskDetail,
       lastTask,
-      linkedClusters
+      linkedClusters,
+      clusterID
     } = this.state;
-    const nextDisable = selectClusterID === '';
+    const isSelectClusterID = selectClusterID === '';
+    const nextDisable = isSelectClusterID || !isInitializeClusterVersion;
     const {
       match: {
         params: { eid, provider }
       },
       location: {
-        query: { clusterID, updateKubernetes }
+        query: { clusterID: ID, updateKubernetes }
       }
     } = this.props;
     let title = 'Kubernetes 集群列表';
@@ -364,13 +368,19 @@ export default class EnterpriseClusters extends PureComponent {
             linkedClusters={linkedClusters}
             showBuyClusterConfig={this.showBuyClusterConfig}
             updateKubernetes={updateKubernetes}
-            updateKubernetesClusterID={clusterID}
+            updateKubernetesClusterID={ID}
           />
           {showBuyClusterConfig && this.renderCreateClusterShow()}
           <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
             <Button onClick={this.preStep}>上一步</Button>
             {nextDisable ? (
-              <Tooltip title="请选择需要初始化的集群">
+              <Tooltip
+                title={
+                  isSelectClusterID
+                    ? '请选择需要初始化的集群'
+                    : '当前集群版本无法继续初始化，初始化Rainbond支持的版本为1.16.x-1.19.x'
+                }
+              >
                 <Button
                   style={{ marginLeft: '16px' }}
                   type="primary"
@@ -385,7 +395,6 @@ export default class EnterpriseClusters extends PureComponent {
                 style={{ marginLeft: '16px' }}
                 type="primary"
                 onClick={this.startInit}
-                disabled={nextDisable}
               >
                 下一步
               </Button>
@@ -395,7 +404,9 @@ export default class EnterpriseClusters extends PureComponent {
             <ShowKubernetesCreateDetail
               onCancel={this.cancelShowCreateDetail}
               eid={eid}
+              selectProvider={provider}
               taskID={lastTask.taskID}
+              clusterID={clusterID}
             />
           )}
         </Card>
