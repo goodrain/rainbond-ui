@@ -138,6 +138,9 @@ export default {
   // 判断平台是否配置了具有文档权限
   documentEnable: (bean = {}) =>
     (bean && bean.document && bean.document.enable) || false,
+
+  // 判断平台是否禁用退出登录
+  logoutEnable: (bean = {}) => (bean && bean.is_disable_logout) || false,
   // 判断平台是否配置了具有文档地址
   documentPlatform_url: (bean = {}) =>
     (bean &&
