@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable prettier/prettier */
 /* eslint-disable react/react-in-jsx-scope */
 import { notification, Tooltip } from 'antd';
@@ -466,104 +467,112 @@ const cloud = {
         return n;
     }
   },
-  handleCloudAPIError(res) {
-    if (!res) {
-      notification.warning({ message: 'API请求错误' });
+  handleCloudAPIError(err) {
+    function noticeWarning(message) {
+      return notification.warning({ message });
+    }
+    if (!err) {
+      noticeWarning('API请求错误');
       return;
     }
-    const code = res.data ? res.data.code : res.code;
+    let data = null;
+    if (err.response && err.response.data) {
+      data = err.response.data;
+    } else if (err.data) {
+      data = err.data;
+    }
+
+    const code = data && data.code;
     switch (code) {
       case 2003:
-        notification.warning({ message: '用户手机号已注册' });
+        noticeWarning('用户手机号已注册');
         break;
       case 3000:
-        notification.warning({ message: '用户已存在' });
+        noticeWarning('用户已存在');
         break;
       case 3001:
-        notification.warning({ message: '用户不存在' });
+        noticeWarning('用户不存在');
         break;
       case 3002:
-        notification.warning({ message: '用户不存在' });
+        noticeWarning('用户不存在');
         break;
       case 3003:
-        notification.warning({ message: '邮箱已存在' });
+        noticeWarning('邮箱已存在');
         break;
       case 3004:
-        notification.warning({ message: '电话已存在' });
+        noticeWarning('电话已存在');
         break;
       case 3005:
-        notification.warning({ message: '不允许删除管理员' });
+        noticeWarning('不允许删除管理员');
         break;
       case 4001:
-        notification.warning({ message: '请求Token过期，请尝试重新登录' });
+        noticeWarning('请求Token过期，请尝试重新登录');
         break;
       case 7002:
-        notification.warning({
-          message: 'AccessKey不存在，请确认是否输入正确'
-        });
+        noticeWarning('AccessKey不存在，请确认是否输入正确');
         break;
       case 7004:
-        notification.warning({
-          message: 'AccessKey与Secret不匹配，请确认是否输入正确'
-        });
+        noticeWarning('AccessKey与Secret不匹配，请确认是否输入正确');
         break;
       case 7005:
-        notification.warning({ message: '已存在同类型任务' });
+        noticeWarning('已存在同类型任务');
         break;
       case 7006:
-        notification.warning({ message: 'KubernetesAPI无法请求' });
+        noticeWarning('KubernetesAPI无法请求');
         break;
       case 7008:
-        notification.warning({ message: '阿里云容器服务默认缺角未创建' });
+        noticeWarning('阿里云容器服务默认缺角未创建');
         break;
       case 7007:
-        notification.warning({ message: '阿里云API请求故障，请稍后重试' });
+        noticeWarning('阿里云API请求故障，请稍后重试');
         break;
       case 7010:
-        notification.warning({
-          message: '节点角色缺失，请确保管理、计算、ETCD节点分别至少一个'
-        });
+        noticeWarning('节点角色缺失，请确保管理、计算、ETCD节点分别至少一个');
         break;
       case 7011:
-        notification.warning({ message: 'ETCD节点数量必须为奇数' });
+        noticeWarning('ETCD节点数量必须为奇数');
         break;
       case 7012:
-        notification.warning({ message: '集群节点配置校验不通过' });
+        noticeWarning('集群节点配置校验不通过');
         break;
       case 7013:
-        notification.warning({ message: '节点端口配置不正确' });
+        noticeWarning('节点端口配置不正确');
         break;
       case 7014:
-        notification.warning({ message: 'KubeConfig配置不能为空' });
+        noticeWarning('KubeConfig配置不能为空');
         break;
       case 7015:
-        notification.warning({ message: '集群不能被删除' });
+        noticeWarning('集群不能被删除');
         break;
       case 7016:
-        notification.warning({ message: '集群不支持重新安装' });
+        noticeWarning('集群不支持重新安装');
         break;
       case 7017:
-        notification.warning({ message: '该集群不支持节点配置动作' });
+        noticeWarning('该集群不支持节点配置动作');
         break;
       case 7018:
-        notification.warning({
-          message: '集群初始化配置配置不合法，请检查后重试'
-        });
+        noticeWarning('集群初始化配置配置不合法，请检查后重试');
         break;
       case 7019:
-        notification.warning({ message: '无法获取集群的初始化状态' });
+        noticeWarning('无法获取集群的初始化状态');
+        break;
+      case 7024:
+        noticeWarning('上一个更新集群的任务未结束');
+        break;
+      case 7025:
+        noticeWarning('请勿重复提交更新集群任务');
         break;
       case 8002:
-        notification.warning({ message: '应用商店地址不是合法的Helm仓库地址或通信不畅，请确认' });
+        noticeWarning('应用商店地址不是合法的Helm仓库地址或通信不畅，请确认');
         break;
       case 400:
-        notification.warning({ message: '请求参数错误' });
+        noticeWarning(data.msg_show || '请求参数错误');
         break;
       case undefined:
-        notification.warning({ message: `API请求错误` });
+        noticeWarning('API请求错误');
         break;
       default:
-        notification.warning({ message: `未知的Cloud错误，错误码为${code}` });
+        noticeWarning(`未知的Cloud错误，错误码为${code}`);
         break;
     }
   },

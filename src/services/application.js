@@ -378,6 +378,7 @@ export async function addGroup(body = {}) {
         app_name: body.group_name,
         note: body.note
       },
+      showMessage: body.showMessage,
       noModels: body.noModels
     }
   );

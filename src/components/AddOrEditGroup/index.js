@@ -39,6 +39,7 @@ export default class EditGroupName extends PureComponent {
           addGroup({
             ...parameters,
             ...vals,
+            showMessage: false,
             noModels: true
           })
             .then(res => {
