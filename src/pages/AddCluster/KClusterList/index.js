@@ -41,7 +41,7 @@ export default class EnterpriseClusters extends PureComponent {
       showTaskDetail: false,
       linkedClusters: new Map(),
       lastTask: {},
-      clusterID: ''
+      currentClusterID: ''
     };
   }
   componentWillMount() {
@@ -91,7 +91,7 @@ export default class EnterpriseClusters extends PureComponent {
       },
       callback: data => {
         if (data) {
-          this.setState({ lastTask: data, clusterID: data.clusterID });
+          this.setState({ lastTask: data, currentClusterID: data.clusterID });
           // to load create event
           if (data.status === 'start') {
             this.setState({ showTaskDetail: true });
@@ -139,9 +139,6 @@ export default class EnterpriseClusters extends PureComponent {
     });
   };
   handleStartLog = taskID => {
-    if (!taskID) {
-      return false;
-    }
     const {
       match: {
         params: { eid, provider }
@@ -231,6 +228,14 @@ export default class EnterpriseClusters extends PureComponent {
     return steps;
   };
 
+  handleOk = (task, upDateInfo) => {
+    this.setState(upDateInfo);
+    if (task && task.taskID) {
+      this.handleStartLog(task.taskID);
+    }
+    this.cancelAddCluster();
+    this.loadKubernetesCluster();
+  };
   renderCreateClusterShow = () => {
     const {
       match: {
@@ -247,14 +252,12 @@ export default class EnterpriseClusters extends PureComponent {
               this.cancelAddCluster();
             }}
             onOK={task => {
-              this.setState({
+              const upDateInfo = {
                 lastTask: task,
                 showTaskDetail: true,
-                clusterID: task.clusterID
-              });
-              this.handleStartLog(task && task.taskID);
-              this.cancelAddCluster();
-              this.loadKubernetesCluster();
+                currentClusterID: task.clusterID
+              };
+              this.handleOk(task, upDateInfo);
             }}
           />
         );
@@ -268,12 +271,10 @@ export default class EnterpriseClusters extends PureComponent {
               this.cancelAddCluster();
             }}
             onOK={task => {
-              this.setState({
-                clusterID: task.clusterID
-              });
-              this.handleStartLog(task && task.taskID);
-              this.loadKubernetesCluster();
-              this.cancelAddCluster();
+              const upDateInfo = {
+                currentClusterID: task.clusterID
+              };
+              this.handleOk(task, upDateInfo);
             }}
           />
         );
@@ -285,14 +286,12 @@ export default class EnterpriseClusters extends PureComponent {
               this.cancelAddCluster();
             }}
             onOK={task => {
-              this.setState({
+              const upDateInfo = {
                 lastTask: task,
                 showTaskDetail: true,
-                clusterID: task.clusterID
-              });
-              this.handleStartLog(task && task.taskID);
-              this.cancelAddCluster();
-              this.loadKubernetesCluster(task);
+                currentClusterID: task.clusterID
+              };
+              this.handleOk(task, upDateInfo);
             }}
           />
         );
@@ -305,7 +304,7 @@ export default class EnterpriseClusters extends PureComponent {
         params: { eid, provider }
       },
       location: {
-        query: { clusterID: ID, updateKubernetes }
+        query: { clusterID, updateKubernetes }
       }
     } = this.props;
     const {
@@ -316,7 +315,7 @@ export default class EnterpriseClusters extends PureComponent {
       showTaskDetail,
       lastTask,
       linkedClusters,
-      clusterID
+      currentClusterID
     } = this.state;
     const nextDisable = selectClusterID === '';
 
@@ -375,7 +374,7 @@ export default class EnterpriseClusters extends PureComponent {
             linkedClusters={linkedClusters}
             showBuyClusterConfig={this.showBuyClusterConfig}
             updateKubernetes={updateKubernetes}
-            updateKubernetesClusterID={ID}
+            updateKubernetesClusterID={clusterID}
           />
           {showBuyClusterConfig && this.renderCreateClusterShow()}
           <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
@@ -392,7 +391,7 @@ export default class EnterpriseClusters extends PureComponent {
               eid={eid}
               selectProvider={provider}
               taskID={lastTask.taskID}
-              clusterID={clusterID}
+              clusterID={currentClusterID}
             />
           )}
         </Card>
