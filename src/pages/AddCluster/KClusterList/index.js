@@ -34,7 +34,6 @@ export default class EnterpriseClusters extends PureComponent {
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
-      isInitializeClusterVersion: false,
       showBuyClusterConfig: false,
       k8sClusters: [],
       loading: true,
@@ -73,8 +72,7 @@ export default class EnterpriseClusters extends PureComponent {
   };
   selectCluster = row => {
     this.setState({
-      selectClusterID: row.clusterID,
-      isInitializeClusterVersion: row.can_init
+      selectClusterID: row.clusterID
     });
   };
 
@@ -303,19 +301,6 @@ export default class EnterpriseClusters extends PureComponent {
   };
   render() {
     const {
-      k8sClusters,
-      showBuyClusterConfig,
-      loading,
-      isInitializeClusterVersion,
-      selectClusterID,
-      showTaskDetail,
-      lastTask,
-      linkedClusters,
-      clusterID
-    } = this.state;
-    const isSelectClusterID = selectClusterID === '';
-    const nextDisable = isSelectClusterID || !isInitializeClusterVersion;
-    const {
       match: {
         params: { eid, provider }
       },
@@ -323,6 +308,18 @@ export default class EnterpriseClusters extends PureComponent {
         query: { clusterID: ID, updateKubernetes }
       }
     } = this.props;
+    const {
+      k8sClusters,
+      showBuyClusterConfig,
+      loading,
+      selectClusterID,
+      showTaskDetail,
+      lastTask,
+      linkedClusters,
+      clusterID
+    } = this.state;
+    const nextDisable = selectClusterID === '';
+
     let title = 'Kubernetes 集群列表';
     switch (provider) {
       case 'ack':
@@ -340,6 +337,16 @@ export default class EnterpriseClusters extends PureComponent {
       default:
         title += `(不支持的驱动类型: ${provider})`;
     }
+    const nextStepBtn = (
+      <Button
+        style={{ marginLeft: '16px' }}
+        type="primary"
+        onClick={this.startInit}
+        disabled={nextDisable}
+      >
+        下一步
+      </Button>
+    );
     return (
       <PageHeaderLayout
         title="添加集群"
@@ -374,30 +381,9 @@ export default class EnterpriseClusters extends PureComponent {
           <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
             <Button onClick={this.preStep}>上一步</Button>
             {nextDisable ? (
-              <Tooltip
-                title={
-                  isSelectClusterID
-                    ? '请选择需要初始化的集群'
-                    : '当前集群版本无法继续初始化，初始化Rainbond支持的版本为1.16.x-1.19.x'
-                }
-              >
-                <Button
-                  style={{ marginLeft: '16px' }}
-                  type="primary"
-                  onClick={this.startInit}
-                  disabled={nextDisable}
-                >
-                  下一步
-                </Button>
-              </Tooltip>
+              <Tooltip title="请选择需要初始化的集群">{nextStepBtn}</Tooltip>
             ) : (
-              <Button
-                style={{ marginLeft: '16px' }}
-                type="primary"
-                onClick={this.startInit}
-              >
-                下一步
-              </Button>
+              nextStepBtn
             )}
           </Col>
           {showTaskDetail && lastTask && (

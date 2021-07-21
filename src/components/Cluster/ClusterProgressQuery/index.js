@@ -1,4 +1,5 @@
 /* eslint-disable react/no-array-index-key */
+import rainbondUtil from '@/utils/rainbond';
 import { Alert, Button, Modal, Popover, Row, Timeline } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -31,13 +32,16 @@ class ClusterProgressQuery extends PureComponent {
       loading,
       complete,
       clusterID,
-      msg
+      msg,
+      rainbondInfo
     } = this.props;
     const { showCreateLog } = this.state;
     let pending = '进行中';
     if (complete) {
       pending = false;
     }
+    const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
+
     return (
       <Modal
         title={title}
@@ -68,25 +72,29 @@ class ClusterProgressQuery extends PureComponent {
             message={
               <span>
                 {msg}
-                <Popover
-                  placement="bottom"
-                  content={
-                    <img
-                      alt="扫码加入社区钉钉群"
-                      style={{ width: '200px' }}
-                      title="扫码加入社区钉钉群"
-                      src="https://www.rainbond.com/images/dingding-group.jpeg"
-                    />
-                  }
-                  title={
-                    <div style={{ textAlign: 'center' }}>钉钉群号31096419</div>
-                  }
-                >
-                  <Button type="link" style={{ padding: 0 }}>
-                    钉钉群
-                  </Button>
-                </Popover>
-                获取官方支持
+                {!enterpriseEdition && (
+                  <Popover
+                    placement="bottom"
+                    content={
+                      <img
+                        alt="扫码加入社区钉钉群"
+                        style={{ width: '200px' }}
+                        title="扫码加入社区钉钉群"
+                        src="https://www.rainbond.com/images/dingding-group.jpeg"
+                      />
+                    }
+                    title={
+                      <div style={{ textAlign: 'center' }}>
+                        钉钉群号31096419
+                      </div>
+                    }
+                  >
+                    <Button type="link" style={{ padding: 0 }}>
+                      钉钉群
+                    </Button>
+                    获取官方支持
+                  </Popover>
+                )}
               </span>
             }
             type="info"

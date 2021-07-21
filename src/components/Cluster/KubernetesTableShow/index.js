@@ -7,6 +7,7 @@ import {
   Modal,
   notification,
   Popconfirm,
+  Radio,
   Row,
   Table,
   Tooltip,
@@ -179,8 +180,46 @@ export default class KubernetesClusterShow extends PureComponent {
   };
 
   render() {
-    const { selectProvider, linkedClusters, eid } = this.props;
+    const { selectProvider, linkedClusters, eid, selectCluster } = this.props;
+    const { selectClusterName } = this.state;
     const columns = [
+      {
+        width: 50,
+        dataIndex: 'radio',
+        render: (text, record) => {
+          const clusterID = record.cluster_id;
+          const disabled =
+            record.state !== 'running' ||
+            linkedClusters.get(clusterID) ||
+            (record.parameters && record.parameters.DisableRainbondInit);
+          const msg = record.parameters && record.parameters.Message;
+          const recordName = record.name;
+          return (
+            <Tooltip title={msg}>
+              <Radio
+                disabled={disabled}
+                checked={selectClusterName === recordName}
+                onClick={() => {
+                  if (!disabled) {
+                    this.setState({
+                      selectClusterName: recordName
+                    });
+                    if (selectCluster) {
+                      selectCluster({
+                        clusterID,
+                        name: recordName,
+                        can_init: record.can_init
+                      });
+                    }
+                  }
+                }}
+              >
+                {text}
+              </Radio>
+            </Tooltip>
+          );
+        }
+      },
       {
         title: '名称(ID)',
         width: 120,
@@ -239,7 +278,7 @@ export default class KubernetesClusterShow extends PureComponent {
     columns.push({
       title: '操作',
       dataIndex: 'cluster_id',
-      render: (text, row) => {
+      render: (_, row) => {
         return (
           <div>
             {row.state === 'running' && (
@@ -322,33 +361,6 @@ export default class KubernetesClusterShow extends PureComponent {
         );
       }
     });
-
-    // rowSelection object indicates the need for row selection
-    const rowSelection = {
-      onChange: (_, selectedRows) => {
-        const info = selectedRows && selectedRows.length > 0 && selectedRows[0];
-        if (info) {
-          this.setState({
-            selectClusterName: info.name
-          });
-          if (this.props.selectCluster) {
-            this.props.selectCluster({
-              clusterID: info.cluster_id,
-              name: info.name,
-              can_init: info.can_init
-            });
-          }
-        }
-      },
-      getCheckboxProps: record => ({
-        disabled:
-          record.state !== 'running' ||
-          linkedClusters.get(record.cluster_id) ||
-          (record.parameters && record.parameters.DisableRainbondInit), // Column configuration not to be checked
-        name: record.name,
-        title: record.parameters && record.parameters.Message
-      })
-    };
     const {
       data,
       showBuyClusterConfig,
@@ -358,7 +370,6 @@ export default class KubernetesClusterShow extends PureComponent {
       showLastTaskDetail
     } = this.props;
     const {
-      selectClusterName,
       clusterID,
       kubeConfig,
       showUpdateKubernetes,
@@ -447,10 +458,6 @@ export default class KubernetesClusterShow extends PureComponent {
         </Row>
         <Table
           loading={loading}
-          rowSelection={{
-            type: 'radio',
-            ...rowSelection
-          }}
           pagination={false}
           columns={columns}
           dataSource={data}
