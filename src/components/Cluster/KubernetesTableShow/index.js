@@ -7,6 +7,7 @@ import {
   Modal,
   notification,
   Popconfirm,
+  Radio,
   Row,
   Table,
   Tooltip,
@@ -17,7 +18,6 @@ import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import CodeMirror from 'react-codemirror';
 import { Link } from 'umi';
-import Ansi from '../../../components/Ansi';
 import {
   getKubeConfig,
   getUpdateKubernetesTask,
@@ -25,6 +25,7 @@ import {
 } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
+import ClusterCreationLog from '../ClusterCreationLog';
 import RKEClusterUpdate from '../RKEClusterAdd';
 import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
 import istyles from './index.less';
@@ -37,7 +38,7 @@ export default class KubernetesClusterShow extends PureComponent {
     super(props);
     this.state = {
       selectClusterName: '',
-      createLog: '',
+      clusterID: '',
       showCreateLog: false
     };
   }
@@ -71,25 +72,7 @@ export default class KubernetesClusterShow extends PureComponent {
     });
   }
   queryCreateLog = row => {
-    const { dispatch, eid, selectProvider } = this.props;
-    dispatch({
-      type: 'cloud/queryCreateLog',
-      payload: {
-        enterprise_id: eid,
-        provider_name: selectProvider,
-        clusterID: row.cluster_id
-      },
-      callback: data => {
-        if (data) {
-          // to load create event
-          const content = data.content.split('\n');
-          this.setState({ createLog: content, showCreateLog: true });
-        }
-      },
-      handleError: res => {
-        cloud.handleCloudAPIError(res);
-      }
-    });
+    this.setState({ showCreateLog: true, clusterID: row.cluster_id });
   };
 
   reInstallCluster = clusterID => {
@@ -196,17 +179,47 @@ export default class KubernetesClusterShow extends PureComponent {
     });
   };
 
-  getLineHtml = (lineNumber, line) => {
-    return (
-      <div className={istyles.logline} key={lineNumber}>
-        <a>{lineNumber}</a>
-        <Ansi>{line}</Ansi>
-      </div>
-    );
-  };
   render() {
-    const { selectProvider, linkedClusters, eid } = this.props;
+    const { selectProvider, linkedClusters, eid, selectCluster } = this.props;
+    const { selectClusterName } = this.state;
     const columns = [
+      {
+        width: 50,
+        dataIndex: 'radio',
+        render: (text, record) => {
+          const clusterID = record.cluster_id;
+          const disabled =
+            record.state !== 'running' ||
+            linkedClusters.get(clusterID) ||
+            (record.parameters && record.parameters.DisableRainbondInit);
+          const msg = record.parameters && record.parameters.Message;
+          const recordName = record.name;
+          return (
+            <Tooltip title={msg}>
+              <Radio
+                disabled={disabled}
+                checked={selectClusterName === recordName}
+                onClick={() => {
+                  if (!disabled) {
+                    this.setState({
+                      selectClusterName: recordName
+                    });
+                    if (selectCluster) {
+                      selectCluster({
+                        clusterID,
+                        name: recordName,
+                        can_init: record.can_init
+                      });
+                    }
+                  }
+                }}
+              >
+                {text}
+              </Radio>
+            </Tooltip>
+          );
+        }
+      },
       {
         title: '名称(ID)',
         width: 120,
@@ -265,7 +278,7 @@ export default class KubernetesClusterShow extends PureComponent {
     columns.push({
       title: '操作',
       dataIndex: 'cluster_id',
-      render: (text, row) => {
+      render: (_, row) => {
         return (
           <div>
             {row.state === 'running' && (
@@ -294,20 +307,22 @@ export default class KubernetesClusterShow extends PureComponent {
                   对接
                 </Link>
               )}
-            {row.create_log_path &&
-              (row.create_log_path.startsWith('http') ? (
-                <a href={row.create_log_path} target="_blank" rel="noreferrer">
-                  查看日志
-                </a>
-              ) : (
-                <a
-                  onClick={() => {
-                    this.queryCreateLog(row);
-                  }}
-                >
-                  查看日志
-                </a>
-              ))}
+            <Button
+              type="link"
+              style={{ padding: 0 }}
+              onClick={() => {
+                if (
+                  row.create_log_path &&
+                  row.create_log_path.startsWith('http')
+                ) {
+                  window.open(row.create_log_path, '_blank');
+                } else {
+                  this.queryCreateLog(row);
+                }
+              }}
+            >
+              查看日志
+            </Button>
             {!row.rainbond_init &&
               (selectProvider === 'rke' || selectProvider === 'custom') && (
                 <Popconfirm
@@ -346,31 +361,6 @@ export default class KubernetesClusterShow extends PureComponent {
         );
       }
     });
-
-    // rowSelection object indicates the need for row selection
-    const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
-        if (selectedRows[0]) {
-          this.setState({
-            selectClusterName: selectedRows[0].name
-          });
-          if (this.props.selectCluster) {
-            this.props.selectCluster({
-              clusterID: selectedRows[0].cluster_id,
-              name: selectedRows[0].name
-            });
-          }
-        }
-      },
-      getCheckboxProps: record => ({
-        disabled:
-          record.state !== 'running' ||
-          linkedClusters.get(record.cluster_id) ||
-          (record.parameters && record.parameters.DisableRainbondInit), // Column configuration not to be checked
-        name: record.name,
-        title: record.parameters && record.parameters.Message
-      })
-    };
     const {
       data,
       showBuyClusterConfig,
@@ -380,16 +370,15 @@ export default class KubernetesClusterShow extends PureComponent {
       showLastTaskDetail
     } = this.props;
     const {
-      selectClusterName,
-      createLog,
-      showCreateLog,
+      clusterID,
       kubeConfig,
       showUpdateKubernetes,
       nodeList,
       rkeConfig,
       updateClusterID,
       showUpdateKubernetesTasks,
-      updateTask
+      updateTask,
+      showCreateLog
     } = this.state;
     return (
       <div>
@@ -469,32 +458,19 @@ export default class KubernetesClusterShow extends PureComponent {
         </Row>
         <Table
           loading={loading}
-          rowSelection={{
-            type: 'radio',
-            ...rowSelection
-          }}
           pagination={false}
           columns={columns}
           dataSource={data}
         />
         {showCreateLog && (
-          <Modal
-            visible
-            width={1000}
-            maskClosable={false}
+          <ClusterCreationLog
+            eid={eid}
+            clusterID={clusterID}
+            selectProvider={selectProvider}
             onCancel={() => {
-              this.setState({ showCreateLog: false });
+              this.setState({ clusterID: '', showCreateLog: false });
             }}
-            title="集群创建日志"
-            bodyStyle={{ background: '#000' }}
-            footer={null}
-          >
-            <div className={istyles.cmd}>
-              {createLog.map((line, index) => {
-                return this.getLineHtml(index + 1, line);
-              })}
-            </div>
-          </Modal>
+          />
         )}
         {kubeConfig && (
           <Modal
@@ -533,13 +509,14 @@ export default class KubernetesClusterShow extends PureComponent {
         {showUpdateKubernetes && (
           <RKEClusterUpdate
             eid={eid}
-            onOK={task =>
+            onOK={task => {
               this.setState({
+                clusterID: task.clusterID,
                 showUpdateKubernetes: false,
                 updateTask: task,
                 showUpdateKubernetesTasks: true
-              })
-            }
+              });
+            }}
             onCancel={() => {
               this.setState({ showUpdateKubernetes: false });
             }}
@@ -551,7 +528,9 @@ export default class KubernetesClusterShow extends PureComponent {
         {showUpdateKubernetesTasks && (
           <ShowUpdateClusterDetail
             eid={eid}
+            clusterID={clusterID}
             task={updateTask}
+            selectProvider={selectProvider}
             onCancel={this.cancelShowUpdateKubernetes}
           />
         )}

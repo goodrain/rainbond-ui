@@ -1,11 +1,9 @@
 /* eslint-disable react/no-array-index-key */
-import { Alert, Button, Modal, Row, Timeline } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
-import modelstyles from '../../CreateTeam/index.less';
-import styles from '../ShowKubernetesCreateDetail/index.less';
+import ClusterProgressQuery from '../ClusterProgressQuery';
 
 @connect(({ global }) => ({
   rainbondInfo: global.rainbondInfo,
@@ -17,7 +15,9 @@ class InitRainbondDetail extends PureComponent {
     this.state = {
       loading: true,
       complete: false,
-      steps: []
+      steps: [],
+      clusterID: '',
+      showCreateLog: false
     };
   }
   componentDidMount() {
@@ -80,6 +80,7 @@ class InitRainbondDetail extends PureComponent {
             });
           }
           this.setState({
+            clusterID: data.clusterID,
             complete,
             loading: false,
             steps
@@ -95,49 +96,19 @@ class InitRainbondDetail extends PureComponent {
       }
     });
   };
-
+  queryCreateLog = () => {
+    this.setState({ showCreateLog: true });
+  };
   render() {
-    const { onCancel, title } = this.props;
-    const { steps, loading, complete } = this.state;
-    let pending = '进行中';
-    if (complete) {
-      pending = false;
-    }
+    const { title } = this.props;
+
     return (
-      <Modal
+      <ClusterProgressQuery
         title={title || '平台集群初始化进度查询'}
-        visible
-        maskClosable={false}
-        width={600}
-        onCancel={onCancel}
-        className={modelstyles.TelescopicModal}
-        footer={[
-          <Button type="primary" onClick={onCancel}>
-            关闭
-          </Button>
-        ]}
-      >
-        <Row loading={loading} className={styles.box}>
-          <Alert
-            style={{ marginBottom: '16px' }}
-            message="初始化流程预计耗时20分钟，请耐心等待，若遇到错误请反馈到社区"
-            type="info"
-            showIcon
-          />
-          <Timeline loading={loading} pending={pending}>
-            {steps.map((item, index) => {
-              return (
-                <Timeline.Item color={item.Color} key={`step${index}`}>
-                  <h4>{item.Title}</h4>
-                  <p>{item.Description}</p>
-                  <p>{item.Message}</p>
-                </Timeline.Item>
-              );
-            })}
-          </Timeline>
-          {complete && <span>已结束</span>}
-        </Row>
-      </Modal>
+        msg="初始化流程预计耗时20分钟，请耐心等待，若遇到错误请反馈到社区"
+        {...this.state}
+        {...this.props}
+      />
     );
   }
 }

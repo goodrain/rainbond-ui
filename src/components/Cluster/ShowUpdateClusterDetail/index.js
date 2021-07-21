@@ -1,10 +1,8 @@
 /* eslint-disable react/no-array-index-key */
-import { Alert, Button, Modal, Row, Timeline } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import cloud from '../../../utils/cloud';
-import modelstyles from '../../CreateTeam/index.less';
-import styles from '../ShowKubernetesCreateDetail/index.less';
+import ClusterProgressQuery from '../ClusterProgressQuery';
 
 @connect()
 class UpdateClusterDetail extends PureComponent {
@@ -52,47 +50,15 @@ class UpdateClusterDetail extends PureComponent {
   };
 
   render() {
-    const { onCancel, title } = this.props;
-    const { steps, loading, complete } = this.state;
-    let pending = '进行中';
-    if (complete) {
-      pending = false;
-    }
+    const { title } = this.props;
+
     return (
-      <Modal
+      <ClusterProgressQuery
         title={title || 'Kubernetes 集群配置进度查询'}
-        visible
-        maskClosable={false}
-        width={600}
-        onCancel={onCancel}
-        className={modelstyles.TelescopicModal}
-        footer={[
-          <Button type="primary" onClick={onCancel}>
-            关闭
-          </Button>
-        ]}
-      >
-        <Row loading={loading} className={styles.box}>
-          <Alert
-            style={{ marginBottom: '16px' }}
-            message="配置流程预计耗时10分钟，请耐心等待，若遇到错误请反馈到社区"
-            type="info"
-            showIcon
-          />
-          <Timeline loading={loading} pending={pending}>
-            {steps.map((item, index) => {
-              return (
-                <Timeline.Item color={item.Color} key={`step${index}`}>
-                  <h4>{item.Title}</h4>
-                  <p>{item.Description}</p>
-                  <p>{item.Message}</p>
-                </Timeline.Item>
-              );
-            })}
-          </Timeline>
-          {complete && <span>已结束</span>}
-        </Row>
-      </Modal>
+        msg="配置流程预计耗时10分钟，请耐心等待，若遇到错误请反馈到社区"
+        {...this.state}
+        {...this.props}
+      />
     );
   }
 }
