@@ -9,6 +9,7 @@ import {
   Button,
   Col,
   Form,
+  Icon,
   Input,
   InputNumber,
   message,
@@ -23,6 +24,7 @@ import {
   Tooltip,
   Typography
 } from 'antd';
+import copy from 'copy-to-clipboard';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { rkeconfig } from '../../../services/cloud';
@@ -669,33 +671,59 @@ export default class RKEClusterConfig extends PureComponent {
         width={900}
         destroyOnClose
         footer={
-          <Popconfirm
+          <Button
+            type="primary"
+            onClick={() => {
+              this.handleStartCheck();
+            }}
+            loading={loading}
+          >
+            {clusterID ? '更新集群' : '开始安装'}
+          </Button>
+        }
+        confirmLoading={loading}
+        onCancel={onCancel}
+        maskClosable={false}
+      >
+        {isCheck && (
+          <Modal
             title={`确定已完成所有节点的初始化并开始
             ${clusterID ? '配置' : '安装'}
-            集群吗?`}
-            visible={isCheck}
-            onConfirm={() => {
+           集群吗?`}
+            confirmLoading={loading}
+            className={styles.TelescopicModal}
+            width={900}
+            visible
+            onOk={() => {
               this.handleTabs(activeKey === '1' ? '2' : '1', true);
             }}
             onCancel={() => {
               this.handleCheck(false);
             }}
           >
-            <Button
-              type="primary"
-              onClick={() => {
-                this.handleStartCheck();
-              }}
-              loading={loading}
-            >
-              {clusterID ? '更新集群' : '开始安装'}
-            </Button>
-          </Popconfirm>
-        }
-        confirmLoading={loading}
-        onCancel={onCancel}
-        maskClosable={false}
-      >
+            <Row style={{ padding: '0 16px' }}>
+              <span style={{ fontWeight: 600, color: 'red' }}>
+                请在开始{clusterID ? '配置前在新加' : '安装前所有'}
+                节点先执行以下初始化命令（执行用户需要具有sudo权限）：
+              </span>
+
+              <Col span={24} style={{ marginTop: '16px' }}>
+                <span className={styles.cmd}>
+                  <Icon
+                    className={styles.copy}
+                    type="copy"
+                    onClick={() => {
+                      copy(initNodeCmd);
+                      notification.success({ message: '复制成功' });
+                    }}
+                  />
+                  {initNodeCmd}
+                </span>
+              </Col>
+            </Row>
+          </Modal>
+        )}
+
         {clusterID && (
           <Alert
             type="warning"
@@ -813,15 +841,6 @@ export default class RKEClusterConfig extends PureComponent {
               />
             )}
           </div>
-          <Row style={{ padding: '0 16px' }}>
-            <span style={{ fontWeight: 600, color: 'red' }}>
-              请在开始{clusterID ? '配置前在新加' : '安装前所有'}
-              节点先执行以下初始化命令（执行用户需要具有sudo权限）：
-            </span>
-            <Col span={24} style={{ marginTop: '16px' }}>
-              <span className={styles.cmd}>{initNodeCmd}</span>
-            </Col>
-          </Row>
         </Form>
       </Modal>
     );
