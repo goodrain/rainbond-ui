@@ -56,7 +56,13 @@ const { TabPane } = Tabs;
 export default class Main extends PureComponent {
   constructor(arg) {
     super(arg);
-    const { handleType = '', match, scope = '', moreState } = this.props;
+    const {
+      handleType = '',
+      match,
+      scope = '',
+      moreState,
+      scopeMax
+    } = this.props;
     const appName = decodeURIComponent(
       handleType === 'Service'
         ? ''
@@ -81,14 +87,21 @@ export default class Main extends PureComponent {
       helmCreate: null,
       showCreate: null,
       scope,
-      scopeMax: '',
+      scopeMax: scopeMax || 'localApplication',
       showApp: {},
       showMarketAppDetail: false,
       installBounced: false,
       handleType: handleType || null,
       moreState: moreState || null,
       is_deploy: true,
-      marketTab: [],
+      localAppTab: [
+        {
+          key: 'localApplication',
+          tab: '本地组件库'
+        }
+      ],
+      rainStoreTab: [],
+      helmStoreTab: [],
       currentKey: '',
       helmList: [],
       helmLoading: true,
@@ -109,6 +122,7 @@ export default class Main extends PureComponent {
   componentDidMount() {
     this.mount = true;
     this.getApps();
+    this.getMarketsTab();
     this.getHelmMarketsTab();
   }
   componentWillUnmount() {
@@ -163,8 +177,12 @@ export default class Main extends PureComponent {
     });
   };
   getApps = v => {
-    const { currentEnterprise } = this.props;
-    this.props.dispatch({
+    const { currentEnterprise, dispatch } = this.props;
+    const { scopeMax } = this.state;
+    if (scopeMax && scopeMax !== 'localApplication') {
+      return null;
+    }
+    dispatch({
       type: 'market/fetchAppModels',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
@@ -195,52 +213,31 @@ export default class Main extends PureComponent {
     });
   };
   getMarketsTab = () => {
-    const { dispatch, currentEnterprise, scopeProMax } = this.props;
-    const { marketTab } = this.state;
-    const tabListMax = [
-      {
-        key: 'localApplication',
-        tab: '本地组件库'
-      }
-    ];
+    const { dispatch, currentEnterprise } = this.props;
+    const { scopeMax } = this.state;
     dispatch({
       type: 'market/fetchMarketsTab',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id
       },
       callback: res => {
-        if (res && res.status_code === 200) {
-          const arr = res.list;
-          const arryNew = [];
-          if (arr && arr.length > 0) {
-            res.list.map(item => {
-              const { name, status, alias } = item;
-              if (status === 1) {
-                arryNew.push(
-                  Object.assign({}, item, { tab: alias || name, key: name })
-                );
-              }
-              return null;
-            });
-          }
-          const scopeMaxs =
-            scopeProMax ||
-            (arryNew.length > 0 ? arryNew[0].key : 'localApplication');
-          this.setState({
-            marketTab: [...arryNew, ...marketTab, ...tabListMax]
+        const list = (res && res.list) || [];
+        const rainStores = [];
+        if (list && list.length > 0) {
+          list.map(item => {
+            const { name, status, alias } = item;
+            if (status === 1) {
+              rainStores.push(
+                Object.assign({}, item, { tab: alias || name, key: name })
+              );
+            }
           });
-          this.handleTabMaxChange(scopeMaxs);
-        } else {
-          this.setState({
-            marketTab: [...marketTab, ...tabListMax]
-          });
-          if (marketTab && marketTab.length > 0) {
-            this.handleTabMaxChange(marketTab[0].tab);
-          } else {
-            this.setState({
-              scopeMax: 'localApplication'
-            });
-          }
+        }
+        this.setState({
+          rainStoreTab: rainStores
+        });
+        if (scopeMax && scopeMax !== 'localApplication') {
+          this.handleTabMaxChange(scopeMax);
         }
       }
     });
@@ -256,30 +253,23 @@ export default class Main extends PureComponent {
         },
         callback: res => {
           if (res && res.status_code === 200) {
+            const helmStores = [];
             if (Array.isArray(res)) {
               res.map(item => {
-                item.tab = item.name;
-                item.key = `Helm-${item.name}`;
+                helmStores.push(
+                  Object.assign({}, item, {
+                    tab: item.name,
+                    key: `Helm-${item.name}`
+                  })
+                );
               });
             }
-            this.setState(
-              {
-                marketTab: Array.isArray(res) ? res : []
-              },
-              () => {
-                this.getMarketsTab();
-              }
-            );
-          } else {
-            this.getMarketsTab();
+            this.setState({
+              helmStoreTab: helmStores
+            });
           }
-        },
-        handleError: () => {
-          this.getMarketsTab();
         }
       });
-    } else {
-      this.getMarketsTab();
     }
   };
   getHelmAppStore = name => {
@@ -445,9 +435,10 @@ export default class Main extends PureComponent {
     }
   };
   handleHelmIntall = app => {
-    const { scopeMax, marketTab } = this.state;
+    const { scopeMax, helmStoreTab } = this.state;
     let info = {};
-    marketTab.map(item => {
+
+    helmStoreTab.map(item => {
       if (item.key === scopeMax) {
         info = item;
       }
@@ -943,7 +934,6 @@ export default class Main extends PureComponent {
       pageSize,
       total,
       helmInstallLoading,
-      marketTab,
       currentKey,
       authorizations,
       showCreate,
@@ -956,7 +946,10 @@ export default class Main extends PureComponent {
       helmPag,
       helmLoading,
       helmCreate,
-      addAppLoading
+      addAppLoading,
+      localAppTab,
+      rainStoreTab,
+      helmStoreTab
     } = this.state;
     const setHideOnSinglePage = !!moreState;
     const paginationProps = {
@@ -987,6 +980,8 @@ export default class Main extends PureComponent {
       }
     };
     let isInstall = true;
+
+    const marketTab = [...localAppTab, ...rainStoreTab, ...helmStoreTab];
 
     if (marketTab && marketTab.length > 0) {
       const arr = marketTab.filter(item => {

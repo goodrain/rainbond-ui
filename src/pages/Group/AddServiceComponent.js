@@ -407,7 +407,7 @@ export default class AddServiceComponent extends PureComponent {
             <Market
               {...MarketParameter}
               isHelm={false}
-              scopeMax="localApplication"
+              scopeMax={scopeProMax || 'localApplication'}
               handleServiceComponent={() => {
                 this.handleServiceComponent(false, 'market', null);
               }}
