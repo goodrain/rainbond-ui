@@ -331,42 +331,22 @@ export default class AppPublishList extends PureComponent {
                   dataIndex: 'scope',
                   align: 'center',
                   render: (val, data) => {
+                    const storeName =
+                      data && data.scope_target && data.scope_target.store_name;
+                    const marketAddress = `/enterprise/${currentEnterprise.enterprise_id}/shared/local`;
                     switch (val) {
                       case '':
-                        return (
-                          <Link
-                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared/local`}
-                          >
-                            应用市场
-                          </Link>
-                        );
+                        return <Link to={marketAddress}>应用市场</Link>;
                       case 'team':
-                        return (
-                          <Link
-                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared/local`}
-                          >
-                            应用市场(团队)
-                          </Link>
-                        );
+                        return <Link to={marketAddress}>应用市场(团队)</Link>;
                       case 'enterprise':
-                        return (
-                          <Link
-                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared/local`}
-                          >
-                            应用市场(企业)
-                          </Link>
-                        );
+                        return <Link to={marketAddress}>应用市场(企业)</Link>;
                       default:
-                        if (data.scope_target) {
-                          return (
-                            <p style={{ marginBottom: 0 }}>
-                              应用商店
-                              {data.scope_target.store_name &&
-                                data.scope_target.store_name}
-                            </p>
-                          );
-                        }
-                        return <p style={{ marginBottom: 0 }}>应用商店</p>;
+                        return (
+                          <p style={{ marginBottom: 0 }}>
+                            {storeName || '应用商店'}
+                          </p>
+                        );
                     }
                   }
                 },
