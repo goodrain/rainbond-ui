@@ -248,8 +248,8 @@ export default function request(url, options) {
               );
             }
             const tipMap = {
-              10406: '团队使用内存已超过限额，请联系企业管理员增加限额',
-              10413: '集群资源不足,请联系企业管理员增加资源',
+              10406: '集群资源不足,请联系企业管理员增加资源',
+              10413: '团队使用内存已超过限额，请联系企业管理员增加限额',
               20800: '构建失败,请重新构建'
             };
             handleStoreDispatch('global/showMemoryTip', {
