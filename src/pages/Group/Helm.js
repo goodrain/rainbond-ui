@@ -527,13 +527,17 @@ export default class Index extends PureComponent {
   };
 
   encodeBase64Content = commonContent => {
-    const base64Content = Buffer.from(commonContent).toString('base64');
+    const base64Content =
+      (commonContent && Buffer.from(commonContent).toString('base64')) || '';
     return base64Content;
   };
 
   decodeBase64Content = base64Content => {
-    let commonContent = base64Content.replace(/\s/g, '+');
-    commonContent = Buffer.from(commonContent, 'base64').toString();
+    let commonContent =
+      (base64Content && base64Content.replace(/\s/g, '+')) || '';
+    if (commonContent) {
+      commonContent = Buffer.from(commonContent, 'base64').toString();
+    }
     return commonContent;
   };
   handleSubmit = type => {
@@ -828,7 +832,10 @@ export default class Index extends PureComponent {
     const { CodeMirrorRef } = this;
 
     if (versionInfo.values) {
-      const val = this.decodeBase64Content(versionInfo.values[value]);
+      const val =
+        (versionInfo.values[value] &&
+          this.decodeBase64Content(versionInfo.values[value])) ||
+        '';
       setFieldsValue({
         yamls: val
       });
