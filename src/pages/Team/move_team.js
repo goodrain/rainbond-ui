@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 import { Form, Input, Modal } from 'antd';
 import React, { PureComponent } from 'react';
 

@@ -248,6 +248,9 @@ export async function installApp(body = {}) {
           ? body.install_from_cloud
           : false,
         market_name: body.marketName
+      },
+      params: {
+        region_name: body.region_name
       }
     }
   );

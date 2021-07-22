@@ -171,7 +171,8 @@ class CreateHelmAppModels extends PureComponent {
     dispatch({
       type: 'global/fetchGroups',
       payload: {
-        team_name: vals.team_name
+        team_name: vals.team_name,
+        region_name: vals.region_name
       },
       callback: () => {
         onCancel();
