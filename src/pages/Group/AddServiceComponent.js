@@ -349,7 +349,6 @@ export default class AddServiceComponent extends PureComponent {
                   <Market
                     {...MarketParameter}
                     isHelm={false}
-                    scope="enterprise"
                     handleServiceComponent={scopeMax => {
                       this.handleServiceComponent(
                         false,

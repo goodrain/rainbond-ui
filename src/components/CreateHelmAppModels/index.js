@@ -82,15 +82,16 @@ class CreateHelmAppModels extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           const appName = (res.list && res.list.name) || '';
-          this.handleFieldsValue({
-            app_name: appName
-          });
           if (callbacks) {
             if (name === appName) {
               callbacks();
             } else {
               callbacks('应用名称已存在');
             }
+          } else {
+            this.handleFieldsValue({
+              app_name: appName
+            });
           }
         }
       },
