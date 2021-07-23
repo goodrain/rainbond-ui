@@ -192,6 +192,11 @@ export default class AddVolumes extends PureComponent {
                 {
                   max: 40,
                   message: '最大长度40位'
+                },
+                {
+                  pattern: /^[a-zA-Z0-9]([-a-zA-Z0-9_]*[a-zA-Z0-9])?$/,
+                  message:
+                    '只支持字母、数字和-_组合，并且必须以字母数字开始和结束'
                 }
               ]
             })(
