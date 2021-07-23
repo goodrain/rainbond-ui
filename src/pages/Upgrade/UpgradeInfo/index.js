@@ -246,24 +246,57 @@ export default class AppList extends PureComponent {
     return obj && obj.upd && obj.upd.length > 0;
   };
 
-  handleBox = (name, isAdd, obj, key, childKey) => {
+  handleDel = obj => {
+    return obj && obj.delete && obj.delete.length > 0;
+  };
+
+  handleData = obj => {
+    return this.handleAdd(obj) || this.handleUpd(obj) || this.handleDel(obj);
+  };
+
+  handleBox = (minTitle, obj, key, childKey, filterMap) => {
+    const list = [];
+    if (this.handleAdd(obj)) {
+      list.push('add');
+    }
+    if (this.handleUpd(obj)) {
+      list.push('upd');
+    }
+    if (this.handleDel(obj)) {
+      list.push('delete');
+    }
+    const operationMap = {
+      add: '新增',
+      upd: '更新',
+      delete: '移除'
+    };
+
     return (
       <div className={styles.textzt}>
-        {isAdd ? '新增' : '更新'}
-        {name}：
-        {obj[isAdd ? 'add' : 'upd'].map(item => {
-          return (
-            <span key={item[key]}>
-              {childKey ? item[key][childKey] : item[key]}
-            </span>
-          );
-        })}
+        {list.length > 0 &&
+          list.map(items => {
+            return (
+              <div key={items}>
+                {operationMap[items] || ''}
+                {minTitle}：
+                {obj[items].map(item => {
+                  const contents = childKey ? item[key][childKey] : item[key];
+                  return (
+                    <span key={item[key]}>
+                      {filterMap ? filterMap[contents] || contents : contents}
+                    </span>
+                  );
+                })}
+              </div>
+            );
+          })}
       </div>
     );
   };
 
   setData = data => {
     const {
+      probes,
       connect_infos,
       ports,
       volumes,
@@ -280,50 +313,31 @@ export default class AppList extends PureComponent {
     const arr = [];
     const deployVersionChange = deploy_version && deploy_version.is_change;
 
-    const isDepServices =
-      dep_services &&
-      ((dep_services.add && dep_services.add.length > 0) ||
-        (dep_services.del && dep_services.del.length > 0));
+    const isDepServices = this.handleData(dep_services);
+
+    const isProbes = this.handleData(probes);
 
     const addAppConfigGroups = this.handleAdd(app_config_groups);
-    const updAppConfigGroups = this.handleUpd(app_config_groups);
-    const isAppConfigGroups = addAppConfigGroups || updAppConfigGroups;
 
-    const addComponentGraphs = this.handleAdd(component_graphs);
-    const updComponentGraphs = this.handleUpd(component_graphs);
-    const isComponentGraphs = addComponentGraphs || updComponentGraphs;
+    const isAppConfigGroups = this.handleData(app_config_groups);
 
-    const addComponentMonitors = this.handleAdd(component_monitors);
-    const updComponentMonitors = this.handleUpd(component_monitors);
-    const isComponentMonitors = addComponentMonitors || updComponentMonitors;
+    const isComponentGraphs = this.handleData(component_graphs);
 
-    const addEnvs = this.handleAdd(envs);
-    const updEnvs = this.handleUpd(envs);
-    const isEnvs = addEnvs || updEnvs;
+    const isComponentMonitors = this.handleData(component_monitors);
 
-    const addPluginDeps = this.handleAdd(plugin_deps);
-    const updPluginDeps = this.handleUpd(plugin_deps);
-    const isPluginDeps = addPluginDeps || updPluginDeps;
+    const isEnvs = this.handleData(envs);
 
-    const addConnectInfos = this.handleAdd(connect_infos);
-    const updConnectInfos = this.handleUpd(connect_infos);
-    const isConnectInfos = addConnectInfos || updConnectInfos;
+    const isPluginDeps = this.handleData(plugin_deps);
 
-    const addPlugins = this.handleAdd(plugins);
-    const updPlugins = this.handleUpd(plugins);
-    const isPlugins = addPlugins || updPlugins;
+    const isConnectInfos = this.handleData(connect_infos);
 
-    const addDepVolumess = this.handleAdd(dep_volumes);
-    const updDepVolumess = this.handleUpd(dep_volumes);
-    const isDepVolumess = addDepVolumess || updDepVolumess;
+    const isPlugins = this.handleData(plugins);
 
-    const addPorts = this.handleAdd(ports);
-    const updPorts = this.handleUpd(ports);
-    const isPorts = addPorts || updPorts;
+    const isDepVolumess = this.handleData(dep_volumes);
 
-    const addVolumes = this.handleAdd(volumes);
-    const updVolumes = this.handleUpd(volumes);
-    const isVolumes = addVolumes || updVolumes;
+    const isPorts = this.handleData(ports);
+
+    const isVolumes = this.handleData(volumes);
 
     function addArr(title, description) {
       arr.push({
@@ -331,6 +345,14 @@ export default class AppList extends PureComponent {
         description
       });
     }
+    if (isProbes) {
+      const filterMap = {
+        liveness: '存活探针',
+        readiness: '就绪探针'
+      };
+      addArr('健康检测', this.handleBox(null, probes, 'mode', null, filterMap));
+    }
+
     if (deployVersionChange) {
       addArr(
         '源组件构建版本',
@@ -342,38 +364,26 @@ export default class AppList extends PureComponent {
     }
 
     if (isConnectInfos) {
-      addArr(
-        '连接信息',
-        this.handleBox(null, addConnectInfos, connect_infos, 'attr_name')
-      );
+      addArr('连接信息', this.handleBox(null, connect_infos, 'attr_name'));
     }
 
     if (isPluginDeps) {
       addArr(
         '插件',
-        this.handleBox(
-          null,
-          addPluginDeps,
-          plugin_deps,
-          'plugin',
-          'plugin_alias'
-        )
+        this.handleBox(null, plugin_deps, 'plugin', 'plugin_alias')
       );
     }
 
     if (isEnvs) {
-      addArr('环境变量', this.handleBox(null, addEnvs, envs, 'attr_name'));
+      addArr('环境变量', this.handleBox(null, envs, 'attr_name'));
     }
 
     if (isPorts) {
-      addArr('端口', this.handleBox(null, addPorts, ports, 'container_port'));
+      addArr('端口', this.handleBox(null, ports, 'container_port'));
     }
 
     if (isVolumes) {
-      addArr(
-        '存储',
-        this.handleBox('存储挂载', addVolumes, volumes, 'volume_name')
-      );
+      addArr('存储', this.handleBox('存储挂载', volumes, 'volume_name'));
     }
 
     if (isDepServices) {
@@ -403,14 +413,11 @@ export default class AppList extends PureComponent {
     }
 
     if (isDepVolumess) {
-      addArr(
-        '依赖的存储',
-        this.handleBox('存储挂载', addDepVolumess, dep_volumes, 'mnt_name')
-      );
+      addArr('依赖的存储', this.handleBox('存储挂载', dep_volumes, 'mnt_name'));
     }
 
     if (isPlugins) {
-      addArr('插件', this.handleBox(null, addPlugins, plugins, 'plugin_alias'));
+      addArr('插件', this.handleBox(null, plugins, 'plugin_alias'));
     }
 
     if (isAppConfigGroups) {
@@ -441,20 +448,12 @@ export default class AppList extends PureComponent {
     if (isComponentMonitors) {
       addArr(
         '监控点',
-        this.handleBox(
-          null,
-          addComponentMonitors,
-          component_monitors,
-          'service_show_name'
-        )
+        this.handleBox(null, component_monitors, 'service_show_name')
       );
     }
 
     if (isComponentGraphs) {
-      addArr(
-        '监控图表',
-        this.handleBox(null, addComponentGraphs, component_graphs, 'title')
-      );
+      addArr('监控图表', this.handleBox(null, component_graphs, 'title'));
     }
 
     return arr;
