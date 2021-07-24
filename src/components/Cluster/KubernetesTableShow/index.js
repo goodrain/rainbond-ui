@@ -173,8 +173,27 @@ export default class KubernetesClusterShow extends PureComponent {
       isInstallRemind
     });
   };
+  handleCommandBox = command => {
+    return (
+      <Col span={24} style={{ marginTop: '16px' }}>
+        <span className={styless.cmd}>
+          <Icon
+            className={styless.copy}
+            type="copy"
+            onClick={() => {
+              copy(command);
+              notification.success({ message: '复制成功' });
+            }}
+          />
+          {command}
+        </span>
+      </Col>
+    );
+  };
+
   handleInstallCommand = () => {
-    return 'curl https://gist.githubusercontent.com/superseb/2cf186726807a012af59a027cb41270d/raw/eaa2d235e7693c2d1c5a2a916349410274bb95a9/cleanup.sh > ./cleanup.sh && chmod a+x ./cleanup.sh && sudo ./cleanup.sh';
+    return `docker rm -vf $(docker ps -a | grep 'rke-tools\|hyperkube\|coreos-etcd\|k8s' | awk '{print $1}')
+    rm -rf /var/lib/etcd /etc/kubernetes /etc/cni /opt/cni /var/lib/cni /var/run/calico /opt/rke`;
   };
 
   cancelShowUpdateKubernetes = () => {
@@ -295,7 +314,6 @@ export default class KubernetesClusterShow extends PureComponent {
         return cloud.getAliyunClusterStatus(text, row, linkedClusters);
       }
     });
-
     columns.push({
       title: '操作',
       dataIndex: 'cluster_id',
@@ -400,6 +418,7 @@ export default class KubernetesClusterShow extends PureComponent {
       installLoading,
       isInstallRemind
     } = this.state;
+
     return (
       <div>
         <Row style={{ marginBottom: '20px' }}>
@@ -499,24 +518,17 @@ export default class KubernetesClusterShow extends PureComponent {
           >
             <Row style={{ padding: '0 16px' }}>
               <span style={{ fontWeight: 600, color: 'red' }}>
-                请在重新安装前在所有节点执行以下清理命令（该清理脚本将会清除所有正在运行的容器，请确认您已做好数据备份）
+                请在重新安装前在所有节点执行以下
+                两条命令（该命令将会清除k8s的相关容器及配置）
                 <br />
                 执行用户需要具有sudo权限：
               </span>
-
-              <Col span={24} style={{ marginTop: '16px' }}>
-                <span className={styless.cmd}>
-                  <Icon
-                    className={styless.copy}
-                    type="copy"
-                    onClick={() => {
-                      copy(this.handleInstallCommand());
-                      notification.success({ message: '复制成功' });
-                    }}
-                  />
-                  {this.handleInstallCommand()}
-                </span>
-              </Col>
+              {this.handleCommandBox(
+                `docker rm -vf $(docker ps -a | grep 'rke-tools\|hyperkube\|coreos-etcd\|k8s' | awk '{print $1}')`
+              )}
+              {this.handleCommandBox(
+                `rm -rf /var/lib/etcd /etc/kubernetes /etc/cni /opt/cni /var/lib/cni /var/run/calico /opt/rke`
+              )}
             </Row>
           </Modal>
         )}
