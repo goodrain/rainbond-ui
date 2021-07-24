@@ -484,7 +484,7 @@ export default class KubernetesClusterShow extends PureComponent {
         />
         {isInstallRemind && (
           <Modal
-            title="确认要重新安装当前集群吗?"
+            title="确定要重新安装当前集群吗?"
             confirmLoading={installLoading}
             className={styless.TelescopicModal}
             width={900}
