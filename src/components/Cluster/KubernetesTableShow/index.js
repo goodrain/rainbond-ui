@@ -191,11 +191,6 @@ export default class KubernetesClusterShow extends PureComponent {
     );
   };
 
-  handleInstallCommand = () => {
-    return `docker rm -vf $(docker ps -a | grep 'rke-tools\|hyperkube\|coreos-etcd\|k8s' | awk '{print $1}')
-    rm -rf /var/lib/etcd /etc/kubernetes /etc/cni /opt/cni /var/lib/cni /var/run/calico /opt/rke`;
-  };
-
   cancelShowUpdateKubernetes = () => {
     const { loadKubernetesCluster } = this.props;
     this.setState({
@@ -418,7 +413,8 @@ export default class KubernetesClusterShow extends PureComponent {
       installLoading,
       isInstallRemind
     } = this.state;
-
+    const delK8sConfigurationFile = `docker rm -vf $(docker ps -a | grep 'rke-tools\\|hyperkube\\|coreos-etcd\\|k8s' | awk '{print $1}')`;
+    const removek8sAssociatedContainer = `rm -rf /var/lib/etcd /etc/kubernetes /etc/cni /opt/cni /var/lib/cni /var/run/calico /opt/rke`;
     return (
       <div>
         <Row style={{ marginBottom: '20px' }}>
@@ -523,12 +519,8 @@ export default class KubernetesClusterShow extends PureComponent {
                 <br />
                 执行用户需要具有sudo权限：
               </span>
-              {this.handleCommandBox(
-                `docker rm -vf $(docker ps -a | grep 'rke-tools\|hyperkube\|coreos-etcd\|k8s' | awk '{print $1}')`
-              )}
-              {this.handleCommandBox(
-                `rm -rf /var/lib/etcd /etc/kubernetes /etc/cni /opt/cni /var/lib/cni /var/run/calico /opt/rke`
-              )}
+              {this.handleCommandBox(delK8sConfigurationFile)}
+              {this.handleCommandBox(removek8sAssociatedContainer)}
             </Row>
           </Modal>
         )}
