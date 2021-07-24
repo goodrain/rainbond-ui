@@ -27,6 +27,7 @@ import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
 import ClusterCreationLog from '../ClusterCreationLog';
 import RKEClusterUpdate from '../RKEClusterAdd';
+import styless from '../RKEClusterAdd/index.less';
 import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
 import istyles from './index.less';
 
@@ -39,7 +40,9 @@ export default class KubernetesClusterShow extends PureComponent {
     this.state = {
       selectClusterName: '',
       clusterID: '',
-      showCreateLog: false
+      showCreateLog: false,
+      isInstallRemind: false,
+      installLoading: false
     };
   }
   componentDidMount() {
@@ -85,6 +88,7 @@ export default class KubernetesClusterShow extends PureComponent {
     } = this.props;
     if (selectProvider !== 'rke') {
       message.warning('该提供商不支持集群重装');
+      this.handleInstallLoading(false);
       return;
     }
     dispatch({
@@ -94,6 +98,8 @@ export default class KubernetesClusterShow extends PureComponent {
         clusterID
       },
       callback: data => {
+        this.handleInstallRemind(false);
+        this.handleInstallLoading(false);
         if (data) {
           if (loadKubernetesCluster) {
             loadKubernetesCluster();
@@ -104,6 +110,7 @@ export default class KubernetesClusterShow extends PureComponent {
         }
       },
       handleError: res => {
+        this.handleInstallLoading(false);
         cloud.handleCloudAPIError(res);
       }
     });
@@ -156,6 +163,20 @@ export default class KubernetesClusterShow extends PureComponent {
       }
     });
   };
+  handleInstallLoading = installLoading => {
+    this.setState({
+      installLoading
+    });
+  };
+  handleInstallRemind = isInstallRemind => {
+    this.setState({
+      isInstallRemind
+    });
+  };
+  handleInstallCommand = () => {
+    return 'curl https://gist.githubusercontent.com/superseb/2cf186726807a012af59a027cb41270d/raw/eaa2d235e7693c2d1c5a2a916349410274bb95a9/cleanup.sh > ./cleanup.sh && chmod a+x ./cleanup.sh && sudo ./cleanup.sh';
+  };
+
   cancelShowUpdateKubernetes = () => {
     const { loadKubernetesCluster } = this.props;
     this.setState({
@@ -287,17 +308,13 @@ export default class KubernetesClusterShow extends PureComponent {
               </a>
             )}
             {row.state === 'failed' && selectProvider === 'rke' && (
-              <Popconfirm
-                placement="top"
-                title="确认要重新安装当前集群吗？"
-                onConfirm={() => {
-                  this.reInstallCluster(row.cluster_id || row.name);
+              <a
+                onClick={() => {
+                  this.handleInstallRemind(row.cluster_id || row.name);
                 }}
-                okText="确定"
-                cancelText="取消"
               >
-                <a>重新安装</a>
-              </Popconfirm>
+                重新安装
+              </a>
             )}
             {row.rainbond_init === true &&
               !linkedClusters.get(row.cluster_id) && (
@@ -361,6 +378,7 @@ export default class KubernetesClusterShow extends PureComponent {
         );
       }
     });
+
     const {
       data,
       showBuyClusterConfig,
@@ -378,7 +396,9 @@ export default class KubernetesClusterShow extends PureComponent {
       updateClusterID,
       showUpdateKubernetesTasks,
       updateTask,
-      showCreateLog
+      showCreateLog,
+      installLoading,
+      isInstallRemind
     } = this.state;
     return (
       <div>
@@ -462,6 +482,44 @@ export default class KubernetesClusterShow extends PureComponent {
           columns={columns}
           dataSource={data}
         />
+        {isInstallRemind && (
+          <Modal
+            title="确认要重新安装当前集群吗?"
+            confirmLoading={installLoading}
+            className={styless.TelescopicModal}
+            width={900}
+            visible
+            onOk={() => {
+              this.handleInstallLoading(true);
+              this.reInstallCluster(isInstallRemind);
+            }}
+            onCancel={() => {
+              this.handleInstallRemind(false);
+            }}
+          >
+            <Row style={{ padding: '0 16px' }}>
+              <span style={{ fontWeight: 600, color: 'red' }}>
+                请在重新安装前在所有节点执行以下清理命令（该清理脚本将会清除所有正在运行的容器，请确认您已做好数据备份）
+                <br />
+                执行用户需要具有sudo权限：
+              </span>
+
+              <Col span={24} style={{ marginTop: '16px' }}>
+                <span className={styless.cmd}>
+                  <Icon
+                    className={styless.copy}
+                    type="copy"
+                    onClick={() => {
+                      copy(this.handleInstallCommand());
+                      notification.success({ message: '复制成功' });
+                    }}
+                  />
+                  {this.handleInstallCommand()}
+                </span>
+              </Col>
+            </Row>
+          </Modal>
+        )}
         {showCreateLog && (
           <ClusterCreationLog
             eid={eid}
