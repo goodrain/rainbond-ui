@@ -180,7 +180,14 @@ export default class SetRegionConfig extends PureComponent {
             {configs.apiAddress && (
               <Descriptions>
                 <Descriptions.Item label="API通信地址">
-                  {configs.apiAddress}
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {configs.apiAddress}
+                    <Alert
+                      style={{ marginLeft: '20px' }}
+                      message="请确保该IP地址的8443端口，6060端口对外开放"
+                      type="warning"
+                    />
+                  </div>
                 </Descriptions.Item>
               </Descriptions>
             )}
