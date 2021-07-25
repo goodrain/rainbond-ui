@@ -2,9 +2,13 @@
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import cloud from '../../../utils/cloud';
+import globalUtil from '../../../utils/global';
 import ClusterProgressQuery from '../ClusterProgressQuery';
 
-@connect()
+@connect(({ global }) => ({
+  rainbondInfo: global.rainbondInfo,
+  enterprise: global.enterprise
+}))
 class UpdateClusterDetail extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -22,7 +26,14 @@ class UpdateClusterDetail extends PureComponent {
   }
   refresh = true;
   loadTaskEvents = () => {
-    const { dispatch, eid, task } = this.props;
+    const {
+      dispatch,
+      eid,
+      task,
+      selectProvider,
+      enterprise,
+      rainbondInfo
+    } = this.props;
     dispatch({
       type: 'cloud/loadTaskEvents',
       payload: {
@@ -32,6 +43,16 @@ class UpdateClusterDetail extends PureComponent {
       callback: data => {
         if (data) {
           const { complete, steps } = cloud.showUpdateClusterSteps(data.events);
+          if (complete && steps.length > 0) {
+            globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
+              eid,
+              taskID: task.taskID,
+              status: steps[steps.length - 1].Status,
+              message: steps[steps.length - 1].Message,
+              install_step: 'createK8s',
+              provider: selectProvider
+            });
+          }
           this.setState({
             complete,
             loading: false,
