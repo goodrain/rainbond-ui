@@ -337,22 +337,24 @@ export default class KubernetesClusterShow extends PureComponent {
                   对接
                 </Link>
               )}
-            <Button
-              type="link"
-              style={{ padding: 0 }}
-              onClick={() => {
-                if (
-                  row.create_log_path &&
-                  row.create_log_path.startsWith('http')
-                ) {
-                  window.open(row.create_log_path, '_blank');
-                } else {
-                  this.queryCreateLog(row);
-                }
-              }}
-            >
-              查看日志
-            </Button>
+            {selectProvider !== 'custom' && (
+              <Button
+                type="link"
+                style={{ padding: 0 }}
+                onClick={() => {
+                  if (
+                    row.create_log_path &&
+                    row.create_log_path.startsWith('http')
+                  ) {
+                    window.open(row.create_log_path, '_blank');
+                  } else {
+                    this.queryCreateLog(row);
+                  }
+                }}
+              >
+                查看日志
+              </Button>
+            )}
             {!row.rainbond_init &&
               (selectProvider === 'rke' || selectProvider === 'custom') && (
                 <Popconfirm

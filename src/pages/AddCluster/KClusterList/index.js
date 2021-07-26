@@ -138,7 +138,7 @@ export default class EnterpriseClusters extends PureComponent {
       }
     });
   };
-  handleStartLog = taskID => {
+  handleStartLog = (taskID, status, isCustomClusterType) => {
     const {
       match: {
         params: { eid, provider }
@@ -149,7 +149,7 @@ export default class EnterpriseClusters extends PureComponent {
     globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
       eid,
       taskID,
-      status: 'start',
+      status: isCustomClusterType ? status : 'start',
       install_step: 'createK8s',
       provider
     });
@@ -228,10 +228,10 @@ export default class EnterpriseClusters extends PureComponent {
     return steps;
   };
 
-  handleOk = (task, upDateInfo) => {
+  handleOk = (task, upDateInfo, isCustomClusterType) => {
     this.setState(upDateInfo);
     if (task && task.taskID) {
-      this.handleStartLog(task.taskID);
+      this.handleStartLog(task.taskID, task.status, isCustomClusterType);
     }
     this.cancelAddCluster();
     this.loadKubernetesCluster();
@@ -274,7 +274,7 @@ export default class EnterpriseClusters extends PureComponent {
               const upDateInfo = {
                 currentClusterID: task.clusterID
               };
-              this.handleOk(task, upDateInfo);
+              this.handleOk(task, upDateInfo, true);
             }}
           />
         );
