@@ -1524,6 +1524,7 @@ export async function addVolume(
         volume_name: body.volume_name,
         volume_type: body.volume_type,
         volume_path: body.volume_path,
+        mode: body.mode,
         volume_capacity: new Number(body.volume_capacity),
         file_content: body.volume_type == 'config-file' ? body.file_content : ''
       }
@@ -1547,6 +1548,7 @@ export async function editorVolume(
     {
       method: 'put',
       data: {
+        mode: body.mode,
         new_volume_path: body.new_volume_path,
         new_file_content: body.new_file_content
       }

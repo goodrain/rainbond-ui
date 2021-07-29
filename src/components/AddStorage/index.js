@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, Input, Radio, Tooltip } from 'antd';
+import { Button, Drawer, Form, Input, InputNumber, Radio, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
@@ -24,6 +24,15 @@ export default class AddVolumes extends PureComponent {
       onCancel();
     }
   };
+
+  modeCheck = (_, value) => {
+    if (value > 777 || value < 0) {
+      // eslint-disable-next-line prefer-promise-reject-errors
+      return Promise.reject('权限的数值限制在0-777之间');
+    }
+    return Promise.resolve();
+  };
+
   render() {
     const { data, editor, form } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
@@ -109,7 +118,12 @@ export default class AddVolumes extends PureComponent {
               )}
             </FormItem>
           </div>
-
+          <FormItem {...formItemLayout} label="权限">
+            {getFieldDecorator('mode', {
+              initialValue: data.mode || 0,
+              rules: [{ required: true, validator: this.modeCheck }]
+            })(<InputNumber min={0} style={{ width: '100%' }} />)}
+          </FormItem>
           <CodeMirrorForm
             setFieldsValue={setFieldsValue}
             formItemLayout={formItemLayout}
