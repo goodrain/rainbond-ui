@@ -235,18 +235,18 @@ const initRainbondSteps = {
     Status: ''
   },
   InitRainbondRegionImageHub: {
-    Title: '启动集群本地镜像仓库(预计5分钟)',
+    Title: '启动集群本地镜像仓库(预计10分钟)',
     Description:
-      '本地镜像仓库就绪意味着存储、网关等服务已就绪，本阶段预计5分钟，取决于网络状况',
+      '本地镜像仓库就绪意味着存储、网关等服务已就绪，本阶段预计10分钟，取决于网络状况',
     Status: ''
   },
   InitRainbondRegionPackage: {
-    Title: '系统所需的非组件镜像本地化处理(预计5分钟)',
+    Title: '系统所需的非组件镜像本地化处理(预计25分钟)',
     Description: '将平台需要的非组件镜像获取完成并推送到本地镜像仓库',
     Status: ''
   },
   InitRainbondRegionRegionConfig: {
-    Title: '获取集群访问配置文件(预计5分钟)',
+    Title: '获取集群访问配置文件(预计10分钟)',
     Description:
       '等待集群服务启动完成，当API服务可以正常访问则集群访问配置文件已获取完成',
     Status: ''
