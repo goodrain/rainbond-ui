@@ -181,12 +181,16 @@ export async function deleteKubernetesCluster(body, handleError) {
   );
 }
 
-export async function getInitNodeCmd(handleError) {
+export async function getInitNodeCmd(body = {}, handleError) {
   return request(`/console/proxy/enterprise-server/api/v1/init_node_cmd`, {
     method: 'get',
+    params: {
+      mode: body.mode
+    },
     handleError
   });
 }
+
 export async function rkeconfig(body) {
   return request(
     `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/prune-update-rkeconfig`,

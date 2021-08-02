@@ -194,6 +194,7 @@ export default class RKEClusterConfig extends PureComponent {
       isCheck: false,
       yamlVal: '',
       initNodeCmd: '',
+      offlineInitNodeCmd: '',
       activeKey: '1',
       helpError: '',
       helpType: ''
@@ -203,7 +204,6 @@ export default class RKEClusterConfig extends PureComponent {
 
   componentDidMount = () => {
     const { clusterID } = this.props;
-    this.loadInitNodeCmd();
     if (clusterID) {
       this.setNodeList();
     } else {
@@ -262,6 +262,19 @@ export default class RKEClusterConfig extends PureComponent {
       }
     });
   };
+  loadOfflineInitNodeCmd = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'cloud/getInitNodeCmd',
+      payload: {
+        mode: 'offline'
+      },
+      callback: data => {
+        this.setState({ offlineInitNodeCmd: data.cmd });
+      }
+    });
+  };
+
   fetchRkeconfig = (obj = {}, isNext) => {
     const { form, eid } = this.props;
     const { activeKey } = this.state;
@@ -535,6 +548,10 @@ export default class RKEClusterConfig extends PureComponent {
     }
   };
   handleCheck = isCheck => {
+    if (isCheck) {
+      this.loadInitNodeCmd();
+      this.loadOfflineInitNodeCmd();
+    }
     this.setState({
       isCheck
     });
@@ -563,6 +580,23 @@ export default class RKEClusterConfig extends PureComponent {
       this.handleActiveKey(`${key}`);
     }
   };
+  handleBox = text => {
+    return (
+      <Col span={24} style={{ marginTop: '16px' }}>
+        <span className={styles.cmd}>
+          <Icon
+            className={styles.copy}
+            type="copy"
+            onClick={() => {
+              copy(text);
+              notification.success({ message: '复制成功' });
+            }}
+          />
+          {text}
+        </span>
+      </Col>
+    );
+  };
   render() {
     const { onCancel, form, clusterID } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
@@ -572,6 +606,7 @@ export default class RKEClusterConfig extends PureComponent {
       loading,
       dataSource,
       initNodeCmd,
+      offlineInitNodeCmd,
       isCheck,
       activeKey,
       yamlVal
@@ -706,20 +741,14 @@ export default class RKEClusterConfig extends PureComponent {
                 请在开始{clusterID ? '配置前在新加' : '安装前所有'}
                 节点先执行以下初始化命令（执行用户需要具有sudo权限）：
               </span>
-
-              <Col span={24} style={{ marginTop: '16px' }}>
-                <span className={styles.cmd}>
-                  <Icon
-                    className={styles.copy}
-                    type="copy"
-                    onClick={() => {
-                      copy(initNodeCmd);
-                      notification.success({ message: '复制成功' });
-                    }}
-                  />
-                  {initNodeCmd}
-                </span>
-              </Col>
+              <Tabs defaultActiveKey="1">
+                <TabPane tab="在线安装" key="1">
+                  {this.handleBox(initNodeCmd)}
+                </TabPane>
+                <TabPane tab="离线安装" key="2">
+                  {this.handleBox(offlineInitNodeCmd)}
+                </TabPane>
+              </Tabs>
             </Row>
           </Modal>
         )}
