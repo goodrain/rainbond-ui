@@ -114,7 +114,7 @@ class ClusterProgressQuery extends PureComponent {
                       message="
                           命名空间 rbd-system 处于 terminating, 请待定删除完成.
                           或执行命令 curl
-                          http://sh.rainbond.com/delete-ns-rbdy-system.sh | bash
+                          http://sh.rainbond.com/delete-ns-rbd-system.sh | bash
                           进行强制删除.
                       "
                       type="warning"
