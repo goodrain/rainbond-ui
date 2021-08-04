@@ -374,13 +374,7 @@ export function getComponentState(body = {}, handleError) {
 /*
 	获取监控日志--日志页面
 */
-export function getServiceLog(
-  body = {
-    team_name,
-    app_alias,
-    lines
-  }
-) {
+export function getServiceLog(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/log`,
     {
@@ -388,6 +382,18 @@ export function getServiceLog(
       params: {
         action: 'service',
         lines: body.lines || 50
+      }
+    }
+  );
+}
+export function getContainerLog(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/logs`,
+    {
+      method: 'get',
+      params: {
+        pod_name: body.pod_name,
+        container_name: body.container_name
       }
     }
   );
