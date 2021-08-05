@@ -102,12 +102,25 @@ class ClusterProgressQuery extends PureComponent {
           />
           <Timeline loading={loading} pending={pending}>
             {steps.map((item, index) => {
-              const { Status, Title, Description, Message } = item;
+              const { Status, Title, Description, Message, reason } = item;
               return (
                 <Timeline.Item color={item.Color} key={`step${index}`}>
                   <h4>{Title}</h4>
                   <p>{Description}</p>
                   <p>{Message}</p>
+                  {reason && reason === 'NamespaceBeingTerminated' && (
+                    <Alert
+                      style={{ marginBottom: '16px' }}
+                      message="
+                          命名空间 rbd-system 处于 terminating, 请待定删除完成.
+                          或执行命令 curl
+                          http://sh.rainbond.com/delete-ns-rbd-system.sh | bash
+                          进行强制删除.
+                      "
+                      type="warning"
+                      showIcon
+                    />
+                  )}
                   {Status === 'failure' && (
                     <div>
                       <Button

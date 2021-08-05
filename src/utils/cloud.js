@@ -591,11 +591,13 @@ const cloud = {
         step = {
           Title: item.type,
           Description: item.type,
-          Status: ''
+          Status: '',
+          reason: ''
         };
       }
       step.Status = item.status;
       step.Message = item.message;
+      step.reason = item.reason;
       step.Color = colorMap[item.status];
       steps.push(step);
       if (
@@ -624,11 +626,13 @@ const cloud = {
         step = {
           Title: item.type,
           Description: item.type,
-          Status: ''
+          Status: '',
+          reason: ''
         };
       }
       step.Status = item.status;
       step.Message = item.message;
+      step.reason = item.reason;
       step.Color = colorMap[item.status];
       steps.push(step);
       if (
@@ -655,12 +659,14 @@ const cloud = {
         step = {
           Title: item.type,
           Description: item.type,
-          Status: ''
+          Status: '',
+          reason: ''
         };
       }
       step.Status = item.status;
       step.Message = item.message;
       step.Color = colorMap[item.status];
+      step.reason = item.reason;
       steps.push(step);
       if (
         item.status === 'failure' ||
