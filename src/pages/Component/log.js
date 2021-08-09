@@ -3,7 +3,7 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-string-refs */
-import { Button, Card, Cascader, Form, Input } from 'antd';
+import { Button, Card, Cascader, Form, Input, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import Ansi from '../../components/Ansi/index';
@@ -14,6 +14,8 @@ import globalUtil from '../../utils/global';
 import HistoryLog from './component/Log/history';
 import History1000Log from './component/Log/history1000';
 import styles from './Log.less';
+
+const { Option } = Select;
 
 @connect(
   ({ user }) => ({
@@ -37,7 +39,8 @@ export default class Index extends PureComponent {
       showHighlighted: '',
       filter: '',
       pod_name: '',
-      container_name: ''
+      container_name: '',
+      refreshValue: 5
     };
   }
   componentDidMount() {
@@ -60,12 +63,12 @@ export default class Index extends PureComponent {
     }
   }
   fetchInstanceInfo = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appAlias } = this.props;
     dispatch({
       type: 'appControl/fetchPods',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: appAlias
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -155,12 +158,32 @@ export default class Index extends PureComponent {
         if (this.refs.box) {
           this.refs.box.scrollTop = this.refs.box.scrollHeight;
         }
-        this.setState({ logs: data.list || [] });
+        this.setState({ logs: data.list || [] }, () => {
+          this.hanleTimer();
+        });
         this.watchLog();
       }
     });
   };
-
+  hanleTimer = () => {
+    const { refreshValue, containerLog } = this.state;
+    this.closeTimer();
+    if (!refreshValue) {
+      return null;
+    }
+    this.timer = setTimeout(() => {
+      if (containerLog && containerLog.length > 0) {
+        this.fetchContainerLog();
+      } else {
+        this.fetchServiceLog();
+      }
+    }, refreshValue * 1000);
+  };
+  closeTimer = () => {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  };
   fetchContainerLog = () => {
     const { pod_name, container_name } = this.state;
     getContainerLog({
@@ -171,9 +194,14 @@ export default class Index extends PureComponent {
     }).then(data => {
       if (data && data.response_data) {
         const arr = data.response_data.split('\n');
-        this.setState({
-          containerLog: arr || []
-        });
+        this.setState(
+          {
+            containerLog: arr || []
+          },
+          () => {
+            this.hanleTimer();
+          }
+        );
       }
     });
   };
@@ -225,15 +253,33 @@ export default class Index extends PureComponent {
       );
     }
   };
+  handleChange = value => {
+    this.setState({
+      refreshValue: value
+    });
+    if (!value) {
+      this.closeTimer();
+    }
+  };
 
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const { logs, containerLog, showHighlighted, instances } = this.state;
+    const { appAlias } = this.props;
+    const {
+      logs,
+      containerLog,
+      showHighlighted,
+      instances,
+      started,
+      refreshValue,
+      showHistoryLog,
+      showHistory1000Log
+    } = this.state;
     return (
       <Card
         title={
           <Fragment>
-            {this.state.started ? (
+            {started ? (
               <Button onClick={this.handleStop}>暂停推送</Button>
             ) : (
               <Button onClick={this.handleStart}>开始推送</Button>
@@ -253,6 +299,7 @@ export default class Index extends PureComponent {
           <Form.Item
             name="container"
             label="容器"
+            style={{ marginRight: '10px' }}
             className={styles.podCascader}
           >
             <Cascader
@@ -266,12 +313,34 @@ export default class Index extends PureComponent {
               placeholder="请选择容器"
             />
           </Form.Item>
+
           <Form.Item
             name="filter"
             label="过滤文本"
+            style={{ marginRight: '10px' }}
+          >
+            <Input.Search
+              style={{ width: '300px' }}
+              placeholder="请输入过滤文本"
+              onSearch={this.onFinish}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="refresh"
+            label="自动刷新"
             style={{ marginRight: '0' }}
           >
-            <Input.Search style={{ width: '300px' }} onSearch={this.onFinish} />
+            <Select
+              value={refreshValue}
+              onChange={this.handleChange}
+              style={{ width: 130 }}
+            >
+              <Option value={5}>5秒</Option>
+              <Option value={10}>10秒</Option>
+              <Option value={30}>30秒</Option>
+              <Option value={0}>关闭</Option>
+            </Select>
           </Form.Item>
         </Form>
         <div className={styles.logsss} ref="box">
@@ -402,16 +471,13 @@ export default class Index extends PureComponent {
                 );
               }))}
         </div>
-        {this.state.showHistoryLog && (
-          <HistoryLog
-            onCancel={this.hideDownHistoryLog}
-            appAlias={this.props.appAlias}
-          />
+        {showHistoryLog && (
+          <HistoryLog onCancel={this.hideDownHistoryLog} appAlias={appAlias} />
         )}
-        {this.state.showHistory1000Log && (
+        {showHistory1000Log && (
           <History1000Log
             onCancel={this.hideDownHistory1000Log}
-            appAlias={this.props.appAlias}
+            appAlias={appAlias}
           />
         )}
       </Card>
