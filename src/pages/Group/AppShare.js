@@ -308,6 +308,29 @@ class AppInfo extends PureComponent {
                 )}
               </FormItem>
             </Col>
+            <Col span={6}>
+              <FormItem label="CPU(Mi)" style={{ padding: 16 }}>
+                {getFieldDecorator(`${ID}||min_cpu`, {
+                  initialValue: app.extend_method_map.min_cpu || 64,
+                  rules: [
+                    {
+                      required: true,
+                      message: '请输入CPU'
+                    },
+                    {
+                      pattern: new RegExp(/^[1-9]\d*$/, 'g'),
+                      message: '只允许输入数字并且大于0的整数'
+                    }
+                  ]
+                })(
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    min={1}
+                    placeholder="请输入CPU"
+                  />
+                )}
+              </FormItem>
+            </Col>
           </Row>
         </div>
       );

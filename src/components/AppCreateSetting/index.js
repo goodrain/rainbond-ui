@@ -5,6 +5,7 @@ import {
   Col,
   Form,
   Icon,
+  Input,
   notification,
   Radio,
   Row,
@@ -98,8 +99,12 @@ class BaseInfo extends PureComponent {
   render() {
     const { appDetail, form } = this.props;
     const { getFieldDecorator } = form;
-    const { extend_method } = appDetail.service;
-    const minMemory = appDetail.service.min_memory;
+    const {
+      extend_method: extendMethod,
+      min_memory: minMemory,
+      min_cpu: minCpu
+    } = appDetail.service;
+    console.log('appDetail', appDetail);
     const list = this.state.memoryList;
 
     const radioStyle = {
@@ -134,7 +139,7 @@ class BaseInfo extends PureComponent {
       >
         <Form.Item {...formItemLayout} label="组件类型">
           {getFieldDecorator('extend_method', {
-            initialValue: extend_method || 'stateless_multiple',
+            initialValue: extendMethod || 'stateless_multiple',
             rules: [
               {
                 required: true,
@@ -175,6 +180,29 @@ class BaseInfo extends PureComponent {
                 );
               })}
             </RadioGroup>
+          )}
+        </Form.Item>
+        <Form.Item {...formItemLayout} label="CPU">
+          {getFieldDecorator('min_cpu', {
+            initialValue: minCpu || 64,
+            rules: [
+              {
+                required: true,
+                message: '请输入CPU'
+              },
+              {
+                pattern: new RegExp(/^[1-9]\d*$/, 'g'),
+                message: '只允许输入数字并且大于0的整数'
+              }
+            ]
+          })(
+            <Input
+              style={{ width: '200px' }}
+              type="number"
+              min={1}
+              addonAfter="Mi"
+              placeholder="请输入CPU"
+            />
           )}
         </Form.Item>
         <Row>

@@ -47,6 +47,7 @@ export default class Index extends PureComponent {
         fieldsValue.username = undefined;
       }
       if (onSubmit) {
+        fieldsValue.min_cpu = Number(fieldsValue.min_cpu);
         onSubmit(fieldsValue);
       }
     });
@@ -269,6 +270,28 @@ export default class Index extends PureComponent {
               <Option value="128">128M</Option>
               <Option value="256">256M</Option>
             </Select>
+          )}
+        </Form.Item>
+        <Form.Item {...formItemLayout} label="CPU">
+          {getFieldDecorator('min_cpu', {
+            initialValue: data.minCpu || 64,
+            rules: [
+              {
+                required: true,
+                message: '请输入CPU'
+              },
+              {
+                pattern: new RegExp(/^[1-9]\d*$/, 'g'),
+                message: '只允许输入数字并且大于0的整数'
+              }
+            ]
+          })(
+            <Input
+              type="number"
+              min={1}
+              addonAfter="Mi"
+              placeholder="请输入CPU"
+            />
           )}
         </Form.Item>
         <Form.Item
