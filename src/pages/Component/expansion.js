@@ -984,7 +984,7 @@ export default class Index extends PureComponent {
                   </Button>
                 </Form.Item>
                 {descBox(
-                  'cpu分配额(单位：1000Mi=1Core)，超出集群中单节点CPU的最大可用容量时无法进行调度。'
+                  'CPU分配额(单位：1000Mi=1Core)，超出集群中单节点CPU的最大可用容量时无法进行调度。'
                 )}
               </Col>
               <Col lg={6} md={6} sm={24}>
