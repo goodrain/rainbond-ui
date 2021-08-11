@@ -33,6 +33,7 @@ class ClusterProgressQuery extends PureComponent {
       complete,
       clusterID,
       msg,
+      isLog = true,
       rainbondInfo
     } = this.props;
     const { showCreateLog } = this.state;
@@ -121,7 +122,7 @@ class ClusterProgressQuery extends PureComponent {
                       showIcon
                     />
                   )}
-                  {Status === 'failure' && (
+                  {isLog && Status === 'failure' && clusterID && (
                     <div>
                       <Button
                         type="link"

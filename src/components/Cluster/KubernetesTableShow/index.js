@@ -243,7 +243,11 @@ export default class KubernetesClusterShow extends PureComponent {
                       selectCluster({
                         clusterID,
                         name: recordName,
-                        can_init: record.can_init
+                        can_init: record.can_init,
+                        rainbond_init:
+                          record.state &&
+                          record.state === 'running' &&
+                          record.rainbond_init
                       });
                     }
                   }

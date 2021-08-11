@@ -695,7 +695,14 @@ export default class RKEClusterConfig extends PureComponent {
             width={900}
             visible
             onOk={() => {
-              this.handleTabs(activeKey === '1' ? '2' : '1', true);
+              this.setState(
+                {
+                  loading: true
+                },
+                () => {
+                  this.handleTabs(activeKey === '1' ? '2' : '1', true);
+                }
+              );
             }}
             onCancel={() => {
               this.handleCheck(false);
