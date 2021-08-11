@@ -462,7 +462,8 @@ export function vertical(
       method: 'post',
       data: {
         new_memory: body.new_memory,
-        new_gpu: body.new_gpu
+        new_gpu: body.new_gpu,
+        new_cpu: body.new_cpu
       }
     }
   );
@@ -2689,7 +2690,8 @@ export async function updatePluginMemory(
     {
       method: 'put',
       data: {
-        min_memory: body.min_memory
+        min_memory: body.min_memory,
+        min_cpu: body.min_cpu
       }
     }
   );

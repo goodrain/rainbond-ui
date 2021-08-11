@@ -30,50 +30,86 @@ const { Option } = Select;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
-
+@Form.create()
 class UpdateMemory extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      memory: this.props.memory
-    };
-  }
   handleOk = () => {
     const { onOk } = this.props;
-    if (onOk) {
-      onOk(this.state.memory);
-    }
+    this.props.form.validateFields((err, values) => {
+      if (!err && onOk) {
+        values.min_cpu = Number(values.min_cpu);
+        onOk(values);
+      }
+    });
   };
-  handleChange = value => {
-    this.setState({ memory: value });
-  };
+
   render() {
+    const { minCpu, memory, form, onCancel } = this.props;
+    const { getFieldDecorator } = form;
+
     return (
-      <Modal
-        title="内存修改"
-        visible
-        onOk={this.handleOk}
-        onCancel={this.props.onCancel}
-      >
-        <Select
-          getPopupContainer={triggerNode => triggerNode.parentNode}
-          style={{ width: '100%' }}
-          value={this.state.memory}
-          onChange={this.handleChange}
-        >
-          <Option value={32}>32M</Option>
-          <Option value={64}>64M</Option>
-          <Option value={128}>128M</Option>
-          <Option value={256}>256M</Option>
-          <Option value={512}>512M</Option>
-          <Option value={1024}>1G</Option>
-          <Option value={2048}>2G</Option>
-          <Option value={2048 * 2}>4G</Option>
-          <Option value={2048 * 4}>8G</Option>
-          <Option value={2048 * 8}>16G</Option>
-          <Option value={2048 * 16}>32G</Option>
-          <Option value={2048 * 32}>64G</Option>
-        </Select>
+      <Modal title="修改" visible onOk={this.handleOk} onCancel={onCancel}>
+        <Form onSubmit={this.handleOk} layout="horizontal">
+          <Form.Item
+            label="内存"
+            labelCol={{ span: 5 }}
+            wrapperCol={{ span: 19 }}
+          >
+            {getFieldDecorator('memory', {
+              initialValue: memory || 0,
+              rules: [
+                {
+                  required: true,
+                  message: '请选择内存'
+                }
+              ]
+            })(
+              <Select getPopupContainer={triggerNode => triggerNode.parentNode}>
+                <Option value={0}>不限制</Option>
+                <Option value={32}>32M</Option>
+                <Option value={64}>64M</Option>
+                <Option value={128}>128M</Option>
+                <Option value={256}>256M</Option>
+                <Option value={512}>512M</Option>
+                <Option value={1024}>1G</Option>
+                <Option value={2048}>2G</Option>
+                <Option value={2048 * 2}>4G</Option>
+                <Option value={2048 * 4}>8G</Option>
+                <Option value={2048 * 8}>16G</Option>
+                <Option value={2048 * 16}>32G</Option>
+                <Option value={2048 * 32}>64G</Option>
+              </Select>
+            )}
+          </Form.Item>
+          <Form.Item
+            label="CPU"
+            labelCol={{ span: 5 }}
+            wrapperCol={{ span: 19 }}
+          >
+            {getFieldDecorator('min_cpu', {
+              initialValue: minCpu || 0,
+              rules: [
+                {
+                  required: true,
+                  message: '请输入CPU'
+                },
+                {
+                  pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                  message: '只允许输入整数'
+                }
+              ]
+            })(
+              <Input
+                type="number"
+                min={0}
+                addonAfter="Mi"
+                placeholder="请输入CPU"
+              />
+            )}
+            <div style={{ color: '#999999', fontSize: '12px' }}>
+              CPU分配额0为不限制。
+            </div>
+          </Form.Item>
+        </Form>
       </Modal>
     );
   }
@@ -634,6 +670,7 @@ export default class Index extends PureComponent {
     });
   };
   onUpdateMemory = plugin => {
+    console.log('plugin', plugin);
     this.setState({ updateMemory: plugin });
   };
   cancelUpdateMemory = () => {
@@ -698,8 +735,7 @@ export default class Index extends PureComponent {
                   }}
                   href="javascript:;"
                 >
-                  {' '}
-                  更新内存{' '}
+                  更新
                 </a>,
                 ,
                 <a
@@ -918,7 +954,7 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleUpdateMemory = memory => {
+  handleUpdateMemory = (info = {}) => {
     const team_name = globalUtil.getCurrTeamName();
     const app_alias = this.props.appAlias;
     const plugin = this.state.updateMemory;
@@ -928,7 +964,8 @@ export default class Index extends PureComponent {
         team_name,
         app_alias,
         plugin_id: plugin.plugin_id,
-        min_memory: memory
+        min_memory: info.memory,
+        min_cpu: info.min_cpu
       },
       callback: () => {
         this.getPlugins();
@@ -987,6 +1024,7 @@ export default class Index extends PureComponent {
           <UpdateMemory
             onOk={this.handleUpdateMemory}
             onCancel={this.cancelUpdateMemory}
+            minCpu={this.state.updateMemory.min_cpu}
             memory={this.state.updateMemory.min_memory}
           />
         )}
