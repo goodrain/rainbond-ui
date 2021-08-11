@@ -37,6 +37,7 @@ export default class EnterpriseClusters extends PureComponent {
       showBuyClusterConfig: false,
       k8sClusters: [],
       loading: true,
+      rainbondInit: false,
       selectClusterID: '',
       showTaskDetail: false,
       linkedClusters: new Map(),
@@ -63,16 +64,19 @@ export default class EnterpriseClusters extends PureComponent {
         params: { eid, provider }
       }
     } = this.props;
-    const { selectClusterID } = this.state;
+    const { selectClusterID, rainbondInit } = this.state;
     dispatch(
       routerRedux.push(
-        `/enterprise/${eid}/provider/${provider}/kclusters/${selectClusterID}/init`
+        `/enterprise/${eid}/provider/${provider}/kclusters/${selectClusterID}/${
+          rainbondInit ? 'link' : 'init'
+        }`
       )
     );
   };
   selectCluster = row => {
     this.setState({
-      selectClusterID: row.clusterID
+      selectClusterID: row.clusterID,
+      rainbondInit: row.rainbond_init
     });
   };
 

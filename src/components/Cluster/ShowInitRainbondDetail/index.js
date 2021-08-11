@@ -106,6 +106,7 @@ class InitRainbondDetail extends PureComponent {
       <ClusterProgressQuery
         title={title || '平台集群初始化进度查询'}
         msg="初始化流程预计耗时20分钟，请耐心等待，若遇到错误请反馈到社区"
+        isLog={false}
         {...this.state}
         {...this.props}
       />
