@@ -290,7 +290,7 @@ class AppInfo extends PureComponent {
             <Col span={6}>
               <FormItem label="初始内存(M)" style={{ padding: 16 }}>
                 {getFieldDecorator(`${ID}||init_memory`, {
-                  initialValue: app.extend_method_map.init_memory || 32,
+                  initialValue: app.extend_method_map.init_memory || 0,
                   rules: [
                     {
                       required: true,
@@ -301,34 +301,40 @@ class AppInfo extends PureComponent {
                   <InputNumber
                     style={{ width: '100%' }}
                     placeholder="请输入初始内存"
-                    min={32}
+                    min={0}
                     max={app.extend_method_map.max_memory}
                     step={app.extend_method_map.step_memory}
                   />
                 )}
+                <div style={{ color: '#999999', fontSize: '12px' }}>
+                  内存分配额0为不限制。
+                </div>
               </FormItem>
             </Col>
             <Col span={6}>
               <FormItem label="CPU(Mi)" style={{ padding: 16 }}>
                 {getFieldDecorator(`${ID}||min_cpu`, {
-                  initialValue: app.extend_method_map.min_cpu || 64,
+                  initialValue: app.extend_method_map.min_cpu || 0,
                   rules: [
                     {
                       required: true,
                       message: '请输入CPU'
                     },
                     {
-                      pattern: new RegExp(/^[1-9]\d*$/, 'g'),
-                      message: '只允许输入数字并且大于0的整数'
+                      pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                      message: '只允许输入整数'
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
-                    min={1}
+                    min={0}
                     placeholder="请输入CPU"
                   />
                 )}
+                <div style={{ color: '#999999', fontSize: '12px' }}>
+                  CPU分配额0为不限制。
+                </div>
               </FormItem>
             </Col>
           </Row>

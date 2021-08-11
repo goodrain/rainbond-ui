@@ -160,7 +160,7 @@ class BaseInfo extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="内存">
           {getFieldDecorator('min_memory', {
-            initialValue: minMemory || '',
+            initialValue: minMemory || 0,
             rules: [
               {
                 required: true,
@@ -169,7 +169,10 @@ class BaseInfo extends PureComponent {
             ]
           })(
             <RadioGroup>
-              {minMemory < list[0].value ? (
+              <RadioButton key={0} value={0}>
+                不限制
+              </RadioButton>
+              {minMemory < list[0].value && minMemory != 0 ? (
                 <RadioButton value={minMemory}>{minMemory}M</RadioButton>
               ) : null}
               {list.map((item, index) => {
@@ -184,26 +187,29 @@ class BaseInfo extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="CPU">
           {getFieldDecorator('min_cpu', {
-            initialValue: minCpu || 64,
+            initialValue: minCpu || 0,
             rules: [
               {
                 required: true,
                 message: '请输入CPU'
               },
               {
-                pattern: new RegExp(/^[1-9]\d*$/, 'g'),
-                message: '只允许输入数字并且大于0的整数'
+                pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                message: '只允许输入整数'
               }
             ]
           })(
             <Input
               style={{ width: '200px' }}
               type="number"
-              min={1}
+              min={0}
               addonAfter="Mi"
               placeholder="请输入CPU"
             />
           )}
+          <div style={{ color: '#999999', fontSize: '12px' }}>
+            CPU分配额0为不限制。
+          </div>
         </Form.Item>
         <Row>
           <Col span="5" />

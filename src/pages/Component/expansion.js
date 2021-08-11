@@ -888,12 +888,15 @@ export default class Index extends PureComponent {
                   className={styles.customFormItem}
                 >
                   {getFieldDecorator('memory', {
-                    initialValue: `${extendInfo.current_memory}`
+                    initialValue: `${extendInfo.current_memory}` || 0
                   })(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
                       className={styles.memorySelect}
                     >
+                      <Option key={0} value={0}>
+                        不限制
+                      </Option>
                       {(extendInfo.memory_list || []).map(item => (
                         <Option key={item} value={item}>
                           {sourceUtil.getMemoryAndUnit(item)}
@@ -953,21 +956,21 @@ export default class Index extends PureComponent {
                   className={styles.customFormItem}
                 >
                   {getFieldDecorator('new_cpu', {
-                    initialValue: extendInfo.new_cpu || 64,
+                    initialValue: extendInfo.new_cpu || 0,
                     rules: [
                       {
                         required: true,
                         message: '请输入CPU'
                       },
                       {
-                        pattern: new RegExp(/^[1-9]\d*$/, 'g'),
-                        message: '只允许输入数字并且大于0的整数'
+                        pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                        message: '只允许输入整数'
                       }
                     ]
                   })(
                     <Input
                       type="number"
-                      min={1}
+                      min={0}
                       addonAfter="Mi"
                       placeholder="请输入CPU"
                     />
@@ -984,7 +987,7 @@ export default class Index extends PureComponent {
                   </Button>
                 </Form.Item>
                 {descBox(
-                  'CPU分配额(单位：1000Mi=1Core)，超出集群中单节点CPU的最大可用容量时无法进行调度。'
+                  'CPU分配额0为不限制，超出集群中单节点CPU的最大可用容量时无法进行调度。'
                 )}
               </Col>
               <Col lg={6} md={6} sm={24}>

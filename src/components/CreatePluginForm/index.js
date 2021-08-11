@@ -259,13 +259,14 @@ export default class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="最小内存">
           {getFieldDecorator('min_memory', {
-            initialValue: data.min_memory || '64',
+            initialValue: data.min_memory || 0,
             rules: [{ required: true, message: '请选择最小内存' }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               disabled={allDisabled}
             >
+              <Option value={0}>不限制</Option>
               <Option value="64">64M</Option>
               <Option value="128">128M</Option>
               <Option value="256">256M</Option>
@@ -274,25 +275,28 @@ export default class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="CPU">
           {getFieldDecorator('min_cpu', {
-            initialValue: data.minCpu || 64,
+            initialValue: data.minCpu || 0,
             rules: [
               {
                 required: true,
                 message: '请输入CPU'
               },
               {
-                pattern: new RegExp(/^[1-9]\d*$/, 'g'),
-                message: '只允许输入数字并且大于0的整数'
+                pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                message: '只允许输入整数'
               }
             ]
           })(
             <Input
               type="number"
-              min={1}
+              min={0}
               addonAfter="Mi"
               placeholder="请输入CPU"
             />
           )}
+          <div style={{ color: '#999999', fontSize: '12px' }}>
+            CPU分配额0为不限制。
+          </div>
         </Form.Item>
         <Form.Item
           style={{ display: type === 'image' ? 'none' : '' }}
