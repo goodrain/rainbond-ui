@@ -62,6 +62,10 @@ export default class AddVolumes extends PureComponent {
                   message: '请输入配置文件名称'
                 },
                 {
+                  pattern: /^[^\s]*$/,
+                  message: '禁止输入空格'
+                },
+                {
                   max: 30,
                   message: '最大长度30位'
                 }
@@ -80,6 +84,10 @@ export default class AddVolumes extends PureComponent {
                 {
                   required: true,
                   message: '请输入配置文件挂载路径'
+                },
+                {
+                  pattern: /^[^\s]*$/,
+                  message: '禁止输入空格'
                 },
                 {
                   max: 255,
