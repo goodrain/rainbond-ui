@@ -1099,14 +1099,9 @@ class Main extends PureComponent {
     if (!status.status) {
       return null;
     }
-    let canStart = isStart;
-    if (appDetail.is_third && appDetail.endpoints_type !== 'kubernetes') {
-      canStart = false;
-    }
-
     const action = (
       <div>
-        {canStart && !appStatusUtil.canStop(status) && (
+        {isStart && !appStatusUtil.canStop(status) && (
           <Button
             disabled={!appStatusUtil.canStart(status)}
             onClick={() => {
@@ -1166,8 +1161,7 @@ class Main extends PureComponent {
 
         {status.status === 'undeploy' ||
         status.status === 'closed' ||
-        status.status === 'stopping' ||
-        isShowThirdParty
+        status.status === 'stopping'
           ? ''
           : isUpdate && (
               <Button
