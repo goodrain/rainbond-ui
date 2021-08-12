@@ -120,7 +120,7 @@ export default class AddVolumes extends PureComponent {
           </div>
           <FormItem {...formItemLayout} label="权限">
             {getFieldDecorator('mode', {
-              initialValue: data.mode || 0,
+              initialValue: data.mode || 777,
               rules: [{ required: true, validator: this.modeCheck }]
             })(<InputNumber min={0} style={{ width: '100%' }} />)}
           </FormItem>
