@@ -216,13 +216,12 @@ export default class EditHealthCheck extends PureComponent {
           </FormItem>
           <FormItem {...formItemLayout} label="不健康处理方式:">
             {getFieldDecorator('mode', {
-              initialValue: data.mode || (types && 'ignore') || 'readiness',
+              initialValue: data.mode || 'readiness',
               rules: [{ required: true, message: '请选择' }]
             })(
               <RadioGroup onChange={this.onChanges}>
                 <Radio value="readiness">下线</Radio>
                 {!types && <Radio value="liveness">重启</Radio>}
-                {types && <Radio value="ignore">忽略</Radio>}
               </RadioGroup>
             )}
           </FormItem>
