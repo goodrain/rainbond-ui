@@ -1071,12 +1071,13 @@ class Main extends PureComponent {
       groupDetail
     } = this.state;
     const { getFieldDecorator } = form;
+    const upDataText = isShowThirdParty ? '更新' : '更新(滚动）';
     const codeObj = {
       start: '启动',
       restart: '重启',
       stop: '关闭',
       deploy: '构建',
-      rolling: '更新(滚动）'
+      rolling: upDataText
     };
     if (!appDetail.service) {
       return null;
@@ -1169,7 +1170,7 @@ class Main extends PureComponent {
                   this.handleOpenHelpfulHints('rolling');
                 }}
               >
-                更新(滚动)
+                {upDataText}
               </Button>
             )}
 
