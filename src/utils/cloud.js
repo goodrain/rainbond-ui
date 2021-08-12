@@ -591,10 +591,12 @@ const cloud = {
         step = {
           Title: item.type,
           Description: item.type,
+          Type: '',
           Status: '',
           reason: ''
         };
       }
+      step.Type = item.type;
       step.Status = item.status;
       step.Message = item.message;
       step.reason = item.reason;

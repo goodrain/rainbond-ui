@@ -241,7 +241,9 @@ export async function getRainbondComponents(body) {
       method: 'get',
       params: {
         providerName: body.providerName
-      }
+      },
+      showMessage: false,
+      noModels: true
     }
   );
 }
