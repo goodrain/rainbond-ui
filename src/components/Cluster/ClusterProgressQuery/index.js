@@ -102,40 +102,42 @@ class ClusterProgressQuery extends PureComponent {
             showIcon
           />
           <Timeline loading={loading} pending={pending}>
-            {steps.map((item, index) => {
-              const { Status, Title, Description, Message, reason } = item;
-              return (
-                <Timeline.Item color={item.Color} key={`step${index}`}>
-                  <h4>{Title}</h4>
-                  <p>{Description}</p>
-                  <p>{Message}</p>
-                  {reason && reason === 'NamespaceBeingTerminated' && (
-                    <Alert
-                      style={{ marginBottom: '16px' }}
-                      message="
+            {steps &&
+              steps.length > 0 &&
+              steps.map((item, index) => {
+                const { Status, Title, Description, Message, reason } = item;
+                return (
+                  <Timeline.Item color={item.Color} key={`step${index}`}>
+                    <h4>{Title}</h4>
+                    <p>{Description}</p>
+                    <p>{Message}</p>
+                    {reason && reason === 'NamespaceBeingTerminated' && (
+                      <Alert
+                        style={{ marginBottom: '16px' }}
+                        message="
                           命名空间 rbd-system 处于 terminating, 请待定删除完成.
                           或执行命令 curl
                           http://sh.rainbond.com/delete-ns-rbd-system.sh | bash
                           进行强制删除.
                       "
-                      type="warning"
-                      showIcon
-                    />
-                  )}
-                  {isLog && Status === 'failure' && clusterID && (
-                    <div>
-                      <Button
-                        type="link"
-                        style={{ padding: 0 }}
-                        onClick={this.queryCreateLog}
-                      >
-                        查看日志
-                      </Button>
-                    </div>
-                  )}
-                </Timeline.Item>
-              );
-            })}
+                        type="warning"
+                        showIcon
+                      />
+                    )}
+                    {isLog && Status === 'failure' && clusterID && (
+                      <div>
+                        <Button
+                          type="link"
+                          style={{ padding: 0 }}
+                          onClick={this.queryCreateLog}
+                        >
+                          查看日志
+                        </Button>
+                      </div>
+                    )}
+                  </Timeline.Item>
+                );
+              })}
           </Timeline>
           {complete && <span>已结束</span>}
         </Row>

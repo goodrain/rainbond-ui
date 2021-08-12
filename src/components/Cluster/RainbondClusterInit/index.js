@@ -11,7 +11,7 @@ import {
   Typography
 } from 'antd';
 import { connect } from 'dva';
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import {
   getRainbondClusterConfig,
   setRainbondClusterConfig
@@ -20,6 +20,7 @@ import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
 import CodeMirrorForm from '../../CodeMirrorForm';
 import styles from '../ACKBuyConfig/index.less';
+import ClusterComponents from '../ClusterComponents';
 import InitRainbondDetail from '../ShowInitRainbondDetail';
 
 const { Paragraph } = Typography;
@@ -36,7 +37,8 @@ export default class RainbondClusterInit extends PureComponent {
       checked: false,
       loading: false,
       showInitDetail: false,
-      task: null
+      task: null,
+      isComponents: false
     };
   }
   componentDidMount() {
@@ -181,14 +183,20 @@ export default class RainbondClusterInit extends PureComponent {
       }
     });
   };
+  handleIsComponents = isComponents => {
+    this.setState({
+      isComponents
+    });
+  };
   render() {
-    const { preStep, eid, selectProvider, form } = this.props;
+    const { preStep, eid, selectProvider, form, clusterID } = this.props;
     const {
       showInitDetail,
       loading,
       task,
       showClusterInitConfig,
-      initconfig
+      initconfig,
+      isComponents
     } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -280,34 +288,55 @@ export default class RainbondClusterInit extends PureComponent {
             </Checkbox>
           </Form.Item>
         </Col>
+        <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
+          {task && task.status !== 'complete' ? (
+            <Fragment>
+              <Button onClick={preStep} style={{ marginRight: '16px' }}>
+                上一步
+              </Button>
+              <Button
+                onClick={() => {
+                  this.setState({ showInitDetail: true });
+                }}
+                type="primary"
+              >
+                正在初始化/确认进度
+              </Button>
+            </Fragment>
+          ) : (
+            <Fragment>
+              <Button onClick={preStep} style={{ marginRight: '16px' }}>
+                上一步
+              </Button>
+              <Button
+                loading={loading}
+                onClick={this.initRainbondCluster}
+                type="primary"
+              >
+                {task ? '重新初始化' : '开始初始化'}
+              </Button>
+            </Fragment>
+          )}
+          {(selectProvider === 'rke' || selectProvider === 'custom') && (
+            <Button
+              type="primary"
+              style={{ marginLeft: '16px' }}
+              onClick={() => this.handleIsComponents(true)}
+            >
+              查看组件
+            </Button>
+          )}
+        </Col>
 
-        {task && task.status !== 'complete' ? (
-          <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
-            <Button onClick={preStep} style={{ marginRight: '16px' }}>
-              上一步
-            </Button>
-            <Button
-              onClick={() => {
-                this.setState({ showInitDetail: true });
-              }}
-              type="primary"
-            >
-              正在初始化/确认进度
-            </Button>
-          </Col>
-        ) : (
-          <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
-            <Button onClick={preStep} style={{ marginRight: '16px' }}>
-              上一步
-            </Button>
-            <Button
-              loading={loading}
-              onClick={this.initRainbondCluster}
-              type="primary"
-            >
-              {task ? '重新初始化' : '开始初始化'}
-            </Button>
-          </Col>
+        {isComponents && clusterID && (
+          <ClusterComponents
+            eid={eid}
+            clusterID={clusterID}
+            providerName={selectProvider}
+            onCancel={() => {
+              this.handleIsComponents(false);
+            }}
+          />
         )}
         {showInitDetail && task && (
           <InitRainbondDetail

@@ -585,7 +585,7 @@ const cloud = {
     };
     let complete = false;
     const steps = [];
-    events.map(item => {
+    (events || []).map(item => {
       let step = createKubernetesSteps[item.type];
       if (step === undefined) {
         step = {
