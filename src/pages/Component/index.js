@@ -908,11 +908,6 @@ class Main extends PureComponent {
       appPermissions: { isEdit: isAppEdit }
     } = this.props;
     const { status, groupDetail, loadingDetail } = this.state;
-    // Temporary logic that all third party components need to be implemented can be turned off.
-    let canStop = isStop;
-    if (appDetail.is_third && appDetail.endpoints_type !== 'kubernetes') {
-      canStop = false;
-    }
     const isHelm =
       groupDetail && groupDetail.app_type && groupDetail.app_type === 'helm';
     return (
@@ -954,7 +949,7 @@ class Main extends PureComponent {
               )}
               {!appDetail.is_third && isRestart && <Divider type="vertical" />}
 
-              {canStop && !appStatusUtil.canStart(status) ? (
+              {isStop && !appStatusUtil.canStart(status) ? (
                 <span>
                   <a
                     style={{
@@ -972,7 +967,7 @@ class Main extends PureComponent {
                   </a>
                   <Divider type="vertical" />
                 </span>
-              ) : canStop &&
+              ) : isStop &&
                 status &&
                 status.status &&
                 status.status === 'upgrade' ? (
@@ -1071,12 +1066,13 @@ class Main extends PureComponent {
       groupDetail
     } = this.state;
     const { getFieldDecorator } = form;
+    const upDataText = isShowThirdParty ? '更新' : '更新(滚动）';
     const codeObj = {
       start: '启动',
       restart: '重启',
       stop: '关闭',
       deploy: '构建',
-      rolling: '更新(滚动）'
+      rolling: upDataText
     };
     if (!appDetail.service) {
       return null;
@@ -1099,14 +1095,9 @@ class Main extends PureComponent {
     if (!status.status) {
       return null;
     }
-    let canStart = isStart;
-    if (appDetail.is_third && appDetail.endpoints_type !== 'kubernetes') {
-      canStart = false;
-    }
-
     const action = (
       <div>
-        {canStart && !appStatusUtil.canStop(status) && (
+        {isStart && !appStatusUtil.canStop(status) && (
           <Button
             disabled={!appStatusUtil.canStart(status)}
             onClick={() => {
@@ -1166,8 +1157,7 @@ class Main extends PureComponent {
 
         {status.status === 'undeploy' ||
         status.status === 'closed' ||
-        status.status === 'stopping' ||
-        isShowThirdParty
+        status.status === 'stopping'
           ? ''
           : isUpdate && (
               <Button
@@ -1175,7 +1165,7 @@ class Main extends PureComponent {
                   this.handleOpenHelpfulHints('rolling');
                 }}
               >
-                更新(滚动)
+                {upDataText}
               </Button>
             )}
 
