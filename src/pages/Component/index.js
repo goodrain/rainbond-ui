@@ -908,11 +908,6 @@ class Main extends PureComponent {
       appPermissions: { isEdit: isAppEdit }
     } = this.props;
     const { status, groupDetail, loadingDetail } = this.state;
-    // Temporary logic that all third party components need to be implemented can be turned off.
-    let canStop = isStop;
-    if (appDetail.is_third && appDetail.endpoints_type !== 'kubernetes') {
-      canStop = false;
-    }
     const isHelm =
       groupDetail && groupDetail.app_type && groupDetail.app_type === 'helm';
     return (
@@ -954,7 +949,7 @@ class Main extends PureComponent {
               )}
               {!appDetail.is_third && isRestart && <Divider type="vertical" />}
 
-              {canStop && !appStatusUtil.canStart(status) ? (
+              {isStop && !appStatusUtil.canStart(status) ? (
                 <span>
                   <a
                     style={{
@@ -972,7 +967,7 @@ class Main extends PureComponent {
                   </a>
                   <Divider type="vertical" />
                 </span>
-              ) : canStop &&
+              ) : isStop &&
                 status &&
                 status.status &&
                 status.status === 'upgrade' ? (
