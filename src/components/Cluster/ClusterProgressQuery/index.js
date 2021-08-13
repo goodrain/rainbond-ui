@@ -134,10 +134,12 @@ class ClusterProgressQuery extends PureComponent {
               pending && (
                 <div>
                   {pending}&nbsp;
-                  {showComponentText && (
+                  {showComponentText ? (
                     <a onClick={() => this.handleIsComponents(true)}>
                       查看组件
                     </a>
+                  ) : (
+                    ''
                   )}
                 </div>
               )
