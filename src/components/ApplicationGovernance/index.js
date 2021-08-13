@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-for */
 /* eslint-disable prettier/prettier */
 import {
   Alert,
@@ -77,7 +78,6 @@ export default class ApplicationGovernance extends PureComponent {
     form.validateFields((err, value) => {
       if (!err) {
         if (step) {
-          // this.checkK8sServiceName({ k8s_service_name: 'graca965_80' });
           this.setK8sServiceNames(value);
         } else {
           this.handleGovernancemode(value);
@@ -113,7 +113,7 @@ export default class ApplicationGovernance extends PureComponent {
     });
   };
   fetchServiceNameList = () => {
-    const { dispatch, appID } = this.props;
+    const { dispatch, appID, onCancel } = this.props;
     dispatch({
       type: 'application/fetchServiceNameList',
       payload: {
@@ -122,10 +122,15 @@ export default class ApplicationGovernance extends PureComponent {
       },
       callback: res => {
         if (res && res.bean) {
-          this.setState({
-            step: true,
-            ServiceNameList: res.list
-          });
+          if (res.list && res.list.length > 0) {
+            this.setState({
+              step: true,
+              ServiceNameList: res.list
+            });
+          } else {
+            this.handleNotification();
+            onCancel();
+          }
         }
       }
     });
