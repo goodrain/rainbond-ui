@@ -71,32 +71,40 @@ export default class Index extends PureComponent {
         app_alias: appAlias
       },
       callback: res => {
-        if (res && res.status_code === 200) {
-          const list = (res.list && res.list.new_pods) || [];
-          if (list && list.length > 0) {
-            list.map(item => {
-              item.name = item.pod_name;
-              item.container.map(items => {
-                items.name = items.container_name;
-              });
+        const list = (res && res.list && res.list.new_pods) || [];
+        if (list && list.length > 0) {
+          list.map(item => {
+            item.name = `实例：${item.pod_name}`;
+            item.container.map(items => {
+              items.name = `容器：${items.container_name}`;
             });
-          }
-          this.setState({
-            // 接口变化
-            instances: list
           });
         }
+        list.push({
+          name: '全部日志'
+        });
+        this.setState({
+          instances: list
+        });
       }
     });
   };
   onFinish = value => {
     this.setState({ filter: value }, () => {
-      const { logs } = this.state;
-      this.setLogs(logs);
+      const { logs, pod_name: podName } = this.state;
+      if (value === '') {
+        if (podName) {
+          this.fetchContainerLog();
+        } else {
+          this.fetchServiceLog();
+        }
+      } else {
+        this.setLogs(logs);
+      }
     });
   };
   setLogs = logs => {
-    const { filter } = this.state;
+    const { filter, pod_name: podName } = this.state;
     let newlogs = logs;
     newlogs = logs.filter(item => {
       if (filter == '' || item.indexOf(filter) != -1) {
@@ -113,10 +121,9 @@ export default class Index extends PureComponent {
     });
     if (newlogs.length > 5000) {
       newlogs = newlogs.slice(logs.length - 5000, logs.length);
-      this.setState({ logs: newlogs });
-    } else {
-      this.setState({ logs: newlogs });
     }
+    const upDataInfo = podName ? { containerLog: newlogs } : { logs: newlogs };
+    this.setState(upDataInfo);
   };
   watchLog() {
     if (this.props.socket) {
@@ -158,32 +165,28 @@ export default class Index extends PureComponent {
         if (this.refs.box) {
           this.refs.box.scrollTop = this.refs.box.scrollHeight;
         }
-        this.setState({ logs: data.list || [] }, () => {
-          this.hanleTimer();
-        });
+        this.setState({ logs: data.list || [] });
         this.watchLog();
       }
     });
   };
   hanleTimer = () => {
-    const { refreshValue, containerLog } = this.state;
+    const { refreshValue } = this.state;
     this.closeTimer();
     if (!refreshValue) {
       return null;
     }
     this.timer = setTimeout(() => {
-      if (containerLog && containerLog.length > 0) {
-        this.fetchContainerLog();
-      } else {
-        this.fetchServiceLog();
-      }
+      this.fetchContainerLog();
     }, refreshValue * 1000);
   };
+
   closeTimer = () => {
     if (this.timer) {
       clearInterval(this.timer);
     }
   };
+
   fetchContainerLog = () => {
     const { pod_name, container_name } = this.state;
     getContainerLog({
@@ -192,7 +195,12 @@ export default class Index extends PureComponent {
       pod_name,
       container_name
     }).then(data => {
-      if (data && data.response_data) {
+      if (
+        data &&
+        data.status_code &&
+        data.status_code === 200 &&
+        data.response_data
+      ) {
         const arr = data.response_data.split('\n');
         this.setState(
           {
@@ -235,8 +243,8 @@ export default class Index extends PureComponent {
     if (value && value.length > 1) {
       this.setState(
         {
-          pod_name: value[0],
-          container_name: value[1]
+          pod_name: value[0].slice(3),
+          container_name: value[1].slice(3)
         },
         () => {
           this.fetchContainerLog();
@@ -245,9 +253,12 @@ export default class Index extends PureComponent {
     } else {
       this.setState(
         {
+          pod_name: '',
+          container_name: '',
           containerLog: []
         },
         () => {
+          this.closeTimer();
           this.fetchServiceLog();
         }
       );
@@ -267,6 +278,7 @@ export default class Index extends PureComponent {
     const { appAlias } = this.props;
     const {
       logs,
+      pod_name,
       containerLog,
       showHighlighted,
       instances,
@@ -297,12 +309,24 @@ export default class Index extends PureComponent {
       >
         <Form layout="inline" name="logFilter" style={{ marginBottom: '16px' }}>
           <Form.Item
+            name="filter"
+            label="过滤文本"
+            style={{ marginRight: '10px' }}
+          >
+            <Input.Search
+              style={{ width: '300px' }}
+              placeholder="请输入过滤文本"
+              onSearch={this.onFinish}
+            />
+          </Form.Item>
+          <Form.Item
             name="container"
             label="容器"
             style={{ marginRight: '10px' }}
             className={styles.podCascader}
           >
             <Cascader
+              defaultValue={['全部日志']}
               fieldNames={{
                 label: 'name',
                 value: 'name',
@@ -314,34 +338,24 @@ export default class Index extends PureComponent {
             />
           </Form.Item>
 
-          <Form.Item
-            name="filter"
-            label="过滤文本"
-            style={{ marginRight: '10px' }}
-          >
-            <Input.Search
-              style={{ width: '300px' }}
-              placeholder="请输入过滤文本"
-              onSearch={this.onFinish}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="refresh"
-            label="自动刷新"
-            style={{ marginRight: '0' }}
-          >
-            <Select
-              value={refreshValue}
-              onChange={this.handleChange}
-              style={{ width: 130 }}
+          {pod_name && (
+            <Form.Item
+              name="refresh"
+              label="自动刷新"
+              style={{ marginRight: '0' }}
             >
-              <Option value={5}>5秒</Option>
-              <Option value={10}>10秒</Option>
-              <Option value={30}>30秒</Option>
-              <Option value={0}>关闭</Option>
-            </Select>
-          </Form.Item>
+              <Select
+                value={refreshValue}
+                onChange={this.handleChange}
+                style={{ width: 130 }}
+              >
+                <Option value={5}>5秒</Option>
+                <Option value={10}>10秒</Option>
+                <Option value={30}>30秒</Option>
+                <Option value={0}>关闭</Option>
+              </Select>
+            </Form.Item>
+          )}
         </Form>
         <div className={styles.logsss} ref="box">
           {(containerLog &&
