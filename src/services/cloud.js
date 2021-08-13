@@ -234,6 +234,31 @@ export async function getKubeConfig(body, handleError) {
   );
 }
 
+export async function getRainbondComponents(body) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/rainbond-components`,
+    {
+      method: 'get',
+      params: {
+        providerName: body.providerName
+      },
+      showMessage: false,
+      noModels: true
+    }
+  );
+}
+export async function getPodEvent(body) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/rainbond-components/${body.podName}/events`,
+    {
+      method: 'get',
+      params: {
+        providerName: body.providerName
+      }
+    }
+  );
+}
+
 export async function getUpdateKubernetesTask(body, handleError) {
   return request(
     `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/update-cluster/${body.clusterID}`,

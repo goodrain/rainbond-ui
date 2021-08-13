@@ -585,16 +585,18 @@ const cloud = {
     };
     let complete = false;
     const steps = [];
-    events.map(item => {
+    (events || []).map(item => {
       let step = createKubernetesSteps[item.type];
       if (step === undefined) {
         step = {
           Title: item.type,
           Description: item.type,
+          Type: '',
           Status: '',
           reason: ''
         };
       }
+      step.Type = item.type;
       step.Status = item.status;
       step.Message = item.message;
       step.reason = item.reason;
