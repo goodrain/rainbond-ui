@@ -314,8 +314,8 @@ class AppInfo extends PureComponent {
             </Col>
             <Col span={8}>
               <FormItem label="初始CPU(m)" style={pd16}>
-                {getFieldDecorator(`${ID}||min_cpu`, {
-                  initialValue: app.extend_method_map.min_cpu || 0,
+                {getFieldDecorator(`${ID}||container_cpu`, {
+                  initialValue: app.extend_method_map.container_cpu || 0,
                   rules: [
                     {
                       required: true,
