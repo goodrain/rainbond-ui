@@ -335,8 +335,8 @@ export default {
         callback(response);
       }
     },
-    *getAppResource({ payload, callback }, { call }) {
-      const response = yield call(getAppResource, payload);
+    *getAppResource({ payload, callback, handleError }, { call }) {
+      const response = yield call(getAppResource, payload, handleError);
       if (response && callback) {
         callback(response);
       }

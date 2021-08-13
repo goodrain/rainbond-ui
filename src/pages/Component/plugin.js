@@ -47,7 +47,7 @@ class UpdateMemory extends PureComponent {
     const { getFieldDecorator } = form;
 
     return (
-      <Modal title="修改" visible onOk={this.handleOk} onCancel={onCancel}>
+      <Modal title="资源配置" visible onOk={this.handleOk} onCancel={onCancel}>
         <Form onSubmit={this.handleOk} layout="horizontal">
           <Form.Item
             label="内存"
@@ -101,12 +101,12 @@ class UpdateMemory extends PureComponent {
               <Input
                 type="number"
                 min={0}
-                addonAfter="Mi"
+                addonAfter="m"
                 placeholder="请输入CPU"
               />
             )}
             <div style={{ color: '#999999', fontSize: '12px' }}>
-              CPU分配额0为不限制。
+              CPU分配额0为不限制，1000m=1core。
             </div>
           </Form.Item>
         </Form>
@@ -670,7 +670,6 @@ export default class Index extends PureComponent {
     });
   };
   onUpdateMemory = plugin => {
-    console.log('plugin', plugin);
     this.setState({ updateMemory: plugin });
   };
   cancelUpdateMemory = () => {
@@ -735,7 +734,7 @@ export default class Index extends PureComponent {
                   }}
                   href="javascript:;"
                 >
-                  更新
+                  资源配置
                 </a>,
                 ,
                 <a
