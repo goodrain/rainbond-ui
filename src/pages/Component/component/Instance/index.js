@@ -15,7 +15,6 @@ class Index extends PureComponent {
       instanceInfo: null
     };
   }
-  componentDidMount() {}
 
   showModal = podName => {
     const { isHelm = false } = this.props;
@@ -35,11 +34,8 @@ class Index extends PureComponent {
         pod_name: podName
       },
       callback: res => {
-        console.log('fetchHelmInstanceDetails', res.bean);
         if (res) {
           const isVisible = JSON.stringify(res.bean) === '{}';
-          console.log('isVisible', isVisible);
-
           this.setState({
             instanceInfo: res.bean,
             visible: !isVisible
@@ -276,9 +272,9 @@ class Index extends PureComponent {
                         key: 'limit_memory',
                         width: '10%',
                         render: limitMemory => (
-                          <Tooltip title={limitMemory}>
+                          <Tooltip title={limitMemory || '不限制'}>
                             <span className={styles.wordText}>
-                              {limitMemory || '-'}
+                              {limitMemory || '不限制'}
                             </span>
                           </Tooltip>
                         )
@@ -289,7 +285,9 @@ class Index extends PureComponent {
                         key: 'request_cpu',
                         width: '10%',
                         render: val => (
-                          <span className={styles.wordText}>{val || '-'}</span>
+                          <span className={styles.wordText}>
+                            {val || '不限制'}
+                          </span>
                         )
                       },
                       {

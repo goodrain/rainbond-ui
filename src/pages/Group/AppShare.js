@@ -210,6 +210,7 @@ class AppInfo extends PureComponent {
   renderExtend = () => {
     const { app = {}, ID = 'extend', form } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
+    const pd16 = { padding: 16 };
     if (app.extend_method_map) {
       const steps = getFieldValue(`${ID}||step_node`);
       return (
@@ -227,8 +228,8 @@ class AppInfo extends PureComponent {
           </h4>
           <Divider />
           <Row>
-            <Col span={6}>
-              <FormItem label="最小节点(个)" style={{ padding: 16 }}>
+            <Col span={8}>
+              <FormItem label="最小节点(个)" style={pd16}>
                 {getFieldDecorator(`${ID}||min_node`, {
                   initialValue: app.extend_method_map.min_node,
                   rules: [
@@ -247,8 +248,8 @@ class AppInfo extends PureComponent {
                 )}
               </FormItem>
             </Col>
-            <Col span={6}>
-              <FormItem label="最大节点(个)" style={{ padding: 16 }}>
+            <Col span={8}>
+              <FormItem label="最大节点(个)" style={pd16}>
                 {getFieldDecorator(`${ID}||max_node`, {
                   initialValue: app.extend_method_map.max_node,
                   rules: [
@@ -267,8 +268,8 @@ class AppInfo extends PureComponent {
                 )}
               </FormItem>
             </Col>
-            <Col span={6}>
-              <FormItem label="节点步长(个)" style={{ padding: 16 }}>
+            <Col span={8}>
+              <FormItem label="节点步长(个)" style={pd16}>
                 {getFieldDecorator(`${ID}||step_node`, {
                   initialValue: app.extend_method_map.step_node,
                   rules: [
@@ -287,8 +288,8 @@ class AppInfo extends PureComponent {
                 )}
               </FormItem>
             </Col>
-            <Col span={6}>
-              <FormItem label="初始内存(M)" style={{ padding: 16 }}>
+            <Col span={8}>
+              <FormItem label="初始内存(M)" style={pd16}>
                 {getFieldDecorator(`${ID}||init_memory`, {
                   initialValue: app.extend_method_map.init_memory || 0,
                   rules: [
@@ -311,8 +312,8 @@ class AppInfo extends PureComponent {
                 </div>
               </FormItem>
             </Col>
-            <Col span={6}>
-              <FormItem label="CPU(Mi)" style={{ padding: 16 }}>
+            <Col span={8}>
+              <FormItem label="初始CPU(m)" style={pd16}>
                 {getFieldDecorator(`${ID}||min_cpu`, {
                   initialValue: app.extend_method_map.min_cpu || 0,
                   rules: [
@@ -333,7 +334,7 @@ class AppInfo extends PureComponent {
                   />
                 )}
                 <div style={{ color: '#999999', fontSize: '12px' }}>
-                  CPU分配额0为不限制。
+                  CPU分配额0为不限制，1000m=1core。
                 </div>
               </FormItem>
             </Col>

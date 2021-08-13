@@ -2761,11 +2761,15 @@ export async function editPluginConfigs(
 }
 
 /* 查询应用的内存和磁盘使用情况 */
-export async function getAppResource(body = { team_name, app_alias }) {
+export async function getAppResource(
+  body = { team_name, app_alias },
+  handleError
+) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/resource`,
     {
-      method: 'get'
+      method: 'get',
+      handleError
     }
   );
 }

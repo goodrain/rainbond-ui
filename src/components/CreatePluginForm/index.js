@@ -275,7 +275,7 @@ export default class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="CPU">
           {getFieldDecorator('min_cpu', {
-            initialValue: data.minCpu || 0,
+            initialValue: data.min_cpu || 0,
             rules: [
               {
                 required: true,
@@ -290,12 +290,12 @@ export default class Index extends PureComponent {
             <Input
               type="number"
               min={0}
-              addonAfter="Mi"
+              addonAfter="m"
               placeholder="请输入CPU"
             />
           )}
           <div style={{ color: '#999999', fontSize: '12px' }}>
-            CPU分配额0为不限制。
+            CPU分配额0为不限制，1000m=1core。
           </div>
         </Form.Item>
         <Form.Item

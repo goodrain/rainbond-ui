@@ -880,7 +880,7 @@ export default class Index extends PureComponent {
           )}
           <Form layout="inline" hideRequiredMark className={styles.fromItem}>
             <Row gutter={16}>
-              <Col lg={6} md={6} sm={24}>
+              <Col lg={8} md={8} sm={24}>
                 <Form.Item
                   labelCol={{ span: 5 }}
                   wrapperCol={{ span: 19 }}
@@ -904,20 +904,10 @@ export default class Index extends PureComponent {
                       ))}
                     </Select>
                   )}
-                  <Button
-                    onClick={this.handleVertical}
-                    size="default"
-                    type="primary"
-                    style={{
-                      marginLeft: '10px'
-                    }}
-                  >
-                    设置
-                  </Button>
                 </Form.Item>
                 {descBox('CPU 限制值目前基于比例算法基于设置内存值计算。')}
               </Col>
-              <Col lg={6} md={6} sm={24}>
+              <Col lg={8} md={8} sm={24}>
                 <Form.Item
                   labelCol={{ span: 6 }}
                   wrapperCol={{ span: 18 }}
@@ -933,22 +923,12 @@ export default class Index extends PureComponent {
                       addonAfter="MiB"
                     />
                   )}
-                  <Button
-                    onClick={this.handleVertical}
-                    size="default"
-                    type="primary"
-                    style={{
-                      marginLeft: '10px'
-                    }}
-                  >
-                    设置
-                  </Button>
                 </Form.Item>
                 {descBox(
                   'GPU设置为0则不分配GPU资源，请求显存超过集群中单颗显卡的最大可用容量时无法进行调度。'
                 )}
               </Col>
-              <Col lg={6} md={6} sm={24}>
+              <Col lg={8} md={8} sm={24}>
                 <Form.Item
                   label="CPU"
                   labelCol={{ span: 5 }}
@@ -956,7 +936,7 @@ export default class Index extends PureComponent {
                   className={styles.customFormItem}
                 >
                   {getFieldDecorator('new_cpu', {
-                    initialValue: extendInfo.new_cpu || 0,
+                    initialValue: extendInfo.current_cpu || 0,
                     rules: [
                       {
                         required: true,
@@ -971,7 +951,7 @@ export default class Index extends PureComponent {
                     <Input
                       type="number"
                       min={0}
-                      addonAfter="Mi"
+                      addonAfter="m"
                       placeholder="请输入CPU"
                     />
                   )}
@@ -987,14 +967,16 @@ export default class Index extends PureComponent {
                   </Button>
                 </Form.Item>
                 {descBox(
-                  'CPU分配额0为不限制，超出集群中单节点CPU的最大可用容量时无法进行调度。'
+                  'CPU分配额0为不限制，1000m=1core、超出集群中单节点CPU的最大可用容量时无法进行调度。'
                 )}
               </Col>
-              <Col lg={6} md={6} sm={24}>
+            </Row>
+            <Row gutter={16}>
+              <Col lg={8} md={8} sm={24}>
                 <Form.Item
                   label="实例数量"
-                  labelCol={{ span: 6 }}
-                  wrapperCol={{ span: 18 }}
+                  labelCol={{ span: 5 }}
+                  wrapperCol={{ span: 19 }}
                   className={styles.customFormItem}
                 >
                   {getFieldDecorator('node', {

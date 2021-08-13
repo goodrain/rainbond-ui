@@ -404,6 +404,7 @@ export default class Index extends PureComponent {
       // 安装的性能分析插件
       disk: 0,
       memory: 0,
+      resourcesLoading: true,
       beanData: null,
       dataList: [],
       runLoading: true,
@@ -482,9 +483,19 @@ export default class Index extends PureComponent {
             memory: data.bean.memory || 0
           });
         }
+        this.handleResourcesLoading();
+      },
+      handleError: err => {
+        this.handleResourcesLoading();
+        this.handleError(err);
       }
     });
   }
+  handleResourcesLoading = () => {
+    this.setState({
+      resourcesLoading: false
+    });
+  };
 
   fetchOperationLog = (isCycle, isopenLog = false) => {
     this.props.dispatch({
@@ -730,6 +741,7 @@ export default class Index extends PureComponent {
   render() {
     const { status, componentPermissions, socket } = this.props;
     const {
+      resourcesLoading,
       logList,
       memory,
       beanData,
@@ -753,6 +765,7 @@ export default class Index extends PureComponent {
         <Basic
           buildSource={buildSource}
           beanData={beanData}
+          resourcesLoading={resourcesLoading}
           memory={memory}
           disk={disk}
           dataList={dataList}
