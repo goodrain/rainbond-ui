@@ -115,7 +115,13 @@ class ClusterComponents extends PureComponent {
   };
   handleStateName = str => {
     const phase = str && str.toLowerCase();
-    return phase === 'failed' ? styless.failedState : styless.successState;
+    const stateMap = {
+      failed: styless.failedState,
+      running: styless.successState,
+      pending: styless.warningState,
+      warning: styless.warningState
+    };
+    return stateMap[phase] || styless.successState;
   };
   handleReload = () => {
     this.setState(
@@ -452,7 +458,7 @@ class ClusterComponents extends PureComponent {
                       marginTop: '15px'
                     }}
                   >
-                    暂无数据
+                    暂无创建出 pod
                   </div>
                 )}
               </div>

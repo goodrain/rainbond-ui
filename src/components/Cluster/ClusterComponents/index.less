@@ -22,7 +22,8 @@
   border-bottom: 1px solid #ccc;
 }
 .successState,
-.failedState {
+.failedState,
+.warningState {
   font-size: 13px;
   color: #5b9b69;
   background-color: #ddefe3;
@@ -31,7 +32,10 @@
   color: #ffa39e;
   background-color: #fff1f0;
 }
-
+.warningState {
+  color: #faad14;
+  background-color: #fffbe6;
+}
 .customTableCon {
   display: flex;
   align-items: center;
@@ -39,13 +43,10 @@
   padding: 10px 0 10px 20px;
   border-bottom: 1px solid #ccc;
   .successState,
-  .failedState {
+  .failedState,
+  .warningState {
     text-align: center;
     width: 100px;
-  }
-  .failedState {
-    color: #ffa39e;
-    background-color: #fff1f0;
   }
 }
 

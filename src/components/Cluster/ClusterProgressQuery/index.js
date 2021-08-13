@@ -44,12 +44,22 @@ class ClusterProgressQuery extends PureComponent {
       rainbondInfo
     } = this.props;
     const { showCreateLog, isComponents } = this.state;
+
+    const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
+    const provider = selectProvider || providerName;
+    const operators =
+      steps &&
+      steps.length &&
+      steps.filter(item => item.Type === 'InitRainbondRegionOperator');
+    const showComponentText =
+      operators &&
+      operators.length &&
+      clusterID &&
+      (provider === 'rke' || provider === 'custom');
     let pending = '进行中';
     if (complete) {
       pending = false;
     }
-    const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
-    const provider = selectProvider || providerName;
     return (
       <Modal
         title={title}
@@ -78,7 +88,7 @@ class ClusterProgressQuery extends PureComponent {
           <ClusterComponents
             eid={eid}
             clusterID={clusterID}
-            selectProvider={selectProvider || providerName}
+            providerName={selectProvider || providerName}
             onCancel={() => {
               this.handleIsComponents(false);
             }}
@@ -118,18 +128,25 @@ class ClusterProgressQuery extends PureComponent {
             type="info"
             showIcon
           />
-          <Timeline loading={loading} pending={pending}>
+          <Timeline
+            loading={loading}
+            pending={
+              pending && (
+                <div>
+                  {pending}&nbsp;
+                  {showComponentText && (
+                    <a onClick={() => this.handleIsComponents(true)}>
+                      查看组件
+                    </a>
+                  )}
+                </div>
+              )
+            }
+          >
             {steps &&
-              steps.length > 0 &&
+              steps.length &&
               steps.map((item, index) => {
-                const {
-                  Status,
-                  Title,
-                  Description,
-                  Message,
-                  reason,
-                  Type
-                } = item;
+                const { Status, Title, Description, Message, reason } = item;
                 return (
                   <Timeline.Item color={item.Color} key={`step${index}`}>
                     <h4>{Title}</h4>
@@ -159,13 +176,6 @@ class ClusterProgressQuery extends PureComponent {
                         </Button>
                       </div>
                     )}
-                    {Type === 'InitRainbondRegionOperator' &&
-                      (provider === 'rke' || provider === 'custom') &&
-                      clusterID && (
-                        <a onClick={() => this.handleIsComponents(true)}>
-                          查看组件
-                        </a>
-                      )}
                   </Timeline.Item>
                 );
               })}
