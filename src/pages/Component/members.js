@@ -3,7 +3,7 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
-import { Card, Form } from 'antd';
+import { Card, Form, notification } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
 import appProbeUtil from '../../utils/appProbe-util';
@@ -97,9 +97,12 @@ export default class Index extends React.Component {
         ...vals,
         old_mode: startProbe.mode
       },
-      callback: () => {
+      callback: res => {
         this.handleCancel();
         this.fetchStartProbe();
+        if (res && res.status_code && res.status_code === 200) {
+          notification.info({ message: '需要更新才能生效' });
+        }
       }
     });
   };
@@ -169,7 +172,10 @@ export default class Index extends React.Component {
         ...startProbe,
         is_used: isUsed
       },
-      callback: () => {
+      callback: res => {
+        if (res && res.status_code && res.status_code === 200) {
+          notification.info({ message: '需要更新才能生效' });
+        }
         this.fetchStartProbe();
       }
     });
@@ -182,8 +188,7 @@ export default class Index extends React.Component {
     const { showHealth, loading, healthCheckLoading } = this.state;
     const probeMap = {
       readiness: '下线',
-      liveness: '重启',
-      ignore: '忽略'
+      liveness: '重启'
     };
     const isStartProbe = JSON.stringify(startProbe) != '{}';
     const setWidth = { width: '33%', textAlign: 'center' };

@@ -1169,8 +1169,7 @@ export async function addInstanceList(
   body = {
     team_name,
     app_alias,
-    endpoints_type,
-    is_online
+    endpoints_type
   }
 ) {
   return request(
@@ -1178,8 +1177,7 @@ export async function addInstanceList(
     {
       method: 'POST',
       data: {
-        ip: body.ip,
-        is_online: body.is_online
+        ip: body.ip
       }
     }
   );

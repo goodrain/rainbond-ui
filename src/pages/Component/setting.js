@@ -804,8 +804,6 @@ export default class Index extends React.Component {
                     ? '下线'
                     : startProbe.mode === 'liveness'
                     ? '重启'
-                    : startProbe.mode === 'ignore'
-                    ? '忽略'
                     : '未设置'}
                 </div>
               </div>
