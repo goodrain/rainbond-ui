@@ -247,6 +247,12 @@ export default class Index extends PureComponent {
         align: 'center',
         key: '2',
         render: data => {
+          const stateMap = {
+            healthy: '健康',
+            unhealthy: '不健康',
+            notready: '未就绪',
+            unknown: '未知'
+          };
           return (
             <span
               style={{
@@ -254,13 +260,7 @@ export default class Index extends PureComponent {
                   data == 'healthy' ? 'green' : data == 'unhealthy' ? 'red' : ''
               }}
             >
-              {data == 'healthy'
-                ? '健康'
-                : data == 'unhealthy'
-                ? '不健康'
-                : data == 'unknown'
-                ? '未知'
-                : '未上线'}
+              {stateMap[data] || '未上线'}
             </span>
           );
         }

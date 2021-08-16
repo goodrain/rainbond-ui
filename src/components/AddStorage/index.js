@@ -25,12 +25,12 @@ export default class AddVolumes extends PureComponent {
     }
   };
 
-  modeCheck = (_, value) => {
-    if (value > 777 || value < 0) {
-      // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject('权限的数值限制在0-777之间');
+  modeCheck = (_, value, callback) => {
+    if (value && !/^[0-7]{1,3}$/.test(value)) {
+      callback('权限的数值限制在0-777之间的8进制数');
+      return;
     }
-    return Promise.resolve();
+    callback();
   };
 
   render() {
