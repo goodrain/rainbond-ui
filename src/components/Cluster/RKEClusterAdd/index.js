@@ -257,7 +257,8 @@ export default class RKEClusterConfig extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'cloud/getInitNodeCmd',
-      callback: data => {
+      callback: res => {
+        const data = (res && res.response_data) || {};
         this.setState({ initNodeCmd: data.cmd });
       }
     });

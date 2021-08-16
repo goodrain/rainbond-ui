@@ -143,6 +143,9 @@ class ClusterComponents extends PureComponent {
       componentsLoading,
       eventLoading
     } = this.state;
+    const slash = (
+      <span style={{ color: 'rgba(0, 0, 0, 0.35)' }}>&nbsp;/&nbsp;</span>
+    );
     const reloadBtn = (
       <Button style={{ float: 'right' }} onClick={this.handleReload}>
         <Icon type="reload" />
@@ -413,19 +416,17 @@ class ClusterComponents extends PureComponent {
                                   <div>
                                     <span style={{ color: '#4d73b1' }}>
                                       {status && status.hostIP}
+                                      {slash}
                                     </span>
-                                    <span
-                                      style={{ color: 'rgba(0, 0, 0, 0.35)' }}
-                                    >
-                                      &nbsp;/&nbsp;
-                                    </span>
+
                                     <span style={{ color: '#4d73b1' }}>
                                       {spec && spec.nodeName}
+                                      {slash}
                                     </span>
                                     <span
                                       style={{ color: 'rgba(0, 0, 0, 0.35)' }}
                                     >
-                                      &nbsp;/&nbsp;创建时间:
+                                      创建时间:
                                       {metadata &&
                                         metadata.creationTimestamp &&
                                         moment(
@@ -438,7 +439,7 @@ class ClusterComponents extends PureComponent {
                                       &nbsp;/&nbsp; 容器重启次数
                                       {status &&
                                         status.containerStatuses &&
-                                        status.containerStatuses.length > 0 &&
+                                        status.containerStatuses.length &&
                                         status.containerStatuses[0]
                                           .restartCount}
                                     </span>

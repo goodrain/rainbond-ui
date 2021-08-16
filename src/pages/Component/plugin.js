@@ -19,6 +19,7 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
+import MemoryForm from '../../components/MemoryForm';
 import NoPermTip from '../../components/NoPermTip';
 import appPluginUtil from '../../utils/appPlugin';
 import globalUtil from '../../utils/global';
@@ -49,37 +50,15 @@ class UpdateMemory extends PureComponent {
     return (
       <Modal title="资源配置" visible onOk={this.handleOk} onCancel={onCancel}>
         <Form onSubmit={this.handleOk} layout="horizontal">
-          <Form.Item
-            label="内存"
+          <MemoryForm
             labelCol={{ span: 5 }}
             wrapperCol={{ span: 19 }}
-          >
-            {getFieldDecorator('memory', {
-              initialValue: memory || 0,
-              rules: [
-                {
-                  required: true,
-                  message: '请选择内存'
-                }
-              ]
-            })(
-              <Select getPopupContainer={triggerNode => triggerNode.parentNode}>
-                <Option value={0}>不限制</Option>
-                <Option value={32}>32M</Option>
-                <Option value={64}>64M</Option>
-                <Option value={128}>128M</Option>
-                <Option value={256}>256M</Option>
-                <Option value={512}>512M</Option>
-                <Option value={1024}>1G</Option>
-                <Option value={2048}>2G</Option>
-                <Option value={2048 * 2}>4G</Option>
-                <Option value={2048 * 4}>8G</Option>
-                <Option value={2048 * 8}>16G</Option>
-                <Option value={2048 * 16}>32G</Option>
-                <Option value={2048 * 32}>64G</Option>
-              </Select>
-            )}
-          </Form.Item>
+            form={form}
+            FormItem={Form.Item}
+            initialValue={memory}
+            setkey="memory"
+            getFieldDecorator={getFieldDecorator}
+          />
           <Form.Item
             label="CPU"
             labelCol={{ span: 5 }}
