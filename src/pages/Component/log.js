@@ -71,7 +71,20 @@ export default class Index extends PureComponent {
         app_alias: appAlias
       },
       callback: res => {
-        const list = (res && res.list && res.list.new_pods) || [];
+        let list = [];
+        if (res && res.list) {
+          const new_pods =
+            (res.list.new_pods &&
+              res.list.new_pods.length &&
+              res.list.new_pods) ||
+            [];
+          const old_pods =
+            (res.list.old_pods &&
+              res.list.old_pods.length &&
+              res.list.old_pods) ||
+            [];
+          list = [...new_pods, ...old_pods];
+        }
         if (list && list.length > 0) {
           list.map(item => {
             item.name = `实例：${item.pod_name}`;
