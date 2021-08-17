@@ -143,6 +143,26 @@ class ClusterComponents extends PureComponent {
       componentsLoading,
       eventLoading
     } = this.state;
+    // 展示的总的数量
+    const toatlApp = list && list.length;
+    // running的数量
+    let runningApp = [];
+    // 标识符数组
+    let configArr = [];
+    list.forEach(item => {
+      if (item.pods && item.pods.length > 0) {
+        item.pods.forEach(value => {
+          if (value.status.phase === 'Running') {
+            configArr.push(value);
+          }
+        });
+        // 判断是否要计算进去
+        if (configArr.length === item.pods.length) {
+          runningApp.push(item);
+          configArr = [];
+        }
+      }
+    });
     const slash = (
       <span style={{ color: 'rgba(0, 0, 0, 0.35)' }}>&nbsp;/&nbsp;</span>
     );
@@ -154,7 +174,11 @@ class ClusterComponents extends PureComponent {
     return (
       <Modal
         visible
-        title={componentInfo ? '组件详情' : 'Rainbond集群组件'}
+        title={
+          componentInfo
+            ? '组件详情'
+            : 'Rainbond集群组件' + `(${runningApp.length}/${toatlApp})`
+        }
         className={styles.TelescopicModal}
         width={1100}
         onCancel={onCancel}
@@ -380,8 +404,7 @@ class ClusterComponents extends PureComponent {
                     return (
                       <Row>
                         <Row className={styless.customTableMinTit}>{app}</Row>
-                        {pods &&
-                          pods.length &&
+                        {pods && pods.length > 0 ? (
                           pods.map(items => {
                             const { status, metadata, spec } = items;
                             return (
@@ -447,7 +470,14 @@ class ClusterComponents extends PureComponent {
                                 </Col>
                               </Row>
                             );
-                          })}
+                          })
+                        ) : (
+                          <div
+                            style={{ marginTop: '12px', textAlign: 'center ' }}
+                          >
+                            未创建 Pods
+                          </div>
+                        )}
                       </Row>
                     );
                   })
