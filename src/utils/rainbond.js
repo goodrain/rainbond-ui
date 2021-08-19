@@ -56,6 +56,9 @@ export default {
   isEnableAppstoreImageHub: (bean = {}) =>
     (bean && bean.appstore_image_hub && bean.appstore_image_hub.enable) ||
     false,
+  // 判断企业是否配置了新手引导
+  isEnableNewbieGuide: (bean = {}) =>
+    (bean && bean.newbie_guide && bean.newbie_guide.enable) || false,
   // 获取镜像仓库信息
   fetchAppstoreImageHub: (bean = {}) =>
     (bean && bean.appstore_image_hub && bean.appstore_image_hub.value) || false,
@@ -121,9 +124,21 @@ export default {
   // 判断企业是否配置了云应用市场
   cloudMarketEnable: (bean = {}) =>
     (bean && bean.cloud_market && bean.cloud_market.enable) || false,
-  // 判断企业是否配置了新手引导
+  // 判断团队是否配置了新手引导
   newbieGuideEnable: (bean = {}) =>
     (bean && bean.newbie_guide && bean.newbie_guide.enable) || false,
+
+  handleNewbie: (novices, name) => {
+    let next = true;
+    if (novices && novices.length && name) {
+      novices.map(item => {
+        if (item && item.key === name && item.value) {
+          next = false;
+        }
+      });
+    }
+    return next;
+  },
   // 判断平台是否配置了官方Demo
   officialDemoEnable: (bean = {}) =>
     (bean && bean.official_demo && bean.official_demo.enable) || false,

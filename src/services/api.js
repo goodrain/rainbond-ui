@@ -644,6 +644,7 @@ export function getAllRegion(param) {
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
     {
       method: 'get',
+      noModels: true,
       params: {
         status: param.status
       }
@@ -814,6 +815,16 @@ export async function fetchEnterpriseInfo(param) {
     }
   );
 }
+
+export async function setNewbieGuide(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/info?key=NEWBIE_GUIDE`,
+    {
+      method: 'put',
+      data: body.data
+    }
+  );
+}
 export async function getCreateAppTeams(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/create-app-teams`,
@@ -957,6 +968,19 @@ export async function fetchUserTeams(param) {
 export async function fetchEnterpriseList(handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprises`, {
     method: 'get',
+    handleError
+  });
+}
+export async function fetchNewbieGuideConfig(handleError) {
+  return request(`${apiconfig.baseUrl}/console/custom_configs`, {
+    method: 'get',
+    handleError
+  });
+}
+export async function putNewbieGuideConfig(body, handleError) {
+  return request(`${apiconfig.baseUrl}/console/custom_configs`, {
+    method: 'put',
+    data: body.arr,
     handleError
   });
 }

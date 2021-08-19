@@ -1,6 +1,6 @@
 import { Button, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import { getAllRegion } from '../../services/api';
 import styles from './index.less';
 
@@ -14,7 +14,8 @@ class CreateTeam extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      regions: []
+      regions: [],
+      regionLoading: true
     };
   }
   componentDidMount() {
@@ -24,14 +25,24 @@ class CreateTeam extends PureComponent {
     }
   }
   getUnRelationedApp = ID => {
-    getAllRegion({ enterprise_id: ID, status: '1' }).then(data => {
-      if (data) {
-        this.setState({ regions: data.list || [] });
-      }
-    });
+    getAllRegion({ enterprise_id: ID, status: '1' })
+      .then(data => {
+        this.setState({
+          regions: (data && data.list) || [],
+          regionLoading: false
+        });
+      })
+      .catch(() => {
+        this.setState({
+          regionLoading: false
+        });
+      });
   };
   handleSubmit = () => {
-    const { onOk, form } = this.props;
+    const { onOk, form, handleGuideStep } = this.props;
+    if (handleGuideStep && handleGuideStep) {
+      handleGuideStep(3);
+    }
     form.validateFields((err, values) => {
       if (!err && onOk) {
         onOk(values);
@@ -39,9 +50,17 @@ class CreateTeam extends PureComponent {
     });
   };
   render() {
-    const { onCancel, form, Loading, title } = this.props;
+    const {
+      onCancel,
+      form,
+      Loading,
+      title,
+      guideStep,
+      handleNewbieGuiding,
+      enterprise_id
+    } = this.props;
     const { getFieldDecorator } = form;
-
+    const { regions, regionLoading } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -52,7 +71,7 @@ class CreateTeam extends PureComponent {
         sm: { span: 14 }
       }
     };
-
+    const isRegions = regions && regions.length;
     return (
       <Modal
         title={title || '创建团队'}
@@ -61,15 +80,36 @@ class CreateTeam extends PureComponent {
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={onCancel}
-        footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
-          <Button type="primary" onClick={this.handleSubmit} loading={Loading}>
-            确定
-          </Button>
-        ]}
+        footer={
+          <Fragment>
+            <Button onClick={onCancel}> 取消 </Button>
+            <Button
+              type="primary"
+              onClick={this.handleSubmit}
+              loading={Loading}
+            >
+              确定
+            </Button>
+            {guideStep &&
+              !regionLoading &&
+              handleNewbieGuiding({
+                tit: '创建团队',
+                desc: isRegions ? '点击可以创建团队。' : '缺少集群、去创建',
+                isCoverScreen: false,
+                prevStep: false,
+                nextStep: 1,
+                jumpUrl:
+                  !isRegions &&
+                  `/enterprise/${enterprise_id}/clusters?init=true`,
+                isSuccess: isRegions,
+                conPosition: { right: 0, bottom: '-136px' },
+                svgPosition: { left: '65%', marginTop: '-19px' }
+              })}
+          </Fragment>
+        }
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal">
-          <FormItem {...formItemLayout} label="团队名称" hasFeedback>
+          <FormItem {...formItemLayout} label="团队名称">
             {getFieldDecorator('team_name', {
               rules: [
                 {
@@ -87,7 +127,7 @@ class CreateTeam extends PureComponent {
             </div>
           </FormItem>
 
-          <FormItem {...formItemLayout} label="集群" hasFeedback>
+          <FormItem {...formItemLayout} label="集群">
             {getFieldDecorator('useable_regions', {
               rules: [
                 {
@@ -102,7 +142,7 @@ class CreateTeam extends PureComponent {
                 style={{ width: '100%' }}
                 placeholder="选择集群"
               >
-                {(this.state.regions || []).map(item => {
+                {(regions || []).map(item => {
                   return (
                     <Option key={item.region_name}>{item.region_alias}</Option>
                   );

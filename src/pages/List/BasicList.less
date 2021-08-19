@@ -1,18 +1,18 @@
-@import "~antd/lib/style/themes/default.less";
-@import "../../utils/utils.less";
+@import '~antd/lib/style/themes/default.less';
+@import '../../utils/utils.less';
 
 .enterpriseInfo {
-  font-family   : PingFangSC-Medium;
-  color         : #444444;
+  font-family: PingFangSC-Medium;
+  color: #444444;
   letter-spacing: 0;
-  display       : flex;
-  align-items   : center;
-  font-size     : 14px;
-  margin-bottom : 38px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  margin-bottom: 38px;
 
   span {
-    display    : inline-block;
-    height     : 20px;
+    display: inline-block;
+    height: 20px;
     line-height: 26px;
     margin-left: 5px;
   }
@@ -20,29 +20,29 @@
 
 .customerService {
   transition: all 0.3s ease 0s;
-  position        : fixed;
-  z-index         : 9999999;
-  bottom          : 10px;
-  right           : 2px;
-  background-color: rgb(64, 169, 255, .8);
-  float           : right;
-  width           : 62px;
-  height          : 62px;
-  text-align      : center;
-  line-height     : 62px;
-  cursor          : pointer;
-  border-radius   : 50%;
+  position: fixed;
+  z-index: 9999999;
+  bottom: 10px;
+  right: 2px;
+  background-color: rgb(64, 169, 255, 0.8);
+  float: right;
+  width: 62px;
+  height: 62px;
+  text-align: center;
+  line-height: 62px;
+  cursor: pointer;
+  border-radius: 50%;
 }
 
 .btns {
   button {
-    font-family   : PingFangSC-Medium;
-    font-size     : 12px;
-    height        : 34px;
-    line-height   : 34px;
+    font-family: PingFangSC-Medium;
+    font-size: 12px;
+    height: 34px;
+    line-height: 34px;
     letter-spacing: 0;
-    width         : 131px;
-    margin-right  : 15px;
+    width: 131px;
+    margin-right: 15px;
   }
 
   button:nth-of-type(1) {
@@ -50,38 +50,37 @@
   }
 
   :global {
-
     .ant-btn-primary,
     .ant-btn-primary:hover,
     .ant-btn-primary:focus {
-      background-color: #3D58DA !important;
-      border-color    : #3D58DA !important;
+      background-color: #3d58da !important;
+      border-color: #3d58da !important;
     }
   }
 }
 
 .enterpriseName {
-  font-family   : PingFangSC-Medium;
-  font-size     : 12px;
-  color         : #333333;
+  font-family: PingFangSC-Medium;
+  font-size: 12px;
+  color: #333333;
   letter-spacing: 0;
-  margin-bottom : 12px;
+  margin-bottom: 12px;
 }
 
 .enterpriseBox {
-  font-family   : PingFangSC-Regular;
-  font-size     : 12px;
-  color         : #79828F;
+  font-family: PingFangSC-Regular;
+  font-size: 12px;
+  color: #79828f;
   letter-spacing: 0;
-  margin-bottom : 32px;
-  display       : flex;
-  align-items   : center;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
 
   p {
-    width        : 30%;
-    margin-right : 16px;
-    overflow     : hidden;
-    white-space  : nowrap;
+    width: 30%;
+    margin-right: 16px;
+    overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
   }
 }
@@ -94,7 +93,7 @@
 
     .ant-card-head-title {
       line-height: 32px;
-      padding    : 24px 0;
+      padding: 24px 0;
     }
 
     .ant-card-extra {
@@ -107,38 +106,38 @@
     }
 
     .ant-avatar-lg {
-      width      : 48px;
-      height     : 48px;
+      width: 48px;
+      height: 48px;
       line-height: 48px;
     }
   }
 
   .headerInfo {
-    position  : relative;
+    position: relative;
     text-align: center;
 
-    &>span {
-      color        : @text-color-secondary;
-      display      : inline-block;
-      font-size    : @font-size-base;
-      line-height  : 22px;
+    & > span {
+      color: @text-color-secondary;
+      display: inline-block;
+      font-size: @font-size-base;
+      line-height: 22px;
       margin-bottom: 4px;
     }
 
-    &>p {
-      color      : @heading-color;
-      font-size  : 24px;
+    & > p {
+      color: @heading-color;
+      font-size: 24px;
       line-height: 32px;
-      margin     : 0;
+      margin: 0;
     }
 
-    &>em {
+    & > em {
       background-color: @border-color-split;
-      position        : absolute;
-      height          : 56px;
-      width           : 1px;
-      top             : 0;
-      right           : 0;
+      position: absolute;
+      height: 56px;
+      width: 1px;
+      top: 0;
+      right: 0;
     }
   }
 
@@ -146,93 +145,93 @@
     font-size: 0;
 
     .listContentItem {
-      color         : @text-color-secondary;
-      display       : inline-block;
+      color: @text-color-secondary;
+      display: inline-block;
       vertical-align: middle;
-      font-size     : @font-size-base;
-      margin-left   : 40px;
+      font-size: @font-size-base;
+      margin-left: 40px;
 
-      >span {
+      > span {
         line-height: 20px;
       }
 
-      >p {
-        margin-top   : 4px;
+      > p {
+        margin-top: 4px;
         margin-bottom: 0;
-        line-height  : 22px;
+        line-height: 22px;
       }
     }
   }
 
   .extraContentSearch {
     margin-left: 16px;
-    width      : 272px;
+    width: 272px;
   }
 }
 
 .buttonBjNot,
 .buttonBjNot:hover {
-  background  : #7983AD !important;
-  border-color: #7983AD !important;
-  color       : #ffffff !important;
+  background: #7983ad !important;
+  border-color: #7983ad !important;
+  color: #ffffff !important;
 }
 
 .teamBox {
-  height     : 40px;
+  height: 40px;
   line-height: 1px;
 }
 
 .teamTit {
-  font-family   : PingFangSC-Regular;
-  font-size     : 12px;
-  color         : #8D9BAD;
+  font-family: PingFangSC-Regular;
+  font-size: 12px;
+  color: #8d9bad;
   letter-spacing: 0;
 }
 
 .elements {
-  display    : flex;
-  width      : 118px;
-  height     : 90px;
+  display: flex;
+  width: 118px;
+  height: 90px;
   padding-top: 25px;
 
-  &>div:nth-of-type(1) {
-    font-family   : Silom;
-    color         : #7983AD;
+  & > div:nth-of-type(1) {
+    font-family: Silom;
+    color: #7983ad;
     letter-spacing: 0;
-    padding-right : 3px;
-    width         : 58px;
+    padding-right: 3px;
+    width: 58px;
 
-    &>div:nth-of-type(1) {
+    & > div:nth-of-type(1) {
       font-size: 14px;
     }
 
-    &>div:nth-of-type(2) {
+    & > div:nth-of-type(2) {
       font-size: 12px;
     }
   }
 
-  &>div:nth-of-type(2) {
-    transform  : rotate(20deg);
-    width      : 1px;
-    border-left: 1px solid #7983AD;
-    height     : 82px;
-    margin-top : -8px;
+  & > div:nth-of-type(2) {
+    transform: rotate(20deg);
+    width: 1px;
+    border-left: 1px solid #7983ad;
+    height: 82px;
+    margin-top: -8px;
   }
 
-  &>div:nth-of-type(3) {
-    width         : 58px;
-    border-radius : 1px;
-    font-family   : PingFangSC-Medium;
-    color         : #5679E2;
+  & > div:nth-of-type(3) {
+    width: 58px;
+    border-radius: 1px;
+    font-family: PingFangSC-Medium;
+    color: #5679e2;
     letter-spacing: 0;
-    padding-left  : 3px;
-    padding-top   : 12px;
+    padding-left: 3px;
+    padding-top: 12px;
 
-    &>div:nth-of-type(1) {
+    & > div:nth-of-type(1) {
       font-size: 14px;
     }
 
-    &>div:nth-of-type(2) {
+    & > div:nth-of-type(2) {
       font-size: 12px;
     }
   }
@@ -240,47 +239,47 @@
 
 .appContent {
   h6 {
-    font-family   : PingFangSC-Semibold;
-    font-size     : 18px;
-    color         : #333333;
+    font-family: PingFangSC-Semibold;
+    font-size: 18px;
+    color: #333333;
     letter-spacing: 0;
   }
 
   div {
-    font-family   : PingFangSC-Regular;
-    font-size     : 12px;
-    color         : #8D9BAD;
+    font-family: PingFangSC-Regular;
+    font-size: 12px;
+    color: #8d9bad;
     letter-spacing: 0;
   }
 }
 
 .appnums,
 .appnumno {
-  margin-top    : 30px;
-  font-family   : PingFangSC-Semibold;
-  font-size     : 12px;
-  color         : #333333;
+  margin-top: 30px;
+  font-family: PingFangSC-Semibold;
+  font-size: 12px;
+  color: #333333;
   letter-spacing: 0;
-  padding-left  : 8px;
-  border-left   : 3px solid #E5E5E5;
-  border-radius : 4px;
-  border-radius : 1.5px;
+  padding-left: 8px;
+  border-left: 3px solid #e5e5e5;
+  border-radius: 4px;
+  border-radius: 1.5px;
 }
 
 .appnumno {
-  border-color: #3D58DA;
+  border-color: #3d58da;
 }
 
 .nums {
-  font-family    : PingFangSC-Medium;
-  font-size      : 12px;
-  color          : #333333;
-  letter-spacing : 0;
-  display        : flex;
+  font-family: PingFangSC-Medium;
+  font-size: 12px;
+  color: #333333;
+  letter-spacing: 0;
+  display: flex;
   justify-content: space-around;
 
   span {
-    color: #8D9BAD;
+    color: #8d9bad;
   }
 
   span:nth-of-type(1) {
@@ -289,68 +288,65 @@
 }
 
 .eidbox {
-  display        : flex;
+  display: flex;
   justify-content: space-between;
 
-  &>div:nth-of-type(1) {
+  & > div:nth-of-type(1) {
     width: calc(100% - 366px);
   }
 }
 
 .grays {
-  font-family   : PingFangSC-Medium;
-  font-size     : 14px;
-  line-height   : 14px;
-  height        : 14px;
-  color         : #444444;
+  font-family: PingFangSC-Medium;
+  font-size: 14px;
+  line-height: 14px;
+  height: 14px;
+  color: #444444;
   letter-spacing: 0;
-  overflow      : hidden;
-  white-space   : nowrap;
-  text-overflow : ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .addteam {
   margin-left: 18px;
-  width      : 150px
+  width: 150px;
 }
 
 .overText {
-  font-family   : PingFangSC-Medium;
-  font-size     : 14px;
-  color         : #3D54C4;
-  line-height   : 14px;
+  font-family: PingFangSC-Medium;
+  font-size: 14px;
+  color: #3d54c4;
+  line-height: 14px;
   letter-spacing: 0;
-  overflow      : hidden;
-  white-space   : nowrap;
-  text-overflow : ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .teamtest {
   margin-right: 17px;
-  width       : 134px;
-  text-align  : center;
-  cursor      : pointer;
+  width: 134px;
+  text-align: center;
+  cursor: pointer;
 }
 
 .addTeam {
-  background   : #E3E8FF;
-  height       : 33px;
-  width        : 33px;
+  background: #e3e8ff;
+  height: 33px;
+  width: 33px;
   border-radius: 50%;
-  line-height  : 33px;
-  text-align   : center;
+  line-height: 33px;
+  text-align: center;
 }
-
 
 .units {
-  font-family   : PingFangSC-Medium;
-  font-size     : 14px;
-  color         : #8D9BAD !important;
+  font-family: PingFangSC-Medium;
+  font-size: 14px;
+  color: #8d9bad !important;
   letter-spacing: 0;
-  line-height   : 25px;
+  line-height: 25px;
 }
-
-
 
 .cen {
   span {
@@ -361,48 +357,47 @@
 .numbers {
   // width           : 100%;
   // overflow        : hidden;
-  white-space     : nowrap;
-  text-overflow   : ellipsis;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .Box {
-
   list-style: none;
   text-align: center;
 
   li {
-    color         : #8D9BAD;
-    font-family   : PingFangSC-Medium;
+    color: #8d9bad;
+    font-family: PingFangSC-Medium;
     letter-spacing: 0;
   }
 
   li:nth-of-type(1) {
-    display        : flex;
+    display: flex;
     justify-content: center;
-    align-items    : center;
-    margin-top     : 3px;
-    height         : 62px;
+    align-items: center;
+    margin-top: 3px;
+    height: 62px;
 
     div {
-      width          : 68px;
-      height         : 68px;
-      display        : flex;
-      align-items    : center;
+      width: 68px;
+      height: 68px;
+      display: flex;
+      align-items: center;
       justify-content: center;
-      background     : #E3E8FF;
-      border-radius  : 50%;
-      box-shadow     : 0 2px 4px 0 rgba(216, 116, 146, 0.07);
+      background: #e3e8ff;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px 0 rgba(216, 116, 146, 0.07);
     }
   }
 
   li:nth-of-type(2) {
-    width          : 100%;
-    display        : flex;
-    align-items    : baseline;
+    width: 100%;
+    display: flex;
+    align-items: baseline;
     justify-content: center;
-    font-size      : 26px;
-    color          : #333333;
-    margin         : 12px 0 4px 0;
+    font-size: 26px;
+    color: #333333;
+    margin: 12px 0 4px 0;
 
     span:nth-of-type(1) {
       // text-align: right;
@@ -414,20 +409,18 @@
   }
 
   li:nth-of-type(3) {
-    font-size    : 12px;
+    font-size: 12px;
     margin-bottom: 16px;
   }
 }
-
-
 
 @media screen and (max-width: @screen-xs) {
   .standardList {
     :global {
       .ant-list-item-content {
         display: block;
-        flex   : none;
-        width  : 100%;
+        flex: none;
+        width: 100%;
       }
 
       .ant-list-item-action {
@@ -438,7 +431,7 @@
     .listContent {
       margin-left: 0;
 
-      &>div {
+      & > div {
         margin-left: 0;
       }
     }
@@ -457,13 +450,13 @@
   .standardList {
     .extraContentSearch {
       margin-left: 0;
-      width      : 100%;
+      width: 100%;
     }
 
     .headerInfo {
       margin-bottom: 16px;
 
-      &>em {
+      & > em {
         display: none;
       }
     }
@@ -473,12 +466,12 @@
 @media screen and (max-width: @screen-md) {
   .standardList {
     .listContent {
-      &>div {
+      & > div {
         display: block;
       }
 
-      &>div:last-child {
-        top  : 0;
+      & > div:last-child {
+        top: 0;
         width: 100%;
       }
     }
@@ -487,7 +480,7 @@
   .listCard {
     :global {
       .ant-radio-group {
-        display      : block;
+        display: block;
         margin-bottom: 8px;
       }
     }
@@ -497,12 +490,12 @@
 @media screen and (max-width: @screen-lg) and (min-width: @screen-md) {
   .standardList {
     .listContent {
-      &>div {
+      & > div {
         display: block;
       }
 
-      &>div:last-child {
-        top  : 0;
+      & > div:last-child {
+        top: 0;
         width: 100%;
       }
     }
@@ -512,11 +505,11 @@
 @media screen and (max-width: @screen-xl) {
   .standardList {
     .listContent {
-      &>div {
+      & > div {
         margin-left: 24px;
       }
 
-      &>div:last-child {
+      & > div:last-child {
         top: 0;
       }
     }
@@ -528,7 +521,7 @@
     .listContent {
       text-align: right;
 
-      &>div:last-child {
+      & > div:last-child {
         top: 0;
       }
     }

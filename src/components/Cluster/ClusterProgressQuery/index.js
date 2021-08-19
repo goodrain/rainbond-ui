@@ -40,6 +40,8 @@ class ClusterProgressQuery extends PureComponent {
       complete,
       clusterID,
       msg,
+      guideStep,
+      handleNewbieGuiding,
       isLog = true,
       rainbondInfo
     } = this.props;
@@ -128,6 +130,17 @@ class ClusterProgressQuery extends PureComponent {
             type="info"
             showIcon
           />
+          {guideStep && guideStep !== 13 && handleNewbieGuiding
+            ? handleNewbieGuiding({
+                tit:
+                  '请等待Rainbond集群服务初始化完成，你可以随时查看组件列表获取最新的服务启动状态',
+                btnText: '已知晓',
+                configName: 'clusterTheInitialization',
+                showSvg: false,
+                conPosition: { right: '-97px', top: '88px' },
+                nextStep: 13
+              })
+            : ''}
           <Timeline
             loading={loading}
             pending={

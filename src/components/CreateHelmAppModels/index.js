@@ -2,8 +2,9 @@
 import { Button, Checkbox, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import AddGroup from '../../components/AddOrEditGroup';
+import CreateTeam from '../../components/CreateTeam';
 import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
@@ -26,6 +27,7 @@ class CreateHelmAppModels extends PureComponent {
       groups: [],
       isDeploy: true,
       addGroup: false,
+      showAddTeam: false,
       helmInstallLoading: false
     };
   }
@@ -41,12 +43,14 @@ class CreateHelmAppModels extends PureComponent {
       }
     });
   };
-  fetchCreateAppTeams = name => {
+  onAddTeam = () => {
+    this.setState({ showAddTeam: true });
+  };
+  fetchCreateAppTeams = teamName => {
     const { dispatch, eid } = this.props;
     dispatch({
       type: 'global/fetchCreateAppTeams',
       payload: {
-        name,
         enterprise_id: eid
       },
       callback: res => {
@@ -57,8 +61,8 @@ class CreateHelmAppModels extends PureComponent {
               userTeamList: list
             },
             () => {
-              if (list && list.length > 0) {
-                this.handleTeamChange(list[0].team_name);
+              if (teamName || (list && list.length)) {
+                this.handleTeamChange(teamName || list[0].team_name);
               }
             }
           );
@@ -102,8 +106,7 @@ class CreateHelmAppModels extends PureComponent {
       }
     });
   };
-  handleSubmit = e => {
-    e.preventDefault();
+  handleSubmit = () => {
     const { form, helmInfo, appInfo, appTypes } = this.props;
     form.validateFields((err, fieldsValue) => {
       const info = Object.assign({}, fieldsValue, {
@@ -274,13 +277,46 @@ class CreateHelmAppModels extends PureComponent {
     setFieldsValue({ group_id: groupId });
     this.cancelAddGroup();
   };
+
+  handleCreateTeam = values => {
+    const { dispatch, form } = this.props;
+    const { setFieldsValue } = form;
+    dispatch({
+      type: 'teamControl/createTeam',
+      payload: values,
+      callback: res => {
+        if (res && res.bean && res.bean.tenant_name) {
+          const teamName = res.bean.tenant_name;
+          this.fetchCreateAppTeams(teamName);
+          setFieldsValue({
+            team_name: teamName
+          });
+        }
+        this.cancelCreateTeam();
+      }
+    });
+  };
+  cancelCreateTeam = () => {
+    this.setState({ showAddTeam: false });
+  };
+
   renderSuccessOnChange = () => {
     this.setState({
       isDeploy: !this.state.isDeploy
     });
   };
   render() {
-    const { onCancel, title, appInfo, form, appTypes } = this.props;
+    const {
+      eid,
+      onCancel,
+      title,
+      appInfo,
+      form,
+      appTypes,
+      guideStep,
+      activeTabKey,
+      handleNewbieGuiding
+    } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
     const {
       regionList,
@@ -289,7 +325,8 @@ class CreateHelmAppModels extends PureComponent {
       helmInstallLoading,
       groups,
       addGroup,
-      isDeploy
+      isDeploy,
+      showAddTeam
     } = this.state;
     const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
     let versions = [];
@@ -312,7 +349,6 @@ class CreateHelmAppModels extends PureComponent {
         sm: { span: 19 }
       }
     };
-
     const token = cookie.get('token');
     const myheaders = {};
     if (token) {
@@ -322,6 +358,13 @@ class CreateHelmAppModels extends PureComponent {
     const regionName = getFieldValue('region_name');
     return (
       <div>
+        {showAddTeam && (
+          <CreateTeam
+            enterprise_id={eid}
+            onOk={this.handleCreateTeam}
+            onCancel={this.cancelCreateTeam}
+          />
+        )}
         {addGroup && (
           <AddGroup
             teamName={teaName}
@@ -337,16 +380,36 @@ class CreateHelmAppModels extends PureComponent {
           className={styles.TelescopicModal}
           onOk={this.handleSubmit}
           onCancel={onCancel}
-          footer={[
-            <Button onClick={onCancel}> 取消 </Button>,
-            <Button
-              type="primary"
-              onClick={this.handleSubmit}
-              loading={helmInstallLoading}
-            >
-              确定
-            </Button>
-          ]}
+          footer={
+            <Fragment>
+              <Button onClick={onCancel}> 取消 </Button>
+              <Button
+                type="primary"
+                onClick={this.handleSubmit}
+                loading={helmInstallLoading}
+              >
+                确定
+              </Button>
+              {activeTabKey &&
+                activeTabKey !== 'local' &&
+                guideStep &&
+                guideStep !== 3 &&
+                handleNewbieGuiding({
+                  tit: '确认安装',
+                  desc:
+                    '从应用商店安装应用是最简单的应用部署方式，后面你也可以很方便的将您的企业应用发布到应用商店中。',
+                  send: true,
+                  configName: 'installAppTemplate',
+                  nextStep: 3,
+                  btnText: '确认安装',
+                  conPosition: { right: '-160px', bottom: 0 },
+                  svgPosition: { left: '65%', marginTop: '-19px' },
+                  handleClick: () => {
+                    this.handleSubmit();
+                  }
+                })}
+            </Fragment>
+          }
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
             <FormItem {...formItemLayout} label="团队名称">
@@ -360,7 +423,7 @@ class CreateHelmAppModels extends PureComponent {
                 initialValue: (userTeams && userTeams[0].team_name) || undefined
               })(
                 <Select
-                  style={{ width: '323px' }}
+                  style={{ width: 220, marginRight: 15 }}
                   onChange={this.handleTeamChange}
                   placeholder="请选择团队"
                 >
@@ -372,6 +435,7 @@ class CreateHelmAppModels extends PureComponent {
                     ))}
                 </Select>
               )}
+              <Button onClick={this.onAddTeam}>新建团队</Button>
               <div className={styles.conformDesc}>
                 请选择安装该应用模版的团队
               </div>

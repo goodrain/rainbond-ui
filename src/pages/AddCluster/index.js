@@ -1,5 +1,7 @@
+/* eslint-disable react/sort-comp */
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
+import NewbieGuiding from '@/components/NewbieGuiding';
 import {
   Button,
   Card,
@@ -7,7 +9,6 @@ import {
   Divider,
   Form,
   Input,
-  Modal,
   Row,
   Steps,
   Typography
@@ -41,7 +42,7 @@ const { Paragraph } = Typography;
 export default class EnterpriseClusters extends PureComponent {
   constructor(props) {
     super(props);
-    const { user, rainbondInfo } = this.props;
+    const { user } = this.props;
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
@@ -49,24 +50,16 @@ export default class EnterpriseClusters extends PureComponent {
       addCustomClusterShow: false,
       selectProvider: 'ack',
       currentStep: 0,
+      guideStep: 2,
       providerAccess: {},
       loading: false,
-      initTask: {},
-      initShow: false,
-      isEnterpriseEdition: rainbondUtil.isEnterpriseEdition(rainbondInfo)
+      initTask: {}
     };
   }
   componentWillMount() {
     const { adminer } = this.state;
     const { dispatch } = this.props;
-    const {
-      location: {
-        query: { init }
-      }
-    } = this.props;
-    if (init) {
-      this.setState({ initShow: true });
-    }
+
     if (!adminer) {
       dispatch(routerRedux.push(`/`));
     }
@@ -193,9 +186,6 @@ export default class EnterpriseClusters extends PureComponent {
   cancelShowInitDetail = () => {
     this.setState({ showInitTaskDetail: false });
   };
-  hideInitShow = () => {
-    this.setState({ initShow: false });
-  };
 
   renderAliyunAcountSetting = () => {
     const { providerAccess } = this.state;
@@ -307,6 +297,37 @@ export default class EnterpriseClusters extends PureComponent {
       </Form>
     );
   };
+  handleGuideStep = guideStep => {
+    this.setState({
+      guideStep
+    });
+  };
+  handleNewbieGuiding = info => {
+    const { prevStep, nextStep } = info;
+    return (
+      <NewbieGuiding
+        {...info}
+        totals={14}
+        handleClose={() => {
+          this.handleGuideStep('close');
+        }}
+        handlePrev={() => {
+          if (prevStep) {
+            this.handleGuideStep(prevStep);
+          }
+        }}
+        handleNext={() => {
+          if (nextStep) {
+            this.toClusterList('rke');
+            this.handleGuideStep(nextStep);
+            if (nextStep === 4) {
+              document.getElementById('cloudServiceBtn').scrollIntoView();
+            }
+          }
+        }}
+      />
+    );
+  };
 
   render() {
     const {
@@ -314,13 +335,11 @@ export default class EnterpriseClusters extends PureComponent {
       addCustomClusterShow,
       selectProvider,
       currentStep,
+      guideStep,
       loading,
       showInitTaskDetail,
-      initTask,
-      initShow,
-      isEnterpriseEdition
+      initTask
     } = this.state;
-
     const {
       match: {
         params: { eid }
@@ -424,18 +443,18 @@ export default class EnterpriseClusters extends PureComponent {
         title="添加集群"
         content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
       >
-        <Row style={{ marginBottom: '16px' }}>
+        <Row style={{ marginBottom: '16px' }} id="selfBuilt">
           <Steps current={currentStep}>
             {this.loadSteps().map(item => (
               <Step key={item.title} title={item.title} />
             ))}
           </Steps>
         </Row>
+
         <Card>
           <Row>
             <h3>自建基础设施</h3>
             <Divider />
-
             <Col span={8}>
               <div
                 onClick={() => this.toClusterList('rke')}
@@ -447,6 +466,14 @@ export default class EnterpriseClusters extends PureComponent {
                   <p>提供至少一台主机，自动完成集群的安装和接入。</p>
                 </div>
               </div>
+              {guideStep === 2 &&
+                this.handleNewbieGuiding({
+                  tit: '主机安装',
+                  configName: 'hostInstall',
+                  desc: '从主机开始是最常用的途径，你也可以选择其他几种方式。',
+                  nextStep: 3,
+                  svgPosition: { marginLeft: '58px' }
+                })}
             </Col>
             <Col span={8}>
               <div
@@ -474,68 +501,70 @@ export default class EnterpriseClusters extends PureComponent {
 
         {K8sCluster && (
           <Card style={{ marginTop: '16px' }}>
-            <Row>
-              <h3>云服务商基础设施</h3>
-              <Divider />
-            </Row>
-            {/* provider list */}
-            <Row>
-              {providers.map(item => {
-                return (
-                  <Col
-                    key={item.id}
-                    onClick={() => {
-                      if (!item.disable) {
-                        this.setProvider(item.id);
-                      }
-                    }}
-                    span={8}
-                    style={{ padding: '16px' }}
-                  >
-                    <Row
-                      className={[
-                        styles.provider,
-                        selectProvider === item.id && styles.providerActive
-                      ]}
+            <div>
+              <Row>
+                <h3>云服务商基础设施</h3>
+                <Divider />
+              </Row>
+              {/* provider list */}
+              <Row>
+                {providers.map(item => {
+                  return (
+                    <Col
+                      key={item.id}
+                      onClick={() => {
+                        if (!item.disable) {
+                          this.setProvider(item.id);
+                        }
+                      }}
+                      span={8}
+                      style={{ padding: '16px' }}
                     >
-                      <Col flex="100px" className={styles.providericon}>
-                        {item.icon}
-                      </Col>
-                      <Col flex="auto" className={styles.providerDesc}>
-                        <h4>{item.name}</h4>
-                        <p>{item.describe}</p>
-                      </Col>
-                      {selectProvider === item.id && (
-                        <div className={styles.providerChecked}>
-                          {selectIcon}
-                        </div>
-                      )}
-                      {item.disable && (
-                        <div className={styles.disable}>
-                          即将支持（需要请联系我们）
-                        </div>
-                      )}
-                    </Row>
-                  </Col>
-                );
-              })}
-            </Row>
-            {/* user key info */}
-            <Row style={{ marginTop: '32px', padding: '0 16px' }}>
-              <h4>账户设置</h4>
-              {aliyunAcountSetting}
-            </Row>
-            <Row justify="center">
-              <Col style={{ textAlign: 'center' }} span={24}>
-                <Button
-                  loading={loading}
-                  onClick={this.setAccessKey}
-                  type="primary"
-                >
-                  下一步
-                </Button>
-              </Col>
-            </Row>
+                      <Row
+                        className={[
+                          styles.provider,
+                          selectProvider === item.id && styles.providerActive
+                        ]}
+                      >
+                        <Col flex="100px" className={styles.providericon}>
+                          {item.icon}
+                        </Col>
+                        <Col flex="auto" className={styles.providerDesc}>
+                          <h4>{item.name}</h4>
+                          <p>{item.describe}</p>
+                        </Col>
+                        {selectProvider === item.id && (
+                          <div className={styles.providerChecked}>
+                            {selectIcon}
+                          </div>
+                        )}
+                        {item.disable && (
+                          <div className={styles.disable}>
+                            即将支持（需要请联系我们）
+                          </div>
+                        )}
+                      </Row>
+                    </Col>
+                  );
+                })}
+              </Row>
+              {/* user key info */}
+              <Row style={{ marginTop: '32px', padding: '0 16px' }}>
+                <h4>账户设置</h4>
+                {aliyunAcountSetting}
+              </Row>
+              <Row justify="center">
+                <Col style={{ textAlign: 'center' }} span={24}>
+                  <Button
+                    loading={loading}
+                    onClick={this.setAccessKey}
+                    type="primary"
+                  >
+                    下一步
+                  </Button>
+                </Col>
+              </Row>
+            </div>
           </Card>
         )}
         {addClusterShow && (
@@ -557,102 +586,7 @@ export default class EnterpriseClusters extends PureComponent {
             clusterID={initTask.clusterID}
           />
         )}
-        {K8sCluster && initShow && (
-          <Modal
-            width={600}
-            centered
-            maskClosable={false}
-            footer={false}
-            wrapClassName={styles.initModal}
-            onCancel={this.hideInitShow}
-            visible
-          >
-            <h2 className={styles.initTitle}>欢迎您！</h2>
-            <p>
-              在开始您的云原生应用管理之旅前，你需要完成计算资源集群的对接工作。
-            </p>
-            <div className={styles.initDescribe}>
-              <div className={styles.initDescribeItem}>
-                <span>
-                  <svg
-                    t="1588068572145"
-                    className="icon"
-                    viewBox="0 0 1318 1024"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    p-id="4912"
-                  >
-                    <path
-                      d="M558.913829 880.274286H285.871543a209.700571 209.700571 0 0 1 0-419.401143h3.291428l33.28 0.512c1.901714 0.146286 13.604571 1.097143 25.6-11.995429 12.068571-13.165714 7.68-24.649143 7.68-39.424a317.001143 317.001143 0 0 1 316.854858-317.147428A315.245714 315.245714 0 0 1 885.935543 175.542857c6.363429 5.851429 5.12 5.558857 11.044571 11.995429a38.692571 38.692571 0 0 0 31.158857 16.822857 34.962286 34.962286 0 0 0 34.962286-35.108572c0-11.922286-6.582857-21.942857-14.774857-30.134857-5.851429-6.436571-4.900571-4.827429-11.190857-10.752A382.390857 382.390857 0 0 0 672.577829 22.674286a386.925714 386.925714 0 0 0-386.194286 368.201143 279.698286 279.698286 0 1 0-0.512 559.250285h273.042286a35.035429 35.035429 0 0 0 35.035428-35.035428 35.108571 35.108571 0 0 0-35.108571-34.889143z m146.285714-76.653715V366.08a17.481143 17.481143 0 0 0-17.481143-17.408H582.904686a17.481143 17.481143 0 0 0-17.481143 17.408v437.540571c0 9.654857 7.826286 17.481143 17.554286 17.481143h104.740571c9.728 0 17.554286-7.826286 17.554286-17.554285zM600.458971 716.214857a34.962286 34.962286 0 1 1 69.851429-0.073143 34.962286 34.962286 0 0 1-69.851429 0.073143z m314.514286 87.405714V366.08a17.481143 17.481143 0 0 0-17.408-17.408h-104.96a17.481143 17.481143 0 0 0-17.481143 17.408v437.540571c0 9.654857 7.826286 17.481143 17.554286 17.481143h104.886857a17.481143 17.481143 0 0 0 17.408-17.554285z m-104.813714-87.405714a34.962286 34.962286 0 1 1 69.924571 0 34.962286 34.962286 0 0 1-69.924571 0z m454.070857 26.404572L1093.076114 340.114286a17.408 17.408 0 0 0-22.893714-9.216l-96.548571 40.96a17.481143 17.481143 0 0 0-9.216 22.893714l171.154285 402.651429a17.554286 17.554286 0 0 0 22.893715 9.216l96.548571-40.96a17.334857 17.334857 0 0 0 9.216-22.966858z m-130.633143-39.350858a34.889143 34.889143 0 1 1 64.219429-27.428571 34.889143 34.889143 0 0 1-64.219429 27.428571z"
-                      fill="#326CE5"
-                      p-id="4913"
-                    />
-                  </svg>{' '}
-                  管理您的公有云资源，实现自动化云原生运维
-                </span>
-                <Paragraph className={styles.describe}>
-                  <ul>
-                    <li>辅助您快速购买云资源并完成云原生初始化。</li>
-                  </ul>
-                </Paragraph>
-              </div>
-              <div className={styles.initDescribeItem}>
-                <span>
-                  <svg
-                    t="1588069176883"
-                    className="icon"
-                    viewBox="0 0 1024 1024"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    p-id="5980"
-                  >
-                    <path
-                      d="M501.418667 30.72c-8.874667 0.682667-17.408 2.730667-25.258667 6.826667L135.168 199.338667c-17.749333 8.533333-30.72 24.576-35.157333 43.690666L17.066667 608.256c-4.096 17.066667-0.682667 35.157333 9.216 49.834667 1.024 1.706667 2.389333 3.413333 3.754666 5.12l235.52 292.522666c12.288 15.36 31.061333 24.234667 50.858667 23.893334h377.514667c19.797333 0 38.570667-9.216 50.858666-24.234667l235.178667-292.864c12.288-15.36 16.725333-35.498667 12.288-54.613333L907.946667 243.029333c-4.437333-19.114667-17.408-35.157333-35.157334-43.690666L532.48 37.205333c-9.557333-4.778667-20.48-7.168-31.061333-6.485333z"
-                      fill="#326CE5"
-                      p-id="5981"
-                    />
-                    <path
-                      d="M504.490667 154.965333c-11.605333 0.682667-20.48 10.922667-20.138667 22.528v5.802667c0.682667 6.485333 1.365333 12.970667 2.730667 19.456 2.048 12.288 2.389333 24.576 2.048 36.864-1.024 4.096-3.413333 7.850667-6.826667 10.581333l-0.341333 8.533334c-12.288 1.024-24.576 3.072-36.864 5.802666-50.858667 11.605333-97.28 37.888-133.12 76.117334l-7.168-5.12c-4.096 1.365333-8.533333 0.682667-12.288-1.365334-9.898667-7.509333-19.114667-15.701333-27.306667-24.917333-4.096-5.12-8.533333-9.898667-13.312-14.336l-4.437333-3.754667c-4.096-3.072-8.874667-5.12-13.994667-5.461333-6.144-0.341333-12.288 2.389333-16.384 7.168-6.826667 9.557333-4.778667 23.210667 5.12 30.037333l4.096 3.072c5.461333 3.754667 10.922667 6.826667 16.725333 9.898667 10.922667 6.144 21.162667 13.312 30.378667 21.504 2.389333 3.413333 3.754667 7.509333 4.096 11.605333l6.826667 6.144c-35.84 53.930667-50.517333 119.466667-41.301334 183.637334l-8.533333 2.389333c-2.048 3.413333-5.12 6.485333-8.874667 8.874667-11.946667 3.072-24.234667 5.12-36.522666 6.144-6.485333 0-12.970667 0.682667-19.456 1.365333l-5.461334 1.365333h-0.682666c-11.264 1.706667-19.114667 11.946667-17.408 23.210667 0.682667 4.437333 2.730667 8.533333 5.802666 11.605333 5.461333 5.461333 13.653333 7.509333 20.821334 5.12h0.341333l5.461333-0.682666c6.144-1.706667 12.288-4.096 18.432-6.826667 11.605333-4.437333 23.210667-8.192 35.498667-10.24 4.096 0.341333 8.192 1.706667 11.605333 4.096l9.216-1.365333c19.797333 61.781333 61.781333 114.005333 117.418667 146.773333l-3.754667 7.509333c1.706667 3.413333 2.389333 7.509333 1.706667 11.605334-5.12 11.605333-11.264 22.869333-18.432 33.450666-4.096 5.12-7.509333 10.581333-10.922667 16.384l-2.730666 5.461334c-5.802667 9.898667-2.389333 22.186667 7.509333 27.989333 3.754667 2.048 8.192 3.072 12.288 2.730667 7.509333-1.024 14.336-5.802667 17.066667-13.312l2.389333-5.12c2.389333-6.144 4.437333-12.288 5.802667-18.432 5.461333-13.312 8.192-27.648 15.701333-36.522667 2.389333-2.389333 5.461333-3.754667 8.874667-4.437333l4.437333-8.192c60.416 23.210667 127.317333 23.552 187.733333 0.341333l4.096 7.509333c4.096 0.682667 7.850667 2.730667 10.24 6.144 5.802667 10.922667 10.24 22.528 13.994667 34.133334 1.706667 6.485333 3.754667 12.629333 5.802667 18.773333l2.389333 5.12c4.096 10.581333 15.701333 16.042667 26.282667 11.946667 4.096-1.365333 7.509333-4.437333 9.898666-7.850667 4.096-6.485333 4.437333-14.677333 0.341334-21.504l-2.730667-5.461333c-3.413333-5.461333-6.826667-10.922667-10.922667-16.384-7.168-10.24-13.312-21.162667-18.432-32.426667-1.024-4.096-0.341333-8.533333 2.048-12.288-1.365333-2.730667-2.389333-5.461333-3.413333-8.192 55.637333-33.109333 97.28-85.674667 116.736-147.456l8.533333 1.365333c3.072-2.730667 7.168-4.437333 11.264-4.096 11.946667 2.389333 23.893333 5.802667 35.498667 10.24 6.144 3.072 12.288 5.12 18.432 7.168 1.365333 0.341333 3.754667 0.682667 5.12 1.024h0.341333c10.922667 3.413333 22.186667-2.389333 25.941334-13.312 1.365333-4.096 1.365333-8.533333 0-12.970666-2.389333-7.168-8.874667-12.629333-16.725334-13.653334l-5.802666-1.365333c-6.485333-1.024-12.970667-1.365333-19.456-1.365333-12.288-0.682667-24.576-2.730667-36.522667-6.144-3.754667-2.048-6.826667-5.12-8.874667-8.874667l-8.192-2.389333c8.874667-64.170667-6.144-129.365333-42.325333-183.296l7.168-6.826667c-0.341333-4.096 1.024-8.192 3.754667-11.605333 9.216-8.192 19.456-15.018667 30.378666-21.162667 5.802667-3.072 11.605333-6.144 16.725334-9.898667l4.437333-3.754666c9.557333-5.802667 12.629333-18.432 6.485333-28.330667-2.389333-4.096-6.144-7.168-10.581333-8.533333-7.509333-2.730667-15.701333-0.682667-21.162667 4.778666l-4.437333 3.754667c-4.778667 4.437333-9.216 9.216-13.312 14.336-8.192 9.216-17.066667 17.749333-26.624 25.258667-3.754667 1.706667-8.192 2.048-12.288 1.365333l-7.850667 5.461333a267.308373 267.308373 0 0 0-169.301333-81.578666c0-3.072-0.341333-7.509333-0.341333-9.216-3.413333-2.389333-5.802667-6.144-6.826667-10.24-0.341333-12.288 0.341333-24.576 2.389333-36.864 1.365333-6.144 2.389333-12.970667 2.730667-19.456V177.493333c2.048-11.946667-6.826667-21.845333-18.773333-22.528z m-25.6 157.696l-6.144 106.837334h-0.341334c-0.341333 6.485333-4.096 12.288-10.24 15.36-5.802667 3.072-12.970667 2.389333-18.432-1.706667l-87.722666-62.122667c27.989333-27.306667 62.805333-46.421333 101.034666-54.954666 7.509333-1.365333 14.677333-2.389333 21.845334-3.413334z m51.2 0c45.738667 5.802667 88.746667 26.282667 122.197333 58.709334l-86.698667 61.781333a17.954133 17.954133 0 0 1-25.258666-3.072c-2.389333-3.072-3.754667-6.826667-3.754667-10.922667l-6.485333-106.496z m-205.482667 98.645334l80.213333 71.338666v0.341334c7.509333 6.485333 8.192 18.090667 1.365334 25.6-2.389333 2.730667-5.12 4.437333-8.533334 5.461333v0.341333l-102.741333 29.696c-5.12-46.421333 5.12-92.842667 29.696-132.778666z m359.082667 0c24.234667 39.594667 35.157333 86.016 30.72 132.096l-103.082667-29.696v-0.341334c-6.485333-1.706667-11.264-6.826667-12.629333-13.312-1.365333-6.485333 0.682667-13.312 5.802666-17.408l79.189334-71.338666zM488.106667 488.448h32.768l19.797333 25.6-7.168 31.744-29.354667 13.994667-29.354666-13.994667-6.826667-31.744 20.138667-25.6z m104.789333 86.698667h4.096l105.813333 17.749333c-15.36 44.032-45.397333 81.578667-84.992 106.837333l-40.96-99.328c-3.754667-9.216 0.341333-19.797333 9.557334-23.552 2.048-0.682667 3.754667-1.365333 6.144-1.365333l0.341333-0.341333z m-177.834667 0.682666c6.144 0 11.605333 3.072 14.677334 8.192 3.413333 5.12 3.754667 11.264 1.365333 16.725334v0.341333l-40.618667 98.304a209.988267 209.988267 0 0 1-84.309333-105.813333l105.130667-17.749334h3.754666z m88.746667 42.666667c6.826667-0.341333 13.312 3.413333 16.384 9.557333h0.341333l51.882667 93.525334-20.821333 6.144c-38.229333 8.874667-77.824 6.826667-115.029334-5.802667l51.882667-93.525333c3.072-5.461333 8.874667-8.874667 15.36-8.874667v-1.024z"
-                      fill="#FFFFFF"
-                      p-id="5982"
-                    />
-                  </svg>
-                  管理您的 Kubernetes 集群，简化 Kubernetes 的管理
-                </span>
-                <Paragraph className={styles.describe}>
-                  <ul>
-                    <li>Kubernetes 集群自动化对接</li>
-                    <li>Kubernetes 透明化，无需用户学习其使用方式</li>
-                  </ul>
-                </Paragraph>
-              </div>
-              {!isEnterpriseEdition && (
-                <Row>
-                  <Col span={8}>
-                    <p style={{ marginTop: '16px', textAlign: 'center' }}>
-                      <img
-                        alt="扫码加入社区钉钉群"
-                        style={{ width: '100%' }}
-                        title="扫码加入社区钉钉群"
-                        src="https://www.rainbond.com/images/dingding-group.jpeg"
-                      />
-                    </p>
-                  </Col>
-                  <Col span={16}>
-                    <p style={{ marginTop: '16px', padding: '16px' }}>
-                      如果您对接计算资源遇到障碍，或希望了解DevOps流程、企业中台、2B应用交付、多云管理、行业云等需求场景的更多信息，请扫码加入用户社区钉钉群。
-                    </p>
-                  </Col>
-                </Row>
-              )}
-            </div>
-            <p style={{ textAlign: 'center', marginTop: '16px' }}>
-              <Button onClick={this.hideInitShow} type="primary">
-                我已知晓，开始对接
-              </Button>
-            </p>
-          </Modal>
-        )}
+        <div id="cloudServiceBtn" style={{ height: '160px' }} />
       </PageHeaderLayout>
     );
   }
