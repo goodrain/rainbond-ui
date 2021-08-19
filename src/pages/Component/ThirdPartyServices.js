@@ -51,7 +51,6 @@ export default class Index extends PureComponent {
       deleteVar: false,
       visible: false,
       ep_id: '',
-      is_online: true,
       api_service_key: ''
     };
   }
@@ -59,15 +58,7 @@ export default class Index extends PureComponent {
   componentDidMount() {
     this.handleGetList();
   }
-  onChange = () => {
-    const { is_online } = this.state;
-    this.props.form.setFieldsValue({
-      is_online: !is_online
-    });
-    this.setState({
-      is_online: !is_online
-    });
-  };
+
   fetchParameter = () => {
     const { appAlias } = this.props;
     return {
@@ -131,6 +122,10 @@ export default class Index extends PureComponent {
         if (res && res.status_code === 200) {
           this.handleGetList();
           this.cancelDeleteVar();
+          setTimeout(() => {
+            this.handleGetList();
+          }, 50000);
+          notification.info({ message: '需要更新才能生效' });
         }
       }
     });
@@ -141,8 +136,7 @@ export default class Index extends PureComponent {
       type: 'appControl/modifyInstanceList',
       payload: {
         ...this.fetchParameter(),
-        ep_id: status.ep_id,
-        is_online: !status.is_online
+        ep_id: status.ep_id
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -170,20 +164,20 @@ export default class Index extends PureComponent {
         type: 'appControl/addInstanceList',
         payload: {
           ...this.fetchParameter(),
-          ip: fieldsValue.ip,
-          is_online: fieldsValue.is_online
+          ip: fieldsValue.ip
         },
         callback: res => {
           if (res && res.status_code === 200) {
             this.setState({ visible: false });
             this.handleGetList();
+            notification.info({ message: '需要更新才能生效' });
           }
         }
       });
     });
   };
   handleCancel = () => {
-    this.setState({ visible: false, is_online: false });
+    this.setState({ visible: false });
   };
   validAttrName = (_, value, callback) => {
     if (!value || value === '') {
@@ -253,6 +247,12 @@ export default class Index extends PureComponent {
         align: 'center',
         key: '2',
         render: data => {
+          const stateMap = {
+            healthy: '健康',
+            unhealthy: '不健康',
+            notready: '未就绪',
+            unknown: '未知'
+          };
           return (
             <span
               style={{
@@ -260,13 +260,7 @@ export default class Index extends PureComponent {
                   data == 'healthy' ? 'green' : data == 'unhealthy' ? 'red' : ''
               }}
             >
-              {data == 'healthy'
-                ? '健康'
-                : data == 'unhealthy'
-                ? '不健康'
-                : data == 'unknown'
-                ? '未知'
-                : '-'}
+              {stateMap[data] || '未上线'}
             </span>
           );
         }
@@ -278,21 +272,15 @@ export default class Index extends PureComponent {
         title: '操作',
         dataIndex: 'ep_id',
         key: '3',
-        render: (ep_id, status) => (
-          <div>
-            {status.is_static && (
-              <div>
-                <a
-                  style={{ marginRight: '5px' }}
-                  onClick={() => {
-                    this.openDeleteVar(ep_id);
-                  }}
-                >
-                  删除
-                </a>
-              </div>
-            )}
-          </div>
+        render: ep_id => (
+          <a
+            style={{ marginRight: '5px' }}
+            onClick={() => {
+              this.openDeleteVar(ep_id);
+            }}
+          >
+            删除
+          </a>
         )
       });
     }
@@ -313,29 +301,9 @@ export default class Index extends PureComponent {
             >
               <FormItem {...formItemLayout} label="实例地址">
                 {getFieldDecorator('ip', {
-                  rules: [
-                    { required: true },
-                    { validator: this.validAttrName }
-                  ],
+                  rules: [{ required: true, validator: this.validAttrName }],
                   initialValue: undefined
                 })(<Input placeholder="请输入实例地址" />)}
-              </FormItem>
-              <FormItem {...formItemLayout} label="是否上线">
-                {getFieldDecorator('is_online', {
-                  rules: [{ required: true, message: '请输入key!' }],
-                  initialValue: this.state.is_online
-                })(
-                  <RadioGroup>
-                    <Radio
-                      onClick={() => {
-                        this.onChange();
-                      }}
-                      value
-                    >
-                      上线
-                    </Radio>
-                  </RadioGroup>
-                )}
               </FormItem>
             </Modal>
           )}

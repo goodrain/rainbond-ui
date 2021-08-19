@@ -1,0 +1,202 @@
+.coverScreen {
+  opacity: 0.45;
+  background: #000;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  height: 100%;
+  z-index: 999 !important;
+}
+.caretUp {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  color: black;
+}
+#driverPopoverItem {
+  position: absolute;
+  background: rgb(41, 44, 53);
+  color: rgb(255, 255, 255);
+  margin: 0;
+  padding: 15px;
+  border-radius: 5px;
+  min-width: 250px;
+  max-width: 300px;
+  box-shadow: 0 1px 10px rgb(0 0 0 / 40%);
+  z-index: 1000000000;
+}
+// #driverPopoverItem .driverPopoverTip.top {
+//   top: -10px;
+//   border-color: transparent transparent #fff;
+// }
+// #driverPopoverItem .driverPopoverTip {
+//   border: 5px solid #fff;
+//   content: '';
+//   position: absolute;
+//   top: -10px;
+//   border-color: transparent transparent #fff;
+// }
+#driverPopoverItem .driverPopoverTitle {
+  font-size: 14px;
+  line-height: 16px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  text-align: left;
+}
+#driverPopoverItem .driverPopoverDescription {
+  font-size: 12px;
+  line-height: 20px;
+  margin-bottom: 20px;
+  color: rgb(255, 255, 255);
+  text-align: left;
+}
+#driverPopoverItem .driverPopoverFooter {
+  float: right;
+  display: flex;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  align-items: center;
+  margin-top: 10px;
+}
+#driverPopoverItem .driverPopoverFooter button {
+  display: inline-block;
+  padding: 3px 10px;
+  border: none;
+  text-decoration: none;
+  text-shadow: 1px 1px 0 #fff;
+  color: #2d2d2d;
+  font: 11px / normal sans-serif;
+  cursor: pointer;
+  outline: 0;
+  background-color: #f1f1f1;
+  border-radius: 2px;
+  zoom: 1;
+  line-height: 1.3;
+}
+.driverCloseBtn {
+  float: left;
+}
+.closeSvg {
+  cursor: pointer;
+}
+.closeSvg,
+#driverPopoverItem .driverPopoverFooter .driverBtnGroup,
+#driverPopoverItem .driverPopoverFooter .driver-close-only-btn {
+  float: right;
+}
+#driverPopoverItem .driverPopoverFooter .driverBtnGroup {
+  margin-left: 20px;
+}
+.driverPrevBtn,
+.driverNextBtn {
+  display: inline-block;
+  padding: 6px 16px !important;
+  min-width: 68px !important;
+  text-decoration: none;
+  text-shadow: 1px 1px 0 #fff;
+  color: #2d2d2d;
+  font: 11px / normal sans-serif;
+  cursor: pointer;
+  outline: 0;
+  background-color: #f1f1f1;
+  border-radius: 2px;
+  zoom: 1;
+  line-height: 1.3;
+}
+.driverPrevBtn {
+  border-radius: 4px !important;
+  margin-right: 10px;
+}
+.currentImport {
+  background: #fff !important;
+  z-index: 100003 !important;
+  padding: initial;
+  position: relative;
+  opacity: 0.15;
+  border-radius: 2px;
+}
+.driverNextBtn {
+  background: rgb(41, 141, 248) !important;
+  color: #fff !important;
+  border-radius: 4px !important;
+  border: 0px !important;
+  text-shadow: none !important;
+  height: 28px !important;
+}
+.step {
+  display: flex;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  align-items: center;
+  margin-top: 10px;
+}
+.stepco {
+  height: 4px;
+  width: 42px;
+  opacity: 0.2;
+  background: rgb(255, 255, 255);
+  border-radius: 2px;
+  margin-right: 6px;
+}
+.stepdo {
+  position: absolute;
+  height: 4px;
+  background: rgb(255, 255, 255);
+  border-radius: 2px;
+}
+.clickSvg {
+  margin-top: -36px;
+  margin-left: 0;
+  width: 32px;
+  height: 34px;
+  position: absolute;
+  z-index: 999999;
+}
+
+.clickEffect::before {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-color: #298df8;
+  border-radius: 50%;
+  content: '';
+  transform: translate(-50%, -50%);
+  animation: mymove 1s infinite;
+  opacity: 0.5;
+}
+@keyframes mymove {
+  0% {
+    width: 50px;
+    height: 50px;
+  }
+  60% {
+    width: 60px;
+    height: 60px;
+  }
+  100% {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@-webkit-keyframes mymove /*Safari and Chrome*/ {
+  0% {
+    width: 50px;
+    height: 50px;
+  }
+  60% {
+    width: 60px;
+    height: 60px;
+  }
+  100% {
+    width: 50px;
+    height: 50px;
+  }
+}

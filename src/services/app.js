@@ -374,13 +374,7 @@ export function getComponentState(body = {}, handleError) {
 /*
 	获取监控日志--日志页面
 */
-export function getServiceLog(
-  body = {
-    team_name,
-    app_alias,
-    lines
-  }
-) {
+export function getServiceLog(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/log`,
     {
@@ -388,6 +382,18 @@ export function getServiceLog(
       params: {
         action: 'service',
         lines: body.lines || 50
+      }
+    }
+  );
+}
+export function getContainerLog(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/logs`,
+    {
+      method: 'get',
+      params: {
+        pod_name: body.pod_name,
+        container_name: body.container_name
       }
     }
   );
@@ -462,7 +468,8 @@ export function vertical(
       method: 'post',
       data: {
         new_memory: body.new_memory,
-        new_gpu: body.new_gpu
+        new_gpu: body.new_gpu,
+        new_cpu: body.new_cpu
       }
     }
   );
@@ -1168,8 +1175,7 @@ export async function addInstanceList(
   body = {
     team_name,
     app_alias,
-    endpoints_type,
-    is_online
+    endpoints_type
   }
 ) {
   return request(
@@ -1177,8 +1183,7 @@ export async function addInstanceList(
     {
       method: 'POST',
       data: {
-        ip: body.ip,
-        is_online: body.is_online
+        ip: body.ip
       }
     }
   );
@@ -1524,6 +1529,7 @@ export async function addVolume(
         volume_name: body.volume_name,
         volume_type: body.volume_type,
         volume_path: body.volume_path,
+        mode: body.mode,
         volume_capacity: new Number(body.volume_capacity),
         file_content: body.volume_type == 'config-file' ? body.file_content : ''
       }
@@ -1547,6 +1553,7 @@ export async function editorVolume(
     {
       method: 'put',
       data: {
+        mode: body.mode,
         new_volume_path: body.new_volume_path,
         new_file_content: body.new_file_content
       }
@@ -2689,7 +2696,8 @@ export async function updatePluginMemory(
     {
       method: 'put',
       data: {
-        min_memory: body.min_memory
+        min_memory: body.min_memory,
+        min_cpu: body.min_cpu
       }
     }
   );
@@ -2759,11 +2767,15 @@ export async function editPluginConfigs(
 }
 
 /* 查询应用的内存和磁盘使用情况 */
-export async function getAppResource(body = { team_name, app_alias }) {
+export async function getAppResource(
+  body = { team_name, app_alias },
+  handleError
+) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/resource`,
     {
-      method: 'get'
+      method: 'get',
+      handleError
     }
   );
 }

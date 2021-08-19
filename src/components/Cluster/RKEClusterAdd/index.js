@@ -26,7 +26,7 @@ import {
 } from 'antd';
 import copy from 'copy-to-clipboard';
 import { connect } from 'dva';
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import { rkeconfig } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from './index.less';
@@ -257,8 +257,11 @@ export default class RKEClusterConfig extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'cloud/getInitNodeCmd',
-      callback: data => {
-        this.setState({ initNodeCmd: data.cmd });
+      callback: res => {
+        const info = (res && res.response_data) || {};
+        const data = (res && res.response_data && res.data) || {};
+        const cmd = (res && res.cmd) || data.cmd || info.cmd;
+        this.setState({ initNodeCmd: cmd });
       }
     });
   };
@@ -564,7 +567,13 @@ export default class RKEClusterConfig extends PureComponent {
     }
   };
   render() {
-    const { onCancel, form, clusterID } = this.props;
+    const {
+      onCancel,
+      form,
+      clusterID,
+      guideStep,
+      handleNewbieGuiding
+    } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
     const {
       helpType,
@@ -661,6 +670,11 @@ export default class RKEClusterConfig extends PureComponent {
         }
       };
     });
+    const highlighted = {
+      position: 'relative',
+      zIndex: 1000,
+      background: '#fff'
+    };
     return (
       <Modal
         visible
@@ -671,15 +685,34 @@ export default class RKEClusterConfig extends PureComponent {
         width={900}
         destroyOnClose
         footer={
-          <Button
-            type="primary"
-            onClick={() => {
-              this.handleStartCheck();
-            }}
-            loading={loading}
-          >
-            {clusterID ? '更新集群' : '开始安装'}
-          </Button>
+          <Fragment>
+            <Button
+              type="primary"
+              onClick={() => {
+                this.handleStartCheck();
+              }}
+              loading={loading}
+            >
+              {clusterID ? '更新集群' : '开始安装'}
+            </Button>
+            {guideStep && guideStep === 6 && handleNewbieGuiding && (
+              <Fragment>
+                {handleNewbieGuiding({
+                  tit: '6.开始安装',
+                  send: true,
+                  configName: 'kclustersAttention',
+                  desc: '确认RKE集群配置信息填写正确并立即开始安装。',
+                  nextStep: 7,
+                  btnText: '安装',
+                  conPosition: { right: '110px', bottom: 0 },
+                  svgPosition: { right: '50px', marginTop: '-11px' },
+                  handleClick: () => {
+                    this.handleStartCheck();
+                  }
+                })}
+              </Fragment>
+            )}
+          </Fragment>
         }
         confirmLoading={loading}
         onCancel={onCancel}
@@ -695,7 +728,14 @@ export default class RKEClusterConfig extends PureComponent {
             width={900}
             visible
             onOk={() => {
-              this.handleTabs(activeKey === '1' ? '2' : '1', true);
+              this.setState(
+                {
+                  loading: true
+                },
+                () => {
+                  this.handleTabs(activeKey === '1' ? '2' : '1', true);
+                }
+              );
             }}
             onCancel={() => {
               this.handleCheck(false);
@@ -717,6 +757,24 @@ export default class RKEClusterConfig extends PureComponent {
                       notification.success({ message: '复制成功' });
                     }}
                   />
+                  {guideStep &&
+                    guideStep === 7 &&
+                    handleNewbieGuiding({
+                      tit: '节点的初始化',
+                      send: true,
+                      configName: 'nodeInitialization',
+                      handleClick: () => {
+                        copy(initNodeCmd);
+                        notification.success({ message: '复制成功' });
+                      },
+                      desc:
+                        '请复制上诉命令完成所有节点的初始化,点击确定、请等待 RKE 集群安装完成。',
+                      prevStep: false,
+                      btnText: '复制命令',
+                      nextStep: 8,
+                      conPosition: { left: '0', bottom: '-156px' },
+                      svgPosition: { right: '-20px', marginTop: '-11px' }
+                    })}
                   {initNodeCmd}
                 </span>
               </Col>
@@ -733,7 +791,10 @@ export default class RKEClusterConfig extends PureComponent {
         <Form>
           <Row>
             <Col span={24} style={{ padding: '16px' }}>
-              <Paragraph className={styles.describe}>
+              <Paragraph
+                className={styles.describe}
+                style={guideStep && guideStep === 3 && highlighted}
+              >
                 <ul>
                   <li>
                     <span>
@@ -762,12 +823,39 @@ export default class RKEClusterConfig extends PureComponent {
                   </li>
                 </ul>
               </Paragraph>
+
+              {guideStep && guideStep === 3 && handleNewbieGuiding && (
+                <Fragment>
+                  {handleNewbieGuiding({
+                    tit: '注意事项',
+                    send: false,
+                    configName: 'kclustersAttention',
+                    showSvg: false,
+                    showArrow: true,
+                    desc: '注意查看主机需要满足的前提条件和安装说明。',
+                    nextStep: 4,
+                    conPosition: { right: '15px', bottom: '-134px' }
+                  })}
+                </Fragment>
+              )}
             </Col>
           </Row>
           {!clusterID && (
             <Row>
-              <Col span={12} style={{ padding: '0 16px' }}>
-                <Form.Item label="集群名称">
+              <Col
+                span={12}
+                style={{
+                  padding: guideStep && guideStep === 4 ? '' : '0 16px'
+                }}
+              >
+                <Form.Item
+                  label="集群名称"
+                  style={
+                    guideStep &&
+                    guideStep === 4 &&
+                    Object.assign({}, { padding: '0 16px' }, highlighted)
+                  }
+                >
                   {getFieldDecorator('name', {
                     initialValue: '',
                     rules: [
@@ -780,6 +868,21 @@ export default class RKEClusterConfig extends PureComponent {
                     ]
                   })(<Input placeholder="集群名称,请确保其保持唯一" />)}
                 </Form.Item>
+                {guideStep && guideStep === 4 && handleNewbieGuiding && (
+                  <Fragment>
+                    {handleNewbieGuiding({
+                      tit: '填写集群名称',
+                      showSvg: false,
+                      showArrow: true,
+                      send: false,
+                      configName: 'kclustersAttention',
+                      desc:
+                        '填写RKE集群的配置信息，初次体验单节点也可以进行安装哦。',
+                      nextStep: 5,
+                      conPosition: { marginTop: '-22px' }
+                    })}
+                  </Fragment>
+                )}
               </Col>
             </Row>
           )}
@@ -794,7 +897,14 @@ export default class RKEClusterConfig extends PureComponent {
               <div>
                 <Row>
                   <Col span={24} style={{ padding: '0 16px' }}>
-                    <Form.Item label="节点列表">
+                    <Form.Item
+                      label="节点列表"
+                      style={
+                        guideStep &&
+                        guideStep === 5 &&
+                        Object.assign({}, { padding: '0 16px' }, highlighted)
+                      }
+                    >
                       {getFieldDecorator('nodeLists', {
                         initialValue: ''
                       })(
@@ -820,7 +930,20 @@ export default class RKEClusterConfig extends PureComponent {
             </TabPane>
             <TabPane tab="自定义配置" key="2" />
           </Tabs>
-
+          {guideStep && guideStep === 5 && handleNewbieGuiding && (
+            <Fragment>
+              {handleNewbieGuiding({
+                tit: '填写节点',
+                showSvg: false,
+                showArrow: true,
+                send: false,
+                configName: 'kclustersAttention',
+                desc: '填写RKE集群的配置信息，初次体验单节点也可以进行安装哦。',
+                nextStep: 6,
+                conPosition: { bottom: '-14px', left: '39px' }
+              })}
+            </Fragment>
+          )}
           <div style={{ display: activeKey === '1' ? 'none' : 'block' }}>
             {((clusterID && activeKey === '2') || !clusterID) && (
               <CodeMirrorForm

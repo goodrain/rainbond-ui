@@ -315,6 +315,7 @@ export default class Index extends React.Component {
           app_alias: this.props.appAlias,
           new_volume_path: vals.volume_path,
           new_file_content: vals.file_content,
+          mode: vals.mode,
           ID: editor.ID
         },
         callback: res => {
@@ -497,6 +498,10 @@ export default class Index extends React.Component {
                 {
                   title: '配置文件挂载路径',
                   dataIndex: 'volume_path'
+                },
+                {
+                  title: '权限',
+                  dataIndex: 'mode'
                 },
                 {
                   title: '操作',

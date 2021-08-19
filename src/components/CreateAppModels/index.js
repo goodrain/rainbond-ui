@@ -12,7 +12,7 @@ import {
   Upload
 } from 'antd';
 import { connect } from 'dva';
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import apiconfig from '../../../config/api.config';
 import { fetchAppModelsTags, fetchOrganizations } from '../../services/market';
 import cookie from '../../utils/cookie';
@@ -464,17 +464,19 @@ class CreateAppModels extends PureComponent {
           className={styles.TelescopicModal}
           onOk={this.handleSubmit}
           onCancel={onCancel}
-          footer={[
-            <Button onClick={onCancel}> 取消 </Button>,
-            <Button
-              type="primary"
-              disabled={organizationsLoading || tagLoading}
-              onClick={this.handleSubmit}
-              loading={submitLoading}
-            >
-              确定
-            </Button>
-          ]}
+          footer={
+            <Fragment>
+              <Button onClick={onCancel}> 取消 </Button>
+              <Button
+                type="primary"
+                disabled={organizationsLoading || tagLoading}
+                onClick={this.handleSubmit}
+                loading={submitLoading}
+              >
+                确定
+              </Button>
+            </Fragment>
+          }
         >
           <Spin spinning={organizationsLoading || tagLoading}>
             <Form onSubmit={this.handleSubmit} layout="horizontal">
@@ -489,6 +491,11 @@ class CreateAppModels extends PureComponent {
                     {
                       max: 32,
                       message: '最大长度32位'
+                    },
+                    {
+                      pattern: /^[a-z0-9A-Z\u4e00-\u9fa5]([a-zA-Z0-9_\-\u4e00-\u9fa5]*[a-z0-9A-Z\u4e00-\u9fa5])?$/,
+                      message:
+                        '只支持中文、字母、数字和-_组合，并且必须以中文、字母、数字开始和结束'
                     }
                   ]
                 })(<Input placeholder="请输入名称" />)}

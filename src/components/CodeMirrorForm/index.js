@@ -87,6 +87,14 @@ class CodeMirrorForm extends PureComponent {
       };
     }
   };
+  checkValue = (_, value, callback) => {
+    const { message } = this.props;
+    if (value === '' || !value || (value && value.trim() === '')) {
+      callback(message);
+      return;
+    }
+    callback();
+  };
 
   render() {
     const {
@@ -174,7 +182,7 @@ class CodeMirrorForm extends PureComponent {
       >
         {getFieldDecorator(name, {
           initialValue: data || '',
-          rules: [{ required: true, message }]
+          rules: [{ required: true, validator: this.checkValue }]
         })(<CodeMirror options={options} ref={this.saveRef} />)}
         {amplifications}
         {isHeader && (

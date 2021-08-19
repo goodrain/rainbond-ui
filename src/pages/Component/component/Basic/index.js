@@ -1,9 +1,9 @@
 /* eslint-disable no-nested-ternary */
-import React, { PureComponent } from 'react';
-import { Form, Tooltip, Row, Col } from 'antd';
-import globalUtil from '../../../../utils/global';
+import { Col, Form, Row, Tooltip } from 'antd';
 // eslint-disable-next-line import/first
 import numeral from 'numeral';
+import React, { Fragment, PureComponent } from 'react';
+import globalUtil from '../../../../utils/global';
 import styles from '../../Index.less';
 
 @Form.create()
@@ -26,11 +26,13 @@ class Index extends PureComponent {
       status,
       beanData,
       more,
+      resourcesLoading,
       memory,
       disk,
       dataList,
       buildSource
     } = this.props;
+    const setMemory = memory === 0 ? '不限制' : numeral(memory).format('0,0');
     return (
       <Row gutter={24}>
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
@@ -80,36 +82,44 @@ class Index extends PureComponent {
                       <a>
                         {globalUtil.fetchSvg('distributionMemory')}
                         分配
-                        <Tooltip title={numeral(memory).format('0,0')}>
-                          <span
-                            style={{
-                              color: 'rgba(0,0,0,0.45)',
-                              padding: '0 20px',
-                              minWidth: '80px'
-                            }}
-                          >
-                            {numeral(memory).format('0,0')}
-                          </span>
-                        </Tooltip>
-                        MB 内存
+                        {!resourcesLoading && (
+                          <Fragment>
+                            <Tooltip title={setMemory}>
+                              <span
+                                style={{
+                                  color: 'rgba(0,0,0,0.45)',
+                                  padding: '0 20px',
+                                  minWidth: '80px'
+                                }}
+                              >
+                                {setMemory}
+                              </span>
+                            </Tooltip>
+                            {memory !== 0 && 'MB 内存'}
+                          </Fragment>
+                        )}
                       </a>
                     </li>
                     <li>
                       <a>
                         {globalUtil.fetchSvg('useDisk')}
                         占用
-                        <Tooltip title={numeral(disk).format('0,0')}>
-                          <span
-                            style={{
-                              color: 'rgba(0,0,0,0.45)',
-                              padding: '0 20px',
-                              minWidth: '80px'
-                            }}
-                          >
-                            {numeral(disk).format('0,0')}
-                          </span>
-                        </Tooltip>
-                        MB 磁盘
+                        {!resourcesLoading && (
+                          <Fragment>
+                            <Tooltip title={numeral(disk).format('0,0')}>
+                              <span
+                                style={{
+                                  color: 'rgba(0,0,0,0.45)',
+                                  padding: '0 20px',
+                                  minWidth: '80px'
+                                }}
+                              >
+                                {numeral(disk).format('0,0')}
+                              </span>
+                            </Tooltip>
+                            MB 磁盘
+                          </Fragment>
+                        )}
                       </a>
                     </li>
                   </ul>

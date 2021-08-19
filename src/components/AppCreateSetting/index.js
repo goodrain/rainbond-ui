@@ -5,6 +5,7 @@ import {
   Col,
   Form,
   Icon,
+  Input,
   notification,
   Radio,
   Row,
@@ -98,8 +99,12 @@ class BaseInfo extends PureComponent {
   render() {
     const { appDetail, form } = this.props;
     const { getFieldDecorator } = form;
-    const { extend_method } = appDetail.service;
-    const minMemory = appDetail.service.min_memory;
+    const {
+      extend_method: extendMethod,
+      min_memory: minMemory,
+      min_cpu: minCpu
+    } = appDetail.service;
+    console.log('appDetail', appDetail);
     const list = this.state.memoryList;
 
     const radioStyle = {
@@ -134,7 +139,7 @@ class BaseInfo extends PureComponent {
       >
         <Form.Item {...formItemLayout} label="组件类型">
           {getFieldDecorator('extend_method', {
-            initialValue: extend_method || 'stateless_multiple',
+            initialValue: extendMethod || 'stateless_multiple',
             rules: [
               {
                 required: true,
@@ -155,7 +160,7 @@ class BaseInfo extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="内存">
           {getFieldDecorator('min_memory', {
-            initialValue: minMemory || '',
+            initialValue: minMemory || 0,
             rules: [
               {
                 required: true,
@@ -164,7 +169,10 @@ class BaseInfo extends PureComponent {
             ]
           })(
             <RadioGroup>
-              {minMemory < list[0].value ? (
+              <RadioButton key={0} value={0}>
+                不限制
+              </RadioButton>
+              {minMemory < list[0].value && minMemory != 0 ? (
                 <RadioButton value={minMemory}>{minMemory}M</RadioButton>
               ) : null}
               {list.map((item, index) => {
@@ -176,6 +184,32 @@ class BaseInfo extends PureComponent {
               })}
             </RadioGroup>
           )}
+        </Form.Item>
+        <Form.Item {...formItemLayout} label="CPU">
+          {getFieldDecorator('min_cpu', {
+            initialValue: minCpu || 0,
+            rules: [
+              {
+                required: true,
+                message: '请输入CPU'
+              },
+              {
+                pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                message: '只允许输入整数'
+              }
+            ]
+          })(
+            <Input
+              style={{ width: '200px' }}
+              type="number"
+              min={0}
+              addonAfter="m"
+              placeholder="请输入CPU"
+            />
+          )}
+          <div style={{ color: '#999999', fontSize: '12px' }}>
+            CPU分配额0为不限制，1000m=1core。
+          </div>
         </Form.Item>
         <Row>
           <Col span="5" />

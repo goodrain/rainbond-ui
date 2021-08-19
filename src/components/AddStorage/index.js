@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, Input, Radio, Tooltip } from 'antd';
+import { Button, Drawer, Form, Input, InputNumber, Radio, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
@@ -24,6 +24,15 @@ export default class AddVolumes extends PureComponent {
       onCancel();
     }
   };
+
+  modeCheck = (_, value, callback) => {
+    if (value && !/^[0-7]{1,3}$/.test(value)) {
+      callback('权限的数值限制在0-777之间的8进制数');
+      return;
+    }
+    callback();
+  };
+
   render() {
     const { data, editor, form } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
@@ -62,6 +71,10 @@ export default class AddVolumes extends PureComponent {
                   message: '请输入配置文件名称'
                 },
                 {
+                  pattern: /^[^\s]*$/,
+                  message: '禁止输入空格'
+                },
+                {
                   max: 30,
                   message: '最大长度30位'
                 }
@@ -80,6 +93,10 @@ export default class AddVolumes extends PureComponent {
                 {
                   required: true,
                   message: '请输入配置文件挂载路径'
+                },
+                {
+                  pattern: /^[^\s]*$/,
+                  message: '禁止输入空格'
                 },
                 {
                   max: 255,
@@ -109,7 +126,12 @@ export default class AddVolumes extends PureComponent {
               )}
             </FormItem>
           </div>
-
+          <FormItem {...formItemLayout} label="权限">
+            {getFieldDecorator('mode', {
+              initialValue: data.mode || 777,
+              rules: [{ required: true, validator: this.modeCheck }]
+            })(<InputNumber min={0} style={{ width: '100%' }} />)}
+          </FormItem>
           <CodeMirrorForm
             setFieldsValue={setFieldsValue}
             formItemLayout={formItemLayout}

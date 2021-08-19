@@ -11,6 +11,9 @@ export default function handleAPIError(err) {
   }
   if (data) {
     switch (data.code) {
+      case 7028:
+        messages = '已安装 Rainbond 集群';
+        break;
       case 10411:
         messages = '当前集群不可用';
         break;

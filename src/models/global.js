@@ -22,6 +22,7 @@ import {
   fetchEnterpriseTeams,
   fetchEnterpriseUsers,
   fetchMyTeams,
+  fetchNewbieGuideConfig,
   fetchOverview,
   fetchOverviewApp,
   fetchOverviewMonitor,
@@ -67,6 +68,7 @@ import {
   joinTeam,
   postUpdatedTasks,
   putMsgAction,
+  putNewbieGuideConfig,
   queryCodeWarehouseInfo,
   queryCodeWarehouseType,
   queryDetectionTestCode,
@@ -112,6 +114,7 @@ export default {
     isPubCloud: null,
     // 当前团队和集群的群组
     groups: null,
+    novices: null,
     currTeam: '',
     currRegion: '',
     // 云帮平台信息
@@ -683,7 +686,27 @@ export default {
         callback(response);
       }
     },
-
+    *fetchNewbieGuideConfig({ callback, handleError }, { put, call }) {
+      const response = yield call(fetchNewbieGuideConfig, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+      yield put({
+        type: 'saveNewbieGuideConfig',
+        payload: response.list || []
+      });
+    },
+    *putNewbieGuideConfig({ payload, callback, handleError }, { call }) {
+      const response = yield call(putNewbieGuideConfig, payload, handleError);
+      if (response) {
+        window.g_app._store.dispatch({
+          type: 'global/fetchNewbieGuideConfig'
+        });
+        if (callback) {
+          callback(response);
+        }
+      }
+    },
     *IsUpDataHeader({ payload }, { put }) {
       yield put({
         type: 'isUpDataHeader',
@@ -900,6 +923,12 @@ export default {
       return {
         ...state,
         notices: state.notices.filter(item => item.type !== payload)
+      };
+    },
+    saveNewbieGuideConfig(state, { payload }) {
+      return {
+        ...state,
+        novices: payload
       };
     },
     saveGroups(state, { payload }) {

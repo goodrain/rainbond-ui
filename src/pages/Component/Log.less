@@ -1,25 +1,25 @@
 .logsss {
   background: #212121;
   min-height: 300px;
-  padding   : 15px;
+  padding: 15px;
   max-height: 600px;
-  overflow  : auto;
+  overflow: auto;
 
   div {
     margin-bottom: 0;
-    display      : flex;
-    min-height   : 19px;
-    font-size    : 12px;
-    line-height  : 19px;
+    display: flex;
+    min-height: 19px;
+    font-size: 12px;
+    line-height: 19px;
 
     span:nth-of-type(1) {
-      display      : inline-block;
-      min-width    : 40px;
+      display: inline-block;
+      min-width: 40px;
       padding-right: 6px;
 
       span {
-        display   : inline-block;
-        width     : 20px;
+        display: inline-block;
+        width: 20px;
         text-align: right;
       }
     }
@@ -29,21 +29,27 @@
     }
 
     span:nth-of-type(3) {
-      width        : 14%;
+      width: 14%;
       border-radius: 6px;
-      height       : 16px;
-      text-align   : center;
-      line-height  : 16px;
+      height: 16px;
+      text-align: center;
+      line-height: 16px;
     }
   }
 
   div:hover {
-    background: #444444
+    background: #444444;
   }
-
-
 }
 
+.podCascader {
+  width: calc(100% - 597px);
+  :global {
+    .ant-form-item-control-wrapper {
+      width: calc(100% - 45px);
+    }
+  }
+}
 .logModal {
   :global {
     .ant-modal-close-x {
@@ -51,8 +57,8 @@
     }
 
     .ant-modal-header {
-      background   : #444 !important;
-      color        : #fff !important;
+      background: #444 !important;
+      color: #fff !important;
       border-bottom: none !important;
     }
 
@@ -65,15 +71,15 @@
 .History1000Log {
   div {
     margin-bottom: 0;
-    display      : flex;
-    min-height   : 19px;
-    font-size    : 12px;
-    line-height  : 19px;
+    display: flex;
+    min-height: 19px;
+    font-size: 12px;
+    line-height: 19px;
 
     span:nth-of-type(1) {
-      display      : inline-block;
-      min-width    : 40px;
-      display      : flex;
+      display: inline-block;
+      min-width: 40px;
+      display: flex;
       padding-right: 6px;
       word-break: break-word;
       // b{
@@ -81,8 +87,8 @@
       // 	width  : 20%;
       // }
       span {
-        display   : inline-block;
-        width     : 20px;
+        display: inline-block;
+        width: 20px;
         text-align: right;
       }
     }
@@ -92,14 +98,14 @@
     }
 
     span:nth-of-type(3) {
-      width        : 14%;
+      width: 14%;
       border-radius: 6px;
-      height       : 19px;
-      text-align   : center;
+      height: 19px;
+      text-align: center;
     }
   }
 
   div:hover {
-    background: #444444
+    background: #444444;
   }
 }

@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
+import NewbieGuiding from '@/components/NewbieGuiding';
 import { Button, Card, Col, Form, Row, Steps, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -37,10 +38,12 @@ export default class EnterpriseClusters extends PureComponent {
       showBuyClusterConfig: false,
       k8sClusters: [],
       loading: true,
+      rainbondInit: false,
       selectClusterID: '',
       showTaskDetail: false,
       linkedClusters: new Map(),
       lastTask: {},
+      guideStep: 3,
       currentClusterID: ''
     };
   }
@@ -63,16 +66,19 @@ export default class EnterpriseClusters extends PureComponent {
         params: { eid, provider }
       }
     } = this.props;
-    const { selectClusterID } = this.state;
+    const { selectClusterID, rainbondInit } = this.state;
     dispatch(
       routerRedux.push(
-        `/enterprise/${eid}/provider/${provider}/kclusters/${selectClusterID}/init`
+        `/enterprise/${eid}/provider/${provider}/kclusters/${selectClusterID}/${
+          rainbondInit ? 'link' : 'init'
+        }`
       )
     );
   };
   selectCluster = row => {
     this.setState({
-      selectClusterID: row.clusterID
+      selectClusterID: row.clusterID,
+      rainbondInit: row.rainbond_init
     });
   };
 
@@ -120,10 +126,14 @@ export default class EnterpriseClusters extends PureComponent {
       },
       callback: data => {
         if (data && data.clusters && data.clusters.length > 0) {
+          const next = data.clusters[0].state === 'running';
           this.setState({
             k8sClusters: data.clusters,
             loading: false
           });
+          if (next) {
+            document.getElementById('initializeBtn').scrollIntoView();
+          }
           this.loadRainbondClusters();
         } else {
           if (provider === 'custom' || provider === 'rke') {
@@ -236,12 +246,45 @@ export default class EnterpriseClusters extends PureComponent {
     this.cancelAddCluster();
     this.loadKubernetesCluster();
   };
+  handleGuideStep = guideStep => {
+    this.setState({
+      guideStep
+    });
+  };
+  handleNewbieGuiding = info => {
+    const { prevStep, nextStep, handleClick = () => {} } = info;
+    return (
+      <NewbieGuiding
+        {...info}
+        totals={14}
+        handleClose={() => {
+          this.handleGuideStep('close');
+          this.selectCluster({
+            clusterID: '',
+            rainbond_init: false
+          });
+        }}
+        handlePrev={() => {
+          if (prevStep) {
+            this.handleGuideStep(prevStep);
+          }
+        }}
+        handleNext={() => {
+          if (nextStep) {
+            handleClick();
+            this.handleGuideStep(nextStep);
+          }
+        }}
+      />
+    );
+  };
   renderCreateClusterShow = () => {
     const {
       match: {
         params: { eid, provider }
       }
     } = this.props;
+    const { guideStep } = this.state;
     switch (provider) {
       case 'ack':
         return (
@@ -282,6 +325,8 @@ export default class EnterpriseClusters extends PureComponent {
         return (
           <RKEClusterConfig
             eid={eid}
+            guideStep={guideStep}
+            handleNewbieGuiding={this.handleNewbieGuiding}
             onCancel={() => {
               this.cancelAddCluster();
             }}
@@ -315,7 +360,8 @@ export default class EnterpriseClusters extends PureComponent {
       showTaskDetail,
       lastTask,
       linkedClusters,
-      currentClusterID
+      currentClusterID,
+      guideStep
     } = this.state;
     const nextDisable = selectClusterID === '';
 
@@ -342,10 +388,25 @@ export default class EnterpriseClusters extends PureComponent {
         type="primary"
         onClick={this.startInit}
         disabled={nextDisable}
+        id="initializeBtn"
       >
         下一步
       </Button>
     );
+    let next = false;
+    let selectedClusterID = '';
+    let rainbondInit = false;
+
+    if (k8sClusters && k8sClusters.length) {
+      k8sClusters.map(item => {
+        const { state } = item;
+        if (state === 'running') {
+          rainbondInit = item.rainbond_init;
+          selectedClusterID = item.cluster_id;
+          next = true;
+        }
+      });
+    }
     return (
       <PageHeaderLayout
         title="添加集群"
@@ -370,12 +431,30 @@ export default class EnterpriseClusters extends PureComponent {
             showLastTaskDetail={() => {
               this.setState({ showTaskDetail: true });
             }}
+            guideStep={guideStep}
+            handleNewbieGuiding={this.handleNewbieGuiding}
             loadLastTask={this.loadLastTask}
             linkedClusters={linkedClusters}
             showBuyClusterConfig={this.showBuyClusterConfig}
             updateKubernetes={updateKubernetes}
             updateKubernetesClusterID={clusterID}
           />
+          {next && (guideStep === 3 || guideStep === 8)
+            ? this.handleNewbieGuiding({
+                tit: '请选择Kubernetes集群',
+                desc: '可选择已经正常运行的集群',
+                send: false,
+                configName: 'kclustersInitializationCluster',
+                nextStep: 9,
+                svgPosition: { left: '44px', marginTop: '-35px' },
+                handleClick: () => {
+                  this.selectCluster({
+                    clusterID: selectedClusterID,
+                    rainbond_init: rainbondInit
+                  });
+                }
+              })
+            : ''}
           {showBuyClusterConfig && this.renderCreateClusterShow()}
           <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
             <Button onClick={this.preStep}>上一步</Button>
@@ -384,6 +463,22 @@ export default class EnterpriseClusters extends PureComponent {
             ) : (
               nextStepBtn
             )}
+            {next && guideStep === 9
+              ? this.handleNewbieGuiding({
+                  tit: '开始Rainbond集群服务',
+                  desc: '初始化安装',
+                  send: true,
+                  configName: 'kclustersInitializationCluster',
+                  nextStep: 10,
+                  conPosition: { left: '60%', bottom: '-24px' },
+                  svgPosition: { left: '54%', marginTop: '-11px' },
+                  handleClick: () => {
+                    if (!nextDisable) {
+                      this.startInit();
+                    }
+                  }
+                })
+              : ''}
           </Col>
           {showTaskDetail && lastTask && (
             <ShowKubernetesCreateDetail

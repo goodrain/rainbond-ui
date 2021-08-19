@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle */
+import NewbieGuiding from '@/components/NewbieGuiding';
 import {
   Alert,
   Button,
@@ -23,6 +24,7 @@ export default class SetRegionConfig extends PureComponent {
     this.state = {
       loading: true,
       configs: {},
+      guideStep: 13,
       task: null
     };
   }
@@ -145,11 +147,38 @@ export default class SetRegionConfig extends PureComponent {
       }
     });
   };
-
+  handleNewbieGuiding = info => {
+    const { prevStep, nextStep, handleClick = () => {} } = info;
+    return (
+      <NewbieGuiding
+        {...info}
+        totals={14}
+        handlePrev={() => {
+          if (prevStep) {
+            this.handleGuideStep(prevStep);
+          }
+        }}
+        handleClose={() => {
+          this.handleGuideStep('close');
+        }}
+        handleNext={() => {
+          if (nextStep) {
+            handleClick();
+            this.handleGuideStep(nextStep);
+          }
+        }}
+      />
+    );
+  };
+  handleGuideStep = guideStep => {
+    this.setState({
+      guideStep
+    });
+  };
   render() {
-    const { selectProvider } = this.props;
-    const { configs, loading, commitloading } = this.state;
-    const { getFieldDecorator } = this.props.form;
+    const { selectProvider, form } = this.props;
+    const { configs, loading, commitloading, guideStep } = this.state;
+    const { getFieldDecorator } = form;
     let clusterTitle;
     switch (selectProvider) {
       case 'ack':
@@ -167,6 +196,13 @@ export default class SetRegionConfig extends PureComponent {
       default:
         clusterTitle = '自建集群';
     }
+    const highlighted = {
+      position: 'relative',
+      zIndex: 1000,
+      padding: '0 16px',
+      margin: '0 -16px',
+      background: '#fff'
+    };
     return (
       <Form>
         <Card loading={loading} bordered={false} style={{ padding: '0 16px' }}>
@@ -195,7 +231,7 @@ export default class SetRegionConfig extends PureComponent {
           <Row style={{ marginTop: '32px' }}>
             <h4>集群设置</h4>
           </Row>
-          <Row>
+          <Row style={guideStep === 13 ? highlighted : {}}>
             <Col span={6} style={{ paddingRight: '16px' }}>
               <Form.Item label="集群ID">
                 {getFieldDecorator('region_name', {
@@ -225,6 +261,16 @@ export default class SetRegionConfig extends PureComponent {
               </Form.Item>
             </Col>
           </Row>
+          {guideStep === 13 &&
+            this.handleNewbieGuiding({
+              tit: '集群服务已经安装成功了',
+              desc: '请输入集群设置信息',
+              send: false,
+              configName: 'clusterDocking',
+              showSvg: false,
+              showArrow: true,
+              nextStep: 14
+            })}
           <Row>
             <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
               <Button
@@ -235,6 +281,21 @@ export default class SetRegionConfig extends PureComponent {
               >
                 对接
               </Button>
+              {guideStep === 14 &&
+                this.handleNewbieGuiding({
+                  tit: '集群设置配置完成后请开始对接',
+                  btnText: '对接',
+                  send: true,
+                  configName: 'clusterDocking',
+                  nextStep: 15,
+                  handleClick: () => {
+                    if (configs.apiAddress) {
+                      this.createClusters();
+                    }
+                  },
+                  conPosition: { left: '50%', bottom: '-138px' },
+                  svgPosition: { left: '50%', marginTop: '-11px' }
+                })}
             </Col>
           </Row>
         </Card>
