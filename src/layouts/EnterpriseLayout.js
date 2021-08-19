@@ -140,15 +140,10 @@ class EnterpriseLayout extends PureComponent {
       },
       callback: res => {
         const adminer = userUtil.isCompanyAdmin(currentUser);
-        const currentAddress = window.location.href;
-        if (
-          res &&
-          res.list &&
-          res.list.length === 0 &&
-          adminer &&
-          currentAddress.indexOf(`/enterprise/${eid}/provider/`) === -1
-        ) {
-          dispatch(routerRedux.push(`/enterprise/${eid}/addCluster?init=true`));
+        if (res && res.list && res.list.length === 0 && adminer) {
+          dispatch(
+            routerRedux.push(`/enterprise/${eid}/shared/local?init=true`)
+          );
         }
       }
     });
@@ -233,17 +228,36 @@ class EnterpriseLayout extends PureComponent {
   handlePutLog = (rainbondInfo, item) => {
     globalUtil.putLog(Object.assign(rainbondInfo, item));
   };
+  getNewbieGuideConfig = eid => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchNewbieGuideConfig',
+      callback: res => {
+        const isNext = rainbondUtil.handleNewbie(res && res.list, 'welcome');
+        if (isNext) {
+          this.loadClusters(eid);
+        }
+      }
+    });
+  };
   fetchEnterpriseInfo = eid => {
     if (!eid) {
       return null;
     }
     const { dispatch } = this.props;
     // this.fetchEnterpriseService(eid);
-    this.loadClusters(eid);
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
         enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.bean) {
+          const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(res.bean);
+          if (isNewbieGuide) {
+            this.getNewbieGuideConfig(eid);
+          }
+        }
       }
     });
   };
@@ -274,7 +288,6 @@ class EnterpriseLayout extends PureComponent {
       enterprise,
       showAuthCompany
     } = this.props;
-
     const { enterpriseList, enterpriseInfo, ready } = this.state;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const BillingFunction = rainbondUtil.isEnableBillingFunction();

@@ -2,6 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/alt-text */
+import NewbieGuiding from '@/components/NewbieGuiding';
 import {
   Button,
   Checkbox,
@@ -22,7 +23,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import NoComponent from '../../../public/images/noComponent.png';
 import AuthCompany from '../../components/AuthCompany';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -31,11 +32,13 @@ import CreateAppModels from '../../components/CreateAppModels';
 import CreateHelmAppModels from '../../components/CreateHelmAppModels';
 import DeleteApp from '../../components/DeleteApp';
 import HelmAppMarket from '../../components/HelmAppMarket';
+import PlatformIntroduced from '../../components/Introduced/PlatformIntroduced';
 import Lists from '../../components/Lists';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { fetchMarketMap } from '../../utils/authority';
 import globalUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
 import ExportOperation from './ExportOperation';
 import styles from './index.less';
@@ -46,6 +49,7 @@ const { Search } = Input;
 
 @connect(({ user, global, loading }) => ({
   user: user.currentUser,
+  novices: global.novices,
   enterprise: global.enterprise,
   upAppMarketLoading: loading.effects['market/upAppMarket'],
   createAppMarketLoading: loading.effects['market/createAppMarket']
@@ -57,11 +61,16 @@ export default class EnterpriseShared extends PureComponent {
       user,
       match: {
         params: { marketName }
-      }
+      },
+      location: {
+        query: { init }
+      },
+      novices,
+      enterprise
     } = this.props;
-
     const appStoreAdmin = userUtil.isPermissions(user, 'app_store');
     this.state = {
+      isNewbieGuide: rainbondUtil.isEnableNewbieGuide(enterprise),
       marketPag: {
         pageSize: 10,
         total: 0,
@@ -74,6 +83,7 @@ export default class EnterpriseShared extends PureComponent {
         page: 1,
         query: ''
       },
+      guideStep: 1,
       pageSize: 10,
       total: 0,
       page: 1,
@@ -105,7 +115,8 @@ export default class EnterpriseShared extends PureComponent {
       marketList: [],
       marketTab: [],
       helmTab: [],
-      activeTabKey: marketName || 'local',
+      initShow: init && rainbondUtil.handleNewbie(novices, 'welcome'),
+      activeTabKey: init ? '' : marketName || 'local',
       marketInfo: false,
       helmInfo: false,
       upAppMarket: false,
@@ -113,7 +124,8 @@ export default class EnterpriseShared extends PureComponent {
       showCloudMarketAuth: false,
       showApp: {},
       showMarketAppDetail: false,
-      appTypes: false
+      appTypes: false,
+      isClusters: false
     };
   }
   componentDidMount() {
@@ -144,9 +156,9 @@ export default class EnterpriseShared extends PureComponent {
     );
   };
 
-  onChangeBounced = checkedValues => {
+  onChangeBounced = chooseVersion => {
     this.setState({
-      chooseVersion: checkedValues
+      chooseVersion
     });
   };
 
@@ -195,7 +207,7 @@ export default class EnterpriseShared extends PureComponent {
     const isArr = arr && arr.length > 0;
     const isHelms = helms && helms.length > 0;
     const showCloudMarketAuth =
-      (isArr && arr[0].access_key === '' && arr[0].domain === 'rainbond') ||
+      // (isArr && arr[0].access_key === '' && arr[0].domain === 'rainbond') ||
       false;
     this.setState(
       {
@@ -295,8 +307,12 @@ export default class EnterpriseShared extends PureComponent {
       dispatch,
       match: {
         params: { eid }
+      },
+      location: {
+        query: { init }
       }
     } = this.props;
+    const { activeTabKey } = this.state;
     dispatch({
       type: 'market/fetchMarketsTab',
       payload: {
@@ -304,16 +320,17 @@ export default class EnterpriseShared extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          const list = res.list || [];
           this.setState(
             {
-              marketTab: res.list
+              marketTab: list
             },
             () => {
-              if (ID) {
-                this.onTabChange(ID);
-              }
-              if (first) {
-                this.onTabChange(this.state.activeTabKey);
+              if (ID || init || (first && activeTabKey)) {
+                const marketID = init && list && list.length && list[0].ID;
+                const activeID = first && activeTabKey;
+                const setID = marketID || activeID || ID;
+                this.onTabChange(setID || ID);
               }
             }
           );
@@ -329,6 +346,7 @@ export default class EnterpriseShared extends PureComponent {
         params: { eid }
       }
     } = this.props;
+    const { activeTabKey } = this.state;
     dispatch({
       type: 'market/fetchHelmMarketsTab',
       payload: {
@@ -341,11 +359,8 @@ export default class EnterpriseShared extends PureComponent {
               helmTab: Array.isArray(res) ? res : []
             },
             () => {
-              if (ID) {
-                this.onTabChange(ID);
-              }
-              if (first) {
-                this.onTabChange(this.state.activeTabKey);
+              if (ID || (first && activeTabKey)) {
+                this.onTabChange(ID || activeTabKey);
               }
             }
           );
@@ -478,13 +493,30 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   load = () => {
+    this.loadClusters();
     this.getApps();
     this.getTags();
     this.getMarketsTab(false, true);
     this.getHelmMarketsTab(false, true);
     this.checkStoreHub();
   };
-
+  loadClusters = eid => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'region/fetchEnterpriseClusters',
+      payload: {
+        enterprise_id: eid,
+        check_status: 'no'
+      },
+      callback: res => {
+        if (res && res.list && res.list.length) {
+          this.setState({
+            isClusters: true
+          });
+        }
+      }
+    });
+  };
   handleSearchLocal = name => {
     this.setState(
       {
@@ -840,7 +872,7 @@ export default class EnterpriseShared extends PureComponent {
       showMarketAppDetail: false
     });
   };
-  handleLists = (types, managementMenu, item, pic, versions) => {
+  handleLists = (types, managementMenu, item, pic, versions, indexs) => {
     const {
       app_id: appId,
       describe,
@@ -853,138 +885,237 @@ export default class EnterpriseShared extends PureComponent {
     const defaulAppImg = globalUtil.fetchSvg('defaulAppImg');
     const isLocalsContent = types !== 'marketContent';
     const isHelmContent = types === 'helmContent';
+    const { guideStep, initShow, activeTabKey, marketInfo } = this.state;
     const helmInfo =
       isHelmContent && versions && versions.length > 0 && versions[0];
+    const isReadInstall =
+      marketInfo &&
+      marketInfo.access_actions &&
+      marketInfo.access_actions.length &&
+      marketInfo.access_actions.includes('ReadInstall');
     return (
-      <Lists
-        key={appId}
-        stylePro={{ marginBottom: '10px' }}
-        Cols={
-          <div
-            className={styles.h70}
-            onClick={e => {
-              e.stopPropagation();
-              if (types === 'localsContent') {
-                this.handleAppModel(item);
-              }
-            }}
-          >
-            <Col span={3} style={{ display: 'flex' }}>
-              {!isHelmContent && (
-                <div
-                  className={styles.lt}
-                  onClick={e => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <Tooltip title="安装量">
-                    <div title={installNumber}>
-                      {globalUtil.nFormatter(installNumber)}
-                    </div>
-                  </Tooltip>
-                </div>
-              )}
-              <div className={styles.imgs}>
-                {pic ? <img src={pic} alt="" /> : defaulAppImg}
-              </div>
-            </Col>
-            <Col span={13} className={styles.tits}>
-              <div>
-                <p>
-                  <a
+      <Fragment>
+        {!initShow &&
+          activeTabKey !== 'local' &&
+          guideStep === 1 &&
+          indexs === 0 &&
+          this.handleNewbieGuiding({
+            tit: '安装应用',
+            send: false,
+            configName: 'installApp',
+            desc:
+              '从应用商店安装应用是最简单的应用部署方式，后面你也可以很方便的将您的企业应用发布到应用商店中',
+            nextStep: 2,
+            conPosition: { right: 0, marginTop: '60px' },
+            svgPosition: { right: 0, marginTop: '27px' },
+            handleClick: () => {
+              this.installHelmApp(item, types);
+            }
+          })}
+        <Lists
+          key={appId}
+          stylePro={{ marginBottom: '10px' }}
+          Cols={
+            <div
+              className={styles.h70}
+              onClick={e => {
+                e.stopPropagation();
+                if (types === 'localsContent') {
+                  this.handleAppModel(item);
+                }
+              }}
+            >
+              <Col span={3} style={{ display: 'flex' }}>
+                {!isHelmContent && (
+                  <div
+                    className={styles.lt}
                     onClick={e => {
                       e.stopPropagation();
-                      this.showMarketAppDetail(item);
                     }}
                   >
-                    {appName || name}
-                  </a>
-                </p>
-                <p>
-                  <Tooltip
-                    placement="topLeft"
-                    title={(helmInfo && helmInfo.description) || describe}
-                  >
-                    {(helmInfo && helmInfo.description) || describe}
-                  </Tooltip>
-                </p>
-              </div>
-            </Col>
-            <Col span={3} className={styles.status}>
-              <div>
-                {devStatus && <p className={styles.dev_status}>{devStatus}</p>}
-                {versions && versions.length > 0 ? (
-                  <p className={styles.dev_version}>
-                    {isLocalsContent
-                      ? versions[isHelmContent ? 0 : versions.length - 1]
-                          .version
-                      : versions[0].app_version}
-                  </p>
-                ) : (
-                  <p className={styles.dev_version}>无版本</p>
+                    <Tooltip title="安装量">
+                      <div title={installNumber}>
+                        {globalUtil.nFormatter(installNumber)}
+                      </div>
+                    </Tooltip>
+                  </div>
                 )}
-              </div>
-            </Col>
-            <Col span={4} className={styles.tags}>
-              {tags &&
-                tags.length > 0 &&
-                tags.map((items, index) => {
-                  if (index > 2) {
-                    return null;
-                  }
-                  return (
-                    <div
-                      key={isLocalsContent ? items.tag_id : items}
-                      style={{ marginRight: '5px' }}
+                <div className={styles.imgs}>
+                  {pic ? <img src={pic} alt="" /> : defaulAppImg}
+                </div>
+              </Col>
+              <Col span={13} className={styles.tits}>
+                <div>
+                  <p>
+                    <a
+                      onClick={e => {
+                        e.stopPropagation();
+                        this.showMarketAppDetail(item);
+                      }}
                     >
-                      {isLocalsContent ? items.name : items}
-                    </div>
-                  );
-                })}
-              {tags && tags.length > 3 && (
-                <a
-                  style={{ marginLeft: '5px' }}
+                      {appName || name}
+                    </a>
+                  </p>
+                  <p>
+                    <Tooltip
+                      placement="topLeft"
+                      title={(helmInfo && helmInfo.description) || describe}
+                    >
+                      {(helmInfo && helmInfo.description) || describe}
+                    </Tooltip>
+                  </p>
+                </div>
+              </Col>
+              <Col span={3} className={styles.status}>
+                <div>
+                  {devStatus && (
+                    <p className={styles.dev_status}>{devStatus}</p>
+                  )}
+                  {versions && versions.length > 0 ? (
+                    <p className={styles.dev_version}>
+                      {isLocalsContent
+                        ? versions[isHelmContent ? 0 : versions.length - 1]
+                            .version
+                        : versions[0].app_version}
+                    </p>
+                  ) : (
+                    <p className={styles.dev_version}>无版本</p>
+                  )}
+                </div>
+              </Col>
+              <Col span={4} className={styles.tags}>
+                {tags &&
+                  tags.length > 0 &&
+                  tags.map((items, index) => {
+                    if (index > 2) {
+                      return null;
+                    }
+                    return (
+                      <div
+                        key={isLocalsContent ? items.tag_id : items}
+                        style={{ marginRight: '5px' }}
+                      >
+                        {isLocalsContent ? items.name : items}
+                      </div>
+                    );
+                  })}
+                {tags && tags.length > 3 && (
+                  <a
+                    style={{ marginLeft: '5px' }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      const customTags = isLocalsContent
+                        ? tags.map(items => items.name)
+                        : tags;
+                      this.handleOpenMoreTags(customTags);
+                    }}
+                  >
+                    更多
+                  </a>
+                )}
+              </Col>
+              <Col
+                span={1}
+                className={styles.tags}
+                style={{ justifyContent: 'center' }}
+              >
+                <div
+                  className={styles.installBox}
+                  style={{ background: '#fff' }}
                   onClick={e => {
                     e.stopPropagation();
-                    const customTags = isLocalsContent
-                      ? tags.map(items => items.name)
-                      : tags;
-                    this.handleOpenMoreTags(customTags);
+                    if (isReadInstall) {
+                      this.installHelmApp(item, types);
+                    } else {
+                      this.setState({
+                        showCloudMarketAuth: true
+                      });
+                    }
                   }}
                 >
-                  更多
-                </a>
-              )}
-            </Col>
-            <Col
-              span={1}
-              className={styles.tags}
-              style={{ justifyContent: 'center' }}
-            >
-              <div
-                className={styles.installBox}
-                style={{ background: '#fff' }}
-                onClick={e => {
-                  e.stopPropagation();
-                  this.installHelmApp(item, types);
-                }}
-              >
-                {globalUtil.fetchSvg('InstallApp')}
-                <div style={{ background: '#fff' }}>安装</div>
-              </div>
-            </Col>
-          </div>
-        }
-        overlay={managementMenu ? managementMenu(item) : null}
+                  {globalUtil.fetchSvg('InstallApp')}
+                  <div style={{ background: '#fff' }}>安装</div>
+                </div>
+              </Col>
+            </div>
+          }
+          overlay={managementMenu ? managementMenu(item) : null}
+        />
+      </Fragment>
+    );
+  };
+  handleNewbieGuiding = info => {
+    const { isClusters, marketInfo } = this.state;
+    const { prevStep, nextStep, handleClick = () => {} } = info;
+    const isReadInstall =
+      marketInfo &&
+      marketInfo.access_actions &&
+      marketInfo.access_actions.length &&
+      marketInfo.access_actions.includes('ReadInstall');
+
+    return (
+      <NewbieGuiding
+        {...info}
+        totals={2}
+        handleClose={() => {
+          this.handleGuideStep('close');
+        }}
+        handlePrev={() => {
+          if (prevStep) {
+            if (prevStep === 1) {
+              this.handleCancelupDataAppModel();
+            }
+            this.handleGuideStep(prevStep);
+          }
+        }}
+        handleNext={() => {
+          if (nextStep) {
+            if (nextStep === 2) {
+              if (isClusters) {
+                this.handleGuideStep(nextStep);
+                handleClick();
+                if (!isReadInstall) {
+                  this.setState({
+                    showCloudMarketAuth: true
+                  });
+                  return null;
+                }
+              } else {
+                this.handleGuideStep('Jump');
+              }
+              return null;
+            }
+            handleClick();
+            this.handleGuideStep(nextStep);
+          }
+        }}
       />
     );
   };
-
+  handleGuideStep = guideStep => {
+    this.setState({
+      guideStep
+    });
+  };
+  hideInitShow = () => {
+    this.putNewbieGuideConfig('welcome');
+    this.setState({ initShow: false });
+  };
+  putNewbieGuideConfig = configName => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/putNewbieGuideConfig',
+      payload: {
+        arr: [{ key: configName, value: true }]
+      }
+    });
+  };
   render() {
     const {
       match: {
         params: { eid }
       },
+      dispatch,
       upAppMarketLoading
     } = this.props;
 
@@ -1032,10 +1163,12 @@ export default class EnterpriseShared extends PureComponent {
       helmInfo,
       marketPag,
       helmPag,
-      seeTag
+      seeTag,
+      guideStep,
+      initShow,
+      isNewbieGuide
     } = this.state;
     const tagLists = tagList && tagList.length > 0 && tagList;
-
     const accessActions =
       marketInfo &&
       marketInfo.access_actions &&
@@ -1244,14 +1377,15 @@ export default class EnterpriseShared extends PureComponent {
             <Spin />
           </div>
         ) : componentList && componentList.length > 0 ? (
-          componentList.map(item => {
+          componentList.map((item, index) => {
             const { pic, versions_info: versions } = item;
             return this.handleLists(
               'localsContent',
               managementMenu,
               item,
               pic,
-              versions
+              versions,
+              index
             );
           })
         ) : (
@@ -1308,14 +1442,15 @@ export default class EnterpriseShared extends PureComponent {
             <Spin />
           </div>
         ) : marketList && marketList.length > 0 ? (
-          marketList.map(item => {
+          marketList.map((item, index) => {
             const { logo, versions } = item;
             return this.handleLists(
               'marketContent',
               null,
               item,
               logo,
-              versions
+              versions,
+              index
             );
           })
         ) : (
@@ -1353,14 +1488,15 @@ export default class EnterpriseShared extends PureComponent {
             <Spin />
           </div>
         ) : helmList && helmList.length > 0 ? (
-          helmList.map(item => {
+          helmList.map((item, index) => {
             const { versions } = item;
             return this.handleLists(
               'helmContent',
               null,
               item,
               versions && versions.length > 0 && versions[0].icon,
-              versions
+              versions,
+              index
             );
           })
         ) : (
@@ -1378,12 +1514,29 @@ export default class EnterpriseShared extends PureComponent {
         </div>
       </div>
     );
-
     return (
       <PageHeaderLayout
         title="应用市场管理"
         content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
       >
+        {initShow && isNewbieGuide && (
+          <PlatformIntroduced onCancel={this.hideInitShow} />
+        )}
+
+        {guideStep === 'Jump' &&
+          this.handleNewbieGuiding({
+            tit: '进行集群的安装',
+            desc: '当前暂无可用的计算资源，需要首先进行集群的安装',
+            send: true,
+            configName: 'installApp',
+            showSvg: false,
+            nextStep: 3,
+            btnText: '去安装',
+            conPosition: { right: 0, marginTop: '160px' },
+            handleClick: () => {
+              dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+            }
+          })}
         {showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}

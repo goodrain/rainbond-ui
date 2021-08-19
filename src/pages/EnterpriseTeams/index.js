@@ -4,6 +4,7 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable react/sort-comp */
 /* eslint-disable camelcase */
+import NewbieGuiding from '@/components/NewbieGuiding';
 import {
   Button,
   Card,
@@ -62,7 +63,8 @@ export default class EnterpriseTeams extends PureComponent {
       joinTeam: false,
       delTeamLoading: false,
       showOpenRegion: false,
-      initShow: false
+      initShow: false,
+      guideStep: 1
     };
   }
   componentDidMount() {
@@ -433,6 +435,46 @@ export default class EnterpriseTeams extends PureComponent {
     const { dispatch } = this.props;
     dispatch(routerRedux.push(`/team/${team_name}/region/${region}/index`));
   };
+  handleNewbieGuiding = info => {
+    const { prevStep, nextStep, jumpUrl = '' } = info;
+    const { dispatch } = this.props;
+    const { adminer } = this.state;
+    return (
+      <NewbieGuiding
+        {...info}
+        totals={2}
+        handleClose={() => {
+          this.handleGuideStep('close');
+        }}
+        handlePrev={() => {
+          if (prevStep) {
+            this.handleGuideStep(prevStep);
+          }
+        }}
+        handleNext={() => {
+          if (jumpUrl) {
+            dispatch(routerRedux.push(jumpUrl));
+          }
+          if (nextStep) {
+            if (nextStep === 2) {
+              if (adminer) {
+                this.onAddTeam();
+              } else {
+                this.onJoinTeam();
+              }
+            }
+            this.handleGuideStep(nextStep);
+          }
+        }}
+      />
+    );
+  };
+
+  handleGuideStep = guideStep => {
+    this.setState({
+      guideStep
+    });
+  };
 
   render() {
     const {
@@ -451,7 +493,8 @@ export default class EnterpriseTeams extends PureComponent {
       delTeamLoading,
       showCloseAllComponent,
       closeTeamComponentLoading,
-      initShow
+      initShow,
+      guideStep
     } = this.state;
 
     const request_join_team =
@@ -561,7 +604,7 @@ export default class EnterpriseTeams extends PureComponent {
     };
     const operation = (
       <Col span={7} style={{ textAlign: 'right' }} className={styles.btns}>
-        {adminer && (
+        {adminer ? (
           <Button
             type="primary"
             onClick={this.onAddTeam}
@@ -569,8 +612,7 @@ export default class EnterpriseTeams extends PureComponent {
           >
             创建团队
           </Button>
-        )}
-        {!adminer && (
+        ) : (
           <Button type="primary" onClick={this.onJoinTeam}>
             加入团队
           </Button>
@@ -845,6 +887,9 @@ export default class EnterpriseTeams extends PureComponent {
             enterprise_id={eid}
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
+            // guideStep={guideStep}
+            // handleNewbieGuiding={this.handleNewbieGuiding}
+            // handleGuideStep={this.handleGuideStep}
           />
         )}
         {this.state.showExitTeam && (

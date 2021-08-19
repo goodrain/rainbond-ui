@@ -12,7 +12,7 @@ import {
   Upload
 } from 'antd';
 import { connect } from 'dva';
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import apiconfig from '../../../config/api.config';
 import { fetchAppModelsTags, fetchOrganizations } from '../../services/market';
 import cookie from '../../utils/cookie';
@@ -464,17 +464,19 @@ class CreateAppModels extends PureComponent {
           className={styles.TelescopicModal}
           onOk={this.handleSubmit}
           onCancel={onCancel}
-          footer={[
-            <Button onClick={onCancel}> 取消 </Button>,
-            <Button
-              type="primary"
-              disabled={organizationsLoading || tagLoading}
-              onClick={this.handleSubmit}
-              loading={submitLoading}
-            >
-              确定
-            </Button>
-          ]}
+          footer={
+            <Fragment>
+              <Button onClick={onCancel}> 取消 </Button>
+              <Button
+                type="primary"
+                disabled={organizationsLoading || tagLoading}
+                onClick={this.handleSubmit}
+                loading={submitLoading}
+              >
+                确定
+              </Button>
+            </Fragment>
+          }
         >
           <Spin spinning={organizationsLoading || tagLoading}>
             <Form onSubmit={this.handleSubmit} layout="horizontal">

@@ -5,12 +5,22 @@
 /* eslint-disable react/sort-comp */
 /* eslint-disable prettier/prettier */
 import rainbondUtil from '@/utils/rainbond';
-import { Avatar, Dropdown, Icon, Layout, Menu, notification, Spin } from 'antd';
+import {
+  Avatar,
+  Dropdown,
+  Icon,
+  Layout,
+  Menu,
+  notification,
+  Popconfirm,
+  Spin
+} from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Debounce from 'lodash-decorators/debounce';
 import React, { PureComponent } from 'react';
 import userIcon from '../../../public/images/user-icon-small.png';
+import { setNewbieGuide } from '../../services/api';
 import ChangePassword from '../ChangePassword';
 import styles from './index.less';
 
@@ -26,11 +36,12 @@ const { Header } = Layout;
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
     super(props);
+    const { enterprise } = this.props;
     this.state = {
+      isNewbieGuide: false && rainbondUtil.isEnableNewbieGuide(enterprise),
       showChangePassword: false
     };
   }
-
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
     if (key === 'userCenter') {
@@ -70,19 +81,38 @@ export default class GlobalHeader extends PureComponent {
     const { dispatch, eid } = this.props;
     dispatch(routerRedux.push(`/enterprise/${eid}/orders/overviewService`));
   };
-
+  handlIsOpenNewbieGuide = () => {
+    const { eid, dispatch } = this.props;
+    setNewbieGuide({
+      enterprise_id: eid,
+      data: {
+        NEWBIE_GUIDE: { enable: false, value: '' }
+      }
+    }).then(() => {
+      notification.success({
+        message: '关闭成功'
+      });
+      dispatch({
+        type: 'global/fetchEnterpriseInfo',
+        payload: {
+          enterprise_id: eid
+        },
+        callback: info => {
+          if (info && info.bean) {
+            this.setState({
+              isNewbieGuide: rainbondUtil.isEnableNewbieGuide(info.bean)
+            });
+          }
+        }
+      });
+    });
+  };
   render() {
-    const {
-      currentUser,
-      customHeader,
-      rainbondInfo,
-      collapsed,
-      enterprise
-      // enterpriseServiceInfo
-    } = this.props;
+    const { currentUser, customHeader, rainbondInfo, collapsed } = this.props;
     if (!currentUser) {
       return null;
     }
+    const { isNewbieGuide } = this.state;
     const handleUserSvg = () => (
       <svg viewBox="0 0 1024 1024" width="13" height="13">
         <path
@@ -92,7 +122,6 @@ export default class GlobalHeader extends PureComponent {
         />
       </svg>
     );
-
     const handleEditSvg = () => (
       <svg width="15px" height="15px" viewBox="0 0 1024 1024">
         <path d="M626.9 248.2L148.2 726.9 92.1 932.3l204.6-57 480.5-480.5-150.3-146.6z m274.3-125.8c-41-41-107.5-41-148.5 0l-80.5 80.5L823.1 349l78.1-78.2c41-41 41-107.5 0-148.4zM415.1 932.3h452.2v-64.6H415.1v64.6z m193.8-193.8h258.4v-64.6H608.9v64.6z" />
@@ -137,6 +166,7 @@ export default class GlobalHeader extends PureComponent {
           style={{ color: '#ffffff', float: 'left' }}
           onClick={this.toggle}
         />
+
         {customHeader && customHeader()}
         <div className={styles.right}>
           {enterpriseEdition ? (
@@ -153,6 +183,23 @@ export default class GlobalHeader extends PureComponent {
             >
               开源版
             </a>
+          )}
+          {isNewbieGuide && (
+            <Popconfirm
+              title="是否要关闭新手引导功能、关闭后并无法开启此功能?"
+              onConfirm={this.handlIsOpenNewbieGuide}
+              okText="关闭"
+              cancelText="取消"
+            >
+              <a
+                className={styles.action}
+                style={{ color: '#fff' }}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                新手引导
+              </a>
+            </Popconfirm>
           )}
           {platformUrl && (
             <a

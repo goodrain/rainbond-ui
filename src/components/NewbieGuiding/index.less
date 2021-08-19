@@ -10,6 +10,12 @@
   height: 100%;
   z-index: 999 !important;
 }
+.caretUp {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  color: black;
+}
 #driverPopoverItem {
   position: absolute;
   background: rgb(41, 44, 53);
@@ -48,6 +54,7 @@
   text-align: left;
 }
 #driverPopoverItem .driverPopoverFooter {
+  float: right;
   display: flex;
   flex-direction: row;
   -webkit-box-pack: justify;
@@ -74,13 +81,22 @@
 .driverCloseBtn {
   float: left;
 }
+.closeSvg {
+  cursor: pointer;
+}
+.closeSvg,
 #driverPopoverItem .driverPopoverFooter .driverBtnGroup,
 #driverPopoverItem .driverPopoverFooter .driver-close-only-btn {
   float: right;
 }
-.driverPopoverFooter button {
+#driverPopoverItem .driverPopoverFooter .driverBtnGroup {
+  margin-left: 20px;
+}
+.driverPrevBtn,
+.driverNextBtn {
   display: inline-block;
   padding: 6px 16px !important;
+  min-width: 68px !important;
   text-decoration: none;
   text-shadow: 1px 1px 0 #fff;
   color: #2d2d2d;
@@ -119,6 +135,7 @@
   justify-content: space-between;
   -webkit-box-align: center;
   align-items: center;
+  margin-top: 10px;
 }
 .stepco {
   height: 4px;
