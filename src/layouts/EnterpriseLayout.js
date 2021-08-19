@@ -233,7 +233,6 @@ class EnterpriseLayout extends PureComponent {
     dispatch({
       type: 'global/fetchNewbieGuideConfig',
       callback: res => {
-        // console.log('fetchNewbieGuideConfig', res);
         const isNext = rainbondUtil.handleNewbie(res && res.list, 'welcome');
         if (isNext) {
           this.loadClusters(eid);
@@ -448,7 +447,6 @@ export default connect(({ user, global, index, loading }) => ({
   orders: global.orders,
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
-  enterprise: global.enterprise,
-  novices: global.novices
+  enterprise: global.enterprise
   // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))(EnterpriseLayout);

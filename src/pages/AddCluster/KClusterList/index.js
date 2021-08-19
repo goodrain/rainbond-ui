@@ -391,10 +391,17 @@ export default class EnterpriseClusters extends PureComponent {
     );
     let next = false;
     let selectedClusterID = '';
+    let rainbondInit = false;
+
     if (k8sClusters && k8sClusters.length) {
       k8sClusters.map(item => {
-        const { state, rainbond_init: rainbondInit } = item;
-        if (state === 'running' && rainbondInit) {
+        const { state } = item;
+        if (
+          state === 'running' ||
+          !linkedClusters.get(item.cluster_id) ||
+          !(item.parameters && item.parameters.DisableRainbondInit)
+        ) {
+          rainbondInit = item.rainbond_init;
           selectedClusterID = item.cluster_id;
           next = true;
         }
@@ -439,11 +446,11 @@ export default class EnterpriseClusters extends PureComponent {
                 send: false,
                 configName: 'kclustersInitializationCluster',
                 nextStep: 9,
-                svgPosition: { left: '44px', marginTop: '-47px' },
+                svgPosition: { left: '44px', marginTop: '-35px' },
                 handleClick: () => {
                   this.selectCluster({
                     clusterID: selectedClusterID,
-                    rainbond_init: true
+                    rainbond_init: rainbondInit
                   });
                 }
               })

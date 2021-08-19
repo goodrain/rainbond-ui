@@ -885,9 +885,14 @@ export default class EnterpriseShared extends PureComponent {
     const defaulAppImg = globalUtil.fetchSvg('defaulAppImg');
     const isLocalsContent = types !== 'marketContent';
     const isHelmContent = types === 'helmContent';
-    const { guideStep, initShow, activeTabKey } = this.state;
+    const { guideStep, initShow, activeTabKey, marketInfo } = this.state;
     const helmInfo =
       isHelmContent && versions && versions.length > 0 && versions[0];
+    const isReadInstall =
+      marketInfo &&
+      marketInfo.access_actions &&
+      marketInfo.access_actions.length &&
+      marketInfo.access_actions.includes('ReadInstall');
     return (
       <Fragment>
         {!initShow &&
@@ -1019,7 +1024,13 @@ export default class EnterpriseShared extends PureComponent {
                   style={{ background: '#fff' }}
                   onClick={e => {
                     e.stopPropagation();
-                    this.installHelmApp(item, types);
+                    if (isReadInstall) {
+                      this.installHelmApp(item, types);
+                    } else {
+                      this.setState({
+                        showCloudMarketAuth: true
+                      });
+                    }
                   }}
                 >
                   {globalUtil.fetchSvg('InstallApp')}
