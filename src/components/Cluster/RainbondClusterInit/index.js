@@ -249,6 +249,15 @@ export default class RainbondClusterInit extends PureComponent {
             background: '#fff'
           }
         : {};
+    const showComponent = (selectProvider === 'rke' ||
+      selectProvider === 'custom') && (
+      <Button
+        style={{ marginRight: '16px' }}
+        onClick={() => this.handleIsComponents(true)}
+      >
+        查看组件
+      </Button>
+    );
     return (
       <Form>
         <h4>注意事项：</h4>
@@ -353,6 +362,7 @@ export default class RainbondClusterInit extends PureComponent {
               <Button onClick={preStep} style={{ marginRight: '16px' }}>
                 上一步
               </Button>
+              {showComponent}
               <Button
                 onClick={() => {
                   this.setState({ showInitDetail: true });
@@ -367,6 +377,7 @@ export default class RainbondClusterInit extends PureComponent {
               <Button onClick={preStep} style={{ marginRight: '16px' }}>
                 上一步
               </Button>
+              {showComponent}
               <Button
                 loading={loading}
                 onClick={this.initRainbondCluster}
@@ -376,15 +387,6 @@ export default class RainbondClusterInit extends PureComponent {
               </Button>
             </Fragment>
           )}
-          {(selectProvider === 'rke' || selectProvider === 'custom') && (
-            <Button
-              type="primary"
-              style={{ marginLeft: '16px' }}
-              onClick={() => this.handleIsComponents(true)}
-            >
-              查看组件
-            </Button>
-          )}
           {guideStep === 11 &&
             this.handleNewbieGuiding({
               tit: '开始初始化',
@@ -392,8 +394,8 @@ export default class RainbondClusterInit extends PureComponent {
               send: true,
               configName: 'kclustersAttentionAttention',
               nextStep: 12,
-              conPosition: { left: '55%', bottom: '-39px' },
-              svgPosition: { left: '52%', marginTop: '-13px' },
+              conPosition: { left: '63%', bottom: '-39px' },
+              svgPosition: { left: '58%', marginTop: '-13px' },
               handleClick: () => {
                 this.initRainbondCluster();
               }

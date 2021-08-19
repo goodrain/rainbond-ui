@@ -259,6 +259,10 @@ export default class EnterpriseClusters extends PureComponent {
         totals={14}
         handleClose={() => {
           this.handleGuideStep('close');
+          this.selectCluster({
+            clusterID: '',
+            rainbond_init: false
+          });
         }}
         handlePrev={() => {
           if (prevStep) {
@@ -396,11 +400,7 @@ export default class EnterpriseClusters extends PureComponent {
     if (k8sClusters && k8sClusters.length) {
       k8sClusters.map(item => {
         const { state } = item;
-        if (
-          state === 'running' ||
-          !linkedClusters.get(item.cluster_id) ||
-          !(item.parameters && item.parameters.DisableRainbondInit)
-        ) {
+        if (state === 'running') {
           rainbondInit = item.rainbond_init;
           selectedClusterID = item.cluster_id;
           next = true;

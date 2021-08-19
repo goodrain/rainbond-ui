@@ -306,17 +306,7 @@ class CreateHelmAppModels extends PureComponent {
     });
   };
   render() {
-    const {
-      eid,
-      onCancel,
-      title,
-      appInfo,
-      form,
-      appTypes,
-      guideStep,
-      activeTabKey,
-      handleNewbieGuiding
-    } = this.props;
+    const { eid, onCancel, title, appInfo, form, appTypes } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
     const {
       regionList,
@@ -390,24 +380,6 @@ class CreateHelmAppModels extends PureComponent {
               >
                 确定
               </Button>
-              {activeTabKey &&
-                activeTabKey !== 'local' &&
-                guideStep &&
-                guideStep !== 3 &&
-                handleNewbieGuiding({
-                  tit: '确认安装',
-                  desc:
-                    '从应用商店安装应用是最简单的应用部署方式，后面你也可以很方便的将您的企业应用发布到应用商店中。',
-                  send: true,
-                  configName: 'installAppTemplate',
-                  nextStep: 3,
-                  btnText: '确认安装',
-                  conPosition: { right: '-160px', bottom: 0 },
-                  svgPosition: { left: '65%', marginTop: '-19px' },
-                  handleClick: () => {
-                    this.handleSubmit();
-                  }
-                })}
             </Fragment>
           }
         >

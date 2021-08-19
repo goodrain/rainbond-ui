@@ -1570,15 +1570,12 @@ export default class EnterpriseShared extends PureComponent {
         {installHelmApp && (
           <CreateHelmAppModels
             title="安装应用"
-            activeTabKey={activeTabKey}
             eid={eid}
             appTypes={appTypes}
             appInfo={appInfo}
             helmInfo={helmInfo}
             onOk={this.handleupDataAppModel}
             onCancel={this.handleCancelupDataAppModel}
-            guideStep={guideStep}
-            handleNewbieGuiding={this.handleNewbieGuiding}
           />
         )}
         {deleteAppMarket && (

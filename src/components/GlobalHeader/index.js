@@ -38,7 +38,7 @@ export default class GlobalHeader extends PureComponent {
     super(props);
     const { enterprise } = this.props;
     this.state = {
-      isNewbieGuide: rainbondUtil.isEnableNewbieGuide(enterprise),
+      isNewbieGuide: false && rainbondUtil.isEnableNewbieGuide(enterprise),
       showChangePassword: false
     };
   }
