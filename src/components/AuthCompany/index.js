@@ -35,14 +35,16 @@ const RadioGroup = Radio.Group;
 const { TabPane } = Tabs;
 const { Option } = Select;
 
-@connect(({ user, global }) => ({
+@connect(({ user, global, appControl }) => ({
   currUser: user.currentUser,
-  rainbondInfo: global.rainbondInfo
+  rainbondInfo: global.rainbondInfo,
+  appDetail: appControl.appDetail
 }))
 @Form.create()
 export default class Index extends PureComponent {
   constructor(post) {
     super(post);
+    this.iframe = null;
     this.state = {
       currStep: this.props.currStep || 0,
       loading: false,
@@ -51,12 +53,18 @@ export default class Index extends PureComponent {
       accessKey: '',
       activeKeyStore: 'rainbondStore',
       marketList: [],
-      checkedValues: []
+      checkedValues: [],
+      enterprise_alias: ''
     };
   }
   componentWillMount() {
+    console.log(this.props, 'props');
+    this.setState({
+      enterprise_alias: this.props.rainbondInfo.enterprise_alias
+    });
     // eslint-disable-next-line func-names
     window.addEventListener('message', res => {
+      console.log(res, 'ifram');
       if (res.data && res.data.accessKey) {
         return this.handleNextStep(3, res.data.accessKey);
       }
@@ -87,6 +95,7 @@ export default class Index extends PureComponent {
       type: 'market/fetchAppMarketInfo',
       payload,
       callback: res => {
+        console.log(res, 'res');
         if (res && res.status_code === 200) {
           if (res.list && res.list.url) {
             this.setState({
@@ -160,6 +169,7 @@ export default class Index extends PureComponent {
     });
   };
   handleIsCloudAppStoreUrl = url => {
+    // console.log(url, 'url');
     const { dispatch } = this.props;
     axios
       .get(`${url}/app-server/openapi/healthz`)
@@ -171,6 +181,7 @@ export default class Index extends PureComponent {
             loading: false,
             alertText: false
           });
+          this.iframe.contentWindow.postMessage({ name: '测试' }, '*');
         } else {
           this.handleNoCloudAppStoreUrl();
         }
@@ -307,7 +318,7 @@ export default class Index extends PureComponent {
       alertText,
       activeKeyStore
     } = this.state;
-
+    console.log(marketUrl, '应用市场商店');
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -377,7 +388,9 @@ export default class Index extends PureComponent {
                   style={{ marginBottom: '16px' }}
                 />
                 <iframe
-                  src={`${marketUrl}/certification/login`}
+                  ref={node => (this.iframe = node)}
+                  // src={`${marketUrl}/certification/login`}
+                  src={`http://0.0.0.0:8090/certification/login`}
                   style={{
                     width: '100%',
                     height: '400px'

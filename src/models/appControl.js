@@ -566,6 +566,7 @@ export default {
     },
     *fetchDetail({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getDetail, payload, handleError);
+      console.log(response, 'response');
       if (response) {
         yield put({ type: 'saveDetail', payload: response.bean });
         if (callback) {

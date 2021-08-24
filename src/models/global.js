@@ -408,6 +408,7 @@ export default {
     },
     *fetchRainbondInfo({ callback }, { call, put }) {
       const data = yield call(getRainbondInfo);
+      console.log(data, 'data');
       if (data) {
         cookie.set(
           'platform_url',
@@ -586,6 +587,7 @@ export default {
     },
     *fetchEnterpriseInfo({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseInfo, payload);
+      // console.log(response, 'response');
       if (response) {
         yield put({
           type: 'saveEnterpriseInfo',
@@ -872,6 +874,7 @@ export default {
       };
     },
     saveRainBondInfo(state, { payload }) {
+      console.log(payload, 'payload');
       return {
         ...state,
         rainbondInfo: payload,
