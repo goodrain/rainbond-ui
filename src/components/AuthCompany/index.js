@@ -35,10 +35,9 @@ const RadioGroup = Radio.Group;
 const { TabPane } = Tabs;
 const { Option } = Select;
 
-@connect(({ user, global, appControl }) => ({
+@connect(({ user, global }) => ({
   currUser: user.currentUser,
-  rainbondInfo: global.rainbondInfo,
-  appDetail: appControl.appDetail
+  rainbondInfo: global.rainbondInfo
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -54,22 +53,23 @@ export default class Index extends PureComponent {
       activeKeyStore: 'rainbondStore',
       marketList: [],
       checkedValues: [],
-      enterprise_alias: ''
+      enterprise_alias: this.props.rainbondInfo.enterprise_alias,
+      enterprise_id: this.props.rainbondInfo.enterprise_id,
+      real_name: this.props.currUser.real_name
     };
   }
   componentWillMount() {
-    console.log(this.props, 'props');
-    this.setState({
-      enterprise_alias: this.props.rainbondInfo.enterprise_alias
-    });
+    // this.setState({
+    //   enterprise_alias: this.props.rainbondInfo.enterprise_alias,
+    //   enterprise_id: this.props.rainbondInfo.enterprise_id,
+    //   real_name: this.props.currUser.real_name
+    // });
     // eslint-disable-next-line func-names
     window.addEventListener('message', res => {
-      console.log(res, 'ifram');
       if (res.data && res.data.accessKey) {
         return this.handleNextStep(3, res.data.accessKey);
       }
     });
-
     const { currStep } = this.props;
     if (currStep === 2) {
       this.setState({ loading: true }, () => {
@@ -168,8 +168,18 @@ export default class Index extends PureComponent {
       }
     });
   };
+  handleSendIframe = () => {
+    const { enterprise_alias, enterprise_id, real_name } = this.state;
+    this.iframe.onload = () => {
+      setTimeout(() => {
+        this.iframe.contentWindow.postMessage(
+          { enterprise_alias, enterprise_id, real_name },
+          '*'
+        );
+      }, 2000);
+    };
+  };
   handleIsCloudAppStoreUrl = url => {
-    // console.log(url, 'url');
     const { dispatch } = this.props;
     axios
       .get(`${url}/app-server/openapi/healthz`)
@@ -181,7 +191,7 @@ export default class Index extends PureComponent {
             loading: false,
             alertText: false
           });
-          this.iframe.contentWindow.postMessage({ name: '测试' }, '*');
+          this.handleSendIframe();
         } else {
           this.handleNoCloudAppStoreUrl();
         }
@@ -318,7 +328,6 @@ export default class Index extends PureComponent {
       alertText,
       activeKeyStore
     } = this.state;
-    console.log(marketUrl, '应用市场商店');
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -389,8 +398,7 @@ export default class Index extends PureComponent {
                 />
                 <iframe
                   ref={node => (this.iframe = node)}
-                  // src={`${marketUrl}/certification/login`}
-                  src={`http://0.0.0.0:8090/certification/login`}
+                  src={`${marketUrl}/certification/login`}
                   style={{
                     width: '100%',
                     height: '400px'
