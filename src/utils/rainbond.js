@@ -56,6 +56,12 @@ export default {
   isEnableAppstoreImageHub: (bean = {}) =>
     (bean && bean.appstore_image_hub && bean.appstore_image_hub.enable) ||
     false,
+  // 判断企业是否配置了监控
+  isEnableMonitoring: (bean = {}) =>
+    (bean && bean.visual_monitor && bean.visual_monitor.enable) || false,
+  // 获取监控信息
+  fetchMonitoring: (bean = {}) =>
+    (bean && bean.visual_monitor && bean.visual_monitor.value) || false,
   // 判断企业是否配置了新手引导
   isEnableNewbieGuide: (bean = {}) =>
     (bean && bean.newbie_guide && bean.newbie_guide.enable) || false,

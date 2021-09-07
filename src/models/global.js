@@ -93,6 +93,7 @@ import {
   toCreatUser,
   toEditCloudBackup,
   toEditImageHub,
+  toEditMonitorin,
   toEditOauth,
   toQueryLinks,
   toQueryTopology,
@@ -797,6 +798,12 @@ export default {
     },
     *editImageHub({ payload, callback }, { call }) {
       const response = yield call(toEditImageHub, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *editMonitorin({ payload, callback }, { call }) {
+      const response = yield call(toEditMonitorin, payload);
       if (callback) {
         callback(response);
       }
