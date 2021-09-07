@@ -52,7 +52,8 @@ export default class Index extends PureComponent {
           {type === 'link' ? (
             <a
               style={{ fontSize: '14px' }}
-              onClick={() => {
+              onClick={e => {
+                e.stopPropagation();
                 window.open(singleLink);
               }}
             >
@@ -60,8 +61,9 @@ export default class Index extends PureComponent {
             </a>
           ) : (
             <Button
-              type="primary"
-              onClick={() => {
+              type={type}
+              onClick={e => {
+                e.stopPropagation();
                 window.open(singleLink);
               }}
             >
@@ -87,6 +89,9 @@ export default class Index extends PureComponent {
                     <a
                       target="_blank"
                       rel="noreferrer"
+                      onClick={e => {
+                        e.stopPropagation();
+                      }}
                       href={
                         setUrl &&
                         (setUrl.includes('http') || setUrl.includes('https')
