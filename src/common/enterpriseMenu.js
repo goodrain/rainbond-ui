@@ -3,7 +3,7 @@ import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
 import { isUrl } from '../utils/utils';
 
-function menuData(eid, currentUser) {
+function menuData(eid, currentUser, enterprise) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
   const clusterSvg = (
     <i className="anticon">
@@ -47,6 +47,23 @@ function menuData(eid, currentUser) {
       </svg>
     </i>
   );
+  const monitoringSvg = (
+    <i className="anticon">
+      <svg viewBox="0 0 1024 1024" p-id="9673" width="20" height="20">
+        <path
+          d="M834.383448 34.109793H198.867862a141.241379 141.241379 0 0 0-141.241379 141.241379v496.357518a141.241379 141.241379 0 0 0 141.241379 141.241379H834.383448a141.241379 141.241379 0 0 0 141.24138-141.241379V175.351172a141.241379 141.241379 0 0 0-141.24138-141.241379z m-635.515586 70.62069H834.383448a70.62069 70.62069 0 0 1 70.62069 70.620689v496.357518a70.62069 70.62069 0 0 1-70.62069 70.620689H198.867862a70.62069 70.62069 0 0 1-70.62069-70.620689V175.351172a70.62069 70.62069 0 0 1 70.62069-70.620689z"
+          fill="#9CA2A8"
+          p-id="9674"
+        />
+        <path
+          d="M286.72 514.01269a35.310345 35.310345 0 0 1 35.310345 35.310344v99.751725a35.310345 35.310345 0 0 1-70.62069 0v-99.751725a35.310345 35.310345 0 0 1 35.310345-35.310344zM436.718345 456.951172a35.310345 35.310345 0 0 1 35.310345 35.310345v156.813242a35.310345 35.310345 0 1 1-70.62069 0v-156.777931a35.310345 35.310345 0 0 1 35.310345-35.310345zM586.752 483.116138a35.310345 35.310345 0 0 1 35.310345 35.310345v130.648276a35.310345 35.310345 0 1 1-70.62069 0v-130.648276a35.310345 35.310345 0 0 1 35.310345-35.310345zM736.785655 392.015448a35.310345 35.310345 0 0 1 35.310345 35.310345v221.748966a35.310345 35.310345 0 1 1-70.62069 0v-221.748966a35.310345 35.310345 0 0 1 35.310345-35.310345zM725.768828 202.575448a35.310345 35.310345 0 0 1 43.431724 55.507862l-3.531035 2.718897-143.289379 98.26869a35.310345 35.310345 0 0 1-28.601379 5.12l-4.131311-1.306483-144.948965-56.24938-152.293517 53.318621a35.310345 35.310345 0 0 1-43.431725-17.867034l-1.553655-3.813518a35.310345 35.310345 0 0 1 17.867035-43.431724l3.778207-1.553655 164.652138-57.555862a35.310345 35.310345 0 0 1 19.632551-1.094621l4.802207 1.483035L597.804138 290.251034l127.929379-87.675586zM837.278897 902.708966a35.310345 35.310345 0 0 1 4.13131 70.408827l-4.13131 0.211862h-632.055173a35.310345 35.310345 0 0 1-4.13131-70.373517l4.13131-0.247172h632.055173z"
+          fill="#9CA2A8"
+          p-id="9675"
+        />
+      </svg>
+    </i>
+  );
+
   const menuArr = [
     {
       name: '总览',
@@ -88,14 +105,45 @@ function menuData(eid, currentUser) {
         icon: 'user',
         path: `/enterprise/${eid}/users`,
         authority: ['admin', 'user']
-      },
-      {
-        name: '设置',
-        icon: 'setting',
-        path: `/enterprise/${eid}/setting`,
-        authority: ['admin', 'user']
       }
     );
+    if (
+      enterprise &&
+      rainbondUtil.isEnableMonitoring(enterprise) &&
+      rainbondUtil.fetchMonitoring(enterprise)
+    ) {
+      const menuMap = {
+        slo_monitor_suffix: 'SLO监控',
+        cluster_monitor_suffix: '集群监控',
+        node_monitor_suffix: '节点监控',
+        component_monitor_suffix: '组件监控'
+      };
+      const monitoringObj = rainbondUtil.fetchMonitoring(enterprise);
+      const seChildren = [];
+      Object.keys(monitoringObj).map(item => {
+        if (item !== 'home_url') {
+          seChildren.push({
+            name: menuMap[item],
+            path: `/${item}/dashboard`,
+            authority: ['admin', 'user']
+          });
+        }
+      });
+
+      menuArr.push({
+        name: '监控',
+        icon: monitoringSvg,
+        path: `/enterprise/${eid}/monitoring`,
+        authority: ['admin', 'user'],
+        children: seChildren
+      });
+    }
+    menuArr.push({
+      name: '设置',
+      icon: 'setting',
+      path: `/enterprise/${eid}/setting`,
+      authority: ['admin', 'user']
+    });
   }
 
   return menuArr;
@@ -123,7 +171,7 @@ function formatter(data, parentPath = '', parentAuthority) {
   });
 }
 
-export const getMenuData = (eid, currentUser) => {
-  const menus = formatter(menuData(eid, currentUser));
+export const getMenuData = (eid, currentUser, enterprise) => {
+  const menus = formatter(menuData(eid, currentUser, enterprise));
   return menus;
 };
