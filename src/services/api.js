@@ -1099,6 +1099,24 @@ export async function toEditImageHub(params) {
     }
   );
 }
+/** 修改监控信息 */
+export async function toEditMonitorin(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/visualmonitor`,
+    {
+      method: 'put',
+      data: {
+        enable: params.enable,
+        home_url: params.home_url,
+        cluster_monitor_suffix: params.cluster_monitor_suffix,
+        component_monitor_suffix: params.component_monitor_suffix,
+        slo_monitor_suffix: params.slo_monitor_suffix,
+        node_monitor_suffix: params.node_monitor_suffix
+      }
+    }
+  );
+}
+
 /** 修改云端备份配置 */
 export async function toEditCloudBackup(params) {
   return request(

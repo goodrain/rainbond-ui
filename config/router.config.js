@@ -71,6 +71,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/monitoring/:monitoringKey/dashboard',
+            component: './GrafanaDashboard',
+            name: 'GrafanaDashboard',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/clusters/:clusterID/dashboard',
             component: './EnterpriseClusterDashboard',
             name: 'EnterpriseClusterDashboard',
