@@ -352,19 +352,25 @@ export default class KubernetesClusterShow extends PureComponent {
                   对接
                 </Link>
               )}
-            {selectProvider !== 'custom' && (
+            {selectProvider !== 'rke' &&
+              row.create_log_path &&
+              row.create_log_path.startsWith('http') && (
+                <Button
+                  type="link"
+                  style={{ padding: 0 }}
+                  onClick={() => {
+                    window.open(row.create_log_path, '_blank');
+                  }}
+                >
+                  查看日志
+                </Button>
+              )}
+            {selectProvider === 'rke' && (
               <Button
                 type="link"
                 style={{ padding: 0 }}
                 onClick={() => {
-                  if (
-                    row.create_log_path &&
-                    row.create_log_path.startsWith('http')
-                  ) {
-                    window.open(row.create_log_path, '_blank');
-                  } else {
-                    this.queryCreateLog(row);
-                  }
+                  this.queryCreateLog(row);
                 }}
               >
                 查看日志

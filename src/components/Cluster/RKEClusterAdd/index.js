@@ -793,7 +793,7 @@ export default class RKEClusterConfig extends PureComponent {
             <Col span={24} style={{ padding: '16px' }}>
               <Paragraph
                 className={styles.describe}
-                style={guideStep && guideStep === 3 && highlighted}
+                style={(guideStep && guideStep === 3 && highlighted) || {}}
               >
                 <ul>
                   <li>
@@ -851,9 +851,10 @@ export default class RKEClusterConfig extends PureComponent {
                 <Form.Item
                   label="集群名称"
                   style={
-                    guideStep &&
-                    guideStep === 4 &&
-                    Object.assign({}, { padding: '0 16px' }, highlighted)
+                    (guideStep &&
+                      guideStep === 4 &&
+                      Object.assign({}, { padding: '0 16px' }, highlighted)) ||
+                    {}
                   }
                 >
                   {getFieldDecorator('name', {
@@ -900,9 +901,14 @@ export default class RKEClusterConfig extends PureComponent {
                     <Form.Item
                       label="节点列表"
                       style={
-                        guideStep &&
-                        guideStep === 5 &&
-                        Object.assign({}, { padding: '0 16px' }, highlighted)
+                        (guideStep &&
+                          guideStep === 5 &&
+                          Object.assign(
+                            {},
+                            { padding: '0 16px' },
+                            highlighted
+                          )) ||
+                        {}
                       }
                     >
                       {getFieldDecorator('nodeLists', {
