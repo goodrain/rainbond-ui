@@ -77,7 +77,7 @@ class Index extends PureComponent {
         <Form.Item
           {...formItemLayout}
           label="启动命令"
-          help="构建的二进制都将置于bin目录下，启动命令示例: bin/xxx-server "
+          help="构建的二进制都将置于bin目录下，启动命令示例: web: bin/xxx-server "
         >
           {getFieldDecorator('BUILD_PROCFILE', {
             initialValue: (envs && envs.BUILD_PROCFILE) || ''
