@@ -113,7 +113,7 @@ export default class MonitoringForm extends PureComponent {
               ]
             })(<Input placeholder="请输入组件监控" />)}
           </FormItem>
-          <FormItem style={monitoringObj} {...formItemLayout} label="SLO监控">
+          <FormItem style={monitoringObj} {...formItemLayout} label="服务监控">
             {getFieldDecorator('slo_monitor_suffix', {
               initialValue: data.slo_monitor_suffix || '',
               rules: [
@@ -122,7 +122,7 @@ export default class MonitoringForm extends PureComponent {
                   message: '最大长度255位'
                 }
               ]
-            })(<Input placeholder="请输入SLO监控" />)}
+            })(<Input placeholder="请输入服务监控" />)}
           </FormItem>
           {advancedConfiguration && (
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
