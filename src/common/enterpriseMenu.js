@@ -113,7 +113,7 @@ function menuData(eid, currentUser, enterprise) {
       rainbondUtil.fetchMonitoring(enterprise)
     ) {
       const menuMap = {
-        slo_monitor_suffix: 'SLO监控',
+        slo_monitor_suffix: '服务监控',
         cluster_monitor_suffix: '集群监控',
         node_monitor_suffix: '节点监控',
         component_monitor_suffix: '组件监控'
