@@ -84,8 +84,10 @@ export default class Index extends PureComponent {
   }
   // 组件销毁停止计时器
   componentWillUnmount() {
-    // 组件销毁时,清除定时器
+    // 组件销毁时,清除应用列表定时器
     this.handleClearTimeout(this.loadHotAppTimer);
+    // 组件销毁  清除团队下资源的定时器
+    this.handleClearTimeout(this.loadTeamTimer);
   }
   // 加载团队应用和组件的图表
   loadTeamAppEcharts = () => {
@@ -256,7 +258,7 @@ export default class Index extends PureComponent {
           // hoverAnimation: false,
           data: [
             {
-              value: index.overviewInfo.running_app_num,
+              value: index.overviewInfo.running_component_num,
               name: '已用',
               itemStyle: {
                 normal: {
@@ -276,8 +278,8 @@ export default class Index extends PureComponent {
             {
               name: '未用',
               value:
-                index.overviewInfo.team_app_num -
-                index.overviewInfo.running_app_num
+                index.overviewInfo.team_service_num -
+                index.overviewInfo.running_component_num
             }
           ]
         }
@@ -329,7 +331,9 @@ export default class Index extends PureComponent {
   // 获取团队下的基本信息
   loadOverview = () => {
     const { dispatch } = this.props;
-    this.setState({ loadingOverview: true });
+    if (!this['loadTeamTimer']) {
+      this.setState({ loadingOverview: true });
+    }
     dispatch({
       type: 'index/fetchOverview',
       payload: {
@@ -345,8 +349,18 @@ export default class Index extends PureComponent {
               // 加载echarts图表
               this.loadTeamAppEcharts();
               // 加载热门应用模块
-              this.loadHotApp();
+              if (!this['loadHotAppTimer']) {
+                this.loadHotApp();
+              }
             }
+          );
+          // 每隔10s获取最新的团队下的资源
+          this.handleTimers(
+            'loadTeamTimer',
+            () => {
+              this.loadOverview();
+            },
+            10000
           );
         } else {
           this.handleCloseLoading();
@@ -415,7 +429,7 @@ export default class Index extends PureComponent {
       callback();
     }
   };
-  // 定时器获取最新的应用列表
+  // 定时器获取最新的接口数据
   handleTimers = (timerName, callback, times) => {
     this.handleTeamPermissions(() => {
       this[timerName] = setTimeout(() => {
@@ -451,7 +465,6 @@ export default class Index extends PureComponent {
       pageSizeOptions,
       createAppVisible
     } = this.state;
-
     const { index, dispatch } = this.props;
     // 当前团队名称
     const teamName = globalUtil.getCurrTeamName();
