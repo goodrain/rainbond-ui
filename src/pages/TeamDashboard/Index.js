@@ -57,8 +57,9 @@ export default class Index extends PureComponent {
       // 分页的总数据
       total: null,
       // 页面加载的loading
-      loadingOverview: false,
+      loadingOverview: true,
       loadedOverview: false,
+      loadingOfApp: true,
       // 热门应用查询参数
       page: 1,
       page_size: 12,
@@ -331,9 +332,6 @@ export default class Index extends PureComponent {
   // 获取团队下的基本信息
   loadOverview = () => {
     const { dispatch } = this.props;
-    if (!this['loadTeamTimer']) {
-      this.setState({ loadingOverview: true });
-    }
     dispatch({
       type: 'index/fetchOverview',
       payload: {
@@ -387,7 +385,8 @@ export default class Index extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({
             teamHotAppList: res.list,
-            total: res.bean && res.bean.total
+            total: res.bean && res.bean.total,
+            loadingOfApp: false
           });
           // 每隔10s获取最新的列表数据
           this.handleTimers(
@@ -463,7 +462,8 @@ export default class Index extends PureComponent {
       teamHotAppList,
       total,
       pageSizeOptions,
-      createAppVisible
+      createAppVisible,
+      loadingOfApp
     } = this.state;
     const { index, dispatch } = this.props;
     // 当前团队名称
@@ -473,6 +473,11 @@ export default class Index extends PureComponent {
     // 团队应用
     return (
       <Fragment>
+        <div className={styles.teamAppTitle}>
+          <span>{globalUtil.fetchSvg('teamViewTitle')}</span>
+          <h2 className={styles.topContainerTitle}>好雨科技Sass交付</h2>
+        </div>
+
         {/* 页面loading */}
         {loadingOverview && (
           <div style={{ textAlign: 'center', marginTop: '100px' }}>
@@ -480,215 +485,213 @@ export default class Index extends PureComponent {
           </div>
         )}
         {!loadingOverview && index.overviewInfo.region_health && (
-          <div>
-            <div className={styles.teamAppTitle}>
-              <span>{globalUtil.fetchSvg('teamViewTitle')}</span>
-              <h2 className={styles.topContainerTitle}>好雨科技Sass交付</h2>
-            </div>
-
-            <div className={styles.topContainer}>
-              {/* 应用 */}
-              <div>
-                <div className={styles.teamApp}>
-                  <h3 className={styles.teamAppTitle}>应用</h3>
-                  <div className={styles.teamAppContent}>
-                    {/* 图表 */}
-                    <div id="appEcharts" className={styles.appEcharts}></div>
-                    {/* 描述 */}
-                    <div className={styles.desc}>
-                      <div className={styles.activeApp}>
-                        <span>
-                          {globalUtil.fetchSvg(
-                            'teamAppActive',
-                            '#4f75af',
-                            '24'
-                          )}
-                        </span>
-                        <span
-                          className={styles.ellipsis}
-                          style={{ width: '100%' }}
-                        >
-                          {(index.overviewInfo &&
-                            index.overviewInfo.running_app_num) ||
-                            0}
-                          个运行的应用
-                        </span>
-                      </div>
-                      <div className={styles.defaultApp}>
-                        <span>
-                          {globalUtil.fetchSvg(
-                            'teamDefaultActive',
-                            '#cccccc',
-                            '24'
-                          )}
-                        </span>
-                        <span
-                          className={styles.ellipsis}
-                          style={{ width: '100%' }}
-                        >
-                          {index.overviewInfo.team_app_num -
-                            index.overviewInfo.running_app_num || 0}
-                          个未运行的应用
-                        </span>
-                      </div>
-                      <div className={styles.totalApp}>
-                        <span>
-                          共
-                          {(index.overviewInfo &&
-                            index.overviewInfo &&
-                            index.overviewInfo.team_app_num) ||
-                            0}
-                          个应用
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* 组件 */}
-              <div>
-                <div className={styles.teamApp}>
-                  <h3 className={styles.teamAppTitle}>组件</h3>
-                  <div className={styles.teamAppContent}>
-                    {/* 图表 */}
-                    <div
-                      id="componmentEcharts"
-                      className={styles.appEcharts}
-                    ></div>
-                    {/* 描述 */}
-                    <div className={styles.desc}>
-                      <div className={styles.activeApp}>
-                        <span>
-                          {globalUtil.fetchSvg(
-                            'teamAppActive',
-                            '#4f75af',
-                            '24'
-                          )}
-                        </span>
-                        <span
-                          className={styles.ellipsis}
-                          style={{ width: '100%' }}
-                        >
-                          {(index.overviewInfo &&
-                            index.overviewInfo.running_component_num) ||
-                            0}
-                          个运行的组件
-                        </span>
-                      </div>
-                      <div className={styles.defaultApp}>
-                        <span>
-                          {globalUtil.fetchSvg(
-                            'teamDefaultActive',
-                            '#cccccc',
-                            '24'
-                          )}
-                        </span>
-                        <span
-                          className={styles.ellipsis}
-                          style={{ width: '100%' }}
-                        >
-                          {index.overviewInfo.team_service_num -
-                            index.overviewInfo.running_component_num || 0}
-                          个未运行的组件
-                        </span>
-                      </div>
-                      <div className={styles.totalApp}>
-                        <span>
-                          共
-                          {(index.overviewInfo &&
-                            index.overviewInfo &&
-                            index.overviewInfo.team_service_num) ||
-                            0}
-                          个组件
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* 使用资源 */}
-              <div>
-                <div className={styles.teamDisk}>
-                  <h3 className={styles.teamDiskTitle}>使用资源</h3>
-                  <div className={styles.teamDiskContent}>
-                    <div>
-                      <div className={styles.save}>
-                        <div>
-                          <p style={{ marginBottom: '0px' }}>
-                            {this.handlUnit(
-                              index.overviewInfo.team_service_memory_count || 0
-                            )}
-                          </p>
-                          <span>
-                            {this.handlUnit(
-                              index.overviewInfo.team_service_memory_count || 0,
-                              'MB'
-                            )}
-                          </span>
-                        </div>
-                        <p style={{ marginBottom: '0px' }}>内存使用量</p>
-                      </div>
-                      <span className={styles.useLine}></span>
-                      <div className={styles.disk}>
-                        <div>
-                          <p style={{ marginBottom: '0px' }}>
-                            {this.handlUnit(
-                              index.overviewInfo.team_service_total_disk || 0
-                            )}
-                          </p>
-                          <span>
-                            {this.handlUnit(
-                              index.overviewInfo.team_service_total_disk || 0,
-                              'MB'
-                            )}
-                          </span>
-                        </div>
-                        <p style={{ marginBottom: '0px' }}>磁盘使用量</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* 用户数量 */}
-              <div>
-                <div className={styles.teamDisk}>
-                  <h3 className={styles.teamDiskTitle}>用户数量</h3>
-                  <div className={styles.teamDiskContent}>
-                    <div className={styles.userNum}>
-                      <p>
-                        {(index.overviewInfo && index.overviewInfo.user_nums) ||
+          <div className={styles.topContainer}>
+            {/* 应用 */}
+            <div>
+              <div className={styles.teamApp}>
+                <h3 className={styles.teamAppTitle}>应用</h3>
+                <div className={styles.teamAppContent}>
+                  {/* 图表 */}
+                  <div id="appEcharts" className={styles.appEcharts}></div>
+                  {/* 描述 */}
+                  <div className={styles.desc}>
+                    <div className={styles.activeApp}>
+                      <span>
+                        {globalUtil.fetchSvg('teamAppActive', '#4f75af', '24')}
+                      </span>
+                      <span
+                        className={styles.ellipsis}
+                        style={{ width: '100%' }}
+                      >
+                        {(index.overviewInfo &&
+                          index.overviewInfo.running_app_num) ||
                           0}
-                      </p>
-                      <span>个</span>
+                        个运行的应用
+                      </span>
+                    </div>
+                    <div className={styles.defaultApp}>
+                      <span>
+                        {globalUtil.fetchSvg(
+                          'teamDefaultActive',
+                          '#cccccc',
+                          '24'
+                        )}
+                      </span>
+                      <span
+                        className={styles.ellipsis}
+                        style={{ width: '100%' }}
+                      >
+                        {index.overviewInfo.team_app_num -
+                          index.overviewInfo.running_app_num || 0}
+                        个未运行的应用
+                      </span>
+                    </div>
+                    <div className={styles.totalApp}>
+                      <span>
+                        共
+                        {(index.overviewInfo &&
+                          index.overviewInfo &&
+                          index.overviewInfo.team_app_num) ||
+                          0}
+                        个应用
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            {/* 热门应用标题 */}
-            <div className={styles.teamHotAppTitle}>
-              <div className={styles.teamHotAppTitleLeft}>
-                <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
-                <h2>应用列表</h2>
-              </div>
-              <div className={styles.teamHotAppTitleSearch}>
-                <Search
-                  placeholder="请输入应用名称进行搜索"
-                  onSearch={this.onSearch}
-                  allowClear
-                  style={{ width: 400 }}
-                />
-                <span
-                  onClick={() => {
-                    this.setState({ createAppVisible: true });
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  新建应用
-                </span>
+            {/* 组件 */}
+            <div>
+              <div className={styles.teamApp}>
+                <h3 className={styles.teamAppTitle}>组件</h3>
+                <div className={styles.teamAppContent}>
+                  {/* 图表 */}
+                  <div
+                    id="componmentEcharts"
+                    className={styles.appEcharts}
+                  ></div>
+                  {/* 描述 */}
+                  <div className={styles.desc}>
+                    <div className={styles.activeApp}>
+                      <span>
+                        {globalUtil.fetchSvg('teamAppActive', '#4f75af', '24')}
+                      </span>
+                      <span
+                        className={styles.ellipsis}
+                        style={{ width: '100%' }}
+                      >
+                        {(index.overviewInfo &&
+                          index.overviewInfo.running_component_num) ||
+                          0}
+                        个运行的组件
+                      </span>
+                    </div>
+                    <div className={styles.defaultApp}>
+                      <span>
+                        {globalUtil.fetchSvg(
+                          'teamDefaultActive',
+                          '#cccccc',
+                          '24'
+                        )}
+                      </span>
+                      <span
+                        className={styles.ellipsis}
+                        style={{ width: '100%' }}
+                      >
+                        {index.overviewInfo.team_service_num -
+                          index.overviewInfo.running_component_num || 0}
+                        个未运行的组件
+                      </span>
+                    </div>
+                    <div className={styles.totalApp}>
+                      <span>
+                        共
+                        {(index.overviewInfo &&
+                          index.overviewInfo &&
+                          index.overviewInfo.team_service_num) ||
+                          0}
+                        个组件
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            {/* app list */}
+            {/* 使用资源 */}
+            <div>
+              <div className={styles.teamDisk}>
+                <h3 className={styles.teamDiskTitle}>使用资源</h3>
+                <div className={styles.teamDiskContent}>
+                  <div>
+                    <div className={styles.save}>
+                      <div>
+                        <p style={{ marginBottom: '0px' }}>
+                          {this.handlUnit(
+                            index.overviewInfo.team_service_memory_count || 0
+                          )}
+                        </p>
+                        <span>
+                          {this.handlUnit(
+                            index.overviewInfo.team_service_memory_count || 0,
+                            'MB'
+                          )}
+                        </span>
+                      </div>
+                      <p style={{ marginBottom: '0px' }}>内存使用量</p>
+                    </div>
+                    <span className={styles.useLine}></span>
+                    <div className={styles.disk}>
+                      <div>
+                        <p style={{ marginBottom: '0px' }}>
+                          {this.handlUnit(
+                            index.overviewInfo.team_service_total_disk || 0
+                          )}
+                        </p>
+                        <span>
+                          {this.handlUnit(
+                            index.overviewInfo.team_service_total_disk || 0,
+                            'MB'
+                          )}
+                        </span>
+                      </div>
+                      <p style={{ marginBottom: '0px' }}>磁盘使用量</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* 用户数量 */}
+            <div>
+              <div className={styles.teamDisk}>
+                <h3 className={styles.teamDiskTitle}>用户数量</h3>
+                <div className={styles.teamDiskContent}>
+                  <div className={styles.userNum}>
+                    <p>
+                      {(index.overviewInfo && index.overviewInfo.user_nums) ||
+                        0}
+                    </p>
+                    <span>个</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 热门应用标题 */}
+        <div className={styles.teamHotAppTitle}>
+          <div className={styles.teamHotAppTitleLeft}>
+            <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
+            <h2>应用列表</h2>
+          </div>
+          {!loadingOfApp && (
+            <div className={styles.teamHotAppTitleSearch}>
+              <Search
+                placeholder="请输入应用名称进行搜索"
+                onSearch={this.onSearch}
+                allowClear
+                style={{ width: 400 }}
+              />
+              <span
+                onClick={() => {
+                  this.setState({ createAppVisible: true });
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                新建应用
+              </span>
+            </div>
+          )}
+        </div>
+        {/* app list */}
+        {loadingOfApp && (
+          <div style={{ textAlign: 'center', marginTop: '100px' }}>
+            <Spin tip="Loading..." size="large" />
+          </div>
+        )}
+
+        {!loadingOfApp && (
+          <div>
             <div className={styles.teamHotAppList}>
               {/* 1 */}
               {teamHotAppList &&
@@ -799,7 +802,7 @@ export default class Index extends PureComponent {
               <Pagination
                 showSizeChanger
                 onShowSizeChange={this.handleChangePageSize}
-                defaultCurrent={1}
+                current={1}
                 defaultPageSize={12}
                 total={total}
                 pageSizeOptions={pageSizeOptions}
@@ -808,6 +811,7 @@ export default class Index extends PureComponent {
             </div>
           </div>
         )}
+
         {/* 新建应用 */}
         {createAppVisible && (
           <EditGroupName
