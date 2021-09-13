@@ -6,45 +6,29 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/sort-comp */
 import {
-  Badge,
   Button,
-  Card,
-  Col,
+  Empty,
   Form,
-  Icon,
   Input,
-  List,
-  Modal,
   notification,
   Pagination,
-  Row,
-  Spin,
-  Table,
-  Tooltip
+  Spin
 } from 'antd';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import moment from 'moment';
-import numeral from 'numeral';
 import React, { Fragment, PureComponent } from 'react';
-import { FormattedMessage } from 'umi-plugin-locale';
 import EditGroupName from '../../components/AddOrEditGroup';
-import { ChartCard, MiniArea } from '../../components/Charts';
-import NumberInfo from '../../components/NumberInfo';
 import Result from '../../components/Result';
-import { createEnterprise, createTeam } from '../../utils/breadcrumb';
-import configureGlobal from '../../utils/configureGlobal';
-import cookie from '../../utils/cookie';
+import VisterBtn from '../../components/visitBtnForAlllink';
 import globalUtil from '../../utils/global';
-import guideutil from '../../utils/guide';
-import rainbondUtil from '../../utils/rainbond';
-import roleUtil from '../../utils/role';
-import sourceUtil from '../../utils/source-unit';
 import userUtil from '../../utils/user';
 import styles from './Index.less';
-
 const { Search } = Input;
-
+const echarts = require('echarts');
+const appLogo = require('@/assets/teamAppLogo.svg');
+const defaultAppLogo = require('@/assets/application.png');
+const componentLogo = require('@/assets/teamComponentLogo.svg');
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   index,
@@ -60,222 +44,348 @@ const { Search } = Input;
 }))
 @Form.create()
 export default class Index extends PureComponent {
-  constructor(arg) {
-    super(arg);
+  constructor(props) {
+    super(props);
     this.state = {
-      addApplication: false,
-      teamAppList: [],
-      query: '',
+      // 团队应用的图表数据
+      appColorData: {
+        value: 70,
+        company: '%',
+        ringColor: [
+          {
+            offset: 0,
+            color: '#4f75af' // 0% 处的颜色
+          },
+          {
+            offset: 1,
+            color: '#4f75af' // 100% 处的颜色
+          }
+        ]
+      },
+      // 分页的总数据
+      total: null,
+      // 页面加载的loading
+      loadingOverview: true,
+      loadedOverview: false,
+      loadingOfApp: true,
+      // 热门应用查询参数
       page: 1,
-      page_size: 10,
-      total: 0,
-      domainList: [],
-      domainPage: 1,
-      domainPageSize: 5,
-      domainTotal: 0,
-      serviceList: [],
-      servicePage: 1,
-      servicePageSize: 5,
-      num: '',
-      visitData: [],
-      current: null,
-      guidevisible: false,
-      GuideList: [],
-      loadingOverview: false,
-      loadedOverview: false
+      page_size: 12,
+      query: '',
+      // 热门应用列表
+      teamHotAppList: [],
+      pageSizeOptions: [12, 16, 20, 24, 28],
+      // 新建应用显示与隐藏
+      createAppVisible: false,
+      emptyConfig: false,
+      searchVisible: false
     };
   }
-
-  componentWillMount() {
-    const { enterprise } = this.props;
-    if (rainbondUtil.newbieGuideEnable(enterprise)) {
-      this.getGuideState();
-    }
-  }
-
   componentDidMount() {
+    //  获取团队的权限
     const { currUser } = this.props;
     const teamPermissions = userUtil.getTeamByTeamPermissions(
       currUser.teams,
       globalUtil.getCurrTeamName()
     );
     if (teamPermissions && teamPermissions.length !== 0) {
+      // 加载团队下的资源
       this.loadOverview();
     }
   }
+  // 组件销毁停止计时器
   componentWillUnmount() {
-    this.handleClearTimeout(this.loadAppsTimer);
-    this.handleClearTimeout(this.loadOverviewTimer);
-    this.handleClearTimeout(this.getDomainTimer);
-    this.handleClearTimeout(this.getDomainNameTimer);
+    // 组件销毁时,清除应用列表定时器
+    this.handleClearTimeout(this.loadHotAppTimer);
+    // 组件销毁  清除团队下资源的定时器
+    this.handleClearTimeout(this.loadTeamTimer);
   }
-
-  onPageChange = (page, pageSize) => {
-    this.setState({ page, page_size: pageSize }, () => {
-      this.getTeamAppList();
-    });
-  };
-
-  onDomainPageChange = domainPage => {
-    this.setState({ domainPage }, () => {
-      this.getDomainName();
-    });
-  };
-
-  onServicePageChange = servicePage => {
-    this.setState({ servicePage }, () => {
-      this.getService();
-    });
-  };
-
-  // 热门访问服务
-  getService = () => {
-    const { servicePage, servicePageSize } = this.state;
-    this.props.dispatch({
-      type: 'global/getService',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName(),
-        page: servicePage,
-        page_size: servicePageSize
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            serviceList: res.list
-          });
+  // 加载团队应用和组件的图表
+  loadTeamAppEcharts = () => {
+    const { appColorData } = this.state;
+    const { index } = this.props;
+    // 1.创建实例对象
+    const myEcharts1 = echarts.init(document.querySelector('#appEcharts'));
+    const myEcharts2 = echarts.init(
+      document.querySelector('#componmentEcharts')
+    );
+    // 2. options配置项
+    const option1 = {
+      // 鼠标悬停
+      tooltip: {
+        show: true,
+        position: [50, 0],
+        fontSize: 10,
+        formatter: function(params) {
+          if (params.data.name === '已用') {
+            return `
+           <div>运行:${params.data.value}个</div>
+          `;
+          } else {
+            return `
+           <div>未运行:${params.data.value}个</div>
+          `;
+          }
         }
-      }
+      },
+      // 标题
+      title: {
+        text: '',
+        x: 'center',
+        y: 'center',
+        textStyle: {
+          fontWeight: 'normal',
+          color: 'red',
+          fontSize: '12'
+        }
+      },
+      // 标题是图片
+      graphic: {
+        type: 'image',
+        z: 6,
+        style: {
+          image: appLogo,
+          width: 50
+        },
+        left: 'center',
+        top: '30%'
+      },
+      color: ['#cccccc'],
+      legend: {
+        show: false,
+        data: []
+      },
+      // 数据
+      series: [
+        {
+          name: 'Line 1',
+          type: 'pie',
+          clockWise: true,
+          radius: ['40%', '60%'],
+          itemStyle: {
+            normal: {
+              label: {
+                show: false
+              },
+              labelLine: {
+                show: false
+              }
+            }
+          },
+          center: ['50%', '50%'],
+          // hoverAnimation: false,
+          data: [
+            {
+              value: index.overviewInfo.running_app_num,
+              name: '已用',
+              itemStyle: {
+                normal: {
+                  color: {
+                    // 完成的圆环的颜色
+                    colorStops: appColorData.ringColor
+                  },
+                  label: {
+                    show: false
+                  },
+                  labelLine: {
+                    show: false
+                  }
+                }
+              }
+            },
+            {
+              name: '未用',
+              value:
+                index.overviewInfo.team_app_num -
+                index.overviewInfo.running_app_num
+            }
+          ]
+        }
+      ]
+    };
+    const option2 = {
+      // 鼠标悬停
+      tooltip: {
+        show: true,
+        position: [50, 0],
+        fontSize: 10,
+        formatter: function(params) {
+          if (params.data.name === '已用') {
+            return `
+           <div>运行:${params.data.value}个</div>
+          `;
+          } else {
+            return `
+           <div>未运行:${params.data.value}个</div>
+          `;
+          }
+        }
+      },
+      // 标题
+      title: {
+        text: '',
+        x: 'center',
+        y: 'center',
+        textStyle: {
+          fontWeight: 'normal',
+          color: 'red',
+          fontSize: '12'
+        }
+      },
+      // 标题是图片
+      graphic: {
+        type: 'image',
+        z: 6,
+        style: {
+          image: componentLogo,
+          width: 40
+        },
+        left: 'center',
+        top: '34%'
+      },
+      color: ['#cccccc'],
+      legend: {
+        show: false,
+        data: []
+      },
+      // 数据
+      series: [
+        {
+          name: 'Line 1',
+          type: 'pie',
+          clockWise: true,
+          radius: ['40%', '60%'],
+          itemStyle: {
+            normal: {
+              label: {
+                show: false
+              },
+              labelLine: {
+                show: false
+              }
+            }
+          },
+          center: ['50%', '50%'],
+          // hoverAnimation: false,
+          data: [
+            {
+              value: index.overviewInfo.running_component_num,
+              name: '已用',
+              itemStyle: {
+                normal: {
+                  color: {
+                    // 完成的圆环的颜色
+                    colorStops: appColorData.ringColor
+                  },
+                  label: {
+                    show: false
+                  },
+                  labelLine: {
+                    show: false
+                  }
+                }
+              }
+            },
+            {
+              name: '未用',
+              value:
+                index.overviewInfo.team_service_num -
+                index.overviewInfo.running_component_num
+            }
+          ]
+        }
+      ]
+    };
+    // 3. 配置项和数据给实例化对象
+    myEcharts1.setOption(option1);
+    myEcharts2.setOption(option2);
+    // 4. 当我们浏览器缩放的时候，图表也等比例缩放
+    window.addEventListener('resize', function() {
+      // 让我们的图表调用 resize这个方法
+      myEcharts1.resize();
+      myEcharts2.resize();
     });
   };
-
-  getStartTime = () => {
-    return new Date().getTime() / 1000 - 60 * 60;
-  };
-  getStep = () => {
-    return 60;
-  };
-  handleSearchApp = query => {
+  // 搜索应用
+  onSearch = value => {
     this.setState(
       {
-        query,
-        page: 1
+        query: value,
+        loadingOfApp: true,
+        searchVisible: true
       },
       () => {
-        this.getTeamAppList();
+        this.loadHotApp();
       }
     );
   };
-  getDomain = () => {
-    const { domainPage, domainPageSize } = this.state;
-    this.props.dispatch({
-      type: 'global/getDomainName',
+  // pageSize变化的回调
+  handleChangePageSize = (current, size) => {
+    this.setState(
+      {
+        page_size: size,
+        loadingOfApp: true
+      },
+      () => {
+        this.loadHotApp();
+      }
+    );
+  };
+  // pageNum变化的回调
+  handleChangePage = (page, pageSize) => {
+    this.setState(
+      {
+        page,
+        loadingOfApp: true
+      },
+      () => {
+        this.loadHotApp();
+      }
+    );
+  };
+  // 获取团队下的基本信息
+  loadOverview = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'index/fetchOverview',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName(),
-        page: domainPage,
-        page_size: domainPageSize,
-        id: 0,
-        start: this.getStartTime(),
-        step: this.getStep(),
-        end: new Date().getTime() / 1000
+        region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
-        if (res && res.status_code === 200) {
-          const visitDatas =
-            res.bean &&
-            res.bean.data &&
-            res.bean.data.result &&
-            res.bean.data.result.length > 0 &&
-            res.bean.data.result[0].values &&
-            res.bean.data.result[0].values;
-          const arr = [];
-          if (visitDatas && visitDatas.length > 0) {
-            for (let i = 0; i < visitDatas.length; i += 1) {
-              arr.push({
-                x: moment(new Date(visitDatas[i][0] * 1000))
-                  .locale('zh-cn')
-                  .format('YYYY-MM-DD HH:mm'),
-                y: Math.floor(visitDatas[i][1])
-              });
-            }
-          }
+        if (res && res.bean && res.bean.region_health) {
           this.setState(
-            {
-              visitData: arr
-            },
+            { loadingOverview: false, loadedOverview: true },
             () => {
-              this.handleTimers(
-                'getDomainTimer',
-                () => {
-                  this.getDomain();
-                },
-                10000
-              );
+              const { index } = this.props;
+              // 加载echarts图表
+              this.loadTeamAppEcharts();
+              // 加载热门应用模块
+              if (!this['loadHotAppTimer']) {
+                this.loadHotApp();
+              }
             }
           );
+          // 每隔10s获取最新的团队下的资源
+          this.handleTimers(
+            'loadTeamTimer',
+            () => {
+              this.loadOverview();
+            },
+            10000
+          );
+        } else {
+          this.handleCloseLoading();
         }
       },
-      handleError: err => {
-        this.handleError(err);
-        this.handleTimers(
-          'getDomainTimer',
-          () => {
-            this.getDomain();
-          },
-          20000
-        );
+      handleError: () => {
+        this.handleCloseLoading();
       }
     });
   };
-
-  // 热门访问域名
-  getDomainName = () => {
-    const { domainPage, domainPageSize } = this.state;
-    this.props.dispatch({
-      type: 'global/getDomainName',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName(),
-        page: domainPage,
-        page_size: domainPageSize,
-        id: 1
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState(
-            {
-              domainTotal: res.bean && res.bean.total,
-              domainList: res.list,
-              num: res.bean && res.bean.total_traffic
-            },
-            () => {
-              this.handleTimers(
-                'getDomainNameTimer',
-                () => {
-                  this.getDomainName();
-                },
-                10000
-              );
-            }
-          );
-        }
-      },
-      handleError: err => {
-        this.handleError(err);
-        this.handleTimers(
-          'getDomainNameTimer',
-          () => {
-            this.getDomainName();
-          },
-          20000
-        );
-      }
-    });
-  };
-
-  getTeamAppList = () => {
-    const { page, page_size, query } = this.state;
+  // 加载热门应用数据源
+  loadHotApp = () => {
+    const { page, page_size, query, emptyConfig } = this.state;
     this.props.dispatch({
       type: 'global/getTeamAppList',
       payload: {
@@ -288,211 +398,47 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            teamAppList: res.list,
-            total: res.bean && res.bean.total
+            teamHotAppList: res.list,
+            total: res.bean && res.bean.total,
+            loadingOfApp: false,
+            emptyConfig: false,
+            searchVisible: false
           });
-        }
-      }
-    });
-  };
-
-  getGuideState = () => {
-    this.props.dispatch({
-      type: 'global/getGuideState',
-      payload: {
-        enterprise_id: this.props.currUser.enterprise_id
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          const { list } = res;
-          let current = 7;
-          list.filter((item, index) => {
-            if (!item.status) {
-              current = index;
-            }
-            return !item.status;
-          });
-
-          this.setState(
-            {
-              GuideList: res.list,
-              current
-            },
-            () => {
-              const isGuidevisible =
-                this.state.current === 7 ? false : !cookie.get('newbie_guide');
-              if (this.state.current !== 7 && !cookie.get('newbie_guide')) {
-                cookie.setGuide('newbie_guide', 'true');
-              }
-              this.setState({
-                guidevisible: isGuidevisible
-              });
-            }
-          );
-        }
-      }
-    });
-  };
-
-  getRegionResource() {
-    this.props.dispatch({
-      type: 'global/getRegionSource',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: this.props.currUser.enterprise_id,
-        region: globalUtil.getCurrRegionName()
-      }
-    });
-  }
-  getCompanyInfo = () => {
-    this.props.dispatch({
-      type: 'global/getCompanyInfo',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: this.props.currUser.enterprise_id
-      }
-    });
-  };
-
-  handleError = err => {
-    this.handleTeamPermissions(() => {
-      if (err && err.data && err.data.msg_show) {
-        notification.warning({
-          message: `警告`,
-          description: err.data.msg_show
-        });
-      }
-    });
-  };
-
-  handleTimers = (timerName, callback, times) => {
-    this.handleTeamPermissions(() => {
-      this[timerName] = setTimeout(() => {
-        callback();
-      }, times);
-    });
-  };
-
-  isPublicRegion() {
-    const region = userUtil.hasTeamAndRegion(
-      this.props.currUser,
-      globalUtil.getCurrTeamName(),
-      globalUtil.getCurrRegionName()
-    );
-    if (region) {
-      return region.region_scope === 'public';
-    }
-    return false;
-  }
-  handleClearTimeout = timer => {
-    if (timer) {
-      clearTimeout(timer);
-    }
-  };
-  loadOverview = () => {
-    const { dispatch } = this.props;
-    this.setState({ loadingOverview: true });
-    dispatch({
-      type: 'index/fetchOverview',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName()
-      },
-      callback: res => {
-        this.setState({ loadingOverview: false, loadedOverview: true });
-        if (res && res.bean && res.bean.region_health) {
-          dispatch({
-            type: 'global/setNouse',
-            payload: {
-              isNouse: false
-            }
-          });
-          this.loadApps();
-          this.getDomain();
-          this.getDomainName();
-          this.getTeamAppList();
-          this.getService();
-          this.loadEvents();
-          if (this.isPublicRegion()) {
-            this.getCompanyInfo();
-            this.getRegionResource();
-          }
-        }
-      },
-      handleError: err => {
-        this.setState({ loadingOverview: false, loadedOverview: true });
-        if (err && err.code === 10400) {
-          dispatch({
-            type: 'global/setNouse',
-            payload: {
-              isNouse: true
-            }
-          });
-        }
-        this.handleError(err);
-      }
-    });
-  };
-  loadEvents = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'index/fetchEvents',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        page: 1,
-        page_size: 5
-      }
-    });
-  };
-
-  loadApps = () => {
-    const { dispatch, form, index } = this.props;
-    const { pagination } = index;
-    let searchKey = {
-      searchKey: '',
-      service_status: ''
-    };
-    // 获取搜索信息
-    form.validateFields((err, fieldsValue) => {
-      searchKey = fieldsValue;
-    });
-
-    const payload = {
-      team_name: globalUtil.getCurrTeamName(),
-      region_name: globalUtil.getCurrRegionName(),
-      page: pagination.currentPage,
-      page_size: pagination.pageSize,
-      order: (pagination.order || '').replace('end', ''),
-      fields: pagination.fields,
-      ...searchKey
-    };
-
-    dispatch({
-      type: 'index/fetchApps',
-      payload,
-      callback: res => {
-        if (res && res.status_code === 200) {
+          // 每隔10s获取最新的列表数据
           this.handleTimers(
-            'loadAppsTimer',
+            'loadHotAppTimer',
             () => {
-              this.loadApps();
+              this.loadHotApp();
             },
             10000
           );
         }
-      },
-      handleError: err => {
-        this.handleError(err);
-        this.handleTimers(
-          'loadAppsTimer',
-          () => {
-            this.loadApps();
-          },
-          20000
-        );
+        if (res && res.list && res.list.length === 0 && query) {
+          this.setState({
+            emptyConfig: true
+          });
+        }
       }
     });
   };
+  // 计算资源大小和单位
+  handlUnit = (num, unit) => {
+    if (num || unit) {
+      let nums = num;
+      let units = unit;
+      if (nums >= 1024) {
+        nums = num / 1024;
+        units = 'GB';
+      }
+      return unit ? units : nums.toFixed(1);
+    }
+    return num;
+  };
+  // 关闭loading
+  handleCloseLoading = () => {
+    this.setState({ loadingOverview: false, loadedOverview: true });
+  };
+  // 加载当前团队的权限
   handleTeamPermissions = callback => {
     const { currUser } = this.props;
     const teamPermissions = userUtil.getTeamByTeamPermissions(
@@ -503,699 +449,428 @@ export default class Index extends PureComponent {
       callback();
     }
   };
-
-  renderActivities() {
-    const list = this.props.events || [];
-
-    if (!list.length) {
-      return (
-        <p
-          style={{
-            textAlign: 'center',
-            color: 'ccc',
-            paddingTop: 20
-          }}
-        >
-          暂无动态
-        </p>
-      );
-    }
-
-    return list.map(item => {
-      const {
-        UserName,
-        OptType,
-        FinalStatus,
-        Status,
-        create_time,
-        Target
-      } = item;
-
-      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-        item.service_alias
-      }/overview`;
-      return (
-        <List.Item key={item.ID}>
-          <List.Item.Meta
-            title={
-              <span>
-                <a className={styles.username}>{UserName}</a>
-                <span className={styles.event}>
-                  {' '}
-                  {globalUtil.fetchStateOptTypeText(OptType)}
-                </span>
-                &nbsp;
-                {Target && Target === 'service' && (
-                  <Link to={linkTo} className={styles.event}>
-                    {item.service_name}
-                  </Link>
-                )}
-                <span
-                  style={{
-                    color: globalUtil.fetchAbnormalcolor(OptType)
-                  }}
-                >
-                  {globalUtil.fetchOperation(FinalStatus, Status)}
-                </span>
-              </span>
-            }
-            description={
-              <span className={styles.datatime_float} title={item.updatedAt}>
-                {globalUtil.fetchdayTime(create_time)}
-                {/* {moment(item.start_time).fromNow()}{" "} */}
-              </span>
-            }
-          />
-        </List.Item>
-      );
+  // 定时器获取最新的接口数据
+  handleTimers = (timerName, callback, times) => {
+    this.handleTeamPermissions(() => {
+      this[timerName] = setTimeout(() => {
+        callback();
+      }, times);
     });
-  }
-
+  };
+  // 组件销毁 停止定时器
+  handleClearTimeout = timer => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  };
+  // OK
   handleOkApplication = () => {
-    const { dispatch } = this.props;
     notification.success({ message: '添加成功' });
     this.handleCancelApplication();
-    this.getTeamAppList();
+    // 重新加载页面数据
+    this.loadOverview();
   };
-
-  handleCancelApplication = () => [
+  // Cancel
+  handleCancelApplication = () => {
     this.setState({
-      addApplication: false
-    })
-  ];
-
-  handleOkGuidevisible = () => {
-    this.setState({
-      guidevisible: false
-    });
-  };
-  handleCancelGuidevisible = () => {
-    this.setState({
-      guidevisible: false
+      createAppVisible: false
     });
   };
   render() {
-    const columns = [
-      {
-        title: '域名',
-        dataIndex: 'metric',
-        key: 'metric',
-        width: '70%',
-        render: (_, record) => (
-          <Tooltip title={record.metric.host}>
-            <div
-              style={{
-                wordBreak: 'break-all',
-                wordWrap: 'break-word',
-                height: '38px',
-                lineHeight: '17px',
-                overflow: 'auto'
-              }}
-            >
-              <a href={`http://${record.metric.host}`} target="_blank">
-                {record.metric.host}
-              </a>
-            </div>
-          </Tooltip>
-        )
-      },
-      {
-        title: '请求量/时',
-        dataIndex: 'value',
-        key: 'value',
-        width: '30%',
-        render: (_, record) => (
-          <span
-            style={{
-              wordBreak: 'break-all',
-              wordWrap: 'break-word',
-              marginRight: 4,
-              display: 'inline-block'
-            }}
-          >
-            {record.value[1]}
-          </span>
-        ),
-        align: 'right'
-      }
-    ];
-
-    const columnTwo = [
-      {
-        title: '组件名称',
-        dataIndex: 'metric',
-        key: 'metric',
-        width: '65%',
-        render: (_, record) => (
-          <Link
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-              record.metric.service_alias
-            }`}
-          >
-            <Tooltip title={record.metric.service_cname}>
-              <a
-                style={{
-                  display: 'inline-block',
-                  wordBreak: 'break-all',
-                  wordWrap: 'break-word',
-                  height: '38px',
-                  lineHeight: '17px',
-                  overflow: 'auto'
-                }}
-              >
-                {record.metric.service_cname}{' '}
-              </a>
-            </Tooltip>
-          </Link>
-        )
-      },
-      {
-        title: '请求量/时',
-        dataIndex: 'value',
-        key: 'value',
-        width: '35%',
-        render: (_, record) => (
-          <span
-            style={{
-              display: 'inline-block',
-              marginRight: 4,
-              wordBreak: 'break-all',
-              wordWrap: 'break-word',
-              minHeight: '35px'
-            }}
-          >
-            {record.value[1]}
-          </span>
-        ),
-        align: 'right'
-      }
-    ];
+    const {
+      loadingOverview,
+      loadedOverview,
+      teamHotAppList,
+      total,
+      pageSizeOptions,
+      createAppVisible,
+      loadingOfApp,
+      page,
+      query,
+      emptyConfig,
+      searchVisible
+    } = this.state;
     const {
       index,
-      currentEnterprise,
-      currentTeam,
-      currentRegionName,
-      currentTeamPermissionsInfo
+      dispatch,
+      location: {
+        query: { team_alias }
+      }
     } = this.props;
-
-    const {
-      teamAppList,
-      GuideList,
-      domainList,
-      serviceList,
-      loadingOverview,
-      loadedOverview
-    } = this.state;
-
-    const isCreate = roleUtil.queryAppInfo(
-      currentTeamPermissionsInfo,
-      'create'
-    );
-
-    const extraContent = (
-      <div className={styles.extraContent}>
-        <div className={styles.statItem}>
-          <p>
-            <Badge status="success" />
-            <FormattedMessage id="team.appNum" />
-          </p>
-          <div>
-            <div style={{ color: 'rgba(0,0,0,.85)' }} className={styles.hands}>
-              {index.overviewInfo.team_app_num || 0}
-            </div>
-          </div>
-        </div>
-        <div className={styles.statItem}>
-          <p>
-            <Badge status="processing" />
-            <FormattedMessage id="team.componentNum" />
-          </p>
-          <div style={{ color: 'rgba(0,0,0,.85)' }} className={styles.hands}>
-            {index.overviewInfo.team_service_num || 0}
-          </div>
-        </div>
-        <div className={styles.statItem}>
-          <p>
-            <Badge status="error" />
-            <FormattedMessage id="team.gatewayRuleNum" />
-          </p>
-          <div>
-            <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`}
-              style={{
-                wordBreak: 'break-all',
-                wordWrap: 'break-word',
-                color: '#1890ff'
-              }}
-            >
-              {index.overviewInfo.total_http_domain +
-                index.overviewInfo.total_tcp_domain || 0}
-            </Link>
-          </div>
-        </div>
-        <div className={styles.statItem}>
-          <p>
-            <Badge status="warning" />
-            <FormattedMessage id="team.memoryUsage" />
-          </p>
-          <div className={styles.hands}>
-            <Tooltip
-              style={{ color: 'rgba(0,0,0,.85)' }}
-              title={`${sourceUtil.unit(
-                index.overviewInfo.team_service_memory_count || 0,
-                'MB'
-              )}`}
-            >
-              {`${sourceUtil.unit(
-                index.overviewInfo.team_service_memory_count || 0,
-                'MB'
-              )}`}
-            </Tooltip>
-          </div>
-        </div>
-        <div className={styles.statItem}>
-          <p>
-            <Badge status="warning" />
-            <FormattedMessage id="team.diskUsage" />
-          </p>
-          <div className={styles.hands}>
-            <Tooltip
-              style={{ color: 'rgba(0,0,0,.85)' }}
-              title={`${sourceUtil.unit(
-                index.overviewInfo.team_service_total_disk || 0,
-                'MB'
-              )}`}
-            >
-              {`${sourceUtil.unit(
-                index.overviewInfo.team_service_total_disk || 0,
-                'MB'
-              )}`}
-            </Tooltip>
-          </div>
-        </div>
-        <div className={styles.statItem}>
-          <p>
-            <Badge status="default" />
-            <FormattedMessage id="team.appmodeNum" />
-          </p>
-          <div
-            style={{
-              wordBreak: 'break-all',
-              wordWrap: 'break-word',
-              color: 'rgba(0,0,0,.85)',
-              cursor: 'default'
-            }}
-          >
-            {index.overviewInfo.share_app_num || 0}
-          </div>
-        </div>
-      </div>
-    );
-    let breadcrumbList = [];
-    breadcrumbList = createTeam(
-      createEnterprise(breadcrumbList, currentEnterprise),
-      currentTeam,
-      currentRegionName
-    );
-
-    const steps = guideutil.getStep(GuideList);
+    // 当前团队名称
+    const teamName = globalUtil.getCurrTeamName();
+    // 当前集群名称
+    const regionName = globalUtil.getCurrRegionName();
+    // 团队应用
     return (
       <Fragment>
-        {loadingOverview && <Spin tip="Loading..." />}
+        {index.overviewInfo.region_health && (
+          <div className={styles.teamAppTitle}>
+            <span>{globalUtil.fetchSvg('teamViewTitle')}</span>
+            <h2 className={styles.topContainerTitle}>
+              {index.overviewInfo.team_alias}
+            </h2>
+          </div>
+        )}
+        {/* 页面loading */}
+        {loadingOverview && index.overviewInfo.region_health && (
+          <div style={{ textAlign: 'center', marginTop: '100px' }}>
+            <Spin tip="Loading..." size="large" />
+          </div>
+        )}
+        {/* page top */}
         {!loadingOverview && index.overviewInfo.region_health && (
-          <div style={{ margin: '0px -24px 0' }}>
-            <Modal
-              title={
-                configureGlobal.rainbondTextShow && (
-                  <h1
-                    style={{
-                      color: '#1890FF',
-                      textAlign: 'center',
-                      border: 'none',
-                      marginBottom: '0px',
-                      marginTop: '10px'
-                    }}
-                  >
-                    欢迎使用云应用操作系统
-                  </h1>
-                )
-              }
-              visible={this.state.guidevisible}
-              onOk={this.handleOkGuidevisible}
-              onCancel={this.handleCancelGuidevisible}
-              width={1000}
-              footer={null}
-              className={styles.modals}
-              maskClosable={false}
-            >
-              <p style={{ fontSize: '17px' }}>
-                是以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台。为了便于你使用和理解平台项目，我们特意为你准备了
-                平台 基础功能流程的新手任务
-              </p>
-              <p>
-                <div className={styles.stepsbox}>
-                  {steps.map((item, index) => {
-                    const { status } = item;
-                    return (
-                      <div
-                        className={
-                          status ? styles.stepssuccess : styles.stepsinfo
-                        }
-                        key={index}
+          <div className={styles.topContainer}>
+            {/* 应用 */}
+            <div>
+              <div className={styles.teamApp}>
+                <h3 className={styles.teamAppTitle}>应用</h3>
+                <div className={styles.teamAppContent}>
+                  {/* 图表 */}
+                  <div id="appEcharts" className={styles.appEcharts}></div>
+                  {/* 描述 */}
+                  <div className={styles.desc}>
+                    <div className={styles.activeApp}>
+                      <span>
+                        {globalUtil.fetchSvg('teamAppActive', '#4f75af', '24')}
+                      </span>
+                      <span
+                        className={styles.ellipsis}
+                        style={{ width: '100%' }}
                       >
-                        <div
-                          className={
-                            status
-                              ? styles.stepssuccesslux
-                              : styles.stepsinfolux
-                          }
-                          style={{
-                            marginLeft:
-                              index == 0
-                                ? '53px'
-                                : index == 1
-                                ? '80px'
-                                : index == 2
-                                ? '100px'
-                                : index == 3
-                                ? '72px'
-                                : index == 4
-                                ? '82px'
-                                : index == 5
-                                ? '77px'
-                                : '53px',
-                            width:
-                              index == 1
-                                ? '86%'
-                                : index == 2
-                                ? '60%'
-                                : index == 3
-                                ? '86%'
-                                : index == 4
-                                ? '78%'
-                                : index == 5
-                                ? '77%'
-                                : '100%',
-                            display: index == 6 ? 'none' : ''
-                          }}
-                        />
-                        <div
-                          className={
-                            status ? styles.stepssuccessbj : styles.stepsinfobj
-                          }
-                        >
-                          <span>
-                            {status && (
-                              <svg
-                                viewBox="64 64 896 896"
-                                data-icon="check"
-                                width="1em"
-                                height="1em"
-                                fill="currentColor"
-                                aria-hidden="true"
-                              >
-                                <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z" />
-                              </svg>
-                            )}
-                          </span>
-                        </div>
-                        <div
-                          className={
-                            status
-                              ? styles.stepssuccesscontent
-                              : styles.stepsinfocontent
-                          }
-                        >
-                          <div>{item.title}</div>
-                        </div>
-                        <div />
-                      </div>
-                    );
-                  })}
-                </div>
-              </p>
-              <p style={{ textAlign: 'center' }}>
-                <Link
-                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/guide`}
-                  style={{
-                    wordBreak: 'break-all',
-                    wordWrap: 'break-word',
-                    color: '#1890ff'
-                  }}
-                >
-                  <Button type="primary">查看详情</Button>
-                </Link>
-              </p>
-            </Modal>
-
-            <div className={styles.contents}>
-              <Row>
-                <Col
-                  xs={14}
-                  sm={14}
-                  md={14}
-                  lg={14}
-                  xl={14}
-                  style={{ paddingRight: '10px' }}
-                >
-                  {extraContent}
-                  <Card
-                    style={{
-                      marginBottom: 10
-                    }}
-                    title={
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}
-                      >
-                        <span>应用</span>
-                        <Search
-                          style={{ width: '350px' }}
-                          placeholder="请输入应用名称进行搜索"
-                          onSearch={this.handleSearchApp}
-                        />
-                        {isCreate && (
-                          <a
-                            style={{ fontSize: '14px', fontWeight: 400 }}
-                            onClick={() => {
-                              this.setState({ addApplication: true });
-                            }}
-                          >
-                            新建应用
-                          </a>
+                        {(index.overviewInfo &&
+                          index.overviewInfo.running_app_num) ||
+                          0}
+                        个运行的应用
+                      </span>
+                    </div>
+                    <div className={styles.defaultApp}>
+                      <span>
+                        {globalUtil.fetchSvg(
+                          'teamDefaultActive',
+                          '#cccccc',
+                          '24'
                         )}
-                      </div>
-                    }
-                    bordered={false}
-                    bodyStyle={{
-                      padding: 0,
-                      height: '100%'
-                    }}
-                  >
-                    {teamAppList &&
-                      teamAppList.length > 0 &&
-                      teamAppList.map((item, index) => {
-                        const {
-                          backup_record_num,
-                          group_name,
-                          run_service_num,
-                          services_num,
-                          share_record_num,
-                          group_id,
-                          update_time
-                        } = item;
-                        return (
-                          <div
-                            key={index}
-                            style={{ borderBottom: '1px solid #e8e8e8' }}
-                          >
-                            <div style={{ padding: '10px 20px' }}>
-                              <Link
-                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                                  item.group_id
-                                }`}
-                                style={{
-                                  wordBreak: 'break-all',
-                                  wordWrap: 'break-word',
-                                  color: 'rgba(0,0,0,.85)'
-                                }}
-                              >
-                                <a style={{ fontSize: '16px' }}>{group_name}</a>
-                              </Link>
-                              <span className={styles.timeShow}>
-                                {update_time && moment(update_time).fromNow()}
-                              </span>
-                              <div className={styles.teamListStyle}>
-                                <div>
-                                  <span>组件：</span>
-                                  <Link
-                                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                                      item.group_id
-                                    }`}
-                                    style={{
-                                      wordBreak: 'break-all',
-                                      wordWrap: 'break-word',
-                                      color: 'rgba(0,0,0,.85)'
-                                    }}
-                                  >
-                                    <a>
-                                      {run_service_num
-                                        ? `${run_service_num}/`
-                                        : ''}
-                                      {services_num}
-                                    </a>
-                                  </Link>
-                                </div>
-                                <div>
-                                  <span>备份记录：</span>
-                                  <Link
-                                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                                      item.group_id
-                                    }/backup`}
-                                    style={{
-                                      wordBreak: 'break-all',
-                                      wordWrap: 'break-word',
-                                      color: 'rgba(0,0,0,.85)'
-                                    }}
-                                  >
-                                    <a style={{ fontSize: '16px' }}>
-                                      {backup_record_num}
-                                    </a>
-                                  </Link>
-                                </div>
-                                <div>
-                                  <span>发布记录：</span>
-                                  <a
-                                    style={{ color: 'rgba(0, 0, 0, 0.65)' }}
-                                    className={styles.hands}
-                                  >
-                                    {share_record_num}
-                                  </a>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-
-                    {teamAppList &&
-                    teamAppList.length > 0 &&
-                    this.state.total > 0 ? (
-                      <div style={{ textAlign: 'right', margin: '15px' }}>
-                        <Pagination
-                          current={this.state.page}
-                          pageSize={this.state.page_size}
-                          total={Number(this.state.total)}
-                          onChange={this.onPageChange}
-                        />
-                      </div>
-                    ) : (
-                      <List />
-                    )}
-                  </Card>
-                </Col>
-                <Col xs={10} sm={10} md={10} lg={10} xl={10}>
-                  <Card
-                    style={{
-                      marginBottom: 10,
-                      border: 'none',
-                      height: '562px',
-                      overflow: 'hidden'
-                    }}
-                    title="热门访问域名"
-                    bordered={false}
-                    bodyStyle={{
-                      padding: 0
-                    }}
-                    border={false}
-                  >
-                    <ChartCard
-                      style={{
-                        marginTop: '-20px',
-                        border: 'none'
-                      }}
-                    >
-                      <NumberInfo
-                        subTitle={
-                          <span>
-                            整体请求量
-                            <Tooltip title="整体请求量">
-                              <Icon
-                                style={{ marginLeft: 8 }}
-                                type="info-circle-o"
-                              />
-                            </Tooltip>
-                          </span>
-                        }
-                        gap={8}
-                        total={numeral(this.state.num).format('0,0')}
-                      />
-                      <MiniArea line height={45} data={this.state.visitData} />
-                      <Table
-                        rowKey={record => record.index}
-                        size="small"
-                        style={{ marginTop: '15px', height: '300px' }}
-                        columns={columns}
-                        dataSource={domainList}
-                        pagination={{
-                          style: { marginBottom: 0 },
-                          current: this.state.domainPage,
-                          pageSize: this.state.domainPageSize,
-                          total: this.state.domainTotal,
-                          onChange: this.onDomainPageChange
-                        }}
-                      />
-                    </ChartCard>
-                  </Card>
-                  <Card
-                    style={{
-                      marginBottom: 10,
-                      height: 468
-                    }}
-                    title="热门访问组件"
-                    bordered={false}
-                    bodyStyle={{
-                      padding: 0
-                    }}
-                  >
-                    <Col span={24}>
-                      <ChartCard
-                        style={{
-                          marginTop: '-20px',
-                          border: 'none'
-                        }}
+                      </span>
+                      <span
+                        className={styles.ellipsis}
+                        style={{ width: '100%' }}
                       >
-                        <Table
-                          className={styles.cancelMargin}
-                          style={{
-                            height: '390px',
-                            marginTop: '-20px',
-                            overflow: 'auto'
-                          }}
-                          rowKey={record => record.index}
-                          size="small"
-                          columns={columnTwo}
-                          dataSource={serviceList}
-                          pagination={false}
-                        />
-                      </ChartCard>
-                    </Col>
-                  </Card>
-                </Col>
-              </Row>
-              {this.state.addApplication && (
-                <EditGroupName
-                  title="新建应用"
-                  onCancel={this.handleCancelApplication}
-                  onOk={this.handleOkApplication}
-                />
-              )}
+                        {index.overviewInfo.team_app_num -
+                          index.overviewInfo.running_app_num || 0}
+                        个未运行的应用
+                      </span>
+                    </div>
+                    <div className={styles.totalApp}>
+                      <span>
+                        共
+                        {(index.overviewInfo &&
+                          index.overviewInfo &&
+                          index.overviewInfo.team_app_num) ||
+                          0}
+                        个应用
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* 组件 */}
+            <div>
+              <div className={styles.teamApp}>
+                <h3 className={styles.teamAppTitle}>组件</h3>
+                <div className={styles.teamAppContent}>
+                  {/* 图表 */}
+                  <div
+                    id="componmentEcharts"
+                    className={styles.appEcharts}
+                  ></div>
+                  {/* 描述 */}
+                  <div className={styles.desc}>
+                    <div className={styles.activeApp}>
+                      <span>
+                        {globalUtil.fetchSvg('teamAppActive', '#4f75af', '24')}
+                      </span>
+                      <span
+                        className={styles.ellipsis}
+                        style={{ width: '100%' }}
+                      >
+                        {(index.overviewInfo &&
+                          index.overviewInfo.running_component_num) ||
+                          0}
+                        个运行的组件
+                      </span>
+                    </div>
+                    <div className={styles.defaultApp}>
+                      <span>
+                        {globalUtil.fetchSvg(
+                          'teamDefaultActive',
+                          '#cccccc',
+                          '24'
+                        )}
+                      </span>
+                      <span
+                        className={styles.ellipsis}
+                        style={{ width: '100%' }}
+                      >
+                        {index.overviewInfo.team_service_num -
+                          index.overviewInfo.running_component_num || 0}
+                        个未运行的组件
+                      </span>
+                    </div>
+                    <div className={styles.totalApp}>
+                      <span>
+                        共
+                        {(index.overviewInfo &&
+                          index.overviewInfo &&
+                          index.overviewInfo.team_service_num) ||
+                          0}
+                        个组件
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* 使用资源 */}
+            <div>
+              <div className={styles.teamDisk}>
+                <h3 className={styles.teamDiskTitle}>使用资源</h3>
+                <div className={styles.teamDiskContent}>
+                  <div>
+                    <div className={styles.save}>
+                      <div>
+                        <p style={{ marginBottom: '0px' }}>
+                          {this.handlUnit(
+                            index.overviewInfo.team_service_memory_count || 0
+                          )}
+                        </p>
+                        <span>
+                          {this.handlUnit(
+                            index.overviewInfo.team_service_memory_count || 0,
+                            'MB'
+                          )}
+                        </span>
+                      </div>
+                      <p style={{ marginBottom: '0px' }}>内存使用量</p>
+                    </div>
+                    <span className={styles.useLine}></span>
+                    <div className={styles.disk}>
+                      <div>
+                        <p style={{ marginBottom: '0px' }}>
+                          {this.handlUnit(
+                            index.overviewInfo.team_service_total_disk || 0
+                          )}
+                        </p>
+                        <span>
+                          {this.handlUnit(
+                            index.overviewInfo.team_service_total_disk || 0,
+                            'MB'
+                          )}
+                        </span>
+                      </div>
+                      <p style={{ marginBottom: '0px' }}>磁盘使用量</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* 用户数量 */}
+            <div>
+              <div
+                className={styles.teamDisk}
+                onClick={() => {
+                  dispatch(
+                    routerRedux.push(
+                      `/enterprise/${index.overviewInfo.eid}/teams`
+                    )
+                  );
+                }}
+              >
+                <h3 className={styles.teamDiskTitle}>用户数量</h3>
+                <div className={styles.teamDiskContent}>
+                  <div className={styles.userNum}>
+                    <p>
+                      {(index.overviewInfo && index.overviewInfo.user_nums) ||
+                        0}
+                    </p>
+                    <span>个</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
+        {/* 热门应用标题 */}
+        {index.overviewInfo.region_health && (
+          <div className={styles.teamHotAppTitle}>
+            <div className={styles.teamHotAppTitleLeft}>
+              <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
+              <h2>应用列表</h2>
+            </div>
+            {(!loadingOfApp || searchVisible) && (
+              <div className={styles.teamHotAppTitleSearch}>
+                <Search
+                  placeholder="请输入应用名称进行搜索"
+                  onSearch={this.onSearch}
+                  defaultValue={query}
+                  allowClear
+                  style={{ width: 400 }}
+                />
+                <span
+                  onClick={() => {
+                    this.setState({ createAppVisible: true });
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  新建应用
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        {/* app list Loading */}
+        {loadingOfApp && index.overviewInfo.region_health && (
+          <div style={{ textAlign: 'center', marginTop: '100px' }}>
+            <Spin tip="Loading..." size="large" />
+          </div>
+        )}
+        {/* appList */}
+        {!loadingOfApp && !emptyConfig && (
+          <div>
+            <div className={styles.teamHotAppList}>
+              {/* 1 */}
+              {teamHotAppList &&
+                teamHotAppList.length > 0 &&
+                teamHotAppList.map(item => {
+                  return (
+                    <div key={item.group_id}>
+                      <div
+                        className={styles.teamHotAppItem}
+                        onClick={() => {
+                          dispatch(
+                            routerRedux.push(
+                              `/team/${teamName}/region/${regionName}/apps/${item.group_id}`
+                            )
+                          );
+                        }}
+                      >
+                        {/* top */}
+                        <div className={styles.hotAppItemDetails}>
+                          <span>
+                            {item.logo && <img src={item.logo} />}
+                            {!item.logo && <img src={defaultAppLogo} />}
+                          </span>
+
+                          <div className={styles.hotAppItemUse}>
+                            {/* 标题 */}
+                            <div
+                              className={`${styles.hotAppItemTitle} ${styles.ellipsis}`}
+                            >
+                              {item.group_name}
+                            </div>
+                            <div className={styles.useDeatil}>
+                              <div className={styles.hotAppUseSave}>
+                                <p style={{ marginBottom: '0px' }}>内存:</p>
+                                <div>
+                                  <p style={{ marginBottom: '0px' }}>
+                                    {this.handlUnit(item.used_mem || 0)}
+                                  </p>
+                                  <span>
+                                    {this.handlUnit(item.used_mem || 0, 'MB')}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className={styles.hotAppComNum}>
+                                <span>组件:</span>
+                                <span> {item.services_num}</span>
+                                <span>个</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* under */}
+                        <div className={styles.hotAppItemBackup}>
+                          {/* 更新时间 */}
+                          <div className={styles.comMsg}>
+                            {/* <div className={styles.versions}>版本:1.0.0</div> */}
+                            <div className={styles.update}>
+                              <span>
+                                {item.update_time &&
+                                  moment(item.update_time).fromNow()}
+                              </span>
+                              <span>更新</span>
+                            </div>
+                          </div>
+                          {/* 访问 */}
+                          {item.status === 'RUNNING' && (
+                            <div className={styles.visit}>
+                              {item.accesses.length > 0 && (
+                                <VisterBtn
+                                  linkList={item.accesses}
+                                  type={'link'}
+                                />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        {/* running */}
+                        {item.status === 'RUNNING' && (
+                          <div className={styles.running}>
+                            <span style={{ paddingTop: '1px' }}>
+                              {globalUtil.fetchSvg(
+                                'teamAppActive',
+                                '#57c32d',
+                                '12'
+                              )}
+                            </span>
+                            <span>运行中</span>
+                          </div>
+                        )}
+                        {/* no running */}
+                        {item.status !== 'RUNNING' && (
+                          <div className={styles.running}>
+                            <span>
+                              {globalUtil.fetchSvg(
+                                'teamAppActive',
+                                '#cccccc',
+                                '12'
+                              )}
+                            </span>
+                            <span>关闭</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+            {/* 分页 */}
+            <div className={styles.pagination}>
+              <Pagination
+                showSizeChanger
+                onShowSizeChange={this.handleChangePageSize}
+                current={page}
+                // defaultCurrent={1}
+                defaultPageSize={12}
+                total={total}
+                pageSizeOptions={pageSizeOptions}
+                onChange={this.handleChangePage}
+              />
+            </div>
+          </div>
+        )}
+        {/* 搜索为空时的状态 */}
+        {emptyConfig && !loadingOfApp && <Empty />}
+        {/* 新建应用 */}
+        {createAppVisible && (
+          <EditGroupName
+            title="新建应用"
+            onCancel={this.handleCancelApplication}
+            onOk={this.handleOkApplication}
+          />
+        )}
+        {/* 集群不健康的情况 */}
         {loadedOverview &&
           index.overviewInfo &&
           !index.overviewInfo.region_health && (

@@ -1,499 +1,306 @@
 @import '~antd/lib/style/themes/default.less';
 @import '../../utils/utils.less';
-.hands {
-  cursor: default !important;
-}
-.activitiesList {
-  padding: 0 24px 8px 24px;
-
-  .username {
-    color: @text-color;
-  }
-
-  .event {
-    font-weight: normal;
-  }
-}
-.timeShow {
-  float: right;
-  color: rgba(0, 0, 0, 0.45);
-}
-.contents {
-  margin: 10px 24px 0;
-}
-
-.cancelMargin {
-  :global {
-    .ant-table-scroll-position-left {
-      margin-top: 0 !important;
-    }
-  }
-}
-
-@media screen and (max-width: @screen-sm) {
-  .contents {
-    margin: 10px 0 0;
-  }
-}
-
-.pageHeaderContent {
-  background: #fff;
+.teamAppTitle {
+  padding: 24px 15px;
   display: flex;
-
-  .avatar {
-    flex: 0 1 72px;
-    margin-bottom: 8px;
-
-    & > span {
-      border-radius: 72px;
-      display: block;
-      width: 72px;
-      height: 72px;
-    }
+  align-items: center;
+  span {
+    margin-right: 5px;
   }
-
-  .content {
-    position: relative;
-    top: 0px;
-    margin: 0 24px;
-    flex: 1 1 auto;
-    color: @text-color-secondary;
-    line-height: 22px;
-
-    .contentTitle {
-      font-size: 20px;
-      line-height: 28px;
-      font-weight: 500;
-      color: @heading-color;
-      margin: 12px;
-    }
+  h2 {
+    margin-bottom: 5px;
   }
 }
-
-.teamListStyle {
-  display: flex;
-  margin-top: 5px;
-
-  div {
-    width: 30%;
-  }
-}
-
-.extraContent {
-  background: #fff;
-  .clearfix();
-  white-space: nowrap;
-  // border    : 1px solid #BBBBBB;
-  margin-bottom: 10px;
+//  top module
+.topContainer {
   display: flex;
   width: 100%;
-  padding: 10px 0;
-
-  .statItem {
-    width: 16.6%;
-    text-align: center;
-
-    > p {
-      width: 100%;
-      margin-bottom: 4px;
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 14px;
-      line-height: 22px;
-    }
-
-    > div {
-      cursor: pointer;
-      // color     : @text-color-secondary;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      margin: 0;
-      color: rgba(0, 0, 0, 0.85);
-      font-size: 22px;
-      line-height: 30px;
-    }
-
-    &:after {
-      // background-color: @border-color-split;
-      position: absolute;
-      top: 8px;
-      right: 0;
-      width: 1px;
-      height: 40px;
-      content: '';
-    }
-
-    &:last-child {
-      padding-right: 0;
-
-      &:after {
-        display: none;
-      }
-    }
+  height: 170px;
+  > div {
+    width: 25%;
+    height: 100%;
+    padding: 0px 10px;
   }
 }
-
-.members {
-  a {
-    display: block;
-    margin: 12px 0;
-    line-height: 24px;
-    height: 24px;
-    .textOverflow();
-
-    .member {
-      font-size: @font-size-base;
-      color: @text-color;
-      line-height: 24px;
-      max-width: 100px;
-      vertical-align: top;
-      margin-left: 12px;
-      transition: all 0.3s;
-      display: inline-block;
-      .textOverflow();
-    }
-
-    &:hover {
-      span {
-        color: @primary-color;
-      }
-    }
+// 团队应用和团队组件
+.teamApp {
+  height: 100%;
+  background-color: #f7fafd;
+  .teamAppTitle {
+    margin-bottom: 0px !important;
+    padding: 10px 10px 10px 20px;
   }
-}
-
-.modals {
-  padding: 0 30px;
-
-  :global {
-    .ant-modal-header {
-      border: none;
-    }
-  }
-}
-
-.projectList {
-  :global {
-    .ant-card-meta-description {
-      color: @text-color-secondary;
-      height: 44px;
-      line-height: 22px;
-      overflow: hidden;
-    }
-  }
-
-  .cardTitle {
-    font-size: 0;
-
-    a {
-      color: @heading-color;
-      margin-left: 12px;
-      line-height: 24px;
-      height: 24px;
-      display: inline-block;
-      vertical-align: top;
-      font-size: @font-size-base;
-
-      &:hover {
-        color: @primary-color;
-      }
-    }
-  }
-
-  .projectGrid {
-    width: 33.33%;
-  }
-
-  .projectItemContent {
-    display: flex;
-    margin-top: 8px;
-    overflow: hidden;
-    font-size: 12px;
-    height: 20px;
-    line-height: 20px;
-    .textOverflow();
-
-    a {
-      color: @text-color-secondary;
-      display: inline-block;
-      flex: 1 1 0;
-      .textOverflow();
-
-      &:hover {
-        color: @primary-color;
-      }
-    }
-
-    .datetime {
-      color: @disabled-color;
-      flex: 0 0 auto;
-      float: right;
-    }
-  }
-}
-
-.datetime {
-  // color   : @disabled-color;
-  color: @text-color;
-  font-weight: normal;
-}
-
-.datatime_float {
-  float: right;
-  color: rgba(0, 0, 0, 0.65);
-}
-
-@media screen and (max-width: @screen-xl) and (min-width: @screen-lg) {
-  .activeCard {
-    margin-bottom: 24px;
-  }
-
-  .members {
-    margin-bottom: 0;
-  }
-
-  .extraContent {
-    margin-left: -44px;
-
-    .statItem {
-      padding: 0 16px;
-    }
-  }
-}
-
-@media screen and (max-width: @screen-lg) {
-  .activeCard {
-    margin-bottom: 24px;
-  }
-
-  .members {
-    margin-bottom: 0;
-  }
-
-  .extraContent {
-    float: none;
-    margin-right: 0;
-
-    .statItem {
-      padding: 0 16px;
-      text-align: left;
-
-      &:after {
-        display: none;
-      }
-    }
-  }
-}
-
-@media screen and (max-width: @screen-md) {
-  .extraContent {
-    margin-left: -16px;
-  }
-
-  .projectList {
-    .projectGrid {
-      width: 50%;
-    }
-  }
-}
-
-@media screen and (max-width: @screen-sm) {
-  .pageHeaderContent {
-    display: block;
-
-    .content {
-      margin-left: 0;
-    }
-  }
-
-  .extraContent {
-    .statItem {
-      float: none;
-    }
-  }
-}
-
-@media screen and (max-width: @screen-xs) {
-  .projectList {
-    .projectGrid {
-      width: 100%;
-    }
-  }
-}
-
-.tableList {
-  .tableListOperator {
-    margin-bottom: 16px;
-
-    button {
-      margin-right: 8px;
-    }
-  }
-}
-
-.tableListForm {
-  :global {
-    .ant-form-item {
-      margin-bottom: 24px;
-      margin-right: 0;
-      display: flex;
-
-      > .ant-form-item-label {
-        width: auto;
-        line-height: 32px;
-        padding-right: 8px;
-      }
-
-      .ant-form-item-control {
-        line-height: 32px;
-      }
-    }
-
-    .ant-form-item-control-wrapper {
-      flex: 1;
-    }
-  }
-
-  .submitButtons {
-    white-space: nowrap;
-    margin-bottom: 24px;
-  }
-}
-
-@media screen and (max-width: @screen-lg) {
-  .tableListForm :global(.ant-form-item) {
-    margin-right: 24px;
-  }
-}
-
-@media screen and (max-width: @screen-md) {
-  .tableListForm :global(.ant-form-item) {
-    margin-right: 8px;
-  }
-}
-
-.stepsbox {
-  display: flex;
-  justify-content: space-around;
-  margin: 20px 0;
-}
-
-.stepssuccess {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-
-  .stepssuccessbj {
-    display: inline-block;
-    width: 34px;
-    height: 34px;
-    font-size: 12px;
-    line-height: 34px;
-    text-align: center;
-    border-radius: 34px;
-    background-color: #1890ff;
-
-    span {
-      color: #fff;
-      position: relative;
-      top: 3px;
-      line-height: 1;
-    }
-  }
-
-  .stepssuccesslux {
-    position: absolute;
-    left: 0;
-    top: 18px;
-    margin-left: 71px;
-    height: 1px;
-    background-color: #1890ff;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .stepssuccesscontent {
-    margin-top: 8px;
-    text-align: center;
-
-    div {
-      font-size: 13px;
-      color: rgba(0, 0, 0, 0.65);
-      line-height: 34px;
-    }
-  }
-}
-
-.stepsinfo {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-
-  .stepsinfobj {
-    display: inline-block;
-    width: 34px;
-    height: 34px;
-    font-size: 12px;
-    line-height: 32px;
-    text-align: center;
-    border-radius: 34px;
+  .teamAppContent {
+    height: calc(100% - 44px);
     background-color: #fff;
-    border: 1px solid #a8a2a2;
-
-    span {
-      display: inline-block;
+    display: flex;
+    .appEcharts {
+      width: 50%;
+      height: 100%;
+    }
+    .desc {
+      width: 50%;
       position: relative;
-      top: 3px;
-      line-height: 1;
-      width: 12px;
-      height: 12px;
-      border-radius: 12px;
-      background-color: #fff;
-      border: 1px solid #a8a2a2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-left: -10px;
+      margin-top: -20px;
+      .activeApp,
+      .defaultApp {
+        display: flex;
+      }
+      .totalApp {
+        span {
+          position: absolute;
+          bottom: 20px;
+          left: 20px;
+        }
+      }
     }
   }
+}
+.teamApp:hover,
+.teamDisk:hover,
+.teamHotAppItem:hover {
+  box-shadow: 0 0 10px 10px #d8e8f8;
+}
+.teamHotAppItem:hover .hotAppItemTitle {
+  color: #4d73b1;
+}
+.teamHotAppItem:hover,
+.teamApp:hover,
+.teamDisk:hover {
+  cursor: pointer;
+}
 
-  .stepsinfolux {
-    position: absolute;
-    left: 0;
-    top: 18px;
-    margin-left: 71px;
-    height: 1px;
-    background-color: #a8a2a2;
-    width: 100%;
-    box-sizing: border-box;
+// 使用磁盘 内存 用户
+.teamDisk {
+  height: 100%;
+  background-color: #f7fafd;
+  // 标题
+  .teamDiskTitle {
+    margin-bottom: 0px !important;
+    padding: 10px 10px 10px 20px;
   }
-
-  .stepsinfocontent {
-    margin-top: 8px;
-    text-align: center;
-
-    div {
-      font-size: 13px;
-      color: rgba(0, 0, 0, 0.45);
-      line-height: 34px;
+  .teamDiskContent {
+    height: calc(100% - 44px);
+    width: 100%;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    // 用户数量
+    .userNum {
+      p {
+        color: #457eaf;
+        font-size: 36px;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        margin-bottom: 0px !important;
+        margin-right: 5px;
+      }
+      span {
+        color: #aeaeae;
+        font-size: 24px;
+        padding-top: 15px;
+      }
+    }
+    > div {
+      display: flex;
+      // position: relative;
+      // 内存
+      .save {
+        // padding-right: 60px;
+      }
+      .save,
+      .disk {
+        text-align: center;
+        > p {
+          // font-size: 18px;
+          text-align: center;
+        }
+        > div {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          > p {
+            color: #457eaf;
+            font-size: 36px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial,
+              sans-serif;
+            margin-bottom: 0px !important;
+            margin-right: 5px;
+          }
+          span {
+            color: #aeaeae;
+            font-size: 24px;
+            padding-top: 15px;
+          }
+        }
+      }
+      // 竖线
+      .useLine {
+        // position: absolute;
+        // left: calc(50% + 2px);
+        // top: 50%;
+        // transform: translateY(-50%);
+        width: 2px;
+        height: 24px;
+        border-radius: 5px;
+        background-color: #aeb7c3;
+        margin: 22px;
+      }
+    }
+  }
+}
+// 热门应用列表标题
+.teamHotAppTitle {
+  padding: 24px 10px;
+  display: flex;
+  justify-content: space-between;
+  .teamHotAppTitleLeft {
+    // padding: 5px 0px;
+    display: flex;
+    align-items: center;
+    span {
+      margin-right: 5px;
+      padding-top: 2px;
+    }
+    h2 {
+      margin-bottom: 5px;
+    }
+  }
+  .teamHotAppTitleSearch {
+    display: flex;
+    align-items: center;
+    span {
+      margin-left: 10px;
+      color: #4f75af;
     }
   }
 }
 
-.connect {
-  padding: 20px;
-  border-radius: 15px;
-  // border       : 2px solid rgba(63, 81, 181, 1);
-  border: 2px solid;
-  border-color: #1890ff;
-  position: relative;
+.ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+// 团队热门应用列表
+.teamHotAppList {
+  display: flex;
+  flex-wrap: wrap;
+  > div {
+    width: 25%;
+    padding: 0px 10px;
+    margin-bottom: 20px;
 
-  .icon {
-    position: absolute;
-    top: -22px;
-    font-size: 30px;
-    color: #1890ff;
-    left: 22px;
+    .teamHotAppItem {
+      background-color: #fff;
+      position: relative;
+      padding: 24px;
+
+      .hotAppItemDetails {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        position: relative;
+        > span {
+          max-width: 48px;
+          max-height: 48px;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          left: 0px;
+          img {
+            width: 100%;
+            height: 100%;
+          }
+        }
+        .hotAppItemUse {
+          width: 100%;
+          padding-left: 80px;
+          .hotAppItemTitle {
+            width: 100%;
+            // font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 5px;
+          }
+          .useDeatil {
+            position: relative;
+            // 内存
+            .hotAppUseSave {
+              display: flex;
+              align-items: center;
+              > p {
+                color: #aeaeae;
+              }
+              > div {
+                display: flex;
+                align-items: center;
+                margin-left: 7px;
+                p {
+                  font-size: 16px;
+                  margin-right: 3px;
+                }
+                span {
+                  font-size: 12px;
+                  color: #aeaeae;
+                  padding-top: 5px;
+                }
+              }
+            }
+            // 数量
+            .hotAppComNum {
+              margin-top: 5px;
+              & > span:nth-child(1) {
+                margin-right: 3px;
+                color: #aeaeae;
+              }
+              & > span:nth-child(2) {
+                font-size: 16px;
+                margin-right: 3px;
+              }
+              & > span:nth-child(3) {
+                font-size: 12px;
+                padding-top: 5px;
+                color: #aeaeae;
+              }
+            }
+          }
+        }
+      }
+      .hotAppItemBackup {
+        display: flex;
+        justify-content: space-between;
+        .comMsg {
+          .versions {
+            margin-bottom: 5px;
+          }
+          .update {
+            color: #aeaeae;
+          }
+        }
+        .visit {
+          display: flex;
+          align-items: flex-end;
+          color: #4f75af;
+        }
+      }
+      .running {
+        display: flex;
+        position: absolute;
+        right: 5px;
+        top: 10px;
+        color: #aeb7c3;
+      }
+      .default {
+      }
+    }
   }
+}
+// 分页
+.pagination {
+  margin: 24px 0px;
+  display: flex;
+  justify-content: flex-end;
 }

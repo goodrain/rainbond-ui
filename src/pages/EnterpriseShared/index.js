@@ -194,11 +194,13 @@ export default class EnterpriseShared extends PureComponent {
       this.handleOpencreateAppMarket();
       return null;
     }
+
     const { marketTab, helmTab } = this.state;
     let arr = [];
     arr = marketTab.filter(item => {
       return item.ID === Number(tabID);
     });
+
     let helms = [];
     helms = helmTab.filter(item => {
       return item.name === tabID;
@@ -206,6 +208,7 @@ export default class EnterpriseShared extends PureComponent {
 
     const isArr = arr && arr.length > 0;
     const isHelms = helms && helms.length > 0;
+
     const showCloudMarketAuth =
       // (isArr && arr[0].access_key === '' && arr[0].domain === 'rainbond') ||
       false;
@@ -1024,13 +1027,7 @@ export default class EnterpriseShared extends PureComponent {
                   style={{ background: '#fff' }}
                   onClick={e => {
                     e.stopPropagation();
-                    if (isReadInstall) {
-                      this.installHelmApp(item, types);
-                    } else {
-                      this.setState({
-                        showCloudMarketAuth: true
-                      });
-                    }
+                    this.installHelmApp(item, types);
                   }}
                 >
                   {globalUtil.fetchSvg('InstallApp')}
@@ -1665,6 +1662,7 @@ export default class EnterpriseShared extends PureComponent {
             onCheckedValues={this.onChangeBounced}
           />
         )}
+
         {showCloudMarketAuth && (
           <AuthCompany
             eid={eid}

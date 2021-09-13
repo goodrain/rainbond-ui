@@ -355,7 +355,8 @@ export async function editGroup(body = {}) {
       data: {
         app_name: body.group_name,
         note: body.note,
-        username: body.username
+        username: body.username,
+        logo: body.logo
       }
     }
   );
@@ -376,7 +377,8 @@ export async function addGroup(body = {}) {
         team_name: body.team_name,
         region_name: body.region_name,
         app_name: body.group_name,
-        note: body.note
+        note: body.note,
+        logo: body.logo
       },
       showMessage: body.showMessage,
       noModels: body.noModels

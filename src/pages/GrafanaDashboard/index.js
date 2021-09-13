@@ -34,8 +34,8 @@ export default class EnterpriseClusters extends PureComponent {
       },
       enterprise
     } = this.props;
-    const monitoringObj = rainbondUtil.fetchMonitoring(enterprise);
 
+    const monitoringObj = rainbondUtil.fetchMonitoring(enterprise);
     return monitoringObj.home_url ? (
       <iframe
         id="ifrm"
