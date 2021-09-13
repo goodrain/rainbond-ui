@@ -5,7 +5,15 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/sort-comp */
-import { Button, Form, Input, notification, Pagination, Spin } from 'antd';
+import {
+  Button,
+  Empty,
+  Form,
+  Input,
+  notification,
+  Pagination,
+  Spin
+} from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
@@ -68,7 +76,9 @@ export default class Index extends PureComponent {
       teamHotAppList: [],
       pageSizeOptions: [12, 16, 20, 24, 28],
       // 新建应用显示与隐藏
-      createAppVisible: false
+      createAppVisible: false,
+      emptyConfig: false,
+      searchVisible: false
     };
   }
   componentDidMount() {
@@ -300,7 +310,9 @@ export default class Index extends PureComponent {
   onSearch = value => {
     this.setState(
       {
-        query: value
+        query: value,
+        loadingOfApp: true,
+        searchVisible: true
       },
       () => {
         this.loadHotApp();
@@ -311,7 +323,8 @@ export default class Index extends PureComponent {
   handleChangePageSize = (current, size) => {
     this.setState(
       {
-        page_size: size
+        page_size: size,
+        loadingOfApp: true
       },
       () => {
         this.loadHotApp();
@@ -322,7 +335,8 @@ export default class Index extends PureComponent {
   handleChangePage = (page, pageSize) => {
     this.setState(
       {
-        page
+        page,
+        loadingOfApp: true
       },
       () => {
         this.loadHotApp();
@@ -371,7 +385,7 @@ export default class Index extends PureComponent {
   };
   // 加载热门应用数据源
   loadHotApp = () => {
-    const { page, page_size, query } = this.state;
+    const { page, page_size, query, emptyConfig } = this.state;
     this.props.dispatch({
       type: 'global/getTeamAppList',
       payload: {
@@ -386,7 +400,9 @@ export default class Index extends PureComponent {
           this.setState({
             teamHotAppList: res.list,
             total: res.bean && res.bean.total,
-            loadingOfApp: false
+            loadingOfApp: false,
+            emptyConfig: false,
+            searchVisible: false
           });
           // 每隔10s获取最新的列表数据
           this.handleTimers(
@@ -396,6 +412,11 @@ export default class Index extends PureComponent {
             },
             10000
           );
+        }
+        if (res && res.list && res.list.length === 0 && query) {
+          this.setState({
+            emptyConfig: true
+          });
         }
       }
     });
@@ -463,9 +484,19 @@ export default class Index extends PureComponent {
       total,
       pageSizeOptions,
       createAppVisible,
-      loadingOfApp
+      loadingOfApp,
+      page,
+      query,
+      emptyConfig,
+      searchVisible
     } = this.state;
-    const { index, dispatch } = this.props;
+    const {
+      index,
+      dispatch,
+      location: {
+        query: { team_alias }
+      }
+    } = this.props;
     // 当前团队名称
     const teamName = globalUtil.getCurrTeamName();
     // 当前集群名称
@@ -473,17 +504,21 @@ export default class Index extends PureComponent {
     // 团队应用
     return (
       <Fragment>
-        <div className={styles.teamAppTitle}>
-          <span>{globalUtil.fetchSvg('teamViewTitle')}</span>
-          <h2 className={styles.topContainerTitle}>好雨科技Sass交付</h2>
-        </div>
-
+        {index.overviewInfo.region_health && (
+          <div className={styles.teamAppTitle}>
+            <span>{globalUtil.fetchSvg('teamViewTitle')}</span>
+            <h2 className={styles.topContainerTitle}>
+              {index.overviewInfo.team_alias}
+            </h2>
+          </div>
+        )}
         {/* 页面loading */}
-        {loadingOverview && (
+        {loadingOverview && index.overviewInfo.region_health && (
           <div style={{ textAlign: 'center', marginTop: '100px' }}>
             <Spin tip="Loading..." size="large" />
           </div>
         )}
+        {/* page top */}
         {!loadingOverview && index.overviewInfo.region_health && (
           <div className={styles.topContainer}>
             {/* 应用 */}
@@ -642,7 +677,16 @@ export default class Index extends PureComponent {
             </div>
             {/* 用户数量 */}
             <div>
-              <div className={styles.teamDisk}>
+              <div
+                className={styles.teamDisk}
+                onClick={() => {
+                  dispatch(
+                    routerRedux.push(
+                      `/enterprise/${index.overviewInfo.eid}/teams`
+                    )
+                  );
+                }}
+              >
                 <h3 className={styles.teamDiskTitle}>用户数量</h3>
                 <div className={styles.teamDiskContent}>
                   <div className={styles.userNum}>
@@ -657,40 +701,42 @@ export default class Index extends PureComponent {
             </div>
           </div>
         )}
-
         {/* 热门应用标题 */}
-        <div className={styles.teamHotAppTitle}>
-          <div className={styles.teamHotAppTitleLeft}>
-            <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
-            <h2>应用列表</h2>
-          </div>
-          {!loadingOfApp && (
-            <div className={styles.teamHotAppTitleSearch}>
-              <Search
-                placeholder="请输入应用名称进行搜索"
-                onSearch={this.onSearch}
-                allowClear
-                style={{ width: 400 }}
-              />
-              <span
-                onClick={() => {
-                  this.setState({ createAppVisible: true });
-                }}
-                style={{ cursor: 'pointer' }}
-              >
-                新建应用
-              </span>
+        {index.overviewInfo.region_health && (
+          <div className={styles.teamHotAppTitle}>
+            <div className={styles.teamHotAppTitleLeft}>
+              <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
+              <h2>应用列表</h2>
             </div>
-          )}
-        </div>
-        {/* app list */}
-        {loadingOfApp && (
+            {(!loadingOfApp || searchVisible) && (
+              <div className={styles.teamHotAppTitleSearch}>
+                <Search
+                  placeholder="请输入应用名称进行搜索"
+                  onSearch={this.onSearch}
+                  defaultValue={query}
+                  allowClear
+                  style={{ width: 400 }}
+                />
+                <span
+                  onClick={() => {
+                    this.setState({ createAppVisible: true });
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  新建应用
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        {/* app list Loading */}
+        {loadingOfApp && index.overviewInfo.region_health && (
           <div style={{ textAlign: 'center', marginTop: '100px' }}>
             <Spin tip="Loading..." size="large" />
           </div>
         )}
-
-        {!loadingOfApp && (
+        {/* appList */}
+        {!loadingOfApp && !emptyConfig && (
           <div>
             <div className={styles.teamHotAppList}>
               {/* 1 */}
@@ -757,14 +803,16 @@ export default class Index extends PureComponent {
                             </div>
                           </div>
                           {/* 访问 */}
-                          <div className={styles.visit}>
-                            {item.accesses.length > 0 && (
-                              <VisterBtn
-                                linkList={item.accesses}
-                                type={'link'}
-                              />
-                            )}
-                          </div>
+                          {item.status === 'RUNNING' && (
+                            <div className={styles.visit}>
+                              {item.accesses.length > 0 && (
+                                <VisterBtn
+                                  linkList={item.accesses}
+                                  type={'link'}
+                                />
+                              )}
+                            </div>
+                          )}
                         </div>
                         {/* running */}
                         {item.status === 'RUNNING' && (
@@ -802,7 +850,8 @@ export default class Index extends PureComponent {
               <Pagination
                 showSizeChanger
                 onShowSizeChange={this.handleChangePageSize}
-                current={1}
+                current={page}
+                // defaultCurrent={1}
                 defaultPageSize={12}
                 total={total}
                 pageSizeOptions={pageSizeOptions}
@@ -811,7 +860,8 @@ export default class Index extends PureComponent {
             </div>
           </div>
         )}
-
+        {/* 搜索为空时的状态 */}
+        {emptyConfig && !loadingOfApp && <Empty />}
         {/* 新建应用 */}
         {createAppVisible && (
           <EditGroupName
