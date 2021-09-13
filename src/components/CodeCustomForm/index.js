@@ -114,7 +114,7 @@ export default class Index extends PureComponent {
       if (err) {
         return;
       }
-      if (fieldsValue.version_type == 'tag') {
+      if (fieldsValue.version_type === 'tag') {
         // eslint-disable-next-line no-param-reassign
         fieldsValue.code_version = `tag:${fieldsValue.code_version}`;
       }
@@ -130,7 +130,7 @@ export default class Index extends PureComponent {
 
   fetchCheckboxGroup = (type, serverType) => {
     const { checkedList, showKey } = this.state;
-    const isSubdirectories = serverType !== 'svn';
+    const isSubdirectories = serverType === 'git';
     return (
       <Checkbox.Group
         style={{ width: '100%', marginBottom: '10px' }}
@@ -186,9 +186,12 @@ export default class Index extends PureComponent {
     let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || '');
     // eslint-disable-next-line no-unused-vars
     let urlCheck = /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
-    if (serverType == 'svn') {
+    if (serverType === 'svn') {
       isHttp = true;
       urlCheck = /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
+    }
+    if (serverType === 'oss') {
+      isHttp = true;
     }
     const isSSH = !isHttp;
     const showCreateGroups =
@@ -203,6 +206,7 @@ export default class Index extends PureComponent {
       >
         <Option value="git">Git</Option>
         <Option value="svn">Svn</Option>
+        <Option value="oss">OSS</Option>
       </Select>
     );
     const versionSelector = getFieldDecorator('version_type', {
@@ -302,7 +306,7 @@ export default class Index extends PureComponent {
             </Form.Item>
           )}
 
-          {subdirectories && serverType !== 'svn' && (
+          {subdirectories && serverType === 'git' && (
             <Form.Item {...formItemLayout} label="子目录路径">
               {getFieldDecorator('subdirectories', {
                 initialValue: '',
@@ -310,17 +314,19 @@ export default class Index extends PureComponent {
               })(<Input placeholder="请输入子目录路径" />)}
             </Form.Item>
           )}
-          <Form.Item {...formItemLayout} label="代码版本">
-            {getFieldDecorator('code_version', {
-              initialValue: data.code_version || this.getDefaultBranchName(),
-              rules: [{ required: true, message: '请输入代码版本' }]
-            })(
-              <Input
-                addonBefore={versionSelector}
-                placeholder="请输入代码版本"
-              />
-            )}
-          </Form.Item>
+          {serverType !== 'oss' && (
+            <Form.Item {...formItemLayout} label="代码版本">
+              {getFieldDecorator('code_version', {
+                initialValue: data.code_version || this.getDefaultBranchName(),
+                rules: [{ required: true, message: '请输入代码版本' }]
+              })(
+                <Input
+                  addonBefore={versionSelector}
+                  placeholder="请输入代码版本"
+                />
+              )}
+            </Form.Item>
+          )}
 
           {showSubmitBtn ? (
             <Form.Item
