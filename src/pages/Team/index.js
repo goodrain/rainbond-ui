@@ -73,6 +73,14 @@ export default class Index extends PureComponent {
       scopes = 'role';
     }
     this.setState({ scope: scopes });
+    const {
+      location: { state }
+    } = this.props;
+    if (state && state.config) {
+      this.setState({
+        scope: state.config
+      });
+    }
   }
 
   componentDidMount() {
@@ -183,7 +191,8 @@ export default class Index extends PureComponent {
       rolePermissions,
       memberPermissions: { isAccess: memberAccess },
       datecenterPermissions: { isAccess: datecenterAccess },
-      rolePermissions: { isAccess: roleAccess }
+      rolePermissions: { isAccess: roleAccess },
+      tabActiveKey
     } = this.state;
 
     const pageHeaderContent = (
@@ -264,6 +273,7 @@ export default class Index extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         tabList={tabList}
+        tabActiveKey={scope}
         onTabChange={this.handleTabChange}
         content={pageHeaderContent}
         extraContent={extraContent}
