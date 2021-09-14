@@ -681,9 +681,10 @@ export default class Index extends PureComponent {
                 className={styles.teamDisk}
                 onClick={() => {
                   dispatch(
-                    routerRedux.push(
-                      `/enterprise/${index.overviewInfo.eid}/teams`
-                    )
+                    routerRedux.push({
+                      pathname: `/team/${teamName}/region/${regionName}/team`,
+                      state: { config: 'member' }
+                    })
                   );
                 }}
               >
