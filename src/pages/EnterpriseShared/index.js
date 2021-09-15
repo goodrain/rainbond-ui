@@ -1037,7 +1037,7 @@ export default class EnterpriseShared extends PureComponent {
                   }}
                 >
                   {globalUtil.fetchSvg('InstallApp')}
-                  <div style={{ background: '#fff' }}>安装</div>
+                  <div style={{ background: '#fff' }}>安装111</div>
                 </div>
               </Col>
             </div>
