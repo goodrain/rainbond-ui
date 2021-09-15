@@ -64,7 +64,8 @@ export default class EnterpriseTeams extends PureComponent {
       delTeamLoading: false,
       showOpenRegion: false,
       initShow: false,
-      guideStep: 1
+      guideStep: 1,
+      deleteConfig: false
     };
   }
   componentDidMount() {
@@ -80,7 +81,7 @@ export default class EnterpriseTeams extends PureComponent {
     });
   };
 
-  getEnterpriseTeams = () => {
+  getEnterpriseTeams = config => {
     const {
       dispatch,
       match: {
@@ -91,7 +92,7 @@ export default class EnterpriseTeams extends PureComponent {
     dispatch({
       type: 'global/fetchEnterpriseTeams',
       payload: {
-        page,
+        page: config ? 1 : page,
         page_size,
         enterprise_id: eid,
         name
@@ -102,7 +103,8 @@ export default class EnterpriseTeams extends PureComponent {
             total: (res.bean && res.bean.total_count) || 1,
             initShow: res.bean.total_count === 0,
             teamList: (res.bean && res.bean.list) || [],
-            enterpriseTeamsLoading: false
+            enterpriseTeamsLoading: false,
+            deleteConfig: false
           });
         }
       }
@@ -323,7 +325,15 @@ export default class EnterpriseTeams extends PureComponent {
       callback: res => {
         this.setState({ delTeamLoading: false });
         if (res && res.status_code === 200) {
-          this.getEnterpriseTeams();
+          this.setState(
+            {
+              deleteConfig: true
+            },
+            () => {
+              this.getEnterpriseTeams(this.state.deleteConfig);
+            }
+          );
+
           this.hideDelTeam();
           notification.success({ message: '团队删除成功' });
         }

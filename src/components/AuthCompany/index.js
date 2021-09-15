@@ -43,7 +43,6 @@ const { Option } = Select;
 export default class Index extends PureComponent {
   constructor(post) {
     super(post);
-    this.iframe = null;
     this.state = {
       currStep: this.props.currStep || 0,
       loading: false,
@@ -163,17 +162,7 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleSendIframe = () => {
-    const { enterprise_alias, enterprise_id, real_name } = this.state;
-    this.iframe.onload = () => {
-      setTimeout(() => {
-        this.iframe.contentWindow.postMessage(
-          { enterprise_alias, enterprise_id, real_name },
-          '*'
-        );
-      }, 2000);
-    };
-  };
+
   handleIsCloudAppStoreUrl = url => {
     const { dispatch } = this.props;
     axios
@@ -186,7 +175,6 @@ export default class Index extends PureComponent {
             loading: false,
             alertText: false
           });
-          this.handleSendIframe();
         } else {
           this.handleNoCloudAppStoreUrl();
         }
@@ -321,7 +309,10 @@ export default class Index extends PureComponent {
       marketList,
       marketUrl,
       alertText,
-      activeKeyStore
+      activeKeyStore,
+      enterprise_alias,
+      enterprise_id,
+      real_name
     } = this.state;
 
     const { getFieldDecorator } = form;
@@ -393,8 +384,7 @@ export default class Index extends PureComponent {
                   style={{ marginBottom: '16px' }}
                 />
                 <iframe
-                  ref={node => (this.iframe = node)}
-                  src={`${marketUrl}/certification/login`}
+                  src={`${marketUrl}/certification/login?enterprise_alias=${enterprise_alias}&enterprise_id=${enterprise_id}&real_name=${real_name}`}
                   style={{
                     width: '100%',
                     height: '400px'
