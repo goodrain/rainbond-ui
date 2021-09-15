@@ -384,8 +384,7 @@ export default class Index extends PureComponent {
                   style={{ marginBottom: '16px' }}
                 />
                 <iframe
-                  // src={`${marketUrl}/certification/login`}
-                  src={`http://0.0.0.0:8090/certification/login?enterprise_alias=${enterprise_alias}&enterprise_id=${enterprise_id}&real_name=${real_name}`}
+                  src={`${marketUrl}/certification/login?enterprise_alias=${enterprise_alias}&enterprise_id=${enterprise_id}&real_name=${real_name}`}
                   style={{
                     width: '100%',
                     height: '400px'
