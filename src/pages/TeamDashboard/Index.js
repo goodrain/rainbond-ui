@@ -74,7 +74,7 @@ export default class Index extends PureComponent {
       query: '',
       // 热门应用列表
       teamHotAppList: [],
-      pageSizeOptions: [12, 16, 20, 24, 28],
+      pageSizeOptions: ['12', '16', '20', '24', '28'],
       // 新建应用显示与隐藏
       createAppVisible: false,
       emptyConfig: false,
@@ -852,7 +852,6 @@ export default class Index extends PureComponent {
                 showSizeChanger
                 onShowSizeChange={this.handleChangePageSize}
                 current={page}
-                // defaultCurrent={1}
                 defaultPageSize={12}
                 total={total}
                 pageSizeOptions={pageSizeOptions}
