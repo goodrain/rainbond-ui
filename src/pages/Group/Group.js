@@ -3,7 +3,6 @@ import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
 import ApplicationGovernance from '@/components/ApplicationGovernance';
 import {
-  Badge,
   Button,
   Col,
   Divider,
@@ -18,6 +17,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
+import AppState from '../../components/ApplicationState';
 import ConfirmModal from '../../components/ConfirmModal';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
@@ -31,7 +31,6 @@ import AppShape from './AppShape';
 import ComponentList from './ComponentList';
 import EditorTopology from './EditorTopology';
 import styles from './Index.less';
-
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, application, teamControl, enterprise, loading }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
@@ -65,7 +64,8 @@ export default class Index extends PureComponent {
       customSwitch: false,
       resources: {},
       upgradableNum: 0,
-      upgradableNumLoading: true
+      upgradableNumLoading: true,
+      appStatusConfig: false
     };
   }
 
@@ -273,7 +273,8 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         this.setState({
-          resources: res.list
+          resources: res.list,
+          appStatusConfig: true
         });
       }
     });
@@ -540,7 +541,8 @@ export default class Index extends PureComponent {
       customSwitch,
       serviceIds,
       upgradableNumLoading,
-      upgradableNum
+      upgradableNum,
+      appStatusConfig
     } = this.state;
     const codeObj = {
       start: '启动',
@@ -549,25 +551,8 @@ export default class Index extends PureComponent {
       deploy: '构建'
     };
 
-    const appState = {
-      RUNNING: '运行中',
-      STARTING: '启动中',
-      CLOSED: '已关闭',
-      STOPPING: '关闭中',
-      ABNORMAL: '异常',
-      PARTIAL_ABNORMAL: '部分异常'
-    };
-    const appStateColor = {
-      RUNNING: 'success',
-      STARTING: 'success',
-      CLOSED: 'error',
-      STOPPING: 'error',
-      ABNORMAL: 'error',
-      PARTIAL_ABNORMAL: 'error'
-    };
     const BtnDisabled = !(jsonDataLength > 0);
     const MR = { marginRight: '10px' };
-
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.contentl}>
@@ -623,11 +608,7 @@ export default class Index extends PureComponent {
             )}
           </div>
           <div className={styles.content_Box}>
-            <Badge
-              className={styles.states}
-              status={appStateColor[resources.status] || 'default'}
-              text={appState[resources.status] || '-'}
-            />
+            {appStatusConfig && <AppState resources={resources} />}
             {resources.status && isStart && (
               <span>
                 <a
