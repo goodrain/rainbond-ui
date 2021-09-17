@@ -19,6 +19,7 @@ import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import EditGroupName from '../../components/AddOrEditGroup';
+import AppState from '../../components/ApplicationState';
 import Result from '../../components/Result';
 import VisterBtn from '../../components/visitBtnForAlllink';
 import globalUtil from '../../utils/global';
@@ -312,6 +313,7 @@ export default class Index extends PureComponent {
       {
         query: value,
         loadingOfApp: true,
+        page: 1,
         searchVisible: true
       },
       () => {
@@ -418,6 +420,18 @@ export default class Index extends PureComponent {
             emptyConfig: true
           });
         }
+      },
+      handleError: err => {
+        if (err && err.data && err.data.code === 10401) {
+          this.setState(
+            {
+              page: 1
+            },
+            () => {
+              this.loadHotApp();
+            }
+          );
+        }
       }
     });
   };
@@ -476,6 +490,12 @@ export default class Index extends PureComponent {
       createAppVisible: false
     });
   };
+  // 新建应用时的loading优化
+  handleAppLoading = () => {
+    this.setState({
+      loadingOfApp: true
+    });
+  };
   render() {
     const {
       loadingOverview,
@@ -486,6 +506,7 @@ export default class Index extends PureComponent {
       createAppVisible,
       loadingOfApp,
       page,
+      page_size,
       query,
       emptyConfig,
       searchVisible
@@ -815,32 +836,10 @@ export default class Index extends PureComponent {
                             </div>
                           )}
                         </div>
-                        {/* running */}
-                        {item.status === 'RUNNING' && (
-                          <div className={styles.running}>
-                            <span style={{ paddingTop: '1px' }}>
-                              {globalUtil.fetchSvg(
-                                'teamAppActive',
-                                '#57c32d',
-                                '12'
-                              )}
-                            </span>
-                            <span>运行中</span>
-                          </div>
-                        )}
-                        {/* no running */}
-                        {item.status !== 'RUNNING' && (
-                          <div className={styles.running}>
-                            <span>
-                              {globalUtil.fetchSvg(
-                                'teamAppActive',
-                                '#cccccc',
-                                '12'
-                              )}
-                            </span>
-                            <span>关闭</span>
-                          </div>
-                        )}
+                        {/* App status */}
+                        <div className={styles.running}>
+                          <AppState AppStatus={item.status} />
+                        </div>
                       </div>
                     </div>
                   );
@@ -852,7 +851,7 @@ export default class Index extends PureComponent {
                 showSizeChanger
                 onShowSizeChange={this.handleChangePageSize}
                 current={page}
-                defaultPageSize={12}
+                pageSize={page_size}
                 total={total}
                 pageSizeOptions={pageSizeOptions}
                 onChange={this.handleChangePage}
@@ -868,6 +867,7 @@ export default class Index extends PureComponent {
             title="新建应用"
             onCancel={this.handleCancelApplication}
             onOk={this.handleOkApplication}
+            handleAppLoading={this.handleAppLoading}
           />
         )}
         {/* 集群不健康的情况 */}

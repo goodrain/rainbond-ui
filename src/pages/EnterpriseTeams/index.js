@@ -65,7 +65,6 @@ export default class EnterpriseTeams extends PureComponent {
       showOpenRegion: false,
       initShow: false,
       guideStep: 1,
-      deleteConfig: false,
       searchConfig: false
     };
   }
@@ -82,7 +81,7 @@ export default class EnterpriseTeams extends PureComponent {
     });
   };
 
-  getEnterpriseTeams = (config = false, search = false) => {
+  getEnterpriseTeams = () => {
     const {
       dispatch,
       match: {
@@ -93,7 +92,7 @@ export default class EnterpriseTeams extends PureComponent {
     dispatch({
       type: 'global/fetchEnterpriseTeams',
       payload: {
-        page: config ? 1 : page,
+        page,
         page_size,
         enterprise_id: eid,
         name
@@ -102,10 +101,11 @@ export default class EnterpriseTeams extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({
             total: (res.bean && res.bean.total_count) || 1,
-            initShow: search ? false : res.bean.total_count === 0,
+            initShow: this.state.searchConfig
+              ? false
+              : res.bean.total_count === 0,
             teamList: (res.bean && res.bean.list) || [],
             enterpriseTeamsLoading: false,
-            deleteConfig: false,
             searchConfig: false
           });
         }
@@ -152,7 +152,7 @@ export default class EnterpriseTeams extends PureComponent {
         searchConfig: true
       },
       () => {
-        this.getEnterpriseTeams(false, this.state.searchConfig);
+        this.getEnterpriseTeams();
       }
     );
   };
@@ -330,10 +330,10 @@ export default class EnterpriseTeams extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState(
             {
-              deleteConfig: true
+              page: 1
             },
             () => {
-              this.getEnterpriseTeams(this.state.deleteConfig);
+              this.getEnterpriseTeams();
             }
           );
 

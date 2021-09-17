@@ -224,9 +224,10 @@ export async function getRegionSource(body = {}) {
   });
 }
 /* 获取团队应用模块 */
-export async function getTeamAppList(body = {}) {
+export async function getTeamAppList(body = {}, handleError) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps`, {
     method: 'get',
+    handleError,
     params: {
       page: body.page,
       page_size: body.page_size,
