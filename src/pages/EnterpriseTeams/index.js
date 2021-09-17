@@ -82,7 +82,7 @@ export default class EnterpriseTeams extends PureComponent {
     });
   };
 
-  getEnterpriseTeams = (config = false, search = false) => {
+  getEnterpriseTeams = (search = false) => {
     const {
       dispatch,
       match: {
@@ -93,7 +93,7 @@ export default class EnterpriseTeams extends PureComponent {
     dispatch({
       type: 'global/fetchEnterpriseTeams',
       payload: {
-        page: config ? 1 : page,
+        page,
         page_size,
         enterprise_id: eid,
         name
@@ -152,7 +152,7 @@ export default class EnterpriseTeams extends PureComponent {
         searchConfig: true
       },
       () => {
-        this.getEnterpriseTeams(false, this.state.searchConfig);
+        this.getEnterpriseTeams(this.state.searchConfig);
       }
     );
   };
@@ -330,10 +330,11 @@ export default class EnterpriseTeams extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState(
             {
-              deleteConfig: true
+              deleteConfig: true,
+              page: 1
             },
             () => {
-              this.getEnterpriseTeams(this.state.deleteConfig);
+              this.getEnterpriseTeams();
             }
           );
 

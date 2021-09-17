@@ -273,8 +273,8 @@ export default {
         callback(data);
       }
     },
-    *getTeamAppList({ payload, callback }, { call }) {
-      const data = yield call(getTeamAppList, payload);
+    *getTeamAppList({ payload, callback, handleError }, { call }) {
+      const data = yield call(getTeamAppList, payload, handleError);
       if (data && callback) {
         callback(data);
       }

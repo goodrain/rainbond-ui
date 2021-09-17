@@ -312,6 +312,7 @@ export default class Index extends PureComponent {
       {
         query: value,
         loadingOfApp: true,
+        page: 1,
         searchVisible: true
       },
       () => {
@@ -418,6 +419,18 @@ export default class Index extends PureComponent {
             emptyConfig: true
           });
         }
+      },
+      handleError: err => {
+        if (err && err.data && err.data.code === 10401) {
+          this.setState(
+            {
+              page: 1
+            },
+            () => {
+              this.loadHotApp();
+            }
+          );
+        }
       }
     });
   };
@@ -486,6 +499,7 @@ export default class Index extends PureComponent {
       createAppVisible,
       loadingOfApp,
       page,
+      page_size,
       query,
       emptyConfig,
       searchVisible
@@ -852,7 +866,7 @@ export default class Index extends PureComponent {
                 showSizeChanger
                 onShowSizeChange={this.handleChangePageSize}
                 current={page}
-                defaultPageSize={12}
+                pageSize={page_size}
                 total={total}
                 pageSizeOptions={pageSizeOptions}
                 onChange={this.handleChangePage}
