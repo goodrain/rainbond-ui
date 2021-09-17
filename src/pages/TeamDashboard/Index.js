@@ -19,6 +19,7 @@ import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import EditGroupName from '../../components/AddOrEditGroup';
+import AppState from '../../components/ApplicationState';
 import Result from '../../components/Result';
 import VisterBtn from '../../components/visitBtnForAlllink';
 import globalUtil from '../../utils/global';
@@ -489,6 +490,12 @@ export default class Index extends PureComponent {
       createAppVisible: false
     });
   };
+  // 新建应用时的loading优化
+  handleAppLoading = () => {
+    this.setState({
+      loadingOfApp: true
+    });
+  };
   render() {
     const {
       loadingOverview,
@@ -829,32 +836,10 @@ export default class Index extends PureComponent {
                             </div>
                           )}
                         </div>
-                        {/* running */}
-                        {item.status === 'RUNNING' && (
-                          <div className={styles.running}>
-                            <span style={{ paddingTop: '1px' }}>
-                              {globalUtil.fetchSvg(
-                                'teamAppActive',
-                                '#57c32d',
-                                '12'
-                              )}
-                            </span>
-                            <span>运行中</span>
-                          </div>
-                        )}
-                        {/* no running */}
-                        {item.status !== 'RUNNING' && (
-                          <div className={styles.running}>
-                            <span>
-                              {globalUtil.fetchSvg(
-                                'teamAppActive',
-                                '#cccccc',
-                                '12'
-                              )}
-                            </span>
-                            <span>关闭</span>
-                          </div>
-                        )}
+                        {/* App status */}
+                        <div className={styles.running}>
+                          <AppState AppStatus={item.status} />
+                        </div>
                       </div>
                     </div>
                   );
@@ -882,6 +867,7 @@ export default class Index extends PureComponent {
             title="新建应用"
             onCancel={this.handleCancelApplication}
             onOk={this.handleOkApplication}
+            handleAppLoading={this.handleAppLoading}
           />
         )}
         {/* 集群不健康的情况 */}
