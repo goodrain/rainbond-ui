@@ -836,13 +836,6 @@ export default class EnterpriseClusters extends PureComponent {
         ) : (
           ''
         )}
-        <InstallStep
-          onCancel={this.handleClusterIntroduced}
-          isCluster
-          eid={eid}
-          onStartInstall={this.onStartInstall}
-          onViewInstance={this.onViewInstance}
-        />
         <Row style={{ marginBottom: '20px' }}>
           <Col span={24} style={{ textAlign: 'right' }}>
             <Link to={`/enterprise/${eid}/addCluster`}>
