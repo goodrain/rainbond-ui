@@ -1570,7 +1570,6 @@ export default class EnterpriseShared extends PureComponent {
         </div>
       </div>
     );
-    console.log(activeTabKey);
     return (
       <PageHeaderLayout
         title="应用市场管理"
@@ -1585,10 +1584,8 @@ export default class EnterpriseShared extends PureComponent {
             onCancel={this.hideInstallStep}
             isAuthorize={isAuthorize}
             eid={eid}
-            dispatch={dispatch}
             installType={this.state.installType}
             isStoreCluster={this.state.isStoreCluster}
-            // onStartInstall={this.onStartInstall}
           />
         )}
 
@@ -1605,21 +1602,6 @@ export default class EnterpriseShared extends PureComponent {
             onCloseLogin={this.onCloseLogin}
           />
         )}
-
-        {/* {guideStep === 'Jump' &&
-          this.handleNewbieGuiding({
-            tit: '进行集群的安装',
-            desc: '当前暂无可用的计算资源，需要首先进行集群的安装',
-            send: true,
-            configName: 'installApp',
-            showSvg: false,
-            nextStep: 3,
-            btnText: '去安装',
-            conPosition: { right: 0, marginTop: '160px' },
-            handleClick: () => {
-              dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-            }
-          })} */}
         {showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}

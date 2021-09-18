@@ -18,18 +18,15 @@ export default class InstallStep extends PureComponent {
     this.state = {
       installType: props.installType,
       isAuthorize: false,
-      authorizeLoading: true,
-      eid: props.eid ? props.eid : '',
-      dispatch: props.dispatch
+      authorizeLoading: true
     };
   }
 
   componentWillMount() {
-    const { dispatch } = this.state;
     dispatch({
       type: 'market/fetchMarketsTab',
       payload: {
-        enterprise_id: this.state.eid
+        enterprise_id: props.eid
       },
       callback: res => {
         if (res && res.status_code === 200) {
