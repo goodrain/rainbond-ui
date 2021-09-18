@@ -32,6 +32,7 @@ import CreateAppModels from '../../components/CreateAppModels';
 import CreateHelmAppModels from '../../components/CreateHelmAppModels';
 import DeleteApp from '../../components/DeleteApp';
 import HelmAppMarket from '../../components/HelmAppMarket';
+import InstallStep from '../../components/Introduced/InstallStep';
 import PlatformIntroduced from '../../components/Introduced/PlatformIntroduced';
 import Lists from '../../components/Lists';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
@@ -125,7 +126,12 @@ export default class EnterpriseShared extends PureComponent {
       showApp: {},
       showMarketAppDetail: false,
       appTypes: false,
-      isClusters: false
+      isClusters: false,
+      isInStallShow: true,
+      showMarketCloudAuth: false,
+      isAuthorize: false,
+      installType: '1',
+      isStoreCluster: false
     };
   }
   componentDidMount() {
@@ -503,8 +509,13 @@ export default class EnterpriseShared extends PureComponent {
     this.getHelmMarketsTab(false, true);
     this.checkStoreHub();
   };
-  loadClusters = eid => {
-    const { dispatch } = this.props;
+  loadClusters = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
     dispatch({
       type: 'region/fetchEnterpriseClusters',
       payload: {
@@ -888,7 +899,13 @@ export default class EnterpriseShared extends PureComponent {
     const defaulAppImg = globalUtil.fetchSvg('defaulAppImg');
     const isLocalsContent = types !== 'marketContent';
     const isHelmContent = types === 'helmContent';
-    const { guideStep, initShow, activeTabKey, marketInfo } = this.state;
+    const {
+      guideStep,
+      initShow,
+      activeTabKey,
+      marketInfo,
+      isClusters
+    } = this.state;
     const helmInfo =
       isHelmContent && versions && versions.length > 0 && versions[0];
     const isReadInstall =
@@ -904,7 +921,7 @@ export default class EnterpriseShared extends PureComponent {
           indexs === 0 &&
           this.handleNewbieGuiding({
             tit: '安装应用',
-            send: false,
+            send: true,
             configName: 'installApp',
             desc:
               '从应用商店安装应用是最简单的应用部署方式，后面你也可以很方便的将您的企业应用发布到应用商店中',
@@ -1027,11 +1044,15 @@ export default class EnterpriseShared extends PureComponent {
                   style={{ background: '#fff' }}
                   onClick={e => {
                     e.stopPropagation();
-                    if (isReadInstall || types !== 'marketContent') {
+                    if (
+                      (isReadInstall && marketInfo && isClusters) ||
+                      types !== 'marketContent'
+                    ) {
                       this.installHelmApp(item, types);
                     } else {
                       this.setState({
-                        showCloudMarketAuth: true
+                        isInStallShow: true,
+                        guideStep: 'Jump'
                       });
                     }
                   }}
@@ -1079,6 +1100,8 @@ export default class EnterpriseShared extends PureComponent {
                 handleClick();
                 if (!isReadInstall) {
                   this.setState({
+                    // isInStallShow: true,
+                    // guideStep: 'Jump'
                     showCloudMarketAuth: true
                   });
                   return null;
@@ -1112,6 +1135,33 @@ export default class EnterpriseShared extends PureComponent {
         arr: [{ key: configName, value: true }]
       }
     });
+  };
+  hideInstallStep = (isNext, installType) => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    const { isAuthorize } = this.state;
+    this.setState({ isInStallShow: false });
+    if (isNext) {
+      if ((isAuthorize && installType == 1) || installType == 2) {
+        if (isAuthorize && installType == 1) {
+          this.setState({ isStoreCluster: true });
+        }
+        this.setState({ installType: installType });
+        sessionStorage.setItem('isAuthorize', isAuthorize);
+        dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+      } else {
+        this.setState({ showMarketCloudAuth: true });
+      }
+    } else {
+      this.setState({ isInStallShow: false });
+    }
+  };
+  onCloseLogin = () => {
+    this.setState({ isInStallShow: true, isAuthorize: true });
   };
   render() {
     const {
@@ -1169,7 +1219,10 @@ export default class EnterpriseShared extends PureComponent {
       seeTag,
       guideStep,
       initShow,
-      isNewbieGuide
+      isNewbieGuide,
+      isInStallShow,
+      showMarketCloudAuth,
+      isAuthorize
     } = this.state;
     const tagLists = tagList && tagList.length > 0 && tagList;
     const accessActions =
@@ -1517,6 +1570,7 @@ export default class EnterpriseShared extends PureComponent {
         </div>
       </div>
     );
+    console.log(activeTabKey);
     return (
       <PageHeaderLayout
         title="应用市场管理"
@@ -1526,7 +1580,33 @@ export default class EnterpriseShared extends PureComponent {
           <PlatformIntroduced onCancel={this.hideInitShow} />
         )}
 
-        {guideStep === 'Jump' &&
+        {guideStep === 'Jump' && isInStallShow && (
+          <InstallStep
+            onCancel={this.hideInstallStep}
+            isAuthorize={isAuthorize}
+            eid={eid}
+            dispatch={dispatch}
+            installType={this.state.installType}
+            isStoreCluster={this.state.isStoreCluster}
+            // onStartInstall={this.onStartInstall}
+          />
+        )}
+
+        {showMarketCloudAuth && (
+          <AuthCompany
+            eid={eid}
+            marketName={marketInfo.name}
+            title="欢迎使用该平台，请先完成连接云应用商店授权"
+            onCancel={() => {
+              this.setState({ showMarketCloudAuth: false });
+            }}
+            currStep={2}
+            isReload={true}
+            onCloseLogin={this.onCloseLogin}
+          />
+        )}
+
+        {/* {guideStep === 'Jump' &&
           this.handleNewbieGuiding({
             tit: '进行集群的安装',
             desc: '当前暂无可用的计算资源，需要首先进行集群的安装',
@@ -1539,7 +1619,7 @@ export default class EnterpriseShared extends PureComponent {
             handleClick: () => {
               dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
             }
-          })}
+          })} */}
         {showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
