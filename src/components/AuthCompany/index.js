@@ -74,7 +74,6 @@ export default class Index extends PureComponent {
     }
   }
   onChangeCheckbox = checkedValues => {
-    console.log(checkedValues);
     this.setState({
       checkedValues
     });
@@ -130,7 +129,6 @@ export default class Index extends PureComponent {
           if (res.list && res.list.length > 1) {
             this.handleCurrStep(4);
           } else {
-            console.log(res);
             this.setState(
               { isShowModal: false, checkedValues: [res.list[0].domain] },
               () => {
@@ -351,8 +349,6 @@ export default class Index extends PureComponent {
         进行用户授权，完成后可获取安装应用的权限。
       </span>
     );
-    console.log(marketUrl);
-    console.log(marketList);
     return (
       isShowModal && (
         <Modal

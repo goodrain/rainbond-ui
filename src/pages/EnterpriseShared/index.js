@@ -1150,7 +1150,7 @@ export default class EnterpriseShared extends PureComponent {
         if (isAuthorize && installType == 1) {
           this.setState({ isStoreCluster: true });
         }
-        this.setState({ installType: installType });
+        this.setState({ installType });
         sessionStorage.setItem('isAuthorize', isAuthorize);
         dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
       } else {
@@ -1168,7 +1168,6 @@ export default class EnterpriseShared extends PureComponent {
       match: {
         params: { eid }
       },
-      dispatch,
       upAppMarketLoading
     } = this.props;
 
@@ -1598,7 +1597,7 @@ export default class EnterpriseShared extends PureComponent {
               this.setState({ showMarketCloudAuth: false });
             }}
             currStep={2}
-            isReload={true}
+            isReload
             onCloseLogin={this.onCloseLogin}
           />
         )}

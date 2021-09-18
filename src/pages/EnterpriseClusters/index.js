@@ -69,9 +69,7 @@ export default class EnterpriseClusters extends PureComponent {
         'successInstallClusters'
       ),
       setTenantLimitShow: false,
-      guideStep: 1,
-      isEnterpriseEdition: rainbondUtil.isEnterpriseEdition(rainbondInfo),
-      isShowInstallStep: true
+      guideStep: 1
     };
   }
   componentWillMount() {
@@ -393,11 +391,7 @@ export default class EnterpriseClusters extends PureComponent {
     });
   };
 
-  hideInstallStep = () => {
-    this.setState({ isShowInstallStep: false });
-  };
-
-  //开始应用安装回调
+  // 开始应用安装回调
   onStartInstall = type => {
     const {
       dispatch,
@@ -405,47 +399,22 @@ export default class EnterpriseClusters extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    const { clusters } = this.state;
     this.handleClusterIntroduced();
-    //从应用商店安装应用
+    // 从应用商店安装应用
     if (type == 1) {
       dispatch(routerRedux.push(`/enterprise/${eid}/shared/local?init=true`));
     } else {
-      //自定义安装
-      const {
-        dispatch,
-        match: {
-          params: { eid }
-        }
-      } = this.props;
-      dispatch({
-        type: 'global/fetchMyTeams',
-        payload: {
-          enterprise_id: eid,
-          page: 1,
-          page_size: 1
-        },
-        callback: res => {
-          if (res && res.status_code === 200) {
-            if (res && res.list.length > 0) {
-              dispatch(
-                routerRedux.push(
-                  `/team/${res.list[0].team_name}/region/${clusters[0].region_name}/create/code`
-                )
-              );
-            } else {
-              notification.warn({
-                message: '请先创建团队！'
-              });
-            }
-          }
-        }
-      });
+      // 自定义安装
+      this.fetchMyTeams();
     }
   };
 
-  //查看应用实例
+  // 查看应用实例
   onViewInstance = () => {
+    this.fetchMyTeams(true);
+  };
+
+  fetchMyTeams = (isNext = false) => {
     const {
       dispatch,
       match: {
@@ -453,9 +422,6 @@ export default class EnterpriseClusters extends PureComponent {
       }
     } = this.props;
     const { clusters } = this.state;
-    const teamId = '',
-      groupId = '';
-    //获取团队ID
     dispatch({
       type: 'global/fetchMyTeams',
       payload: {
@@ -466,7 +432,16 @@ export default class EnterpriseClusters extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           if (res && res.list.length > 0) {
-            teamId = res.list[0].team_name;
+            const teamName = res.list[0].team_name;
+            if (isNext && teamName) {
+              this.fetchApps(teamName, true);
+            } else if (teamName) {
+              dispatch(
+                routerRedux.push(
+                  `/team/${teamName}/region/${clusters[0].region_name}/create/code`
+                )
+              );
+            }
           } else {
             return notification.warn({
               message: '请先创建团队！'
@@ -475,37 +450,43 @@ export default class EnterpriseClusters extends PureComponent {
         }
       }
     });
-    //获取应用
-    if (teamId !== '') {
-      dispatch({
-        type: 'global/fetchEnterpriseApps',
-        payload: {
-          enterprise_id: eid,
-          page: 1,
-          page_size: 1
-        },
-        callback: res => {
-          if (res && res.status_code === 200) {
-            if (res && res.list.length > 0) {
-              groupId = res.list[0].group_id;
-            } else {
-              return notification.warn({
-                message: '请先创建应用！'
-              });
-            }
-          }
-        }
-      });
-    }
-    if (teamId !== '' && groupId !== '') {
-      dispatch(
-        routerRedux.push(
-          `/team/${teamId}/region/${clusters[0].region_name}/apps/${groupId}`
-        )
-      );
-    }
   };
 
+  fetchApps = (teamName = '', isNext = false) => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    const { clusters } = this.state;
+    dispatch({
+      type: 'global/fetchEnterpriseApps',
+      payload: {
+        enterprise_id: eid,
+        page: 1,
+        page_size: 1
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          if (res && res.list.length > 0) {
+            const groupId = res.list[0].ID;
+            if (isNext && groupId && teamName) {
+              dispatch(
+                routerRedux.push(
+                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}`
+                )
+              );
+            }
+          } else {
+            return notification.warn({
+              message: '请先创建应用！'
+            });
+          }
+        }
+      }
+    });
+  };
   render() {
     const {
       delclusterLongin,
@@ -513,8 +494,7 @@ export default class EnterpriseClusters extends PureComponent {
         params: { eid }
       },
       clusterLoading,
-      form,
-      dispatch
+      form
     } = this.props;
     const {
       clusters,
@@ -835,7 +815,6 @@ export default class EnterpriseClusters extends PureComponent {
         sm: { span: 12 }
       }
     };
-    const { isShowInstallStep } = this.state;
     return (
       <PageHeaderLayout
         title="集群管理"
@@ -849,7 +828,7 @@ export default class EnterpriseClusters extends PureComponent {
         clusters[0].status === '1' ? (
           <InstallStep
             onCancel={this.handleClusterIntroduced}
-            isCluster={true}
+            isCluster
             eid={eid}
             onStartInstall={this.onStartInstall}
             onViewInstance={this.onViewInstance}
@@ -857,7 +836,13 @@ export default class EnterpriseClusters extends PureComponent {
         ) : (
           ''
         )}
-
+        <InstallStep
+          onCancel={this.handleClusterIntroduced}
+          isCluster
+          eid={eid}
+          onStartInstall={this.onStartInstall}
+          onViewInstance={this.onViewInstance}
+        />
         <Row style={{ marginBottom: '20px' }}>
           <Col span={24} style={{ textAlign: 'right' }}>
             <Link to={`/enterprise/${eid}/addCluster`}>

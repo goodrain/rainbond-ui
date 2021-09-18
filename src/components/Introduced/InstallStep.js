@@ -9,6 +9,7 @@ import installColor from '../../assets/install_color.png';
 import success from '../../assets/success.png';
 import styles from '../CreateTeam/index.less';
 import styless from './index.less';
+
 const { Step } = Steps;
 const { TabPane } = Tabs;
 @connect()
@@ -16,17 +17,18 @@ export default class InstallStep extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      installType: props.installType,
+      installType: 1,
       isAuthorize: false,
       authorizeLoading: true
     };
   }
 
   componentWillMount() {
+    const { dispatch, eid } = this.props;
     dispatch({
       type: 'market/fetchMarketsTab',
       payload: {
-        enterprise_id: props.eid
+        enterprise_id: eid
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -50,13 +52,7 @@ export default class InstallStep extends PureComponent {
     this.setState({ installType: value });
   };
   render() {
-    const {
-      onCancel,
-      isCluster,
-      onStartInstall,
-      onViewInstance,
-      isStoreCluster
-    } = this.props;
+    const { onCancel, isCluster, onStartInstall, onViewInstance } = this.props;
     const { installType, isAuthorize, authorizeLoading } = this.state;
     return authorizeLoading ? (
       <Spin />
