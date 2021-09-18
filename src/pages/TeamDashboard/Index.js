@@ -699,7 +699,7 @@ export default class Index extends PureComponent {
             {/* 用户数量 */}
             <div>
               <div
-                className={styles.teamDisk}
+                className={`${styles.teamDisk} ${styles.hoverPointer}`}
                 onClick={() => {
                   dispatch(
                     routerRedux.push({
@@ -768,7 +768,7 @@ export default class Index extends PureComponent {
                   return (
                     <div key={item.group_id}>
                       <div
-                        className={styles.teamHotAppItem}
+                        className={`${styles.teamHotAppItem} ${styles.hoverPointer}`}
                         onClick={() => {
                           dispatch(
                             routerRedux.push(
