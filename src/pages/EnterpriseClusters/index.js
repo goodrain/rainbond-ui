@@ -23,7 +23,7 @@ import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import EditClusterInfo from '../../components/Cluster/EditClusterInfo';
 import ConfirmModal from '../../components/ConfirmModal';
-import ClusterIntroduced from '../../components/Introduced/ClusterIntroduced';
+import InstallStep from '../../components/Introduced/InstallStep';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
@@ -70,7 +70,8 @@ export default class EnterpriseClusters extends PureComponent {
       ),
       setTenantLimitShow: false,
       guideStep: 1,
-      isEnterpriseEdition: rainbondUtil.isEnterpriseEdition(rainbondInfo)
+      isEnterpriseEdition: rainbondUtil.isEnterpriseEdition(rainbondInfo),
+      isShowInstallStep: true
     };
   }
   componentWillMount() {
@@ -391,6 +392,120 @@ export default class EnterpriseClusters extends PureComponent {
       }
     });
   };
+
+  hideInstallStep = () => {
+    this.setState({ isShowInstallStep: false });
+  };
+
+  //开始应用安装回调
+  onStartInstall = type => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    const { clusters } = this.state;
+    this.handleClusterIntroduced();
+    //从应用商店安装应用
+    if (type == 1) {
+      dispatch(routerRedux.push(`/enterprise/${eid}/shared/local?init=true`));
+    } else {
+      //自定义安装
+      const {
+        dispatch,
+        match: {
+          params: { eid }
+        }
+      } = this.props;
+      dispatch({
+        type: 'global/fetchMyTeams',
+        payload: {
+          enterprise_id: eid,
+          page: 1,
+          page_size: 1
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            if (res && res.list.length > 0) {
+              dispatch(
+                routerRedux.push(
+                  `/team/${res.list[0].team_name}/region/${clusters[0].region_name}/create/code`
+                )
+              );
+            } else {
+              notification.warn({
+                message: '请先创建团队！'
+              });
+            }
+          }
+        }
+      });
+    }
+  };
+
+  //查看应用实例
+  onViewInstance = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    const { clusters } = this.state;
+    const teamId = '',
+      groupId = '';
+    //获取团队ID
+    dispatch({
+      type: 'global/fetchMyTeams',
+      payload: {
+        enterprise_id: eid,
+        page: 1,
+        page_size: 1
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          if (res && res.list.length > 0) {
+            teamId = res.list[0].team_name;
+          } else {
+            return notification.warn({
+              message: '请先创建团队！'
+            });
+          }
+        }
+      }
+    });
+    //获取应用
+    if (teamId !== '') {
+      dispatch({
+        type: 'global/fetchEnterpriseApps',
+        payload: {
+          enterprise_id: eid,
+          page: 1,
+          page_size: 1
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            if (res && res.list.length > 0) {
+              groupId = res.list[0].group_id;
+            } else {
+              return notification.warn({
+                message: '请先创建应用！'
+              });
+            }
+          }
+        }
+      });
+    }
+    if (teamId !== '' && groupId !== '') {
+      dispatch(
+        routerRedux.push(
+          `/team/${teamId}/region/${clusters[0].region_name}/apps/${groupId}`
+        )
+      );
+    }
+  };
+
   render() {
     const {
       delclusterLongin,
@@ -720,6 +835,7 @@ export default class EnterpriseClusters extends PureComponent {
         sm: { span: 12 }
       }
     };
+    const { isShowInstallStep } = this.state;
     return (
       <PageHeaderLayout
         title="集群管理"
@@ -731,14 +847,12 @@ export default class EnterpriseClusters extends PureComponent {
         clusters &&
         clusters.length &&
         clusters[0].status === '1' ? (
-          <ClusterIntroduced
-            onOk={() => {
-              this.handleClusterIntroduced();
-              dispatch(
-                routerRedux.push(`/enterprise/${eid}/shared/local?init=true`)
-              );
-            }}
+          <InstallStep
             onCancel={this.handleClusterIntroduced}
+            isCluster={true}
+            eid={eid}
+            onStartInstall={this.onStartInstall}
+            onViewInstance={this.onViewInstance}
           />
         ) : (
           ''
