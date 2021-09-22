@@ -836,6 +836,7 @@ export default class EnterpriseClusters extends PureComponent {
         ) : (
           ''
         )}
+
         <Row style={{ marginBottom: '20px' }}>
           <Col span={24} style={{ textAlign: 'right' }}>
             <Link to={`/enterprise/${eid}/addCluster`}>
@@ -861,6 +862,7 @@ export default class EnterpriseClusters extends PureComponent {
               })}
           </Col>
         </Row>
+
         <Card>
           {delVisible && (
             <ConfirmModal
@@ -882,10 +884,12 @@ export default class EnterpriseClusters extends PureComponent {
               onCancel={this.cancelEditClusters}
             />
           )}
+
           <Alert
             style={{ marginBottom: '16px' }}
             message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
           />
+
           <Table
             scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
             loading={clusterLoading}
@@ -893,6 +897,7 @@ export default class EnterpriseClusters extends PureComponent {
             columns={columns}
           />
         </Card>
+
         {showTenantList && (
           <Modal
             maskClosable={false}
