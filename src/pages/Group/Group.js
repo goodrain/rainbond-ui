@@ -105,9 +105,6 @@ export default class Index extends PureComponent {
     const { nextStep } = info;
     return (
       <NewbieGuiding
-        style={{
-          transition: 'all 6s '
-        }}
         {...info}
         totals={2}
         handleClose={() => {
@@ -914,7 +911,6 @@ export default class Index extends PureComponent {
                 </a>
               )}
             </Col>
-
             <Col span={4} style={{ textAlign: 'right' }}>
               {isComponentCreate && isComponentConstruct && (
                 <AddThirdParty
