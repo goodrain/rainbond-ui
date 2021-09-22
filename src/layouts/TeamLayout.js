@@ -87,14 +87,10 @@ class TeamLayout extends PureComponent {
   }
 
   componentWillMount() {
+    this.getNewbieGuideConfig();
     this.getEnterpriseList();
   }
-  componentWillReceiveProps(nextProps) {
-    // const {
-    //   match: {
-    //     params: { appID }
-    //   }
-    // } = nextProps;
+  componentWillReceiveProps() {
     const appID = globalUtil.getAppID();
     const { appID: cldAppID } = this.state;
     if (appID && appID !== cldAppID) {
@@ -109,6 +105,12 @@ class TeamLayout extends PureComponent {
       );
     }
   }
+  getNewbieGuideConfig = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchNewbieGuideConfig'
+    });
+  };
   // get enterprise list
   getEnterpriseList = () => {
     const { dispatch, currentUser } = this.props;

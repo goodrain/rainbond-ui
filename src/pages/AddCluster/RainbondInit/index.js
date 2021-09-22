@@ -65,7 +65,7 @@ export default class RainbondInit extends PureComponent {
         title: '选择供应商'
       },
       {
-        title: '选择(创建)Kubernetes集群'
+        title: '选择(创建)平台集群'
       },
       {
         title: '初始化平台集群'

@@ -2,6 +2,7 @@
 import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
 import ApplicationGovernance from '@/components/ApplicationGovernance';
+import NewbieGuiding from '@/components/NewbieGuiding';
 import {
   Button,
   Col,
@@ -24,6 +25,7 @@ import VisterBtn from '../../components/visitBtnForAlllink';
 import { batchOperation } from '../../services/app';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
 import sourceUtil from '../../utils/source-unit';
 import AddServiceComponent from './AddServiceComponent';
 import AddThirdParty from './AddThirdParty';
@@ -32,7 +34,7 @@ import ComponentList from './ComponentList';
 import EditorTopology from './EditorTopology';
 import styles from './Index.less';
 // eslint-disable-next-line react/no-multi-comp
-@connect(({ user, application, teamControl, enterprise, loading }) => ({
+@connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
   editGroupLoading: loading.effects['application/editGroup'],
   deleteLoading: loading.effects['application/delete'],
@@ -41,7 +43,8 @@ import styles from './Index.less';
   groupDetail: application.groupDetail || {},
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
-  currentEnterprise: enterprise.currentEnterprise
+  currentEnterprise: enterprise.currentEnterprise,
+  novices: global.novices
 }))
 export default class Index extends PureComponent {
   constructor(arg) {
@@ -65,7 +68,8 @@ export default class Index extends PureComponent {
       resources: {},
       upgradableNum: 0,
       upgradableNumLoading: true,
-      appStatusConfig: false
+      appStatusConfig: false,
+      guideStep: 1
     };
   }
 
@@ -97,7 +101,29 @@ export default class Index extends PureComponent {
     this.loadTopology(true);
     this.fetchAppDetailState();
   };
-
+  handleNewbieGuiding = info => {
+    const { nextStep } = info;
+    return (
+      <NewbieGuiding
+        {...info}
+        totals={2}
+        handleClose={() => {
+          this.handleGuideStep('close');
+        }}
+        handleNext={() => {
+          if (nextStep) {
+            document.getElementById('scroll_div').scrollIntoView();
+            this.handleGuideStep(nextStep);
+          }
+        }}
+      />
+    );
+  };
+  handleGuideStep = guideStep => {
+    this.setState({
+      guideStep
+    });
+  };
   loadTopology(isCycle) {
     const { dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName();
@@ -516,6 +542,7 @@ export default class Index extends PureComponent {
       buildShapeLoading,
       editGroupLoading,
       deleteLoading,
+      novices,
       appConfigGroupPermissions: { isAccess: isConfigGroup },
       componentPermissions,
       operationPermissions: { isAccess: isControl },
@@ -542,7 +569,8 @@ export default class Index extends PureComponent {
       serviceIds,
       upgradableNumLoading,
       upgradableNum,
-      appStatusConfig
+      appStatusConfig,
+      guideStep
     } = this.state;
     const codeObj = {
       start: '启动',
@@ -814,9 +842,31 @@ export default class Index extends PureComponent {
     );
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
+    const highlighted = {
+      position: 'relative',
+      zIndex: 1000,
+      padding: '0 16px',
+      margin: '0 -16px',
+      background: '#fff'
+    };
+    const isScrollDiv = rainbondUtil.handleNewbie(novices, 'applicationInfo');
     return (
       <Fragment>
-        <Row>{pageHeaderContent}</Row>
+        <Row style={isScrollDiv && guideStep === 1 ? highlighted : {}}>
+          {pageHeaderContent}
+        </Row>
+        {guideStep === 1 &&
+          this.handleNewbieGuiding({
+            tit: '应用信息',
+            showSvg: false,
+            showArrow: true,
+            send: false,
+            configName: 'applicationInfo',
+            desc:
+              '应用由一个或多个服务组成，可以管理一个完整业务系统，比如：OA、CRM、ERP等，也可以管理一个完整的微服务架构的系统，这里展示了应用的基本信息。',
+            nextStep: 2,
+            conPosition: { top: '336px', left: '42%' }
+          })}
         {customSwitch && (
           <ApplicationGovernance
             mode={currApp && currApp.governance_mode}
@@ -825,130 +875,146 @@ export default class Index extends PureComponent {
             onOk={this.fetchAppDetail}
           />
         )}
-        <Row
-          style={{
-            display: 'flex',
-            background: '#FFFFFF',
-            height: '60px',
-            alignItems: 'center',
-            borderBottom: '1px solid #e8e8e8'
-          }}
-        >
-          <Col span={16} style={{ paddingleft: '12px' }}>
-            <a
-              onClick={() => {
-                this.changeType('shape');
-              }}
-              style={{
-                marginLeft: '30px',
-                color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
-              }}
-            >
-              拓扑图
-            </a>
-            {isComponentDescribe && (
-              <a
-                onClick={() => {
-                  this.changeType('list');
-                }}
-                style={{
-                  marginLeft: '30px',
-                  color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
-                }}
-              >
-                列表
-              </a>
-            )}
-          </Col>
-
-          <Col span={4} style={{ textAlign: 'right' }}>
-            {isComponentCreate && isComponentConstruct && (
-              <AddThirdParty
-                groupId={this.getGroupId()}
-                refreshCurrent={() => {
-                  this.loading();
-                }}
-                onload={() => {
-                  this.setState({ type: 'spin' }, () => {
-                    this.setState({
-                      type: this.state.size == 'large' ? 'shape' : 'list'
-                    });
-                  });
-                }}
-              />
-            )}
-          </Col>
-          <Col span={4} style={{ textAlign: 'center' }}>
-            {isComponentCreate && isComponentConstruct && (
-              <AddServiceComponent
-                groupId={this.getGroupId()}
-                refreshCurrent={() => {
-                  this.loading();
-                }}
-                onload={() => {
-                  this.setState({ type: 'spin' }, () => {
-                    this.setState({
-                      type: this.state.size == 'large' ? 'shape' : 'list'
-                    });
-                  });
-                }}
-              />
-            )}
-          </Col>
-        </Row>
-        {rapidCopy && (
-          <RapidCopy
-            on={this.handleCloseRapidCopy}
-            onCancel={this.handleCloseRapidCopy}
-            title="应用复制"
-          />
-        )}
-
-        {type !== 'list' && isComponentCreate && (
+        <Row style={guideStep === 2 ? highlighted : {}}>
           <Row
             style={{
-              textAlign: 'right',
-              paddingTop: '16px',
-              paddingRight: '20px',
-              background: '#fff'
+              display: 'flex',
+              background: '#FFFFFF',
+              height: '60px',
+              alignItems: 'center',
+              borderBottom: '1px solid #e8e8e8'
             }}
           >
-            {type === 'shapes' ? (
+            <Col span={16} style={{ paddingleft: '12px' }}>
               <a
                 onClick={() => {
                   this.changeType('shape');
                 }}
-              >
-                切换到展示模式
-              </a>
-            ) : (
-              <a
-                onClick={() => {
-                  this.changeType('shapes');
+                style={{
+                  marginLeft: '30px',
+                  color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
                 }}
               >
-                切换到编辑模式
+                拓扑图
               </a>
-            )}
+              {isComponentDescribe && (
+                <a
+                  onClick={() => {
+                    this.changeType('list');
+                  }}
+                  style={{
+                    marginLeft: '30px',
+                    color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
+                  }}
+                >
+                  列表
+                </a>
+              )}
+            </Col>
+            <Col span={4} style={{ textAlign: 'right' }}>
+              {isComponentCreate && isComponentConstruct && (
+                <AddThirdParty
+                  groupId={this.getGroupId()}
+                  refreshCurrent={() => {
+                    this.loading();
+                  }}
+                  onload={() => {
+                    this.setState({ type: 'spin' }, () => {
+                      this.setState({
+                        type: this.state.size == 'large' ? 'shape' : 'list'
+                      });
+                    });
+                  }}
+                />
+              )}
+            </Col>
+            <Col span={4} style={{ textAlign: 'center' }}>
+              {isComponentCreate && isComponentConstruct && (
+                <AddServiceComponent
+                  groupId={this.getGroupId()}
+                  refreshCurrent={() => {
+                    this.loading();
+                  }}
+                  onload={() => {
+                    this.setState({ type: 'spin' }, () => {
+                      this.setState({
+                        type: this.state.size == 'large' ? 'shape' : 'list'
+                      });
+                    });
+                  }}
+                />
+              )}
+            </Col>
           </Row>
-        )}
+          {rapidCopy && (
+            <RapidCopy
+              on={this.handleCloseRapidCopy}
+              onCancel={this.handleCloseRapidCopy}
+              title="应用复制"
+            />
+          )}
 
-        {type === 'list' && (
-          <ComponentList
-            componentPermissions={componentPermissions}
-            groupId={this.getGroupId()}
-          />
-        )}
-        {type === 'shape' && <AppShape group_id={this.getGroupId()} />}
-        {type === 'spin' && <Spin />}
-        {type === 'shapes' && (
-          <EditorTopology
-            changeType={types => {
-              this.changeType(types);
-            }}
-            group_id={this.getGroupId()}
-          />
-        )}
+          {type !== 'list' && isComponentCreate && (
+            <Row
+              style={{
+                textAlign: 'right',
+                paddingTop: '16px',
+                paddingRight: '20px',
+                background: '#fff'
+              }}
+            >
+              {type === 'shapes' ? (
+                <a
+                  onClick={() => {
+                    this.changeType('shape');
+                  }}
+                >
+                  切换到展示模式
+                </a>
+              ) : (
+                <a
+                  onClick={() => {
+                    this.changeType('shapes');
+                  }}
+                >
+                  切换到编辑模式
+                </a>
+              )}
+            </Row>
+          )}
+
+          {type === 'list' && (
+            <ComponentList
+              componentPermissions={componentPermissions}
+              groupId={this.getGroupId()}
+            />
+          )}
+          {type === 'shape' && <AppShape group_id={this.getGroupId()} />}
+          {type === 'spin' && <Spin />}
+          {type === 'shapes' && (
+            <EditorTopology
+              changeType={types => {
+                this.changeType(types);
+              }}
+              group_id={this.getGroupId()}
+            />
+          )}
+        </Row>
+        {guideStep === 2 &&
+          this.handleNewbieGuiding({
+            tit: '应用拓扑图',
+            btnText: '已知晓',
+            showSvg: false,
+            showArrow: true,
+            send: true,
+            configName: 'applicationInfo',
+            desc:
+              '这是应用内部的服务拓扑图，通过拓扑图可以整体了解服务的运行状态和依赖关系，每个六边形就是一个服务，点击六边形可以进入服务的管理页面。',
+            nextStep: 3,
+            conPosition: { bottom: '-16px', left: '45%' }
+          })}
+        {isScrollDiv && <div id="scroll_div" style={{ marginTop: '180px' }} />}
+
         {toDelete && (
           <ConfirmModal
             title="删除应用"

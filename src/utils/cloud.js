@@ -154,6 +154,11 @@ const createKubernetesSteps = {
     Description: '初始化创建集群所需要的配置数据',
     Status: ''
   },
+  UpdateKubernetes: {
+    Title: '配置集群',
+    Description: '连接所有节点完成节点的配置，耗时取决于网络状况。',
+    Status: ''
+  },
   InstallKubernetes: {
     Title: '安装集群',
     Description: '连接所有节点安装 Kubernetes 集群，耗时取决于网络状况。',

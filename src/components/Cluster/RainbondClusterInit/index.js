@@ -293,8 +293,7 @@ export default class RainbondClusterInit extends PureComponent {
               <ul>
                 <li>
                   <span>
-                    若你选择的是已经在使用的 Kubernetes
-                    集群，不要担心，接下来的初始化动作不会影响集群已有的业务形态。
+                    若你选择的是已经在使用的平台集群，不要担心，接下来的初始化动作不会影响集群已有的业务形态。
                   </span>
                 </li>
                 <li>
@@ -343,7 +342,7 @@ export default class RainbondClusterInit extends PureComponent {
             </Checkbox>
             {guideStep === 10 &&
               this.handleNewbieGuiding({
-                tit: '请仔细阅读Rainbond集群服务的初始化安装的说明和前提条件。',
+                tit: '请仔细阅读平台集群服务的初始化安装的说明和前提条件。',
                 send: false,
                 configName: 'kclustersAttentionAttention',
                 nextStep: 11,
