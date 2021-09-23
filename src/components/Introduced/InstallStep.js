@@ -78,7 +78,7 @@ export default class InstallStep extends PureComponent {
         </p>
         <div style={{ padding: '0px 90px' }}>
           <Tabs value={installType} onChange={this.onTabChange}>
-            <TabPane tab="从商店安装应用" key="1">
+            <TabPane tab="从应用市场安装应用" key="1">
               <Steps direction="vertical" current={isCluster ? 2 : 1}>
                 <Step
                   title={
@@ -157,7 +157,7 @@ export default class InstallStep extends PureComponent {
                 />
               </Steps>
             </TabPane>
-            <TabPane tab="自定义安装应用" key="2">
+            <TabPane tab="部署我自己的应用" key="2">
               <Steps direction="vertical" current={1}>
                 <Step
                   title={
