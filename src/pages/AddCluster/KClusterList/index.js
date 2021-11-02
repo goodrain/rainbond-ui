@@ -252,7 +252,12 @@ export default class EnterpriseClusters extends PureComponent {
     });
   };
   handleNewbieGuiding = info => {
-    const { prevStep, nextStep, handleClick = () => {} } = info;
+    const {
+      prevStep,
+      nextStep,
+      handleClick = () => {},
+      handleClosed = () => {}
+    } = info;
     return (
       <NewbieGuiding
         {...info}
@@ -263,6 +268,7 @@ export default class EnterpriseClusters extends PureComponent {
             clusterID: '',
             rainbond_init: false
           });
+          handleClosed();
         }}
         handlePrev={() => {
           if (prevStep) {
