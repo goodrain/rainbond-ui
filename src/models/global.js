@@ -410,8 +410,8 @@ export default {
         callback(data);
       }
     },
-    *fetchRainbondInfo({ callback }, { call, put }) {
-      const data = yield call(getRainbondInfo);
+    *fetchRainbondInfo({ callback, handleError }, { call, put }) {
+      const data = yield call(getRainbondInfo, handleError);
       if (data) {
         cookie.set(
           'platform_url',

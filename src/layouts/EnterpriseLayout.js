@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-shadow */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable react/sort-comp */
 import { Layout } from 'antd';
@@ -90,14 +92,55 @@ class EnterpriseLayout extends PureComponent {
       isMobile,
       enterpriseList: [],
       enterpriseInfo: false,
-      ready: false
+      ready: false,
+      offLineDisNew: [
+        {
+          key: 'welcome',
+          value: true
+        },
+        { key: 'applicationInfo', value: true },
+        { key: 'installApp', value: true }
+      ]
     };
   }
 
   componentDidMount() {
     this.getEnterpriseList();
   }
-
+  // 获取平台公共信息(判断用户是否是离线)
+  handleGetEnterpeiseMsg = (data, eid) => {
+    const { dispatch } = this.props;
+    const { offLineDisNew } = this.state;
+    dispatch({
+      type: 'global/fetchRainbondInfo',
+      callback: res => {
+        // 判断是否是离线的状态
+        if (
+          res &&
+          res.is_offline !== 'false' &&
+          (res.is_offline || res.is_offline === 'true')
+        ) {
+          dispatch({
+            type: 'global/putNewbieGuideConfig',
+            payload: {
+              arr: [...offLineDisNew]
+            },
+            callback: res => {
+              if (res) {
+                const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(data);
+                isNewbieGuide && this.getNewbieGuideConfig(eid);
+              }
+            },
+            handleError: err => {}
+          });
+        } else {
+          const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(data);
+          isNewbieGuide && this.getNewbieGuideConfig(eid);
+        }
+      },
+      handleError: err => {}
+    });
+  };
   // get enterprise list
   getEnterpriseList = () => {
     const { dispatch } = this.props;
@@ -236,6 +279,9 @@ class EnterpriseLayout extends PureComponent {
         const isNext = rainbondUtil.handleNewbie(res && res.list, 'welcome');
         if (isNext) {
           this.loadClusters(eid);
+        } else {
+          // 跳转到集群页面
+          dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
         }
       }
     });
@@ -253,10 +299,8 @@ class EnterpriseLayout extends PureComponent {
       },
       callback: res => {
         if (res && res.bean) {
-          const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(res.bean);
-          if (isNewbieGuide) {
-            this.getNewbieGuideConfig(eid);
-          }
+          // 获取平台信息
+          this.handleGetEnterpeiseMsg(res.bean, eid);
         }
       }
     });
