@@ -128,7 +128,19 @@ class EnterpriseLayout extends PureComponent {
             callback: res => {
               if (res) {
                 const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(data);
-                isNewbieGuide && this.getNewbieGuideConfig(eid);
+                dispatch({
+                  type: 'global/fetchNewbieGuideConfig',
+                  callback: res => {
+                    if (
+                      res &&
+                      res.list &&
+                      res.list.length === 3 &&
+                      isNewbieGuide
+                    ) {
+                      dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+                    }
+                  }
+                });
               }
             },
             handleError: err => {}
@@ -279,9 +291,6 @@ class EnterpriseLayout extends PureComponent {
         const isNext = rainbondUtil.handleNewbie(res && res.list, 'welcome');
         if (isNext) {
           this.loadClusters(eid);
-        } else {
-          // 跳转到集群页面
-          dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
         }
       }
     });
