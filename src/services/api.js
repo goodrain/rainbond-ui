@@ -610,10 +610,11 @@ export async function syncMarketApp(body = {}) {
 /*
    获取云帮的公共信息、配置信息
 */
-export function getRainbondInfo() {
+export function getRainbondInfo(handleError) {
   //
   return request(`${apiconfig.baseUrl}/console/config/info`, {
-    passAuthorization: false
+    passAuthorization: false,
+    handleError
   });
 }
 

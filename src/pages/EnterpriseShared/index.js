@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-nested-ternary */
@@ -140,6 +141,7 @@ export default class EnterpriseShared extends PureComponent {
       this.load();
     }
   }
+
   onChangeRadio = e => {
     this.setState(
       {
