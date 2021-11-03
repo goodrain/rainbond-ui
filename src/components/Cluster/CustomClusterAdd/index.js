@@ -125,7 +125,7 @@ class EditClusterInfo extends PureComponent {
           </Col>
           <Col style={p16}>
             <CodeMirrorForm
-              titles="Kubeconfig 配置文件,需确保当前网络可以正常与 Kubernetes API 进行通信"
+              titles="Kubeconfig配置文件, 需确保当前网络可以正常与 Kubernetes API 进行通信, 即server地址不能为[127.0.0.1 / 本地域名] 等形式, 应为当前控制台容器能访问到的内网 IP 或公网 IP。"
               setFieldsValue={setFieldsValue}
               formItemLayout={formItemLayout}
               Form={Form}

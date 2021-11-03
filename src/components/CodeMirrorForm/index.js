@@ -122,8 +122,8 @@ class CodeMirrorForm extends PureComponent {
       display: 'flex',
       justifyContent: 'space-between',
       cursor: 'pointer',
-      top: 0,
-      textAlign: 'right',
+      top: '-16px',
+      textAlign: 'left',
       background: bg,
       lineHeight: '1px',
       padding: '9px 0 6px 0'
@@ -158,7 +158,6 @@ class CodeMirrorForm extends PureComponent {
     };
 
     const token = cookie.get('token');
-
     const amplifications = (
       <span
         style={{ margin: '0 20px' }}
