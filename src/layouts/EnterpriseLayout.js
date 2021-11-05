@@ -107,6 +107,8 @@ class EnterpriseLayout extends PureComponent {
   componentDidMount() {
     this.getEnterpriseList();
   }
+  // 获取执行的步骤
+
   // 获取平台公共信息(判断用户是否是离线)
   handleGetEnterpeiseMsg = (data, eid) => {
     const { dispatch } = this.props;

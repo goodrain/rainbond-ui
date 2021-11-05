@@ -850,6 +850,8 @@ export default class EnterpriseClusters extends PureComponent {
               <Icon type="reload" />
             </Button>
             {guideStep === 1 &&
+              this.props.novices &&
+              rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
               this.handleNewbieGuiding({
                 tit: '去添加集群',
                 desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
