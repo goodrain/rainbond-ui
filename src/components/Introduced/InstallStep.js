@@ -87,7 +87,7 @@ export default class InstallStep extends PureComponent {
         onCancel={() => onCancel(false, installType)}
       >
         <h2 className={styless.initTitle}>
-          {isCluster ? '恭喜你成功安装集群123！' : '安装步骤'}
+          {isCluster ? '恭喜你成功安装集群！' : '安装步骤'}
         </h2>
         <p style={{ textAlign: 'center' }}>
           {isCluster
