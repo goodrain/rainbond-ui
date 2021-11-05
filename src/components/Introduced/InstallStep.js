@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-nested-ternary */
 import { Button, Modal, Spin, Steps, Tabs } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -19,12 +21,14 @@ export default class InstallStep extends PureComponent {
     this.state = {
       installType: 1,
       isAuthorize: false,
-      authorizeLoading: true
+      authorizeLoading: true,
+      isOffLine: true
     };
   }
 
   componentWillMount() {
     const { dispatch, eid } = this.props;
+    this.handleGetEnterpeiseMsg();
     dispatch({
       type: 'market/fetchMarketsTab',
       payload: {
@@ -46,17 +50,31 @@ export default class InstallStep extends PureComponent {
       }
     });
   }
-
   // Tab标签页切换
   onTabChange = value => {
     this.setState({ installType: value });
   };
+  handleGetEnterpeiseMsg = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchRainbondInfo',
+      callback: res => {
+        res && res.is_offline && this.setState({ isOffLine: false });
+      },
+      handleError: err => {}
+    });
+  };
   render() {
     const { onCancel, isCluster, onStartInstall, onViewInstance } = this.props;
-    const { installType, isAuthorize, authorizeLoading } = this.state;
+    const {
+      installType,
+      isAuthorize,
+      authorizeLoading,
+      isOffLine
+    } = this.state;
     return authorizeLoading ? (
       <Spin />
-    ) : (
+    ) : isOffLine ? (
       <Modal
         width={600}
         centered
@@ -231,6 +249,8 @@ export default class InstallStep extends PureComponent {
           </p>
         )}
       </Modal>
+    ) : (
+      ''
     );
   }
 }
