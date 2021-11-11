@@ -7,6 +7,7 @@ import {
   CheckAppName,
   CheckHelmApp,
   CheckK8sServiceName,
+  checkoutGovernanceModel,
   completeShare,
   createAppBatchComponents,
   createShare,
@@ -420,6 +421,17 @@ export default {
     // 应用失败记录删除
     *delFailureBackup({ payload, callback }, { call }) {
       const response = yield call(delFailureBackup, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    // 检查治理模式
+    *checkoutGovernanceModel({ payload, callback, handleError }, { call }) {
+      const response = yield call(
+        checkoutGovernanceModel,
+        payload,
+        handleError
+      );
       if (response && callback) {
         callback(response);
       }

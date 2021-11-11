@@ -835,3 +835,19 @@ export async function delFailureBackup(
     }
   );
 }
+// 检查治理模式
+export async function checkoutGovernanceModel(
+  body = { team_name, app_id, governance_mode },
+  handleError
+) {
+  return request(
+    `/console/teams/${body.team_name}/groups/${body.app_id}/governancemode/check`,
+    {
+      method: 'GET',
+      params: {
+        governance_mode: body.governance_mode
+      },
+      handleError
+    }
+  );
+}
