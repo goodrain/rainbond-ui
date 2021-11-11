@@ -122,7 +122,7 @@ class CodeMirrorForm extends PureComponent {
       display: 'flex',
       justifyContent: 'space-between',
       cursor: 'pointer',
-      top: '-16px',
+      top: '0',
       textAlign: 'left',
       background: bg,
       lineHeight: '1px',

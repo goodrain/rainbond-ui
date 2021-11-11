@@ -29,6 +29,24 @@ export default class Index extends PureComponent {
       }
     });
   };
+  // 团队命名空间的检验
+  handleValiateNameSpace = (_, value, callback) => {
+    if (!value) {
+      return callback(new Error('请输入集群组件名称'));
+    }
+    if (value && value.length <= 32) {
+      const Reg = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+      if (!Reg.test(value)) {
+        return callback(
+          new Error('只支持小写字母、数字或“-”，并且必须以字母数字开头和结尾')
+        );
+      }
+      callback();
+    }
+    if (value.length > 32) {
+      return callback(new Error('不能大于32个字符'));
+    }
+  };
   render() {
     const formItemLayout = {
       labelCol: {
@@ -65,6 +83,13 @@ export default class Index extends PureComponent {
                   autocomplete="off"
                 />
               )}
+            </Form.Item>
+            <Form.Item {...formItemLayout} label="集群应用名称">
+              {getFieldDecorator('k8s_app', {
+                rules: [
+                  { required: true, validator: this.handleValiateNameSpace }
+                ]
+              })(<Input placeholder="用于标记集群中的组件" />)}
             </Form.Item>
             <CodeMirrorForm
               setFieldsValue={setFieldsValue}
