@@ -175,7 +175,7 @@ class EditName extends PureComponent {
         onCancel={this.onCancel}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem label="">
+          <FormItem label="组件名称">
             {getFieldDecorator('service_cname', {
               initialValue: name || '',
               rules: [
@@ -532,7 +532,8 @@ class Main extends PureComponent {
       serviceAlias: service && service.service_alias,
       group_id: service && service.group_id,
       group_name: service && service.group_name,
-      service_cname: service && service.service_cname
+      service_cname: service && service.service_cname,
+      k8s_component_name: service && service.k8s_component_name
     };
   };
   // 应用详情
