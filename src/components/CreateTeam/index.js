@@ -52,13 +52,13 @@ class CreateTeam extends PureComponent {
   // 团队命名空间的检验
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入团队命名空间'));
+      return callback(new Error('请输入团队英文名称'));
     }
     if (value && value.length <= 32) {
-      const Reg = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母数字开头和结尾')
+          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
         );
       }
       callback();
@@ -170,7 +170,7 @@ class CreateTeam extends PureComponent {
             <div className={styles.conformDesc}>请选择使用的集群</div>
           </FormItem>
           {/* 团队的命名空间 */}
-          <FormItem {...formItemLayout} label="命名空间">
+          <FormItem {...formItemLayout} label="团队英文名称">
             {getFieldDecorator('namespace', {
               rules: [
                 {
@@ -178,7 +178,7 @@ class CreateTeam extends PureComponent {
                   validator: this.handleValiateNameSpace
                 }
               ]
-            })(<Input placeholder="集群中namespace名称" />)}
+            })(<Input placeholder="团队的英文名称" />)}
           </FormItem>
         </Form>
       </Modal>

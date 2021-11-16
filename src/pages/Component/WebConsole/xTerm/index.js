@@ -30,6 +30,7 @@ class App extends PureComponent {
         containerName,
         WebsocketURL,
         updateTitle,
+        namespace,
       } = this.props;
       if (!this.inputRef.current) {
         return null;
@@ -48,6 +49,7 @@ class App extends PureComponent {
         C_id: podName,
         containerName: containerName,
         Md5: hash,
+        namespace: namespace,
       };
       const xterm = new XTermCustom(term);
       xterm.removeMessage = this.clearMessage;

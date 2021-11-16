@@ -272,6 +272,7 @@ export default class WebConsole extends PureComponent {
         updateTitle={title => this.updateTitle(key, title)}
         podName={podName}
         containerName={containerName}
+        namespace={appDetail.service.namespace}
       />
     );
   };

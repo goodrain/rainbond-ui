@@ -58,13 +58,13 @@ export default class Index extends PureComponent {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入集群组件名称'));
+      return callback(new Error('请输入组件英文名称'));
     }
     if (value && value.length <= 32) {
-      const Reg = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母数字开头和结尾')
+          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
         );
       }
       callback();
@@ -139,12 +139,12 @@ export default class Index extends PureComponent {
               />
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="集群组件名称">
+          <Form.Item {...formItemLayout} label="组件英文名称">
             {getFieldDecorator('k8s_component_name', {
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]
-            })(<Input placeholder="用于标记集群中的组件" />)}
+            })(<Input placeholder="组件的英文名称" />)}
           </Form.Item>
 
           <Form.Item {...formItemLayout} label="镜像地址">

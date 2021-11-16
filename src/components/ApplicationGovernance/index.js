@@ -271,12 +271,36 @@ export default class ApplicationGovernance extends PureComponent {
               dataSource={ServiceNameList || []}
               columns={[
                 {
-                  title: '组件名称',
+                  title: '组件名称/端口',
                   dataIndex: 'service_alias',
                   width: 200,
-                  render: (_, data) => <div>{data.service_cname}</div>
+                  render: (_, data) => (
+                    <div>
+                      {data.service_cname}/{data.port}
+                    </div>
+                  )
                 },
-
+                {
+                  title: '别名',
+                  dataIndex: 'port_alias',
+                  width: 200,
+                  render: (val, data) => (
+                    <FormItem style={{ marginBottom: 0 }}>
+                      {getFieldDecorator(
+                        `${data.service_id}/${data.port_alias}`,
+                        {
+                          initialValue: val || '',
+                          rules: [
+                            {
+                              required: true,
+                              message: '不能为空'
+                            }
+                          ]
+                        }
+                      )(<Input size="small" />)}
+                    </FormItem>
+                  )
+                },
                 {
                   title: '内部域名',
                   dataIndex: 'k8s_service_name',
