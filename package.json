@@ -18,7 +18,7 @@
     "anser": "^1.4.1",
     "antd": "3.19.1",
     "array-move": "^3.0.1",
-    "axios": "^0.17.1",
+    "axios": "^0.21.2",
     "babel-runtime": "6.9.2",
     "bizcharts": "^3.1.0-beta.4",
     "bizcharts-plugin-slider": "^2.0.1",
