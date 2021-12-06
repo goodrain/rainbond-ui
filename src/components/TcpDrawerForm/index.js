@@ -136,12 +136,15 @@ class DrawerForm extends PureComponent {
   checkport = (_, value, callback) => {
     const availablPort = value.available_port;
     if (!value.ip || (availablPort !== 0 && !availablPort)) {
-      callback('请输入完整的ip和端口');
+      callback(new Error('请输入完整的ip和端口'));
       return;
     }
     const internalTcps = [80, 443, 6060, 8443, 10254, 18080, 18081];
     if (availablPort && internalTcps.includes(availablPort)) {
-      callback('该端口属于内部端口、请重新输入');
+      callback(new Error('该端口属于内部端口、请重新输入'));
+    }
+    if (availablPort > 65534 || availablPort < 1) {
+      callback(new Error('端口号限制在 1-65534'));
     }
     callback();
   };
@@ -226,7 +229,12 @@ class DrawerForm extends PureComponent {
 
               <FormItem {...formItemLayout} label="IP">
                 {getFieldDecorator('end_point', {
-                  rules: [{ required: true, validator: this.checkport }],
+                  rules: [
+                    {
+                      required: true,
+                      validator: this.checkport
+                    }
+                  ],
                   initialValue: editInfo ? current_enpoint[0] : domain_port[0]
                 })(
                   <PortInput

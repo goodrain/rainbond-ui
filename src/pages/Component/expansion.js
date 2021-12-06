@@ -820,6 +820,9 @@ export default class Index extends PureComponent {
                 handlePodClick={this.handlePodClick}
                 list={this.state.instances}
                 serviceID={this.props.appDetail.service.service_id}
+                k8s_component_name={
+                  this.props.appDetail.service.k8s_component_name
+                }
               />
               <Divider />
               <div>

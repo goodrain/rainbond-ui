@@ -28,7 +28,7 @@ class InstanceList extends PureComponent {
     let memRate = 0;
     containers &&
       containers.map(c => {
-        if (c.container_name === this.props.serviceID) {
+        if (c.container_name === this.props.k8s_component_name) {
           memRate = c.usage_rate;
         }
       });
