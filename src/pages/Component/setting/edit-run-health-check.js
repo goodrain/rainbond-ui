@@ -4,7 +4,7 @@ import KVinput from '../../../components/KVinput';
 import appProbeUtil from '../../../utils/appProbe-util';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 const RadioGroup = Radio.Group;
 
 // 设置、编辑运行时健康监测
