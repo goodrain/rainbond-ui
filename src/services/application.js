@@ -363,6 +363,15 @@ export async function editGroup(body = {}) {
   );
 }
 
+export async function editGroups(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/volumes`,
+    {
+      method: 'put',
+    }
+  );
+}
+
 /*
   组
 */
@@ -387,6 +396,7 @@ export async function addGroup(body = {}) {
     }
   );
 }
+
 
 export async function getServices(body = {}, handleError) {
   return request(
