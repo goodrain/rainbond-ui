@@ -117,7 +117,7 @@ class CreateAppMarket extends PureComponent {
               ]
             })(<Input placeholder="请输入标识" />)}
             <div className={styles.conformDesc}>
-              相同的标识可以帮助用户在删除已有市场后重新添加回来。
+              相同的标识可以帮助用户在删除已有市场后重新添加回来
             </div>
           </FormItem>
           <FormItem {...formItemLayout} label="类型">
