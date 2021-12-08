@@ -428,7 +428,7 @@ export default class Index extends PureComponent {
               group_id: this.getGroupId(),
             },
             callback:res=>{
-              notification.warning({ message: '需要重新设置数据' });
+              notification.success({ message: '重启应用后生效' });
             }
           })
         }
