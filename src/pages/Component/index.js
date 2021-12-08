@@ -724,7 +724,7 @@ class Main extends PureComponent {
     this.setState({ showEditName: false });
   };
   handleEditName = data => {
-    const { team_name, serviceAlias } = this.fetchParameter();
+    const { team_name, serviceAlias, group_id} = this.fetchParameter();
     const { dispatch } = this.props;
     dispatch({
       type: 'appControl/editName',
@@ -734,6 +734,16 @@ class Main extends PureComponent {
         ...data
       },
       callback: () => {
+        dispatch({
+          type:'application/editGroups',
+          payload: {
+            team_name,
+            group_id
+          },
+          callback:res=>{
+            notification.success({ message: '重启应用后生效' });
+          }
+        })
         this.handleUpDataHeader();
         this.loadDetail();
         this.hideEditName();
