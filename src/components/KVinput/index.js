@@ -59,7 +59,6 @@ class KvInput extends Component {
     }
     const { onChange } = this.props;
     if (onChange) {
-      console.log(res);
       onChange(res.join(','));
     }
   }
