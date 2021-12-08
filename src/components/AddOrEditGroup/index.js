@@ -6,7 +6,7 @@ import { Form, Icon, Input, Modal, Upload } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import apiconfig from '../../../config/api.config';
-import { addGroup } from '../../services/application';
+import { addGroup, editGroups } from '../../services/application';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
@@ -35,6 +35,7 @@ export default class EditGroupName extends PureComponent {
       onOk,
       teamName,
       regionName,
+      teamId,
       dispatch,
       isAddGroup = true,
       isGetGroups = true,
@@ -44,7 +45,8 @@ export default class EditGroupName extends PureComponent {
       vals.logo = this.state.paramsSrc || '';
       const setTeamName = teamName || globalUtil.getCurrTeamName();
       const setRegionName = regionName || globalUtil.getCurrRegionName();
-      const parameters = { team_name: setTeamName, region_name: setRegionName };
+      const setAppId = teamId || globalUtil.getAppID()
+      const parameters = { team_name: setTeamName, region_name: setRegionName, app_id: setAppId};
       if (!err && onOk) {
         if (isAddGroup) {
           this.handleLoading(true);
@@ -81,7 +83,7 @@ export default class EditGroupName extends PureComponent {
               this.handleLoading(false);
             });
         } else {
-          onOk(vals);
+          onOk(vals); 
         }
       }
     });

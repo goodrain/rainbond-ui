@@ -144,7 +144,20 @@ class CreateTeam extends PureComponent {
               请输入创建的团队名称，最大长度10位
             </div>
           </FormItem>
-
+          {/* 团队的命名空间 */}
+          <FormItem {...formItemLayout} label="团队英文名称">
+            {getFieldDecorator('namespace', {
+              rules: [
+                {
+                  required: true,
+                  validator: this.handleValiateNameSpace
+                }
+              ]
+            })(<Input placeholder="团队的英文名称" />)}
+            <div className={styles.conformDesc}>
+              对应该团队在集群使用的命名空间
+            </div>
+          </FormItem>
           <FormItem {...formItemLayout} label="集群">
             {getFieldDecorator('useable_regions', {
               rules: [
@@ -168,17 +181,6 @@ class CreateTeam extends PureComponent {
               </Select>
             )}
             <div className={styles.conformDesc}>请选择使用的集群</div>
-          </FormItem>
-          {/* 团队的命名空间 */}
-          <FormItem {...formItemLayout} label="团队英文名称">
-            {getFieldDecorator('namespace', {
-              rules: [
-                {
-                  required: true,
-                  validator: this.handleValiateNameSpace
-                }
-              ]
-            })(<Input placeholder="团队的英文名称" />)}
           </FormItem>
         </Form>
       </Modal>

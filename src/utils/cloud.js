@@ -581,9 +581,9 @@ const cloud = {
       case undefined:
         noticeWarning('API请求错误');
         break;
-      default:
-        noticeWarning(`未知的Cloud错误，错误码为${code}`);
-        break;
+      // default:
+      //   noticeWarning(`未知的Cloud错误，错误码为${code}`);
+      //   break;
     }
   },
   showCreateKubernetesSteps(events) {

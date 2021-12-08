@@ -405,6 +405,7 @@ export default class Index extends PureComponent {
     this.setState({ toEditAppDirector: false });
   };
   handleEdit = vals => {
+    console.log(vals,'vals')
     const { dispatch } = this.props;
     dispatch({
       type: 'application/editGroup',
@@ -420,6 +421,16 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({ message: '修改成功' });
+          dispatch({
+            type:'application/editGroups',
+            payload: {
+              team_name: globalUtil.getCurrTeamName(),
+              group_id: this.getGroupId(),
+            },
+            callback:res=>{
+              notification.warning({ message: '需要重新设置数据' });
+            }
+          })
         }
         this.handleUpDataHeader();
         this.cancelEdit();
@@ -433,6 +444,7 @@ export default class Index extends PureComponent {
         });
       }
     });
+
   };
   handleUpDataHeader = () => {
     const { dispatch } = this.props;

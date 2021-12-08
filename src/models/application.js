@@ -19,6 +19,7 @@ import {
   delRestore,
   editAppCreateCompose,
   editGroup,
+  editGroups,
   EditHelmApp,
   getAppAccess,
   getAppDetailState,
@@ -272,6 +273,12 @@ export default {
     },
     *editGroup({ payload, callback }, { call }) {
       const response = yield call(editGroup, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *editGroups({ payload, callback }, { call }) {
+      const response = yield call(editGroups, payload);
       if (response && callback) {
         callback(response);
       }
