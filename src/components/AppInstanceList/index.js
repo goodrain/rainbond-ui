@@ -21,7 +21,8 @@ class InstanceList extends PureComponent {
   }
   componentDidMount() {}
   showName = podName => {
-    const num = podName && podName.split('-')[1];
+    const arr =podName && podName.split('-')
+    const num = arr[arr.length -1];
     return `实例${num}`;
   };
   getContainerMem = containers => {
