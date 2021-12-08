@@ -82,7 +82,11 @@ export default class SetRegionConfig extends PureComponent {
                   dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
                 },
                 handleError: herr => {
-                  cloud.handleCloudAPIError(herr);
+                  if(herr.data.code == 404){
+                    dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+                  }else{
+                    cloud.handleCloudAPIError(herr);
+                  }  
                   this.setState({ commitloading: false });
                 }
               });

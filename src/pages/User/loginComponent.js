@@ -15,7 +15,6 @@ const { UserName, Password, Submit } = Login;
 export default class LoginComponent extends Component {
   handleSubmit = (err, values) => {
     const { onSubmit } = this.props;
-    console.log('版本11-25：21：00');
     if (!err && onSubmit) {
       userUtil.removeCookie();
       onSubmit(values);

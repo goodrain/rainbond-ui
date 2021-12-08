@@ -405,7 +405,6 @@ export default class Index extends PureComponent {
     this.setState({ toEditAppDirector: false });
   };
   handleEdit = vals => {
-    console.log(vals,'vals')
     const { dispatch } = this.props;
     dispatch({
       type: 'application/editGroup',

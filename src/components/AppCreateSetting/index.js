@@ -104,7 +104,6 @@ class BaseInfo extends PureComponent {
       min_memory: minMemory,
       min_cpu: minCpu
     } = appDetail.service;
-    console.log('appDetail', appDetail);
     const list = this.state.memoryList;
 
     const radioStyle = {
