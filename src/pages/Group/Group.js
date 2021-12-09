@@ -238,6 +238,7 @@ export default class Index extends PureComponent {
     }, times);
   };
   //获取总数据
+  
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     const { teamName, regionName, appID } = this.props.match.params;
