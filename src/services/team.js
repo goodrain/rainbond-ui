@@ -148,14 +148,16 @@ export async function editMember(body = {}) {
 export async function createTeam(
   body = {
     team_name,
-    useable_regions: []
+    useable_regions: [],
+    namespace
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/add-teams`, {
     method: 'post',
     data: {
       team_alias: body.team_name,
-      useable_regions: body.useable_regions.join(',')
+      useable_regions: body.useable_regions.join(','),
+      namespace: body.namespace
     }
   });
 }
@@ -363,6 +365,7 @@ export async function getTeamRegionAppsStatus(
 /*
 	获取团队在某个集群下的所有应用组
 */
+
 export async function getTeamRegionGroups(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview/groups`,

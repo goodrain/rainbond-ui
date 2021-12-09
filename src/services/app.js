@@ -2062,7 +2062,8 @@ export async function editName(
     {
       method: 'put',
       data: {
-        service_cname: body.service_cname
+        service_cname: body.service_cname,
+        k8s_component_name: body.k8s_component_name
       }
     }
   );

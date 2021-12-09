@@ -16,7 +16,7 @@ const { TabPane } = Tabs;
     build_upgrade: appControl.build_upgrade,
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
-    currentEnterprise: enterprise.currentEnterprise,
+    currentEnterprise: enterprise.currentEnterprise
   }),
   null,
   null,
@@ -31,7 +31,7 @@ export default class WebConsole extends PureComponent {
       tabs: [],
       leftWidth: 5,
       appDetail: {},
-      activeKey: '',
+      activeKey: ''
     };
   }
   componentDidMount() {
@@ -69,7 +69,7 @@ export default class WebConsole extends PureComponent {
       podName,
       containerName,
       title: containerName,
-      key: activeKey,
+      key: activeKey
     };
     const { tabs } = this.state;
     tabs.push(tab);
@@ -92,14 +92,14 @@ export default class WebConsole extends PureComponent {
     this.setState({ loading: true });
     const {
       appDetail: {
-        service: { service_id },
-      },
+        service: { service_id }
+      }
     } = this.state;
     this.props.dispatch({
       type: 'appControl/fetchPods',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: globalUtil.getComponentID(),
+        app_alias: globalUtil.getComponentID()
       },
       callback: data => {
         let pods = [];
@@ -133,13 +133,13 @@ export default class WebConsole extends PureComponent {
             podName: pods[0].pod_name,
             containerName: container_name,
             title: container_name,
-            key: activeKey,
+            key: activeKey
           };
           this.setState({ tabs: [tab], activeKey, pods });
         } else {
           this.setState({ pods });
         }
-      },
+      }
     });
   };
 
@@ -148,13 +148,13 @@ export default class WebConsole extends PureComponent {
       type: 'appControl/fetchDetail',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: globalUtil.getComponentID(),
+        app_alias: globalUtil.getComponentID()
       },
       callback: appDetail => {
         this.setState({ appDetail }, () => {
           this.fetchPods(true);
         });
-      },
+      }
     });
   };
 
@@ -235,13 +235,14 @@ export default class WebConsole extends PureComponent {
                     {pod.container.map(container => {
                       const { container_name: containerName } = container;
                       let titleName = `容器/${containerName}`;
-                      if (containerName.includes(service.service_id)) {
-                        titleName = `组件容器`;
+                      if (containerName.includes('default-tcpmesh')) {
+                        titleName = `默认Mesh容器`;
                       } else if (containerName.includes('plugin')) {
                         titleName = `插件容器`;
-                      } else if (containerName.includes('default-tcpmesh')) {
-                        titleName = `默认Mesh容器`;
+                      } else if (containerName.includes(service.k8s_component_name)) {
+                        titleName = `组件容器`;
                       }
+                      
 
                       return (
                         <TreeNode
@@ -272,6 +273,7 @@ export default class WebConsole extends PureComponent {
         updateTitle={title => this.updateTitle(key, title)}
         podName={podName}
         containerName={containerName}
+        namespace={appDetail.service.namespace}
       />
     );
   };

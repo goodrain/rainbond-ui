@@ -1,6 +1,6 @@
-import React, { PureComponent, Fragment } from "react";
-import { Form, Button, Modal } from "antd";
-import appProbeUtil from "../../../utils/appProbe-util";
+import { Button, Form, Modal } from 'antd';
+import React, { Fragment, PureComponent } from 'react';
+import appProbeUtil from '../../../utils/appProbe-util';
 
 const FormItem = Form.Item;
 
@@ -12,20 +12,20 @@ export default class ViewRunHealthCheck extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 8,
-        },
+          span: 8
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 16,
-        },
-      },
+          span: 16
+        }
+      }
     };
     return (
       <Modal
@@ -41,7 +41,7 @@ export default class ViewRunHealthCheck extends PureComponent {
           <FormItem {...formItemLayout} label="探针使用协议">
             <span>{appProbeUtil.getProtocol(data)}</span>
           </FormItem>
-          {data.scheme === "http" ? (
+          {data.scheme === 'http' ? (
             <Fragment>
               <FormItem {...formItemLayout} label="http请求头">
                 <span>{appProbeUtil.getHeaders(data)}</span>
@@ -56,7 +56,7 @@ export default class ViewRunHealthCheck extends PureComponent {
               {appProbeUtil.getInitWaitTime(data)}
               <span
                 style={{
-                  marginLeft: 8,
+                  marginLeft: 8
                 }}
               >
                 秒
@@ -68,7 +68,7 @@ export default class ViewRunHealthCheck extends PureComponent {
               {appProbeUtil.getIntervalTime(data)}
               <span
                 style={{
-                  marginLeft: 8,
+                  marginLeft: 8
                 }}
               >
                 秒
@@ -80,7 +80,7 @@ export default class ViewRunHealthCheck extends PureComponent {
               {appProbeUtil.getTimeoutTime(data)}
               <span
                 style={{
-                  marginLeft: 8,
+                  marginLeft: 8
                 }}
               >
                 秒

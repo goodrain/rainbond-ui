@@ -356,8 +356,18 @@ export async function editGroup(body = {}) {
         app_name: body.group_name,
         note: body.note,
         username: body.username,
-        logo: body.logo
+        logo: body.logo,
+        k8s_app: body.k8s_app
       }
+    }
+  );
+}
+
+export async function editGroups(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/volumes`,
+    {
+      method: 'put',
     }
   );
 }
@@ -378,13 +388,15 @@ export async function addGroup(body = {}) {
         region_name: body.region_name,
         app_name: body.group_name,
         note: body.note,
-        logo: body.logo
+        logo: body.logo,
+        k8s_app: body.k8s_app
       },
       showMessage: body.showMessage,
       noModels: body.noModels
     }
   );
 }
+
 
 export async function getServices(body = {}, handleError) {
   return request(
@@ -832,6 +844,22 @@ export async function delFailureBackup(
       data: {
         backup_id: body.backup_id
       }
+    }
+  );
+}
+// 检查治理模式
+export async function checkoutGovernanceModel(
+  body = { team_name, app_id, governance_mode },
+  handleError
+) {
+  return request(
+    `/console/teams/${body.team_name}/groups/${body.app_id}/governancemode/check`,
+    {
+      method: 'GET',
+      params: {
+        governance_mode: body.governance_mode
+      },
+      handleError
     }
   );
 }

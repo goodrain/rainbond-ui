@@ -375,9 +375,13 @@ export default class Index extends React.Component {
           app_alias: this.props.appAlias,
           ...vals
         },
-        callback: () => {
-          this.onCancelEditStartProbe();
-          this.fetchStartProbe();
+        callback: res => {
+          if (res && res.status_code && res.status_code === 200) {
+            this.onCancelEditStartProbe();
+            this.fetchStartProbe();
+            notification.success({ message: '添加成功' });
+            notification.info({ message: '需要更新后才能生效' });
+          }
         }
       });
     }

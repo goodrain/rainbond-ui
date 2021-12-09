@@ -25,11 +25,13 @@ import VisterBtn from '../../components/visitBtnForAlllink';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import styles from './Index.less';
+
 const { Search } = Input;
 const echarts = require('echarts');
 const appLogo = require('@/assets/teamAppLogo.svg');
 const defaultAppLogo = require('@/assets/application.png');
 const componentLogo = require('@/assets/teamComponentLogo.svg');
+
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   index,
@@ -117,16 +119,15 @@ export default class Index extends PureComponent {
         show: true,
         position: [50, 0],
         fontSize: 10,
-        formatter: function(params) {
+        formatter(params) {
           if (params.data.name === '已用') {
             return `
            <div>运行:${params.data.value}个</div>
           `;
-          } else {
-            return `
+          }
+          return `
            <div>未运行:${params.data.value}个</div>
           `;
-          }
         }
       },
       // 标题
@@ -210,16 +211,15 @@ export default class Index extends PureComponent {
         show: true,
         position: [50, 0],
         fontSize: 10,
-        formatter: function(params) {
+        formatter(params) {
           if (params.data.name === '已用') {
             return `
            <div>运行:${params.data.value}个</div>
           `;
-          } else {
-            return `
+          }
+          return `
            <div>未运行:${params.data.value}个</div>
           `;
-          }
         }
       },
       // 标题
@@ -363,7 +363,7 @@ export default class Index extends PureComponent {
               // 加载echarts图表
               this.loadTeamAppEcharts();
               // 加载热门应用模块
-              if (!this['loadHotAppTimer']) {
+              if (!this.loadHotAppTimer) {
                 this.loadHotApp();
               }
             }
@@ -548,7 +548,7 @@ export default class Index extends PureComponent {
                 <h3 className={styles.teamAppTitle}>应用</h3>
                 <div className={styles.teamAppContent}>
                   {/* 图表 */}
-                  <div id="appEcharts" className={styles.appEcharts}></div>
+                  <div id="appEcharts" className={styles.appEcharts} />
                   {/* 描述 */}
                   <div className={styles.desc}>
                     <div className={styles.activeApp}>
@@ -602,10 +602,7 @@ export default class Index extends PureComponent {
                 <h3 className={styles.teamAppTitle}>组件</h3>
                 <div className={styles.teamAppContent}>
                   {/* 图表 */}
-                  <div
-                    id="componmentEcharts"
-                    className={styles.appEcharts}
-                  ></div>
+                  <div id="componmentEcharts" className={styles.appEcharts} />
                   {/* 描述 */}
                   <div className={styles.desc}>
                     <div className={styles.activeApp}>
@@ -675,7 +672,7 @@ export default class Index extends PureComponent {
                       </div>
                       <p style={{ marginBottom: '0px' }}>内存使用量</p>
                     </div>
-                    <span className={styles.useLine}></span>
+                    <span className={styles.useLine} />
                     <div className={styles.disk}>
                       <div>
                         <p style={{ marginBottom: '0px' }}>
@@ -830,7 +827,7 @@ export default class Index extends PureComponent {
                               {item.accesses.length > 0 && (
                                 <VisterBtn
                                   linkList={item.accesses}
-                                  type={'link'}
+                                  type="link"
                                 />
                               )}
                             </div>

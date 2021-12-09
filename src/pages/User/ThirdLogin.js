@@ -69,7 +69,6 @@ export default class LoginPage extends Component {
                     if (!redirect || redirect == '') {
                       redirect = '/';
                     }
-                    console.log(`third login success, redirect to ${redirect}`);
                     if (redirect.startsWith('/')) {
                       dispatch(routerRedux.push(redirect));
                     } else {

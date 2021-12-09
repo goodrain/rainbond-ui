@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import { Card } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -9,7 +10,7 @@ import styles from './Index.less';
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
-  groups: global.groups,
+  groups: global.groups
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -29,7 +30,7 @@ export default class Index extends PureComponent {
       type: 'application/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...vals,
+        ...vals
       },
       callback: group => {
         if (group) {
@@ -38,15 +39,15 @@ export default class Index extends PureComponent {
             type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName(),
+              region_name: globalUtil.getCurrRegionName()
             },
             callback: () => {
               setFieldsValue({ group_id: group.group_id });
               this.cancelAddGroup();
-            },
+            }
           });
         }
-      },
+      }
     });
   };
   hideShowKey = () => {
@@ -65,7 +66,7 @@ export default class Index extends PureComponent {
         code_from: 'gitlab_manual',
         ...value,
         username,
-        password,
+        password
       },
       callback: data => {
         if (data) {
@@ -78,7 +79,7 @@ export default class Index extends PureComponent {
                 )
               );
         }
-      },
+      }
     });
   };
   render() {
@@ -91,7 +92,7 @@ export default class Index extends PureComponent {
             width:
               this.props.handleType && this.props.handleType === 'Service'
                 ? 'auto'
-                : '500px',
+                : '500px'
           }}
         >
           <CodeCustomForm onSubmit={this.handleSubmit} {...this.props} />

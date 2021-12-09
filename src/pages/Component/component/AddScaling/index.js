@@ -7,7 +7,7 @@ import Testimg from '../../../../../public/images/test.png';
 import styles from './AddScaling.less';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 
 @connect(({ loading }) => ({
   changeScalingRules: loading.effects['appControl/changeScalingRules'],
@@ -48,11 +48,11 @@ class AddScaling extends PureComponent {
     return values === undefined ? 0 : values;
   };
   checkContent = (res, value, callback) => {
-    let min = 1;
-    let num = Number(value);
+    const min = 1;
+    const num = Number(value);
     if (num || num === 0) {
       if (num < min) {
-        callback('最小输入值' + min);
+        callback(`最小输入值${min}`);
         return;
       }
       if (num > 65535) {
@@ -74,7 +74,7 @@ class AddScaling extends PureComponent {
     } = this.props;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { selectMemoryList } = this.state;
-    let propsData = data ? data : false;
+    const propsData = data || false;
 
     const minNumber = getFieldValue('minNum') || 0;
     const selectMemoryDesc = getFieldValue('selectMemory');
@@ -99,7 +99,7 @@ class AddScaling extends PureComponent {
           onOk={this.handleSubmit}
           onCancel={onClose}
           footer={[
-            <Button typs="primary" onClick={this.handleSubmit}>
+            <Button type="primary" onClick={this.handleSubmit}>
               确定
             </Button>
           ]}

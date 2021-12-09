@@ -1,12 +1,16 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
 import { Form, Icon, Input, Modal, Upload } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import apiconfig from '../../../config/api.config';
-import { addGroup } from '../../services/application';
+import { addGroup, editGroups } from '../../services/application';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
+
 const FormItem = Form.Item;
 @connect()
 @Form.create()
@@ -31,6 +35,7 @@ export default class EditGroupName extends PureComponent {
       onOk,
       teamName,
       regionName,
+      teamId,
       dispatch,
       isAddGroup = true,
       isGetGroups = true,
@@ -40,7 +45,8 @@ export default class EditGroupName extends PureComponent {
       vals.logo = this.state.paramsSrc || '';
       const setTeamName = teamName || globalUtil.getCurrTeamName();
       const setRegionName = regionName || globalUtil.getCurrRegionName();
-      const parameters = { team_name: setTeamName, region_name: setRegionName };
+      const setAppId = teamId || globalUtil.getAppID()
+      const parameters = { team_name: setTeamName, region_name: setRegionName, app_id: setAppId};
       if (!err && onOk) {
         if (isAddGroup) {
           this.handleLoading(true);
@@ -77,7 +83,7 @@ export default class EditGroupName extends PureComponent {
               this.handleLoading(false);
             });
         } else {
-          onOk(vals);
+          onOk(vals); 
         }
       }
     });
@@ -143,6 +149,23 @@ export default class EditGroupName extends PureComponent {
       });
     }
   }
+  handleValiateNameSpace = (_, value, callback) => {
+    if (!value) {
+      return callback(new Error('请输入应用英文名称'));
+    }
+    if (value && value.length <= 32) {
+      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
+      if (!Reg.test(value)) {
+        return callback(
+          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+        );
+      }
+      callback();
+    }
+    if (value.length > 32) {
+      return callback(new Error('不能大于32个字符'));
+    }
+  };
   render() {
     const {
       title,
@@ -152,7 +175,8 @@ export default class EditGroupName extends PureComponent {
       note,
       logo,
       isNoEditName = false,
-      loading = false
+      loading = false,
+      k8s_app: k8sApp
     } = this.props;
     const { getFieldDecorator } = form;
     const {
@@ -174,7 +198,7 @@ export default class EditGroupName extends PureComponent {
     };
     const uploadButton = (
       <div>
-        <Icon type={'plus'} />
+        <Icon type="plus" />
         <div className="ant-upload-text">上传图标</div>
       </div>
     );
@@ -200,7 +224,17 @@ export default class EditGroupName extends PureComponent {
               ]
             })(<Input disabled={isNoEditName} placeholder="请填写应用名称" />)}
           </FormItem>
-
+          <FormItem {...formItemLayout} label="应用英文名称">
+            {getFieldDecorator('k8s_app', {
+              initialValue: k8sApp || '',
+              rules: [
+                {
+                  required: true,
+                  validator: this.handleValiateNameSpace
+                }
+              ]
+            })(<Input placeholder="应用的英文名称" />)}
+          </FormItem>
           {/* 应用Logo */}
           <FormItem
             {...formItemLayout}

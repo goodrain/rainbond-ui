@@ -56,6 +56,23 @@ export default class Index extends PureComponent {
       }
     });
   };
+  handleValiateNameSpace = (_, value, callback) => {
+    if (!value) {
+      return callback(new Error('请输入组件英文名称'));
+    }
+    if (value && value.length <= 32) {
+      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
+      if (!Reg.test(value)) {
+        return callback(
+          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+        );
+      }
+      callback();
+    }
+    if (value.length > 32) {
+      return callback(new Error('不能大于32个字符'));
+    }
+  };
   render() {
     const {
       groups,
@@ -112,6 +129,13 @@ export default class Index extends PureComponent {
             })(<Input placeholder="请为创建的组件起个名字吧" />)}
           </Form.Item>
 
+          <Form.Item {...formItemLayout} label="组件英文名称">
+            {getFieldDecorator('k8s_component_name', {
+              rules: [
+                { required: true, validator: this.handleValiateNameSpace }
+              ]
+            })(<Input placeholder="组件的英文名称" />)}
+          </Form.Item>
           <Form.Item {...formItemLayout} label="命令">
             {getFieldDecorator('docker_cmd', {
               initialValue: data.docker_cmd || '',

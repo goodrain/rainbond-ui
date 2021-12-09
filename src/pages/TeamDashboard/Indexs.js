@@ -228,7 +228,7 @@ export default class Index extends PureComponent {
       type: 'index/fetchApps',
       payload,
       callback: res => {
-        console.log('res', res);
+
       }
     });
   };

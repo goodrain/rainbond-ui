@@ -19,7 +19,8 @@ export async function createAppByCode(body = {}) {
         code_version: body.code_version,
         username: body.username,
         password: body.password,
-        server_type: body.server_type
+        server_type: body.server_type,
+        k8s_component_name: body.k8s_component_name
       }
     }
   );
@@ -76,7 +77,8 @@ export async function createAppByCompose(body = {}) {
         image_type: 'docker_image',
         yaml_content: body.yaml_content,
         user_name: body.user_name,
-        password: body.password
+        password: body.password,
+        k8s_app: body.k8s_app
       }
     }
   );
@@ -96,7 +98,8 @@ export async function createAppByDockerrun(body = {}) {
         service_cname: body.service_cname,
         image_type: body.image_type,
         user_name: body.user_name,
-        password: body.password
+        password: body.password,
+        k8s_component_name: body.k8s_component_name
       }
     }
   );

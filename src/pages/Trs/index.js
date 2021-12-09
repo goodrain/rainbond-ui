@@ -9,7 +9,6 @@ export default class Trs extends PureComponent {
   }
   componentDidMount() {
     const { dispatch, location } = this.props;
-    console.log('Trs')
     // dispatch(
     //   routerRedux.replace(
     //     location.pathname.indexOf('team') > -1 ? '/team' : 'enterprise'

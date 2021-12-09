@@ -414,11 +414,22 @@ export default class Index extends PureComponent {
         group_name: vals.group_name,
         note: vals.note,
         username: vals.username,
-        logo: vals.logo
+        logo: vals.logo,
+        k8s_app: vals.k8s_app
       },
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({ message: '修改成功' });
+          dispatch({
+            type:'application/editGroups',
+            payload: {
+              team_name: globalUtil.getCurrTeamName(),
+              group_id: this.getGroupId(),
+            },
+            callback:res=>{
+              notification.success({ message: '重启应用后生效' });
+            }
+          })
         }
         this.handleUpDataHeader();
         this.cancelEdit();
@@ -432,6 +443,7 @@ export default class Index extends PureComponent {
         });
       }
     });
+
   };
   handleUpDataHeader = () => {
     const { dispatch } = this.props;
@@ -1032,6 +1044,7 @@ export default class Index extends PureComponent {
             logo={groupDetail.logo}
             note={groupDetail.note}
             loading={editGroupLoading}
+            k8s_app={groupDetail.k8s_app}
             title="修改应用信息"
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}

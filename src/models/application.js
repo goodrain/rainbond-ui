@@ -7,6 +7,7 @@ import {
   CheckAppName,
   CheckHelmApp,
   CheckK8sServiceName,
+  checkoutGovernanceModel,
   completeShare,
   createAppBatchComponents,
   createShare,
@@ -18,6 +19,7 @@ import {
   delRestore,
   editAppCreateCompose,
   editGroup,
+  editGroups,
   EditHelmApp,
   getAppAccess,
   getAppDetailState,
@@ -275,6 +277,12 @@ export default {
         callback(response);
       }
     },
+    *editGroups({ payload, callback }, { call }) {
+      const response = yield call(editGroups, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *addGroup({ payload, callback }, { call }) {
       const response = yield call(addGroup, payload);
       if (response && callback) {
@@ -420,6 +428,17 @@ export default {
     // 应用失败记录删除
     *delFailureBackup({ payload, callback }, { call }) {
       const response = yield call(delFailureBackup, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    // 检查治理模式
+    *checkoutGovernanceModel({ payload, callback, handleError }, { call }) {
+      const response = yield call(
+        checkoutGovernanceModel,
+        payload,
+        handleError
+      );
       if (response && callback) {
         callback(response);
       }

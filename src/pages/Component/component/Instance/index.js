@@ -203,6 +203,10 @@ class Index extends PureComponent {
                         )}
                       </span>
                     </li>
+                    <li>
+                      <span>命名空间:</span>
+                      <span>{instanceInfo.namespace || ''}</span>
+                    </li>
                     {instanceInfo.status.reason && (
                       <li style={{ width: '100%' }}>
                         <span>原因:</span>
