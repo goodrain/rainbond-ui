@@ -267,8 +267,15 @@ export default class Enterprise extends PureComponent {
     this.props.dispatch({
       type: 'teamControl/createTeam',
       payload: values,
-      callback: () => {
-        notification.success({ message: '添加成功' });
+      callback: (res) => {
+        const { response_data } = res
+        if (response_data && response_data.code) {
+          if (response_data.code === 400) {
+            notification.warning({ message: response_data.msg_show });
+          } else {
+            notification.success({ message: response_data.msg_show })
+          }
+        }
         this.cancelCreateTeam();
         this.getOverviewTeam();
         this.props.dispatch({ type: 'user/fetchCurrent' });

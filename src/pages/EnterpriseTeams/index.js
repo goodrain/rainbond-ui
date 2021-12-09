@@ -181,8 +181,15 @@ export default class EnterpriseTeams extends PureComponent {
     this.props.dispatch({
       type: 'teamControl/createTeam',
       payload: values,
-      callback: () => {
-        notification.success({ message: '添加成功' });
+      callback: (res) => {
+        const { response_data } = res
+        if (response_data && response_data.code) {
+          if (response_data.code === 400) {
+            notification.warning({ message: response_data.msg_show });
+          } else {
+            notification.success({ message: response_data.msg_show })
+          }
+        }
         // 添加完查询企业团队列表
         this.load();
         this.cancelCreateTeam();
