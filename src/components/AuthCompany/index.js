@@ -37,7 +37,7 @@ const { Option } = Select;
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
-  rainbondInfo: global.rainbondInfo
+  enterprise: global.enterprise
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -52,8 +52,8 @@ export default class Index extends PureComponent {
       activeKeyStore: 'rainbondStore',
       marketList: [],
       checkedValues: [],
-      enterprise_alias: this.props.rainbondInfo.enterprise_alias || '',
-      enterprise_id: this.props.rainbondInfo.enterprise_id || '',
+      enterprise_alias: this.props.enterprise.enterprise_alias || '',
+      enterprise_id: this.props.enterprise.enterprise_id || '',
       real_name: this.props.currUser.real_name || '',
       isShowModal: true
     };
