@@ -91,6 +91,7 @@ const appUtil = {
   appStatusToBadgeStatus(status) {
     const map = {
       running: 'success',
+      creating: 'default',
       starting: 'processing',
       checking: 'processing',
       stoping: 'processing',

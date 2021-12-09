@@ -467,6 +467,7 @@ class Main extends PureComponent {
       group_id,
       serviceAlias
     } = this.fetchParameter();
+    console.log(serviceAlias, 'serviceAlias')
     const prefixUrl = this.fetchPrefixUrl();
     dispatch({
       type: 'appControl/fetchDetail',
@@ -492,6 +493,7 @@ class Main extends PureComponent {
           ) {
             this.getStatus(false);
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
+            console.log(serviceAlias,'serviceAlias')
             dispatch(
               routerRedux.replace(
                 `${prefixUrl}create/create-check/${serviceAlias}`
@@ -524,7 +526,7 @@ class Main extends PureComponent {
   };
   fetchParameter = () => {
     const { appDetail, match } = this.props;
-    const service = appDetail && appDetail.service && appDetail.service;
+    const service = appDetail && appDetail.service;
     return {
       app_alias: match && match.params && match.params.appAlias,
       team_name: globalUtil.getCurrTeamName(),
@@ -618,8 +620,8 @@ class Main extends PureComponent {
       deploy_version: datas.build_version
         ? datas.build_version
         : datas.deploy_version
-        ? datas.deploy_version
-        : '',
+          ? datas.deploy_version
+          : '',
       upgrade_or_rollback: datas.upgrade_or_rollback
         ? datas.upgrade_or_rollback
         : -1
@@ -724,7 +726,7 @@ class Main extends PureComponent {
     this.setState({ showEditName: false });
   };
   handleEditName = data => {
-    const { team_name, serviceAlias, group_id} = this.fetchParameter();
+    const { team_name, serviceAlias, group_id } = this.fetchParameter();
     const { dispatch } = this.props;
     dispatch({
       type: 'appControl/editName',
@@ -735,12 +737,12 @@ class Main extends PureComponent {
       },
       callback: () => {
         dispatch({
-          type:'application/editGroups',
+          type: 'application/editGroups',
           payload: {
             team_name,
             group_id
           },
-          callback:res=>{
+          callback: res => {
             notification.success({ message: '重启应用后生效' });
           }
         })
@@ -924,12 +926,12 @@ class Main extends PureComponent {
       promptModal === 'stop'
         ? 'putStop'
         : promptModal === 'start'
-        ? 'putStart'
-        : promptModal === 'restart'
-        ? 'putReStart'
-        : promptModal === 'rolling'
-        ? 'putUpdateRolling'
-        : '';
+          ? 'putStart'
+          : promptModal === 'restart'
+            ? 'putReStart'
+            : promptModal === 'rolling'
+              ? 'putUpdateRolling'
+              : '';
     this.handleOperation(parameter);
   };
   toWebConsole = () => {
@@ -1197,18 +1199,18 @@ class Main extends PureComponent {
         )}
 
         {status.status === 'undeploy' ||
-        status.status === 'closed' ||
-        status.status === 'stopping'
+          status.status === 'closed' ||
+          status.status === 'stopping'
           ? ''
           : isUpdate && (
-              <Button
-                onClick={() => {
-                  this.handleOpenHelpfulHints('rolling');
-                }}
-              >
-                {upDataText}
-              </Button>
-            )}
+            <Button
+              onClick={() => {
+                this.handleOpenHelpfulHints('rolling');
+              }}
+            >
+              {upDataText}
+            </Button>
+          )}
 
         {appDetail.service.service_source === 'market' &&
           appStatusUtil.canVisit(status) &&
@@ -1296,23 +1298,23 @@ class Main extends PureComponent {
 
     const tabList = isShowThirdParty
       ? [
-          {
-            key: 'thirdPartyServices',
-            tab: '总览'
-          },
-          {
-            key: 'port',
-            tab: '端口'
-          },
-          {
-            key: 'connectionInformation',
-            tab: '连接信息'
-          },
-          {
-            key: 'members',
-            tab: '更多设置'
-          }
-        ]
+        {
+          key: 'thirdPartyServices',
+          tab: '总览'
+        },
+        {
+          key: 'port',
+          tab: '端口'
+        },
+        {
+          key: 'connectionInformation',
+          tab: '连接信息'
+        },
+        {
+          key: 'members',
+          tab: '更多设置'
+        }
+      ]
       : tabs;
     // const { service_source, language } = this.state;
     const map = {
@@ -1395,14 +1397,14 @@ class Main extends PureComponent {
               promptModal === 'restart'
                 ? reStartLoading
                 : promptModal === 'stop'
-                ? stopLoading
-                : promptModal === 'start'
-                ? startLoading
-                : promptModal === 'deploy'
-                ? deployLoading
-                : promptModal === 'rolling'
-                ? updateRollingLoading
-                : !promptModal
+                  ? stopLoading
+                  : promptModal === 'start'
+                    ? startLoading
+                    : promptModal === 'deploy'
+                      ? deployLoading
+                      : promptModal === 'rolling'
+                        ? updateRollingLoading
+                        : !promptModal
             }
           >
             <p style={{ textAlign: 'center' }}>
@@ -1422,41 +1424,41 @@ class Main extends PureComponent {
           footer={
             BuildList && BuildList.length > 0 && isConstruct
               ? [
-                  <Button
-                    onClick={() => {
-                      this.handleCancelBuild();
-                    }}
-                  >
-                    取消
-                  </Button>,
-                  <Button
-                    type="primary"
-                    loading={deployLoading}
-                    onClick={() => {
-                      this.handleOkBuild();
-                    }}
-                  >
-                    构建
-                  </Button>
-                ]
+                <Button
+                  onClick={() => {
+                    this.handleCancelBuild();
+                  }}
+                >
+                  取消
+                </Button>,
+                <Button
+                  type="primary"
+                  loading={deployLoading}
+                  onClick={() => {
+                    this.handleOkBuild();
+                  }}
+                >
+                  构建
+                </Button>
+              ]
               : isConstruct && [
-                  <Button
-                    onClick={() => {
-                      this.handleCancelBuild();
-                    }}
-                  >
-                    取消
-                  </Button>,
-                  <Button
-                    type="primary"
-                    loading={deployLoading}
-                    onClick={() => {
-                      this.handleOkBuild();
-                    }}
-                  >
-                    强制构建
-                  </Button>
-                ]
+                <Button
+                  onClick={() => {
+                    this.handleCancelBuild();
+                  }}
+                >
+                  取消
+                </Button>,
+                <Button
+                  type="primary"
+                  loading={deployLoading}
+                  onClick={() => {
+                    this.handleOkBuild();
+                  }}
+                >
+                  强制构建
+                </Button>
+              ]
           }
         >
           <div>
@@ -1605,7 +1607,7 @@ export default class Index extends PureComponent {
   getAlias = () => {
     return this.props.match.params.appAlias;
   };
-  componentDidMount() {}
+  componentDidMount() { }
   flash = () => {
     this.setState(
       {

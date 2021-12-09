@@ -1138,7 +1138,7 @@ export default class Index extends PureComponent {
                   'https://gw.alipayobjects.com/zos/rmsportal/MjEImQtenlyueSmVEfUD.svg'
                 }
               />
-              <div style={{ width: '45%' }}>
+              <div style={{ width: '70%' }}>
                 <div className={styles.contentTitle} style={{ width: '100%' }}>
                   <span>{currApp.group_name || '-'}</span>
                   {isEdit && (
@@ -1152,7 +1152,7 @@ export default class Index extends PureComponent {
                     />
                   )}
                 </div>
-                <div className={styles.contentNote}>
+                <div title={appInfo.description || currApp.note} className={styles.contentNote}>
                   {appInfo.description || currApp.note}
                 </div>
               </div>
