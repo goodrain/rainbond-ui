@@ -32,7 +32,6 @@ export default class ACKBuyConfig extends PureComponent {
     const { form, dispatch, eid, onOK } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) {
-        console.log(err);
         return;
       }
       this.setState({ loading: true });

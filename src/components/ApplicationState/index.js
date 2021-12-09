@@ -13,7 +13,17 @@ export default class Index extends PureComponent {
       CLOSED: '已关闭',
       STOPPING: '关闭中',
       ABNORMAL: '异常',
-      PARTIAL_ABNORMAL: '部分异常'
+      PARTIAL_ABNORMAL: '部分异常',
+      'not-configured': '未配置',
+      unknown: '未知',
+      deployed: '已部署',
+      superseded: '可升级',
+      failed: '失败',
+      uninstalled: '已卸载',
+      uninstalling: '卸载中',
+      'pending-install': '安装中',
+      'pending-upgrade': '升级中',
+      'pending-rollback': '回滚中'
     },
     // 应用状态的标识颜色
     appStateColor: {
@@ -22,8 +32,15 @@ export default class Index extends PureComponent {
       CLOSED: 'error',
       STOPPING: 'error',
       ABNORMAL: 'error',
-      PARTIAL_ABNORMAL: 'error'
-    }
+      PARTIAL_ABNORMAL: 'error',
+      unknown: 'error',
+      deployed: 'success',
+      superseded: 'success',
+      failed: 'error',
+      'pending-install': 'success',
+      'pending-upgrade': 'success',
+      'pending-rollback': 'success'
+    },
   };
   render() {
     const { appStateColor, appState } = this.state;

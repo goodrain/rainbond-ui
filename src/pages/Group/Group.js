@@ -237,7 +237,8 @@ export default class Index extends PureComponent {
       callback();
     }, times);
   };
-
+  //获取总数据
+  
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     const { teamName, regionName, appID } = this.props.match.params;
@@ -375,8 +376,7 @@ export default class Index extends PureComponent {
           } else {
             this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                  list[0].group_id
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${list[0].group_id
                 }`
               )
             );
@@ -421,12 +421,12 @@ export default class Index extends PureComponent {
         if (res && res.status_code === 200) {
           notification.success({ message: '修改成功' });
           dispatch({
-            type:'application/editGroups',
+            type: 'application/editGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
               group_id: this.getGroupId(),
             },
-            callback:res=>{
+            callback: res => {
               notification.success({ message: '重启应用后生效' });
             }
           })
@@ -599,13 +599,23 @@ export default class Index extends PureComponent {
           <div className={styles.conBoxt}>
             <div className={styles.contentTitle}>
               <span>{currApp.group_name || '-'}</span>
-              {isEdit && (
+              {(currApp.can_edit && isEdit) ? (
                 <Icon
                   style={{
                     cursor: 'pointer',
                     marginLeft: '5px'
                   }}
                   onClick={this.toEdit}
+                  type="edit"
+                />
+              ) : (
+                <Icon
+                  style={{
+                    cursor: 'not-allowed',
+                    marginLeft: '5px'
+                  }}
+                  title="需关闭应用下所有组件方可修改应用名"
+                  onClick={this.cancelEdit}
                   type="edit"
                 />
               )}
@@ -726,8 +736,8 @@ export default class Index extends PureComponent {
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -736,8 +746,8 @@ export default class Index extends PureComponent {
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
