@@ -493,7 +493,7 @@ class Main extends PureComponent {
           ) {
             this.getStatus(false);
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
-            console.log(serviceAlias,'serviceAlias')
+            console.log(serviceAlias, 'serviceAlias')
             dispatch(
               routerRedux.replace(
                 `${prefixUrl}create/create-check/${serviceAlias}`
@@ -961,12 +961,22 @@ class Main extends PureComponent {
           <div style={{ marginLeft: '14px' }}>
             <div className={styles.contentTitle}>
               {name || '-'}
-              {isEdit && (
+              {((status.status == 'closed' || status.status == 'undeploy') && isEdit) ? (
                 <Icon
                   style={{
                     cursor: 'pointer'
                   }}
                   onClick={this.showEditName}
+                  type="edit"
+                />
+              ):(
+                <Icon
+                  style={{
+                    cursor: 'not-allowed',
+                    marginLeft: '5px'
+                  }}
+                  title="   关闭当前组件方可进行修改"
+                  onClick={this.cancelEdit}
                   type="edit"
                 />
               )}
