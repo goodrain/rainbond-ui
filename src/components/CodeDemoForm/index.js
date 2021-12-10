@@ -189,7 +189,9 @@ export default class Index extends PureComponent {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+          new Error(
+            '只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾'
+          )
         );
       }
       callback();
@@ -248,7 +250,7 @@ export default class Index extends PureComponent {
                 validator: this.handleValiateNameSpace
               }
             ]
-          })(<Input placeholder="组件的英文名称" />)}
+          })(<Input placeholder="组件的英文名称" style={{ width: 292 }} />)}
         </Form.Item>
         <Form.Item {...formItemLayout} label={<span>Demo</span>}>
           {getFieldDecorator('git_url', {
