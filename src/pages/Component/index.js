@@ -153,7 +153,9 @@ class EditName extends PureComponent {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+          new Error(
+            '只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾'
+          )
         );
       }
       callback();
@@ -467,7 +469,6 @@ class Main extends PureComponent {
       group_id,
       serviceAlias
     } = this.fetchParameter();
-    console.log(serviceAlias, 'serviceAlias')
     const prefixUrl = this.fetchPrefixUrl();
     dispatch({
       type: 'appControl/fetchDetail',
@@ -493,12 +494,12 @@ class Main extends PureComponent {
           ) {
             this.getStatus(false);
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
-            console.log(serviceAlias, 'serviceAlias')
-            dispatch(
-              routerRedux.replace(
-                `${prefixUrl}create/create-check/${serviceAlias}`
-              )
-            );
+            serviceAlias &&
+              dispatch(
+                routerRedux.replace(
+                  `${prefixUrl}create/create-check/${serviceAlias}`
+                )
+              );
           } else {
             dispatch(
               routerRedux.replace(
@@ -620,8 +621,8 @@ class Main extends PureComponent {
       deploy_version: datas.build_version
         ? datas.build_version
         : datas.deploy_version
-          ? datas.deploy_version
-          : '',
+        ? datas.deploy_version
+        : '',
       upgrade_or_rollback: datas.upgrade_or_rollback
         ? datas.upgrade_or_rollback
         : -1
@@ -745,7 +746,7 @@ class Main extends PureComponent {
           callback: res => {
             notification.success({ message: '重启应用后生效' });
           }
-        })
+        });
         this.handleUpDataHeader();
         this.loadDetail();
         this.hideEditName();
@@ -926,12 +927,12 @@ class Main extends PureComponent {
       promptModal === 'stop'
         ? 'putStop'
         : promptModal === 'start'
-          ? 'putStart'
-          : promptModal === 'restart'
-            ? 'putReStart'
-            : promptModal === 'rolling'
-              ? 'putUpdateRolling'
-              : '';
+        ? 'putStart'
+        : promptModal === 'restart'
+        ? 'putReStart'
+        : promptModal === 'rolling'
+        ? 'putUpdateRolling'
+        : '';
     this.handleOperation(parameter);
   };
   toWebConsole = () => {
@@ -961,7 +962,8 @@ class Main extends PureComponent {
           <div style={{ marginLeft: '14px' }}>
             <div className={styles.contentTitle}>
               {name || '-'}
-              {((status.status == 'closed' || status.status == 'undeploy') && isEdit) ? (
+              {(status.status == 'closed' || status.status == 'undeploy') &&
+              isEdit ? (
                 <Icon
                   style={{
                     cursor: 'pointer'
@@ -969,7 +971,7 @@ class Main extends PureComponent {
                   onClick={this.showEditName}
                   type="edit"
                 />
-              ):(
+              ) : (
                 <Icon
                   style={{
                     cursor: 'not-allowed',
@@ -1209,18 +1211,18 @@ class Main extends PureComponent {
         )}
 
         {status.status === 'undeploy' ||
-          status.status === 'closed' ||
-          status.status === 'stopping'
+        status.status === 'closed' ||
+        status.status === 'stopping'
           ? ''
           : isUpdate && (
-            <Button
-              onClick={() => {
-                this.handleOpenHelpfulHints('rolling');
-              }}
-            >
-              {upDataText}
-            </Button>
-          )}
+              <Button
+                onClick={() => {
+                  this.handleOpenHelpfulHints('rolling');
+                }}
+              >
+                {upDataText}
+              </Button>
+            )}
 
         {appDetail.service.service_source === 'market' &&
           appStatusUtil.canVisit(status) &&
@@ -1308,23 +1310,23 @@ class Main extends PureComponent {
 
     const tabList = isShowThirdParty
       ? [
-        {
-          key: 'thirdPartyServices',
-          tab: '总览'
-        },
-        {
-          key: 'port',
-          tab: '端口'
-        },
-        {
-          key: 'connectionInformation',
-          tab: '连接信息'
-        },
-        {
-          key: 'members',
-          tab: '更多设置'
-        }
-      ]
+          {
+            key: 'thirdPartyServices',
+            tab: '总览'
+          },
+          {
+            key: 'port',
+            tab: '端口'
+          },
+          {
+            key: 'connectionInformation',
+            tab: '连接信息'
+          },
+          {
+            key: 'members',
+            tab: '更多设置'
+          }
+        ]
       : tabs;
     // const { service_source, language } = this.state;
     const map = {
@@ -1407,14 +1409,14 @@ class Main extends PureComponent {
               promptModal === 'restart'
                 ? reStartLoading
                 : promptModal === 'stop'
-                  ? stopLoading
-                  : promptModal === 'start'
-                    ? startLoading
-                    : promptModal === 'deploy'
-                      ? deployLoading
-                      : promptModal === 'rolling'
-                        ? updateRollingLoading
-                        : !promptModal
+                ? stopLoading
+                : promptModal === 'start'
+                ? startLoading
+                : promptModal === 'deploy'
+                ? deployLoading
+                : promptModal === 'rolling'
+                ? updateRollingLoading
+                : !promptModal
             }
           >
             <p style={{ textAlign: 'center' }}>
@@ -1434,41 +1436,41 @@ class Main extends PureComponent {
           footer={
             BuildList && BuildList.length > 0 && isConstruct
               ? [
-                <Button
-                  onClick={() => {
-                    this.handleCancelBuild();
-                  }}
-                >
-                  取消
-                </Button>,
-                <Button
-                  type="primary"
-                  loading={deployLoading}
-                  onClick={() => {
-                    this.handleOkBuild();
-                  }}
-                >
-                  构建
-                </Button>
-              ]
+                  <Button
+                    onClick={() => {
+                      this.handleCancelBuild();
+                    }}
+                  >
+                    取消
+                  </Button>,
+                  <Button
+                    type="primary"
+                    loading={deployLoading}
+                    onClick={() => {
+                      this.handleOkBuild();
+                    }}
+                  >
+                    构建
+                  </Button>
+                ]
               : isConstruct && [
-                <Button
-                  onClick={() => {
-                    this.handleCancelBuild();
-                  }}
-                >
-                  取消
-                </Button>,
-                <Button
-                  type="primary"
-                  loading={deployLoading}
-                  onClick={() => {
-                    this.handleOkBuild();
-                  }}
-                >
-                  强制构建
-                </Button>
-              ]
+                  <Button
+                    onClick={() => {
+                      this.handleCancelBuild();
+                    }}
+                  >
+                    取消
+                  </Button>,
+                  <Button
+                    type="primary"
+                    loading={deployLoading}
+                    onClick={() => {
+                      this.handleOkBuild();
+                    }}
+                  >
+                    强制构建
+                  </Button>
+                ]
           }
         >
           <div>
@@ -1617,7 +1619,7 @@ export default class Index extends PureComponent {
   getAlias = () => {
     return this.props.match.params.appAlias;
   };
-  componentDidMount() { }
+  componentDidMount() {}
   flash = () => {
     this.setState(
       {
