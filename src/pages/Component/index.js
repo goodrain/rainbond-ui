@@ -165,7 +165,16 @@ class EditName extends PureComponent {
     }
   };
   render() {
-    const { title, name, loading = false, form, k8sComponentName } = this.props;
+    const {
+      title,
+      name,
+      loading = false,
+      form,
+      k8sComponentName,
+      isEditEnglishName
+    } = this.props;
+    const isDisabled =
+      isEditEnglishName === 'closed' || isEditEnglishName === 'undeploy';
     const { getFieldDecorator } = form;
     return (
       <Modal
@@ -199,7 +208,10 @@ class EditName extends PureComponent {
             )}
           </FormItem>
           {/* 集群组件名称 */}
-          <FormItem label="组件英文名称">
+          <FormItem
+            label="组件英文名称"
+            extra="关闭当前组件方可进行修改组件英文名称"
+          >
             {getFieldDecorator('k8s_component_name', {
               initialValue: k8sComponentName || '',
               rules: [
@@ -208,7 +220,7 @@ class EditName extends PureComponent {
                   validator: this.handleValiateNameSpace
                 }
               ]
-            })(<Input placeholder="组件的英文名称" />)}
+            })(<Input placeholder="组件的英文名称" disabled={!isDisabled} />)}
           </FormItem>
         </Form>
       </Modal>
@@ -962,8 +974,7 @@ class Main extends PureComponent {
           <div style={{ marginLeft: '14px' }}>
             <div className={styles.contentTitle}>
               {name || '-'}
-              {(status.status == 'closed' || status.status == 'undeploy') &&
-              isEdit ? (
+              {isEdit && (
                 <Icon
                   style={{
                     cursor: 'pointer'
@@ -971,19 +982,8 @@ class Main extends PureComponent {
                   onClick={this.showEditName}
                   type="edit"
                 />
-              ) : (
-                <Icon
-                  style={{
-                    cursor: 'not-allowed',
-                    marginLeft: '5px'
-                  }}
-                  title="   关闭当前组件方可进行修改"
-                  onClick={this.cancelEdit}
-                  type="edit"
-                />
               )}
             </div>
-
             <div className={styles.content_Box}>
               {!appDetail.is_third && isRestart && (
                 <a
@@ -1562,6 +1562,7 @@ class Main extends PureComponent {
             onCancel={this.hideEditName}
             title="修改组件名称"
             k8sComponentName={k8sComponentName}
+            isEditEnglishName={status.status}
           />
         )}
         {showMoveGroup && (

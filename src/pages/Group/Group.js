@@ -237,8 +237,8 @@ export default class Index extends PureComponent {
       callback();
     }, times);
   };
-  //获取总数据
-  
+  // 获取总数据
+
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     const { teamName, regionName, appID } = this.props.match.params;
@@ -376,7 +376,8 @@ export default class Index extends PureComponent {
           } else {
             this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${list[0].group_id
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                  list[0].group_id
                 }`
               )
             );
@@ -424,12 +425,12 @@ export default class Index extends PureComponent {
             type: 'application/editGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
-              group_id: this.getGroupId(),
+              group_id: this.getGroupId()
             },
             callback: res => {
               notification.success({ message: '重启应用后生效' });
             }
-          })
+          });
         }
         this.handleUpDataHeader();
         this.cancelEdit();
@@ -443,7 +444,6 @@ export default class Index extends PureComponent {
         });
       }
     });
-
   };
   handleUpDataHeader = () => {
     const { dispatch } = this.props;
@@ -590,7 +590,6 @@ export default class Index extends PureComponent {
       stop: '停用',
       deploy: '构建'
     };
-
     const BtnDisabled = !(jsonDataLength > 0);
     const MR = { marginRight: '10px' };
     const pageHeaderContent = (
@@ -599,26 +598,14 @@ export default class Index extends PureComponent {
           <div className={styles.conBoxt}>
             <div className={styles.contentTitle}>
               <span>{currApp.group_name || '-'}</span>
-              {(currApp.can_edit && isEdit) ? (
-                <Icon
-                  style={{
-                    cursor: 'pointer',
-                    marginLeft: '5px'
-                  }}
-                  onClick={this.toEdit}
-                  type="edit"
-                />
-              ) : (
-                <Icon
-                  style={{
-                    cursor: 'not-allowed',
-                    marginLeft: '5px'
-                  }}
-                  title="需关闭应用下所有组件方可修改应用名"
-                  onClick={this.cancelEdit}
-                  type="edit"
-                />
-              )}
+              <Icon
+                style={{
+                  cursor: 'pointer',
+                  marginLeft: '5px'
+                }}
+                onClick={this.toEdit}
+                type="edit"
+              />
             </div>
             {resources.status && (
               <div className={styles.extraContent}>
@@ -736,8 +723,8 @@ export default class Index extends PureComponent {
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
-                    .locale('zh-cn')
-                    .format('YYYY-MM-DD HH:mm:ss')
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -746,8 +733,8 @@ export default class Index extends PureComponent {
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
-                    .locale('zh-cn')
-                    .format('YYYY-MM-DD HH:mm:ss')
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -1058,6 +1045,7 @@ export default class Index extends PureComponent {
             title="修改应用信息"
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}
+            isEditEnglishName={currApp.can_edit}
           />
         )}
         {toEditAppDirector && (
