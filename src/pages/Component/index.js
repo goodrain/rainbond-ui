@@ -210,7 +210,7 @@ class EditName extends PureComponent {
           {/* 集群组件名称 */}
           <FormItem
             label="组件英文名称"
-            extra="关闭当前组件方可进行修改组件英文名称"
+            extra="关闭当前组件方可修改组件英文名称"
           >
             {getFieldDecorator('k8s_component_name', {
               initialValue: k8sComponentName || '',
