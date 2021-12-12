@@ -131,10 +131,10 @@ class Index extends PureComponent {
           <Form.Item
             {...formItemLayout}
             label="启动命令"
-            help="默认使用执行package.json中的scripts.start"
+            help="此处启动命令优先级高于package.json中的scripts.start"
           >
             {getFieldDecorator('BUILD_PROCFILE', {
-              initialValue: (envs && envs.BUILD_PROCFILE) || ''
+              initialValue: (envs && envs.BUILD_PROCFILE) || 'node index.js'
             })(<Input placeholder="" />)}
           </Form.Item>
         )}
