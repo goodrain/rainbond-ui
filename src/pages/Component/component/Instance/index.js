@@ -272,13 +272,13 @@ class Index extends PureComponent {
                       },
                       {
                         title: '内存',
-                        dataIndex: 'limit_memory',
-                        key: 'limit_memory',
+                        dataIndex: 'request_memory',
+                        key: 'request_memory',
                         width: '10%',
-                        render: limitMemory => (
-                          <Tooltip title={limitMemory || '不限制'}>
+                        render: requestMemory => (
+                          <Tooltip title={requestMemory || '不限制'}>
                             <span className={styles.wordText}>
-                              {limitMemory || '不限制'}
+                              {requestMemory || '不限制'}
                             </span>
                           </Tooltip>
                         )
