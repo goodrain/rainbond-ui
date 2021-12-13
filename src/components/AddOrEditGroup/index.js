@@ -183,8 +183,10 @@ export default class EditGroupName extends PureComponent {
       isNoEditName = false,
       loading = false,
       k8s_app: k8sApp,
-      isEditEnglishName
+      isEditEnglishName,
+      isAddGroup = true
     } = this.props;
+    const isDisabled = isAddGroup ? true : isEditEnglishName;
     const { getFieldDecorator } = form;
     const {
       appLoading,
@@ -244,12 +246,7 @@ export default class EditGroupName extends PureComponent {
                   validator: this.handleValiateNameSpace
                 }
               ]
-            })(
-              <Input
-                placeholder="应用的英文名称"
-                disabled={!isEditEnglishName}
-              />
-            )}
+            })(<Input placeholder="应用的英文名称" disabled={!isDisabled} />)}
           </FormItem>
           {/* 应用Logo */}
           <FormItem
