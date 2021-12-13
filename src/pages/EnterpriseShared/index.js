@@ -1564,7 +1564,7 @@ export default class EnterpriseShared extends PureComponent {
           <Col span={19} style={contentLeftStyle}>
             <Search
               style={{ width: '400px' }}
-              placeholder="请输入名称进行搜索123"
+              placeholder="请输入名称进行搜索"
               onSearch={this.handleSearchHelmMarket}
             />
           </Col>
