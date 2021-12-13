@@ -32,6 +32,7 @@ import {
   queryImportingApp,
   queryImportRecord,
   storehubCheck,
+  syncHelmAppStore,
   upAppMarket,
   upAppModel,
   upDataAppVersionInfo,
@@ -87,6 +88,12 @@ export default {
     },
     *fetchHelmAppStore({ payload, callback, handleError }, { call }) {
       const response = yield call(getHelmAppStore, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *syncHelmAppStore({ payload, callback, handleError }, { call }) {
+      const response = yield call(syncHelmAppStore, payload, handleError);
       if (response && callback) {
         callback(response);
       }

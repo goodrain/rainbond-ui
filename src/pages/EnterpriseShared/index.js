@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-expressions */
 /* eslint-disable react/sort-comp */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
@@ -433,6 +435,38 @@ export default class EnterpriseShared extends PureComponent {
       },
       helmPag
     );
+    this.loadHelmAppStore(payload, helmPag);
+  };
+  handleSyncHelmAppStore = name => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+
+    const { helmPag } = this.state;
+    const payload = Object.assign(
+      {},
+      {
+        name,
+        enterprise_id: eid
+      },
+      helmPag
+    );
+    dispatch({
+      type: 'market/syncHelmAppStore',
+      payload,
+      callback: res => {
+        res && this.loadHelmAppStore(payload, helmPag);
+      },
+      handleError: error => {
+        error && this.loadHelmAppStore(payload, helmPag);
+      }
+    });
+  };
+  loadHelmAppStore = (payload, helmPag) => {
+    const { dispatch } = this.props;
     dispatch({
       type: 'market/fetchHelmAppStore',
       payload,
@@ -472,7 +506,6 @@ export default class EnterpriseShared extends PureComponent {
       }
     });
   };
-
   checkStoreHub = () => {
     const {
       dispatch,
@@ -572,7 +605,7 @@ export default class EnterpriseShared extends PureComponent {
         helmPag: setMarketPag
       },
       () => {
-        this.getHelmAppStore(helmInfo && helmInfo.name);
+        this.handleSyncHelmAppStore(helmInfo && helmInfo.name);
       }
     );
   };
@@ -1531,7 +1564,7 @@ export default class EnterpriseShared extends PureComponent {
           <Col span={19} style={contentLeftStyle}>
             <Search
               style={{ width: '400px' }}
-              placeholder="请输入名称进行搜索"
+              placeholder="请输入名称进行搜索123"
               onSearch={this.handleSearchHelmMarket}
             />
           </Col>

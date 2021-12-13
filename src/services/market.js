@@ -263,7 +263,16 @@ export async function getHelmAppStore(body, handleError) {
     }
   );
 }
-
+// 同步Helm应用列表
+export async function syncHelmAppStore(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores/${body.name}/resync`,
+    {
+      method: 'POST',
+      handleError
+    }
+  );
+}
 export async function postHelmAppStore(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores`,
