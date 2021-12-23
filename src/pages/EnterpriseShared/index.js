@@ -37,7 +37,7 @@ import CreateHelmAppModels from '../../components/CreateHelmAppModels';
 import DeleteApp from '../../components/DeleteApp';
 import HelmAppMarket from '../../components/HelmAppMarket';
 import InstallStep from '../../components/Introduced/InstallStep';
-import PlatformIntroduced from '../../components/Introduced/PlatformIntroduced';
+// import PlatformIntroduced from '../../components/Introduced/PlatformIntroduced';
 import Lists from '../../components/Lists';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -149,6 +149,7 @@ export default class EnterpriseShared extends PureComponent {
     eid && this.handleLoadEnterpriseClusters(eid);
     if (user) {
       this.load();
+      this.hideInitShow();
     }
   }
 
@@ -1741,9 +1742,9 @@ export default class EnterpriseShared extends PureComponent {
         title="应用市场管理"
         content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
       >
-        {initShow && isNewbieGuide && (
+        {/* {initShow && isNewbieGuide && (
           <PlatformIntroduced onCancel={this.hideInitShow} />
-        )}
+        )} */}
 
         {guideStep === 'Jump' && isInStallShow && (
           <InstallStep
