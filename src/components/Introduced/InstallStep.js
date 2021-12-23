@@ -1,11 +1,10 @@
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-nested-ternary */
 import { Button, Modal, Spin, Steps, Tabs } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import authorize from '../../assets/authorize.png';
-import cluster from '../../assets/cluster.png';
-import clusterColor from '../../assets/cluster_color.png';
 import install from '../../assets/install.png';
 import installColor from '../../assets/install_color.png';
 import success from '../../assets/success.png';
@@ -19,7 +18,7 @@ export default class InstallStep extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      installType: 1,
+      installType: '1',
       isAuthorize: false,
       authorizeLoading: true,
       isOffLine: true
@@ -65,7 +64,13 @@ export default class InstallStep extends PureComponent {
     });
   };
   render() {
-    const { onCancel, isCluster, onStartInstall, onViewInstance } = this.props;
+    const {
+      onCancel,
+      isCluster,
+      onStartInstall,
+      onViewInstance,
+      isHaveCluters
+    } = this.props;
     const {
       installType,
       isAuthorize,
@@ -87,119 +92,42 @@ export default class InstallStep extends PureComponent {
         onCancel={() => onCancel(false, installType)}
       >
         <h2 className={styless.initTitle}>
-          {isCluster ? '恭喜你成功安装集群！' : '安装步骤'}
+          {isCluster ? '恭喜你安装成功！' : '安装步骤'}
         </h2>
         <p style={{ textAlign: 'center' }}>
           {isCluster
-            ? '第一个集群已经安装成功了，去安装应用'
+            ? '默认集群环境已经安装成功,去部署应用'
             : '我们将引导您完成第一次应用安装，体验平台最基础的能力。'}
         </p>
         <div style={{ padding: '0px 90px' }}>
           <Tabs value={installType} onChange={this.onTabChange}>
-            <TabPane tab="从应用市场安装应用" key="1">
-              <Steps direction="vertical" current={isCluster ? 2 : 1}>
-                <Step
-                  title={
-                    <span style={{ color: '#4D73B1', fontWeight: 'bold' }}>
-                      获取授权
-                    </span>
-                  }
-                  icon={
-                    <img
-                      style={{ width: '24px', height: '24px' }}
-                      src={isAuthorize ? success : authorize}
-                    />
-                  }
-                  description={
-                    <span style={{ color: '#000000A6' }}>
-                      当前应用商店无安装权限，需要进行商店的授权
-                    </span>
-                  }
-                />
-                <Step
-                  title={
-                    <span
-                      style={{
-                        color: isAuthorize ? '#4D73B1' : '#000000A6',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      集群安装
-                    </span>
-                  }
-                  icon={
-                    <img
-                      style={{ width: '24px', height: '24px' }}
-                      src={
-                        isCluster && isAuthorize
-                          ? success
-                          : isAuthorize
-                          ? clusterColor
-                          : cluster
-                      }
-                    />
-                  }
-                  description={
-                    <span
-                      style={{
-                        color: isAuthorize ? '#000000A6' : '#00000073'
-                      }}
-                    >
-                      当前暂无可用的计算资源，需要进行集群的安装
-                    </span>
-                  }
-                />
-                <Step
-                  title={
-                    <span
-                      style={{
-                        color:
-                          isAuthorize && isCluster ? '#4D73B1' : '#000000A6',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      安装应用
-                    </span>
-                  }
-                  icon={
-                    <img
-                      style={{ width: '24px', height: '24px' }}
-                      src={isAuthorize && isCluster ? installColor : install}
-                    />
-                  }
-                  description={
-                    <span style={{ color: '#00000073' }}>
-                      需要可用的计算资源和商店的安装权限
-                    </span>
-                  }
-                />
-              </Steps>
-            </TabPane>
-            <TabPane tab="部署我自己的应用" key="2">
-              <Steps direction="vertical" current={1}>
-                <Step
-                  title={
-                    <span
-                      style={{
-                        color: '#4D73B1',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      集群安装
-                    </span>
-                  }
-                  icon={
-                    <img
-                      style={{ width: '24px', height: '24px' }}
-                      src={isCluster ? success : clusterColor}
-                    />
-                  }
-                  description={
-                    <span style={{ color: '#000000A6' }}>
-                      当前暂无可用的计算资源，需要进行集群的安装
-                    </span>
-                  }
-                />
+            <TabPane tab="部署我自己的应用" key="1">
+              <Steps direction="vertical" current="1">
+                {/* {!isHaveCluters && (
+                  <Step
+                    title={
+                      <span
+                        style={{
+                          color: '#4D73B1',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        集群安装
+                      </span>
+                    }
+                    icon={
+                      <img
+                        style={{ width: '24px', height: '24px' }}
+                        src={isCluster ? success : clusterColor}
+                      />
+                    }
+                    description={
+                      <span style={{ color: '#000000A6' }}>
+                        当前暂无可用的计算资源，需要进行集群的安装
+                      </span>
+                    }
+                  />
+                )} */}
                 <Step
                   title={
                     <span
@@ -227,6 +155,87 @@ export default class InstallStep extends PureComponent {
                 />
               </Steps>
             </TabPane>
+            <TabPane tab="从应用市场安装应用" key="2">
+              <Steps direction="vertical" current={isCluster ? '2' : '1'}>
+                <Step
+                  title={
+                    <span style={{ color: '#4D73B1', fontWeight: 'bold' }}>
+                      获取授权
+                    </span>
+                  }
+                  icon={
+                    <img
+                      style={{ width: '24px', height: '24px' }}
+                      src={isAuthorize ? success : authorize}
+                    />
+                  }
+                  description={
+                    <span style={{ color: '#000000A6' }}>
+                      当前应用商店无安装权限，需要进行商店的授权
+                    </span>
+                  }
+                />
+                {/* {!isHaveCluters && (
+                  <Step
+                    title={
+                      <span
+                        style={{
+                          color: isAuthorize ? '#4D73B1' : '#000000A6',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        集群安装
+                      </span>
+                    }
+                    icon={
+                      <img
+                        style={{ width: '24px', height: '24px' }}
+                        src={
+                          isCluster && isAuthorize
+                            ? success
+                            : isAuthorize
+                            ? clusterColor
+                            : cluster
+                        }
+                      />
+                    }
+                    description={
+                      <span
+                        style={{
+                          color: isAuthorize ? '#000000A6' : '#00000073'
+                        }}
+                      >
+                        当前暂无可用的计算资源，需要进行集群的安装
+                      </span>
+                    }
+                  />
+                )} */}
+                <Step
+                  title={
+                    <span
+                      style={{
+                        color:
+                          isAuthorize && isCluster ? '#4D73B1' : '#000000A6',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      安装应用
+                    </span>
+                  }
+                  icon={
+                    <img
+                      style={{ width: '24px', height: '24px' }}
+                      src={isAuthorize && isCluster ? installColor : install}
+                    />
+                  }
+                  description={
+                    <span style={{ color: '#00000073' }}>
+                      需要可用的计算资源和商店的安装权限
+                    </span>
+                  }
+                />
+              </Steps>
+            </TabPane>
           </Tabs>
         </div>
 
@@ -237,9 +246,11 @@ export default class InstallStep extends PureComponent {
               onClick={() => onStartInstall(installType)}
               type="primary"
             >
-              开始安装应用
+              {installType === '1' ? '部署自己的应用' : '对接应用市场,获取授权'}
             </Button>
-            <Button onClick={() => onViewInstance()}>查看应用实例</Button>
+            {installType === '1' && (
+              <Button onClick={() => onViewInstance()}>查看演示示例</Button>
+            )}{' '}
           </p>
         ) : (
           <p style={{ textAlign: 'center', padding: '16px 0' }}>

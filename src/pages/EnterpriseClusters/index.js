@@ -130,7 +130,7 @@ export default class EnterpriseClusters extends PureComponent {
     });
   };
 
-  loadClusters = name => {
+  loadClusters = () => {
     const {
       dispatch,
       match: {
@@ -140,8 +140,7 @@ export default class EnterpriseClusters extends PureComponent {
     dispatch({
       type: 'region/fetchEnterpriseClusters',
       payload: {
-        enterprise_id: eid,
-        name
+        enterprise_id: eid
       },
       callback: res => {
         if (res && res.list) {
@@ -401,7 +400,7 @@ export default class EnterpriseClusters extends PureComponent {
     } = this.props;
     this.handleClusterIntroduced();
     // 从应用商店安装应用
-    if (type == 1) {
+    if (type === '2') {
       dispatch(routerRedux.push(`/enterprise/${eid}/shared/local?init=true`));
     } else {
       // 自定义安装
