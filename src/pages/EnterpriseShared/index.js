@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
+/* eslint-disable react/no-unused-state */
 /* eslint-disable react/sort-comp */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
@@ -36,7 +37,7 @@ import CreateHelmAppModels from '../../components/CreateHelmAppModels';
 import DeleteApp from '../../components/DeleteApp';
 import HelmAppMarket from '../../components/HelmAppMarket';
 import InstallStep from '../../components/Introduced/InstallStep';
-import PlatformIntroduced from '../../components/Introduced/PlatformIntroduced';
+// import PlatformIntroduced from '../../components/Introduced/PlatformIntroduced';
 import Lists from '../../components/Lists';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -134,13 +135,21 @@ export default class EnterpriseShared extends PureComponent {
       showMarketCloudAuth: false,
       isAuthorize: false,
       installType: '1',
-      isStoreCluster: false
+      isStoreCluster: false,
+      clusters: []
     };
   }
   componentDidMount() {
-    const { user } = this.props;
+    const {
+      user,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    eid && this.handleLoadEnterpriseClusters(eid);
     if (user) {
       this.load();
+      this.hideInitShow();
     }
   }
 
@@ -1178,16 +1187,25 @@ export default class EnterpriseShared extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    const { isAuthorize } = this.state;
+    const { isAuthorize, clusters } = this.state;
     this.setState({ isInStallShow: false });
     if (isNext) {
-      if ((isAuthorize && installType == 1) || installType == 2) {
-        if (isAuthorize && installType == 1) {
-          this.setState({ isStoreCluster: true });
+      if ((isAuthorize && installType == 2) || installType == 1) {
+        if (isAuthorize && installType == 2) {
+          this.setState(({ marketInfo }) => {
+            return {
+              marketInfo: {
+                ...marketInfo,
+                access_actions: ['ReadInstall', 'OnlyRead']
+              }
+            };
+          });
+        } else {
+          this.fetchMyTeams();
         }
         this.setState({ installType });
         sessionStorage.setItem('isAuthorize', isAuthorize);
-        dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+        // dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
       } else {
         this.setState({ showMarketCloudAuth: true });
       }
@@ -1195,8 +1213,123 @@ export default class EnterpriseShared extends PureComponent {
       this.setState({ isInStallShow: false });
     }
   };
+  handleOpenInstallApp = (
+    isReadInstall,
+    marketInfo,
+    isClusters,
+    types,
+    item
+  ) => {
+    const { isInStallShow, guideStep } = this.state;
+    if (
+      (isReadInstall && marketInfo && isClusters) ||
+      types !== 'marketContent'
+    ) {
+      this.installHelmApp(item, types);
+    } else {
+      this.setState({
+        isInStallShow: true,
+        guideStep: 'Jump'
+      });
+    }
+  };
+  fetchMyTeams = (isNext = false) => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    const { clusters } = this.state;
+    dispatch({
+      type: 'global/fetchMyTeams',
+      payload: {
+        enterprise_id: eid,
+        page: 1,
+        page_size: 1
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          if (res && res.list.length > 0) {
+            const teamName = res.list[0].team_name;
+            if (isNext && teamName) {
+              this.fetchApps(teamName, true);
+            } else if (teamName) {
+              dispatch(
+                routerRedux.push(
+                  `/team/${teamName}/region/${clusters[0].region_name}/create/code`
+                )
+              );
+            }
+          } else {
+            return notification.warn({
+              message: '请先创建团队！'
+            });
+          }
+        }
+      }
+    });
+  };
+  fetchApps = (teamName = '', isNext = false) => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    const { clusters } = this.state;
+    dispatch({
+      type: 'global/fetchEnterpriseApps',
+      payload: {
+        enterprise_id: eid,
+        page: 1,
+        page_size: 1
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          if (res && res.list.length > 0) {
+            const groupId = res.list[0].ID;
+            if (isNext && groupId && teamName) {
+              dispatch(
+                routerRedux.push(
+                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}`
+                )
+              );
+            }
+          } else {
+            return notification.warn({
+              message: '请先创建应用！'
+            });
+          }
+        }
+      }
+    });
+  };
+
   onCloseLogin = () => {
     this.setState({ isInStallShow: true, isAuthorize: true });
+  };
+  // 获取企业的集群信息
+  handleLoadEnterpriseClusters = eid => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'region/fetchEnterpriseClusters',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.list) {
+          const clusters = [];
+          res.list.map((item, index) => {
+            item.key = `cluster${index}`;
+            clusters.push(item);
+            return item;
+          });
+          this.setState({ clusters });
+          globalUtil.putClusterInfoLog(eid, res.list);
+        }
+      }
+    });
   };
   render() {
     const {
@@ -1609,9 +1742,9 @@ export default class EnterpriseShared extends PureComponent {
         title="应用市场管理"
         content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
       >
-        {initShow && isNewbieGuide && (
+        {/* {initShow && isNewbieGuide && (
           <PlatformIntroduced onCancel={this.hideInitShow} />
-        )}
+        )} */}
 
         {guideStep === 'Jump' && isInStallShow && (
           <InstallStep
