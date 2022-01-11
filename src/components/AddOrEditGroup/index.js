@@ -42,7 +42,7 @@ export default class EditGroupName extends PureComponent {
       handleAppLoading = false
     } = this.props;
     form.validateFields({ force: true }, (err, vals) => {
-      vals.logo = this.state.paramsSrc || '';
+      vals.logo = this.state.paramsSrc || this.props.logo;
       const setTeamName = teamName || globalUtil.getCurrTeamName();
       const setRegionName = regionName || globalUtil.getCurrRegionName();
       const setAppId = teamId || globalUtil.getAppID();
