@@ -63,7 +63,8 @@ class Index extends React.Component {
     keyes: false,
     srcUrl: `/static/www/weavescope/index.html`,
     teamName: '',
-    regionName: ''
+    regionName: '',
+    build:false
   }
   componentWillMount() {
     const that = this
@@ -134,13 +135,22 @@ class Index extends React.Component {
         const link = document.getElementById('links').click()
       };
 
-      // 拓扑图点击访问事件
-      window.handleClickVisit = function (relation) {
-        console.log('点击访问', relation)
+      // 拓扑图点击构建事件
+      window.handleClickBuild = function (relation, detailes) {
+        console.log('点击构建', relation)
+        if(relation == 'build'){
+          that.setState({
+            closes: false,
+            start: false,
+            updated: false,
+            build:  true,
+            appAlias: detailes.service_alias,
+            promptModal: 'build'
+          })
+        }
       }
       // 拓扑图点击更新事件
       window.handleClickUpdate = function (relation, detailes) {
-        console.log('点击更新', relation)
         if (relation == 'update') {
           that.setState({
             closes: false,
@@ -153,7 +163,6 @@ class Index extends React.Component {
       }
       // 拓扑图点击关闭事件
       window.handleClickCloses = function (relation, detailes) {
-        console.log('点击关闭', relation)
         if (relation == 'closes') {
           that.setState({
             closes: true,
@@ -183,8 +192,6 @@ class Index extends React.Component {
       }
       // 拓扑图点击删除事件
       window.handleClickDelete = function (relation, detailes) {
-        console.log('删除', relation)
-        console.log(detailes, '传过来的详情值')
         if (relation == 'deleteApp') {
           that.setState({
             flag: true,
@@ -255,7 +262,8 @@ class Index extends React.Component {
       putReStart: '操作成功，重启中',
       putStart: '操作成功，启动中',
       putStop: '操作成功，关闭中',
-      putUpdateRolling: '操作成功，更新中'
+      putUpdateRolling: '操作成功，更新中',
+      putBuild: '操作成功，部署中'
     };
     dispatch({
       type: `appControl/${state}`,
@@ -276,6 +284,10 @@ class Index extends React.Component {
   };
   handleJumpAgain = () => {
     const { promptModal } = this.state;
+    if (promptModal === 'build') {
+      this.handleDeploy();
+      return null;
+    }
     const parameter =
       promptModal === 'stop'
         ? 'putStop'
@@ -283,6 +295,8 @@ class Index extends React.Component {
           ? 'putStart'
           : promptModal === 'restart'
             ? 'putReStart'
+            : promptModal === 'build'
+            ? 'putBuild'
             : promptModal === 'rolling'
               ? 'putUpdateRolling'
               : '';
@@ -291,13 +305,42 @@ class Index extends React.Component {
   refreshFrame = () => {
     document.getElementById('myframe').contentWindow.location.reload(true);
   }
+  //构建
+  handleDeploy = () => {
+    const { actionIng,appAlias } = this.state;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    const { build_upgrade, dispatch } = this.props;
+    if (actionIng) {
+      notification.warning({ message: `正在执行操作，请稍后` });
+      return;
+    }
+
+    dispatch({
+      type: 'appControl/putDeploy',
+      payload: {
+        team_name:teamName,
+        app_alias:appAlias,
+        group_version: '',
+        is_upgrate: ''
+      },
+      callback: res => {
+        if (res) {
+          notification.success({ message: `操作成功，部署中` });
+        }
+        this.handleOffHelpfulHints();
+        this.refreshFrame()
+      }
+    });
+  };
   render() {
     const { deleteAppLoading, reStartLoading, stopLoading, startLoading, updateRollingLoading } = this.props
-    const { flag, promptModal, closes, start, updated, keyes, srcUrl, teamName, regionName, appAlias } = this.state
+    const { flag, promptModal, closes, start, updated, keyes, srcUrl, teamName, regionName, appAlias, build } = this.state
     const codeObj = {
       start: '启动',
       stop: '关闭',
-      rolling: '更新'
+      rolling: '更新',
+      build:'构建'
     };
     return (
       // eslint-disable-next-line jsx-a11y/iframe-has-title
@@ -312,7 +355,7 @@ class Index extends React.Component {
             subDesc="此操作不可恢复"
           />
         )}
-        {(closes || start || updated) && (
+        {(closes || start || updated || build) && (
           <Modal
             title="友情提示"
             visible={promptModal}
