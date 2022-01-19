@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Card, } from 'antd';
+import { Card, Divider, } from 'antd';
 
 import GGEditor, { RegisterNode } from 'gg-editor';
 import EditorData from './EditorData'
@@ -107,19 +107,38 @@ class EditorToplogy extends PureComponent {
   }
   render() {
     const { colorDataType } = this.state
+    const { flagHeight } = this.props
+    console.log(flagHeight,'编辑状态')
     return (
-      <Card style={{ minHeight: 500 }} bordered={false}>
-        <GGEditor>
-          {colorDataType.map((itemq, index) => {
-            return <RegisterNode
-              key={index}
-              name={colorDataType[index]}
-              config={this.config(colorDataType[index])}
-            />
-          })}
-          <EditorData  {...this.props} />
-        </GGEditor>
-      </Card>
+      <>
+        {/* {flagHeight ? ( */}
+          {/* <Card style={{ minHeight: 500 }} bordered={false}>
+            <GGEditor>
+              {colorDataType.map((itemq, index) => {
+                return <RegisterNode
+                  key={index}
+                  name={colorDataType[index]}
+                  config={this.config(colorDataType[index])}
+                />
+              })}
+              <EditorData  {...this.props} />
+            </GGEditor>
+          </Card>
+        ) : ( */}
+          <Card style={{ minHeight: 500 }} bordered={false}>
+            <GGEditor>
+              {colorDataType.map((itemq, index) => {
+                return <RegisterNode
+                  key={index}
+                  name={colorDataType[index]}
+                  config={this.config(colorDataType[index])}
+                />
+              })}
+              <EditorData  {...this.props} />
+            </GGEditor>
+          </Card>
+        {/* )} */}
+      </>
     )
   }
 }
