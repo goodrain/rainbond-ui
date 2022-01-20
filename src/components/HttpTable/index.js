@@ -561,7 +561,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'certificate_alias',
         key: 'certificate_alias',
         align: 'center',
-        width: 40,
+        width: 60,
         render: text => {
           return text ? <span>{text}</span> : <span>无</span>;
         }

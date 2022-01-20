@@ -22,6 +22,7 @@ import rainbondUtil from '../../utils/rainbond';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import DAinput from '../DAinput';
+import DAinputs from '../DAinputs';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -52,6 +53,7 @@ class DrawerForm extends PureComponent {
       rule_extensions_visible: false,
       automaticCertificateVisible: (editInfo && editInfo.auto_ssl) || false,
       isPerform: true,
+      rewrite: false,
       routingConfiguration: !!(
         props.editInfo &&
         (props.editInfo.domain_heander ||
@@ -355,9 +357,9 @@ class DrawerForm extends PureComponent {
     const appKeys = editInfo &&
       editInfo.g_id &&
       editInfo.group_name && {
-        key: editInfo.g_id,
-        label: editInfo.group_name
-      };
+      key: editInfo.g_id,
+      label: editInfo.group_name
+    };
     const {
       routingConfiguration,
       licenseList,
@@ -367,7 +369,8 @@ class DrawerForm extends PureComponent {
       serviceComponentLoading,
       componentLoading,
       portLoading,
-      portList
+      portList,
+      rewrite
     } = this.state;
     const dividers = <Divider style={{ margin: '4px 0' }} />;
     const serviceId = editInfo && editInfo.service_id && editInfo.service_id;
@@ -452,7 +455,18 @@ class DrawerForm extends PureComponent {
                 initialValue: editInfo.domain_path
               })(<Input placeholder="/" />)}
             </FormItem>
-
+            <FormItem {...formItemLayout} label="Path Rewrite">
+              {getFieldDecorator('path_rewrite', {
+                initialValue: editInfo.path_rewrite
+              })(<Checkbox
+                defaultChecked={editInfo.path_rewrite}
+              ></Checkbox>)}
+            </FormItem>
+              <FormItem {...formItemLayout} label="Rewrites">
+                {getFieldDecorator('rewrites', {
+                  initialValue: editInfo.rewrites,
+                })(<DAinputs />)}
+              </FormItem>
             {!routingConfiguration && (
               <div>
                 <p style={{ textAlign: 'center' }}>
