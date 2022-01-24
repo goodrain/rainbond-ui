@@ -301,6 +301,22 @@ class DrawerForm extends PureComponent {
     }
     callback();
   };
+  handleValidators = (rule, val, callback)=>{
+    console.log(val,'val')
+    if(val && val.length > 0){
+      for(let i = 0; i < val.length; i++){
+        if(val[i].regex && val[i].replacement && val[i].flag){
+          callback();
+        }else if(!val[i].regex && !val[i].replacement && !val[i].flag){
+          callback();
+        }else{
+          callback('需填写完整Rewrites配置');
+        }
+        
+      }
+    }
+    callback();
+  }
   render() {
     const {
       onClose,
@@ -455,18 +471,6 @@ class DrawerForm extends PureComponent {
                 initialValue: editInfo.domain_path
               })(<Input placeholder="/" />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="Path Rewrite">
-              {getFieldDecorator('path_rewrite', {
-                initialValue: editInfo.path_rewrite
-              })(<Checkbox
-                defaultChecked={editInfo.path_rewrite}
-              ></Checkbox>)}
-            </FormItem>
-              <FormItem {...formItemLayout} label="Rewrites">
-                {getFieldDecorator('rewrites', {
-                  initialValue: editInfo.rewrites,
-                })(<DAinputs />)}
-              </FormItem>
             {!routingConfiguration && (
               <div>
                 <p style={{ textAlign: 'center' }}>
@@ -476,9 +480,25 @@ class DrawerForm extends PureComponent {
                 </p>
               </div>
             )}
-
             {routingConfiguration && (
               <div>
+                <FormItem {...formItemLayout} label="Path Rewrite">
+                  {getFieldDecorator('path_rewrite', {
+                    initialValue: editInfo.path_rewrite
+                  })(<Checkbox
+                    defaultChecked={editInfo.path_rewrite}
+                  ></Checkbox>)}
+                </FormItem>
+                <FormItem {...formItemLayout} label="Rewrites">
+                  {getFieldDecorator('rewrites', {
+                    initialValue: editInfo.rewrites,
+                    rules: [
+                      {
+                        validator: this.handleValidators
+                      }
+                  ]
+                  })(<DAinputs />)}
+                </FormItem>
                 <FormItem {...formItemLayout} label="请求头">
                   {getFieldDecorator('domain_heander', {
                     initialValue: editInfo.domain_heander,

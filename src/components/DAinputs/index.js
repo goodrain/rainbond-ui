@@ -1,11 +1,12 @@
-import { Col, Icon, Input, notification, Row } from 'antd';
+import { Col, Icon, Input, notification, Row, Select } from 'antd';
 import React, { Component } from 'react';
-
+const { Option } = Select;
 class DAinputs extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      values: [{ regex: '', replacement: '', flag: '' }]
+      values: [{ regex: '', replacement: '', flag: '' }],
+      data: ['last', 'break', 'redirect', 'permanent']
     };
   }
   componentDidMount() {
@@ -70,9 +71,9 @@ class DAinputs extends Component {
     const res = [];
     for (let i = 0; i < values.length; i++) {
       res.push({
-        regex:values[i].regex,
-        replacement:values[i].replacement,
-        flag:values[i].flag
+        regex: values[i].regex,
+        replacement: values[i].replacement,
+        flag: values[i].flag
       })
     }
     const { onChange } = this.props;
@@ -85,7 +86,7 @@ class DAinputs extends Component {
     const regexPlaceholder = this.props.regexPlaceholder || 'regex';
     const repPlaceholder = this.props.repPlaceholder || 'replacement';
     const flagPlaceholder = this.props.flagPlaceholder || 'flag';
-    const { values } = this.state;
+    const { values, data } = this.state;
     return (
       <div>
         {values.map((item, index) => {
@@ -102,7 +103,7 @@ class DAinputs extends Component {
                   placeholder={regexPlaceholder}
                 />
               </Col>
-              <Col span={7} style={{ textAlign: 'center', marginLeft:'6px',marginRight:'6px' }}>
+              <Col span={7} style={{ textAlign: 'center', marginLeft: '6px', marginRight: '6px' }}>
                 <Input
                   name="replacement"
                   onChange={e => {
@@ -113,14 +114,18 @@ class DAinputs extends Component {
                 />
               </Col>
               <Col span={6}>
-                <Input
+                <Select
                   name="flag"
-                  onChange={e => {
-                    this.onFlagChange(e.target.value, index);
-                  }}
+                  allowClear
                   value={item.flag}
-                  placeholder={flagPlaceholder}
-                />
+                  onChange={e => {
+                    this.onFlagChange(e, index)
+                  }}>
+                  <Select.Option value="last">last</Select.Option>
+                  <Select.Option value="break">break</Select.Option>
+                  <Select.Option value="redirect">redirect</Select.Option>
+                  <Select.Option value="permanent">permanent</Select.Option>
+                </Select>
               </Col>
               <Col span={4} style={{ textAlign: 'center' }}>
                 <Icon
