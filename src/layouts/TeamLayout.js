@@ -190,7 +190,7 @@ class TeamLayout extends PureComponent {
           if (errtext && enterpriseList.length > 0) {
             notification.warning({ message: errtext });
             dispatch(
-              routerRedux.replace(
+              routerRedux.push(
                 `/enterprise/${enterpriseList[0].enterprise_id}/index`
               )
             );
@@ -388,10 +388,17 @@ class TeamLayout extends PureComponent {
           });
         }
       },
-      handleError: () => {
+      handleError: res => {
         this.setState({
           currentApp: false
         });
+        if (res && res.status === 404) {
+          this.props.dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+            )
+          );
+        }
       }
     });
   };
