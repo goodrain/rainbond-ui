@@ -32,6 +32,7 @@ import sourceUtil from '../../utils/source-unit';
 import AddServiceComponent from './AddServiceComponent';
 import AddThirdParty from './AddThirdParty';
 import AppShape from './AppShape';
+import AppJoinMode from './AppJoinMode';
 import ComponentList from './ComponentList';
 import EditorTopology from './EditorTopology';
 import styles from './Index.less';
@@ -551,8 +552,6 @@ export default class Index extends PureComponent {
         flagHeight : true
       });
     }
-    
-    console.log(e,'e')
   };
   render() {
     const {
@@ -1036,28 +1035,18 @@ export default class Index extends PureComponent {
         )}
         <Row style={{position:'relative'}} style={guideStep === 2 ? highlighted : {}}>
           <div 
-          style={{ 
-            width:'100px',
-            textAlign:'center',
-            margin:'0px auto', 
-            position:'absolute',
-            left:'46.2%',
-            top:'0%',
-            zIndex: 1001,
-          }} 
+          className={styles.iconBox}
           onClick={()=>{
             this.heightOnchage(flagHeight)
           }}
           >
             {flagHeight ? (
-              <div>
-                <DownOutlined style={{fontSize:'28px'}} />
-                <p style={{fontSize:'12px', lineHeight:'10px'}}>点击关闭</p>
+              <div className={styles.showOrhide}>
+                <DownOutlined />
               </div>
             ) : (
-              <div>
-                <UpOutlined style={{fontSize:'28px'}} />
-                <p style={{fontSize:'12px', lineHeight:'10px'}}>点击展开</p>
+              <div className={styles.showOrhide}>
+                <UpOutlined />
               </div>
             )}
           </div>
@@ -1074,6 +1063,11 @@ export default class Index extends PureComponent {
               <a
                 onClick={() => {
                   this.changeType('shape');
+                  this.setState({
+                    aggregation: false,
+                    common: true,
+                    compile: false
+                  })
                 }}
                 style={{
                   marginLeft: '30px',
@@ -1096,15 +1090,15 @@ export default class Index extends PureComponent {
                 </a>
               )}
             </Col>
-            <Col span={11} style={{ paddingleft: '12px' }}>
+            <Col className={styles.topoBtn} span={11} style={{ paddingleft: '12px' }}>
               {type !== 'list' && isComponentCreate && (
                 <Radio.Group>
                   {common ? (
                     <Radio.Button
                     style={{ 
                       width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',
-                      color:'#00000094', borderColor: '#4d73b1',boxShadow: '-1px 0 0 0 #4d73b1'
+                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#4C73B0',
+                      color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
                       onClick={() => {
                         this.changeType('shape');
@@ -1122,8 +1116,8 @@ export default class Index extends PureComponent {
                     <Radio.Button
                     style={{ 
                       width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',
-                      color:'black',
+                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#fff',
+                      color:'#595959', borderColor: '#D9D9D9',
                     }}
                       onClick={() => {
                         this.changeType('shape');
@@ -1141,8 +1135,8 @@ export default class Index extends PureComponent {
                     <Radio.Button
                     style={{ 
                       width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',
-                      color:'#00000094', borderColor: '#4d73b1',boxShadow: '-1px 0 0 0 #4d73b1'
+                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#4C73B0',
+                      color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
                       onClick={() => {
                         this.changeType('aggregation');
@@ -1160,8 +1154,8 @@ export default class Index extends PureComponent {
                     <Radio.Button
                     style={{ 
                       width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',
-                      color:'black',
+                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#fff',
+                      color:'#595959', borderColor: '#D9D9D9'
                     }}
                       onClick={() => {
                         this.changeType('aggregation');
@@ -1179,8 +1173,8 @@ export default class Index extends PureComponent {
                     <Radio.Button
                     style={{ 
                       width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',
-                      color:'#00000094', borderColor: '#4d73b1',boxShadow: '-1px 0 0 0 #4d73b1'
+                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#4C73B0',
+                      color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
                       onClick={() => {
                         this.changeType('shapes');
@@ -1198,8 +1192,8 @@ export default class Index extends PureComponent {
                     <Radio.Button
                     style={{ 
                       width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',
-                      color:'black',
+                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#fff',
+                      color:'#595959', borderColor: '#D9D9D9'
                     }}
                       onClick={() => {
                         this.changeType('shapes');
@@ -1266,7 +1260,7 @@ export default class Index extends PureComponent {
             />
           )}
           {type === 'shape' && <AppShape group_id={this.getGroupId()} flagHeight={flagHeight} />}
-          {type === 'aggregation' && <div style={{width:'100%',height:'500px',background:'black'}} ></div>}
+          {type === 'aggregation' && <AppJoinMode group_id={this.getGroupId()} flagHeight={flagHeight} />}
           {type === 'spin' && <Spin />}
           {type === 'shapes' && (
             <EditorTopology

@@ -108,37 +108,19 @@ class EditorToplogy extends PureComponent {
   render() {
     const { colorDataType } = this.state
     const { flagHeight } = this.props
-    console.log(flagHeight,'编辑状态')
     return (
-      <>
-        {/* {flagHeight ? ( */}
-          {/* <Card style={{ minHeight: 500 }} bordered={false}>
-            <GGEditor>
-              {colorDataType.map((itemq, index) => {
-                return <RegisterNode
-                  key={index}
-                  name={colorDataType[index]}
-                  config={this.config(colorDataType[index])}
-                />
-              })}
-              <EditorData  {...this.props} />
-            </GGEditor>
-          </Card>
-        ) : ( */}
-          <Card style={{ minHeight: 500 }} bordered={false}>
-            <GGEditor>
-              {colorDataType.map((itemq, index) => {
-                return <RegisterNode
-                  key={index}
-                  name={colorDataType[index]}
-                  config={this.config(colorDataType[index])}
-                />
-              })}
-              <EditorData  {...this.props} />
-            </GGEditor>
-          </Card>
-        {/* )} */}
-      </>
+      <div style={{ minHeight: 500, background:'#fff' }} bordered={false}>
+        <GGEditor>
+          {colorDataType.map((itemq, index) => {
+            return <RegisterNode
+              key={index}
+              name={colorDataType[index]}
+              config={this.config(colorDataType[index])}
+            />
+          })}
+          <EditorData  {...this.props} />
+        </GGEditor>
+      </div>
     )
   }
 }

@@ -482,9 +482,7 @@ class EditorData extends PureComponent {
       edgeTitle,
       foreignTypeName,
     } = this.state;
-     console.log(data,'data')
     const { flagHeight } = this.props
-    console.log(flagHeight, 'flagHeight')
     const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
       <div>
