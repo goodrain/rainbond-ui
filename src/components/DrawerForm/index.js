@@ -1,3 +1,5 @@
+/* eslint-disable prefer-promise-reject-errors */
+/* eslint-disable react/self-closing-comp */
 /* eslint-disable camelcase */
 import {
   Button,
@@ -301,22 +303,29 @@ class DrawerForm extends PureComponent {
     }
     callback();
   };
-  handleValidators = (rule, val, callback)=>{
-    console.log(val,'val')
-    if(val && val.length > 0){
-      for(let i = 0; i < val.length; i++){
-        if(val[i].regex && val[i].replacement && val[i].flag){
-          callback();
-        }else if(!val[i].regex && !val[i].replacement && !val[i].flag){
-          callback();
-        }else{
-          callback('需填写完整Rewrites配置');
+  handleValidators = (_, val, callback) => {
+    let isPass = false;
+    if (val && val.length > 0) {
+      val.some(item => {
+        if (
+          (item.regex && item.replacement && item.flag) ||
+          (!item.regex && !item.replacement && !item.flag)
+        ) {
+          isPass = true;
+        } else {
+          isPass = false;
+          return true;
         }
-        
+      });
+      if (isPass) {
+        callback();
+      } else {
+        callback(new Error('需填写完整Rewrites配置'));
       }
+    } else {
+      return callback();
     }
-    callback();
-  }
+  };
   render() {
     const {
       onClose,
@@ -373,9 +382,9 @@ class DrawerForm extends PureComponent {
     const appKeys = editInfo &&
       editInfo.g_id &&
       editInfo.group_name && {
-      key: editInfo.g_id,
-      label: editInfo.group_name
-    };
+        key: editInfo.g_id,
+        label: editInfo.group_name
+      };
     const {
       routingConfiguration,
       licenseList,
@@ -485,18 +494,14 @@ class DrawerForm extends PureComponent {
                 <FormItem {...formItemLayout} label="Path Rewrite">
                   {getFieldDecorator('path_rewrite', {
                     initialValue: editInfo.path_rewrite
-                  })(<Checkbox
-                    defaultChecked={editInfo.path_rewrite}
-                  ></Checkbox>)}
+                  })(
+                    <Checkbox defaultChecked={editInfo.path_rewrite}></Checkbox>
+                  )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="Rewrites">
                   {getFieldDecorator('rewrites', {
                     initialValue: editInfo.rewrites,
-                    rules: [
-                      {
-                        validator: this.handleValidators
-                      }
-                  ]
+                    rules: [{ validator: this.handleValidators }]
                   })(<DAinputs />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="请求头">
