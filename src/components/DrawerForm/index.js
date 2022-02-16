@@ -61,7 +61,8 @@ class DrawerForm extends PureComponent {
         props.editInfo &&
         (props.editInfo.domain_heander ||
           props.editInfo.domain_cookie ||
-          // props.editInfo.the_weight ||
+          props.editInfo.path_rewrite ||
+          (props.editInfo.rewrites && props.editInfo.rewrites.length > 0) ||
           props.editInfo.certificate_id)
       )
     };
@@ -110,12 +111,15 @@ class DrawerForm extends PureComponent {
   };
   handleOk = () => {
     const { onOk, form } = this.props;
-    const { group_name } = this.state;
+    const { group_name, routingConfiguration } = this.state;
     form.validateFields((err, values) => {
-      values.rewrites = values.rewrites.filter(
-        item => item.regex && item.flag && item.replacement
-      );
       if (!err && onOk) {
+        // 过滤
+        if (values.rewrites && values.rewrites.length > 0) {
+          values.rewrites = values.rewrites.filter(
+            item => item.regex && item.flag && item.replacement
+          );
+        }
         const info = Object.assign({}, values);
         if (values.certificate_id === 'auto_ssl') {
           info.auto_ssl = true;
@@ -127,7 +131,7 @@ class DrawerForm extends PureComponent {
         if (values.domain_cookie === '=') {
           info.domain_cookie = '';
         }
-        onOk(info, group_name);
+        onOk(info, group_name, routingConfiguration);
       }
     });
   };

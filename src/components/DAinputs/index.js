@@ -1,5 +1,6 @@
 import { Col, Icon, Input, notification, Row, Select } from 'antd';
 import React, { Component } from 'react';
+
 const { Option } = Select;
 class DAinputs extends Component {
   constructor(props) {
@@ -58,7 +59,9 @@ class DAinputs extends Component {
       });
       return null;
     }
-    this.setState({ values: values.concat({ regex: '', replacement: '', flag: '' }) });
+    this.setState({
+      values: values.concat({ regex: '', replacement: '', flag: '' })
+    });
   };
 
   remove = index => {
@@ -74,7 +77,7 @@ class DAinputs extends Component {
         regex: values[i].regex,
         replacement: values[i].replacement,
         flag: values[i].flag
-      })
+      });
     }
     const { onChange } = this.props;
     if (onChange) {
@@ -103,7 +106,14 @@ class DAinputs extends Component {
                   placeholder={regexPlaceholder}
                 />
               </Col>
-              <Col span={7} style={{ textAlign: 'center', marginLeft: '6px', marginRight: '6px' }}>
+              <Col
+                span={7}
+                style={{
+                  textAlign: 'center',
+                  marginLeft: '6px',
+                  marginRight: '6px'
+                }}
+              >
                 <Input
                   name="replacement"
                   onChange={e => {
@@ -119,8 +129,9 @@ class DAinputs extends Component {
                   allowClear
                   value={item.flag}
                   onChange={e => {
-                    this.onFlagChange(e, index)
-                  }}>
+                    this.onFlagChange(e, index);
+                  }}
+                >
                   <Select.Option value="last">last</Select.Option>
                   <Select.Option value="break">break</Select.Option>
                   <Select.Option value="redirect">redirect</Select.Option>
