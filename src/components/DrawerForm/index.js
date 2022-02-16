@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable camelcase */
@@ -111,6 +112,9 @@ class DrawerForm extends PureComponent {
     const { onOk, form } = this.props;
     const { group_name } = this.state;
     form.validateFields((err, values) => {
+      values.rewrites = values.rewrites.filter(
+        item => item.regex && item.flag && item.replacement
+      );
       if (!err && onOk) {
         const info = Object.assign({}, values);
         if (values.certificate_id === 'auto_ssl') {
