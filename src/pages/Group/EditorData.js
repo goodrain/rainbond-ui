@@ -94,7 +94,7 @@ class EditorData extends PureComponent {
           size: '60*60',
           shape: 'The Internet',
           color: '#030303',
-          label: 'The Internet',
+          label: '网关',
           stack: true,
           stackNum: 1,
           linkable: true,
