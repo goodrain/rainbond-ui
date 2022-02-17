@@ -109,7 +109,7 @@ class EditorToplogy extends PureComponent {
     const { colorDataType } = this.state
     const { flagHeight } = this.props
     return (
-      <div style={{ minHeight: 500, background:'#fff' }} bordered={false}>
+      <div style={{ minHeight: 700, background:'#fff' }} bordered={false}>
         <GGEditor>
           {colorDataType.map((itemq, index) => {
             return <RegisterNode

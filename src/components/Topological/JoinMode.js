@@ -400,12 +400,11 @@ import {
             target="_blank"
           >
           </Link>
-          {flagHeight ? (
             <iframe
             src={`${apiconfig.baseUrl}${srcUrl}`}
             style={{
               width: '100%',
-              height: '800px',
+              height: '700px',
             }}
             id="myframe"
             key={keyes}
@@ -416,38 +415,6 @@ import {
             marginWidth="0"
             marginHeight="0"
           />
-          ) : (
-            <iframe
-            src={`${apiconfig.baseUrl}${srcUrl}`}
-            style={{
-              width: '100%',
-              height: '500px',
-            }}
-            id="myframe"
-            key={keyes}
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-            scrolling="auto"
-            frameBorder="no"
-            border="0"
-            marginWidth="0"
-            marginHeight="0"
-          />
-          )}
-          {/* <iframe
-            src={`${apiconfig.baseUrl}${srcUrl}`}
-            style={{
-              width: '100%',
-              height: '500px',
-            }}
-            id="myframe"
-            key={keyes}
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-            scrolling="auto"
-            frameBorder="no"
-            border="0"
-            marginWidth="0"
-            marginHeight="0"
-          /> */}
         </div> 
       );
     }

@@ -547,99 +547,49 @@ class EditorData extends PureComponent {
           config={{ shortcutCodes: [] }}
           extend="delete"
         />
-        {/* {flagHeight ? (
-          <div>
-            <Flow
-              style={{ width: '100%', minHeight: 500 }}
-              data={data}
-              noEndEdge={false}
-              onKeyDown={e => {
-                if (e.domEvent.key == 'Backspace') {
-                  this.onEdgeOpen();
-                }
-              }}
-              onEdgeClick={e => {
-                e.shape._attrs.stroke = '#5BB1FA';
-                e.shape._attrs.lineWidth = 3;
-                this.onSaveEdgeData(e.item);
-              }}
-              onAfterChange={e => {
-                const { action, item } = e;
-                if (action == 'add') {
-                  const name = item.source.model.service_alias;
-                  const names = item.target.model.service_alias;
-                  const sourceShape = item.source.model.shape;
-                  const targetShape = item.target.model.shape;
-                  const sourceType = item.source.id;
-                  const id = item.target.id;
-                  const targetName = item.target.model.label;
-                  if (sourceType == 'The Internet') {
-                    this.handleSubmitOpenExternalPort(
-                      names,
-                      targetName,
-                      targetShape
-                    );
-                  } else if (id == 'The Internet') {
-                    this.handleUndo();
-                  } else if (name != 'The Internet') {
-                    this.handleSubmitAddRelation(
-                      name,
-                      id,
-                      targetName,
-                      sourceShape
-                    );
-                  }
-                }
-              }}
-            />
-          </div>
-        ) : ( */}
-          <div>
-            <Flow
-              style={{ width: '100%', minHeight: 500 }}
-              data={data}
-              noEndEdge={false}
-              onKeyDown={e => {
-                if (e.domEvent.key == 'Backspace') {
-                  this.onEdgeOpen();
-                }
-              }}
-              onEdgeClick={e => {
-                e.shape._attrs.stroke = '#5BB1FA';
-                e.shape._attrs.lineWidth = 3;
-                this.onSaveEdgeData(e.item);
-              }}
-              onAfterChange={e => {
-                const { action, item } = e;
-                if (action == 'add') {
-                  const name = item.source.model.service_alias;
-                  const names = item.target.model.service_alias;
-                  const sourceShape = item.source.model.shape;
-                  const targetShape = item.target.model.shape;
-                  const sourceType = item.source.id;
-                  const id = item.target.id;
-                  const targetName = item.target.model.label;
-                  if (sourceType == 'The Internet') {
-                    this.handleSubmitOpenExternalPort(
-                      names,
-                      targetName,
-                      targetShape
-                    );
-                  } else if (id == 'The Internet') {
-                    this.handleUndo();
-                  } else if (name != 'The Internet') {
-                    this.handleSubmitAddRelation(
-                      name,
-                      id,
-                      targetName,
-                      sourceShape
-                    );
-                  }
-                }
-              }}
-            />
-          </div>
-        {/* )} */}
+        <Flow
+          style={{ width: '100%', minHeight: 700 }}
+          data={data}
+          noEndEdge={false}
+          onKeyDown={e => {
+            if (e.domEvent.key == 'Backspace') {
+              this.onEdgeOpen();
+            }
+          }}
+          onEdgeClick={e => {
+            e.shape._attrs.stroke = '#5BB1FA';
+            e.shape._attrs.lineWidth = 3;
+            this.onSaveEdgeData(e.item);
+          }}
+          onAfterChange={e => {
+            const { action, item } = e;
+            if (action == 'add') {
+              const name = item.source.model.service_alias;
+              const names = item.target.model.service_alias;
+              const sourceShape = item.source.model.shape;
+              const targetShape = item.target.model.shape;
+              const sourceType = item.source.id;
+              const id = item.target.id;
+              const targetName = item.target.model.label;
+              if (sourceType == 'The Internet') {
+                this.handleSubmitOpenExternalPort(
+                  names,
+                  targetName,
+                  targetShape
+                );
+              } else if (id == 'The Internet') {
+                this.handleUndo();
+              } else if (name != 'The Internet') {
+                this.handleSubmitAddRelation(
+                  name,
+                  id,
+                  targetName,
+                  sourceShape
+                );
+              }
+            }
+          }}
+        />
       </div>
     );
   }

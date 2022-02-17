@@ -5,7 +5,7 @@
   display: flex;
   & > div {
     width: 50%;
-    margin: 0 0 24px 0;
+    margin: 0 0 14px 0;
     padding: 24px;
   }
   .contentl {
@@ -126,7 +126,7 @@
     color: @text-color-secondary;
     line-height: 22px;
     width: 58%;
-    margin: 0 0 24px 0;
+    margin: 0 0 14px 0;
     padding: 24px;
     .conBoxt {
       display: flex;
@@ -187,7 +187,7 @@
   .contentr {
     background: #fff;
     width: 42%;
-    margin: 0 0 24px 0;
+    margin: 0 0 14px 0;
     padding: 24px;
     & > div:nth-of-type(2) {
       // margin: 31px 0;
@@ -586,16 +586,19 @@
   color:'#8C8C8C';
   cursor: pointer;
   font-size:'12px';
+  z-index: 1002;
 }
 .iconBox{
   cursor: pointer;
   width: 60px;
+  height: 20px;
   text-align: center;
-  margin: 0px auto;
-  position: absolute;
-  left: 47.6%;
-  top: -2%;
-  z-index: 1001;
+  margin: -4px auto;
+
+  // position: absolute;
+  // left: 47.6%;
+  // top: -2%;
+  z-index: 10001;
   background-color: #fff;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
