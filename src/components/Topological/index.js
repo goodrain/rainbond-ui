@@ -65,7 +65,7 @@ class Index extends React.Component {
     srcUrl: `/static/www/weavescope-topolog/index.html`,
     teamName: '',
     regionName: '',
-    build:false
+    build:false,
   }
   componentWillMount() {
     const that = this
@@ -333,8 +333,10 @@ class Index extends React.Component {
       }
     });
   };
+  
+  
   render() {
-    const { deleteAppLoading, reStartLoading, stopLoading, startLoading, updateRollingLoading , flagHeight} = this.props
+    const { deleteAppLoading, reStartLoading, stopLoading, startLoading, updateRollingLoading , flagHeight,iframeHeight} = this.props
     const { flag, promptModal, closes, start, updated, keyes, srcUrl, teamName, regionName, appAlias, build } = this.state
     const codeObj = {
       start: '启动',
@@ -344,7 +346,7 @@ class Index extends React.Component {
     };
     return (
       // eslint-disable-next-line jsx-a11y/iframe-has-title
-      <div key={keyes} className={styles.antd_card_body}>
+      <div key={keyes} style={{ height:iframeHeight}}>
         {flag && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
@@ -387,7 +389,7 @@ class Index extends React.Component {
           src={`${apiconfig.baseUrl}${srcUrl}`}
           style={{
             width: '100%',
-            height: '700px',
+            height: '100%'
           }}
           id="myframe"
           key={keyes}

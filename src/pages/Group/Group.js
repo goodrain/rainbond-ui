@@ -77,6 +77,7 @@ export default class Index extends PureComponent {
       common: true,
       compile: false,
       flagHeight:false,
+      iframeHeight: '500px',
     };
   }
 
@@ -545,11 +546,13 @@ export default class Index extends PureComponent {
   heightOnchage = e => {
     if(e){
       this.setState({ 
-        flagHeight : false
+        flagHeight : false,
+        iframeHeight: '500px',
       });
     }else{
       this.setState({ 
-        flagHeight : true
+        flagHeight : true,
+        iframeHeight: '70vh',
       });
     }
   };
@@ -604,6 +607,7 @@ export default class Index extends PureComponent {
       common,
       compile,
       flagHeight,
+      iframeHeight,
     } = this.state;
     const codeObj = {
       start: '启动',
@@ -1259,14 +1263,16 @@ export default class Index extends PureComponent {
               groupId={this.getGroupId()}
             />
           )}
-          {type === 'shape' && <AppShape group_id={this.getGroupId()} flagHeight={flagHeight} />}
-          {type === 'aggregation' && <AppJoinMode group_id={this.getGroupId()} flagHeight={flagHeight} />}
+          {type === 'shape' && <AppShape style={{height:iframeHeight}} group_id={this.getGroupId()} flagHeight={flagHeight} iframeHeight={iframeHeight} />}
+          {type === 'aggregation' && <AppJoinMode group_id={this.getGroupId()} flagHeight={flagHeight} iframeHeight={iframeHeight} />}
           {type === 'spin' && <Spin />}
           {type === 'shapes' && (
             <EditorTopology
               changeType={types => {
                 this.changeType(types);
               }}
+              key={iframeHeight}
+              iframeHeight={iframeHeight}
               group_id={this.getGroupId()}
               flagHeight={flagHeight}
             />

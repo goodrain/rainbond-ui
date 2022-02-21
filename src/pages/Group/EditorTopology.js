@@ -107,9 +107,9 @@ class EditorToplogy extends PureComponent {
   }
   render() {
     const { colorDataType } = this.state
-    const { flagHeight } = this.props
+    const { flagHeight, iframeHeight } = this.props
     return (
-      <div style={{ minHeight: 700, background:'#fff' }} bordered={false}>
+      <div style={{ height: iframeHeight, background:'#fff' }} bordered={false}>
         <GGEditor>
           {colorDataType.map((itemq, index) => {
             return <RegisterNode
@@ -118,7 +118,7 @@ class EditorToplogy extends PureComponent {
               config={this.config(colorDataType[index])}
             />
           })}
-          <EditorData  {...this.props} />
+          <EditorData iframeHeight={iframeHeight}  {...this.props} />
         </GGEditor>
       </div>
     )

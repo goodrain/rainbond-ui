@@ -10,6 +10,7 @@ import {
 } from '../../services/app';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
+import styles from './Index.less'
 
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
@@ -39,6 +40,7 @@ class EditorData extends PureComponent {
       edgeTitle: '',
       foreignTypeName: '',
       shape: '',
+      flag: false, //控制变量
     };
   }
   componentDidMount() {
@@ -74,6 +76,7 @@ class EditorData extends PureComponent {
           this.setState({
             data,
             registerData: data.registerData,
+            flag: true
           });
         }
       },
@@ -482,10 +485,10 @@ class EditorData extends PureComponent {
       edgeTitle,
       foreignTypeName,
     } = this.state;
-    const { flagHeight } = this.props
+    const { flagHeight, iframeHeight } = this.props
     const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
-      <div>
+      <div style={{height:iframeHeight}}>
         {visible && (
           <Modal
             title={
@@ -548,7 +551,7 @@ class EditorData extends PureComponent {
           extend="delete"
         />
         <Flow
-          style={{ width: '100%', minHeight: 700 }}
+          style={{ width: '100%',height:iframeHeight }}
           data={data}
           noEndEdge={false}
           onKeyDown={e => {
