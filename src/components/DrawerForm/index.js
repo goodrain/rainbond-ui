@@ -1,3 +1,6 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable prefer-promise-reject-errors */
+/* eslint-disable react/self-closing-comp */
 /* eslint-disable camelcase */
 import {
   Button,
@@ -22,6 +25,7 @@ import rainbondUtil from '../../utils/rainbond';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import DAinput from '../DAinput';
+import DAinputs from '../DAinputs';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -52,11 +56,13 @@ class DrawerForm extends PureComponent {
       rule_extensions_visible: false,
       automaticCertificateVisible: (editInfo && editInfo.auto_ssl) || false,
       isPerform: true,
+      rewrite: false,
       routingConfiguration: !!(
         props.editInfo &&
         (props.editInfo.domain_heander ||
           props.editInfo.domain_cookie ||
-          // props.editInfo.the_weight ||
+          props.editInfo.path_rewrite ||
+          (props.editInfo.rewrites && props.editInfo.rewrites.length > 0) ||
           props.editInfo.certificate_id)
       )
     };
@@ -105,9 +111,15 @@ class DrawerForm extends PureComponent {
   };
   handleOk = () => {
     const { onOk, form } = this.props;
-    const { group_name } = this.state;
+    const { group_name, routingConfiguration } = this.state;
     form.validateFields((err, values) => {
       if (!err && onOk) {
+        // 过滤
+        if (values.rewrites && values.rewrites.length > 0) {
+          values.rewrites = values.rewrites.filter(
+            item => item.regex && item.flag && item.replacement
+          );
+        }
         const info = Object.assign({}, values);
         if (values.certificate_id === 'auto_ssl') {
           info.auto_ssl = true;
@@ -119,7 +131,7 @@ class DrawerForm extends PureComponent {
         if (values.domain_cookie === '=') {
           info.domain_cookie = '';
         }
-        onOk(info, group_name);
+        onOk(info, group_name, routingConfiguration);
       }
     });
   };
@@ -299,6 +311,29 @@ class DrawerForm extends PureComponent {
     }
     callback();
   };
+  handleValidators = (_, val, callback) => {
+    let isPass = false;
+    if (val && val.length > 0) {
+      val.some(item => {
+        if (
+          (item.regex && item.replacement && item.flag) ||
+          (!item.regex && !item.replacement && !item.flag)
+        ) {
+          isPass = true;
+        } else {
+          isPass = false;
+          return true;
+        }
+      });
+      if (isPass) {
+        callback();
+      } else {
+        callback(new Error('需填写完整Rewrites配置'));
+      }
+    } else {
+      return callback();
+    }
+  };
   render() {
     const {
       onClose,
@@ -367,7 +402,8 @@ class DrawerForm extends PureComponent {
       serviceComponentLoading,
       componentLoading,
       portLoading,
-      portList
+      portList,
+      rewrite
     } = this.state;
     const dividers = <Divider style={{ margin: '4px 0' }} />;
     const serviceId = editInfo && editInfo.service_id && editInfo.service_id;
@@ -452,7 +488,6 @@ class DrawerForm extends PureComponent {
                 initialValue: editInfo.domain_path
               })(<Input placeholder="/" />)}
             </FormItem>
-
             {!routingConfiguration && (
               <div>
                 <p style={{ textAlign: 'center' }}>
@@ -462,9 +497,21 @@ class DrawerForm extends PureComponent {
                 </p>
               </div>
             )}
-
             {routingConfiguration && (
               <div>
+                <FormItem {...formItemLayout} label="Path Rewrite">
+                  {getFieldDecorator('path_rewrite', {
+                    initialValue: editInfo.path_rewrite
+                  })(
+                    <Checkbox defaultChecked={editInfo.path_rewrite}></Checkbox>
+                  )}
+                </FormItem>
+                <FormItem {...formItemLayout} label="Rewrites">
+                  {getFieldDecorator('rewrites', {
+                    initialValue: editInfo.rewrites,
+                    rules: [{ validator: this.handleValidators }]
+                  })(<DAinputs />)}
+                </FormItem>
                 <FormItem {...formItemLayout} label="请求头">
                   {getFieldDecorator('domain_heander', {
                     initialValue: editInfo.domain_heander,
