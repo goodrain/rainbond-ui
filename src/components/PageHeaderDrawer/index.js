@@ -23,6 +23,9 @@ function getBreadcrumb(breadcrumbNameMap, url) {
 export default class PageHeader extends PureComponent {
   constructor(arg){
     super(arg)
+    this.state = {
+      back:''
+    }
   }
   static contextTypes = {
     routes: PropTypes.array,
@@ -33,6 +36,13 @@ export default class PageHeader extends PureComponent {
   handleTitleList = values =>{
     if (this.props.onTabChange) {
       this.props.onTabChange(values.key);
+      this.setState({
+        back:'#e3e3e3'
+      })
+    }else{
+      this.setState({
+        back:''
+      })
     }
   }
   onChange = key => {
@@ -167,6 +177,8 @@ export default class PageHeader extends PureComponent {
       tabActiveKey,
       isSvg
     } = this.props;
+    const {back} = this.state
+    const appMarketSvg = globalUtil.fetchSvg('appmarket');
     const clsString = classNames(styles.pageHeader, className);
     // const { teamName, regionName } = this.props.match.params;
     let tabDefaultValue;
@@ -200,6 +212,33 @@ export default class PageHeader extends PureComponent {
             </div>
           </div>
         </div>
+        {tabList && tabList.length && (
+          <div className={styles.ServiceBox}>
+          <Row style={{ marginBottom: '20px' }}>
+          {tabList.map(item => {
+              const { key, tab } = item;
+              return (
+                <Col
+                  span={8}
+                  {...activeKeyProps}
+                  className={styles.ServiceDiv}
+                  onClick={this.handleTitleList.bind(this,item)}
+                >
+                  {isSvg &&
+                    globalUtil.fetchSvg(
+                    key === 'localApplication'
+                      ? 'appComponent'
+                      : key.indexOf('Helm-') > -1
+                      ? 'HelmSvg'
+                      : 'appmarket'
+                    )}
+                  <p className={styles.ServiceSmallTitle}>{tab}</p>
+                </Col>
+                );
+              })}
+          </Row>
+          </div>
+        )}
       </div>
     );
   }

@@ -10,20 +10,23 @@ import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
 import rainbondUtil from '../../utils/rainbond';
 import { languageObj } from '../../utils/utils';
+import ThirdParty from './AddThirdParty'
 import Custom from '../Create/code-custom';
 import Check from '../Create/create-check';
 import ImageCmd from '../Create/image-cmd';
 import ImageName from '../Create/image-name';
 import Market from '../Create/market';
+import MarketDrawer from '../Create/market-drawer'
 import styles from './Index.less';
 
-@connect(({ user, application, global }) => ({
+@connect(({ user, application, global , enterprise}) => ({
   currUser: user.currentUser,
   apps: application.apps,
   groupDetail: application.groupDetail || {},
   groups: global.groups || [],
   rainbondInfo: global.rainbondInfo,
-  enterprise: global.enterprise
+  enterprise: global.enterprise,
+  currentEnterprise: enterprise.currentEnterprise,
 }))
 export default class AddServiceComponent extends PureComponent {
   constructor(arg) {
@@ -31,6 +34,7 @@ export default class AddServiceComponent extends PureComponent {
     this.state = {
       CustomButton: false,
       toAddService: false,
+      flagThirdParty: false,
       ServiceComponentOnePage: true,
       ServiceComponentTwoPage: null,
       ServiceComponentThreePage: null,
@@ -41,9 +45,11 @@ export default class AddServiceComponent extends PureComponent {
       moreState: true,
       BackType: null,
       errState: true,
-      scopeProMax: ''
+      isDrawer:true,
+      scopeProMax: '',
     };
   }
+
   getGitServerName = item => {
     const { oauth_type: type, name = '' } = item;
     const typeMap = {
@@ -59,9 +65,11 @@ export default class AddServiceComponent extends PureComponent {
   };
 
   toAddService = () => {
-    this.setState({ toAddService: true });
+    this.setState({ toAddService: true, isDrawer:true });
   };
-
+  toAddThirdParty = () => {
+    this.setState({ flagThirdParty: !this.state.flagThirdParty });
+  };
   cancelAddService = () => {
     this.setState({ toAddService: false }, () => {
       this.setState({
@@ -158,7 +166,11 @@ export default class AddServiceComponent extends PureComponent {
       }
     );
   };
-
+  getValue = (val)=>{
+    this.setState({
+      isDrawer:val
+    })
+  }
   handleScopeMax = (scopeProMax = false) => {
     // eslint-disable-next-line react/no-unused-state
     this.setState({ scopeProMax });
@@ -177,13 +189,17 @@ export default class AddServiceComponent extends PureComponent {
       gitServiceID,
       scopeProMax,
       errState,
-      toAddService
+      toAddService,
+      flagThirdParty,
+      localAppTab,
+      rainStoreTab,
+      helmStoreTab,
+      isDrawer,
     } = this.state;
-
     const codeSvg = globalUtil.fetchSvg('codeSvg');
     const dockerSvg = globalUtil.fetchSvg('dockerSvg');
+    const third_party = globalUtil.fetchSvg('third_party');
     const servers = oauthUtil.getEnableGitOauthServer(enterprise);
-
     const BasisParameter = {
       handleType: 'Service',
       ButtonGroupState,
@@ -229,6 +245,7 @@ export default class AddServiceComponent extends PureComponent {
           visible={toAddService}
           maskClosable={false}
           width={550}
+          style={{display:isDrawer ? 'block' : 'none'}}
         >
           {ServiceComponentOnePage && (
             <div style={{ marginTop: '-12px' }}>
@@ -309,7 +326,7 @@ export default class AddServiceComponent extends PureComponent {
               </div>
               <div className={styles.ServiceBox}>
                 <Row>
-                  <p className={styles.ServiceTitle}>从源镜像开始</p>
+                  <p className={styles.ServiceTitle}>从镜像开始</p>
                 </Row>
                 <Row style={{ marginTop: '-8px' }}>
                   <Col
@@ -346,7 +363,7 @@ export default class AddServiceComponent extends PureComponent {
                   </p>
                 </Row>
                 <Row>
-                  <Market
+                  <MarketDrawer
                     {...MarketParameter}
                     isHelm={false}
                     handleServiceComponent={scopeMax => {
@@ -361,6 +378,9 @@ export default class AddServiceComponent extends PureComponent {
                     }}
                   />
                 </Row>
+              </div>
+              <div className={styles.ServiceBox}>
+                <ThirdParty content={this.getValue.bind(this)} groupId={groupId} />
               </div>
             </div>
           )}
