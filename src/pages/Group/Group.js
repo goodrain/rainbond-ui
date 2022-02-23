@@ -1215,7 +1215,7 @@ export default class Index extends PureComponent {
               )}
             </Col>
             <Col span={4} style={{ textAlign: 'right' }}>
-              {isComponentCreate && isComponentConstruct && (
+              {/* {isComponentCreate && isComponentConstruct && (
                 <AddThirdParty
                   groupId={this.getGroupId()}
                   refreshCurrent={() => {
@@ -1229,7 +1229,7 @@ export default class Index extends PureComponent {
                     });
                   }}
                 />
-              )}
+              )} */}
             </Col>
             <Col span={4} style={{ textAlign: 'center' }}>
               {isComponentCreate && isComponentConstruct && (

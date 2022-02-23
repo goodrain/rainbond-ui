@@ -566,14 +566,50 @@ const cloud = {
       case 7019:
         noticeWarning('无法获取集群的初始化状态');
         break;
+      case 7020:
+        noticeWarning('rke配置格式不正确');
+        break;
+      case 7021:
+        noticeWarning('rke配置丢失');
+        break;
+      case 7022:
+        noticeWarning('初始化集群任务不存在');
+        break;
+      case 7023:
+        noticeWarning('rke集群已存在');
+        break;
       case 7024:
         noticeWarning('上一个更新集群的任务未结束');
         break;
       case 7025:
         noticeWarning('请勿重复提交更新集群任务');
         break;
+      case 7026:
+        noticeWarning('更新集群任务不存在');
+        break;
+      case 7027:
+        noticeWarning('集群不存在');
+        break;
+      case 7028:
+        noticeWarning('rbd-system命名空间已存在，无法再次初始化');
+        break;
+      case 7029:
+        noticeWarning('集群任务不存在');
+        break;
+      case 8000:
+        noticeWarning('Helm商店不存在');
+        break;
+      case 8001:
+        noticeWarning('Helm商店名冲突');
+        break;
       case 8002:
         noticeWarning('应用商店地址不是合法的Helm仓库地址或通信不畅，请确认');
+        break;
+      case 8003:
+        noticeWarning('Helm应用模版不存在');
+        break;
+      case 8004:
+        noticeWarning('Helm应用模版版本不存在');
         break;
       case 400:
         noticeWarning(data.msg_show || '请求参数错误');
@@ -585,6 +621,8 @@ const cloud = {
         noticeWarning(`未知的Cloud错误，错误码为${code}`);
         break;
     }
+
+
   },
   showCreateKubernetesSteps(events) {
     const colorMap = {

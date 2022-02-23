@@ -115,7 +115,7 @@ class CreateHelmAppModels extends PureComponent {
         app_store_url: helmInfo && helmInfo.url
       });
       if (!err) {
-        this.setState({ helmInstallLoading: true });
+        this.setState({ helmInstallLoading: false });
         if (appTypes === 'helmContent') {
           this.handleCreateHelm(info);
         } else if (appTypes === 'marketContent') {

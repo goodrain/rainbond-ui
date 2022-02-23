@@ -16,7 +16,9 @@ import {
   Spin,
   Tabs,
   Tag,
-  Tooltip
+  Tooltip,
+  Row,
+  Col
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -951,6 +953,7 @@ export default class Main extends PureComponent {
       rainStoreTab,
       helmStoreTab
     } = this.state;
+    const dockerSvg = globalUtil.fetchSvg('dockerSvg');
     const setHideOnSinglePage = !!moreState;
     const paginationProps = {
       current: moreState ? 1 : page,
@@ -1010,7 +1013,7 @@ export default class Main extends PureComponent {
           <a onClick={this.loadMore}>查看更多...</a>
         </div>
       );
-
+    //本地组件库
     const cardList = (
       <List
         bordered={false}
@@ -1040,7 +1043,7 @@ export default class Main extends PureComponent {
         )}
       />
     );
-
+    //开源应用商店
     const cloudCardList = (
       <List
         bordered={false}
@@ -1087,6 +1090,7 @@ export default class Main extends PureComponent {
     );
     const defaultValue =
       scopeMax == 'localApplication' ? appName : cloudAppName;
+    //搜索框
     const mainSearch = (
       <div
         style={{
@@ -1293,6 +1297,7 @@ export default class Main extends PureComponent {
                       '40px'
                   }}
                 >
+                  
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
               ) : (
