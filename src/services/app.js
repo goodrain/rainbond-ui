@@ -1577,7 +1577,6 @@ export async function deleteVolume(
   );
 }
 export function getPerformanceAnalysis(body = {}) {
-  console.log(body);
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.teamName}/apps/${body.app_alias}/monitor/query_range`,
     {

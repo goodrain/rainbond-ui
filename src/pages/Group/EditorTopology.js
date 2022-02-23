@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Card, } from 'antd';
+import { Card, Divider, } from 'antd';
 
 import GGEditor, { RegisterNode } from 'gg-editor';
 import EditorData from './EditorData'
@@ -107,8 +107,9 @@ class EditorToplogy extends PureComponent {
   }
   render() {
     const { colorDataType } = this.state
+    const { flagHeight, iframeHeight } = this.props
     return (
-      <Card style={{ minHeight: 500 }} bordered={false}>
+      <div style={{ height: iframeHeight, background:'#fff' }} bordered={false}>
         <GGEditor>
           {colorDataType.map((itemq, index) => {
             return <RegisterNode
@@ -117,9 +118,9 @@ class EditorToplogy extends PureComponent {
               config={this.config(colorDataType[index])}
             />
           })}
-          <EditorData  {...this.props} />
+          <EditorData iframeHeight={iframeHeight}  {...this.props} />
         </GGEditor>
-      </Card>
+      </div>
     )
   }
 }

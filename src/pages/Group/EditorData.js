@@ -4,12 +4,13 @@ import { connect } from 'dva';
 import { Flow, RegisterCommand, withPropsAPI } from 'gg-editor';
 import React, { PureComponent } from 'react';
 import {
-    addRelationedApp,
-    removeRelationedApp,
-    updateRolling
+  addRelationedApp,
+  removeRelationedApp,
+  updateRolling
 } from '../../services/app';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
+import styles from './Index.less'
 
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
@@ -39,6 +40,7 @@ class EditorData extends PureComponent {
       edgeTitle: '',
       foreignTypeName: '',
       shape: '',
+      flag: false, //控制变量
     };
   }
   componentDidMount() {
@@ -74,6 +76,7 @@ class EditorData extends PureComponent {
           this.setState({
             data,
             registerData: data.registerData,
+            flag: true
           });
         }
       },
@@ -94,7 +97,7 @@ class EditorData extends PureComponent {
           size: '60*60',
           shape: 'The Internet',
           color: '#030303',
-          label: 'The Internet',
+          label: '网关',
           stack: true,
           stackNum: 1,
           linkable: true,
@@ -246,9 +249,9 @@ class EditorData extends PureComponent {
               shape == 'undeploy' || shape == 'closed' || shape == 'stopping'
                 ? notification.success({ message: '依赖添加成功。' })
                 : this.handleUpdateConfirm(
-                    name,
-                    '依赖添加成功，需要更新才能生效。'
-                  );
+                  name,
+                  '依赖添加成功，需要更新才能生效。'
+                );
               this.setState({ visible: false, shape: '' });
               return;
             }
@@ -324,8 +327,8 @@ class EditorData extends PureComponent {
       if (res && res.status_code === 200) {
         this.loadTopology();
         sourceShape == 'undeploy' ||
-        sourceShape == 'closed' ||
-        sourceShape == 'stopping'
+          sourceShape == 'closed' ||
+          sourceShape == 'stopping'
           ? notification.success({ message: '依赖添加成功。' })
           : this.handleUpdateConfirm(name, '依赖添加成功，需要更新才能生效。');
         return;
@@ -482,9 +485,10 @@ class EditorData extends PureComponent {
       edgeTitle,
       foreignTypeName,
     } = this.state;
+    const { flagHeight, iframeHeight } = this.props
     const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
-      <div>
+      <div style={{height:iframeHeight}}>
         {visible && (
           <Modal
             title={
@@ -546,51 +550,49 @@ class EditorData extends PureComponent {
           config={{ shortcutCodes: [] }}
           extend="delete"
         />
-        <div>
-          <Flow
-            style={{ width: '100%', minHeight: 500 }}
-            data={data}
-            noEndEdge={false}
-            onKeyDown={e => {
-              if (e.domEvent.key == 'Backspace') {
-                this.onEdgeOpen();
+        <Flow
+          style={{ width: '100%',height:iframeHeight }}
+          data={data}
+          noEndEdge={false}
+          onKeyDown={e => {
+            if (e.domEvent.key == 'Backspace') {
+              this.onEdgeOpen();
+            }
+          }}
+          onEdgeClick={e => {
+            e.shape._attrs.stroke = '#5BB1FA';
+            e.shape._attrs.lineWidth = 3;
+            this.onSaveEdgeData(e.item);
+          }}
+          onAfterChange={e => {
+            const { action, item } = e;
+            if (action == 'add') {
+              const name = item.source.model.service_alias;
+              const names = item.target.model.service_alias;
+              const sourceShape = item.source.model.shape;
+              const targetShape = item.target.model.shape;
+              const sourceType = item.source.id;
+              const id = item.target.id;
+              const targetName = item.target.model.label;
+              if (sourceType == 'The Internet') {
+                this.handleSubmitOpenExternalPort(
+                  names,
+                  targetName,
+                  targetShape
+                );
+              } else if (id == 'The Internet') {
+                this.handleUndo();
+              } else if (name != 'The Internet') {
+                this.handleSubmitAddRelation(
+                  name,
+                  id,
+                  targetName,
+                  sourceShape
+                );
               }
-            }}
-            onEdgeClick={e => {
-              e.shape._attrs.stroke = '#5BB1FA';
-              e.shape._attrs.lineWidth = 3;
-              this.onSaveEdgeData(e.item);
-            }}
-            onAfterChange={e => {
-              const { action, item } = e;
-              if (action == 'add') {
-                const name = item.source.model.service_alias;
-                const names = item.target.model.service_alias;
-                const sourceShape = item.source.model.shape;
-                const targetShape = item.target.model.shape;
-                const sourceType = item.source.id;
-                const id = item.target.id;
-                const targetName = item.target.model.label;
-                if (sourceType == 'The Internet') {
-                  this.handleSubmitOpenExternalPort(
-                    names,
-                    targetName,
-                    targetShape
-                  );
-                } else if (id == 'The Internet') {
-                  this.handleUndo();
-                } else if (name != 'The Internet') {
-                  this.handleSubmitAddRelation(
-                    name,
-                    id,
-                    targetName,
-                    sourceShape
-                  );
-                }
-              }
-            }}
-          />
-        </div>
+            }
+          }}
+        />
       </div>
     );
   }
