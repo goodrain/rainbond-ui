@@ -362,7 +362,7 @@ export default class Index extends PureComponent {
           this.closeComponentTimer();
           this.cancelDelete(false);
           dispatch(
-            routerRedux.push(
+            routerRedux.replace(
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
             )
           );

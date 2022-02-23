@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unused-state */
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-nested-ternary */
 import ConfirmModal from '@/components/ConfirmModal';
 import {
@@ -51,7 +53,8 @@ export default class HttpTable extends PureComponent {
       appStatusVisable: false,
       record: '',
       parameterVisible: false,
-      parameterInfo: null
+      parameterInfo: null,
+      gateWayInfo: null
     };
   }
   componentWillMount() {
@@ -156,12 +159,10 @@ export default class HttpTable extends PureComponent {
   handleClose = () => {
     this.setState({ drawerVisible: false, editInfo: '' });
   };
-  handleOk = (values, group_name, obj) => {
+  handleOk = (values, group_name, routingConfiguration, obj) => {
     const { dispatch, groups } = this.props;
-    const { editInfo } = this.state;
-    if (obj && obj.whether_open) {
-      values.whether_open = true;
-    }
+    const { editInfo, gateWayInfo } = this.state;
+    // 新增网关策略
     if (!editInfo) {
       dispatch({
         type: 'gateWay/addHttpStrategy',
@@ -171,7 +172,7 @@ export default class HttpTable extends PureComponent {
           team_name: globalUtil.getCurrTeamName()
         },
         callback: data => {
-          if (data && data.bean.is_outer_service == false) {
+          if (data && data.bean.is_outer_service === false) {
             this.setState({
               values,
               group_name
@@ -180,7 +181,9 @@ export default class HttpTable extends PureComponent {
             return;
           }
           if (data) {
-            notification.success({ message: data.msg_show || '添加成功' });
+            notification.success({
+              message: data.msg_show || '添加成功'
+            });
             this.setState({
               drawerVisible: false,
               editInfo: ''
@@ -190,22 +193,50 @@ export default class HttpTable extends PureComponent {
         }
       });
     } else {
+      // 编辑网关策略
       dispatch({
-        type: 'gateWay/editHttpStrategy',
+        type: 'gateWay/queryDetail_http',
         payload: {
-          values,
-          group_name: group_name || editInfo.group_name,
+          http_rule_id: gateWayInfo.http_rule_id,
           team_name: globalUtil.getCurrTeamName(),
-          http_rule_id: editInfo.http_rule_id
+          service_alias: gateWayInfo.service_alias
         },
         callback: data => {
           if (data) {
-            notification.success({ message: data.msg_show || '编辑成功' });
-            this.setState({
-              drawerVisible: false,
-              editInfo: ''
+            // 如果没有打开高级路由参数,
+            if (!values.rule_extensions_round) {
+              values.path_rewrite = data.bean.path_rewrite || '';
+              values.rewrites = data.bean.rewrites || [];
+              values.domain_cookie = data.bean.domain_cookie || '';
+              values.domain_heander = data.bean.domain_heander || '';
+              values.the_weight = data.bean.the_weight || '';
+              values.certificate_id = data.bean.certificate_id || '';
+            }
+            if (obj && obj.whether_open) {
+              values.whether_open = true;
+            }
+
+            dispatch({
+              type: 'gateWay/editHttpStrategy',
+              payload: {
+                values,
+                group_name: group_name || editInfo.group_name,
+                team_name: globalUtil.getCurrTeamName(),
+                http_rule_id: editInfo.http_rule_id
+              },
+              callback: data => {
+                if (data) {
+                  notification.success({
+                    message: data.msg_show || '编辑成功'
+                  });
+                  this.setState({
+                    drawerVisible: false,
+                    editInfo: ''
+                  });
+                  this.load();
+                }
+              }
             });
-            this.load();
           }
         }
       });
@@ -284,6 +315,9 @@ export default class HttpTable extends PureComponent {
     this.setState({ informationConnect: false });
   };
   handleEdit = values => {
+    this.setState({
+      gateWayInfo: values
+    });
     const { dispatch } = this.props;
     dispatch({
       type: 'gateWay/queryDetail_http',
@@ -561,7 +595,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'certificate_alias',
         key: 'certificate_alias',
         align: 'center',
-        width: 40,
+        width: 60,
         render: text => {
           return text ? <span>{text}</span> : <span>无</span>;
         }

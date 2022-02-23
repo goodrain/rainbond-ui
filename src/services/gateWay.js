@@ -155,6 +155,11 @@ export async function addHttpStrategy(params) {
         the_weight: params.values.the_weight,
         service_id: params.values.service_id,
         group_name: params.group_name,
+        path_rewrite: params.values.path_rewrite || false,
+        rewrites:
+          params.values.rewrites && params.values.rewrites.length > 0
+            ? params.values.rewrites
+            : [],
         whether_open: !!params.values.whether_open // 是否开启对外访问
       }
     }
@@ -212,6 +217,11 @@ export async function editHttpStrategy(params) {
         the_weight: params.values.the_weight,
         service_id: params.values.service_id,
         group_name: params.group_name,
+        path_rewrite: params.values.path_rewrite || false,
+        rewrites:
+          params.values.rewrites && params.values.rewrites.length > 0
+            ? params.values.rewrites
+            : [],
         http_rule_id: params.http_rule_id
       }
     }
