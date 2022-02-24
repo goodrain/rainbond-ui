@@ -111,6 +111,8 @@ export default class AddThirdParty extends PureComponent {
       ServiceComponentThreePage,
       BackType
     } = this.state;
+    this.cancelAddService()
+    this.props.content(this.state.toAddService)
     if (ServiceComponentThreePage) {
       this.setState({
         ServiceComponentThreePage: null,
@@ -304,7 +306,6 @@ export default class AddThirdParty extends PureComponent {
           visible={this.state.toAddService}
           toAddThirdParty={this.state.toAddService}
           maskClosable={false}
-          // style={display: }
           width={550}
         >
           {ServiceComponentThreePage === 'check' && ServiceGetData && (
@@ -404,6 +405,7 @@ export default class AddThirdParty extends PureComponent {
               zIndex: 99999
             }}
           >
+            { ServiceComponentTwoPage === 'outerCustom' &&
               <Button
                 style={{
                   marginRight: 8
@@ -414,6 +416,7 @@ export default class AddThirdParty extends PureComponent {
               >
                 上一步
               </Button>
+            }
             {ButtonGroup && (
               <span style={{ marginRight: 8 }}>{ButtonGroup}</span>
             )}
