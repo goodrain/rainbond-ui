@@ -30,7 +30,7 @@ import styles from '../../components/CreateTeam/index.less';
 import Ellipsis from '../../components/Ellipsis';
 import GoodrainRZ from '../../components/GoodrainRenzheng';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import PageHeaderLayout from '../../layouts/PageHeaderComponent';
 import { fetchMarketAuthority } from '../../utils/authority';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';

@@ -1,5 +1,6 @@
+/* eslint-disable no-nested-ternary */
 import globalUtil from '@/utils/global';
-import { Breadcrumb, Icon, Tabs } from 'antd';
+import { Breadcrumb, Icon, Tabs,Row,Col } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import pathToRegexp from 'path-to-regexp';
@@ -20,12 +21,30 @@ function getBreadcrumb(breadcrumbNameMap, url) {
 }
 @connect()
 export default class PageHeader extends PureComponent {
+  constructor(arg){
+    super(arg)
+    this.state = {
+      back:''
+    }
+  }
   static contextTypes = {
     routes: PropTypes.array,
     params: PropTypes.object,
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object
   };
+  handleTitleList = values =>{
+    if (this.props.onTabChange) {
+      this.props.onTabChange(values.key);
+      this.setState({
+        back:'#e3e3e3'
+      })
+    }else{
+      this.setState({
+        back:''
+      })
+    }
+  }
   onChange = key => {
     if (this.props.onTabChange) {
       this.props.onTabChange(key);
@@ -146,7 +165,6 @@ export default class PageHeader extends PureComponent {
       )
     );
   };
-
   render() {
     const {
       title,
@@ -159,6 +177,8 @@ export default class PageHeader extends PureComponent {
       tabActiveKey,
       isSvg
     } = this.props;
+    const {back} = this.state
+    const appMarketSvg = globalUtil.fetchSvg('appmarket');
     const clsString = classNames(styles.pageHeader, className);
     // const { teamName, regionName } = this.props.match.params;
     let tabDefaultValue;
@@ -192,35 +212,6 @@ export default class PageHeader extends PureComponent {
             </div>
           </div>
         </div>
-        {tabList && tabList.length && (
-          <Tabs
-            className={styles.tabs}
-            {...activeKeyProps}
-            onChange={this.onChange}
-          >
-            {tabList.map(item => {
-              const { key, tab } = item;
-              return (
-                <TabPane
-                  tab={
-                    <span className={styles.verticalCen}>
-                      {isSvg &&
-                        globalUtil.fetchSvg(
-                          key === 'localApplication'
-                            ? 'localMarket'
-                            : key.indexOf('Helm-') > -1
-                            ? 'HelmSvg'
-                            : 'cloudMarket'
-                        )}
-                      {tab}
-                    </span>
-                  }
-                  key={key}
-                />
-              );
-            })}
-          </Tabs>
-        )}
       </div>
     );
   }
