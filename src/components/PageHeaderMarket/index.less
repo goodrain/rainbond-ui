@@ -1,0 +1,220 @@
+@import '~antd/lib/style/themes/default.less';
+
+.headerBox {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+}
+
+.icons:hover {
+  background: #4d73b1;
+}
+.verticalCen {
+  display: flex;
+  align-items: center;
+  svg {
+    margin: 0;
+  }
+}
+.icons {
+  background: #d8d8d8;
+
+  i {
+    color: #ffffff;
+    font-size: 28px;
+  }
+
+  cursor: pointer;
+  width: 33px;
+  line-height: 98px;
+  text-align: center;
+}
+
+.pageHeader {
+  background: @component-background;
+  padding: 16px 32px 0;
+
+  .detail {
+    display: flex;
+  }
+
+  .row {
+    display: flex;
+  }
+
+  .breadcrumb {
+    margin-bottom: 16px;
+  }
+
+  .tabs {
+    margin: 0 0 -17px -8px;
+
+    :global {
+      .ant-tabs-bar {
+        border-bottom: @border-width-base @border-style-base @border-color-split;
+      }
+    }
+  }
+
+  .logo {
+    flex: 0 1 auto;
+    margin-right: 16px;
+    padding-top: 1px;
+
+    > img {
+      width: 28px;
+      height: 28px;
+      border-radius: @border-radius-base;
+      display: block;
+    }
+  }
+
+  .title {
+    font-family: PingFangSC-Regular;
+    font-size: 20px;
+    color: #2b3844;
+    letter-spacing: 0;
+  }
+
+  .action {
+    margin-left: 56px;
+    min-width: 266px;
+
+    :global {
+      .ant-btn-group:not(:last-child),
+      .ant-btn:not(:last-child) {
+        margin-right: 8px;
+      }
+
+      .ant-btn-group > .ant-btn {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .content {
+    font-family: PingFangSC-Regular;
+    font-size: 12px;
+    color: #9ca2a8 !important;
+    letter-spacing: 0;
+    line-height: 23px;
+  }
+
+  .title,
+  .action,
+  .content,
+  .extraContent,
+  .main {
+    flex: auto;
+  }
+
+  .title,
+  .action {
+    margin-bottom: 10px;
+  }
+
+  .logo,
+  .content,
+  .extraContent {
+    margin-bottom: 10px;
+  }
+
+  .action,
+  .extraContent {
+    text-align: right;
+  }
+
+  .extraContent {
+    min-width: 242px;
+  }
+}
+
+@media screen and (max-width: @screen-xl) {
+  .pageHeader {
+    .extraContent {
+      margin-left: 44px;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-lg) {
+  .pageHeader {
+    .extraContent {
+      margin-left: 20px;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-md) {
+  .pageHeader {
+    .row {
+      display: block;
+    }
+
+    .action,
+    .extraContent {
+      margin-left: 0;
+      text-align: left;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-sm) {
+  .pageHeader {
+    .detail {
+      display: block;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-xs) {
+  .pageHeader {
+    .action {
+      :global {
+        .ant-btn-group,
+        .ant-btn {
+          display: block;
+          margin-bottom: 8px;
+        }
+
+        .ant-btn-group > .ant-btn {
+          display: inline-block;
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+.ServiceTitle {
+  height: 22px;
+  line-height: 22px;
+  border-left: 4px solid rgba(187, 187, 187, 1);
+  padding-left: 10px;
+  color: rgba(16, 16, 16, 1);
+  font-size: 14px;
+  text-align: left;
+  font-family: SourceHanSansSC-regular;
+  margin-bottom: 10px;
+}
+.ServiceBox {
+  margin-bottom: 10px;
+}
+.ServiceDiv {
+  color: rgba(16, 16, 16, 1);
+  font-size: 15px;
+  font-family: SourceHanSansSC-regular;
+  margin: 5px 0;
+  text-align: center;
+  cursor: pointer;
+  height: 100px;
+  p {
+    margin: 10px 0;
+  }
+
+  i {
+    font-size: 50px;
+  }
+}
+.ServiceSmallTitle {
+  font-size: 12px;
+}

@@ -201,6 +201,35 @@ export default class PageHeader extends PureComponent {
             </div>
           </div>
         </div>
+        {tabList && tabList.length && (
+          <Tabs
+            className={styles.tabs}
+            {...activeKeyProps}
+            onChange={this.onChange}
+          >
+            {tabList.map(item => {
+              const { key, tab } = item;
+              return (
+                <TabPane
+                  tab={
+                    <span className={styles.verticalCen}>
+                      {isSvg &&
+                        globalUtil.fetchSvg(
+                          key === 'localApplication'
+                            ? 'localMarket'
+                            : key.indexOf('Helm-') > -1
+                            ? 'HelmSvg'
+                            : 'cloudMarket'
+                        )}
+                      {tab}
+                    </span>
+                  }
+                  key={key}
+                />
+              );
+            })}
+          </Tabs>
+        )}
       </div>
     );
   }

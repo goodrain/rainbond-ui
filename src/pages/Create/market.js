@@ -30,7 +30,8 @@ import styles from '../../components/CreateTeam/index.less';
 import Ellipsis from '../../components/Ellipsis';
 import GoodrainRZ from '../../components/GoodrainRenzheng';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
-import PageHeaderLayout from '../../layouts/PageHeaderComponent';
+import PageHeaderComponent from '../../layouts/PageHeaderComponent';
+import PageHeaderMarket from '../../layouts/PageHeaderMarket';
 import { fetchMarketAuthority } from '../../utils/authority';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
@@ -917,7 +918,8 @@ export default class Main extends PureComponent {
       currentEnterprise,
       currentTeam,
       currentRegionName,
-      isHelm = true
+      isHelm = true,
+      isAddMarket,
     } = this.props;
     const {
       handleType,
@@ -1256,9 +1258,10 @@ export default class Main extends PureComponent {
           </Modal>
         )}
 
-        {marketTab && marketTab.length > 0 && (
+        {marketTab && marketTab.length > 0 && isAddMarket ?(
           <div>
-            <PageHeaderLayout
+            <PageHeaderComponent
+              isAddMarket={this.props.isAddMarket}
               isSvg
               breadcrumbList={breadcrumbList}
               content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
@@ -1327,9 +1330,84 @@ export default class Main extends PureComponent {
                 </div>
               )}
               {mores}
-            </PageHeaderLayout>
+            </PageHeaderComponent>
           </div>
-        )}
+        ):(
+          <div>
+            <PageHeaderMarket
+              isAddMarket={this.props.isAddMarket}
+              isSvg
+              breadcrumbList={breadcrumbList}
+              content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
+              tabList={marketTab}
+              tabActiveKey={scopeMax}
+              onTabChange={this.handleTabMaxChange}
+              isFooter={!!handleType}
+            >
+              {scopeMax !== 'localApplication' && !isInstall && (
+                <Alert
+                  message={
+                    <div>
+                      当前市场没有安装权限，
+                      <a
+                        onClick={() => {
+                          this.handleCertification(scopeMax);
+                        }}
+                      >
+                        去授权
+                      </a>
+                    </div>
+                  }
+                  type="success"
+                  style={{ margin: '-10px 0 15px 0' }}
+                />
+              )}
+              {scopeMax.indexOf('Helm-') > -1 && isHelm ? (
+                <div>{helmLoading ? SpinBox : helmCardList}</div>
+              ) : scopeMax === 'localApplication' ? (
+                <div
+                  style={{
+                    marginBottom:
+                      !moreState &&
+                      handleType &&
+                      handleType === 'Service' &&
+                      '40px'
+                  }}
+                >
+                  
+                  {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
+                </div>
+              ) : (
+                <div>
+                  {isSpincloudList && isSpincloudList !== -1 ? (
+                    SpinBox
+                  ) : (
+                    <div>
+                      <div
+                        className={PluginStyles.cardList}
+                        style={{
+                          paddingBottom: '20px',
+                          marginBottom: !moreState ? '40px' : '0px'
+                        }}
+                      >
+                        {isSpincloudList !== -1 && cloudCardList}
+                        {networkText && (
+                          <Alert
+                            style={{ textAlign: 'center', marginBottom: 16 }}
+                            message={networkText}
+                            type="warning"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {mores}
+            </PageHeaderMarket>
+          </div>
+        )
+        }
       </div>
     );
   }

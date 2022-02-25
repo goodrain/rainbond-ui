@@ -288,7 +288,7 @@ export default class AddServiceComponent extends PureComponent {
                             );
                           }}
                         >
-                          {oauthUtil.getIcon(item, '60px')}
+                          {oauthUtil.getIcon(item, '50px')}
                           <p className={styles.ServiceSmallTitle}>
                             {this.getGitServerName(item)}
                           </p>
@@ -426,6 +426,7 @@ export default class AddServiceComponent extends PureComponent {
             <Market
               {...MarketParameter}
               isHelm={false}
+              isAddMarket={true}
               scopeMax={scopeProMax || 'localApplication'}
               handleServiceComponent={() => {
                 this.handleServiceComponent(false, 'market', null);
