@@ -200,7 +200,7 @@ class EditorData extends PureComponent {
     dagre.layout(graph);
     const nextNodes = dats.nodes.map(node => {
       const graphNode = graph.node(node.id);
-      return { ...node, x: graphNode.x + 200, y: graphNode.y };
+      return { ...node, x: graphNode.x + 430, y: graphNode.y };
     });
     dats.nodes = nextNodes;
     return dats;
@@ -225,7 +225,7 @@ class EditorData extends PureComponent {
     dagre.layout(graph);
     const nextNodes = data.nodes.map(node => {
       const graphNode = graph.node(node.id);
-      return { ...node, x: graphNode.x, y: graphNode.y };
+      return { ...node, x: graphNode.x , y: graphNode.y };
     });
     read({ nodes: nextNodes, edges: data.edges });
   };

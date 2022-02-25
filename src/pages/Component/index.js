@@ -1307,7 +1307,7 @@ class Main extends PureComponent {
         tab: '其他设置'
       });
     }
-
+    console.log(isShowThirdParty,'isShowThirdParty')
     const tabList = isShowThirdParty
       ? [
           {
