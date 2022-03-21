@@ -231,7 +231,8 @@ export async function getTeamAppList(body = {}, handleError) {
     params: {
       page: body.page,
       page_size: body.page_size,
-      query: body.query
+      query: body.query,
+      sort: body.sort
     }
   });
 }
