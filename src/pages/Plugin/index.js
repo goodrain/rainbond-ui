@@ -187,6 +187,7 @@ class PluginList extends PureComponent {
   }
   componentDidMount() {
     this.fetchDefaultPlugin();
+    this.fetchPlugins();
   }
 
   onDeletePlugin = plugin => {

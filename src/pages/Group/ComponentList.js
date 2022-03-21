@@ -54,7 +54,9 @@ export default class ComponentList extends Component {
       operationState: false,
       query: '',
       changeQuery: '',
-      tableDataLoading: true
+      tableDataLoading: true,
+      sortValue: 1,
+      orderValue: 'descend'
     };
   }
   componentDidMount() {
@@ -101,7 +103,7 @@ export default class ComponentList extends Component {
   };
   loadComponents = () => {
     const { dispatch, groupId } = this.props;
-    const { current, pageSize, query } = this.state;
+    const { current, pageSize, query, sortValue, orderValue} = this.state;
     dispatch({
       type: 'application/fetchApps',
       payload: {
@@ -110,7 +112,9 @@ export default class ComponentList extends Component {
         group_id: groupId,
         page: current,
         page_size: pageSize,
-        query
+        query,
+        sort: sortValue,
+        order: orderValue
       },
       callback: data => {
         if (data && data.status_code === 200) {
@@ -276,6 +280,42 @@ export default class ComponentList extends Component {
       }
     );
   };
+  //列表点击排序
+  handleTableChange = (pagination, filters, sorter) => {
+    if(sorter && sorter.field && sorter.field == 'status_cn'){
+      this.setState({
+        sortValue: 1,
+        orderValue: sorter.order,
+        tableDataLoading: true
+      },()=>{
+        this.loadComponents()
+      })
+    }else if(sorter && sorter.field && sorter.field == 'min_memory'){
+      this.setState({
+        sortValue: 2,
+        orderValue: sorter.order,
+        tableDataLoading: true
+      },()=>{
+        this.loadComponents()
+      })
+    }else if(sorter && sorter.field && sorter.field == 'update_time'){
+      this.setState({
+        sortValue: 3,
+        orderValue: sorter.order,
+        tableDataLoading: true
+      },()=>{
+        this.loadComponents()
+      })
+    }else{
+      this.setState({
+        sortValue: 1,
+        orderValue: 'descend',
+        tableDataLoading: true
+      },()=>{
+        this.loadComponents()
+      })
+    }
+  }
   render() {
     const {
       componentPermissions: {
@@ -388,6 +428,7 @@ export default class ComponentList extends Component {
       {
         title: '内存',
         dataIndex: 'min_memory',
+        sorter: true,
         render: (val, data) => (
           <span>
             {data.service_source && data.service_source === 'third_party'
@@ -399,6 +440,7 @@ export default class ComponentList extends Component {
       {
         title: '状态',
         dataIndex: 'status_cn',
+        sorter: true,
         render: (val, data) =>
           data.service_source && data.service_source === 'third_party' ? (
             <Badge
@@ -423,6 +465,7 @@ export default class ComponentList extends Component {
       {
         title: '更新时间',
         dataIndex: 'update_time',
+        sorter: true,
         render: val =>
           moment(val)
             .locale('zh-cn')
@@ -546,7 +589,7 @@ export default class ComponentList extends Component {
             placement="topCenter"
             disabled={!this.CanBatchOperation()}
           >
-            <Button>
+            <Button style={{ padding: '8px 16px'}}>
               批量操作 <Icon type="down" />
             </Button>
           </Dropdown>
@@ -580,6 +623,7 @@ export default class ComponentList extends Component {
           <Table
             pagination={pagination}
             rowSelection={rowSelection}
+            onChange={this.handleTableChange} 
             columns={columns}
             loading={
               reStartLoading || startLoading || stopLoading || tableDataLoading

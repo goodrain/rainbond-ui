@@ -1100,8 +1100,8 @@ export default class Index extends PureComponent {
                   {common ? (
                     <Radio.Button
                     style={{ 
-                      width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#4C73B0',
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
                       color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
                       onClick={() => {
@@ -1119,8 +1119,8 @@ export default class Index extends PureComponent {
                   ) : (
                     <Radio.Button
                     style={{ 
-                      width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#fff',
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
                       color:'#595959', borderColor: '#D9D9D9',
                     }}
                       onClick={() => {
@@ -1138,8 +1138,8 @@ export default class Index extends PureComponent {
                   {aggregation ? (
                     <Radio.Button
                     style={{ 
-                      width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#4C73B0',
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
                       color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
                       onClick={() => {
@@ -1157,8 +1157,8 @@ export default class Index extends PureComponent {
                   ) : (
                     <Radio.Button
                     style={{ 
-                      width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#fff',
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
                       color:'#595959', borderColor: '#D9D9D9'
                     }}
                       onClick={() => {
@@ -1176,8 +1176,8 @@ export default class Index extends PureComponent {
                   {compile ? (
                     <Radio.Button
                     style={{ 
-                      width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#4C73B0',
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
                       color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
                       onClick={() => {
@@ -1190,13 +1190,13 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                      编辑模式
+                      编排模式
                     </Radio.Button>
                   ) : (
                     <Radio.Button
                     style={{ 
-                      width:'60px', textAlign:'center', height:'26px', 
-                      lineHeight:'26px', fontSize:'10px',padding:'0px',background:'#fff',
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
                       color:'#595959', borderColor: '#D9D9D9'
                     }}
                       onClick={() => {
@@ -1208,7 +1208,7 @@ export default class Index extends PureComponent {
                         })
                       }}
                     >
-                      编辑模式
+                      编排模式
                     </Radio.Button>
                   )}
                 </Radio.Group>

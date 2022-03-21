@@ -12,7 +12,8 @@ import {
   Input,
   notification,
   Pagination,
-  Spin
+  Spin,
+  Select
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -27,6 +28,7 @@ import userUtil from '../../utils/user';
 import styles from './Index.less';
 
 const { Search } = Input;
+const { Option, OptGroup } = Select;
 const echarts = require('echarts');
 const appLogo = require('@/assets/teamAppLogo.svg');
 const defaultAppLogo = require('@/assets/application.png');
@@ -77,6 +79,7 @@ export default class Index extends PureComponent {
       query: '',
       // 热门应用列表
       teamHotAppList: [],
+      sortValue: 1,
       pageSizeOptions: ['12', '16', '20', '24', '28'],
       // 新建应用显示与隐藏
       createAppVisible: false,
@@ -94,6 +97,7 @@ export default class Index extends PureComponent {
     if (teamPermissions && teamPermissions.length !== 0) {
       // 加载团队下的资源
       this.loadOverview();
+      this.loadHotApp();
     }
   }
   // 组件销毁停止计时器
@@ -301,7 +305,7 @@ export default class Index extends PureComponent {
     myEcharts1.setOption(option1);
     myEcharts2.setOption(option2);
     // 4. 当我们浏览器缩放的时候，图表也等比例缩放
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
       // 让我们的图表调用 resize这个方法
       myEcharts1.resize();
       myEcharts2.resize();
@@ -360,12 +364,12 @@ export default class Index extends PureComponent {
             { loadingOverview: false, loadedOverview: true },
             () => {
               const { index } = this.props;
-              // 加载echarts图表
+              // // 加载echarts图表
               this.loadTeamAppEcharts();
-              // 加载热门应用模块
-              if (!this.loadHotAppTimer) {
-                this.loadHotApp();
-              }
+              // // 加载热门应用模块
+              // if (!this.loadHotAppTimer) {
+              //   this.loadHotApp();
+              // }
             }
           );
           // 每隔10s获取最新的团队下的资源
@@ -387,7 +391,7 @@ export default class Index extends PureComponent {
   };
   // 加载热门应用数据源
   loadHotApp = () => {
-    const { page, page_size, query, emptyConfig } = this.state;
+    const { page, page_size, query, emptyConfig, sortValue } = this.state;
     this.props.dispatch({
       type: 'global/getTeamAppList',
       payload: {
@@ -395,7 +399,8 @@ export default class Index extends PureComponent {
         region: globalUtil.getCurrRegionName(),
         query,
         page,
-        page_size
+        page_size,
+        sort: sortValue
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -493,9 +498,20 @@ export default class Index extends PureComponent {
   // 新建应用时的loading优化
   handleAppLoading = () => {
     this.setState({
-      loadingOfApp: true
+      loadingOfApp: true,
     });
   };
+  //下拉框选择排序方式
+  handleSortChange = (value) => {
+    this.setState({
+      loadingOfApp: true,
+      sortValue: value
+    }, () => {
+      this.loadHotApp();
+    })
+  }
+
+
   render() {
     const {
       loadingOverview,
@@ -727,8 +743,17 @@ export default class Index extends PureComponent {
               <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
               <h2>应用列表</h2>
             </div>
-            {(!loadingOfApp || searchVisible) && (
+            {/* {(!loadingOfApp || searchVisible) && ( */}
               <div className={styles.teamHotAppTitleSearch}>
+                <Select
+                  style={{ width: '130px' }}
+                  placeholder="请选择排序方式"
+                  defaultValue={1}
+                  onChange={this.handleSortChange}
+                >
+                  <Option title="运行状态排序" value={1}>运行状态排序</Option>
+                  <Option title="更新时间排序" value={2}>更新时间排序</Option>
+                </Select>
                 <Search
                   placeholder="请输入应用名称进行搜索"
                   onSearch={this.onSearch}
@@ -745,7 +770,7 @@ export default class Index extends PureComponent {
                   新建应用
                 </span>
               </div>
-            )}
+            {/* )} */}
           </div>
         )}
         {/* app list Loading */}
