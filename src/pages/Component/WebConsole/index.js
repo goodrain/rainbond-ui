@@ -235,12 +235,12 @@ export default class WebConsole extends PureComponent {
                     {pod.container.map(container => {
                       const { container_name: containerName } = container;
                       let titleName = `容器/${containerName}`;
-                      if (containerName.includes('default-tcpmesh')) {
-                        titleName = `默认Mesh容器`;
+                      if (containerName.includes(service.k8s_component_name) && !containerName.includes('default-tcpmesh')) {
+                        titleName = `组件容器`;
                       } else if (containerName.includes('plugin')) {
                         titleName = `插件容器`;
-                      } else if (containerName.includes(service.k8s_component_name)) {
-                        titleName = `组件容器`;
+                      } else if (containerName.includes('default-tcpmesh')) {
+                        titleName = `默认Mesh容器`;
                       }
                       
 
