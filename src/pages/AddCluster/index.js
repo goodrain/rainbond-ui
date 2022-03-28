@@ -160,7 +160,7 @@ export default class EnterpriseClusters extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: '选择供应商'
+        title: '选择基础设施'
       },
       {
         title: '选择(创建)平台集群'
@@ -436,6 +436,18 @@ export default class EnterpriseClusters extends PureComponent {
         <path d="M398.016 460.992h256V608h-256z" fill="#4d73b1" p-id="2596" />
       </svg>
     );
+    const helmIcon = (
+      <svg
+        viewBox="0 0 1024 1024"
+        id="icon-helm"
+      >
+        <path
+          d="M795.776 821.418667c30.037333 42.88 40.96 86.997333 24.448 98.56-16.512 11.562667-54.229333-13.824-84.266667-56.704a214.997333 214.997333 0 0 1-24.917333-46.165334 365.738667 365.738667 0 0 1-166.314667 59.733334c3.456 14.506667 5.546667 31.445333 5.546667 49.749333 0 52.352-16.341333 94.762667-36.522667 94.762667s-36.522667-42.410667-36.522666-94.762667c0-17.92 2.005333-34.432 5.333333-48.725333a365.568 365.568 0 0 1-168.277333-54.784c-5.418667 12.842667-12.8 26.496-22.357334 40.192-30.037333 42.88-67.754667 68.266667-84.266666 56.704-16.512-11.562667-5.589333-55.68 24.448-98.56a218.453333 218.453333 0 0 1 31.701333-36.266667 363.946667 363.946667 0 0 1-55.850667-63.104l47.957334-33.365333a307.2 307.2 0 0 0 252.074666 131.754666 307.2 307.2 0 0 0 252.416-132.181333l48 33.28a365.525333 365.525333 0 0 1-50.474666 58.282667c12.629333 10.282667 25.813333 24.448 37.845333 41.6zM267.818667 239.914667A366.378667 366.378667 0 0 0 201.002667 317.013333l49.066666 31.701334a305.92 305.92 0 0 1 257.962667-140.501334 304.810667 304.810667 0 0 1 262.442667 147.669334l49.92-30.336a369.408 369.408 0 0 0-66.56-80.853334c13.824-10.453333 28.629333-25.728 41.941333-44.757333 30.037333-42.88 40.96-86.997333 24.448-98.56-16.512-11.562667-54.229333 13.824-84.266667 56.704-12.544 17.877333-21.504 35.84-26.752 51.712a362.154667 362.154667 0 0 0-166.4-58.197333c4.608-15.872 7.466667-35.413333 7.466667-56.874667 0-52.309333-16.341333-94.72-36.522667-94.72s-36.522667 42.410667-36.522666 94.762667c0 20.949333 2.688 40.149333 7.125333 55.808a363.562667 363.562667 0 0 0-167.68 53.205333 212.949333 212.949333 0 0 0-24.746667-45.696C261.930667 115.2 224.213333 89.856 207.701333 101.418667c-16.512 11.562667-5.589333 55.68 24.448 98.56 11.306667 16.128 23.722667 29.781333 35.669334 39.936zM21.333333 651.605333h70.314667V546.133333h79.317333v105.514667h70.314667v-265.813333H171.008v98.944h-79.36V385.834667H21.333333v265.770666z m278.869334-265.770666v265.770666h175.829333v-58.88H370.517333V545.28h86.698667V486.4H370.517333v-41.728h101.418667v-58.88l-171.733333 0.042667z m227.328 0v265.770666h170.922666v-58.88h-100.608V385.834667h-70.314666z m216.704 0v265.770666h64.597333v-78.506666c0-6.826667-0.341333-14.293333-1.024-22.485334a2279.936 2279.936 0 0 0-2.261333-25.130666 704.682667 704.682667 0 0 0-2.858667-25.130667 1996.586667 1996.586667 0 0 1-2.858667-22.058667h1.621334l21.248 62.165334 36.821333 89.557333h26.154667l36.778666-89.557333 22.058667-62.165334h1.621333l-2.858666 22.101334c-1.109333 8.192-2.048 16.554667-2.858667 25.130666-0.810667 8.576-1.578667 16.981333-2.261333 25.130667a272 272 0 0 0-1.024 22.485333v78.506667H1002.666667v-265.813333h-72.789334l-40.064 110.421333-14.72 43.349333h-1.621333l-14.72-43.349333-41.728-110.421333h-72.789333z"
+          fill="#4d73b1"
+        >
+        </path>
+      </svg>
+    )
     const providers = cloud.getProviders();
     const K8sCluster = rainbondUtil.isEnableK8sCluster() || false;
     return (
@@ -443,19 +455,21 @@ export default class EnterpriseClusters extends PureComponent {
         title="添加集群"
         content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
       >
-        <Row style={{ marginBottom: '16px' }} id="selfBuilt">
-          <Steps current={currentStep}>
-            {this.loadSteps().map(item => (
-              <Step key={item.title} title={item.title} />
-            ))}
-          </Steps>
-        </Row>
+        <Card style={{ marginBottom: '16px' }}>
+          <h3>自建基础设施</h3>
+          <Divider />
+          <Row style={{ marginBottom: '12px' }} id="selfBuilt">
+            <Steps current={currentStep}>
+              {this.loadSteps().map(item => (
+                <Step key={item.title} title={item.title} />
+              ))}
+            </Steps>
+            {/* <Divider /> */}
+          </Row>
 
-        <Card>
           <Row>
-            <h3>自建基础设施</h3>
-            <Divider />
-            <Col span={8}>
+            
+            <Col span={12}>
               <div
                 onClick={() => this.toClusterList('rke')}
                 className={styles.import}
@@ -475,7 +489,7 @@ export default class EnterpriseClusters extends PureComponent {
                   svgPosition: { marginLeft: '58px' }
                 })}
             </Col>
-            <Col span={8}>
+            <Col span={12}>
               <div
                 onClick={() => this.toClusterList('custom')}
                 className={styles.import}
@@ -487,7 +501,22 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               </div>
             </Col>
-            <Col span={8}>
+          </Row>
+        </Card>
+        <Card>
+          <h3>标准化安装</h3>
+          <Divider />
+          <Row>
+            <Col span={12}>
+              <div onClick={this.addClusterShow} className={styles.import}>
+                <div className={styles.importicon}>{helmIcon}</div>
+                <div className={styles.importDesc}>
+                  <h3>通过Helm安装</h3>
+                  <p>自定义安装参数，生成helm安装命令。</p>
+                </div>
+              </div>
+            </Col>
+            <Col span={12}>
               <div onClick={this.addClusterShow} className={styles.import}>
                 <div className={styles.importicon}>{icon}</div>
                 <div className={styles.importDesc}>
@@ -498,15 +527,14 @@ export default class EnterpriseClusters extends PureComponent {
             </Col>
           </Row>
         </Card>
-
-        {K8sCluster && (
+        {/* {K8sCluster && (
           <Card style={{ marginTop: '16px' }}>
             <div>
               <Row>
                 <h3>云服务商基础设施</h3>
                 <Divider />
               </Row>
-              {/* provider list */}
+              provider list
               <Row>
                 {providers.map(item => {
                   return (
@@ -548,7 +576,7 @@ export default class EnterpriseClusters extends PureComponent {
                   );
                 })}
               </Row>
-              {/* user key info */}
+              user key info
               <Row style={{ marginTop: '32px', padding: '0 16px' }}>
                 <h4>账户设置</h4>
                 {aliyunAcountSetting}
@@ -566,7 +594,7 @@ export default class EnterpriseClusters extends PureComponent {
               </Row>
             </div>
           </Card>
-        )}
+        )} */}
         {addClusterShow && (
           <BaseAddCluster
             eid={eid}
@@ -586,7 +614,7 @@ export default class EnterpriseClusters extends PureComponent {
             clusterID={initTask.clusterID}
           />
         )}
-        <div id="cloudServiceBtn" style={{ height: '160px' }} />
+        {/* <div id="cloudServiceBtn" style={{ height: '160px' }} /> */}
       </PageHeaderLayout>
     );
   }
