@@ -221,7 +221,8 @@ export default class ApplicationGovernance extends PureComponent {
     const list = [
       { key: 'KUBERNETES_NATIVE_SERVICE', name: 'Kubernetes原生 service 模式' },
       { key: 'BUILD_IN_SERVICE_MESH', name: '内置 ServiceMesh 模式' },
-      { key: 'ISTIO_SERVICE_MESH', name: 'Istio治理模式' }
+      { key: 'ISTIO_SERVICE_MESH', name: 'Istio治理模式' },
+      { key: 'LINKERD_SERVICE_MESH', name: 'Linkerd治理模式' }
     ];
     const {
       loading = false,
@@ -258,7 +259,7 @@ export default class ApplicationGovernance extends PureComponent {
       >
         <Alert
           style={{ marginBottom: '20px' }}
-          message="应用治理模式主要指组件间通信模式的治理，目前支持内置ServiceMesh模式,Istio治理模式和Kubernetes原生Service模式"
+          message="应用治理模式主要指组件间通信模式的治理，目前支持内置 ServiceMesh 模式, Istio 治理模式, Linkerd 治理模式和 Kubernetes 原生 Service 模式"
           type="info"
           showIcon
         />
@@ -393,11 +394,14 @@ export default class ApplicationGovernance extends PureComponent {
 
                 <div style={{ marginTop: '10px' }}>
                   {type === 'KUBERNETES_NATIVE_SERVICE'
-                    ? '该模式组件间使用Kubernetes service名称域名进行通信，用户需要配置每个组件端口注册的service名称，治理能力有限.'
+                    ? '该模式组件间使用 Kubernetes service 名称域名进行通信，用户需要配置每个组件端口注册的 service 名称，治理能力有限.'
                     : type === 'BUILD_IN_SERVICE_MESH'
-                    ? '内置ServiceMesh模式需要用户显示的配置组件间的依赖关系，平台会在下游组件中自动注入sidecar容器组成ServiceMesh微服务架构，业务间通信地址统一为localhost模式'
-                    : '该模式组件间使用Kubernetes service名称域名进行通信，用户需要配置每个组件端口注册的service名称，且安装Istio  control plane ，通过Istio进行治理。'}
-                </div>
+                    ? '内置 ServiceMesh 模式需要用户显示的配置组件间的依赖关系，平台会在下游组件中自动注入 sidecar 容器组成 ServiceMesh 微服务架构，业务间通信地址统一为 localhost 模式'
+                    : type === 'LINKERD_SERVICE_MESH'
+                    ? '该模式组件间使用 Kubernetes service 名称域名进行通信，用户需要配置每个组件端口注册的 service 名称，且安装 Linkerd control plane ，通过 Linkerd 进行治理。'
+                    : '该模式组件间使用 Kubernetes service 名称域名进行通信，用户需要配置每个组件端口注册的 service 名称，且安装 Istio control plane ，通过 Istio 进行治理。'
+                  } 
+                  </div>
               </div>
             </div>
           )}
