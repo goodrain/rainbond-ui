@@ -221,7 +221,8 @@ export default class ApplicationGovernance extends PureComponent {
     const list = [
       { key: 'KUBERNETES_NATIVE_SERVICE', name: 'Kubernetes原生 service 模式' },
       { key: 'BUILD_IN_SERVICE_MESH', name: '内置 ServiceMesh 模式' },
-      { key: 'ISTIO_SERVICE_MESH', name: 'Istio治理模式' }
+      { key: 'ISTIO_SERVICE_MESH', name: 'Istio治理模式' },
+      { key: 'LINKERD_SERVICE_MESH', name: 'Linkerd治理模式' }
     ];
     const {
       loading = false,
