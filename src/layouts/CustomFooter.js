@@ -6,7 +6,7 @@ import styles from './PageHeaderLayout.less';
 export default () => (
   <DefaultFooter
     className={styles.customFooter}
-    copyright="2021 北京好雨科技有限公司出品"
+    copyright={new Date().getFullYear() + ' 北京好雨科技有限公司出品'}
     links={[
       {
         key: 'Rainbond',
