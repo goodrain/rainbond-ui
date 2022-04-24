@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable no-param-reassign */
 /* eslint-disable react/sort-comp */
 /* eslint-disable react/no-unused-state */
@@ -684,9 +685,11 @@ export default class Enterprise extends PureComponent {
                     {!enterpriseEdition && enterpriseVersion !== 'cloud' && (
                       <a
                         style={{ marginLeft: 32 }}
-                        onClick={this.handelConsulting}
+                        href="https://p5yh4rek1e.feishu.cn/share/base/shrcnDhEE6HkYddzjY4XRKuXikb"
+                        target="_blank"
+                        // onClick={this.handelConsulting}
                       >
-                        获取商业解决方案
+                        了解企业服务
                       </a>
                     )}
                   </div>

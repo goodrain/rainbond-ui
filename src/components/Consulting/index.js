@@ -64,7 +64,7 @@ export default class Consulting extends PureComponent {
 
     return (
       <Modal
-        title="获取商业解决方案"
+        title="了解企业服务"
         visible
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
