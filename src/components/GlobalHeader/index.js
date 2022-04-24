@@ -177,7 +177,7 @@ export default class GlobalHeader extends PureComponent {
             <a
               className={styles.action}
               style={{ color: '#fff' }}
-              href="https://www.rainbond.com"
+              href="https://www.rainbond.com/enterprise_server"
               // eslint-disable-next-line react/jsx-no-target-blank
               target="_blank"
             >
