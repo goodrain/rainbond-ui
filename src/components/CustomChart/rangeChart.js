@@ -14,7 +14,7 @@ import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import styless from './index.less';
 
-@connect()
+@connect(({ application }) => ({ curAppDetail: application.groupDetail }))
 export default class RangeChart extends PureComponent {
   constructor(props) {
     super(props);
@@ -100,33 +100,37 @@ export default class RangeChart extends PureComponent {
       end: updateTime ? new Date().getTime() / 1000 : end,
       step: Math.ceil((end - start) / 100) || 15,
       teamName: globalUtil.getCurrTeamName(),
-      disable_auto_label: !!(
-        type === 'containerNetR' || type === 'containerNetT'
-      )
+      disable_auto_label: true
+      // disable_auto_label: !!(
+      //   type === 'containerNetR' || type === 'containerNetT'
+      // )
     };
   };
 
   getQueryByType = T => {
     const { appDetail, baseInfo } = this.props;
+
     if (appDetail && appDetail.service) {
       const {
         service_id: serviceId,
-        service_alias: serviceAlias
+        service_alias: serviceAlias,
+        k8s_component_name: serviceCname
       } = appDetail.service;
-
+      const { k8s_app: groupName } = this.props.curAppDetail;
       const isState = globalUtil.isStateComponent(
         baseInfo && baseInfo.extend_method
       );
       const parameter = isState ? serviceAlias : serviceId;
       switch (T) {
         case 'containerMem':
-          return `container_memory_rss{name=~"k8s_${serviceId}.*"}/1024/1024`;
+          return `sum(container_memory_rss{name=~".*${groupName}-${serviceCname}.*"}/1024/1024) by (pod, namespace)`;
         case 'containerCpu':
-          return `sum(rate(container_cpu_usage_seconds_total{name=~"k8s_${serviceId}.*"}[1m])) by (pod, namespace) / (sum(container_spec_cpu_quota{name=~"k8s_${serviceId}.*"}/container_spec_cpu_period{name=~"k8s_${serviceId}.*"}) by (pod, namespace)) * 100`;
+          return `sum(irate(container_cpu_usage_seconds_total{name=~".*${groupName}-${serviceCname}.*"}[5m])*100)by(pod,namespace)`;
         case 'containerNetR':
-          return `rate(container_network_receive_bytes_total{name=~"k8s_POD_${parameter}.*"}[1m])/1024`;
+          return `rate(container_network_receive_bytes_total{name=~".*${groupName}-${serviceCname}.*"}[1m])/1024`;
         case 'containerNetT':
-          return `rate(container_network_transmit_bytes_total{name=~"k8s_POD_${parameter}.*"}[1m])/1024`;
+          return `rate(container_network_transmit_bytes_total{name=~".*${groupName}-${serviceCname}.*"}[1m])/1024`;
+
         case 'responseTime':
           return `ceil(avg(app_requesttime{mode="avg",service_id="${serviceId}"}))`;
         case 'throughput':
