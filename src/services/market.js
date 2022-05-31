@@ -55,6 +55,20 @@ export async function fetchMarkets(params = {}) {
     }
   );
 }
+export async function fetchMarketPluginApps(params = {}) {
+  const { enterprise_id, name, pageSize, page, query } = params;
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/cloud/markets/${name}/plugin-apps`,
+    {
+      method: 'get',
+      params: {
+        page_size: pageSize,
+        page,
+        query
+      }
+    }
+  );
+}
 export async function fetchMarketsTab(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/cloud/markets`,
@@ -145,6 +159,25 @@ export async function fetchAppModels(param) {
         is_complete: param.is_complete,
         tags: JSON.stringify(param.tags),
         need_install: param.need_install
+      }
+    }
+  );
+}
+
+//发布组件库插件列表
+export async function fetchAppPluginModels(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-plugins`,
+    {
+      method: 'get',
+      params: {
+        page: param.page,
+        page_size: param.page_size,
+        scope: param.scope,
+        app_name: param.app_name,
+        is_complete: param.is_complete,
+        tags: JSON.stringify(param.tags),
+        need_install: true
       }
     }
   );

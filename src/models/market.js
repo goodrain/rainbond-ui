@@ -11,10 +11,12 @@ import {
   deleteHelmAppStore,
   deleteTag,
   fetchAppModels,
+  fetchAppPluginModels,
   fetchAppModelsTags,
   fetchHelmMarkets,
   fetchHelmMarketsTab,
   fetchMarkets,
+  fetchMarketPluginApps,
   fetchMarketsTab,
   getAppMarketInfo,
   getAppModelsDetails,
@@ -50,6 +52,13 @@ export default {
         callback(response);
       }
     },
+    *fetchAppPluginModels({ payload, callback }, { call }) {
+      const response = yield call(fetchAppPluginModels, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    
     *fetchAppMarketInfo({ payload, callback }, { call }) {
       const response = yield call(getAppMarketInfo, payload);
       if (response && callback) {
@@ -178,6 +187,12 @@ export default {
     },
     *fetchHelmMarkets({ payload, callback }, { call }) {
       const response = yield call(fetchHelmMarkets, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchMarketPluginApps({ payload, callback }, { call }) {
+      const response = yield call(fetchMarketPluginApps, payload);
       if (response && callback) {
         callback(response);
       }
