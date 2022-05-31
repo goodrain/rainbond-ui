@@ -88,7 +88,7 @@ class UserLayout extends React.PureComponent {
         <div className={styles.content}>
           <div className={styles.contentBox}>
             <div className={styles.contentBoxLeft}>
-              <img src={cloud} alt="云原生应用管理平台" />
+              <img src={cloud} alt="Rainbond | 云原生多云应用管理平台" />
             </div>
             <div className={styles.contentBoxRight}>{children}</div>
           </div>
