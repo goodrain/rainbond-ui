@@ -233,7 +233,12 @@ export default class AddServiceComponent extends PureComponent {
         <Button
           type="primary"
           onClick={this.toAddService}
-          style={{ marginLeft: '12px' }}
+          style={{ 
+            marginLeft: '12px', 
+            color:'#595959',
+            borderColor: '#D9D9D9',
+            background:'#fff'
+          }}
         >
           <Icon type="plus" />
           添加组件

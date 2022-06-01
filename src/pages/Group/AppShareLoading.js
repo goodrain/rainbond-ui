@@ -174,11 +174,11 @@ class ShareEvent extends React.Component {
   };
 
   render() {
-    const { openedEventId, data, status } = this.state;
+    const { openedEventId, data, status, eventId } = this.state;
     const datas = data || {};
     const isSuccess = status && status === 'success';
     const isShowSocket = !isSuccess;
-    const isLogs = !isSuccess && datas.event_id;
+    const isLogs = !isSuccess && eventId;
     return (
       <div>
         <List.Item>
@@ -204,7 +204,7 @@ class ShareEvent extends React.Component {
                     {isLogs && [
                       <a
                         onClick={() => {
-                          this.handleOpenedEventId(datas.event_id);
+                          this.handleOpenedEventId(eventId);
                         }}
                       >
                         日志

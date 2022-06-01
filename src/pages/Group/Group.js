@@ -1039,10 +1039,7 @@ export default class Index extends PureComponent {
             onOk={this.fetchAppDetail}
           />
         )}
-        <Row
-          style={{ position: 'relative' }}
-          style={guideStep === 2 ? highlighted : {}}
-        >
+        <Row className={styles.rowArrow} style={ guideStep === 2 ? highlighted : {} }>
           <div
             className={styles.iconBox}
             onClick={() => {
@@ -1108,17 +1105,11 @@ export default class Index extends PureComponent {
                 <Radio.Group>
                   {common ? (
                     <Radio.Button
-                      style={{
-                        width: '60px',
-                        textAlign: 'center',
-                        height: '26px',
-                        lineHeight: '26px',
-                        fontSize: '10px',
-                        padding: '0px',
-                        background: '#4C73B0',
-                        color: '#F6F7FA',
-                        borderColor: '#4C73B0'
-                      }}
+                    style={{ 
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
+                      color:'#F6F7FA', borderColor: '#4C73B0'
+                    }}
                       onClick={() => {
                         this.changeType('shape');
                         this.setState({
@@ -1133,17 +1124,12 @@ export default class Index extends PureComponent {
                     </Radio.Button>
                   ) : (
                     <Radio.Button
-                      style={{
-                        width: '60px',
-                        textAlign: 'center',
-                        height: '26px',
-                        lineHeight: '26px',
-                        fontSize: '10px',
-                        padding: '0px',
-                        background: '#fff',
-                        color: '#595959',
-                        borderColor: '#D9D9D9'
-                      }}
+                    style={{ 
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
+                      color:'#595959', borderColor: '#D9D9D9',
+                    }}
+
                       onClick={() => {
                         this.changeType('shape');
                         this.setState({
@@ -1158,17 +1144,11 @@ export default class Index extends PureComponent {
                   )}
                   {aggregation ? (
                     <Radio.Button
-                      style={{
-                        width: '60px',
-                        textAlign: 'center',
-                        height: '26px',
-                        lineHeight: '26px',
-                        fontSize: '10px',
-                        padding: '0px',
-                        background: '#4C73B0',
-                        color: '#F6F7FA',
-                        borderColor: '#4C73B0'
-                      }}
+                    style={{ 
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
+                      color:'#F6F7FA', borderColor: '#4C73B0'
+                    }}
                       onClick={() => {
                         this.changeType('aggregation');
                         this.setState({
@@ -1183,17 +1163,11 @@ export default class Index extends PureComponent {
                     </Radio.Button>
                   ) : (
                     <Radio.Button
-                      style={{
-                        width: '60px',
-                        textAlign: 'center',
-                        height: '26px',
-                        lineHeight: '26px',
-                        fontSize: '10px',
-                        padding: '0px',
-                        background: '#fff',
-                        color: '#595959',
-                        borderColor: '#D9D9D9'
-                      }}
+                    style={{ 
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
+                      color:'#595959', borderColor: '#D9D9D9'
+                    }}
                       onClick={() => {
                         this.changeType('aggregation');
                         this.setState({
@@ -1208,17 +1182,12 @@ export default class Index extends PureComponent {
                   )}
                   {compile ? (
                     <Radio.Button
-                      style={{
-                        width: '60px',
-                        textAlign: 'center',
-                        height: '26px',
-                        lineHeight: '26px',
-                        fontSize: '10px',
-                        padding: '0px',
-                        background: '#4C73B0',
-                        color: '#F6F7FA',
-                        borderColor: '#4C73B0'
-                      }}
+                    style={{ 
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
+                      color:'#F6F7FA', borderColor: '#4C73B0'
+                    }}
+
                       onClick={() => {
                         this.changeType('shapes');
                         this.setState({
@@ -1229,21 +1198,15 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                      编辑模式
+                      编排模式
                     </Radio.Button>
                   ) : (
                     <Radio.Button
-                      style={{
-                        width: '60px',
-                        textAlign: 'center',
-                        height: '26px',
-                        lineHeight: '26px',
-                        fontSize: '10px',
-                        padding: '0px',
-                        background: '#fff',
-                        color: '#595959',
-                        borderColor: '#D9D9D9'
-                      }}
+                    style={{ 
+                      width:'70px', textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
+                      color:'#595959', borderColor: '#D9D9D9'
+                    }}
                       onClick={() => {
                         this.changeType('shapes');
                         this.setState({
@@ -1253,7 +1216,7 @@ export default class Index extends PureComponent {
                         });
                       }}
                     >
-                      编辑模式
+                      编排模式
                     </Radio.Button>
                   )}
                 </Radio.Group>
