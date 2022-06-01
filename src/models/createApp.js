@@ -7,6 +7,7 @@ import {
   createThirtAppByCodes,
   getAppsByComposeId,
   installApp,
+  installAppPlugin,
   installHelmApp
 } from '../services/createApp';
 
@@ -29,6 +30,12 @@ export default {
     },
     *installApp({ payload, callback }, { call }) {
       const data = yield call(installApp, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *installAppPlugin({ payload, callback }, { call }) {
+      const data = yield call(installAppPlugin, payload);
       if (data && callback) {
         callback(data);
       }

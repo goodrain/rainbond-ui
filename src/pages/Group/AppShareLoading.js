@@ -282,6 +282,7 @@ export default class shareCheck extends PureComponent {
     });
   };
   getParams = () => ({
+    is_plugin: this.props.location.query.isAppPlugin,
     team_name: globalUtil.getCurrTeamName(),
     share_id: this.props.match.params.shareId,
     appID: this.props.match.params.appID
@@ -320,6 +321,7 @@ export default class shareCheck extends PureComponent {
   handleCompleteShare = () => {
     this.setState({ completeLoading: true });
     const { dispatch } = this.props;
+    
     dispatch({
       type: 'application/completeShare',
       payload: this.getParams(),

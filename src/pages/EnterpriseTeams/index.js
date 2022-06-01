@@ -346,7 +346,7 @@ export default class EnterpriseTeams extends PureComponent {
           );
 
           this.hideDelTeam();
-          notification.success({ message: '项目/删除成功' });
+          notification.success({ message: '项目/团队删除成功' });
         }
       },
       handleError: err => {
@@ -633,7 +633,7 @@ export default class EnterpriseTeams extends PureComponent {
             onClick={this.onAddTeam}
             style={{ marginRight: '5px' }}
           >
-            创建项目/团队
+            创建 项目/团队
           </Button>
         ) : (
           <Button type="primary" onClick={this.onJoinTeam}>
@@ -670,13 +670,14 @@ export default class EnterpriseTeams extends PureComponent {
         </Row>
         <Row className={styles.teamMinTit} type="flex" align="middle">
           <Col span={4} style={{width:'16%',textAlign:'center'}}>项目/团队名称</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>拥有人</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>人数</Col>
+          <Col span={2} style={{width:'8%',textAlign:'center'}}>管理员</Col>
+          <Col span={2} style={{width:'8%',textAlign:'center'}}>人数</Col>
           <Col span={7} style={{width:'30%',textAlign:'center'}}>集群</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>内存使用量(MB)</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>CPU使用量</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>租户限额(MB)</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>运行应用数</Col>
+          <Col span={2} style={{width:'8%',textAlign:'center'}}>内存使用量(MB)</Col>
+          <Col span={2} style={{width:'8%',textAlign:'center'}}>CPU使用量</Col>
+          <Col span={2} style={{width:'8%',textAlign:'center'}}>租户限额(MB)</Col>
+          <Col span={2} style={{width:'8%',textAlign:'center'}}>运行应用数</Col>
+          <Col span={1} style={{width:'4%',textAlign:'center', marginLeft:'2%'}} >操作</Col>
         </Row>
 
         {teamList.map(item => {
@@ -710,7 +711,7 @@ export default class EnterpriseTeams extends PureComponent {
                className={styles.pl23}
                onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
               >
-                <Col style={{color:'#4D73B1', fontWeight:'600',width:'16%',textAlign:'center'}}>{team_alias}</Col>
+                <Col style={{color:'#4D73B1', fontWeight:'600',width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{owner_name}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{user_number}</Col>
                 <Col style={{width:'30%',display:'flex',justifyContent:'center'}} >
@@ -750,7 +751,7 @@ export default class EnterpriseTeams extends PureComponent {
         {haveNewJoinTeam && (
           <Row className={styles.teamMinTit} type="flex" align="middle">
             <Col span={6}>项目/团队名称</Col>
-            <Col span={3}>拥有人</Col>
+            <Col span={3}>管理员</Col>
             <Col span={3}>角色</Col>
             <Col span={12}>状态</Col>
           </Row>
@@ -838,7 +839,7 @@ export default class EnterpriseTeams extends PureComponent {
         {userTeam && (
           <Row className={styles.teamMinTit} type="flex" align="middle">
             <Col span={6}>项目/团队名称</Col>
-            <Col span={3}>拥有人</Col>
+            <Col span={3}>管理员</Col>
             <Col span={3}>角色</Col>
             <Col span={12}>集群</Col>
           </Row>
