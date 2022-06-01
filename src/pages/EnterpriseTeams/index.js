@@ -668,18 +668,19 @@ export default class EnterpriseTeams extends PureComponent {
           </Col>
           {operation}
         </Row>
+        <Row style={{ width:'100%' }} className={styles.rowTitle}>
         <Row className={styles.teamMinTit} type="flex" align="middle">
           <Col span={4} style={{width:'16%',textAlign:'center'}}>项目/团队名称</Col>
-          <Col span={2} style={{width:'8%',textAlign:'center'}}>管理员</Col>
-          <Col span={2} style={{width:'8%',textAlign:'center'}}>人数</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>管理员</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>人数</Col>
           <Col span={7} style={{width:'30%',textAlign:'center'}}>集群</Col>
-          <Col span={2} style={{width:'8%',textAlign:'center'}}>内存使用量(MB)</Col>
-          <Col span={2} style={{width:'8%',textAlign:'center'}}>CPU使用量</Col>
-          <Col span={2} style={{width:'8%',textAlign:'center'}}>租户限额(MB)</Col>
-          <Col span={2} style={{width:'8%',textAlign:'center'}}>运行应用数</Col>
-          <Col span={1} style={{width:'4%',textAlign:'center', marginLeft:'2%'}} >操作</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>内存使用量(MB)</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>CPU使用量</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>租户限额(MB)</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>运行应用数</Col>
         </Row>
-
+          <Col className={styles.borTitle}>操作</Col>
+        </Row>
         {teamList.map(item => {
           const {
             team_id,
