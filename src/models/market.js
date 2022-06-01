@@ -11,12 +11,10 @@ import {
   deleteHelmAppStore,
   deleteTag,
   fetchAppModels,
-  fetchAppPluginModels,
   fetchAppModelsTags,
   fetchHelmMarkets,
   fetchHelmMarketsTab,
   fetchMarkets,
-  fetchMarketPluginApps,
   fetchMarketsTab,
   getAppMarketInfo,
   getAppModelsDetails,
@@ -48,12 +46,6 @@ export default {
   effects: {
     *fetchAppModels({ payload, callback }, { call }) {
       const response = yield call(fetchAppModels, payload);
-      if (response && callback) {
-        callback(response);
-      }
-    },
-    *fetchAppPluginModels({ payload, callback }, { call }) {
-      const response = yield call(fetchAppPluginModels, payload);
       if (response && callback) {
         callback(response);
       }
@@ -187,12 +179,6 @@ export default {
     },
     *fetchHelmMarkets({ payload, callback }, { call }) {
       const response = yield call(fetchHelmMarkets, payload);
-      if (response && callback) {
-        callback(response);
-      }
-    },
-    *fetchMarketPluginApps({ payload, callback }, { call }) {
-      const response = yield call(fetchMarketPluginApps, payload);
       if (response && callback) {
         callback(response);
       }

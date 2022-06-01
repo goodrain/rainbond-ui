@@ -141,13 +141,14 @@ export default class Main extends PureComponent {
     const { currentKey } = this.state;
     const { currentEnterprise } = this.props;
     this.props.dispatch({
-      type: 'market/fetchMarketPluginApps',
+      type: 'market/fetchMarkets',
       payload: {
         name: currentKey,
         enterprise_id: currentEnterprise.enterprise_id,
         query: v ? '' : this.state.cloudApp_name || '',
         pageSize: v ? 9 : this.state.cloudPageSize,
-        page: v ? 1 : this.state.cloudPage
+        page: v ? 1 : this.state.cloudPage,
+        is_plugin: true,
       },
       callback: data => {
         if (data) {
@@ -187,7 +188,7 @@ export default class Main extends PureComponent {
       return null;
     }
     dispatch({
-      type: 'market/fetchAppPluginModels',
+      type: 'market/fetchAppModels',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
         app_name: v ? '' : this.state.app_name || '',
@@ -195,7 +196,8 @@ export default class Main extends PureComponent {
         page_size: v ? 9 : this.state.pageSize,
         page: v ? 1 : this.state.page,
         need_install: true,
-        is_complete: 1
+        is_complete: 1,
+        is_plugin: true
       },
       callback: data => {
         if (data) {
