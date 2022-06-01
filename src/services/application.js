@@ -288,7 +288,9 @@ export async function getGroupApps(
     region_name,
     group_id,
     page,
-    page_size
+    page_size,
+    sort,
+    order
   }
 ) {
   return request(
@@ -299,7 +301,9 @@ export async function getGroupApps(
         group_id: body.group_id,
         page: body.page || 1,
         page_size: body.page_size || 100,
-        query: body.query
+        query: body.query,
+        sort: body.sort,
+        order: body.order
       },
       showLoading: false
     }
