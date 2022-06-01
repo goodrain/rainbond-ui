@@ -42,7 +42,8 @@ export async function delAppVersion(param) {
   );
 }
 export async function fetchMarkets(params = {}) {
-  const { enterprise_id, name, pageSize, page, query } = params;
+
+  const { enterprise_id, name, pageSize, page, query, is_plugin } = params;
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/cloud/markets/${name}/app-models`,
     {
@@ -50,11 +51,13 @@ export async function fetchMarkets(params = {}) {
       params: {
         page_size: pageSize,
         page,
-        query
+        query,
+        is_plugin: is_plugin || ''
       }
     }
   );
 }
+
 export async function fetchMarketsTab(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/cloud/markets`,
@@ -144,11 +147,13 @@ export async function fetchAppModels(param) {
         app_name: param.app_name,
         is_complete: param.is_complete,
         tags: JSON.stringify(param.tags),
-        need_install: param.need_install
+        need_install: param.need_install,
+        is_plugin: param.is_plugin || ''
       }
     }
   );
 }
+
 
 /* 编辑本地应用 */
 export async function upAppModel(body) {

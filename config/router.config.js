@@ -356,6 +356,13 @@ export default [
           },
 
           {
+            path: '/team/:teamName/region/:regionName/install-plugin',
+            component: './Plugin/Install',
+            name: 'appPlugin',
+            authority: ['admin', 'user']
+          },
+
+          {
             path:
               '/team/:teamName/region/:regionName/create/create-check/:appAlias',
             component: './Create/create-check',

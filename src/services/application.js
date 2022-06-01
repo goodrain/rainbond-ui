@@ -585,7 +585,8 @@ export async function submitShare(
       data: body.new_info,
       handleError,
       params: {
-        use_force: body.use_force
+        use_force: body.use_force,
+        is_plugin: body.new_info.app_version_info.is_plugin
       }
     }
   );
@@ -692,7 +693,13 @@ export async function completeShare(
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/complete`,
-    { method: 'post', handleError }
+    { 
+      method: 'post',
+      params: {
+        is_plugin: body.is_plugin
+      },
+      handleError 
+    }
   );
 }
 
