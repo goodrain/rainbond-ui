@@ -26,7 +26,7 @@ import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import AuthCompany from '../../components/AuthCompany';
 import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
-import CreateAppFromMarketForm from '../../components/CreateAppFromPlugin';
+import CreateAppFromPlugin from '../../components/CreateAppFromPlugin';
 import styles from '../../components/CreateTeam/index.less';
 import Ellipsis from '../../components/Ellipsis';
 import GoodrainRZ from '../../components/GoodrainRenzheng';
@@ -98,6 +98,7 @@ export default class Main extends PureComponent {
       handleType: handleType || null,
       moreState: moreState || null,
       is_deploy: true,
+      btnStatus:'',
       localAppTab: [
         {
           key: 'localApplication',
@@ -503,6 +504,56 @@ export default class Main extends PureComponent {
           );
         }
       });
+    });
+  };
+  //切换版本
+  onChangeSelect = (vals, is_deploy) => {
+    const { dispatch } = this.props;
+    const { showCreate: app, currentKey, btnStatus } = this.state;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    dispatch({
+      type: 'createApp/changeAppVersions',
+      payload: {
+        team_name: teamName,
+        region_name: regionName,
+        ...vals,
+        app_id: app.app_id,
+        is_deploy,
+        group_key: app.group_key,
+        app_version: vals.group_version,
+        marketName: currentKey
+      },
+      callback: (res) => {
+        this.setState({
+          btnStatus:res.bean.status
+        })
+      }
+    });
+  };
+  onChangeSelectCloud = (vals, is_deploy) => {
+    const { dispatch } = this.props;
+    const { showCreate: app, currentKey, btnStatus, scopeMax } = this.state;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    dispatch({
+      type: 'createApp/changeAppVersions',
+      payload: {
+        team_name: teamName,
+        region_name: regionName,
+        ...vals,
+        app_id: app.app_id,
+        is_deploy,
+        group_key: app.group_key,
+        app_version: vals.group_version,
+        marketName: currentKey,
+        install_from_cloud: scopeMax !== 'localApplication'
+      },
+      callback: (res) => {
+        this.setState({
+          btnStatus:res.bean.status
+        })
+      }
     });
   };
   handleCreate = (vals, is_deploy) => {
@@ -958,7 +1009,8 @@ export default class Main extends PureComponent {
       addAppLoading,
       localAppTab,
       rainStoreTab,
-      helmStoreTab
+      helmStoreTab,
+      btnStatus
     } = this.state;
     const dockerSvg = globalUtil.fetchSvg('dockerSvg');
     const setHideOnSinglePage = !!moreState;
@@ -1188,8 +1240,16 @@ export default class Main extends PureComponent {
           />
         )}
         {showCreate && (
-          <CreateAppFromMarketForm
+          <CreateAppFromPlugin
             disabled={loading.effects['createApp/installAppPlugin']}
+            onChangeSelect={
+              handleType
+                ? this.onChangeSelect
+                : scopeMax == 'localApplication'
+                ? this.onChangeSelect
+                : this.onChangeSelectCloud
+            }
+            btnStatus={btnStatus}
             onSubmit={
               handleType
                 ? this.handleCreate
