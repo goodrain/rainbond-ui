@@ -62,7 +62,7 @@ export default class RainbondInit extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: '选择基础设施'
+        title: '选择供应商'
       },
       {
         title: '选择(创建)平台集群'

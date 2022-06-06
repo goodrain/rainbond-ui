@@ -11,7 +11,9 @@ import {
   Input,
   Row,
   Steps,
-  Typography
+  Typography,
+  Menu, 
+  Dropdown
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -160,7 +162,7 @@ export default class EnterpriseClusters extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: '选择基础设施'
+        title: '选择供应商'
       },
       {
         title: '选择(创建)平台集群'
@@ -448,28 +450,56 @@ export default class EnterpriseClusters extends PureComponent {
         </path>
       </svg>
     )
+    const tencentIcon = (
+      <svg t="1654473076974" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4178" width="200" height="200"><path d="M753.066667 516.266667c-12.8-17.066667-27.733333-23.466667-51.2-29.866667-6.4-2.133333-27.733333-2.133333-32-2.133333 0 0-6.4 2.133333-10.666667 4.266666-6.4 2.133333-10.666667 4.266667-17.066667 6.4-8.533333 4.266667-25.6 17.066667-27.733333 19.2-2.133333 2.133333-4.266667 6.4-8.533333 8.533334-8.533333 6.4-59.733333 57.6-74.666667 70.4l-38.4 38.4c-17.066667 17.066667-29.866667 29.866667-29.866667 32 0 2.133333 194.133333 2.133333 217.6 0 8.533333 0 17.066667-2.133333 25.6-2.133334 17.066667-4.266667 34.133333-14.933333 46.933334-32 6.4-8.533333 10.666667-17.066667 14.933333-29.866666 2.133333-8.533333 4.266667-12.8 2.133333-27.733334 2.133333-23.466667-4.266667-38.4-17.066666-55.466666zM832 106.666667H192C145.066667 106.666667 106.666667 145.066667 106.666667 192v640c0 46.933333 38.4 85.333333 85.333333 85.333333h640c46.933333 0 85.333333-38.4 85.333333-85.333333V192c0-46.933333-38.4-85.333333-85.333333-85.333333z m-53.333333 580.266666c-10.666667 8.533333-23.466667 17.066667-29.866667 19.2-2.133333 0-4.266667 2.133333-6.4 2.133334-2.133333 2.133333-23.466667 6.4-36.266667 10.666666-10.666667 2.133333-27.733333 2.133333-194.133333 2.133334-198.4 0-189.866667 0-215.466667-6.4-21.333333-6.4-42.666667-19.2-59.733333-36.266667-29.866667-27.733333-42.666667-64-42.666667-104.533333 0-14.933333 2.133333-29.866667 6.4-44.8 6.4-17.066667 8.533333-23.466667 27.733334-49.066667 4.266667-4.266667 23.466667-21.333333 29.866666-27.733333 10.666667-6.4 44.8-21.333333 51.2-21.333334 4.266667 0 6.4-4.266667 8.533334-10.666666 6.4-21.333333 8.533333-25.6 12.8-40.533334 10.666667-25.6 29.866667-51.2 53.333333-70.4 4.266667-4.266667 8.533333-6.4 12.8-10.666666 2.133333-2.133333 4.266667-2.133333 6.4-4.266667 17.066667-12.8 53.333333-27.733333 78.933333-29.866667 27.733333-4.266667 59.733333-2.133333 81.066667 6.4 17.066667 4.266667 21.333333 6.4 23.466667 8.533334 4.266667 2.133333 10.666667 4.266667 14.933333 6.4 19.2 8.533333 42.666667 27.733333 55.466667 42.666666 10.666667 12.8 23.466667 27.733333 25.6 34.133334 0 2.133333 2.133333 4.266667 4.266666 6.4 2.133333 2.133333 4.266667 6.4 4.266667 10.666666 0 2.133333 2.133333 6.4 4.266667 10.666667 4.266667 8.533333 4.266667 8.533333-19.2 10.666667-10.666667 0-23.466667 2.133333-27.733334 2.133333-2.133333 0-6.4 2.133333-8.533333 2.133333 0 0-4.266667-4.266667-6.4-10.666666-6.4-12.8-19.2-25.6-29.866667-36.266667-17.066667-14.933333-34.133333-23.466667-59.733333-29.866667-12.8-8.533333-17.066667-8.533333-32-8.533333-12.8 0-21.333333 0-27.733333 2.133333-4.266667 2.133333-10.666667 2.133333-12.8 4.266667-17.066667 4.266667-38.4 17.066667-53.333334 29.866667-14.933333 14.933333-25.6 27.733333-32 42.666666-4.266667 6.4-12.8 29.866667-10.666666 32 0 0 6.4 4.266667 12.8 6.4 14.933333 4.266667 27.733333 12.8 40.533333 21.333334 12.8 8.533333 34.133333 27.733333 36.266667 29.866666 4.266667 4.266667 10.666667 8.533333 14.933333 12.8 6.4 6.4 12.8 10.666667 12.8 12.8 0 0-6.4 8.533333-14.933333 17.066667-19.2 17.066667-23.466667 21.333333-25.6 21.333333 0 0-4.266667-4.266667-10.666667-6.4-4.266667-4.266667-10.666667-10.666667-14.933333-12.8-4.266667-2.133333-10.666667-8.533333-14.933334-12.8-23.466667-21.333333-49.066667-34.133333-72.533333-34.133333-19.2 0-44.8 8.533333-57.6 21.333333-12.8 10.666667-25.6 29.866667-29.866667 46.933334-2.133333 10.666667-2.133333 34.133333 0 44.8 8.533333 34.133333 36.266667 57.6 70.4 64 10.666667 2.133333 21.333333 2.133333 32 2.133333h21.333334l10.666666-10.666667 23.466667-23.466666c40.533333-38.4 81.066667-76.8 119.466667-115.2 19.2-19.2 51.2-49.066667 68.266666-61.866667 8.533333-6.4 23.466667-14.933333 32-17.066667 4.266667-2.133333 8.533333-4.266667 12.8-4.266666 10.666667-4.266667 25.6-6.4 49.066667-4.266667 8.533333 0 14.933333 0 23.466667 2.133333 6.4 2.133333 29.866667 10.666667 32 10.666667 2.133333 2.133333 4.266667 2.133333 6.4 2.133333 6.4 2.133333 14.933333 8.533333 27.733333 19.2 12.8 10.666667 19.2 17.066667 23.466667 25.6 2.133333 2.133333 4.266667 6.4 6.4 8.533334 2.133333 2.133333 12.8 23.466667 12.8 25.6 0 2.133333 0 4.266667 2.133333 6.4 4.266667 6.4 8.533333 36.266667 8.533333 46.933333-2.133333 40.533333-23.466667 83.2-55.466666 110.933333z" p-id="4179" fill="#fb6902"></path></svg>
+    )
+    const aliIcon = (
+      <svg t="1654472907135" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3310" ><path d="M832 106.666667H192C145.066667 106.666667 106.666667 145.066667 106.666667 192v640c0 46.933333 38.4 85.333333 85.333333 85.333333h640c46.933333 0 85.333333-38.4 85.333333-85.333333V192c0-46.933333-38.4-85.333333-85.333333-85.333333zM311.466667 689.066667c-53.333333 0-98.133333-42.666667-98.133334-96v-164.266667c0-53.333333 42.666667-96 98.133334-96v-2.133333H469.333333l-12.8 55.466666-136.533333 29.866667c-12.8 4.266667-21.333333 12.8-21.333333 25.6v138.666667c0 12.8 10.666667 23.466667 21.333333 25.6l134.4 27.733333 12.8 55.466667h-155.733333z m256-189.866667v27.733333h-108.8v-27.733333h108.8zM810.666667 595.2c0 53.333333-42.666667 96-98.133334 96H554.666667l12.8-55.466667 134.4-27.733333c12.8-4.266667 21.333333-12.8 21.333333-25.6v-138.666667c0-12.8-10.666667-23.466667-21.333333-25.6l-134.4-27.733333-12.8-55.466667h155.733333c53.333333 0 98.133333 42.666667 98.133333 96v164.266667z" p-id="3311" fill="#fb6902"></path></svg>
+    )
+    const omitIcon = (
+      <svg t="1654472665453" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2435" width="30" height="30"><path d="M221 592c-44.183 0-80-35.817-80-80s35.817-80 80-80 80 35.817 80 80-35.817 80-80 80z m291 0c-44.183 0-80-35.817-80-80s35.817-80 80-80 80 35.817 80 80-35.817 80-80 80z m291 0c-44.183 0-80-35.817-80-80s35.817-80 80-80 80 35.817 80 80-35.817 80-80 80z" fill="#768696" p-id="2436"></path></svg>
+    )
     const providers = cloud.getProviders();
     const K8sCluster = rainbondUtil.isEnableK8sCluster() || false;
+    const menu = (
+      <Menu
+        items={[
+          {
+            key: '1',
+            label: (
+              <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+                1st menu item
+              </a>
+            ),
+          },
+          {
+            key: '2',
+            label: (
+              <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+                2nd menu item
+              </a>
+            ),
+          }
+        ]}
+      />
+    );
+    const extraContent = (<div>
+      <Dropdown overlay={menu} placement="bottomRight">
+        {omitIcon}
+      </Dropdown></div>);
     return (
       <PageHeaderLayout
         title="添加集群"
         content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
+        extraContent={extraContent}
       >
         <Card style={{ marginBottom: '16px' }}>
-          <h3>自建基础设施</h3>
-          <Divider />
-          <Row style={{ marginBottom: '12px' }} id="selfBuilt">
-            <Steps current={currentStep}>
-              {this.loadSteps().map(item => (
-                <Step key={item.title} title={item.title} />
-              ))}
-            </Steps>
-            {/* <Divider /> */}
-          </Row>
-
           <Row>
-            
-            <Col span={12}>
+            <h3>自建基础设施</h3>
+            <Divider />
+          </Row>
+          <Row>
+          <Col span={12}>
               <div
                 onClick={() => this.toClusterList('rke')}
                 className={styles.import}
@@ -490,28 +520,48 @@ export default class EnterpriseClusters extends PureComponent {
                 })}
             </Col>
             <Col span={12}>
-              <div
-                onClick={() => this.toClusterList('custom')}
-                className={styles.import}
-              >
-                <div className={styles.importicon}>{kubernetesIcon}</div>
-                <div className={styles.importDesc}>
-                  <h3>接入Kubernetes集群</h3>
-                  <p>基于已经安装的 Kubernetes 集群，初始化安装平台并接入。</p>
-                </div>
-              </div>
-            </Col>
+            <div
+              onClick={() => this.toClusterList('custom')}
+              className={styles.import}
+            >
+            <div className={styles.importicon}>{kubernetesIcon}</div>
+            <div className={styles.importDesc}>
+              <h3>接入Kubernetes集群</h3>
+              <p>基于已经安装的 Kubernetes 集群，初始化安装平台并接入。</p>
+            </div>
+          </div>
+          </Col> 
           </Row>
         </Card>
         <Card>
-          <h3>标准化安装</h3>
-          <Divider />
           <Row>
-            <Col span={12}>
+            <h3>云服务商基础设施</h3>
+            <Divider />
+          </Row>
+          <Row>
+          <Col span={12}>
               <div onClick={this.addClusterShow} className={styles.import}>
-                <div className={styles.importicon}>{helmIcon}</div>
+                <div className={styles.importicon}>{aliIcon}</div>
                 <div className={styles.importDesc}>
-                  <h3>通过Helm安装</h3>
+                  <h3>阿里云</h3>
+                  <p>自定义安装参数，生成helm安装命令。</p>
+                </div>
+              </div>
+            </Col>
+            <Col span={24}>
+              <div onClick={this.addClusterShow} className={styles.import}>
+                <div className={styles.importicon}>{kubernetesIcon}</div>
+                <div className={styles.importDesc}>
+                  <h3>腾讯云</h3>
+                  <p>自定义安装参数，生成helm安装命令。</p>
+                </div>
+              </div>
+            </Col>
+            <Col span={24}>
+              <div onClick={this.addClusterShow} className={styles.import}>
+                <div className={styles.importicon}>{kubernetesIcon}</div>
+                <div className={styles.importDesc}>
+                  <h3>华为云</h3>
                   <p>自定义安装参数，生成helm安装命令。</p>
                 </div>
               </div>
@@ -527,74 +577,6 @@ export default class EnterpriseClusters extends PureComponent {
             </Col>
           </Row>
         </Card>
-        {/* {K8sCluster && (
-          <Card style={{ marginTop: '16px' }}>
-            <div>
-              <Row>
-                <h3>云服务商基础设施</h3>
-                <Divider />
-              </Row>
-              provider list
-              <Row>
-                {providers.map(item => {
-                  return (
-                    <Col
-                      key={item.id}
-                      onClick={() => {
-                        if (!item.disable) {
-                          this.setProvider(item.id);
-                        }
-                      }}
-                      span={8}
-                      style={{ padding: '16px' }}
-                    >
-                      <Row
-                        className={[
-                          styles.provider,
-                          selectProvider === item.id && styles.providerActive
-                        ]}
-                      >
-                        <Col flex="100px" className={styles.providericon}>
-                          {item.icon}
-                        </Col>
-                        <Col flex="auto" className={styles.providerDesc}>
-                          <h4>{item.name}</h4>
-                          <p>{item.describe}</p>
-                        </Col>
-                        {selectProvider === item.id && (
-                          <div className={styles.providerChecked}>
-                            {selectIcon}
-                          </div>
-                        )}
-                        {item.disable && (
-                          <div className={styles.disable}>
-                            即将支持（需要请联系我们）
-                          </div>
-                        )}
-                      </Row>
-                    </Col>
-                  );
-                })}
-              </Row>
-              user key info
-              <Row style={{ marginTop: '32px', padding: '0 16px' }}>
-                <h4>账户设置</h4>
-                {aliyunAcountSetting}
-              </Row>
-              <Row justify="center">
-                <Col style={{ textAlign: 'center' }} span={24}>
-                  <Button
-                    loading={loading}
-                    onClick={this.setAccessKey}
-                    type="primary"
-                  >
-                    下一步
-                  </Button>
-                </Col>
-              </Row>
-            </div>
-          </Card>
-        )} */}
         {addClusterShow && (
           <BaseAddCluster
             eid={eid}
@@ -614,7 +596,6 @@ export default class EnterpriseClusters extends PureComponent {
             clusterID={initTask.clusterID}
           />
         )}
-        {/* <div id="cloudServiceBtn" style={{ height: '160px' }} /> */}
       </PageHeaderLayout>
     );
   }
