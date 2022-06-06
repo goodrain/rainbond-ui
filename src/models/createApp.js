@@ -8,6 +8,7 @@ import {
   getAppsByComposeId,
   installApp,
   installAppPlugin,
+  changeAppVersions,
   installHelmApp
 } from '../services/createApp';
 
@@ -36,6 +37,12 @@ export default {
     },
     *installAppPlugin({ payload, callback }, { call }) {
       const data = yield call(installAppPlugin, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *changeAppVersions({ payload, callback }, { call }) {
+      const data = yield call(changeAppVersions, payload);
       if (data && callback) {
         callback(data);
       }

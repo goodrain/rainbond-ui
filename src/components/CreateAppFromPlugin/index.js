@@ -28,6 +28,9 @@ export default class Index extends PureComponent {
       is_deploy: true
     };
   }
+  componentDidMount() {
+    this.handleChangeVersion()
+  }
   onAddGroup = () => {
     this.setState({ addGroup: true });
   };
@@ -40,7 +43,18 @@ export default class Index extends PureComponent {
     this.cancelAddGroup();
   };
 
-  handleChangeVersion = () => {};
+  handleChangeVersion = (e) => {
+    const { is_deploy } = this.state;
+    const { onChangeSelect, showCreate } = this.props
+    if (e) {
+      let obj = { group_version: e }
+      onChangeSelect(obj, is_deploy)
+    } else {
+      let obj = { group_version: showCreate.versions_info ? showCreate.versions_info[0].version : showCreate.versions[0].app_version }
+      onChangeSelect(obj, is_deploy)
+      
+    }
+  };
 
   fetchGroup = () => {
     this.props.dispatch({
@@ -75,7 +89,8 @@ export default class Index extends PureComponent {
       onCancel,
       showCreate,
       addAppLoading,
-      disabled
+      disabled,
+      btnStatus
     } = this.props;
     const data = this.props.data || {};
     const versionsInfo =
@@ -98,15 +113,51 @@ export default class Index extends PureComponent {
         onOk={this.handleSubmit}
         title="要安装到哪个应用?"
         footer={[
-          <Button onClick={onCancel}>取消</Button>,
-          <Button
-            onClick={this.handleSubmit}
-            type="primary"
-            style={{ marginRight: '5px' }}
-            loading={addAppLoading || disabled}
-          >
-            安装
-          </Button>
+          <div style={{display:'flex',marginLeft:'120px'}}>
+          <Button onClick={onCancel}>取消</Button>
+          <div>
+            {
+              btnStatus && btnStatus == 'Installable' ? (
+                <Button
+                  onClick={this.handleSubmit}
+                  type="primary"
+                  style={{ marginRight: '5px' }}
+                  loading={addAppLoading || disabled}
+                >
+                  安装
+                </Button>
+              ) :
+                btnStatus == 'AlreadyInstalled' ? (
+                  <Button
+                    type="primary"
+                    style={{ marginRight: '5px' }}
+                    disabled
+                  >
+                    已安装
+                  </Button>
+                ) :
+                  btnStatus == 'Upgradeable' ? (
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      style={{ marginRight: '5px' }}
+                      loading={addAppLoading || disabled}
+                    >
+                      升级
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      style={{ marginRight: '5px' }}
+                      loading={addAppLoading || disabled}
+                    >
+                      安装
+                    </Button>
+                  )
+            }
+            </div>
+          </div>
         ]}
       >
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
@@ -115,8 +166,8 @@ export default class Index extends PureComponent {
               initialValue: versionsInfo
                 ? versionsInfo[0].version
                 : appVersions
-                ? appVersions[0].app_version
-                : '',
+                  ? appVersions[0].app_version
+                  : '',
               rules: [
                 {
                   required: true,
@@ -131,29 +182,23 @@ export default class Index extends PureComponent {
               >
                 {versionsInfo
                   ? versionsInfo.map((item, index) => {
-                      return (
-                        <Option key={index} value={item.version}>
-                          {item.version}
-                        </Option>
-                      );
-                    })
+                    return (
+                      <Option key={index} value={item.version}>
+                        {item.version}
+                      </Option>
+                    );
+                  })
                   : appVersions &&
-                    appVersions.map((item, index) => {
-                      return (
-                        <Option key={index} value={item.app_version}>
-                          {item.app_version}
-                        </Option>
-                      );
-                    })}
+                  appVersions.map((item, index) => {
+                    return (
+                      <Option key={index} value={item.app_version}>
+                        {item.app_version}
+                      </Option>
+                    );
+                  })}
               </Select>
             )}
           </Form.Item>
-          {/* {this.state.addGroup && (
-            <AddGroup
-              onCancel={this.cancelAddGroup}
-              onOk={this.handleAddGroup}
-            />
-          )} */}
         </Form>
       </Modal>
     );
