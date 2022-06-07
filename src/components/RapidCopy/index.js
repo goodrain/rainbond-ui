@@ -391,6 +391,7 @@ export default class Index extends PureComponent {
           <div className={styles.copyBox}>
             {addGroup && (
               <AddGroup
+                copyFlag={this.props.copyFlag}
                 isAddGroup={false}
                 loading={loading}
                 onCancel={this.cancelAddGroup}
