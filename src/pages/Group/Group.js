@@ -1259,6 +1259,7 @@ export default class Index extends PureComponent {
           </Row>
           {rapidCopy && (
             <RapidCopy
+              copyFlag={true}
               on={this.handleCloseRapidCopy}
               onCancel={this.handleCloseRapidCopy}
               title="应用复制"
