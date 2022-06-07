@@ -707,11 +707,11 @@ export default class EnterpriseTeams extends PureComponent {
                className={styles.pl24}
               >
                 <Row 
-               type="flex" 
-               align="middle" 
-               className={styles.pl23}
-               onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
-              >
+                  type="flex" 
+                  align="middle" 
+                  className={styles.pl23}
+                  onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
+                >
                 <Col style={{color:'#4D73B1', fontWeight:'600',width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{owner_name}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{user_number}</Col>
@@ -750,7 +750,7 @@ export default class EnterpriseTeams extends PureComponent {
           {operation}
         </Row>
         {haveNewJoinTeam && (
-          <Row className={styles.teamMinTit} type="flex" align="middle">
+          <Row className={styles.teamMinTits} type="flex" align="middle">
             <Col span={6}>项目/团队名称</Col>
             <Col span={3}>管理员</Col>
             <Col span={3}>角色</Col>
@@ -779,11 +779,12 @@ export default class EnterpriseTeams extends PureComponent {
               >
                 <Row
                   type="flex"
-                  className={styles.pl24}
+                  className={styles.pls24}
                   align="middle"
                   key={team_id}
+                  // onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
                 >
-                  <Col span={6}>{team_alias}</Col>
+                  <Col span={6} style={{color:'#4D73B1', fontWeight:'600', fontSize:'16px'}}>{team_alias}</Col>
                   <Col span={3}>{owner_name}</Col>
                   <Col span={3}>{roleUtil.actionMap(role)}</Col>
                   <Col
@@ -799,7 +800,7 @@ export default class EnterpriseTeams extends PureComponent {
                       </span>
                     )}
                   </Col>
-                  <Col span={1} className={styles.bor}>
+                  <Col span={1} className={styles.bors}>
                     <Dropdown
                       overlay={
                         is_pass === 0 ? menucancel(item) : menu(team_name)
@@ -838,11 +839,14 @@ export default class EnterpriseTeams extends PureComponent {
           </Col>
         </Row>
         {userTeam && (
+          <Row style={{ width:'100%' }} className={styles.rowTitle}>
           <Row className={styles.teamMinTit} type="flex" align="middle">
-            <Col span={6}>项目/团队名称</Col>
-            <Col span={3}>管理员</Col>
-            <Col span={3}>角色</Col>
-            <Col span={12}>集群</Col>
+            <Col span={6} style={{width:'16%',textAlign:'center'}}>项目/团队名称</Col>
+            <Col span={3} style={{width:'10%',textAlign:'center'}}>管理员</Col>
+            <Col span={3} style={{width:'26%',textAlign:'center'}}>角色</Col>
+            <Col span={12} style={{width:'48%',textAlign:'left'}}>集群</Col>
+          </Row>
+            <Col className={styles.borTitle}>操作</Col>
           </Row>
         )}
         {!userTeam && (
@@ -868,10 +872,20 @@ export default class EnterpriseTeams extends PureComponent {
                 hoverable
                 bodyStyle={{ padding: 0 }}
               >
-                <Row type="flex" align="middle" className={styles.pl24}>
-                  <Col span={6}>{team_alias}</Col>
-                  <Col span={3}>{owner_name}</Col>
-                  <Col span={3}>
+                <Row 
+                  type="flex" 
+                  align="middle" 
+                  className={styles.pl24}
+                >
+                  <Row 
+                    type="flex" 
+                    align="middle" 
+                    className={styles.pl23}
+                    onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
+                  >
+                  <Col span={6} style={{color:'#4D73B1', fontWeight:'600', width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
+                  <Col span={3} style={{width:'10%',textAlign:'center'}}>{owner_name}</Col>
+                  <Col span={3} style={{width:'26%',textAlign:'center'}}>
                     {roles &&
                       roles.length > 0 &&
                       roles.map(role => {
@@ -885,9 +899,10 @@ export default class EnterpriseTeams extends PureComponent {
                         );
                       })}
                   </Col>
-                  <Col span={11}>
+                  <Col span={11} style={{width:'48%',textAlign:'left'}}>
                     {this.showRegions(team_name, region_list)}
                   </Col>
+                  </Row>
                   <Col span={1} className={styles.bor}>
                     <Dropdown overlay={menu(team_name)} placement="bottomLeft">
                       <Icon component={moreSvg} style={{ width: '100%' }} />
