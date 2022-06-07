@@ -538,8 +538,8 @@ export default class EnterpriseClusters extends PureComponent {
             <h3>云服务商基础设施</h3>
             <Divider />
           </Row>
-          <Row>
-          <Col span={12}>
+          <Row style={{display:'flex',justifyContent:'space-around'}}>
+          <Col style={{width:'33%'}}>
               <div onClick={this.addClusterShow} className={styles.import}>
                 <div className={styles.importicon}>{aliIcon}</div>
                 <div className={styles.importDesc}>
@@ -548,7 +548,7 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               </div>
             </Col>
-            <Col span={24}>
+            <Col  style={{width:'33%'}}>
               <div onClick={this.addClusterShow} className={styles.import}>
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
@@ -557,7 +557,7 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               </div>
             </Col>
-            <Col span={24}>
+            <Col  style={{width:'33%'}}>
               <div onClick={this.addClusterShow} className={styles.import}>
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
@@ -566,7 +566,7 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               </div>
             </Col>
-            <Col span={12}>
+            {/* <Col span={12}>
               <div onClick={this.addClusterShow} className={styles.import}>
                 <div className={styles.importicon}>{icon}</div>
                 <div className={styles.importDesc}>
@@ -574,7 +574,7 @@ export default class EnterpriseClusters extends PureComponent {
                   <p>导入已经完成安装的平台集群，由当前控制台调度管理。</p>
                 </div>
               </div>
-            </Col>
+            </Col> */}
           </Row>
         </Card>
         {addClusterShow && (
