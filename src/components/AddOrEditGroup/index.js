@@ -184,9 +184,10 @@ export default class EditGroupName extends PureComponent {
       loading = false,
       k8s_app: k8sApp,
       isEditEnglishName,
-      isAddGroup = true
+      isAddGroup = true,
+      copyFlag
     } = this.props;
-    const isDisabled = isAddGroup ? true : isEditEnglishName;
+    const isDisabled = (isAddGroup ? true : isEditEnglishName) || copyFlag;
     const { getFieldDecorator } = form;
     const {
       appLoading,
