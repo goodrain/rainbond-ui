@@ -56,6 +56,9 @@ export default class Index extends PureComponent {
   checkCmd = (rule, value, callback) => {
     const { getFieldValue } = this.props.form;
     const buildSource = getFieldValue('build_source');
+    if (/\s/g.test(value)) {
+      return callback('不能存在空格');
+    }
     if (buildSource === 'image') {
       if (!value) {
         callback('请输入镜像地址（名称:tag）如nginx:1.11');
