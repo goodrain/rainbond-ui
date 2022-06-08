@@ -1,3 +1,10 @@
+/* eslint-disable no-multi-assign */
+/* eslint-disable react/no-multi-comp */
+/* eslint-disable react/jsx-no-undef */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-console */
+/* eslint-disable camelcase */
 /* eslint-disable no-sparse-arrays */
 import {
   Button,
@@ -13,12 +20,14 @@ import {
   Row,
   Select,
   Spin,
+  Table,
   Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
+import EditStorageConfig from '../../components/EditStorageConfig';
 import MemoryForm from '../../components/MemoryForm';
 import NoPermTip from '../../components/NoPermTip';
 import appPluginUtil from '../../utils/appPlugin';
@@ -391,49 +400,55 @@ class ConfigUpstreamPort extends PureComponent {
   getCurrData = port => this.props.data.filter(item => item.port === port)[0];
   render() {
     const { data } = this.props;
+
     const { currAppLoading, config_name, currPort } = this.state;
     const currData = this.getCurrData(currPort);
     return (
-      <Card
-        style={{
-          marginBottom: 24
-        }}
-        type="inner"
-        title={
-          <div>
-            {config_name}
-            <span
-              style={{
-                marginRight: 24,
-                marginLeft: 16
-              }}
-            >
-              端口号:{' '}
-              <Select
-                getPopupContainer={triggerNode => triggerNode.parentNode}
-                onChange={this.handlePortChange}
-                value={currPort}
+      <>
+        <Card
+          style={{
+            marginBottom: 24
+          }}
+          type="inner"
+          title={
+            <div>
+              {config_name}
+              <span
+                style={{
+                  marginRight: 24,
+                  marginLeft: 16
+                }}
               >
-                {data.map(item => (
-                  <Option key={item.port} value={item.port}>
-                    {item.port}
-                  </Option>
-                ))}
-              </Select>
-            </span>{' '}
-            <span style={{ marginRight: 24 }}>
-              {' '}
-              端口协议 : {currData.protocol}{' '}
-            </span>{' '}
-          </div>
-        }
-      >
-        {currAppLoading ? (
-          <Spin />
-        ) : (
-          <ConfigItems onChange={this.handleOnChange} data={currData.config} />
-        )}
-      </Card>
+                端口号:{' '}
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  onChange={this.handlePortChange}
+                  value={currPort}
+                >
+                  {data.map(item => (
+                    <Option key={item.port} value={item.port}>
+                      {item.port}
+                    </Option>
+                  ))}
+                </Select>
+              </span>{' '}
+              <span style={{ marginRight: 24 }}>
+                {' '}
+                端口协议 : {currData.protocol}{' '}
+              </span>{' '}
+            </div>
+          }
+        >
+          {currAppLoading ? (
+            <Spin />
+          ) : (
+            <ConfigItems
+              onChange={this.handleOnChange}
+              data={currData.config}
+            />
+          )}
+        </Card>
+      </>
     );
   }
 }
@@ -445,21 +460,169 @@ class ConfigUnDefine extends PureComponent {
     const data = this.props.data || [];
     const configName = this.props.data.config_group_name;
     return (
-      <Card
-        style={{
-          marginBottom: 24
-        }}
-        type="inner"
-        title={<div>{configName}</div>}
-      >
-        <ConfigItems onChange={this.handleOnChange} data={data.config} />
-      </Card>
+      <>
+        <h4>配置组</h4>
+        <Card
+          style={{
+            marginBottom: 24
+          }}
+          type="inner"
+          title={<div>{configName}</div>}
+        >
+          <ConfigItems onChange={this.handleOnChange} data={data.config} />
+        </Card>
+      </>
+    );
+  }
+}
+// 存储管理
+@connect(
+  ({ user, loading }) => ({
+    currUser: user.currentUser,
+    loading: loading.appControl
+  }),
+  null,
+  null,
+  { withRef: true }
+)
+class StorageManage extends PureComponent {
+  state = {
+    editStoragData: false
+  };
+  handleSubmitStorageConfig = (vals, data) => {
+    const team_name = globalUtil.getCurrTeamName();
+    const {
+      pluginInfo: { plugin_id, configs, appAlias },
+      dispatch
+    } = this.props;
+    const newData = JSON.parse(JSON.stringify(data)) || {};
+    const newVals = JSON.parse(JSON.stringify(vals)) || {};
+    const newConfigs = JSON.parse(JSON.stringify(configs)) || {};
+    const { attr_value } = newData;
+    const str = (attr_value && JSON.parse(attr_value)) || {};
+    newData.volume_name = str.volume_name = newVals.volume_name;
+    newData.volume_path = str.volume_path = newVals.volume_path;
+    newData.attr_type = str.volume_type = newVals.volume_type;
+    newData.file_content = str.file_content = newVals.file_content || '';
+    newData.attr_value = str && JSON.stringify(str);
+    if (newConfigs && newConfigs.storage_env && newConfigs.storage_env.config) {
+      const {
+        storage_env: { config }
+      } = newConfigs;
+      newConfigs.storage_env.config =
+        config &&
+        config.map(item => {
+          if (item.attr_name === newData.attr_name) {
+            item = newData;
+          }
+          return item;
+        });
+    }
+
+    // 更新配置
+    dispatch({
+      type: 'appControl/editPluginConfigs',
+      payload: {
+        team_name,
+        app_alias: appAlias,
+        plugin_id,
+        data: newConfigs
+      },
+      callback: () => {
+        notification.success({ message: '修改成功' });
+        this.handleCancelAddStorageConfig();
+      }
+    });
+  };
+  handleCancelAddStorageConfig = () => {
+    this.setState({ editStoragData: false });
+  };
+  handleEdit = data => {
+    this.setState({
+      editStoragData: data
+    });
+  };
+  render() {
+    const {
+      data: { config }
+    } = this.props;
+    const { editStoragData } = this.state;
+    let storageList = [];
+    storageList =
+      config &&
+      config.reduce(
+        (pre, current) =>
+          current.attr_type === 'config-file' || current.attr_type === 'storage'
+            ? [...pre, current]
+            : pre,
+        []
+      );
+    storageList.length > 0 &&
+      storageList.map(item => {
+        const { attr_value } = item;
+        const str = (attr_value && JSON.parse(attr_value)) || {};
+        item.volume_path = str.volume_path;
+        item.volume_name = str.volume_name;
+        item.attr_type = str.attr_type;
+        item.file_content = str.file_content;
+      });
+
+    return (
+      <>
+        <h4>配置文件和共享存储</h4>
+        <Table
+          columns={[
+            {
+              title: '名称',
+              dataIndex: 'volume_name'
+            },
+            {
+              title: '挂载路径',
+              dataIndex: 'volume_path'
+            },
+            {
+              title: '存储类型',
+              dataIndex: 'attr_type',
+              render(_, data) {
+                const { attr_type } = data;
+                return attr_type === 'config-file' ? '配置文件' : '共享存储';
+              }
+            },
+            {
+              title: '操作',
+              dataIndex: 'action',
+              render: (_, data) => {
+                return (
+                  <a
+                    onClick={() => {
+                      this.handleEdit(data);
+                    }}
+                  >
+                    修改
+                  </a>
+                );
+              }
+            }
+          ]}
+          dataSource={storageList}
+          pagination={false}
+        />
+        {/* 修改 */}
+        {editStoragData && (
+          <EditStorageConfig
+            onCancel={this.handleCancelAddStorageConfig}
+            onSubmit={this.handleSubmitStorageConfig}
+            data={this.state.editStoragData} // 编辑数据
+            editor // 默认是编辑
+          />
+        )}
+      </>
     );
   }
 }
 // eslint-disable-next-line react/no-multi-comp
 class PluginConfigs extends PureComponent {
-  renderConfig = (configs, type) => {
+  renderConfig = (configs, type, storage_manage = false) => {
     if (type === 'upstream_port') {
       return <ConfigUpstreamPort data={configs} />;
     }
@@ -477,6 +640,13 @@ class PluginConfigs extends PureComponent {
         </Fragment>
       );
     }
+    if (type === 'storage_env') {
+      return (
+        <Fragment>
+          <StorageManage data={configs} pluginInfo={storage_manage} />
+        </Fragment>
+      );
+    }
     return null;
   };
   render() {
@@ -484,6 +654,8 @@ class PluginConfigs extends PureComponent {
     const undefine_env = configs.undefine_env || {};
     const downstream_env = configs.downstream_env || [];
     const upstream_env = configs.upstream_env || [];
+    const storage_env = configs.storage_env || []; // 存储管理
+
     return (
       <div style={{ padding: '20px 0' }}>
         {JSON.stringify(undefine_env) !== '{}'
@@ -494,6 +666,10 @@ class PluginConfigs extends PureComponent {
           : null}
         {downstream_env.length
           ? this.renderConfig(downstream_env, 'downstream_port')
+          : null}
+        {/* 存储管理 */}
+        {JSON.stringify(storage_env) !== '{}'
+          ? this.renderConfig(storage_env, 'storage_env', this.props)
           : null}
       </div>
     );
@@ -622,8 +798,11 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         if (data) {
-          this.state.openedPlugin[plugin.plugin_id] = data.bean || {};
-          this.forceUpdate();
+          const temp = {};
+          temp[plugin.plugin_id] = data.bean || {};
+          this.setState({
+            openedPlugin: Object.assign({}, temp)
+          });
         }
       }
     });
@@ -632,6 +811,7 @@ export default class Index extends PureComponent {
     delete this.state.openedPlugin[plugin.plugin_id];
     this.forceUpdate();
   };
+  // 更新配置
   handleUpdateConfig = (plugin_id, data) => {
     const team_name = globalUtil.getCurrTeamName();
     const app_alias = this.props.appAlias;
@@ -772,6 +952,8 @@ export default class Index extends PureComponent {
               <Fragment>
                 <PluginConfigs
                   configs={this.state.openedPlugin[item.plugin_id] || []}
+                  plugin_id={item.plugin_id}
+                  appAlias={this.props.appAlias}
                 />
                 <div
                   style={{
