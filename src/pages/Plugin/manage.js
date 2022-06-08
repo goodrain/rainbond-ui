@@ -789,7 +789,7 @@ export default class Index extends PureComponent {
                             this.handleDeleteStorage(data);
                           }}
                         >
-                          删除2
+                          删除
                         </a>
                       )}
                     </Fragment>

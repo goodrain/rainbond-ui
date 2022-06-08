@@ -59,6 +59,10 @@ export default class AddVolumes extends PureComponent {
       callback('最大长度100位');
       return;
     }
+    if (!/^\//g.test(value)) {
+      callback('挂载路径必须以/开头');
+      return;
+    }
     callback();
   };
 

@@ -151,8 +151,8 @@ class EvnOption extends React.Component {
             rules: [
               { required: false, message: '默认值' },
               {
-                max: 128,
-                message: '最大长度128位'
+                max: 65535,
+                message: '最大长度65535位'
               }
             ]
           })(
@@ -171,8 +171,8 @@ class EvnOption extends React.Component {
               initialValue: data.attr_alt_value || '',
               rules: [
                 {
-                  max: 1024,
-                  message: '最大长度1024位'
+                  max: 65535,
+                  message: '最大长度65535位'
                 },
                 { validator: this.checkAttrAltValue }
               ]
@@ -210,8 +210,8 @@ class EvnOption extends React.Component {
             rules: [
               { required: false, message: '默认值' },
               {
-                max: 32,
-                message: '最大长度32位'
+                max: 40,
+                message: '最大长度40位'
               }
             ]
           })(
