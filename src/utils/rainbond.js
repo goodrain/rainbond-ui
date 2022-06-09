@@ -30,7 +30,7 @@ export default {
       enterpriseInfo.title &&
       enterpriseInfo.title.enable &&
       enterpriseInfo.title.value) ||
-    'Rainbond | 云原生且易用的应用管理平台',
+    'Rainbond | 云原生多云应用管理平台',
   // 获取当前版本
   fetchIsSource: () => true,
   // BillingFunction

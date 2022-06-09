@@ -1,3 +1,7 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/no-unused-state */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-unused-expressions */
 /* eslint-disable camelcase */
 import { Button, Card, Col, Form, Icon, Notification, Row, Table } from 'antd';
 import { connect } from 'dva';
@@ -7,6 +11,7 @@ import AddOrEditConfig from '../../components/AddOrEditConfig';
 import BuildPluginVersion from '../../components/buildPluginVersion';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreatePluginForm from '../../components/CreatePluginForm';
+import EditStorageConfig from '../../components/EditStorageConfig';
 import ScrollerX from '../../components/ScrollerX';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -41,7 +46,14 @@ export default class Index extends PureComponent {
       apps: [],
       page: 1,
       page_size: 6,
-      total: 0
+      total: 0,
+      storgeListData: [],
+      showStorageConfig: false,
+      editStoragData: {},
+      isEditor: false,
+      configStorageVisible: false,
+      removeStorageLoading: false,
+      listData: []
     };
     this.mount = false;
   }
@@ -131,6 +143,7 @@ export default class Index extends PureComponent {
       }
     });
   };
+  // 获取配置组合存储管理
   getPluginVersionConfig = () => {
     this.props.dispatch({
       type: 'plugin/getPluginVersionConfig',
@@ -140,8 +153,35 @@ export default class Index extends PureComponent {
         build_version: this.state.currVersion
       },
       callback: data => {
-        if (data) {
-          this.setState({ config: data.list });
+        const { list } = data;
+        // 配置组管理数据过滤处理
+        const config =
+          list &&
+          list.length > 0 &&
+          list.reduce((pre, item) => {
+            return item.injection !== 'plugin_storage' ? [...pre, item] : pre;
+          }, []);
+        // 存储管理数据过滤处理
+        const storgeListDatas =
+          list &&
+          list.length > 0 &&
+          list.reduce((pre, item) => {
+            return item.injection === 'plugin_storage' ? [...pre, item] : pre;
+          }, []);
+        const storgeListData =
+          storgeListDatas.length > 0 &&
+          storgeListDatas[0].options.map(item => {
+            const attr_default_value =
+              (item.attr_default_value &&
+                JSON.parse(item.attr_default_value)) ||
+              {};
+            item.volume_path = attr_default_value.volume_path || '';
+            item.attr_type = attr_default_value.attr_type || '';
+            item.config_name = attr_default_value.volume_name || '';
+            return item;
+          });
+        if (list) {
+          this.setState({ config, storgeListData, listData: list });
         }
       }
     });
@@ -208,7 +248,8 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
         build_version: this.state.currVersion,
-        config_group_id: configVisible.ID
+        config_group_id: configVisible.ID,
+        config_name: configVisible.config_name
       },
       callback: () => {
         Notification.success({ message: '删除成功' });
@@ -229,11 +270,13 @@ export default class Index extends PureComponent {
       callback: () => {
         this.hiddenAddConfig();
         this.getPluginVersionConfig();
+        this.handleCancelAddStorageConfig('storageAdd');
       }
     });
   };
+  // 编辑配置组或者存储管理
   handleEditConfig = values => {
-    const { showEditConfig, currVersion } = this.state;
+    const { showEditConfig, currVersion, storgeListData } = this.state;
     this.props.dispatch({
       type: 'plugin/editPluginVersionConfig',
       payload: {
@@ -248,6 +291,63 @@ export default class Index extends PureComponent {
       callback: () => {
         this.hideEditConfig();
         this.getPluginVersionConfig();
+        this.handleCancelAddStorageConfig('storageEdit');
+      }
+    });
+  };
+  // 删除存储管理弹窗
+  handleDeleteStorage = values => {
+    this.setState({ configStorageVisible: values });
+  };
+  // 关闭弹窗
+  handleCloseStorage = () => {
+    this.setState({ configStorageVisible: false, removeStorageLoading: false });
+  };
+  // 删除存储管理
+  handleDelStorage = () => {
+    this.setState({
+      removeStorageLoading: true
+    });
+    const {
+      configStorageVisible,
+      showEditConfig,
+      currVersion,
+      storgeListData,
+      listData
+    } = this.state;
+    const deepCloneData = storgeListData.reduce(
+      (pre, current) =>
+        current.ID !== configStorageVisible.ID ? [...pre, current] : pre,
+      []
+    );
+    const params = {};
+    const deleteStorageID =
+      listData &&
+      listData.length > 0 &&
+      listData.filter(item => item.injection === 'plugin_storage')[0].ID;
+    params.ID = deleteStorageID || ''; // 删除时传递的ID
+    params.config_name = 'plugin_storage';
+    params.injection = 'plugin_storage';
+    params.service_meta_type = 'plugin_storage';
+    params.options = deepCloneData;
+    if (storgeListData.length === 1) {
+      params.modify_type = true;
+    }
+    this.props.dispatch({
+      type: 'plugin/editPluginVersionConfig',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        plugin_id: this.getId(),
+        build_version: currVersion,
+        entry: {
+          ...showEditConfig,
+          ...params
+        }
+      },
+      callback: () => {
+        Notification.success({ message: '删除成功' });
+        this.getPluginVersionConfig();
+        this.handleCloseStorage();
       }
     });
   };
@@ -328,7 +428,83 @@ export default class Index extends PureComponent {
       pluginUtil.canEditInfoAndConfig(this.state.currInfo)
     );
   };
+  showAddStorgeConfig = () => {
+    this.setState({ showStorageConfig: true });
+  };
+  handleCancelAddStorageConfig = type => {
+    this.setState({
+      showStorageConfig: false,
+      editStoragData: {},
+      isEditor: false
+    });
+    type &&
+      Notification.success({
+        message: type === 'storageAdd' ? '新增成功' : '修改成功'
+      });
+  };
+  // 新增或编辑存储
+  handleSubmitStorageConfig = (vals, data) => {
+    const { isEditor, listData, storgeListData } = this.state;
+    const params = {};
+    const editStorageID =
+      listData &&
+      listData.length > 0 &&
+      listData.filter(item => item.injection === 'plugin_storage');
+    params.ID =
+      (editStorageID && editStorageID[0] && editStorageID[0].ID) || ''; // 编辑时传递的ID
+    params.config_name = 'plugin_storage';
+    params.injection = 'plugin_storage';
+    params.service_meta_type = 'plugin_storage';
+    if (!isEditor && storgeListData.length > 0) {
+      params.modify_type = true;
+    }
+    params.options = [
+      {
+        ID: (data && data.ID) || '',
+        attr_alt_value: '',
+        attr_default_value: JSON.stringify({
+          volume_path: vals.volume_path,
+          file_content: vals.file_content || '',
+          attr_type: vals.volume_type,
+          volume_name: vals.volume_name
+        }),
+        attr_info: '',
+        attr_name: `plugin_storage_${vals.volume_name}`,
+        attr_type: vals.volume_type,
+        is_change: true,
+        protocol: ''
+      }
+    ];
+    // 处理编辑态的数据
+    if (isEditor && data && storgeListData && storgeListData.length > 0) {
+      params.options = storgeListData.map(item => {
+        if (item.ID === data.ID) {
+          const deepVals = Object.assign({}, vals);
+          item.attr_default_value = JSON.stringify({
+            volume_path: deepVals.volume_path,
+            file_content: deepVals.file_content || '',
+            attr_type: deepVals.volume_type,
+            volume_name: deepVals.volume_name
+          });
+        }
+        return item;
+      });
+    }
+    isEditor ? this.handleEditConfig(params) : this.handleAddConfig(params);
+  };
+  // 编辑存储
+  handleEditStorage = data => {
+    const { config_name, attr_default_value } = data;
 
+    data.volume_name = config_name;
+    const str = (attr_default_value && JSON.parse(attr_default_value)) || '';
+    data.file_content = str.file_content;
+    this.setState({
+      isEditor: true,
+      editStoragData: data,
+      showStorageConfig: true
+    });
+  };
   sharePlugin = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -382,7 +558,12 @@ export default class Index extends PureComponent {
       apps,
       page,
       page_size,
-      total
+      total,
+      storgeListData,
+      showStorageConfig,
+      isEditor,
+      configStorageVisible,
+      removeStorageLoading
     } = this.state;
     if (!currInfo) return null;
     const action = (
@@ -401,7 +582,7 @@ export default class Index extends PureComponent {
         </ButtonGroup>
       </div>
     );
-
+    // 存储管理
     const extra = (
       <Row
         style={{
@@ -462,7 +643,6 @@ export default class Index extends PureComponent {
             />
           </div>
         </Card>
-
         <Card
           style={{
             marginBottom: 16
@@ -560,7 +740,78 @@ export default class Index extends PureComponent {
             </Button>
           </div>
         </Card>
+        {/* 存储管理 */}
+        <Card
+          style={{
+            marginBottom: 16
+          }}
+          title="配置文件和共享存储"
+        >
+          <Table
+            columns={[
+              {
+                title: '名称',
+                dataIndex: 'config_name',
+                key: '1'
+              },
+              { title: '挂载路径', dataIndex: 'volume_path', key: '2' },
+              {
+                title: '存储类型',
+                dataIndex: 'attr_type',
+                key: '3',
+                render: val => {
+                  return val === 'storage' ? '共享存储' : '配置文件';
+                }
+              },
+              {
+                title: '操作',
+                dataIndex: 'action',
+                key: '4',
+                render: (_v, data) => {
+                  return (
+                    <Fragment>
+                      {isEdit && (
+                        <a
+                          onClick={() => {
+                            this.handleEditStorage(data);
+                          }}
+                          style={{
+                            marginRight: 8
+                          }}
+                        >
+                          修改
+                        </a>
+                      )}
+                      {isDelete && (
+                        <a
+                          onClick={() => {
+                            this.handleDeleteStorage(data);
+                          }}
+                        >
+                          删除
+                        </a>
+                      )}
+                    </Fragment>
+                  );
+                }
+              }
+            ]}
+            dataSource={storgeListData}
+            pagination={false}
+          />
 
+          <div
+            style={{
+              textAlign: 'right',
+              paddingTop: 24
+            }}
+          >
+            <Button onClick={this.showAddStorgeConfig}>
+              <Icon type="plus" />
+              新增存储
+            </Button>
+          </div>
+        </Card>
         <Card title="已安装当前插件的组件">
           <Table
             columns={[
@@ -618,6 +869,18 @@ export default class Index extends PureComponent {
             onCancel={this.handleCloseDelConfigVisible}
           />
         )}
+        {/* 删除存储 */}
+        {configStorageVisible && (
+          <ConfirmModal
+            title="删除存储"
+            subDesc="此操作不可恢复"
+            desc="确定要删除此存储？"
+            loading={removeStorageLoading}
+            onOk={this.handleDelStorage}
+            onCancel={this.handleCloseStorage}
+          />
+        )}
+
         {showAddConfig && (
           <AddOrEditConfig
             loading={addConfigLoading}
@@ -649,6 +912,15 @@ export default class Index extends PureComponent {
             event_id={event_id}
             plugin_id={this.getId()}
             build_version={currVersion}
+          />
+        )}
+        {/* 新增存储 */}
+        {showStorageConfig && (
+          <EditStorageConfig
+            onCancel={this.handleCancelAddStorageConfig}
+            onSubmit={this.handleSubmitStorageConfig}
+            data={this.state.editStoragData} // 编辑数据
+            editor={isEditor}
           />
         )}
       </PageHeaderLayout>

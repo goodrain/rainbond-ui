@@ -479,7 +479,6 @@ export default class Index extends PureComponent {
                 )}
               </div>
             </td>
-            {/* {console.log(showDomain, appPortUtil.canBindDomain(port))} */}
             {showDomain && (
               <td>
                 {appPortUtil.canBindDomain(port) ? (

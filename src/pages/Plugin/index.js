@@ -1,5 +1,5 @@
 /* eslint-disable react/no-multi-comp */
-import { Button, Card, Icon, List, Modal, notification } from 'antd';
+import { Button, Card, Icon, List, Modal, notification, Col, Tooltip, Form, Select } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
@@ -13,8 +13,9 @@ import pluginUtil from '../../utils/plugin';
 import roleUtil from '../../utils/role';
 import styles from './Index.less';
 import Manage from './manage';
+import Lists from '../../components/Lists'
 const { confirm } = Modal;
-
+const { Option } = Select;
 class MarketPlugin extends PureComponent {
   constructor(props) {
     super(props);
@@ -181,7 +182,10 @@ class PluginList extends PureComponent {
       installLoading: false,
       deletePlugin: null,
       pluginInfo: null,
-      currentType: false
+      currentType: false,
+      appPlugin: false,
+      appVersions: false,
+      appOutPlugin:false
     };
     this.timer = null;
   }
@@ -235,9 +239,8 @@ class PluginList extends PureComponent {
       }
       arr.push(
         <Link
-          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
-            item.plugin_id
-          }`}
+          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${item.plugin_id
+            }`}
         >
           管理
         </Link>
@@ -267,9 +270,8 @@ class PluginList extends PureComponent {
     if (item.has_install) {
       return (
         <Link
-          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
-            item.plugin_id
-          }`}
+          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${item.plugin_id
+            }`}
         >
           {item.plugin_alias}
         </Link>
@@ -334,6 +336,13 @@ class PluginList extends PureComponent {
       )
     );
   };
+  handleInstall = ()=>{
+    this.props.dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Install-plugin`
+      )
+    );
+  }
   hanldeDeletePlugin = isForce => {
     const { pluginInfo, deletePlugin } = this.state;
     this.props.dispatch({
@@ -388,7 +397,38 @@ class PluginList extends PureComponent {
       }
     });
   };
+  //安装应用插件
+  installAppPlugin = () => {
+    this.setState({
+      appPlugin: true
+    })
+  }
+  hideModal = () => {
+    this.setState({
+      appPlugin: false
+    })
+  }
+  changeVersions = () => {
+    this.setState({
+      appVersions: true
+    })
+  }
+  instAppPlugin = () => {
+    this.setState({
+      appVersions: false
+    })
 
+  }
+  appOut = () => {
+    this.setState({
+      appOutPlugin:false
+    })
+  }
+  appOver = () => {
+    this.setState({
+      appOutPlugin:true
+    })
+  }
   render() {
     const {
       currentEnterprise,
@@ -397,13 +437,13 @@ class PluginList extends PureComponent {
       operationPermissions,
       deletePluginLoading
     } = this.props;
-    const { list } = this.state;
+    const { list, appPlugin, appVersions, appOutPlugin } = this.state;
     const content = (
       <div className={styles.pageHeaderContent}>
         <p>应用插件是标准化的为应用提供功能扩展，与应用共同运行的程序</p>
       </div>
     );
-    const extraContent = <div className={styles.extraImg} />;
+    const extraContent = <div></div>;
     let breadcrumbList = [];
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
@@ -470,14 +510,30 @@ class PluginList extends PureComponent {
                 </List.Item>
               ) : operationPermissions.isCreate ? (
                 <List.Item key={item.id}>
-                  <Button
-                    type="dashed"
-                    onClick={this.handleCreate}
+                  <div 
                     className={styles.newButton}
+                    onMouseEnter={this.appOver}
+                    onMouseLeave={this.appOut}
                   >
-                    <Icon type="plus" />
-                    新建插件
-                  </Button>
+                    {
+                      !appOutPlugin && (
+                        <div style={{ display: appOutPlugin ? 'none' : 'block'}}>
+                        <Icon type="plus" style={{fontSize:'40px',fontWeight:'bolder',marginTop:'50px'}}/>
+                        <p style={{marginTop:'20px',fontSize:'14px'}}>从应用商店安装/新建插件</p>
+                        </div>
+                      )
+                    }
+                    {
+                      appOutPlugin && (
+                      <div className={styles.changeBtn} >
+                        <div onClick={this.handleInstall} className={styles.appBtn}>从应用商店安装插件</div>
+                        <div onClick={this.handleCreate} className={styles.instBtn}>新建插件</div>
+                      </div>
+                    )
+                    
+                  }
+                  </div>
+                 
                 </List.Item>
               ) : (
                 <div />
@@ -496,6 +552,7 @@ class PluginList extends PureComponent {
             />
           )}
         </div>
+        
       </PageHeaderLayout>
     );
   }

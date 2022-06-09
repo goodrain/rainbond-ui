@@ -3,6 +3,7 @@ import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
 import ApplicationGovernance from '@/components/ApplicationGovernance';
 import NewbieGuiding from '@/components/NewbieGuiding';
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import {
   Button,
   Col,
@@ -10,12 +11,11 @@ import {
   Icon,
   Modal,
   notification,
+  Radio,
   Row,
   Spin,
-  Tooltip,
-  Radio
+  Tooltip
 } from 'antd';
-import { UpOutlined, DownOutlined } from '@ant-design/icons';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
@@ -30,9 +30,8 @@ import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import sourceUtil from '../../utils/source-unit';
 import AddServiceComponent from './AddServiceComponent';
-import AddThirdParty from './AddThirdParty';
-import AppShape from './AppShape';
 import AppJoinMode from './AppJoinMode';
+import AppShape from './AppShape';
 import ComponentList from './ComponentList';
 import EditorTopology from './EditorTopology';
 import styles from './Index.less';
@@ -76,8 +75,8 @@ export default class Index extends PureComponent {
       aggregation: false,
       common: true,
       compile: false,
-      flagHeight:false,
-      iframeHeight: '500px',
+      flagHeight: false,
+      iframeHeight: '500px'
     };
   }
 
@@ -384,7 +383,8 @@ export default class Index extends PureComponent {
           } else {
             this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${list[0].group_id
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                  list[0].group_id
                 }`
               )
             );
@@ -544,15 +544,15 @@ export default class Index extends PureComponent {
     );
   };
   heightOnchage = e => {
-    if(e){
-      this.setState({ 
-        flagHeight : false,
-        iframeHeight: '500px',
+    if (e) {
+      this.setState({
+        flagHeight: false,
+        iframeHeight: '500px'
       });
-    }else{
-      this.setState({ 
-        flagHeight : true,
-        iframeHeight: '70vh',
+    } else {
+      this.setState({
+        flagHeight: true,
+        iframeHeight: '70vh'
       });
     }
   };
@@ -607,7 +607,7 @@ export default class Index extends PureComponent {
       common,
       compile,
       flagHeight,
-      iframeHeight,
+      iframeHeight
     } = this.state;
     const codeObj = {
       start: '启动',
@@ -748,8 +748,8 @@ export default class Index extends PureComponent {
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
-                    .locale('zh-cn')
-                    .format('YYYY-MM-DD HH:mm:ss')
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -758,8 +758,8 @@ export default class Index extends PureComponent {
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
-                    .locale('zh-cn')
-                    .format('YYYY-MM-DD HH:mm:ss')
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -890,53 +890,55 @@ export default class Index extends PureComponent {
               />
             </div>
             <div className={styles.content_Box}>
-            {appStatusConfig && <AppState AppStatus={resources.status} />}
-            {resources.status && isStart && (
-              <span>
-                <a
-                  onClick={() => {
-                    this.handleTopology('start');
-                  }}
-                  disabled={BtnDisabled}
-                >
-                  启动
-                </a>
-                <Divider type="vertical" />
-              </span>
-            )}
-            {resources.status &&
-              (resources.status === 'ABNORMAL' ||
-                resources.status === 'PARTIAL_ABNORMAL') &&
-              serviceIds &&
-              serviceIds.length > 0 &&
-              isRestart && (
+              {appStatusConfig && <AppState AppStatus={resources.status} />}
+              {resources.status && isStart && (
                 <span>
                   <a
                     onClick={() => {
-                      this.handleTopology('restart');
+                      this.handleTopology('start');
                     }}
                     disabled={BtnDisabled}
                   >
-                    重启
+                    启动
                   </a>
                   <Divider type="vertical" />
                 </span>
               )}
-            {isDelete && resources.status !== 'RUNNING' && (
-              <a onClick={this.toDelete}>删除</a>
-            )}
-            {resources.status && resources.status !== 'CLOSED' && isStop && (
-              <span>
-                {resources.status !== 'RUNNING' && <Divider type="vertical" />}
-                <a
-                  onClick={() => {
-                    this.handleTopology('stop');
-                  }}
-                >
-                  停用
-                </a>
-              </span>
-            )}
+              {resources.status &&
+                (resources.status === 'ABNORMAL' ||
+                  resources.status === 'PARTIAL_ABNORMAL') &&
+                serviceIds &&
+                serviceIds.length > 0 &&
+                isRestart && (
+                  <span>
+                    <a
+                      onClick={() => {
+                        this.handleTopology('restart');
+                      }}
+                      disabled={BtnDisabled}
+                    >
+                      重启
+                    </a>
+                    <Divider type="vertical" />
+                  </span>
+                )}
+              {isDelete && resources.status !== 'RUNNING' && (
+                <a onClick={this.toDelete}>删除</a>
+              )}
+              {resources.status && resources.status !== 'CLOSED' && isStop && (
+                <span>
+                  {resources.status !== 'RUNNING' && (
+                    <Divider type="vertical" />
+                  )}
+                  <a
+                    onClick={() => {
+                      this.handleTopology('stop');
+                    }}
+                  >
+                    停用
+                  </a>
+                </span>
+              )}
             </div>
             {resources.status && (
               <div className={styles.extraContent}>
@@ -983,8 +985,8 @@ export default class Index extends PureComponent {
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
-                    .locale('zh-cn')
-                    .format('YYYY-MM-DD HH:mm:ss')
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -993,8 +995,8 @@ export default class Index extends PureComponent {
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
-                    .locale('zh-cn')
-                    .format('YYYY-MM-DD HH:mm:ss')
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -1037,12 +1039,12 @@ export default class Index extends PureComponent {
             onOk={this.fetchAppDetail}
           />
         )}
-        <Row style={{position:'relative'}} style={guideStep === 2 ? highlighted : {}}>
-          <div 
-          className={styles.iconBox}
-          onClick={()=>{
-            this.heightOnchage(flagHeight)
-          }}
+        <Row className={styles.rowArrow} style={ guideStep === 2 ? highlighted : {} }>
+          <div
+            className={styles.iconBox}
+            onClick={() => {
+              this.heightOnchage(flagHeight);
+            }}
           >
             {flagHeight ? (
               <div className={styles.showOrhide}>
@@ -1071,7 +1073,7 @@ export default class Index extends PureComponent {
                     aggregation: false,
                     common: true,
                     compile: false
-                  })
+                  });
                 }}
                 style={{
                   marginLeft: '30px',
@@ -1094,7 +1096,11 @@ export default class Index extends PureComponent {
                 </a>
               )}
             </Col>
-            <Col className={styles.topoBtn} span={11} style={{ paddingleft: '12px' }}>
+            <Col
+              className={styles.topoBtn}
+              span={11}
+              style={{ paddingleft: '12px' }}
+            >
               {type !== 'list' && isComponentCreate && (
                 <Radio.Group>
                   {common ? (
@@ -1110,7 +1116,7 @@ export default class Index extends PureComponent {
                           aggregation: false,
                           common: true,
                           compile: false
-                        })
+                        });
                       }}
                       disabled
                     >
@@ -1123,13 +1129,14 @@ export default class Index extends PureComponent {
                       lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
                       color:'#595959', borderColor: '#D9D9D9',
                     }}
+
                       onClick={() => {
                         this.changeType('shape');
                         this.setState({
                           aggregation: false,
                           common: true,
                           compile: false
-                        })
+                        });
                       }}
                     >
                       普通模式
@@ -1148,7 +1155,7 @@ export default class Index extends PureComponent {
                           aggregation: true,
                           common: false,
                           compile: false
-                        })
+                        });
                       }}
                       disabled
                     >
@@ -1167,7 +1174,7 @@ export default class Index extends PureComponent {
                           aggregation: true,
                           common: false,
                           compile: false
-                        })
+                        });
                       }}
                     >
                       聚合模式
@@ -1180,13 +1187,14 @@ export default class Index extends PureComponent {
                       lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
                       color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
+
                       onClick={() => {
                         this.changeType('shapes');
                         this.setState({
                           aggregation: false,
                           common: false,
                           compile: true
-                        })
+                        });
                       }}
                       disabled
                     >
@@ -1205,7 +1213,7 @@ export default class Index extends PureComponent {
                           aggregation: false,
                           common: false,
                           compile: true
-                        })
+                        });
                       }}
                     >
                       编排模式
@@ -1251,6 +1259,7 @@ export default class Index extends PureComponent {
           </Row>
           {rapidCopy && (
             <RapidCopy
+              copyFlag={true}
               on={this.handleCloseRapidCopy}
               onCancel={this.handleCloseRapidCopy}
               title="应用复制"
@@ -1263,8 +1272,21 @@ export default class Index extends PureComponent {
               groupId={this.getGroupId()}
             />
           )}
-          {type === 'shape' && <AppShape style={{height:iframeHeight}} group_id={this.getGroupId()} flagHeight={flagHeight} iframeHeight={iframeHeight} />}
-          {type === 'aggregation' && <AppJoinMode group_id={this.getGroupId()} flagHeight={flagHeight} iframeHeight={iframeHeight} />}
+          {type === 'shape' && (
+            <AppShape
+              style={{ height: iframeHeight }}
+              group_id={this.getGroupId()}
+              flagHeight={flagHeight}
+              iframeHeight={iframeHeight}
+            />
+          )}
+          {type === 'aggregation' && (
+            <AppJoinMode
+              group_id={this.getGroupId()}
+              flagHeight={flagHeight}
+              iframeHeight={iframeHeight}
+            />
+          )}
           {type === 'spin' && <Spin />}
           {type === 'shapes' && (
             <EditorTopology

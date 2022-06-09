@@ -87,7 +87,7 @@ function menuData(eid, currentUser, enterprise) {
     });
   }
   menuArr.push({
-    name: '团队',
+    name: '项目/团队',
     icon: 'team',
     path: `/enterprise/${eid}/teams`,
     authority: ['admin', 'user']

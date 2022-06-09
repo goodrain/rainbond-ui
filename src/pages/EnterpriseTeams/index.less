@@ -5,14 +5,29 @@
   color         : #919191;
   letter-spacing: 0;
 }
-
+.rowTitle{
+  width: 100%;
+  margin-bottom : 5px;
+  font-family   : PingFangSC-Regular;
+  font-size     : 12px;
+  color         : #999999;
+  letter-spacing: 0;
+  display: flex;
+}
 .teamMinTit {
+  width: 96%;
+}
+.teamMinTits {
   padding-left       : 24px;
   margin-bottom : 5px;
   font-family   : PingFangSC-Regular;
   font-size     : 12px;
   color         : #999999;
   letter-spacing: 0;
+}
+.borTitle{
+  width: 4%;
+  text-align: center;
 }
 
 .teamContent {
@@ -23,17 +38,34 @@
 }
 
 .pl24 {
+  width: 100%;
+  height      : 70px;
+  // padding-left: 24px;
+}
+.pls24{
   height      : 70px;
   padding-left: 24px;
 }
-
+.pl23 {
+  width: 96%;
+  height      : 70px;
+}
+.pl23:hover{
+  background: #f7f6f6;
+}
 .bor {
+  width: 4%;
   border-left: 1px solid #F4F4F4;
   height     : 70px;
   display    : flex;
   align-items: center;
 }
-
+.bors{
+  border-left: 1px solid #F4F4F4;
+  height     : 70px;
+  display    : flex;
+  align-items: center;
+}
 .example {
   text-align   : center;
   border-radius: 4px;
@@ -55,6 +87,11 @@
   }
 }
 .regionShow {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: PingFangSC-Regular;
+    letter-spacing: 0;
   i {
     margin-left: 8px;
   }

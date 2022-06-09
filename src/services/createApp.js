@@ -258,6 +258,52 @@ export async function installApp(body = {}) {
     }
   );
 }
+/*
+  从云市安装应用下的插件
+*/
+export async function installAppPlugin(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/plugins`,
+    {
+      method: 'post',
+      data: {
+        app_id: body.app_id,
+        group_key: body.group_key,
+        app_version: body.app_version,
+        is_deploy: body.is_deploy,
+        install_from_cloud: body.install_from_cloud
+          ? body.install_from_cloud
+          : false,
+        market_name: body.marketName
+      },
+      params: {
+        region_name: body.region_name
+      }
+    }
+  );
+}
+/*
+  切换应用版本信息
+*/
+export async function changeAppVersions(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/plugins`,
+    {
+      method: 'get',
+      params: {
+        region_name: body.region_name,
+        app_id: body.app_id,
+        group_key: body.group_key,
+        app_version: body.app_version,
+        is_deploy: body.is_deploy,
+        install_from_cloud: body.install_from_cloud
+          ? body.install_from_cloud
+          : false,
+        market_name: body.marketName
+      }
+    }
+  );
+}
 
 export async function installHelmApp(body = {}) {
   return request(

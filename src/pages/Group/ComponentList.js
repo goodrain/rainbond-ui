@@ -553,7 +553,7 @@ export default class ComponentList extends Component {
         customMethods: this.handleBatchDelete
       }
     ];
-    
+
     const menu = (
       <Menu>
         {customBox.map(item => {

@@ -81,6 +81,7 @@ class Index extends PureComponent {
               <Radio value="9.11.2">9.11.2</Radio>
               <Radio value="10.13.0">10.13.0</Radio>
               <Radio value="11.1.0">11.1.0</Radio>
+              <Radio value="16.15.0">16.15.0</Radio>
             </RadioGroup>
           )}
         </Form.Item>

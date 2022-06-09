@@ -403,7 +403,8 @@ export default class Main extends PureComponent {
       appModelInfo: false,
       batchEditShow: false,
       selectComponentID: [],
-      allSelect: false
+      allSelect: false,
+      isAppPlugin:null
     };
     this.com = [];
     this.share_group_info = null;
@@ -637,7 +638,7 @@ export default class Main extends PureComponent {
   };
   handleSubmit = () => {
     const { dispatch, form } = this.props;
-    const { record, sharearrs, share_service_list } = this.state;
+    const { record, sharearrs, share_service_list, isAppPlugin } = this.state;
     const newinfo = {};
     form.validateFields((err, values) => {
       if (!err) {
@@ -647,7 +648,8 @@ export default class Main extends PureComponent {
           app_model_id: values.app_id,
           describe: values.describe,
           version: values.version,
-          version_alias: values.version_alias
+          version_alias: values.version_alias,
+          is_plugin: values.is_plugin
         };
         if (record.scope === 'goodrain') {
           appVersionInfo.scope_target = record.scope_target;
@@ -758,7 +760,7 @@ export default class Main extends PureComponent {
             if (data) {
               dispatch(
                 routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/share/${shareId}/two`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/share/${shareId}/two?isAppPlugin=${appVersionInfo.is_plugin}`
                 )
               );
             }
@@ -1011,7 +1013,6 @@ export default class Main extends PureComponent {
       );
     }
   };
-
   render() {
     const { info, tabk, share_service_list, plugin_list } = this.state;
     if (!info) {
@@ -1188,6 +1189,21 @@ export default class Main extends PureComponent {
                         style={{ width: 280 }}
                         placeholder="设置版本别名，比如高级版"
                       />
+                    )}
+                  </Form.Item>
+
+                  <Form.Item {...formItemLayout} label="作为插件">
+                    {getFieldDecorator('is_plugin', {
+                      initialValue:(versionInfo &&(versionInfo.is_plugin)) || false
+                    })(
+                      plugins.length > 0 ? (
+                    <Checkbox>
+                    </Checkbox>
+                    ):(
+                      <Checkbox disabled>
+                      </Checkbox>
+                    )
+                      
                     )}
                   </Form.Item>
                 </Col>

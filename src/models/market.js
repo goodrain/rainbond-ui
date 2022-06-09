@@ -50,6 +50,7 @@ export default {
         callback(response);
       }
     },
+    
     *fetchAppMarketInfo({ payload, callback }, { call }) {
       const response = yield call(getAppMarketInfo, payload);
       if (response && callback) {

@@ -16,6 +16,7 @@ import {
   Menu,
   notification,
   Pagination,
+  Tooltip,
   Row,
   Spin
 } from 'antd';
@@ -345,7 +346,7 @@ export default class EnterpriseTeams extends PureComponent {
           );
 
           this.hideDelTeam();
-          notification.success({ message: '团队删除成功' });
+          notification.success({ message: '项目/团队删除成功' });
         }
       },
       handleError: err => {
@@ -399,6 +400,7 @@ export default class EnterpriseTeams extends PureComponent {
       regions.length > 0 &&
       regions.map(item => {
         return (
+          <Tooltip placement="top" title={item.region_alias}>
           <Button
             key={`${item.region_name}region`}
             className={styles.regionShow}
@@ -413,6 +415,7 @@ export default class EnterpriseTeams extends PureComponent {
             {item.region_alias}
             <Icon type="right" />
           </Button>
+          </Tooltip>
         );
       })
     );
@@ -563,7 +566,7 @@ export default class EnterpriseTeams extends PureComponent {
                 this.showExitTeam(exitTeamName);
               }}
             >
-              退出团队
+              退出项目/团队
             </a>
           </Menu.Item>
         </Menu>
@@ -616,7 +619,7 @@ export default class EnterpriseTeams extends PureComponent {
                 this.showDelTeam(exitTeamName);
               }}
             >
-              删除团队
+              删除项目/团队
             </a>
           </Menu.Item>
         </Menu>
@@ -630,11 +633,11 @@ export default class EnterpriseTeams extends PureComponent {
             onClick={this.onAddTeam}
             style={{ marginRight: '5px' }}
           >
-            创建团队
+            创建 项目/团队
           </Button>
         ) : (
           <Button type="primary" onClick={this.onJoinTeam}>
-            加入团队
+            加入项目/团队
           </Button>
         )}
       </Col>
@@ -654,30 +657,42 @@ export default class EnterpriseTeams extends PureComponent {
             className={styles.teamsTit}
             style={{ marginBottom: '0' }}
           >
-            全部团队
+            全部项目/团队
           </Col>
           <Col span={15} style={{ textAlign: 'left' }}>
             <Search
               style={{ width: '500px' }}
-              placeholder="请输入团队名称进行搜索"
+              placeholder="请输入项目/团队名称进行搜索"
               onSearch={this.handleSearchTeam}
             />
           </Col>
           {operation}
         </Row>
+        <Row style={{ width:'100%' }} className={styles.rowTitle}>
         <Row className={styles.teamMinTit} type="flex" align="middle">
-          <Col span={6}>团队名称</Col>
-          <Col span={3}>拥有人</Col>
-          <Col span={11}>集群</Col>
+          <Col span={4} style={{width:'16%',textAlign:'center'}}>项目/团队名称</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>管理员</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>人数</Col>
+          <Col span={7} style={{width:'30%',textAlign:'center'}}>集群</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>内存使用量(MB)</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>CPU使用量</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>租户限额(MB)</Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>运行应用数</Col>
         </Row>
-
+          <Col className={styles.borTitle}>操作</Col>
+        </Row>
         {teamList.map(item => {
           const {
             team_id,
             team_alias,
             region_list,
             owner_name,
-            team_name
+            team_name,
+            running_apps,
+            user_number,
+            cpu_request,
+            memory_request,
+            set_limit_memory
           } = item;
           return (
             <Card
@@ -686,13 +701,29 @@ export default class EnterpriseTeams extends PureComponent {
               hoverable
               bodyStyle={{ padding: 0 }}
             >
-              <Row type="flex" align="middle" className={styles.pl24}>
-                <Col span={6}>{team_alias}</Col>
-                <Col span={3}>{owner_name}</Col>
-                <Col span={14}>
+              <Row 
+               type="flex" 
+               align="middle" 
+               className={styles.pl24}
+              >
+                <Row 
+                  type="flex" 
+                  align="middle" 
+                  className={styles.pl23}
+                  onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
+                >
+                <Col style={{color:'#4D73B1', fontWeight:'600',width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
+                <Col style={{width:'9%',textAlign:'center'}}>{owner_name}</Col>
+                <Col style={{width:'9%',textAlign:'center'}}>{user_number}</Col>
+                <Col style={{width:'30%',display:'flex',justifyContent:'center'}} >
                   {this.showRegions(team_name, region_list, true)}
                 </Col>
-                <Col span={1} className={styles.bor}>
+                <Col style={{width:'9%',textAlign:'center'}}>{memory_request}</Col>
+                <Col style={{width:'9%',textAlign:'center'}}>{cpu_request}</Col>
+                <Col style={{width:'9%',textAlign:'center'}}>{set_limit_memory}</Col>
+                <Col style={{width:'9%',textAlign:'center'}}>{running_apps}</Col>
+                </Row>
+                <Col className={styles.bor}>
                   <Dropdown
                     overlay={managementMenu(team_name)}
                     placement="bottomLeft"
@@ -714,14 +745,14 @@ export default class EnterpriseTeams extends PureComponent {
       <div>
         <Row>
           <Col span={17} className={styles.teamsTit}>
-            {haveNewJoinTeam && '最新加入团队'}
+            {haveNewJoinTeam && '最新加入项目/团队'}
           </Col>
           {operation}
         </Row>
         {haveNewJoinTeam && (
-          <Row className={styles.teamMinTit} type="flex" align="middle">
-            <Col span={6}>团队名称</Col>
-            <Col span={3}>拥有人</Col>
+          <Row className={styles.teamMinTits} type="flex" align="middle">
+            <Col span={6}>项目/团队名称</Col>
+            <Col span={3}>管理员</Col>
             <Col span={3}>角色</Col>
             <Col span={12}>状态</Col>
           </Row>
@@ -748,11 +779,12 @@ export default class EnterpriseTeams extends PureComponent {
               >
                 <Row
                   type="flex"
-                  className={styles.pl24}
+                  className={styles.pls24}
                   align="middle"
                   key={team_id}
+                  // onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
                 >
-                  <Col span={6}>{team_alias}</Col>
+                  <Col span={6} style={{color:'#4D73B1', fontWeight:'600', fontSize:'16px'}}>{team_alias}</Col>
                   <Col span={3}>{owner_name}</Col>
                   <Col span={3}>{roleUtil.actionMap(role)}</Col>
                   <Col
@@ -764,11 +796,11 @@ export default class EnterpriseTeams extends PureComponent {
                     {is_pass === 0 && (
                       <span>
                         <img src={WarningImg} alt="" />
-                        &nbsp;申请加入团队审批中
+                        &nbsp;申请加入项目/团队审批中
                       </span>
                     )}
                   </Col>
-                  <Col span={1} className={styles.bor}>
+                  <Col span={1} className={styles.bors}>
                     <Dropdown
                       overlay={
                         is_pass === 0 ? menucancel(item) : menu(team_name)
@@ -795,28 +827,31 @@ export default class EnterpriseTeams extends PureComponent {
             className={styles.teamsTit}
             style={{ marginBottom: '0' }}
           >
-            我的团队
+            我的项目/团队
           </Col>
 
           <Col span={20} style={{ textAlign: 'right' }}>
             <Search
               style={{ width: '500px' }}
-              placeholder="请输入团队名称进行搜索"
+              placeholder="请输入项目/团队名称进行搜索"
               onSearch={this.handleSearchUserTeam}
             />
           </Col>
         </Row>
         {userTeam && (
+          <Row style={{ width:'100%' }} className={styles.rowTitle}>
           <Row className={styles.teamMinTit} type="flex" align="middle">
-            <Col span={6}>团队名称</Col>
-            <Col span={3}>拥有人</Col>
-            <Col span={3}>角色</Col>
-            <Col span={12}>集群</Col>
+            <Col span={6} style={{width:'16%',textAlign:'center'}}>项目/团队名称</Col>
+            <Col span={3} style={{width:'10%',textAlign:'center'}}>管理员</Col>
+            <Col span={3} style={{width:'26%',textAlign:'center'}}>角色</Col>
+            <Col span={12} style={{width:'48%',textAlign:'left'}}>集群</Col>
+          </Row>
+            <Col className={styles.borTitle}>操作</Col>
           </Row>
         )}
         {!userTeam && (
           <Empty
-            description="暂无团队，请点击创建团队进行创建"
+            description="暂无项目/团队，请点击创建项目/团队进行创建"
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         )}
@@ -837,10 +872,20 @@ export default class EnterpriseTeams extends PureComponent {
                 hoverable
                 bodyStyle={{ padding: 0 }}
               >
-                <Row type="flex" align="middle" className={styles.pl24}>
-                  <Col span={6}>{team_alias}</Col>
-                  <Col span={3}>{owner_name}</Col>
-                  <Col span={3}>
+                <Row 
+                  type="flex" 
+                  align="middle" 
+                  className={styles.pl24}
+                >
+                  <Row 
+                    type="flex" 
+                    align="middle" 
+                    className={styles.pl23}
+                    onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
+                  >
+                  <Col span={6} style={{color:'#4D73B1', fontWeight:'600', width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
+                  <Col span={3} style={{width:'10%',textAlign:'center'}}>{owner_name}</Col>
+                  <Col span={3} style={{width:'26%',textAlign:'center'}}>
                     {roles &&
                       roles.length > 0 &&
                       roles.map(role => {
@@ -854,9 +899,10 @@ export default class EnterpriseTeams extends PureComponent {
                         );
                       })}
                   </Col>
-                  <Col span={11}>
+                  <Col span={11} style={{width:'48%',textAlign:'left'}}>
                     {this.showRegions(team_name, region_list)}
                   </Col>
+                  </Row>
                   <Col span={1} className={styles.bor}>
                     <Dropdown overlay={menu(team_name)} placement="bottomLeft">
                       <Icon component={moreSvg} style={{ width: '100%' }} />
@@ -868,11 +914,11 @@ export default class EnterpriseTeams extends PureComponent {
           })}
       </div>
     );
-    let title = '我的团队';
+    let title = '我的项目/团队';
     const content =
-      '团队是企业下多租户资源划分的一个层级，应用、插件、权限划分等都基于团队进行隔离。一个团队可以开通多个集群。';
+      '项目/团队是企业下多租户资源划分的一个层级，应用、插件、权限划分等都基于项目/团队进行隔离。一个项目/团队可以开通多个集群。';
     if (adminer) {
-      title = '团队管理';
+      title = '项目/团队管理';
     }
     return (
       <PageHeaderLayout title={title} content={content}>
@@ -880,9 +926,9 @@ export default class EnterpriseTeams extends PureComponent {
           <ConfirmModal
             onOk={this.handleCloseAllComponentInTeam}
             loading={closeTeamComponentLoading}
-            title="关闭团队下所有组件"
+            title="关闭项目/团队下所有组件"
             subDesc="此操作不可恢复"
-            desc="确定要关闭团队下所有组件吗?"
+            desc="确定要关闭项目/团队下所有组件吗?"
             onCancel={this.hideCloseAllComponent}
           />
         )}
@@ -903,7 +949,7 @@ export default class EnterpriseTeams extends PureComponent {
         )}
         {initShow && (
           <CreateTeam
-            title="创建您的第一个团队"
+            title="创建您的第一个项目/团队"
             enterprise_id={eid}
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
@@ -915,9 +961,9 @@ export default class EnterpriseTeams extends PureComponent {
         {this.state.showExitTeam && (
           <ConfirmModal
             onOk={this.handleExitTeam}
-            title="退出团队"
+            title="退出项目/团队"
             subDesc="此操作不可恢复"
-            desc="确定要退出此团队吗?"
+            desc="确定要退出此项目/团队吗?"
             onCancel={this.hideExitTeam}
           />
         )}
@@ -934,9 +980,9 @@ export default class EnterpriseTeams extends PureComponent {
           <ConfirmModal
             loading={delTeamLoading}
             onOk={this.handleDelTeam}
-            title="删除团队"
+            title="删除项目/团队"
             subDesc="此操作不可恢复"
-            desc="确定要删除此团队和团队下的所有资源吗？"
+            desc="确定要删除此项目/团队和项目/团队下的所有资源吗？"
             onCancel={this.hideDelTeam}
           />
         )}

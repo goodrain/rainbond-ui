@@ -291,14 +291,7 @@ export async function editPluginVersionInfo(
 /*
   添加配置信息
 */
-export async function addPluginVersionConfig(
-  body = {
-    team_name,
-    plugin_id,
-    build_version,
-    entry
-  }
-) {
+export async function addPluginVersionConfig(body) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`,
     {
@@ -324,7 +317,8 @@ export async function removePluginVersionConfig(
     {
       method: 'delete',
       data: {
-        config_group_id: body.config_group_id
+        config_group_id: body.config_group_id,
+        config_name: body.config_name
       }
     }
   );
