@@ -180,7 +180,7 @@ export default class Index extends PureComponent {
             item.config_name = attr_default_value.volume_name || '';
             return item;
           });
-        if (list && list.length > 0) {
+        if (list) {
           this.setState({ config, storgeListData, listData: list });
         }
       }
@@ -455,7 +455,7 @@ export default class Index extends PureComponent {
     params.config_name = 'plugin_storage';
     params.injection = 'plugin_storage';
     params.service_meta_type = 'plugin_storage';
-    if (storgeListData.length > 0) {
+    if (!isEditor && storgeListData.length > 0) {
       params.modify_type = true;
     }
     params.options = [
@@ -490,7 +490,6 @@ export default class Index extends PureComponent {
         return item;
       });
     }
-    // console.log(params, 'params');
     isEditor ? this.handleEditConfig(params) : this.handleAddConfig(params);
   };
   // 编辑存储
