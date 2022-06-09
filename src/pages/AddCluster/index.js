@@ -146,6 +146,42 @@ export default class EnterpriseClusters extends PureComponent {
       routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters`)
     );
   };
+  //阿里云
+  toAckCloud = () => {
+    const { dispatch } = this.props;
+    const {
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch(
+      routerRedux.push(`/enterprise/${eid}/provider/ACksterList`)
+    );
+  }
+  //腾讯云
+  toTencentCloud = () => {
+    const { dispatch } = this.props;
+    const {
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch(
+      routerRedux.push(`/enterprise/${eid}/provider/TencentList`)
+    );
+  }
+  //华为云
+  toHuaweiCloud = () => {
+    const { dispatch } = this.props;
+    const {
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch(
+      routerRedux.push(`/enterprise/${eid}/provider/HuaweiList`)
+    );
+  }
   addClusterOK = () => {
     const { dispatch } = this.props;
     const {
@@ -540,7 +576,7 @@ export default class EnterpriseClusters extends PureComponent {
           </Row>
           <Row style={{display:'flex',justifyContent:'space-around'}}>
           <Col style={{width:'33%'}}>
-              <div onClick={this.addClusterShow} className={styles.import}>
+              <div onClick={this.toAckCloud} className={styles.import}>
                 <div className={styles.importicon}>{aliIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>阿里云</h3>
@@ -549,7 +585,7 @@ export default class EnterpriseClusters extends PureComponent {
               </div>
             </Col>
             <Col  style={{width:'33%'}}>
-              <div onClick={this.addClusterShow} className={styles.import}>
+              <div onClick={this.toTencentCloud} className={styles.import}>
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>腾讯云</h3>
@@ -558,7 +594,7 @@ export default class EnterpriseClusters extends PureComponent {
               </div>
             </Col>
             <Col  style={{width:'33%'}}>
-              <div onClick={this.addClusterShow} className={styles.import}>
+              <div onClick={this.toHuaweiCloud} className={styles.import}>
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>华为云</h3>
@@ -566,6 +602,7 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               </div>
             </Col>
+
             {/* <Col span={12}>
               <div onClick={this.addClusterShow} className={styles.import}>
                 <div className={styles.importicon}>{icon}</div>
