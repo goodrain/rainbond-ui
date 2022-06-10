@@ -61,6 +61,7 @@ export async function fetchEnterpriseClusters(param) {
   );
 }
 
+
 export async function fetchEnterpriseClusterTenants(param, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_id}/tenants`,
@@ -108,6 +109,29 @@ export async function deleteEnterpriseCluster(params, handleError) {
         force: params.force
       },
       handleError
+    }
+  );
+}
+/* 获取HelmToken */
+export async function fetchHelmToken(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/helmtoken`,
+    {
+      method: 'get'
+    }
+  );
+}
+/* 通过helm生成命令安装集群 */
+export async function fetchHelmCommand(param) {
+  return request(
+    `${apiconfig.baseUrl}/enterprise-server/api/v1/helm/chart`,
+    {
+      method: 'post',
+      data: {
+        eid: param.eid,
+        domain: param.domain,
+        token: param.token
+      }
     }
   );
 }

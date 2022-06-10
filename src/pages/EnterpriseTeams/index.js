@@ -694,6 +694,7 @@ export default class EnterpriseTeams extends PureComponent {
             memory_request,
             set_limit_memory
           } = item;
+          console.log(item,'item')
           return (
             <Card
               key={team_id}

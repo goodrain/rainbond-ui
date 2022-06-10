@@ -12,7 +12,7 @@ import {
   Row,
   Steps,
   Typography,
-  Menu, 
+  Menu,
   Dropdown
 } from 'antd';
 import { connect } from 'dva';
@@ -366,7 +366,31 @@ export default class EnterpriseClusters extends PureComponent {
       />
     );
   };
+  onView = () => {
+    return (
+      <Menu
+        items={[
+          {
+            key: '1',
+            label: (
+              <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+                1st menu item
+              </a>
+            ),
+          },
+          {
+            key: '2',
+            label: (
+              <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+                2nd menu item
+              </a>
+            ),
+          }
+        ]}
+      />
+    )
 
+  }
   render() {
     const {
       addClusterShow,
@@ -497,32 +521,12 @@ export default class EnterpriseClusters extends PureComponent {
     )
     const providers = cloud.getProviders();
     const K8sCluster = rainbondUtil.isEnableK8sCluster() || false;
-    const menu = (
-      <Menu
-        items={[
-          {
-            key: '1',
-            label: (
-              <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                1st menu item
-              </a>
-            ),
-          },
-          {
-            key: '2',
-            label: (
-              <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-                2nd menu item
-              </a>
-            ),
-          }
-        ]}
-      />
-    );
-    const extraContent = (<div>
-      <Dropdown overlay={menu} placement="bottomRight">
-        {omitIcon}
-      </Dropdown></div>);
+
+    const extraContent = (
+        <Dropdown overlay={this.onView} placement="bottomRight">
+          {omitIcon}
+        </Dropdown>
+      );
     return (
       <PageHeaderLayout
         title="添加集群"
@@ -535,7 +539,7 @@ export default class EnterpriseClusters extends PureComponent {
             <Divider />
           </Row>
           <Row>
-          <Col span={12}>
+            <Col span={12}>
               <div
                 onClick={() => this.toClusterList('rke')}
                 className={styles.import}
@@ -556,17 +560,17 @@ export default class EnterpriseClusters extends PureComponent {
                 })}
             </Col>
             <Col span={12}>
-            <div
-              onClick={() => this.toClusterList('custom')}
-              className={styles.import}
-            >
-            <div className={styles.importicon}>{kubernetesIcon}</div>
-            <div className={styles.importDesc}>
-              <h3>接入Kubernetes集群</h3>
-              <p>基于已经安装的 Kubernetes 集群，初始化安装平台并接入。</p>
-            </div>
-          </div>
-          </Col> 
+              <div
+                onClick={() => this.toClusterList('custom')}
+                className={styles.import}
+              >
+                <div className={styles.importicon}>{kubernetesIcon}</div>
+                <div className={styles.importDesc}>
+                  <h3>接入Kubernetes集群</h3>
+                  <p>基于已经安装的 Kubernetes 集群，初始化安装平台并接入。</p>
+                </div>
+              </div>
+            </Col>
           </Row>
         </Card>
         <Card>
@@ -574,8 +578,8 @@ export default class EnterpriseClusters extends PureComponent {
             <h3>云服务商基础设施</h3>
             <Divider />
           </Row>
-          <Row style={{display:'flex',justifyContent:'space-around'}}>
-          <Col style={{width:'33%'}}>
+          <Row style={{ display: 'flex', justifyContent: 'space-around' }}>
+            <Col style={{ width: '33%' }}>
               <div onClick={this.toAckCloud} className={styles.import}>
                 <div className={styles.importicon}>{aliIcon}</div>
                 <div className={styles.importDesc}>
@@ -584,7 +588,7 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               </div>
             </Col>
-            <Col  style={{width:'33%'}}>
+            <Col style={{ width: '33%' }}>
               <div onClick={this.toTencentCloud} className={styles.import}>
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
@@ -593,7 +597,7 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               </div>
             </Col>
-            <Col  style={{width:'33%'}}>
+            <Col style={{ width: '33%' }}>
               <div onClick={this.toHuaweiCloud} className={styles.import}>
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>

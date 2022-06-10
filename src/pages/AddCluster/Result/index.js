@@ -31,7 +31,7 @@ export default class ClusterLink extends PureComponent {
         const adminer = userUtil.isCompanyAdmin(user);
         this.state = {
             adminer,
-            status: 'failure'
+            status: 'success'
         };
     }
     componentWillMount() {
@@ -41,7 +41,28 @@ export default class ClusterLink extends PureComponent {
             dispatch(routerRedux.push(`/`));
         }
     }
-    componentDidMount() { }
+    componentDidMount() { 
+        this.getRegionLength()
+    }
+    getRegionLength = () => {
+        const {
+            dispatch,
+            match: {
+              params: { eid }
+            }
+          } = this.props;
+          dispatch({
+            type: 'region/fetchEnterpriseClusters',
+            payload: {
+              enterprise_id: eid,
+              check_status: 'yes'
+            },
+            callback: res => {
+              console.log(res,'res')
+              console.log(res.list.length,'length')
+            }
+          });
+    }
     loadSteps = () => {
         const steps = [
             {
@@ -66,13 +87,14 @@ export default class ClusterLink extends PureComponent {
                 params: { eid }
             }
         } = this.props;
-        if (value == 'next') {
-
+        if (value == 'install') {
             dispatch(
-                routerRedux.push(`/enterprise/${eid}/provider/HuaweiList`)
+                routerRedux.push(`/enterprise/${eid}/provider/ACksterList/install`)
             );
-        } else {
-
+        } else if(value == 'finish') {
+            dispatch(
+                routerRedux.push(`/enterprise/${eid}/clusters`)
+            );
         }
     }
     renderBody = () => {
@@ -83,19 +105,20 @@ export default class ClusterLink extends PureComponent {
         let actions = [];
         if (status === 'success') {
           type = 'success';
-          title = '应用同步成功';
-          desc = '';
+          title = '集群对接成功';
+          desc = '点击完成按钮查看当前对接的集群';
           actions = [
-            <Button  className={styles.antd_btn}  type="primary">
+            <Button  className={styles.antd_btn} onClick={()=>{this.toLinkNext('finish')}}  type="primary">
               完成
             </Button>
           ];
         }
         if (status === 'failure') {
             type = 'error';
-            desc = '请查看以下日志确认问题后重试';
+            title = '当前集群对接失败';
+            desc = '可能服务器命令还没有执行完毕，可以“刷新进度”或去服务器执行“ watch kubectl get po -n rbd-system ”命令，查看Pod状态。';
             actions = [
-              <Button  className={styles.antd_btn} type="primary">
+              <Button  className={styles.antd_btn} onClick={() => { this.toLinkNext('install') }} type="primary">
                   上一步
               </Button>,
               <Button  className={styles.antd_btn} type="primary">
@@ -163,14 +186,6 @@ export default class ClusterLink extends PureComponent {
                 </Row>
                 <Card style={{ padding: '24px' }}>
                     <Card bordered={false}>{this.renderBody()}</Card>
-                    {/* <div className={styles.antd_row_btn}>
-                        <Button className={styles.antd_btn} type="primary" onClick={() => { this.toLinkNext('advanced') }}>
-                            查询进度
-                        </Button>
-                        <Button className={styles.antd_btn} type="primary" onClick={() => { this.toLinkNext('next') }}>
-                            跳转集群
-                        </Button>
-                    </div> */}
                 </Card>
             </PageHeaderLayout>
         );

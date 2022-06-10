@@ -6,7 +6,9 @@ import {
   fetchEnterpriseClusterTenants,
   getProtocols,
   sethEnterpriseClusterTenantLimit,
-  upEnterpriseCluster
+  upEnterpriseCluster,
+  fetchHelmToken,
+  fetchHelmCommand
 } from '../services/region';
 
 export default {
@@ -38,8 +40,20 @@ export default {
         callback(response);
       }
     },
+    *fetchHelmCommand({ payload, callback }, { call }) {
+      const response = yield call(fetchHelmCommand, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchEnterpriseClusters({ payload, callback }, { call }) {
       const response = yield call(fetchEnterpriseClusters, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchHelmToken({ payload, callback }, { call }) {
+      const response = yield call(fetchHelmToken, payload);
       if (response && callback) {
         callback(response);
       }
