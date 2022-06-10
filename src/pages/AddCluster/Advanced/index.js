@@ -160,16 +160,16 @@ export default class ClusterLink extends PureComponent {
         sm: { span: 9 }
       }
     };
-    const storageFormItemLayout={
-        labelCol: {
-            xs: { span: 7 },
-            sm: { span: 7 }
-          },
-          wrapperCol: {
-            xs: { span: 8 },
-            sm: { span: 8 }
-          }
-    }
+    const storageFormItemLayout = {
+      labelCol: {
+        xs: { span: 7 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 8 },
+        sm: { span: 8 }
+      }
+    };
     const formItemLayouts = {
       labelCol: {
         xs: { span: 3 },
@@ -264,8 +264,19 @@ export default class ClusterLink extends PureComponent {
                     })(<Etcd />)}
                   </FormItem>
                 </div>
-              ):(
-                  <div></div>
+              ) : (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginLeft: '36px',
+                    fontSize: '14px'
+                  }}
+                >
+                  1. endpoints 地址为 ETCD集群的 endpoints &nbsp; &nbsp; 2.
+                  secret名称为通过 ETCD 集群的证书创建的 secret
+                  资源，创建时需要指定和 Rainbond 集群相同的 namespace
+                </div>
               )}
             </Row>
             {/* 存储 */}
@@ -297,7 +308,7 @@ export default class ClusterLink extends PureComponent {
                   </CheckableTag>
                 </div>
               </div>
-              {storage_enabled !== '展示存储' && (
+              {storage_enabled !== '展示存储' ? (
                 <div className={styles.config}>
                   <FormItem
                     {...storageFormItemLayout}
@@ -342,6 +353,17 @@ export default class ClusterLink extends PureComponent {
                     )}
                   </FormItem>
                 </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginLeft: '36px',
+                    fontSize: '14px'
+                  }}
+                >
+                  此项为外部共享存储的 storageClass 名称
+                </div>
               )}
             </Row>
             {/* 数据库 */}
@@ -373,7 +395,7 @@ export default class ClusterLink extends PureComponent {
                   </CheckableTag>
                 </div>
               </div>
-              {database_enabled !== '展示数据库配置' && (
+              {database_enabled !== '展示数据库配置' ? (
                 <div className={`${styles.config} ${styles.data_base}`}>
                   {/* 连接地址 */}
                   <div style={{ position: 'relative', width: '800px' }}>
@@ -414,9 +436,7 @@ export default class ClusterLink extends PureComponent {
                         // }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入数据库连接地址" />
-                    )}
+                    })(<Input placeholder="请输入数据库连接地址" />)}
                     {getFieldDecorator('regionDatabase_host', {
                       rules: [
                         {
@@ -429,9 +449,7 @@ export default class ClusterLink extends PureComponent {
                         // }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入数据库连接地址" />
-                    )}
+                    })(<Input placeholder="请输入数据库连接地址" />)}
                   </FormItem>
                   {/* 连接端口 */}
                   <FormItem
@@ -452,9 +470,7 @@ export default class ClusterLink extends PureComponent {
                         // }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入连接端口  例：3306" />
-                    )}
+                    })(<Input placeholder="请输入连接端口  例：3306" />)}
                     {getFieldDecorator('regionDatabase_port', {
                       rules: [
                         {
@@ -467,9 +483,7 @@ export default class ClusterLink extends PureComponent {
                         // }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入连接端口  例：3306" />
-                    )}
+                    })(<Input placeholder="请输入连接端口  例：3306" />)}
                   </FormItem>
                   {/* 用户名 */}
                   <FormItem
@@ -490,9 +504,7 @@ export default class ClusterLink extends PureComponent {
                         // }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入用户名  例：root" />
-                    )}
+                    })(<Input placeholder="请输入用户名  例：root" />)}
                     {getFieldDecorator('regionDatabase_username', {
                       rules: [
                         {
@@ -505,9 +517,7 @@ export default class ClusterLink extends PureComponent {
                         // }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入用户名  例：root" />
-                    )}
+                    })(<Input placeholder="请输入用户名  例：root" />)}
                   </FormItem>
                   {/* 密码 */}
                   <FormItem
@@ -528,9 +538,7 @@ export default class ClusterLink extends PureComponent {
                         // }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入密码" />
-                    )}
+                    })(<Input placeholder="请输入密码" />)}
                     {getFieldDecorator('regionDatabase_password', {
                       rules: [
                         {
@@ -543,9 +551,7 @@ export default class ClusterLink extends PureComponent {
                         // }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入密码" />
-                    )}
+                    })(<Input placeholder="请输入密码" />)}
                   </FormItem>
                   {/* 数据库名称 */}
                   <FormItem
@@ -566,9 +572,7 @@ export default class ClusterLink extends PureComponent {
                         // }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入数据库库名称  例：console" />
-                    )}
+                    })(<Input placeholder="请输入数据库库名称  例：console" />)}
                     {getFieldDecorator('regionDatabase_dbname', {
                       rules: [
                         {
@@ -581,10 +585,21 @@ export default class ClusterLink extends PureComponent {
                         // }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入数据库库名称  例：region" />
-                    )}
+                    })(<Input placeholder="请输入数据库库名称  例：region" />)}
                   </FormItem>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginLeft: '36px',
+                    fontSize: '14px'
+                  }}
+                >
+                  控制台数据库以及数据中心数据库，可以使用同一个，但要提前创建
+                  “console” 以及 “region” 库， 如不使用 root
+                  用户，需要做好用户授权
                 </div>
               )}
             </Row>
@@ -617,7 +632,7 @@ export default class ClusterLink extends PureComponent {
                   </CheckableTag>
                 </div>
               </div>
-              {image_enabled !== '展示镜像仓库配置' && (
+              {image_enabled !== '展示镜像仓库配置' ? (
                 <div className={styles.config}>
                   <FormItem
                     {...formItemLayouts}
@@ -660,9 +675,7 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                       // initialValue: editInfo.domain_name
-                    })(
-                      <Input placeholder="请输入用户名" />
-                    )}
+                    })(<Input placeholder="请输入用户名" />)}
                   </FormItem>
                   <FormItem
                     {...formItemLayouts}
@@ -679,6 +692,17 @@ export default class ClusterLink extends PureComponent {
                       // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入密码" />)}
                   </FormItem>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginLeft: '36px',
+                    fontSize: '14px'
+                  }}
+                >
+                  镜像仓库主要用于存放，集群上部署的业务组件的镜像，仓库地址保证可以被正常推拉镜像即可
                 </div>
               )}
             </Row>
@@ -711,7 +735,7 @@ export default class ClusterLink extends PureComponent {
                   </CheckableTag>
                 </div>
               </div>
-              {node_enabled !== '展示构建节点配置' && (
+              {node_enabled !== '展示构建节点配置' ? (
                 <div className={styles.config}>
                   <FormItem
                     {...formItemLayouts}
@@ -732,6 +756,18 @@ export default class ClusterLink extends PureComponent {
                       // initialValue: editInfo.domain_name
                     })(<Build />)}
                   </FormItem>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginLeft: '36px',
+                    fontSize: '14px'
+                  }}
+                >
+                  主要用于定义源码构建的操作节点，节点名称输入 kubernetes 集群的
+                  node name 即可
                 </div>
               )}
             </Row>
