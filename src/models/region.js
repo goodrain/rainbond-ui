@@ -13,7 +13,13 @@ export default {
   namespace: 'region',
   state: {
     // 成员
-    protocols: []
+    protocols: [],
+    // 集群基本设置数据
+    base_configuration:
+      JSON.parse(window.sessionStorage.getItem('base_configuration')) || {},
+    // 集群高级配置数据
+    advance_configuration:
+      JSON.parse(window.sessionStorage.getItem('advance_config')) || {}
   },
   effects: {
     *fetchProtocols({ payload }, { call, put }) {
@@ -89,6 +95,35 @@ export default {
       return {
         ...state,
         protocols: action.payload
+      };
+    },
+    // 修改基本设置数据
+    saveBaseConfiguration(state, action) {
+      const { payload } = action;
+      console.log(payload, 'payload');
+      if (payload) {
+        window.sessionStorage.setItem(
+          'base_configuration',
+          JSON.stringify(payload) || {}
+        );
+      }
+      return {
+        ...state,
+        base_configuration: payload
+      };
+    },
+    // 修改高级配置数据
+    advanceConfiguration(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.setItem(
+          'advance_configuration',
+          JSON.stringify(payload) || {}
+        );
+      }
+      return {
+        ...state,
+        advance_configuration: payload
       };
     }
   }
