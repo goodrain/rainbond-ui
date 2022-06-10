@@ -1,26 +1,41 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-empty-pattern */
+/* eslint-disable react/sort-comp */
+/* eslint-disable react/no-array-index-key */
 import { Col, Icon, Input, notification, Row } from 'antd';
+import { connect } from 'dva';
 import React, { Component } from 'react';
 
+@connect(({ region }) => ({
+  baseConfiguration: region.base_configuration
+}))
 class DAinput extends Component {
   constructor(props) {
     super(props);
+    const {
+      baseConfiguration: { nodesForGateway }
+    } = this.props;
+    console.log(nodesForGateway, 'nodesForGateway12345');
     this.state = {
-        values: [{ externalIP: '', internalIP: '', name: '' }]
+      values:
+        nodesForGateway && nodesForGateway.length > 0
+          ? nodesForGateway
+          : [{ externalIP: '', internalIP: '', name: '' }]
     };
   }
-  onRegexChange = (value, index) => {
+  handleExternalIP = (value, index) => {
     const { values } = this.state;
     values[index].externalIP = value;
     this.triggerChange(values);
     this.setValues(values);
   };
-  onReplacementChange = (value, index) => {
+  handleInternalIP = (value, index) => {
     const { values } = this.state;
     values[index].internalIP = value;
     this.triggerChange(values);
     this.setValues(values);
   };
-  onFlagChange = (value, index) => {
+  handleNodes = (value, index) => {
     const { values } = this.state;
     values[index].name = value;
     this.triggerChange(values);
@@ -34,7 +49,7 @@ class DAinput extends Component {
     this.setState({ values: setArr });
   }
   initFromProps(value) {
-    const setValue = value
+    const setValue = value;
     if (setValue) {
       this.setValues(setValue);
     }
@@ -77,27 +92,28 @@ class DAinput extends Component {
     const repPlaceholder = '内部IP  例：192.168.0.1';
     const namePlaceholder = '节点名称  例：master1';
     const { values } = this.state;
+
     return (
       <div>
         {values.map((item, index) => {
           const first = index === 0;
           return (
-            <Row key={index} style={{width:'100%',display:'flex'}}>
-              <Col span={24} style={{marginRight:'10px'}}>
+            <Row key={index} style={{ width: '100%', display: 'flex' }}>
+              <Col span={24} style={{ marginRight: '10px' }}>
                 <Input
                   name="externalIP"
                   onChange={e => {
-                    this.onKeyChange(e.target.value, index);
+                    this.handleExternalIP(e.target.value, index);
                   }}
                   value={item.externalIP}
                   placeholder={externalIPPlaceholder}
                 />
               </Col>
-              <Col span={24} style={{marginRight:'10px'}}>
+              <Col span={24} style={{ marginRight: '10px' }}>
                 <Input
                   name="internalIP"
                   onChange={e => {
-                    this.onValueChange(e.target.value, index);
+                    this.handleInternalIP(e.target.value, index);
                   }}
                   value={item.internalIP}
                   placeholder={repPlaceholder}
@@ -107,7 +123,7 @@ class DAinput extends Component {
                 <Input
                   name="name"
                   onChange={e => {
-                    this.onValueChange(e.target.value, index);
+                    this.handleNodes(e.target.value, index);
                   }}
                   value={item.name}
                   placeholder={namePlaceholder}

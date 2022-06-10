@@ -1,14 +1,39 @@
-.antd_row{
-    min-height: 180px;
-    .antd_form{
-        margin-top: 60px;
-    }
-}
-.antd_row_btn{
+// 每行
+.antd_row {
+  display: flex;
+  border: 1px solid #c1c4c5;
+  margin-bottom: 30px;
+  align-items: center;
+  padding: 36px;
+  // 标题
+  & > div {
+    width: 130px;
     text-align: center;
-    margin-top: 20px;
-    .antd_btn{
-        width: 88px;
-        margin-left: 10px;
+    & > span {
+      display: inline-block;
+      // border: 1px solid #c1c4c5;
+      padding: 12px;
     }
+  }
+  // 表单
+  .antd_form {
+    flex: 1;
+  }
+  :global {
+    .ant-form-item {
+      margin-bottom: 0px !important;
+    }
+  }
+}
+.antd_row:hover {
+  border: 1px solid #5672ac;
+}
+// 底部按钮
+.antd_row_btn {
+  text-align: center;
+  margin-top: 20px;
+  .antd_btn {
+    width: 88px;
+    margin-left: 10px;
+  }
 }

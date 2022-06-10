@@ -1,9 +1,9 @@
 import { Link } from 'dva/router';
 import React from 'react';
-import CustomFooter from './CustomFooter';
 import PageHeader from '../components/PageHeader';
-import styles from './PageHeaderLayout.less';
 import cookie from '../utils/cookie';
+import CustomFooter from './CustomFooter';
+import styles from './PageHeaderLayout.less';
 
 export default ({
   isFooter,
