@@ -130,7 +130,8 @@ export async function fetchHelmCommand(param) {
       data: {
         eid: param.eid,
         domain: param.domain,
-        token: param.token
+        token: param.token,
+        data: param.data
       }
     }
   );

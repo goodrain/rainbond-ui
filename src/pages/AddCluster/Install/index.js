@@ -32,7 +32,9 @@ export default class ClusterLink extends PureComponent {
         const adminer = userUtil.isCompanyAdmin(user);
         this.state = {
             adminer,
-            commandFlag:true
+            commandFlag:false,
+            resCommand:[],
+            copyCommand:''
         };
     }
     componentWillMount() {
@@ -43,7 +45,10 @@ export default class ClusterLink extends PureComponent {
         }
     }
     componentDidMount() {
-        this.helmToken()
+        const data = this.props.location.params.data
+        if(data){
+            this.helmToken(data)
+        }
      }
     loadSteps = () => {
         const steps = [
@@ -69,18 +74,27 @@ export default class ClusterLink extends PureComponent {
                 params: { eid }
             }
         } = this.props;
+        const routerParams = this.props.location.params.name
+        console.log(routerParams,'routerParams')
         if (value == 'next') {
             dispatch(
                 routerRedux.push(`/enterprise/${eid}/provider/ACksterList/result`)
             );
         } else if (value == 'goback') {
-            dispatch(
-                routerRedux.push(`/enterprise/${eid}/provider/ACksterList/advanced`)
-            );
+            if(routerParams == 'one'){
+                dispatch(
+                    routerRedux.push(`/enterprise/${eid}/provider/ACksterList`)
+                );
+            }else if(routerParams == 'two'){
+                dispatch(
+                    routerRedux.push(`/enterprise/${eid}/provider/ACksterList/advanced`)
+                );
+            }
+            
         }
 
     }
-    helmToken = () => {
+    helmToken = (data) => {
         const { dispatch } = this.props
         const {
             match: {
@@ -102,24 +116,22 @@ export default class ClusterLink extends PureComponent {
                     },
                     callback: (res)=>{
                         console.log(res,'res')
-                        // const resArr = res.data.command.split(' & ')
-                        // const resArrCopy = resArr.join('\n ')
-                        // this.setState({
-                        //     command: res.data.command,
-                        //     resCommand: resArr,
-                        //     copyCommand: resArrCopy,
-                        //     btnFlog: true,
-                        //     btnLoading: false,
-                        //     btnFlag:false,
-                            
-                        // })
+                        const resArr = res.response_data.command.split(' & ')
+                        const resArrCopy = resArr.join('\n ')
+                        console.log(resArrCopy,'resArrCopy')
+                        this.setState({
+                            resCommand: resArr,
+                            copyCommand: resArrCopy,
+                            commandFlag: true
+                        })
                     }
                 })
             }
         }})
     }
     onCopy = ()=>{
-        copy('你好不好')
+        const { copyCommand } = this.state
+        copy(copyCommand)
         notification.success({
             message: '复制成功'
         });
@@ -130,7 +142,7 @@ export default class ClusterLink extends PureComponent {
                 params: { eid, provider, clusterID }
             }
         } = this.props;
-        const { commandFlag } = this.state
+        const { commandFlag, resCommand } = this.state
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
@@ -160,16 +172,13 @@ export default class ClusterLink extends PureComponent {
                         <div className={styles.commandBox}> 
                             <div className={styles.commandIcon}><CopyOutlined  onClick={this.onCopy}/></div>
                             <div className={styles.command}>
-                                <span className={styles.commandSpan}>kubectl create namespace rbd-system</span>
-                                <span className={styles.commandSpan}>helm repo add rainbond https://openchart.goodrain.com/goodrain/rainbond</span>
-                                <span className={styles.commandSpan}>helm repo update</span>
-                                <span className={styles.commandSpan}>helm install --set Cluster.gatewayIngressIPs=1.1.1.1 --set Cluster.enableHA=false --set Cluster.imageHub.enable=true --set Cluster.imageHub.domain=www.insteate.cn --set</span>
-                                <span className={styles.commandSpan}>Cluster.imageHub.namespace=songyg --set Cluster.imageHub.username=songyg --set Cluster.imageHub.password=769632 --set Cluster.etcd.enable=true --set</span>
-                                <span className={styles.commandSpan}>Cluster.etcd.endpoints[0]=etcd0 --set Cluster.etcd.secretName=rbd-etcd --set Cluster.RWX.enable=true --set Cluster.RWX.config.storageClassName=rainbondsslc --set</span>
-                                <span className={styles.commandSpan}>Cluster.RWO.enable=true --set Cluster.RWO.storageClassName=rainbondsslc --set Cluster.uiDatabase.host=127.0.0.1 --set Cluster.uiDatabase.port=3307 --set</span>
-                                <span className={styles.commandSpan}>Cluster.uiDatabase.username=1.1.1.1 --set Cluster.uiDatabase.password=123456 --set Cluster.uiDatabase.dbname=console --set Cluster.uiDatabase.enable=true --set</span>
-                                <span className={styles.commandSpan}>Cluster.regionDatabase.host=127.0.0.1 --set Cluster.regionDatabase.port=3308 --set Cluster.regionDatabase.username=1.1.1.1 --set Cluster.regionDatabase.password=654321 --set</span>
-                                <span className={styles.commandSpan}>Cluster.regionDatabase.dbname=region --set Cluster.regionDatabase.enable=true --set Cluster.nodesForChaos[0].name=kkk --set Cluster.nodesForGateway[0].name=gateway1 --set Cluster.nodesForGateway[0].externalIP=192.1.1.1 --set Cluster.nodesForGateway[0].internalIP=10.0.0.1 rainbond rainbond/rainbond-cluster -n rbd-system</span>
+                                {resCommand.length > 0 && resCommand.map((item, index) => {
+                                    return (
+                                        <span key={index} className={styles.commandSpan}>
+                                            {item}
+                                        </span>
+                                    )
+                                })}
                             </div>
                         </div>
                     }

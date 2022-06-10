@@ -54,6 +54,10 @@ export default {
     '/data': {
       target: 'http://4000.gr17ba3a.2c9v614j.17f4cc.grapps.cn',
       changeOrigin: true
+    },
+    '/enterprise-server': {
+      target: 'http://8080.gr2652c0.2c9v614j.17f4cc.grapps.cn',
+      changeOrigin: true
     }
   }
 };

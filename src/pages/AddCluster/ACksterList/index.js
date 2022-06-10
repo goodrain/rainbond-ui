@@ -12,7 +12,62 @@ import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
-
+var dataObj= {
+    enableHA: false,
+    gatewayIngressIPs: '',
+    imageHub: {
+        enable: false,
+        domain: '',
+        namespace: '',
+        username: '',
+        password: ''
+    },
+    etcd: {
+        enable: false,
+        endpoints: [],
+        secretName: ''
+    },
+    estorage: {
+        enable: false,
+        RWX: {
+            enable: false,
+            config:{
+                storageClassName: ''
+            }
+        },
+        RWO: {
+            enable: false,
+            storageClassName: ''
+        }    
+    },
+    database: {
+        enable: false,
+        uiDatabase: {
+            host: '',
+            port: '',
+            username: '',
+            password: '',
+            dbname: '',
+            enable: false
+        },
+        regionDatabase: {
+            host: '',
+            port: '',
+            username: '',
+            password: '',
+            dbname: '',
+            enable: false
+        }
+    },
+    nodesForChaos: {
+        enable: false,
+        nodes: []
+    },
+    nodesForGateway: {
+        enable: true,
+        nodes: []
+    }
+}
 @Form.create()
 @connect(({ user, list, loading, global, index, region }) => ({
   user: user.currentUser,
@@ -25,13 +80,15 @@ const { Step } = Steps;
   overviewInfo: index.overviewInfo,
   baseConfiguration: region.base_configuration
 }))
+
 export default class ClusterLink extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
-      adminer
+      adminer,
+      
     };
   }
   componentWillMount() {
@@ -85,7 +142,32 @@ export default class ClusterLink extends PureComponent {
       //   values.nodesForGateway = nodesForGateway;
       //   err = null;
       // }
+     
       if (err) return;
+
+      if(values){
+        dataObj.gatewayIngressIPs = values.gatewayIngressIPs || ''
+        dataObj.imageHub.domain = values.domain || ''
+        dataObj.imageHub.namespace = values.namespace || ''
+        dataObj.imageHub.username = values.username || ''
+        dataObj.imageHub.password = values.password || ''
+        dataObj.etcd.endpoints = values.endpoints || []
+        dataObj.etcd.secretName = values.secretName || ''
+        dataObj.estorage.RWX.config.storageClassName = values.storageClassName1 || ''
+        dataObj.estorage.RWO.storageClassName = values.storageClassName2 || ''
+        dataObj.database.uiDatabase.host = values.uiDatabase_host || ''
+        dataObj.database.uiDatabase.port = values.uiDatabase_port || ''
+        dataObj.database.uiDatabase.username = values.uiDatabase_username || ''
+        dataObj.database.uiDatabase.password = values.uiDatabase_password || ''
+        dataObj.database.uiDatabase.dbname = values.uiDatabase_dbname || ''
+        dataObj.database.regionDatabase.host = values.regionDatabase_host || ''
+        dataObj.database.regionDatabase.port = values.regionDatabase_port || ''
+        dataObj.database.regionDatabase.username = values.regionDatabase_username || ''
+        dataObj.database.regionDatabase.password = values.regionDatabase_password || ''
+        dataObj.database.regionDatabase.dbname = values.regionDatabase_dbname || ''
+        dataObj.nodesForChaos.nodes = values.nodesForChaos || []
+        dataObj.nodesForGateway.nodes = values.nodesForGateway || []
+      }
       // 存基本设置数据
       dispatch({
         type: 'region/saveBaseConfiguration',
@@ -95,11 +177,13 @@ export default class ClusterLink extends PureComponent {
     // 页面跳转
     if (value === 'advanced') {
       router.push({
-        pathname: `/enterprise/${eid}/provider/ACksterList/advanced`
+        pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
+        params:{data: dataObj}
       });
     } else {
       router.push({
-        pathname: `/enterprise/${eid}/provider/ACksterList/install`
+        pathname: `/enterprise/${eid}/provider/ACksterList/install`,
+        params:{name:'one',data: dataObj}
       });
     }
   };
@@ -118,10 +202,11 @@ export default class ClusterLink extends PureComponent {
         sm: { span: 2 }
       },
       wrapperCol: {
-        xs: { span: 4 },
-        sm: { span: 4 }
+        xs: { span: 5 },
+        sm: { span: 5 }
       }
     };
+
     return (
       <PageHeaderLayout
         title="添加集群"
@@ -148,8 +233,6 @@ export default class ClusterLink extends PureComponent {
                 </div>
                 <FormItem
                   {...formItemLayout}
-                  // labelCol={{ xs: { span: 6 }, sm: { span: 6 } }}
-                  // wrapperCol={{ xs: { span: 16 }, sm: { span: 16 } }}
                   label="IP地址"
                   className={styles.antd_form}
                 >
