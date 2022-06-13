@@ -52,7 +52,7 @@ export default class EnterpriseClusters extends PureComponent {
     this.state = {
       isNewbieGuide: rainbondUtil.isEnableNewbieGuide(enterprise),
       adminer,
-      clusters: [],
+      clusters: null,
       editClusterShow: false,
       regionInfo: false,
       text: '',
@@ -152,6 +152,8 @@ export default class EnterpriseClusters extends PureComponent {
           });
           this.setState({ clusters });
           globalUtil.putClusterInfoLog(eid, res.list);
+        } else {
+          this.setState({ clusters: [] });
         }
       }
     });
@@ -434,7 +436,7 @@ export default class EnterpriseClusters extends PureComponent {
             const teamName = res.list[0].team_name;
             if (isNext && teamName) {
               this.fetchApps(teamName, true);
-            } else if (teamName) {
+            } else if (teamName && clusters) {
               dispatch(
                 routerRedux.push(
                   `/team/${teamName}/region/${clusters[0].region_name}/create/code`
@@ -470,7 +472,7 @@ export default class EnterpriseClusters extends PureComponent {
         if (res && res.status_code === 200) {
           if (res && res.list.length > 0) {
             const groupId = res.list[0].ID;
-            if (isNext && groupId && teamName) {
+            if (isNext && groupId && teamName && clusters) {
               dispatch(
                 routerRedux.push(
                   `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}`
@@ -851,6 +853,8 @@ export default class EnterpriseClusters extends PureComponent {
             {guideStep === 1 &&
               this.props.novices &&
               rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
+              clusters &&
+              clusters.length === 0 &&
               this.handleNewbieGuiding({
                 tit: '去添加集群',
                 desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
