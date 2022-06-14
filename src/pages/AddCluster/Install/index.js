@@ -5,6 +5,7 @@ import { CopyOutlined } from '@ant-design/icons'
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import router from 'umi/router';
 import copy from 'copy-to-clipboard';
 import SetRegionConfig from '../../../components/Cluster/SetRegionConfig';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
@@ -34,7 +35,8 @@ export default class ClusterLink extends PureComponent {
             adminer,
             commandFlag:false,
             resCommand:[],
-            copyCommand:''
+            copyCommand:'',
+            helmToken:''
         };
     }
     componentWillMount() {
@@ -45,9 +47,20 @@ export default class ClusterLink extends PureComponent {
         }
     }
     componentDidMount() {
-        const data = this.props.location.params.data
-        if(data){
+        const name = this.props.location.params.name
+        if(name == 'one' || name == 'two'){
+            const data = this.props.location.params.data
             this.helmToken(data)
+        }else if( name == 'four'){
+            const data = this.props.location.params.data
+            const resArrCopy = this.props.location.params.copy
+            const routerParams = this.props.location.params.token
+            this.setState({
+                resCommand: data,
+                copyCommand: resArrCopy,
+                commandFlag: true,
+                helmToken:routerParams
+            })
         }
      }
     loadSteps = () => {
@@ -74,12 +87,14 @@ export default class ClusterLink extends PureComponent {
                 params: { eid }
             }
         } = this.props;
+        const { helmToken, resCommand, resArrCopy, backToken } = this.state
         const routerParams = this.props.location.params.name
         console.log(routerParams,'routerParams')
         if (value == 'next') {
-            dispatch(
-                routerRedux.push(`/enterprise/${eid}/provider/ACksterList/result`)
-            );
+            router.push({
+                pathname: `/enterprise/${eid}/provider/ACksterList/result`,
+                params:{ token: helmToken, data: resCommand, copy: resArrCopy}
+            });
         } else if (value == 'goback') {
             if(routerParams == 'one'){
                 dispatch(
@@ -88,6 +103,10 @@ export default class ClusterLink extends PureComponent {
             }else if(routerParams == 'two'){
                 dispatch(
                     routerRedux.push(`/enterprise/${eid}/provider/ACksterList/advanced`)
+                );
+            }else{
+                dispatch(
+                    routerRedux.push(`/enterprise/${eid}/provider/ACksterList`)
                 );
             }
             
@@ -106,11 +125,14 @@ export default class ClusterLink extends PureComponent {
         type: 'region/fetchHelmToken',
         callback: res => {
             if(res.status_code == 200){
+                this.setState({
+                    helmToken: res.bean
+                })
                 dispatch({
                     type:'region/fetchHelmCommand',
                     payload:{
-                        eid: eid,
-                        domain: domain,
+                        eid: 'f0a3efe26ebff6e2a87b176fbd3256ec',
+                        domain: 'http://5000.gr5b266d.2c9v614j.17f4cc.grapps.cn',
                         token: res.bean,
                         data: data
                     },
@@ -168,7 +190,7 @@ export default class ClusterLink extends PureComponent {
                 </Row>
                 <Card style={{ padding: '24px' }}>
                     {!commandFlag && <Spin tip="Loading..."><div className={styles.commandBox}> </div></Spin>}
-                    {commandFlag && 
+                    { commandFlag && 
                         <div className={styles.commandBox}> 
                             <div className={styles.commandIcon}><CopyOutlined  onClick={this.onCopy}/></div>
                             <div className={styles.command}>

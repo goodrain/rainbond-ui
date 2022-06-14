@@ -1,9 +1,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Card, Form, Row, Steps, item, Input, Button, Progress } from 'antd';
+import { Card, Form, Row, Steps, item, Input, Button, Progress, Spin } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import router from 'umi/router';
 import SetRegionConfig from '../../../components/Cluster/SetRegionConfig';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
@@ -31,7 +32,8 @@ export default class ClusterLink extends PureComponent {
         const adminer = userUtil.isCompanyAdmin(user);
         this.state = {
             adminer,
-            status: 'success'
+            status: 'failed',
+            flagStatus:false
         };
     }
     componentWillMount() {
@@ -42,24 +44,34 @@ export default class ClusterLink extends PureComponent {
         }
     }
     componentDidMount() { 
-        this.getRegionLength()
+        const helmToken = this.props.location.params.token
+        
+        // setTimeout(()=>{
+            this.getRegionLength(helmToken)
+        // },30000)
     }
-    getRegionLength = () => {
+    getRegionLength = (helmToken) => {
         const {
             dispatch,
             match: {
               params: { eid }
             }
           } = this.props;
+          
           dispatch({
-            type: 'region/fetchEnterpriseClusters',
+            type: 'region/fetchHelmJoinStatus',
             payload: {
-              enterprise_id: eid,
-              check_status: 'yes'
+              eid: eid,
+              token: helmToken
             },
             callback: res => {
               console.log(res,'res')
-              console.log(res.list.length,'length')
+              if(res.status_code == 200){
+                this.setState({
+                    flagStatus:true,
+                    status:res.response_data.msg
+                })
+              }
             }
           });
     }
@@ -87,15 +99,26 @@ export default class ClusterLink extends PureComponent {
                 params: { eid }
             }
         } = this.props;
+        const resCommand = this.props.location.params.data
+        const resArrCopy = this.props.location.params.copy
+        const helmToken = this.props.location.params.token
         if (value == 'install') {
-            dispatch(
-                routerRedux.push(`/enterprise/${eid}/provider/ACksterList/install`)
-            );
+            router.push({
+                pathname: `/enterprise/${eid}/provider/ACksterList/install`,
+                params:{ name: 'four', data: resCommand, copy: resArrCopy, token: helmToken}
+            });
         } else if(value == 'finish') {
             dispatch(
                 routerRedux.push(`/enterprise/${eid}/clusters`)
             );
         }
+    }
+    refreshStatus = () => {
+        this.setState({
+            flagStatus:false
+        })
+        const helmToken = this.props.location.params.token
+        this.getRegionLength(helmToken)
     }
     renderBody = () => {
         const {  status  } = this.state;
@@ -113,7 +136,7 @@ export default class ClusterLink extends PureComponent {
             </Button>
           ];
         }
-        if (status === 'failure') {
+        if (status === 'failed') {
             type = 'error';
             title = '当前集群对接失败';
             desc = '可能服务器命令还没有执行完毕，可以“刷新进度”或去服务器执行“ watch kubectl get po -n rbd-system ”命令，查看Pod状态。';
@@ -121,7 +144,7 @@ export default class ClusterLink extends PureComponent {
               <Button  className={styles.antd_btn} onClick={() => { this.toLinkNext('install') }} type="primary">
                   上一步
               </Button>,
-              <Button  className={styles.antd_btn} type="primary">
+              <Button onClick={()=>{ this.refreshStatus() }} className={styles.antd_btn} type="primary">
                   刷新进度
               </Button>
             ];
@@ -160,7 +183,7 @@ export default class ClusterLink extends PureComponent {
                 params: { eid, provider, clusterID }
             }
         } = this.props;
-
+        const { flagStatus } = this.state
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
@@ -185,7 +208,8 @@ export default class ClusterLink extends PureComponent {
                     </Steps>
                 </Row>
                 <Card style={{ padding: '24px' }}>
-                    <Card bordered={false}>{this.renderBody()}</Card>
+                    {!flagStatus && <Spin tip="Loading..."><Card bordered={false}>{this.renderBody()}</Card></Spin>}
+                    {flagStatus && <Card bordered={false}>{this.renderBody()}</Card>}
                 </Card>
             </PageHeaderLayout>
         );

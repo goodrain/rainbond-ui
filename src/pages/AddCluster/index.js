@@ -153,7 +153,7 @@ export default class EnterpriseClusters extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/provider/ACksterList`));
+    dispatch(routerRedux.push(`/enterprise/${eid}/provider/Aliack`));
   };
   // 腾讯云
   toTencentCloud = () => {

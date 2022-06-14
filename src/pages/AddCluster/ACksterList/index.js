@@ -198,8 +198,8 @@ export default class ClusterLink extends PureComponent {
     } = this.props;
     const formItemLayout = {
       labelCol: {
-        xs: { span: 2 },
-        sm: { span: 2 }
+        xs: { span: 0 },
+        sm: { span: 0 }
       },
       wrapperCol: {
         xs: { span: 5 },
@@ -221,7 +221,7 @@ export default class ClusterLink extends PureComponent {
           </Steps>
         </Row>
         {/* 配置 */}
-        <Card style={{ padding: '24px' }}>
+        <Card style={{ padding: '24px 12px' }}>
           <Form onSubmit={this.handleSubmit}>
             <div className={styles.base_configuration}>
               {/* 入口IP */}
@@ -233,7 +233,6 @@ export default class ClusterLink extends PureComponent {
                 </div>
                 <FormItem
                   {...formItemLayout}
-                  label="IP地址"
                   className={styles.antd_form}
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
@@ -261,7 +260,6 @@ export default class ClusterLink extends PureComponent {
                 </div>
                 <FormItem
                   {...formItemLayout}
-                  label="节点配置"
                   className={styles.antd_form}
                 >
                   {getFieldDecorator('nodesForGateway', {
@@ -291,7 +289,7 @@ export default class ClusterLink extends PureComponent {
                     );
                   }}
                 >
-                  上一步
+                  返回
                 </Button>
                 <Button
                   className={styles.antd_btn}

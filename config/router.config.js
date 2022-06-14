@@ -150,6 +150,12 @@ export default [
             authority: ['admin', 'user'],
           },
           {
+            path: '/enterprise/:eid/provider/Aliack',
+            component: './AddCluster/Aliack',
+            name: 'Aliack',
+            authority: ['admin', 'user'],
+          },
+          {
             path: '/enterprise/:eid/provider/ACksterList/advanced',
             component: './AddCluster/Advanced',
             name: 'ACkadvanced',

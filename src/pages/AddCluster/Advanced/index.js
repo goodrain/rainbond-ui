@@ -102,12 +102,11 @@ export default class ClusterLink extends PureComponent {
             build: false,
             gateway: false,
             repositories: false,
-            etcd_enabled: '展示Etcd配置',
-            storage_enabled: '展示存储',
-            database_enabled: '展示数据库配置',
-            image_enabled: '展示镜像仓库配置',
-            node_enabled: '展示构建节点配置',
-
+            etcd_enabled: '自定义配置',
+            storage_enabled: '自定义配置',
+            database_enabled: '自定义配置',
+            image_enabled: '自定义配置',
+            node_enabled: '自定义配置',
         }
     }
     componentWillMount() {
@@ -139,7 +138,7 @@ export default class ClusterLink extends PureComponent {
     };
     handleSubmit = () => { };
     toLinkNext = value => {
-        const routeData = this.props.location.params.data || {}
+        
         const { dispatch } = this.props;
         const { etcd_enabled, storage_enabled, database_enabled, image_enabled, node_enabled } = this.state
         const {
@@ -150,19 +149,20 @@ export default class ClusterLink extends PureComponent {
         } = this.props;
         //   页面跳转
         if (value === 'next') {
+            const routeData = this.props.location.params.data
             // 表单校验
             form.validateFields((err, values) => {
                 if (err) return;
                 // http请求
                 if (values) {
                     //etcd
-                    if (etcd_enabled == '展示Etcd配置') {
+                    if (etcd_enabled == '自定义配置') {
                         dataObj.etcd.enable = false
                     } else {
                         dataObj.etcd.enable = true
                     }
                     //存储
-                    if (storage_enabled == '展示存储') {
+                    if (storage_enabled == '自定义配置') {
                         dataObj.estorage.enable = false
                         dataObj.estorage.RWX.enable = false
                         dataObj.estorage.RWO.enable = false
@@ -172,29 +172,28 @@ export default class ClusterLink extends PureComponent {
                         dataObj.estorage.RWO.enable = true
                     }
                     //数据库
-                    if (database_enabled == '展示数据库配置') {
+                    if (database_enabled == '自定义配置') {
                         dataObj.database.enable = false
-                        dataObj.database.uiDatabase.enable = false
                         dataObj.database.regionDatabase.enable = false
                     } else {
                         dataObj.database.enable = true
-                        dataObj.database.uiDatabase.enable = true
                         dataObj.database.regionDatabase.enable = true
                     }
                     //镜像仓库
-                    if (image_enabled == '展示镜像仓库配置') {
+                    if (image_enabled == '自定义配置') {
                         dataObj.imageHub.enable = false
                     } else {
                         dataObj.imageHub.enable = true
                     }
                     //构建节点
-                    if (node_enabled == '展示构建节点配置') {
+                    if (node_enabled == '自定义配置') {
                         dataObj.nodesForChaos.enable = false
                     } else {
                         dataObj.nodesForChaos.enable = true
                     }
                     //表单参数
                     dataObj.gatewayIngressIPs = values.gatewayIngressIPs || routeData.gatewayIngressIPs
+                    dataObj.nodesForGateway.nodes = values.nodesForGateway || routeData.nodesForGateway.nodes
                     dataObj.imageHub.domain = values.domain || ''
                     dataObj.imageHub.namespace = values.namespace || ''
                     dataObj.imageHub.username = values.username || ''
@@ -203,18 +202,13 @@ export default class ClusterLink extends PureComponent {
                     dataObj.etcd.secretName = values.secretName || ''
                     dataObj.estorage.RWX.config.storageClassName = values.storageClassName1 || ''
                     dataObj.estorage.RWO.storageClassName = values.storageClassName2 || ''
-                    dataObj.database.uiDatabase.host = values.uiDatabase_host || ''
-                    dataObj.database.uiDatabase.port = values.uiDatabase_port || ''
-                    dataObj.database.uiDatabase.username = values.uiDatabase_username || ''
-                    dataObj.database.uiDatabase.password = values.uiDatabase_password || ''
-                    dataObj.database.uiDatabase.dbname = values.uiDatabase_dbname || ''
                     dataObj.database.regionDatabase.host = values.regionDatabase_host || ''
                     dataObj.database.regionDatabase.port = values.regionDatabase_port || ''
                     dataObj.database.regionDatabase.username = values.regionDatabase_username || ''
                     dataObj.database.regionDatabase.password = values.regionDatabase_password || ''
                     dataObj.database.regionDatabase.dbname = values.regionDatabase_dbname || ''
                     dataObj.nodesForChaos.nodes = values.nodesForChaos || []
-                    dataObj.nodesForGateway.nodes = values.nodesForGateway || routeData.nodesForGateway.nodes
+                    
                     //路由跳转
                     router.push({
                         pathname: `/enterprise/${eid}/provider/ACksterList/install`,
@@ -255,8 +249,8 @@ export default class ClusterLink extends PureComponent {
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
-                xs: { span: 4 },
-                sm: { span: 4 }
+                xs: { span: 3 },
+                sm: { span: 3 }
             },
             wrapperCol: {
                 xs: { span: 9 },
@@ -302,17 +296,17 @@ export default class ClusterLink extends PureComponent {
                         <Row className={styles.antd_row}>
                             <div className={styles.titleBox}>
                                 <div className={styles.title}>
-                                    <span className={styles.titleSpan}>自定义Etcd</span>
+                                    <span className={styles.titleSpan}>Etcd</span>
                                     <CheckableTag
-                                        checked={etcd_enabled !== '隐藏Etcd配置' || false}
+                                        checked={etcd_enabled !== '关闭配置' || false}
                                         onChange={() => {
                                             this.setState(state => {
                                                 return {
                                                     ...state,
                                                     etcd_enabled:
-                                                        etcd_enabled === '展示Etcd配置'
-                                                            ? '隐藏Etcd配置'
-                                                            : '展示Etcd配置'
+                                                        etcd_enabled === '自定义配置'
+                                                            ? '关闭配置'
+                                                            : '自定义配置'
                                                 };
                                             });
                                         }}
@@ -328,7 +322,7 @@ export default class ClusterLink extends PureComponent {
                                 </div>
                             </div>
                             {/* 配置项 */}
-                            {etcd_enabled !== '展示Etcd配置' ? (
+                            {etcd_enabled !== '自定义配置' ? (
                                 <div className={styles.config}>
                                     <FormItem {...formItemLayout} label="secret名称">
                                         {getFieldDecorator('secretName', {
@@ -368,24 +362,36 @@ export default class ClusterLink extends PureComponent {
                                     </FormItem>
                                 </div>
                             ) : (
-                                <div></div>
-                            )}
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    marginLeft: '36px',
+                                    fontSize: '14px',
+                                    paddingRight:'12px'
+                                  }}
+                                >
+                                  endpoints 地址为 ETCD集群的 endpoints 、&nbsp;
+                                  secret名称为通过 ETCD 集群的证书创建的 secret
+                                  资源，创建时需要指定和 Rainbond 集群相同的 namespace。
+                                </div>
+                              )}
                         </Row>
                         {/* 存储 */}
                         <Row className={styles.antd_row}>
                             <div className={styles.titleBox}>
                                 <div className={styles.title}>
-                                    <span className={styles.titleSpan}>自定义存储</span>
+                                    <span className={styles.titleSpan}>存储</span>
                                     <CheckableTag
-                                        checked={storage_enabled !== '隐藏存储' || false}
+                                        checked={storage_enabled !== '关闭配置' || false}
                                         onChange={() => {
                                             this.setState(state => {
                                                 return {
                                                     ...state,
                                                     storage_enabled:
-                                                        storage_enabled === '展示存储'
-                                                            ? '隐藏存储'
-                                                            : '展示存储'
+                                                        storage_enabled === '自定义配置'
+                                                            ? '关闭配置'
+                                                            : '自定义配置'
                                                 };
                                             });
                                         }}
@@ -400,7 +406,7 @@ export default class ClusterLink extends PureComponent {
                                     </CheckableTag>
                                 </div>
                             </div>
-                            {storage_enabled !== '展示存储' && (
+                            {storage_enabled !== '自定义配置' ? (
                                 <div className={styles.config}>
                                     <FormItem
                                         {...storageFormItemLayout}
@@ -445,23 +451,35 @@ export default class ClusterLink extends PureComponent {
                                         )}
                                     </FormItem>
                                 </div>
-                            )}
+                            ) : (
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    marginLeft: '36px',
+                                    fontSize: '14px',
+                                    paddingRight:'12px'
+                                  }}
+                                >
+                                  此项为外部共享存储的 storageClass 名称。
+                                </div>
+                              )}
                         </Row>
                         {/* 数据库 */}
                         <Row className={styles.antd_row}>
                             <div className={styles.titleBox}>
                                 <div className={styles.title}>
-                                    <span className={styles.titleSpan}>自定义数据库</span>
+                                    <span className={styles.titleSpan}>数据库</span>
                                     <CheckableTag
-                                        checked={database_enabled !== '隐藏数据库配置' || false}
+                                        checked={database_enabled !== '关闭配置' || false}
                                         onChange={() => {
                                             this.setState(state => {
                                                 return {
                                                     ...state,
                                                     database_enabled:
-                                                        database_enabled === '展示数据库配置'
-                                                            ? '隐藏数据库配置'
-                                                            : '展示数据库配置'
+                                                        database_enabled === '自定义配置'
+                                                            ? '关闭配置'
+                                                            : '自定义配置'
                                                 };
                                             });
                                         }}
@@ -476,18 +494,18 @@ export default class ClusterLink extends PureComponent {
                                     </CheckableTag>
                                 </div>
                             </div>
-                            {database_enabled !== '展示数据库配置' && (
+                            {database_enabled !== '自定义配置' ? (
                                 <div className={`${styles.config} ${styles.data_base}`}>
                                     {/* 连接地址 */}
                                     <div style={{ position: 'relative', width: '800px' }}>
-                                        <h3
+                                        {/* <h3
                                             style={{
                                                 position: 'absolute',
                                                 left: '120px',
                                                 top: '-35px'
                                             }}
                                         >
-                                            控制台数据库:
+                                            数据中心数据库:
                                         </h3>
                                         <h3
                                             style={{
@@ -497,7 +515,7 @@ export default class ClusterLink extends PureComponent {
                                             }}
                                         >
                                             数据中心数据库:
-                                        </h3>
+                                        </h3> */}
                                     </div>
                                     <FormItem
                                         {...formItemLayouts}
@@ -505,21 +523,6 @@ export default class ClusterLink extends PureComponent {
                                         style={{ display: 'flex' }}
                                     >
                                         {/* 控制台数据库 */}
-                                        {getFieldDecorator('uiDatabase_host', {
-                                            rules: [
-                                                {
-                                                    required: true,
-                                                    message: '请输入数据库连接地址'
-                                                }
-                                                // {
-                                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                                //   message: '请填写正确的域名格式，支持泛域名'
-                                                // }
-                                            ]
-                                            // initialValue: editInfo.domain_name
-                                        })(
-                                            <Input placeholder="请输入数据库连接地址" />
-                                        )}
                                         {getFieldDecorator('regionDatabase_host', {
                                             rules: [
                                                 {
@@ -543,21 +546,6 @@ export default class ClusterLink extends PureComponent {
                                         style={{ display: 'flex' }}
                                     >
                                         {/* 控制台数据库 */}
-                                        {getFieldDecorator('uiDatabase_port', {
-                                            rules: [
-                                                {
-                                                    required: true,
-                                                    message: '请输入连接端口'
-                                                }
-                                                // {
-                                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                                //   message: '请填写正确的域名格式，支持泛域名'
-                                                // }
-                                            ]
-                                            // initialValue: editInfo.domain_name
-                                        })(
-                                            <Input placeholder="请输入连接端口  例：3306" />
-                                        )}
                                         {getFieldDecorator('regionDatabase_port', {
                                             rules: [
                                                 {
@@ -581,21 +569,6 @@ export default class ClusterLink extends PureComponent {
                                         style={{ display: 'flex' }}
                                     >
                                         {/* 控制台数据库 */}
-                                        {getFieldDecorator('uiDatabase_username', {
-                                            rules: [
-                                                {
-                                                    required: true,
-                                                    message: '请输入用户名'
-                                                }
-                                                // {
-                                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                                //   message: '请填写正确的域名格式，支持泛域名'
-                                                // }
-                                            ]
-                                            // initialValue: editInfo.domain_name
-                                        })(
-                                            <Input placeholder="请输入用户名  例：root" />
-                                        )}
                                         {getFieldDecorator('regionDatabase_username', {
                                             rules: [
                                                 {
@@ -619,21 +592,6 @@ export default class ClusterLink extends PureComponent {
                                         style={{ display: 'flex' }}
                                     >
                                         {/* 控制台数据库 */}
-                                        {getFieldDecorator('uiDatabase_password', {
-                                            rules: [
-                                                {
-                                                    required: true,
-                                                    message: '请输入密码'
-                                                }
-                                                // {
-                                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                                //   message: '请填写正确的域名格式，支持泛域名'
-                                                // }
-                                            ]
-                                            // initialValue: editInfo.domain_name
-                                        })(
-                                            <Input placeholder="请输入密码" />
-                                        )}
                                         {getFieldDecorator('regionDatabase_password', {
                                             rules: [
                                                 {
@@ -657,21 +615,6 @@ export default class ClusterLink extends PureComponent {
                                         style={{ display: 'flex' }}
                                     >
                                         {/* 控制台数据库 */}
-                                        {getFieldDecorator('uiDatabase_dbname', {
-                                            rules: [
-                                                {
-                                                    required: true,
-                                                    message: '内容不能为空'
-                                                }
-                                                // {
-                                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                                //   message: '请填写正确的域名格式，支持泛域名'
-                                                // }
-                                            ]
-                                            // initialValue: editInfo.domain_name
-                                        })(
-                                            <Input placeholder="请输入数据库库名称  例：console" />
-                                        )}
                                         {getFieldDecorator('regionDatabase_dbname', {
                                             rules: [
                                                 {
@@ -689,23 +632,37 @@ export default class ClusterLink extends PureComponent {
                                         )}
                                     </FormItem>
                                 </div>
-                            )}
+                            ) : (
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    marginLeft: '36px',
+                                    fontSize: '14px',
+                                    paddingRight:'12px'
+                                  }}
+                                >
+                                  控制台数据库以及数据中心数据库，可以使用同一个，但要提前创建
+                                  “console” 以及 “region” 库， 如不使用 root
+                                  用户，需要做好用户授权。
+                                </div>
+                              )}
                         </Row>
                         {/* 镜像仓库 */}
                         <Row className={styles.antd_row}>
                             <div className={styles.titleBox}>
                                 <div className={styles.title}>
-                                    <span className={styles.titleSpan}>自定义镜像仓库</span>
+                                    <span className={styles.titleSpan}>镜像仓库</span>
                                     <CheckableTag
-                                        checked={image_enabled !== '隐藏镜像仓库配置' || false}
+                                        checked={image_enabled !== '关闭配置' || false}
                                         onChange={() => {
                                             this.setState(state => {
                                                 return {
                                                     ...state,
                                                     image_enabled:
-                                                        image_enabled === '展示镜像仓库配置'
-                                                            ? '隐藏镜像仓库配置'
-                                                            : '展示镜像仓库配置'
+                                                        image_enabled === '自定义配置'
+                                                            ? '关闭配置'
+                                                            : '自定义配置'
                                                 };
                                             });
                                         }}
@@ -720,7 +677,7 @@ export default class ClusterLink extends PureComponent {
                                     </CheckableTag>
                                 </div>
                             </div>
-                            {image_enabled !== '展示镜像仓库配置' && (
+                            {image_enabled !== '自定义配置' ? (
                                 <div className={styles.config}>
                                     <FormItem
                                         {...formItemLayouts}
@@ -783,23 +740,35 @@ export default class ClusterLink extends PureComponent {
                                         })(<Input placeholder="请输入密码" />)}
                                     </FormItem>
                                 </div>
-                            )}
+                            ) : (
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    marginLeft: '36px',
+                                    fontSize: '14px',
+                                    paddingRight:'12px'
+                                  }}
+                                >
+                                  镜像仓库主要用于存放，集群上部署的业务组件的镜像，仓库地址保证可以被正常推拉镜像即可。
+                                </div>
+                              )}
                         </Row>
                         {/* 构建节点 */}
                         <Row className={styles.antd_row}>
                             <div className={styles.titleBox}>
                                 <div className={styles.title}>
-                                    <span className={styles.titleSpan}>自定义构建节点</span>
+                                    <span className={styles.titleSpan}>构建节点</span>
                                     <CheckableTag
-                                        checked={node_enabled !== '隐藏构建节点配置' || false}
+                                        checked={node_enabled !== '关闭配置' || false}
                                         onChange={() => {
                                             this.setState(state => {
                                                 return {
                                                     ...state,
                                                     node_enabled:
-                                                        node_enabled === '展示构建节点配置'
-                                                            ? '隐藏构建节点配置'
-                                                            : '展示构建节点配置'
+                                                        node_enabled === '自定义配置'
+                                                            ? '关闭配置'
+                                                            : '自定义配置'
                                                 };
                                             });
                                         }}
@@ -814,7 +783,7 @@ export default class ClusterLink extends PureComponent {
                                     </CheckableTag>
                                 </div>
                             </div>
-                            {node_enabled !== '展示构建节点配置' && (
+                            {node_enabled !== '自定义配置' ? (
                                 <div className={styles.config}>
                                     <FormItem
                                         {...formItemLayouts}
@@ -836,7 +805,19 @@ export default class ClusterLink extends PureComponent {
                                         })(<Build />)}
                                     </FormItem>
                                 </div>
-                            )}
+                            ) : (
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    marginLeft: '36px',
+                                    fontSize: '14px',
+                                    paddingRight:'12px'
+                                  }}
+                                >
+                                  主要用于定义源码构建的操作节点，节点名称输入 kubernetes 集群的 node name 即可。
+                                </div>
+                              )}
                         </Row>
                         {/* 按钮 */}
                         <Row>

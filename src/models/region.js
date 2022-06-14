@@ -8,7 +8,8 @@ import {
   sethEnterpriseClusterTenantLimit,
   upEnterpriseCluster,
   fetchHelmToken,
-  fetchHelmCommand
+  fetchHelmCommand,
+  fetchHelmJoinStatus
 } from '../services/region';
 
 export default {
@@ -48,6 +49,12 @@ export default {
     },
     *fetchHelmCommand({ payload, callback }, { call }) {
       const response = yield call(fetchHelmCommand, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchHelmJoinStatus({ payload, callback }, { call }) {
+      const response = yield call(fetchHelmJoinStatus, payload);
       if (response && callback) {
         callback(response);
       }

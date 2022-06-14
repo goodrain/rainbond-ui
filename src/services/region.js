@@ -131,7 +131,28 @@ export async function fetchHelmCommand(param) {
         eid: param.eid,
         domain: param.domain,
         token: param.token,
-        data: param.data
+        enableHA: param.data.enableHA,
+        database: param.data.database,
+        estorage: param.data.estorage,
+        etcd: param.data.etcd,
+        gatewayIngressIPs: param.data.gatewayIngressIPs,
+        imageHub: param.data.imageHub,
+        nodesForChaos: param.data.nodesForChaos,
+        nodesForGateway: param.data.nodesForGateway,
+        appui: false
+      }
+    }
+  );
+}
+/* 通过helm生成命令对接控制台查看状态 */
+export async function fetchHelmJoinStatus(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/helmStatus`,
+    {
+      method: 'get',
+      params: {
+        eid: param.eid,
+        token: param.token,
       }
     }
   );
