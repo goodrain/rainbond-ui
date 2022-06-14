@@ -61,7 +61,6 @@ export async function fetchEnterpriseClusters(param) {
   );
 }
 
-
 export async function fetchEnterpriseClusterTenants(param, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_id}/tenants`,
@@ -113,47 +112,41 @@ export async function deleteEnterpriseCluster(params, handleError) {
   );
 }
 /* 获取HelmToken */
-export async function fetchHelmToken(param) {
-  return request(
-    `${apiconfig.baseUrl}/console/enterprise/helmtoken`,
-    {
-      method: 'get'
+export async function fetchHelmToken({ eid }) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/helmtoken`, {
+    method: 'get',
+    params: {
+      eid
     }
-  );
+  });
 }
 /* 通过helm生成命令安装集群 */
 export async function fetchHelmCommand(param) {
-  return request(
-    `${apiconfig.baseUrl}/enterprise-server/api/v1/helm/chart`,
-    {
-      method: 'post',
-      data: {
-        eid: param.eid,
-        domain: param.domain,
-        token: param.token,
-        enableHA: param.data.enableHA,
-        database: param.data.database,
-        estorage: param.data.estorage,
-        etcd: param.data.etcd,
-        gatewayIngressIPs: param.data.gatewayIngressIPs,
-        imageHub: param.data.imageHub,
-        nodesForChaos: param.data.nodesForChaos,
-        nodesForGateway: param.data.nodesForGateway,
-        appui: false
-      }
+  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/helm/chart`, {
+    method: 'post',
+    data: {
+      eid: param.eid,
+      domain: param.domain,
+      token: param.token,
+      enableHA: param.data.enableHA,
+      database: param.data.database,
+      estorage: param.data.estorage,
+      etcd: param.data.etcd,
+      gatewayIngressIPs: param.data.gatewayIngressIPs,
+      imageHub: param.data.imageHub,
+      nodesForChaos: param.data.nodesForChaos,
+      nodesForGateway: param.data.nodesForGateway,
+      appui: false
     }
-  );
+  });
 }
 /* 通过helm生成命令对接控制台查看状态 */
 export async function fetchHelmJoinStatus(param) {
-  return request(
-    `${apiconfig.baseUrl}/console/enterprise/helmStatus`,
-    {
-      method: 'get',
-      params: {
-        eid: param.eid,
-        token: param.token,
-      }
+  return request(`${apiconfig.baseUrl}/console/enterprise/helmStatus`, {
+    method: 'get',
+    params: {
+      eid: param.eid,
+      token: param.token
     }
-  );
+  });
 }
