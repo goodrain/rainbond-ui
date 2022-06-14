@@ -3,72 +3,72 @@
 import { Button, Card, Form, Input, Row, Steps } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import Qs from 'qs';
 import React, { PureComponent } from 'react';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
 import DAinput from '../component/node';
-import Build from '../component/build';
 import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
-var dataObj= {
-    enableHA: false,
-    gatewayIngressIPs: '',
-    imageHub: {
-        enable: false,
-        domain: '',
-        namespace: '',
-        username: '',
-        password: ''
+const dataObj = {
+  enableHA: false,
+  gatewayIngressIPs: '',
+  imageHub: {
+    enable: false,
+    domain: '',
+    namespace: '',
+    username: '',
+    password: ''
+  },
+  etcd: {
+    enable: false,
+    endpoints: [],
+    secretName: ''
+  },
+  estorage: {
+    enable: false,
+    RWX: {
+      enable: false,
+      config: {
+        storageClassName: ''
+      }
     },
-    etcd: {
-        enable: false,
-        endpoints: [],
-        secretName: ''
-    },
-    estorage: {
-        enable: false,
-        RWX: {
-            enable: false,
-            config:{
-                storageClassName: ''
-            }
-        },
-        RWO: {
-            enable: false,
-            storageClassName: ''
-        }    
-    },
-    database: {
-        enable: false,
-        uiDatabase: {
-            host: '',
-            port: '',
-            username: '',
-            password: '',
-            dbname: '',
-            enable: false
-        },
-        regionDatabase: {
-            host: '',
-            port: '',
-            username: '',
-            password: '',
-            dbname: '',
-            enable: false
-        }
-    },
-    nodesForChaos: {
-        enable: false,
-        nodes: []
-    },
-    nodesForGateway: {
-        enable: true,
-        nodes: []
+    RWO: {
+      enable: false,
+      storageClassName: ''
     }
-}
+  },
+  database: {
+    enable: false,
+    uiDatabase: {
+      host: '',
+      port: '',
+      username: '',
+      password: '',
+      dbname: '',
+      enable: false
+    },
+    regionDatabase: {
+      host: '',
+      port: '',
+      username: '',
+      password: '',
+      dbname: '',
+      enable: false
+    }
+  },
+  nodesForChaos: {
+    enable: false,
+    nodes: []
+  },
+  nodesForGateway: {
+    enable: true,
+    nodes: []
+  }
+};
 @Form.create()
 @connect(({ user, list, loading, global, index, region }) => ({
   user: user.currentUser,
@@ -81,15 +81,13 @@ var dataObj= {
   overviewInfo: index.overviewInfo,
   baseConfiguration: region.base_configuration
 }))
-
 export default class ClusterLink extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
-      adminer,
-      
+      adminer
     };
   }
   componentWillMount() {
@@ -117,9 +115,7 @@ export default class ClusterLink extends PureComponent {
     ];
     return steps;
   };
-  handleSubmit = e => {
-    console.log(e, '打印');
-  };
+  handleSubmit = e => {};
   // 下一步或者高级配置
   toLinkNext = value => {
     const { dispatch } = this.props;
@@ -143,37 +139,37 @@ export default class ClusterLink extends PureComponent {
       //   values.nodesForGateway = nodesForGateway;
       //   err = null;
       // }
-     
+
       if (err) return;
 
-      if(values){
-        dataObj.gatewayIngressIPs = values.gatewayIngressIPs || ''
+      if (values) {
+        dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
         // 镜像仓库
-        dataObj.imageHub.enable = true
-        dataObj.imageHub.domain = values.domain || ''
-        dataObj.imageHub.namespace = values.namespace || ''
-        dataObj.imageHub.username = values.username || ''
-        dataObj.imageHub.password = values.password || ''
-        dataObj.etcd.endpoints = values.endpoints || []
-        dataObj.etcd.secretName = values.secretName || ''
-        //存储
-        dataObj.estorage.enable = true
-        dataObj.estorage.RWX.enable = true
-        dataObj.estorage.RWO.enable = true
-        dataObj.estorage.RWX.config.storageClassName = values.storageClassName1 || ''
-        dataObj.estorage.RWO.storageClassName = values.storageClassName2 || ''
+        dataObj.imageHub.enable = true;
+        dataObj.imageHub.domain = values.domain || '';
+        dataObj.imageHub.namespace = values.namespace || '';
+        dataObj.imageHub.username = values.username || '';
+        dataObj.imageHub.password = values.password || '';
+        dataObj.etcd.endpoints = values.endpoints || [];
+        dataObj.etcd.secretName = values.secretName || '';
+        // 存储
+        dataObj.estorage.enable = true;
+        dataObj.estorage.RWX.enable = true;
+        dataObj.estorage.RWO.enable = true;
+        dataObj.estorage.RWX.config.storageClassName =
+          values.storageClassName1 || '';
+        dataObj.estorage.RWO.storageClassName = values.storageClassName2 || '';
         // 数据库
-        dataObj.database.enable = true
-        dataObj.database.regionDatabase.enable = true
-        dataObj.database.regionDatabase.host = values.regionDatabase_host || ''
-        dataObj.database.regionDatabase.port = values.regionDatabase_port || ''
-        dataObj.database.regionDatabase.username = values.regionDatabase_username || ''
-        dataObj.database.regionDatabase.password = values.regionDatabase_password || ''
-        dataObj.database.regionDatabase.dbname = values.regionDatabase_dbname || ''
-        //构建节点
-        dataObj.nodesForChaos.enable = true
-        dataObj.nodesForChaos.nodes = values.nodesForChaos || []
-        dataObj.nodesForGateway.nodes = values.nodesForGateway || []
+        dataObj.database.enable = true;
+        dataObj.database.regionDatabase.enable = true;
+        dataObj.database.regionDatabase.host = values.regionDatabase_host || '';
+        dataObj.database.regionDatabase.port = values.regionDatabase_port || '';
+        dataObj.database.regionDatabase.username =
+          values.regionDatabase_username || '';
+        dataObj.database.regionDatabase.password =
+          values.regionDatabase_password || '';
+        dataObj.database.regionDatabase.dbname =
+          values.regionDatabase_dbname || '';
       }
       // 存基本设置数据
       dispatch({
@@ -181,16 +177,21 @@ export default class ClusterLink extends PureComponent {
         payload: values
       });
     });
-    // 页面跳转
+    // 页面跳转高级配置
     if (value === 'advanced') {
       router.push({
         pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-        params:{data: dataObj}
+        search: Qs.stringify({ data: dataObj, name: 'ack' })
       });
     } else {
+      // 跳转下一步
       router.push({
         pathname: `/enterprise/${eid}/provider/ACksterList/install`,
-        params:{name:'one',data: dataObj}
+        search: Qs.stringify({
+          data: dataObj,
+          name: 'ack',
+          step: 'base'
+        })
       });
     }
   };
@@ -215,24 +216,24 @@ export default class ClusterLink extends PureComponent {
     };
     const storageFormItemLayout = {
       labelCol: {
-          xs: { span: 6 },
-          sm: { span: 6 }
+        xs: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
-          xs: { span: 7 },
-          sm: { span: 7 }
+        xs: { span: 7 },
+        sm: { span: 7 }
       }
-    }
+    };
     const formItemLayouts = {
       labelCol: {
-          xs: { span: 3 },
-          sm: { span: 3 }
+        xs: { span: 3 },
+        sm: { span: 3 }
       },
       wrapperCol: {
-          xs: { span: 6 },
-          sm: { span: 6 }
+        xs: { span: 6 },
+        sm: { span: 6 }
       }
-  };
+    };
 
     return (
       <PageHeaderLayout
@@ -258,10 +259,7 @@ export default class ClusterLink extends PureComponent {
                     入口访问IP
                   </span>
                 </div>
-                <FormItem
-                  {...formItemLayout}
-                  className={styles.antd_form}
-                >
+                <FormItem {...formItemLayout} className={styles.antd_form}>
                   {getFieldDecorator('gatewayIngressIPs', {
                     initialValue: gatewayIngressIPs || '',
                     rules: [
@@ -285,10 +283,7 @@ export default class ClusterLink extends PureComponent {
                     网关安装节点
                   </span>
                 </div>
-                <FormItem
-                  {...formItemLayout}
-                  className={styles.antd_form}
-                >
+                <FormItem {...formItemLayout} className={styles.antd_form}>
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
                       {
@@ -306,265 +301,208 @@ export default class ClusterLink extends PureComponent {
               </Row>
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
-                    <div className={styles.title}>
-                        <span className={styles.titleSpan}>存储</span>
-                    </div>
+                  <div className={styles.title}>
+                    <span className={styles.titleSpan}>NAS 存储</span>
+                  </div>
                 </div>
                 <div className={styles.config}>
-                <FormItem
+                  <FormItem
                     {...storageFormItemLayout}
                     label="RWX 所用存储 storageClass 名称"
-                >
+                  >
                     {getFieldDecorator('storageClassName1', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '请添加域名'
-                            }
-                        ]
-                        // initialValue: editInfo.domain_name
+                      rules: [
+                        {
+                          required: true,
+                          message: '请添加域名'
+                        }
+                      ]
+                      // initialValue: editInfo.domain_name
                     })(
-                        <Input placeholder="请输入存储名称  例：glusterfs-simple" />
+                      <Input placeholder="请输入存储名称  例：glusterfs-simple" />
                     )}
-                </FormItem>
-                <FormItem
+                  </FormItem>
+                  <FormItem
                     {...storageFormItemLayout}
                     label="RWO 所用存储 storageClass 名称"
-                >
+                  >
                     {getFieldDecorator('storageClassName2', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '请添加域名'
-                            }
-                        ]
-                        // initialValue: editInfo.domain_name
+                      rules: [
+                        {
+                          required: true,
+                          message: '请添加域名'
+                        }
+                      ]
+                      // initialValue: editInfo.domain_name
                     })(
-                        <Input placeholder="请输入存储名称  例：glusterfs-simple" />
+                      <Input placeholder="请输入存储名称  例：glusterfs-simple" />
                     )}
-                </FormItem>
+                  </FormItem>
                 </div>
               </Row>
               {/* 数据库 */}
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
-                    <div className={styles.title}>
-                        <span className={styles.titleSpan}>数据库</span>
-                    </div>
+                  <div className={styles.title}>
+                    <span className={styles.titleSpan}>RDS 数据库</span>
+                  </div>
                 </div>
                 <div className={styles.config}>
-                    {/* 连接地址 */}
-                    <FormItem
-                        {...formItemLayouts}
-                        label="连接地址"
-                    >
-                        {/* 控制台数据库 */}
-                        {getFieldDecorator('regionDatabase_host', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '请输入数据库连接地址'
-                                }
-                                // {
-                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                //   message: '请填写正确的域名格式，支持泛域名'
-                                // }
-                            ]
-                            // initialValue: editInfo.domain_name
-                        })(
-                            <Input placeholder="请输入数据库连接地址" />
-                        )}
-                    </FormItem>
-                    {/* 连接端口 */}
-                    <FormItem
-                        {...formItemLayouts}
-                        label="连接端口"
-                    >
-                        {/* 控制台数据库 */}
-                        {getFieldDecorator('regionDatabase_port', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '请输入连接端口'
-                                }
-                                // {
-                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                //   message: '请填写正确的域名格式，支持泛域名'
-                                // }
-                            ]
-                            // initialValue: editInfo.domain_name
-                        })(
-                            <Input placeholder="请输入连接端口  例：3306" />
-                        )}
-                    </FormItem>
-                    {/* 用户名 */}
-                    <FormItem
-                        {...formItemLayouts}
-                        label="用户名"
-                    >
-                        {/* 控制台数据库 */}
-                        {getFieldDecorator('regionDatabase_username', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '请输入用户名'
-                                }
-                                // {
-                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                //   message: '请填写正确的域名格式，支持泛域名'
-                                // }
-                            ]
-                            // initialValue: editInfo.domain_name
-                        })(
-                            <Input placeholder="请输入用户名  例：root" />
-                        )}
-                    </FormItem>
-                    {/* 密码 */}
-                    <FormItem
-                        {...formItemLayouts}
-                        label="密码"
-                    >
-                        {/* 控制台数据库 */}
-                        {getFieldDecorator('regionDatabase_password', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '请输入密码'
-                                }
-                                // {
-                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                //   message: '请填写正确的域名格式，支持泛域名'
-                                // }
-                            ]
-                            // initialValue: editInfo.domain_name
-                        })(
-                            <Input placeholder="请输入密码" />
-                        )}
-                    </FormItem>
-                    {/* 数据库名称 */}
-                    <FormItem
-                        {...formItemLayouts}
-                        label="数据库名称"
-                    >
-                        {/* 控制台数据库 */}
-                        {getFieldDecorator('regionDatabase_dbname', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '内容不能为空'
-                                }
-                                // {
-                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                //   message: '请填写正确的域名格式，支持泛域名'
-                                // }
-                            ]
-                            // initialValue: editInfo.domain_name
-                        })(
-                            <Input placeholder="请输入数据库库名称  例：region" />
-                        )}
-                    </FormItem>
+                  {/* 连接地址 */}
+                  <FormItem {...formItemLayouts} label="连接地址">
+                    {/* 控制台数据库 */}
+                    {getFieldDecorator('regionDatabase_host', {
+                      rules: [
+                        {
+                          required: true,
+                          message: '请输入数据库连接地址'
+                        }
+                        // {
+                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
+                        //   message: '请填写正确的域名格式，支持泛域名'
+                        // }
+                      ]
+                      // initialValue: editInfo.domain_name
+                    })(<Input placeholder="请输入数据库连接地址" />)}
+                  </FormItem>
+                  {/* 连接端口 */}
+                  <FormItem {...formItemLayouts} label="连接端口">
+                    {/* 控制台数据库 */}
+                    {getFieldDecorator('regionDatabase_port', {
+                      rules: [
+                        {
+                          required: true,
+                          message: '请输入连接端口'
+                        }
+                        // {
+                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
+                        //   message: '请填写正确的域名格式，支持泛域名'
+                        // }
+                      ]
+                      // initialValue: editInfo.domain_name
+                    })(<Input placeholder="请输入连接端口  例：3306" />)}
+                  </FormItem>
+                  {/* 用户名 */}
+                  <FormItem {...formItemLayouts} label="用户名">
+                    {/* 控制台数据库 */}
+                    {getFieldDecorator('regionDatabase_username', {
+                      rules: [
+                        {
+                          required: true,
+                          message: '请输入用户名'
+                        }
+                        // {
+                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
+                        //   message: '请填写正确的域名格式，支持泛域名'
+                        // }
+                      ]
+                      // initialValue: editInfo.domain_name
+                    })(<Input placeholder="请输入用户名  例：root" />)}
+                  </FormItem>
+                  {/* 密码 */}
+                  <FormItem {...formItemLayouts} label="密码">
+                    {/* 控制台数据库 */}
+                    {getFieldDecorator('regionDatabase_password', {
+                      rules: [
+                        {
+                          required: true,
+                          message: '请输入密码'
+                        }
+                        // {
+                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
+                        //   message: '请填写正确的域名格式，支持泛域名'
+                        // }
+                      ]
+                      // initialValue: editInfo.domain_name
+                    })(<Input placeholder="请输入密码" />)}
+                  </FormItem>
+                  {/* 数据库名称 */}
+                  <FormItem {...formItemLayouts} label="数据库名称">
+                    {/* 控制台数据库 */}
+                    {getFieldDecorator('regionDatabase_dbname', {
+                      rules: [
+                        {
+                          required: true,
+                          message: '内容不能为空'
+                        }
+                        // {
+                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
+                        //   message: '请填写正确的域名格式，支持泛域名'
+                        // }
+                      ]
+                      // initialValue: editInfo.domain_name
+                    })(<Input placeholder="请输入数据库库名称  例：region" />)}
+                  </FormItem>
                 </div>
               </Row>
-               {/* 镜像仓库 */}
-               <Row className={styles.antd_rows}>
+              {/* 镜像仓库 */}
+              <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
-                    <div className={styles.title}>
-                        <span className={styles.titleSpan}>镜像仓库</span>
-                    </div>
+                  <div className={styles.title}>
+                    <span className={styles.titleSpan}>容器镜像服务</span>
+                  </div>
                 </div>
                 <div className={styles.config}>
-                    <FormItem
-                        {...formItemLayouts}
-                        label="镜像仓库域名"
-                        className={styles.antd_form}
-                    >
-                        {getFieldDecorator('domain', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '请添加域名'
-                                }
-                                // {
-                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                //   message: '请填写正确的域名格式，支持泛域名'
-                                // }
-                            ]
-                            // initialValue: editInfo.domain_name
-                        })(<Input placeholder="请输入镜像仓库域名" />)}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayouts}
-                        label="命名空间"
-                        className={styles.antd_form}
-                    >
-                        {getFieldDecorator('namespace', {
-                            // initialValue: editInfo.domain_name
-                        })(<Input placeholder="请输入命名空间" />)}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayouts}
-                        label="用户名"
-                        className={styles.antd_form}
-                    >
-                        {getFieldDecorator('username', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '请输入用户名'
-                                }
-                            ]
-                            // initialValue: editInfo.domain_name
-                        })(
-                            <Input placeholder="请输入用户名" />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayouts}
-                        label="密码"
-                        className={styles.antd_form}
-                    >
-                        {getFieldDecorator('password', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '请输入密码'
-                                }
-                            ]
-                            // initialValue: editInfo.domain_name
-                        })(<Input placeholder="请输入密码" />)}
-                    </FormItem>
-                </div>
-               </Row>
-               {/* 构建节点 */}
-               <Row className={styles.antd_rows}>
-                <div className={styles.titleBox}>
-                    <div className={styles.title}>
-                        <span className={styles.titleSpan}>构建节点</span>
-                    </div>
-                </div>
-                <div className={styles.config}>
-                    <FormItem
-                        {...formItemLayouts}
-                        label="节点名称"
-                        className={styles.antd_form}
-                    >
-                        {getFieldDecorator('nodesForChaos', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '请添加域名'
-                                }
-                                // {
-                                //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                                //   message: '请填写正确的域名格式，支持泛域名'
-                                // }
-                            ]
-                            // initialValue: editInfo.domain_name
-                        })(<Build />)}
-                    </FormItem>
+                  <FormItem
+                    {...formItemLayouts}
+                    label="镜像仓库域名"
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('domain', {
+                      rules: [
+                        {
+                          required: true,
+                          message: '请添加域名'
+                        }
+                        // {
+                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
+                        //   message: '请填写正确的域名格式，支持泛域名'
+                        // }
+                      ]
+                      // initialValue: editInfo.domain_name
+                    })(<Input placeholder="请输入镜像仓库域名" />)}
+                  </FormItem>
+                  <FormItem
+                    {...formItemLayouts}
+                    label="命名空间"
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('namespace', {
+                      // initialValue: editInfo.domain_name
+                    })(<Input placeholder="请输入命名空间" />)}
+                  </FormItem>
+                  <FormItem
+                    {...formItemLayouts}
+                    label="用户名"
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('username', {
+                      rules: [
+                        {
+                          required: true,
+                          message: '请输入用户名'
+                        }
+                      ]
+                      // initialValue: editInfo.domain_name
+                    })(<Input placeholder="请输入用户名" />)}
+                  </FormItem>
+                  <FormItem
+                    {...formItemLayouts}
+                    label="密码"
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('password', {
+                      rules: [
+                        {
+                          required: true,
+                          message: '请输入密码'
+                        }
+                      ]
+                      // initialValue: editInfo.domain_name
+                    })(<Input placeholder="请输入密码" />)}
+                  </FormItem>
                 </div>
               </Row>
-              {/* 按钮 */}
             </div>
             <Row>
               <FormItem className={styles.antd_row_btn}>

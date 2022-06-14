@@ -9,10 +9,10 @@ import {
   Dropdown,
   Form,
   Input,
+  Menu,
   Row,
   Steps,
-  Typography,
-  Menu
+  Typography
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -145,35 +145,29 @@ export default class EnterpriseClusters extends PureComponent {
       routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters`)
     );
   };
-  // 阿里云
-  toAckCloud = () => {
-    const { dispatch } = this.props;
+  handleInstallRegion = type => {
     const {
+      dispatch,
       match: {
         params: { eid }
       }
     } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/provider/Aliack`));
-  };
-  // 腾讯云
-  toTencentCloud = () => {
-    const { dispatch } = this.props;
-    const {
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/provider/TencentList`));
-  };
-  // 华为云
-  toHuaweiCloud = () => {
-    const { dispatch } = this.props;
-    const {
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/provider/HuaweiList`));
+    switch (type) {
+      case 'helm':
+        dispatch(routerRedux.push(`/enterprise/${eid}/provider/ACksterList`));
+        break;
+      case 'aliyun':
+        dispatch(routerRedux.push(`/enterprise/${eid}/provider/Aliack`));
+        break;
+      case 'tencent':
+        dispatch(routerRedux.push(`/enterprise/${eid}/provider/TencentList`));
+        break;
+      case 'huawei':
+        dispatch(routerRedux.push(`/enterprise/${eid}/provider/HuaweiList`));
+        break;
+      default:
+        break;
+    }
   };
   addClusterOK = () => {
     const { dispatch } = this.props;
@@ -366,24 +360,31 @@ export default class EnterpriseClusters extends PureComponent {
           {
             key: '1',
             label: (
-              <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://www.antgroup.com"
+              >
                 1st menu item
               </a>
-            ),
+            )
           },
           {
             key: '2',
             label: (
-              <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://www.aliyun.com"
+              >
                 2nd menu item
               </a>
-            ),
+            )
           }
         ]}
       />
-    )
-
-  }
+    );
+  };
   render() {
     const {
       addClusterShow,
@@ -620,7 +621,9 @@ export default class EnterpriseClusters extends PureComponent {
             <Col span={12}>
               <div
                 // onClick={() => this.toClusterList('custom')}
-                onClick={this.toAckCloud}
+                onClick={() => {
+                  this.handleInstallRegion('helm');
+                }}
                 className={styles.import}
               >
                 <div className={styles.importicon}>{kubernetesIcon}</div>
@@ -639,7 +642,12 @@ export default class EnterpriseClusters extends PureComponent {
           </Row>
           <Row style={{ display: 'flex', justifyContent: 'space-around' }}>
             <Col style={{ width: '33%' }}>
-              <div onClick={this.toAckCloud} className={styles.import}>
+              <div
+                onClick={() => {
+                  this.handleInstallRegion('aliyun');
+                }}
+                className={styles.import}
+              >
                 <div className={styles.importicon}>{aliIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>阿里云</h3>
@@ -648,7 +656,12 @@ export default class EnterpriseClusters extends PureComponent {
               </div>
             </Col>
             <Col style={{ width: '33%' }}>
-              <div onClick={this.toTencentCloud} className={styles.import}>
+              <div
+                onClick={() => {
+                  this.handleInstallRegion('tencent');
+                }}
+                className={styles.import}
+              >
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>腾讯云</h3>
@@ -657,7 +670,12 @@ export default class EnterpriseClusters extends PureComponent {
               </div>
             </Col>
             <Col style={{ width: '33%' }}>
-              <div onClick={this.toHuaweiCloud} className={styles.import}>
+              <div
+                onClick={() => {
+                  this.handleInstallRegion('huawei');
+                }}
+                className={styles.import}
+              >
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>华为云</h3>
