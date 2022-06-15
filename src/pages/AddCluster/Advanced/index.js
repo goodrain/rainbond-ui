@@ -117,9 +117,11 @@ export default class ClusterLink extends PureComponent {
         },
         estorage: {
           enable: false,
+          type: routeData.estorage.type,
           RWX: {
             enable: false,
             config: {
+              server: routeData.estorage.RWX.config.server,
               storageClassName: ''
             }
           },
@@ -251,6 +253,11 @@ export default class ClusterLink extends PureComponent {
         case 'ack':
           router.push({
             pathname: `/enterprise/${eid}/provider/Aliack`
+          });
+          break;
+        case 'huawei':
+          router.push({
+            pathname: `/enterprise/${eid}/provider/HuaweiList`
           });
           break;
         default:

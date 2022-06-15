@@ -30,11 +30,11 @@ const dataObj = {
   },
   estorage: {
     enable: false,
-    type:'aliyun',
+    type: 'aliyun',
     RWX: {
       enable: false,
       config: {
-        server:'',
+        server: '',
         storageClassName: ''
       }
     },
@@ -158,8 +158,7 @@ export default class ClusterLink extends PureComponent {
         dataObj.estorage.enable = true;
         dataObj.estorage.RWX.enable = true;
         dataObj.estorage.RWO.enable = true;
-        dataObj.estorage.RWX.config.server =
-          values.server || '';
+        dataObj.estorage.RWX.config.server = values.server || '';
         dataObj.estorage.RWO.storageClassName = values.storageClassName2 || '';
         // 数据库
         dataObj.database.enable = true;
@@ -258,7 +257,7 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    入口访问IP
+                    SLB 负载均衡
                   </span>
                 </div>
                 <FormItem {...formItemLayout} className={styles.antd_form}>
@@ -276,6 +275,7 @@ export default class ClusterLink extends PureComponent {
                     ]
                     // initialValue: editInfo.domain_name
                   })(<Input placeholder="请输入IP地址  例：1.2.3.4" />)}
+                  <div className={styles.desc}>占位符</div>
                 </FormItem>
               </Row>
               {/* 网关安装节点 */}
@@ -299,6 +299,7 @@ export default class ClusterLink extends PureComponent {
                     ]
                     // initialValue: editInfo.domain_name
                   })(<DAinput />)}
+                  <div className={styles.desc}>占位符</div>
                 </FormItem>
               </Row>
               <Row className={styles.antd_rows}>
@@ -308,10 +309,7 @@ export default class ClusterLink extends PureComponent {
                   </div>
                 </div>
                 <div className={styles.config}>
-                  <FormItem
-                    {...storageFormItemLayout}
-                    label="挂载点地址"
-                  >
+                  <FormItem {...storageFormItemLayout} label="挂载点地址">
                     {getFieldDecorator('server', {
                       rules: [
                         {
@@ -339,6 +337,7 @@ export default class ClusterLink extends PureComponent {
                     })(
                       <Input placeholder="请输入存储名称  例：glusterfs-simple" />
                     )}
+                    <div className={styles.desc}>占位符</div>
                   </FormItem>
                 </div>
               </Row>
@@ -434,6 +433,7 @@ export default class ClusterLink extends PureComponent {
                       ]
                       // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入数据库库名称  例：region" />)}
+                    <div className={styles.desc}>占位符</div>
                   </FormItem>
                 </div>
               </Row>
@@ -502,6 +502,7 @@ export default class ClusterLink extends PureComponent {
                       ]
                       // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入密码" />)}
+                    <div className={styles.desc}>占位符</div>
                   </FormItem>
                 </div>
               </Row>

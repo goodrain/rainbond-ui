@@ -146,6 +146,15 @@ export default class ClusterLink extends PureComponent {
               search: Qs.stringify({ name })
             });
           break;
+        case 'huawei':
+          if (step === 'base')
+            router.push(`/enterprise/${eid}/provider/HuaweiList`);
+          else
+            router.push({
+              pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
+              search: Qs.stringify({ name })
+            });
+          break;
         default:
           break;
       }
