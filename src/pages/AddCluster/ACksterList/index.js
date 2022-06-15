@@ -30,11 +30,11 @@ const dataObj = {
   },
   estorage: {
     enable: false,
-    type:'',
+    type: '',
     RWX: {
       enable: false,
       config: {
-        server:'',
+        server: '',
         storageClassName: ''
       }
     },
@@ -237,8 +237,8 @@ export default class ClusterLink extends PureComponent {
                     入口访问IP
                   </span>
                 </div>
-                <FormItem 
-                  {...formItemLayout} 
+                <FormItem
+                  {...formItemLayout}
                   className={styles.antd_form}
                   extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
                 >
@@ -251,6 +251,7 @@ export default class ClusterLink extends PureComponent {
                       }
                     ]
                   })(<Input placeholder="请输入IP地址  例：1.2.3.4" />)}
+                  {/* <div>入口IP请开放 80、443、6060、6443、7070、8443 端口。</div> */}
                 </FormItem>
               </Row>
               {/* 网关安装节点 */}
@@ -260,8 +261,8 @@ export default class ClusterLink extends PureComponent {
                     网关安装节点
                   </span>
                 </div>
-                <FormItem 
-                  {...formItemLayout} 
+                <FormItem
+                  {...formItemLayout}
                   className={styles.antd_form}
                   extra="网关安装的节点，可以安装到多个节点，实现高可用。"
                 >
