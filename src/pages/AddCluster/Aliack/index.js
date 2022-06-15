@@ -30,9 +30,11 @@ const dataObj = {
   },
   estorage: {
     enable: false,
+    type:'aliyun',
     RWX: {
       enable: false,
       config: {
+        server:'',
         storageClassName: ''
       }
     },
@@ -156,8 +158,8 @@ export default class ClusterLink extends PureComponent {
         dataObj.estorage.enable = true;
         dataObj.estorage.RWX.enable = true;
         dataObj.estorage.RWO.enable = true;
-        dataObj.estorage.RWX.config.storageClassName =
-          values.storageClassName1 || '';
+        dataObj.estorage.RWX.config.server =
+          values.server || '';
         dataObj.estorage.RWO.storageClassName = values.storageClassName2 || '';
         // 数据库
         dataObj.database.enable = true;
@@ -308,9 +310,9 @@ export default class ClusterLink extends PureComponent {
                 <div className={styles.config}>
                   <FormItem
                     {...storageFormItemLayout}
-                    label="RWX 所用存储 storageClass 名称"
+                    label="挂载点地址"
                   >
-                    {getFieldDecorator('storageClassName1', {
+                    {getFieldDecorator('server', {
                       rules: [
                         {
                           required: true,

@@ -30,9 +30,11 @@ const dataObj = {
   },
   estorage: {
     enable: false,
+    type:'',
     RWX: {
       enable: false,
       config: {
+        server:'',
         storageClassName: ''
       }
     },
@@ -235,7 +237,11 @@ export default class ClusterLink extends PureComponent {
                     入口访问IP
                   </span>
                 </div>
-                <FormItem {...formItemLayout} className={styles.antd_form}>
+                <FormItem 
+                  {...formItemLayout} 
+                  className={styles.antd_form}
+                  extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
+                >
                   {getFieldDecorator('gatewayIngressIPs', {
                     initialValue: gatewayIngressIPs || '',
                     rules: [
@@ -243,12 +249,7 @@ export default class ClusterLink extends PureComponent {
                         required: true,
                         message: '请填写IP地址'
                       }
-                      // {
-                      //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                      //   message: '请填写正确的域名格式，支持泛域名'
-                      // }
                     ]
-                    // initialValue: editInfo.domain_name
                   })(<Input placeholder="请输入IP地址  例：1.2.3.4" />)}
                 </FormItem>
               </Row>
@@ -259,19 +260,18 @@ export default class ClusterLink extends PureComponent {
                     网关安装节点
                   </span>
                 </div>
-                <FormItem {...formItemLayout} className={styles.antd_form}>
+                <FormItem 
+                  {...formItemLayout} 
+                  className={styles.antd_form}
+                  extra="网关安装的节点，可以安装到多个节点，实现高可用。"
+                >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
                       {
                         required: true,
                         message: '请添加域名'
                       }
-                      // {
-                      //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                      //   message: '请填写正确的域名格式，支持泛域名'
-                      // }
                     ]
-                    // initialValue: editInfo.domain_name
                   })(<DAinput />)}
                 </FormItem>
               </Row>

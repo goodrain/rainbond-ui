@@ -400,9 +400,7 @@ export default class ClusterLink extends PureComponent {
                     paddingRight: '12px'
                   }}
                 >
-                  endpoints 地址为 ETCD集群的 endpoints 、&nbsp;
-                  secret名称为通过 ETCD 集群的证书创建的 secret
-                  资源，创建时需要指定和 Rainbond 集群相同的 namespace。
+                  设置外部独立的ETCD服务的访问地址。
                 </div>
               )}
             </Row>
@@ -491,7 +489,7 @@ export default class ClusterLink extends PureComponent {
                       paddingRight: '12px'
                     }}
                   >
-                    此项为外部共享存储的 storageClass 名称。
+                    设置外部共享存储的StorageClass。
                   </div>
                 )}
               </Row>
@@ -529,26 +527,6 @@ export default class ClusterLink extends PureComponent {
                 {database_enabled !== '自定义配置' ? (
                   <div className={`${styles.config} ${styles.data_base}`}>
                     {/* 连接地址 */}
-                    <div style={{ position: 'relative', width: '800px' }}>
-                      {/* <h3
-                               style={{
-                                   position: 'absolute',
-                                   left: '120px',
-                                   top: '-35px'
-                               }}
-                           >
-                               数据中心数据库:
-                           </h3>
-                           <h3
-                               style={{
-                                   position: 'absolute',
-                                   right: '212px',
-                                   top: '-35px'
-                               }}
-                           >
-                               数据中心数据库:
-                           </h3> */}
-                    </div>
                     <FormItem
                       {...formItemLayouts}
                       label="连接地址"
@@ -666,9 +644,7 @@ export default class ClusterLink extends PureComponent {
                       paddingRight: '12px'
                     }}
                   >
-                    控制台数据库以及数据中心数据库，可以使用同一个，但要提前创建
-                    “console” 以及 “region” 库， 如不使用 root
-                    用户，需要做好用户授权。
+                    设置外部独立Mysql数据库服务地址。
                   </div>
                 )}
               </Row>
@@ -774,7 +750,7 @@ export default class ClusterLink extends PureComponent {
                       paddingRight: '12px'
                     }}
                   >
-                    镜像仓库主要用于存放，集群上部署的业务组件的镜像，仓库地址保证可以被正常推拉镜像即可。
+                    设置外部独立容器镜像仓库地址。
                   </div>
                 )}
               </Row>
@@ -840,8 +816,7 @@ export default class ClusterLink extends PureComponent {
                     paddingRight: '12px'
                   }}
                 >
-                  主要用于定义源码构建的操作节点，节点名称输入 kubernetes 集群的
-                  node name 即可。
+                  设置源码构建的节点，节点名是kubernetes的Nodename。
                 </div>
               )}
             </Row>
