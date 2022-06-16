@@ -15,7 +15,6 @@ class DAinput extends Component {
     const {
       baseConfiguration: { nodesForGateway }
     } = this.props;
-    console.log(nodesForGateway, 'nodesForGateway12345');
     this.state = {
       values:
         nodesForGateway && nodesForGateway.length > 0
