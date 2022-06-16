@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
 import { Button, Card, Form, Input, Row, Steps } from 'antd';
@@ -120,7 +121,6 @@ export default class ClusterLink extends PureComponent {
   handleSubmit = e => {};
   // 下一步或者高级配置
   toLinkNext = value => {
-    const { dispatch } = this.props;
     const {
       match: {
         params: { eid }
@@ -129,21 +129,7 @@ export default class ClusterLink extends PureComponent {
 
     // 获取表单的值
     this.props.form.validateFields((err, values) => {
-      // const {
-      //   baseConfiguration: { nodesForGateway }
-      // } = this.props;
-      // if (
-      //   values &&
-      //   (!values.nodesForGateway || values.nodesForGateway.length === 0) &&
-      //   nodesForGateway &&
-      //   nodesForGateway.length > 0
-      // ) {
-      //   values.nodesForGateway = nodesForGateway;
-      //   err = null;
-      // }
-
       if (err) return;
-
       if (values) {
         dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
         dataObj.imageHub.domain = values.domain || '';
@@ -170,30 +156,50 @@ export default class ClusterLink extends PureComponent {
           values.regionDatabase_dbname || '';
         dataObj.nodesForChaos.nodes = values.nodesForChaos || [];
         dataObj.nodesForGateway.nodes = values.nodesForGateway || [];
+        // 页面跳转高级配置
+        if (value === 'advanced') {
+          router.push({
+            pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
+            search: Qs.stringify({
+              data: dataObj,
+              name: 'helm'
+            })
+          });
+        } else {
+          // 跳转下一步
+          router.push({
+            pathname: `/enterprise/${eid}/provider/ACksterList/install`,
+            search: Qs.stringify({
+              data: dataObj,
+              name: 'helm',
+              step: 'base'
+            })
+          });
+        }
       }
     });
-    // 页面跳转高级配置
-    if (value === 'advanced') {
-      router.push({
-        pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-        search: Qs.stringify({
-          data: dataObj,
-          name: 'helm'
-        })
+  };
+  // 网关校验
+  handleValidatorsGateway = (_, val, callback) => {
+    let isPass = false;
+    if (val && val.length > 0) {
+      val.some(item => {
+        if (item.externalIP && item.internalIP && item.name) {
+          isPass = true;
+        } else {
+          isPass = false;
+          return true;
+        }
       });
+      if (isPass) {
+        callback();
+      } else {
+        callback(new Error('需填写完整的网关安装节点'));
+      }
     } else {
-      // 跳转下一步
-      router.push({
-        pathname: `/enterprise/${eid}/provider/ACksterList/install`,
-        search: Qs.stringify({
-          data: dataObj,
-          name: 'helm',
-          step: 'base'
-        })
-      });
+      callback();
     }
   };
-
   render() {
     const {
       match: {
@@ -233,7 +239,7 @@ export default class ClusterLink extends PureComponent {
               {/* 入口IP */}
               <Row className={styles.antd_row}>
                 <div>
-                  <span style={{ fontWeight: 'bold', fontSize: '16px', }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                     入口访问IP:
                   </span>
                 </div>
@@ -248,10 +254,13 @@ export default class ClusterLink extends PureComponent {
                       {
                         required: true,
                         message: '请填写IP地址'
+                      },
+                      {
+                        pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
+                        message: '请填写正确的IP地址'
                       }
                     ]
                   })(<Input placeholder="请输入IP地址  例：1.2.3.4" />)}
-                  {/* <div>入口IP请开放 80、443、6060、6443、7070、8443 端口。</div> */}
                 </FormItem>
               </Row>
               {/* 网关安装节点 */}
@@ -268,9 +277,9 @@ export default class ClusterLink extends PureComponent {
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
+                      { required: true, message: '请填写网关安装节点' },
                       {
-                        required: true,
-                        message: '请添加域名'
+                        validator: this.handleValidatorsGateway
                       }
                     ]
                   })(<DAinput />)}
