@@ -233,8 +233,8 @@ export default class ClusterLink extends PureComponent {
               {/* 入口IP */}
               <Row className={styles.antd_row}>
                 <div>
-                  <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    入口访问IP
+                  <span style={{ fontWeight: 'bold', fontSize: '16px', }}>
+                    入口访问IP:
                   </span>
                 </div>
                 <FormItem
@@ -258,7 +258,7 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    网关安装节点
+                    网关安装节点:
                   </span>
                 </div>
                 <FormItem

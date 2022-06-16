@@ -2,7 +2,7 @@
 .antd_row {
   display: flex;
   border-bottom: 1px dashed #e4e4e4;
-  margin-bottom: 30px;
+  // margin-bottom: 30px;
   // align-items: center;
   padding: 36px 12px;
   // 标题
@@ -12,7 +12,7 @@
     & > span {
       display: inline-block;
       // border: 1px solid #c1c4c5;
-      padding: 0px, 12px;
+      padding: 6px 0px;
     }
   }
   // 表单
@@ -22,6 +22,9 @@
   :global {
     .ant-form-item {
       margin-bottom: 0px !important;
+    }
+    .ant-form-extra {
+      width: 600px;
     }
   }
 }
@@ -40,9 +43,9 @@
 
 //ack
 .antd_rows {
-  display: flex;
+  // display: flex;
   border-bottom: 1px dashed #e4e4e4;
-  padding: 36px 12px;
+  padding: 36px 12px 12px 12px;
   //   标题和描述
   .titleBox {
     display: flex;
@@ -62,10 +65,16 @@
   }
   // // 配置项
   .config {
+    margin-left: 108px;
+    margin-top: 40px;
     flex: 1;
     // padding-top: 24px;
   }
 }
+
 .desc {
-  font-weight: bold;
+  width: 600px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-top: 2px;
+  // font-weight: bold;
 }

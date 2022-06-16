@@ -136,6 +136,7 @@ export async function fetchHelmCommand(param) {
       imageHub: param.data.imageHub,
       nodesForChaos: param.data.nodesForChaos,
       nodesForGateway: param.data.nodesForGateway,
+      DockingType:param.data.type,
       appui: false
     }
   });

@@ -9,6 +9,7 @@
 import { Button, Card, Form, Input, Row, Steps, Tag } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import { color } from 'echarts';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
 import router from 'umi/router';
@@ -117,7 +118,6 @@ export default class ClusterLink extends PureComponent {
         },
         estorage: {
           enable: false,
-          type: routeData.estorage.type,
           RWX: {
             enable: false,
             config: {
@@ -130,6 +130,7 @@ export default class ClusterLink extends PureComponent {
             storageClassName: ''
           }
         },
+        type: routeData.type,
         database: {
           enable: false,
           uiDatabase: {
@@ -399,20 +400,14 @@ export default class ClusterLink extends PureComponent {
                 </div>
               ) : (
                 <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginLeft: '36px',
-                    fontSize: '14px',
-                    paddingRight: '12px'
-                  }}
+                  className={styles.desc}
                 >
                   设置外部独立的ETCD服务的访问地址。
                 </div>
               )}
             </Row>
             {/* 存储 */}
-            {name !== 'ack' && (
+            {(name !== 'ack' && name !== 'huawei') && (
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
@@ -488,13 +483,7 @@ export default class ClusterLink extends PureComponent {
                   </div>
                 ) : (
                   <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginLeft: '36px',
-                      fontSize: '14px',
-                      paddingRight: '12px'
-                    }}
+                    className={styles.desc}
                   >
                     设置外部共享存储的StorageClass。
                   </div>
@@ -502,7 +491,7 @@ export default class ClusterLink extends PureComponent {
               </Row>
             )}
             {/* 数据库 */}
-            {name !== 'ack' && (
+            {(name !== 'ack' && name !== 'huawei') && (
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
@@ -643,13 +632,7 @@ export default class ClusterLink extends PureComponent {
                   </div>
                 ) : (
                   <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginLeft: '36px',
-                      fontSize: '14px',
-                      paddingRight: '12px'
-                    }}
+                    className={styles.desc}
                   >
                     设置外部独立Mysql数据库服务地址。
                   </div>
@@ -657,7 +640,7 @@ export default class ClusterLink extends PureComponent {
               </Row>
             )}
             {/* 镜像仓库 */}
-            {name !== 'ack' && (
+            {(name !== 'ack' && name !== 'huawei') && (
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
@@ -749,13 +732,7 @@ export default class ClusterLink extends PureComponent {
                   </div>
                 ) : (
                   <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginLeft: '36px',
-                      fontSize: '14px',
-                      paddingRight: '12px'
-                    }}
+                    className={styles.desc}
                   >
                     设置外部独立容器镜像仓库地址。
                   </div>
@@ -815,13 +792,7 @@ export default class ClusterLink extends PureComponent {
                 </div>
               ) : (
                 <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginLeft: '36px',
-                    fontSize: '14px',
-                    paddingRight: '12px'
-                  }}
+                  className={styles.desc}
                 >
                   设置源码构建的节点，节点名是kubernetes的Nodename。
                 </div>

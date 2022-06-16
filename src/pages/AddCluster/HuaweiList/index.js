@@ -14,7 +14,7 @@ import styles from './index.less';
 const FormItem = Form.Item;
 const { Step } = Steps;
 const dataObj = {
-  enableHA: false,
+  enableHA: true,
   gatewayIngressIPs: '',
   imageHub: {
     enable: false,
@@ -30,7 +30,6 @@ const dataObj = {
   },
   estorage: {
     enable: false,
-    type: 'aliyun',
     RWX: {
       enable: false,
       config: {
@@ -41,8 +40,14 @@ const dataObj = {
     RWO: {
       enable: false,
       storageClassName: ''
+    },
+    NFS:{
+      enable: false,
+      server:'',
+      path:''
     }
   },
+  type: 'nfs',
   database: {
     enable: false,
     uiDatabase: {
@@ -156,10 +161,9 @@ export default class ClusterLink extends PureComponent {
         dataObj.etcd.secretName = values.secretName || '';
         // 存储
         dataObj.estorage.enable = true;
-        dataObj.estorage.RWX.enable = true;
-        dataObj.estorage.RWO.enable = true;
-        dataObj.estorage.RWX.config.server = values.server || '';
-        dataObj.estorage.RWO.storageClassName = values.storageClassName2 || '';
+        dataObj.estorage.NFS.enable = true;
+        dataObj.estorage.NFS.server = values.server || '';
+        dataObj.estorage.NFS.path = values.path || '';
         // 数据库
         dataObj.database.enable = true;
         dataObj.database.regionDatabase.enable = true;
@@ -217,8 +221,8 @@ export default class ClusterLink extends PureComponent {
     };
     const storageFormItemLayout = {
       labelCol: {
-        xs: { span: 6 },
-        sm: { span: 6 }
+        xs: { span: 3 },
+        sm: { span: 3 }
       },
       wrapperCol: {
         xs: { span: 7 },
@@ -257,10 +261,14 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    ELB 负载均衡
+                    ELB 负载均衡:
                   </span>
                 </div>
-                <FormItem {...formItemLayout} className={styles.antd_form}>
+                <FormItem 
+                  {...formItemLayout} 
+                  className={styles.antd_form}
+                  extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
+                >
                   {getFieldDecorator('gatewayIngressIPs', {
                     initialValue: gatewayIngressIPs || '',
                     rules: [
@@ -268,45 +276,38 @@ export default class ClusterLink extends PureComponent {
                         required: true,
                         message: '请填写IP地址'
                       }
-                      // {
-                      //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                      //   message: '请填写正确的域名格式，支持泛域名'
-                      // }
                     ]
-                    // initialValue: editInfo.domain_name
                   })(<Input placeholder="请输入IP地址  例：1.2.3.4" />)}
-                  <div className={styles.desc}>占位符</div>
                 </FormItem>
               </Row>
               {/* 网关安装节点 */}
               <Row className={styles.antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    网关安装节点
+                    网关安装节点:
                   </span>
                 </div>
-                <FormItem {...formItemLayout} className={styles.antd_form}>
+                <FormItem 
+                  {...formItemLayout} 
+                  className={styles.antd_form}
+                  extra="网关安装的节点，可以安装到多个节点，实现高可用。"
+                >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
                       {
                         required: true,
                         message: '请添加域名'
                       }
-                      // {
-                      //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                      //   message: '请填写正确的域名格式，支持泛域名'
-                      // }
                     ]
-                    // initialValue: editInfo.domain_name
                   })(<DAinput />)}
-                  <div className={styles.desc}>占位符</div>
                 </FormItem>
               </Row>
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}>SFS 存储</span>
+                    <span className={styles.titleSpan}>SFS 存储:</span>
                   </div>
+                  <div className={styles.desc}>设置外部共享存储的StorageClass。</div>
                 </div>
                 <div className={styles.config}>
                   <FormItem {...storageFormItemLayout} label="挂载点地址">
@@ -317,27 +318,25 @@ export default class ClusterLink extends PureComponent {
                           message: '请添加域名'
                         }
                       ]
-                      // initialValue: editInfo.domain_name
                     })(
                       <Input placeholder="请输入存储名称  例：glusterfs-simple" />
                     )}
                   </FormItem>
                   <FormItem
                     {...storageFormItemLayout}
-                    label="RWO 所用存储 storageClass 名称"
+                    label="挂载点路径"
                   >
-                    {getFieldDecorator('storageClassName2', {
+                    {getFieldDecorator('path', {
                       rules: [
                         {
                           required: true,
                           message: '请添加域名'
                         }
                       ]
-                      // initialValue: editInfo.domain_name
                     })(
                       <Input placeholder="请输入存储名称  例：glusterfs-simple" />
                     )}
-                    <div className={styles.desc}>占位符</div>
+                    
                   </FormItem>
                 </div>
               </Row>
@@ -347,6 +346,7 @@ export default class ClusterLink extends PureComponent {
                   <div className={styles.title}>
                     <span className={styles.titleSpan}>RDS 数据库</span>
                   </div>
+                  <div className={styles.desc}>设置外部独立Mysql数据库服务地址。</div>
                 </div>
                 <div className={styles.config}>
                   {/* 连接地址 */}
@@ -358,12 +358,7 @@ export default class ClusterLink extends PureComponent {
                           required: true,
                           message: '请输入数据库连接地址'
                         }
-                        // {
-                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                        //   message: '请填写正确的域名格式，支持泛域名'
-                        // }
                       ]
-                      // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入数据库连接地址" />)}
                   </FormItem>
                   {/* 连接端口 */}
@@ -375,12 +370,7 @@ export default class ClusterLink extends PureComponent {
                           required: true,
                           message: '请输入连接端口'
                         }
-                        // {
-                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                        //   message: '请填写正确的域名格式，支持泛域名'
-                        // }
                       ]
-                      // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入连接端口  例：3306" />)}
                   </FormItem>
                   {/* 用户名 */}
@@ -392,12 +382,7 @@ export default class ClusterLink extends PureComponent {
                           required: true,
                           message: '请输入用户名'
                         }
-                        // {
-                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                        //   message: '请填写正确的域名格式，支持泛域名'
-                        // }
                       ]
-                      // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入用户名  例：root" />)}
                   </FormItem>
                   {/* 密码 */}
@@ -409,12 +394,7 @@ export default class ClusterLink extends PureComponent {
                           required: true,
                           message: '请输入密码'
                         }
-                        // {
-                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                        //   message: '请填写正确的域名格式，支持泛域名'
-                        // }
                       ]
-                      // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入密码" />)}
                   </FormItem>
                   {/* 数据库名称 */}
@@ -426,14 +406,9 @@ export default class ClusterLink extends PureComponent {
                           required: true,
                           message: '内容不能为空'
                         }
-                        // {
-                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                        //   message: '请填写正确的域名格式，支持泛域名'
-                        // }
                       ]
-                      // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入数据库库名称  例：region" />)}
-                    <div className={styles.desc}>占位符</div>
+                    
                   </FormItem>
                 </div>
               </Row>
@@ -443,6 +418,7 @@ export default class ClusterLink extends PureComponent {
                   <div className={styles.title}>
                     <span className={styles.titleSpan}>容器镜像服务</span>
                   </div>
+                  <div className={styles.desc}>设置外部独立容器镜像仓库地址。</div>
                 </div>
                 <div className={styles.config}>
                   <FormItem
@@ -456,12 +432,7 @@ export default class ClusterLink extends PureComponent {
                           required: true,
                           message: '请添加域名'
                         }
-                        // {
-                        //   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                        //   message: '请填写正确的域名格式，支持泛域名'
-                        // }
                       ]
-                      // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入镜像仓库域名" />)}
                   </FormItem>
                   <FormItem
@@ -470,7 +441,6 @@ export default class ClusterLink extends PureComponent {
                     className={styles.antd_form}
                   >
                     {getFieldDecorator('namespace', {
-                      // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入命名空间" />)}
                   </FormItem>
                   <FormItem
@@ -485,7 +455,6 @@ export default class ClusterLink extends PureComponent {
                           message: '请输入用户名'
                         }
                       ]
-                      // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入用户名" />)}
                   </FormItem>
                   <FormItem
@@ -500,9 +469,7 @@ export default class ClusterLink extends PureComponent {
                           message: '请输入密码'
                         }
                       ]
-                      // initialValue: editInfo.domain_name
                     })(<Input placeholder="请输入密码" />)}
-                    <div className={styles.desc}>占位符</div>
                   </FormItem>
                 </div>
               </Row>
