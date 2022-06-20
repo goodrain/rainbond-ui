@@ -42,6 +42,11 @@ const dataObj = {
     RWO: {
       enable: false,
       storageClassName: ''
+    },
+    NFS: {
+      enable:false,
+      server:'',
+      path:''
     }
   },
   database: {
