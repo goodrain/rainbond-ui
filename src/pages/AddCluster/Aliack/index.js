@@ -15,7 +15,7 @@ import styles from './index.less';
 const FormItem = Form.Item;
 const { Step } = Steps;
 const dataObj = {
-  enableHA: true,
+  enableHA: false,
   gatewayIngressIPs: '',
   imageHub: {
     enable: false,
@@ -41,6 +41,11 @@ const dataObj = {
     RWO: {
       enable: false,
       storageClassName: ''
+    },
+    NFS: {
+      enable: false,
+      server: '',
+      path: ''
     }
   },
   type: 'aliyun',
