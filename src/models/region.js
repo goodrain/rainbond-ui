@@ -121,7 +121,6 @@ export default {
     // 修改基本设置数据
     saveBaseConfiguration(state, action) {
       const { payload } = action;
-      console.log(payload, 'payload');
       if (payload) {
         window.sessionStorage.setItem(
           'base_configuration',

@@ -138,6 +138,7 @@ export default class ClusterLink extends PureComponent {
       if (err) return;
       if (values) {
         dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
+        dataObj.nodesForGateway.nodes = values.nodesForGateway || '';
         // 镜像仓库
         dataObj.imageHub.enable = true;
         dataObj.imageHub.domain = values.domain || '';
@@ -163,6 +164,9 @@ export default class ClusterLink extends PureComponent {
           values.regionDatabase_password || '';
         dataObj.database.regionDatabase.dbname =
           values.regionDatabase_dbname || '';
+        dataObj.nodesForChaos.nodes = [];
+        dataObj.etcd.endpoints = values.endpoints || [];
+        dataObj.etcd.secretName = values.secretName || '';
         // 页面跳转高级配置
         if (value === 'advanced') {
           router.push({
@@ -171,6 +175,7 @@ export default class ClusterLink extends PureComponent {
           });
         } else {
           // 跳转下一步
+          console.log(dataObj,'dataObj')
           router.push({
             pathname: `/enterprise/${eid}/provider/ACksterList/install`,
             search: Qs.stringify({
