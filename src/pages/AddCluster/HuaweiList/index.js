@@ -14,7 +14,7 @@ import styles from './index.less';
 const FormItem = Form.Item;
 const { Step } = Steps;
 const dataObj = {
-  enableHA: true,
+  enableHA: false,
   gatewayIngressIPs: '',
   imageHub: {
     enable: false,
@@ -41,10 +41,10 @@ const dataObj = {
       enable: false,
       storageClassName: ''
     },
-    NFS:{
+    NFS: {
       enable: false,
-      server:'',
-      path:''
+      server: '',
+      path: ''
     }
   },
   type: 'nfs',
@@ -175,6 +175,23 @@ export default class ClusterLink extends PureComponent {
           values.regionDatabase_password || '';
         dataObj.database.regionDatabase.dbname =
           values.regionDatabase_dbname || '';
+        // 页面跳转高级配置
+        if (value === 'advanced') {
+          router.push({
+            pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
+            search: Qs.stringify({ data: dataObj, name: 'huawei' })
+          });
+        } else {
+          // 跳转下一步
+          router.push({
+            pathname: `/enterprise/${eid}/provider/ACksterList/install`,
+            search: Qs.stringify({
+              data: dataObj,
+              name: 'huawei',
+              step: 'base'
+            })
+          });
+        }
       }
       // 存基本设置数据
       dispatch({
@@ -182,25 +199,28 @@ export default class ClusterLink extends PureComponent {
         payload: values
       });
     });
-    // 页面跳转高级配置
-    if (value === 'advanced') {
-      router.push({
-        pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-        search: Qs.stringify({ data: dataObj, name: 'huawei' })
+  };
+  // 网关校验
+  handleValidatorsGateway = (_, val, callback) => {
+    let isPass = false;
+    if (val && val.length > 0) {
+      val.some(item => {
+        if (item.externalIP && item.internalIP && item.name) {
+          isPass = true;
+        } else {
+          isPass = false;
+          return true;
+        }
       });
+      if (isPass) {
+        callback();
+      } else {
+        callback(new Error('需填写完整的网关安装节点'));
+      }
     } else {
-      // 跳转下一步
-      router.push({
-        pathname: `/enterprise/${eid}/provider/ACksterList/install`,
-        search: Qs.stringify({
-          data: dataObj,
-          name: 'huawei',
-          step: 'base'
-        })
-      });
+      callback();
     }
   };
-
   render() {
     const {
       match: {
@@ -264,8 +284,8 @@ export default class ClusterLink extends PureComponent {
                     ELB 负载均衡:
                   </span>
                 </div>
-                <FormItem 
-                  {...formItemLayout} 
+                <FormItem
+                  {...formItemLayout}
                   className={styles.antd_form}
                   extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
                 >
@@ -277,7 +297,7 @@ export default class ClusterLink extends PureComponent {
                         message: '请填写IP地址'
                       }
                     ]
-                  })(<Input placeholder="请输入IP地址  例：1.2.3.4" />)}
+                  })(<Input placeholder="请填写IP地址  例：1.2.3.4" />)}
                 </FormItem>
               </Row>
               {/* 网关安装节点 */}
@@ -287,8 +307,8 @@ export default class ClusterLink extends PureComponent {
                     网关安装节点:
                   </span>
                 </div>
-                <FormItem 
-                  {...formItemLayout} 
+                <FormItem
+                  {...formItemLayout}
                   className={styles.antd_form}
                   extra="网关安装的节点，可以安装到多个节点，实现高可用。"
                 >
@@ -296,7 +316,10 @@ export default class ClusterLink extends PureComponent {
                     rules: [
                       {
                         required: true,
-                        message: '请添加域名'
+                        message: '请填写网关安装节点'
+                      },
+                      {
+                        validator: this.handleValidatorsGateway
                       }
                     ]
                   })(<DAinput />)}
@@ -307,7 +330,9 @@ export default class ClusterLink extends PureComponent {
                   <div className={styles.title}>
                     <span className={styles.titleSpan}>SFS 存储:</span>
                   </div>
-                  <div className={styles.desc}>设置外部共享存储的StorageClass。</div>
+                  <div className={styles.desc}>
+                    设置外部共享存储的StorageClass。
+                  </div>
                 </div>
                 <div className={styles.config}>
                   <FormItem {...storageFormItemLayout} label="挂载点地址">
@@ -315,28 +340,24 @@ export default class ClusterLink extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '请添加域名'
+                          message: '请填写挂载点地址'
                         }
                       ]
                     })(
-                      <Input placeholder="请输入存储名称  例：glusterfs-simple" />
+                      <Input placeholder="请填写挂载点地址  例：glusterfs-simple" />
                     )}
                   </FormItem>
-                  <FormItem
-                    {...storageFormItemLayout}
-                    label="挂载点路径"
-                  >
+                  <FormItem {...storageFormItemLayout} label="挂载点路径">
                     {getFieldDecorator('path', {
                       rules: [
                         {
                           required: true,
-                          message: '请添加域名'
+                          message: '请填写挂载点路径'
                         }
                       ]
                     })(
-                      <Input placeholder="请输入存储名称  例：glusterfs-simple" />
+                      <Input placeholder="请填写挂载点路径  例：glusterfs-simple" />
                     )}
-                    
                   </FormItem>
                 </div>
               </Row>
@@ -346,7 +367,9 @@ export default class ClusterLink extends PureComponent {
                   <div className={styles.title}>
                     <span className={styles.titleSpan}>RDS 数据库</span>
                   </div>
-                  <div className={styles.desc}>设置外部独立Mysql数据库服务地址。</div>
+                  <div className={styles.desc}>
+                    设置外部独立Mysql数据库服务地址。
+                  </div>
                 </div>
                 <div className={styles.config}>
                   {/* 连接地址 */}
@@ -356,10 +379,10 @@ export default class ClusterLink extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '请输入数据库连接地址'
+                          message: '请填写连接地址'
                         }
                       ]
-                    })(<Input placeholder="请输入数据库连接地址" />)}
+                    })(<Input placeholder="请填写数据库连接地址" />)}
                   </FormItem>
                   {/* 连接端口 */}
                   <FormItem {...formItemLayouts} label="连接端口">
@@ -368,10 +391,10 @@ export default class ClusterLink extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '请输入连接端口'
+                          message: '请填写连接端口'
                         }
                       ]
-                    })(<Input placeholder="请输入连接端口  例：3306" />)}
+                    })(<Input placeholder="请填写连接端口  例：3306" />)}
                   </FormItem>
                   {/* 用户名 */}
                   <FormItem {...formItemLayouts} label="用户名">
@@ -380,10 +403,10 @@ export default class ClusterLink extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '请输入用户名'
+                          message: '请填写用户名'
                         }
                       ]
-                    })(<Input placeholder="请输入用户名  例：root" />)}
+                    })(<Input placeholder="请填写用户名  例：root" />)}
                   </FormItem>
                   {/* 密码 */}
                   <FormItem {...formItemLayouts} label="密码">
@@ -392,10 +415,10 @@ export default class ClusterLink extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '请输入密码'
+                          message: '请填写密码'
                         }
                       ]
-                    })(<Input placeholder="请输入密码" />)}
+                    })(<Input placeholder="请填写密码" />)}
                   </FormItem>
                   {/* 数据库名称 */}
                   <FormItem {...formItemLayouts} label="数据库名称">
@@ -404,11 +427,10 @@ export default class ClusterLink extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '内容不能为空'
+                          message: '请填写数据库名称'
                         }
                       ]
-                    })(<Input placeholder="请输入数据库库名称  例：region" />)}
-                    
+                    })(<Input placeholder="请填写数据库库名称  例：region" />)}
                   </FormItem>
                 </div>
               </Row>
@@ -418,7 +440,9 @@ export default class ClusterLink extends PureComponent {
                   <div className={styles.title}>
                     <span className={styles.titleSpan}>容器镜像服务</span>
                   </div>
-                  <div className={styles.desc}>设置外部独立容器镜像仓库地址。</div>
+                  <div className={styles.desc}>
+                    设置外部独立容器镜像仓库地址。
+                  </div>
                 </div>
                 <div className={styles.config}>
                   <FormItem
@@ -430,18 +454,19 @@ export default class ClusterLink extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '请添加域名'
+                          message: '请填写镜像仓库域名'
                         }
                       ]
-                    })(<Input placeholder="请输入镜像仓库域名" />)}
+                    })(<Input placeholder="请填写镜像仓库域名" />)}
                   </FormItem>
                   <FormItem
                     {...formItemLayouts}
                     label="命名空间"
                     className={styles.antd_form}
                   >
-                    {getFieldDecorator('namespace', {
-                    })(<Input placeholder="请输入命名空间" />)}
+                    {getFieldDecorator('namespace')(
+                      <Input placeholder="请填写命名空间" />
+                    )}
                   </FormItem>
                   <FormItem
                     {...formItemLayouts}
@@ -452,10 +477,10 @@ export default class ClusterLink extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '请输入用户名'
+                          message: '请填写用户名'
                         }
                       ]
-                    })(<Input placeholder="请输入用户名" />)}
+                    })(<Input placeholder="请填写用户名" />)}
                   </FormItem>
                   <FormItem
                     {...formItemLayouts}
@@ -466,10 +491,10 @@ export default class ClusterLink extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '请输入密码'
+                          message: '请填写密码'
                         }
                       ]
-                    })(<Input placeholder="请输入密码" />)}
+                    })(<Input placeholder="请填写密码" />)}
                   </FormItem>
                 </div>
               </Row>
