@@ -14,7 +14,7 @@ import styles from './index.less';
 const FormItem = Form.Item;
 const { Step } = Steps;
 const dataObj = {
-  enableHA: false,
+  enableHA: true,
   gatewayIngressIPs: '',
   imageHub: {
     enable: false,
