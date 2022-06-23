@@ -54,10 +54,6 @@ export default {
     '/data': {
       target: 'http://127.0.0.1:7070',
       changeOrigin: true
-    },
-    '/enterprise-server': {
-      target: 'http://127.0.0.1:8080',
-      changeOrigin: true
     }
   }
 };

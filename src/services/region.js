@@ -122,7 +122,7 @@ export async function fetchHelmToken({ eid }) {
 }
 /* 通过helm生成命令安装集群 */
 export async function fetchHelmCommand(param) {
-  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/helm/chart`, {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/helm/chart`, {
     method: 'post',
     data: {
       eid: param.eid,
