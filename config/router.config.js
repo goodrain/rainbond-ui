@@ -138,6 +138,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/importMessage',
+            component: './AddCluster/ImportMessage',
+            name: 'ImportMessage',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/provider/:provider/kclusters',
             component: './AddCluster/KClusterList',
             name: 'KClusterList',

@@ -1,0 +1,61 @@
+.importCard{
+    width: calc(100% - 120px);
+    padding:30px 0px;
+    border: 1px solid transparent;
+    .resource{
+        width: 86%;
+        padding: 16px;
+        .WorkLoads, .miscellaneous_assets{
+            h2{
+                width: 180px;
+                text-align: right;
+            }
+            .WorkLoads_value{            
+                padding: 24px;
+                .box{
+                    width: 100%;
+                    margin-bottom: 10px;
+                    display: flex;
+                    .leftKey{
+                        width: 200px;
+                        height: 30px;
+                        line-height: 30px;
+                        text-align: right;
+                        font-weight: bold;
+                    }
+                    .rightValue{
+                        width: calc(100% - 200px);
+                        display: flex;
+                        flex-flow: row wrap;
+                        justify-content: start;
+                        .value{
+                            width: 22%;
+                            margin-left: 12px;
+                            margin-bottom: 12px;
+                            text-align: center;
+                            height: 30px;
+                            line-height: 30px;
+                            background-color: chocolate;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .is_support{
+        width: 14%;
+        border-left: 1px solid #e3e3ee;
+        padding: 16px 16px 0px;
+        text-align: center;
+    }
+    :global {
+        .ant-collapse-content > .ant-collapse-content-box{
+            padding: 0px !important;
+        }
+        .ant-collapse-header{
+            font-size: 16px;
+            font-weight: bolder;
+        }
+    }
+}
+

@@ -151,3 +151,22 @@ export async function fetchHelmJoinStatus(param) {
     }
   });
 }
+/* 导入集群NameSpace */
+export async function fetchImportMessage(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/namespace`, {
+    method: 'get',
+    params: {
+      content: 'unmanaged'
+    }
+  });
+}
+/* 获取NameSpace下的资源 */ 
+export async function fetchNameSpaceResource(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/resource`, {
+    method: 'get',
+    params: {
+      content: 'unmanaged',
+      namespace: param.namespace
+    }
+  });
+}

@@ -9,7 +9,9 @@ import {
   upEnterpriseCluster,
   fetchHelmToken,
   fetchHelmCommand,
-  fetchHelmJoinStatus
+  fetchHelmJoinStatus,
+  fetchImportMessage,
+  fetchNameSpaceResource
 } from '../services/region';
 
 export default {
@@ -59,6 +61,18 @@ export default {
         callback(response);
       }
     },
+    *fetchImportMessage({ payload, callback }, { call }) {
+      const response = yield call(fetchImportMessage, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchNameSpaceResource({ payload, callback }, { call }) {
+      const response = yield call(fetchNameSpaceResource, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchEnterpriseClusters({ payload, callback }, { call }) {
       const response = yield call(fetchEnterpriseClusters, payload);
       if (response && callback) {
@@ -100,6 +114,7 @@ export default {
         callback(response);
       }
     },
+    
     *deleteEnterpriseCluster({ payload, callback, handleError }, { call }) {
       const response = yield call(
         deleteEnterpriseCluster,
