@@ -1,7 +1,7 @@
 import { formatMessage } from 'umi-plugin-locale';
 import cookie from '../utils/cookie';
-import { isUrl } from '../utils/utils';
 import roleUtil from '../utils/role';
+import { isUrl } from '../utils/utils';
 
 const newbieGuide = cookie.get('newbie_guide');
 
@@ -11,8 +11,8 @@ function menuData(teamName, regionName, permissionsInfo) {
       name: formatMessage({ id: 'menu.team.dashboard' }),
       icon: 'dashboard',
       path: `team/${teamName}/region/${regionName}/index`,
-      authority: ['admin', 'user'],
-    },
+      authority: ['admin', 'user']
+    }
   ];
   function results(moduleName, targets) {
     return roleUtil.queryTeamUserPermissionsInfo(
@@ -46,7 +46,7 @@ function menuData(teamName, regionName, permissionsInfo) {
         name: formatMessage({ id: 'menu.team.app' }),
         icon: 'appstore-o',
         path: `team/${teamName}/region/${regionName}/apps`,
-        authority: ['admin', 'user'],
+        authority: ['admin', 'user']
       });
     }
     if (appCreateView && componentCreateView && componentConstructView) {
@@ -59,24 +59,30 @@ function menuData(teamName, regionName, permissionsInfo) {
           {
             name: formatMessage({ id: 'menu.team.create.code' }),
             path: `/code`,
-            authority: ['admin', 'user'],
+            authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.image' }),
             path: `/image`,
-            authority: ['admin', 'user'],
+            authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.market' }),
             path: `/market`,
-            authority: ['admin', 'user'],
+            authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.third' }),
             path: `/outer`,
-            authority: ['admin', 'user'],
+            authority: ['admin', 'user']
           },
-        ],
+          // 基于软件包/yaml创建
+          {
+            name: '基于软件包/yaml创建',
+            path: `/yaml`,
+            authority: ['admin', 'user']
+          }
+        ]
       });
     }
 
@@ -86,7 +92,7 @@ function menuData(teamName, regionName, permissionsInfo) {
         children.push({
           name: formatMessage({ id: 'menu.team.gateway.control' }),
           path: 'control',
-          authority: ['admin', 'user'],
+          authority: ['admin', 'user']
         });
       }
 
@@ -94,7 +100,7 @@ function menuData(teamName, regionName, permissionsInfo) {
         children.push({
           name: formatMessage({ id: 'menu.team.gateway.certificate' }),
           path: 'license',
-          authority: ['admin', 'user'],
+          authority: ['admin', 'user']
         });
       }
       addMenuArr({
@@ -102,7 +108,7 @@ function menuData(teamName, regionName, permissionsInfo) {
         icon: 'gateway',
         path: `team/${teamName}/region/${regionName}/gateway`,
         authority: ['admin', 'user'],
-        children,
+        children
       });
     }
 
@@ -111,7 +117,7 @@ function menuData(teamName, regionName, permissionsInfo) {
         name: formatMessage({ id: 'menu.team.plugin' }),
         icon: 'api',
         path: `team/${teamName}/region/${regionName}/myplugns`,
-        authority: ['admin', 'user'],
+        authority: ['admin', 'user']
       });
     }
 
@@ -120,7 +126,7 @@ function menuData(teamName, regionName, permissionsInfo) {
         name: formatMessage({ id: 'menu.team.setting' }),
         icon: 'setting',
         path: `team/${teamName}/region/${regionName}/team`,
-        authority: ['admin', 'user'],
+        authority: ['admin', 'user']
       });
     }
     if (newbieGuide === 'false') {
@@ -130,7 +136,7 @@ function menuData(teamName, regionName, permissionsInfo) {
         name: '任务',
         icon: 'exclamation-circle',
         path: `team/${teamName}/region/${regionName}/guide`,
-        authority: ['admin', 'user'],
+        authority: ['admin', 'user']
       });
     }
   }
@@ -147,7 +153,7 @@ function formatter(data, parentPath = '', parentAuthority) {
     const result = {
       ...item,
       path,
-      authority: item.authority || parentAuthority,
+      authority: item.authority || parentAuthority
     };
     if (item.children) {
       result.children = formatter(

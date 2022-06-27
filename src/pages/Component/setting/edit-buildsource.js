@@ -1,6 +1,6 @@
 /* eslint-disable react/no-redundant-should-component-update */
 /* eslint-disable react/no-unused-state */
-import { Form, Input, Modal, notification, Select } from 'antd';
+import { Alert, Form, Input, Modal, notification, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import ShowRegionKey from '../../../components/ShowRegionKey';
@@ -172,6 +172,14 @@ export default class ChangeBuildSource extends PureComponent {
         onCancel={onCancel}
         visible
       >
+        <Alert
+          message="您可以在此修改创建方式"
+          type="warning"
+          closable
+          size="small"
+          style={{ marginBottom: '12px' }}
+          // onClose={onClose}
+        />
         <Form onSubmit={this.handleSubmit}>
           <FormItem
             style={{ display: showImage ? '' : 'none' }}
