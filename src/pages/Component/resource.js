@@ -1,3 +1,5 @@
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-unresolved */
 /* eslint-disable react/jsx-indent */
 /* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react/sort-comp */
@@ -31,6 +33,7 @@ import { languageObj } from '../../utils/utils';
 import styles from './resource.less';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
+import Strategy from './strategy';
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -558,6 +561,13 @@ export default class Index extends PureComponent {
                   {appUtil.isOauthByBuildSource(buildSource) && thirdInfo
                     ? thirdInfo.service_name
                     : buildShared}
+                  <Button
+                    size="small"
+                    style={{ marginLeft: '12px' }}
+                    onClick={this.changeBuildSource}
+                  >
+                    修改创建方式
+                  </Button>
                 </Link>
               </FormItem>
             </div>
@@ -711,7 +721,7 @@ export default class Index extends PureComponent {
                 /> */}
           </Card>
         )}
-
+        <Strategy />
         {buildSource && (
           <AutoDeploy
             app={this.props.appDetail}
