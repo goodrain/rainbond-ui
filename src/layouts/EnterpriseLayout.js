@@ -2,7 +2,7 @@
 /* eslint-disable no-shadow */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable react/sort-comp */
-import { Layout } from 'antd';
+import { Layout, Alert } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
@@ -432,6 +432,13 @@ class EnterpriseLayout extends PureComponent {
                   width: autoWidth
                 }}
               >
+                <div style={{ width: '100%' }}>
+                  <Alert
+                    style={{ textAlign: 'center', marginTop: '4px', marginBottom:'4px' }}
+                    message={` 当前集群没有企业版授权${' '}请联系好雨商务${' '}获取授权`}
+                    type="error"
+                  />
+                </div>
                 <div
                   style={{
                     margin: '24px 24px 0'

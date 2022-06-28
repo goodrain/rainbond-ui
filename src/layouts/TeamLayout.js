@@ -4,7 +4,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
-import { Icon, Layout, notification } from 'antd';
+import { Icon, Layout, notification, Alert } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
@@ -655,6 +655,13 @@ class TeamLayout extends PureComponent {
                   width: autoWidth
                 }}
               >
+                <div style={{ width: '100%' }}>
+                  <Alert
+                    style={{ textAlign: 'center', marginTop: '4px' }}
+                    message={` 当前集群没有企业版授权${' '}请联系好雨商务${' '}获取授权`}
+                    type="error"
+                  />
+                </div>
                 <div
                   style={{
                     margin: '24px 24px 0'
