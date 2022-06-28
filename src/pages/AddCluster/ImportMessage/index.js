@@ -184,11 +184,9 @@ export default class ImportMessage extends PureComponent {
                                                         <div className={styles.leftKey}>DeployMents：</div>
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
-                                                            <div className={styles.value}></div>
-                                                            <div className={styles.value}></div>
-                                                            <div className={styles.value}></div>
-                                                            <div className={styles.value}></div>
-                                                            <div className={styles.value}></div>
+                                                        </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
                                                         </div>
                                                     </div>
                                                     <div className={styles.box}>

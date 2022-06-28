@@ -12,7 +12,7 @@ const { SubMenu } = Menu;
 
 // Allow menu.js config icon as string or ReactNode   icon: 'setting',   icon:
 // 'http://demo.com/icon.png',   icon: <Icon type="setting" />,
-const getIcon = (icon) => {
+const getIcon = icon => {
   if (typeof icon === 'string' && icon.indexOf('http') === 0) {
     return <img src={icon} alt="icon" className={styles.icon} />;
   }
@@ -69,7 +69,7 @@ export default class GlobalRouter extends PureComponent {
       return item;
     });
     let withapp = false;
-    snippets = snippets.map((item) => {
+    snippets = snippets.map(item => {
       const itemArr = item.split('/');
       if (itemArr[itemArr.length - 1] === 'index') {
         withapp = true;
@@ -94,13 +94,13 @@ export default class GlobalRouter extends PureComponent {
   }
   getOpenGroup(appAlias) {
     const data = this.props.menuData;
-    const groups = data.filter((item) => item.path.indexOf('groups') > -1)[0];
+    const groups = data.filter(item => item.path.indexOf('groups') > -1)[0];
 
     if (groups) {
       const childs = groups.children || [];
-      const currGroup = childs.filter((child) => {
+      const currGroup = childs.filter(child => {
         const res = (child.children || []).filter(
-          (item) => item.path.indexOf(appAlias) > -1
+          item => item.path.indexOf(appAlias) > -1
         )[0];
         return res;
       })[0];
@@ -117,7 +117,7 @@ export default class GlobalRouter extends PureComponent {
    */
   getFlatMenuKeys(menus) {
     let keys = [];
-    menus.forEach((item) => {
+    menus.forEach(item => {
       if (item.children) {
         keys.push(item.path);
         keys = keys.concat(this.getFlatMenuKeys(item.children));
@@ -131,9 +131,9 @@ export default class GlobalRouter extends PureComponent {
    * Get selected child nodes
    * /user/chen => /user/:id
    */
-  getSelectedMenuKeys = (path) => {
+  getSelectedMenuKeys = path => {
     const flatMenuKeys = this.getFlatMenuKeys(this.props.menuData);
-    return flatMenuKeys.filter((item) => {
+    return flatMenuKeys.filter(item => {
       if (item == path) {
         return true;
       }
@@ -145,7 +145,7 @@ export default class GlobalRouter extends PureComponent {
    * Judge whether it is http link.return a or Link
    * @memberof SiderMenu
    */
-  getMenuItemPath = (item) => {
+  getMenuItemPath = item => {
     const itemPath = this.conversionPath(item.path);
     const icon = getIcon(item.icon);
     const { target, name } = item;
@@ -179,8 +179,8 @@ export default class GlobalRouter extends PureComponent {
   /**
    * get SubMenu or Item
    */
-  getSubMenuOrItem = (item) => {
-    if (item.children && item.children.some((child) => child.name)) {
+  getSubMenuOrItem = item => {
+    if (item.children && item.children.some(child => child.name)) {
       return (
         <SubMenu
           className={styles.items}
@@ -202,21 +202,21 @@ export default class GlobalRouter extends PureComponent {
    * 获得菜单子节点
    * @memberof SiderMenu
    */
-  getNavMenuItems = (menusData) => {
+  getNavMenuItems = menusData => {
     if (!menusData) {
       return [];
     }
 
     return menusData
-      .filter((item) => item.name && !item.hideInMenu)
-      .map((item) => {
+      .filter(item => item.name && !item.hideInMenu)
+      .map(item => {
         const ItemDom = this.getSubMenuOrItem(item);
         return this.checkPermissionItem(item.authority, ItemDom);
       })
-      .filter((item) => !!item);
+      .filter(item => !!item);
   };
   // conversion Path 转化路径
-  conversionPath = (path) => {
+  conversionPath = path => {
     if (path && path.indexOf('http') === 0) {
       return path;
     }
@@ -246,7 +246,7 @@ export default class GlobalRouter extends PureComponent {
     }
     return ItemDom;
   };
-  handleOpenChange = (openKeys) => {
+  handleOpenChange = openKeys => {
     // const lastOpenKey = openKeys[openKeys.length - 1]; const isMainMenu =
     // this.props.menuData.some(   item => lastOpenKey && (item.key === lastOpenKey
     // || item.path === lastOpenKey) );
@@ -264,7 +264,7 @@ export default class GlobalRouter extends PureComponent {
       collectionVisible: false
     });
   };
-  handleCollectionView = (values) => {
+  handleCollectionView = values => {
     const { dispatch, location, currentEnterprise } = this.props;
     dispatch({
       type: 'user/addCollectionView',
@@ -273,7 +273,7 @@ export default class GlobalRouter extends PureComponent {
         name: values.name,
         url: location.pathname
       },
-      callback: (res) => {
+      callback: res => {
         if (res) {
           this.fetchCollectionViewInfo();
         }
@@ -288,7 +288,7 @@ export default class GlobalRouter extends PureComponent {
       payload: {
         enterprise_id: currentEnterprise.enterprise_id
       },
-      callback: (res) => {
+      callback: res => {
         if (res) {
           onCollapse(true);
           this.handleCloseCollectionVisible();

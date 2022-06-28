@@ -272,6 +272,12 @@ export default [
             title: '应用配置组管理'
           },
           {
+            path: '/team/:teamName/region/:regionName/apps/:appID/resource',
+            component: './Resource',
+            name: 'Resource',
+            authority: ['admin', 'user']
+          },
+          {
             path:
               '/team/:teamName/region/:regionName/apps/:appID/configgroups/details/:id',
             component: './Configuration/Details',
@@ -356,7 +362,14 @@ export default [
             name: 'code',
             authority: ['admin', 'user']
           },
-
+          // yaml创建
+          {
+            path:
+              '/team/:teamName/region/:regionName/create/yaml/:type?/:yaml?',
+            component: './Create/yaml',
+            name: 'yaml',
+            authority: ['admin', 'user']
+          },
           {
             path:
               '/team/:teamName/region/:regionName/create/outer/:type?/:outer?',
