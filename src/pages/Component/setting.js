@@ -671,7 +671,6 @@ export default class Index extends React.Component {
     }
     return (
       <Fragment>
-        <Kubernetes />
         <Card
           style={{
             marginBottom: 24
@@ -815,6 +814,7 @@ export default class Index extends React.Component {
             )}
           </Card>
         )}
+        <Kubernetes />
         {this.state.addTag && (
           <AddTag
             tags={tabData || []}

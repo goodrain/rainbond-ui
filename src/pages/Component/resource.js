@@ -33,6 +33,7 @@ import { languageObj } from '../../utils/utils';
 import styles from './resource.less';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
+import Yuanma from './setting/yuanma';
 import Strategy from './strategy';
 
 const { TabPane } = Tabs;
@@ -57,6 +58,7 @@ export default class Index extends PureComponent {
     this.state = {
       runtimeInfo: '',
       changeBuildSource: false,
+      changeBuildSources: true,
       editOauth: false,
       buildSource: null,
       showMarketAppDetail: false,
@@ -163,10 +165,15 @@ export default class Index extends PureComponent {
   changeBuildSource = () => {
     this.setState({ changeBuildSource: true });
   };
+  changeBuildSources = () => {
+    this.setState({ changeBuildSources: true });
+  };
   hideBuildSource = () => {
     this.setState({ changeBuildSource: false });
   };
-
+  hideBuildSources = () => {
+    this.setState({ changeBuildSources: false });
+  };
   changeEditOauth = () => {
     this.handleProvinceChange();
     this.setState({ editOauth: true });
@@ -245,7 +252,7 @@ export default class Index extends PureComponent {
               res.bean.check_status != 'success' &&
               res.bean.check_status != 'failure'
             ) {
-              setTimeout(function() {
+              setTimeout(function () {
                 _th.handleDetectGetLanguage();
               }, 3000);
             } else {
@@ -564,7 +571,7 @@ export default class Index extends PureComponent {
                   <Button
                     size="small"
                     style={{ marginLeft: '12px' }}
-                    onClick={this.changeBuildSource}
+                    onClick={this.changeBuildSources}
                   >
                     修改创建方式
                   </Button>
@@ -737,19 +744,19 @@ export default class Index extends PureComponent {
             footer={
               !this.state.create_status
                 ? [
-                    <Button key="back" onClick={this.handlelanguageBox}>
-                      关闭
-                    </Button>,
-                    <Button
-                      key="submit"
-                      type="primary"
-                      onClick={this.handleDetectPutLanguage}
-                    >
-                      检测
-                    </Button>
-                  ]
+                  <Button key="back" onClick={this.handlelanguageBox}>
+                    关闭
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    onClick={this.handleDetectPutLanguage}
+                  >
+                    检测
+                  </Button>
+                ]
                 : this.state.create_status == 'success'
-                ? [
+                  ? [
                     <Button key="back" onClick={this.handlelanguageBox}>
                       关闭
                     </Button>,
@@ -761,12 +768,12 @@ export default class Index extends PureComponent {
                       确认
                     </Button>
                   ]
-                : [<Button key="back">关闭</Button>]
+                  : [<Button key="back">关闭</Button>]
             }
           >
             <div>
               {this.state.create_status == 'checking' ||
-              this.state.create_status == 'complete' ? (
+                this.state.create_status == 'complete' ? (
                 <div>
                   <p style={{ textAlign: 'center' }}>
                     <Spin />
@@ -885,6 +892,17 @@ export default class Index extends PureComponent {
             onCancel={this.hideBuildSource}
           />
         )}
+        {this.state.changeBuildSources && (
+          <Yuanma
+            onOk={this.onChangeBuildSource}
+            buildSource={buildSource}
+            appAlias={this.props.appDetail.service.service_alias}
+            title="更改组件构建源"
+            onCancel={this.hideBuildSources}
+          />
+        )
+
+        }
 
         {this.state.editOauth && (
           <Modal

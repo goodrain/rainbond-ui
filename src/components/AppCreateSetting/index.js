@@ -10,7 +10,8 @@ import {
   Radio,
   Row,
   Table,
-  Tooltip
+  Tooltip,
+  Select
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -41,7 +42,7 @@ import styles from './setting.less';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-
+const { Option, OptGroup } = Select;
 @connect(null, null, null, { withRef: true })
 @Form.create()
 class BaseInfo extends PureComponent {
@@ -85,7 +86,8 @@ class BaseInfo extends PureComponent {
           text: '16G',
           value: 1024 * 16
         }
-      ]
+      ],
+      is_flag:false,
     };
   }
   handleSubmit = () => {
@@ -96,8 +98,24 @@ class BaseInfo extends PureComponent {
       }
     });
   };
+  handleChange = (value) => {
+    console.log(value,'value')
+  }
+  onChecks = (e) => {
+    console.log(e.target.value,'check')
+    if(e.target.value === 'stateless_multiple'){
+      this.setState({
+        is_flag:false
+      })
+    }else{
+      this.setState({
+        is_flag:true
+      })
+    }
+  }
   render() {
     const { appDetail, form } = this.props;
+    const { is_flag } = this.state
     const { getFieldDecorator } = form;
     const {
       extend_method: extendMethod,
@@ -149,12 +167,23 @@ class BaseInfo extends PureComponent {
             <RadioGroup>
               {globalUtil.getSupportComponentTyps().map(item => {
                 return (
-                  <Radio key={item.type} style={radioStyle} value={item.type}>
-                    {item.name}({item.desc}）
+                  <Radio key={item.type} onChange={this.onChecks} style={radioStyle} value={item.type}>
+                    {item.desc}
                   </Radio>
                 );
               })}
+              
             </RadioGroup>
+          )}
+          {!is_flag && (
+            <Row type="flex" style={{margin:'14px 0px'}}>
+              <div style={{marginLeft:'25px',fontWeight:'bolder',marginTop:'-4px'}}>运行规则：</div>
+              <Select defaultValue="lucy" style={{ width: 200 }} onChange={this.handleChange}>
+                <Option value="jack">Jack</Option>
+                <Option value="lucy">Lucy</Option>
+                <Option value="Yiminghe">yiminghe</Option>
+              </Select>
+            </Row>
           )}
         </Form.Item>
         <Form.Item {...formItemLayout} label="内存">

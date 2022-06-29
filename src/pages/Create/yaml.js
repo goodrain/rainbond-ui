@@ -96,22 +96,22 @@ export default class Index extends PureComponent {
         //   }
         //   return file;
         // });
-        // const { status } = info.file;
-        // if (status !== 'uploading') {
-        //   console.log(info.file, info.fileList);
-        // }
-        // if (status === 'done') {
-        //   message.success(`${info.file.name} file uploaded successfully.`);
-        // } else if (status === 'error') {
-        //   message.error(`${info.file.name} file upload failed.`);
-        // }
+        const { status } = info.file;
+        if (status !== 'uploading') {
+          console.log(info.file, info.fileList);
+        }
+        if (status === 'done') {
+          message.success(`${info.file.name} file uploaded successfully.`);
+        } else if (status === 'error') {
+          message.error(`${info.file.name} file upload failed.`);
+        }
       },
-      onRemove: info => {
-        // console.log(info, 'info');
-        // console.log('删除时触发');
-        // console.log(fileList, 'fileList');
-        // this.setState({ fileList: [] });
-      }
+      // onRemove: info => {
+      //   // console.log(info, 'info');
+      //   // console.log('删除时触发');
+      //   // console.log(fileList, 'fileList');
+      //   // this.setState({ fileList: [] });
+      // }
     };
     const formItemLayout = {
       labelCol: {
@@ -174,6 +174,18 @@ export default class Index extends PureComponent {
                       {
                         required: true,
                         message: '请输入组件名称'
+                      }
+                    ]
+                  })(<Input placeholder="请输入" />)}
+                </Form.Item>
+              )}
+              {isShowCom && (
+                <Form.Item label="组件英文名称">
+                  {getFieldDecorator('component_name', {
+                    rules: [
+                      {
+                        required: true,
+                        message: '请输入组件英文名称'
                       }
                     ]
                   })(<Input placeholder="请输入" />)}

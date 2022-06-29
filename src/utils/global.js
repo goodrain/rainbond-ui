@@ -1455,17 +1455,17 @@ const global = {
       {
         type: 'state_multiple',
         name: this.getComponentType('state_multiple'),
-        desc: '可多实例运行的有状态组件'
+        desc: '部署为Deployment类型，一般用于Web类，API类等组件'
       },
       {
         type: 'stateless_singleton',
         name: this.getComponentType('stateless_singleton'),
-        desc: '部署为Deployment, 一般用于Web类，API类等组件，不可扩展实例数'
+        desc: '部署为Job类型，一般用于一次性任务，完成后容器就退出'
       },
       {
         type: 'stateless_multiple',
         name: this.getComponentType('stateless_multiple'),
-        desc: '可多实例运行的无状态组件'
+        desc: '部署为Cronjob类型，一般用于处理周期性的、需反复执行的定时任务'
       }
     ];
   },

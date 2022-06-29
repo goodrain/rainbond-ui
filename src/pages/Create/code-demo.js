@@ -46,6 +46,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const code = decodeURIComponent(this.props.match.params.code || '');
+    console.log(code,'code')
     return (
       <Card>
         <TopUpHints />
