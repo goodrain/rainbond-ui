@@ -31,7 +31,7 @@ import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
-
+import styles from './EnterpriseLayout.less'
 const { Content } = Layout;
 
 const getBreadcrumbNameMap = memoizeOne(meun => {
@@ -93,6 +93,7 @@ class EnterpriseLayout extends PureComponent {
       enterpriseList: [],
       enterpriseInfo: false,
       ready: false,
+      alertInfo:[],
       offLineDisNew: [
         {
           key: 'welcome',
@@ -172,6 +173,7 @@ class EnterpriseLayout extends PureComponent {
               if (ready) {
                 this.redirectEnterpriseView();
                 this.load();
+                this.getAlertInfo()
               } else {
                 this.handleJumpLogin();
               }
@@ -326,7 +328,30 @@ class EnterpriseLayout extends PureComponent {
       }
     });
   };
-
+  getAlertInfo = () => {
+    const { 
+      dispatch,
+      match: {
+        params: { eid }
+      } 
+    } = this.props;
+    dispatch({
+      type: 'global/getRainbondAlert',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.bean) {
+          //获取平台报警信息
+          if(res.list.length > 0){
+            this.setState({
+              alertInfo: res.list
+            })
+          }
+        }
+      }
+    });
+  }
   render() {
     const {
       memoryTip,
@@ -343,7 +368,7 @@ class EnterpriseLayout extends PureComponent {
       enterprise,
       showAuthCompany
     } = this.props;
-    const { enterpriseList, enterpriseInfo, ready } = this.state;
+    const { enterpriseList, enterpriseInfo, ready, alertInfo } = this.state;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({
@@ -432,13 +457,19 @@ class EnterpriseLayout extends PureComponent {
                   width: autoWidth
                 }}
               >
-                <div style={{ width: '100%' }}>
-                  <Alert
-                    style={{ textAlign: 'center', marginTop: '4px', marginBottom:'4px' }}
-                    message={` 当前集群没有企业版授权${' '}请联系好雨商务${' '}获取授权`}
-                    type="error"
-                  />
-                </div>
+                {/* 报警信息 */}
+                {alertInfo.length > 0 && alertInfo.map((item)=>{
+                  return (
+                    <div className={styles.alerts}>
+                      <Alert
+                        style={{ textAlign: 'left', marginTop: '4px', marginBottom:'4px',color:'#c40000',background:'#fff1f0',border:' 1px solid red' }}
+                        message={item.annotations.description}
+                        type="warning"
+                        showIcon
+                      />
+                    </div>
+                 )
+                })}
                 <div
                   style={{
                     margin: '24px 24px 0'

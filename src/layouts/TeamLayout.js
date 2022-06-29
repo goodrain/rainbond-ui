@@ -33,7 +33,7 @@ import AppHeader from './components/AppHeader';
 import TeamHeader from './components/TeamHeader';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
-
+import styles from './EnterpriseLayout.less'
 const { Content } = Layout;
 
 const query = {
@@ -82,7 +82,8 @@ class TeamLayout extends PureComponent {
       currentComponent: null,
       eid: '',
       appID: globalUtil.getAppID(),
-      teamView: true
+      teamView: true,
+      alertInfo:[]
     };
   }
 
@@ -114,11 +115,12 @@ class TeamLayout extends PureComponent {
   // get enterprise list
   getEnterpriseList = () => {
     const { dispatch, currentUser } = this.props;
-
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
         if (res && res.status_code === 200) {
+          //获取平台报警信息
+          this.getAlertInfo(currentUser.enterprise_id)
           this.setState(
             {
               enterpriseList: res.list
@@ -126,9 +128,11 @@ class TeamLayout extends PureComponent {
             () => {
               if (currentUser) {
                 return this.getTeamOverview(currentUser.user_id);
+                
               }
               // 获取最新的用户信息
               this.fetchUserInfo();
+              
             }
           );
         }
@@ -402,6 +406,25 @@ class TeamLayout extends PureComponent {
       }
     });
   };
+  getAlertInfo = (eid) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/getRainbondAlert',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.bean) {
+          //获取平台报警信息
+          if(res.list.length > 0){
+            this.setState({
+              alertInfo: res.list
+            })
+          }
+        }
+      }
+    });
+  }
   render() {
     const {
       memoryTip,
@@ -428,7 +451,8 @@ class TeamLayout extends PureComponent {
       currentRegion,
       currentComponent,
       teamView,
-      currentApp
+      currentApp,
+      alertInfo
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -655,13 +679,19 @@ class TeamLayout extends PureComponent {
                   width: autoWidth
                 }}
               >
-                <div style={{ width: '100%' }}>
-                  <Alert
-                    style={{ textAlign: 'center', marginTop: '4px' }}
-                    message={` 当前集群没有企业版授权${' '}请联系好雨商务${' '}获取授权`}
-                    type="error"
-                  />
-                </div>
+                {/* 报警信息 */}
+                {alertInfo.length > 0 && alertInfo.map((item)=>{
+                  return (
+                    <div className={styles.alerts}>
+                      <Alert
+                        style={{ textAlign: 'left', marginTop: '4px', marginBottom:'4px',color:'#c40000',background:'#fff1f0',border:' 1px solid red' }}
+                        message={item.annotations.description}
+                        type="warning"
+                        showIcon
+                      />
+                    </div>
+                 )
+                })}
                 <div
                   style={{
                     margin: '24px 24px 0'
