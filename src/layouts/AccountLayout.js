@@ -28,7 +28,6 @@ class AccountLayout extends PureComponent {
       ready: false,
       isMobiles: isMobile,
       enterpriseList: [],
-      alertInfo: []
     };
   }
   componentDidMount() {
@@ -84,7 +83,6 @@ class AccountLayout extends PureComponent {
           enterprise_id: currentUser.enterprise_id
         }
       });
-      this.getAlertInfo(currentUser.enterprise_id)
     }
   };
   fetchEnterpriseService = eid => {
@@ -96,27 +94,7 @@ class AccountLayout extends PureComponent {
       }
     });
   };
-  getAlertInfo = (eid) => {
-    const {dispatch} = this.props;
-    dispatch({
-      type: 'global/getRainbondAlert',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.bean) {
-          //获取平台报警信息
-          if(res.list.length > 0){
-            this.setState({
-              alertInfo: res.list
-            })
-          }
-        }
-      },handleError: err => {
-        console.log(err)
-      }
-    });
-  }
+  
   render() {
     const {
       children,
@@ -127,7 +105,7 @@ class AccountLayout extends PureComponent {
       location
     } = this.props;
 
-    const { enterpriseList, isMobiles, ready, alertInfo } = this.state;
+    const { enterpriseList, isMobiles, ready } = this.state;
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     if (!ready || !enterprise) {
       return <PageLoading />;
@@ -206,19 +184,6 @@ class AccountLayout extends PureComponent {
                 width: autoWidth
               }}
             >
-              {/* 报警信息 */}
-              {alertInfo.length > 0 && alertInfo.map((item)=>{
-                  return (
-                    <div className={styles.alerts}>
-                      <Alert
-                        style={{ textAlign: 'left', marginTop: '4px', marginBottom:'4px',color:'#c40000',background:'#fff1f0',border:' 1px solid red' }}
-                        message={item.annotations.description}
-                        type="warning"
-                        showIcon
-                      />
-                    </div>
-                 )
-                })}
               <div
                 style={{
                   margin: '24px 24px 0'
