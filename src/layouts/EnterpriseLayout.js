@@ -349,6 +349,8 @@ class EnterpriseLayout extends PureComponent {
             })
           }
         }
+      },handleError: err => {
+        console.log(err)
       }
     });
   }

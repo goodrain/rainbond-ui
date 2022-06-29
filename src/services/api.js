@@ -621,9 +621,10 @@ export function getRainbondInfo(handleError) {
 /*
    获取云帮的公共报警信息
 */
-export function getRainbondAlert(params) {
+export function getRainbondAlert(params,handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/alerts`, {
-    method: 'get'
+    method: 'get',
+    handleError
   });
 }
 

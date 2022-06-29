@@ -28,7 +28,6 @@ class AccountLayout extends PureComponent {
       ready: false,
       isMobiles: isMobile,
       enterpriseList: [],
-      alertInfo: []
     };
   }
   componentDidMount() {
@@ -96,25 +95,7 @@ class AccountLayout extends PureComponent {
       }
     });
   };
-  getAlertInfo = (eid) => {
-    const {dispatch} = this.props;
-    dispatch({
-      type: 'global/getRainbondAlert',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.bean) {
-          //获取平台报警信息
-          if(res.list.length > 0){
-            this.setState({
-              alertInfo: res.list
-            })
-          }
-        }
-      }
-    });
-  }
+  
   render() {
     const {
       children,
