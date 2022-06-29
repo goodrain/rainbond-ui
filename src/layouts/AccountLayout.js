@@ -112,6 +112,8 @@ class AccountLayout extends PureComponent {
             })
           }
         }
+      },handleError: err => {
+        console.log(err)
       }
     });
   }

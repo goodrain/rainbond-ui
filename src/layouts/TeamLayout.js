@@ -422,6 +422,8 @@ class TeamLayout extends PureComponent {
             })
           }
         }
+      },handleError: err => {
+        console.log(err)
       }
     });
   }

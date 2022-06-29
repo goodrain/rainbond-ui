@@ -411,8 +411,8 @@ export default {
         callback(data);
       }
     },
-    *getRainbondAlert({ payload, callback }, { call }) {
-      const data = yield call(getRainbondAlert, payload);
+    *getRainbondAlert({ payload, callback,handleError }, { call }) {
+      const data = yield call(getRainbondAlert, payload, handleError);
       if (data && callback) {
         callback(data);
       }
