@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Button, Card, Form, Input, Row, Steps, Select, Collapse, Icon } from 'antd';
+import { Button, Card, Form, Input, Row, Steps, Select, Collapse, Icon, Checkbox } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -104,6 +104,10 @@ export default class ImportMessage extends PureComponent {
     callback = (key) => {
         console.log(key,'key')
     }
+    //下一步
+    onNext = () => {
+        console.log('跳转到下一页')
+    }
     render() {
         const {
             match: {
@@ -167,8 +171,9 @@ export default class ImportMessage extends PureComponent {
                         </Select>
                     </Row>
                     <Row type="flex" style={{ width:'100%', padding: '24px 0px',minHeight:'400px' }}>
-                        <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3> </div>
+                        <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3></div>
                         <Row className={styles.importCard}>
+                            <Checkbox value="A"></Checkbox>
                             <Collapse
                                 defaultActiveKey={[1,2,3]}
                                 onChange={this.callback}
@@ -178,7 +183,11 @@ export default class ImportMessage extends PureComponent {
                                     <Row type="flex" style={{ width:'100%' }}>
                                         <div className={styles.resource}>
                                             <div className={styles.WorkLoads}>
-                                                <h2>WorkLoads:</h2>
+                                                <div className={styles.titles}>
+                                                    <h2 className={styles.hleft}>WorkLoads:</h2>
+                                                    <h2 className={styles.hright}>是否支持</h2>
+                                                </div>
+                                                 
                                                 <div className={styles.WorkLoads_value}>
                                                     <div className={styles.box}>
                                                         <div className={styles.leftKey}>DeployMents：</div>
@@ -194,11 +203,17 @@ export default class ImportMessage extends PureComponent {
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
                                                         </div>
+                                                        <div className={styles.zhichi}>
+                                                            {error}
+                                                        </div>
                                                     </div>
                                                     <div className={styles.box}>
                                                         <div className={styles.leftKey}>Jobs：</div>
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
+                                                        </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
                                                         </div>
                                                     </div>
                                                     <div className={styles.box}>
@@ -206,19 +221,25 @@ export default class ImportMessage extends PureComponent {
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
                                                         </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
+                                                        </div>
                                                     </div>
                                                     <div className={styles.box}>
                                                         <div className={styles.leftKey}> StatefulSets：</div>
                                                         <div className={styles.rightValue}>
-                                                            <div className={styles.value}>
-
-                                                            </div>
+                                                            <div className={styles.value}></div>
+                                                        </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className={styles.miscellaneous_assets}>
-                                                <h2>其他资源:</h2>
+                                                <div className={styles.titles}>
+                                                    <h2 className={styles.hleft}>其他资源:</h2>
+                                                </div>
                                                 <div className={styles.WorkLoads_value}>
                                                     <div className={styles.box}>
                                                         <div className={styles.leftKey}> Services：</div>
@@ -226,11 +247,17 @@ export default class ImportMessage extends PureComponent {
                                                             <div className={styles.value}></div>
                                                             <div className={styles.value}></div>
                                                         </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
+                                                        </div>
                                                     </div>
                                                     <div className={styles.box}>
                                                         <div className={styles.leftKey}>PersistentVolumeClaims：</div>
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
+                                                        </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
                                                         </div>
                                                     </div>
                                                     <div className={styles.box}>
@@ -238,11 +265,17 @@ export default class ImportMessage extends PureComponent {
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
                                                         </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
+                                                        </div>
                                                     </div>
                                                     <div className={styles.box}>
                                                         <div className={styles.leftKey}>NetworkPolicies：</div>
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
+                                                        </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
                                                         </div>
                                                     </div>
                                                     <div className={styles.box}>
@@ -250,11 +283,17 @@ export default class ImportMessage extends PureComponent {
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
                                                         </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
+                                                        </div>
                                                     </div>
                                                     <div className={styles.box}>
                                                         <div className={styles.leftKey}>secrets：</div>
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
+                                                        </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
                                                         </div>
                                                     </div>
                                                     <div className={styles.box}>
@@ -262,11 +301,17 @@ export default class ImportMessage extends PureComponent {
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
                                                         </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
+                                                        </div>
                                                     </div>
                                                     <div className={styles.box}>
                                                         <div className={styles.leftKey}>RoleBindings：</div>
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
+                                                        </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
                                                         </div>
                                                     </div>
                                                     <div className={styles.box}>
@@ -274,35 +319,39 @@ export default class ImportMessage extends PureComponent {
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
                                                         </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
+                                                        </div>
                                                     </div>
                                                     <div className={styles.box}>
                                                         <div className={styles.leftKey}>Roles：</div>
                                                         <div className={styles.rightValue}>
                                                             <div className={styles.value}></div>
                                                         </div>
+                                                        <div className={styles.zhichi}>
+                                                            {success}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className={styles.is_support}>
-                                                <h2>是否支持</h2>  
-                                                <div>
-                                                    {error}
-                                                </div>
-                                                <div>
-                                                    {success}
-                                                </div>
                                         </div>
                                     </Row>
                                 </Panel>
-                                {/* <Panel header="label: app=rainbond-operator" key="2" extra={this.genExtra()}>
+                                <Panel header="label: app=rainbond-operator" key="2" extra={this.genExtra()}>
                                     <div>{text}</div>
                                 </Panel>
                                 <Panel header="无label应用" key="3" extra={this.genExtra()}>
                                     <div>{text}</div>
-                                </Panel> */}
+                                </Panel>
                             </Collapse>
                         </Row>
+                    </Row>
+                    <Row style={{textAlign:'center'}}>
+                    <Button type="primary" onClick={this.onNext}  style={{marginLeft:'120px',padding:'0px 36px'}}>
+                        下一步
+                    </Button>
                     </Row>
                 </Card>
             </PageHeaderLayout>

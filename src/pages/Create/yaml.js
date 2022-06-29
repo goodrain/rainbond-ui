@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Input, Radio, Upload, Select } from 'antd';
+import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import roleUtil from '../../utils/role';
 import styles from './yaml.less';
-
+const { Dragger } = Upload;
 const { Option } = Select;
 
 @Form.create()
@@ -52,14 +52,14 @@ export default class Index extends PureComponent {
     }
   };
   handleChange = (values) => {
-    console.log(values,'values')
+    console.log(values, 'values')
   }
   render() {
     const {
       form: { getFieldDecorator }
     } = this.props;
     const { fileList, defaultRadio, isShowCom } = this.state;
-    const props = {
+    const prop = {
       name: 'file',
       action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76', // 后端图片地址
       headers: {
@@ -77,6 +77,34 @@ export default class Index extends PureComponent {
         // console.log(info, 'info');
         // console.log(file, 'file');
         // console.log(fileList, 'fileList');
+      },
+      onRemove: info => {
+        // console.log(info, 'info');
+        // console.log('删除时触发');
+        // console.log(fileList, 'fileList');
+        // this.setState({ fileList: [] });
+      }
+    };
+    const props = {
+      name: 'file',
+      multiple: true,
+      action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+      onChange(info) {
+        // fileList = fileList.map(file => {
+        //   if (file.response) {
+        //     file.url = file.response.url;
+        //   }
+        //   return file;
+        // });
+        // const { status } = info.file;
+        // if (status !== 'uploading') {
+        //   console.log(info.file, info.fileList);
+        // }
+        // if (status === 'done') {
+        //   message.success(`${info.file.name} file uploaded successfully.`);
+        // } else if (status === 'error') {
+        //   message.error(`${info.file.name} file upload failed.`);
+        // }
       },
       onRemove: info => {
         // console.log(info, 'info');
@@ -124,7 +152,7 @@ export default class Index extends PureComponent {
                     <Option value="Yiminghe">yiminghe</Option>
                   </Select>
                 )}
-                <Button style={{marginLeft:'4px'}}>新建应用</Button>
+                <Button style={{ marginLeft: '4px' }}>新建应用</Button>
               </Form.Item>
               <Form.Item label="上传格式">
                 {getFieldDecorator('up_type', {
@@ -151,26 +179,50 @@ export default class Index extends PureComponent {
                   })(<Input placeholder="请输入" />)}
                 </Form.Item>
               )}
+              {isShowCom ? (
+                <Form.Item
+                  label="上传文件"
+                  extra="支持Jar、War格式上传文件"
+                >
+                  {getFieldDecorator('files', {
+                    rules: [
+                      {
+                        required: true,
+                        message: '请上传文件'
+                      }
+                    ]
+                  })(
+                    <Upload {...prop} fileList={fileList} accept=".jar, .war">
+                      <Button>
+                        <Icon type="upload" /> 上传文件
+                      </Button>
+                    </Upload>
+                  )}
+                </Form.Item>
+              ) : (
+                <Form.Item
+                  label="上传文件"
+                  extra="只支持yaml格式上传多文件"
+                >
+                  {getFieldDecorator('files', {
+                    rules: [
+                      {
+                        required: true,
+                        message: '请上传文件'
+                      }
+                    ]
+                  })(
+                    <Upload {...props} fileList={fileList} accept=".yaml">
+                      <Dragger {...props}>
+                        <p className="ant-upload-drag-icon">
+                          <Icon type="inbox" />
+                        </p>
+                      </Dragger>
+                    </Upload>
+                  )}
+                </Form.Item>
+              )}
 
-              <Form.Item
-                label="上传文件"
-                extra="支持Jar、War、yaml格式上传文件"
-              >
-                {getFieldDecorator('files', {
-                  rules: [
-                    {
-                      required: true,
-                      message: '请上传文件'
-                    }
-                  ]
-                })(
-                  <Upload {...props} fileList={fileList}>
-                    <Button>
-                      <Icon type="upload" /> 上传文件
-                    </Button>
-                  </Upload>
-                )}
-              </Form.Item>
               <Form.Item
                 wrapperCol={{
                   xs: {
