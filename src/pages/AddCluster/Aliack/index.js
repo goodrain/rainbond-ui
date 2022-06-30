@@ -230,12 +230,12 @@ export default class ClusterLink extends PureComponent {
     };
     const storageFormItemLayout = {
       labelCol: {
-        xs: { span: 6 },
-        sm: { span: 6 }
+        xs: { span: 3 },
+        sm: { span: 3 }
       },
       wrapperCol: {
-        xs: { span: 7 },
-        sm: { span: 7 }
+        xs: { span: 10 },
+        sm: { span: 10 }
       }
     };
     const formItemLayouts = {
@@ -336,10 +336,10 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder="请填写挂载点地址  例：192.168.0.12" />
+                      <Input placeholder="挂载点地址  例：123456789-var48.cn-shanghai.nas.aliyuncs.com:/" />
                     )}
                   </FormItem>
-                  <FormItem
+                  {/* <FormItem
                     {...storageFormItemLayout}
                     label="RWO 所用存储 storageClass 名称"
                   >
@@ -353,7 +353,7 @@ export default class ClusterLink extends PureComponent {
                     })(
                       <Input placeholder="请填写存储名称  例：glusterfs-simple" />
                     )}
-                  </FormItem>
+                  </FormItem> */}
                 </div>
               </Row>
               {/* 数据库 */}

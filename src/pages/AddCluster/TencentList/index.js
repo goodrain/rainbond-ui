@@ -266,7 +266,7 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    ELB 负载均衡:
+                    负载均衡:
                   </span>
                 </div>
                 <FormItem
