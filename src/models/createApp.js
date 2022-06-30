@@ -4,6 +4,8 @@ import {
   createAppByCompose,
   createAppByDockerrun,
   createThirdPartyServices,
+  createJarWarServices,
+  createJarWarUpload,
   createThirtAppByCodes,
   getAppsByComposeId,
   installApp,
@@ -72,6 +74,22 @@ export default {
 
     *createThirdPartyServices({ payload, callback }, { call }) {
       const data = yield call(createThirdPartyServices, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarServices({ payload, callback }, { call }) {
+      const data = yield call(createJarWarServices, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarUpload({ payload, callback }, { call }) {
+      const data = yield call(createJarWarUpload, payload);
       if (data && callback) {
         setTimeout(() => {
           callback(data);

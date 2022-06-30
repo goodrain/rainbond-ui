@@ -63,6 +63,36 @@ export async function createThirdPartyServices(body = {}) {
     }
   );
 }
+/*
+   Jar、War包上传文件获取事件记录
+*/
+export async function createJarWarServices(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
+    {
+      method: 'post',
+      data: {
+        region: body.region,
+        component_id: body.component_id
+      }
+    }
+  );
+}
+/*
+   Jar、War包上传文件
+*/
+export async function createJarWarUpload(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
+    {
+      method: 'post',
+      data: {
+        region: body.region,
+        component_id: body.component_id
+      }
+    }
+  );
+}
 
 /*
    compose创建应用

@@ -5,7 +5,9 @@ import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message } from 
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import AddGroup from '../../components/AddOrEditGroup'
 import roleUtil from '../../utils/role';
+import globalUtil from '../../utils/global'
 import styles from './yaml.less';
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -13,9 +15,10 @@ const { Option } = Select;
 @Form.create()
 @connect(
   ({ teamControl, global, enterprise }) => ({
+    groups: global.groups,
     rainbondInfo: global.rainbondInfo,
     currentTeam: teamControl.currentTeam,
-    currentRegionName: teamControl.currentRegionName,
+    currentRegionName: teamControl.currentRegionName, 
     currentEnterprise: enterprise.currentEnterprise,
     enterprise: global.enterprise,
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
@@ -25,7 +28,15 @@ const { Option } = Select;
   { pure: false }
 )
 export default class Index extends PureComponent {
-  state = { fileList: [], defaultRadio: 'jwar', isShowCom: true };
+  constructor(props) {
+    super(props);
+    this.state = { 
+      fileList: [], 
+      defaultRadio: 'jwar', 
+      isShowCom: true, 
+      addGroup:false 
+    };
+  }
   componentWillMount() {
     const { currentTeamPermissionsInfo, dispatch } = this.props;
     roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
@@ -54,17 +65,22 @@ export default class Index extends PureComponent {
   handleChange = (values) => {
     console.log(values, 'values')
   }
-  render() {
-    const {
-      form: { getFieldDecorator }
-    } = this.props;
-    const { fileList, defaultRadio, isShowCom } = this.state;
-    const prop = {
+  onAddGroup = () => {
+    this.setState({ addGroup: true });
+  };
+  cancelAddGroup = () => {
+    this.setState({ addGroup: false });
+  };
+  handleAddGroup = groupId => {
+    const { setFieldsValue } = this.props.form;
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
+  };
+  getPdfURL = () => {
+    const { dispatch } = this.props
+    const props = {
       name: 'file',
-      action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76', // 后端图片地址
-      headers: {
-        authorization: 'authorization-text' // token 可以不传
-      },
+      // action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76', // 后端图片地址
       // 上传时触发
       onChange: ({ fileList, file }) => {
         fileList = fileList.map(file => {
@@ -74,9 +90,35 @@ export default class Index extends PureComponent {
           return file;
         });
         this.setState({ fileList });
+        console.log('触发这个方法')
         // console.log(info, 'info');
         // console.log(file, 'file');
         // console.log(fileList, 'fileList');
+        //获取上传事件
+        dispatch({
+          type: "createApp/createJarWarServices",
+          payload: {
+            region: globalUtil.getCurrRegionName(),
+            team_name: globalUtil.getCurrTeamName(),
+            component_id:'',
+          },
+          callback: (data) => {
+            console.log(data,'data')
+            //上传文件
+            dispatch({
+              type: "createApp/createJarWarUpload",
+              payload: {
+                region: globalUtil.getCurrRegionName(),
+                team_name: globalUtil.getCurrTeamName(),
+                component_id:'',
+              },
+              callback: (data) => {
+                console.log(data,'data')
+                createJarWarUpload
+              },
+            });
+          },
+        });
       },
       onRemove: info => {
         // console.log(info, 'info');
@@ -85,6 +127,21 @@ export default class Index extends PureComponent {
         // this.setState({ fileList: [] });
       }
     };
+    return props
+  }
+  onChangeUpload = () => {
+
+  }
+  onRemove = () => {
+
+  }
+  render() {
+    const {
+      form: { getFieldDecorator },
+      groups
+    } = this.props;
+    const { fileList, defaultRadio, isShowCom, addGroup } = this.state;
+   
     const props = {
       name: 'file',
       multiple: true,
@@ -137,8 +194,8 @@ export default class Index extends PureComponent {
         <Card>
           <div className={styles.yaml_container}>
             <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-              <Form.Item label="应用名称">
-                {getFieldDecorator('app_name', {
+              <Form.Item label="应用名称" style={{display:'flex'}}>
+                {getFieldDecorator('group_id', {
                   rules: [
                     {
                       required: true,
@@ -146,13 +203,17 @@ export default class Index extends PureComponent {
                     }
                   ]
                 })(
-                  <Select style={{ width: 200 }} onChange={this.handleChange}>
-                    <Option value="jack">Jack</Option>
-                    <Option value="lucy">Lucy</Option>
-                    <Option value="Yiminghe">yiminghe</Option>
+                  <Select 
+                    onChange={this.handleChange}
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder="请选择要所属应用"
+                  >
+                    {(groups || []).map(group => (
+                      <Option value={group.group_id}>{group.group_name}</Option>
+                    ))}
                   </Select>
                 )}
-                <Button style={{ marginLeft: '4px' }}>新建应用</Button>
+                <Button style={{ marginLeft: '4px' }} onClick={this.onAddGroup}>新建应用</Button>
               </Form.Item>
               <Form.Item label="上传格式">
                 {getFieldDecorator('up_type', {
@@ -169,7 +230,7 @@ export default class Index extends PureComponent {
               </Form.Item>
               {isShowCom && (
                 <Form.Item label="组件名称">
-                  {getFieldDecorator('component_name', {
+                  {getFieldDecorator('service_cname', {
                     rules: [
                       {
                         required: true,
@@ -181,7 +242,7 @@ export default class Index extends PureComponent {
               )}
               {isShowCom && (
                 <Form.Item label="组件英文名称">
-                  {getFieldDecorator('component_name', {
+                  {getFieldDecorator('k8s_component_name', {
                     rules: [
                       {
                         required: true,
@@ -204,7 +265,15 @@ export default class Index extends PureComponent {
                       }
                     ]
                   })(
-                    <Upload {...prop} fileList={fileList} accept=".jar, .war">
+                    <Upload 
+                      {...this.getPdfURL()} 
+                      fileList={fileList} 
+                      accept=".jar, .war"
+                      // onChange={this.onChangeUpload}
+                      // onRemove={this.onRemove}
+                      // action={record.upload_url}
+                      // fileList={this.state.fileList}
+                    >
                       <Button>
                         <Icon type="upload" /> 上传文件
                       </Button>
@@ -254,6 +323,9 @@ export default class Index extends PureComponent {
             </Form>
           </div>
         </Card>
+        {addGroup && (
+          <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
+        )}
       </PageHeaderLayout>
     );
   }
