@@ -113,7 +113,7 @@ export async function deleteEnterpriseCluster(params, handleError) {
 }
 /* 获取HelmToken */
 export async function fetchHelmToken({ eid }) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/helmtoken`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/helm/token`, {
     method: 'get',
     params: {
       eid
@@ -144,7 +144,7 @@ export async function fetchHelmCommand(param) {
 }
 /* 通过helm生成命令对接控制台查看状态 */
 export async function fetchHelmJoinStatus(param) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/helmStatus`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/helm/region_status`, {
     method: 'get',
     params: {
       eid: param.eid,
