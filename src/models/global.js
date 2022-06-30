@@ -99,7 +99,8 @@ import {
   toQueryTopology,
   toSearchTenant,
   upDataEnterpriseAdminTeams,
-  upEnterpriseUsers
+  upEnterpriseUsers,
+  getRainbondAlert
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -406,6 +407,12 @@ export default {
     },
     *syncMarketApp({ payload, callback }, { call }) {
       const data = yield call(syncMarketApp, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *getRainbondAlert({ payload, callback,handleError }, { call }) {
+      const data = yield call(getRainbondAlert, payload, handleError);
       if (data && callback) {
         callback(data);
       }
