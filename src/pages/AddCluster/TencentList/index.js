@@ -86,7 +86,6 @@ const dataObj = {
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
   overviewInfo: index.overviewInfo,
-  baseConfiguration: region.base_configuration
 }))
 export default class ClusterLink extends PureComponent {
   constructor(props) {
@@ -170,7 +169,7 @@ export default class ClusterLink extends PureComponent {
         if (value === 'advanced') {
           router.push({
             pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-            search: Qs.stringify({ data: dataObj, name: 'huawei' })
+            search: Qs.stringify({ data: dataObj, name: 'tencent', cloudserver:'tencent' })
           });
         } else {
           // 跳转下一步
@@ -179,7 +178,8 @@ export default class ClusterLink extends PureComponent {
             search: Qs.stringify({
               data: dataObj,
               name: 'tencent',
-              step: 'base'
+              step: 'base',
+              cloudserver:'tencent'
             })
           });
         }
@@ -213,7 +213,6 @@ export default class ClusterLink extends PureComponent {
         params: { eid, provider, clusterID }
       },
       form: { getFieldDecorator },
-      baseConfiguration: { gatewayIngressIPs }
     } = this.props;
     const formItemLayout = {
       labelCol: {
@@ -276,7 +275,6 @@ export default class ClusterLink extends PureComponent {
                   extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
-                    initialValue: gatewayIngressIPs || '',
                     rules: [
                       {
                         required: true,

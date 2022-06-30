@@ -41,6 +41,7 @@ export default class ClusterLink extends PureComponent {
     super(props);
     const { user } = this.props;
     const adminer = userUtil.isCompanyAdmin(user);
+
     this.state = {
       adminer,
       etcd: false,
@@ -81,7 +82,7 @@ export default class ClusterLink extends PureComponent {
     ];
     return steps;
   };
-  handleSubmit = () => {};
+  handleSubmit = () => { };
   toLinkNext = value => {
     const {
       match: {
@@ -90,7 +91,7 @@ export default class ClusterLink extends PureComponent {
       location: { search },
       form
     } = this.props;
-    const { data, name } =
+    const { data, name, cloudserver } =
       search && Qs.parse(this.props.location.search.substr(1));
     const {
       etcd_enabled,
@@ -122,7 +123,7 @@ export default class ClusterLink extends PureComponent {
           RWX: {
             enable: false,
             config: {
-              server:'',
+              server: '',
               storageClassName: ''
             }
           },
@@ -131,9 +132,9 @@ export default class ClusterLink extends PureComponent {
             storageClassName: ''
           },
           NFS: {
-            enable:false,
-            server:'',
-            path:''
+            enable: false,
+            server: '',
+            path: ''
           }
         },
         type: routeData.type,
@@ -170,7 +171,7 @@ export default class ClusterLink extends PureComponent {
         if (err) return;
         // http请求
         if (values) {
-          
+
           switch (name) {
             case 'helm':
               if (etcd_enabled === '自定义配置') {
@@ -290,7 +291,7 @@ export default class ClusterLink extends PureComponent {
           dataObj.imageHub.namespace = values.namespace || (routeData && routeData.imageHub.namespace) || '';
           dataObj.imageHub.username = values.username || (routeData && routeData.imageHub.username) || '';
           dataObj.imageHub.password = values.password || (routeData && routeData.imageHub.password) || '';
-          
+
           dataObj.estorage.RWX.config.storageClassName =
             values.storageClassName1 || '';
           dataObj.estorage.RWO.storageClassName =
@@ -321,7 +322,8 @@ export default class ClusterLink extends PureComponent {
             search: Qs.stringify({
               name,
               step: 'advanced',
-              data: dataObj
+              data: dataObj,
+              cloudserver: cloudserver
             })
           });
         }
@@ -503,7 +505,7 @@ export default class ClusterLink extends PureComponent {
               )}
             </Row>
             {/* 存储 */}
-            {name !== 'ack' && name !== 'huawei' && (
+            {name !== 'ack' && name !== 'huawei' && name !== 'tencent' && (
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
@@ -575,7 +577,7 @@ export default class ClusterLink extends PureComponent {
               </Row>
             )}
             {/* 数据库 */}
-            {name !== 'ack' && name !== 'huawei' && (
+            {name !== 'ack' && name !== 'huawei' && name !== 'tencent' && (
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
@@ -697,7 +699,7 @@ export default class ClusterLink extends PureComponent {
               </Row>
             )}
             {/* 镜像仓库 */}
-            {name !== 'ack' && name !== 'huawei' && (
+            {name !== 'ack' && name !== 'huawei' && name !== 'tencent' && (
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>

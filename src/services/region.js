@@ -137,7 +137,8 @@ export async function fetchHelmCommand(param) {
       nodesForChaos: param.data.nodesForChaos,
       nodesForGateway: param.data.nodesForGateway,
       DockingType:param.data.type,
-      appui: false
+      appui: false,
+      cloudserver: param.cloudserver ? param.cloudserver : ''
     }
   });
 }

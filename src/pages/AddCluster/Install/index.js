@@ -71,7 +71,7 @@ export default class ClusterLink extends PureComponent {
     const deepClone = cloneDeep(data);
     const newData = this.handleOptionData(deepClone);
     // 从前2步回来
-    if (step === 'base' || (step === 'advanced' && !isResult)) {
+    if ((step === 'base' && !isResult) || (step === 'advanced' && !isResult)) {
       // 获取toekn值
       this.helmToken(newData);
     } else if (isResult) {
@@ -180,13 +180,17 @@ export default class ClusterLink extends PureComponent {
       });
     }
   };
-  helmToken = data => {
+  helmToken = values => {
     const {
       dispatch,
       match: {
         params: { eid }
-      }
+      },
+      location: { search }
     } = this.props;
+    const { data, name, step, cloudserver } = Qs.parse(search.substr(1)) || {};
+    const strDomain = window.location.href;
+    const domain = strDomain.match(/(\S*)\/#\//)[1];
     dispatch({
       type: 'region/fetchHelmToken',
       payload: { eid },
@@ -196,10 +200,11 @@ export default class ClusterLink extends PureComponent {
             dispatch({
               type: 'region/fetchHelmCommand',
               payload: {
-                eid: 'f0a3efe26ebff6e2a87b176fbd3256ec',
-                domain: 'http://5000.gr5b266d.2c9v614j.17f4cc.grapps.cn',
+                eid: eid,
+                domain: domain,
                 token: res.bean,
-                data
+                data: values,
+                cloudserver
               },
               callback: result => {
                 const resArr = result.response_data.command.split(' & ');

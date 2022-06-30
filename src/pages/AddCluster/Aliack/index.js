@@ -87,7 +87,6 @@ const dataObj = {
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
   overviewInfo: index.overviewInfo,
-  baseConfiguration: region.base_configuration
 }))
 export default class ClusterLink extends PureComponent {
   constructor(props) {
@@ -171,17 +170,17 @@ export default class ClusterLink extends PureComponent {
         if (value === 'advanced') {
           router.push({
             pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-            search: Qs.stringify({ data: dataObj, name: 'ack' })
+            search: Qs.stringify({ data: dataObj, name: 'ack', cloudserver:'aliyun' })
           });
         } else {
           // 跳转下一步
-          console.log(dataObj,'dataObj')
           router.push({
             pathname: `/enterprise/${eid}/provider/ACksterList/install`,
             search: Qs.stringify({
               data: dataObj,
               name: 'ack',
-              step: 'base'
+              step: 'base',
+              cloudserver:'aliyun'
             })
           });
         }
@@ -215,7 +214,6 @@ export default class ClusterLink extends PureComponent {
         params: { eid, provider, clusterID }
       },
       form: { getFieldDecorator },
-      baseConfiguration: { gatewayIngressIPs }
     } = this.props;
     const formItemLayout = {
       labelCol: {
@@ -278,7 +276,6 @@ export default class ClusterLink extends PureComponent {
                   className={styles.antd_form}
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
-                    initialValue: gatewayIngressIPs || '',
                     rules: [
                       {
                         required: true,

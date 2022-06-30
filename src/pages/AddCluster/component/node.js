@@ -7,19 +7,12 @@ import { connect } from 'dva';
 import React, { Component } from 'react';
 
 @connect(({ region }) => ({
-  baseConfiguration: region.base_configuration
 }))
 class DAinput extends Component {
   constructor(props) {
     super(props);
-    const {
-      baseConfiguration: { nodesForGateway }
-    } = this.props;
     this.state = {
-      values:
-        nodesForGateway && nodesForGateway.length > 0
-          ? nodesForGateway
-          : [{ externalIP: '', internalIP: '', name: '' }]
+      values:[{ externalIP: '', internalIP: '', name: '' }]
     };
   }
   handleExternalIP = (value, index) => {
