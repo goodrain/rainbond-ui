@@ -578,6 +578,27 @@ export default class EnterpriseClusters extends PureComponent {
                         </span>
                       );
                     }
+                    if (item === 'aliyun') {
+                      return (
+                        <span style={{ marginRight: '8px' }} key={item}>
+                          阿里云
+                        </span>
+                      );
+                    }
+                    if (item === 'huawei') {
+                      return (
+                        <span style={{ marginRight: '8px' }} key={item}>
+                          华为云
+                        </span>
+                      );
+                    }
+                    if (item === 'tencent') {
+                      return (
+                        <span style={{ marginRight: '8px' }} key={item}>
+                          腾讯云
+                        </span>
+                      );
+                    }
                     return item;
                   })
                 : '普通集群'}
@@ -616,6 +637,12 @@ export default class EnterpriseClusters extends PureComponent {
               return (
                 <span style={{ marginRight: '8px' }} key={item}>
                   TKE
+                </span>
+              );
+            case 'helm':
+              return (
+                <span style={{ marginRight: '8px' }} key={item}>
+                  Helm对接
                 </span>
               );
             default:

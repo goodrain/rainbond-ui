@@ -159,7 +159,6 @@ export default class AddVolumes extends PureComponent {
       data = {},
       form: { getFieldDecorator, setFieldsValue }
     } = this.props;
-    // console.log(data, 'data');
     const { volumeCapacityValidation, optionsConfig } = this.state;
     let defaultVolumeCapacity = '';
     if (data.volume_capacity) {

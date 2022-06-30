@@ -41,6 +41,7 @@ class DrawerForm extends PureComponent {
   constructor(props) {
     super(props);
     const { editInfo } = this.props;
+    
     this.state = {
       componentLoading: false,
       portLoading: false,

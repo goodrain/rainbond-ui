@@ -144,6 +144,48 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/provider/ACksterList',
+            component: './AddCluster/ACksterList',
+            name: 'ACksterList',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/provider/Aliack',
+            component: './AddCluster/Aliack',
+            name: 'Aliack',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/provider/ACksterList/advanced',
+            component: './AddCluster/Advanced',
+            name: 'ACkadvanced',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/provider/ACksterList/install',
+            component: './AddCluster/Install',
+            name: 'ACkinstall',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/provider/ACksterList/result',
+            component: './AddCluster/Result',
+            name: 'ACkresult',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/provider/TencentList',
+            component: './AddCluster/TencentList',
+            name: 'TencentList',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/provider/HuaweiList',
+            component: './AddCluster/HuaweiList',
+            name: 'HuaweiList',
+            authority: ['admin', 'user']
+          },
+          {
             path:
               '/enterprise/:eid/provider/:provider/kclusters/:clusterID/init',
             component: './AddCluster/RainbondInit',
