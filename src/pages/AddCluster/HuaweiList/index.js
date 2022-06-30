@@ -290,7 +290,14 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
+                  extra={
+                    <div>根据自身需求，提前在华为云官网准备好云资源：ELB负载均衡，
+                      ELB负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置ELB监听端口，
+                      <a target="_blank" href="https://support.huaweicloud.com/qs-elb/zh-cn_topic_0052569751.html">
+                        详细配置见官方文档。
+                      </a>
+                    </div>
+                  }
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
                     rules: [
@@ -312,7 +319,8 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="网关安装的节点，可以安装到多个节点，实现高可用。"
+                  extra="rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用。节点名称填写k8s集群中node名称，
+                  华为云请确认安装节点可以连接外网。"
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
@@ -333,7 +341,10 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>SFS 存储:</span>
                   </div>
                   <div className={styles.desc}>
-                    设置外部共享存储的StorageClass。
+                    根据自身需求，在华为云官网准备好SFS文件系统，用于持久化数据，
+                    <a target="_blank" href="https://support.huaweicloud.com/qs-sfs/zh-cn_topic_0034428727.html">
+                      详细配置见官方文档。
+                    </a>
                   </div>
                 </div>
                 <div className={styles.config}>
@@ -346,7 +357,7 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder="请填写挂载点地址  例：glusterfs-simple" />
+                      <Input placeholder="请填写挂载点地址  例：192.168.0.12" />
                     )}
                   </FormItem>
                   <FormItem {...storageFormItemLayout} label="挂载点路径">
@@ -358,7 +369,7 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder="请填写挂载点路径  例：glusterfs-simple" />
+                      <Input placeholder="请填写挂载点路径  例：/" />
                     )}
                   </FormItem>
                 </div>
@@ -370,7 +381,10 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>RDS 数据库</span>
                   </div>
                   <div className={styles.desc}>
-                    设置外部独立Mysql数据库服务地址。
+                    根据自身需求，在华为云官网准备好云数据库 RDS for MySQL 8.0“，并开放3306连接端口，登录RDS创建，授权用户，创建好相对应的数据库，
+                    <a target="_blank" href="https://support.huaweicloud.com/qs-rds/zh-cn_topic_0046585334.html">
+                      详细配置见官方文档。
+                    </a>
                   </div>
                 </div>
                 <div className={styles.config}>
@@ -443,7 +457,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>容器镜像服务</span>
                   </div>
                   <div className={styles.desc}>
-                    设置外部独立容器镜像仓库地址。
+                  根据自身需求，在华为云官网准备好”容器镜像服务SWR“，根据提示开通之后，会得到一个仓库域名，组织名称（或命名空间），登录镜像仓库的用户名，密码。
                   </div>
                 </div>
                 <div className={styles.config}>

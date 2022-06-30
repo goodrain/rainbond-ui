@@ -208,6 +208,9 @@ export default class ClusterLink extends PureComponent {
       callback();
     }
   };
+  docsHref = (href) => {
+    console.log(href)
+  }
   render() {
     const {
       match: {
@@ -245,7 +248,11 @@ export default class ClusterLink extends PureComponent {
         sm: { span: 6 }
       }
     };
-
+    const docs = (
+      <div>
+        <a href=''>详细配置见官方文档</a>
+      </div>
+    )
     return (
       <PageHeaderLayout
         title="添加集群"
@@ -272,7 +279,7 @@ export default class ClusterLink extends PureComponent {
                 </div>
                 <FormItem
                   {...formItemLayout}
-                  extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
+                  extra={<div>根据自身需求，提前在阿里云官网准备好云资源：SLB负载均衡,SLB负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置SLB监听端口，<a target="_blank" href="https://help.aliyun.com/document_detail/29863.html?spm=5176.21213303.J_6704733920.9.6ff053c9SQg0bg&scm=20140722.S_help%40%40%E6%96%87%E6%A1%A3%40%4029863._.ID_help%40%40%E6%96%87%E6%A1%A3%40%4029863-RL_SLB-LOC_main-OR_ser-V_2-P0_1">详细配置见官方文档。</a></div>}
                   className={styles.antd_form}
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
@@ -295,7 +302,7 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="网关安装的节点，可以安装到多个节点，实现高可用。"
+                  extra="rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用，节点名称填写k8s集群中node名称。"
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
@@ -316,7 +323,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>NAS 存储:</span>
                   </div>
                   <div className={styles.desc}>
-                    设置外部共享存储的StorageClass。
+                  根据自身需求，在阿里云官网准备好NAS文件系统，用于持久化数据，<a target="_blank" href="https://help.aliyun.com/document_detail/312360.html">详细配置见官方文档。</a>
                   </div>
                 </div>
                 <div className={styles.config}>
@@ -329,7 +336,7 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder="请填写存储名称  例：glusterfs-simple" />
+                      <Input placeholder="请填写挂载点地址  例：192.168.0.12" />
                     )}
                   </FormItem>
                   <FormItem
@@ -356,7 +363,8 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>RDS 数据库:</span>
                   </div>
                   <div className={styles.desc}>
-                    设置外部独立Mysql数据库服务地址。
+                  根据自身需求，在阿里云官网准备好”RDS数据库 MySQL版8.0“，并开放3306连接端口，登录RDS创建，授权用户，创建好相对应的数据库，
+                  <a target="_blank" href="https://help.aliyun.com/document_detail/309008.html">详细配置见官方文档。</a>
                   </div>
                 </div>
                 <div className={styles.config}>
@@ -429,7 +437,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>容器镜像服务:</span>
                   </div>
                   <div className={styles.desc}>
-                    设置外部独立容器镜像仓库地址。
+                  根据自身需求，在阿里云官网准备好”容器镜像服务称为ACR“，根据提示开通之后，会得到一个仓库域名，组织名称（或命名空间），登录镜像仓库的用户名，密码。
                   </div>
                 </div>
                 <div className={styles.config}>

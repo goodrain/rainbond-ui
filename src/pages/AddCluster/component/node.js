@@ -82,7 +82,7 @@ class DAinput extends Component {
   render() {
     const externalIPPlaceholder = '外部IP  例：1.2.3.4';
     const repPlaceholder = '内部IP  例：192.168.0.1';
-    const namePlaceholder = '节点名称  例：master1';
+    const namePlaceholder = '节点名称  例：node1';
     const { values } = this.state;
 
     return (
