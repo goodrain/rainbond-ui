@@ -1,0 +1,42 @@
+// 每行
+.antd_row {
+  display: flex;
+  border-bottom: 1px dashed #e4e4e4;
+  // margin-bottom: 30px;
+  // align-items: center;
+  padding: 36px 12px;
+  // 标题
+  & > div {
+    width: 140px;
+    text-align: left;
+    & > span {
+      display: inline-block;
+      // border: 1px solid #c1c4c5;
+      padding: 6px 0px;
+    }
+  }
+  // 表单
+  .antd_form {
+    flex: 1;
+  }
+  :global {
+    .ant-form-item {
+      margin-bottom: 0px !important;
+    }
+    .ant-form-extra {
+      width: 600px;
+    }
+  }
+}
+// .antd_row:hover {
+//   border: 1px solid #5672ac;
+// }
+// 底部按钮
+.antd_row_btn {
+  text-align: center;
+  margin-top: 20px;
+  .antd_btn {
+    width: 88px;
+    margin-left: 10px;
+  }
+}

@@ -1,0 +1,74 @@
+//  每一行
+.antd_row {
+  display: flex;
+  border-bottom: 1px dashed #e4e4e4;
+  // margin-bottom: 30px;
+  :global {
+    .ant-tag {
+      margin-top: 24px;
+    }
+  }
+  //   标题和描述
+  .titleBox {
+    display: flex;
+    margin-right: 80px;
+    .title {
+      display: flex;
+      // align-items: center;
+    }
+    .titleSpan {
+      font-weight: bold;
+      // border: 1px solid #c1c4c5;
+      font-size: 16px;
+      padding: 12px;
+      display: block;
+      width: 140px;
+      text-align: left;
+      margin-right: 14px;
+      line-height: 56px;
+    }
+    // 配置按钮
+  }
+  // 配置项
+  .config {
+    flex: 1;
+    padding-top: 24px;
+    padding-left: 24px;
+  }
+}
+// 底部的按钮
+.antd_row_btn {
+  text-align: center;
+  margin-top: 20px;
+  .antd_btn {
+    width: 88px;
+    margin-left: 10px;
+  }
+}
+// .antd_row:hover {
+//   border: 1px solid #5672ac;
+// }
+.data_base {
+  :global {
+    .ant-form-item-control-wrapper {
+      flex: 1;
+      .ant-form-item-children {
+        display: flex;
+        & > input {
+          width: 260px;
+        }
+        & > input:first-child {
+          margin-right: 90px;
+        }
+      }
+    }
+  }
+}
+.desc {
+  display: flex;
+  align-items: center;
+  margin-left: 36px;
+  font-size: 14px;
+  padding-right: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
