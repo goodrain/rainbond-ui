@@ -118,8 +118,6 @@ class TeamLayout extends PureComponent {
       type: 'global/fetchEnterpriseList',
       callback: res => {
         if (res && res.status_code === 200) {
-          //获取平台报警信息
-          this.getAlertInfo(currentUser.enterprise_id)
           this.setState(
             {
               enterpriseList: res.list
@@ -433,7 +431,6 @@ class TeamLayout extends PureComponent {
       currentComponent,
       teamView,
       currentApp,
-      alertInfo
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -660,19 +657,7 @@ class TeamLayout extends PureComponent {
                   width: autoWidth
                 }}
               >
-                {/* 报警信息 */}
-                {alertInfo.length > 0 && alertInfo.map((item)=>{
-                  return (
-                    <div className={styles.alerts}>
-                      <Alert
-                        style={{ textAlign: 'left', marginTop: '4px', marginBottom:'4px',color:'#c40000',background:'#fff1f0',border:' 1px solid red' }}
-                        message={item.annotations.description}
-                        type="warning"
-                        showIcon
-                      />
-                    </div>
-                 )
-                })}
+                
                 <div
                   style={{
                     margin: '24px 24px 0'
