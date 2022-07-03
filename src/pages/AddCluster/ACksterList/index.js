@@ -251,17 +251,21 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
+                  extra="(非必填) 入口IP请开放 80、443、6060、6443、7070、8443 端口。"
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
                     rules: [
                       {
-                        required: true,
+                        required: false,
                         message: '请填写IP地址'
                       },
                       {
                         pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
                         message: '请填写正确的IP地址'
+                      },
+                      {
+                        pattern: /^[^\s]*$/,
+                        message: '禁止输入空格'
                       }
                     ]
                   })(<Input placeholder="请输入IP地址  例：1.2.3.4" />)}
@@ -277,13 +281,17 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="网关安装的节点，可以安装到多个节点，实现高可用。"
+                  extra="(非必填) 网关安装的节点，可以安装到多个节点，实现高可用。"
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
-                      { required: true, message: '请填写网关安装节点' },
+                      { required: false, message: '请填写网关安装节点' },
                       {
                         validator: this.handleValidatorsGateway
+                      },
+                      {
+                        pattern: /^[^\s]*$/,
+                        message: '禁止输入空格'
                       }
                     ]
                   })(<DAinput />)}

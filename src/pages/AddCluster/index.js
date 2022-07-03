@@ -665,7 +665,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div className={styles.importicon}>{aliIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>阿里云</h3>
-                  <p>自定义安装参数，生成helm安装命令。</p>
+                  <p>对接和管理ACK集群。</p>
                 </div>
               </div>
             </Col>
@@ -679,7 +679,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div className={styles.importicon}>{huaweiIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>华为云</h3>
-                  <p>自定义安装参数，生成helm安装命令。</p>
+                  <p>对接和管理CCE集群。</p>
                 </div>
               </div>
             </Col>
@@ -693,7 +693,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div className={styles.importicon}>{tencentIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>腾讯云</h3>
-                  <p>自定义安装参数，生成helm安装命令。</p>
+                  <p>对接和管理TKE集群。</p>
                 </div>
               </div>
             </Col>

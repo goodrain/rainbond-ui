@@ -103,7 +103,7 @@ export default class ClusterLink extends PureComponent {
       dispatch(routerRedux.push(`/`));
     }
   }
-  componentDidMount() {}
+  componentDidMount() { }
   loadSteps = () => {
     const steps = [
       {
@@ -121,7 +121,7 @@ export default class ClusterLink extends PureComponent {
     ];
     return steps;
   };
-  handleSubmit = e => {};
+  handleSubmit = e => { };
   // 下一步或者高级配置
   toLinkNext = value => {
     const { dispatch } = this.props;
@@ -169,7 +169,7 @@ export default class ClusterLink extends PureComponent {
         if (value === 'advanced') {
           router.push({
             pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-            search: Qs.stringify({ data: dataObj, name: 'tencent', cloudserver:'tencent' })
+            search: Qs.stringify({ data: dataObj, name: 'tencent', cloudserver: 'tencent' })
           });
         } else {
           // 跳转下一步
@@ -179,7 +179,7 @@ export default class ClusterLink extends PureComponent {
               data: dataObj,
               name: 'tencent',
               step: 'base',
-              cloudserver:'tencent'
+              cloudserver: 'tencent'
             })
           });
         }
@@ -274,7 +274,7 @@ export default class ClusterLink extends PureComponent {
                   className={styles.antd_form}
                   extra={
                     <div>
-                      根据自身需求，提前在腾讯云官网准备好云资源：负载均衡。
+                      (非必填) 根据自身需求，提前在腾讯云官网准备好云资源：负载均衡。
                       腾讯云负载均衡，会负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置负载均衡监听端口，
                       <a target="_blank" href="https://cloud.tencent.com/document/product/214/36386">
                         详细配置见官方文档。
@@ -285,8 +285,12 @@ export default class ClusterLink extends PureComponent {
                   {getFieldDecorator('gatewayIngressIPs', {
                     rules: [
                       {
-                        required: true,
+                        required: false,
                         message: '请填写IP地址'
+                      },
+                      {
+                        pattern: /^[^\s]*$/,
+                        message: '禁止输入空格'
                       }
                     ]
                   })(<Input placeholder="请填写IP地址  例：1.2.3.4" />)}
@@ -302,16 +306,20 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用,节点名称填写是k8s集群中node名称。"
+                  extra="(非必填) rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用,节点名称填写是k8s集群中node名称。"
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
                       {
-                        required: true,
+                        required: false,
                         message: '请填写网关安装节点'
                       },
                       {
                         validator: this.handleValidatorsGateway
+                      },
+                      {
+                        pattern: /^[^\s]*$/,
+                        message: '禁止输入空格'
                       }
                     ]
                   })(<DAinput />)}
@@ -334,8 +342,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('server', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写挂载点地址'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(
@@ -346,8 +358,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('path', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写挂载点路径'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(
@@ -363,7 +379,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>RDS 数据库</span>
                   </div>
                   <div className={styles.desc}>
-                  根据自身需求，在腾讯云官网准备好”云数据库 MySQL 8.0“，并开放3306连接端口，登录RDS创建，授权用户，创建好相对应的数据库，
+                    (非必填) 根据自身需求，在腾讯云官网准备好”云数据库 MySQL 8.0“，并开放3306连接端口，登录RDS创建，授权用户，创建好相对应的数据库，
                     <a target="_blank" href="https://cloud.tencent.com/document/product/236/3130">
                       详细配置见官方文档。
                     </a>
@@ -376,8 +392,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('regionDatabase_host', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写连接地址'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写数据库连接地址" />)}
@@ -388,8 +408,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('regionDatabase_port', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写连接端口'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写连接端口  例：3306" />)}
@@ -400,8 +424,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('regionDatabase_username', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写用户名'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写用户名  例：root" />)}
@@ -412,11 +440,15 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('regionDatabase_password', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写密码'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
-                    })(<Input placeholder="请填写密码" />)}
+                    })(<Input type="password" placeholder="请填写密码" />)}
                   </FormItem>
                   {/* 数据库名称 */}
                   <FormItem {...formItemLayouts} label="数据库名称">
@@ -424,8 +456,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('regionDatabase_dbname', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写数据库名称'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写数据库库名称  例：region" />)}
@@ -439,7 +475,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>容器镜像服务</span>
                   </div>
                   <div className={styles.desc}>
-                  根据自身需求，在腾讯云官网准备好“容器镜像服务”，根据提示开通之后，会得到一个仓库域名，组织名称（或命名空间），登录镜像仓库的用户名，密码。
+                    (非必填) 根据自身需求，在腾讯云官网准备好“容器镜像服务”，根据提示开通之后，会得到一个仓库域名，组织名称（或命名空间），登录镜像仓库的用户名，密码。
                   </div>
                 </div>
                 <div className={styles.config}>
@@ -451,8 +487,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('domain', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写镜像仓库域名'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写镜像仓库域名" />)}
@@ -462,7 +502,18 @@ export default class ClusterLink extends PureComponent {
                     label="命名空间"
                     className={styles.antd_form}
                   >
-                    {getFieldDecorator('namespace')(
+                    {getFieldDecorator('namespace', {
+                      rules: [
+                        {
+                          required: false,
+                          message: '请填写命名空间'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
+                        }
+                      ]
+                    })(
                       <Input placeholder="请填写命名空间" />
                     )}
                   </FormItem>
@@ -474,8 +525,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('username', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写用户名'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写用户名" />)}
@@ -488,11 +543,15 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('password', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写密码'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
-                    })(<Input placeholder="请填写密码" />)}
+                    })(<Input type="password" placeholder="请填写密码" />)}
                   </FormItem>
                 </div>
               </Row>
