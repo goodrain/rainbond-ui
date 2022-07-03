@@ -489,6 +489,9 @@ class StorageManage extends PureComponent {
   state = {
     editStoragData: false
   };
+  componentDidMount(){
+    this.openPlugin()
+  }
   handleSubmitStorageConfig = (vals, data) => {
     const team_name = globalUtil.getCurrTeamName();
     const {
@@ -518,7 +521,6 @@ class StorageManage extends PureComponent {
           return item;
         });
     }
-
     // 更新配置
     dispatch({
       type: 'appControl/editPluginConfigs',
@@ -530,7 +532,35 @@ class StorageManage extends PureComponent {
       },
       callback: () => {
         notification.success({ message: '修改成功' });
-        this.handleCancelAddStorageConfig();
+        this.openPlugin()
+      }
+    });
+  };
+  openPlugin = () => {
+    const team_name = globalUtil.getCurrTeamName();
+    const { 
+      dispatch,
+      pluginInfo:{
+        appAlias,
+        pluginInfo:{
+          plugin_id,
+          build_version
+        }
+      } 
+    } = this.props
+    dispatch({
+      type: 'appControl/getPluginConfigs',
+      payload: {
+        team_name,
+        app_alias: appAlias,
+        plugin_id: plugin_id,
+        build_version: build_version
+      },
+      callback: data => {
+        if (data) {
+          this.props.data.config = data.bean.storage_env.config
+          this.handleCancelAddStorageConfig();
+        }
       }
     });
   };
@@ -694,7 +724,8 @@ export default class Index extends PureComponent {
       category: '',
       type: 'installed',
       showDeletePlugin: null,
-      openedPlugin: {}
+      openedPlugin: {},
+      pluginInfo: {}
     };
     this.isInit = true;
   }
@@ -801,7 +832,8 @@ export default class Index extends PureComponent {
           const temp = {};
           temp[plugin.plugin_id] = data.bean || {};
           this.setState({
-            openedPlugin: Object.assign({}, temp)
+            openedPlugin: Object.assign({}, temp),
+            pluginInfo: plugin
           });
         }
       }
@@ -835,7 +867,7 @@ export default class Index extends PureComponent {
     this.setState({ updateMemory: null });
   };
   renderInstalled = () => {
-    const { installedList } = this.state;
+    const { installedList, pluginInfo } = this.state;
     const loading = this.state.unInstalledList === null;
     return (
       <List
@@ -954,6 +986,7 @@ export default class Index extends PureComponent {
                   configs={this.state.openedPlugin[item.plugin_id] || []}
                   plugin_id={item.plugin_id}
                   appAlias={this.props.appAlias}
+                  pluginInfo={pluginInfo}
                 />
                 <div
                   style={{

@@ -483,7 +483,7 @@ export default class Index extends PureComponent {
           item.attr_default_value = JSON.stringify({
             volume_path: deepVals.volume_path,
             file_content: deepVals.file_content || '',
-            attr_type: deepVals.volume_type,
+            attr_type: data.attr_type,
             volume_name: deepVals.volume_name
           });
         }
@@ -563,7 +563,8 @@ export default class Index extends PureComponent {
       showStorageConfig,
       isEditor,
       configStorageVisible,
-      removeStorageLoading
+      removeStorageLoading,
+      editStoragData
     } = this.state;
     if (!currInfo) return null;
     const action = (
@@ -919,7 +920,7 @@ export default class Index extends PureComponent {
           <EditStorageConfig
             onCancel={this.handleCancelAddStorageConfig}
             onSubmit={this.handleSubmitStorageConfig}
-            data={this.state.editStoragData} // 编辑数据
+            data={editStoragData} // 编辑数据
             editor={isEditor}
           />
         )}
