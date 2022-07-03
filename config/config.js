@@ -48,11 +48,11 @@ export default {
   routes: routerConfig,
   proxy: {
     '/console': {
-      target: 'http://5000.gr554d67.2c9v614j.17f4cc.grapps.cn/',
+      target: 'http://192.168.2.101:10000',
       changeOrigin: true
     },
     '/data': {
-      target: 'http://5000.gr554d67.2c9v614j.17f4cc.grapps.cn/',
+      target: 'http://192.168.2.101:10000',
       changeOrigin: true
     }
   }
