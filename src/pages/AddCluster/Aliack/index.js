@@ -137,9 +137,14 @@ export default class ClusterLink extends PureComponent {
       if (err) return;
       if (values) {
         dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
-        dataObj.nodesForGateway.nodes = values.nodesForGateway || '';
+        dataObj.nodesForGateway.nodes = values.nodesForGateway || [];
         // 镜像仓库
-        dataObj.imageHub.enable = true;
+        if(values.domain || values.namespace || values.username || values.password) {
+          dataObj.imageHub.enable = true;
+        }else{
+          dataObj.imageHub.enable = false;
+        }
+        
         dataObj.imageHub.domain = values.domain || '';
         dataObj.imageHub.namespace = values.namespace || '';
         dataObj.imageHub.username = values.username || '';
@@ -147,14 +152,24 @@ export default class ClusterLink extends PureComponent {
         dataObj.etcd.endpoints = values.endpoints || [];
         dataObj.etcd.secretName = values.secretName || '';
         // 存储
-        dataObj.estorage.enable = true;
-        dataObj.estorage.RWX.enable = true;
-        dataObj.estorage.RWO.enable = true;
+        if(values.server){
+          dataObj.estorage.enable = true;
+          dataObj.estorage.RWX.enable = true;
+          dataObj.estorage.RWO.enable = true;
+        }else{
+          dataObj.estorage.enable = false;
+          dataObj.estorage.RWX.enable = false;
+          dataObj.estorage.RWO.enable = false;
+        }
         dataObj.estorage.RWX.config.server = values.server || '';
-        dataObj.estorage.RWO.storageClassName = values.storageClassName2 || '';
         // 数据库
-        dataObj.database.enable = true;
-        dataObj.database.regionDatabase.enable = true;
+        if(values.regionDatabase_host || values.regionDatabase_port || values.regionDatabase_username || values.regionDatabase_password || values.regionDatabase_dbname){
+          dataObj.database.enable = true;
+          dataObj.database.regionDatabase.enable = true;
+        }else{
+          dataObj.database.enable = false;
+          dataObj.database.regionDatabase.enable = false;
+        }
         dataObj.database.regionDatabase.host = values.regionDatabase_host || '';
         dataObj.database.regionDatabase.port = values.regionDatabase_port || '';
         dataObj.database.regionDatabase.username =
@@ -187,30 +202,33 @@ export default class ClusterLink extends PureComponent {
       }
     });
   };
-  // 网关校验
-  handleValidatorsGateway = (_, val, callback) => {
-    let isPass = false;
-    if (val && val.length > 0) {
-      val.some(item => {
-        if (item.externalIP && item.internalIP && item.name) {
-          isPass = true;
-        } else {
-          isPass = false;
-          return true;
+// 网关校验
+handleValidatorsGateway = (_, val, callback) => {
+  let isPass = false;
+  if (val && val.length > 0) {
+    val.some(item => {
+      if (item.externalIP && item.internalIP && item.name) {
+        const patt = /^[^\s]*$/;
+        if(item.externalIP.match(patt) && item.internalIP.match(patt) && item.name.match(patt)){
+          callback();
+        }else{
+          callback(new Error('禁止输入空格'));
         }
-      });
-      if (isPass) {
-        callback();
+        isPass = true;
       } else {
-        callback(new Error('需填写完整的网关安装节点'));
+        isPass = false;
+        return true;
       }
-    } else {
+    });
+    if (isPass) {
       callback();
+    } else {
+      callback(new Error('需填写完整的网关安装节点'));
     }
-  };
-  docsHref = (href) => {
-    console.log(href)
+  } else {
+    callback();
   }
+};
   render() {
     const {
       match: {
@@ -279,14 +297,18 @@ export default class ClusterLink extends PureComponent {
                 </div>
                 <FormItem
                   {...formItemLayout}
-                  extra={<div>(非必填) 根据自身需求，提前在阿里云官网准备好云资源：SLB负载均衡,SLB负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置SLB监听端口，<a target="_blank" href="https://help.aliyun.com/document_detail/29863.html?spm=5176.21213303.J_6704733920.9.6ff053c9SQg0bg&scm=20140722.S_help%40%40%E6%96%87%E6%A1%A3%40%4029863._.ID_help%40%40%E6%96%87%E6%A1%A3%40%4029863-RL_SLB-LOC_main-OR_ser-V_2-P0_1">详细配置见官方文档。</a></div>}
+                  extra={<div>根据自身需求，提前在阿里云官网准备好云资源：SLB负载均衡,SLB负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置SLB监听端口，<a target="_blank" href="https://help.aliyun.com/document_detail/29863.html?spm=5176.21213303.J_6704733920.9.6ff053c9SQg0bg&scm=20140722.S_help%40%40%E6%96%87%E6%A1%A3%40%4029863._.ID_help%40%40%E6%96%87%E6%A1%A3%40%4029863-RL_SLB-LOC_main-OR_ser-V_2-P0_1">详细配置见官方文档。</a></div>}
                   className={styles.antd_form}
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
                     rules: [
                       {
-                        required: false,
+                        required: true,
                         message: '请填写IP地址'
+                      },
+                      {
+                        pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
+                        message: '请填写正确的IP地址'
                       },
                       {
                         pattern: /^[^\s]*$/,
@@ -306,20 +328,16 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="(非必填) rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用，节点名称填写k8s集群中node名称。"
+                  extra="rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用，节点名称填写k8s集群中node名称。"
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
                       {
-                        required: false,
+                        required: true,
                         message: '请填写网关安装节点'
                       },
                       {
                         validator: this.handleValidatorsGateway
-                      },
-                      {
-                        pattern: /^[^\s]*$/,
-                        message: '禁止输入空格'
                       }
                     ]
                   })(<DAinput />)}

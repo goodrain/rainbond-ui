@@ -137,9 +137,13 @@ export default class ClusterLink extends PureComponent {
 
       if (values) {
         dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
-        dataObj.nodesForGateway.nodes = values.nodesForGateway || '';
+        dataObj.nodesForGateway.nodes = values.nodesForGateway || [];
         // 镜像仓库
-        dataObj.imageHub.enable = true;
+        if (values.domain || values.namespace || values.username || values.password) {
+          dataObj.imageHub.enable = true;
+        } else {
+          dataObj.imageHub.enable = false;
+        }
         dataObj.imageHub.domain = values.domain || '';
         dataObj.imageHub.namespace = values.namespace || '';
         dataObj.imageHub.username = values.username || '';
@@ -147,13 +151,23 @@ export default class ClusterLink extends PureComponent {
         dataObj.etcd.endpoints = values.endpoints || [];
         dataObj.etcd.secretName = values.secretName || '';
         // 存储
-        dataObj.estorage.enable = true;
-        dataObj.estorage.NFS.enable = true;
+        if (values.server || values.path) {
+          dataObj.estorage.enable = true;
+          dataObj.estorage.NFS.enable = true;
+        } else {
+          dataObj.estorage.enable = false;
+          dataObj.estorage.NFS.enable = false;
+        }
         dataObj.estorage.NFS.server = values.server || '';
         dataObj.estorage.NFS.path = values.path || '';
         // 数据库
-        dataObj.database.enable = true;
-        dataObj.database.regionDatabase.enable = true;
+        if (values.regionDatabase_host || values.regionDatabase_port || values.regionDatabase_username || values.regionDatabase_password || values.regionDatabase_dbname) {
+          dataObj.database.enable = true;
+          dataObj.database.regionDatabase.enable = true;
+        } else {
+          dataObj.database.enable = false;
+          dataObj.database.regionDatabase.enable = false;
+        }
         dataObj.database.regionDatabase.host = values.regionDatabase_host || '';
         dataObj.database.regionDatabase.port = values.regionDatabase_port || '';
         dataObj.database.regionDatabase.username =
@@ -274,7 +288,7 @@ export default class ClusterLink extends PureComponent {
                   className={styles.antd_form}
                   extra={
                     <div>
-                      (非必填) 根据自身需求，提前在腾讯云官网准备好云资源：负载均衡。
+                      根据自身需求，提前在腾讯云官网准备好云资源：负载均衡。
                       腾讯云负载均衡，会负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置负载均衡监听端口，
                       <a target="_blank" href="https://cloud.tencent.com/document/product/214/36386">
                         详细配置见官方文档。
@@ -285,7 +299,7 @@ export default class ClusterLink extends PureComponent {
                   {getFieldDecorator('gatewayIngressIPs', {
                     rules: [
                       {
-                        required: false,
+                        required: true,
                         message: '请填写IP地址'
                       },
                       {
@@ -306,20 +320,16 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="(非必填) rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用,节点名称填写是k8s集群中node名称。"
+                  extra="rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用,节点名称填写是k8s集群中node名称。"
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
                       {
-                        required: false,
+                        required: true,
                         message: '请填写网关安装节点'
                       },
                       {
                         validator: this.handleValidatorsGateway
-                      },
-                      {
-                        pattern: /^[^\s]*$/,
-                        message: '禁止输入空格'
                       }
                     ]
                   })(<DAinput />)}
@@ -331,7 +341,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>CFS 存储:</span>
                   </div>
                   <div className={styles.desc}>
-                    根据自身需求，在腾讯云官网准备好CFS文件系统，用于持久化数据，
+                  (非必填) 根据自身需求，在腾讯云官网准备好CFS文件系统，用于持久化数据，
                     <a target="_blank" href="https://cloud.tencent.com/document/product/582/9132">
                       详细配置见官方文档。
                     </a>

@@ -129,40 +129,16 @@ export default class ClusterLink extends PureComponent {
     if (value === 'goback') {
       switch (name) {
         case 'helm':
-          if (step === 'base')
             router.push(`/enterprise/${eid}/provider/ACksterList`);
-          else
-            router.push({
-              pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-              search: Qs.stringify({ name })
-            });
           break;
         case 'ack':
-          if (step === 'base')
             router.push(`/enterprise/${eid}/provider/Aliack`);
-          else
-            router.push({
-              pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-              search: Qs.stringify({ name })
-            });
           break;
         case 'huawei':
-          if (step === 'base')
             router.push(`/enterprise/${eid}/provider/HuaweiList`);
-          else
-            router.push({
-              pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-              search: Qs.stringify({ name })
-            });
           break;
         case 'tencent':
-          if (step === 'base')
             router.push(`/enterprise/${eid}/provider/tencentList`);
-          else
-            router.push({
-              pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-              search: Qs.stringify({ name })
-            });
           break;
         default:
           break;
