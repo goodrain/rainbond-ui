@@ -80,6 +80,8 @@ export default class Index extends React.Component {
   }
   componentDidMount() {
     if (!this.canView()) return;
+    console.log("其他设置页面");
+    console.log(this.props);
     this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
     this.fetchInnerEnvs();
     this.fetchStartProbe();
@@ -172,7 +174,7 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias
       },
-      callback: code => {}
+      callback: code => { }
     });
   }
   loadMembers = () => {
@@ -347,6 +349,10 @@ export default class Index extends React.Component {
   };
   handleEditHealth = vals => {
     const { startProbe } = this.props;
+    console.log("健康检测")
+    console.log(vals)
+    console.log(this.props)
+    return
     this.setState({
       loading: true
     });
@@ -768,7 +774,7 @@ export default class Index extends React.Component {
                     </a>
 
                     {JSON.stringify(startProbe) != '{}' &&
-                    appProbeUtil.isStartProbeStart(startProbe) ? (
+                      appProbeUtil.isStartProbeStart(startProbe) ? (
                       <a
                         onClick={() => {
                           this.handleStartProbeStart(false);
@@ -807,8 +813,8 @@ export default class Index extends React.Component {
                   {startProbe.mode === 'readiness'
                     ? '下线'
                     : startProbe.mode === 'liveness'
-                    ? '重启'
-                    : '未设置'}
+                      ? '重启'
+                      : '未设置'}
                 </div>
               </div>
             )}
