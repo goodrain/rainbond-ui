@@ -34,14 +34,22 @@ export default class Index extends PureComponent {
       fileList: [], 
       defaultRadio: 'jwar', 
       isShowCom: true, 
-      addGroup:false 
+      addGroup:false,
+      record: {},
+      event_id: '',
+      region_name: '',
+      team_name: '',
+      percents: false
     };
   }
   componentWillMount() {
     const { currentTeamPermissionsInfo, dispatch } = this.props;
     roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
-
+  componentDidMount(){
+    this.handleJarWarUpload()
+  }
+  //表单提交
   handleSubmit = e => {
     e.preventDefault();
     const { form } = this.props;
@@ -50,6 +58,7 @@ export default class Index extends PureComponent {
       console.log(value, 'value');
     });
   };
+  // 更换上传方式
   handleChangeUpType = e => {
     if (e.target.value === 'yaml') {
       this.setState({
@@ -65,6 +74,7 @@ export default class Index extends PureComponent {
   handleChange = (values) => {
     console.log(values, 'values')
   }
+  //新建应用
   onAddGroup = () => {
     this.setState({ addGroup: true });
   };
@@ -77,7 +87,7 @@ export default class Index extends PureComponent {
     this.cancelAddGroup();
   };
   getPdfURL = () => {
-    const { dispatch } = this.props
+    
     const props = {
       name: 'file',
       // action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76', // 后端图片地址
@@ -94,31 +104,7 @@ export default class Index extends PureComponent {
         // console.log(info, 'info');
         // console.log(file, 'file');
         // console.log(fileList, 'fileList');
-        //获取上传事件
-        dispatch({
-          type: "createApp/createJarWarServices",
-          payload: {
-            region: globalUtil.getCurrRegionName(),
-            team_name: globalUtil.getCurrTeamName(),
-            component_id:'',
-          },
-          callback: (data) => {
-            console.log(data,'data')
-            //上传文件
-            dispatch({
-              type: "createApp/createJarWarUpload",
-              payload: {
-                region: globalUtil.getCurrRegionName(),
-                team_name: globalUtil.getCurrTeamName(),
-                component_id:'',
-              },
-              callback: (data) => {
-                console.log(data,'data')
-                createJarWarUpload
-              },
-            });
-          },
-        });
+        
       },
       onRemove: info => {
         // console.log(info, 'info');
@@ -129,47 +115,94 @@ export default class Index extends PureComponent {
     };
     return props
   }
-  onChangeUpload = () => {
-
+  handleJarWarUpload = () => {
+    const { dispatch } = this.props
+    //获取上传事件
+    dispatch({
+      type: "createApp/createJarWarServices",
+      payload: {
+        region: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+        component_id:'',
+      },
+      callback: (res) => {
+        console.log(res,'data')
+        if (res && res.status_code === 200) {
+          this.setState({
+            record: res.bean,
+            event_id: res.bean.event_id,
+            region_name: res.bean && res.bean.region,
+            team_name: res.bean && res.bean.team_name
+          })
+        }
+      },
+    });
   }
+  //上传
+  onChangeUpload = info => {
+    console.log(info,'info')
+    let { fileList } = info;
+    fileList = fileList.filter(file => {
+      if (file.response) {
+        return file.response.msg === 'success';
+      }
+      return true;
+    });
+
+    if (info && info.event && info.event.percent) {
+      this.setState({
+        percents: info.event.percent
+      });
+    }
+
+    const { status } = info.file;
+    if (status === 'done') {
+      this.setState({
+        percents: false
+      });
+    }
+
+    this.setState({ fileList });
+  };
+  //删除
   onRemove = () => {
-
-  }
+    this.setState({ fileList: [] });
+  };
   render() {
     const {
       form: { getFieldDecorator },
       groups
     } = this.props;
-    const { fileList, defaultRadio, isShowCom, addGroup } = this.state;
+    const { fileList, defaultRadio, isShowCom, addGroup, record } = this.state;
    
-    const props = {
-      name: 'file',
-      multiple: true,
-      action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-      onChange(info) {
-        // fileList = fileList.map(file => {
-        //   if (file.response) {
-        //     file.url = file.response.url;
-        //   }
-        //   return file;
-        // });
-        const { status } = info.file;
-        if (status !== 'uploading') {
-          console.log(info.file, info.fileList);
-        }
-        if (status === 'done') {
-          message.success(`${info.file.name} file uploaded successfully.`);
-        } else if (status === 'error') {
-          message.error(`${info.file.name} file upload failed.`);
-        }
-      },
-      // onRemove: info => {
-      //   // console.log(info, 'info');
-      //   // console.log('删除时触发');
-      //   // console.log(fileList, 'fileList');
-      //   // this.setState({ fileList: [] });
-      // }
-    };
+    // const props = {
+    //   name: 'file',
+    //   multiple: true,
+    //   action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+    //   onChange(info) {
+    //     // fileList = fileList.map(file => {
+    //     //   if (file.response) {
+    //     //     file.url = file.response.url;
+    //     //   }
+    //     //   return file;
+    //     // });
+    //     const { status } = info.file;
+    //     if (status !== 'uploading') {
+    //       console.log(info.file, info.fileList);
+    //     }
+    //     if (status === 'done') {
+    //       message.success(`${info.file.name} file uploaded successfully.`);
+    //     } else if (status === 'error') {
+    //       message.error(`${info.file.name} file upload failed.`);
+    //     }
+    //   },
+    //   // onRemove: info => {
+    //   //   // console.log(info, 'info');
+    //   //   // console.log('删除时触发');
+    //   //   // console.log(fileList, 'fileList');
+    //   //   // this.setState({ fileList: [] });
+    //   // }
+    // };
     const formItemLayout = {
       labelCol: {
         xs: { span: 9 },
@@ -257,7 +290,7 @@ export default class Index extends PureComponent {
                   label="上传文件"
                   extra="支持Jar、War格式上传文件"
                 >
-                  {getFieldDecorator('files', {
+                  {getFieldDecorator('packageTarFile', {
                     rules: [
                       {
                         required: true,
@@ -265,14 +298,12 @@ export default class Index extends PureComponent {
                       }
                     ]
                   })(
-                    <Upload 
-                      {...this.getPdfURL()} 
+                    <Upload  
                       fileList={fileList} 
-                      accept=".jar, .war"
-                      // onChange={this.onChangeUpload}
-                      // onRemove={this.onRemove}
-                      // action={record.upload_url}
-                      // fileList={this.state.fileList}
+                      accept=".jar,.war"
+                      onChange={this.onChangeUpload}
+                      onRemove={this.onRemove}
+                      action={record.upload_url}
                     >
                       <Button>
                         <Icon type="upload" /> 上传文件
@@ -285,7 +316,7 @@ export default class Index extends PureComponent {
                   label="上传文件"
                   extra="只支持yaml格式上传多文件"
                 >
-                  {getFieldDecorator('files', {
+                  {getFieldDecorator('packageTarFile', {
                     rules: [
                       {
                         required: true,
@@ -293,8 +324,8 @@ export default class Index extends PureComponent {
                       }
                     ]
                   })(
-                    <Upload {...props} fileList={fileList} accept=".yaml">
-                      <Dragger {...props}>
+                    <Upload fileList={fileList} accept=".yaml">
+                      <Dragger>
                         <p className="ant-upload-drag-icon">
                           <Icon type="inbox" />
                         </p>
