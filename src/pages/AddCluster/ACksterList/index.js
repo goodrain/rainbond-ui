@@ -191,6 +191,12 @@ export default class ClusterLink extends PureComponent {
     if (val && val.length > 0) {
       val.some(item => {
         if (item.externalIP && item.internalIP && item.name) {
+          const patt = /^[^\s]*$/;
+          if(item.externalIP.match(patt) && item.internalIP.match(patt) && item.name.match(patt)){
+            callback();
+          }else{
+            callback(new Error('禁止输入空格'));
+          }
           isPass = true;
         } else {
           isPass = false;
@@ -256,7 +262,7 @@ export default class ClusterLink extends PureComponent {
                   {getFieldDecorator('gatewayIngressIPs', {
                     rules: [
                       {
-                        required: false,
+                        required: true,
                         message: '请填写IP地址'
                       },
                       {
@@ -285,13 +291,9 @@ export default class ClusterLink extends PureComponent {
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
-                      { required: false, message: '请填写网关安装节点' },
+                      { required: true, message: '请填写网关安装节点' },
                       {
                         validator: this.handleValidatorsGateway
-                      },
-                      {
-                        pattern: /^[^\s]*$/,
-                        message: '禁止输入空格'
                       }
                     ]
                   })(<DAinput />)}

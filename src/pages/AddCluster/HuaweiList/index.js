@@ -103,7 +103,7 @@ export default class ClusterLink extends PureComponent {
       dispatch(routerRedux.push(`/`));
     }
   }
-  componentDidMount() {}
+  componentDidMount() { }
   loadSteps = () => {
     const steps = [
       {
@@ -121,7 +121,7 @@ export default class ClusterLink extends PureComponent {
     ];
     return steps;
   };
-  handleSubmit = e => {};
+  handleSubmit = e => { };
   // 下一步或者高级配置
   toLinkNext = value => {
     const { dispatch } = this.props;
@@ -150,9 +150,13 @@ export default class ClusterLink extends PureComponent {
 
       if (values) {
         dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
-        dataObj.nodesForGateway.nodes = values.nodesForGateway || '';
+        dataObj.nodesForGateway.nodes = values.nodesForGateway || [];
         // 镜像仓库
-        dataObj.imageHub.enable = true;
+        if (values.domain || values.namespace || values.username || values.password) {
+          dataObj.imageHub.enable = true;
+        } else {
+          dataObj.imageHub.enable = false;
+        }
         dataObj.imageHub.domain = values.domain || '';
         dataObj.imageHub.namespace = values.namespace || '';
         dataObj.imageHub.username = values.username || '';
@@ -160,13 +164,23 @@ export default class ClusterLink extends PureComponent {
         dataObj.etcd.endpoints = values.endpoints || [];
         dataObj.etcd.secretName = values.secretName || '';
         // 存储
-        dataObj.estorage.enable = true;
-        dataObj.estorage.NFS.enable = true;
+        if (values.server || values.path) {
+          dataObj.estorage.enable = true;
+          dataObj.estorage.NFS.enable = true;
+        } else {
+          dataObj.estorage.enable = false;
+          dataObj.estorage.NFS.enable = false;
+        }
         dataObj.estorage.NFS.server = values.server || '';
         dataObj.estorage.NFS.path = values.path || '';
         // 数据库
-        dataObj.database.enable = true;
-        dataObj.database.regionDatabase.enable = true;
+        if (values.regionDatabase_host || values.regionDatabase_port || values.regionDatabase_username || values.regionDatabase_password || values.regionDatabase_dbname) {
+          dataObj.database.enable = true;
+          dataObj.database.regionDatabase.enable = true;
+        } else {
+          dataObj.database.enable = false;
+          dataObj.database.regionDatabase.enable = false;
+        }
         dataObj.database.regionDatabase.host = values.regionDatabase_host || '';
         dataObj.database.regionDatabase.port = values.regionDatabase_port || '';
         dataObj.database.regionDatabase.username =
@@ -182,7 +196,7 @@ export default class ClusterLink extends PureComponent {
         if (value === 'advanced') {
           router.push({
             pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-            search: Qs.stringify({ data: dataObj, name: 'huawei', cloudserver:'huawei' })
+            search: Qs.stringify({ data: dataObj, name: 'huawei', cloudserver: 'huawei' })
           });
         } else {
           // 跳转下一步
@@ -192,7 +206,7 @@ export default class ClusterLink extends PureComponent {
               data: dataObj,
               name: 'huawei',
               step: 'base',
-              cloudserver:'huawei'
+              cloudserver: 'huawei'
             })
           });
         }
@@ -210,6 +224,12 @@ export default class ClusterLink extends PureComponent {
     if (val && val.length > 0) {
       val.some(item => {
         if (item.externalIP && item.internalIP && item.name) {
+          const patt = /^[^\s]*$/;
+          if (item.externalIP.match(patt) && item.internalIP.match(patt) && item.name.match(patt)) {
+            callback();
+          } else {
+            callback(new Error('禁止输入空格'));
+          }
           isPass = true;
         } else {
           isPass = false;
@@ -302,8 +322,12 @@ export default class ClusterLink extends PureComponent {
                   {getFieldDecorator('gatewayIngressIPs', {
                     rules: [
                       {
-                        required: false,
+                        required: true,
                         message: '请填写IP地址'
+                      },
+                      {
+                        pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
+                        message: '请填写正确的IP地址'
                       },
                       {
                         pattern: /^[^\s]*$/,
@@ -329,15 +353,11 @@ export default class ClusterLink extends PureComponent {
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
                       {
-                        required: false,
+                        required: true,
                         message: '请填写网关安装节点'
                       },
                       {
                         validator: this.handleValidatorsGateway
-                      },
-                      {
-                        pattern: /^[^\s]*$/,
-                        message: '禁止输入空格'
                       }
                     ]
                   })(<DAinput />)}
@@ -349,7 +369,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>SFS 存储:</span>
                   </div>
                   <div className={styles.desc}>
-                  (非必填) 根据自身需求，在华为云官网准备好SFS文件系统，用于持久化数据，
+                    (非必填) 根据自身需求，在华为云官网准备好SFS文件系统，用于持久化数据，
                     <a target="_blank" href="https://support.huaweicloud.com/qs-sfs/zh-cn_topic_0034428727.html">
                       详细配置见官方文档。
                     </a>
@@ -397,7 +417,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>RDS 数据库</span>
                   </div>
                   <div className={styles.desc}>
-                  (非必填) 根据自身需求，在华为云官网准备好“云数据库 RDS for MySQL 8.0“，并开放3306连接端口，登录RDS创建，授权用户，创建好相对应的数据库，
+                    (非必填) 根据自身需求，在华为云官网准备好“云数据库 RDS for MySQL 8.0“，并开放3306连接端口，登录RDS创建，授权用户，创建好相对应的数据库，
                     <a target="_blank" href="https://support.huaweicloud.com/qs-rds/zh-cn_topic_0046585334.html">
                       详细配置见官方文档。
                     </a>
@@ -493,7 +513,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>容器镜像服务</span>
                   </div>
                   <div className={styles.desc}>
-                  (非必填) 根据自身需求，在华为云官网准备好”容器镜像服务SWR“，根据提示开通之后，会得到一个仓库域名，组织名称（或命名空间），登录镜像仓库的用户名，密码。
+                    (非必填) 根据自身需求，在华为云官网准备好”容器镜像服务SWR“，根据提示开通之后，会得到一个仓库域名，组织名称（或命名空间），登录镜像仓库的用户名，密码。
                   </div>
                 </div>
                 <div className={styles.config}>
@@ -520,7 +540,7 @@ export default class ClusterLink extends PureComponent {
                     label="命名空间"
                     className={styles.antd_form}
                   >
-                    {getFieldDecorator('namespace',{
+                    {getFieldDecorator('namespace', {
                       rules: [
                         {
                           required: false,
