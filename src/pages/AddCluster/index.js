@@ -643,7 +643,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>接入Kubernetes集群</h3>
-                  <p>基于已经安装的 Kubernetes 集群，初始化安装平台并接入。</p>
+                  <p>对接和管理自建的 Kubernetes 集群。</p>
                 </div>
               </div>
             </Col>
