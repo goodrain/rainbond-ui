@@ -137,7 +137,7 @@ export default class ClusterLink extends PureComponent {
 
       if (values) {
         dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
-        dataObj.nodesForGateway.nodes = values.nodesForGateway || '';
+        dataObj.nodesForGateway.nodes = values.nodesForGateway || [];
         // 镜像仓库
         if (values.domain || values.namespace || values.username || values.password) {
           dataObj.imageHub.enable = true;
@@ -299,7 +299,7 @@ export default class ClusterLink extends PureComponent {
                   {getFieldDecorator('gatewayIngressIPs', {
                     rules: [
                       {
-                        required: false,
+                        required: true,
                         message: '请填写IP地址'
                       },
                       {
@@ -325,7 +325,7 @@ export default class ClusterLink extends PureComponent {
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
                       {
-                        required: false,
+                        required: true,
                         message: '请填写网关安装节点'
                       },
                       {
