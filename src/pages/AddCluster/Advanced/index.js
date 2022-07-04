@@ -171,7 +171,6 @@ export default class ClusterLink extends PureComponent {
         if (err) return;
         // http请求
         if (values) {
-
           switch (name) {
             case 'helm':
               if (etcd_enabled === '自定义配置') {
@@ -211,13 +210,13 @@ export default class ClusterLink extends PureComponent {
               }
               break;
             case 'ack':
-              dataObj.estorage.enable = true;
-              dataObj.estorage.RWX.enable = true;
-              dataObj.estorage.RWO.enable = true;
-              dataObj.database.enable = true;
-              dataObj.database.regionDatabase.enable = true;
-              dataObj.imageHub.enable = true;
-              dataObj.nodesForGateway.enable = true;
+              dataObj.estorage.enable = routeData && routeData.estorage && routeData.estorage.enable || false;
+              dataObj.estorage.RWX.enable = routeData && routeData.estorage && routeData.estorage.RWX && routeData.estorage.RWX.enable || false;
+              dataObj.estorage.RWO.enable = routeData && routeData.estorage && routeData.estorage.RWO && routeData.estorage.RWO.enable || false;
+              dataObj.database.enable = routeData && routeData.database && routeData.database.enable || false;
+              dataObj.database.regionDatabase.enable = routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.enable || false;
+              dataObj.imageHub.enable = routeData && routeData.imageHub && routeData.imageHub.enable || false;
+              dataObj.nodesForGateway.enable = routeData && routeData.nodesForGateway && routeData.nodesForGateway.enable || false;
               // 构建节点
               if (node_enabled === '自定义配置') {
                 dataObj.nodesForChaos.enable = false;
@@ -232,14 +231,14 @@ export default class ClusterLink extends PureComponent {
               }
               break;
             case 'huawei':
-              dataObj.estorage.enable = true;
-              dataObj.estorage.RWX.enable = false;
-              dataObj.estorage.RWO.enable = false;
-              dataObj.estorage.NFS.enable = false;
-              dataObj.database.enable = true;
-              dataObj.database.regionDatabase.enable = true;
-              dataObj.nodesForGateway.enable = true;
-              dataObj.imageHub.enable = true;
+              dataObj.estorage.enable = routeData && routeData.estorage && routeData.estorage.enable || false;
+              dataObj.estorage.RWX.enable = routeData && routeData.estorage && routeData.estorage.RWX && routeData.estorage.RWX.enable || false;
+              dataObj.estorage.RWO.enable = routeData && routeData.estorage && routeData.estorage.RWO && routeData.estorage.RWO.enable || false;
+              dataObj.estorage.RWX.enable = routeData && routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.enable || false;
+              dataObj.database.enable = routeData && routeData.database && routeData.database.enable || false;
+              dataObj.database.regionDatabase.enable = routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.enable || false;
+              dataObj.imageHub.enable = routeData && routeData.imageHub && routeData.imageHub.enable || false;
+              dataObj.nodesForGateway.enable = routeData && routeData.nodesForGateway && routeData.nodesForGateway.enable || false;
               // 构建节点
               if (node_enabled === '自定义配置') {
                 dataObj.nodesForChaos.enable = false;
@@ -254,14 +253,14 @@ export default class ClusterLink extends PureComponent {
               }
               break;
             case 'tencent':
-              dataObj.estorage.enable = true;
-              dataObj.estorage.RWX.enable = false;
-              dataObj.estorage.RWO.enable = false;
-              dataObj.estorage.NFS.enable = false;
-              dataObj.database.enable = true;
-              dataObj.database.regionDatabase.enable = true;
-              dataObj.nodesForGateway.enable = true;
-              dataObj.imageHub.enable = true;
+              dataObj.estorage.enable = routeData && routeData.estorage && routeData.estorage.enable || false;
+              dataObj.estorage.RWX.enable = routeData && routeData.estorage && routeData.estorage.RWX && routeData.estorage.RWX.enable || false;
+              dataObj.estorage.RWO.enable = routeData && routeData.estorage && routeData.estorage.RWO && routeData.estorage.RWO.enable || false;
+              dataObj.estorage.RWX.enable = routeData && routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.enable || false;
+              dataObj.database.enable = routeData && routeData.database && routeData.database.enable || false;
+              dataObj.database.regionDatabase.enable = routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.enable || false;
+              dataObj.imageHub.enable = routeData && routeData.imageHub && routeData.imageHub.enable || false;
+              dataObj.nodesForGateway.enable = routeData && routeData.nodesForGateway && routeData.nodesForGateway.enable || false;
               // 构建节点
               if (node_enabled === '自定义配置') {
                 dataObj.nodesForChaos.enable = false;
@@ -287,29 +286,29 @@ export default class ClusterLink extends PureComponent {
               routeData.nodesForGateway &&
               routeData.nodesForGateway.nodes) ||
             [];
-          dataObj.imageHub.domain = values.domain || (routeData && routeData.imageHub.domain) || '';
-          dataObj.imageHub.namespace = values.namespace || (routeData && routeData.imageHub.namespace) || '';
-          dataObj.imageHub.username = values.username || (routeData && routeData.imageHub.username) || '';
-          dataObj.imageHub.password = values.password || (routeData && routeData.imageHub.password) || '';
+          dataObj.imageHub.domain = values.domain || (routeData && routeData.imageHub && routeData.imageHub.domain) || '';
+          dataObj.imageHub.namespace = values.namespace || (routeData && routeData.imageHub && routeData.imageHub.namespace) || '';
+          dataObj.imageHub.username = values.username || (routeData && routeData.imageHub && routeData.imageHub.username) || '';
+          dataObj.imageHub.password = values.password || (routeData && routeData.imageHub && routeData.imageHub.password) || '';
 
           dataObj.estorage.RWX.config.storageClassName =
             values.storageClassName1 || '';
           dataObj.estorage.RWO.storageClassName =
-            values.storageClassName2 || (routeData && routeData.estorage.RWO.storageClassName) || '';
-          dataObj.estorage.RWO.server = (routeData.estorage && routeData.estorage.RWX && routeData.estorage.RWX.config && routeData.estorage.RWX.config.server) || ''
-          dataObj.estorage.NFS.server = (routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.server) || ''
-          dataObj.estorage.NFS.path = (routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.path) || ''
+            values.storageClassName2 || (routeData && routeData.estorage && routeData.estorage.RWO && routeData.estorage.RWO.storageClassName) || '';
+          dataObj.estorage.RWO.server = (routeData && routeData.estorage && routeData.estorage.RWX && routeData.estorage.RWX.config && routeData.estorage.RWX.config.server) || ''
+          dataObj.estorage.NFS.server = (routeData && routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.server) || ''
+          dataObj.estorage.NFS.path = (routeData && routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.path) || ''
 
           dataObj.database.regionDatabase.host =
-            values.regionDatabase_host || (routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.host) || '';
+            values.regionDatabase_host || (routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.host) || '';
           dataObj.database.regionDatabase.port =
-            values.regionDatabase_port || (routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.port) || '';
+            values.regionDatabase_port || (routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.port) || '';
           dataObj.database.regionDatabase.username =
-            values.regionDatabase_username || (routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.username) || '';
+            values.regionDatabase_username || (routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.username) || '';
           dataObj.database.regionDatabase.password =
-            values.regionDatabase_password || (routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.password) || '';
+            values.regionDatabase_password || (routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.password) || '';
           dataObj.database.regionDatabase.dbname =
-            values.regionDatabase_dbname || (routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.dbname) || '';
+            values.regionDatabase_dbname || (routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.dbname) || '';
 
           //高级配置
           dataObj.etcd.endpoints = values.endpoints || [];

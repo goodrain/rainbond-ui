@@ -137,7 +137,7 @@ export default class ClusterLink extends PureComponent {
 
       if (values) {
         dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
-        dataObj.nodesForGateway.nodes = values.nodesForGateway || [];
+        dataObj.nodesForGateway.nodes = values.nodesForGateway || '';
         // 镜像仓库
         if (values.domain || values.namespace || values.username || values.password) {
           dataObj.imageHub.enable = true;
@@ -206,12 +206,6 @@ export default class ClusterLink extends PureComponent {
     if (val && val.length > 0) {
       val.some(item => {
         if (item.externalIP && item.internalIP && item.name) {
-          const patt = /^[^\s]*$/;
-          if (item.externalIP.match(patt) && item.internalIP.match(patt) && item.name.match(patt)) {
-            callback();
-          } else {
-            callback(new Error('禁止输入空格'));
-          }
           isPass = true;
         } else {
           isPass = false;
@@ -294,7 +288,7 @@ export default class ClusterLink extends PureComponent {
                   className={styles.antd_form}
                   extra={
                     <div>
-                      (非必填) 根据自身需求，提前在腾讯云官网准备好云资源：负载均衡。
+                      根据自身需求，提前在腾讯云官网准备好云资源：负载均衡。
                       腾讯云负载均衡，会负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置负载均衡监听端口，
                       <a target="_blank" href="https://cloud.tencent.com/document/product/214/36386">
                         详细配置见官方文档。
@@ -305,12 +299,8 @@ export default class ClusterLink extends PureComponent {
                   {getFieldDecorator('gatewayIngressIPs', {
                     rules: [
                       {
-                        required: true,
+                        required: false,
                         message: '请填写IP地址'
-                      },
-                      {
-                        pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
-                        message: '请填写正确的IP地址'
                       },
                       {
                         pattern: /^[^\s]*$/,
@@ -330,12 +320,12 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="(非必填) rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用,节点名称填写是k8s集群中node名称。"
+                  extra="rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用,节点名称填写是k8s集群中node名称。"
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
                       {
-                        required: true,
+                        required: false,
                         message: '请填写网关安装节点'
                       },
                       {
@@ -351,7 +341,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>CFS 存储:</span>
                   </div>
                   <div className={styles.desc}>
-                    根据自身需求，在腾讯云官网准备好CFS文件系统，用于持久化数据，
+                  (非必填) 根据自身需求，在腾讯云官网准备好CFS文件系统，用于持久化数据，
                     <a target="_blank" href="https://cloud.tencent.com/document/product/582/9132">
                       详细配置见官方文档。
                     </a>

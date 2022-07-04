@@ -297,7 +297,7 @@ handleValidatorsGateway = (_, val, callback) => {
                 </div>
                 <FormItem
                   {...formItemLayout}
-                  extra={<div>(非必填) 根据自身需求，提前在阿里云官网准备好云资源：SLB负载均衡,SLB负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置SLB监听端口，<a target="_blank" href="https://help.aliyun.com/document_detail/29863.html?spm=5176.21213303.J_6704733920.9.6ff053c9SQg0bg&scm=20140722.S_help%40%40%E6%96%87%E6%A1%A3%40%4029863._.ID_help%40%40%E6%96%87%E6%A1%A3%40%4029863-RL_SLB-LOC_main-OR_ser-V_2-P0_1">详细配置见官方文档。</a></div>}
+                  extra={<div>根据自身需求，提前在阿里云官网准备好云资源：SLB负载均衡,SLB负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置SLB监听端口，<a target="_blank" href="https://help.aliyun.com/document_detail/29863.html?spm=5176.21213303.J_6704733920.9.6ff053c9SQg0bg&scm=20140722.S_help%40%40%E6%96%87%E6%A1%A3%40%4029863._.ID_help%40%40%E6%96%87%E6%A1%A3%40%4029863-RL_SLB-LOC_main-OR_ser-V_2-P0_1">详细配置见官方文档。</a></div>}
                   className={styles.antd_form}
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
@@ -328,7 +328,7 @@ handleValidatorsGateway = (_, val, callback) => {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="(非必填) rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用，节点名称填写k8s集群中node名称。"
+                  extra="rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用，节点名称填写k8s集群中node名称。"
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [

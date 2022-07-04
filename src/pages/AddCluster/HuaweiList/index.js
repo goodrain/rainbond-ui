@@ -311,7 +311,7 @@ export default class ClusterLink extends PureComponent {
                   {...formItemLayout}
                   className={styles.antd_form}
                   extra={
-                    <div>(非必填) 根据自身需求，提前在华为云官网准备好云资源：ELB负载均衡，
+                    <div>根据自身需求，提前在华为云官网准备好云资源：ELB负载均衡，
                       ELB负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置ELB监听端口，
                       <a target="_blank" href="https://support.huaweicloud.com/qs-elb/zh-cn_topic_0052569751.html">
                         详细配置见官方文档。
@@ -347,7 +347,7 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="(非必填) rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用。节点名称填写k8s集群中node名称，
+                  extra="rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用。节点名称填写k8s集群中node名称，
                   华为云请确认安装节点可以连接外网。"
                 >
                   {getFieldDecorator('nodesForGateway', {
