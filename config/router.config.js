@@ -229,7 +229,12 @@ export default [
             name: 'Message',
             authority: ['admin', 'user']
           },
-
+          {
+            path: '/team/:teamName/region/:regionName/ResourceConversion',
+            component: './AddCluster/ResourceConversion',
+            name: 'next',
+            authority: ['admin', 'user']
+          },
           {
             path: '/team/:teamName/region/:regionName/allbackup',
             component: './Group/AllBackup',
@@ -362,6 +367,7 @@ export default [
             name: 'code',
             authority: ['admin', 'user']
           },
+          
           // yaml创建
           {
             path:
