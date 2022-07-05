@@ -63,25 +63,33 @@ export default class Index extends PureComponent {
     const { event_id, region_name, team_name } = this.state
     form.validateFields((err, value) => {
       if (err) return;
-      console.log(value, 'value');
-      dispatch({
-        type: "createApp/createJarWarFormSubmit",
-        payload: {
-          region_name,
-          team_name,
-          event_id,
-          ...value
-        },
-        callback: (data) => {
-          console.log(data,'data')
-          const appAlias = data && data.bean.service_alias
-          dispatch(
-            routerRedux.push(
-              `/team/${team_name}/region/${region_name}/create/create-check/${appAlias}`
-            )
-          );
-        },
-      });
+      if(value.up_type === 'yaml'){
+        const eid = 'f0a3efe26ebff6e2a87b176fbd3256ec'
+        dispatch(
+          routerRedux.push(
+            `/enterprise/${eid}/importMessageYaml`
+          )
+        );
+      }else if(value.up_type === 'jwar'){
+        dispatch({
+          type: "createApp/createJarWarFormSubmit",
+          payload: {
+            region_name,
+            team_name,
+            event_id,
+            ...value
+          },
+          callback: (data) => {
+            console.log(data,'data')
+            const appAlias = data && data.bean.service_alias
+            dispatch(
+              routerRedux.push(
+                `/team/${team_name}/region/${region_name}/create/create-check/${appAlias}`
+              )
+            );
+          },
+        });
+      }
     });
   };
   // 更换上传方式
@@ -93,7 +101,8 @@ export default class Index extends PureComponent {
       });
     } else {
       this.setState({
-        isShowCom: true
+        isShowCom: true,
+        defaultRadio: e.target.value
       });
     }
   };
@@ -189,6 +198,7 @@ export default class Index extends PureComponent {
       handleError: () => {}
     });
   }
+  //查询上传状态
   handleJarWarUploadStatus = () => {
     const {
       dispatch
@@ -251,35 +261,7 @@ export default class Index extends PureComponent {
     } = this.props;
     const myheaders = {};
     const { fileList, defaultRadio, isShowCom, addGroup, record, region_name } = this.state;
-   
-    // const props = {
-    //   name: 'file',
-    //   multiple: true,
-    //   action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-    //   onChange(info) {
-    //     // fileList = fileList.map(file => {
-    //     //   if (file.response) {
-    //     //     file.url = file.response.url;
-    //     //   }
-    //     //   return file;
-    //     // });
-    //     const { status } = info.file;
-    //     if (status !== 'uploading') {
-    //       console.log(info.file, info.fileList);
-    //     }
-    //     if (status === 'done') {
-    //       message.success(`${info.file.name} file uploaded successfully.`);
-    //     } else if (status === 'error') {
-    //       message.error(`${info.file.name} file upload failed.`);
-    //     }
-    //   },
-    //   // onRemove: info => {
-    //   //   // console.log(info, 'info');
-    //   //   // console.log('删除时触发');
-    //   //   // console.log(fileList, 'fileList');
-    //   //   // this.setState({ fileList: [] });
-    //   // }
-    // };
+    
     const formItemLayout = {
       labelCol: {
         xs: { span: 9 },
@@ -401,7 +383,7 @@ export default class Index extends PureComponent {
                   {getFieldDecorator('packageTarFile', {
                     rules: [
                       {
-                        required: true,
+                        required: false,
                         message: '请上传文件'
                       }
                     ]

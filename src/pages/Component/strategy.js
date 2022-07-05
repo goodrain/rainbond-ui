@@ -26,7 +26,7 @@ class Index extends PureComponent {
     };
     return (
       <div style={{ marginBottom: '24px' }}>
-        <Card title="策略">
+        <Card title="任务运行策略">
           <Form {...formItemLayout} onSubmit={this.handleSubmit}>
             <Form.Item label="运行规则">
               {getFieldDecorator('run', {

@@ -34,7 +34,7 @@ import styles from './resource.less';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
 import Yuanma from './setting/yuanma';
-import Strategy from './strategy';
+
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -728,7 +728,7 @@ export default class Index extends PureComponent {
                 /> */}
           </Card>
         )}
-        <Strategy />
+        
         {buildSource && (
           <AutoDeploy
             app={this.props.appDetail}

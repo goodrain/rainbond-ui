@@ -144,6 +144,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/importMessageYaml',
+            component: './AddCluster/ImportMessageYaml',
+            name: 'ImportMessageYaml',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/provider/:provider/kclusters',
             component: './AddCluster/KClusterList',
             name: 'KClusterList',

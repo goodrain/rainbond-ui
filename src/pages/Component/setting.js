@@ -28,6 +28,7 @@ import AddVarModal from './setting/env';
 import ViewHealthCheck from './setting/health-check';
 import EditActions from './setting/perm';
 import ViewRunHealthCheck from './setting/run-health-check';
+import Strategy from './strategy';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -820,6 +821,7 @@ export default class Index extends React.Component {
             )}
           </Card>
         )}
+        <Strategy />
         <Kubernetes />
         {this.state.addTag && (
           <AddTag

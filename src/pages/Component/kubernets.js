@@ -1,4 +1,4 @@
-import { Button, Card, Form, Select, Switch } from 'antd';
+import { Button, Card, Form, Input, Select, Switch } from 'antd';
 import React, { PureComponent } from 'react';
 import DAinput from '../../components/DAinput';
 import DApvcinput from '../../components/DApvcinput.js';
@@ -55,27 +55,27 @@ class Index extends PureComponent {
           <Form>
             <FormItem label="NodeSelector" {...formItemLayout}>
               {getFieldDecorator('NodeSelector', {
-                rules: [{ required: true, message: '请输入NodeSelector' }]
+                rules: [{ required: false, message: '请输入NodeSelector' }]
               })(<DAinput />)}
             </FormItem>
             <FormItem label="label" {...formItemLayout}>
               {getFieldDecorator('label', {
-                rules: [{ required: true, message: '请输入label' }]
+                rules: [{ required: false, message: '请输入label' }]
               })(<DAinput />)}
             </FormItem>
             <FormItem label="Tolerations" {...formItemLayouts}>
               {getFieldDecorator('Tolerations', {
-                rules: [{ required: true, message: '请输入label' }]
+                rules: [{ required: false, message: '请输入label' }]
               })(<DAselect />)}
             </FormItem>
             <FormItem label="secret" {...formItemLayout}>
               {getFieldDecorator('secret', {
-                rules: [{ required: true, message: '请输入secret' }]
+                rules: [{ required: false, message: '请输入secret' }]
               })(<DAinput />)}
             </FormItem>
             <FormItem label="pvc" {...formItemLayouts}>
               {getFieldDecorator('Pvc', {
-                rules: [{ required: true, message: '请输入Pvc' }]
+                rules: [{ required: false, message: '请输入Pvc' }]
               })(<DApvcinput />)}
             </FormItem>
             <FormItem
@@ -98,13 +98,9 @@ class Index extends PureComponent {
               }}
             >
               {getFieldDecorator('ServiceAccountName', {
-                rules: [{ required: true, message: '请输入ServiceAccountName' }]
+                rules: [{ required: false, message: '请输入ServiceAccountName' }]
               })(
-                <Select placeholder="请选择" style={{ width: 157 }}>
-                  <Option value="male">Male</Option>
-                  <Option value="female">Female</Option>
-                  <Option value="other">Other</Option>
-                </Select>
+                <Input />
               )}
             </FormItem>
             <FormItem

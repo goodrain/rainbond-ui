@@ -35,21 +35,24 @@ class Index extends PureComponent {
   render() {
     const columns = [
       {
-        title: '名称',
+        title: '资源名称',
         dataIndex: 'name',
-        key: 'name'
+        key: 'name',
+        align: 'center'
       },
       {
-        title: '类型',
+        title: '资源类型',
         dataIndex: 'type',
-        key: 'type'
+        key: 'type',
+        align: 'center'
       },
       {
         title: '状态',
         dataIndex: 'status',
         key: 'status',
+        align: 'center',
         render: () => {
-          return <span>创建成功</span>;
+          return <span style={{color:'green'}}>创建成功</span>;
         }
       },
       {
@@ -67,7 +70,7 @@ class Index extends PureComponent {
         render: () => {
           return (
             <>
-              <span className={styles.action}>修改</span>
+              <span className={styles.action}>编辑</span>
               &nbsp;&nbsp;&nbsp;&nbsp;
               <span className={styles.action}>删除</span>
             </>
