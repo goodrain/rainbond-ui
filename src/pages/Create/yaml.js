@@ -3,6 +3,7 @@
 /* eslint-disable camelcase */
 import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message } from 'antd';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AddGroup from '../../components/AddOrEditGroup'
@@ -39,23 +40,48 @@ export default class Index extends PureComponent {
       event_id: '',
       region_name: '',
       team_name: '',
-      percents: false
+      percents: false,
+      existFileList: []
+
     };
   }
   componentWillMount() {
+    this.loop = false;
+    this.statusloop = false;
     const { currentTeamPermissionsInfo, dispatch } = this.props;
     roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
   componentDidMount(){
+    this.loop = true;
     this.handleJarWarUpload()
+    this.handleJarWarUploadRecord()
   }
   //表单提交
   handleSubmit = e => {
     e.preventDefault();
-    const { form } = this.props;
+    const { form, dispatch } = this.props;
+    const { event_id, region_name, team_name } = this.state
     form.validateFields((err, value) => {
       if (err) return;
       console.log(value, 'value');
+      dispatch({
+        type: "createApp/createJarWarFormSubmit",
+        payload: {
+          region_name,
+          team_name,
+          event_id,
+          ...value
+        },
+        callback: (data) => {
+          console.log(data,'data')
+          const appAlias = data && data.bean.service_alias
+          dispatch(
+            routerRedux.push(
+              `/team/${team_name}/region/${region_name}/create/create-check/${appAlias}`
+            )
+          );
+        },
+      });
     });
   };
   // 更换上传方式
@@ -133,11 +159,62 @@ export default class Index extends PureComponent {
             event_id: res.bean.event_id,
             region_name: res.bean && res.bean.region,
             team_name: res.bean && res.bean.team_name
+          },() => {
+            if (res.bean.region !== '') {
+              // this.openQueryImportStatus();
+              this.handleJarWarUploadStatus();
+            }
           })
         }
       },
     });
   }
+  //查询上传记录
+  handleJarWarUploadRecord = () => {
+    const {
+      dispatch
+    } = this.props;
+    dispatch({
+      type: 'createApp/createJarWarUploadRecord',
+      payload: {
+        region: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+        component_id:'',
+      },
+      callback: data => {
+        if (data) {
+          console.log(data,'data')
+        }
+      },
+      handleError: () => {}
+    });
+  }
+  handleJarWarUploadStatus = () => {
+    const {
+      dispatch
+    } = this.props;
+    const { event_id } = this.state
+    dispatch({
+      type: 'createApp/createJarWarUploadStatus',
+      payload: {
+        region: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+        event_id
+      },
+      callback: data => {
+        if (data) {
+          this.setState({ existFileList: data.list });
+          console.log(data,'data')
+        }
+        if (this.loop) {
+          setTimeout(() => {
+            this.handleJarWarUploadStatus();
+          }, 6000);
+        }
+      },
+      handleError: () => {}
+    });
+  };
   //上传
   onChangeUpload = info => {
     console.log(info,'info')
@@ -148,7 +225,6 @@ export default class Index extends PureComponent {
       }
       return true;
     });
-
     if (info && info.event && info.event.percent) {
       this.setState({
         percents: info.event.percent
@@ -173,7 +249,8 @@ export default class Index extends PureComponent {
       form: { getFieldDecorator },
       groups
     } = this.props;
-    const { fileList, defaultRadio, isShowCom, addGroup, record } = this.state;
+    const myheaders = {};
+    const { fileList, defaultRadio, isShowCom, addGroup, record, region_name } = this.state;
    
     // const props = {
     //   name: 'file',
@@ -299,11 +376,16 @@ export default class Index extends PureComponent {
                     ]
                   })(
                     <Upload  
+                      // {...this.getPdfURL()}
                       fileList={fileList} 
                       accept=".jar,.war"
+                      name="packageTarFile"
                       onChange={this.onChangeUpload}
                       onRemove={this.onRemove}
                       action={record.upload_url}
+                      showUploadList={true}
+                      headers={myheaders}
+                      disabled={region_name === ''}
                     >
                       <Button>
                         <Icon type="upload" /> 上传文件

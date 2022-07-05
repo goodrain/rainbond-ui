@@ -73,26 +73,70 @@ export async function createJarWarServices(body = {}) {
       method: 'post',
       data: {
         region: body.region,
-        component_id: body.component_id
+        component_id: ''
       }
     }
   );
 }
 /*
-   Jar、War包上传文件
+   Jar、War包上传文件状态
 */
-export async function createJarWarUpload(body = {}) {
+export async function createJarWarUploadStatus(
+  body = { enterprise_id, event_id },
+  handleError
+  ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
     {
+      method: 'get',
+      params: {
+        region: body.region,
+        event_id: body.event_id
+      },
+      handleError
+    }
+  );
+}
+/*
+   Jar、War包上传文件记录
+*/
+export async function createJarWarUploadRecord(
+  body = { enterprise_id, event_id },
+  handleError
+  ) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/last-record`,
+    {
+      method: 'get',
+      params: {
+        region: body.region,
+        event_id: body.event_id,
+        component_id: ''
+      },
+      handleError
+    }
+  );
+}
+/*
+   Jar、War创建应用提交表单
+*/
+export async function createJarWarFormSubmit(body = {}) {
+  console.log(body,'body')
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build`,
+    {
       method: 'post',
       data: {
-        region: body.region,
-        component_id: body.component_id
+        region: body.region_name,
+        event_id: body.event_id,
+        group_id: body.group_id,
+        service_cname: body.service_cname,
+        k8s_component_name: body.k8s_component_name 
       }
     }
   );
 }
+
 
 /*
    compose创建应用

@@ -5,6 +5,9 @@ import {
   createAppByDockerrun,
   createThirdPartyServices,
   createJarWarServices,
+  createJarWarUploadStatus,
+  createJarWarUploadRecord,
+  createJarWarFormSubmit,
   createJarWarUpload,
   createThirtAppByCodes,
   getAppsByComposeId,
@@ -88,8 +91,32 @@ export default {
         });
       }
     },
+    *createJarWarUploadStatus({ payload, callback }, { call }) {
+      const data = yield call(createJarWarUploadStatus, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarUploadRecord({ payload, callback }, { call }) {
+      const data = yield call(createJarWarUploadRecord, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
     *createJarWarUpload({ payload, callback }, { call }) {
       const data = yield call(createJarWarUpload, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarFormSubmit({ payload, callback }, { call }) {
+      const data = yield call(createJarWarFormSubmit, payload);
       if (data && callback) {
         setTimeout(() => {
           callback(data);
