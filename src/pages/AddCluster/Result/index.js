@@ -121,6 +121,8 @@ export default class ClusterLink extends PureComponent {
       });
     } else if (value === 'finish') {
       dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+    }else if (value === 'next') {
+      dispatch(routerRedux.push(`/enterprise/${eid}/importMessage?region_id=`));
     }
   };
   //   刷新进度
@@ -149,7 +151,16 @@ export default class ClusterLink extends PureComponent {
           type="primary"
         >
           完成
-        </Button>
+        </Button>,
+        <Button
+        className={styles.antd_btn}
+        onClick={() => {
+          this.toLinkNext('next');
+        }}
+        type="primary"
+      >
+        导入资源
+      </Button>
       ];
     }
     if (status === 'failed') {
@@ -178,19 +189,6 @@ export default class ClusterLink extends PureComponent {
         </Button>
       ];
     }
-    // if (status === 'checking') {
-    //   type = 'ing';
-    //   title = '集群对接中';
-    //   desc = '此过程可能比较耗时，请耐心等待';
-    //   actions = [
-    //     <Button  className={styles.antd_btn} type="primary">
-    //         上一步
-    //     </Button>,
-    //     <Button  className={styles.antd_btn} type="primary">
-    //         刷新进度
-    //     </Button>
-    //   ];
-    // }
 
     return (
       <Result

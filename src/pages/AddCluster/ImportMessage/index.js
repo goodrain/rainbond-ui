@@ -87,10 +87,8 @@ export default class ImportMessage extends PureComponent {
                 }, () => {
                     const { resourceData } = this.state
                     const arr = Object.keys(resourceData).map((item) => {
-                        console.log(resourceData[item], 'item')
                         return resourceData[item]
                     })
-                    console.log(arr, 'arr')
                 })
             }
         })
@@ -115,7 +113,10 @@ export default class ImportMessage extends PureComponent {
     }
     //下一步
     onNext = () => {
-        console.log('跳转到下一页')
+        const { dispatch } = this.props
+        const teamName = 'ay4lbc65'
+        const regionName = '1655982984'
+        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/ResourceConversion`));
     }
     render() {
         const {
@@ -123,8 +124,83 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
-
-        const { text, nameSpaceArr, resourceData } = this.state
+        const resourceData =  {
+                    UnLabel: {
+                        workloads: {
+                            jobs: [
+                                "linkerd-heartbeat-1656654720"
+                            ]
+                        },
+                        others: {
+                            services: [
+                                "linkerd-dst",
+                                "linkerd-dst-headless",
+                                "linkerd-identity",
+                                "linkerd-identity-headless",
+                                "linkerd-policy",
+                                "linkerd-policy-validator",
+                                "linkerd-proxy-injector",
+                                "linkerd-sp-validator"
+                            ],
+                            config_maps: [
+                                "linkerd-config",
+                                "linkerd-identity-trust-roots"
+                            ],
+                            secrets: [
+                                "default-token-jpsdb",
+                                "linkerd-config-overrides",
+                                "linkerd-destination-token-6c795",
+                                "linkerd-heartbeat-token-8l7tb",
+                                "linkerd-identity-issuer",
+                                "linkerd-identity-token-pkjdb",
+                                "linkerd-policy-validator-k8s-tls",
+                                "linkerd-proxy-injector-k8s-tls",
+                                "linkerd-proxy-injector-token-mcvhx",
+                                "linkerd-sp-validator-k8s-tls"
+                            ],
+                            service_accounts: [
+                                "default",
+                                "linkerd-destination",
+                                "linkerd-heartbeat",
+                                "linkerd-identity",
+                                "linkerd-proxy-injector"
+                            ]
+                        }
+                    },
+                    destination: {
+                        workloads: {
+                            deployments: [
+                                "linkerd-destination"
+                            ]
+                        },
+                        others: {}
+                    },
+                    heartbeat: {
+                        workloads: {
+                            cron_jobs: [
+                                "linkerd-heartbeat"
+                            ]
+                        },
+                        others: {}
+                    },
+                    identity: {
+                        workloads: {
+                            deployments: [
+                                "linkerd-identity"
+                            ]
+                        },
+                        others: {}
+                    },
+                    proxy_injector: {
+                        workloads: {
+                            deployments: [
+                                "linkerd-proxy-injector"
+                            ]
+                        },
+                        others: {}
+                    }
+                }
+        const { text, nameSpaceArr } = this.state
         console.log(resourceData, 'resourceData')
 
         return (
@@ -147,7 +223,7 @@ export default class ImportMessage extends PureComponent {
                     <Row type="flex" style={{ width: '100%', padding: '24px 0px', minHeight: '400px' }}>
                         <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3></div>
                         <Row className={styles.importCard}>
-                            <Checkbox value="A"></Checkbox>
+                            {/* <Checkbox value="A"></Checkbox> */}
                             <Collapse
                                 defaultActiveKey={[0,1, 2, 3, 4, 5]}
                                 onChange={this.callback}
