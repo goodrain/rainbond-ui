@@ -47,7 +47,7 @@ class Index extends PureComponent {
               {getFieldDecorator('zuida', {
                 rules: [
                   {
-                    required: true,
+                    required: false,
                     message: '不能为空'
                   }
                 ]
@@ -57,7 +57,7 @@ class Index extends PureComponent {
               {getFieldDecorator('bingxing', {
                 rules: [
                   {
-                    required: true,
+                    required: false,
                     message: '不能为空'
                   }
                 ]
@@ -67,7 +67,7 @@ class Index extends PureComponent {
               {getFieldDecorator('max_timer', {
                 rules: [
                   {
-                    required: true,
+                    required: false,
                     message: '不能为空'
                   }
                 ]
@@ -77,7 +77,7 @@ class Index extends PureComponent {
               {getFieldDecorator('complete_count', {
                 rules: [
                   {
-                    required: true,
+                    required: false,
                     message: '不能为空'
                   }
                 ]

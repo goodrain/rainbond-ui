@@ -259,7 +259,9 @@ export default class Index extends PureComponent {
       form: { getFieldDecorator },
       groups
     } = this.props;
-    const myheaders = {};
+    const myheaders = {
+      'X-Requested-With':null
+    };
     const { fileList, defaultRadio, isShowCom, addGroup, record, region_name } = this.state;
     
     const formItemLayout = {

@@ -150,7 +150,7 @@ export default class ClusterLink extends PureComponent {
           }}
           type="primary"
         >
-          完成
+          返回集群管理
         </Button>,
         <Button
         className={styles.antd_btn}
@@ -159,7 +159,7 @@ export default class ClusterLink extends PureComponent {
         }}
         type="primary"
       >
-        导入资源
+        导入已有应用
       </Button>
       ];
     }

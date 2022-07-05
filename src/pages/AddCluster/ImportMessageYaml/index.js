@@ -116,7 +116,8 @@ export default class ImportMessage extends PureComponent {
         const { dispatch } = this.props
         const teamName = 'ay4lbc65'
         const regionName = '1655982984'
-        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/ResourceConversion`));
+        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/ChangeResourceTest`));
+        
     }
     render() {
         const {
@@ -125,7 +126,7 @@ export default class ImportMessage extends PureComponent {
             },
         } = this.props;
         const resourceData =  {
-                    UnLabel: {
+                    Label: {
                         workloads: {
                             jobs: [
                                 "linkerd-heartbeat-1656654720"
@@ -166,38 +167,6 @@ export default class ImportMessage extends PureComponent {
                                 "linkerd-proxy-injector"
                             ]
                         }
-                    },
-                    destination: {
-                        workloads: {
-                            deployments: [
-                                "linkerd-destination"
-                            ]
-                        },
-                        others: {}
-                    },
-                    heartbeat: {
-                        workloads: {
-                            cron_jobs: [
-                                "linkerd-heartbeat"
-                            ]
-                        },
-                        others: {}
-                    },
-                    identity: {
-                        workloads: {
-                            deployments: [
-                                "linkerd-identity"
-                            ]
-                        },
-                        others: {}
-                    },
-                    proxy_injector: {
-                        workloads: {
-                            deployments: [
-                                "linkerd-proxy-injector"
-                            ]
-                        },
-                        others: {}
                     }
                 }
         const { text, nameSpaceArr } = this.state
@@ -223,7 +192,6 @@ export default class ImportMessage extends PureComponent {
                     <Row type="flex" style={{ width: '100%', padding: '24px 0px', minHeight: '400px' }}>
                         <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3></div>
                         <Row className={styles.importCards}>
-                            {/* <Checkbox value="A"></Checkbox> */}
                             <Collapse
                                 defaultActiveKey={[0,1, 2, 3, 4, 5]}
                                 onChange={this.callback}

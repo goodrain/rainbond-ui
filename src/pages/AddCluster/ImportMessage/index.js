@@ -125,7 +125,7 @@ export default class ImportMessage extends PureComponent {
             },
         } = this.props;
         const resourceData =  {
-                    UnLabel: {
+                    Label: {
                         workloads: {
                             jobs: [
                                 "linkerd-heartbeat-1656654720"

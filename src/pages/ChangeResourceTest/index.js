@@ -107,7 +107,7 @@ export default class Index extends PureComponent {
                     protocol: "",
                     secret: null,
                     server_type: "git",
-                    service_alias: "grf59432",
+                    service_alias: "gr7a0fc9",
                 }
             },
             // 伸缩数据

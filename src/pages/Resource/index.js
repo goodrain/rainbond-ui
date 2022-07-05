@@ -109,8 +109,8 @@ class Index extends PureComponent {
     };
     return (
       <PageHeaderLayout
-        title="应用资源管理"
-        content="配置组是通过环境变量注入到当前应用指定的组件运行环境中"
+        title="K8s 资源管理"
+        content="此处管理直接通过 Yaml 文件部署到 Kubernetes 集群中的资源。"
       >
         <div
           style={{

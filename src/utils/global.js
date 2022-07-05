@@ -1448,14 +1448,14 @@ const global = {
   getSupportComponentTyps() {
     return [
       {
-        type: 'state_singleton',
-        name: this.getComponentType('state_singleton'),
-        desc: '部署为Statefulset类型，一般用于DB类，消息中间件类，数据类组件 '
-      },
-      {
         type: 'state_multiple',
         name: this.getComponentType('state_multiple'),
         desc: '部署为Deployment类型，一般用于Web类，API类等组件'
+      },
+      {
+        type: 'state_singleton',
+        name: this.getComponentType('state_singleton'),
+        desc: '部署为Statefulset类型，一般用于DB类，消息中间件类，数据类组件 '
       },
       {
         type: 'stateless_singleton',
