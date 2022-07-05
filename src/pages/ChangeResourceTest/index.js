@@ -4,10 +4,13 @@ import {
     Card,
     notification,
     Radio,
+    Button
 } from 'antd';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
+import ConfirmModal from '../../components/ConfirmModal'
 
 //样式
 import styles from './Index.less';
@@ -46,8 +49,8 @@ import FlexibleView from '../../components/AppCreateSettingWjd/flexible';
 
 }))
 export default class Index extends PureComponent {
-    constructor(arg) {
-        super(arg);
+    constructor(props) {
+        super(props);
         this.state = {
             // 应用名称
             appName: "default",
@@ -56,6 +59,7 @@ export default class Index extends PureComponent {
             nameOne: true,
             nameTwo: false,
             nameThree: false,
+            showDelete: false,
             //
             appDetail: {
                 event_websocket_url: "ws://47.104.161.96:6060/event_log",
@@ -103,26 +107,8 @@ export default class Index extends PureComponent {
                     protocol: "",
                     secret: null,
                     server_type: "git",
-                    service_alias: "gra718dd",
-                    service_cname: "nginx",
-                    service_id: "4bc1a895f55a2e24178bfe9e90a718dd",
-                    service_key: "0000",
-                    service_name: "",
-                    service_origin: "assistant",
-                    service_port: 0,
-                    service_region: "test",
-                    service_source: "docker_image",
-                    service_type: "application",
-                    setting: "",
-                    tenant_id: "11b7480ac2054d89bd4ad6852de6d8e6",
-                    tenant_service_group_id: 0,
-                    total_memory: 128,
-                    update_time: "2022-06-27 16:22:23",
-                    update_version: 1,
-                    version: "1.11",
-                    volume_mount_path: "",
-                    volume_type: "shared"
-                },
+                    service_alias: "grf59432",
+                }
             },
             // 伸缩数据
             flexData: [
@@ -192,6 +178,65 @@ export default class Index extends PureComponent {
             }
         });
     };
+    getAppAlias() {
+        return this.props.match.params.appAlias;
+    }
+
+    handleBuild = () => {
+        // const team_name = globalUtil.getCurrTeamName();
+        // const params = this.getParams();
+        // this
+        //     .props
+        //     .dispatch({
+        //         type: 'application/buildCompose',
+        //         payload: {
+        //             team_name: globalUtil.getCurrTeamName(),
+        //             ...params
+        //         },
+        //         callback: () => {
+        //             this
+        //                 .props
+        //                 .dispatch({
+        //                     type: 'global/fetchGroups',
+        //                     payload: {
+        //                     team_name: team_name
+        //                     }
+        //                 });
+
+        //         }
+        //     })
+        this
+            .props
+            .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/38`))
+    }
+    handleDelete = () => {
+        const params = this.getParams();
+        this
+            .props
+            .dispatch({
+                type: 'application/deleteCompose',
+                payload: {
+                    team_name: globalUtil.getCurrTeamName(),
+                    ...params
+                },
+                callback: () => {
+                    this
+                        .props
+                        .dispatch({
+                            type: 'global/fetchGroups',
+                            payload: {
+                                team_name: globalUtil.getCurrTeamName()
+                            }
+                        });
+                    this
+                        .props
+                        .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`))
+                }
+            })
+    }
+    showDelete = () => {
+        this.setState({ showDelete: true })
+    }
 
     render() {
         const {
@@ -210,159 +255,189 @@ export default class Index extends PureComponent {
             return null;
         }
         return (
-            <Col
-                style={{ paddingleft: '12px', width: "95%", display: "flex" }}
-            >
-                <div className={styles.topTittle}>应用名称：{this.state.appName}</div>
-                <div style={{ display: "inline-block", width: "100%" }}>
-                    <div style={{ height: "50px" }}></div>
-                    <div className={styles.contantMoudel}>
-                        <Card style={{ padding: "34px 0 17px 17px" }}>
-                            <Radio.Group className={styles.buttonGroup}>
-                                {nameOne ? (
-                                    <Radio.Button
-                                        className={styles.TitleButtonAct}
-                                        style={{ textAlign: 'center' }}
-                                        onClick={() => {
-                                            this.changeType('type1');
-                                            this.setState({
-                                                nameOne: true,
-                                                nameTwo: false,
-                                                nameThree: false
-                                            });
-                                        }}
-                                        disabled
-                                    >
-                                        组件名称1
-                                    </Radio.Button>
-                                ) : (
-                                    <Radio.Button
-                                        className={styles.TitleButton}
-                                        style={{ textAlign: 'center' }}
-                                        onClick={() => {
-                                            this.changeType('type1');
-                                            this.setState({
-                                                nameOne: true,
-                                                nameTwo: false,
-                                                nameThree: false
-                                            });
-                                        }}
-                                    >
-                                        组件名称1
-                                    </Radio.Button>
-                                )}
-                                {nameTwo ? (
-                                    <Radio.Button
-                                        className={styles.TitleButtonAct}
-                                        style={{ textAlign: 'center' }}
-                                        onClick={() => {
-                                            this.changeType('type2');
-                                            this.setState({
-                                                nameOne: false,
-                                                nameTwo: true,
-                                                nameThree: false
-                                            });
-                                        }}
-                                        disabled
-                                    >
-                                        组件名称2
-                                    </Radio.Button>
-                                ) : (
-                                    <Radio.Button
-                                        className={styles.TitleButton}
-                                        style={{ textAlign: 'center' }}
-                                        onClick={() => {
-                                            this.changeType('type2');
-                                            this.setState({
-                                                nameOne: false,
-                                                nameTwo: true,
-                                                nameThree: false
-                                            });
-                                        }}
-                                    >
-                                        组件名称2
-                                    </Radio.Button>
-                                )}
-                                {nameThree ? (
-                                    <Radio.Button
-                                        className={styles.TitleButtonAct}
-                                        style={{ textAlign: 'center' }}
-                                        onClick={() => {
-                                            this.changeType('type3');
-                                            this.setState({
-                                                nameOne: false,
-                                                nameTwo: false,
-                                                nameThree: true
-                                            });
-                                        }}
-                                        disabled
-                                    >
-                                        组件名称3
-                                    </Radio.Button>
-                                ) : (
-                                    <Radio.Button
-                                        className={styles.TitleButton}
-                                        style={{ textAlign: 'center' }}
-                                        onClick={() => {
-                                            this.changeType('type3');
-                                            this.setState({
-                                                nameOne: false,
-                                                nameTwo: false,
-                                                nameThree: true
-                                            });
-                                        }}
-                                    >
-                                        组件名称3
-                                    </Radio.Button>
-                                )}
-                            </Radio.Group>
-                        </Card>
+            <div>
+                <Col
+                    style={{ paddingleft: '12px', width: "95%", display: "flex" }}
+                >
+                    <div className={styles.topTittle}>应用名称：{this.state.appName}</div>
+                    <div style={{ display: "inline-block", width: "100%" }}>
+                        <div style={{ height: "50px" }}></div>
+                        <div className={styles.contantMoudel}>
+                            <Card style={{ padding: "34px 0 17px 17px" }}>
+                                <Radio.Group className={styles.buttonGroup}>
+                                    {nameOne ? (
+                                        <Radio.Button
+                                            className={styles.TitleButtonAct}
+                                            style={{ textAlign: 'center' }}
+                                            onClick={() => {
+                                                this.changeType('type1');
+                                                this.setState({
+                                                    nameOne: true,
+                                                    nameTwo: false,
+                                                    nameThree: false
+                                                });
+                                            }}
+                                            disabled
+                                        >
+                                            组件名称1
+                                        </Radio.Button>
+                                    ) : (
+                                        <Radio.Button
+                                            className={styles.TitleButton}
+                                            style={{ textAlign: 'center' }}
+                                            onClick={() => {
+                                                this.changeType('type1');
+                                                this.setState({
+                                                    nameOne: true,
+                                                    nameTwo: false,
+                                                    nameThree: false
+                                                });
+                                            }}
+                                        >
+                                            组件名称1
+                                        </Radio.Button>
+                                    )}
+                                    {nameTwo ? (
+                                        <Radio.Button
+                                            className={styles.TitleButtonAct}
+                                            style={{ textAlign: 'center' }}
+                                            onClick={() => {
+                                                this.changeType('type2');
+                                                this.setState({
+                                                    nameOne: false,
+                                                    nameTwo: true,
+                                                    nameThree: false
+                                                });
+                                            }}
+                                            disabled
+                                        >
+                                            组件名称2
+                                        </Radio.Button>
+                                    ) : (
+                                        <Radio.Button
+                                            className={styles.TitleButton}
+                                            style={{ textAlign: 'center' }}
+                                            onClick={() => {
+                                                this.changeType('type2');
+                                                this.setState({
+                                                    nameOne: false,
+                                                    nameTwo: true,
+                                                    nameThree: false
+                                                });
+                                            }}
+                                        >
+                                            组件名称2
+                                        </Radio.Button>
+                                    )}
+                                    {nameThree ? (
+                                        <Radio.Button
+                                            className={styles.TitleButtonAct}
+                                            style={{ textAlign: 'center' }}
+                                            onClick={() => {
+                                                this.changeType('type3');
+                                                this.setState({
+                                                    nameOne: false,
+                                                    nameTwo: false,
+                                                    nameThree: true
+                                                });
+                                            }}
+                                            disabled
+                                        >
+                                            组件名称3
+                                        </Radio.Button>
+                                    ) : (
+                                        <Radio.Button
+                                            className={styles.TitleButton}
+                                            style={{ textAlign: 'center' }}
+                                            onClick={() => {
+                                                this.changeType('type3');
+                                                this.setState({
+                                                    nameOne: false,
+                                                    nameTwo: false,
+                                                    nameThree: true
+                                                });
+                                            }}
+                                        >
+                                            组件名称3
+                                        </Radio.Button>
+                                    )}
+                                </Radio.Group>
+                            </Card>
+                        </div>
+
+                        {/* 部署属性 */}
+                        <div className={styles.contantMoudel1}>
+                            <DeployView
+                                appDetail={appDetail}
+                            />
+                        </div>
+
+                        {/* 端口管理 */}
+                        <div className={styles.contantMoudel2}>
+                            {/* <Port */}
+                            <PointView
+                                // updateDetail={this.loadDetail}
+                                appDetail={appDetail}
+                            // componentPermissions={isEnv, isRely, isStorage, isPort}
+
+                            />
+                        </div>
+                        {/* 环境变量 */}
+                        <div className={styles.contantMoudel3}>
+                            <EnvironmentVariable
+                                title="环境变量"
+                                type="Inner"
+                                appAlias={appDetail.service.service_alias}
+                            />
+                        </div>
+                        {/* 伸缩 */}
+                        <div className={styles.contantMoudel4}>
+                            <FlexibleView
+                                flexData={flexData}
+                            />
+                        </div>
+                        {/* 健康 */}
+                        <div className={styles.contantMoudel5}>
+                            <HealthView />
+                        </div>
+                        {/* 特殊属性 */}
+                        <div className={styles.contantMoudel6}>
+                            <KubernetesView />
+                        </div>
+
                     </div>
 
-                    {/* 部署属性 */}
-                    <div className={styles.contantMoudel1}>
-                        <DeployView
-                            appDetail={appDetail}
-                        />
-                    </div>
-
-                    {/* 端口管理 */}
-                    <div className={styles.contantMoudel2}>
-                        {/* <Port */}
-                        <PointView
-                            // updateDetail={this.loadDetail}
-                            appDetail={appDetail}
-                        // componentPermissions={isEnv, isRely, isStorage, isPort}
-
-                        />
-                    </div>
-                    {/* 环境变量 */}
-                    <div className={styles.contantMoudel3}>
-                        <EnvironmentVariable
-                            title="环境变量"
-                            type="Inner"
-                            appAlias={appDetail.service.service_alias}
-                        />
-                    </div>
-                    {/* 伸缩 */}
-                    <div className={styles.contantMoudel4}>
-                        <FlexibleView
-                            flexData={flexData}
-                        />
-                    </div>
-                    {/* 健康 */}
-                    <div className={styles.contantMoudel5}>
-                        <HealthView />
-                    </div>
-                    {/* 特殊属性 */}
-                    <div className={styles.contantMoudel6}>
-                        <KubernetesView />
-                    </div>
-                    <div>创建</div>
+                </Col >
+                <div
+                    style={{
+                        background: '#fff',
+                        padding: '20px',
+                        textAlign: 'right',
+                        position: 'fixed',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        zIndex: 2,
+                        borderTop: '1px solid #e8e8e8'
+                    }}>
+                    <Button
+                        style={{
+                            marginRight: 8
+                        }}
+                        onClick={this.handleBuild}
+                        type="primary">确认创建</Button>
+                    <Button onClick={this.showDelete} type="default">放弃创建</Button>
                 </div>
-            </Col >
+                {this.state.showDelete && <ConfirmModal
+                    onOk={this.handleDelete}
+                    title="放弃创建"
+                    subDesc="此操作不可恢复"
+                    desc="确定要放弃创建此组件吗？"
+                    onCancel={() => {
+                        this.setState({ showDelete: false })
+                    }} />}
 
-
+            </div>
         );
     }
 }
