@@ -455,6 +455,14 @@ export default [
             authority: ['admin', 'user']
           },
 
+          // {
+          //   path:
+          //     '/team/:teamName/region/:regionName/create/create-setting/:appAlias',
+          //   component: './ChangeResourceTest/index',
+          //   name: 'setting',
+          //   authority: ['admin', 'user']
+          // },
+
           {
             path:
               '/team/:teamName/region/:regionName/create/create-moreService/:appAlias/:check_uuid',

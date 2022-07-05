@@ -432,6 +432,8 @@ export default class Index extends PureComponent {
     this.fetchAppDiskAndMemory();
     this.getVersionList();
     this.load();
+    console.log("应用总览页")
+    console.log(this.props)
   }
 
   componentWillReceiveProps(nextProps) {
