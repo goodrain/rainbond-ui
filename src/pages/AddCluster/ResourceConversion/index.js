@@ -44,6 +44,7 @@ export default class ImportMessage extends PureComponent {
             showSwitch: false,
             value: '',
             modulecut: 0,
+            showDelete: false,
             appvalue: {
                 zujian: "组件一",
                 deploydata: {
@@ -141,6 +142,64 @@ export default class ImportMessage extends PureComponent {
     }
     // 特殊属性
     handleSwitchOnChange = () => { };
+
+    // 确认创建
+    handleBuild = () => {
+        // const team_name = globalUtil.getCurrTeamName();
+        // const params = this.getParams();
+        // this
+        //     .props
+        //     .dispatch({
+        //         type: 'application/buildCompose',
+        //         payload: {
+        //             team_name: globalUtil.getCurrTeamName(),
+        //             ...params
+        //         },
+        //         callback: () => {
+        //             this
+        //                 .props
+        //                 .dispatch({
+        //                     type: 'global/fetchGroups',
+        //                     payload: {
+        //                     team_name: team_name
+        //                     }
+        //                 });
+
+        //         }
+        //     })
+        this
+            .props
+            .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`))
+
+    }
+    handleDelete = () => {
+        const params = this.getParams();
+        this
+            .props
+            .dispatch({
+                type: 'application/deleteCompose',
+                payload: {
+                    team_name: globalUtil.getCurrTeamName(),
+                    ...params
+                },
+                callback: () => {
+                    this
+                        .props
+                        .dispatch({
+                            type: 'global/fetchGroups',
+                            payload: {
+                                team_name: globalUtil.getCurrTeamName()
+                            }
+                        });
+                    this
+                        .props
+                        .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`))
+                }
+            })
+    }
+    showDelete = () => {
+        this.setState({ showDelete: true })
+    }
 
     render() {
         const { zujian } = this.state;
@@ -508,6 +567,34 @@ export default class ImportMessage extends PureComponent {
                         </Card>
                     </div>
                 </div>
+                <div
+                    style={{
+                        background: '#fff',
+                        padding: '20px',
+                        textAlign: 'right',
+                        position: 'fixed',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        zIndex: 2,
+                        borderTop: '1px solid #e8e8e8'
+                    }}>
+                    <Button
+                        style={{
+                            marginRight: 8
+                        }}
+                        onClick={this.handleBuild}
+                        type="primary">确认创建</Button>
+                    <Button onClick={this.showDelete} type="default">放弃创建</Button>
+                </div>
+                {this.state.showDelete && <ConfirmModal
+                    onOk={this.handleDelete}
+                    title="放弃创建"
+                    subDesc="此操作不可恢复"
+                    desc="确定要放弃创建此组件吗？"
+                    onCancel={() => {
+                        this.setState({ showDelete: false })
+                    }} />}
             </div>
         );
     }
