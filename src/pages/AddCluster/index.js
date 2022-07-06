@@ -634,7 +634,6 @@ export default class EnterpriseClusters extends PureComponent {
             </Col>
             <Col span={12}>
               <div
-                // onClick={() => this.toClusterList('custom')}
                 onClick={() => {
                   this.handleInstallRegion('helm');
                 }}
@@ -643,7 +642,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>接入Kubernetes集群</h3>
-                  <p>基于已经安装的 Kubernetes 集群，初始化安装平台并接入。</p>
+                  <p>对接和管理自建的 Kubernetes 集群。</p>
                 </div>
               </div>
             </Col>
@@ -665,7 +664,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div className={styles.importicon}>{aliIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>阿里云</h3>
-                  <p>自定义安装参数，生成helm安装命令。</p>
+                  <p>对接和管理ACK集群。</p>
                 </div>
               </div>
             </Col>
@@ -679,7 +678,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div className={styles.importicon}>{huaweiIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>华为云</h3>
-                  <p>自定义安装参数，生成helm安装命令。</p>
+                  <p>对接和管理CCE集群。</p>
                 </div>
               </div>
             </Col>
@@ -693,20 +692,10 @@ export default class EnterpriseClusters extends PureComponent {
                 <div className={styles.importicon}>{tencentIcon}</div>
                 <div className={styles.importDesc}>
                   <h3>腾讯云</h3>
-                  <p>自定义安装参数，生成helm安装命令。</p>
+                  <p>对接和管理TKE集群。</p>
                 </div>
               </div>
             </Col>
-
-            {/* <Col span={12}>
-              <div onClick={this.addClusterShow} className={styles.import}>
-                <div className={styles.importicon}>{icon}</div>
-                <div className={styles.importDesc}>
-                  <h3>接入已安装平台集群</h3>
-                  <p>导入已经完成安装的平台集群，由当前控制台调度管理。</p>
-                </div>
-              </div>
-            </Col> */}
           </Row>
         </Card>
         {addClusterShow && (

@@ -4,7 +4,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
-import { Icon, Layout, notification } from 'antd';
+import { Icon, Layout, notification, Alert } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
@@ -33,7 +33,7 @@ import AppHeader from './components/AppHeader';
 import TeamHeader from './components/TeamHeader';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
-
+import styles from './EnterpriseLayout.less'
 const { Content } = Layout;
 
 const query = {
@@ -114,7 +114,6 @@ class TeamLayout extends PureComponent {
   // get enterprise list
   getEnterpriseList = () => {
     const { dispatch, currentUser } = this.props;
-
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
@@ -126,9 +125,11 @@ class TeamLayout extends PureComponent {
             () => {
               if (currentUser) {
                 return this.getTeamOverview(currentUser.user_id);
+                
               }
               // 获取最新的用户信息
               this.fetchUserInfo();
+              
             }
           );
         }
@@ -402,6 +403,7 @@ class TeamLayout extends PureComponent {
       }
     });
   };
+  
   render() {
     const {
       memoryTip,
@@ -428,7 +430,7 @@ class TeamLayout extends PureComponent {
       currentRegion,
       currentComponent,
       teamView,
-      currentApp
+      currentApp,
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -655,6 +657,7 @@ class TeamLayout extends PureComponent {
                   width: autoWidth
                 }}
               >
+                
                 <div
                   style={{
                     margin: '24px 24px 0'

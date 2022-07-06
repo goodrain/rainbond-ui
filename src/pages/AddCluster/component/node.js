@@ -7,19 +7,12 @@ import { connect } from 'dva';
 import React, { Component } from 'react';
 
 @connect(({ region }) => ({
-  baseConfiguration: region.base_configuration
 }))
 class DAinput extends Component {
   constructor(props) {
     super(props);
-    const {
-      baseConfiguration: { nodesForGateway }
-    } = this.props;
     this.state = {
-      values:
-        nodesForGateway && nodesForGateway.length > 0
-          ? nodesForGateway
-          : [{ externalIP: '', internalIP: '', name: '' }]
+      values:[{ externalIP: '', internalIP: '', name: '' }]
     };
   }
   handleExternalIP = (value, index) => {
@@ -89,7 +82,7 @@ class DAinput extends Component {
   render() {
     const externalIPPlaceholder = '外部IP  例：1.2.3.4';
     const repPlaceholder = '内部IP  例：192.168.0.1';
-    const namePlaceholder = '节点名称  例：master1';
+    const namePlaceholder = '节点名称  例：node1';
     const { values } = this.state;
 
     return (

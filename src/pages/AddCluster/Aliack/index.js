@@ -87,7 +87,6 @@ const dataObj = {
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
   overviewInfo: index.overviewInfo,
-  baseConfiguration: region.base_configuration
 }))
 export default class ClusterLink extends PureComponent {
   constructor(props) {
@@ -138,9 +137,14 @@ export default class ClusterLink extends PureComponent {
       if (err) return;
       if (values) {
         dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
-        dataObj.nodesForGateway.nodes = values.nodesForGateway || '';
+        dataObj.nodesForGateway.nodes = values.nodesForGateway || [];
         // 镜像仓库
-        dataObj.imageHub.enable = true;
+        if(values.domain || values.namespace || values.username || values.password) {
+          dataObj.imageHub.enable = true;
+        }else{
+          dataObj.imageHub.enable = false;
+        }
+        
         dataObj.imageHub.domain = values.domain || '';
         dataObj.imageHub.namespace = values.namespace || '';
         dataObj.imageHub.username = values.username || '';
@@ -148,14 +152,24 @@ export default class ClusterLink extends PureComponent {
         dataObj.etcd.endpoints = values.endpoints || [];
         dataObj.etcd.secretName = values.secretName || '';
         // 存储
-        dataObj.estorage.enable = true;
-        dataObj.estorage.RWX.enable = true;
-        dataObj.estorage.RWO.enable = true;
+        if(values.server){
+          dataObj.estorage.enable = true;
+          dataObj.estorage.RWX.enable = true;
+          dataObj.estorage.RWO.enable = true;
+        }else{
+          dataObj.estorage.enable = false;
+          dataObj.estorage.RWX.enable = false;
+          dataObj.estorage.RWO.enable = false;
+        }
         dataObj.estorage.RWX.config.server = values.server || '';
-        dataObj.estorage.RWO.storageClassName = values.storageClassName2 || '';
         // 数据库
-        dataObj.database.enable = true;
-        dataObj.database.regionDatabase.enable = true;
+        if(values.regionDatabase_host || values.regionDatabase_port || values.regionDatabase_username || values.regionDatabase_password || values.regionDatabase_dbname){
+          dataObj.database.enable = true;
+          dataObj.database.regionDatabase.enable = true;
+        }else{
+          dataObj.database.enable = false;
+          dataObj.database.regionDatabase.enable = false;
+        }
         dataObj.database.regionDatabase.host = values.regionDatabase_host || '';
         dataObj.database.regionDatabase.port = values.regionDatabase_port || '';
         dataObj.database.regionDatabase.username =
@@ -171,51 +185,56 @@ export default class ClusterLink extends PureComponent {
         if (value === 'advanced') {
           router.push({
             pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
-            search: Qs.stringify({ data: dataObj, name: 'ack' })
+            search: Qs.stringify({ data: dataObj, name: 'ack', cloudserver:'aliyun' })
           });
         } else {
           // 跳转下一步
-          console.log(dataObj,'dataObj')
           router.push({
             pathname: `/enterprise/${eid}/provider/ACksterList/install`,
             search: Qs.stringify({
               data: dataObj,
               name: 'ack',
-              step: 'base'
+              step: 'base',
+              cloudserver:'aliyun'
             })
           });
         }
       }
     });
   };
-  // 网关校验
-  handleValidatorsGateway = (_, val, callback) => {
-    let isPass = false;
-    if (val && val.length > 0) {
-      val.some(item => {
-        if (item.externalIP && item.internalIP && item.name) {
-          isPass = true;
-        } else {
-          isPass = false;
-          return true;
+// 网关校验
+handleValidatorsGateway = (_, val, callback) => {
+  let isPass = false;
+  if (val && val.length > 0) {
+    val.some(item => {
+      if (item.externalIP && item.internalIP && item.name) {
+        const patt = /^[^\s]*$/;
+        if(item.externalIP.match(patt) && item.internalIP.match(patt) && item.name.match(patt)){
+          callback();
+        }else{
+          callback(new Error('禁止输入空格'));
         }
-      });
-      if (isPass) {
-        callback();
+        isPass = true;
       } else {
-        callback(new Error('需填写完整的网关安装节点'));
+        isPass = false;
+        return true;
       }
-    } else {
+    });
+    if (isPass) {
       callback();
+    } else {
+      callback(new Error('需填写完整的网关安装节点'));
     }
-  };
+  } else {
+    callback();
+  }
+};
   render() {
     const {
       match: {
         params: { eid, provider, clusterID }
       },
       form: { getFieldDecorator },
-      baseConfiguration: { gatewayIngressIPs }
     } = this.props;
     const formItemLayout = {
       labelCol: {
@@ -229,12 +248,12 @@ export default class ClusterLink extends PureComponent {
     };
     const storageFormItemLayout = {
       labelCol: {
-        xs: { span: 6 },
-        sm: { span: 6 }
+        xs: { span: 3 },
+        sm: { span: 3 }
       },
       wrapperCol: {
-        xs: { span: 7 },
-        sm: { span: 7 }
+        xs: { span: 10 },
+        sm: { span: 10 }
       }
     };
     const formItemLayouts = {
@@ -247,7 +266,11 @@ export default class ClusterLink extends PureComponent {
         sm: { span: 6 }
       }
     };
-
+    const docs = (
+      <div>
+        <a href=''>详细配置见官方文档</a>
+      </div>
+    )
     return (
       <PageHeaderLayout
         title="添加集群"
@@ -274,15 +297,22 @@ export default class ClusterLink extends PureComponent {
                 </div>
                 <FormItem
                   {...formItemLayout}
-                  extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
+                  extra={<div>根据自身需求，提前在阿里云官网准备好云资源：SLB负载均衡,SLB负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置SLB监听端口，<a target="_blank" href="https://help.aliyun.com/document_detail/29863.html?spm=5176.21213303.J_6704733920.9.6ff053c9SQg0bg&scm=20140722.S_help%40%40%E6%96%87%E6%A1%A3%40%4029863._.ID_help%40%40%E6%96%87%E6%A1%A3%40%4029863-RL_SLB-LOC_main-OR_ser-V_2-P0_1">详细配置见官方文档。</a></div>}
                   className={styles.antd_form}
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
-                    initialValue: gatewayIngressIPs || '',
                     rules: [
                       {
                         required: true,
                         message: '请填写IP地址'
+                      },
+                      {
+                        pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
+                        message: '请填写正确的IP地址'
+                      },
+                      {
+                        pattern: /^[^\s]*$/,
+                        message: '禁止输入空格'
                       }
                     ]
                   })(<Input placeholder="请填写IP地址  例：1.2.3.4" />)}
@@ -298,7 +328,7 @@ export default class ClusterLink extends PureComponent {
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="网关安装的节点，可以安装到多个节点，实现高可用。"
+                  extra="rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用，节点名称填写k8s集群中node名称。"
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
@@ -319,7 +349,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>NAS 存储:</span>
                   </div>
                   <div className={styles.desc}>
-                    设置外部共享存储的StorageClass。
+                  (非必填) 根据自身需求，在阿里云官网准备好NAS文件系统，用于持久化数据，<a target="_blank" href="https://help.aliyun.com/document_detail/312360.html">详细配置见官方文档。</a>
                   </div>
                 </div>
                 <div className={styles.config}>
@@ -327,29 +357,37 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('server', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写挂载点地址'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(
-                      <Input placeholder="请填写存储名称  例：glusterfs-simple" />
+                      <Input placeholder="挂载点地址  例：123456789-var48.cn-shanghai.nas.aliyuncs.com:/" />
                     )}
                   </FormItem>
-                  <FormItem
+                  {/* <FormItem
                     {...storageFormItemLayout}
                     label="RWO 所用存储 storageClass 名称"
                   >
                     {getFieldDecorator('storageClassName2', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写RWO 所用存储 storageClass 名称'
-                        }
+                        },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
+                          }
                       ]
                     })(
                       <Input placeholder="请填写存储名称  例：glusterfs-simple" />
                     )}
-                  </FormItem>
+                  </FormItem> */}
                 </div>
               </Row>
               {/* 数据库 */}
@@ -359,7 +397,8 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>RDS 数据库:</span>
                   </div>
                   <div className={styles.desc}>
-                    设置外部独立Mysql数据库服务地址。
+                  (非必填) 根据自身需求，在阿里云官网准备好”RDS数据库 MySQL版8.0“，并开放3306连接端口，登录RDS创建，授权用户，创建好相对应的数据库，
+                  <a target="_blank" href="https://help.aliyun.com/document_detail/309008.html">详细配置见官方文档。</a>
                   </div>
                 </div>
                 <div className={styles.config}>
@@ -369,8 +408,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('regionDatabase_host', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '连接地址'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写数据库连接地址" />)}
@@ -381,8 +424,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('regionDatabase_port', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写连接端口'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写连接端口  例：3306" />)}
@@ -393,8 +440,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('regionDatabase_username', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写用户名'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写用户名  例：root" />)}
@@ -405,11 +456,15 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('regionDatabase_password', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写密码'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
-                    })(<Input placeholder="请填写密码" />)}
+                    })(<Input type="password" placeholder="请填写密码" />)}
                   </FormItem>
                   {/* 数据库名称 */}
                   <FormItem {...formItemLayouts} label="数据库名称">
@@ -417,8 +472,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('regionDatabase_dbname', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写数据库名称'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写数据库库名称  例：region" />)}
@@ -432,7 +491,7 @@ export default class ClusterLink extends PureComponent {
                     <span className={styles.titleSpan}>容器镜像服务:</span>
                   </div>
                   <div className={styles.desc}>
-                    设置外部独立容器镜像仓库地址。
+                  (非必填) 根据自身需求，在阿里云官网准备好”容器镜像服务称为ACR“，根据提示开通之后，会得到一个仓库域名，组织名称（或命名空间），登录镜像仓库的用户名，密码。
                   </div>
                 </div>
                 <div className={styles.config}>
@@ -444,8 +503,12 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('domain', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写镜像仓库域名'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(<Input placeholder="请填写镜像仓库域名" />)}
@@ -455,7 +518,18 @@ export default class ClusterLink extends PureComponent {
                     label="命名空间"
                     className={styles.antd_form}
                   >
-                    {getFieldDecorator('namespace')(
+                    {getFieldDecorator('namespace',{
+                      rules: [
+                        {
+                          required: false,
+                          message: '请填写命名空间'
+                        },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
+                          }
+                      ]
+                    })(
                       <Input placeholder="请填写命名空间" />
                     )}
                   </FormItem>
@@ -467,9 +541,13 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('username', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写用户名'
-                        }
+                        },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
+                          }
                       ]
                     })(<Input placeholder="请填写用户名" />)}
                   </FormItem>
@@ -481,11 +559,15 @@ export default class ClusterLink extends PureComponent {
                     {getFieldDecorator('password', {
                       rules: [
                         {
-                          required: true,
+                          required: false,
                           message: '请填写密码'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
-                    })(<Input placeholder="请填写密码" />)}
+                    })(<Input type="password" placeholder="请填写密码" />)}
                   </FormItem>
                 </div>
               </Row>

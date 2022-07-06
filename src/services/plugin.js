@@ -325,7 +325,7 @@ export async function removePluginVersionConfig(
 }
 
 /*
-  删除配置信息
+  编辑配置信息
 */
 export async function editPluginVersionConfig(
   body = {

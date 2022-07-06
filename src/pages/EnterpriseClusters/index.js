@@ -582,6 +582,12 @@ export default class EnterpriseClusters extends PureComponent {
                   TKE
                 </span>
               );
+            case 'helm':
+              return (
+                <span style={{ marginRight: '8px' }} key={item}>
+                  Helm对接
+                </span>
+              );
             default:
               return (
                 <span style={{ marginRight: '8px' }} key={item}>

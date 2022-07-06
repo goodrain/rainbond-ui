@@ -81,7 +81,7 @@ export default class ClusterLink extends PureComponent {
     ];
     return steps;
   };
-  handleSubmit = () => {};
+  handleSubmit = () => { };
   toLinkNext = value => {
     const {
       match: {
@@ -90,7 +90,7 @@ export default class ClusterLink extends PureComponent {
       location: { search },
       form
     } = this.props;
-    const { data, name } =
+    const { data, name, cloudserver } =
       search && Qs.parse(this.props.location.search.substr(1));
     const {
       etcd_enabled,
@@ -122,7 +122,7 @@ export default class ClusterLink extends PureComponent {
           RWX: {
             enable: false,
             config: {
-              server:'',
+              server: '',
               storageClassName: ''
             }
           },
@@ -131,9 +131,9 @@ export default class ClusterLink extends PureComponent {
             storageClassName: ''
           },
           NFS: {
-            enable:false,
-            server:'',
-            path:''
+            enable: false,
+            server: '',
+            path: ''
           }
         },
         type: routeData.type,
@@ -170,7 +170,6 @@ export default class ClusterLink extends PureComponent {
         if (err) return;
         // http请求
         if (values) {
-          
           switch (name) {
             case 'helm':
               if (etcd_enabled === '自定义配置') {
@@ -210,13 +209,13 @@ export default class ClusterLink extends PureComponent {
               }
               break;
             case 'ack':
-              dataObj.estorage.enable = true;
-              dataObj.estorage.RWX.enable = true;
-              dataObj.estorage.RWO.enable = true;
-              dataObj.database.enable = true;
-              dataObj.database.regionDatabase.enable = true;
-              dataObj.imageHub.enable = true;
-              dataObj.nodesForGateway.enable = true;
+              dataObj.estorage.enable = routeData && routeData.estorage && routeData.estorage.enable || false;
+              dataObj.estorage.RWX.enable = routeData && routeData.estorage && routeData.estorage.RWX && routeData.estorage.RWX.enable || false;
+              dataObj.estorage.RWO.enable = routeData && routeData.estorage && routeData.estorage.RWO && routeData.estorage.RWO.enable || false;
+              dataObj.database.enable = routeData && routeData.database && routeData.database.enable || false;
+              dataObj.database.regionDatabase.enable = routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.enable || false;
+              dataObj.imageHub.enable = routeData && routeData.imageHub && routeData.imageHub.enable || false;
+              dataObj.nodesForGateway.enable = routeData && routeData.nodesForGateway && routeData.nodesForGateway.enable || false;
               // 构建节点
               if (node_enabled === '自定义配置') {
                 dataObj.nodesForChaos.enable = false;
@@ -231,14 +230,14 @@ export default class ClusterLink extends PureComponent {
               }
               break;
             case 'huawei':
-              dataObj.estorage.enable = true;
-              dataObj.estorage.RWX.enable = false;
-              dataObj.estorage.RWO.enable = false;
-              dataObj.estorage.NFS.enable = false;
-              dataObj.database.enable = true;
-              dataObj.database.regionDatabase.enable = true;
-              dataObj.nodesForGateway.enable = true;
-              dataObj.imageHub.enable = true;
+              dataObj.estorage.enable = routeData && routeData.estorage && routeData.estorage.enable || false;
+              dataObj.estorage.RWX.enable = routeData && routeData.estorage && routeData.estorage.RWX && routeData.estorage.RWX.enable || false;
+              dataObj.estorage.RWO.enable = routeData && routeData.estorage && routeData.estorage.RWO && routeData.estorage.RWO.enable || false;
+              dataObj.estorage.RWX.enable = routeData && routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.enable || false;
+              dataObj.database.enable = routeData && routeData.database && routeData.database.enable || false;
+              dataObj.database.regionDatabase.enable = routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.enable || false;
+              dataObj.imageHub.enable = routeData && routeData.imageHub && routeData.imageHub.enable || false;
+              dataObj.nodesForGateway.enable = routeData && routeData.nodesForGateway && routeData.nodesForGateway.enable || false;
               // 构建节点
               if (node_enabled === '自定义配置') {
                 dataObj.nodesForChaos.enable = false;
@@ -253,14 +252,14 @@ export default class ClusterLink extends PureComponent {
               }
               break;
             case 'tencent':
-              dataObj.estorage.enable = true;
-              dataObj.estorage.RWX.enable = false;
-              dataObj.estorage.RWO.enable = false;
-              dataObj.estorage.NFS.enable = false;
-              dataObj.database.enable = true;
-              dataObj.database.regionDatabase.enable = true;
-              dataObj.nodesForGateway.enable = true;
-              dataObj.imageHub.enable = true;
+              dataObj.estorage.enable = routeData && routeData.estorage && routeData.estorage.enable || false;
+              dataObj.estorage.RWX.enable = routeData && routeData.estorage && routeData.estorage.RWX && routeData.estorage.RWX.enable || false;
+              dataObj.estorage.RWO.enable = routeData && routeData.estorage && routeData.estorage.RWO && routeData.estorage.RWO.enable || false;
+              dataObj.estorage.RWX.enable = routeData && routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.enable || false;
+              dataObj.database.enable = routeData && routeData.database && routeData.database.enable || false;
+              dataObj.database.regionDatabase.enable = routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.enable || false;
+              dataObj.imageHub.enable = routeData && routeData.imageHub && routeData.imageHub.enable || false;
+              dataObj.nodesForGateway.enable = routeData && routeData.nodesForGateway && routeData.nodesForGateway.enable || false;
               // 构建节点
               if (node_enabled === '自定义配置') {
                 dataObj.nodesForChaos.enable = false;
@@ -286,29 +285,29 @@ export default class ClusterLink extends PureComponent {
               routeData.nodesForGateway &&
               routeData.nodesForGateway.nodes) ||
             [];
-          dataObj.imageHub.domain = values.domain || (routeData && routeData.imageHub.domain) || '';
-          dataObj.imageHub.namespace = values.namespace || (routeData && routeData.imageHub.namespace) || '';
-          dataObj.imageHub.username = values.username || (routeData && routeData.imageHub.username) || '';
-          dataObj.imageHub.password = values.password || (routeData && routeData.imageHub.password) || '';
-          
+          dataObj.imageHub.domain = values.domain || (routeData && routeData.imageHub && routeData.imageHub.domain) || '';
+          dataObj.imageHub.namespace = values.namespace || (routeData && routeData.imageHub && routeData.imageHub.namespace) || '';
+          dataObj.imageHub.username = values.username || (routeData && routeData.imageHub && routeData.imageHub.username) || '';
+          dataObj.imageHub.password = values.password || (routeData && routeData.imageHub && routeData.imageHub.password) || '';
+
           dataObj.estorage.RWX.config.storageClassName =
             values.storageClassName1 || '';
           dataObj.estorage.RWO.storageClassName =
-            values.storageClassName2 || (routeData && routeData.estorage.RWO.storageClassName) || '';
-          dataObj.estorage.RWO.server = (routeData.estorage && routeData.estorage.RWX && routeData.estorage.RWX.config && routeData.estorage.RWX.config.server) || ''
-          dataObj.estorage.NFS.server = (routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.server) || ''
-          dataObj.estorage.NFS.path = (routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.path) || ''
+            values.storageClassName2 || (routeData && routeData.estorage && routeData.estorage.RWO && routeData.estorage.RWO.storageClassName) || '';
+          dataObj.estorage.RWO.server = (routeData && routeData.estorage && routeData.estorage.RWX && routeData.estorage.RWX.config && routeData.estorage.RWX.config.server) || ''
+          dataObj.estorage.NFS.server = (routeData && routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.server) || ''
+          dataObj.estorage.NFS.path = (routeData && routeData.estorage && routeData.estorage.NFS && routeData.estorage.NFS.path) || ''
 
           dataObj.database.regionDatabase.host =
-            values.regionDatabase_host || (routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.host) || '';
+            values.regionDatabase_host || (routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.host) || '';
           dataObj.database.regionDatabase.port =
-            values.regionDatabase_port || (routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.port) || '';
+            values.regionDatabase_port || (routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.port) || '';
           dataObj.database.regionDatabase.username =
-            values.regionDatabase_username || (routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.username) || '';
+            values.regionDatabase_username || (routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.username) || '';
           dataObj.database.regionDatabase.password =
-            values.regionDatabase_password || (routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.password) || '';
+            values.regionDatabase_password || (routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.password) || '';
           dataObj.database.regionDatabase.dbname =
-            values.regionDatabase_dbname || (routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.dbname) || '';
+            values.regionDatabase_dbname || (routeData && routeData.database && routeData.database.regionDatabase && routeData.database.regionDatabase.dbname) || '';
 
           //高级配置
           dataObj.etcd.endpoints = values.endpoints || [];
@@ -321,7 +320,8 @@ export default class ClusterLink extends PureComponent {
             search: Qs.stringify({
               name,
               step: 'advanced',
-              data: dataObj
+              data: dataObj,
+              cloudserver: cloudserver
             })
           });
         }
@@ -359,7 +359,15 @@ export default class ClusterLink extends PureComponent {
     if (value && value.length > 0) {
       let isPass = false;
       value.some(item => {
-        if (item.ip || item.name) isPass = true;
+        if (item.ip || item.name){
+          isPass = true;
+          const patt = /^[^\s]*$/;
+          if(item.ip.match(patt) && item.name.match(patt)){
+            callback();
+          }else{
+            callback(new Error('禁止输入空格'));
+          }
+        } 
         else {
           isPass = false;
           return true;
@@ -371,7 +379,6 @@ export default class ClusterLink extends PureComponent {
       callback();
     }
   };
-
   render() {
     const {
       match: {
@@ -472,6 +479,10 @@ export default class ClusterLink extends PureComponent {
                         {
                           required: true,
                           message: '请填写secret名称'
+                        },
+                        {
+                          pattern: /^[^\s]*$/,
+                          message: '禁止输入空格'
                         }
                       ]
                     })(
@@ -489,6 +500,7 @@ export default class ClusterLink extends PureComponent {
                           required: true,
                           message: '请填写节点名称'
                         },
+                        
                         {
                           validator: this.handleValidatorsNodes
                         }
@@ -498,12 +510,12 @@ export default class ClusterLink extends PureComponent {
                 </div>
               ) : (
                 <div className={styles.desc}>
-                  设置外部独立的ETCD服务的访问地址。
+                  (非必填) 设置外部独立的ETCD服务的访问地址。
                 </div>
               )}
             </Row>
             {/* 存储 */}
-            {name !== 'ack' && name !== 'huawei' && (
+            {name !== 'ack' && name !== 'huawei' && name !== 'tencent' && (
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
@@ -544,6 +556,10 @@ export default class ClusterLink extends PureComponent {
                           {
                             required: true,
                             message: '请填写RWX 所用存储 storageClass 名称'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
                           }
                         ]
                       })(
@@ -560,6 +576,10 @@ export default class ClusterLink extends PureComponent {
                           {
                             required: true,
                             message: 'RWO 所用存储 storageClass 名称'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
                           }
                         ]
                       })(
@@ -569,13 +589,13 @@ export default class ClusterLink extends PureComponent {
                   </div>
                 ) : (
                   <div className={styles.desc}>
-                    设置外部共享存储的StorageClass。
+                    (非必填) 设置外部共享存储的StorageClass。
                   </div>
                 )}
               </Row>
             )}
             {/* 数据库 */}
-            {name !== 'ack' && name !== 'huawei' && (
+            {name !== 'ack' && name !== 'huawei' && name !== 'tencent' && (
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
@@ -618,6 +638,10 @@ export default class ClusterLink extends PureComponent {
                           {
                             required: true,
                             message: '请输入数据库连接地址'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
                           }
                         ]
                       })(<Input placeholder="请输入数据库连接地址" />)}
@@ -634,6 +658,10 @@ export default class ClusterLink extends PureComponent {
                           {
                             required: true,
                             message: '请输入连接端口'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
                           }
                         ]
                       })(<Input placeholder="请输入连接端口  例：3306" />)}
@@ -650,6 +678,10 @@ export default class ClusterLink extends PureComponent {
                           {
                             required: true,
                             message: '请输入用户名'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
                           }
                         ]
                       })(<Input placeholder="请输入用户名  例：root" />)}
@@ -666,9 +698,13 @@ export default class ClusterLink extends PureComponent {
                           {
                             required: true,
                             message: '请输入密码'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
                           }
                         ]
-                      })(<Input placeholder="请输入密码" />)}
+                      })(<Input type="password" placeholder="请输入密码" />)}
                     </FormItem>
                     {/* 数据库名称 */}
                     <FormItem
@@ -682,6 +718,10 @@ export default class ClusterLink extends PureComponent {
                           {
                             required: true,
                             message: '请输入数据库名称'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
                           }
                         ]
                       })(
@@ -691,13 +731,13 @@ export default class ClusterLink extends PureComponent {
                   </div>
                 ) : (
                   <div className={styles.desc}>
-                    设置外部独立Mysql数据库服务地址。
+                    (非必填) 设置外部独立Mysql数据库服务地址。
                   </div>
                 )}
               </Row>
             )}
             {/* 镜像仓库 */}
-            {name !== 'ack' && name !== 'huawei' && (
+            {name !== 'ack' && name !== 'huawei' && name !== 'tencent' && (
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
@@ -738,6 +778,10 @@ export default class ClusterLink extends PureComponent {
                           {
                             required: true,
                             message: '请添加镜像仓库域名'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
                           }
                         ]
                       })(<Input placeholder="请输入镜像仓库域名" />)}
@@ -747,7 +791,18 @@ export default class ClusterLink extends PureComponent {
                       label="命名空间"
                       className={styles.antd_form}
                     >
-                      {getFieldDecorator('namespace')(
+                      {getFieldDecorator('namespace',{
+                        rules: [
+                          {
+                            required: true,
+                            message: '请输入命名空间'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
+                          }
+                        ]
+                      })(
                         <Input placeholder="请输入命名空间" />
                       )}
                     </FormItem>
@@ -761,6 +816,10 @@ export default class ClusterLink extends PureComponent {
                           {
                             required: true,
                             message: '请输入用户名'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
                           }
                         ]
                       })(<Input placeholder="请输入用户名" />)}
@@ -775,14 +834,18 @@ export default class ClusterLink extends PureComponent {
                           {
                             required: true,
                             message: '请输入密码'
+                          },
+                          {
+                            pattern: /^[^\s]*$/,
+                            message: '禁止输入空格'
                           }
                         ]
-                      })(<Input placeholder="请输入密码" />)}
+                      })(<Input type="password" placeholder="请输入密码" />)}
                     </FormItem>
                   </div>
                 ) : (
                   <div className={styles.desc}>
-                    设置外部独立容器镜像仓库地址。
+                    (非必填) 设置外部独立容器镜像仓库地址。
                   </div>
                 )}
               </Row>
@@ -838,7 +901,7 @@ export default class ClusterLink extends PureComponent {
                 </div>
               ) : (
                 <div className={styles.desc}>
-                  设置源码构建的节点，节点名是kubernetes的Nodename。
+                  (非必填) 设置源码构建的节点，节点名是kubernetes的Nodename。
                 </div>
               )}
             </Row>

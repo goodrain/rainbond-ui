@@ -87,7 +87,6 @@ const dataObj = {
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
   overviewInfo: index.overviewInfo,
-  baseConfiguration: region.base_configuration
 }))
 export default class ClusterLink extends PureComponent {
   constructor(props) {
@@ -167,7 +166,8 @@ export default class ClusterLink extends PureComponent {
             pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
             search: Qs.stringify({
               data: dataObj,
-              name: 'helm'
+              name: 'helm',
+              cloudserver:''
             })
           });
         } else {
@@ -177,7 +177,8 @@ export default class ClusterLink extends PureComponent {
             search: Qs.stringify({
               data: dataObj,
               name: 'helm',
-              step: 'base'
+              step: 'base',
+              cloudserver:''
             })
           });
         }
@@ -190,6 +191,12 @@ export default class ClusterLink extends PureComponent {
     if (val && val.length > 0) {
       val.some(item => {
         if (item.externalIP && item.internalIP && item.name) {
+          const patt = /^[^\s]*$/;
+          if(item.externalIP.match(patt) && item.internalIP.match(patt) && item.name.match(patt)){
+            callback();
+          }else{
+            callback(new Error('禁止输入空格'));
+          }
           isPass = true;
         } else {
           isPass = false;
@@ -211,7 +218,6 @@ export default class ClusterLink extends PureComponent {
         params: { eid, provider, clusterID }
       },
       form: { getFieldDecorator },
-      baseConfiguration: { gatewayIngressIPs }
     } = this.props;
     const formItemLayout = {
       labelCol: {
@@ -254,7 +260,6 @@ export default class ClusterLink extends PureComponent {
                   extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
-                    initialValue: gatewayIngressIPs || '',
                     rules: [
                       {
                         required: true,
@@ -263,6 +268,10 @@ export default class ClusterLink extends PureComponent {
                       {
                         pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
                         message: '请填写正确的IP地址'
+                      },
+                      {
+                        pattern: /^[^\s]*$/,
+                        message: '禁止输入空格'
                       }
                     ]
                   })(<Input placeholder="请输入IP地址  例：1.2.3.4" />)}
