@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message } from 'antd';
+import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -19,7 +19,7 @@ const { Option } = Select;
     groups: global.groups,
     rainbondInfo: global.rainbondInfo,
     currentTeam: teamControl.currentTeam,
-    currentRegionName: teamControl.currentRegionName, 
+    currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
     enterprise: global.enterprise,
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
@@ -31,18 +31,17 @@ const { Option } = Select;
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { 
-      fileList: [], 
-      defaultRadio: 'jwar', 
-      isShowCom: true, 
-      addGroup:false,
+    this.state = {
+      fileList: [],
+      defaultRadio: 'jwar',
+      isShowCom: true,
+      addGroup: false,
       record: {},
       event_id: '',
       region_name: '',
       team_name: '',
       percents: false,
-      existFileList: []
-
+      existFileList: [],
     };
   }
   componentWillMount() {
@@ -51,44 +50,54 @@ export default class Index extends PureComponent {
     const { currentTeamPermissionsInfo, dispatch } = this.props;
     roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
-  componentDidMount(){
-    this.loop = true;
-    this.handleJarWarUpload()
+  componentDidMount() {
+    
     this.handleJarWarUploadRecord()
+  }
+  componentWillUnmount() {
+    this.loop = false;
+    this.statusloop = false;
   }
   //表单提交
   handleSubmit = e => {
     e.preventDefault();
     const { form, dispatch } = this.props;
-    const { event_id, region_name, team_name } = this.state
+    const teamName = globalUtil.getCurrTeamName()
+    const regionName = globalUtil.getCurrRegionName()
+    const { event_id, existFileList } = this.state
     form.validateFields((err, value) => {
       if (err) return;
-      if(value.up_type === 'yaml'){
+      if (value.up_type === 'yaml' && existFileList.length > 0) {
         const eid = 'f0a3efe26ebff6e2a87b176fbd3256ec'
         dispatch(
           routerRedux.push(
             `/enterprise/${eid}/importMessageYaml`
           )
         );
-      }else if(value.up_type === 'jwar'){
+      } else if (value.up_type === 'jwar' && existFileList.length > 0) {
         dispatch({
           type: "createApp/createJarWarFormSubmit",
           payload: {
-            region_name,
-            team_name,
+            region_name: regionName,
+            team_name: teamName,
             event_id,
             ...value
           },
           callback: (data) => {
-            console.log(data,'data')
             const appAlias = data && data.bean.service_alias
             dispatch(
               routerRedux.push(
-                `/team/${team_name}/region/${region_name}/create/create-check/${appAlias}`
+                `/team/${teamName}/region/${regionName}/create/create-check/${appAlias}?event_id=${event_id}`
               )
             );
           },
         });
+      }else{
+        this.loop = true
+        this.handleJarWarUploadStatus()
+        notification.error({
+          message: '未检测到上传文件'
+        })
       }
     });
   };
@@ -107,7 +116,6 @@ export default class Index extends PureComponent {
     }
   };
   handleChange = (values) => {
-    console.log(values, 'values')
   }
   //新建应用
   onAddGroup = () => {
@@ -121,56 +129,28 @@ export default class Index extends PureComponent {
     setFieldsValue({ group_id: groupId });
     this.cancelAddGroup();
   };
-  getPdfURL = () => {
-    
-    const props = {
-      name: 'file',
-      // action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76', // 后端图片地址
-      // 上传时触发
-      onChange: ({ fileList, file }) => {
-        fileList = fileList.map(file => {
-          if (file.response) {
-            file.url = file.response.url;
-          }
-          return file;
-        });
-        this.setState({ fileList });
-        console.log('触发这个方法')
-        // console.log(info, 'info');
-        // console.log(file, 'file');
-        // console.log(fileList, 'fileList');
-        
-      },
-      onRemove: info => {
-        // console.log(info, 'info');
-        // console.log('删除时触发');
-        // console.log(fileList, 'fileList');
-        // this.setState({ fileList: [] });
-      }
-    };
-    return props
-  }
   handleJarWarUpload = () => {
     const { dispatch } = this.props
+    const teamName = globalUtil.getCurrTeamName()
+    const regionName = globalUtil.getCurrRegionName()
     //获取上传事件
     dispatch({
       type: "createApp/createJarWarServices",
       payload: {
-        region: globalUtil.getCurrRegionName(),
-        team_name: globalUtil.getCurrTeamName(),
-        component_id:'',
+        region: regionName,
+        team_name: teamName,
+        component_id: '',
       },
       callback: (res) => {
-        console.log(res,'data')
         if (res && res.status_code === 200) {
           this.setState({
             record: res.bean,
             event_id: res.bean.event_id,
             region_name: res.bean && res.bean.region,
             team_name: res.bean && res.bean.team_name
-          },() => {
+          }, () => {
             if (res.bean.region !== '') {
-              // this.openQueryImportStatus();
+              this.loop = true;
               this.handleJarWarUploadStatus();
             }
           })
@@ -188,14 +168,19 @@ export default class Index extends PureComponent {
       payload: {
         region: globalUtil.getCurrRegionName(),
         team_name: globalUtil.getCurrTeamName(),
-        component_id:'',
+        component_id: '',
       },
       callback: data => {
-        if (data) {
-          console.log(data,'data')
+        if (data.bean && data.bean.source_dir && data.bean.source_dir.length > 0) {
+          this.setState({
+            existFileList: data.bean.source_dir,
+            event_id: data.bean.event_id
+          })
+        }else{
+          this.handleJarWarUpload()
         }
       },
-      handleError: () => {}
+      handleError: () => { }
     });
   }
   //查询上传状态
@@ -209,25 +194,54 @@ export default class Index extends PureComponent {
       payload: {
         region: globalUtil.getCurrRegionName(),
         team_name: globalUtil.getCurrTeamName(),
-        event_id
+        event_id: event_id
       },
       callback: data => {
         if (data) {
-          this.setState({ existFileList: data.list });
-          console.log(data,'data')
+          if (data.bean.package_name.length > 0) {
+            this.setState({ 
+              existFileList: data.bean.package_name
+             });
+            notification.success({
+              message:"上传文件成功"
+            })
+            this.loop = false
+          }
         }
         if (this.loop) {
           setTimeout(() => {
             this.handleJarWarUploadStatus();
-          }, 6000);
+          }, 3000);
         }
       },
-      handleError: () => {}
+      handleError: () => { }
     });
   };
+  //删除上传文件
+  handleJarWarUploadDelete = () => {
+    const { event_id } = this.state
+    const { dispatch } = this.props
+    dispatch({
+      type: "createApp/deleteJarWarUploadStatus",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        event_id
+      },
+      callback: (data) => {
+        if(data.bean.res == 'ok'){
+          this.setState({ 
+            existFileList: []
+           });
+          notification.success({
+            message: '删除文件成功'
+          })
+          this.handleJarWarUpload()
+        }
+      },
+    });
+  }
   //上传
   onChangeUpload = info => {
-    console.log(info,'info')
     let { fileList } = info;
     fileList = fileList.filter(file => {
       if (file.response) {
@@ -247,7 +261,6 @@ export default class Index extends PureComponent {
         percents: false
       });
     }
-
     this.setState({ fileList });
   };
   //删除
@@ -259,11 +272,9 @@ export default class Index extends PureComponent {
       form: { getFieldDecorator },
       groups
     } = this.props;
-    const myheaders = {
-      'X-Requested-With':null
-    };
-    const { fileList, defaultRadio, isShowCom, addGroup, record, region_name } = this.state;
-    
+    const myheaders = {};
+    const { fileList, defaultRadio, isShowCom, addGroup, record, region_name, existFileList } = this.state;
+
     const formItemLayout = {
       labelCol: {
         xs: { span: 9 },
@@ -288,7 +299,7 @@ export default class Index extends PureComponent {
         <Card>
           <div className={styles.yaml_container}>
             <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-              <Form.Item label="应用名称" style={{display:'flex'}}>
+              <Form.Item label="应用名称" style={{ display: 'flex' }}>
                 {getFieldDecorator('group_id', {
                   rules: [
                     {
@@ -297,7 +308,7 @@ export default class Index extends PureComponent {
                     }
                   ]
                 })(
-                  <Select 
+                  <Select
                     onChange={this.handleChange}
                     getPopupContainer={triggerNode => triggerNode.parentNode}
                     placeholder="请选择要所属应用"
@@ -314,7 +325,7 @@ export default class Index extends PureComponent {
                   initialValue: 'jwar'
                 })(
                   <Radio.Group
-                    value={defaultRadio}
+                    // value={defaultRadio}
                     onChange={this.handleChangeUpType}
                   >
                     <Radio value="jwar">Jar、War</Radio>
@@ -354,22 +365,20 @@ export default class Index extends PureComponent {
                   {getFieldDecorator('packageTarFile', {
                     rules: [
                       {
-                        required: true,
+                        required: false,
                         message: '请上传文件'
                       }
                     ]
                   })(
-                    <Upload  
-                      // {...this.getPdfURL()}
-                      fileList={fileList} 
+                    <Upload
+                      fileList={fileList}
                       accept=".jar,.war"
                       name="packageTarFile"
                       onChange={this.onChangeUpload}
                       onRemove={this.onRemove}
                       action={record.upload_url}
-                      showUploadList={true}
                       headers={myheaders}
-                      disabled={region_name === ''}
+                    // disabled={region_name === ''}
                     >
                       <Button>
                         <Icon type="upload" /> 上传文件
@@ -390,17 +399,44 @@ export default class Index extends PureComponent {
                       }
                     ]
                   })(
-                    <Upload fileList={fileList} accept=".yaml">
-                      <Dragger>
+                      <Dragger
+                        fileList={fileList} 
+                        accept=".yaml,.yml"
+                        name="packageTarFile"
+                        onChange={this.onChangeUpload}
+                        onRemove={this.onRemove}
+                        action={record.upload_url}
+                        headers={myheaders}
+                      >
                         <p className="ant-upload-drag-icon">
                           <Icon type="inbox" />
                         </p>
                       </Dragger>
-                    </Upload>
                   )}
                 </Form.Item>
               )}
-
+              <Form.Item
+                wrapperCol={{
+                  xs: {
+                    span: 7,
+                    offset: 7
+                  },
+                  sm: {
+                    span: 9,
+                    offset: 9
+                  }
+                }}
+              >
+                {existFileList.length > 0 && existFileList.map((item) => {
+                  return (
+                    <div className={styles.update}>
+                      <Icon style={{marginRight:'6px'}} type="inbox" />
+                      {item}
+                      <Icon onClick={this.handleJarWarUploadDelete} style={{marginLeft:'12px', color:'red', cursor:'pointer'}} type="delete" /> 
+                    </div>
+                  )
+                })}
+              </Form.Item>
               <Form.Item
                 wrapperCol={{
                   xs: {

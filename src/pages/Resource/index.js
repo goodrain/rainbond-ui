@@ -38,13 +38,15 @@ class Index extends PureComponent {
         title: '资源名称',
         dataIndex: 'name',
         key: 'name',
-        align: 'center'
+        align: 'center',
+        width:200
       },
       {
         title: '资源类型',
         dataIndex: 'type',
         key: 'type',
-        align: 'center'
+        align: 'center',
+        width:200
       },
       {
         title: '状态',
@@ -56,17 +58,11 @@ class Index extends PureComponent {
         }
       },
       {
-        title: '原因',
-        dataIndex: 'reason',
-        key: 'reason',
-        render: () => {
-          return <span>创建成功</span>;
-        }
-      },
-      {
         title: '操作',
         dataIndex: 'action',
         key: 'action',
+        align:'center',
+        width:200,
         render: () => {
           return (
             <>

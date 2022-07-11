@@ -81,8 +81,6 @@ export default class Index extends React.Component {
   }
   componentDidMount() {
     if (!this.canView()) return;
-    console.log("其他设置页面");
-    console.log(this.props);
     this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
     this.fetchInnerEnvs();
     this.fetchStartProbe();
@@ -350,9 +348,6 @@ export default class Index extends React.Component {
   };
   handleEditHealth = vals => {
     const { startProbe } = this.props;
-    console.log("健康检测")
-    console.log(vals)
-    console.log(this.props)
     return
     this.setState({
       loading: true
@@ -640,7 +635,8 @@ export default class Index extends React.Component {
       baseInfo,
       teamControl,
       form,
-      componentPermissions: { isDeploytype, isCharacteristic, isHealth }
+      componentPermissions: { isDeploytype, isCharacteristic, isHealth },
+      appDetail
     } = this.props;
     const { viewStartHealth, tags, tabData, isShow, loading } = this.state;
     const { getFieldDecorator } = form;
@@ -821,7 +817,11 @@ export default class Index extends React.Component {
             )}
           </Card>
         )}
-        <Strategy />
+        {(appDetail.service.extend_method === 'job' || 
+        appDetail.service.extend_method === 'cron_job') &&(
+          <Strategy extend_method={appDetail.service.extend_method} />
+        )}
+        
         <Kubernetes />
         {this.state.addTag && (
           <AddTag

@@ -1,13 +1,13 @@
 /* eslint-disable react/no-redundant-should-component-update */
 /* eslint-disable react/no-unused-state */
-import { Alert, Form, Input, Modal, notification, Select } from 'antd';
+import { Alert, Form, Input, Modal, notification, Select, Tabs } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import ShowRegionKey from '../../../components/ShowRegionKey';
 import { getCodeBranch } from '../../../services/app';
 import appUtil from '../../../utils/app';
 import globalUtil from '../../../utils/global';
-
+const { TabPane } = Tabs;
 const FormItem = Form.Item;
 const { Option } = Select;
 // 切换分支组件
@@ -25,7 +25,7 @@ export default class ChangeBuildSource extends PureComponent {
       serverType: this.props.buildSource.server_type
         ? this.props.buildSource.server_type
         : 'git',
-      showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource) ,
+      showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource),
       showImage: appUtil.isImageAppByBuildSource(this.props.buildSource)
     };
   }
@@ -103,7 +103,7 @@ export default class ChangeBuildSource extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24
+          span: 5
         },
         sm: {
           span: 3
@@ -111,7 +111,7 @@ export default class ChangeBuildSource extends PureComponent {
       },
       wrapperCol: {
         xs: {
-          span: 24
+          span: 10
         },
         sm: {
           span: 16
@@ -172,170 +172,169 @@ export default class ChangeBuildSource extends PureComponent {
         onCancel={onCancel}
         visible
       >
-        {/* <Alert
+        <Alert
           message="您可以在此修改创建方式"
           type="warning"
           closable
           size="small"
           style={{ marginBottom: '12px' }}
           // onClose={onClose}
-        /> */}
-        <Form onSubmit={this.handleSubmit}>
-          <FormItem
-            style={{ display: showImage ? '' : 'none' }}
-            {...formItemLayout}
-            label="镜像名称"
-          >
-            {getFieldDecorator('image', {
-              rules: [
-                { required: true, message: '镜像名称不能为空' },
-                {
-                  max: 190,
-                  message: '最大长度190位'
-                }
-              ],
-              initialValue: this.state.buildSource.image
-            })(<Input />)}
-          </FormItem>
-          <FormItem
-            style={{ display: showImage ? '' : 'none' }}
-            {...formItemLayout}
-            label="启动命令"
-          >
-            {getFieldDecorator('cmd', {
-              initialValue: this.state.buildSource.cmd
-            })(<Input />)}
-          </FormItem>
-
-          <Form.Item
-            style={{ display: showImage ? '' : 'none' }}
-            {...formItemLayout}
-            label="用户名"
-          >
-            {getFieldDecorator('user_name', {
-              initialValue:
-                this.state.buildSource.user_name ||
-                this.state.buildSource.user ||
-                '',
-              rules: [{ required: false, message: '请输入仓库用户名' }]
-            })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
-          </Form.Item>
-          <Form.Item
-            style={{ display: showImage ? '' : 'none' }}
-            {...formItemLayout}
-            label="密码"
-          >
-            {getFieldDecorator('password', {
-              initialValue: this.state.buildSource.password || '',
-              rules: [{ required: false, message: '请输入仓库密码' }]
-            })(
-              <Input
-                autoComplete="new-password"
-                type="password"
-                placeholder="请输入仓库密码"
-              />
-            )}
-          </Form.Item>
-
-          {this.state.showCode && (
-            <Form.Item
-              style={{ display: this.state.showCode ? '' : 'none' }}
-              {...formItemLayout}
-              label="仓库地址"
-            >
-              {getFieldDecorator('git_url', {
-                initialValue: this.state.buildSource.git_url,
-                force: true,
-                rules: [
-                  { required: true, message: '请输入仓库地址' },
-                  { validator: this.checkURL, message: '仓库地址不合法' }
-                ]
-              })(
-                <Input
-                  addonBefore={prefixSelector}
-                  placeholder="请输入仓库地址"
-                />
-              )}
-            </Form.Item>
-          )}
-          {this.state.showCode && (
-            <Form.Item
-              style={{ display: this.state.showCode ? '' : 'none' }}
-              {...formItemLayout}
-              label="代码版本"
-            >
-              {getFieldDecorator('code_version', {
-                initialValue: codeVersion,
-                rules: [{ required: true, message: '请输入代码版本' }]
-              })(
-                <Input
-                  addonBefore={versionSelector}
-                  placeholder="请输入代码版本"
-                />
-              )}
-            </Form.Item>
-          )}
-
-          {gitUrl && isSSH ? (
-            <div style={{ textAlign: 'left' }}>
-              这是一个私有仓库?{' '}
-              <a
-                onClick={() => {
-                  this.setState({ showKey: true });
-                }}
+        />
+        <Tabs defaultActiveKey="1" >
+          <TabPane tab="源码" key="1" >
+            <Form onSubmit={this.handleSubmit}>
+              <Form.Item
+                {...formItemLayout}
+                label="仓库地址"
               >
-                配置授权Key
-              </a>
-            </div>
-          ) : (
-            ''
-          )}
-          {gitUrl && isHttp && !showUsernameAndPass ? (
-            <div style={{ textAlign: 'left' }}>
-              这是一个私有仓库?
-              <a
-                onClick={() => {
-                  this.setState({ showUsernameAndPass: true });
-                }}
+                {getFieldDecorator('git_url', {
+                  initialValue: this.state.buildSource.git_url,
+                  force: true,
+                  rules: [
+                    { required: true, message: '请输入仓库地址' },
+                    { validator: this.checkURL, message: '仓库地址不合法' }
+                  ]
+                })(
+                  <Input
+                    addonBefore={prefixSelector}
+                    placeholder="请输入仓库地址"
+                  />
+                )}
+              </Form.Item>
+              <Form.Item
+                {...formItemLayout}
+                label="代码版本"
               >
-                填写仓库账号密码
-              </a>
-            </div>
-          ) : (
-            ''
-          )}
+                {getFieldDecorator('code_version', {
+                  initialValue: codeVersion,
+                  rules: [{ required: true, message: '请输入代码版本' }]
+                })(
+                  <Input
+                    addonBefore={versionSelector}
+                    placeholder="请输入代码版本"
+                  />
+                )}
+              </Form.Item>
 
-          <Form.Item
-            style={{ display: showUsernameAndPass && isHttp ? '' : 'none' }}
-            {...formItemLayout}
-            label="用户名"
-          >
-            {getFieldDecorator('user_name', {
-              initialValue:
-                this.state.buildSource.user_name ||
-                this.state.buildSource.user ||
-                '',
-              rules: [{ required: false, message: '请输入仓库用户名' }]
-            })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
-          </Form.Item>
-          <Form.Item
-            style={{ display: showUsernameAndPass && isHttp ? '' : 'none' }}
-            {...formItemLayout}
-            label="密码"
-          >
-            {getFieldDecorator('password', {
-              initialValue: this.state.buildSource.password || '',
-              rules: [{ required: false, message: '请输入仓库密码' }]
-            })(
-              <Input
-                autoComplete="new-password"
-                type="password"
-                placeholder="请输入仓库密码"
-              />
-            )}
-          </Form.Item>
-        </Form>
-        {showKey && isSSH && <ShowRegionKey onCancel={this.hideShowKey} />}
+              {gitUrl && isSSH ? (
+                <div style={{ textAlign: 'left' }}>
+                  这是一个私有仓库?{' '}
+                  <a
+                    onClick={() => {
+                      this.setState({ showKey: true });
+                    }}
+                  >
+                    配置授权Key
+                  </a>
+                </div>
+              ) : (
+                ''
+              )}
+              {gitUrl && isHttp && !showUsernameAndPass ? (
+                <div style={{ textAlign: 'left' }}>
+                  这是一个私有仓库?
+                  <a
+                    onClick={() => {
+                      this.setState({ showUsernameAndPass: true });
+                    }}
+                  >
+                    填写仓库账号密码
+                  </a>
+                </div>
+              ) : (
+                ''
+              )}
+
+              <Form.Item
+                style={{ display: showUsernameAndPass && isHttp ? '' : 'none' }}
+                {...formItemLayout}
+                label="用户名"
+              >
+                {getFieldDecorator('user_name', {
+                  initialValue:
+                    this.state.buildSource.user_name ||
+                    this.state.buildSource.user ||
+                    '',
+                  rules: [{ required: false, message: '请输入仓库用户名' }]
+                })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+              </Form.Item>
+              <Form.Item
+                style={{ display: showUsernameAndPass && isHttp ? '' : 'none' }}
+                {...formItemLayout}
+                label="密码"
+              >
+                {getFieldDecorator('password', {
+                  initialValue: this.state.buildSource.password || '',
+                  rules: [{ required: false, message: '请输入仓库密码' }]
+                })(
+                  <Input
+                    autoComplete="new-password"
+                    type="password"
+                    placeholder="请输入仓库密码"
+                  />
+                )}
+              </Form.Item>
+            </Form>
+          </TabPane>
+          <TabPane tab="镜像" key="2">
+            <Form onSubmit={this.handleSubmit}>
+              <FormItem
+                {...formItemLayout}
+                label="镜像名称"
+              >
+                {getFieldDecorator('image', {
+                  rules: [
+                    { required: true, message: '镜像名称不能为空' },
+                    {
+                      max: 190,
+                      message: '最大长度190位'
+                    }
+                  ],
+                  initialValue: this.state.buildSource.image
+                })(<Input />)}
+              </FormItem>
+              <FormItem
+                {...formItemLayout}
+                label="启动命令"
+              >
+                {getFieldDecorator('cmd', {
+                  initialValue: this.state.buildSource.cmd
+                })(<Input />)}
+              </FormItem>
+
+              <Form.Item
+                {...formItemLayout}
+                label="用户名"
+              >
+                {getFieldDecorator('user_name', {
+                  initialValue:
+                    this.state.buildSource.user_name ||
+                    this.state.buildSource.user ||
+                    '',
+                  rules: [{ required: false, message: '请输入仓库用户名' }]
+                })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+              </Form.Item>
+              <Form.Item
+                {...formItemLayout}
+                label="密码"
+              >
+                {getFieldDecorator('password', {
+                  initialValue: this.state.buildSource.password || '',
+                  rules: [{ required: false, message: '请输入仓库密码' }]
+                })(
+                  <Input
+                    autoComplete="new-password"
+                    type="password"
+                    placeholder="请输入仓库密码"
+                  />
+                )}
+              </Form.Item>
+            </Form>
+          </TabPane>
+        </Tabs>
+        
+
+        {/* {showKey && isSSH && <ShowRegionKey onCancel={this.hideShowKey} />} */}
       </Modal>
     );
   }

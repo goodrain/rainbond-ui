@@ -18,7 +18,8 @@ import {
   notification,
   Select,
   Spin,
-  Tabs
+  Tabs,
+  Upload
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -33,8 +34,6 @@ import { languageObj } from '../../utils/utils';
 import styles from './resource.less';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
-import Yuanma from './setting/yuanma';
-
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -58,7 +57,6 @@ export default class Index extends PureComponent {
     this.state = {
       runtimeInfo: '',
       changeBuildSource: false,
-      changeBuildSources: true,
       editOauth: false,
       buildSource: null,
       showMarketAppDetail: false,
@@ -74,7 +72,13 @@ export default class Index extends PureComponent {
       fullList: [],
       tabList: [],
       OauthLoading: true,
-      page: 1
+      page: 1,
+      uploadFile: false,
+      fileList: [],
+      record: {},
+      event_id: '',
+      percents: false,
+      existFileList: [],
     };
   }
   componentDidMount() {
@@ -82,6 +86,191 @@ export default class Index extends PureComponent {
     this.getRuntimeInfo();
     this.loadBuildSourceInfo();
   }
+  componentWillUnmount() {
+    this.loop = false;
+    this.statusloop = false;
+  }
+
+  // 上传文件取消
+  handleUploadCancel = () => {
+    this.setState({ uploadFile: false })
+  }
+  //上传文件确认
+  handleUploadOk = e => {
+    const { 
+      dispatch, 
+      appDetail 
+    } = this.props;
+    const { existFileList, event_id } = this.state
+    const teamName = globalUtil.getCurrTeamName()
+    const serviceId = appDetail && appDetail.service && appDetail.service.service_id
+   if (existFileList.length > 0) {
+      dispatch({
+        type: "createApp/createJarWarSubmit",
+        payload: {
+          team_name: teamName,
+          event_id,
+          service_id:serviceId,
+        },
+        callback: (data) => {
+          this.setState({ uploadFile: false })
+          this.loadBuildSourceInfo()
+        },
+      });
+    } else {
+      this.loop = true
+      this.handleJarWarUploadStatus()
+      notification.error({
+        message: '未检测到上传文件'
+      })
+    }
+  };
+  handleJarWarUpload = () => {
+    const teamName = globalUtil.getCurrTeamName()
+    const regionName = globalUtil.getCurrRegionName()
+    const {
+      dispatch,
+      appDetail
+    } = this.props;
+    const service_id = appDetail.service.service_id
+    //获取上传事件
+    dispatch({
+      type: "createApp/createJarWarServices",
+      payload: {
+        region: regionName,
+        team_name: teamName,
+        component_id: service_id,
+      },
+      callback: (res) => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            record: res.bean,
+            event_id: res.bean.event_id
+          }, () => {
+            if (res.bean.region !== '') {
+              this.loop = true;
+              this.handleJarWarUploadStatus();
+            }
+          })
+        }
+      },
+    });
+  }
+  //查询上传记录
+  handleJarWarUploadRecord = () => {
+    const {
+      dispatch,
+      appDetail
+    } = this.props;
+    const service_id = appDetail.service.service_id
+    dispatch({
+      type: 'createApp/createJarWarUploadRecord',
+      payload: {
+        region: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+        component_id: service_id,
+      },
+      callback: data => {
+        if (data.bean && data.bean.source_dir && data.bean.source_dir.length > 0) {
+          this.setState({
+            existFileList: data.bean.source_dir,
+            event_id: data.bean.event_id
+          })
+        } else {
+          this.handleJarWarUpload()
+        }
+      },
+      handleError: () => { }
+    });
+  }
+  //查询上传状态
+  handleJarWarUploadStatus = () => {
+    const {
+      dispatch
+    } = this.props;
+    const { event_id } = this.state
+    dispatch({
+      type: 'createApp/createJarWarUploadStatus',
+      payload: {
+        region: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+        event_id: event_id
+      },
+      callback: data => {
+        if (data) {
+          if (data.bean.package_name && data.bean.package_name.length > 0) {
+            this.setState({
+              existFileList: data.bean.package_name
+            });
+            notification.success({
+              message: '上传文件成功'
+            })
+            this.loop = false
+          }
+        }
+        if (this.loop) {
+          setTimeout(() => {
+            this.handleJarWarUploadStatus();
+          }, 3000);
+        }
+      },
+      handleError: () => { }
+    });
+  };
+  //删除上传文件
+  handleJarWarUploadDelete = () => {
+    const { event_id } = this.state
+    const { dispatch } = this.props
+    dispatch({
+      type: "createApp/deleteJarWarUploadStatus",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        event_id
+      },
+      callback: (data) => {
+        if (data.bean.res == 'ok') {
+          this.setState({
+            existFileList: []
+          });
+          notification.success({
+            message: '删除文件成功'
+          })
+          this.handleJarWarUpload()
+        }
+      },
+    });
+  }
+  //上传
+  onChangeUpload = info => {
+    let { fileList } = info;
+    fileList = fileList.filter(file => {
+      if (file.response) {
+        return file.response.msg === 'success';
+      }
+      return true;
+    });
+    if (info && info.event && info.event.percent) {
+      this.setState({
+        percents: info.event.percent
+      });
+    }
+
+    const { status } = info.file;
+    if (status === 'done') {
+      this.setState({
+        percents: false
+      });
+    }
+    this.setState({ fileList });
+  };
+  //删除
+  onRemove = () => {
+    this.setState({ fileList: [] });
+  };
+
+
+
+
   setOauthService = () => {
     const { rainbondInfo, enterprise } = this.props;
     const tabList = [];
@@ -165,14 +354,8 @@ export default class Index extends PureComponent {
   changeBuildSource = () => {
     this.setState({ changeBuildSource: true });
   };
-  changeBuildSources = () => {
-    this.setState({ changeBuildSources: true });
-  };
   hideBuildSource = () => {
     this.setState({ changeBuildSource: false });
-  };
-  hideBuildSources = () => {
-    this.setState({ changeBuildSources: false });
   };
   changeEditOauth = () => {
     this.handleProvinceChange();
@@ -181,7 +364,7 @@ export default class Index extends PureComponent {
   hideEditOauth = () => {
     this.setState({ editOauth: false });
   };
-
+  
   loadBuildSourceInfo = () => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
@@ -223,6 +406,7 @@ export default class Index extends PureComponent {
           this.setState({
             thirdInfo: res.bean
           });
+
         }
       }
     });
@@ -231,6 +415,10 @@ export default class Index extends PureComponent {
   handleToDetect = () => {
     this.setState({ languageBox: true });
   };
+  handleToUpload = () => {
+    this.setState({ uploadFile: true });
+    this.handleJarWarUploadRecord()
+  }
   handlelanguageBox = () => {
     this.setState({ languageBox: false, create_status: '' });
   };
@@ -477,8 +665,12 @@ export default class Index extends PureComponent {
       fullList,
       tabList,
       firstPage,
-      lastPage
+      lastPage,
+      fileList,
+      record,
+      existFileList,
     } = this.state;
+    const myheaders = {};
     const language = appUtil.getLanguage(appDetail);
     const formItemLayout = {
       labelCol: {
@@ -568,13 +760,6 @@ export default class Index extends PureComponent {
                   {appUtil.isOauthByBuildSource(buildSource) && thirdInfo
                     ? thirdInfo.service_name
                     : buildShared}
-                  <Button
-                    size="small"
-                    style={{ marginLeft: '12px' }}
-                    onClick={this.changeBuildSources}
-                  >
-                    修改创建方式
-                  </Button>
                 </Link>
               </FormItem>
             </div>
@@ -719,6 +904,57 @@ export default class Index extends PureComponent {
             ) : (
               ''
             )}
+            {appUtil.isUploadFilesAppSource(buildSource) ? (
+              <Fragment>
+                <FormItem
+                  style={{
+                    marginBottom: 0
+                  }}
+                  {...formItemLayout}
+                  label="文件路径"
+                >
+                  {buildSource.git_url}
+                </FormItem>
+                <FormItem
+                  style={{
+                    marginBottom: 0
+                  }}
+                  {...formItemLayout}
+                  label="文件名称"
+                >
+                  {buildSource.package_name}
+                  <Button
+                    size="small"
+                    onClick={this.handleToUpload}
+                    style={{ marginLeft: '6px' }}
+                  >
+                    重新上传文件
+                  </Button>
+                </FormItem>
+
+                <FormItem
+                  style={{
+                    marginBottom: 0
+                  }}
+                  {...formItemLayout}
+                  className={styles.ant_form_item}
+                  label="语言"
+                >
+                  {languageType != 'static' ? (
+                    <>
+                      {languageType}
+                    </>
+                  ) : (
+                    <>
+                      {languageType}
+                    </>
+                  )}
+
+                </FormItem>
+              </Fragment>
+            ) : (
+              ''
+            )}
             {/* <ChangeBranch
                   isCreateFromCustomCode={appUtil.isCreateFromCustomCode(appDetail)}
                   appAlias={this.props.appAlias}
@@ -728,7 +964,7 @@ export default class Index extends PureComponent {
                 /> */}
           </Card>
         )}
-        
+
         {buildSource && (
           <AutoDeploy
             app={this.props.appDetail}
@@ -873,7 +1109,39 @@ export default class Index extends PureComponent {
             </div>
           </Modal>
         )}
-
+        {this.state.uploadFile &&
+          <Modal
+            visible
+            onCancel={this.handleUploadCancel}
+            onOk={this.handleUploadOk}
+            title="上传文件"
+          >
+            <Upload
+              fileList={fileList}
+              accept=".jar,.war"
+              name="packageTarFile"
+              onChange={this.onChangeUpload}
+              onRemove={this.onRemove}
+              action={record.upload_url}
+              headers={myheaders}
+            >
+              <Button>
+                <Icon type="upload" /> 上传文件
+              </Button>
+            </Upload>
+            <div style={{marginTop:'20px'}}>
+              {existFileList.length > 0 && existFileList.map((item) => {
+                return (
+                  <div className={styles.update}>
+                    <Icon style={{ marginRight: '12px' }} type="inbox" />
+                    {item}
+                    <Icon onClick={this.handleJarWarUploadDelete} className={styles.delete} style={{ textAlign: 'right', color: 'red', cursor: 'pointer' }} type="delete" />
+                  </div>
+                )
+              })}
+            </div>
+          </Modal>
+        }
         {language && runtimeInfo && (
           <CodeBuildConfig
             appDetail={this.props.appDetail}
@@ -892,18 +1160,6 @@ export default class Index extends PureComponent {
             onCancel={this.hideBuildSource}
           />
         )}
-        {this.state.changeBuildSources && (
-          <Yuanma
-            onOk={this.onChangeBuildSource}
-            buildSource={buildSource}
-            appAlias={this.props.appDetail.service.service_alias}
-            title="更改组件构建源"
-            onCancel={this.hideBuildSources}
-          />
-        )
-
-        }
-
         {this.state.editOauth && (
           <Modal
             visible={this.state.editOauth}

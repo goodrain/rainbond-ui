@@ -210,10 +210,6 @@ export default class ImportMessage extends PureComponent {
                                             <Row type="flex" style={{ width: '100%' }}>
                                                 <div className={styles.resource}>
                                                     <div className={styles.WorkLoads}>
-                                                        <div className={styles.titles}>
-                                                            <h2 className={styles.hleft}>WorkLoads: </h2>
-                                                        </div>
-
                                                         <div className={styles.WorkLoads_value}>
                                                         {resourceDataItem.workloads && Object.keys(resourceDataItem.workloads).map((workloadItem, index) => {
                                                             let workloads = resourceDataItem.workloads[workloadItem]                                                        
@@ -233,9 +229,6 @@ export default class ImportMessage extends PureComponent {
                                                         </div>
                                                     </div>
                                                     <div className={styles.miscellaneous_assets}>
-                                                        <div className={styles.titles}>
-                                                            <h2 className={styles.hleft}>其他资源: </h2>
-                                                        </div>
                                                         <div className={styles.WorkLoads_value}>
                                                             {resourceDataItem.others && Object.keys(resourceDataItem.others).map((othersItem)=>{
                                                                 let others = resourceDataItem.others[othersItem]

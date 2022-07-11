@@ -1106,7 +1106,7 @@ class Main extends PureComponent {
       editNameLoading,
       updateRollingLoading,
       deployLoading,
-      buildInformationLoading
+      buildInformationLoading,
     } = this.props;
     const {
       BuildList,
@@ -1252,7 +1252,7 @@ class Main extends PureComponent {
       }
     ];
 
-    if (isTelescopic) {
+    if (isTelescopic && appDetail.service.extend_method !== 'job' && appDetail.service.extend_method !== 'cron_job') {
       tabs.push({
         key: 'expansion',
         tab: '伸缩'
