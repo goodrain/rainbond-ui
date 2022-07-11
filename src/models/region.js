@@ -11,7 +11,8 @@ import {
   fetchHelmCommand,
   fetchHelmJoinStatus,
   fetchImportMessage,
-  fetchNameSpaceResource
+  fetchNameSpaceResource,
+  fetchNameSpaceAdvancedResource
 } from '../services/region';
 
 export default {
@@ -69,6 +70,12 @@ export default {
     },
     *fetchNameSpaceResource({ payload, callback }, { call }) {
       const response = yield call(fetchNameSpaceResource, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchNameSpaceAdvancedResource({ payload, callback }, { call }) {
+      const response = yield call(fetchNameSpaceAdvancedResource, payload);
       if (response && callback) {
         callback(response);
       }

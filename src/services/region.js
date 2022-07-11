@@ -171,3 +171,14 @@ export async function fetchNameSpaceResource(param) {
     }
   });
 }
+/* 获取NameSpace下的高级资源 */ 
+export async function fetchNameSpaceAdvancedResource(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/convert-resource`, {
+    method: 'get',
+    params: {
+      content: 'unmanaged',
+      namespace: param.namespace
+    }
+  });
+}
+

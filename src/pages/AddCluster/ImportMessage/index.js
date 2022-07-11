@@ -31,7 +31,8 @@ export default class ImportMessage extends PureComponent {
             adminer,
             text: '这是折叠面板',
             nameSpaceArr: [],
-            resourceData: {}
+            resourceData: {},
+            namespace:''
         };
     }
     componentWillMount() {
@@ -52,6 +53,7 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
+
         dispatch({
             type: 'region/fetchImportMessage',
             payload: {
@@ -60,7 +62,8 @@ export default class ImportMessage extends PureComponent {
             },
             callback: res => {
                 this.setState({
-                    nameSpaceArr: res.bean
+                    nameSpaceArr: res.bean,
+                    namespace:res.bean[0]
                 })
                 this.handleResource(res.bean[0])
             }
@@ -96,7 +99,10 @@ export default class ImportMessage extends PureComponent {
     handleChange = (value) => {
         console.log(value, 'value')
         this.handleResource(value)
-
+        // const val = vvalue
+        this.setState({
+            namespace:value,
+        })
     }
     //折叠面板图标
     genExtra = () => (
@@ -113,10 +119,15 @@ export default class ImportMessage extends PureComponent {
     }
     //下一步
     onNext = () => {
-        const { dispatch } = this.props
-        const teamName = 'ay4lbc65'
-        const regionName = '1655982984'
-        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/ResourceConversion`));
+        const { dispatch,
+            match: {
+                params: { eid }
+            },
+         } = this.props
+        const teamName = 'nk8a6gif'
+        const regionName = 'test'
+        const region_id = this.props.location.query && this.props.location.query.region_id
+        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/ResourceConversion?id=${eid}&region_id=${region_id}&namespace=${this.state.namespace}`));
     }
     render() {
         const {
@@ -124,6 +135,7 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
+        console.log(this.props);
         const resourceData =  {
                     Label: {
                         workloads: {
@@ -200,8 +212,8 @@ export default class ImportMessage extends PureComponent {
                         others: {}
                     }
                 }
-        const { text, nameSpaceArr } = this.state
-        console.log(resourceData, 'resourceData')
+        const { text, nameSpaceArr,  } = this.state
+        // console.log(resourceData, 'resourceData')
 
         return (
             <PageHeaderLayout

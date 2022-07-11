@@ -47,6 +47,7 @@
 .alltable{
     min-width: 500px;
     margin-left: 180px;
+	margin-bottom: 75px;
     :global{
         .ant-collapse-borderless > .ant-collapse-item > .ant-collapse-content{
             background-color: rgb(240 242 245);
@@ -58,28 +59,36 @@
             border-bottom: 1px solid #e8e8e8;
             .ant-card-head-wrapper>.ant-card-head-title{
                 font-weight: 600;
-				
             }
         }
+		
     }
 	.buttonbox{
 		background-color: #fff;
 		border: 1px solid #e8e8e8;
+		padding: 30px;
 	}
 	.ramstyle{
 		margin-left: 32px;
-		display: flex;
-		height: 48px;
+		h3{
+			padding-right: 10px;
+			span{
+			display: inline-block;
+			min-width: 80px;	
+			padding:0 20px
+			}
+		}
 	}
 	.cpustyle{
-		margin-left: 35px;
-		display: flex;
-		align-content: center;
+		margin-left: 34px;
 		h3{
 			vertical-align: bottom;
-			font-weight: 600;
 			padding-right: 10px;
-
+			span{
+			display: inline-block;
+			min-width: 80px;	
+			padding:0 20px
+			}
 		}
 	}
 }
@@ -97,20 +106,15 @@
     border: 1px solid #e8e8e8;
 }
 .cardstyle{
-	
 	h3{
-		font-weight: 600;
+		
 		font-size: 16px;
 		span{
+			display: inline-block;
+			min-width: 80px;	
+			padding:0 20px;
 			color: #808080;
 		}
-	}
-	p{
-		cursor: pointer;
-		margin: 0;
-		height: 32px;
-		line-height: 32px;
-		margin: 0 12px;
 	}
 	:global{
 		.ant-input-group-wrapper{
