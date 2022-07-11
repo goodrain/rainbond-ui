@@ -240,7 +240,9 @@ const global = {
       TEMINATING: '#20124A', // 关闭中 紫色
       tEMINATING: '#20124A', // 关闭中 紫色
       Some_abnormal: '#FF0000', // 一些不正常 纯红
-      Building: '#007710' // 构建  纯蓝
+      Building: '#007710', // 构建  纯蓝
+      succeeded: '#6db7fb', 
+      SUCCEEDED:'#6db7fb' //蓝色 已完成
     };
     return statusColorMap[status] || statusColorMap.unknow;
   },
@@ -1164,7 +1166,10 @@ const global = {
       creating: '部署中',
       expired: '过期',
       NOTREADY: '未就绪',
-      UNHEALTHY: '不健康'
+      UNHEALTHY: '不健康',
+      succeeded: '已完成',
+      failed:'执行失败',
+      SUCCEEDED:'已完成'
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
   },
@@ -1448,37 +1453,37 @@ const global = {
   getSupportComponentTyps() {
     return [
       {
-        type: 'state_multiple',
-        name: this.getComponentType('state_multiple'),
-        desc: '部署为Deployment类型，一般用于Web类，API类等组件'
-      },
-      {
-        type: 'state_singleton',
-        name: this.getComponentType('state_singleton'),
-        desc: '部署为Statefulset类型，一般用于DB类，消息中间件类，数据类组件 '
-      },
-      {
-        type: 'stateless_singleton',
-        name: this.getComponentType('stateless_singleton'),
-        desc: '部署为Job类型，一般用于一次性任务，完成后容器就退出'
-      },
-      {
         type: 'stateless_multiple',
         name: this.getComponentType('stateless_multiple'),
-        desc: '部署为Cronjob类型，一般用于处理周期性的、需反复执行的定时任务'
+        desc: '部署为无状态服务（Deployment类型），一般用于Web类，API类等组件。'
+      },
+      {
+        type: 'state_multiple',
+        name: this.getComponentType('state_multiple'),
+        desc: '部署为有状态服务（Statefulset类型），一般用于DB类，消息中间件类，数据类组件。'
+      },
+      {
+        type: 'job',
+        name: this.getComponentType('job'),
+        desc: '部署为任务（Job类型），一般用于一次性任务，完成后容器就退出。'
+      },
+      {
+        type: 'cron_job',
+        name: this.getComponentType('cron_job'),
+        desc: '部署为周期性任务（Cronjob类型），一般用于处理周期性的、需反复执行的定时任务。'
       }
     ];
   },
   getComponentType(componentType) {
     switch (componentType) {
-      case 'state_singleton':
-        return '有状态单实例';
-      case 'state_multiple':
-        return '有状态多实例';
-      case 'stateless_singleton':
-        return '无状态单实例';
       case 'stateless_multiple':
-        return '无状态多实例';
+        return '无状态服务';
+      case 'state_multiple':
+        return '有状态服务';
+      case 'job':
+        return '任务';
+      case 'cron_job':
+        return '周期性任务';
       default:
         return '';
     }
@@ -1494,7 +1499,7 @@ const global = {
   },
   isSingletonComponent(componentType) {
     if (
-      componentType === 'state_singleton' ||
+      componentType === 'stateless_singleton' ||
       componentType === 'stateless_singleton'
     ) {
       return true;

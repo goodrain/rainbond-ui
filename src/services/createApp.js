@@ -73,7 +73,7 @@ export async function createJarWarServices(body = {}) {
       method: 'post',
       data: {
         region: body.region,
-        component_id: ''
+        component_id: body && body.component_id ? body.component_id : ''
       }
     }
   );
@@ -98,10 +98,28 @@ export async function createJarWarUploadStatus(
   );
 }
 /*
+   Jar、War包 删除上传文件状态
+*/
+export async function deleteJarWarUploadStatus(
+  body = { enterprise_id, event_id },
+  handleError
+  ) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
+    {
+      method: 'put',
+      data: {
+        event_id: body.event_id
+      },
+      handleError
+    }
+  );
+}
+/*
    Jar、War包上传文件记录
 */
 export async function createJarWarUploadRecord(
-  body = { enterprise_id, event_id },
+  body = { },
   handleError
   ) {
   return request(
@@ -110,8 +128,7 @@ export async function createJarWarUploadRecord(
       method: 'get',
       params: {
         region: body.region,
-        event_id: body.event_id,
-        component_id: ''
+        component_id: body && body.component_id ? body.component_id : ''
       },
       handleError
     }
@@ -121,7 +138,6 @@ export async function createJarWarUploadRecord(
    Jar、War创建应用提交表单
 */
 export async function createJarWarFormSubmit(body = {}) {
-  console.log(body,'body')
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build`,
     {
@@ -131,12 +147,29 @@ export async function createJarWarFormSubmit(body = {}) {
         event_id: body.event_id,
         group_id: body.group_id,
         service_cname: body.service_cname,
-        k8s_component_name: body.k8s_component_name 
+        k8s_component_name: body.k8s_component_name
       }
     }
   );
 }
-
+/*
+   Jar、War构建源修改重新上传文件
+*/
+export async function createJarWarSubmit(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build`,
+    {
+      method: 'put',
+      data: {
+        region: body.region_name,
+        event_id: body.event_id,
+        group_id: body.group_id,
+        service_cname: body.service_cname,
+        service_id: body && body.service_id
+      }
+    }
+  );
+}
 
 /*
    compose创建应用
@@ -187,6 +220,9 @@ export function getCreateCheckId(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`,
     {
       method: 'post',
+      data:{
+        event_id: body.event_id
+      },
       handleError
     }
   );
@@ -201,7 +237,8 @@ export function getCreateCheckResult(body = {}) {
     {
       method: 'get',
       params: {
-        check_uuid: body.check_uuid
+        check_uuid: body.check_uuid,
+        event_id: body.event_id
       }
     }
   );

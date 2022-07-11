@@ -218,6 +218,11 @@ const appUtil = {
       source === 'docker_image'
     );
   },
+  // 是否是上传文件创建的应用
+  isUploadFilesAppSource(buildSource) {
+    const source = buildSource && buildSource.service_source;
+    return source === 'package_build';
+  },
   // 是否是源码创建的应用
   isCodeApp(appDetail) {
     const source = this.getInstallSource(appDetail);
@@ -294,6 +299,7 @@ const appUtil = {
       docker_compose: 'DockerCompose',
       docker_run: 'DockerRun',
       docker_image: '镜像',
+      package_build: '本地文件'
     };
     return map[source] || '';
   },

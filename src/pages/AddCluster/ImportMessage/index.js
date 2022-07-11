@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Button, Card, Form, Input, Row, Steps, Select, Collapse, Icon, Checkbox } from 'antd';
+import { Button, Card, Form, Input, Row, Steps, Select, Collapse, Icon, Checkbox, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -223,7 +223,6 @@ export default class ImportMessage extends PureComponent {
                     <Row type="flex" style={{ width: '100%', padding: '24px 0px', minHeight: '400px' }}>
                         <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3></div>
                         <Row className={styles.importCard}>
-                            {/* <Checkbox value="A"></Checkbox> */}
                             <Collapse
                                 defaultActiveKey={[0,1, 2, 3, 4, 5]}
                                 onChange={this.callback}
@@ -242,10 +241,6 @@ export default class ImportMessage extends PureComponent {
                                             <Row type="flex" style={{ width: '100%' }}>
                                                 <div className={styles.resource}>
                                                     <div className={styles.WorkLoads}>
-                                                        <div className={styles.titles}>
-                                                            <h2 className={styles.hleft}>WorkLoads: </h2>
-                                                        </div>
-
                                                         <div className={styles.WorkLoads_value}>
                                                         {resourceDataItem.workloads && Object.keys(resourceDataItem.workloads).map((workloadItem, index) => {
                                                             let workloads = resourceDataItem.workloads[workloadItem]                                                        
@@ -255,7 +250,9 @@ export default class ImportMessage extends PureComponent {
                                                                     <div className={styles.rightValue}>
                                                                         {workloads.length > 0 && workloads.map((itemValue)=>{
                                                                             return(
-                                                                                <div className={styles.value}>{itemValue}</div>
+                                                                                <Tooltip title={itemValue}>
+                                                                                    <div className={styles.value}>{itemValue}</div>
+                                                                                </Tooltip>
                                                                             )   
                                                                         })}
                                                                     </div>
@@ -265,9 +262,6 @@ export default class ImportMessage extends PureComponent {
                                                         </div>
                                                     </div>
                                                     <div className={styles.miscellaneous_assets}>
-                                                        <div className={styles.titles}>
-                                                            <h2 className={styles.hleft}>其他资源: </h2>
-                                                        </div>
                                                         <div className={styles.WorkLoads_value}>
                                                             {resourceDataItem.others && Object.keys(resourceDataItem.others).map((othersItem)=>{
                                                                 let others = resourceDataItem.others[othersItem]
@@ -277,7 +271,9 @@ export default class ImportMessage extends PureComponent {
                                                                     <div className={styles.rightValue}>
                                                                     {others.length > 0 && others.map((valueItem)=>{
                                                                         return(
-                                                                            <div className={styles.value}>{valueItem}</div>
+                                                                            <Tooltip title={valueItem}>
+                                                                                <div className={styles.value}>{valueItem}</div>
+                                                                            </Tooltip>
                                                                         )
                                                                     })}     
                                                                     </div>
@@ -291,13 +287,6 @@ export default class ImportMessage extends PureComponent {
                                         </Panel>
                                     )
                                 })}
-
-                                {/* <Panel header="label: app=rainbond-operator" key="2" extra={this.genExtra()}>
-                                    <div>{text}</div>
-                                </Panel>
-                                <Panel header="无label应用" key="3" extra={this.genExtra()}>
-                                    <div>{text}</div>
-                                </Panel> */}
                             </Collapse>
                         </Row>
                     </Row>

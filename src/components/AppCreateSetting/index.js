@@ -99,11 +99,9 @@ class BaseInfo extends PureComponent {
     });
   };
   handleChange = (value) => {
-    console.log(value,'value')
   }
   onChecks = (e) => {
-    console.log(e.target.value,'check')
-    if(e.target.value === 'stateless_multiple'){
+    if(e.target.value === 'cron_job'){
       this.setState({
         is_flag:false
       })
@@ -178,10 +176,16 @@ class BaseInfo extends PureComponent {
           {!is_flag && (
             <Row type="flex" style={{margin:'14px 0px'}}>
               <div style={{marginLeft:'25px',fontWeight:'bolder',marginTop:'-4px'}}>运行规则：</div>
-              <Select defaultValue="lucy" style={{ width: 200 }} onChange={this.handleChange}>
-                <Option value="jack">Jack</Option>
-                <Option value="lucy">Lucy</Option>
-                <Option value="Yiminghe">yiminghe</Option>
+              <Select 
+                defaultValue="lucy" 
+                style={{ width: 200 }} 
+                onChange={this.handleChange}
+              >
+                <Option value="0 * * * *">0 * * * *</Option>
+                <Option value="0 0 * * *">0 0 * * *</Option>
+                <Option value="0 0 * * 0">0 0 * * 0</Option>
+                <Option value="0 0 1 * *">0 0 1 * *</Option>
+                <Option value="0 0 1 1 *">0 0 1 1 *</Option>
               </Select>
             </Row>
           )}
@@ -1193,7 +1197,7 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       componentPermissions: this.handlePermissions('queryComponentInfo'),
-      type: 'property'
+      type: 'deploy'
     };
   }
   getAppAlias() {
@@ -1227,17 +1231,6 @@ export default class Index extends PureComponent {
               <div>
                 <span
                   className={`${styles.typeBtn} ${
-                    type === 'property' ? styles.active : ''
-                  }`}
-                  onClick={() => {
-                    this.handleType('property');
-                  }}
-                >
-                  基本属性
-                  <Icon type="right" />
-                </span>
-                <span
-                  className={`${styles.typeBtn} ${
                     type === 'deploy' ? styles.active : ''
                   }`}
                   onClick={() => {
@@ -1245,6 +1238,17 @@ export default class Index extends PureComponent {
                   }}
                 >
                   部署属性
+                  <Icon type="right" />
+                </span>
+                <span
+                  className={`${styles.typeBtn} ${
+                    type === 'property' ? styles.active : ''
+                  }`}
+                  onClick={() => {
+                    this.handleType('property');
+                  }}
+                >
+                  组件属性
                   <Icon type="right" />
                 </span>
               </div>

@@ -12,7 +12,8 @@ class Index extends PureComponent {
   };
   render() {
     const {
-      form: { getFieldDecorator }
+      form: { getFieldDecorator },
+      extend_method
     } = this.props;
     const formItemLayout = {
       labelCol: {
@@ -28,21 +29,26 @@ class Index extends PureComponent {
       <div style={{ marginBottom: '24px' }}>
         <Card title="任务运行策略">
           <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-            <Form.Item label="运行规则">
-              {getFieldDecorator('run', {
-                rules: [
-                  {
-                    required: true,
-                    message: '不能为空'
-                  }
-                ]
-              })(
-                <Select onChange={this.handleOptionChange}>
-                  <Option value="rmb">RMB</Option>
-                  <Option value="dollar">Dollar</Option>
-                </Select>
-              )}
-            </Form.Item>
+            {extend_method === 'cron_job' &&
+              <Form.Item label="运行规则">
+                {getFieldDecorator('run', {
+                  rules: [
+                    {
+                      required: true,
+                      message: '不能为空'
+                    }
+                  ]
+                })(
+                  <Select onChange={this.handleOptionChange}>
+                    <Option value="0 * * * *">0 * * * *</Option>
+                    <Option value="0 0 * * *">0 0 * * *</Option>
+                    <Option value="0 0 * * 0">0 0 * * 0</Option>
+                    <Option value="0 0 1 * *">0 0 1 * *</Option>
+                    <Option value="0 0 1 1 *">0 0 1 1 *</Option>
+                  </Select>
+                )}
+              </Form.Item>
+            }
             <Form.Item label="最大重试次数">
               {getFieldDecorator('zuida', {
                 rules: [

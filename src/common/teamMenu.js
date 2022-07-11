@@ -66,6 +66,12 @@ function menuData(teamName, regionName, permissionsInfo) {
             path: `/image`,
             authority: ['admin', 'user']
           },
+          // 基于软件包/yaml创建
+          {
+            name: formatMessage({ id: 'menu.team.create.upload' }),
+            path: `/yaml`,
+            authority: ['admin', 'user']
+          },
           {
             name: formatMessage({ id: 'menu.team.create.market' }),
             path: `/market`,
@@ -74,12 +80,6 @@ function menuData(teamName, regionName, permissionsInfo) {
           {
             name: formatMessage({ id: 'menu.team.create.third' }),
             path: `/outer`,
-            authority: ['admin', 'user']
-          },
-          // 基于软件包/yaml创建
-          {
-            name: '基于软件包/yaml创建',
-            path: `/yaml`,
             authority: ['admin', 'user']
           }
         ]

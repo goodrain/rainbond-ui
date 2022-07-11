@@ -141,7 +141,7 @@ export default class ClusterLink extends PureComponent {
     if (status === 'success') {
       type = 'success';
       title = '集群对接成功';
-      desc = '点击完成按钮查看当前对接的集群';
+      desc = '点击返回集群管理按钮查看当前对接的集群';
       actions = [
         <Button
           className={styles.antd_btn}

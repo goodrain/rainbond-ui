@@ -6,8 +6,10 @@ import {
   createThirdPartyServices,
   createJarWarServices,
   createJarWarUploadStatus,
+  deleteJarWarUploadStatus,
   createJarWarUploadRecord,
   createJarWarFormSubmit,
+  createJarWarSubmit,
   createJarWarUpload,
   createThirtAppByCodes,
   getAppsByComposeId,
@@ -117,6 +119,23 @@ export default {
     },
     *createJarWarFormSubmit({ payload, callback }, { call }) {
       const data = yield call(createJarWarFormSubmit, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarSubmit({ payload, callback }, { call }) {
+      const data = yield call(createJarWarSubmit, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    
+    *deleteJarWarUploadStatus({ payload, callback }, { call }) {
+      const data = yield call(deleteJarWarUploadStatus, payload);
       if (data && callback) {
         setTimeout(() => {
           callback(data);
