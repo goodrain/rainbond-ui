@@ -921,8 +921,6 @@ export async function getInnerEnvs(
     env_name
   }
 ) {
-  console.log("team_name====")
-  console.log(body)
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`,
     {

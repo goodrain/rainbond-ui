@@ -255,6 +255,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const { port, currUser, appDetail } = this.props;
+    console.log(port);
     const outerUrl = appPortUtil.getOuterUrl(port);
     const innerUrl = appPortUtil.getInnerUrl(port);
     const showAlias = appPortUtil.getShowAlias(port);
