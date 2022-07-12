@@ -8,7 +8,6 @@ export default class kbsziyuan extends PureComponent {
     const data = [{
         name:'xxx',
         type:'lll',
-        
     }]
     return (
         <Card

@@ -144,6 +144,18 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/ResourceConversion',
+            component: './AddCluster/ResourceConversion',
+            name: 'next',
+            authority: ['admin', 'user']
+          },
+          {
+            path:'/enterprise/:eid/ChangeResourceTest',
+            component: './ChangeResourceTest/index',
+            name: 'newsetting',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/importMessageYaml',
             component: './AddCluster/ImportMessageYaml',
             name: 'ImportMessageYaml',
@@ -235,12 +247,7 @@ export default [
             name: 'Message',
             authority: ['admin', 'user']
           },
-          {
-            path: '/team/:teamName/region/:regionName/ResourceConversion',
-            component: './AddCluster/ResourceConversion',
-            name: 'next',
-            authority: ['admin', 'user']
-          },
+
           {
             path: '/team/:teamName/region/:regionName/allbackup',
             component: './Group/AllBackup',
@@ -467,13 +474,7 @@ export default [
             authority: ['admin', 'user']
           },
 
-          {
-            path:
-              '/team/:teamName/region/:regionName/ChangeResourceTest',
-            component: './ChangeResourceTest/index',
-            name: 'newsetting',
-            authority: ['admin', 'user']
-          },
+
 
           {
             path:

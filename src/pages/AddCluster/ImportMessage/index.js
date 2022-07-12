@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Button, Card, Form, Input, Row, Steps, Select, Collapse, Icon, Checkbox, Tooltip } from 'antd';
+import { Button, Card, Form, Input, Row, Steps, Select, Collapse, Icon, Checkbox, Tooltip, Empty  } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -124,10 +124,8 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
          } = this.props
-        const teamName = 'nk8a6gif'
-        const regionName = 'test'
         const region_id = this.props.location.query && this.props.location.query.region_id
-        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/ResourceConversion?id=${eid}&region_id=${region_id}&namespace=${this.state.namespace}`));
+        dispatch(routerRedux.push(`/enterprise/${eid}/ResourceConversion?region_id=${region_id}&namespace=${this.state.namespace}`));
     }
     render() {
         const {
@@ -136,7 +134,7 @@ export default class ImportMessage extends PureComponent {
             },
         } = this.props;
         console.log(this.props);
-        const resourceData =  {
+        const resourceDatas =  {
                     Label: {
                         workloads: {
                             jobs: [
@@ -212,7 +210,7 @@ export default class ImportMessage extends PureComponent {
                         others: {}
                     }
                 }
-        const { text, nameSpaceArr,  } = this.state
+        const { text, nameSpaceArr, resourceData } = this.state
         // console.log(resourceData, 'resourceData')
 
         return (
@@ -235,7 +233,7 @@ export default class ImportMessage extends PureComponent {
                     <Row type="flex" style={{ width: '100%', padding: '24px 0px', minHeight: '400px' }}>
                         <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3></div>
                         <Row className={styles.importCard}>
-                            <Collapse
+                            {resourceData && Object.keys(resourceData).length > 0 ? (<Collapse
                                 defaultActiveKey={[0,1, 2, 3, 4, 5]}
                                 onChange={this.callback}
                                 expandIconPosition='right'
@@ -299,7 +297,7 @@ export default class ImportMessage extends PureComponent {
                                         </Panel>
                                     )
                                 })}
-                            </Collapse>
+                            </Collapse>):(<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />)}
                         </Row>
                     </Row>
                     <Row style={{ textAlign: 'center' }}>

@@ -1,18 +1,18 @@
 import React, { PureComponent } from 'react'
 import { Button, Card, Form, Input, Row, Steps, Select, Collapse, Icon, Affix, Table, Col, Radio, Switch } from 'antd';
-import DAinput from '../../../../components/DAinput';
-import DApvcinput from '../../../../components/DApvcinput.js/index'
-import DAselect from '../../../../components/DAseclect';
+import DAinput from "../DAinput";
+import DApvcinput from '../DApvcinput.js/index'
+import DAselect from '../DAseclect';
 
 const { Option, OptGroup } = Select;
 const FormItem = Form.Item;
 
 @Form.create()
-export default class teshu extends PureComponent {
+export default class SpecialAttribute extends PureComponent {
     constructor(props){
         super(props)
     }
-        // 特殊属性
+// 特殊属性
 handleSwitchOnChange = () => { };
   render() {
     const {
