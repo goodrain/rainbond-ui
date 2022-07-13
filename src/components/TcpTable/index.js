@@ -360,19 +360,34 @@ export default class TcpTable extends PureComponent {
             title: '变量名',
             dataIndex: 'attr_name',
             key: 'attr_name',
-            align: 'center'
+            align: 'center',
+            render: (text) =>{
+              return <div className={styles.valueStyle}>
+                        {text}
+                     </div>
+            }
           },
           {
             title: '变量值',
             dataIndex: 'attr_value',
             key: 'attr_value',
-            align: 'center'
+            align: 'center',
+            render: (text) =>{
+              return <div className={styles.valueStyle}>
+                        {text}
+                     </div>
+            }
           },
           {
             title: '说明',
             dataIndex: 'name',
             key: 'name',
-            align: 'center'
+            align: 'center',
+            render: (text) =>{
+              return <div className={styles.valueStyle}>
+                      {text}
+                    </div>
+            }
           }
         ]}
         pagination={false}
