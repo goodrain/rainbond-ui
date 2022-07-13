@@ -51,8 +51,7 @@ export default class Index extends PureComponent {
     roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
   componentDidMount() {
-    
-    this.handleJarWarUploadRecord()
+    this.handleJarWarUploadRecord('jwar')
   }
   componentWillUnmount() {
     this.loop = false;
@@ -104,11 +103,14 @@ export default class Index extends PureComponent {
   // 更换上传方式
   handleChangeUpType = e => {
     if (e.target.value === 'yaml') {
+      this.handleJarWarUploadRecord('yaml')
       this.setState({
         isShowCom: false,
         defaultRadio: e.target.value
       });
+
     } else {
+      this.handleJarWarUploadRecord('jwar')
       this.setState({
         isShowCom: true,
         defaultRadio: e.target.value
@@ -159,7 +161,7 @@ export default class Index extends PureComponent {
     });
   }
   //查询上传记录
-  handleJarWarUploadRecord = () => {
+  handleJarWarUploadRecord = (fileType) => {
     const {
       dispatch
     } = this.props;
@@ -168,6 +170,7 @@ export default class Index extends PureComponent {
       payload: {
         region: globalUtil.getCurrRegionName(),
         team_name: globalUtil.getCurrTeamName(),
+        file_type: fileType,
         component_id: '',
       },
       callback: data => {
@@ -177,6 +180,9 @@ export default class Index extends PureComponent {
             event_id: data.bean.event_id
           })
         }else{
+          this.setState({
+            existFileList: []
+          })
           this.handleJarWarUpload()
         }
       },
@@ -407,6 +413,7 @@ export default class Index extends PureComponent {
                         onRemove={this.onRemove}
                         action={record.upload_url}
                         headers={myheaders}
+                        multiple={true}
                       >
                         <p className="ant-upload-drag-icon">
                           <Icon type="inbox" />
@@ -427,15 +434,22 @@ export default class Index extends PureComponent {
                   }
                 }}
               >
-                {existFileList.length > 0 && existFileList.map((item) => {
-                  return (
-                    <div className={styles.update}>
-                      <Icon style={{marginRight:'6px'}} type="inbox" />
-                      {item}
-                      <Icon onClick={this.handleJarWarUploadDelete} style={{marginLeft:'12px', color:'red', cursor:'pointer'}} type="delete" /> 
+                {existFileList.length > 0 &&
+                  <div className={styles.update}>
+                    <div className={styles.delete}>
+                      <Icon onClick={this.handleJarWarUploadDelete} style={{marginLeft:'12px', color:'red', cursor:'pointer'}} type="close" /> 
                     </div>
-                  )
-                })}
+                    {existFileList.map((item) => {
+                      return (
+                        <div className={styles.fileName}>
+                          <Icon style={{marginRight:'6px'}} type="inbox" />
+                          {item}
+                        </div>
+                      )
+                    })}
+                  </div>
+                }
+               
               </Form.Item>
               <Form.Item
                 wrapperCol={{

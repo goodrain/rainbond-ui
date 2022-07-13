@@ -911,15 +911,6 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label="文件路径"
-                >
-                  {buildSource.git_url}
-                </FormItem>
-                <FormItem
-                  style={{
-                    marginBottom: 0
-                  }}
-                  {...formItemLayout}
                   label="文件名称"
                 >
                   {buildSource.package_name}

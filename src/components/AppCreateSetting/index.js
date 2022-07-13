@@ -11,7 +11,8 @@ import {
   Row,
   Table,
   Tooltip,
-  Select
+  Select,
+  AutoComplete
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -87,7 +88,7 @@ class BaseInfo extends PureComponent {
           value: 1024 * 16
         }
       ],
-      is_flag:false,
+      is_flag: false,
     };
   }
   handleSubmit = () => {
@@ -103,11 +104,11 @@ class BaseInfo extends PureComponent {
   onChecks = (e) => {
     if(e.target.value === 'cron_job'){
       this.setState({
-        is_flag:false
+        is_flag:true
       })
     }else{
       this.setState({
-        is_flag:true
+        is_flag:false
       })
     }
   }
@@ -121,7 +122,7 @@ class BaseInfo extends PureComponent {
       min_cpu: minCpu
     } = appDetail.service;
     const list = this.state.memoryList;
-
+    const arrOption = ['0 * * * *','0 0 * * *','0 0 * * 0','0 0 1 * *','0 0 1 1 *']
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -173,23 +174,39 @@ class BaseInfo extends PureComponent {
               
             </RadioGroup>
           )}
-          {!is_flag && (
-            <Row type="flex" style={{margin:'14px 0px'}}>
-              <div style={{marginLeft:'25px',fontWeight:'bolder',marginTop:'-4px'}}>运行规则：</div>
-              <Select 
-                defaultValue="lucy" 
-                style={{ width: 200 }} 
-                onChange={this.handleChange}
-              >
-                <Option value="0 * * * *">0 * * * *</Option>
-                <Option value="0 0 * * *">0 0 * * *</Option>
-                <Option value="0 0 * * 0">0 0 * * 0</Option>
-                <Option value="0 0 1 * *">0 0 1 * *</Option>
-                <Option value="0 0 1 1 *">0 0 1 1 *</Option>
-              </Select>
-            </Row>
-          )}
+          
         </Form.Item>
+        {is_flag && <Form.Item {...formItemLayout}>
+          {getFieldDecorator('schedule', {
+            initialValue: '0 * * * *',
+            rules: [
+              {
+                required: false,
+                message: '请选择运行规则'
+              }
+            ]
+          })(
+            <Row className={styles.selectRow} type="flex" style={{margin:'14px 0px',marginTop:'-20px'}}>
+              <div style={{marginLeft:'160px',fontWeight:'bolder',marginTop:'-4px'}}>运行规则：</div>
+              <AutoComplete
+                defaultValue={'0 * * * *'}
+              >
+                {(arrOption.length > 0)
+                  ? arrOption.map((item) => {
+                      const res = (
+                        <AutoComplete.Option value={item}>
+                          {item}
+                        </AutoComplete.Option>
+                      );
+                      return res;
+                    })
+                  : null}
+              </AutoComplete>
+            </Row>
+          )} 
+          </Form.Item>
+        }
+        
         <Form.Item {...formItemLayout} label="内存">
           {getFieldDecorator('min_memory', {
             initialValue: minMemory || 0,

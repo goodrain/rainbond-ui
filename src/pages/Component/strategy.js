@@ -1,20 +1,72 @@
 /* eslint-disable react/prefer-stateless-function */
-import { Card, Form, Input, Select } from 'antd';
+import { Card, Form, Input, Select, Button, AutoComplete, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-
+import { addRunStrategy, getRunStrategy } from '../../services/app';
+import globalUtil from '../../utils/global'
 const { Option } = Select;
 @Form.create()
 @connect()
 class Index extends PureComponent {
+  constructor(props){
+    super(props);
+    this.state = {
+      data:{}
+    }
+  }
+  componentDidMount(){
+    this.handleRunStrategy()
+  }
+
+
   handleOptionChange = e => {
     console.log(e, 'e');
   };
+  
+  handleSubmit = () => {
+    // e.preventDefault();
+    const { form, dispatch } = this.props;
+    const teamName = globalUtil.getCurrTeamName()
+    const service_alias = this.props.service_alias || ''
+    form.validateFields((err, value) => {
+      if (err) return;
+      addRunStrategy({
+        team_name: teamName,
+        service_alias: service_alias,
+        ...value
+      }).then(res => {
+        notification.success({
+          message: '数据保存成功'
+        });
+        this.handleRunStrategy()
+      })
+      .catch(err => {
+        handleAPIError(err);
+      });
+    });
+  }
+  handleRunStrategy = () => {
+    const teamName = globalUtil.getCurrTeamName()
+    const service_alias = this.props.service_alias || ''
+    getRunStrategy({
+      team_name: teamName,
+      service_alias: service_alias
+    }).then(res => {
+        console.log(res,'获取数据')
+        this.setState({
+          data: res.bean
+        })
+      })
+      .catch(err => {
+        handleAPIError(err);
+      });
+  }
   render() {
     const {
       form: { getFieldDecorator },
       extend_method
     } = this.props;
+    const { data } = this.state
     const formItemLayout = {
       labelCol: {
         xs: { span: 3 },
@@ -25,13 +77,15 @@ class Index extends PureComponent {
         sm: { span: 5 }
       }
     };
+    const arrOption = ['0 * * * *','0 0 * * *','0 0 * * 0','0 0 1 * *','0 0 1 1 *']
     return (
       <div style={{ marginBottom: '24px' }}>
         <Card title="任务运行策略">
           <Form {...formItemLayout} onSubmit={this.handleSubmit}>
             {extend_method === 'cron_job' &&
               <Form.Item label="运行规则">
-                {getFieldDecorator('run', {
+                {getFieldDecorator('schedule', {
+                  initialValue: data.schedule || '',
                   rules: [
                     {
                       required: true,
@@ -39,18 +93,24 @@ class Index extends PureComponent {
                     }
                   ]
                 })(
-                  <Select onChange={this.handleOptionChange}>
-                    <Option value="0 * * * *">0 * * * *</Option>
-                    <Option value="0 0 * * *">0 0 * * *</Option>
-                    <Option value="0 0 * * 0">0 0 * * 0</Option>
-                    <Option value="0 0 1 * *">0 0 1 * *</Option>
-                    <Option value="0 0 1 1 *">0 0 1 1 *</Option>
-                  </Select>
+                  <AutoComplete>
+                    {arrOption.length
+                      ? arrOption.map((item) => {
+                          const res = (
+                            <AutoComplete.Option value={item}>
+                              {item}
+                            </AutoComplete.Option>
+                          );
+                          return res;
+                        })
+                      : null}
+                  </AutoComplete>
                 )}
               </Form.Item>
             }
             <Form.Item label="最大重试次数">
-              {getFieldDecorator('zuida', {
+            {getFieldDecorator('backoff_limit', {
+              initialValue: data.backoff_limit || '',
                 rules: [
                   {
                     required: false,
@@ -60,7 +120,8 @@ class Index extends PureComponent {
               })(<Input placeholder="请输入" />)}
             </Form.Item>
             <Form.Item label="并行任务数">
-              {getFieldDecorator('bingxing', {
+              {getFieldDecorator('parallelism', {
+                initialValue: data.parallelism || '',
                 rules: [
                   {
                     required: false,
@@ -70,7 +131,8 @@ class Index extends PureComponent {
               })(<Input placeholder="请输入" />)}
             </Form.Item>
             <Form.Item label="最大运行时间">
-              {getFieldDecorator('max_timer', {
+              {getFieldDecorator('active_deadline_seconds', {
+                initialValue: data.active_deadline_seconds || '',
                 rules: [
                   {
                     required: false,
@@ -80,7 +142,8 @@ class Index extends PureComponent {
               })(<Input placeholder="请输入" />)}
             </Form.Item>
             <Form.Item label="完成数">
-              {getFieldDecorator('complete_count', {
+              {getFieldDecorator('completions', {
+                initialValue: data.completions || '',
                 rules: [
                   {
                     required: false,
@@ -88,6 +151,22 @@ class Index extends PureComponent {
                   }
                 ]
               })(<Input placeholder="请输入" />)}
+            </Form.Item>
+            <Form.Item
+              wrapperCol={{
+                xs: {
+                  span: 3,
+                  offset: 3
+                },
+                sm: {
+                  span: 3,
+                  offset: 3
+                }
+              }}
+            >
+              <Button type="primary" htmlType="submit">
+                点击保存
+              </Button>
             </Form.Item>
           </Form>
         </Card>

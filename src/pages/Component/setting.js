@@ -819,7 +819,7 @@ export default class Index extends React.Component {
         )}
         {(appDetail.service.extend_method === 'job' || 
         appDetail.service.extend_method === 'cron_job') &&(
-          <Strategy extend_method={appDetail.service.extend_method} />
+          <Strategy extend_method={appDetail.service.extend_method} service_alias={appDetail.service.service_alias} />
         )}
         
         <Kubernetes />

@@ -2476,7 +2476,8 @@ export async function editAppCreateInfo(
     min_memory,
     extend_method,
     user_name,
-    password
+    password,
+    schedule:"*/1 * * * *"
   }
 ) {
   return request(
@@ -3223,6 +3224,31 @@ export async function rollbackUpgradeList(body = {}) {
       method: 'get',
       noModels: body.noModels,
       showMessage: false
+    }
+  );
+}
+/* 获取运行策略数据 */
+export async function getRunStrategy(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/job_strategy`,
+    {
+      method: 'get'
+    }
+  );
+}
+/* 添加运行策略数据 */
+export async function addRunStrategy(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/job_strategy`,
+    {
+      method: 'put',
+      data: {
+        active_deadline_seconds: body.active_deadline_seconds,
+        backoff_limit: body.backoff_limit,
+        completions: body.completions,
+        parallelism: body.parallelism,
+        schedule: body.schedule
+      }
     }
   );
 }

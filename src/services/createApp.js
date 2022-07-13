@@ -128,7 +128,8 @@ export async function createJarWarUploadRecord(
       method: 'get',
       params: {
         region: body.region,
-        component_id: body && body.component_id ? body.component_id : ''
+        component_id: body && body.component_id ? body.component_id : '',
+        file_type: body.file_type
       },
       handleError
     }
@@ -138,6 +139,7 @@ export async function createJarWarUploadRecord(
    Jar、War创建应用提交表单
 */
 export async function createJarWarFormSubmit(body = {}) {
+  console.log(body,'body')
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build`,
     {
