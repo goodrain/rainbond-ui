@@ -2,7 +2,6 @@
     float: left;
 }
 .typeBtnWrap{
-	text-align: center;
 	font-size: 16px;
 	float:left;
 	width: 150px;
@@ -12,16 +11,33 @@
         position: absolute;
         top: 35px;
         left:-70px;
+		span{
+			display: block;
+			float: left;
+			width: 90px;
+			white-space:nowrap;
+			overflow:hidden;
+			text-overflow:ellipsis;
+		}
+		i{
+			display: block;
+			float: left;
+			height: 40px;
+		line-height: 40px;
+
+
+		}
     }
 	.typeBtn {
 		display: block;
 		cursor: pointer;
+		padding-left: 20px;
 		height:40px;
-		line-height: 40px;
+		line-height: 35px;
 		width: 150px;
 		margin-bottom:-3px;
 		:global {
-		    .anticon {visibility: hidden;margin-left: 30px}
+		    .anticon {visibility: hidden;margin-left: 10px}
 		}
 		border:1px solid #e8e8e8;
 		margin-bottom: -1px;
@@ -61,6 +77,9 @@
                 font-weight: 600;
             }
         }
+		.ant-tabs-nav-wrap{
+			background-color: #fff;
+		}
 		
     }
 	.buttonbox{
@@ -124,4 +143,12 @@
 }
 .deploydatanum{
 	margin-left: 16px;
+}
+.loadingstyle{
+	width: 100%;
+	height: 500px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	
 }

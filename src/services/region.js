@@ -181,4 +181,15 @@ export async function fetchNameSpaceAdvancedResource(param) {
     }
   });
 }
+/*高级资源页面确认导入*/ 
+export async function backNameSpaceAdvancedResource(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/convert-resource`, {
+    method: 'post',
+    data: {
+      content: 'unmanaged',
+      namespace: param.namespace
+    }
+  });
+}
+
 

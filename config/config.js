@@ -48,11 +48,11 @@ export default {
   routes: routerConfig,
   proxy: {
     '/console': {
-      target: 'http://192.168.2.101:10000',
+      target: 'http://192.168.2.101:10000/',
       changeOrigin: true
     },
     '/data': {
-      target: 'http://192.168.2.101:10000',
+      target: 'http://192.168.2.101:10000/',
       changeOrigin: true
     }
   }
