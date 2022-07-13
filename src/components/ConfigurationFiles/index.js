@@ -1,30 +1,42 @@
-import { Table, Card } from 'antd';
+import { Table, Card, Empty } from 'antd';
 import React, { PureComponent, Fragment } from 'react'
 import styles from './index.less'
 
-export default class peizhi extends PureComponent {
+export default class ConfigurationFiles extends PureComponent {
   constructor(props) {
     super(props)
   }
   render() {
-    const { volumes } = this.props
+    const { value } = this.props
     const columns = [
       {
         title: '配置文件名称',
         dataIndex: 'volume_name',
-        key:'volume_name'
+        key:'volume_name',
+        render: (text) => {
+          return  <>
+                    {text ? text :"-"}
+                  </>
+        }
       },
       {
         title: '配置文件挂载路径',
         dataIndex: 'volume_path',
-        key:"volume_path"
+        key:"volume_path",
+        render: (text) => {
+          return <>
+                    {text ? text : "-"}
+                 </>
+        }
       },
       {
         title: '权限',
         dataIndex: 'mode',
         key:"mode",
-        render:(text,val,index)=>{
-          console.log(text,val,index);
+        render: (text) =>{
+          return <>
+                    {text ? text : "-"}
+                 </>
         }
       },
 
@@ -36,12 +48,18 @@ export default class peizhi extends PureComponent {
           className={styles.cardstyle}
           style={{
             marginBottom: 16,
-          }}>
-          <Table
-            pagination={false}
-            columns={columns}
-            dataSource={volumes}
-          />
+          }}
+          >
+              {value && value.length > 0 ? (
+                <Table
+                pagination={false}
+                columns={columns}
+                dataSource={value}
+              />
+              ) : (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              )
+              }
         </Card>
       </Fragment>
 

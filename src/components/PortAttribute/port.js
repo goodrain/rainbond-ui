@@ -53,9 +53,9 @@ class Index extends PureComponent {
         </thead>
         <tbody>
           <tr>
-            <td>{port.port ? port.port : "无"}</td>
+            <td>{port.port ? port.port : "-"}</td>
             <td>
-              {port.protocol ? port.protocol : "无"}
+              {port.protocol ? port.protocol : "-"}
             </td>
             <td>
               <div

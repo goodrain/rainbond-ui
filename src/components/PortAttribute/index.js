@@ -1,13 +1,13 @@
-import { Card } from 'antd';
+import { Card, Empty } from 'antd';
 import React, { PureComponent } from 'react';
 import Duankou from "./port"
 import styles from './index.less'
-class indexPort extends PureComponent {
+class PortAttribute extends PureComponent {
   constructor(props){
       super(props)
   }
 render() {
-  const {app} = this.props
+  const {value} = this.props
   return (
       <Card
       title="端口管理"
@@ -15,15 +15,21 @@ render() {
       style={{
           marginBottom: 16,
       }}>
-      {
-          app.map(item => {
-              return <Duankou
-                  key={item.ID}
-                  port={item}
-              ></Duankou>
-          })}
+            {(value && value.length > 0) ? (
+                <>
+                 {value.map(item => {
+                    return <Duankou
+                            key={item.ID}
+                            port={item}
+                            >
+                            </Duankou>
+                })}
+                </>
+            ):(
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            )}
           </Card>
   )
 }
 }
-export default indexPort;
+export default PortAttribute;
