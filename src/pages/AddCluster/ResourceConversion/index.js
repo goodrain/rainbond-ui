@@ -16,7 +16,10 @@ import {
     Radio,
     Switch,
     Tabs,
-    ConfigProvider
+    ConfigProvider,
+    message,
+    Spin,
+    Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -48,7 +51,8 @@ export default class ImportMessage extends PureComponent {
             moduleArr: [],//组件数组内容
             minmoduleArr: {},//单个组件内容
             type: 0,
-            index: '0'
+            index: '0',
+            loadingswitch: true
         };
     }
     // 团队按钮点击
@@ -100,13 +104,17 @@ export default class ImportMessage extends PureComponent {
                 namespace: this.props.location.query.namespace
             },
             callback: res => {
-                const appname = Object.keys(res.bean)
-                // const arr = res.bean.[appname[0]]
-                this.setState({
-                    appnameArr: appname,
-                    module: res.bean,
-                    moduleArr: res.bean && res.bean.[appname[0]]
-                })
+                if (res.response_data.code === 200) {
+                    const appname = Object.keys(res.bean)
+                    this.setState({
+                        appnameArr: appname,
+                        module: res.bean,
+                        moduleArr: res.bean && res.bean.[appname[0]],
+                        loadingswitch: false
+                    })
+
+                }
+
             }
         })
 
@@ -148,7 +156,7 @@ export default class ImportMessage extends PureComponent {
             .dispatch(routerRedux.replace(`/enterprise/${str}/importMessage?region_id=${region_id}`))
     }
     render() {
-        const { zujian, type, appvalue, appnameArr, moduleArr, minmoduleArr, index } = this.state;
+        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingswitch } = this.state;
         const namespace = this.props.location.query.namespace
         // 假数据
         const moduleArrs = [{
@@ -207,82 +215,95 @@ export default class ImportMessage extends PureComponent {
                         <div className={styles.fixed}>
                             {
                                 appnameArr.map((item, index) => {
-                                    return <span key={index}
+                                    return <div key={index}
                                         className={`${styles.typeBtn}  ${type === index ? styles.active : ""}`}
                                         onClick={() => {
                                             this.handleType(item, index);
                                         }}
                                     >
-                                        {item}
+                                        <Tooltip placement="right" title={item}>
+                                            <span>{item}</span>
+                                        </Tooltip>
                                         <Icon type="right" />
-                                    </span>
+                                    </div>
+
                                 })
                             }
                         </div>
                     </Affix>
                 </div>
-                <div id='box'>
-                    <div className={styles.alltable}>
-                        <Tabs
-                            onChange={this.tabSwitch}
-                            activeKey={this.state.index}
-                            ref={(e) => { this._Tabs = e }}
-                        >
-                            {moduleArr && moduleArr.length > 0 && moduleArr.map((item, index) => {
-                                return <TabPane tab={item.components_name} key={`${index}`}>
-                                    {/* ConfigProvider */}
-                                    <ConfigProvider>
-                                        {/* 部署属性 */}
-                                        {
-                                            <DeployAttribute
-                                                value={item.basic_management}
-                                            />
-                                        }
-                                        {/* 端口管理 */}
-                                        {
-                                            <PortAttribute
-                                                value={item.port_management}
-                                            />
-                                        }
-                                        {/* 环境变量 */}
-                                        {
-                                            <EnvVariable
-                                                value={item.env_management}
-                                            />
-                                        }
-                                        {/* 配置文件 */}
-                                        {
-                                            <ConfigurationFiles
-                                            // value={volumes}
-                                            />
-                                        }
-                                        {/* 自动伸缩 */}
-                                        {
-                                            <FlexAttribute
-                                                value={item.telescopic_management}
-                                            />
-                                        }
-                                        {/* 健康监测 */}
-                                        {
-                                            <HealthAttribute
-                                                value={item.health_check_management}
-                                            />
-                                        }
-                                        {/* 特殊属性 */}
-                                        {
-                                            <SpecialAttribute />
-                                        }
-                                    </ConfigProvider>
-                                </TabPane>
-                            })}
-                            <TabPane tab="k8s资源" key="hello">
-                                {/* kbs资源 */}
-                                <Kubernetes />
-                            </TabPane>
 
-                        </Tabs>
+                {loadingswitch ? (
+                    <div className={styles.loadingstyle}>
+                        <Spin size="large" />
                     </div>
-                </div>
+                ) : (
+                    <div id='box'>
+                        <div className={styles.alltable}>
+                            <Tabs
+                                onChange={this.tabSwitch}
+                                activeKey={this.state.index}
+                                ref={(e) => { this._Tabs = e }}
+                            >
+                                {moduleArr && moduleArr.length > 0 && moduleArr.map((item, index) => {
+                                    return <TabPane tab={item.components_name} key={`${index}`}>
+                                        {/* ConfigProvider */}
+                                        <ConfigProvider>
+                                            {/* 部署属性 */}
+                                            {
+                                                <DeployAttribute
+                                                    value={item.basic_management}
+                                                />
+                                            }
+                                            {/* 端口管理 */}
+                                            {
+                                                <PortAttribute
+                                                    value={item.port_management}
+                                                />
+                                            }
+                                            {/* 环境变量 */}
+                                            {
+                                                <EnvVariable
+                                                    value={item.env_management}
+                                                />
+                                            }
+                                            {/* 配置文件 */}
+                                            {
+                                                <ConfigurationFiles
+                                                // value={volumes}
+                                                />
+                                            }
+                                            {/* 自动伸缩 */}
+                                            {
+                                                <FlexAttribute
+                                                    value={item.telescopic_management}
+                                                />
+                                            }
+                                            {/* 健康监测 */}
+                                            {
+                                                <HealthAttribute
+                                                    value={item.health_check_management}
+                                                />
+                                            }
+                                            {/* 特殊属性 */}
+                                            {
+                                                <SpecialAttribute />
+                                            }
+                                        </ConfigProvider>
+                                    </TabPane>
+                                })}
+                                <TabPane tab="k8s资源" key="hello">
+                                    {/* kbs资源 */}
+                                    <Kubernetes />
+                                </TabPane>
+
+                            </Tabs>
+                        </div>
+                    </div>
+                )}
+
+
+
                 <div
                     style={{
                         background: '#fff',
