@@ -9,6 +9,7 @@ import TeamDataCenterList from '../../components/Team/TeamDataCenterList';
 import TeamEventList from '../../components/Team/TeamEventList';
 import TeamMemberList from '../../components/Team/TeamMemberList';
 import TeamRoleList from '../../components/Team/TeamRoleList';
+import TeamImageList from '../../components/Team/TeamImageList'
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
@@ -261,6 +262,12 @@ export default class Index extends PureComponent {
         tab: '角色'
       });
     }
+    if (memberAccess) {
+      tabList.push({
+        key: 'image',
+        tab: '镜像仓库'
+      });
+    }
 
     let breadcrumbList = [];
     breadcrumbList = createTeam(
@@ -287,6 +294,9 @@ export default class Index extends PureComponent {
         {scope === 'role' && <TeamRoleList rolePermissions={rolePermissions} />}
         {scope === 'event' && eventPermissions && (
           <TeamEventList memberPermissions={memberPermissions} />
+        )}
+        {scope === 'image' && eventPermissions && (
+          <TeamImageList memberPermissions={memberPermissions} />
         )}
 
         {showEditName && (
