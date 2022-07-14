@@ -91,6 +91,7 @@ export default class CreateCheck extends React.Component {
   };
 
   getDetail = () => {
+    console.log(this.getAppAlias(),'this.getAppAlias()')
     this.props.dispatch({
       type: 'appControl/fetchDetail',
       payload: {
@@ -128,6 +129,7 @@ export default class CreateCheck extends React.Component {
 
   getAppAlias() {
     const { ServiceGetData } = this.state;
+    console.log(this.props,'this.props')
     return ServiceGetData || this.props.match.params.appAlias;
   }
   handlePermissions = type => {

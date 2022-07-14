@@ -1,47 +1,42 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { 
+import {
     Button,
-    Card, 
-    Form, 
-    Input, 
-    Row, 
-    Steps, 
-    Select, 
-    Collapse, 
-    Icon, 
-    Affix, 
-    Table, 
-    Col, 
-    Radio, 
-    Switch, 
-    Tabs, 
-    ConfigProvider 
- } from 'antd';
+    Card,
+    Form,
+    Input,
+    Row,
+    Steps,
+    Select,
+    Collapse,
+    Icon,
+    Affix,
+    Table,
+    Col,
+    Radio,
+    Switch,
+    Tabs,
+    ConfigProvider,
+    message,
+    Spin,
+    Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import router from 'umi/router';
 import styles from './index.less';
-import globalUtil  from "../../../utils/global"
-import Jiankang from './component/healthAttributes'
-// import HealthAttribute from "../../../components/HealthAttribute"
-import Duankou from './component/portAttribute'
-// import PortAttribute from '../../../components/PortAttribute'
-import Huanjing from "./component/envVariable"
-// import EnvVariable from '../../../components/EnvVariable'
-import Peizhi from "./component/configurationFiles"
-// import ConfigurationFiles from '../../../components/ConfigurationFiles'
-import Bushu from "./component/deployAttributes"
-// import DeployAttributes from "../../../components/DeployAttribute"
-import Shensuo from "./component/flexAttributes"
-// import FlexAttributes from '../../../components/FlexAttribute'
-import Teshu from "./component/specialAttributes"
-// import SpecialAttributes from '../../../components/SpecialAttribute'
-import Ziyuan from "./component/kbsziyuan"
+import globalUtil from "../../../utils/global"
+import HealthAttribute from "../../../components/HealthAttribute"
+import PortAttribute from '../../../components/PortAttribute'
+import EnvVariable from '../../../components/EnvVariable'
+import ConfigurationFiles from '../../../components/ConfigurationFiles'
+import DeployAttribute from "../../../components/DeployAttribute"
+import FlexAttribute from '../../../components/FlexAttribute'
+import SpecialAttribute from '../../../components/SpecialAttribute'
+import Kubernetes from "./component/Kubernetes"
 import { object } from 'prop-types';
 import { log } from 'lodash-decorators/utils';
-import kbsziyuan from './component/kbsziyuan';
 const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 const { TabPane } = Tabs;
@@ -56,49 +51,38 @@ export default class ImportMessage extends PureComponent {
             moduleArr: [],//组件数组内容
             minmoduleArr: {},//单个组件内容
             type: 0,
-            index:'0'
+            index: '0',
+            loadingswitch: true
         };
     }
     // 团队按钮点击
     handleType = (item, index) => {
-        const { module, minmoduleArr} = this.state
-        if(module.[item] != null){
+        const { module, minmoduleArr, moduleArr } = this.state
+        if (module.[item] != null) {
+            console.log(module.[item][0], "module.[item][0]");
             this.setState({
                 moduleArr: module.[item],
-                minmoduleArr:module.[item][0],
+                minmoduleArr: module.[item][0],
+                index: '0',
+
             })
-        }else{
+        } else {
             this.setState({
                 moduleArr: [],
-                minmoduleArr:[],
+                minmoduleArr: {},
+                index: 'hello',
             })
         }
         this.setState({
             type: index,
         });
-        if(minmoduleArr != null){
-            this.setState({
-                index:'0',
-            })
-        }else{
-            this.setState({
-                index:"hello",
-            })
-        }
+
     }
     // tabs切换
     tabSwitch = (key) => {
-        const {moduleArr, index} = this.state
         this.setState({
-            index:key
+            index: key
         })
-        if(key === "hello"){
-        }else{
-            this.setState({
-                minmoduleArr: moduleArr[key],
-            });
-        }
-
     }
 
     componentDidMount() {
@@ -115,23 +99,45 @@ export default class ImportMessage extends PureComponent {
         dispatch({
             type: 'region/fetchNameSpaceAdvancedResource',
             payload: {
-                eid: this.props.location.query.id,
+                eid,
                 region_id: this.props.location.query.region_id,
                 namespace: this.props.location.query.namespace
             },
             callback: res => {
-                const appname = Object.keys(res.bean)
-                const arr = appname.reverse
-                this.setState({
-                    appnameArr: arr,
-                    module: res.bean
-                })
+                if (res.response_data.code === 200) {
+                    const appname = Object.keys(res.bean)
+                    this.setState({
+                        appnameArr: appname,
+                        module: res.bean,
+                        moduleArr: res.bean && res.bean.[appname[0]],
+                        loadingswitch: false
+                    })
+
+                }
+
             }
         })
 
     }
     // 确认创建
     handleBuild = () => {
+        const {
+            dispatch,
+            match: {
+                params: { eid }
+            },
+        } = this.props;
+        dispatch({
+            type: 'region/backNameSpaceAdvancedResource',
+            payload: {
+                eid,
+                region_id: this.props.location.query.region_id,
+                namespace: this.props.location.query.namespace
+            },
+            callback: res => {
+                // message.success('上传成功');
+            }
+        })
         this
             .props
             .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`))
@@ -144,126 +150,160 @@ export default class ImportMessage extends PureComponent {
     nextStep = () => {
         const str = this.props.location.query.id
         const region_id = this.props.location.query.region_id
-        // const namespace = this.props.location.query.namespace
+
         this
             .props
             .dispatch(routerRedux.replace(`/enterprise/${str}/importMessage?region_id=${region_id}`))
     }
     render() {
-        const { zujian, type, appvalue, appnameArr, moduleArr, minmoduleArr ,index} = this.state;
-        console.log(index,"index");
-        // 配置文件
-        const volumes = [{
-            ID: 42,
-            access_mode: "RWX",
-            allow_expansion: false,
-            backup_policy: "exclusive",
-            category: "application",
-            file_content: "ajhfdajkshfd",
-            host_path: "/grdata/tenant/11acafebd64c4f8292d5a02e9d91e8e0/service/284781606a581bd6ff8e545eafd748b7/ss/ss",
-            mode: 777,
-            reclaim_policy: "exclusive",
-            service_id: "284781606a581bd6ff8e545eafd748b7",
-            share_policy: "exclusive",
-            status: "not_bound",
-            volume_capacity: 0,
-            volume_name: "xx",
-            volume_path: "/ss/ss",
-            volume_provider_name: "",
-            volume_type: "config-file",
+        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingswitch } = this.state;
+        const namespace = this.props.location.query.namespace
+        // 假数据
+        const moduleArrs = [{
+            components_name: "linkerd-proxy-injector",
+            basic_management: {
+                command: "",
+                cpu: 0,
+                image: "cr.l5d.io/linkerd/proxy:stable-2.11.3",
+                memory: 0,
+                replicas: 1,
+                resource_type: "Deployment",
+            },
+            config_management: null,
+            env_management: [
+                { env_key: 'LINKERD2_PROXY_LOG', env_value: 'warn,linkerd=info', env_explain: '' },
+                { env_key: 'LINKERD2_PROXY_LOG_FORMAT', env_value: 'plain', env_explain: '' },
+                { env_key: 'LINKERD2_PROXY_DESTINATION_SVC_ADDR', env_value: 'linkerd-dst-headless.linkerd.svc.cluster.local.:8086', env_explain: '' },
+                { env_key: 'LINKERD2_PROXY_DESTINATION_PROFILE_NETWORKS', env_value: '10.0.0.0/8,100.64.0.0/10,172.16.0.0/12,192.168.0.0/16', env_explain: '' },
+                { env_key: 'LINKERD2_PROXY_POLICY_SVC_ADDR', env_value: 'linkerd-policy.linkerd.svc.cluster.local.:8090', env_explain: '' },
+                { env_key: 'LINKERD2_PROXY_POLICY_WORKLOAD', env_value: '$(_pod_ns):$(_pod_name)', env_explain: '' },
+                { env_key: 'LINKERD2_PROXY_INBOUND_DEFAULT_POLICY', env_value: 'all-unauthenticated', env_explain: '' },
+                { env_key: 'LINKERD2_PROXY_POLICY_CLUSTER_NETWORKS', env_value: '10.0.0.0/8,100.64.0.0/10,172.16.0.0/12,192.168.0.0/16', env_explain: '' },
+                { env_key: 'LINKERD2_PROXY_INBOUND_CONNECT_TIMEOUT', env_value: '100ms', env_explain: '' },
+                { env_key: 'LINKERD2_PROXY_OUTBOUND_CONNECT_TIMEOUT', env_value: '1000ms', env_explain: '' },
+                { env_key: 'LINKERD2_PROXY_CONTROL_LISTEN_ADDR', env_value: '0.0.0.0:4190', env_explain: '' }
+            ],
+            health_check_management: {
+                detection_method: "HTTP",
+                status: "已启用",
+                unhealthy_handle_method: "重启",
+            },
+            port_management: [
+                { port: 4143, protocol: 'UDP', inner: false, outer: false },
+                { port: 4191, protocol: 'UDP', inner: false, outer: false }
+            ],
+            special_management: {
+                label: null,
+                node_selector: null,
+                toleration: null,
+            },
+            telescopic_management: {
+                cpu_use: "",
+                max_replicas: 0,
+                memory_use: "",
+                min_replicas: 0,
+            }
         }]
         return (
             <div>
                 <h2>团队名称：
-                    {/* {namespace} */}
-                    </h2>
+                    {namespace}
+                </h2>
                 <h3 className={styles.applist}>应用列表：</h3>
                 <div className={styles.typeBtnWrap}>
                     <Affix offsetTop={0}>
                         <div className={styles.fixed}>
                             {
                                 appnameArr.map((item, index) => {
-                                    if(module.[item] != null){
-                                        return <span key={index}
+                                    return <div key={index}
                                         className={`${styles.typeBtn}  ${type === index ? styles.active : ""}`}
                                         onClick={() => {
                                             this.handleType(item, index);
                                         }}
                                     >
-                                        {item}
+                                        <Tooltip placement="right" title={item}>
+                                            <span>{item}</span>
+                                        </Tooltip>
                                         <Icon type="right" />
-                                    </span>
-                                    }
-                                   
+                                    </div>
+
                                 })
                             }
                         </div>
                     </Affix>
                 </div>
-                <div id='box'>
-                    <div className={styles.alltable}>
-                        <Tabs 
-                        onChange={this.tabSwitch}  
-                        activeKey={this.state.index}
-                        // ref={(e) => { this._Tabs = e }}
-                         >
-                        
-                            {moduleArr && moduleArr.length > 0 && moduleArr.map((item, index) => {
-                                return <TabPane tab={item.components_name} key={`${index}`}>
-                                    {/* ConfigProvider */}
-                                    <ConfigProvider>
-                                    {/* 部署属性 */}
-                                    {
-                                        <Bushu
-                                            appvalue={minmoduleArr.basic_management}
-                                        />
-                                    }
-                                    {/* 端口管理 */}
-                                    {
-                                        <Duankou
-                                            app={minmoduleArr.port_management}
-                                        />
-                                    }
-                                    {/* 环境变量 */}
-                                    {
-                                        <Huanjing
-                                        env_management = {minmoduleArr.env_management}
-                                        />
-                                    }
-                                    {/* 配置文件 */}
 
-                                    {
-                                        <Peizhi
-                                            // volumes={volumes}
-                                        />
-                                    }
-
-                                    {/* 自动伸缩 */}
-                                    {
-                                        <Shensuo
-                                        telescopic_management={minmoduleArr.telescopic_management}
-                                        />
-                                    }
-                                    {/* 健康监测 */}
-                                    {
-                                        <Jiankang
-                                        startProbe={minmoduleArr.health_check_management}
-                                        />
-                                    }
-                                    {/* 特殊属性 */}
-                                    {
-                                        <Teshu />
-                                    }
-                                    </ConfigProvider>
-                                </TabPane>
-                            })}
-                            <TabPane tab="k8s资源" key="hello">
-                                {/* kbs资源 */}
-                                <Ziyuan />
-                            </TabPane>
-                        </Tabs>
+                {loadingswitch ? (
+                    <div className={styles.loadingstyle}>
+                        <Spin size="large" />
                     </div>
-                </div>
+                ) : (
+                    <div id='box'>
+                        <div className={styles.alltable}>
+                            <Tabs
+                                onChange={this.tabSwitch}
+                                activeKey={this.state.index}
+                                ref={(e) => { this._Tabs = e }}
+                            >
+                                {moduleArr && moduleArr.length > 0 && moduleArr.map((item, index) => {
+                                    return <TabPane tab={item.components_name} key={`${index}`}>
+                                        {/* ConfigProvider */}
+                                        <ConfigProvider>
+                                            {/* 部署属性 */}
+                                            {
+                                                <DeployAttribute
+                                                    value={item.basic_management}
+                                                />
+                                            }
+                                            {/* 端口管理 */}
+                                            {
+                                                <PortAttribute
+                                                    value={item.port_management}
+                                                />
+                                            }
+                                            {/* 环境变量 */}
+                                            {
+                                                <EnvVariable
+                                                    value={item.env_management}
+                                                />
+                                            }
+                                            {/* 配置文件 */}
+                                            {
+                                                <ConfigurationFiles
+                                                // value={volumes}
+                                                />
+                                            }
+                                            {/* 自动伸缩 */}
+                                            {
+                                                <FlexAttribute
+                                                    value={item.telescopic_management}
+                                                />
+                                            }
+                                            {/* 健康监测 */}
+                                            {
+                                                <HealthAttribute
+                                                    value={item.health_check_management}
+                                                />
+                                            }
+                                            {/* 特殊属性 */}
+                                            {
+                                                <SpecialAttribute />
+                                            }
+                                        </ConfigProvider>
+                                    </TabPane>
+                                })}
+                                <TabPane tab="k8s资源" key="hello">
+                                    {/* kbs资源 */}
+                                    <Kubernetes />
+                                </TabPane>
+
+                            </Tabs>
+                        </div>
+                    </div>
+                )}
+
+
+
                 <div
                     style={{
                         background: '#fff',
@@ -287,17 +327,19 @@ export default class ImportMessage extends PureComponent {
                         }}
                         onClick={this.handleBuild}
                         type="primary">确认导入</Button>
-                    <Button onClick={this.showDelete} type="default">放弃创建</Button>
+                    <Button onClick={this.showDelete} type="default">放弃导入</Button>
                 </div>
-                {this.state.showDelete && <ConfirmModal
-                    onOk={this.handleDelete}
-                    title="放弃创建"
-                    subDesc="此操作不可恢复"
-                    desc="确定要放弃创建此组件吗？"
-                    onCancel={() => {
-                        this.setState({ showDelete: false })
-                    }} />}
-            </div>
+                {
+                    this.state.showDelete && <ConfirmModal
+                        onOk={this.handleDelete}
+                        title="放弃创建"
+                        subDesc="此操作不可恢复"
+                        desc="确定要放弃创建此组件吗？"
+                        onCancel={() => {
+                            this.setState({ showDelete: false })
+                        }} />
+                }
+            </div >
         );
     }
 }
