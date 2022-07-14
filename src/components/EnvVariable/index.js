@@ -47,7 +47,7 @@ class EnvVariable extends PureComponent {
         editable: true,
         render: (text) => {
           return <span>
-                    {text ? text :"这是用render函数做的空值处理"}
+                    {text ? text :"-"}
                 </span>
         }
       }
