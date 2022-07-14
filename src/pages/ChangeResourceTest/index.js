@@ -5,6 +5,8 @@ import {
     Spin
 } from 'antd';
 import { object } from 'prop-types';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import React, { PureComponent, Fragment } from 'react';
 import DeployAttribute from '../../components/DeployAttribute'
 import PortAttribute from '../../components/PortAttribute'
@@ -16,6 +18,7 @@ import SpecialAttribute from '../../components/SpecialAttribute'
 import Kubernetes from "./Kubernetes"
 import styles from './index.less'
 const { TabPane } = Tabs;
+@connect(null, null, null, { withRef: true })
 class Index extends PureComponent {
     constructor(props) {
         super(props)
@@ -27,9 +30,29 @@ class Index extends PureComponent {
         console.log(key);
     }
     handerClick = () => {
-        this.setState({
-            switch:!this.state.switch,
-        })
+        window.history.back()
+    }
+    first = () =>{
+        setTimeout(() => {
+            this.setState({
+                switch:!this.state.switch,
+            })
+        }, 1000);
+    } 
+    componentDidMount(){
+        this.first()
+    }
+    nextStep = ()=>{
+        const {
+            dispatch,
+            match: {
+                params: { eid }
+            },
+        } = this.props;
+        const team = 'ay4lbc65'
+        const region_name = 1655982984
+        const num = 38
+        dispatch(routerRedux.replace(`/team/${team}}/region/${region_name}/apps/${num}`))
     }
 
     render() {
@@ -133,13 +156,15 @@ class Index extends PureComponent {
                     }}>
                     <Button
                         style={{marginRight: 8}}
+                    onClick={this.handerClick}
                         type="default">上一步</Button>
                     <Button
                         style={{marginRight: 8}}
+                        onClick={this.nextStep}
                         type="primary">确认导入</Button>
                     <Button 
                     type="default"
-                    onClick={this.handerClick}
+                    // onClick={this.handerClick}
                     >放弃导入</Button>
                 </div>
             </Fragment>

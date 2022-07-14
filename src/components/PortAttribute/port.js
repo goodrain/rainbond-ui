@@ -78,7 +78,7 @@ class Index extends PureComponent {
                   {'-'}
                 </p>
                 <p className={styles.lr}>
-                  <span className={styles.label}>使用别名</span>
+                  {/* <span className={styles.label}>使用别名</span> */}
                   {/* {showAlias} */}
                 </p>
               </div>
