@@ -32,6 +32,7 @@ class Index extends PureComponent {
       dataList,
       buildSource
     } = this.props;
+
     const setMemory = memory === 0 ? '不限制' : numeral(memory).format('0,0');
     return (
       <Row gutter={24}>
@@ -155,6 +156,8 @@ class Index extends PureComponent {
                           {globalUtil.fetchSvg('warehouse')}
                           {buildSource && buildSource === 'source_code'
                             ? '代码版本'
+                            : buildSource === 'package_build'
+                            ? '文件MD5'
                             : '仓库地址'}
                         </span>
                         <Tooltip
@@ -162,15 +165,18 @@ class Index extends PureComponent {
                             beanData &&
                             (beanData.kind && beanData.kind === '源码构建'
                               ? beanData.code_version && ''
+                              : beanData.kind && beanData.kind === '本地文件'
+                              ? beanData.code_version
                               : beanData.image_domain && beanData.image_domain)
                           }
                         >
                           <span className={styles.buildText}>
                             {beanData
                               ? beanData.kind &&
-                                beanData.kind === '源码构建' &&
-                                beanData.code_version
+                                beanData.kind === '源码构建' && beanData.code_version && buildSource && buildSource === 'source_code'
                                 ? beanData.code_version.substr(0, 8)
+                                : beanData.kind && beanData.kind === '本地文件' && beanData.code_version && buildSource && buildSource === 'package_build'
+                                ? beanData.code_version
                                 : beanData.image_domain
                                 ? beanData.image_domain
                                 : '暂无'
@@ -185,9 +191,10 @@ class Index extends PureComponent {
                           className={` ${styles.alcen} ${styles.buildwidth} `}
                         >
                           {globalUtil.fetchSvg('basicInfo')}
-
                           {buildSource && buildSource === 'source_code'
-                            ? '提交信息'
+                            ? '提交信息' 
+                            : buildSource === 'package_build'
+                            ? '文件名称'
                             : '镜像名称'}
                         </span>
                         <Tooltip
@@ -196,12 +203,18 @@ class Index extends PureComponent {
                             (beanData.kind && beanData.kind === '源码构建'
                               ? beanData.code_commit_msg &&
                                 beanData.code_commit_msg
+                              : beanData.kind && beanData.kind === '本地文件'
+                              ? beanData.code_commit_msg &&
+                                beanData.code_commit_msg
                               : beanData.image_repo && beanData.image_repo)
                           }
                         >
                           <span className={styles.buildText}>
                             {beanData
                               ? beanData.kind && beanData.kind === '源码构建'
+                                ? beanData.code_commit_msg &&
+                                  beanData.code_commit_msg
+                                : beanData.kind && beanData.kind === '本地文件'
                                 ? beanData.code_commit_msg &&
                                   beanData.code_commit_msg
                                 : beanData.image_repo
@@ -221,6 +234,8 @@ class Index extends PureComponent {
 
                           {buildSource && buildSource === 'source_code'
                             ? '代码分支'
+                            : buildSource === 'package_build'
+                            ? '上传时间'
                             : '镜像tag'}
                         </span>
                         <Tooltip
@@ -228,12 +243,16 @@ class Index extends PureComponent {
                             beanData &&
                             (beanData.kind && beanData.kind === '源码构建'
                               ? beanData.code_branch && beanData.code_branch
+                              : beanData.kind && beanData.kind === '本地文件'
+                              ? beanData.code_branch && beanData.code_branch
                               : beanData.image_tag && beanData.image_tag)
                           }
                         >
                           <span className={styles.buildText}>
                             {beanData
                               ? beanData.kind && beanData.kind === '源码构建'
+                                ? beanData.code_branch && beanData.code_branch
+                                : beanData.kind && beanData.kind === '本地文件'
                                 ? beanData.code_branch && beanData.code_branch
                                 : beanData.image_tag
                                 ? beanData.image_tag

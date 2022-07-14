@@ -48,7 +48,7 @@ export default class Index extends PureComponent {
     this.loop = false;
   }
   componentDidMount() {
-    this.handleJarWarUploadRecord()
+    this.handleJarWarUploadRecord('yaml')
   }
   componentWillUnmount() {
     this.loop = false;
@@ -94,7 +94,7 @@ export default class Index extends PureComponent {
     });
   }
   //查询上传记录
-  handleJarWarUploadRecord = () => {
+  handleJarWarUploadRecord = (fileType) => {
     const {
       dispatch
     } = this.props;
@@ -104,6 +104,7 @@ export default class Index extends PureComponent {
         region: globalUtil.getCurrRegionName(),
         team_name: globalUtil.getCurrTeamName(),
         component_id: '',
+        file_type: fileType
       },
       callback: data => {
         if (data.bean && data.bean.source_dir && data.bean.source_dir.length > 0) {
