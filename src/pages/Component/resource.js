@@ -103,6 +103,7 @@ export default class Index extends PureComponent {
     } = this.props;
     const { existFileList, event_id } = this.state
     const teamName = globalUtil.getCurrTeamName()
+    const regionName = globalUtil.getCurrRegionName()
     const serviceId = appDetail && appDetail.service && appDetail.service.service_id
    if (existFileList.length > 0) {
       dispatch({
@@ -111,6 +112,7 @@ export default class Index extends PureComponent {
           team_name: teamName,
           event_id,
           service_id:serviceId,
+          region_name:regionName
         },
         callback: (data) => {
           this.setState({ uploadFile: false })
