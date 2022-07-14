@@ -6,8 +6,7 @@ class DAinputs extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      values: [{ regex: '', replacement: '', flag: '', flags: '' }],
-      data: ['last', 'break', 'redirect', 'permanent']
+      values: [{ key: '', operator: '', value: '', effect: '' }]
     };
   }
   componentDidMount() {
@@ -20,34 +19,34 @@ class DAinputs extends Component {
       this.initFromProps(value);
     }
   }
-  onRegexChange = (value, index) => {
+  onKeyChange = (value, index) => {
     const { values } = this.state;
-    values[index].regex = value;
+    values[index].key = value;
     this.triggerChange(values);
     this.setValues(values);
   };
-  onReplacementChange = (value, index) => {
+  onOperatorChange = (value, index) => {
     const { values } = this.state;
-    values[index].replacement = value;
+    values[index].operator = value;
     this.triggerChange(values);
     this.setValues(values);
   };
-  onFlagChange = (value, index) => {
+  onValueChange = (value, index) => {
     const { values } = this.state;
-    values[index].flag = value;
+    values[index].value = value;
     this.triggerChange(values);
     this.setValues(values);
   };
-  onFlagsChange = (value, index) => {
+  onEffectChange = (value, index) => {
     const { values } = this.state;
-    values[index].flags = value;
+    values[index].effect = value;
     this.triggerChange(values);
     this.setValues(values);
   };
   setValues(arr) {
     const setArr = arr || [];
     if (!setArr.length) {
-      setArr.push({ regex: '', replacement: '', flag: '', flags: '' });
+      setArr.push({ key: '', operator: '', value: '', effect: '' });
     }
     this.setState({ values: setArr });
   }
@@ -66,7 +65,7 @@ class DAinputs extends Component {
       return null;
     }
     this.setState({
-      values: values.concat({ regex: '', replacement: '', flag: '' })
+      values: values.concat({ key: '', operator: '', value: '', effect: ''  })
     });
   };
 
@@ -80,10 +79,10 @@ class DAinputs extends Component {
     const res = [];
     for (let i = 0; i < values.length; i++) {
       res.push({
-        regex: values[i].regex,
-        replacement: values[i].replacement,
-        flag: values[i].flag,
-        flags: values[i].flags
+        key: values[i].key,
+        operator: values[i].operator,
+        value: values[i].value,
+        effect: values[i].effect
       });
     }
     const { onChange } = this.props;
@@ -93,9 +92,9 @@ class DAinputs extends Component {
   }
 
   render() {
-    const regexPlaceholder = this.props.regexPlaceholder || 'regex';
-    const repPlaceholder = this.props.repPlaceholder || 'replacement';
-    const flagPlaceholder = this.props.flagPlaceholder || 'flag';
+    const keyPlaceholder = this.props.keyPlaceholder || 'key';
+    const repPlaceholder = this.props.repPlaceholder || 'value';
+    const valuePlaceholder = this.props.valuePlaceholder || 'value';
     const { values, data } = this.state;
     return (
       <div>
@@ -111,12 +110,12 @@ class DAinputs extends Component {
                 }}
               >
                 <Input
-                  name="regex"
+                  name="key"
                   onChange={e => {
-                    this.onRegexChange(e.target.value, index);
+                    this.onKeyChange(e.target.value, index);
                   }}
-                  value={item.regex}
-                  placeholder={regexPlaceholder}
+                  value={item.key}
+                  placeholder={keyPlaceholder}
                 />
               </Col>
               <Col
@@ -127,17 +126,15 @@ class DAinputs extends Component {
                 }}
               >
                 <Select
-                  name="flag"
+                  name="value"
                   allowClear
-                  value={item.flag}
+                  value={item.value}
                   onChange={e => {
-                    this.onFlagChange(e, index);
+                    this.onValueChange(e, index);
                   }}
                 >
-                  <Select.Option value="last">last</Select.Option>
-                  <Select.Option value="break">break</Select.Option>
-                  <Select.Option value="redirect">redirect</Select.Option>
-                  <Select.Option value="permanent">permanent</Select.Option>
+                  <Select.Option value="Exists">Exists</Select.Option>
+                  <Select.Option value="Equal">Equal</Select.Option>
                 </Select>
               </Col>
               <Col
@@ -148,27 +145,26 @@ class DAinputs extends Component {
                 }}
               >
                 <Input
-                  name="replacement"
+                  name="operator"
                   onChange={e => {
-                    this.onReplacementChange(e.target.value, index);
+                    this.onOperatorChange(e.target.value, index);
                   }}
-                  value={item.replacement}
+                  value={item.operator}
                   placeholder={repPlaceholder}
                 />
               </Col>
               <Col span={4}>
                 <Select
-                  name="flags"
+                  name="effect"
                   allowClear
-                  value={item.flags}
+                  value={item.effect}
                   onChange={e => {
-                    this.onFlagsChange(e, index);
+                    this.onEffectChange(e, index);
                   }}
                 >
-                  <Select.Option value="last">last</Select.Option>
-                  <Select.Option value="break">break</Select.Option>
-                  <Select.Option value="redirect">redirect</Select.Option>
-                  <Select.Option value="permanent">permanent</Select.Option>
+                  <Select.Option value="NoSchedule">NoSchedule</Select.Option>
+                  <Select.Option value="PreferNoSchedule">PreferNoSchedule</Select.Option>
+                  <Select.Option value="NoExecute">NoExecute</Select.Option>
                 </Select>
               </Col>
               <Col span={2} style={{ textAlign: 'center' }}>

@@ -6,7 +6,7 @@ class DAinputs extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      values: [{ key: '', value: '' }]
+      values: [{ key: '', operator: '', values: '' }]
     };
   }
   componentDidMount() {
@@ -19,22 +19,28 @@ class DAinputs extends Component {
       this.initFromProps(value);
     }
   }
-  onkeyChange = (value, index) => {
+  onKeyChange = (value, index) => {
     const { values } = this.state;
     values[index].key = value;
     this.triggerChange(values);
     this.setValues(values);
   };
-  onvalueChange = (value, index) => {
+  onOperatorChange = (value, index) => {
     const { values } = this.state;
-    values[index].value = value;
+    values[index].operator = value;
+    this.triggerChange(values);
+    this.setValues(values);
+  };
+  onValuesChange = (value, index) => {
+    const { values } = this.state;
+    values[index].values = value;
     this.triggerChange(values);
     this.setValues(values);
   };
   setValues(arr) {
     const setArr = arr || [];
     if (!setArr.length) {
-      setArr.push({ key: '', value: '' });
+      setArr.push({ key: '', operator: '', values: '' });
     }
     this.setState({ values: setArr });
   }
@@ -53,7 +59,7 @@ class DAinputs extends Component {
       return null;
     }
     this.setState({
-      values: values.concat({ key: '', value: '' })
+      values: values.concat({ key: '', operator: '', values: '' })
     });
   };
 
@@ -68,7 +74,8 @@ class DAinputs extends Component {
     for (let i = 0; i < values.length; i++) {
       res.push({
         key: values[i].key,
-        value: values[i].value
+        operator: values[i].operator,
+        values: values[i].values
       });
     }
     const { onChange } = this.props;
@@ -79,29 +86,53 @@ class DAinputs extends Component {
 
   render() {
     const keyPlaceholder = this.props.keyPlaceholder || 'key';
-    const repPlaceholder = this.props.repPlaceholder || 'value';
-    const { values } = this.state;
+    const repPlaceholder = this.props.repPlaceholder || 'operator';
+    const valuesPlaceholder = this.props.valuesPlaceholder || 'values';
+    const { values, data } = this.state;
     return (
       <div>
         {values.map((item, index) => {
           const first = index === 0;
           return (
             <Row key={index}>
-              <Col
+              <Col 
                 span={4}
                 style={{
-                  textAlign: 'center',
-                  marginRight: '27px'
+                    textAlign: 'center',
+                    marginRight: '27px'
                 }}
               >
                 <Input
                   name="key"
                   onChange={e => {
-                    this.onkeyChange(e.target.value, index);
+                    this.onKeyChange(e.target.value, index);
                   }}
                   value={item.key}
                   placeholder={keyPlaceholder}
                 />
+              </Col>
+              <Col 
+                span={4}
+                style={{
+                    textAlign: 'center',
+                    marginRight: '27px'
+                }}
+              >
+                <Select
+                  name="operator"
+                  allowClear
+                  value={item.operator}
+                  onChange={e => {
+                    this.onOperatorChange(e, index);
+                  }}
+                >
+                  <Select.Option value="In">In</Select.Option>
+                  <Select.Option value="NotIn">NotIn</Select.Option>
+                  <Select.Option value="Exists">Exists</Select.Option>
+                  <Select.Option value="DoesNotExist">DoesNotExist</Select.Option>
+                  <Select.Option value="Gt">Gt</Select.Option>
+                  <Select.Option value="Lt">Lt</Select.Option>
+                </Select>
               </Col>
               <Col
                 span={4}
@@ -111,14 +142,15 @@ class DAinputs extends Component {
                 }}
               >
                 <Input
-                  name="value"
+                  name="values"
                   onChange={e => {
-                    this.onvalueChange(e.target.value, index);
+                    this.onValuesChange(e.target.value, index);
                   }}
-                  value={item.value}
-                  placeholder={repPlaceholder}
+                  value={item.values}
+                  placeholder={valuesPlaceholder}
                 />
               </Col>
+              
               <Col span={1}>
                 <Icon
                   type={first ? 'plus-circle' : 'minus-circle'}

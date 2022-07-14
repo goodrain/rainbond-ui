@@ -1516,6 +1516,10 @@ const global = {
     switch (componentType) {
       case 'stateless_multiple':
         return '无状态服务(Deployment类型)';
+      case 'state_singleton':
+        return '有状态服务(Statefulset类型)';
+      case 'stateless_singleton':
+        return '无状态服务(Deployment类型)';
       case 'state_multiple':
         return '有状态服务(Statefulset类型)';
       case 'job':

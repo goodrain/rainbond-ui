@@ -3252,3 +3252,26 @@ export async function addRunStrategy(body = {}) {
     }
   );
 }
+/* 添加Kubernetes属性 */
+export async function addKubernetes(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes`,
+    {
+      method: 'put',
+      data: {
+        list: body.list
+      }
+    }
+  );
+}
+/* 获取Kubernetes属性 */
+export async function getKubernetes(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes`,
+    {
+      method: 'get'
+    }
+  );
+}
+
+

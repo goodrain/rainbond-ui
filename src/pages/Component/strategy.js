@@ -23,8 +23,8 @@ class Index extends PureComponent {
     console.log(e, 'e');
   };
   
-  handleSubmit = () => {
-    // e.preventDefault();
+  handleSubmit = (e) => {
+    e.preventDefault();
     const { form, dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const service_alias = this.props.service_alias || ''
@@ -52,7 +52,6 @@ class Index extends PureComponent {
       team_name: teamName,
       service_alias: service_alias
     }).then(res => {
-        console.log(res,'获取数据')
         this.setState({
           data: res.bean
         })

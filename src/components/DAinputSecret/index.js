@@ -6,7 +6,7 @@ class DAinputs extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      values: [{ key: '', value: '' }]
+      values: [{ name: '', mountPath: '', key: '' }]
     };
   }
   componentDidMount() {
@@ -19,22 +19,28 @@ class DAinputs extends Component {
       this.initFromProps(value);
     }
   }
-  onkeyChange = (value, index) => {
+  onNameChange = (value, index) => {
     const { values } = this.state;
-    values[index].key = value;
+    values[index].name = value;
     this.triggerChange(values);
     this.setValues(values);
   };
-  onvalueChange = (value, index) => {
+  onValueChange = (value, index) => {
     const { values } = this.state;
-    values[index].value = value;
+    values[index].mountPath = value;
+    this.triggerChange(values);
+    this.setValues(values);
+  };
+  onKeyChange = (value, index) => {
+    const { values } = this.state;
+    values[index].key = value;
     this.triggerChange(values);
     this.setValues(values);
   };
   setValues(arr) {
     const setArr = arr || [];
     if (!setArr.length) {
-      setArr.push({ key: '', value: '' });
+      setArr.push({ name: '', mountPath: '', key: '' });
     }
     this.setState({ values: setArr });
   }
@@ -53,7 +59,7 @@ class DAinputs extends Component {
       return null;
     }
     this.setState({
-      values: values.concat({ key: '', value: '' })
+      values: values.concat({ name: '', mountPath: '', key: '' })
     });
   };
 
@@ -67,8 +73,9 @@ class DAinputs extends Component {
     const res = [];
     for (let i = 0; i < values.length; i++) {
       res.push({
-        key: values[i].key,
-        value: values[i].value
+        name: values[i].name,
+        mountPath: values[i].mountPath,
+        key: values[i].key
       });
     }
     const { onChange } = this.props;
@@ -78,29 +85,30 @@ class DAinputs extends Component {
   }
 
   render() {
+    const namePlaceholder = this.props.namePlaceholder || 'name';
+    const mountPathPlaceholder = this.props.repPlaceholder || 'value';
     const keyPlaceholder = this.props.keyPlaceholder || 'key';
-    const repPlaceholder = this.props.repPlaceholder || 'value';
-    const { values } = this.state;
+    const { values, data } = this.state;
     return (
       <div>
         {values.map((item, index) => {
           const first = index === 0;
           return (
             <Row key={index}>
-              <Col
+              <Col 
                 span={4}
                 style={{
-                  textAlign: 'center',
-                  marginRight: '27px'
+                    textAlign: 'center',
+                    marginRight: '27px'
                 }}
               >
                 <Input
-                  name="key"
+                  name="name"
                   onChange={e => {
-                    this.onkeyChange(e.target.value, index);
+                    this.onNameChange(e.target.value, index);
                   }}
-                  value={item.key}
-                  placeholder={keyPlaceholder}
+                  value={item.name}
+                  placeholder={namePlaceholder}
                 />
               </Col>
               <Col
@@ -111,12 +119,28 @@ class DAinputs extends Component {
                 }}
               >
                 <Input
-                  name="value"
+                  name="mountPath"
                   onChange={e => {
-                    this.onvalueChange(e.target.value, index);
+                    this.onValueChange(e.target.value, index);
                   }}
-                  value={item.value}
-                  placeholder={repPlaceholder}
+                  value={item.mountPath}
+                  placeholder={mountPathPlaceholder}
+                />
+              </Col>
+              <Col
+                span={4}
+                style={{
+                  textAlign: 'center',
+                  marginRight: '27px'
+                }}
+              >
+                <Input
+                  name="key"
+                  onChange={e => {
+                    this.onKeyChange(e.target.value, index);
+                  }}
+                  value={item.key}
+                  placeholder={keyPlaceholder}
                 />
               </Col>
               <Col span={1}>

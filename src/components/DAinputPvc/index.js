@@ -6,7 +6,7 @@ class DAinputs extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      values: [{ key: '', value: '' }]
+      values: [{ name: '', mountPath: '', claimName: '', subPath: '' }]
     };
   }
   componentDidMount() {
@@ -19,22 +19,34 @@ class DAinputs extends Component {
       this.initFromProps(value);
     }
   }
-  onkeyChange = (value, index) => {
+  onNameChange = (value, index) => {
     const { values } = this.state;
-    values[index].key = value;
+    values[index].name = value;
     this.triggerChange(values);
     this.setValues(values);
   };
-  onvalueChange = (value, index) => {
+  onMountPathChange = (value, index) => {
     const { values } = this.state;
-    values[index].value = value;
+    values[index].mountPath = value;
+    this.triggerChange(values);
+    this.setValues(values);
+  };
+  onClaimNameChange = (value, index) => {
+    const { values } = this.state;
+    values[index].claimName = value;
+    this.triggerChange(values);
+    this.setValues(values);
+  };
+  onSubPathChange = (value, index) => {
+    const { values } = this.state;
+    values[index].subPath = value;
     this.triggerChange(values);
     this.setValues(values);
   };
   setValues(arr) {
     const setArr = arr || [];
     if (!setArr.length) {
-      setArr.push({ key: '', value: '' });
+      setArr.push({ name: '', mountPath: '', claimName: '', subPath: '' });
     }
     this.setState({ values: setArr });
   }
@@ -53,7 +65,7 @@ class DAinputs extends Component {
       return null;
     }
     this.setState({
-      values: values.concat({ key: '', value: '' })
+      values: values.concat({ name: '', mountPath: '', claimName: '', subPath: ''  })
     });
   };
 
@@ -67,8 +79,10 @@ class DAinputs extends Component {
     const res = [];
     for (let i = 0; i < values.length; i++) {
       res.push({
-        key: values[i].key,
-        value: values[i].value
+        name: values[i].name,
+        mountPath: values[i].mountPath,
+        claimName: values[i].claimName,
+        subPath: values[i].subPath
       });
     }
     const { onChange } = this.props;
@@ -78,9 +92,11 @@ class DAinputs extends Component {
   }
 
   render() {
-    const keyPlaceholder = this.props.keyPlaceholder || 'key';
-    const repPlaceholder = this.props.repPlaceholder || 'value';
-    const { values } = this.state;
+    const namePlaceholder =  'name';
+    const mountPathPlaceholder =  'mountPath';
+    const claimNamePlaceholder =  'claimName';
+    const subPathPlaceholder = 'subPath';
+    const { values, data } = this.state;
     return (
       <div>
         {values.map((item, index) => {
@@ -91,16 +107,16 @@ class DAinputs extends Component {
                 span={4}
                 style={{
                   textAlign: 'center',
-                  marginRight: '27px'
+                  marginRight: '30px'
                 }}
               >
                 <Input
-                  name="key"
+                  name="claimName"
                   onChange={e => {
-                    this.onkeyChange(e.target.value, index);
+                    this.onNameChange(e.target.value, index);
                   }}
-                  value={item.key}
-                  placeholder={keyPlaceholder}
+                  value={item.name}
+                  placeholder={namePlaceholder}
                 />
               </Col>
               <Col
@@ -111,15 +127,48 @@ class DAinputs extends Component {
                 }}
               >
                 <Input
-                  name="value"
+                  name="mountPath"
                   onChange={e => {
-                    this.onvalueChange(e.target.value, index);
+                    this.onMountPathChange(e.target.value, index);
                   }}
-                  value={item.value}
-                  placeholder={repPlaceholder}
+                  value={item.mountPath}
+                  placeholder={mountPathPlaceholder}
                 />
               </Col>
-              <Col span={1}>
+              <Col
+                span={4}
+                style={{
+                  textAlign: 'center',
+                  marginRight: '30px'
+                }}
+              >
+                <Input
+                  name="claimName"
+                  onChange={e => {
+                    this.onClaimNameChange(e.target.value, index);
+                  }}
+                  value={item.claimName}
+                  placeholder={claimNamePlaceholder}
+                />
+              </Col>
+              
+              <Col
+                span={4}
+                style={{
+                  textAlign: 'center',
+                  marginRight: '30px'
+                }}
+              >
+                <Input
+                  name="subPath"
+                  onChange={e => {
+                    this.onSubPathChange(e.target.value, index);
+                  }}
+                  value={item.subPath}
+                  placeholder={subPathPlaceholder}
+                />
+              </Col>
+              <Col span={2}>
                 <Icon
                   type={first ? 'plus-circle' : 'minus-circle'}
                   style={{ fontSize: '20px' }}
