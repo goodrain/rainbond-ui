@@ -135,17 +135,15 @@ export default class ImportMessage extends PureComponent {
                 namespace: this.props.location.query.namespace
             },
             callback: res => {
-                // message.success('上传成功');
+                this.props
+                    .dispatch(routerRedux.replace(`/team/${res.bean.Name}}/region/${res.bean.region_name}/index`))
             }
         })
-        this
-            .props
-            .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`))
     }
     // 取消框显示
-    showDelete = () => {
-        this.setState({ showDelete: true })
-    }
+    // showDelete = () => {
+    //     this.setState({ showDelete: true })
+    // }
     // 上一步
     nextStep = () => {
         const str = this.props.location.query.id
@@ -156,7 +154,7 @@ export default class ImportMessage extends PureComponent {
             .dispatch(routerRedux.replace(`/enterprise/${str}/importMessage?region_id=${region_id}`))
     }
     render() {
-        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingswitch } = this.state;
+        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingswitch, module } = this.state;
         const namespace = this.props.location.query.namespace
         // 假数据
         const moduleArrs = [{
@@ -213,9 +211,12 @@ export default class ImportMessage extends PureComponent {
                 <div className={styles.typeBtnWrap}>
                     <Affix offsetTop={0}>
                         <div className={styles.fixed}>
+                            
                             {
                                 appnameArr.map((item, index) => {
-                                    return <div key={index}
+                                    return <>
+                                    {module.[item] === null ? (<></>) : (
+                                        <div key={index}
                                         className={`${styles.typeBtn}  ${type === index ? styles.active : ""}`}
                                         onClick={() => {
                                             this.handleType(item, index);
@@ -226,7 +227,8 @@ export default class ImportMessage extends PureComponent {
                                         </Tooltip>
                                         <Icon type="right" />
                                     </div>
-
+                                    )}
+                                    </>
                                 })
                             }
                         </div>
@@ -247,50 +249,50 @@ export default class ImportMessage extends PureComponent {
                             >
                                 {moduleArr && moduleArr.length > 0 && moduleArr.map((item, index) => {
                                     return <TabPane tab={item.components_name} key={`${index}`}>
-                                        {/* ConfigProvider */}
-                                        <ConfigProvider>
-                                            {/* 部署属性 */}
-                                            {
-                                                <DeployAttribute
-                                                    value={item.basic_management}
-                                                />
-                                            }
-                                            {/* 端口管理 */}
-                                            {
-                                                <PortAttribute
-                                                    value={item.port_management}
-                                                />
-                                            }
-                                            {/* 环境变量 */}
-                                            {
-                                                <EnvVariable
-                                                    value={item.env_management}
-                                                />
-                                            }
-                                            {/* 配置文件 */}
-                                            {
-                                                <ConfigurationFiles
-                                                // value={volumes}
-                                                />
-                                            }
-                                            {/* 自动伸缩 */}
-                                            {
-                                                <FlexAttribute
-                                                    value={item.telescopic_management}
-                                                />
-                                            }
-                                            {/* 健康监测 */}
-                                            {
-                                                <HealthAttribute
-                                                    value={item.health_check_management}
-                                                />
-                                            }
-                                            {/* 特殊属性 */}
-                                            {
-                                                <SpecialAttribute />
-                                            }
-                                        </ConfigProvider>
-                                    </TabPane>
+                                    {/* ConfigProvider */}
+                                    <ConfigProvider>
+                                        {/* 部署属性 */}
+                                        {
+                                            <DeployAttribute
+                                                value={item.basic_management}
+                                            />
+                                        }
+                                        {/* 端口管理 */}
+                                        {
+                                            <PortAttribute
+                                                value={item.port_management}
+                                            />
+                                        }
+                                        {/* 环境变量 */}
+                                        {
+                                            <EnvVariable
+                                                value={item.env_management}
+                                            />
+                                        }
+                                        {/* 配置文件 */}
+                                        {
+                                            <ConfigurationFiles
+                                            // value={volumes}
+                                            />
+                                        }
+                                        {/* 自动伸缩 */}
+                                        {
+                                            <FlexAttribute
+                                                value={item.telescopic_management}
+                                            />
+                                        }
+                                        {/* 健康监测 */}
+                                        {
+                                            <HealthAttribute
+                                                value={item.health_check_management}
+                                            />
+                                        }
+                                        {/* 特殊属性 */}
+                                        {
+                                            <SpecialAttribute />
+                                        }
+                                    </ConfigProvider>
+                                </TabPane>
                                 })}
                                 <TabPane tab="k8s资源" key="hello">
                                     {/* kbs资源 */}
@@ -327,9 +329,9 @@ export default class ImportMessage extends PureComponent {
                         }}
                         onClick={this.handleBuild}
                         type="primary">确认导入</Button>
-                    <Button onClick={this.showDelete} type="default">放弃导入</Button>
+                    {/* <Button onClick={this.showDelete} type="default">放弃导入</Button> */}
                 </div>
-                {
+                {/* {
                     this.state.showDelete && <ConfirmModal
                         onOk={this.handleDelete}
                         title="放弃创建"
@@ -338,7 +340,7 @@ export default class ImportMessage extends PureComponent {
                         onCancel={() => {
                             this.setState({ showDelete: false })
                         }} />
-                }
+                } */}
             </div >
         );
     }

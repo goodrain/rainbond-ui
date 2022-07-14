@@ -113,10 +113,13 @@ export default class ImportMessage extends PureComponent {
     }
     //下一步
     onNext = () => {
-        const { dispatch } = this.props
-        const teamName = 'ay4lbc65'
-        const regionName = '1655982984'
-        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/ChangeResourceTest`));
+        const { dispatch,
+            match: {
+                params: { eid }
+            }
+        } = this.props
+        console.log(eid);
+        dispatch(routerRedux.push(`/enterprise/${eid}/ChangeResourceTest`));
         
     }
     render() {
