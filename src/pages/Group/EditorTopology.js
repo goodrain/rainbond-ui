@@ -45,6 +45,7 @@ class EditorToplogy extends PureComponent {
         "build_failure",
         "creating",
         'third_party',
+        "succeeded"
       ],
     }
   }
