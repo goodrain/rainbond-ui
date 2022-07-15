@@ -241,7 +241,7 @@ const global = {
       tEMINATING: '#20124A', // 关闭中 紫色
       Some_abnormal: '#FF0000', // 一些不正常 纯红
       Building: '#007710', // 构建  纯蓝
-      succeeded: '#6db7fb', 
+      succeeded: '#00D777', 
       SUCCEEDED:'#6db7fb' //蓝色 已完成
     };
     return statusColorMap[status] || statusColorMap.unknow;
@@ -1160,6 +1160,8 @@ const global = {
     const statusColorMap = {
       running:
         'linear-gradient(to right, #00D777 0, #00D777 10px, #fff 10px, #fff 100%) no-repeat', // 运行中 绿色
+      succeeded:
+        'linear-gradient(to right, #00D777 0, #00D777 10px, #fff 10px, #fff 100%) no-repeat', // 已完成 绿色
       starting:
         'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 启动中
       checking:
