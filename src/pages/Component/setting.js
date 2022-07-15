@@ -818,7 +818,7 @@ export default class Index extends React.Component {
           </Card>
         )}
         {(appDetail.service.extend_method === 'job' || 
-        appDetail.service.extend_method === 'cron_job') &&(
+        appDetail.service.extend_method === 'cronjob') &&(
           <Strategy 
             extend_method={appDetail.service.extend_method} 
             service_alias={appDetail.service.service_alias} 

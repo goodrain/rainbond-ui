@@ -102,7 +102,7 @@ class BaseInfo extends PureComponent {
   handleChange = (value) => {
   }
   onChecks = (e) => {
-    if(e.target.value === 'cron_job'){
+    if(e.target.value === 'cronjob'){
       this.setState({
         is_flag:true
       })

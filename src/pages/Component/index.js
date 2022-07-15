@@ -1252,7 +1252,7 @@ class Main extends PureComponent {
       }
     ];
 
-    if (isTelescopic && appDetail.service.extend_method !== 'job' && appDetail.service.extend_method !== 'cron_job') {
+    if (isTelescopic && appDetail.service.extend_method !== 'job' && appDetail.service.extend_method !== 'cronjob') {
       tabs.push({
         key: 'expansion',
         tab: '伸缩'

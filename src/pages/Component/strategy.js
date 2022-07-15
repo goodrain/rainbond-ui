@@ -81,7 +81,7 @@ class Index extends PureComponent {
       <div style={{ marginBottom: '24px' }}>
         <Card title="任务运行策略">
           <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-            {extend_method === 'cron_job' &&
+            {extend_method === 'cronjob' &&
               <Form.Item label="运行规则">
                 {getFieldDecorator('schedule', {
                   initialValue: data.schedule || '',
