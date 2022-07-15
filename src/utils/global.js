@@ -242,7 +242,7 @@ const global = {
       Some_abnormal: '#FF0000', // 一些不正常 纯红
       Building: '#007710', // 构建  纯蓝
       succeeded: '#00D777', 
-      SUCCEEDED:'#6db7fb' //蓝色 已完成
+      SUCCEEDED:'#00D777' //蓝色 已完成
     };
     return statusColorMap[status] || statusColorMap.unknow;
   },
