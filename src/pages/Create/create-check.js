@@ -129,7 +129,6 @@ export default class CreateCheck extends React.Component {
 
   getAppAlias() {
     const { ServiceGetData } = this.state;
-    console.log(this.props,'this.props')
     return ServiceGetData || this.props.match.params.appAlias;
   }
   handlePermissions = type => {

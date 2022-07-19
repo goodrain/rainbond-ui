@@ -3004,7 +3004,8 @@ export async function putLanguage(
     {
       method: 'post',
       data: {
-        is_again: true
+        is_again: true,
+        event_id: body.eventId
       }
     }
   );
@@ -3050,7 +3051,8 @@ export async function putAppBuidSource(
         password: body.password,
         is_oauth: body.is_oauth,
         service_id: body.oauth_service_id,
-        full_name: body.full_name
+        full_name: body.full_name,
+        server_type: body.server_type
       }
     }
   );

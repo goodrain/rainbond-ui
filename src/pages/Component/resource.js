@@ -379,6 +379,15 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data) {
           const { bean } = data;
+          if(bean.service_source === 'package_build'){
+            const url = bean && bean.git_url
+            const str = url.lastIndexOf("\/");  
+            const eventId = url.substring(str + 1, url.length);
+            this.setState({ 
+              event_id: eventId
+            })
+          }
+          
           this.setState({ buildSource: bean }, () => {
             if (
               bean &&
@@ -461,11 +470,13 @@ export default class Index extends PureComponent {
 
   handleDetectPutLanguage = () => {
     const { dispatch } = this.props;
+    const { event_id } = this.state
     dispatch({
       type: 'appControl/putLanguage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail.service.service_alias
+        service_alias: this.props.appDetail.service.service_alias,
+        eventId: event_id
       },
       callback: res => {
         if (res) {
@@ -942,7 +953,14 @@ export default class Index extends PureComponent {
                       {languageType}
                     </>
                   )}
-
+                  <Button
+                    size="small"
+                    type="primary"
+                    onClick={this.handleToDetect}
+                    style={{ marginLeft: '6px' }}
+                  >
+                    重新检测
+                  </Button>
                 </FormItem>
               </Fragment>
             ) : (
@@ -997,7 +1015,7 @@ export default class Index extends PureComponent {
                       确认
                     </Button>
                   ]
-                  : [<Button key="back">关闭</Button>]
+                  : [<Button  onClick={this.handlelanguageBox} key="back">关闭</Button>]
             }
           >
             <div>
