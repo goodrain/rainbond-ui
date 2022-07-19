@@ -251,7 +251,7 @@ export default class ImportMessage extends PureComponent {
                                         return (
                                             <Panel
                                                 header={
-                                                    <div>label: app={item}</div>
+                                                    <div>label: app={item === "UnLabel" ? "未分组" : item}</div>
                                                 }
                                                 key={index}
                                                 extra={this.genExtra()}

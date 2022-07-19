@@ -16,14 +16,14 @@ class HealthAttribute extends PureComponent {
                 {value && Object.keys(value).length > 0 ? (
                     <div style={{ display: 'flex' }}>
                         <div style={{ width: '33%', textAlign: 'center' }}>
-                            当前状态:{value.status ? value.status : "暂无状态"}
+                            当前状态:{value.status && value.status === 1 ? "启动" : "暂无状态"}
                         </div>
                         <div style={{ width: '33%', textAlign: 'center' }}>
                             检测方式:{value.detection_method ? value.detection_method : '未设置'}
                         </div>
                         <div style={{ width: '33%', textAlign: 'center' }}>
                             不健康处理方式:
-                            {value.unhealthy_handle_method ? value.unhealthy_handle_method : "无"}
+                            {value.mode && value.mode === "liveness"? "重启" : "下线"}
                         </div>
                     </div>
                 ) : (

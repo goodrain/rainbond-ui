@@ -58,13 +58,10 @@ export default class ImportMessage extends PureComponent {
     // 团队按钮点击
     handleType = (item, index) => {
         const { module, minmoduleArr, moduleArr } = this.state
-        if (module.[item] != null) {
-            console.log(module.[item][0], "module.[item][0]");
+        if (module.[item].convert_resource != null) {
             this.setState({
-                moduleArr: module.[item],
-                minmoduleArr: module.[item][0],
+                moduleArr: module.[item].convert_resource,
                 index: '0',
-
             })
         } else {
             this.setState({
@@ -104,12 +101,14 @@ export default class ImportMessage extends PureComponent {
                 namespace: this.props.location.query.namespace
             },
             callback: res => {
+                console.log(res.bean);
                 if (res.response_data.code === 200) {
                     const appname = Object.keys(res.bean)
+                    console.log(res.bean.[appname[0]].convert_resource);
                     this.setState({
                         appnameArr: appname,
                         module: res.bean,
-                        moduleArr: res.bean && res.bean.[appname[0]],
+                        moduleArr:res.bean.[appname[0]].convert_resource,
                         loadingswitch: false
                     })
 
@@ -190,44 +189,106 @@ export default class ImportMessage extends PureComponent {
                 { port: 4143, protocol: 'UDP', inner: false, outer: false },
                 { port: 4191, protocol: 'UDP', inner: false, outer: false }
             ],
-            special_management: {
-                label: null,
-                node_selector: null,
-                toleration: null,
-            },
+            component_k8s_attributes_management: [
+                {
+                    ID: 0,
+                    attribute_value: "- name: sp-tls\n  secret:\n    defaultMode: 420\n    secretName: linkerd-sp-validator-k8s-tls\n- name: policy-tls\n  secret:\n    defaultMode: 420\n    secretName: linkerd-policy-validator-k8s-tls\n- emptyDir: {}\n  name: linkerd-proxy-init-xtables-lock\n- emptyDir:\n    medium: Memory\n  name: linkerd-identity-end-entity\n",
+                    component_id: "",
+                    create_time: "0001-01-01T00:00:00Z",
+                    name: "volumes",
+                    save_type: "yaml",
+                    tenant_id: "",
+                },
+                {
+                    ID: 0,
+                    attribute_value: "- mountPath: /var/run/linkerd/identity/end-entity\n  name: linkerd-identity-end-entity\n",
+                    component_id: "",
+                    create_time: "0001-01-01T00:00:00Z",
+                    name: "volumeMounts",
+                    save_type: "yaml",
+                    tenant_id: "",
+                },
+                {
+                    ID: 0,
+                    attribute_value: "linkerd-destination",
+                    component_id: "",
+                    create_time: "0001-01-01T00:00:00Z",
+                    name: "serviceAccountName",
+                    save_type: "string",
+                    tenant_id: "",
+                },
+                {
+                    ID: 0,
+                    attribute_value: "{\"app.kubernetes.io/name\":\"destination\",\"app.kubernetes.io/part-of\":\"Linkerd\",\"app.kubernetes.io/version\":\"stable-2.11.3\",\"linkerd.io/control-plane-component\":\"destination\",\"linkerd.io/control-plane-ns\":\"linkerd\"}",
+                    component_id: "",
+                    create_time: "0001-01-01T00:00:00Z",
+                    name: "labels",
+                    save_type: "json",
+                    tenant_id: "",
+                },
+                {
+                    ID: 0,
+                    attribute_value: "{\"kubernetes.io/os\":\"linux\"}",
+                    component_id: "",
+                    create_time: "0001-01-01T00:00:00Z",
+                    name: "nodeSelector",
+                    save_type: "json",
+                    tenant_id: "",
+                }
+            ],
             telescopic_management: {
-                cpu_use: "",
-                max_replicas: 0,
-                memory_use: "",
-                min_replicas: 0,
+                enable: true,
+                max_replicas: 100,
+                min_replicas: 1,
+                cpu_or_memory: [
+                    {
+                        ID: 0,
+                        MetricTargetType: "utilization",
+                        MetricTargetValue: 50,
+                        MetricsName: "cpu",
+                        MetricsType: "resource_metrics",
+                        RuleID: "",
+                        create_time: "0001-01-01T00:00:00Z"
+                    },
+                    {
+                        ID: 2,
+                        MetricTargetType: "average_value",
+                        MetricTargetValue: 60,
+                        MetricsName: "gpu",
+                        MetricsType: "resource_metrics",
+                        RuleID: "",
+                        create_time: "0001-01-01T00:00:00Z"
+                    }
+                ]
+
             }
         }]
         return (
             <div>
                 <h2>团队名称：
-                    {namespace}
+                    {namespace && namespace.length > 0 ? namespace : "暂无团队"}
                 </h2>
-                <h3 className={styles.applist}>应用列表：</h3>
+                <h3 className={styles.applist}>应用列表:</h3>
                 <div className={styles.typeBtnWrap}>
                     <Affix offsetTop={0}>
                         <div className={styles.fixed}>
-                            
+
                             {
                                 appnameArr.map((item, index) => {
                                     return <>
-                                    {module.[item] === null ? (<></>) : (
-                                        <div key={index}
-                                        className={`${styles.typeBtn}  ${type === index ? styles.active : ""}`}
-                                        onClick={() => {
-                                            this.handleType(item, index);
-                                        }}
-                                    >
-                                        <Tooltip placement="right" title={item}>
-                                            <span>{item}</span>
-                                        </Tooltip>
-                                        <Icon type="right" />
-                                    </div>
-                                    )}
+                                        {module.[item].convert_resource === null ? (<></>) : (
+                                            <div key={index}
+                                                className={`${styles.typeBtn}  ${type === index ? styles.active : ""}`}
+                                                onClick={() => {
+                                                    this.handleType(item, index);
+                                                }}
+                                            >
+                                                <Tooltip placement="right" title={item}>
+                                                    <span>{item}</span>
+                                                </Tooltip>
+                                                <Icon type="right" />
+                                            </div>
+                                        )}
                                     </>
                                 })
                             }
@@ -249,50 +310,50 @@ export default class ImportMessage extends PureComponent {
                             >
                                 {moduleArr && moduleArr.length > 0 && moduleArr.map((item, index) => {
                                     return <TabPane tab={item.components_name} key={`${index}`}>
-                                    {/* ConfigProvider */}
-                                    <ConfigProvider>
-                                        {/* 部署属性 */}
-                                        {
-                                            <DeployAttribute
-                                                value={item.basic_management}
-                                            />
-                                        }
-                                        {/* 端口管理 */}
-                                        {
-                                            <PortAttribute
-                                                value={item.port_management}
-                                            />
-                                        }
-                                        {/* 环境变量 */}
-                                        {
-                                            <EnvVariable
-                                                value={item.env_management}
-                                            />
-                                        }
-                                        {/* 配置文件 */}
-                                        {
-                                            <ConfigurationFiles
-                                            // value={volumes}
-                                            />
-                                        }
-                                        {/* 自动伸缩 */}
-                                        {
-                                            <FlexAttribute
-                                                value={item.telescopic_management}
-                                            />
-                                        }
-                                        {/* 健康监测 */}
-                                        {
-                                            <HealthAttribute
-                                                value={item.health_check_management}
-                                            />
-                                        }
-                                        {/* 特殊属性 */}
-                                        {
-                                            <SpecialAttribute />
-                                        }
-                                    </ConfigProvider>
-                                </TabPane>
+                                        {/* ConfigProvider */}
+                                        <ConfigProvider>
+                                            {/* 部署属性 */}
+                                            {
+                                                <DeployAttribute
+                                                    value={item.basic_management}
+                                                />
+                                            }
+                                            {/* 端口管理 */}
+                                            {
+                                                <PortAttribute
+                                                    value={item.port_management}
+                                                />
+                                            }
+                                            {/* 环境变量 */}
+                                            {
+                                                <EnvVariable
+                                                    value={item.env_management}
+                                                />
+                                            }
+                                            {/* 配置文件 */}
+                                            {
+                                                <ConfigurationFiles
+                                                    value={item.config_management}
+                                                />
+                                            }
+                                            {/* 自动伸缩 */}
+                                            {
+                                                <FlexAttribute
+                                                    value={item.telescopic_management}
+                                                />
+                                            }
+                                            {/* 健康监测 */}
+                                            {
+                                                <HealthAttribute
+                                                    value={item.health_check_management}
+                                                />
+                                            }
+                                            {/* 特殊属性 */}
+                                            {
+                                                <SpecialAttribute value = {item.component_k8s_attributes_management}/>
+                                            }
+                                        </ConfigProvider>
+                                    </TabPane>
                                 })}
                                 <TabPane tab="k8s资源" key="hello">
                                     {/* kbs资源 */}
