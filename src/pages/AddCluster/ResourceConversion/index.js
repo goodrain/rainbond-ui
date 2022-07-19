@@ -134,8 +134,12 @@ export default class ImportMessage extends PureComponent {
                 namespace: this.props.location.query.namespace
             },
             callback: res => {
-                this.props
-                    .dispatch(routerRedux.replace(`/team/${res.bean.Name}}/region/${res.bean.region_name}/index`))
+                const teamName = res.bean && res.bean.Name
+                const regionName = res.bean && res.bean.region_name
+                this.props.dispatch(
+                    routerRedux.replace(
+                        `/team/${teamName}/region/${regionName}/index`
+                    ))
             }
         })
     }
@@ -148,9 +152,10 @@ export default class ImportMessage extends PureComponent {
         const str = this.props.location.query.id
         const region_id = this.props.location.query.region_id
 
-        this
-            .props
-            .dispatch(routerRedux.replace(`/enterprise/${str}/importMessage?region_id=${region_id}`))
+        this.props.dispatch(
+            routerRedux.replace(
+                `/enterprise/${str}/importMessage?region_id=${region_id}`
+            ))
     }
     render() {
         const { type, appnameArr, moduleArr, minmoduleArr, index, loadingswitch, module } = this.state;
@@ -364,9 +369,6 @@ export default class ImportMessage extends PureComponent {
                         </div>
                     </div>
                 )}
-
-
-
                 <div
                     style={{
                         background: '#fff',

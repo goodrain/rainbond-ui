@@ -52,7 +52,7 @@ class Index extends PureComponent {
         const team = 'ay4lbc65'
         const region_name = 1655982984
         const num = 38
-        dispatch(routerRedux.replace(`/team/${team}}/region/${region_name}/apps/${num}`))
+        dispatch(routerRedux.replace(`/team/${team}/region/${region_name}/apps/${num}`))
     }
 
     render() {
