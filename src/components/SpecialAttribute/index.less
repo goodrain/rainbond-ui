@@ -1,0 +1,51 @@
+.rowstyle{
+    padding: 20px;
+    // border: 2px solid red;
+    text-align: center;
+    display: flex;
+    align-items: flex-start;
+    .colstyle{
+        text-align: right;
+        margin-right: 10px;
+        div{
+            background-color: #f0f4f8;
+            border-radius: 10px;
+            padding: 10px;
+
+        }
+       
+    }
+    .colstyleone{
+        display: flex;
+        white-space:nowrap;
+        flex-wrap: wrap;
+        .divstyle{
+            // width: 25%;
+            margin: 5px;
+            padding: 6px;
+            background-color: #f0f4f8;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            span{
+                display: flex;
+                align-items: center;
+                padding: 2px;
+                color: #232b3d;
+            }
+            span:first-child{
+                padding: 3px 5px;
+                margin-right: 10px;
+                border-radius: 5px;
+                background-color: #39435a;
+                color: #fff;
+                
+            }
+        }
+    }
+}
+    :global{
+        .ant-drawer-content-wrapper{
+            width: 500px;
+        }
+    }

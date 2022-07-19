@@ -8,11 +8,12 @@ export default class ConfigurationFiles extends PureComponent {
   }
   render() {
     const { value } = this.props
+    // console.log(value,"配置文件");
     const columns = [
       {
         title: '配置文件名称',
-        dataIndex: 'volume_name',
-        key:'volume_name',
+        dataIndex: 'config_name',
+        key:'config_name',
         render: (text) => {
           return  <>
                     {text ? text :"-"}
@@ -21,8 +22,8 @@ export default class ConfigurationFiles extends PureComponent {
       },
       {
         title: '配置文件挂载路径',
-        dataIndex: 'volume_path',
-        key:"volume_path",
+        dataIndex: 'config_path',
+        key:"config_path",
         render: (text) => {
           return <>
                     {text ? text : "-"}

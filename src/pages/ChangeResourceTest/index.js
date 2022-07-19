@@ -89,22 +89,81 @@ class Index extends PureComponent {
                 { port: 4143, protocol: 'UDP', inner: false, outer: false },
                 { port: 4191, protocol: 'UDP', inner: false, outer: false }
             ],
-            special_management: {
-                label: null,
-                node_selector: null,
-                toleration: null,
-            },
+            component_k8s_attributes_management: [
+                {
+                    ID: 0,
+                    attribute_value: "- name: sp-tls\n  secret:\n    defaultMode: 420\n    secretName: linkerd-sp-validator-k8s-tls\n- name: policy-tls\n  secret:\n    defaultMode: 420\n    secretName: linkerd-policy-validator-k8s-tls\n- emptyDir: {}\n  name: linkerd-proxy-init-xtables-lock\n- emptyDir:\n    medium: Memory\n  name: linkerd-identity-end-entity\n",
+                    component_id: "",
+                    create_time: "0001-01-01T00:00:00Z",
+                    name: "volumes",
+                    save_type: "yaml",
+                    tenant_id: "",
+                },
+                {
+                    ID: 0,
+                    attribute_value: "- mountPath: /var/run/linkerd/identity/end-entity\n  name: linkerd-identity-end-entity\n",
+                    component_id: "",
+                    create_time: "0001-01-01T00:00:00Z",
+                    name: "volumeMounts",
+                    save_type: "yaml",
+                    tenant_id: "",
+                },
+                {
+                    ID: 0,
+                    attribute_value: "linkerd-destination",
+                    component_id: "",
+                    create_time: "0001-01-01T00:00:00Z",
+                    name: "serviceAccountName",
+                    save_type: "string",
+                    tenant_id: "",
+                },
+                {
+                    ID: 0,
+                    attribute_value: "{\"app.kubernetes.io/name\":\"destination\",\"app.kubernetes.io/part-of\":\"Linkerd\",\"app.kubernetes.io/version\":\"stable-2.11.3\",\"linkerd.io/control-plane-component\":\"destination\",\"linkerd.io/control-plane-ns\":\"linkerd\"}",
+                    component_id: "",
+                    create_time: "0001-01-01T00:00:00Z",
+                    name: "labels",
+                    save_type: "json",
+                    tenant_id: "",
+                },
+                {
+                    ID: 0,
+                    attribute_value: "{\"kubernetes.io/os\":\"linux\"}",
+                    component_id: "",
+                    create_time: "0001-01-01T00:00:00Z",
+                    name: "nodeSelector",
+                    save_type: "json",
+                    tenant_id: "",
+                }
+            ],
             telescopic_management: {
-                cpu_use: "",
-                max_replicas: 0,
-                memory_use: "",
-                min_replicas: 0,
-            }
+                enable: false,
+                max_replicas: 100,
+                min_replicas: 1,
+                cpu_or_memory:[
+                    {ID: 0,
+                        MetricTargetType: "utilization",
+                        MetricTargetValue: 50,
+                        MetricsName: "cpu",
+                        MetricsType: "resource_metrics",
+                        RuleID: "",
+                        create_time: "0001-01-01T00:00:00Z"
+                    },
+                    {ID: 2,
+                        MetricTargetType: "average_value",
+                        MetricTargetValue: 60,
+                        MetricsName: "gpu",
+                        MetricsType: "resource_metrics",
+                        RuleID: "",
+                        create_time: "0001-01-01T00:00:00Z"
+                    }
+                ]
+            },
         }]
         return (
             <Fragment>
                 <div className={styles.all_style}>
-                    <h3>应用名称：hello</h3>
+                    <h3>应用名称:hello</h3>
                     <div className={styles.tabs_value}>
                         {this.state.switch ? (
                         <Tabs defaultActiveKey="0" onChange={this.callback}>
@@ -127,7 +186,7 @@ class Index extends PureComponent {
                                         {/* 健康检测 */}
                                         <HealthAttribute value={item.health_check_management} />
                                         {/* 特殊属性 */}
-                                        <SpecialAttribute />
+                                        <SpecialAttribute value = {item.component_k8s_attributes_management} />
                                     </TabPane>
                                 })
                             }
