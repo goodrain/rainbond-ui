@@ -21,7 +21,10 @@ export default class ChangeBuildSource extends PureComponent {
       buildSource: this.props.buildSource || null,
       showUsernameAndPass: this.props.buildSource.user !== '',
       showKey: false,
+      isFlag:true,
+      tabValue:'source_code',
       gitUrl: this.props.buildSource.git_url,
+
       serverType: this.props.buildSource.server_type
         ? this.props.buildSource.server_type
         : 'git',
@@ -48,6 +51,11 @@ export default class ChangeBuildSource extends PureComponent {
     const { form } = this.props;
     const { getFieldValue } = form;
     const userName = getFieldValue('user_name');
+    if(value == 'oss'){
+      this.setState({ isFlag: false })
+    }else{
+      this.setState({ isFlag: true })
+    }
     this.setState({ serverType: value, showUsernameAndPass: userName !== '' });
   };
   checkURL = (_rule, value, callback) => {
@@ -70,6 +78,7 @@ export default class ChangeBuildSource extends PureComponent {
   }
   handleSubmit = () => {
     const { form } = this.props;
+    const { tabValue } = this.state
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       if (fieldsValue.version_type == 'tag') {
@@ -81,6 +90,7 @@ export default class ChangeBuildSource extends PureComponent {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           service_alias: this.props.appAlias,
+          service_source: tabValue,
           ...fieldsValue
         },
         callback: () => {
@@ -95,11 +105,22 @@ export default class ChangeBuildSource extends PureComponent {
   hideShowKey = () => {
     this.setState({ showKey: false });
   };
+  handleTabs = (value) => {
+    if(value == '2'){
+      this.setState({
+        tabValue: 'docker_run'
+      })
+    }else{
+      this.setState({
+        tabValue: 'source_code'
+      })
+    }
+  }
 
   render() {
     const { title, onCancel, appBuidSourceLoading, form } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
-    const { showUsernameAndPass, showKey } = this.state;
+    const { showUsernameAndPass, showKey, isFlag } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -122,11 +143,13 @@ export default class ChangeBuildSource extends PureComponent {
     let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || '');
     if (this.state.serverType !== 'git') {
       isHttp = true;
+    }else if(this.state.serverType === 'oss'){
+      isHttp = true;
     }
     const isSSH = !isHttp;
 
     const prefixSelector = getFieldDecorator('server_type', {
-      initialValue: this.state.buildSource.server_type
+      initialValue: 'git'
     })(
       <Select
         getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -155,14 +178,7 @@ export default class ChangeBuildSource extends PureComponent {
         <Option value="tag">Tag</Option>
       </Select>
     );
-    if (this.state.showCode) {
-      getFieldDecorator('service_source', { initialValue: 'source_code' });
-    }
-    const showImage = appUtil.isImageAppByBuildSource(this.state.buildSource);
 
-    if (this.state.showImage) {
-      getFieldDecorator('service_source', { initialValue: 'docker_run' });
-    }
     return (
       <Modal
         width={700}
@@ -180,7 +196,7 @@ export default class ChangeBuildSource extends PureComponent {
           style={{ marginBottom: '12px' }}
           // onClose={onClose}
         />
-        <Tabs defaultActiveKey="1" >
+        <Tabs defaultActiveKey="1" onChange={this.handleTabs} >
           <TabPane tab="源码" key="1" >
             <Form onSubmit={this.handleSubmit}>
               <Form.Item
@@ -201,6 +217,7 @@ export default class ChangeBuildSource extends PureComponent {
                   />
                 )}
               </Form.Item>
+              {isFlag &&
               <Form.Item
                 {...formItemLayout}
                 label="代码版本"
@@ -215,7 +232,7 @@ export default class ChangeBuildSource extends PureComponent {
                   />
                 )}
               </Form.Item>
-
+              }
               {gitUrl && isSSH ? (
                 <div style={{ textAlign: 'left' }}>
                   这是一个私有仓库?{' '}

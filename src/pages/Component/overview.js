@@ -432,8 +432,6 @@ export default class Index extends PureComponent {
     this.fetchAppDiskAndMemory();
     this.getVersionList();
     this.load();
-    console.log("应用总览页")
-    console.log(this.props)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -741,7 +739,7 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { status, componentPermissions, socket } = this.props;
+    const { status, componentPermissions, socket, appDetail } = this.props;
     const {
       resourcesLoading,
       logList,
@@ -808,6 +806,7 @@ export default class Index extends PureComponent {
               old_pods={old_pods}
               appAlias={this.props.appAlias}
               socket={socket && socket}
+              podType={appDetail.service.extend_method}
             />
           </Card>
         )}

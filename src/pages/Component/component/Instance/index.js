@@ -91,17 +91,32 @@ class Index extends PureComponent {
   };
 
   containerState = state => {
+    const { podType } = this.props
     const states = state ? state.toLowerCase() : state;
-    switch (states) {
-      case 'running':
-        return <span style={{ color: '#39aa56' }}>运行中</span>;
-      case 'waiting':
-        return <span style={{ color: '#39aa56' }}>等待中</span>;
-      case 'terminated':
-        return <span style={{ color: 'rgb(205, 2, 0)' }}>已终止</span>;
-      default:
-        return <span>{state}</span>;
+    if(podType == 'job' || podType == 'job'){
+      switch (states) {
+        case 'running':
+          return <span style={{ color: '#39aa56' }}>运行中</span>;
+        case 'waiting':
+          return <span style={{ color: '#39aa56' }}>等待中</span>;
+        case 'terminated':
+          return <span style={{ color: '#70b7fa' }}>已完成</span>;
+        default:
+          return <span>{state}</span>;
+      }
+    }else{
+      switch (states) {
+        case 'running':
+          return <span style={{ color: '#39aa56' }}>运行中</span>;
+        case 'waiting':
+          return <span style={{ color: '#39aa56' }}>等待中</span>;
+        case 'terminated':
+          return <span style={{ color: 'rgb(205, 2, 0)' }}>已终止</span>;
+        default:
+          return <span>{state}</span>;
+      }
     }
+   
   };
 
   schedulingBox = (list, isupdate) => {

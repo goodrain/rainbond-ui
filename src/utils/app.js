@@ -102,6 +102,7 @@ const appUtil = {
       expired: 'error',
       undeploy: 'default',
       unKnow: 'error',
+      succeeded: 'success'
     };
     return map[status] || map.unKnow;
   },
