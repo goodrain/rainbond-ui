@@ -1342,7 +1342,7 @@ const global = {
       OOMKilled: '发生OOM',
       LivenessProbeFailed: '健康检查不通过(重启)',
       ReadinessProbeFailed: '健康检查不通过(下线)',
-      AbnormalShtdown: ' 组件异常退出',
+      AbnormalShtdown: '组件异常退出',
       AbnormalExited: '组件异常退出',
       AbnormalRecovery: '恢复正常',
       '': '-',
