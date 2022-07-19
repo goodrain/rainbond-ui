@@ -298,7 +298,7 @@ export default class Index extends PureComponent {
           </div>
         </Form.Item>
         <Form.Item
-          style={{ display: type === 'image' ? 'none' : '' }}
+          // style={{ display: type === 'image' ? 'none' : '' }}
           {...formItemLayout}
           label="启动命令"
         >
