@@ -312,8 +312,8 @@ class Index extends PureComponent {
     }
     const formItemLayoutss = {
       labelCol: {
-        xs: { span: 24 },
-        sm: { span: 24 }
+        xs: { span: 0 },
+        sm: { span: 0 }
       },
       wrapperCol: {
         xs: { span: 24 },
@@ -358,7 +358,7 @@ class Index extends PureComponent {
               <Col span={4} >属性名称</Col>
               <Col span={20}>
                 <Select
-                  style={{ width: 110 }}
+                  style={{ width: 220 }}
                   onChange={this.handleChange}
                   placeholder="请选择属性"
                   disabled={drawerswitch === "change"}
@@ -394,17 +394,19 @@ class Index extends PureComponent {
 
                 <Form.Item {...formItemLayouts}>
                   <p>请输入对应的key,value</p>
+                  <div className={styles.inputsytle}>
                   {getFieldDecorator(`${selectval}`, {
                     initialValue: jsonvalue || [],
                     rules: [{ required: false, message: `请输入${selectval}` }]
                   })(<DApvcinput />)}
+                  </div>
                 </Form.Item>
               }
               {
                 selectval &&
                 ((selectval == "volumeMounts") || (selectval == "volumes") || (selectval == "affinity") || (selectval == "tolerations")) &&
                 <Form.Item  {...formItemLayoutss}>
-                  <p>请输入yaml文件</p>
+                  <p>&nbsp;</p>
                   {getFieldDecorator(`${selectval}`, {
                     initialValue: yamlvalue || '',
                     rules: [{ required: false, validator: this.checkValue }]
@@ -416,10 +418,12 @@ class Index extends PureComponent {
                 selectval == "serviceAccountName" &&
                 <Form.Item  {...formItemLayouts}>
                   <p>请输入serviceAccountName属性</p>
+                  <div className={styles.accountNamestyle}>
                   {getFieldDecorator(`${selectval}`, {
                     initialValue: strvalue || '',
                     rules: [{ required: false, message: '请输入ServiceAccountName' }]
                   })(<Input placeholder='请输入ServiceAccountName' />)}
+                  </div>
                 </Form.Item>
               }
               {

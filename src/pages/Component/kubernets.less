@@ -23,12 +23,15 @@
     position: absolute;
     bottom: 0;
     left: 0;
+    z-index: 3;
 }
 .selectstyle{
-    
+    .accountNamestyle{
+        padding-left: 54px;
+    }
     :global{
         .ant-row{
-            margin-bottom: 20px;
+            
             .ant-col-4{
                 display: flex;
                 align-items: center;
@@ -40,6 +43,30 @@
         }
         .ant-form-item-control{
             margin-left: 20px;
+        }
+        .ant-form {
+
+            p{
+                margin-left: 54px;
+                margin-bottom:-8px
+            }
+        }
+        
+    }
+}
+.inputsytle{
+    :global{
+        .ant-row{
+            display: flex;
+            align-items: center;
+            padding-left: 54px;
+            .ant-col-4{
+                width: 120px;
+            }
+            .ant-col-1{
+                padding-top: 6px;
+            }
+
         }
         
     }
