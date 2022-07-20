@@ -510,6 +510,7 @@ export default class Index extends PureComponent {
                   buildSource
                 );
                 const isCodeApp = appUtil.isCodeAppByBuildSource(buildSource);
+                const isUploadFilesApp = appUtil.isUploadFilesAppSource(buildSource);
                 const versions = isCodeApp ? codeVersion : version;
                 const isThirdParty = serviceSource === 'third_party';
 
@@ -519,6 +520,8 @@ export default class Index extends PureComponent {
                   ? gitUrl
                   : isMarketApp
                   ? rainAppName
+                  : isUploadFilesApp
+                  ? gitUrl
                   : '';
 
                 let versionConetent = '';
@@ -587,7 +590,9 @@ export default class Index extends PureComponent {
                             : isMarketApp
                             ? '组件库:'
                             : isThirdParty
-                            ? '第三方组件'
+                            ? '第三方组件:'
+                            : isUploadFilesApp
+                            ? '本地文件:'
                             : ''}
                         </div>
                         <div className={`${styles.w380} ${styles.over}`}>
