@@ -101,10 +101,8 @@ export default class ImportMessage extends PureComponent {
                 namespace: this.props.location.query.namespace
             },
             callback: res => {
-                console.log(res.bean);
                 if (res.response_data.code === 200) {
                     const appname = Object.keys(res.bean)
-                    console.log(res.bean.[appname[0]].convert_resource);
                     this.setState({
                         appnameArr: appname,
                         module: res.bean,

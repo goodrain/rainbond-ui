@@ -218,7 +218,6 @@ export default class EnterpriseClusters extends PureComponent {
   };
 
   showRegions = item => {
-    console.log(item,'item')
     this.setState(
       {
         showTenantList: true,

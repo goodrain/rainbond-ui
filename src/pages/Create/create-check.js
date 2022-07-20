@@ -91,7 +91,6 @@ export default class CreateCheck extends React.Component {
   };
 
   getDetail = () => {
-    console.log(this.getAppAlias(),'this.getAppAlias()')
     this.props.dispatch({
       type: 'appControl/fetchDetail',
       payload: {

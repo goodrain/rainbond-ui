@@ -29,7 +29,6 @@ class Index extends PureComponent {
     const { form } = this.props;
     form.validateFields((err, val) => {
       //   if (err) return;
-      console.log(val, 'val');
     });
   };
   render() {

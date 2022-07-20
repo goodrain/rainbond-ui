@@ -94,7 +94,6 @@ export default class ImportMessage extends PureComponent {
         })
     }
     handleChange = (value) => {
-        console.log(value, 'value')
         this.handleResource(value)
 
     }
@@ -118,7 +117,6 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             }
         } = this.props
-        console.log(eid);
         dispatch(routerRedux.push(`/enterprise/${eid}/ChangeResourceTest`));
         
     }
@@ -128,53 +126,7 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
-        const resourceData =  {
-                    Label: {
-                        workloads: {
-                            jobs: [
-                                "linkerd-heartbeat-1656654720"
-                            ]
-                        },
-                        others: {
-                            services: [
-                                "linkerd-dst",
-                                "linkerd-dst-headless",
-                                "linkerd-identity",
-                                "linkerd-identity-headless",
-                                "linkerd-policy",
-                                "linkerd-policy-validator",
-                                "linkerd-proxy-injector",
-                                "linkerd-sp-validator"
-                            ],
-                            config_maps: [
-                                "linkerd-config",
-                                "linkerd-identity-trust-roots"
-                            ],
-                            secrets: [
-                                "default-token-jpsdb",
-                                "linkerd-config-overrides",
-                                "linkerd-destination-token-6c795",
-                                "linkerd-heartbeat-token-8l7tb",
-                                "linkerd-identity-issuer",
-                                "linkerd-identity-token-pkjdb",
-                                "linkerd-policy-validator-k8s-tls",
-                                "linkerd-proxy-injector-k8s-tls",
-                                "linkerd-proxy-injector-token-mcvhx",
-                                "linkerd-sp-validator-k8s-tls"
-                            ],
-                            service_accounts: [
-                                "default",
-                                "linkerd-destination",
-                                "linkerd-heartbeat",
-                                "linkerd-identity",
-                                "linkerd-proxy-injector"
-                            ]
-                        }
-                    }
-                }
         const { text, nameSpaceArr } = this.state
-        console.log(resourceData, 'resourceData')
-
         return (
             <PageHeaderLayout
                 title="导入资源"

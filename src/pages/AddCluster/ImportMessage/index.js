@@ -99,9 +99,7 @@ export default class ImportMessage extends PureComponent {
         })
     }
     handleChange = (value) => {
-        console.log(value, 'value')
         this.handleResource(value)
-        // const val = vvalue
         this.setState({
             namespace: value,
             loadingSwitch: true
@@ -116,7 +114,7 @@ export default class ImportMessage extends PureComponent {
             }}
         />
     );
-    //折叠面板处罚方法
+    //折叠面板触发方法
     callback = (key) => {
         console.log(key, 'key')
     }
@@ -136,86 +134,7 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
-        console.log(this.props);
-        const resourceDatas = {
-            Label: {
-                workloads: {
-                    jobs: [
-                        "linkerd-heartbeat-1656654720"
-                    ]
-                },
-                others: {
-                    services: [
-                        "linkerd-dst",
-                        "linkerd-dst-headless",
-                        "linkerd-identity",
-                        "linkerd-identity-headless",
-                        "linkerd-policy",
-                        "linkerd-policy-validator",
-                        "linkerd-proxy-injector",
-                        "linkerd-sp-validator"
-                    ],
-                    config_maps: [
-                        "linkerd-config",
-                        "linkerd-identity-trust-roots"
-                    ],
-                    secrets: [
-                        "default-token-jpsdb",
-                        "linkerd-config-overrides",
-                        "linkerd-destination-token-6c795",
-                        "linkerd-heartbeat-token-8l7tb",
-                        "linkerd-identity-issuer",
-                        "linkerd-identity-token-pkjdb",
-                        "linkerd-policy-validator-k8s-tls",
-                        "linkerd-proxy-injector-k8s-tls",
-                        "linkerd-proxy-injector-token-mcvhx",
-                        "linkerd-sp-validator-k8s-tls"
-                    ],
-                    service_accounts: [
-                        "default",
-                        "linkerd-destination",
-                        "linkerd-heartbeat",
-                        "linkerd-identity",
-                        "linkerd-proxy-injector"
-                    ]
-                }
-            },
-            destination: {
-                workloads: {
-                    deployments: [
-                        "linkerd-destination"
-                    ]
-                },
-                others: {}
-            },
-            heartbeat: {
-                workloads: {
-                    cron_jobs: [
-                        "linkerd-heartbeat"
-                    ]
-                },
-                others: {}
-            },
-            identity: {
-                workloads: {
-                    deployments: [
-                        "linkerd-identity"
-                    ]
-                },
-                others: {}
-            },
-            proxy_injector: {
-                workloads: {
-                    deployments: [
-                        "linkerd-proxy-injector"
-                    ]
-                },
-                others: {}
-            }
-        }
         const { text, nameSpaceArr, resourceData, loadingSwitch } = this.state
-        // console.log(resourceData, 'resourceData')
-
         return (
             <PageHeaderLayout
                 title="导入资源"
