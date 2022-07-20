@@ -135,7 +135,7 @@ export default class ImportMessage extends PureComponent {
             },
             callback: res => {
                 this.props
-                    .dispatch(routerRedux.replace(`/team/${res.bean.Name}}/region/${res.bean.region_name}/index`))
+                    .dispatch(routerRedux.replace(`/team/${res.bean.Name}/region/${res.bean.region_name}/index`))
             }
         })
     }
