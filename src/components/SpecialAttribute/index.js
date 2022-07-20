@@ -30,9 +30,10 @@ export default class SpecialAttribute extends PureComponent {
     componentDidMount(){
     }
 
+
     drawerShow = (val) => {
 
-        if (this.myCodeMirror != undefined || null){
+        if (this.myCodeMirror != (undefined || null)){
             const xx = this.myCodeMirror.getCodeMirror();
             xx.setValue(val.attribute_value)
         }
@@ -63,6 +64,7 @@ export default class SpecialAttribute extends PureComponent {
             codeMirrorVal,
         } = this.state
         const { value } = this.props
+        
         const values = [
             {
                 ID: 0,

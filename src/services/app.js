@@ -3259,19 +3259,46 @@ export async function addKubernetes(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes`,
     {
-      method: 'put',
+      method: 'post',
       data: {
-        list: body.list
+        attribute: body.attribute
       }
     }
   );
 }
+
 /* 获取Kubernetes属性 */
 export async function getKubernetes(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes`,
     {
       method: 'get'
+    }
+  );
+}
+
+
+
+// 修改数据
+export async function editKubernetes(body = {}) {
+  console.log(body,'body')
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes/${body.value_name}`,
+    {
+      method: 'put',
+      data:{
+        attribute: body.attribute
+      }
+    }
+    
+  );
+}
+// 删除数据
+export async function deleteKubernetes(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes/${body.value_name}`,
+    {
+      method: 'delete'
     }
   );
 }
