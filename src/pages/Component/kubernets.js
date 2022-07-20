@@ -1,6 +1,6 @@
-import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty } from 'antd';
+import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty, message } from 'antd';
 import React, { PureComponent } from 'react';
-import { addKubernetes, getKubernetes, deleteKubernetes, editKubernetes} from '../../services/app';
+import { addKubernetes, getKubernetes, deleteKubernetes, editKubernetes } from '../../services/app';
 import DApvcinput from '../../components/DApvcinput.js';
 import DAselect from '../../components/DAseclect';
 import DAinputSecret from '../../components/DAinputSecret'
@@ -8,6 +8,8 @@ import DAinputPvc from '../../components/DAinputPvc'
 import DAinputAffinity from '../../components/DAinputAffinity'
 import globalUtil from '../../utils/global';
 import CodeMirrorForm from "../../components/CodeCustomForm"
+import ConfirmModal from "../../components/ConfirmModal"
+import styles from "./kubernets.less"
 
 
 import CodeMirror from 'react-codemirror';
@@ -22,14 +24,14 @@ require('codemirror/mode/yaml/yaml');
 require('codemirror/addon/display/fullscreen');
 require('codemirror/addon/edit/matchbrackets');
 
-const { Option } = Select;
+const { Option, OptGroup } = Select;
 @Form.create()
 class Index extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
       allData: [],
-      minArr:{},
+      minArr: {},
       visible: false,
       drawerTitle: "新增属性",
       selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged"],
@@ -37,8 +39,9 @@ class Index extends PureComponent {
       havevalArr: [],
       drawerswitch: "add",
       jsonvalue: '',
-      yamlvalue:'',
-      strvalue:''
+      yamlvalue: '',
+      strvalue: '',
+      showDeletePort:false
 
     }
   }
@@ -54,12 +57,12 @@ class Index extends PureComponent {
       service_alias: service_alias
     }).then(res => {
       const arrs = [];
-      const arr = res.list.filter((item,index) =>{
+      const arr = res.list.filter((item, index) => {
         return arrs.push(item.name)
       })
       this.setState({
         allData: res.list,
-        havevalArr:arrs
+        havevalArr: arrs
       })
 
     })
@@ -82,14 +85,14 @@ class Index extends PureComponent {
       drawerswitch: val,
       selectval: undefined,
       jsonvalue: '',
-      yamlvalue:'',
-      strvalue:''
+      yamlvalue: '',
+      strvalue: ''
     })
   }
   // 修改
-  changeBtn = (val, str,index) => {
+  changeBtn = (val, str, index) => {
 
-    const {allData} = this.state
+    const { allData } = this.state
     if (val.save_type == "yaml") {
       if (this.myCodeMirror != (undefined || null)) {
         const xx = this.myCodeMirror.getCodeMirror();
@@ -98,18 +101,18 @@ class Index extends PureComponent {
       this.setState({
         yamlvalue: val.attribute_value
       })
-    }else if (val.save_type == "json"){
+    } else if (val.save_type == "json") {
       this.setState({
         jsonvalue: val.attribute_value
 
       })
-    }else if(val.save_type == "string"){
+    } else if (val.save_type == "string") {
       this.setState({
         strvalue: val.attribute_value
       })
     }
     this.setState({
-      minArr:allData[index],
+      minArr: allData[index],
       visible: true,
       drawerTitle: '修改属性',
       drawerswitch: str,
@@ -124,9 +127,20 @@ class Index extends PureComponent {
     deleteKubernetes({
       team_name: teamName,
       service_alias: service_alias,
-      value_name:val.name
+      value_name: val.name
     }).then(res => {
+      this.setState({
+        showDeletePort:!this.state.showDeletePort,
+      })
+      notification.success({
+        message:'属性删除成功'
+      })
       this.handleGetKubernetes()
+    })
+  }
+  cancalDeletePort = () =>{
+    this.setState({
+      showDeletePort:!this.state.showDeletePort,
     })
   }
   // 下拉框
@@ -139,20 +153,20 @@ class Index extends PureComponent {
   // 提交
   handleSubmit = (e) => {
     e.preventDefault()
-    const {selectval, drawerswitch,minArr} = this.state
+    const { selectval, drawerswitch, minArr } = this.state
     const { form, dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const service_alias = this.props.service_alias || ''
     var list = []
     form.validateFields((err, value) => {
-      if((selectval == "nodeSelector")){
+      if ((selectval == "nodeSelector")) {
         const label = {
           name: selectval,
           save_type: "json",
           attribute_value: value.nodeSelector || []
         }
         this.handelAddOrEdit(label)
-      }else if(selectval == "labels"){
+      } else if (selectval == "labels") {
         const label = {
           name: selectval,
           save_type: "json",
@@ -160,7 +174,7 @@ class Index extends PureComponent {
         }
         this.handelAddOrEdit(label)
 
-      }else if(selectval == "volumeMounts"){
+      } else if (selectval == "volumeMounts") {
         const label = {
           name: selectval,
           save_type: "yaml",
@@ -184,14 +198,14 @@ class Index extends PureComponent {
         }
         this.handelAddOrEdit(label)
 
-      }else if (selectval == "tolerations"){
+      } else if (selectval == "tolerations") {
         const label = {
           name: selectval,
           save_type: "yaml",
           attribute_value: value.tolerations || []
         }
         this.handelAddOrEdit(label)
-      }else if (selectval == "serviceAccountName"){
+      } else if (selectval == "serviceAccountName") {
         const label = {
           name: selectval,
           save_type: "string",
@@ -199,8 +213,8 @@ class Index extends PureComponent {
         }
         this.handelAddOrEdit(label)
 
-      }else if (selectval == "privileged"){
-         const label = {
+      } else if (selectval == "privileged") {
+        const label = {
           name: selectval,
           save_type: "json",
           attribute_value: value.privileged || []
@@ -208,42 +222,53 @@ class Index extends PureComponent {
         this.handelAddOrEdit(label)
       }
     })
-    }
+  }
+// 取消cancel
+  handlecancel =() =>{
+    this.setState({
+      visible: false
+    })
+  }
 
 
-
-    handelAddOrEdit = (list) => {
-      const teamName = globalUtil.getCurrTeamName()
-      const service_alias = this.props.service_alias || ''
-      const { selectval, drawerswitch } = this.state
-      // 判断是新增还是修改
-      if(drawerswitch=="add"){
-        addKubernetes({
-          team_name: teamName,
-          service_alias: service_alias,
-          value_name: selectval,
-          attribute: list
-        }).then(res => {
-          this.handleGetKubernetes()
-          this.setState({
-            visible:false
-          })
+  handelAddOrEdit = (list) => {
+    const teamName = globalUtil.getCurrTeamName()
+    const service_alias = this.props.service_alias || ''
+    const { selectval, drawerswitch } = this.state
+    // 判断是新增还是修改
+    if (drawerswitch == "add") {
+      addKubernetes({
+        team_name: teamName,
+        service_alias: service_alias,
+        value_name: selectval,
+        attribute: list
+      }).then(res => {
+        notification.success({
+          message:'属性添加成功'
         })
-      }else if(drawerswitch == "change"){
-        editKubernetes({
-          team_name: teamName,
-          service_alias: service_alias,
-          value_name: selectval,
-          attribute: list
-        }).then(res => {
-          this.handleGetKubernetes()
-          this.setState({
-            visible:false
-          })
+        this.handleGetKubernetes()
+        this.setState({
+          visible: false
         })
-      }
+      })
+    } else if (drawerswitch == "change") {
+      editKubernetes({
+        team_name: teamName,
+        service_alias: service_alias,
+        value_name: selectval,
+        attribute: list
+      }).then(res => {
+        notification.success({
+          message:'属性修改成功'
+        })
+        this.handleGetKubernetes()
+        this.setState({
+          visible: false
+        })
+      })
     }
-  
+  }
+
 
 
 
@@ -260,6 +285,20 @@ class Index extends PureComponent {
     const { form } = this.props;
     const { drawerTitle, selectArr, selectval, havevalArr, drawerswitch, type, allData, jsonvalue, yamlvalue, strvalue, boolvalue } = this.state;
     const { getFieldDecorator, setFieldsValue } = form;
+    const trueArr = [];
+    const falseArr = [];
+    selectArr.map((item, index) => {
+      if (havevalArr.includes(item) == true) {
+        trueArr.push(item)
+      }
+      return trueArr
+    })
+    selectArr.map((item, index) => {
+      if (havevalArr.includes(item) == false) {
+        falseArr.push(item)
+      }
+      return falseArr
+    })
     const options = {
       mode: { name: "yaml", json: true },
       lineNumbers: true,
@@ -284,18 +323,18 @@ class Index extends PureComponent {
     const formItemLayouts = {
       labelCol: {
         xs: {
-          span: 4
+          span: 8
         },
         sm: {
-          span: 4
+          span: 8
         }
       },
       wrapperCol: {
         xs: {
-          span: 20
+          span: 16
         },
         sm: {
-          span: 20
+          span: 16
         }
       }
     };
@@ -312,31 +351,40 @@ class Index extends PureComponent {
             closable={false}
             onClose={this.onClose}
             visible={this.state.visible}
-            width={700}
+            width={500}
           >
+            <div className={styles.selectstyle}>
             <Row>
-              <Col span={4} >属性选择</Col>
+              <Col span={4} >属性名称</Col>
               <Col span={20}>
                 <Select
-                  style={{ width: 130 }}
+                  style={{ width: 110 }}
                   onChange={this.handleChange}
                   placeholder="请选择属性"
                   disabled={drawerswitch === "change"}
                   value={selectval}
                 >
-                  {
-                    selectArr &&
-                    selectArr.length > 0 &&
-                    selectArr.map((item, index) => {
+                  <OptGroup label="可添加">
+                    {falseArr.map((item, index) => {
                       return <Option
-                        value={item}
                         key={index}
-                        disabled={havevalArr.includes(item)}
+                        value={item}
                       >
                         {item}
                       </Option>
-                    })
-                  }
+                    })}
+                  </OptGroup>
+                  <OptGroup label="不可添加">
+                    {trueArr.map((item, index) => {
+                      return <Option
+                        key={index}
+                        value={item}
+                        disabled
+                      >
+                        {item}
+                      </Option>
+                    })}
+                  </OptGroup>
                 </Select>
               </Col>
             </Row>
@@ -345,6 +393,7 @@ class Index extends PureComponent {
                 ((selectval == "nodeSelector") || (selectval == "labels")) &&
 
                 <Form.Item {...formItemLayouts}>
+                  <p>请输入对应的key,value</p>
                   {getFieldDecorator(`${selectval}`, {
                     initialValue: jsonvalue || [],
                     rules: [{ required: false, message: `请输入${selectval}` }]
@@ -355,6 +404,7 @@ class Index extends PureComponent {
                 selectval &&
                 ((selectval == "volumeMounts") || (selectval == "volumes") || (selectval == "affinity") || (selectval == "tolerations")) &&
                 <Form.Item  {...formItemLayoutss}>
+                  <p>请输入yaml文件</p>
                   {getFieldDecorator(`${selectval}`, {
                     initialValue: yamlvalue || '',
                     rules: [{ required: false, validator: this.checkValue }]
@@ -365,6 +415,7 @@ class Index extends PureComponent {
                 selectval &&
                 selectval == "serviceAccountName" &&
                 <Form.Item  {...formItemLayouts}>
+                  <p>请输入serviceAccountName属性</p>
                   {getFieldDecorator(`${selectval}`, {
                     initialValue: strvalue || '',
                     rules: [{ required: false, message: '请输入ServiceAccountName' }]
@@ -375,37 +426,55 @@ class Index extends PureComponent {
                 selectval &&
                 selectval == "privileged" &&
                 <Form.Item  {...formItemLayouts}>
+                  <p>是否开启privileged属性</p>
                   {getFieldDecorator(`${selectval}`, {
                     initialValue: boolvalue || false,
                     rules: [{ required: false }]
-                  })(<Switch/>)}
+                  })(<Switch />)}
                 </Form.Item>
               }
+            </Form>
+            </div>
+            <div className={styles.bottomstyle}>
+            <Button
+                style={{marginRight:"10px"}}
+                onClick={this.handlecancel}
+              >
+                取 消
+              </Button>
               <Button
                 type="primary"
-                htmlType="submit"
-                style={{
-                  position: "absolute",
-                  bottom: "50px",
-                  right: "50px"
-                }}
-              >保存</Button>
-            </Form>
+                onClick={this.handleSubmit}
+              >
+                确 认
+              </Button>
+            </div>
           </Drawer>
-          {
-            allData &&
-              allData.length > 0 ? (
-              allData.map((item, index) => {
-                return <Row key={index}>
-                  <Col span={8}>{item.name}:</Col>
-                  <Col span={8}><Button onClick={() => this.changeBtn(item, "change",index)}>修改</Button></Col>
-                  <Col span={8}><Button onClick={() => this.deleteBtn(item)}>删除</Button></Col>
-                </Row>
-              })
-            ) : (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-            )
-          }
+          <div className={styles.rowstyles}>
+            {
+              allData &&
+                allData.length > 0 ? (
+                allData.map((item, index) => {
+                  return <Row key={index}>
+                    <Col span={4}>{item.name}:</Col>
+                    <Col span={2}><Button onClick={() => this.changeBtn(item, "change", index)}>编 辑</Button></Col>
+                    <Col span={1}><Button onClick={this.cancalDeletePort}>删 除</Button></Col>
+                  </Row>
+                })
+              ) : (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              )
+            }
+          </div>
+          {this.state.showDeletePort && (
+          <ConfirmModal
+            title="属性删除"
+            desc="确定要删除此属性吗？"
+            subDesc="此操作不可恢复"
+            onOk={this.deleteBtn}
+            onCancel={this.cancalDeletePort}
+          />
+        )}
         </Card>
       </div>
     );

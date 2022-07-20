@@ -139,7 +139,6 @@ export async function createJarWarUploadRecord(
    Jar、War创建应用提交表单
 */
 export async function createJarWarFormSubmit(body = {}) {
-  console.log(body,'body')
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build`,
     {

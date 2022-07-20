@@ -19,10 +19,6 @@ class Index extends PureComponent {
   }
 
 
-  handleOptionChange = e => {
-    console.log(e, 'e');
-  };
-  
   handleSubmit = (e) => {
     e.preventDefault();
     const { form, dispatch } = this.props;

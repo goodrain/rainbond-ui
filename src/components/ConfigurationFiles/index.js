@@ -8,7 +8,6 @@ export default class ConfigurationFiles extends PureComponent {
   }
   render() {
     const { value } = this.props
-    // console.log(value,"配置文件");
     const columns = [
       {
         title: '配置文件名称',
