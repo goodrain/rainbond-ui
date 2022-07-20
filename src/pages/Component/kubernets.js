@@ -312,8 +312,8 @@ class Index extends PureComponent {
     }
     const formItemLayoutss = {
       labelCol: {
-        xs: { span: 0 },
-        sm: { span: 0 }
+        xs: { span: 24 },
+        sm: { span: 24 }
       },
       wrapperCol: {
         xs: { span: 24 },
