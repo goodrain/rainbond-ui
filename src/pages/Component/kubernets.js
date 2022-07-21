@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty, message } from 'antd';
+import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty, message, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
 import { addKubernetes, getKubernetes, deleteKubernetes, editKubernetes } from '../../services/app';
 import DApvcinput from '../../components/DApvcinput.js';
@@ -7,22 +7,9 @@ import DAinputSecret from '../../components/DAinputSecret'
 import DAinputPvc from '../../components/DAinputPvc'
 import DAinputAffinity from '../../components/DAinputAffinity'
 import globalUtil from '../../utils/global';
-import CodeMirrorForm from "../../components/CodeCustomForm"
 import ConfirmModal from "../../components/ConfirmModal"
 import styles from "./kubernets.less"
-
-
-import CodeMirror from 'react-codemirror';
-require('codemirror/lib/codemirror.css');
-require('codemirror/theme/seti.css');
-require('codemirror/addon/display/fullscreen.css');
-require('../../styles/codemirror.less');
-require('codemirror/addon/display/panel');
-require('codemirror/mode/xml/xml');
-require('codemirror/mode/javascript/javascript');
-require('codemirror/mode/yaml/yaml');
-require('codemirror/addon/display/fullscreen');
-require('codemirror/addon/edit/matchbrackets');
+import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const { Option, OptGroup } = Select;
 @Form.create()
@@ -34,7 +21,7 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: "新增属性",
-      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged"],
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged",'env'],
       selectval: undefined,
       havevalArr: [],
       drawerswitch: "add",
@@ -91,20 +78,14 @@ class Index extends PureComponent {
   }
   // 修改
   changeBtn = (val, str, index) => {
-
     const { allData } = this.state
     if (val.save_type == "yaml") {
-      if (this.myCodeMirror != (undefined || null)) {
-        const xx = this.myCodeMirror.getCodeMirror();
-        xx.setValue(val.attribute_value)
-      }
       this.setState({
         yamlvalue: val.attribute_value
       })
     } else if (val.save_type == "json") {
       this.setState({
         jsonvalue: val.attribute_value
-
       })
     } else if (val.save_type == "string") {
       this.setState({
@@ -130,15 +111,20 @@ class Index extends PureComponent {
       service_alias: service_alias,
       value_name: selectval,
     }).then(res => {
-      this.setState({
-        showDeletePort:!this.state.showDeletePort,
+
+      if(res.response_data.code == 200){
+        this.setState({
+          showDeletePort:!this.state.showDeletePort,
+        })
+        notification.success({
+          message:'属性删除成功'
+        })
+        this.handleGetKubernetes()
+      }
       })
-      notification.success({
-        message:'属性删除成功'
-      })
-      this.handleGetKubernetes()
-    })
-  }
+      }
+      
+  
   cancalDeletePort = (item) =>{
     if(item != null){
       this.setState({
@@ -168,14 +154,14 @@ class Index extends PureComponent {
     const service_alias = this.props.service_alias || ''
     var list = []
     form.validateFields((err, value) => {
-      if ((selectval == "nodeSelector")) {
+      if (selectval == "nodeSelector" && value.nodeSelector[0].key && value.nodeSelector[0].value) {
         const label = {
           name: selectval,
           save_type: "json",
           attribute_value: value.nodeSelector || []
         }
         this.handelAddOrEdit(label)
-      } else if (selectval == "labels") {
+      } else if (selectval == "labels" && value.labels[0].key && value.labels[0].value) {
         const label = {
           name: selectval,
           save_type: "json",
@@ -183,7 +169,7 @@ class Index extends PureComponent {
         }
         this.handelAddOrEdit(label)
 
-      } else if (selectval == "volumeMounts") {
+      } else if (selectval == "volumeMounts"&& value.volumeMounts != null && value.volumeMounts.length > 0) {
         const label = {
           name: selectval,
           save_type: "yaml",
@@ -191,7 +177,7 @@ class Index extends PureComponent {
         }
         this.handelAddOrEdit(label)
 
-      } else if (selectval == "volumes") {
+      } else if (selectval == "volumes" && value.volumes != null && value.volumes.length > 0) {
         const label = {
           name: selectval,
           save_type: "yaml",
@@ -199,7 +185,7 @@ class Index extends PureComponent {
         }
         this.handelAddOrEdit(label)
 
-      } else if (selectval == "affinity") {
+      } else if (selectval == "affinity" && value.affinity != null && value.affinity.length > 0) {
         const label = {
           name: selectval,
           save_type: "yaml",
@@ -207,14 +193,21 @@ class Index extends PureComponent {
         }
         this.handelAddOrEdit(label)
 
-      } else if (selectval == "tolerations") {
+      } else if (selectval == "tolerations" && value.tolerations != null && value.tolerations.length > 0) {
         const label = {
           name: selectval,
           save_type: "yaml",
           attribute_value: value.tolerations || []
         }
         this.handelAddOrEdit(label)
-      } else if (selectval == "serviceAccountName") {
+      }  else if (selectval == "env" && value.env != null && value.env.length > 0) {
+        const label = {
+          name: selectval,
+          save_type: "yaml",
+          attribute_value: value.env || []
+        }
+        this.handelAddOrEdit(label)
+      }else if (selectval == "serviceAccountName" && value.serviceAccountName != null && value.serviceAccountName.length > 0) {
         const label = {
           name: selectval,
           save_type: "string",
@@ -222,13 +215,17 @@ class Index extends PureComponent {
         }
         this.handelAddOrEdit(label)
 
-      } else if (selectval == "privileged") {
+      } else if (selectval == "privileged" && value.privileged != null) {
         const label = {
           name: selectval,
-          save_type: "json",
-          attribute_value: value.privileged || []
+          save_type: "string",
+          attribute_value: `${value.privileged}` || 'false'
         }
         this.handelAddOrEdit(label)
+      }else{
+        notification.error({
+          message:'属性值不能为空'
+        })
       }
     })
   }
@@ -252,10 +249,12 @@ class Index extends PureComponent {
         value_name: selectval,
         attribute: list
       }).then(res => {
+        if(res.response_data.code == 200){
         notification.success({
           message:'属性添加成功'
         })
         this.handleGetKubernetes()
+      }
         this.setState({
           visible: false
         })
@@ -267,31 +266,21 @@ class Index extends PureComponent {
         value_name: selectval,
         attribute: list
       }).then(res => {
+        if(res.response_data.code == 200){
         notification.success({
           message:'属性修改成功'
         })
         this.handleGetKubernetes()
+      }
         this.setState({
           visible: false
         })
       })
     }
   }
-
-
-
-
-  checkValue = (_, value, callback) => {
-    const { message } = this.props;
-    if (value === '' || !value || (value && value.trim() === '')) {
-      callback(message);
-      return;
-    }
-    callback();
-  }
-
   render() {
     const { form } = this.props;
+    const uploadYaml = globalUtil.fetchSvg('uploadYaml');
     const { drawerTitle, selectArr, selectval, havevalArr, drawerswitch, type, allData, jsonvalue, yamlvalue, strvalue, boolvalue } = this.state;
     const { getFieldDecorator, setFieldsValue } = form;
     const trueArr = [];
@@ -308,17 +297,7 @@ class Index extends PureComponent {
       }
       return falseArr
     })
-    const options = {
-      mode: { name: "yaml", json: true },
-      lineNumbers: true,
-      theme: 'seti',
-      lineWrapping: true,
-      smartIndent: true,
-      matchBrackets: true,
-      scrollbarStyle: null,
-      showCursorWhenSelecting: true,
-      readOnly: false
-    }
+
     const formItemLayoutss = {
       labelCol: {
         xs: { span: 24 },
@@ -413,14 +392,21 @@ class Index extends PureComponent {
               }
               {
                 selectval &&
-                ((selectval == "volumeMounts") || (selectval == "volumes") || (selectval == "affinity") || (selectval == "tolerations")) &&
-                <Form.Item  {...formItemLayoutss}>
+                ((selectval == "volumeMounts") || (selectval == "volumes") || (selectval == "affinity") || (selectval == "tolerations") || (selectval == "env")) &&
+                <>
                   <p>&nbsp;</p>
-                  {getFieldDecorator(`${selectval}`, {
-                    initialValue: yamlvalue || '',
-                    rules: [{ required: false, validator: this.checkValue }]
-                  })(<CodeMirror options={options} ref={(c) => this.myCodeMirror = c} />)}
-                </Form.Item>
+                <CodeMirrorForm
+                setFieldsValue={setFieldsValue}
+                formItemLayout={formItemLayoutss}
+                Form={Form}
+                style={{ marginBottom: '20px' }}
+                getFieldDecorator={getFieldDecorator}
+                name={selectval}
+                message="请编辑内容"
+                data={yamlvalue || ''}
+                mode={'yaml'}
+                />
+              </>
               }
               {
                 selectval &&
@@ -469,9 +455,47 @@ class Index extends PureComponent {
                 allData.length > 0 ? (
                 allData.map((item, index) => {
                   return <Row key={index}>
-                    <Col span={4}>{item.name}:</Col>
-                    <Col span={2}><Button onClick={() => this.changeBtn(item, "change", index)}>编 辑</Button></Col>
-                    <Col span={1}><Button onClick={()=>this.cancalDeletePort(item)}>删 除</Button></Col>
+                    {(item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env") ? (
+                      <Col span={3} className={styles.yamlTitle}>{item.name}:</Col>
+                    ):(
+                      <Col span={3}>{item.name}:</Col>
+                    )}
+
+                    <Col span={18}>{
+                      item.name &&
+                      (item.name == "nodeSelector" || item.name =="labels") && 
+                      item.attribute_value.length > 0 && 
+                      item.attribute_value.map( (ele,index) =>{
+                        return <Tooltip key={index} placement="top" title={<div><span>Key: {ele.key}</span><span style={{marginLeft:'12px'}}>Value: {ele.value}</span></div>}>
+                                   <div className={styles.divstyle}>
+                                      <span>{ele.key}</span>
+                                      <span>{ele.value}</span>
+                                    </div>
+                                </Tooltip>
+                      })
+                    }
+                    {item.name &&
+                    (item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env")  &&
+                    item.attribute_value.length > 0 &&
+                    <div className={styles.yamlstyle}>
+                      {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;该配置以yaml文件形式存储,请点击右侧进行查看或修改。
+                    </div>
+                    }
+                    {item.name &&
+                    (item.name == "serviceAccountName")  &&
+                    item.attribute_value.length > 0 &&
+                    <div style={{ padding: "6px 10px",backgroundColor: "#f0f4f8",borderRadius: "10px"}}>
+                      {item.attribute_value}
+                    </div>
+                    }
+                    {item.name &&
+                    (item.name == "privileged")  &&
+                    item.attribute_value.length > 0 &&
+              
+                    <span>当前状态：{item.attribute_value == "true" ? "已开启 ": "已关闭"}</span>
+                    }
+                    </Col>
+                    <Col span={2}><span onClick={() => this.changeBtn(item, "change", index)}>编辑</span>&nbsp;&nbsp;&nbsp;&nbsp;<span onClick={()=>this.cancalDeletePort(item)}>删除</span></Col>
                   </Row>
                 })
               ) : (

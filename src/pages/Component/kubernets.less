@@ -1,15 +1,60 @@
 .rowstyles{
+    .divstyle{   
+        margin: 0 6px 6px ;
+        padding: 6px;
+        background-color: #f0f4f8;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        span:nth-of-type(2){
+            display: block;
+            width: 90px;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            padding: 2px;
+            color: #232b3d;
+        }
+        span:first-child{
+            display: block;
+            width: 70px;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            padding: 3px 5px;
+            margin-right: 10px;
+            border-radius: 5px;
+            background-color: #39435a;
+            color: #fff;
+            
+        }
+    }
     :global{
         .ant-row{
-            padding: 10px;
-            .ant-col{
-                text-align: end;
+            display: flex;
+            // align-items: center;
+            margin-bottom: 30px;
+            .ant-col-18{
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                
             }
-            .ant-col-4{
-                font-weight: 600;
+            
+            .ant-col-3{
+                font-size: 14px;
+                padding-right: 50px;
+                font-weight:bolder;
+                text-align: right;
             }
-            .ant-col-1{
-                margin-left: 20px;
+            .ant-col-2{
+                text-align: start;
+                span{
+                    cursor: pointer;
+                    color: #4d73b1;
+                }
+                
+                
             }
         }
     }
@@ -26,6 +71,7 @@
     z-index: 3;
 }
 .selectstyle{
+    padding-bottom: 60px;
     .accountNamestyle{
         padding-left: 54px;
     }
@@ -70,4 +116,17 @@
         }
         
     }
+}
+.yamlstyle{
+    display: flex;
+    align-items: center;
+}
+
+.yamlTitle{
+    display: flex;
+    align-items: center;
+    padding-right: 50px;
+    font-weight: 600;
+    justify-content: end;
+    
 }

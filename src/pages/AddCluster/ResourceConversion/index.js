@@ -34,7 +34,7 @@ import ConfigurationFiles from '../../../components/ConfigurationFiles'
 import DeployAttribute from "../../../components/DeployAttribute"
 import FlexAttribute from '../../../components/FlexAttribute'
 import SpecialAttribute from '../../../components/SpecialAttribute'
-import Kubernetes from "./component/Kubernetes"
+import Kubernetes from "../../../components/KubernetesAttribute"
 import { object } from 'prop-types';
 import { log } from 'lodash-decorators/utils';
 const { Panel } = Collapse;
@@ -53,19 +53,35 @@ export default class ImportMessage extends PureComponent {
             type: 0,
             index: '0',
             loadingswitch: true,
-            k8sArr: []
+            kubernetes: []
         };
     }
     // 团队按钮点击
     handleType = (item, index) => {
-        const { module, minmoduleArr, moduleArr, k8sArr } = this.state
-        if (module.[item].convert_resource != null) {
+        const { module, minmoduleArr, moduleArr, kubernetes } = this.state
+        this.setState({
+            kubernetes:[],
+            moduleArr:[],
+        })
+        if (module.[item].convert_resource != null && module.[item].kubernetes_resources != null) {
             this.setState({
                 moduleArr: module.[item].convert_resource,
-                k8sArr: module.[item].kubernetes_resources,
+                kubernetes:module.[item].kubernetes_resources,
                 index: '0',
             })
-        } else {
+        } else if(module.[item].convert_resource != null){
+            this.setState({
+                moduleArr: module.[item].convert_resource,
+                index: '0',
+            })
+        }
+        else if(module.[item].kubernetes_resources != null){
+            this.setState({
+                kubernetes:module.[item].kubernetes_resources,
+                index: 'hello',
+            })
+        }
+        else {
             this.setState({
                 moduleArr: [],
                 minmoduleArr: {},
@@ -83,7 +99,6 @@ export default class ImportMessage extends PureComponent {
             index: key
         })
     }
-
     componentDidMount() {
         this.first()
     }
@@ -104,21 +119,15 @@ export default class ImportMessage extends PureComponent {
             },
             callback: res => {
                 if (res.response_data.code === 200) {
-                    // console.log(res.bean, "res.bean");
                     const appname = Object.keys(res.bean)
-                    console.log(res.bean.[appname[0]].kubernetes_resources,"kubernetes_resources");
                     this.setState({
                         appnameArr: appname,
                         module: res.bean,
                         moduleArr: res.bean.[appname[0]].convert_resource,
-                        k8sArr: res.bean.[appname[0]].kubernetes_resources,
+                        kubernetes: res.bean.[appname[0]].kubernetes_resources,
                         loadingswitch: false
-                    },() =>{
-
                     })
-
                 }
-
             }
         })
 
@@ -158,9 +167,8 @@ export default class ImportMessage extends PureComponent {
             ))
     }
     render() {
-        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingswitch, module, k8sArr } = this.state;
+        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingswitch, module, kubernetes } = this.state;
         const namespace = this.props.location.query.namespace
-        console.log(k8sArr ,"k8sArr");
         return (
             <div>
                 <h2>团队名称：
@@ -181,8 +189,8 @@ export default class ImportMessage extends PureComponent {
                                                     this.handleType(item, index);
                                                 }}
                                             >
-                                                <Tooltip placement="right" title={item}>
-                                                    <span>{item}</span>
+                                                <Tooltip placement="right" title={item === "UnLabel" ? "未分组": item}>
+                                                    <span>{item === "UnLabel" ? "未分组": item }</span>
                                                 </Tooltip>
                                                 <Icon type="right" />
                                             </div>
@@ -251,10 +259,10 @@ export default class ImportMessage extends PureComponent {
                                             }
                                     </TabPane>
                                 })}
-                                {k8sArr && k8sArr.length > 0 &&
+                                {kubernetes && kubernetes.length > 0 &&
                                     <TabPane tab="k8s资源" key="hello">
                                         <Kubernetes 
-                                            value = {k8sArr}
+                                            value = {kubernetes}
                                         />
                                     </TabPane>
                                 }

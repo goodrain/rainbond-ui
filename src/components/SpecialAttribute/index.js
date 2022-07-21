@@ -4,42 +4,24 @@ import DAinput from "../DAinput";
 import DApvcinput from '../DApvcinput.js/index'
 import DAselect from '../DAseclect';
 import styles from "./index.less"
+import CodeMirrorForm from "../../components/CodeMirrorForm"
 
-import CodeMirror from 'react-codemirror';
-require('codemirror/lib/codemirror.css');
-require('codemirror/theme/seti.css');
-require('codemirror/addon/display/fullscreen.css');
-require('../../styles/codemirror.less');
-require('codemirror/addon/display/panel');
-require('codemirror/mode/xml/xml');
-require('codemirror/mode/javascript/javascript');
-require('codemirror/mode/yaml/yaml');
-require('codemirror/addon/display/fullscreen');
-require('codemirror/addon/edit/matchbrackets');
-
+@Form.create()
 
 export default class SpecialAttribute extends PureComponent {
     constructor(props) {
         super(props)
         this.state = {
             visible: false,
-            codeMirrorVal:''
-
+            codemirrorValue:''
         }
     }
     componentDidMount(){
     }
-
-s
     drawerShow = (val) => {
-
-        if (this.myCodeMirror != (undefined || null)){
-            const editor = this.myCodeMirror.getCodeMirror();
-            editor.setValue(val.attribute_value)
-        }
         this.setState({
+            codemirrorValue:val.attribute_value,
             visible: true,
-            codeMirrorVal:val.attribute_value
         })
     }
     onClose = () => {
@@ -49,19 +31,9 @@ s
     }
 
     render() {
-        const options = {
-            mode: { name: "yaml" ,json: true},
-            lineNumbers: true,
-            theme: 'seti',
-            lineWrapping: true,//CodeMirror是否应滚动或换行以排长行
-            smartIndent: true,//是否使用模式提供的上下文相关缩进（或者只是缩进与之前的行相同）。默认为true。
-            matchBrackets: true,
-            scrollbarStyle: null,//选择滚动条实现。默认为"native"，显示本机滚动条。核心库还提供了"null"完全隐藏滚动条的样式。插件可以实现其他滚动条模型。
-            showCursorWhenSelecting: true,//选择是否处于活动状态时是否应绘制光标。默认为false。
-            readOnly: "nocursor",//这会禁止用户编辑编辑器内容。如果"nocursor"给出特殊值（而不是简单true），则不允许对编辑器进行聚焦。
-        }
-        const { codeMirrorVal, } = this.state
-        const { value } = this.props
+        const { codemirrorValue } = this.state
+        const { form, value } = this.props;
+        const { getFieldDecorator, setFieldsValue } = form;
         
         return (
             <Card title="特殊属性" style={{ marginBottom: '10px' }}>
@@ -98,10 +70,16 @@ s
                                             onClose={this.onClose}
                                             visible={this.state.visible}
                                         >
-                                            <CodeMirror 
-                                            options={options} 
-                                            value={codeMirrorVal && codeMirrorVal.length>0 ? codeMirrorVal:"-" } 
-                                            ref={(c)=>this.myCodeMirror = c}
+                                             <CodeMirrorForm
+                                                setFieldsValue={setFieldsValue}
+                                                Form={Form}
+                                                style={{ marginBottom: '20px' }}
+                                                getFieldDecorator={getFieldDecorator}
+                                                name={"selectval"}
+                                                data={codemirrorValue || ''}
+                                                mode={'yaml'}
+                                                isUpload={false}
+                                                disabled={true}
                                             />
                                         </Drawer>
                                     </div>
