@@ -52,15 +52,17 @@ export default class ImportMessage extends PureComponent {
             minmoduleArr: {},//单个组件内容
             type: 0,
             index: '0',
-            loadingswitch: true
+            loadingswitch: true,
+            k8sArr: []
         };
     }
     // 团队按钮点击
     handleType = (item, index) => {
-        const { module, minmoduleArr, moduleArr } = this.state
+        const { module, minmoduleArr, moduleArr, k8sArr } = this.state
         if (module.[item].convert_resource != null) {
             this.setState({
                 moduleArr: module.[item].convert_resource,
+                k8sArr: module.[item].kubernetes_resources,
                 index: '0',
             })
         } else {
@@ -102,12 +104,17 @@ export default class ImportMessage extends PureComponent {
             },
             callback: res => {
                 if (res.response_data.code === 200) {
+                    // console.log(res.bean, "res.bean");
                     const appname = Object.keys(res.bean)
+                    console.log(res.bean.[appname[0]].kubernetes_resources,"kubernetes_resources");
                     this.setState({
                         appnameArr: appname,
                         module: res.bean,
                         moduleArr: res.bean.[appname[0]].convert_resource,
+                        k8sArr: res.bean.[appname[0]].kubernetes_resources,
                         loadingswitch: false
+                    },() =>{
+
                     })
 
                 }
@@ -151,9 +158,9 @@ export default class ImportMessage extends PureComponent {
             ))
     }
     render() {
-        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingswitch, module } = this.state;
+        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingswitch, module, k8sArr } = this.state;
         const namespace = this.props.location.query.namespace
-
+        console.log(k8sArr ,"k8sArr");
         return (
             <div>
                 <h2>团队名称：
@@ -167,7 +174,7 @@ export default class ImportMessage extends PureComponent {
                             {
                                 appnameArr.map((item, index) => {
                                     return <>
-                                        {module.[item].convert_resource === null ? (<></>) : (
+                                        {(module.[item].convert_resource === null && module.[item].kubernetes_resources === null)  ? (<></>) : (
                                             <div key={index}
                                                 className={`${styles.typeBtn}  ${type === index ? styles.active : ""}`}
                                                 onClick={() => {
@@ -202,7 +209,6 @@ export default class ImportMessage extends PureComponent {
                                 {moduleArr && moduleArr.length > 0 && moduleArr.map((item, index) => {
                                     return <TabPane tab={item.components_name} key={`${index}`}>
                                         {/* ConfigProvider */}
-                                        <ConfigProvider>
                                             {/* 部署属性 */}
                                             {
                                                 <DeployAttribute
@@ -243,14 +249,15 @@ export default class ImportMessage extends PureComponent {
                                             {
                                                 <SpecialAttribute value={item.component_k8s_attributes_management} />
                                             }
-                                        </ConfigProvider>
                                     </TabPane>
                                 })}
-                                <TabPane tab="k8s资源" key="hello">
-                                    {/* kbs资源 */}
-                                    <Kubernetes />
-                                </TabPane>
-
+                                {k8sArr && k8sArr.length > 0 &&
+                                    <TabPane tab="k8s资源" key="hello">
+                                        <Kubernetes 
+                                            value = {k8sArr}
+                                        />
+                                    </TabPane>
+                                }
                             </Tabs>
                         </div>
                     </div>

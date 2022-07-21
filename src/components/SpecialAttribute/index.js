@@ -30,12 +30,12 @@ export default class SpecialAttribute extends PureComponent {
     componentDidMount(){
     }
 
-
+s
     drawerShow = (val) => {
 
         if (this.myCodeMirror != (undefined || null)){
-            const xx = this.myCodeMirror.getCodeMirror();
-            xx.setValue(val.attribute_value)
+            const editor = this.myCodeMirror.getCodeMirror();
+            editor.setValue(val.attribute_value)
         }
         this.setState({
             visible: true,
@@ -53,66 +53,16 @@ export default class SpecialAttribute extends PureComponent {
             mode: { name: "yaml" ,json: true},
             lineNumbers: true,
             theme: 'seti',
-            lineWrapping: true,
-            smartIndent: true,
+            lineWrapping: true,//CodeMirror是否应滚动或换行以排长行
+            smartIndent: true,//是否使用模式提供的上下文相关缩进（或者只是缩进与之前的行相同）。默认为true。
             matchBrackets: true,
-            scrollbarStyle: null,
-            showCursorWhenSelecting: true,
-            readOnly: true
+            scrollbarStyle: null,//选择滚动条实现。默认为"native"，显示本机滚动条。核心库还提供了"null"完全隐藏滚动条的样式。插件可以实现其他滚动条模型。
+            showCursorWhenSelecting: true,//选择是否处于活动状态时是否应绘制光标。默认为false。
+            readOnly: "nocursor",//这会禁止用户编辑编辑器内容。如果"nocursor"给出特殊值（而不是简单true），则不允许对编辑器进行聚焦。
         }
-        const { 
-            codeMirrorVal,
-        } = this.state
+        const { codeMirrorVal, } = this.state
         const { value } = this.props
         
-        const values = [
-            {
-                ID: 0,
-                attribute_value: "- name: sp-tls\n  secret:\n    defaultMode: 420\n    secretName: linkerd-sp-validator-k8s-tls\n- name: policy-tls\n  secret:\n    defaultMode: 420\n    secretName: linkerd-policy-validator-k8s-tls\n- emptyDir: {}\n  name: linkerd-proxy-init-xtables-lock\n- emptyDir:\n    medium: Memory\n  name: linkerd-identity-end-entity\n",
-                component_id: "",
-                create_time: "0001-01-01T00:00:00Z",
-                name: "volumes",
-                save_type: "yaml",
-                tenant_id: "",
-            },
-            {
-                ID: 0,
-                attribute_value: "- mountPath: /var/run/linkerd/identity/end-entity\n  name: linkerd-identity-end-entity\n",
-                component_id: "",
-                create_time: "0001-01-01T00:00:00Z",
-                name: "volumeMounts",
-                save_type: "yaml",
-                tenant_id: "",
-            },
-            {
-                ID: 0,
-                attribute_value: "linkerd-destination",
-                component_id: "",
-                create_time: "0001-01-01T00:00:00Z",
-                name: "serviceAccountName",
-                save_type: "string",
-                tenant_id: "",
-            },
-            {
-                ID: 0,
-                attribute_value: "{\"app.kubernetes.io/name\":\"destination\",\"app.kubernetes.io/part-of\":\"Linkerd\",\"app.kubernetes.io/version\":\"stable-2.11.3\",\"linkerd.io/control-plane-component\":\"destination\",\"linkerd.io/control-plane-ns\":\"linkerd\"}",
-                component_id: "",
-                create_time: "0001-01-01T00:00:00Z",
-                name: "labels",
-                save_type: "json",
-                tenant_id: "",
-            },
-            {
-                ID: 0,
-                attribute_value: "{\"kubernetes.io/os\":\"linux\"}",
-                component_id: "",
-                create_time: "0001-01-01T00:00:00Z",
-                name: "nodeSelector",
-                save_type: "json",
-                tenant_id: "",
-            }
-        ]
-
         return (
             <Card title="特殊属性" style={{ marginBottom: '10px' }}>
 
