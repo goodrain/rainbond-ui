@@ -23,7 +23,7 @@ class Index extends PureComponent {
     constructor(props) {
         super(props)
         this.state = {
-            switch:false
+            switch: false
         }
     }
     callback = (key) => {
@@ -32,17 +32,17 @@ class Index extends PureComponent {
     handerClick = () => {
         window.history.back()
     }
-    first = () =>{
+    first = () => {
         setTimeout(() => {
             this.setState({
-                switch:!this.state.switch,
+                switch: !this.state.switch,
             })
         }, 1000);
-    } 
-    componentDidMount(){
+    }
+    componentDidMount() {
         this.first()
     }
-    nextStep = ()=>{
+    nextStep = () => {
         const {
             dispatch,
             match: {
@@ -56,7 +56,9 @@ class Index extends PureComponent {
     }
 
     render() {
-        const moduleArrs = [{
+        // convert_resource
+        const value = {
+            convert_resource: [{
             components_name: "linkerd-proxy-injector",
             basic_management: {
                 command: "",
@@ -140,8 +142,9 @@ class Index extends PureComponent {
                 enable: false,
                 max_replicas: 100,
                 min_replicas: 1,
-                cpu_or_memory:[
-                    {ID: 0,
+                cpu_or_memory: [
+                    {
+                        ID: 0,
                         MetricTargetType: "utilization",
                         MetricTargetValue: 50,
                         MetricsName: "cpu",
@@ -149,7 +152,8 @@ class Index extends PureComponent {
                         RuleID: "",
                         create_time: "0001-01-01T00:00:00Z"
                     },
-                    {ID: 2,
+                    {
+                        ID: 2,
                         MetricTargetType: "average_value",
                         MetricTargetValue: 60,
                         MetricsName: "gpu",
@@ -159,44 +163,94 @@ class Index extends PureComponent {
                     }
                 ]
             },
-        }]
+        }],
+            kubernetes_resources: [
+                {
+                    ID: 0,
+                    app_id: "",
+                    content: "metadata:\n  annotations:\n    kubectl.kubernetes.io/last-applied-configuration: |\n      {\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"linkerd.io/created-by\":\"linkerd/cli stable-2.11.3\"},\"labels\":{\"linkerd.io/control-plane-component\":\"identity\",\"linkerd.io/control-plane-ns\":\"linkerd\"},\"name\":\"linkerd-identity\",\"namespace\":\"linkerd\"},\"spec\":{\"ports\":[{\"name\":\"grpc\",\"port\":8080,\"targetPort\":8080}],\"selector\":{\"linkerd.io/control-plane-component\":\"identity\"},\"type\":\"ClusterIP\"}}\n    linkerd.io/created-by: linkerd/cli stable-2.11.3\n  creationTimestamp: \"2022-07-20T07:11:53Z\"\n  labels:\n    linkerd.io/control-plane-component: identity\n    linkerd.io/control-plane-ns: linkerd\n  name: linkerd-identity\n  namespace: linkerd\n  resourceVersion: \"1857442\"\n  uid: 86d89cc3-0079-4cbe-8a01-2f7085f85166\nspec:\n  clusterIP: 10.43.243.232\n  clusterIPs:\n  - 10.43.243.232\n  ipFamilies:\n  - IPv4\n  ipFamilyPolicy: SingleStack\n  ports:\n  - name: grpc\n    port: 8080\n    protocol: TCP\n    targetPort: 8080\n  selector:\n    linkerd.io/control-plane-component: identity\n  sessionAffinity: None\n  type: ClusterIP\nstatus:\n  loadBalancer: {}\n",
+                    create_time: "0001-01-01T00:00:00Z",
+                    kind: "",
+                    name: "linkerd-identity",
+                    status: "",
+                },
+                {
+                    ID: 0,
+                    app_id: "",
+                    content: "metadata:hello\n  annotations:\n    kubectl.kubernetes.io/last-applied-configuration: |\n      {\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"linkerd.io/created-by\":\"linkerd/cli stable-2.11.3\"},\"labels\":{\"linkerd.io/control-plane-component\":\"identity\",\"linkerd.io/control-plane-ns\":\"linkerd\"},\"name\":\"linkerd-identity-headless\",\"namespace\":\"linkerd\"},\"spec\":{\"clusterIP\":\"None\",\"ports\":[{\"name\":\"grpc\",\"port\":8080,\"targetPort\":8080}],\"selector\":{\"linkerd.io/control-plane-component\":\"identity\"}}}\n    linkerd.io/created-by: linkerd/cli stable-2.11.3\n  creationTimestamp: \"2022-07-20T07:11:53Z\"\n  labels:\n    linkerd.io/control-plane-component: identity\n    linkerd.io/control-plane-ns: linkerd\n  name: linkerd-identity-headless\n  namespace: linkerd\n  resourceVersion: \"1857445\"\n  uid: 0ed7fb3d-e731-4a8a-990c-0337cbf75273\nspec:\n  clusterIP: None\n  clusterIPs:\n  - None\n  ipFamilies:\n  - IPv4\n  ipFamilyPolicy: SingleStack\n  ports:\n  - name: grpc\n    port: 8080\n    protocol: TCP\n    targetPort: 8080\n  selector:\n    linkerd.io/control-plane-component: identity\n  sessionAffinity: None\n  type: ClusterIP\nstatus:\n  loadBalancer: {}\n",
+                    create_time: "0001-01-01T00:00:00Z",
+                    kind: "",
+                    name: "linkerd-identity-headless",
+                    status: "",
+                },
+                {
+                    ID: 0,
+                    app_id: "",
+                    content: "metadata:xuzl\n  annotations:\n    kubectl.kubernetes.io/last-applied-configuration: |\n      {\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"linkerd.io/created-by\":\"linkerd/cli stable-2.11.3\"},\"labels\":{\"linkerd.io/control-plane-component\":\"destination\",\"linkerd.io/control-plane-ns\":\"linkerd\"},\"name\":\"linkerd-dst\",\"namespace\":\"linkerd\"},\"spec\":{\"ports\":[{\"name\":\"grpc\",\"port\":8086,\"targetPort\":8086}],\"selector\":{\"linkerd.io/control-plane-component\":\"destination\"},\"type\":\"ClusterIP\"}}\n    linkerd.io/created-by: linkerd/cli stable-2.11.3\n  creationTimestamp: \"2022-07-20T07:11:54Z\"\n  labels:\n    linkerd.io/control-plane-component: destination\n    linkerd.io/control-plane-ns: linkerd\n  name: linkerd-dst\n  namespace: linkerd\n  resourceVersion: \"1857453\"\n  uid: 5bbbe361-29d4-467b-8560-198ce11c5efd\nspec:\n  clusterIP: 10.43.246.88\n  clusterIPs:\n  - 10.43.246.88\n  ipFamilies:\n  - IPv4\n  ipFamilyPolicy: SingleStack\n  ports:\n  - name: grpc\n    port: 8086\n    protocol: TCP\n    targetPort: 8086\n  selector:\n    linkerd.io/control-plane-component: destination\n  sessionAffinity: None\n  type: ClusterIP\nstatus:\n  loadBalancer: {}\n",
+                    create_time: "0001-01-01T00:00:00Z",
+                    kind: "",
+                    name: "linkerd-dst",
+                    status: "",
+                },
+                {
+                    ID: 0,
+                    app_id: "",
+                    content: "metadata:songyg\n  annotations:\n    kubectl.kubernetes.io/last-applied-configuration: |\n      {\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"linkerd.io/created-by\":\"linkerd/cli stable-2.11.3\"},\"labels\":{\"linkerd.io/control-plane-component\":\"destination\",\"linkerd.io/control-plane-ns\":\"linkerd\"},\"name\":\"linkerd-dst-headless\",\"namespace\":\"linkerd\"},\"spec\":{\"clusterIP\":\"None\",\"ports\":[{\"name\":\"grpc\",\"port\":8086,\"targetPort\":8086}],\"selector\":{\"linkerd.io/control-plane-component\":\"destination\"}}}\n    linkerd.io/created-by: linkerd/cli stable-2.11.3\n  creationTimestamp: \"2022-07-20T07:11:54Z\"\n  labels:\n    linkerd.io/control-plane-component: destination\n    linkerd.io/control-plane-ns: linkerd\n  name: linkerd-dst-headless\n  namespace: linkerd\n  resourceVersion: \"1857462\"\n  uid: 857e1d9d-74bc-4051-ae7c-9dbebb0af596\nspec:\n  clusterIP: None\n  clusterIPs:\n  - None\n  ipFamilies:\n  - IPv4\n  ipFamilyPolicy: SingleStack\n  ports:\n  - name: grpc\n    port: 8086\n    protocol: TCP\n    targetPort: 8086\n  selector:\n    linkerd.io/control-plane-component: destination\n  sessionAffinity: None\n  type: ClusterIP\nstatus:\n  loadBalancer: {}\n",
+                    create_time: "0001-01-01T00:00:00Z",
+                    kind: "",
+                    name: "linkerd-dst-headless",
+                    status: "",
+                },
+                {
+                    ID: 0,
+                    app_id: "",
+                    content: "metadata:zhangqh\n  annotations:\n    kubectl.kubernetes.io/last-applied-configuration: |\n      {\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"linkerd.io/created-by\":\"linkerd/cli stable-2.11.3\"},\"labels\":{\"linkerd.io/control-plane-component\":\"destination\",\"linkerd.io/control-plane-ns\":\"linkerd\"},\"name\":\"linkerd-sp-validator\",\"namespace\":\"linkerd\"},\"spec\":{\"ports\":[{\"name\":\"sp-validator\",\"port\":443,\"targetPort\":\"sp-validator\"}],\"selector\":{\"linkerd.io/control-plane-component\":\"destination\"},\"type\":\"ClusterIP\"}}\n    linkerd.io/created-by: linkerd/cli stable-2.11.3\n  creationTimestamp: \"2022-07-20T07:11:54Z\"\n  labels:\n    linkerd.io/control-plane-component: destination\n    linkerd.io/control-plane-ns: linkerd\n  name: linkerd-sp-validator\n  namespace: linkerd\n  resourceVersion: \"1857470\"\n  uid: c2971228-7a7b-4b1f-940d-5addeb5150ba\nspec:\n  clusterIP: 10.43.161.66\n  clusterIPs:\n  - 10.43.161.66\n  ipFamilies:\n  - IPv4\n  ipFamilyPolicy: SingleStack\n  ports:\n  - name: sp-validator\n    port: 443\n    protocol: TCP\n    targetPort: sp-validator\n  selector:\n    linkerd.io/control-plane-component: destination\n  sessionAffinity: None\n  type: ClusterIP\nstatus:\n  loadBalancer: {}\n",
+                    create_time: "0001-01-01T00:00:00Z",
+                    kind: "",
+                    name: "linkerd-sp-validator",
+                    status: "",
+                }
+            ]
+        }
+        const moduleArrs= value.convert_resource
+        const k8sArr = value.kubernetes_resources
         return (
             <Fragment>
                 <div className={styles.all_style}>
                     <h3>应用名称:hello</h3>
                     <div className={styles.tabs_value}>
                         {this.state.switch ? (
-                        <Tabs defaultActiveKey="0" onChange={this.callback}>
-                            {moduleArrs && moduleArrs.length > 0 &&
-                                moduleArrs.map((item, index) => {
-                                    return <TabPane
-                                        tab={item.components_name}
-                                        key={index}
-                                    >
-                                        {/* 部署属性 */}
-                                        <DeployAttribute value={item.basic_management} />
-                                        {/* 端口属性 */}
-                                        <PortAttribute value={item.port_management} />
-                                        {/* 环境变量 */}
-                                        <EnvVariable value={item.env_management} />
-                                        {/* 配置文件 */}
-                                        <ConfigurationFiles value={item.config_management} />
-                                        {/* 自动伸缩 */}
-                                        <FlexAttribute value={item.telescopic_management} />
-                                        {/* 健康检测 */}
-                                        <HealthAttribute value={item.health_check_management} />
-                                        {/* 特殊属性 */}
-                                        <SpecialAttribute value = {item.component_k8s_attributes_management} />
-                                    </TabPane>
-                                })
-                            }
-                            <TabPane tab="k8s资源" key="hello">
-                                <Kubernetes />
-                            </TabPane>
-                        </Tabs>
-                        ):(
+                            <Tabs defaultActiveKey="0" onChange={this.callback}>
+                                {moduleArrs && moduleArrs.length > 0 &&
+                                    moduleArrs.map((item, index) => {
+                                        return <TabPane
+                                            tab={item.components_name}
+                                            key={index}
+                                        >
+                                            {/* 部署属性 */}
+                                            <DeployAttribute value={item.basic_management} />
+                                            {/* 端口属性 */}
+                                            <PortAttribute value={item.port_management} />
+                                            {/* 环境变量 */}
+                                            <EnvVariable value={item.env_management} />
+                                            {/* 配置文件 */}
+                                            <ConfigurationFiles value={item.config_management} />
+                                            {/* 自动伸缩 */}
+                                            <FlexAttribute value={item.telescopic_management} />
+                                            {/* 健康检测 */}
+                                            <HealthAttribute value={item.health_check_management} />
+                                            {/* 特殊属性 */}
+                                            <SpecialAttribute value={item.component_k8s_attributes_management} />
+                                        </TabPane>
+                                    })
+                                }
+                                <TabPane tab="k8s资源" key="hello">
+                                    <Kubernetes  value = {k8sArr}/>
+                                </TabPane>
+                            </Tabs>
+                        ) : (
                             <div className={styles.loading}>
-                                <Spin size="large"/>
+                                <Spin size="large" />
                             </div>
                         )}
                     </div>
@@ -214,15 +268,15 @@ class Index extends PureComponent {
                         borderTop: '1px solid #e8e8e8'
                     }}>
                     <Button
-                        style={{marginRight: 8}}
-                    onClick={this.handerClick}
+                        style={{ marginRight: 8 }}
+                        onClick={this.handerClick}
                         type="default">上一步</Button>
                     <Button
-                        style={{marginRight: 8}}
+                        style={{ marginRight: 8 }}
                         onClick={this.nextStep}
                         type="primary">确认导入</Button>
-                    <Button 
-                    type="default"
+                    <Button
+                        type="default"
                     // onClick={this.handerClick}
                     >放弃导入</Button>
                 </div>

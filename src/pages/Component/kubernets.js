@@ -122,12 +122,13 @@ class Index extends PureComponent {
 
   // 删除
   deleteBtn = (val, str) => {
+    const { selectval } =this.state
     const teamName = globalUtil.getCurrTeamName()
     const service_alias = this.props.service_alias || ''
     deleteKubernetes({
       team_name: teamName,
       service_alias: service_alias,
-      value_name: val.name
+      value_name: selectval,
     }).then(res => {
       this.setState({
         showDeletePort:!this.state.showDeletePort,
@@ -138,10 +139,18 @@ class Index extends PureComponent {
       this.handleGetKubernetes()
     })
   }
-  cancalDeletePort = () =>{
-    this.setState({
-      showDeletePort:!this.state.showDeletePort,
-    })
+  cancalDeletePort = (item) =>{
+    if(item != null){
+      this.setState({
+        selectval:item.name,
+        showDeletePort:!this.state.showDeletePort,
+      })
+    }else{
+      this.setState({
+        showDeletePort:!this.state.showDeletePort,
+      })
+    }
+    
   }
   // 下拉框
   handleChange = (val) => {
@@ -462,7 +471,7 @@ class Index extends PureComponent {
                   return <Row key={index}>
                     <Col span={4}>{item.name}:</Col>
                     <Col span={2}><Button onClick={() => this.changeBtn(item, "change", index)}>编 辑</Button></Col>
-                    <Col span={1}><Button onClick={this.cancalDeletePort}>删 除</Button></Col>
+                    <Col span={1}><Button onClick={()=>this.cancalDeletePort(item)}>删 除</Button></Col>
                   </Row>
                 })
               ) : (
