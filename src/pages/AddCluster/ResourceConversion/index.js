@@ -142,19 +142,24 @@ export default class ImportMessage extends PureComponent {
                 const teamName = res.bean && res.bean.Name
                 const regionName = res.bean && res.bean.region_name
                 this.props.dispatch(
-                    routerRedux.replace(
+                    routerRedux.push(
                         `/team/${teamName}/region/${regionName}/index`
                     ))
             }
         })
     }
     nextStep = () => {
-        const str = this.props.location.query.id
+        const {
+            dispatch,
+            match: {
+                params: { eid }
+            },
+        } = this.props;
         const region_id = this.props.location.query.region_id
 
         this.props.dispatch(
-            routerRedux.replace(
-                `/enterprise/${str}/importMessage?region_id=${region_id}`
+            routerRedux.push(
+                `/enterprise/${eid}/importMessage?region_id=${region_id}`
             ))
     }
     render() {
