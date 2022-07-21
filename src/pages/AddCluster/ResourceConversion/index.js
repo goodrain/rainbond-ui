@@ -72,6 +72,7 @@ export default class ImportMessage extends PureComponent {
         } else if(module.[item].convert_resource != null){
             this.setState({
                 moduleArr: module.[item].convert_resource,
+                k8sArr: module.[item].kubernetes_resources,
                 index: '0',
             })
         }
@@ -120,12 +121,15 @@ export default class ImportMessage extends PureComponent {
             callback: res => {
                 if (res.response_data.code === 200) {
                     const appname = Object.keys(res.bean)
+                    console.log(res.bean.[appname[0]].kubernetes_resources,"kubernetes_resources");
                     this.setState({
                         appnameArr: appname,
                         module: res.bean,
                         moduleArr: res.bean.[appname[0]].convert_resource,
                         kubernetes: res.bean.[appname[0]].kubernetes_resources,
                         loadingswitch: false
+                    },() =>{
+
                     })
                 }
             }
@@ -151,19 +155,24 @@ export default class ImportMessage extends PureComponent {
                 const teamName = res.bean && res.bean.Name
                 const regionName = res.bean && res.bean.region_name
                 this.props.dispatch(
-                    routerRedux.replace(
+                    routerRedux.push(
                         `/team/${teamName}/region/${regionName}/index`
                     ))
             }
         })
     }
     nextStep = () => {
-        const str = this.props.location.query.id
+        const {
+            dispatch,
+            match: {
+                params: { eid }
+            },
+        } = this.props;
         const region_id = this.props.location.query.region_id
 
         this.props.dispatch(
-            routerRedux.replace(
-                `/enterprise/${str}/importMessage?region_id=${region_id}`
+            routerRedux.push(
+                `/enterprise/${eid}/importMessage?region_id=${region_id}`
             ))
     }
     render() {
