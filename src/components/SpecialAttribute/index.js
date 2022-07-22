@@ -18,7 +18,7 @@ export default class SpecialAttribute extends PureComponent {
     }
     componentDidMount(){
     }
-    drawerShow = (val) => {
+    drawervalShow = (val) => {
         this.setState({
             codemirrorValue:val.attribute_value,
             visible: true,
@@ -59,7 +59,7 @@ export default class SpecialAttribute extends PureComponent {
                                 {item.save_type && item.save_type === "yaml" &&
                                     <div className={styles.drawerstyle}>
                                         <Button
-                                            onClick={()=>this.drawerShow(item)}
+                                            onClick={()=>this.drawervalShow(item)}
                                         >查看详情
                                         </Button>
                                         <Drawer

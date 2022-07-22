@@ -7,24 +7,27 @@ export default class index extends PureComponent {
     constructor(porps) {
         super(porps)
         this.state = {
-            showDrawerswitch: false
+            drawerValue:"",
+            showDrawerswitchval: false
         }
     }
     showDrawer = (val) => {
+        console.log(val,"text");
         this.setState({
-            showDrawerswitch: !this.state.showDrawerswitch
+            drawerValue:val,
+            showDrawerswitchval: !this.state.showDrawerswitchval
         })
     }
 
     onClose = () => {
         this.setState({
-            showDrawerswitch: false,
+            showDrawerswitchval: false,
         });
     };
     render() {
-        const { form } = this.props;
+        const { form, value } = this.props;
         const { getFieldDecorator, setFieldsValue } = form;
-        const { value } = this.props;
+        const { drawerValue } = this.state;
         return (
             <Card
                 title="k8s资源"
@@ -60,7 +63,7 @@ export default class index extends PureComponent {
                                 title: 'yaml',
                                 dataIndex: 'content',
                                 key: "content",
-                                render: text => {
+                                render: (text, record) => {
                                     return <>
                                         <Button onClick={() => this.showDrawer(text)}>查看详情</Button>
                                         <Drawer
@@ -68,7 +71,7 @@ export default class index extends PureComponent {
                                             placement="right"
                                             closable={false}
                                             onClose={this.onClose}
-                                            visible={this.state.showDrawerswitch}
+                                            visible={this.state.showDrawerswitchval}
                                             width={500}
                                         >
                                             <CodeMirrorForm
@@ -76,8 +79,8 @@ export default class index extends PureComponent {
                                                 Form={Form}
                                                 style={{ marginBottom: '20px' }}
                                                 getFieldDecorator={getFieldDecorator}
-                                                name={"selectval"}
-                                                data={text || ''}
+                                                name={record.name}
+                                                data={drawerValue || ''}
                                                 mode={'yaml'}
                                                 isUpload={false}
                                                 disabled={true}

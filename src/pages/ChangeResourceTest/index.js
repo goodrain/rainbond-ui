@@ -15,7 +15,7 @@ import ConfigurationFiles from "../../components/ConfigurationFiles"
 import FlexAttribute from '../../components/FlexAttribute'
 import HealthAttribute from "../../components/HealthAttribute"
 import SpecialAttribute from '../../components/SpecialAttribute'
-import Kubernetes from "./Kubernetes"
+import Kubernetes from "../../components/KubernetesAttribute"
 import styles from './index.less'
 const { TabPane } = Tabs;
 @connect(null, null, null, { withRef: true })
