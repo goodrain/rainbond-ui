@@ -4,12 +4,38 @@
 import PageHeaderLayout from '@/layouts/PageHeaderLayout';
 import { Button, Card, Drawer, Form, Table } from 'antd';
 import React, { PureComponent } from 'react';
+import globalUtil from "../../utils/global"
 import CodeMirrorForm from '../../components/CodeMirrorForm';
+import { getKubernetesVal, getSingleKubernetesVal } from "../../services/application"
 import styles from './index.less';
 
 @Form.create()
 class Index extends PureComponent {
-  state = { visible: false };
+  state = {
+    visible: false,
+    content: [],
+    localContent: "",
+    type:"",
+    title:"新增"
+  };
+  componentDidMount() {
+    this.getPageContent()
+  }
+  getPageContent = () => {
+    const teamName = globalUtil.getCurrTeamName();
+    const app_id = globalUtil.getAppID();
+    getKubernetesVal({
+      team_name: teamName,
+      app_id: app_id,
+    }).then(res => {
+
+      if (res.response_data.code == 200) {
+        this.setState({
+          content: res.list,
+        })
+      }
+    })
+  }
 
   showDrawer = () => {
     this.setState({
@@ -19,11 +45,18 @@ class Index extends PureComponent {
 
   onClose = () => {
     this.setState({
-      visible: false
+      visible: false,
     });
   };
   handleConfigurationOperation = () => {
-    this.setState({ visible: true });
+
+    this.setState({ 
+      visible: true ,
+      title:"新增",
+      localContent:'',
+      type:"add"
+    });
+
   };
   handleSubmit = () => {
     const { form } = this.props;
@@ -31,77 +64,98 @@ class Index extends PureComponent {
       //   if (err) return;
     });
   };
+  // 编辑
+  editButton = (val, row) => {
+
+    const teamName = globalUtil.getCurrTeamName();
+    const app_id = globalUtil.getAppID();
+    // getSingleKubernetesVal({
+    //   team_name:teamName,
+    //   app_id:app_id,
+    //   list_name:row.name
+    // }).then( res =>{
+    //   console.log(res,"单个属性");
+    // })
+    this.setState({
+      type:val,
+      visible: true,
+      localContent: row.content,
+      title:"修改"
+    })
+  }
+  deleteButton = (val) => {
+
+  }
   render() {
-    const columns = [
-      {
-        title: '资源名称',
-        dataIndex: 'name',
-        key: 'name',
-        align: 'center',
-        width:200
-      },
-      {
-        title: '资源类型',
-        dataIndex: 'type',
-        key: 'type',
-        align: 'center',
-        width:200
-      },
-      {
-        title: '状态',
-        dataIndex: 'status',
-        key: 'status',
-        align: 'center',
-        render: () => {
-          return <span style={{color:'green'}}>创建成功</span>;
-        }
-      },
-      {
-        title: '操作',
-        dataIndex: 'action',
-        key: 'action',
-        align:'center',
-        width:200,
-        render: () => {
-          return (
-            <>
-              <span className={styles.action}>编辑</span>
-              &nbsp;&nbsp;&nbsp;&nbsp;
-              <span className={styles.action}>删除</span>
-            </>
-          );
-        }
-      }
-    ];
-    const dataSource = [
-      {
-        key: '1',
-        name: '胡彦斌',
-        type: 'secert',
-        status: '成功',
-        reason: 'XXXX'
-      },
-      {
-        key: '2',
-        name: '胡彦祖',
-        type: 'secert',
-        status: '失败',
-        reason: 'YYYY'
-      }
-    ];
     const {
       form: { getFieldDecorator, setFieldsValue }
     } = this.props;
+    const { content, localContent, title } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 4 },
         sm: { span: 4 }
       },
       wrapperCol: {
+
         xs: { span: 20 },
         sm: { span: 20 }
       }
     };
+    const formItemLayouts = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 24 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 24 }
+      }
+    };
+
+    const columns = [
+      {
+        title: '资源名称',
+        dataIndex: 'name',
+        key: 'name',
+        align: 'center',
+        width: 300
+      },
+      {
+        title: '资源类型',
+        dataIndex: 'kind',
+        key: 'kind',
+        align: 'center',
+        width: 200
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
+        key: 'status',
+        align: 'center',
+        width: 200,
+        render: () => {
+          return <span style={{ color: 'green' }}>创建成功</span>;
+        }
+      },
+      {
+        title: '操作',
+        dataIndex: 'content',
+        key: 'content',
+        align: 'center',
+        width: 200,
+        render: (text, record) => {
+          return (
+            <>
+              <span className={styles.action} onClick={() => this.editButton("edit",record)}>编辑</span>
+              &nbsp;&nbsp;&nbsp;&nbsp;
+              <span className={styles.action} onClick={() => this.deleteButton(record.name)}>删除</span>
+            </>
+          );
+        }
+      }
+    ];
+
     return (
       <PageHeaderLayout
         title="K8s 资源管理"
@@ -125,29 +179,27 @@ class Index extends PureComponent {
           </Button>
         </div>
         <Card>
-          <Table dataSource={dataSource} columns={columns} />
+          <Table dataSource={content} columns={columns} />
         </Card>
         <Drawer
-          title="添加资源配置"
+          title= {title}
           placement="right"
           width="400"
           onClose={this.onClose}
           visible={this.state.visible}
         >
           <Form {...formItemLayout}>
-            <Form.Item label="yaml">
-              {getFieldDecorator('yaml', {
-                // rules: [{ required: true, message: 'yaml配置文件不能为空' }]
-              })(
-                <CodeMirrorForm
-                  setFieldsValue={setFieldsValue}
-                  Form={Form}
-                  getFieldDecorator={getFieldDecorator}
-                  name="file_content"
-                  message="yaml配置文件不能为空"
-                />
-              )}
-            </Form.Item>
+            <CodeMirrorForm
+              setFieldsValue={setFieldsValue}
+              Form={Form}
+              style={{ marginBottom: '20px' }}
+              getFieldDecorator={getFieldDecorator}
+              formItemLayout={formItemLayouts}
+              name={"yaml"}
+              message="请编辑内容"
+              data={localContent}
+              mode={'yaml'}
+            />
           </Form>
           <div
             style={{

@@ -116,7 +116,6 @@ export default class ImportMessage extends PureComponent {
     );
     //折叠面板触发方法
     callback = (key) => {
-        console.log(key, 'key')
     }
     //下一步
     onNext = () => {
@@ -170,7 +169,7 @@ export default class ImportMessage extends PureComponent {
                                         return (
                                             <Panel
                                                 header={
-                                                    <div>label: app={item === "UnLabel" ? "未分组" : item}</div>
+                                                    <div>label: app={item === "unclassified" ? "未分组" : item}</div>
                                                 }
                                                 key={index}
                                                 extra={this.genExtra()}

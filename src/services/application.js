@@ -874,3 +874,22 @@ export async function checkoutGovernanceModel(
     }
   );
 }
+
+// 应用下所有k8s资源获取
+export async function getKubernetesVal(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources`,
+    {
+      method: 'get',
+    }
+  );
+}
+// 应用下单个k8s资源获取
+export async function getSingleKubernetesVal(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/${body.list_name}`,
+    {
+      method: 'get',
+    }
+  );
+}

@@ -6,14 +6,15 @@
     align-items: flex-start;
     .colstyle{
         text-align: right;
-        margin-right: 10px;
+        width: 200px;
+        font-weight: bolder;
+        margin-right: 30px;
+        padding-top: 6px;
         div{
             background-color: #f0f4f8;
             border-radius: 10px;
             padding: 10px;
-
         }
-       
     }
     .colstyleone{
         display: flex;
@@ -21,19 +22,25 @@
         flex-wrap: wrap;
         .divstyle{
             // width: 25%;
-            margin: 5px;
+            margin: 0 20px 10px 0;
             padding: 6px;
             background-color: #f0f4f8;
             border-radius: 10px;
             display: flex;
             align-items: center;
             span{
-                display: flex;
+                display: block;
+                width: 100px;
+                white-space:nowrap;
+                overflow:hidden;
+                justify-content: center;
+                text-overflow:ellipsis;
                 align-items: center;
                 padding: 2px;
                 color: #232b3d;
             }
             span:first-child{
+                width: 100px;
                 padding: 3px 5px;
                 margin-right: 10px;
                 border-radius: 5px;
@@ -49,3 +56,9 @@
             width: 500px;
         }
     }
+
+.drawerstyle{
+    display: flex;
+    align-items: center;
+    margin-top: -8px;
+}
