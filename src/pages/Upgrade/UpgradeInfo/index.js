@@ -298,6 +298,7 @@ export default class AppList extends PureComponent {
     const {
       probes,
       connect_infos,
+      component_k8s_attributes,
       ports,
       volumes,
       dep_services,
@@ -338,6 +339,8 @@ export default class AppList extends PureComponent {
     const isPorts = this.handleData(ports);
 
     const isVolumes = this.handleData(volumes);
+
+    const isComponent_k8s_attributes = this.handleData(component_k8s_attributes);
 
     function addArr(title, description) {
       arr.push({
@@ -454,6 +457,10 @@ export default class AppList extends PureComponent {
 
     if (isComponentGraphs) {
       addArr('监控图表', this.handleBox(null, component_graphs, 'title'));
+    }
+
+    if(isComponent_k8s_attributes){
+      addArr('K8S 属性', this.handleBox(null, component_k8s_attributes, 'name'));
     }
 
     return arr;
