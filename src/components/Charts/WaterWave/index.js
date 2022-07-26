@@ -172,7 +172,7 @@ export default class WaterWave extends PureComponent {
 
   render() {
     const { radio } = this.state;
-    const { percent, title, height } = this.props;
+    const { percent, title, height, memorySum } = this.props;
     return (
       <div
         className={styles.waterWave}
@@ -189,7 +189,11 @@ export default class WaterWave extends PureComponent {
         </div>
         <div className={styles.text} style={{ width: height }}>
           {title && <span>{title}</span>}
-          <h4>{percent}%</h4>
+          {percent ? (
+            <h4>{percent}%</h4>
+          ):(
+            <h4>{memorySum}MiB</h4>
+          )}
         </div>
       </div>
     );

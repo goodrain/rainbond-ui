@@ -35,6 +35,14 @@ class InstanceList extends PureComponent {
       });
     return memRate;
   };
+  getMemorySum = containers => {
+    let memorySum = 0;
+    containers &&
+      containers.map(c => {
+          memorySum += c.memory_usage;
+      });
+    return memorySum.toFixed(2);
+  };
   render() {
     const statusObj = {
       Running: '正常运行',
@@ -54,6 +62,7 @@ class InstanceList extends PureComponent {
               height={120}
               title="运行内存"
               percent={this.getContainerMem(item.container)}
+              memorySum={this.getMemorySum(item.container)}
             />
             <div>{this.showName(item.pod_name)}</div>
             <div>{statusObj[item.pod_status]}</div>
