@@ -54,7 +54,8 @@ export default class EnterpriseClusters extends PureComponent {
       guideStep: 2,
       providerAccess: {},
       loading: false,
-      initTask: {}
+      initTask: {},
+      clusters: null
     };
   }
   componentWillMount() {
@@ -67,6 +68,7 @@ export default class EnterpriseClusters extends PureComponent {
   }
   componentDidMount() {
     this.getAccessKey();
+    this.loadClusters();
   }
 
   // getAccessKey get enterprise accesskey
@@ -120,6 +122,33 @@ export default class EnterpriseClusters extends PureComponent {
           }
         }
       });
+    });
+  };
+  loadClusters = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch({
+      type: 'region/fetchEnterpriseClusters',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.list) {
+          const clusters = [];
+          res.list.map((item, index) => {
+            item.key = `cluster${index}`;
+            clusters.push(item);
+            return item;
+          });
+          this.setState({ clusters });
+        } else {
+          this.setState({ clusters: [] });
+        }
+      }
     });
   };
   cancelAddCluster = () => {
@@ -394,7 +423,8 @@ export default class EnterpriseClusters extends PureComponent {
       guideStep,
       loading,
       showInitTaskDetail,
-      initTask
+      initTask,
+      clusters
     } = this.state;
     const {
       match: {
@@ -624,6 +654,8 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               </div>
               {guideStep === 2 &&
+                clusters &&
+                clusters.length === 0 &&
                 this.handleNewbieGuiding({
                   tit: '主机安装',
                   configName: 'hostInstall',
