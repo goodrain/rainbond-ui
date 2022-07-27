@@ -3281,7 +3281,6 @@ export async function getKubernetes(body = {}) {
 
 // 修改数据
 export async function editKubernetes(body = {}) {
-  console.log(body,'body')
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes/${body.value_name}`,
     {

@@ -216,7 +216,7 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
     });
   }
   addMenuArr({
-    name: formatMessage({ id: 'k8s资源' }),
+    name: formatMessage({ id: 'menu.app.k8s' }),
     icon: ziyuan,
     path: `team/${teamName}/region/${regionName}/apps/${appID}/resource`,
     authority: ['admin', 'user']

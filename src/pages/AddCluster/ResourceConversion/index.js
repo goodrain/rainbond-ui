@@ -121,7 +121,6 @@ export default class ImportMessage extends PureComponent {
             callback: res => {
                 if (res.response_data.code === 200) {
                     const appname = Object.keys(res.bean)
-                    console.log(res.bean.[appname[0]].kubernetes_resources,"kubernetes_resources");
                     this.setState({
                         appnameArr: appname,
                         module: res.bean,

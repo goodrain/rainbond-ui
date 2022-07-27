@@ -108,7 +108,6 @@ export default class ImportMessage extends PureComponent {
     );
     //折叠面板处罚方法
     callback = (key) => {
-        console.log(key, 'key')
     }
     //下一步
     onNext = () => {

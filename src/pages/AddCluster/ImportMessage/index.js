@@ -116,7 +116,6 @@ export default class ImportMessage extends PureComponent {
     );
     //折叠面板触发方法
     callback = (key) => {
-        console.log(key, 'key')
     }
     //下一步
     onNext = () => {

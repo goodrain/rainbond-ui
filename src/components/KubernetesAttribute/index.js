@@ -12,7 +12,6 @@ export default class index extends PureComponent {
         }
     }
     showDrawer = (val) => {
-        console.log(val,"text");
         this.setState({
             drawerValue:val,
             showDrawerswitchval: !this.state.showDrawerswitchval
