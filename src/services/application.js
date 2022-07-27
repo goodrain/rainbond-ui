@@ -874,3 +874,63 @@ export async function checkoutGovernanceModel(
     }
   );
 }
+
+// 应用下所有k8s资源获取
+export async function getKubernetesVal(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources`,
+    {
+      method: 'get',
+    }
+  );
+}
+// 应用下单个k8s资源获取
+export async function getSingleKubernetesVal(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/${body.list_name}`,
+    {
+      method: 'get',
+    }
+  );
+}
+
+// 应用下新增单个k8s资源
+export async function addSingleKubernetesVal(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources`,
+    {
+      method: 'post',
+      data: {
+        resource_yaml:body.yaml
+      },
+    }
+  );
+}
+// 应用下删除单个k8s资源
+export async function delSingleKubernetesVal(body = {}) {
+  console.log(body);
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/${body.list_name}`,
+    {
+      method: 'DELETE',
+      data: {
+        resource_yaml:body.yaml,
+        id:body.List_id,
+      },
+    }
+  );
+}
+// 应用下修改单个k8s资源
+export async function editSingleKubernetesVal(body = {}) {
+  console.log(body);
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/${body.list_name}`,
+    {
+      method: 'put',
+      data: {
+        resource_yaml:body.yaml,
+        id:body.List_id,
+      },
+    }
+  );
+}

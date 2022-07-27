@@ -121,15 +121,12 @@ export default class ImportMessage extends PureComponent {
             callback: res => {
                 if (res.response_data.code === 200) {
                     const appname = Object.keys(res.bean)
-                    console.log(res.bean.[appname[0]].kubernetes_resources,"kubernetes_resources");
                     this.setState({
                         appnameArr: appname,
                         module: res.bean,
                         moduleArr: res.bean.[appname[0]].convert_resource,
                         kubernetes: res.bean.[appname[0]].kubernetes_resources,
                         loadingswitch: false
-                    },() =>{
-
                     })
                 }
             }
@@ -198,8 +195,8 @@ export default class ImportMessage extends PureComponent {
                                                     this.handleType(item, index);
                                                 }}
                                             >
-                                                <Tooltip placement="right" title={item === "UnLabel" ? "未分组": item}>
-                                                    <span>{item === "UnLabel" ? "未分组": item }</span>
+                                                <Tooltip placement="right" title={item === "unclassified" ? "未分组": item}>
+                                                    <span>{item === "unclassified" ? "未分组": item }</span>
                                                 </Tooltip>
                                                 <Icon type="right" />
                                             </div>

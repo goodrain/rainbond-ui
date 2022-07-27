@@ -7,18 +7,18 @@ export default class index extends PureComponent {
     constructor(porps) {
         super(porps)
         this.state = {
-            drawerValue:"",
-            showDrawerswitchval: false
+            drawerValue: "",
+            showDrawerswitchval: false,
+            name:'',
         }
     }
-    showDrawer = (val) => {
-        console.log(val,"text");
+    showDrawer = (text, record) => {
         this.setState({
-            drawerValue:val,
-            showDrawerswitchval: !this.state.showDrawerswitchval
+            drawerValue: text,
+            showDrawerswitchval: !this.state.showDrawerswitchval,
+            name:record.name
         })
     }
-
     onClose = () => {
         this.setState({
             showDrawerswitchval: false,
@@ -27,7 +27,7 @@ export default class index extends PureComponent {
     render() {
         const { form, value } = this.props;
         const { getFieldDecorator, setFieldsValue } = form;
-        const { drawerValue } = this.state;
+        const { drawerValue, name } = this.state;
         return (
             <Card
                 title="k8s资源"
@@ -35,6 +35,7 @@ export default class index extends PureComponent {
                     marginBottom: 16,
                 }}>
                 {(value && value.length > 0) ? (
+                    <>
                     <Table
                         columns={[
                             {
@@ -65,27 +66,7 @@ export default class index extends PureComponent {
                                 key: "content",
                                 render: (text, record) => {
                                     return <>
-                                        <Button onClick={() => this.showDrawer(text)}>查看详情</Button>
-                                        <Drawer
-                                            title="yaml"
-                                            placement="right"
-                                            closable={false}
-                                            onClose={this.onClose}
-                                            visible={this.state.showDrawerswitchval}
-                                            width={500}
-                                        >
-                                            <CodeMirrorForm
-                                                setFieldsValue={setFieldsValue}
-                                                Form={Form}
-                                                style={{ marginBottom: '20px' }}
-                                                getFieldDecorator={getFieldDecorator}
-                                                name={record.name}
-                                                data={drawerValue || ''}
-                                                mode={'yaml'}
-                                                isUpload={false}
-                                                disabled={true}
-                                            />
-                                        </Drawer>
+                                        <Button onClick={() => this.showDrawer(text, record)}>查看详情</Button>
                                     </>
                                 }
                             },
@@ -94,6 +75,27 @@ export default class index extends PureComponent {
                         pagination={true}
                     >
                     </Table>
+                <Drawer
+                    title="yaml"
+                    placement="right"
+                    closable={false}
+                    onClose={this.onClose}
+                    visible={this.state.showDrawerswitchval}
+                    width={500}
+                >
+                    <CodeMirrorForm
+                        setFieldsValue={setFieldsValue}
+                        Form={Form}
+                        style={{ marginBottom: '20px' }}
+                        getFieldDecorator={getFieldDecorator}
+                        name={ name }
+                        data={drawerValue || ''}
+                        mode={'yaml'}
+                        isUpload={false}
+                        disabled={true}
+                    />
+                </Drawer>
+                </>
                 ) : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                 )
