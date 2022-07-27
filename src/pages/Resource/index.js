@@ -34,7 +34,7 @@ class Index extends PureComponent {
       team_name: teamName,
       app_id: app_id,
     }).then(res => {
-      if (res.response_data.code == 200) {
+      if (res && res.response_data  && res.response_data.code == 200) {
         this.setState({
           content: res.list,
           localContent: "",
@@ -112,7 +112,7 @@ class Index extends PureComponent {
       list_name: deleteVal.name,
       List_id: deleteVal.ID
     }).then(res => {
-      if (res.response_data.code == 200) {
+      if (res && res.response_data  &&  res.response_data.code == 200) {
         notification.success({
           message: '删除成功'
         })
@@ -141,7 +141,7 @@ class Index extends PureComponent {
         app_id: app_id,
         yaml: list.yaml
       }).then(res => {
-        if (res.response_data.code == 200) {
+        if (res && res.response_data  &&  res.response_data.code == 200) {
           notification.success({
             message: '添加完成'
           })
@@ -163,7 +163,7 @@ class Index extends PureComponent {
         yaml: list.yaml,
         List_id: editid,
       }).then(res => {
-        if (res.response_data.code == 200) {
+        if (res && res.response_data  &&  res.response_data.code == 200) {
           notification.success({
             message: '修改成功'
           })
@@ -185,7 +185,6 @@ class Index extends PureComponent {
       form: { getFieldDecorator, setFieldsValue }
     } = this.props;
     const { content, localContent, title } = this.state;
-
     const formItemLayout = {
       labelCol: {
         xs: { span: 4 },
