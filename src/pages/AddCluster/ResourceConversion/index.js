@@ -52,7 +52,7 @@ export default class ImportMessage extends PureComponent {
             minmoduleArr: {},//单个组件内容
             type: 0,
             index: '0',
-            loadingswitch: true,
+            loadingSwitch: true,
             kubernetes: []
         };
     }
@@ -119,16 +119,14 @@ export default class ImportMessage extends PureComponent {
                 namespace: this.props.location.query.namespace
             },
             callback: res => {
-                if (res.response_data.code === 200) {
+                if (res && res.response_data  &&  res.response_data.code === 200) {
                     const appname = Object.keys(res.bean)
                     this.setState({
                         appnameArr: appname,
                         module: res.bean,
                         moduleArr: res.bean.[appname[0]].convert_resource,
                         kubernetes: res.bean.[appname[0]].kubernetes_resources,
-                        loadingswitch: false
-                    },() =>{
-
+                        loadingSwitch: false
                     })
                 }
             }
@@ -175,7 +173,7 @@ export default class ImportMessage extends PureComponent {
             ))
     }
     render() {
-        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingswitch, module, kubernetes } = this.state;
+        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingSwitch, module, kubernetes } = this.state;
         const namespace = this.props.location.query.namespace
         return (
             <div>
@@ -197,8 +195,8 @@ export default class ImportMessage extends PureComponent {
                                                     this.handleType(item, index);
                                                 }}
                                             >
-                                                <Tooltip placement="right" title={item === "UnLabel" ? "未分组": item}>
-                                                    <span>{item === "UnLabel" ? "未分组": item }</span>
+                                                <Tooltip placement="right" title={item === "unclassified" ? "未分组": item}>
+                                                    <span>{item === "unclassified" ? "未分组": item }</span>
                                                 </Tooltip>
                                                 <Icon type="right" />
                                             </div>
@@ -210,7 +208,7 @@ export default class ImportMessage extends PureComponent {
                     </Affix>
                 </div>
 
-                {loadingswitch ? (
+                {loadingSwitch ? (
                     <div className={styles.loadingstyle}>
                         <Spin size="large" />
                     </div>

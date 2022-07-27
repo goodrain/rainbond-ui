@@ -32,6 +32,7 @@ export default class ImportMessage extends PureComponent {
             text: '这是折叠面板',
             nameSpaceArr: [],
             resourceData: {},
+            resourceDataIndex:[],
             namespace: '',
             loadingSwitch: true,
         };
@@ -90,9 +91,10 @@ export default class ImportMessage extends PureComponent {
                     resourceData: res.bean,
                     loadingSwitch: false
                 }, () => {
-                    const { resourceData } = this.state
+                    const { resourceData,  resourceDataIndex} = this.state
                     const arr = Object.keys(resourceData).map((item) => {
                         return resourceData[item]
+                               
                     })
                 })
             }
@@ -101,6 +103,7 @@ export default class ImportMessage extends PureComponent {
     handleChange = (value) => {
         this.handleResource(value)
         this.setState({
+            resourceDataIndex:[],
             namespace: value,
             loadingSwitch: true
         })
@@ -133,7 +136,7 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
-        const { text, nameSpaceArr, resourceData, loadingSwitch } = this.state
+        const { text, nameSpaceArr, resourceData, loadingSwitch, resourceDataIndex } = this.state
         return (
             <PageHeaderLayout
                 title="导入资源"
@@ -160,16 +163,17 @@ export default class ImportMessage extends PureComponent {
                         ) : (
                             <Row className={styles.importCard}>
                                 {resourceData && Object.keys(resourceData).length > 0 ? (<Collapse
-                                    defaultActiveKey={[0, 1, 2, 3, 4, 5]}
+                                    defaultActiveKey={ resourceDataIndex }
                                     onChange={this.callback}
                                     expandIconPosition='right'
                                 >
                                     {resourceData && Object.keys(resourceData).map((item, index) => {
                                         let resourceDataItem = resourceData[item];
+                                        resourceDataIndex.push(index)
                                         return (
                                             <Panel
                                                 header={
-                                                    <div>label: app={item === "UnLabel" ? "未分组" : item}</div>
+                                                    <div>label: app={item === "unclassified" ? "未分组" : item}</div>
                                                 }
                                                 key={index}
                                                 extra={this.genExtra()}
