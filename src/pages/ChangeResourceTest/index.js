@@ -27,7 +27,6 @@ class Index extends PureComponent {
         }
     }
     callback = (key) => {
-        console.log(key);
     }
     handerClick = () => {
         window.history.back()
