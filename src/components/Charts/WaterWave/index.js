@@ -36,8 +36,8 @@ export default class WaterWave extends PureComponent {
   };
 
   renderChart() {
-    const { percent, color = '#1890FF' } = this.props;
-    const data = percent / 100;
+    const { percent, color = '#1890FF', memorySum = 1 } = this.props;
+    const data = percent ? (percent / 100 ) : (memorySum / 100)
     const self = this;
 
     if (!this.node || !data) {
@@ -192,7 +192,7 @@ export default class WaterWave extends PureComponent {
           {percent ? (
             <h4>{percent}%</h4>
           ):(
-            <h4>{memorySum}MiB</h4>
+            <div style={{fontSize:'20px',fontWeight:'bolder'}}>{memorySum}MiB</div>
           )}
         </div>
       </div>
