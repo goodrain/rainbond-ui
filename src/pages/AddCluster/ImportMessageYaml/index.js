@@ -108,7 +108,6 @@ export default class ImportMessage extends PureComponent {
     );
     //折叠面板处罚方法
     callback = (key) => {
-        console.log(key, 'key')
     }
     //下一步
     onNext = () => {
@@ -148,7 +147,7 @@ export default class ImportMessage extends PureComponent {
                         <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3></div>
                         <Row className={styles.importCards}>
                             <Collapse
-                                defaultActiveKey={[0,1, 2, 3, 4, 5]}
+                                defaultActiveKey={[0]}
                                 onChange={this.callback}
                                 expandIconPosition='right'
                             >

@@ -22,7 +22,7 @@ class Index extends PureComponent {
     showDeletePort: false,
     deleteVal: {},
     editName: '',
-    editid: 0,
+    editId: 0,
   };
   componentDidMount() {
     this.getPageContent()
@@ -80,7 +80,7 @@ class Index extends PureComponent {
       visible: true,
       editName: row.name,
       localContent: row.content,
-      editid: row.ID,
+      editId: row.ID,
       title: "修改"
     })
   }
@@ -124,7 +124,6 @@ class Index extends PureComponent {
       })
     })
   }
-
   cancalDeletePort = () => {
     this.setState({
       showDeletePort: !this.state.showDeletePort
@@ -133,7 +132,7 @@ class Index extends PureComponent {
   handelAddOrEdit = (list) => {
     const teamName = globalUtil.getCurrTeamName()
     const app_id = globalUtil.getAppID();
-    const { selectval, type, editid } = this.state
+    const { selectval, type, editId } = this.state
     // 判断是新增还是修改
     if (type == "add") {
       addSingleKubernetesVal({
@@ -161,7 +160,7 @@ class Index extends PureComponent {
         app_id: app_id,
         list_name: this.state.editName,
         yaml: list.yaml,
-        List_id: editid,
+        List_id: editId,
       }).then(res => {
         if (res && res.response_data  &&  res.response_data.code == 200) {
           notification.success({
@@ -236,7 +235,7 @@ class Index extends PureComponent {
               <>
                 <span style={{ color: 'red' }}>创建失败</span>
                 <Popover
-                  overlayClassName={styles.popoverstyle}
+                  overlayClassName={styles.tooltip_style}
                   placement="bottom"
                   title="失败详情"
                   content={record.status.substr(4)}
@@ -254,7 +253,7 @@ class Index extends PureComponent {
               <div >
                 <span style={{ color: 'red' }}>更新失败</span>
                 <Popover
-                  overlayClassName={styles.popoverstyle}
+                  overlayClassName={styles.tooltip_style}
                   placement="bottom"
                   title="失败详情"
                   content={record.status.substr(4)}

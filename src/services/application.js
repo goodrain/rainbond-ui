@@ -908,7 +908,6 @@ export async function addSingleKubernetesVal(body = {}) {
 }
 // 应用下删除单个k8s资源
 export async function delSingleKubernetesVal(body = {}) {
-  console.log(body);
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/${body.list_name}`,
     {
@@ -922,7 +921,6 @@ export async function delSingleKubernetesVal(body = {}) {
 }
 // 应用下修改单个k8s资源
 export async function editSingleKubernetesVal(body = {}) {
-  console.log(body);
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/${body.list_name}`,
     {
