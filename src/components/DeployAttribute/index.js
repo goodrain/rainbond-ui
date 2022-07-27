@@ -11,7 +11,7 @@ export default class DeployAttribute extends Component {
     return (
         <Card
         title="部署属性"
-        className={styles.cardstyle}
+        className={styles.deployCard}
         style={{
             marginBottom: 16,
         }}>
@@ -25,12 +25,12 @@ export default class DeployAttribute extends Component {
                     <h3 className={styles.deploydatanum}>实例数:<span>{value.replicas ? value.replicas : 0}</span></h3>
                 </Row>
                 <Row>
-                    <div className={styles.ramstyle}>
+                    <div className={styles.ram}>
                         <h3 >内存:<span>{( value.memory != null && value.memory === 0 ) ? "无限制" : value.memory}</span>MB</h3>
                     </div>
                 </Row>
                 <Row>
-                    <div className={styles.cpustyle}>
+                    <div className={styles.cpu}>
                         <h3>CPU:<span>{(value.cpu != null && value.cpu === 0) ?  "无限制" : value.cpu}</span>MB</h3>
                     </div>
                 </Row>

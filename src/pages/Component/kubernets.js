@@ -18,12 +18,12 @@ class Index extends PureComponent {
       visible: false,
       drawerTitle: "新增属性",
       selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged",'env'],
-      selectval: undefined,
+      selectVal: undefined,
       havevalArr: [],
-      drawerswitch: "add",
-      jsonvalue: '',
-      yamlvalue: '',
-      strvalue: '',
+      drawerSwitch: "add",
+      jsonValue: '',
+      yamlValue: '',
+      strValue: '',
       showDeletePort:false
 
     }
@@ -65,11 +65,11 @@ class Index extends PureComponent {
     this.setState({
       visible: true,
       drawerTitle: "新增属性",
-      drawerswitch: val,
-      selectval: undefined,
-      jsonvalue: '',
-      yamlvalue: '',
-      strvalue: ''
+      drawerSwitch: val,
+      selectVal: undefined,
+      jsonValue: '',
+      yamlValue: '',
+      strValue: ''
     })
   }
   // 修改
@@ -77,38 +77,38 @@ class Index extends PureComponent {
     const { allData } = this.state
     if (val.save_type == "yaml") {
       this.setState({
-        yamlvalue: val.attribute_value
+        yamlValue: val.attribute_value
       })
     } else if (val.save_type == "json") {
       this.setState({
-        jsonvalue: val.attribute_value
+        jsonValue: val.attribute_value
       })
     } else if (val.save_type == "string") {
       this.setState({
-        strvalue: val.attribute_value
+        strValue: val.attribute_value
       })
     }
     this.setState({
       minArr: allData[index],
       visible: true,
       drawerTitle: '修改属性',
-      drawerswitch: str,
-      selectval: val.name,
+      drawerSwitch: str,
+      selectVal: val.name,
     })
   }
 
   // 删除
   deleteBtn = (val, str) => {
-    const { selectval } =this.state
+    const { selectVal } =this.state
     const teamName = globalUtil.getCurrTeamName()
     const service_alias = this.props.service_alias || ''
     deleteKubernetes({
       team_name: teamName,
       service_alias: service_alias,
-      value_name: selectval,
+      value_name: selectVal,
     }).then(res => {
 
-      if(res.response_data.code == 200){
+      if(res && res.response_data  &&  res.response_data.code == 200){
         this.setState({
           showDeletePort:!this.state.showDeletePort,
         })
@@ -124,7 +124,7 @@ class Index extends PureComponent {
   cancalDeletePort = (item) =>{
     if(item != null){
       this.setState({
-        selectval:item.name,
+        selectVal:item.name,
         showDeletePort:!this.state.showDeletePort,
       })
     }else{
@@ -137,83 +137,83 @@ class Index extends PureComponent {
   // 下拉框
   handleChange = (val) => {
     this.setState({
-      selectval: val
+      selectVal: val
     })
   }
 
   // 提交
   handleSubmit = (e) => {
     e.preventDefault()
-    const { selectval, drawerswitch, minArr } = this.state
+    const { selectVal, drawerSwitch, minArr } = this.state
     const { form, dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const service_alias = this.props.service_alias || ''
     var list = []
     form.validateFields((err, value) => {
-      if (selectval == "nodeSelector" && value.nodeSelector[0].key && value.nodeSelector[0].value) {
+      if (selectVal == "nodeSelector" && value.nodeSelector[0].key && value.nodeSelector[0].value) {
         const label = {
-          name: selectval,
+          name: selectVal,
           save_type: "json",
           attribute_value: value.nodeSelector || []
         }
         this.handelAddOrEdit(label)
-      } else if (selectval == "labels" && value.labels[0].key && value.labels[0].value) {
+      } else if (selectVal == "labels" && value.labels[0].key && value.labels[0].value) {
         const label = {
-          name: selectval,
+          name: selectVal,
           save_type: "json",
           attribute_value: value.labels || []
         }
         this.handelAddOrEdit(label)
 
-      } else if (selectval == "volumeMounts"&& value.volumeMounts != null && value.volumeMounts.length > 0) {
+      } else if (selectVal == "volumeMounts"&& value.volumeMounts != null && value.volumeMounts.length > 0) {
         const label = {
-          name: selectval,
+          name: selectVal,
           save_type: "yaml",
           attribute_value: value.volumeMounts || []
         }
         this.handelAddOrEdit(label)
 
-      } else if (selectval == "volumes" && value.volumes != null && value.volumes.length > 0) {
+      } else if (selectVal == "volumes" && value.volumes != null && value.volumes.length > 0) {
         const label = {
-          name: selectval,
+          name: selectVal,
           save_type: "yaml",
           attribute_value: value.volumes || []
         }
         this.handelAddOrEdit(label)
 
-      } else if (selectval == "affinity" && value.affinity != null && value.affinity.length > 0) {
+      } else if (selectVal == "affinity" && value.affinity != null && value.affinity.length > 0) {
         const label = {
-          name: selectval,
+          name: selectVal,
           save_type: "yaml",
           attribute_value: value.affinity || []
         }
         this.handelAddOrEdit(label)
 
-      } else if (selectval == "tolerations" && value.tolerations != null && value.tolerations.length > 0) {
+      } else if (selectVal == "tolerations" && value.tolerations != null && value.tolerations.length > 0) {
         const label = {
-          name: selectval,
+          name: selectVal,
           save_type: "yaml",
           attribute_value: value.tolerations || []
         }
         this.handelAddOrEdit(label)
-      }  else if (selectval == "env" && value.env != null && value.env.length > 0) {
+      }  else if (selectVal == "env" && value.env != null && value.env.length > 0) {
         const label = {
-          name: selectval,
+          name: selectVal,
           save_type: "yaml",
           attribute_value: value.env || []
         }
         this.handelAddOrEdit(label)
-      }else if (selectval == "serviceAccountName" && value.serviceAccountName != null && value.serviceAccountName.length > 0) {
+      }else if (selectVal == "serviceAccountName" && value.serviceAccountName != null && value.serviceAccountName.length > 0) {
         const label = {
-          name: selectval,
+          name: selectVal,
           save_type: "string",
           attribute_value: value.serviceAccountName || []
         }
         this.handelAddOrEdit(label)
 
-      } else if (selectval == "privileged" && value.privileged != null) {
+      } else if (selectVal == "privileged" && value.privileged != null) {
         const label = {
-          name: selectval,
+          name: selectVal,
           save_type: "string",
           attribute_value: `${value.privileged}` || 'false'
         }
@@ -226,7 +226,7 @@ class Index extends PureComponent {
     })
   }
 // 取消cancel
-  handlecancel =() =>{
+  handleCancel =() =>{
     this.setState({
       visible: false
     })
@@ -236,16 +236,16 @@ class Index extends PureComponent {
   handelAddOrEdit = (list) => {
     const teamName = globalUtil.getCurrTeamName()
     const service_alias = this.props.service_alias || ''
-    const { selectval, drawerswitch } = this.state
+    const { selectVal, drawerSwitch } = this.state
     // 判断是新增还是修改
-    if (drawerswitch == "add") {
+    if (drawerSwitch == "add") {
       addKubernetes({
         team_name: teamName,
         service_alias: service_alias,
-        value_name: selectval,
+        value_name: selectVal,
         attribute: list
       }).then(res => {
-        if(res.response_data.code == 200){
+        if(res && res.response_data  &&  res.response_data.code == 200){
         notification.success({
           message:'属性添加成功'
         })
@@ -255,14 +255,14 @@ class Index extends PureComponent {
           visible: false
         })
       })
-    } else if (drawerswitch == "change") {
+    } else if (drawerSwitch == "change") {
       editKubernetes({
         team_name: teamName,
         service_alias: service_alias,
-        value_name: selectval,
+        value_name: selectVal,
         attribute: list
       }).then(res => {
-        if(res.response_data.code == 200){
+        if(res && res.response_data  &&  res.response_data.code == 200){
         notification.success({
           message:'属性修改成功'
         })
@@ -297,21 +297,21 @@ class Index extends PureComponent {
           </path>
       </svg>
   )
-    const { drawerTitle, selectArr, selectval, havevalArr, drawerswitch, type, allData, jsonvalue, yamlvalue, strvalue, boolvalue } = this.state;
+    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, jsonValue, yamlValue, strValue, boolvalue } = this.state;
     const { getFieldDecorator, setFieldsValue } = form;
-    const trueArr = [];
-    const falseArr = [];
+    const addible = [];
+    const notAddible = [];
     selectArr.map((item, index) => {
       if (havevalArr.includes(item) == true) {
-        trueArr.push(item)
+        addible.push(item)
       }
-      return trueArr
+      return addible
     })
     selectArr.map((item, index) => {
       if (havevalArr.includes(item) == false) {
-        falseArr.push(item)
+        notAddible.push(item)
       }
-      return falseArr
+      return notAddible
     })
 
     const formItemLayoutss = {
@@ -365,11 +365,11 @@ class Index extends PureComponent {
                   style={{ width: 220 }}
                   onChange={this.handleChange}
                   placeholder="请选择属性"
-                  disabled={drawerswitch === "change"}
-                  value={selectval}
+                  disabled={drawerSwitch === "change"}
+                  value={selectVal}
                 >
                   <OptGroup label="可添加">
-                    {falseArr.map((item, index) => {
+                    {notAddible.map((item, index) => {
                       return <Option
                                 key={index}
                                 value={item}
@@ -379,7 +379,7 @@ class Index extends PureComponent {
                     })}
                   </OptGroup>
                   <OptGroup label="不可添加">
-                    {trueArr.map((item, index) => {
+                    {addible.map((item, index) => {
                       return <Option
                                 key={index}
                                 value={item}
@@ -393,21 +393,21 @@ class Index extends PureComponent {
               </Col>
             </Row>
             <Form onSubmit={this.handleSubmit}>
-              {selectval &&
-                ((selectval == "nodeSelector") || (selectval == "labels")) &&
+              {selectVal &&
+                ((selectVal == "nodeSelector") || (selectVal == "labels")) &&
                 <Form.Item {...formItemLayouts}>
                   <p>请输入对应的key,value</p>
-                  <div className={styles.inputsytle}>
-                  {getFieldDecorator(`${selectval}`, {
-                    initialValue: jsonvalue || [],
-                    rules: [{ required: false, message: `请输入${selectval}` }]
+                  <div className={styles.nodeSelector_sytle}>
+                  {getFieldDecorator(`${selectVal}`, {
+                    initialValue: jsonValue || [],
+                    rules: [{ required: false, message: `请输入${selectVal}` }]
                   })(<DApvcinput />)}
                   </div>
                 </Form.Item>
               }
               {
-                selectval &&
-                ((selectval == "volumeMounts") || (selectval == "volumes") || (selectval == "affinity") || (selectval == "tolerations") || (selectval == "env")) &&
+                selectVal &&
+                ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env")) &&
                 <>
                   <p>&nbsp;</p>
                   <CodeMirrorForm
@@ -416,32 +416,32 @@ class Index extends PureComponent {
                     Form={Form}
                     style={{ marginBottom: '20px' }}
                     getFieldDecorator={getFieldDecorator}
-                    name={selectval}
+                    name={selectVal}
                     message="请编辑内容"
-                    data={yamlvalue || ''}
+                    data={yamlValue || ''}
                     mode={'yaml'}
                   />
               </>
               }
               {
-                selectval &&
-                selectval == "serviceAccountName" &&
+                selectVal &&
+                selectVal == "serviceAccountName" &&
                 <Form.Item  {...formItemLayouts}>
                   <p>请输入serviceAccountName属性</p>
-                  <div className={styles.accountNamestyle}>
-                  {getFieldDecorator(`${selectval}`, {
-                    initialValue: strvalue || '',
+                  <div className={styles.accountName_style}>
+                  {getFieldDecorator(`${selectVal}`, {
+                    initialValue: strValue || '',
                     rules: [{ required: false, message: '请输入ServiceAccountName' }]
                   })(<Input placeholder='请输入ServiceAccountName' />)}
                   </div>
                 </Form.Item>
               }
               {
-                selectval &&
-                selectval == "privileged" &&
+                selectVal &&
+                selectVal == "privileged" &&
                 <Form.Item  {...formItemLayouts}>
                   <p>是否开启privileged属性</p>
-                  {getFieldDecorator(`${selectval}`, {
+                  {getFieldDecorator(`${selectVal}`, {
                     initialValue: boolvalue || false,
                     rules: [{ required: false }]
                   })(<Switch style={{margin:"20px 0  0 50px"}}/>)}
@@ -449,10 +449,10 @@ class Index extends PureComponent {
               }
             </Form>
             </div>
-            <div className={styles.bottomstyle}>
+            <div className={styles.handleBtn_style}>
             <Button
                 style={{marginRight:"10px"}}
-                onClick={this.handlecancel}
+                onClick={this.handleCancel}
               >
                 取 消
               </Button>
@@ -464,14 +464,14 @@ class Index extends PureComponent {
               </Button>
             </div>
           </Drawer>
-          <div className={styles.rowstyles}>
+          <div className={styles.pageValue_style}>
             {
               allData &&
                 allData.length > 0 ? (
                 allData.map((item, index) => {
                   return <Row key={index}>
                             {(item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env") ? (
-                              <Col span={3} className={styles.yamlTitle}>{item.name}:</Col>
+                              <Col span={3} className={styles.yamlTitle_style}>{item.name}:</Col>
                             ):(
                               <Col span={3}>{item.name}:</Col>
                             )}
@@ -481,7 +481,7 @@ class Index extends PureComponent {
                                   item.attribute_value.length > 0 && 
                                   item.attribute_value.map( (ele,index) =>{
                                     return <Tooltip key={index} placement="top" title={<div><p>Key: {ele.key}</p><p>Value: {ele.value}</p></div>}>
-                                              <div className={styles.divstyle}>
+                                              <div className={styles.tipText_style}>
                                                   <span>{ele.key}</span>
                                                   <span>{ele.value}</span>
                                                 </div>
@@ -491,7 +491,7 @@ class Index extends PureComponent {
                                 {item.name &&
                                 (item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env")  &&
                                 item.attribute_value.length > 0 &&
-                                <div className={styles.yamlstyle}>
+                                <div className={styles.yamlValue_style}>
                                   {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;该配置以yaml文件形式存储,请点击右侧编辑按钮进行查看或修改。
                                 </div>
                                 }

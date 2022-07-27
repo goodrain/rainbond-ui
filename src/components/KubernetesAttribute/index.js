@@ -8,20 +8,20 @@ export default class index extends PureComponent {
         super(porps)
         this.state = {
             drawerValue: "",
-            showDrawerswitchval: false,
+            showDrawerSwitchVal: false,
             name:'',
         }
     }
     showDrawer = (text, record) => {
         this.setState({
             drawerValue: text,
-            showDrawerswitchval: !this.state.showDrawerswitchval,
+            showDrawerSwitchVal: !this.state.showDrawerSwitchVal,
             name:record.name
         })
     }
     onClose = () => {
         this.setState({
-            showDrawerswitchval: false,
+            showDrawerSwitchVal: false,
         });
     };
     render() {
@@ -80,7 +80,7 @@ export default class index extends PureComponent {
                     placement="right"
                     closable={false}
                     onClose={this.onClose}
-                    visible={this.state.showDrawerswitchval}
+                    visible={this.state.showDrawerSwitchVal}
                     width={500}
                 >
                     <CodeMirrorForm

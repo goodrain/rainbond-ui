@@ -62,16 +62,16 @@ export default class SpecialAttribute extends PureComponent {
 
                 {value && value.length > 0 ? (
                     value.map((item, index) => {
-                        return <Row key={index} className={styles.rowstyle}>
-                            <Col span={4} className={styles.colstyle}>{item.name ? item.name : "-"}:</Col>
-                            <Col span={20} className={styles.colstyleone}>
+                        return <Row key={index} className={styles.rowStyle}>
+                            <Col span={4} className={styles.colStyle}>{item.name ? item.name : "-"}:</Col>
+                            <Col span={20} className={styles.colStyleOne}>
                                 {item.save_type && item.save_type === "json" &&
                                     <>
                                         {item.attribute_value && 
                                         item.attribute_value.length > 0 && 
                                         Object.keys(JSON.parse(item.attribute_value)).map((val, numindex) => {
                                             return <Tooltip placement="top" title={<><p>Key: {val}</p><p>Value:  {JSON.parse(item.attribute_value).[val]}</p></>} key={numindex}>
-                                            <div className={styles.divstyle}>
+                                            <div className={styles.tooltip_style}>
                                                 <span>{val}</span>
                                                 <span>{JSON.parse(item.attribute_value).[val]}</span>
                                             </div>
@@ -82,7 +82,7 @@ export default class SpecialAttribute extends PureComponent {
                                 }
                                 {item.save_type && item.save_type === "yaml" &&
                                 <>
-                                    <div className={styles.drawerstyle}>
+                                    <div className={styles.yamlFiles_style }>
                                         {yamlIcon}&nbsp;&nbsp;&nbsp;&nbsp;该配置以yaml文件形式存储,请点击右侧按钮查看详情。
                                         <Button
                                             style={{marginLeft:'100px'}}
@@ -114,7 +114,7 @@ export default class SpecialAttribute extends PureComponent {
                                 }
                                 {item.save_type && item.save_type === "string" &&
                                 <Tooltip placement="top" title={item.attribute_value ? item.attribute_value : "-" }>
-                                    <div className={styles.divstyle} style={{padding:"10px 20px"}}>
+                                    <div className={styles.tooltip_style} style={{padding:"10px 20px"}}>
                                         {item.attribute_value ? item.attribute_value : "-" }
                                     </div>
                                 </Tooltip>
