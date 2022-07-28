@@ -1,3 +1,4 @@
+import dateUtil from '@/utils/date-util';
 import { Form, Input, Modal, Select, Skeleton } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -98,22 +99,9 @@ class ConfirmModal extends PureComponent {
       currentRolesLoading: false
     });
   };
-  //不能输入非汉字效验  效验不能输入非空字符串
-  validateNoChinese = (rule, value, callback) => {
-    let reg = /^[^\u4e00-\u9fa5]+$/g;
-    let regEmpty = /^\s*$/g;
-    if (value && !reg.test(value)) {
-      callback('书写格式错误');
-    } else if (value && regEmpty.test(value)) {
-      callback('缺陷编号不能为空');
-    } else {
-      callback();
-    }
-  }
-  
   render() {
     const { onCancel, data, form, title, loading } = this.props;
-    const { getFieldDecorator, getValueFormEvent } = form;
+    const { getFieldDecorator } = form;
     const {
       roles,
       currentRoles,
@@ -151,56 +139,38 @@ class ConfirmModal extends PureComponent {
       >
         <Skeleton loading={roleLoading || currentRolesLoading}>
           <Form onSubmit={this.handleSubmit}>
-            <FormItem {...formItemLayout} label="镜像仓库地址">
-              {getFieldDecorator('domain', {
-                initialValue: '',
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入镜像仓库地址',
-                  },
-                  {
-                    message: '不能输入汉字',
-                    validator: this.validateNoChinese
-                  },
-                  {
-                    max: 255,
-                    message: '最大长度为255个字符',
-                  }
-                ],
-                getValueFromEvent: event => {return event.target.value.replace(/(^\s*)|(\s*$)/g, '');},
-              })(<Input placeholder="请输入镜像仓库地址" />)}
-            </FormItem>
-            <FormItem {...formItemLayout} label="用户名">
-              {getFieldDecorator('username', {
-                initialValue: '',
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入用户名',
-                  },
-                  {
-                    max: 255,
-                    message: '最大长度为255个字符',
-                  }
-                ]
-              })(<Input placeholder="请输入用户名" />)}
-            </FormItem>
-            <FormItem {...formItemLayout} label="密码">
-              {getFieldDecorator('password', {
-                initialValue: '',
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入密码',
-                  },
-                  {
-                    max: 255,
-                    message: '最大长度为255个字符',
-                  }
-                ]
-              })(<Input placeholder="请输入密码" type="password" />)}
-            </FormItem>
+              <FormItem {...formItemLayout} label="用户名">
+                {getFieldDecorator('username', {
+                  initialValue: data.username || '',
+                  rules: [
+                    {
+                      required: true,
+                      message: '请输入用户名',
+                    },
+                    {
+                      max: 255,
+                      message: '最大长度为255个字符',
+                    }
+
+                  ]
+                })(<Input placeholder="请输入用户名" />)}
+              </FormItem>
+              <FormItem {...formItemLayout} label="密码">
+                {getFieldDecorator('password', {
+                  initialValue: data.password || '',
+                  rules: [
+                    {
+                      required: true,
+                      message: '请输入密码',
+                    },
+                    {
+                      max: 255,
+                      message: '最大长度为255个字符',
+                    }
+
+                  ]
+                })(<Input placeholder="请输入密码" type="password"/>)}
+              </FormItem>
           </Form>
         </Skeleton>
       </Modal>

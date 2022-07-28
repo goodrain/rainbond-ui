@@ -651,3 +651,49 @@ export async function fetchFeatures(body, handleError) {
     }
   );
 }
+/* 获取团队下镜像仓库授权信息 */
+export async function gitAuthorizationMessage (body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/registry/auth`,
+    {
+      method: 'get',
+    }
+  );
+}
+/* 添加团队下镜像仓库授权信息 */
+export async function addAuthorizationMessage (body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/registry/auth`,
+    {
+      method: 'post',
+      data: {
+        domain:body.domain,
+        username:body.username,
+        password:body.password
+      }
+    }
+  );
+}
+/* 修改团队下镜像仓库授权信息 */
+export async function editAuthorizationMessage (params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/registry/auth/${params.secret_id}`,
+    {
+      method: 'put',
+      data: {
+        username:params.username,
+        password:params.password
+      }
+    }
+  );
+}
+/* 删除团队下镜像仓库授权信息 */
+export async function delAuthorizationMessage (params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/registry/auth/${params.secret_id}`,
+    {
+      method: 'delete',
+    }
+  );
+}
+

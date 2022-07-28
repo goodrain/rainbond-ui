@@ -42,7 +42,8 @@ export default class Index extends PureComponent {
       eventPermissions: this.handleEventPermissions('dynamic_describe'),
       memberPermissions: this.handlePermissions('queryTeamMemberInfo'),
       datecenterPermissions: this.handlePermissions('queryTeamRegionInfo'),
-      rolePermissions: this.handlePermissions('queryTeamRolesInfo')
+      rolePermissions: this.handlePermissions('queryTeamRolesInfo'),
+      registryPermissions: this.handlePermissions('queryTeamRegistryAuth') 
     };
   }
 
@@ -52,7 +53,8 @@ export default class Index extends PureComponent {
       eventPermissions,
       memberPermissions: { isAccess: memberAccess },
       datecenterPermissions: { isAccess: datecenterAccess },
-      rolePermissions: { isAccess: roleAccess }
+      rolePermissions: { isAccess: roleAccess },
+      registryPermissions:{ isAccess: registryAccess}
     } = this.state;
     if (
       !eventPermissions &&
@@ -190,12 +192,13 @@ export default class Index extends PureComponent {
       memberPermissions,
       datecenterPermissions,
       rolePermissions,
+      registryPermissions,
       memberPermissions: { isAccess: memberAccess },
       datecenterPermissions: { isAccess: datecenterAccess },
       rolePermissions: { isAccess: roleAccess },
+      registryPermissions: { isAccess: registryAccess},
       tabActiveKey
     } = this.state;
-
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.avatar}>
@@ -262,10 +265,10 @@ export default class Index extends PureComponent {
         tab: '角色'
       });
     }
-    if (memberAccess) {
+    if (registryAccess) {
       tabList.push({
         key: 'image',
-        tab: '镜像仓库'
+        tab: '镜像仓库授权信息'
       });
     }
 
@@ -295,10 +298,9 @@ export default class Index extends PureComponent {
         {scope === 'event' && eventPermissions && (
           <TeamEventList memberPermissions={memberPermissions} />
         )}
-        {scope === 'image' && eventPermissions && (
-          <TeamImageList memberPermissions={memberPermissions} />
+        {scope === 'image' && registryAccess && (
+          <TeamImageList memberPermissions={registryPermissions} />
         )}
-
         {showEditName && (
           <MoveTeam
             teamAlias={currentTeam.team_alias}

@@ -20,7 +20,8 @@ const AccessText = {
   teamMember: '团队成员管理',
   teamRole: '团队角色管理',
   teamRegion: '团队集群管理',
-  app_config_group: '应用配置组管理'
+  app_config_group: '应用配置组管理',
+  teamRegistryAuth: '镜像仓库授权信息管理'
 };
 
 let arr = [
@@ -183,7 +184,9 @@ export default {
   queryTeamRolesInfo(data, targets) {
     return this.queryTeamUserPermissionsInfo(data, 'teamRole', targets);
   },
-
+  queryTeamRegistryAuth(data, targets) {
+    return this.queryTeamUserPermissionsInfo(data, 'teamRegistryAuth', targets);
+  },
   // team  permissions list
   queryTeamUserPermissionsInfo(permissionsInfo, moduleName, targets) {
     const results = [];
