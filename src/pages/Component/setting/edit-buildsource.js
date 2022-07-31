@@ -303,14 +303,14 @@ export default class ChangeBuildSource extends PureComponent {
                       message: '最大长度190位'
                     }
                   ],
-                })(<Input />)}
+                })(<Input placeholder="请输入镜像名称" />)}
               </FormItem>
               <FormItem
                 {...formItemLayout}
                 label="启动命令"
               >
                 {getFieldDecorator('cmd', {
-                })(<Input />)}
+                })(<Input placeholder="请输入启动命令" />)}
               </FormItem>
 
               <Form.Item
