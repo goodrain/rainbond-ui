@@ -3279,9 +3279,8 @@ export async function getKubernetes(body = {}) {
 
 
 
-// 修改数据
+// 修改Kubernetes属性
 export async function editKubernetes(body = {}) {
-  console.log(body,'body')
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes/${body.value_name}`,
     {
@@ -3293,7 +3292,7 @@ export async function editKubernetes(body = {}) {
     
   );
 }
-// 删除数据
+// 删除Kubernetes属性
 export async function deleteKubernetes(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes/${body.value_name}`,
@@ -3302,5 +3301,6 @@ export async function deleteKubernetes(body = {}) {
     }
   );
 }
+
 
 

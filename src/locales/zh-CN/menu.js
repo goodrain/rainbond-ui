@@ -21,5 +21,6 @@ export default {
   'menu.app.backup': '备份',
   'menu.app.gateway': '网关',
   'menu.app.configgroups': '配置',
+  'menu.app.k8s': 'k8s资源',
   'menu.app.upgrade': '升级'
 };

@@ -171,6 +171,7 @@ export default class Index extends PureComponent {
         region: globalUtil.getCurrRegionName(),
         team_name: globalUtil.getCurrTeamName(),
         component_id: service_id,
+        file_type: 'jwar'
       },
       callback: data => {
         if (data.bean && data.bean.source_dir && data.bean.source_dir.length > 0) {
