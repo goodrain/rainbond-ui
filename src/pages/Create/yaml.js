@@ -7,9 +7,10 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AddGroup from '../../components/AddOrEditGroup'
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/role'
 import globalUtil from '../../utils/global'
 import styles from './yaml.less';
+import { getUploadInformation } from '../../services/app';
 const { Dragger } = Upload;
 const { Option } = Select;
 
@@ -52,6 +53,20 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.handleJarWarUploadRecord('jwar')
+    const teamName = globalUtil.getCurrTeamName();
+    const { form, dispatch } = this.props;
+    dispatch({
+      type: "teamControl/getUploadInformation",
+      payload: {
+        team_name:teamName,
+          event_id: '123456789',
+          group_id: '123',
+      },
+      callback: (data) => {
+        console.log(data,"data");
+      },
+    });
+
   }
   componentWillUnmount() {
     this.loop = false;
@@ -73,6 +88,14 @@ export default class Index extends PureComponent {
             `/enterprise/${eid}/importMessageYaml`
           )
         );
+        // getUploadInformation({
+        //   team_name:teamName,
+        //   event_id: '123456789',
+        //   group_id: '123',
+        // }).then( res =>{
+        //   console.log(res,"res");
+        // })
+        
       } else if (value.up_type === 'jwar' && existFileList.length > 0) {
         dispatch({
           type: "createApp/createJarWarFormSubmit",
