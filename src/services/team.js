@@ -651,3 +651,17 @@ export async function fetchFeatures(body, handleError) {
     }
   );
 }
+
+// 获取yaml文件上传返回信息
+export async function getUploadInformation(body,) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/resource-name`,
+    {
+      method: 'get',
+      params: {
+        event_id: body.event_id,
+        group_id: body.group_id,
+      }
+    }
+  );
+}

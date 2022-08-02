@@ -23,6 +23,7 @@ class Index extends PureComponent {
     deleteVal: {},
     editName: '',
     editId: 0,
+    isSubmit: true
   };
   componentDidMount() {
     this.getPageContent()
@@ -34,7 +35,7 @@ class Index extends PureComponent {
       team_name: teamName,
       app_id: app_id,
     }).then(res => {
-      if (res && res.response_data  && res.response_data.code == 200) {
+      if (res && res.response_data && res.response_data.code == 200) {
         this.setState({
           content: res.list,
           localContent: "",
@@ -46,6 +47,7 @@ class Index extends PureComponent {
     this.setState({
       localContent: "",
       visible: false,
+      isSubmit: true
     });
   };
   // 新增
@@ -89,6 +91,7 @@ class Index extends PureComponent {
       title: "yaml",
       visible: true,
       localContent: row.content,
+      isSubmit: false
     })
   }
   // 删除提示框弹出
@@ -112,7 +115,7 @@ class Index extends PureComponent {
       list_name: deleteVal.name,
       List_id: deleteVal.ID
     }).then(res => {
-      if (res && res.response_data  &&  res.response_data.code == 200) {
+      if (res && res.response_data && res.response_data.code == 200) {
         notification.success({
           message: '删除成功'
         })
@@ -120,7 +123,8 @@ class Index extends PureComponent {
       }
       this.setState({
         showDeletePort: !this.state.showDeletePort,
-        visible: false
+        visible: false,
+        localContent: "",
       })
     })
   }
@@ -140,7 +144,7 @@ class Index extends PureComponent {
         app_id: app_id,
         yaml: list.yaml
       }).then(res => {
-        if (res && res.response_data  &&  res.response_data.code == 200) {
+        if (res && res.response_data && res.response_data.code == 200) {
           notification.success({
             message: '添加完成'
           })
@@ -151,7 +155,8 @@ class Index extends PureComponent {
           })
         }
         this.setState({
-          visible: false
+          visible: false,
+          localContent: "",
         })
       })
     } else if (type == "edit") {
@@ -162,7 +167,7 @@ class Index extends PureComponent {
         yaml: list.yaml,
         List_id: editId,
       }).then(res => {
-        if (res && res.response_data  &&  res.response_data.code == 200) {
+        if (res && res.response_data && res.response_data.code == 200) {
           notification.success({
             message: '修改成功'
           })
@@ -174,7 +179,8 @@ class Index extends PureComponent {
           this.getPageContent()
         }
         this.setState({
-          visible: false
+          visible: false,
+          localContent: "",
         })
       })
     }
@@ -183,7 +189,7 @@ class Index extends PureComponent {
     const {
       form: { getFieldDecorator, setFieldsValue }
     } = this.props;
-    const { content, localContent, title } = this.state;
+    const { content, localContent, title, isSubmit } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 4 },
@@ -239,7 +245,7 @@ class Index extends PureComponent {
                   placement="bottom"
                   title="失败详情"
                   content={record.status.substr(4)}
-                  trigger="hover"
+                  trigger="click"
                 >
                   <span
                     style={{ marginLeft: "20px", color: "#5672ac", cursor: "pointer" }}
@@ -280,7 +286,7 @@ class Index extends PureComponent {
           return (
             <>
               {record.success === 3 ? (
-                  <span className={styles.action} onClick={() => this.editErrButton("edit", record)} style={{ marginRight: "10px" }}>查看</span>
+                <span className={styles.action} onClick={() => this.editErrButton("edit", record)} style={{ marginRight: "10px" }}>查看</span>
               ) : (
                 <span className={styles.action} onClick={() => this.editButton("edit", record)} style={{ marginRight: "10px" }}>编辑</span>
               )
@@ -333,7 +339,7 @@ class Index extends PureComponent {
               formItemLayout={formItemLayouts}
               name={"yaml"}
               message="请编辑内容"
-              data={localContent || ""}
+              data={localContent || "" }
               mode={'yaml'}
             />
           </Form>
@@ -352,9 +358,11 @@ class Index extends PureComponent {
             <Button onClick={this.onClose} style={{ marginRight: 8 }}>
               取消
             </Button>
-            <Button onClick={this.handleSubmit} type="primary">
-              确定
-            </Button>
+            {isSubmit &&
+              <Button onClick={this.handleSubmit} type="primary">
+                确定
+              </Button>
+            }
           </div>
         </Drawer>
         {this.state.showDeletePort && (

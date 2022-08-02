@@ -26,7 +26,8 @@ import {
   removeRole,
   setJoinTeamUsers,
   stopComponentInTeam,
-  undoTeamUsers
+  undoTeamUsers,
+  getUploadInformation
 } from '../services/team';
 
 export default {
@@ -248,8 +249,15 @@ export default {
           payload: response.list
         });
       }
-    }
+    },
+    *getUploadInformation({ payload, callback }, { call }) {
+      const response = yield call(getUploadInformation, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
   },
+  
   reducers: {
     saveCurrentTeamPermissionsInfo(state, { payload }) {
       return {
