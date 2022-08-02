@@ -53,20 +53,6 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.handleJarWarUploadRecord('jwar')
-    const teamName = globalUtil.getCurrTeamName();
-    const { form, dispatch } = this.props;
-    dispatch({
-      type: "teamControl/getUploadInformation",
-      payload: {
-        team_name:teamName,
-          event_id: '123456789',
-          group_id: '123',
-      },
-      callback: (data) => {
-        console.log(data,"data");
-      },
-    });
-
   }
   componentWillUnmount() {
     this.loop = false;
@@ -82,20 +68,11 @@ export default class Index extends PureComponent {
     form.validateFields((err, value) => {
       if (err) return;
       if (value.up_type === 'yaml' && existFileList.length > 0) {
-        const eid = 'f0a3efe26ebff6e2a87b176fbd3256ec'
         dispatch(
           routerRedux.push(
-            `/enterprise/${eid}/importMessageYaml`
+            `/team/${teamName}/region/${regionName}/importMessageYaml?event_id=${event_id}&group_id=${value.group_id}`
           )
         );
-        // getUploadInformation({
-        //   team_name:teamName,
-        //   event_id: '123456789',
-        //   group_id: '123',
-        // }).then( res =>{
-        //   console.log(res,"res");
-        // })
-        
       } else if (value.up_type === 'jwar' && existFileList.length > 0) {
         dispatch({
           type: "createApp/createJarWarFormSubmit",

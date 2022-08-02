@@ -55,6 +55,8 @@ export default class Index extends PureComponent {
   };
 
   handleSubmit = (value,event_id) => {
+    const eventId = event_id;
+    const groupId = value.group_id;
     const { form, dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const regionName = globalUtil.getCurrRegionName()
@@ -70,11 +72,11 @@ export default class Index extends PureComponent {
         //   const appAlias = data && data.bean.service_alias
         //   this.props.setPare(event_id);
         //   this.props.handleType && this.props.handleType === "Service" ? this.props.handleServiceGetData(appAlias):
-        //   dispatch(
-        //     routerRedux.push(
-        //       `/team/${teamName}/region/${regionName}/create/create-check/${appAlias}?event_id=${event_id}`
-        //     )
-        //   );
+          dispatch(
+            routerRedux.push(
+              `/team/${teamName}/region/${regionName}/importMessageYaml?event_id=${eventId}&group_id=${groupId}`
+            )
+          );
         },
     });
   };

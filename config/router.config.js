@@ -150,18 +150,6 @@ export default [
             authority: ['admin', 'user']
           },
           {
-            path:'/enterprise/:eid/ChangeResourceTest',
-            component: './ChangeResourceTest/index',
-            name: 'newsetting',
-            authority: ['admin', 'user']
-          },
-          {
-            path: '/enterprise/:eid/importMessageYaml',
-            component: './AddCluster/ImportMessageYaml',
-            name: 'ImportMessageYaml',
-            authority: ['admin', 'user']
-          },
-          {
             path: '/enterprise/:eid/provider/:provider/kclusters',
             component: './AddCluster/KClusterList',
             name: 'KClusterList',
@@ -545,6 +533,18 @@ export default [
             path: '/team/:teamName/region/:regionName/gateway/license',
             component: './GateWay/license',
             name: 'license',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/team/:teamName/region/:regionName/importMessageYaml',
+            component: './AddCluster/ImportMessageYaml',
+            name: 'ImportMessageYaml',
+            authority: ['admin', 'user']
+          },
+          {
+            path:'/team/:teamName/region/:regionName/ChangeResourceTest',
+            component: './ChangeResourceTest/index',
+            name: 'newsetting',
             authority: ['admin', 'user']
           },
           { component: '404' }
