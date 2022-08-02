@@ -346,7 +346,7 @@ class Index extends PureComponent {
               formItemLayout={formItemLayouts}
               name={"yaml"}
               message="请编辑内容"
-              data={localContent}
+              data={localContent || "" }
               mode={'yaml'}
             />
           </Form>
