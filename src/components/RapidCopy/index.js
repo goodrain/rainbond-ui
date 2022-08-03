@@ -502,6 +502,7 @@ export default class Index extends PureComponent {
                   version,
                   image,
                   git_url: gitUrl,
+                  package_name,
                   rain_app_name: rainAppName,
                   service_source: serviceSource
                 } = buildSource || {};
@@ -521,7 +522,7 @@ export default class Index extends PureComponent {
                   : isMarketApp
                   ? rainAppName
                   : isUploadFilesApp
-                  ? gitUrl
+                  ? package_name
                   : '';
 
                 let versionConetent = '';
