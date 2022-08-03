@@ -51,7 +51,7 @@ export default class ImportMessage extends PureComponent {
             moduleArr: [],//组件数组内容
             minmoduleArr: {},//单个组件内容
             type: 0,
-            index: '0',
+            tabKey: '0',
             loadingSwitch: true,
             kubernetes: []
         };
@@ -67,26 +67,26 @@ export default class ImportMessage extends PureComponent {
             this.setState({
                 moduleArr: module.[item].convert_resource,
                 kubernetes:module.[item].kubernetes_resources,
-                index: '0',
+                tabKey: '0',
             })
         } else if(module.[item].convert_resource != null){
             this.setState({
                 moduleArr: module.[item].convert_resource,
                 k8sArr: module.[item].kubernetes_resources,
-                index: '0',
+                tabKey: '0',
             })
         }
         else if(module.[item].kubernetes_resources != null){
             this.setState({
                 kubernetes:module.[item].kubernetes_resources,
-                index: 'hello',
+                tabKey: 'k8s',
             })
         }
         else {
             this.setState({
                 moduleArr: [],
                 minmoduleArr: {},
-                index: 'hello',
+                tabKey: 'k8s',
             })
         }
         this.setState({
@@ -97,7 +97,7 @@ export default class ImportMessage extends PureComponent {
     // tabs切换
     tabSwitch = (key) => {
         this.setState({
-            index: key
+            tabKey: key
         })
     }
     componentDidMount() {
@@ -173,7 +173,7 @@ export default class ImportMessage extends PureComponent {
             ))
     }
     render() {
-        const { type, appnameArr, moduleArr, minmoduleArr, index, loadingSwitch, module, kubernetes } = this.state;
+        const { type, appnameArr, moduleArr, minmoduleArr, tabKey, loadingSwitch, module, kubernetes } = this.state;
         const namespace = this.props.location.query.namespace
         return (
             <div>
@@ -217,11 +217,12 @@ export default class ImportMessage extends PureComponent {
                         <div className={styles.alltable}>
                             <Tabs
                                 onChange={this.tabSwitch}
-                                activeKey={this.state.index}
-                                ref={(e) => { this._Tabs = e }}
+                                activeKey={this.state.tabKey}
+                                ref={(e) => { this._Tabs = e }
+                            }
                             >
-                                {moduleArr && moduleArr.length > 0 && moduleArr.map((item, index) => {
-                                    return <TabPane tab={item.components_name} key={`${index}`}>
+                                {moduleArr && moduleArr.length > 0 && moduleArr.map((item, num) => {
+                                    return <TabPane tab={item.components_name} key={`${num}`}>
                                         {/* ConfigProvider */}
                                             {/* 部署属性 */}
                                             {
@@ -266,7 +267,7 @@ export default class ImportMessage extends PureComponent {
                                     </TabPane>
                                 })}
                                 {kubernetes && kubernetes.length > 0 &&
-                                    <TabPane tab="k8s资源" key="hello">
+                                    <TabPane tab="k8s资源" key="k8s">
                                         <Kubernetes 
                                             value = {kubernetes}
                                         />
