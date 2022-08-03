@@ -62,7 +62,8 @@ export default class AppList extends PureComponent {
       service_id: [],
       upgradeLoading: false,
       rollbackLoading: false,
-      conshow: true
+      conshow: true,
+      isAppOrComponent: false
     };
   }
   componentDidMount() {
@@ -100,8 +101,20 @@ export default class AppList extends PureComponent {
               }
               return null;
             });
+            upgrade_component_ids.push('upgrade_info')
           }
-
+          const appObj = {}
+          const service = {
+                          can_upgrade: true,
+                          current_version: "1.0",
+                          have_change: true,
+                          service_cname: "应用属性变更",
+                          service_id: "upgrade_info",
+                          service_key: "upgrade_info",
+                          type: "upgrade"
+                        }
+          appObj.service = service
+          appObj.upgrade_info = res.bean.upgrade_info
           this.setState(
             {
               upgradeInfo: res.list || [],
@@ -110,6 +123,10 @@ export default class AppList extends PureComponent {
               selectVersion: true
             },
             () => {
+              const { upgradeInfo } = this.state
+              if(res.bean.upgrade_info && res.bean.upgrade_info.k8s_resources){
+                upgradeInfo.push(appObj)
+              }
               if (callback) {
                 callback();
               }
@@ -299,6 +316,7 @@ export default class AppList extends PureComponent {
       probes,
       connect_infos,
       component_k8s_attributes,
+      k8s_resources,
       ports,
       volumes,
       dep_services,
@@ -341,6 +359,8 @@ export default class AppList extends PureComponent {
     const isVolumes = this.handleData(volumes);
 
     const isComponent_k8s_attributes = this.handleData(component_k8s_attributes);
+
+    const isK8s_resources = this.handleData(k8s_resources);
 
     function addArr(title, description) {
       arr.push({
@@ -463,6 +483,9 @@ export default class AppList extends PureComponent {
       addArr('K8S 属性', this.handleBox(null, component_k8s_attributes, 'name'));
     }
 
+    if(isK8s_resources){
+      addArr('K8S 属性', this.handleBox(null, k8s_resources, 'name'));
+    }
     return arr;
   };
 
@@ -616,6 +639,15 @@ export default class AppList extends PureComponent {
   };
   handleSelectComponent = select_component => {
     const { upgradeInfo } = this.state;
+    if(select_component.service.service_id === 'upgrade_info'){
+      this.setState({
+        isAppOrComponent: true
+      })
+    }else{
+      this.setState({
+        isAppOrComponent: false
+      })
+    }
     if (select_component.service.service_id) {
       const show_upgrade_infos = upgradeInfo.filter(
         item => item.service.service_id == select_component.service.service_id
@@ -781,7 +813,8 @@ export default class AppList extends PureComponent {
       loadingDetail,
       loadingUpgradeDetail,
       upgradeDetail,
-      selectVersion
+      selectVersion,
+      isAppOrComponent
     } = this.state;
     const JumpAddress = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}`;
     const formItemLayout = {
@@ -959,7 +992,7 @@ export default class AppList extends PureComponent {
               >
                 <div className={styles.zslbor}>
                   {isUpgrade && (
-                    <div className={styles.zslcen}>组件属性变更详情</div>
+                    <div className={styles.zslcen}>{isAppOrComponent ? '应用属性变更详情' : '组件属性变更详情'}</div>
                   )}
                   <Row
                     gutter={24}

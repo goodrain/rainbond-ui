@@ -2,7 +2,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-undef */
 import PageHeaderLayout from '@/layouts/PageHeaderLayout';
-import { Button, Card, Drawer, Form, Table, notification, Popover } from 'antd';
+import { Button, Card, Drawer, Form, Table, notification, Popover, Spin } from 'antd';
 import React, { PureComponent } from 'react';
 import globalUtil from "../../utils/global"
 import CodeMirrorForm from '../../components/CodeMirrorForm';
@@ -13,18 +13,23 @@ import styles from './index.less';
 
 @Form.create()
 class Index extends PureComponent {
-  state = {
-    visible: false,
-    content: [],
-    localContent: "",
-    type: "add",
-    title: "新增",
-    showDeletePort: false,
-    deleteVal: {},
-    editName: '',
-    editId: 0,
-    isSubmit: true
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: false,
+      content: [],
+      localContent: '',
+      type: "add",
+      title: "新增",
+      showDeletePort: false,
+      deleteVal: {},
+      editName: '',
+      editId: 0,
+      isSubmit: true,
+      loadingSwitch: true,
+    };
+  }
+
   componentDidMount() {
     this.getPageContent()
   }
@@ -38,26 +43,24 @@ class Index extends PureComponent {
       if (res && res.response_data && res.response_data.code == 200) {
         this.setState({
           content: res.list,
-          localContent: "",
+          localContent: '',
         })
       }
     })
   }
   onClose = () => {
     this.setState({
-      localContent: "",
       visible: false,
-      isSubmit: true
+      isSubmit: true,
     });
   };
   // 新增
-  handleConfigurationOperation = (val) => {
-    const { type, localContent } = this.state
+  handleConfigurationOperation = () => {
     this.setState({
       visible: true,
       title: "新增",
-      localContent: "",
-      type: "add"
+      type: "add",
+      localContent: '#请填写yaml文件',
     });
   };
   handleSubmit = () => {
@@ -121,11 +124,10 @@ class Index extends PureComponent {
         })
         this.getPageContent()
       }
-      this.setState({
-        showDeletePort: !this.state.showDeletePort,
-        visible: false,
-        localContent: "",
-      })
+    })
+    this.setState({
+      showDeletePort: !this.state.showDeletePort,
+      visible: false,
     })
   }
   cancalDeletePort = () => {
@@ -153,11 +155,8 @@ class Index extends PureComponent {
           notification.error({
             message: '添加失败'
           })
+          this.getPageContent()
         }
-        this.setState({
-          visible: false,
-          localContent: "",
-        })
       })
     } else if (type == "edit") {
       editSingleKubernetesVal({
@@ -178,18 +177,18 @@ class Index extends PureComponent {
           })
           this.getPageContent()
         }
-        this.setState({
-          visible: false,
-          localContent: "",
-        })
       })
     }
+    this.setState({
+      visible: false,
+    })
   }
   render() {
     const {
-      form: { getFieldDecorator, setFieldsValue }
+      form: { getFieldDecorator, setFieldsValue },
+
     } = this.props;
-    const { content, localContent, title, isSubmit } = this.state;
+    const { content, localContent, title, isSubmit, loadingSwitch } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 4 },
@@ -229,8 +228,8 @@ class Index extends PureComponent {
       },
       {
         title: '状态',
-        dataIndex: 'success',
-        key: 'success',
+        dataIndex: 'state',
+        key: 'state',
         align: 'center',
         width: 200,
         render: (text, record) => {
@@ -244,7 +243,7 @@ class Index extends PureComponent {
                   overlayClassName={styles.tooltip_style}
                   placement="bottom"
                   title="失败详情"
-                  content={record.status.substr(4)}
+                  content={record.error_overview.substr(4)}
                   trigger="click"
                 >
                   <span
@@ -262,7 +261,7 @@ class Index extends PureComponent {
                   overlayClassName={styles.tooltip_style}
                   placement="bottom"
                   title="失败详情"
-                  content={record.status.substr(4)}
+                  content={record.error_overview.substr(4)}
                   trigger="click"
                 >
                   <span
@@ -285,7 +284,7 @@ class Index extends PureComponent {
         render: (text, record) => {
           return (
             <>
-              {record.success === 3 ? (
+              {record.state === 3 ? (
                 <span className={styles.action} onClick={() => this.editErrButton("edit", record)} style={{ marginRight: "10px" }}>查看</span>
               ) : (
                 <span className={styles.action} onClick={() => this.editButton("edit", record)} style={{ marginRight: "10px" }}>编辑</span>
@@ -317,11 +316,19 @@ class Index extends PureComponent {
               this.handleConfigurationOperation();
             }}
           >
-            添加配置组
+            添加
           </Button>
         </div>
         <Card>
-          <Table dataSource={content} columns={columns} />
+          {loadingSwitch ? (
+            <div className={styles.loadingStyle}>
+              <Spin size="large" />
+            </div>
+          ): (
+              <Table dataSource = { content } columns = { columns } />
+
+            )}
+
         </Card>
         <Drawer
           title={title}

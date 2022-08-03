@@ -1462,7 +1462,10 @@ const global = {
       'create-service-plugin': '创建组件插件',
       'update-service-plugin': '更新组件插件',
       'delete-service-plugin': '删除组件插件',
-      'update-service-plugin-config': '更新组件插件配置'
+      'update-service-plugin-config': '更新组件插件配置',
+      'delete-component-k8s-attributes': '删除 k8s 属性',
+      'update-component-k8s-attributes': '更新 k8s 属性',
+      'create-component-k8s-attributes': '创建 k8s 属性'
     };
     return statusOptType[state] || state;
   },

@@ -27,7 +27,9 @@ import {
   Row,
   Select,
   Table,
-  Tabs
+  Tabs,
+  Popover,
+  Drawer
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -44,6 +46,7 @@ import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
 import BatchEditPublishComponent from './components/BatchEditPublishComponent';
+import CodeMirrorForm from '../../components/CodeMirrorForm'
 import mytabcss from './mytab.less';
 
 const { TabPane } = Tabs;
@@ -389,6 +392,7 @@ export default class Main extends PureComponent {
       service_cname: '',
       dep_service_name: [],
       share_service_list: [],
+      share_k8s_resources: [],
       ShareTypeShow: false,
       scopeValue: 'goodrain:private',
       appDetail: {},
@@ -404,7 +408,11 @@ export default class Main extends PureComponent {
       batchEditShow: false,
       selectComponentID: [],
       allSelect: false,
-      isAppPlugin:null
+      isAppPlugin: null,
+      currentPage: 1,
+      showDrawerSwitchVal: false,
+      k8sContent: '',
+      k8sName:""
     };
     this.com = [];
     this.share_group_info = null;
@@ -456,7 +464,8 @@ export default class Main extends PureComponent {
             plugin_list: data.bean.share_plugin_list,
             selectedApp,
             tabk: data.bean.share_service_list[0].service_share_uuid,
-            share_service_list: data.bean.share_service_list
+            share_service_list: data.bean.share_service_list,
+            share_k8s_resources: data.bean.share_k8s_resources
           });
           if (
             data.bean.share_service_list &&
@@ -638,7 +647,7 @@ export default class Main extends PureComponent {
   };
   handleSubmit = () => {
     const { dispatch, form } = this.props;
-    const { record, sharearrs, share_service_list, isAppPlugin } = this.state;
+    const { record, sharearrs, share_service_list, isAppPlugin, share_k8s_resources } = this.state;
     const newinfo = {};
     form.validateFields((err, values) => {
       if (!err) {
@@ -662,7 +671,7 @@ export default class Main extends PureComponent {
         share_service_list.map((item, index) => {
           const { extend_method_map, service_id } = item;
           if (extend_method_map) {
-            Object.keys(extend_method_map).forEach(function(key) {
+            Object.keys(extend_method_map).forEach(function (key) {
               if (values[`${service_id}||${key}`]) {
                 share_service_data[index].extend_method_map[key] =
                   values[`${service_id}||${key}`];
@@ -745,6 +754,7 @@ export default class Main extends PureComponent {
         newinfo.app_version_info = appVersionInfo;
         newinfo.share_service_list = arr;
         newinfo.share_plugin_list = this.state.plugin_list;
+        newinfo.share_k8s_resources = share_k8s_resources
         const teamName = globalUtil.getCurrTeamName();
         const { appID, shareId } = this.props.match.params;
         dispatch({
@@ -1013,8 +1023,28 @@ export default class Main extends PureComponent {
       );
     }
   };
+  //切换分页
+  getPageContent = (page) => {
+    this.setState({
+      currentPage: page
+    })
+  }
+  //关闭抽屉组件
+  onClose = () => {
+    this.setState({
+        showDrawerSwitchVal: false,
+    });
+  };
+  //查看k8s资源详情
+  showDrawer = (text, record) => {
+    this.setState({
+        k8sContent: text,
+        k8sName: record.name,
+        showDrawerSwitchVal: !this.state.showDrawerSwitchVal,
+    })
+  }
   render() {
-    const { info, tabk, share_service_list, plugin_list } = this.state;
+    const { info, tabk, share_service_list, plugin_list, share_k8s_resources, currentPage, k8sContent, k8sName } = this.state;
     if (!info) {
       return null;
     }
@@ -1027,7 +1057,7 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName
     } = this.props;
-    const { getFieldDecorator, getFieldValue } = form;
+    const { getFieldDecorator, getFieldValue, setFieldsValue } = form;
 
     const {
       shareModal,
@@ -1068,6 +1098,17 @@ export default class Main extends PureComponent {
     const marketId = record.scope_target && record.scope_target.store_id;
     const marketVersion =
       record.scope_target && record.scope_target.store_version;
+    //前端分页
+    const perPageNum = 5; // 每页展示5条数据
+    const count = share_k8s_resources.length; // 假使已通过接口获取到接口的数据data，计算data的长度
+    const minPage = 1; // 最小页码是1
+    const maxPage = Math.ceil(count / perPageNum); // 计算最大的页码
+    const curPageData = share_k8s_resources.slice((currentPage - 1) * perPageNum, currentPage * perPageNum); // 当前页的数据
+    const pagination = {
+      onChange: this.getPageContent,
+      total: count,
+      pageSize: perPageNum,
+    };
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
@@ -1194,16 +1235,16 @@ export default class Main extends PureComponent {
 
                   <Form.Item {...formItemLayout} label="作为插件">
                     {getFieldDecorator('is_plugin', {
-                      initialValue:(versionInfo &&(versionInfo.is_plugin)) || false
+                      initialValue: (versionInfo && (versionInfo.is_plugin)) || false
                     })(
                       plugins.length > 0 ? (
-                    <Checkbox>
-                    </Checkbox>
-                    ):(
-                      <Checkbox disabled>
-                      </Checkbox>
-                    )
-                      
+                        <Checkbox>
+                        </Checkbox>
+                      ) : (
+                        <Checkbox disabled>
+                        </Checkbox>
+                      )
+
                     )}
                   </Form.Item>
                 </Col>
@@ -1285,7 +1326,7 @@ export default class Main extends PureComponent {
                     }}
                   >
                     {apps.map(apptit => {
-                      const id = apptit.service_share_uuid;
+                      const id = apptit.service_share_uuid
                       return (
                         <TabPane
                           key={id}
@@ -1320,7 +1361,7 @@ export default class Main extends PureComponent {
           </Card>
           <Card
             style={{
-              marginBottom: 128
+              marginBottom: 24
             }}
             title="发布插件模型信息"
             bordered={false}
@@ -1347,7 +1388,64 @@ export default class Main extends PureComponent {
               ]}
             />
           </Card>
-
+          <Card
+            style={{
+              marginBottom: 128
+            }}
+            title="K8S 资源"
+            bordered={false}
+          >
+            <Table
+              size="middle"
+              dataSource={curPageData}
+              columns={[
+                {
+                  title: '资源名称',
+                  dataIndex: 'name',
+                  key: 'name',
+                  align: 'left',
+                },
+                {
+                  title: '资源类型',
+                  dataIndex: 'kind',
+                  key: 'kind',
+                  align: 'left',
+                },
+                {
+                  title: '文件详情',
+                  dataIndex: 'content',
+                  key: "content",
+                  align:'center',
+                  render: (text, record) => {
+                    return <>
+                      <Button onClick={() => this.showDrawer(text, record)}>查看详情</Button>
+                    </>
+                  }
+                },
+              ]}
+              pagination={pagination}
+            />
+          </Card>
+          <Drawer
+            title="详情信息"
+            placement="right"
+            closable={true}
+            onClose={this.onClose}
+            visible={this.state.showDrawerSwitchVal}
+            width={500}
+          >
+            <CodeMirrorForm
+              setFieldsValue={setFieldsValue}
+              Form={Form}
+              style={{ marginBottom: '20px' }}
+              getFieldDecorator={getFieldDecorator}
+              data={k8sContent || ''}
+              name={k8sName}
+              mode={'yaml'}
+              isUpload={false}
+              disabled={true}
+            />
+          </Drawer>
           {shareModal && (
             <Modal
               title="依赖检测"

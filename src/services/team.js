@@ -665,3 +665,28 @@ export async function getUploadInformation(body,) {
     }
   );
 }
+// 获取yaml文件上传高级资源信息
+export async function getAdvancedInformation(body,) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/resource-detailed`,
+    {
+      method: 'get',
+      params: {
+        event_id: body.event_id,
+        group_id: body.group_id,
+      }
+    }
+  );
+}
+export async function confirmTheImport(body,) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/resource-detailed`,
+    {
+      method: 'post',
+      data: {
+        event_id: body.event_id,
+        group_id: body.group_id,
+      }
+    }
+  );
+}
