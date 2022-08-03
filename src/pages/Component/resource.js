@@ -744,11 +744,9 @@ export default class Index extends PureComponent {
                   编辑
                 </a>
               ) : (
-                !appUtil.isMarketAppByBuildSource(buildSource) && (
-                  <a onClick={this.changeBuildSource} href="javascript:;">
-                    更改
-                  </a>
-                )
+                <a onClick={this.changeBuildSource} href="javascript:;">
+                  更改
+                </a>
               )
             ]}
           >
