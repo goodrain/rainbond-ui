@@ -1154,11 +1154,11 @@ export default class Index extends PureComponent {
             </div>
           </Modal>
         }
-        {language && runtimeInfo && (
+        {languageType && runtimeInfo && (
           <CodeBuildConfig
             appDetail={this.props.appDetail}
             onSubmit={this.handleEditRuntime}
-            language={language}
+            language={languageType}
             runtimeInfo={this.state.runtimeInfo}
           />
         )}

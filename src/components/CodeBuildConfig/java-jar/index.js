@@ -43,7 +43,7 @@ class Index extends PureComponent {
           {getFieldDecorator("BUILD_PROCFILE", {
             initialValue: (envs && envs.BUILD_PROCFILE) || ""
           })(
-            <Input placeholder="web: java $JAVA_OPTS -jar ./webapp-runner.jar --port $PORT ./*.war" />
+            <Input placeholder="web: java $JAVA_OPTS -jar" />
           )}
         </Form.Item>
       </div>
