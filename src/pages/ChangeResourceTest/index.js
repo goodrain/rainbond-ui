@@ -2,7 +2,8 @@
 import {
     Tabs,
     Button,
-    Spin
+    Spin,
+    Empty
 } from 'antd';
 import { object } from 'prop-types';
 import { connect } from 'dva';
@@ -65,7 +66,7 @@ class Index extends PureComponent {
                     resourcesVal: data.list,
                 }, () => {
                     const { resourcesVal } = this.state
-                    if (resourcesVal.convert_resource.length > 0) {
+                    if (resourcesVal && resourcesVal.convert_resource && resourcesVal.convert_resource.length > 0) {
                         this.setState({
                             tabKey: '0'
                         })
@@ -119,44 +120,56 @@ class Index extends PureComponent {
         const { resourcesVal, tabKey } = this.state
         const moduleArrs = resourcesVal.convert_resource
         const k8sArr = resourcesVal.kubernetes_resources
+        const bool = (moduleArrs || k8sArr) ? false : true
+
         return (
             <Fragment>
                 <div className={styles.all_style}>
                     <h3>高级资源</h3>
+
                     <div className={styles.tabs_value}>
                         {this.state.switch ? (
-                            <Tabs
-                                activeKey={this.state.tabKey}
-                                ref={(e) => { this._Tabs = e }}
-                                onChange={this.callback}
-                            >
-                                {moduleArrs && moduleArrs.length > 0 &&
-                                    moduleArrs.map((item, index) => {
-                                        return <TabPane
-                                            tab={item.components_name}
-                                            key={index}
-                                        >
-                                            {/* 部署属性 */}
-                                            <DeployAttribute value={item.basic_management} />
-                                            {/* 端口属性 */}
-                                            <PortAttribute value={item.port_management} />
-                                            {/* 环境变量 */}
-                                            <EnvVariable value={item.env_management} />
-                                            {/* 配置文件 */}
-                                            <ConfigurationFiles value={item.config_management} />
-                                            {/* 自动伸缩 */}
-                                            <FlexAttribute value={item.telescopic_management} />
-                                            {/* 健康检测 */}
-                                            <HealthAttribute value={item.health_check_management} />
-                                            {/* 特殊属性 */}
-                                            <SpecialAttribute value={item.component_k8s_attributes_management} />
+                            <>
+                                {bool ? (
+                                    // <div style={styles.empty_style}>
+                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ marginTop: '300px' }} />
+                                    // </div>
+                                ) : (
+                                    <Tabs
+                                        activeKey={this.state.tabKey}
+                                        ref={(e) => { this._Tabs = e }}
+                                        onChange={this.callback}
+                                    >
+                                        {moduleArrs && moduleArrs.length > 0 &&
+                                            moduleArrs.map((item, index) => {
+                                                return <TabPane
+                                                    tab={item.components_name}
+                                                    key={index}
+                                                >
+                                                    {/* 部署属性 */}
+                                                    <DeployAttribute value={item.basic_management} />
+                                                    {/* 端口属性 */}
+                                                    <PortAttribute value={item.port_management} />
+                                                    {/* 环境变量 */}
+                                                    <EnvVariable value={item.env_management} />
+                                                    {/* 配置文件 */}
+                                                    <ConfigurationFiles value={item.config_management} />
+                                                    {/* 自动伸缩 */}
+                                                    <FlexAttribute value={item.telescopic_management} />
+                                                    {/* 健康检测 */}
+                                                    <HealthAttribute value={item.health_check_management} />
+                                                    {/* 特殊属性 */}
+                                                    <SpecialAttribute value={item.component_k8s_attributes_management} />
+                                                </TabPane>
+                                            })
+                                        }
+                                        <TabPane tab="k8s资源" key="k8s">
+                                            <Kubernetes value={k8sArr} />
                                         </TabPane>
-                                    })
-                                }
-                                <TabPane tab="k8s资源" key="k8s">
-                                    <Kubernetes value={k8sArr} />
-                                </TabPane>
-                            </Tabs>
+                                    </Tabs>
+                                )}
+                            </>
+
                         ) : (
                             <div className={styles.loading}>
                                 <Spin size="large" />
@@ -186,7 +199,7 @@ class Index extends PureComponent {
                         style={{ marginRight: 8 }}
                         onClick={this.nextStep}
                         type="primary">
-                        确认上传
+                        部署
                     </Button>
                 </div>
             </Fragment>
