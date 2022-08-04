@@ -647,7 +647,7 @@ export default class Main extends PureComponent {
   };
   handleSubmit = () => {
     const { dispatch, form } = this.props;
-    const { record, sharearrs, share_service_list, isAppPlugin } = this.state;
+    const { record, sharearrs, share_service_list, isAppPlugin, share_k8s_resources } = this.state;
     const newinfo = {};
     form.validateFields((err, values) => {
       if (!err) {
@@ -754,6 +754,7 @@ export default class Main extends PureComponent {
         newinfo.app_version_info = appVersionInfo;
         newinfo.share_service_list = arr;
         newinfo.share_plugin_list = this.state.plugin_list;
+        newinfo.share_k8s_resources = share_k8s_resources
         const teamName = globalUtil.getCurrTeamName();
         const { appID, shareId } = this.props.match.params;
         dispatch({

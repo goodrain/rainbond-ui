@@ -107,10 +107,6 @@ export default class ImportMessage extends PureComponent {
         const { resourceData, loadingSwitch } = this.state
         const errorArr = resourceData.error_yaml
         const successArr = resourceData.app_resource
-        console.log(successArr);
-        // console.log(successArr[workloads]);
-        // console.log(successArr[un_support]);
-        // console.log(successArr[workloads]);
         return (
             <PageHeaderLayout
                 title="导入资源"
@@ -146,7 +142,6 @@ export default class ImportMessage extends PureComponent {
                         {/* {resourceData[app_resource]. > 0 &&  resourceData[app_resource].length > 0 && resourceData[app_resource].length > 0} */}
 
                         {resourceData && Object.keys(resourceData).map((item, index) => {
-                            console.log();
                             let resourceDataItem = resourceData[item];
                             if (index == Object.keys(resourceData).length - 1) {
                                 return <></>
