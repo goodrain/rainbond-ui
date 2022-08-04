@@ -45,13 +45,11 @@ export default class ImportMessage extends PureComponent {
     componentDidMount() {
         this.handleResource();
     }
-    handleResource  = () =>{
+    handleResource = () => {
         const { dispatch } = this.props;
         const teamName = globalUtil.getCurrTeamName();
-        const event_id = this.props.location && this.props.location.query && this.props.location.query.event_id  || ''
-        const group_id = this.props.location && this.props.location.query && this.props.location.query.group_id  || ''
-        // const event_id = '123456789';
-        // const group_id = '123';
+        const event_id = this.props.location && this.props.location.query && this.props.location.query.event_id || ''
+        const group_id = this.props.location && this.props.location.query && this.props.location.query.group_id || ''
         dispatch({
             type: "teamControl/getUploadInformation",
             payload: {
@@ -93,10 +91,7 @@ export default class ImportMessage extends PureComponent {
         const regionName = globalUtil.getCurrRegionName();
         const event_id = this.props.location && this.props.location.query && this.props.location.query.event_id || ''
         const group_id = this.props.location && this.props.location.query && this.props.location.query.group_id || ''
-        // const event_id = '123456789';
-        // const group_id = '123';
         dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/ChangeResourceTest?event_id=${event_id}&group_id=${group_id}`));
-
     }
     render() {
         const {
@@ -104,52 +99,58 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
-        const {   resourceData, loadingSwitch } = this.state
-
+        const { resourceData, loadingSwitch } = this.state
         const errorArr = resourceData.error_yaml
+        const successArr = resourceData.app_resource
         return (
             <PageHeaderLayout
                 title="导入资源"
                 content=""
             >
-                
-                <Card style={{ padding: '24px 12px' }}>
-                    <Row type="flex" style={{ width: '100%', padding: '24px 0px', }}>
-                        <div style={{ width: '120px', textAlign: 'right' }}><h3>未识别列表：</h3></div>
-                        {   
-                            errorArr &&
-                            Object.keys(errorArr).length > 0 &&
+                {loadingSwitch ? (
+                    <div className={styles.loadingstyle}>
+                        <Spin size="large" />
+                    </div>
+                ) : (
+                    <Card style={{ padding: '24px 12px' }}>
+                        {
                             Object.keys(errorArr).map((item, index) => {
                                 const errorItem = errorArr.[item]
                                 return <>
-                                    <Alert
-                                        style={{width:'calc(100% - 120px)',marginTop:'-6px'}}
-                                        message={`未识别文件:${item} 未识别原因:${errorItem.status}`}
-                                        banner
-                                        // closable
-                                    />
+                                    {errorItem.status.length < 0 ? (
+                                        <></>
+                                    ) : (
+                                        <>
+                                            <Row type="flex" style={{ width: '100%', padding: '24px 0px', }}>
+                                                <div style={{ width: '120px', textAlign: 'right' }}><h3>未识别列表：</h3></div>
+                                                <Alert
+                                                    style={{ width: 'calc(100% - 120px)', marginTop: '-6px' }}
+                                                    message={`未识别文件:${item} 未识别原因:${errorItem.status}`}
+                                                    banner
+                                                />
+                                            </Row>
+                                        </>
+                                    )}
                                 </>
                             })
                         }
-                    </Row>
-                    <Row type="flex" style={{ width: '100%', padding: '24px 0px', minHeight: '400px' }}>
-                        <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3></div>
-                        {loadingSwitch ? (
-                            <div className={styles.loadingstyle}>
-                                <Spin size="large" />
-                            </div>
-                        ) : (
-                            <Row className={styles.importCard}>
-                                {resourceData && Object.keys(resourceData).length > 0 ? (<Collapse
-                                    defaultActiveKey={[0]}
-                                    expandIconPosition='right'
-                                >
-                                    {resourceData && Object.keys(resourceData).map((item, index) => {
-                                        let resourceDataItem = resourceData[item];
-                                        if (index == Object.keys(resourceData).length - 1) {
-                                            return <></>
-                                        } else {
-                                            return (
+                        {resourceData && Object.keys(resourceData).map((item, index) => {
+                            let resourceDataItem = resourceData[item];
+                            if (index == Object.keys(resourceData).length - 1) {
+                                return <></>
+                            } else {
+                                return <>
+                                    {
+                                    (Object.keys(resourceDataItem.workloads).length > 0 || 
+                                    Object.keys(resourceDataItem.un_support).length > 0 ||
+                                    Object.keys(resourceDataItem.others).length > 0 )  &&
+                                    <Row type="flex" style={{ width: '100%', padding: '24px 0px', minHeight: '400px' }}>
+                                        <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3></div>
+                                        <Row className={styles.importCard}>
+                                            <Collapse
+                                                defaultActiveKey={[0]}
+                                                expandIconPosition='right'
+                                            >
                                                 <Panel
                                                     header={
                                                         <div>label: app={item === "unclassified" ? "未分组" : item}</div>
@@ -225,22 +226,20 @@ export default class ImportMessage extends PureComponent {
                                                         </div>
                                                     </Row>
                                                 </Panel>
-                                            )
-                                        }
+                                            </Collapse>
+                                        </Row>
+                                    </Row>
+                            }</>
+                            }
+                        })}
 
-                                    })}
-                                </Collapse>) : (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />)}
-                            </Row>
-
-                        )}
-
-                    </Row>
-                    <Row style={{ textAlign: 'center' }}>
-                        <Button type="primary" onClick={this.onNext} style={{ marginLeft: '120px', padding: '0px 36px' }}>
-                            下一步
-                        </Button>
-                    </Row>
-                </Card>
+                        <Row style={{ textAlign: 'center' }}>
+                            <Button type="primary" onClick={this.onNext} style={{ marginLeft: '120px', padding: '0px 36px' }}>
+                                下一步
+                            </Button>
+                        </Row>
+                    </Card>
+                )}
             </PageHeaderLayout>
         );
     }

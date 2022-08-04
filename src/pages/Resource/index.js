@@ -44,6 +44,7 @@ class Index extends PureComponent {
         this.setState({
           content: res.list,
           localContent: '',
+          loadingSwitch:false
         })
       }
     })

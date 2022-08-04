@@ -136,7 +136,7 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
-        const { text, nameSpaceArr, resourceData, loadingSwitch, resourceDataIndex } = this.state
+        const { text, nameSpaceArr, resourceData, loadingSwitch, resourceDataIndex, namespace} = this.state
         return (
             <PageHeaderLayout
                 title="导入资源"
@@ -162,7 +162,11 @@ export default class ImportMessage extends PureComponent {
                             </div>
                         ) : (
                             <Row className={styles.importCard}>
-                                {resourceData && Object.keys(resourceData).length > 0 ? (<Collapse
+                                {namespace &&
+                                 (namespace.length > 0) &&
+                                 resourceData &&
+                                 Object.keys(resourceData).length > 0 ? (
+                                 <Collapse
                                     defaultActiveKey={ resourceDataIndex }
                                     onChange={this.callback}
                                     expandIconPosition='right'

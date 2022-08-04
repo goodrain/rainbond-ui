@@ -68,7 +68,7 @@ class Index extends PureComponent {
       drawerSwitch: val,
       selectVal: undefined,
       jsonValue: '',
-      yamlValue: '',
+      yamlValue: '#apiVersion: v1\n #kind: Secret\n #metadata:\n  #name: mysecret\n  #namespace: default\n #type: Opaque\n #data:\n  #SER_NAME: YWRtaW4=\n  #PASSWORD: MWYyZDFlMmU2N2Rm',   
       strValue: ''
     })
   }
