@@ -121,7 +121,6 @@ class Index extends PureComponent {
         const moduleArrs = resourcesVal.convert_resource
         const k8sArr = resourcesVal.kubernetes_resources
         const bool = (moduleArrs || k8sArr) ? false : true
-
         return (
             <Fragment>
                 <div className={styles.all_style}>
@@ -131,9 +130,7 @@ class Index extends PureComponent {
                         {this.state.switch ? (
                             <>
                                 {bool ? (
-                                    // <div style={styles.empty_style}>
                                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ marginTop: '300px' }} />
-                                    // </div>
                                 ) : (
                                     <Tabs
                                         activeKey={this.state.tabKey}

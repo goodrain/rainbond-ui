@@ -50,8 +50,6 @@ export default class ImportMessage extends PureComponent {
         const teamName = globalUtil.getCurrTeamName();
         const event_id = this.props.location && this.props.location.query && this.props.location.query.event_id || ''
         const group_id = this.props.location && this.props.location.query && this.props.location.query.group_id || ''
-        // const event_id = '123456789';
-        // const group_id = '123';
         dispatch({
             type: "teamControl/getUploadInformation",
             payload: {
@@ -93,10 +91,7 @@ export default class ImportMessage extends PureComponent {
         const regionName = globalUtil.getCurrRegionName();
         const event_id = this.props.location && this.props.location.query && this.props.location.query.event_id || ''
         const group_id = this.props.location && this.props.location.query && this.props.location.query.group_id || ''
-        // const event_id = '123456789';
-        // const group_id = '123';
         dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/ChangeResourceTest?event_id=${event_id}&group_id=${group_id}`));
-
     }
     render() {
         const {
@@ -139,8 +134,6 @@ export default class ImportMessage extends PureComponent {
                                 </>
                             })
                         }
-                        {/* {resourceData[app_resource]. > 0 &&  resourceData[app_resource].length > 0 && resourceData[app_resource].length > 0} */}
-
                         {resourceData && Object.keys(resourceData).map((item, index) => {
                             let resourceDataItem = resourceData[item];
                             if (index == Object.keys(resourceData).length - 1) {
