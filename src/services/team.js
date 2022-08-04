@@ -653,7 +653,7 @@ export async function fetchFeatures(body, handleError) {
 }
 
 // 获取yaml文件上传返回信息
-export async function getUploadInformation(body,) {
+export async function getUploadInformation(body) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/resource-name`,
     {
@@ -666,7 +666,7 @@ export async function getUploadInformation(body,) {
   );
 }
 // 获取yaml文件上传高级资源信息
-export async function getAdvancedInformation(body,) {
+export async function getAdvancedInformation(body) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/resource-detailed`,
     {
@@ -676,9 +676,32 @@ export async function getAdvancedInformation(body,) {
         group_id: body.group_id,
       }
     }
+  )
+}
+/* 获取团队下镜像仓库授权信息 */
+export async function gitAuthorizationMessage (body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/registry/auth`,
+    {
+      method: 'get',
+    }
   );
 }
-export async function confirmTheImport(body,) {
+/* 添加团队下镜像仓库授权信息 */
+export async function addAuthorizationMessage (body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/registry/auth`,
+    {
+      method: 'post',
+      data: {
+        domain:body.domain,
+        username:body.username,
+        password:body.password
+      }
+    }
+  );
+}
+export async function confirmTheImport(body) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/resource-detailed`,
     {
@@ -688,5 +711,28 @@ export async function confirmTheImport(body,) {
         group_id: body.group_id,
       }
     }
+  )
+}
+/* 修改团队下镜像仓库授权信息 */
+export async function editAuthorizationMessage (params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/registry/auth/${params.secret_id}`,
+    {
+      method: 'put',
+      data: {
+        username:params.username,
+        password:params.password
+      }
+    }
   );
 }
+/* 删除团队下镜像仓库授权信息 */
+export async function delAuthorizationMessage (params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/registry/auth/${params.secret_id}`,
+    {
+      method: 'delete',
+    }
+  );
+}
+

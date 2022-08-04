@@ -36,8 +36,8 @@ export default class WaterWave extends PureComponent {
   };
 
   renderChart() {
-    const { percent, color = '#1890FF' } = this.props;
-    const data = percent / 100;
+    const { percent, color = '#1890FF', memorySum = 1 } = this.props;
+    const data = percent ? (percent / 100 ) : (memorySum / 100)
     const self = this;
 
     if (!this.node || !data) {
@@ -172,7 +172,7 @@ export default class WaterWave extends PureComponent {
 
   render() {
     const { radio } = this.state;
-    const { percent, title, height } = this.props;
+    const { percent, title, height, memorySum } = this.props;
     return (
       <div
         className={styles.waterWave}
@@ -189,7 +189,11 @@ export default class WaterWave extends PureComponent {
         </div>
         <div className={styles.text} style={{ width: height }}>
           {title && <span>{title}</span>}
-          <h4>{percent}%</h4>
+          {percent ? (
+            <h4>{percent}%</h4>
+          ):(
+            <div style={{fontSize:'20px',fontWeight:'bolder'}}>{memorySum}MiB</div>
+          )}
         </div>
       </div>
     );

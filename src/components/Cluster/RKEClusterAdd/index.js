@@ -203,7 +203,8 @@ export default class RKEClusterConfig extends PureComponent {
       forbiddenConfig: true,
       countConfig: true,
       countNum: 15,
-      countContent: null
+      countContent: null,
+      clusters: null
     };
     this.clusters = [];
   }
@@ -211,12 +212,39 @@ export default class RKEClusterConfig extends PureComponent {
   componentDidMount = () => {
     const { clusterID } = this.props;
     this.loadInitNodeCmd();
+    this.loadClusters();
     if (clusterID) {
       this.setNodeList();
     } else {
       this.fetchRkeconfig();
       this.handleAdd();
     }
+  };
+
+  loadClusters = () => {
+    const {
+      dispatch,
+      eid 
+    } = this.props;
+    dispatch({
+      type: 'region/fetchEnterpriseClusters',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.list) {
+          const clusters = [];
+          res.list.map((item, index) => {
+            item.key = `cluster${index}`;
+            clusters.push(item);
+            return item;
+          });
+          this.setState({ clusters });
+        } else {
+          this.setState({ clusters: [] });
+        }
+      }
+    });
   };
   setNodeList = () => {
     const { nodeList, rkeConfig, form } = this.props;
@@ -624,7 +652,8 @@ export default class RKEClusterConfig extends PureComponent {
       yamlVal,
       forbiddenConfig,
       countContent,
-      countConfig
+      countConfig,
+      clusters
     } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -735,7 +764,7 @@ export default class RKEClusterConfig extends PureComponent {
             >
               {clusterID ? '更新集群' : '开始安装'}
             </Button>
-            {guideStep && guideStep === 6 && handleNewbieGuiding && (
+            {guideStep && guideStep === 6 && handleNewbieGuiding && clusters && clusters.length === 0  && (
               <Fragment>
                 {handleNewbieGuiding({
                   tit: '6.开始安装',
@@ -881,7 +910,7 @@ export default class RKEClusterConfig extends PureComponent {
                 </ul>
               </Paragraph>
 
-              {guideStep && guideStep === 3 && handleNewbieGuiding && (
+              {guideStep && guideStep === 3 && handleNewbieGuiding && clusters && clusters.length === 0 && (
                 <Fragment>
                   {handleNewbieGuiding({
                     tit: '注意事项',
@@ -926,7 +955,7 @@ export default class RKEClusterConfig extends PureComponent {
                     ]
                   })(<Input placeholder="集群名称,请确保其保持唯一" />)}
                 </Form.Item>
-                {guideStep && guideStep === 4 && handleNewbieGuiding && (
+                {guideStep && guideStep === 4 && handleNewbieGuiding && clusters && clusters.length === 0  && (
                   <Fragment>
                     {handleNewbieGuiding({
                       tit: '填写集群名称',
@@ -993,7 +1022,7 @@ export default class RKEClusterConfig extends PureComponent {
             </TabPane>
             <TabPane tab="自定义配置" key="2" />
           </Tabs>
-          {guideStep && guideStep === 5 && handleNewbieGuiding && (
+          {guideStep && guideStep === 5 && handleNewbieGuiding && clusters && clusters.length === 0 && (
             <Fragment>
               {handleNewbieGuiding({
                 tit: '填写节点',

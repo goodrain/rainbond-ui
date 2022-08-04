@@ -289,7 +289,7 @@ export default class AutoDeploy extends PureComponent {
                     title={
                       (platform_url && (
                         <a
-                          href={`${platform_url}docs/user-manual/component-dev/auto_build/#基于源代码操作流程`}
+                          href={`${platform_url}docs/use-manual/component-manage/build-source/auto_build/#基于源代码操作流程`}
                           target="_blank"
                           style={{ color: '#fff' }}
                         >
@@ -416,7 +416,7 @@ export default class AutoDeploy extends PureComponent {
                   title={
                     (platform_url && (
                       <a
-                        href={`${platform_url}docs/user-manual/component-dev/auto_build/#api-触发自动构建`}
+                        href={`${platform_url}docs/use-manual/component-manage/build-source/auto_build/#api-触发自动构建`}
                         target="_blank"
                         style={{ color: '#fff' }}
                       >
@@ -506,7 +506,7 @@ export default class AutoDeploy extends PureComponent {
                   {platform_url && (
                     <Tooltip title="点击阅读文档">
                       <a
-                        href={`${platform_url}docs/user-manual/component-dev/auto_build/#基于镜像仓库操作流程`}
+                        href={`${platform_url}docs/use-manual/component-manage/build-source/auto_build/#基于镜像仓库操作流程`}
                         target="_blank"
                       >
                         <Icon type="question-circle-o" />
