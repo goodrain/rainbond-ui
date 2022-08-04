@@ -1100,10 +1100,10 @@ export default class Main extends PureComponent {
       record.scope_target && record.scope_target.store_version;
     //前端分页
     const perPageNum = 5; // 每页展示5条数据
-    const count = share_k8s_resources.length; // 假使已通过接口获取到接口的数据data，计算data的长度
+    const count = share_k8s_resources && share_k8s_resources.length || 0; // 假使已通过接口获取到接口的数据data，计算data的长度
     const minPage = 1; // 最小页码是1
     const maxPage = Math.ceil(count / perPageNum); // 计算最大的页码
-    const curPageData = share_k8s_resources.slice((currentPage - 1) * perPageNum, currentPage * perPageNum); // 当前页的数据
+    const curPageData = share_k8s_resources && share_k8s_resources.slice((currentPage - 1) * perPageNum, currentPage * perPageNum); // 当前页的数据
     const pagination = {
       onChange: this.getPageContent,
       total: count,

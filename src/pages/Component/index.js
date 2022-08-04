@@ -985,24 +985,35 @@ class Main extends PureComponent {
               )}
             </div>
             <div className={styles.content_Box}>
-              {!appDetail.is_third && isRestart && (
+              {!appDetail.is_third && isRestart && !appStatusUtil.canStart(status) ? (
                 <a
-                  onClick={() => {
-                    if (appStatusUtil.canRestart(status)) {
-                      this.handleDropClick('restart');
-                    }
-                  }}
                   style={{
                     cursor: !appStatusUtil.canRestart(status)
                       ? 'no-drop'
                       : 'pointer'
                   }}
+                  onClick={() => {
+                    if (appStatusUtil.canRestart(status)) {
+                      this.handleDropClick('restart');
+                    }
+                  }}
                 >
                   重启
                 </a>
-              )}
+              ):isStop &&
+              status &&
+              status.status &&
+              status.status === 'succeeded' ? (
+                <a
+                  onClick={() => {
+                    this.handleDropClick('restart');
+                  }}
+                >
+                  重启
+                </a>
+              ) : null}
               {!appDetail.is_third && isRestart && <Divider type="vertical" />}
-
+                  
               {isStop && !appStatusUtil.canStart(status) ? (
                 <span>
                   <a
@@ -1024,7 +1035,8 @@ class Main extends PureComponent {
               ) : isStop &&
                 status &&
                 status.status &&
-                status.status === 'upgrade' ? (
+                status.status === 'upgrade' ||
+                status.status === 'succeeded' ? (
                 <span>
                   <a
                     onClick={() => {
@@ -1212,7 +1224,8 @@ class Main extends PureComponent {
 
         {status.status === 'undeploy' ||
         status.status === 'closed' ||
-        status.status === 'stopping'
+        status.status === 'stopping' ||
+        status.status === 'succeeded'
           ? ''
           : isUpdate && (
               <Button
