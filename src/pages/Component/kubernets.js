@@ -24,8 +24,15 @@ class Index extends PureComponent {
       jsonValue: '',
       yamlValue: '',
       strValue: '',
-      showDeletePort:false
-
+      showDeletePort: false,
+      TooltipValueArr: {
+        affinity:'#示例\n#nodeAffinity:\n#      preferredDuringSchedulingIgnoredDuringExecution:\n#      - weight: 1\n#        preference:\n#          matchExpressions:\n#          - key: disktype\n#            operator: In\n#            values:\n#           - ssd\n',
+        tolerations:'#示例\n#- key: "test"\n#  operator: "Equal"\n#  value: "yk"\n#  effect: "NoSchedule"\n',
+        env:'#示例\n#- name: NGINX_USERNAEM\n#  valueFrom:\n#    secretKeyRef:\n#      key: username\#      name: test-secret\n#      optional: false\n#- name: NGINX_PASSWORD\#  valueFrom:\n#    secretKeyRef:\n#      key: password\n#      name: test-secret\n#      optional: false\n#- name: MY_POD_IP\n#  valueFrom:\n#   fieldRef:\#     fieldPath: status.podIP\n',
+        volumes:'#示例\n#- hostPath:\n#    path: /test\n#  name: data\n#- name: mydata\n#  persistentVolumeClaim:\n#    claimName: test-pvc\n#- configMap:\n#    name: test\n#  name: config\n',
+        volumeMounts:'#示例\n#- mountPath: /opt\n#  name: data\n#- mountPath: /etc/test/conf/aa\n#  name: mydata\n#  subPath: aa\n#- mountPath: /etc/test/conf/nginx.conf\n#  name: config\n#  subPath: test.conf\n'
+      },
+      TooltipValue:''
     }
   }
 
@@ -54,8 +61,16 @@ class Index extends PureComponent {
   }
   //抽屉 
   onClose = () => {
+    const {drawerSwitch} =this.state
+    var str = ''
+    if(drawerSwitch == "add"){
+      str = "change"
+    }else{
+      str = "add"
+    }
     this.setState({
       visible: false,
+      drawerSwitch:str,
     });
   };
 
@@ -68,13 +83,12 @@ class Index extends PureComponent {
       drawerSwitch: val,
       selectVal: undefined,
       jsonValue: '',
-      yamlValue: '#apiVersion: v1\n #kind: Secret\n #metadata:\n  #name: mysecret\n  #namespace: default\n #type: Opaque\n #data:\n  #SER_NAME: YWRtaW4=\n  #PASSWORD: MWYyZDFlMmU2N2Rm',   
       strValue: ''
     })
   }
   // 修改
   changeBtn = (val, str, index) => {
-    const { allData } = this.state
+    const { allData, TooltipValueArr } = this.state
     if (val.save_type == "yaml") {
       this.setState({
         yamlValue: val.attribute_value
@@ -94,6 +108,7 @@ class Index extends PureComponent {
       drawerTitle: '修改属性',
       drawerSwitch: str,
       selectVal: val.name,
+      TooltipValue: TooltipValueArr.[val.name]
     })
   }
 
@@ -136,8 +151,11 @@ class Index extends PureComponent {
   }
   // 下拉框
   handleChange = (val) => {
+      const { selectVal, TooltipValueArr } = this.state
     this.setState({
-      selectVal: val
+      selectVal: val,
+      yamlValue: TooltipValueArr.[val],
+      TooltipValue: TooltipValueArr.[val]
     })
   }
 
@@ -247,7 +265,7 @@ class Index extends PureComponent {
       }).then(res => {
         if(res && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message:'属性添加成功'
+          message:'属性添加成功,重启后生效'
         })
         this.handleGetKubernetes()
       }
@@ -264,7 +282,7 @@ class Index extends PureComponent {
       }).then(res => {
         if(res && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message:'属性修改成功'
+          message:'属性修改成功,重启后生效'
         })
         this.handleGetKubernetes()
       }
@@ -297,8 +315,9 @@ class Index extends PureComponent {
           </path>
       </svg>
   )
-    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, jsonValue, yamlValue, strValue, boolvalue } = this.state;
+    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, jsonValue, yamlValue, strValue, boolvalue, TooltipValue } = this.state;
     const { getFieldDecorator, setFieldsValue } = form;
+    const isBool = (drawerSwitch == "add") ? true : false
     const addible = [];
     const notAddible = [];
     selectArr.map((item, index) => {
@@ -420,6 +439,8 @@ class Index extends PureComponent {
                     message="请编辑内容"
                     data={yamlValue || ''}
                     mode={'yaml'}
+                    bool = { isBool }
+                    TooltipValue={ TooltipValue }
                   />
               </>
               }
@@ -534,4 +555,3 @@ class Index extends PureComponent {
 }
 
 export default Index;
-
