@@ -79,15 +79,9 @@ class Index extends PureComponent {
   //输入框限制
   handleCheckPort = (rule, value, callback) => {
     const { getFieldValue } = this.props.form;
-    const patt = /^\d{20}$/g;
     const float = /\D/g;
-    if (value < 1) {
-      callback('请输入正整数');
-      return;
-    } else if (value.match(patt)) {
-      callback('长度要小于20位');
-    } else if (value.match(float)) {
-      callback('禁止输入小数点');
+    if (value.match(float)) {
+      callback('禁止输入浮点数和负数');
     }
     callback();
   };
@@ -174,7 +168,11 @@ class Index extends PureComponent {
                     required: false,
                     message: '不能为空'
                   },
+                  { 
+                    max:20, message: '长度小于20位' 
+                  },
                   { validator: this.handleCheckPort }
+
                 ]
               })(<Input type="number" placeholder="请输入最大重试次数" />)}
             </Form.Item>
@@ -206,6 +204,9 @@ class Index extends PureComponent {
                   {
                     required: false,
                     message: '不能为空'
+                  },
+                  { 
+                    max:20, message: '长度小于20位' 
                   },
                   { validator: this.handleCheckPort }
                 ]
@@ -240,6 +241,9 @@ class Index extends PureComponent {
                     required: false,
                     message: '不能为空'
                   },
+                  { 
+                    max:20, message: '长度小于20位' 
+                  },
                   { validator: this.handleCheckPort }
                 ]
               })(<Input type="number" placeholder="请输入最大运行时间" />)}
@@ -272,6 +276,9 @@ class Index extends PureComponent {
                   {
                     required: false,
                     message: '不能为空'
+                  },
+                  { 
+                    max:20, message: '长度小于20位' 
                   },
                   { validator: this.handleCheckPort }
                 ]
