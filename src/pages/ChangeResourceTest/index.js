@@ -131,6 +131,7 @@ class Index extends PureComponent {
         return (
             <Fragment>
                 <Spin tip="Loading..." 
+                size='large'
                 spinning={this.state.deploymentLoading} 
                 style={{marginTop:'500px'}}
                  >

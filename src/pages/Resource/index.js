@@ -6,9 +6,8 @@ import { Button, Card, Drawer, Form, Table, notification, Popover, Spin } from '
 import React, { PureComponent } from 'react';
 import globalUtil from "../../utils/global"
 import CodeMirrorForm from '../../components/CodeMirrorForm';
-import { getKubernetesVal, getSingleKubernetesVal, addSingleKubernetesVal, delSingleKubernetesVal, editSingleKubernetesVal } from "../../services/application"
-
-import ConfirmModal from "../../components/ConfirmModal"
+import { getKubernetesVal, getSingleKubernetesVal, addSingleKubernetesVal, delSingleKubernetesVal, editSingleKubernetesVal } from "../../services/application";
+import ConfirmModal from "../../components/ConfirmModal";
 import styles from './index.less';
 
 @Form.create()
@@ -27,9 +26,9 @@ class Index extends PureComponent {
       editId: 0,
       isSubmit: true,
       loadingSwitch: true,
+      TooltipValue:'#请填写yaml文件'
     };
   }
-
   componentDidMount() {
     this.getPageContent()
   }
@@ -53,6 +52,7 @@ class Index extends PureComponent {
     this.setState({
       visible: false,
       isSubmit: true,
+      type:'add'
     });
   };
   // 新增
@@ -189,7 +189,8 @@ class Index extends PureComponent {
       form: { getFieldDecorator, setFieldsValue },
 
     } = this.props;
-    const { content, localContent, title, isSubmit, loadingSwitch } = this.state;
+    const { content, localContent, title, isSubmit, loadingSwitch, TooltipValue, type } = this.state;
+    const isBool = (type == "add") ? true : false 
     const formItemLayout = {
       labelCol: {
         xs: { span: 4 },
@@ -244,7 +245,7 @@ class Index extends PureComponent {
                   overlayClassName={styles.tooltip_style}
                   placement="bottom"
                   title="失败详情"
-                  content={record.error_overview.substr(4)}
+                  content={record.error_overview}
                   trigger="click"
                 >
                   <span
@@ -262,7 +263,7 @@ class Index extends PureComponent {
                   overlayClassName={styles.tooltip_style}
                   placement="bottom"
                   title="失败详情"
-                  content={record.error_overview.substr(4)}
+                  content={record.error_overview}
                   trigger="click"
                 >
                   <span
@@ -349,6 +350,8 @@ class Index extends PureComponent {
               message="请编辑内容"
               data={localContent || "" }
               mode={'yaml'}
+              TooltipValue={TooltipValue}
+              bool={ isBool }
             />
           </Form>
           <div

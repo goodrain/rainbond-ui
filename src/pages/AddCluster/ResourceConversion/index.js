@@ -19,7 +19,8 @@ import {
     ConfigProvider,
     message,
     Spin,
-    Tooltip
+    Tooltip,
+    Empty
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -37,6 +38,7 @@ import SpecialAttribute from '../../../components/SpecialAttribute'
 import Kubernetes from "../../../components/KubernetesAttribute"
 import { object } from 'prop-types';
 import { log } from 'lodash-decorators/utils';
+import { TimelineChart } from '@/components/Charts';
 const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 const { TabPane } = Tabs;
@@ -53,32 +55,33 @@ export default class ImportMessage extends PureComponent {
             type: 0,
             tabKey: '0',
             loadingSwitch: true,
-            kubernetes: []
+            kubernetes: [],
+            importLoading: false
         };
     }
     // 团队按钮点击
     handleType = (item, index) => {
         const { module, minmoduleArr, moduleArr, kubernetes } = this.state
         this.setState({
-            kubernetes:[],
-            moduleArr:[],
+            kubernetes: [],
+            moduleArr: [],
         })
         if (module.[item].convert_resource != null && module.[item].kubernetes_resources != null) {
             this.setState({
                 moduleArr: module.[item].convert_resource,
-                kubernetes:module.[item].kubernetes_resources,
+                kubernetes: module.[item].kubernetes_resources,
                 tabKey: '0',
             })
-        } else if(module.[item].convert_resource != null){
+        } else if (module.[item].convert_resource != null && module.[item].kubernetes_resources == null) {
             this.setState({
                 moduleArr: module.[item].convert_resource,
                 k8sArr: module.[item].kubernetes_resources,
                 tabKey: '0',
             })
         }
-        else if(module.[item].kubernetes_resources != null){
+        else if (module.[item].kubernetes_resources != null && module.[item].convert_resource == null) {
             this.setState({
-                kubernetes:module.[item].kubernetes_resources,
+                kubernetes: module.[item].kubernetes_resources,
                 tabKey: 'k8s',
             })
         }
@@ -119,7 +122,7 @@ export default class ImportMessage extends PureComponent {
                 namespace: this.props.location.query.namespace
             },
             callback: res => {
-                if (res && res.response_data  &&  res.response_data.code === 200) {
+                if (res && res.response_data && res.response_data.code === 200) {
                     const appname = Object.keys(res.bean)
                     this.setState({
                         appnameArr: appname,
@@ -128,6 +131,16 @@ export default class ImportMessage extends PureComponent {
                         kubernetes: res.bean.[appname[0]].kubernetes_resources,
                         loadingSwitch: false
                     })
+                    const { moduleArr } = this.state
+                    if (moduleArr == null) {
+                        this.setState({
+                            tabKey: 'k8s',
+                        })
+                    } else {
+                        this.setState({
+                            tabKey: '0',
+                        })
+                    }
                 }
             }
         })
@@ -141,6 +154,9 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
+        this.setState({
+            importLoading: true,
+        })
         dispatch({
             type: 'region/backNameSpaceAdvancedResource',
             payload: {
@@ -149,6 +165,9 @@ export default class ImportMessage extends PureComponent {
                 namespace: this.props.location.query.namespace
             },
             callback: res => {
+                this.setState({
+                    importLoading: false,
+                })
                 const teamName = res.bean && res.bean.Name
                 const regionName = res.bean && res.bean.region_name
                 this.props.dispatch(
@@ -173,142 +192,151 @@ export default class ImportMessage extends PureComponent {
             ))
     }
     render() {
-        const { type, appnameArr, moduleArr, minmoduleArr, tabKey, loadingSwitch, module, kubernetes } = this.state;
+        const { type, appnameArr, moduleArr, minmoduleArr, tabKey, loadingSwitch, module, kubernetes, importLoading } = this.state;
         const namespace = this.props.location.query.namespace
         return (
             <div>
-                <h2>团队名称：
-                    {namespace && namespace.length > 0 ? namespace : "暂无团队"}
-                </h2>
-                <h3 className={styles.applist}>应用列表:</h3>
-                <div className={styles.typeBtnWrap}>
-                    <Affix offsetTop={0}>
-                        <div className={styles.fixed}>
+                <Spin spinning={this.state.importLoading} size="large" tip="Loading...">
+                    <h2>团队名称：
+                        {namespace && namespace.length > 0 ? namespace : "暂无团队"}
+                    </h2>
+                    <h3 className={styles.applist}>应用列表:</h3>
 
-                            {
-                                appnameArr.map((item, index) => {
-                                    return <>
-                                        {(module.[item].convert_resource === null && module.[item].kubernetes_resources === null)  ? (<></>) : (
-                                            <div key={index}
-                                                className={`${styles.typeBtn}  ${type === index ? styles.active : ""}`}
-                                                onClick={() => {
-                                                    this.handleType(item, index);
-                                                }}
-                                            >
-                                                <Tooltip placement="right" title={item === "unclassified" ? "未分组": item}>
-                                                    <span>{item === "unclassified" ? "未分组": item }</span>
-                                                </Tooltip>
-                                                <Icon type="right" />
-                                            </div>
-                                        )}
-                                    </>
-                                })
-                            }
-                        </div>
-                    </Affix>
-                </div>
+                    {(namespace && namespace.length > 0) ? (
+                        <>
+                            <div className={styles.typeBtnWrap}>
+                                <Affix offsetTop={0}>
+                                    <div className={styles.fixed}>
 
-                {loadingSwitch ? (
-                    <div className={styles.loadingstyle}>
-                        <Spin size="large" />
-                    </div>
-                ) : (
-                    <div id='box'>
-                        <div className={styles.alltable}>
-                            <Tabs
-                                onChange={this.tabSwitch}
-                                activeKey={this.state.tabKey}
-                                ref={(e) => { this._Tabs = e }
-                            }
-                            >
-                                {moduleArr && moduleArr.length > 0 && moduleArr.map((item, num) => {
-                                    return <TabPane tab={item.components_name} key={`${num}`}>
-                                        {/* ConfigProvider */}
-                                            {/* 部署属性 */}
-                                            {
-                                                <DeployAttribute
-                                                    value={item.basic_management}
-                                                />
+                                        {
+                                            appnameArr.map((item, index) => {
+                                                return <>
+                                                    {(module.[item].convert_resource === null && module.[item].kubernetes_resources === null) ? (<></>) : (
+                                                        <div key={index}
+                                                            className={`${styles.typeBtn}  ${type === index ? styles.active : ""}`}
+                                                            onClick={() => {
+                                                                this.handleType(item, index);
+                                                            }}
+                                                        >
+                                                            <Tooltip placement="right" title={item === "unclassified" ? "未分组" : item}>
+                                                                <span>{item === "unclassified" ? "未分组" : item}</span>
+                                                            </Tooltip>
+                                                            <Icon type="right" />
+                                                        </div>
+                                                    )}
+                                                </>
+                                            })
+                                        }
+                                    </div>
+                                </Affix>
+                            </div>
+
+                            {loadingSwitch ? (
+                                <div className={styles.loadingstyle}>
+                                    <Spin size="large" />
+                                </div>
+                            ) : (
+                                <div id='box'>
+                                    <div className={styles.alltable}>
+                                        <Tabs
+                                            onChange={this.tabSwitch}
+                                            activeKey={this.state.tabKey}
+                                            ref={(e) => { this._Tabs = e }
                                             }
-                                            {/* 端口管理 */}
-                                            {
-                                                <PortAttribute
-                                                    value={item.port_management}
-                                                />
+                                        >
+                                            {moduleArr && moduleArr.length > 0 && moduleArr.map((item, num) => {
+                                                return <TabPane tab={item.components_name} key={`${num}`}>
+                                                    {/* ConfigProvider */}
+                                                    {/* 部署属性 */}
+                                                    {
+                                                        <DeployAttribute
+                                                            value={item.basic_management}
+                                                        />
+                                                    }
+                                                    {/* 端口管理 */}
+                                                    {
+                                                        <PortAttribute
+                                                            value={item.port_management}
+                                                        />
+                                                    }
+                                                    {/* 环境变量 */}
+                                                    {
+                                                        <EnvVariable
+                                                            value={item.env_management}
+                                                        />
+                                                    }
+                                                    {/* 配置文件 */}
+                                                    {
+                                                        <ConfigurationFiles
+                                                            value={item.config_management}
+                                                        />
+                                                    }
+                                                    {/* 自动伸缩 */}
+                                                    {
+                                                        <FlexAttribute
+                                                            value={item.telescopic_management}
+                                                        />
+                                                    }
+                                                    {/* 健康监测 */}
+                                                    {
+                                                        <HealthAttribute
+                                                            value={item.health_check_management}
+                                                        />
+                                                    }
+                                                    {/* 特殊属性 */}
+                                                    {
+                                                        <SpecialAttribute value={item.component_k8s_attributes_management} />
+                                                    }
+                                                </TabPane>
+                                            })}
+                                            {kubernetes && kubernetes.length > 0 &&
+                                                <TabPane tab="k8s资源" key="k8s">
+                                                    <Kubernetes
+                                                        value={kubernetes}
+                                                    />
+                                                </TabPane>
                                             }
-                                            {/* 环境变量 */}
-                                            {
-                                                <EnvVariable
-                                                    value={item.env_management}
-                                                />
-                                            }
-                                            {/* 配置文件 */}
-                                            {
-                                                <ConfigurationFiles
-                                                    value={item.config_management}
-                                                />
-                                            }
-                                            {/* 自动伸缩 */}
-                                            {
-                                                <FlexAttribute
-                                                    value={item.telescopic_management}
-                                                />
-                                            }
-                                            {/* 健康监测 */}
-                                            {
-                                                <HealthAttribute
-                                                    value={item.health_check_management}
-                                                />
-                                            }
-                                            {/* 特殊属性 */}
-                                            {
-                                                <SpecialAttribute value={item.component_k8s_attributes_management} />
-                                            }
-                                    </TabPane>
-                                })}
-                                {kubernetes && kubernetes.length > 0 &&
-                                    <TabPane tab="k8s资源" key="k8s">
-                                        <Kubernetes 
-                                            value = {kubernetes}
-                                        />
-                                    </TabPane>
-                                }
-                            </Tabs>
-                        </div>
-                    </div>
-                )}
-                <div
-                    style={{
-                        background: '#fff',
-                        padding: '20px',
-                        textAlign: 'right',
-                        position: 'fixed',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        zIndex: 2,
-                        borderTop: '1px solid #e8e8e8'
-                    }}>
-                    <Button
+                                        </Tabs>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ marginTop: '200px' }} />
+                    )}
+
+                    <div
                         style={{
-                            marginRight: 8
-                        }}
-                        onClick={this.nextStep}
-                        type="default"
-                    >
-                        上一步
-                    </Button>
-                    <Button
-                        style={{
-                            marginRight: 8
-                        }}
-                        onClick={this.handleBuild}
-                        type="primary"
-                    >
-                        确认导入
-                    </Button>
-                </div>
-
+                            background: '#fff',
+                            padding: '20px',
+                            textAlign: 'right',
+                            position: 'fixed',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            zIndex: 2,
+                            borderTop: '1px solid #e8e8e8'
+                        }}>
+                        <Button
+                            style={{
+                                marginRight: 8
+                            }}
+                            onClick={this.nextStep}
+                            type="default"
+                        >
+                            上一步
+                        </Button>
+                        <Button
+                            style={{
+                                marginRight: 8
+                            }}
+                            onClick={this.handleBuild}
+                            type="primary"
+                        >
+                            确认导入
+                        </Button>
+                    </div>
+                </Spin>
             </div >
         );
     }
