@@ -29,7 +29,8 @@ class Index extends PureComponent {
             resourcesVal: {},
             tabKey: '0',
             eventId: '',
-            groupId: ''
+            groupId: '',
+            deploymentLoading:false
         }
     }
     callback = (key) => {
@@ -93,6 +94,9 @@ class Index extends PureComponent {
         const {
             dispatch,
         } = this.props;
+        this.setState({
+            deploymentLoading:true,
+        })
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
         const event_id = this.props.location && this.props.location.query && this.props.location.query.event_id || '';
@@ -106,6 +110,9 @@ class Index extends PureComponent {
             },
             callback: (data) => {
                 if (data && data.response_data && data.response_data.code == 200) {
+                    this.setState({
+                        deploymentLoading:false,
+                    })
                     dispatch(routerRedux.push(
                         `/team/${teamName}/region/${regionName}/apps/${group_id}`
                     ))
@@ -117,12 +124,17 @@ class Index extends PureComponent {
     }
 
     render() {
-        const { resourcesVal, tabKey } = this.state
+        const { resourcesVal, tabKey, deploymentLoading } = this.state
         const moduleArrs = resourcesVal.convert_resource
         const k8sArr = resourcesVal.kubernetes_resources
         const bool = (moduleArrs || k8sArr) ? false : true
         return (
             <Fragment>
+                <Spin tip="Loading..." 
+                size='large'
+                spinning={this.state.deploymentLoading} 
+                style={{marginTop:'500px'}}
+                 >
                 <div className={styles.all_style}>
                     <h3>高级资源</h3>
 
@@ -199,6 +211,7 @@ class Index extends PureComponent {
                         部署
                     </Button>
                 </div>
+            </Spin>
             </Fragment>
         );
     }
