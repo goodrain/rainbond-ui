@@ -42,9 +42,9 @@ class CodeMirrorForm extends PureComponent {
 
   componentDidMount() {
     const { bool } = this.props;
-    const { CodeMirrorRef } = this;
-    const editor = CodeMirrorRef.getCodeMirror();
     if (bool) {
+      const { CodeMirrorRef } = this;
+      const editor = CodeMirrorRef.getCodeMirror();
       editor.on("focus", this.focusEvent)
       editor.on("blur", this.blurEvent)
     }
