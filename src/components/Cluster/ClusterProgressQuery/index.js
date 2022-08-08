@@ -103,27 +103,12 @@ class ClusterProgressQuery extends PureComponent {
               <span>
                 {msg}
                 {!enterpriseEdition && (
-                  <Popover
-                    placement="bottom"
-                    content={
-                      <img
-                        alt="扫码加入社区钉钉群"
-                        style={{ width: '200px' }}
-                        title="扫码加入社区钉钉群"
-                        src="https://www.rainbond.com/images/dingding-group.jpeg"
-                      />
-                    }
-                    title={
-                      <div style={{ textAlign: 'center' }}>
-                        钉钉群号31096419
-                      </div>
-                    }
-                  >
-                    <Button type="link" style={{ padding: 0 }}>
+                  <>
+                    <a target="_blank" href="https://www.rainbond.com/community/support" style={{ padding: 0 }}>
                       钉钉群
-                    </Button>
+                    </a>
                     获取官方支持
-                  </Popover>
+                  </>
                 )}
               </span>
             }
