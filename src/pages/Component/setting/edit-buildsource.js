@@ -217,7 +217,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label="仓库地址"
                 >
                   {getFieldDecorator('git_url', {
-                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") && buildSource.git_url ? buildSource.git_url : '',
+                    initialValue: buildSource.service_source == "source_code" && buildSource.git_url ? buildSource.git_url : '',
                     force: true,
                     rules: [
                       { required: true, message: '请输入仓库地址' },
@@ -236,7 +236,7 @@ export default class ChangeBuildSource extends PureComponent {
                     label="代码版本"
                   >
                     {getFieldDecorator('code_version', {
-                      initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") && codeVersion ? codeVersion : '',
+                      initialValue: buildSource.service_source == "source_code" && codeVersion ? codeVersion : '',
                       rules: [{ required: true, message: '请输入代码版本' }]
                     })(
                       <Input
@@ -284,7 +284,7 @@ export default class ChangeBuildSource extends PureComponent {
                       // buildSource.user_name ||
                       // buildSource.user ||
                       //   '',
-                      (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") &&
+                      (buildSource.service_source == "source_code") &&
                         (buildSource.user_name || buildSource.user) ? (buildSource.user_name || buildSource.user) : '',
                     rules: [{ required: false, message: '请输入仓库用户名' }]
                   })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
@@ -294,7 +294,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label="密码"
                 >
                   {getFieldDecorator('password', {
-                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") && buildSource.password ? buildSource.password : '',
+                    initialValue: buildSource.service_source == "source_code" && buildSource.password ? buildSource.password : '',
                     rules: [{ required: false, message: '请输入仓库密码' }]
                   })(
                     <Input
@@ -316,7 +316,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label="镜像名称"
                 >
                   {getFieldDecorator('image', {
-                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code" || buildSource.service_source =='docker_run') && buildSource.image ? buildSource.image : '',
+                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source =='docker_run') && buildSource.image ? buildSource.image : '',
                     rules: [
                       { required: true, message: '镜像名称不能为空' },
                       {
@@ -331,7 +331,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label="启动命令"
                 >
                   {getFieldDecorator('cmd', {
-                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code" ) && buildSource.cmd ? buildSource.cmd : '',
+                    initialValue: (buildSource.service_source == "docker_image" ) && buildSource.cmd ? buildSource.cmd : '',
                   })(<Input placeholder="请输入启动命令" />)}
                 </FormItem>
 
@@ -341,7 +341,7 @@ export default class ChangeBuildSource extends PureComponent {
                 >
                   {getFieldDecorator('user_name', {
                     initialValue:
-                      (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") &&
+                      (buildSource.service_source == "docker_image" ) &&
                       (buildSource.user_name || buildSource.user) ? (buildSource.user_name || buildSource.user) : '',
                     rules: [{ required: false, message: '请输入仓库用户名' }]
                   })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
@@ -351,7 +351,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label="密码"
                 >
                   {getFieldDecorator('password', {
-                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") && buildSource.password ? buildSource.password : '',
+                    initialValue: (buildSource.service_source == "docker_image") && buildSource.password ? buildSource.password : '',
                     rules: [{ required: false, message: '请输入仓库密码' }]
                   })(
                     <Input

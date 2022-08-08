@@ -69,9 +69,6 @@ export default class Index extends PureComponent {
           ...value
         },
         callback: (data) => {
-        //   const appAlias = data && data.bean.service_alias
-        //   this.props.setPare(event_id);
-        //   this.props.handleType && this.props.handleType === "Service" ? this.props.handleServiceGetData(appAlias):
           dispatch(
             routerRedux.push(
               `/team/${teamName}/region/${regionName}/importMessageYaml?event_id=${eventId}&group_id=${groupId}`
