@@ -24,12 +24,12 @@ export default class ChangeBuildSource extends PureComponent {
       isFlag: true,
       tabValue: 'source_code',
       gitUrl: this.props.buildSource.git_url,
-
       serverType: this.props.buildSource.server_type
         ? this.props.buildSource.server_type
         : 'git',
       showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource),
-      showImage: appUtil.isImageAppByBuildSource(this.props.buildSource)
+      showImage: appUtil.isImageAppByBuildSource(this.props.buildSource),
+      tabKey: '',
     };
   }
   componentDidMount() {
@@ -37,6 +37,19 @@ export default class ChangeBuildSource extends PureComponent {
     if (appUtil.isCodeAppByBuildSource(this.state.buildSource)) {
       this.loadBranch();
     }
+    const { buildSource } = this.props
+    if (buildSource.service_source == "docker_image" || buildSource.service_source =='docker_run') {
+      this.setState({
+        tabKey: '2',
+        tabValue: 'docker_run'
+      })
+    } else {
+      this.setState({
+        tabKey: '1',
+        tabValue: 'source_code'
+      })
+    }
+
   }
   shouldComponentUpdate() {
     return true;
@@ -119,7 +132,7 @@ export default class ChangeBuildSource extends PureComponent {
   render() {
     const { title, onCancel, appBuidSourceLoading, form } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
-    const { showUsernameAndPass, showKey, isFlag, tabValue } = this.state;
+    const { showUsernameAndPass, showKey, isFlag, tabValue, buildSource, tabKey } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -195,7 +208,7 @@ export default class ChangeBuildSource extends PureComponent {
           style={{ marginBottom: '12px' }}
         // onClose={onClose}
         />
-        <Tabs defaultActiveKey="1" onChange={this.handleTabs} >
+        <Tabs defaultActiveKey={tabKey} onChange={this.handleTabs} >
           <TabPane tab="源码" key="1" >
             {tabValue === 'source_code' && (
               <Form onSubmit={this.handleSubmit}>
@@ -204,6 +217,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label="仓库地址"
                 >
                   {getFieldDecorator('git_url', {
+                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") && buildSource.git_url ? buildSource.git_url : '',
                     force: true,
                     rules: [
                       { required: true, message: '请输入仓库地址' },
@@ -222,6 +236,7 @@ export default class ChangeBuildSource extends PureComponent {
                     label="代码版本"
                   >
                     {getFieldDecorator('code_version', {
+                      initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") && codeVersion ? codeVersion : '',
                       rules: [{ required: true, message: '请输入代码版本' }]
                     })(
                       <Input
@@ -261,20 +276,25 @@ export default class ChangeBuildSource extends PureComponent {
                 )}
 
                 <Form.Item
-                  style={{ display: showUsernameAndPass && isHttp ? '' : 'none' }}
                   {...formItemLayout}
                   label="用户名"
                 >
                   {getFieldDecorator('user_name', {
+                    initialValue:
+                      // buildSource.user_name ||
+                      // buildSource.user ||
+                      //   '',
+                      (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") &&
+                        (buildSource.user_name || buildSource.user) ? (buildSource.user_name || buildSource.user) : '',
                     rules: [{ required: false, message: '请输入仓库用户名' }]
                   })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
                 </Form.Item>
                 <Form.Item
-                  style={{ display: showUsernameAndPass && isHttp ? '' : 'none' }}
                   {...formItemLayout}
                   label="密码"
                 >
                   {getFieldDecorator('password', {
+                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") && buildSource.password ? buildSource.password : '',
                     rules: [{ required: false, message: '请输入仓库密码' }]
                   })(
                     <Input
@@ -289,54 +309,60 @@ export default class ChangeBuildSource extends PureComponent {
 
           </TabPane>
           <TabPane tab="镜像" key="2">
-          {tabValue === 'docker_run' && (
-            <Form onSubmit={this.handleSubmit}>
-              <FormItem
-                {...formItemLayout}
-                label="镜像名称"
-              >
-                {getFieldDecorator('image', {
-                  rules: [
-                    { required: true, message: '镜像名称不能为空' },
-                    {
-                      max: 190,
-                      message: '最大长度190位'
-                    }
-                  ],
-                })(<Input placeholder="请输入镜像名称" />)}
-              </FormItem>
-              <FormItem
-                {...formItemLayout}
-                label="启动命令"
-              >
-                {getFieldDecorator('cmd', {
-                })(<Input placeholder="请输入启动命令" />)}
-              </FormItem>
+            {tabValue === 'docker_run' && (
+              <Form onSubmit={this.handleSubmit}>
+                <FormItem
+                  {...formItemLayout}
+                  label="镜像名称"
+                >
+                  {getFieldDecorator('image', {
+                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code" || buildSource.service_source =='docker_run') && buildSource.image ? buildSource.image : '',
+                    rules: [
+                      { required: true, message: '镜像名称不能为空' },
+                      {
+                        max: 190,
+                        message: '最大长度190位'
+                      }
+                    ],
+                  })(<Input placeholder="请输入镜像名称" />)}
+                </FormItem>
+                <FormItem
+                  {...formItemLayout}
+                  label="启动命令"
+                >
+                  {getFieldDecorator('cmd', {
+                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code" ) && buildSource.cmd ? buildSource.cmd : '',
+                  })(<Input placeholder="请输入启动命令" />)}
+                </FormItem>
 
-              <Form.Item
-                {...formItemLayout}
-                label="用户名"
-              >
-                {getFieldDecorator('user_name', {
-                  rules: [{ required: false, message: '请输入仓库用户名' }]
-                })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
-              </Form.Item>
-              <Form.Item
-                {...formItemLayout}
-                label="密码"
-              >
-                {getFieldDecorator('password', {
-                  rules: [{ required: false, message: '请输入仓库密码' }]
-                })(
-                  <Input
-                    autoComplete="new-password"
-                    type="password"
-                    placeholder="请输入仓库密码"
-                  />
-                )}
-              </Form.Item>
-            </Form>
-          )}Î
+                <Form.Item
+                  {...formItemLayout}
+                  label="用户名"
+                >
+                  {getFieldDecorator('user_name', {
+                    initialValue:
+                      (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") &&
+                      (buildSource.user_name || buildSource.user) ? (buildSource.user_name || buildSource.user) : '',
+                    rules: [{ required: false, message: '请输入仓库用户名' }]
+                  })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+                </Form.Item>
+                <Form.Item
+                  {...formItemLayout}
+                  label="密码"
+                >
+                  {getFieldDecorator('password', {
+                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "source_code") && buildSource.password ? buildSource.password : '',
+                    rules: [{ required: false, message: '请输入仓库密码' }]
+                  })(
+                    <Input
+                      autoComplete="new-password"
+                      type="password"
+                      placeholder="请输入仓库密码"
+                    />
+                  )}
+                </Form.Item>
+              </Form>
+            )}
           </TabPane>
         </Tabs>
       </Modal>
