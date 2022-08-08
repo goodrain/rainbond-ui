@@ -348,7 +348,6 @@ export default class Index extends React.Component {
   };
   handleEditHealth = vals => {
     const { startProbe } = this.props;
-    return
     this.setState({
       loading: true
     });
@@ -887,7 +886,7 @@ export default class Index extends React.Component {
           <EditHealthCheck
             ports={ports}
             onOk={this.handleEditHealth}
-            title="健康检测"
+            title="健康检测1"
             data={this.state.editStartHealth}
             onCancel={this.onCancelEditStartProbe}
             loading={loading}
