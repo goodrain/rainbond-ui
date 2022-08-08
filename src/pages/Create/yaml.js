@@ -53,20 +53,6 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.handleJarWarUploadRecord('jwar')
-    const teamName = globalUtil.getCurrTeamName();
-    const { form, dispatch } = this.props;
-    dispatch({
-      type: "teamControl/getUploadInformation",
-      payload: {
-        team_name:teamName,
-          event_id: '123456789',
-          group_id: '123',
-      },
-      callback: (data) => {
-        console.log(data,"data");
-      },
-    });
-
   }
   componentWillUnmount() {
     this.loop = false;
@@ -87,14 +73,6 @@ export default class Index extends PureComponent {
             `/team/${teamName}/region/${regionName}/importMessageYaml?event_id=${event_id}&group_id=${value.group_id}`
           )
         );
-        // getUploadInformation({
-        //   team_name:teamName,
-        //   event_id: '123456789',
-        //   group_id: '123',
-        // }).then( res =>{
-        //   console.log(res,"res");
-        // })
-        
       } else if (value.up_type === 'jwar' && existFileList.length > 0) {
         dispatch({
           type: "createApp/createJarWarFormSubmit",
