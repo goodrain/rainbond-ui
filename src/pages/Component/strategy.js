@@ -169,7 +169,7 @@ class Index extends PureComponent {
                     message: '不能为空'
                   },
                   { 
-                    max:20, message: '长度小于20位' 
+                    max:20, message: '长度应小于20位' 
                   },
                   { validator: this.handleCheckPort }
 
@@ -206,7 +206,7 @@ class Index extends PureComponent {
                     message: '不能为空'
                   },
                   { 
-                    max:20, message: '长度小于20位' 
+                    max:20, message: '长度应小于20位' 
                   },
                   { validator: this.handleCheckPort }
                 ]
@@ -242,7 +242,7 @@ class Index extends PureComponent {
                     message: '不能为空'
                   },
                   { 
-                    max:20, message: '长度小于20位' 
+                    max:20, message: '长度应小于20位' 
                   },
                   { validator: this.handleCheckPort }
                 ]
@@ -278,7 +278,7 @@ class Index extends PureComponent {
                     message: '不能为空'
                   },
                   { 
-                    max:20, message: '长度小于20位' 
+                    max:20, message: '长度应小于20位' 
                   },
                   { validator: this.handleCheckPort }
                 ]
