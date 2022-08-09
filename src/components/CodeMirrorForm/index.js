@@ -39,6 +39,17 @@ class CodeMirrorForm extends PureComponent {
       }
     }
   }
+
+  componentDidMount() {
+    const { bool } = this.props;
+    if (bool) {
+      const { CodeMirrorRef } = this;
+      const editor = CodeMirrorRef.getCodeMirror();
+      editor.on("focus", this.focusEvent)
+      editor.on("blur", this.blurEvent)
+    }
+
+  }
   saveRef = ref => {
     this.CodeMirrorRef = ref;
     const { saveRef = false } = this.props;
@@ -46,7 +57,32 @@ class CodeMirrorForm extends PureComponent {
       saveRef(ref);
     }
   };
-
+  focusEvent = () => {
+    const { data, TooltipValue, bool } = this.props
+    const { CodeMirrorRef } = this;
+    const editor = CodeMirrorRef.getCodeMirror();
+    const str = editor.getValue()
+    if (bool) {
+      if (str == TooltipValue) {
+        editor.setValue('')
+      } else {
+        editor.setValue(str)
+      }
+    }
+  }
+  blurEvent = () => {
+    const { data, TooltipValue, bool } = this.props;
+    const { CodeMirrorRef } = this;
+    const editor = CodeMirrorRef.getCodeMirror();
+    const str = editor.getValue()
+    if (bool) {
+      if (str.length == 0) {
+        editor.setValue(TooltipValue)
+      } else {
+        editor.setValue(str)
+      }
+    }
+  }
   handleChangeUpload = info => {
     const { beforeUpload } = this.props;
     if (beforeUpload) {
@@ -65,7 +101,6 @@ class CodeMirrorForm extends PureComponent {
       this.readFileContents(fileList, 'file_content');
     }
   };
-
   readFileContents = fileList => {
     let fileString = '';
     const { CodeMirrorRef } = this;

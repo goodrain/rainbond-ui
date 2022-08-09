@@ -15,6 +15,8 @@ import Custom from '../Create/code-custom';
 import Check from '../Create/create-check';
 import ImageCmd from '../Create/image-cmd';
 import ImageName from '../Create/image-name';
+import Jwar from '../Create/upload-jarwar'
+import Yaml from '../Create/upload-yaml'
 import Market from '../Create/market';
 import MarketDrawer from '../Create/market-drawer'
 import styles from './Index.less';
@@ -47,6 +49,7 @@ export default class AddServiceComponent extends PureComponent {
       errState: true,
       isDrawer:true,
       scopeProMax: '',
+      event_id:''
     };
   }
 
@@ -115,7 +118,16 @@ export default class AddServiceComponent extends PureComponent {
       this.setState({ moreState: true });
     }
   };
-
+  setJwar = (eventId) => {
+    this.setState({
+      event_id: eventId
+    })
+  }
+  setYaml = (eventId) => {
+    this.setState({
+      event_id: eventId
+    })
+  }
   // 上一步
   handleBackEvents = () => {
     const {
@@ -195,9 +207,12 @@ export default class AddServiceComponent extends PureComponent {
       rainStoreTab,
       helmStoreTab,
       isDrawer,
+      event_id
     } = this.state;
     const codeSvg = globalUtil.fetchSvg('codeSvg');
     const dockerSvg = globalUtil.fetchSvg('dockerSvg');
+    const uploadYaml = globalUtil.fetchSvg('uploadYaml');
+    const uploadJarWar = globalUtil.fetchSvg('uploadJarWar');
     const third_party = globalUtil.fetchSvg('third_party');
     const servers = oauthUtil.getEnableGitOauthServer(enterprise);
     const BasisParameter = {
@@ -215,7 +230,7 @@ export default class AddServiceComponent extends PureComponent {
           null,
           'check',
           'ServiceGetData',
-          data
+          data,
         );
       }
     };
@@ -387,6 +402,35 @@ export default class AddServiceComponent extends PureComponent {
               <div className={styles.ServiceBox}>
                 <ThirdParty content={this.getValue.bind(this)} groupId={groupId} />
               </div>
+              <div className={styles.ServiceBox} style={{marginBottom:'60px'}}>
+                <Row>
+                  <p className={styles.ServiceTitle}>从上传文件包开始</p>
+                </Row>
+                <Row>
+                  <Col
+                    span={8}
+                    className={styles.ServiceDiv}
+                    onClick={() => {
+                      this.handleServiceComponent(false, 'jwar');
+                    }}
+                  >
+                    {uploadJarWar}
+                    <p className={styles.ServiceSmallTitle}>Jar、War</p>
+                  </Col>
+                  <Col
+                    span={8}
+                    className={styles.ServiceDiv}
+                    onClick={() => {
+                      this.handleServiceComponent(false, 'yaml');
+                    }}
+                  >
+                    {uploadYaml}
+                    <p className={styles.ServiceSmallTitle}>
+                      Yaml
+                    </p>
+                  </Col>
+                </Row>
+              </div>
             </div>
           )}
           {ServiceComponentTwoPage === 'custom' && (
@@ -402,6 +446,7 @@ export default class AddServiceComponent extends PureComponent {
           {ServiceComponentThreePage === 'check' && ServiceGetData && (
             <Check
               {...BasisParameter}
+              event_id={event_id}
               ServiceGetData={ServiceGetData}
               ErrState={errState}
               handleServiceDataState={(
@@ -426,6 +471,12 @@ export default class AddServiceComponent extends PureComponent {
           )}
           {ServiceComponentTwoPage === 'imageCmd' && (
             <ImageCmd {...PublicParameter} />
+          )}
+          {ServiceComponentTwoPage === 'jwar' && (
+            <Jwar {...PublicParameter} setPare={this.setJwar} />
+          )}
+          {ServiceComponentTwoPage === 'yaml' && (
+            <Yaml {...PublicParameter} setPare={this.setYaml} />
           )}
           {ServiceComponentTwoPage === 'market' && (
             <Market

@@ -651,6 +651,33 @@ export async function fetchFeatures(body, handleError) {
     }
   );
 }
+
+// 获取yaml文件上传返回信息
+export async function getUploadInformation(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/resource-name`,
+    {
+      method: 'get',
+      params: {
+        event_id: body.event_id,
+        group_id: body.group_id,
+      }
+    }
+  );
+}
+// 获取yaml文件上传高级资源信息
+export async function getAdvancedInformation(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/resource-detailed`,
+    {
+      method: 'get',
+      params: {
+        event_id: body.event_id,
+        group_id: body.group_id,
+      }
+    }
+  )
+}
 /* 获取团队下镜像仓库授权信息 */
 export async function gitAuthorizationMessage (body = {}) {
   return request(
@@ -673,6 +700,18 @@ export async function addAuthorizationMessage (body = {}) {
       }
     }
   );
+}
+export async function confirmTheImport(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/resource-detailed`,
+    {
+      method: 'post',
+      data: {
+        event_id: body.event_id,
+        group_id: body.group_id,
+      }
+    }
+  )
 }
 /* 修改团队下镜像仓库授权信息 */
 export async function editAuthorizationMessage (params) {

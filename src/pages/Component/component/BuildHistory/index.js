@@ -126,7 +126,6 @@ class Index extends PureComponent {
                       image_tag,
                       kind,
                     } = item;
-
                     return (
                       <li
                         key={build_version}
@@ -201,6 +200,8 @@ class Index extends PureComponent {
                                   kind &&
                                   (kind === '源码构建'
                                     ? '提交信息'
+                                    : kind === '本地文件'
+                                    ? '文件名称'
                                     : '源镜像仓库地址')
                                 }
                               >
@@ -215,6 +216,8 @@ class Index extends PureComponent {
                                   kind &&
                                   (kind === '源码构建'
                                     ? code_commit_msg && code_commit_msg
+                                    : kind === '本地文件'
+                                    ? code_commit_msg && code_commit_msg
                                     : image_domain && image_domain)
                                 }
                               >
@@ -226,6 +229,8 @@ class Index extends PureComponent {
                                 >
                                   {kind &&
                                     (kind === '源码构建'
+                                      ? code_commit_msg && code_commit_msg
+                                      : kind === '本地文件'
                                       ? code_commit_msg && code_commit_msg
                                       : image_domain && image_domain)}
                                 </span>
@@ -274,6 +279,8 @@ class Index extends PureComponent {
                                     kind &&
                                     (kind === '源码构建'
                                       ? '代码分支'
+                                      : kind === '本地文件'
+                                      ? '上传时间'
                                       : '源镜像名称')
                                   }
                                 >
@@ -288,6 +295,8 @@ class Index extends PureComponent {
                                     kind &&
                                     (kind === '源码构建'
                                       ? code_branch && code_branch
+                                      : kind === '本地文件'
+                                      ? code_branch && code_branch
                                       : image_repo && image_repo)
                                   }
                                 >
@@ -299,6 +308,8 @@ class Index extends PureComponent {
                                   >
                                     {kind &&
                                       (kind === '源码构建'
+                                        ? code_branch && code_branch
+                                        : kind === '本地文件'
                                         ? code_branch && code_branch
                                         : image_repo && image_repo)}
                                   </span>
@@ -316,6 +327,8 @@ class Index extends PureComponent {
                                     kind &&
                                     (kind === '源码构建'
                                       ? '代码版本'
+                                      : kind === '本地文件'
+                                      ? '文件MD5'
                                       : '源镜像TAG')
                                   }
                                 >
@@ -336,7 +349,9 @@ class Index extends PureComponent {
                                   title={
                                     kind &&
                                     (kind === '源码构建'
-                                      ? code_version && ''
+                                      ? code_version
+                                      : kind === '本地文件'
+                                      ? code_version
                                       : image_tag && image_tag)
                                   }
                                 >
@@ -348,8 +363,9 @@ class Index extends PureComponent {
                                   >
                                     {kind &&
                                       (kind === '源码构建'
-                                        ? code_version &&
-                                          code_version.substr(0, 8)
+                                        ? code_version && code_version.substr(0, 8)
+                                        : kind === '本地文件'
+                                        ? code_version && code_version
                                         : image_tag || '')}
                                   </font>
                                 </Tooltip>

@@ -26,7 +26,10 @@ import {
   removeRole,
   setJoinTeamUsers,
   stopComponentInTeam,
-  undoTeamUsers
+  undoTeamUsers,
+  getUploadInformation,
+  getAdvancedInformation,
+  confirmTheImport
 } from '../services/team';
 
 export default {
@@ -248,8 +251,27 @@ export default {
           payload: response.list
         });
       }
-    }
+    },
+    *getUploadInformation({ payload, callback }, { call }) {
+      const response = yield call(getUploadInformation, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getAdvancedInformation({ payload, callback }, { call }) {
+      const response = yield call(getAdvancedInformation, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *confirmTheImport({ payload, callback, handleError }, { call }) {
+      const response = yield call(confirmTheImport, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
   },
+  
   reducers: {
     saveCurrentTeamPermissionsInfo(state, { payload }) {
       return {

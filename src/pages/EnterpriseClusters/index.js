@@ -527,7 +527,7 @@ export default class EnterpriseClusters extends PureComponent {
 
     const colorbj = (color, bg) => {
       return {
-        width: '100px',
+        // width: '100px',
         color,
         background: bg,
         borderRadius: '15px',
@@ -539,6 +539,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '名称',
         dataIndex: 'region_alias',
         align: 'center',
+        width: 120,
         render: (val, row) => {
           return (
             <Link to={`/enterprise/${eid}/clusters/${row.region_id}/dashboard`}>
@@ -548,69 +549,10 @@ export default class EnterpriseClusters extends PureComponent {
         }
       },
       {
-        title: '类型',
-        dataIndex: 'region_type',
-        align: 'center',
-        width: 100,
-        render: val => {
-          return (
-            <span>
-              {val && val instanceof Array && val.length > 0
-                ? val.map(item => {
-                    if (item === 'development') {
-                      return (
-                        <span style={{ marginRight: '8px' }} key={item}>
-                          开发集群
-                        </span>
-                      );
-                    }
-                    if (item === 'ack-manage') {
-                      return (
-                        <span style={{ marginRight: '8px' }} key={item}>
-                          阿里云-托管集群
-                        </span>
-                      );
-                    }
-                    if (item === 'custom') {
-                      return (
-                        <span style={{ marginRight: '8px' }} key={item}>
-                          普通集群
-                        </span>
-                      );
-                    }
-                    if (item === 'aliyun') {
-                      return (
-                        <span style={{ marginRight: '8px' }} key={item}>
-                          阿里云
-                        </span>
-                      );
-                    }
-                    if (item === 'huawei') {
-                      return (
-                        <span style={{ marginRight: '8px' }} key={item}>
-                          华为云
-                        </span>
-                      );
-                    }
-                    if (item === 'tencent') {
-                      return (
-                        <span style={{ marginRight: '8px' }} key={item}>
-                          腾讯云
-                        </span>
-                      );
-                    }
-                    return item;
-                  })
-                : '普通集群'}
-            </span>
-          );
-        }
-      },
-      {
         title: '安装方式',
         dataIndex: 'provider',
         align: 'center',
-        width: 150,
+        width: 80,
         render: item => {
           switch (item) {
             case 'ack':
@@ -658,7 +600,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '内存(GB)',
         dataIndex: 'total_memory',
         align: 'center',
-        width: 200,
+        width: 80,
         render: (_, item) => {
           return (
             <a
@@ -676,13 +618,13 @@ export default class EnterpriseClusters extends PureComponent {
         title: '版本',
         dataIndex: 'rbd_version',
         align: 'center',
-        width: 350
+        width: 180
       },
       {
         title: '状态',
         dataIndex: 'status',
         align: 'center',
-        width: 150,
+        width: 60,
         render: (val, data) => {
           if (data.health_status === 'failure') {
             return <span style={{ color: 'red' }}>通信异常</span>;
@@ -738,7 +680,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: '操作',
         dataIndex: 'method',
         align: 'center',
-        width: 240,
+        width: 150,
         render: (_, item) => {
           const mlist = [
             <a
@@ -761,7 +703,12 @@ export default class EnterpriseClusters extends PureComponent {
               }}
             >
               资源限额
-            </a>
+            </a>,
+            <Link
+              to={`/enterprise/${eid}/importMessage?region_id=${item.region_id}`}
+            >
+              导入
+            </Link> 
           ];
           if (item.provider === 'rke') {
             mlist.push(
@@ -919,7 +866,7 @@ export default class EnterpriseClusters extends PureComponent {
             message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
           />
           <Table
-            scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
+            // scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
             loading={clusterLoading}
             dataSource={clusters}
             columns={columns}

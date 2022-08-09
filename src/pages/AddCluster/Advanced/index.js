@@ -41,7 +41,6 @@ export default class ClusterLink extends PureComponent {
     super(props);
     const { user } = this.props;
     const adminer = userUtil.isCompanyAdmin(user);
-
     this.state = {
       adminer,
       etcd: false,

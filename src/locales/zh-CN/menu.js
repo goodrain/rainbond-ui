@@ -7,6 +7,7 @@ export default {
   'menu.team.create': '新增',
   'menu.team.create.code': '基于源码创建组件',
   'menu.team.create.image': '基于镜像创建组件',
+  'menu.team.create.upload': '基于软件包/yaml创建',
   'menu.team.create.market': '基于应用市场创建组件',
   'menu.team.create.third': '创建第三方组件',
   'menu.team.app': '应用',
@@ -20,5 +21,6 @@ export default {
   'menu.app.backup': '备份',
   'menu.app.gateway': '网关',
   'menu.app.configgroups': '配置',
+  'menu.app.k8s': 'k8s资源',
   'menu.app.upgrade': '升级'
 };

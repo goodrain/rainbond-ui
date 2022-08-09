@@ -4,6 +4,13 @@ import {
   createAppByCompose,
   createAppByDockerrun,
   createThirdPartyServices,
+  createJarWarServices,
+  createJarWarUploadStatus,
+  deleteJarWarUploadStatus,
+  createJarWarUploadRecord,
+  createJarWarFormSubmit,
+  createJarWarSubmit,
+  createJarWarUpload,
   createThirtAppByCodes,
   getAppsByComposeId,
   installApp,
@@ -72,6 +79,63 @@ export default {
 
     *createThirdPartyServices({ payload, callback }, { call }) {
       const data = yield call(createThirdPartyServices, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarServices({ payload, callback }, { call }) {
+      const data = yield call(createJarWarServices, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarUploadStatus({ payload, callback }, { call }) {
+      const data = yield call(createJarWarUploadStatus, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarUploadRecord({ payload, callback }, { call }) {
+      const data = yield call(createJarWarUploadRecord, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarUpload({ payload, callback }, { call }) {
+      const data = yield call(createJarWarUpload, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarFormSubmit({ payload, callback }, { call }) {
+      const data = yield call(createJarWarFormSubmit, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    *createJarWarSubmit({ payload, callback }, { call }) {
+      const data = yield call(createJarWarSubmit, payload);
+      if (data && callback) {
+        setTimeout(() => {
+          callback(data);
+        });
+      }
+    },
+    
+    *deleteJarWarUploadStatus({ payload, callback }, { call }) {
+      const data = yield call(deleteJarWarUploadStatus, payload);
       if (data && callback) {
         setTimeout(() => {
           callback(data);

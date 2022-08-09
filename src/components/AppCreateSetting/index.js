@@ -10,7 +10,9 @@ import {
   Radio,
   Row,
   Table,
-  Tooltip
+  Tooltip,
+  Select,
+  AutoComplete
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -41,7 +43,7 @@ import styles from './setting.less';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-
+const { Option, OptGroup } = Select;
 @connect(null, null, null, { withRef: true })
 @Form.create()
 class BaseInfo extends PureComponent {
@@ -85,7 +87,8 @@ class BaseInfo extends PureComponent {
           text: '16G',
           value: 1024 * 16
         }
-      ]
+      ],
+      is_flag: false,
     };
   }
   handleSubmit = () => {
@@ -96,8 +99,22 @@ class BaseInfo extends PureComponent {
       }
     });
   };
+  handleChange = (value) => {
+  }
+  onChecks = (e) => {
+    if(e.target.value === 'cronjob'){
+      this.setState({
+        is_flag:true
+      })
+    }else{
+      this.setState({
+        is_flag:false
+      })
+    }
+  }
   render() {
     const { appDetail, form } = this.props;
+    const { is_flag } = this.state
     const { getFieldDecorator } = form;
     const {
       extend_method: extendMethod,
@@ -105,7 +122,7 @@ class BaseInfo extends PureComponent {
       min_cpu: minCpu
     } = appDetail.service;
     const list = this.state.memoryList;
-
+    const arrOption = ['0 * * * *','0 0 * * *','0 0 * * 0','0 0 1 * *','0 0 1 1 *']
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -149,14 +166,47 @@ class BaseInfo extends PureComponent {
             <RadioGroup>
               {globalUtil.getSupportComponentTyps().map(item => {
                 return (
-                  <Radio key={item.type} style={radioStyle} value={item.type}>
-                    {item.name}({item.desc}）
+                  <Radio key={item.type} onChange={this.onChecks} style={radioStyle} value={item.type}>
+                    {item.desc}
                   </Radio>
                 );
               })}
+              
             </RadioGroup>
           )}
+          
         </Form.Item>
+        {is_flag && <Form.Item {...formItemLayout}>
+          {getFieldDecorator('schedule', {
+            initialValue: '0 * * * *',
+            rules: [
+              {
+                required: false,
+                message: '请选择运行规则'
+              }
+            ]
+          })(
+            <Row className={styles.selectRow} type="flex" style={{margin:'14px 0px',marginTop:'-20px'}}>
+              <div style={{marginLeft:'160px',fontWeight:'bolder',marginTop:'-4px'}}>运行规则：</div>
+              <AutoComplete
+                defaultValue={'0 * * * *'}
+              >
+                {(arrOption.length > 0)
+                  ? arrOption.map((item) => {
+                      const res = (
+                        <AutoComplete.Option value={item}>
+                          {item}
+                        </AutoComplete.Option>
+                      );
+                      return res;
+                    })
+                  : null}
+              </AutoComplete>
+            </Row>
+          )} 
+          </Form.Item>
+        }
+        
         <Form.Item {...formItemLayout} label="内存">
           {getFieldDecorator('min_memory', {
             initialValue: minMemory || 0,
@@ -1164,7 +1214,7 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       componentPermissions: this.handlePermissions('queryComponentInfo'),
-      type: 'property'
+      type: 'deploy'
     };
   }
   getAppAlias() {
@@ -1198,17 +1248,6 @@ export default class Index extends PureComponent {
               <div>
                 <span
                   className={`${styles.typeBtn} ${
-                    type === 'property' ? styles.active : ''
-                  }`}
-                  onClick={() => {
-                    this.handleType('property');
-                  }}
-                >
-                  基本属性
-                  <Icon type="right" />
-                </span>
-                <span
-                  className={`${styles.typeBtn} ${
                     type === 'deploy' ? styles.active : ''
                   }`}
                   onClick={() => {
@@ -1216,6 +1255,17 @@ export default class Index extends PureComponent {
                   }}
                 >
                   部署属性
+                  <Icon type="right" />
+                </span>
+                <span
+                  className={`${styles.typeBtn} ${
+                    type === 'property' ? styles.active : ''
+                  }`}
+                  onClick={() => {
+                    this.handleType('property');
+                  }}
+                >
+                  组件属性
                   <Icon type="right" />
                 </span>
               </div>

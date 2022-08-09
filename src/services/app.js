@@ -39,7 +39,7 @@ export function getPhpConfig() {
 }
 
 /*
-	获取自动部署设置状态
+  获取自动部署设置状态
 
  */
 export function getAutoDeployStatus(
@@ -54,7 +54,7 @@ export function getAutoDeployStatus(
 }
 
 /*
-	取消自动部署
+  取消自动部署
  */
 export function cancelAutoDeploy(
   body = { team_name, app_alias, deployment_way }
@@ -72,7 +72,7 @@ export function cancelAutoDeploy(
 }
 
 /*
-	开启自动部署
+  开启自动部署
  */
 export function openAutoDeploy(
   body = { team_name, app_alias, deployment_way }
@@ -90,7 +90,7 @@ export function openAutoDeploy(
 }
 
 /*
-	获取应用的历史操作日志
+  获取应用的历史操作日志
 */
 export function getActionLog(
   body = {
@@ -115,10 +115,10 @@ export function getActionLog(
 }
 
 /*
-	获取应用某个操作历史的详细日志
-	level {
-	 info, debug, error
-	}
+  获取应用某个操作历史的详细日志
+  level {
+   info, debug, error
+  }
 */
 export function getActionLogDetail(
   body = {
@@ -141,7 +141,7 @@ export function getActionLogDetail(
 }
 
 /*
-	部署应用
+  部署应用
 */
 export function deploy(body = {}, handleError) {
   return request(
@@ -171,7 +171,7 @@ export function upgrade(body = {}, handleError) {
 }
 
 /*
-	更新滚动
+  更新滚动
 */
 export function updateRolling(
   body = {
@@ -187,7 +187,7 @@ export function updateRolling(
   );
 }
 /*
-	批量部署应用
+  批量部署应用
 */
 export function batchDeploy(
   body = {
@@ -208,7 +208,7 @@ export function batchDeploy(
 }
 
 /*
-	应用重启
+  应用重启
 */
 export function restart(
   body = {
@@ -245,7 +245,7 @@ export function batchOperation(body = {}) {
 }
 
 /*
-	应用启动
+  应用启动
 */
 export function start(
   body = {
@@ -261,7 +261,7 @@ export function start(
   );
 }
 /*
-	批量应用启动
+  批量应用启动
 */
 export function batchStart(
   body = {
@@ -282,7 +282,7 @@ export function batchStart(
 }
 
 /*
-	应用关闭
+  应用关闭
 */
 export function stop(
   body = {
@@ -299,7 +299,7 @@ export function stop(
 }
 
 /*
-	批量应用关闭
+  批量应用关闭
 */
 export function batchStop(
   body = {
@@ -320,7 +320,7 @@ export function batchStop(
 }
 
 /*
-	应用回滚
+  应用回滚
 */
 export function rollback(
   body = {
@@ -345,7 +345,7 @@ export function rollback(
 }
 
 /*
-	获取应用详细信息
+  获取应用详细信息
 */
 export async function getDetail(body = {}, handleError) {
   return request(
@@ -358,7 +358,7 @@ export async function getDetail(body = {}, handleError) {
 }
 
 /*
-	获取应用状态
+  获取应用状态
 */
 export function getComponentState(body = {}, handleError) {
   return request(
@@ -372,7 +372,7 @@ export function getComponentState(body = {}, handleError) {
 }
 
 /*
-	获取监控日志--日志页面
+  获取监控日志--日志页面
 */
 export function getServiceLog(body = {}) {
   return request(
@@ -400,7 +400,7 @@ export function getContainerLog(body = {}) {
 }
 
 /*
-	获取监控日志的websocket地址
+  获取监控日志的websocket地址
 */
 export function getMonitorWebSocketUrl(
   body = {
@@ -415,7 +415,7 @@ export function getMonitorWebSocketUrl(
 }
 
 /*
-	历史日志下载
+  历史日志下载
 */
 export function getHistoryLog(
   body = {
@@ -430,8 +430,8 @@ export function getHistoryLog(
 }
 
 /*
-	水平升级
-	new_node : 节点数量
+  水平升级
+  new_node : 节点数量
 */
 export function horizontal(
   body = {
@@ -452,8 +452,8 @@ export function horizontal(
 }
 
 /*
-	垂直升级
-	new_memory : 内存数量 单位 MB
+  垂直升级
+  new_memory : 内存数量 单位 MB
 */
 export function vertical(
   body = {
@@ -572,7 +572,7 @@ export function batchAddRelationedApp(
 }
 
 /*
-	删除依赖的应用
+  删除依赖的应用
 */
 export function removeRelationedApp(
   body = {
@@ -588,7 +588,7 @@ export function removeRelationedApp(
 }
 
 /*
-	获取挂载或未挂载的目录
+  获取挂载或未挂载的目录
   type: 查询的类别 mnt（已挂载的,默认）| unmnt (未挂载的)
   volume_type: 查询的类别 share-file(非配置文件) | config-file(配置文件)
 */
@@ -665,7 +665,7 @@ export async function deleteMnt(
 }
 
 /*
-	获取应用的端口
+  获取应用的端口
 */
 export async function getPorts(
   body = {
@@ -706,7 +706,7 @@ export async function changePortProtocal(
 }
 
 /*
-	打开端口外部访问 only_open_outer
+  打开端口外部访问 only_open_outer
 */
 export async function openPortOuter(
   body = {
@@ -728,7 +728,7 @@ export async function openPortOuter(
 }
 
 /*
-	关闭端口外部访问
+  关闭端口外部访问
 */
 export async function closePortOuter(
   body = {
@@ -749,7 +749,7 @@ export async function closePortOuter(
 }
 
 /*
-	打开端口内部访问
+  打开端口内部访问
 */
 export async function openPortInner(
   body = {
@@ -770,7 +770,7 @@ export async function openPortInner(
 }
 
 /*
-	关闭端口内部访问
+  关闭端口内部访问
 */
 export async function closePortInner(
   body = {
@@ -815,7 +815,7 @@ export async function editPortAlias(
 }
 
 /*
-	删除端口
+  删除端口
 */
 export async function deletePort(
   body = {
@@ -831,7 +831,7 @@ export async function deletePort(
 }
 
 /*
-	绑定域名
+  绑定域名
 */
 export async function bindDomain(
   body = {
@@ -863,7 +863,7 @@ export async function bindDomain(
 }
 
 /*
-	解绑域名
+  解绑域名
 */
 export async function unbindDomain(
   body = {
@@ -886,7 +886,7 @@ export async function unbindDomain(
 }
 
 /*
-	添加端口
+  添加端口
 */
 export async function addPort(
   body = {
@@ -936,7 +936,7 @@ export async function getInnerEnvs(
 }
 
 /*
-	获取版本的信息
+  获取版本的信息
 */
 export async function getBuildInformation(
   body = {
@@ -953,7 +953,7 @@ export async function getBuildInformation(
 }
 
 /*
-	获取变量值信息
+  获取变量值信息
 */
 export async function getVariable(
   body = {
@@ -1146,7 +1146,7 @@ export async function deleteInstanceList(
   );
 }
 /*
-	添加/编辑实例数据
+  添加/编辑实例数据
 */
 export async function modifyInstanceList(
   body = {
@@ -1169,7 +1169,7 @@ export async function modifyInstanceList(
 }
 
 /*
-	添加/编辑实例数据
+  添加/编辑实例数据
 */
 export async function addInstanceList(
   body = {
@@ -1253,7 +1253,7 @@ export async function editorHealthList(
 /*
 
 /*
-	获取应用运行时探测的信息
+  获取应用运行时探测的信息
 */
 export async function getRunningProbe(
   body = {
@@ -1273,7 +1273,7 @@ export async function getRunningProbe(
 }
 
 /*
-	获取应用启动时探测的信息
+  获取应用启动时探测的信息
 */
 export async function getStartProbe(
   body = {
@@ -1293,7 +1293,7 @@ export async function getStartProbe(
 }
 
 /*
-	添加/编辑应用启动时探测
+  添加/编辑应用启动时探测
 */
 export async function addStartProbe(
   body = {
@@ -1333,7 +1333,7 @@ export async function addStartProbe(
 }
 
 /*
-	添加/编辑应用运行时探测
+  添加/编辑应用运行时探测
 */
 export async function addRunningProbe(
   body = {
@@ -1370,7 +1370,7 @@ export async function addRunningProbe(
 }
 
 /*
-	添加/编辑应用启动时探测
+  添加/编辑应用启动时探测
 */
 export async function editStartProbe(
   body = {
@@ -1412,7 +1412,7 @@ export async function editStartProbe(
 }
 
 /*
-	添加/编辑应用运行时探测
+  添加/编辑应用运行时探测
 */
 export async function editRunningProbe(
   body = {
@@ -1451,7 +1451,7 @@ export async function editRunningProbe(
 }
 
 /*
-	获取应用基本详情
+  获取应用基本详情
 */
 export async function getBaseInfo(
   body = {
@@ -1508,7 +1508,7 @@ export async function getVolumeOpts(
 }
 
 /*
-	添加组件的存储
+  添加组件的存储
 */
 export async function addVolume(
   body = {
@@ -1537,7 +1537,7 @@ export async function addVolume(
   );
 }
 /*
-	编辑应用的持久化路径
+  编辑应用的持久化路径
 */
 export async function editorVolume(
   body = {
@@ -1562,7 +1562,7 @@ export async function editorVolume(
 }
 
 /*
-	删除应用的某个持久化目录
+  删除应用的某个持久化目录
 */
 export async function deleteVolume(
   body = {
@@ -1594,7 +1594,7 @@ export function getPerformanceAnalysis(body = {}) {
   );
 }
 /*
-	 获取应用平均响应时间监控数据(当前请求时间点的数据)
+   获取应用平均响应时间监控数据(当前请求时间点的数据)
 */
 export async function getAppRequestTime(
   body = {
@@ -1617,7 +1617,7 @@ export async function getAppRequestTime(
 }
 
 /*
-	 获取应用平均响应时间监控数据(一段时间内数据)
+   获取应用平均响应时间监控数据(一段时间内数据)
 */
 export async function getAppRequestTimeRange(
   body = {
@@ -1646,7 +1646,7 @@ export async function getAppRequestTimeRange(
 }
 
 /*
-	 获取应用吞吐率监控数据(当前请求时间点的数据)
+   获取应用吞吐率监控数据(当前请求时间点的数据)
 */
 export async function getAppRequest(
   body = {
@@ -1669,7 +1669,7 @@ export async function getAppRequest(
 }
 
 /*
-	 获取应用吞磁盘监控数据(当前请求时间点的数据)
+   获取应用吞磁盘监控数据(当前请求时间点的数据)
 */
 export async function getAppDisk(
   body = {
@@ -1692,7 +1692,7 @@ export async function getAppDisk(
 }
 
 /*
-	 获取应用吞磁盘监控数据(当前请求时间点的数据)
+   获取应用吞磁盘监控数据(当前请求时间点的数据)
 */
 export async function getAppMemory(
   body = {
@@ -1715,7 +1715,7 @@ export async function getAppMemory(
 }
 
 /*
-	 获取应用吞吐率监控数据(一段时间内数据)
+   获取应用吞吐率监控数据(一段时间内数据)
 */
 export async function getAppRequestRange(
   body = {
@@ -1744,7 +1744,7 @@ export async function getAppRequestRange(
 }
 
 /*
-	获取应用在线人数监控数据(当前请求时间点的数据)
+  获取应用在线人数监控数据(当前请求时间点的数据)
 */
 export async function getAppOnlineNumber(
   body = {
@@ -1767,7 +1767,7 @@ export async function getAppOnlineNumber(
 }
 
 /*
-	获取应用在线人数监控数据(一段时间内数据)
+  获取应用在线人数监控数据(一段时间内数据)
 */
 export async function getAppOnlineNumberRange(
   body = {
@@ -1847,7 +1847,7 @@ export async function getExtendInfo(
 }
 
 /*
-	获取应用的实例
+  获取应用的实例
 */
 export async function getPods(body = {}, handleError) {
   return request(
@@ -1859,7 +1859,7 @@ export async function getPods(body = {}, handleError) {
   );
 }
 /*
-	开启自动伸缩
+  开启自动伸缩
 */
 export async function newaddScalingRules(params) {
   return request(
@@ -1877,7 +1877,7 @@ export async function newaddScalingRules(params) {
   );
 }
 /*
-	获取自动伸缩列表
+  获取自动伸缩列表
 */
 export async function getScalingRules(params) {
   return request(
@@ -1888,7 +1888,7 @@ export async function getScalingRules(params) {
   );
 }
 /*
-	编辑自动伸缩
+  编辑自动伸缩
 */
 export async function editScalingRules(params) {
   return request(
@@ -1903,21 +1903,21 @@ export async function editScalingRules(params) {
         metrics: params.metrics
           ? params.metrics
           : [
-              {
-                metric_type: 'resource_metrics',
-                metric_name: 'cpu',
-                metric_target_type: params.selectCpu ? params.selectCpu : '',
-                metric_target_value: params.cpuValue ? params.cpuValue : 1
-              },
-              {
-                metric_type: 'resource_metrics',
-                metric_name: 'memory',
-                metric_target_type: params.selectMemory
-                  ? params.selectMemory
-                  : '',
-                metric_target_value: params.memoryValue ? params.memoryValue : 1
-              }
-            ]
+            {
+              metric_type: 'resource_metrics',
+              metric_name: 'cpu',
+              metric_target_type: params.selectCpu ? params.selectCpu : '',
+              metric_target_value: params.cpuValue ? params.cpuValue : 1
+            },
+            {
+              metric_type: 'resource_metrics',
+              metric_name: 'memory',
+              metric_target_type: params.selectMemory
+                ? params.selectMemory
+                : '',
+              metric_target_value: params.memoryValue ? params.memoryValue : 1
+            }
+          ]
       }
     }
   );
@@ -1936,7 +1936,7 @@ export async function queryScalingRecord(params) {
   );
 }
 /*
-	管理实例
+  管理实例
 */
 export async function managePods(
   body = {
@@ -1990,7 +1990,7 @@ export async function getVisitInfo(body = {}, handleError) {
 }
 
 /*
-	获取应用标签
+  获取应用标签
 */
 export async function getTags(
   body = {
@@ -2005,7 +2005,7 @@ export async function getTags(
 }
 
 /*
-	删除应用标签
+  删除应用标签
 */
 export async function deleteTag(
   body = {
@@ -2026,7 +2026,7 @@ export async function deleteTag(
 }
 
 /*
-	添加标签
+  添加标签
 */
 export async function addTags(
   body = {
@@ -2047,7 +2047,7 @@ export async function addTags(
 }
 
 /*
-	修改组件名称信息
+  修改组件名称信息
 */
 export async function editName(
   body = {
@@ -2069,7 +2069,7 @@ export async function editName(
 }
 
 /*
-	修改对外端口拓扑图teams/(?P<tenantName>[\w\-]+)/apps/(?P<serviceAlias>[\w\-]+)/topological/ports
+  修改对外端口拓扑图teams/(?P<tenantName>[\w\-]+)/apps/(?P<serviceAlias>[\w\-]+)/topological/ports
 */
 export async function openExternalPort(
   body = {
@@ -2094,7 +2094,7 @@ export async function openExternalPort(
 }
 
 /*
-	转移组
+  转移组
 */
 export async function moveName(
   body = {
@@ -2135,7 +2135,7 @@ export function batchMove(
 }
 
 /*
-	获取设置了权限的团队成员
+  获取设置了权限的团队成员
 */
 export async function getMembers(
   body = {
@@ -2152,7 +2152,7 @@ export async function getMembers(
 }
 
 /*
-	获取团队成员
+  获取团队成员
 */
 export async function getPermissions() {
   return request(
@@ -2163,7 +2163,7 @@ export async function getPermissions() {
   );
 }
 /*
-	获取实例详情
+  获取实例详情
 */
 export async function fetchInstanceDetails(
   body = {
@@ -2190,7 +2190,7 @@ export async function fetchHelmInstanceDetails(body = {}) {
 }
 
 /*
-	获取操作日志
+  获取操作日志
 */
 export async function fetchOperationLog(body = {}, handleError) {
   return request(
@@ -2209,7 +2209,7 @@ export async function fetchOperationLog(body = {}, handleError) {
 }
 
 /*
-	获取操作记录日志
+  获取操作记录日志
 */
 export async function fetchLogContent(
   body = {
@@ -2278,7 +2278,7 @@ export async function deleteMavensettings(body = {}) {
 }
 
 /*
-	设置用户权限
+  设置用户权限
 */
 export async function setMemberAction(
   body = {
@@ -2301,7 +2301,7 @@ export async function setMemberAction(
 }
 
 /*
-	删除成员应用权限
+  删除成员应用权限
 */
 export async function deleteMember(
   body = {
@@ -2322,7 +2322,7 @@ export async function deleteMember(
 }
 
 /*
-	修改用户权限
+  修改用户权限
 */
 export async function editMemberAction(
   body = {
@@ -2345,7 +2345,7 @@ export async function editMemberAction(
 }
 
 /*
-	获取变量的信息
+  获取变量的信息
 */
 export async function getVariableList(body = {}, handleError) {
   return request(
@@ -2362,7 +2362,7 @@ export async function getVariableList(body = {}, handleError) {
 }
 
 /*
-	修改应用所属组
+  修改应用所属组
 */
 export async function moveGroup(
   body = {
@@ -2383,7 +2383,7 @@ export async function moveGroup(
 }
 
 /*
-	获取应用的运行环境信息
+  获取应用的运行环境信息
 */
 export async function getRuntimeInfo(
   body = {
@@ -2398,7 +2398,7 @@ export async function getRuntimeInfo(
   );
 }
 /*
-	获取构建的运行环境信息
+  获取构建的运行环境信息
 */
 export async function getRuntimeBuildInfo(
   body = {
@@ -2413,7 +2413,7 @@ export async function getRuntimeBuildInfo(
 }
 
 /*
-	修改应用的运行环境信息
+  修改应用的运行环境信息
 */
 export async function editRuntimeInfo(
   body = {
@@ -2441,7 +2441,7 @@ export async function editRuntimeInfo(
 }
 
 /*
-	修改应用的运行环境信息
+  修改应用的运行环境信息
 */
 export async function editRuntimeBuildInfo(
   body = {
@@ -2461,8 +2461,8 @@ export async function editRuntimeBuildInfo(
   );
 }
 /*
-	应用未创建阶段的信息修改
-	可部分修改
+  应用未创建阶段的信息修改
+  可部分修改
 */
 
 export async function editAppCreateInfo(
@@ -2476,7 +2476,8 @@ export async function editAppCreateInfo(
     min_memory,
     extend_method,
     user_name,
-    password
+    password,
+    schedule:"*/1 * * * *"
   }
 ) {
   return request(
@@ -2489,9 +2490,9 @@ export async function editAppCreateInfo(
 }
 
 /*
-	删除应用
-	is_force:	true直接删除，false进入回收站
-	未创建成功的直接删除、 已经创建的进入回收站
+  删除应用
+  is_force:	true直接删除，false进入回收站
+  未创建成功的直接删除、 已经创建的进入回收站
 */
 export async function deleteApp(body = {}, handleError) {
   return request(
@@ -2507,7 +2508,7 @@ export async function deleteApp(body = {}, handleError) {
 }
 
 /*
-	批量应用删除
+  批量应用删除
 */
 export function batchDelete(
   body = {
@@ -2527,7 +2528,7 @@ export function batchDelete(
 }
 
 /*
-	二次确认强制删除
+  二次确认强制删除
 */
 export function reDelete(
   body = {
@@ -2547,7 +2548,7 @@ export function reDelete(
 }
 
 /*
-	查询应用的性能分析插件
+  查询应用的性能分析插件
 */
 export async function getAnalyzePlugins(
   body = {
@@ -2562,7 +2563,7 @@ export async function getAnalyzePlugins(
 }
 
 /*
-	获取应用的插件信息, 包括已安装的和未安装的
+  获取应用的插件信息, 包括已安装的和未安装的
 */
 export async function getPlugins(
   body = {
@@ -2583,7 +2584,7 @@ export async function getPlugins(
 }
 
 /*
-	获取JavaMaven多模块信息
+  获取JavaMaven多模块信息
 */
 export async function getMultipleModulesInfo(
   body = {
@@ -2622,7 +2623,7 @@ export async function createService(
   );
 }
 /*
-	开通插件
+  开通插件
 */
 export async function installPlugin(
   body = {
@@ -2644,7 +2645,7 @@ export async function installPlugin(
 }
 
 /*
-	卸载插件
+  卸载插件
 */
 export async function unInstallPlugin(
   body = {
@@ -3003,7 +3004,8 @@ export async function putLanguage(
     {
       method: 'post',
       data: {
-        is_again: true
+        is_again: true,
+        event_id: body.eventId
       }
     }
   );
@@ -3049,7 +3051,8 @@ export async function putAppBuidSource(
         password: body.password,
         is_oauth: body.is_oauth,
         service_id: body.oauth_service_id,
-        full_name: body.full_name
+        full_name: body.full_name,
+        server_type: body.server_type
       }
     }
   );
@@ -3226,3 +3229,78 @@ export async function rollbackUpgradeList(body = {}) {
     }
   );
 }
+/* 获取运行策略数据 */
+export async function getRunStrategy(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/job_strategy`,
+    {
+      method: 'get'
+    }
+  );
+}
+/* 添加运行策略数据 */
+export async function addRunStrategy(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/job_strategy`,
+    {
+      method: 'put',
+      data: {
+        active_deadline_seconds: body.active_deadline_seconds,
+        backoff_limit: body.backoff_limit,
+        completions: body.completions,
+        parallelism: body.parallelism,
+        schedule: body.scheduleValue
+      }
+    }
+  );
+}
+/* 添加Kubernetes属性 */
+export async function addKubernetes(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes`,
+    {
+      method: 'post',
+      data: {
+        attribute: body.attribute
+      }
+    }
+  );
+}
+
+/* 获取Kubernetes属性 */
+export async function getKubernetes(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes`,
+    {
+      method: 'get'
+    }
+  );
+}
+
+
+
+// 修改Kubernetes属性
+export async function editKubernetes(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes/${body.value_name}`,
+    {
+      method: 'put',
+      data:{
+        attribute: body.attribute
+      }
+    }
+    
+  );
+}
+// 删除Kubernetes属性
+export async function deleteKubernetes(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes/${body.value_name}`,
+    {
+      method: 'delete'
+    }
+  );
+}
+
+
+

@@ -1,7 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { formatMessage } from 'umi-plugin-locale';
-import { isUrl } from '../utils/utils';
 import roleUtil from '../utils/role';
+import { isUrl } from '../utils/utils';
 
 const publishIcon = (
   <i className="anticon">
@@ -128,7 +128,27 @@ const upgradeIcon = (
     </svg>
   </i>
 );
-
+const ziyuan = (
+  <i className="anticon">
+    <svg
+      t="1656150043826"
+      className="icon"
+      viewBox="0 0 1183 1024"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      p-id="2253"
+      width="22"
+      height="22"
+    >
+      <g fill="#979797" stroke="#979797">
+        <path
+          d="M1135.832378 200.691046a107.278118 107.278118 0 0 0-77.32121-33.144891h-251.192726C783.484483 79.648942 703.784938 16.648349 614.875667 16.648349H122.155367c-59.205377 0-107.429927 48.578771-107.429927 108.340779v773.616921c0 58.699348 49.186005 108.340779 107.429927 108.340778h936.355801c59.205377 0 107.379324-48.578771 107.379324-108.340778V277.152006a104.950385 104.950385 0 0 0-30.058114-76.46096z m-433.869144-31.323187H112.287804v-41.696778c0-5.313303 5.414509-9.867563 9.867563-9.867563h491.809448a100.244317 100.244317 0 0 1 87.998419 51.564341z m368.237201 121.042103V869.357581h-1.821704v15.585688c0 12.549516-10.980826 24.390591-22.61949 24.390591H136.678395c-12.44831 0-22.568887-10.930223-22.568887-24.390591V266.87962h934.432892c11.537458 0 21.658035 10.930223 21.658035 23.530342z"
+          p-id="2254"
+        />
+      </g>
+    </svg>
+  </i>
+);
 function menuData(teamName, regionName, appID, permissionsInfo) {
   const appPermissions = roleUtil.querySpecifiedPermissionsInfo(
     permissionsInfo,
@@ -195,11 +215,17 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       authority: ['admin', 'user']
     });
   }
+  addMenuArr({
+    name: formatMessage({ id: 'menu.app.k8s' }),
+    icon: ziyuan,
+    path: `team/${teamName}/region/${regionName}/apps/${appID}/resource`,
+    authority: ['admin', 'user']
+  });
   return menuArr;
 }
 
 function formatter(data, parentPath = '', parentAuthority) {
-  return data.map((item) => {
+  return data.map(item => {
     let { path } = item;
     if (!isUrl(path)) {
       path = parentPath + item.path;

@@ -138,6 +138,18 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/importMessage',
+            component: './AddCluster/ImportMessage',
+            name: 'ImportMessage',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/ResourceConversion',
+            component: './AddCluster/ResourceConversion',
+            name: 'next',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/provider/:provider/kclusters',
             component: './AddCluster/KClusterList',
             name: 'KClusterList',
@@ -266,6 +278,12 @@ export default [
             title: '应用配置组管理'
           },
           {
+            path: '/team/:teamName/region/:regionName/apps/:appID/resource',
+            component: './Resource',
+            name: 'Resource',
+            authority: ['admin', 'user']
+          },
+          {
             path:
               '/team/:teamName/region/:regionName/apps/:appID/configgroups/details/:id',
             component: './Configuration/Details',
@@ -350,7 +368,15 @@ export default [
             name: 'code',
             authority: ['admin', 'user']
           },
-
+          
+          // yaml创建
+          {
+            path:
+              '/team/:teamName/region/:regionName/create/yaml/:type?/:yaml?',
+            component: './Create/yaml',
+            name: 'yaml',
+            authority: ['admin', 'user']
+          },
           {
             path:
               '/team/:teamName/region/:regionName/create/outer/:type?/:outer?',
@@ -436,6 +462,8 @@ export default [
             authority: ['admin', 'user']
           },
 
+
+
           {
             path:
               '/team/:teamName/region/:regionName/create/create-moreService/:appAlias/:check_uuid',
@@ -505,6 +533,18 @@ export default [
             path: '/team/:teamName/region/:regionName/gateway/license',
             component: './GateWay/license',
             name: 'license',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/team/:teamName/region/:regionName/importMessageYaml',
+            component: './AddCluster/ImportMessageYaml',
+            name: 'ImportMessageYaml',
+            authority: ['admin', 'user']
+          },
+          {
+            path:'/team/:teamName/region/:regionName/ChangeResourceTest',
+            component: './ChangeResourceTest/index',
+            name: 'newsetting',
             authority: ['admin', 'user']
           },
           { component: '404' }

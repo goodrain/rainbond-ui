@@ -1,0 +1,64 @@
+.rowStyle{
+    padding: 20px;
+    // border: 2px solid red;
+    text-align: center;
+    display: flex;
+    align-items: flex-start;
+    .colStyle{
+        text-align: right;
+        width: 200px;
+        font-weight: bolder;
+        margin-right: 30px;
+        padding-top: 6px;
+        div{
+            background-color: #f0f4f8;
+            border-radius: 10px;
+            padding: 10px;
+        }
+    }
+    .colStyleOne{
+        display: flex;
+        white-space:nowrap;
+        flex-wrap: wrap;
+        .tooltip_style{
+            // width: 25%;
+            margin: 0 20px 10px 0;
+            padding: 6px;
+            background-color: #f0f4f8;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            span{
+                display: block;
+                width: 100px;
+                white-space:nowrap;
+                overflow:hidden;
+                justify-content: center;
+                text-overflow:ellipsis;
+                align-items: center;
+                padding: 2px;
+                color: #232b3d;
+            }
+            span:first-child{
+                width: 100px;
+                padding: 3px 5px;
+                margin-right: 10px;
+                border-radius: 5px;
+                background-color: #39435a;
+                color: #fff;
+                
+            }
+        }
+    }
+}
+    :global{
+        .ant-drawer-content-wrapper{
+            width: 500px;
+        }
+    }
+
+.yamlFiles_style{
+    display: flex;
+    align-items: center;
+    margin-top: -8px;
+}
