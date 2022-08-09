@@ -9,8 +9,7 @@ import {
   notification,
   Popconfirm,
   Radio,
-  Switch,
-  Tag
+  Switch
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
@@ -21,6 +20,7 @@ import SetMemberAppAction from '../../components/SetMemberAppAction';
 import appProbeUtil from '../../utils/appProbe-util';
 import appStatusUtil from '../../utils/appStatus-util';
 import globalUtil from '../../utils/global';
+import Kubernetes from './kubernets';
 import AddTag from './setting/add-tag';
 import EditHealthCheck from './setting/edit-health-check';
 import EditRunHealthCheck from './setting/edit-run-health-check';
@@ -28,6 +28,7 @@ import AddVarModal from './setting/env';
 import ViewHealthCheck from './setting/health-check';
 import EditActions from './setting/perm';
 import ViewRunHealthCheck from './setting/run-health-check';
+import Strategy from './strategy';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -172,7 +173,7 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias
       },
-      callback: code => {}
+      callback: code => { }
     });
   }
   loadMembers = () => {
@@ -633,7 +634,8 @@ export default class Index extends React.Component {
       baseInfo,
       teamControl,
       form,
-      componentPermissions: { isDeploytype, isCharacteristic, isHealth }
+      componentPermissions: { isDeploytype, isCharacteristic, isHealth },
+      appDetail
     } = this.props;
     const { viewStartHealth, tags, tabData, isShow, loading } = this.state;
     const { getFieldDecorator } = form;
@@ -705,7 +707,7 @@ export default class Index extends React.Component {
                 </Button>
               )}
             </FormItem>
-            <FormItem
+            {/* <FormItem
               style={{
                 marginBottom: 0
               }}
@@ -729,7 +731,7 @@ export default class Index extends React.Component {
                   添加特性
                 </Button>
               )}
-            </FormItem>
+            </FormItem> */}
             <FormItem
               style={{
                 marginBottom: 0
@@ -768,7 +770,7 @@ export default class Index extends React.Component {
                     </a>
 
                     {JSON.stringify(startProbe) != '{}' &&
-                    appProbeUtil.isStartProbeStart(startProbe) ? (
+                      appProbeUtil.isStartProbeStart(startProbe) ? (
                       <a
                         onClick={() => {
                           this.handleStartProbeStart(false);
@@ -807,13 +809,23 @@ export default class Index extends React.Component {
                   {startProbe.mode === 'readiness'
                     ? '下线'
                     : startProbe.mode === 'liveness'
-                    ? '重启'
-                    : '未设置'}
+                      ? '重启'
+                      : '未设置'}
                 </div>
               </div>
             )}
           </Card>
         )}
+        {(appDetail.service.extend_method === 'job' || 
+        appDetail.service.extend_method === 'cronjob') &&(
+          <Strategy 
+            extend_method={appDetail.service.extend_method} 
+            service_alias={appDetail.service.service_alias} 
+          />
+        )}
+        <Kubernetes  
+          service_alias={appDetail.service.service_alias} 
+        />
         {this.state.addTag && (
           <AddTag
             tags={tabData || []}

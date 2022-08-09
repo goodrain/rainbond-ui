@@ -1,0 +1,154 @@
+.applist{
+    float: left;
+}
+.typeBtnWrap{
+	font-size: 16px;
+	float:left;
+	width: 150px;
+	margin-right: 24px;
+	position: relative;
+    .fixed{
+        position: absolute;
+        top: 35px;
+        left:-70px;
+		span{
+			display: block;
+			float: left;
+			width: 90px;
+			white-space:nowrap;
+			overflow:hidden;
+			text-overflow:ellipsis;
+		}
+		i{
+			display: block;
+			float: left;
+			height: 40px;
+		line-height: 40px;
+
+
+		}
+    }
+	.typeBtn {
+		display: block;
+		cursor: pointer;
+		padding-left: 20px;
+		height:40px;
+		line-height: 35px;
+		width: 150px;
+		margin-bottom:-3px;
+		:global {
+		    .anticon {visibility: hidden;margin-left: 10px}
+		}
+		border:1px solid #e8e8e8;
+		margin-bottom: -1px;
+		background: #fafafa;
+	}
+	.typeBtn:first-child {
+	   	border-top-left-radius: 2px;
+		border-top-right-radius: 2px;
+	}
+	.typeBtn:last-child {
+	   	border-bottom-left-radius: 2px;
+		border-bottom-right-radius: 2px;
+	}
+	.active {
+		background: #fff;
+		z-index:1;
+		
+		:global {
+		    .anticon {visibility: visible;}
+		}
+	}
+}
+.alltable{
+    min-width: 500px;
+    margin-left: 180px;
+	margin-bottom: 75px;
+    :global{
+        .ant-collapse-borderless > .ant-collapse-item > .ant-collapse-content{
+            background-color: rgb(240 242 245);
+        }
+        .ant-collapse-content > .ant-collapse-content-box{
+            padding: 0;
+        }
+        .ant-card-head{
+            border-bottom: 1px solid #e8e8e8;
+            .ant-card-head-wrapper>.ant-card-head-title{
+                font-weight: 600;
+            }
+        }
+		.ant-tabs-nav-wrap{
+			background-color: #fff;
+		}
+		
+    }
+	.buttonbox{
+		background-color: #fff;
+		border: 1px solid #e8e8e8;
+		padding: 30px;
+	}
+	.ramstyle{
+		margin-left: 32px;
+		h3{
+			padding-right: 10px;
+			span{
+			display: inline-block;
+			min-width: 80px;	
+			padding:0 20px
+			}
+		}
+	}
+	.cpustyle{
+		margin-left: 34px;
+		h3{
+			vertical-align: bottom;
+			padding-right: 10px;
+			span{
+			display: inline-block;
+			min-width: 80px;	
+			padding:0 20px
+			}
+		}
+	}
+}
+.zujianbutton{
+    width: 150px;
+    height: 50px;
+    background-color: #fafafa;
+    border: 1px solid #e8e8e8;
+}
+.checkoutbutton{
+	color: #2490fe;
+	width: 150px;
+    height: 50px;
+    background-color: #fff;
+    border: 1px solid #e8e8e8;
+}
+.cardstyle{
+	h3{
+		
+		font-size: 16px;
+		span{
+			display: inline-block;
+			min-width: 80px;	
+			padding:0 20px;
+			color: #808080;
+		}
+	}
+	:global{
+		.ant-input-group-wrapper{
+			width: 200px;
+		}
+	}
+}
+.deploydatanum{
+	margin-left: 16px;
+}
+.loadingstyle{
+	width: 100%;
+	height: 500px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	
+}

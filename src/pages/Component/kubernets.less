@@ -1,0 +1,143 @@
+.pageValue_style{
+    .tipText_style{   
+        margin: 0 20px 10px 0px;
+        padding: 6px;
+        background-color: #f0f4f8;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        span:nth-of-type(2){
+            text-align: center;
+            display: block;
+            width: 100px;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            padding: 2px;
+            color: #232b3d;
+        }
+        span:first-child{
+            display: block;
+            text-align: center;
+            width: 100px;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            padding: 3px 5px;
+            margin-right: 10px;
+            border-radius: 5px;
+            background-color: #39435a;
+            color: #fff;
+            
+        }
+    }
+    :global{
+        .ant-row{
+            display: flex;
+            // align-items: center;
+            margin-bottom: 30px;
+            .ant-col-18{
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                
+            }
+            
+            .ant-col-3{
+                width: 200px;
+                display: flex;
+                justify-content: end;
+                padding-top: 6px;
+                font-size: 14px;
+                padding-right: 50px;
+                font-weight:bolder;
+                text-align: right;
+            }
+            .ant-col-2{
+                display: flex;
+                justify-content: start;
+                // align-items: center;
+                padding-top: 6px;
+                
+                
+                span{
+                    cursor: pointer;
+                    color: #4d73b1;
+                }
+                
+                
+            }
+        }
+    }
+}
+.handleBtn_style{
+    width: 100%;
+    border-top: 1px solid rgb(232, 232, 232);
+    padding: 20px 26px;
+    text-align: right;
+    background: rgb(255, 255, 255);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 3;
+}
+.selectstyle{
+    padding-bottom: 60px;
+    .accountName_style{
+        padding-left: 54px;
+    }
+    :global{
+        .ant-row{
+            
+            .ant-col-4{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                padding-top: 6px;
+            }
+
+        }
+        .ant-form-item-control{
+            margin-left: 20px;
+        }
+        .ant-form {
+
+            p{
+                margin-left: 54px;
+                margin-bottom:-8px
+            }
+        }
+        
+    }
+}
+.nodeSelector_sytle{
+    :global{
+        .ant-row{
+            display: flex;
+            align-items: center;
+            padding-left: 54px;
+            .ant-col-4{
+                width: 120px;
+            }
+            .ant-col-1{
+                padding-top: 6px;
+            }
+
+        }
+        
+    }
+}
+.yamlValue_style{
+    display: flex;
+    align-items: center;
+}
+
+.yamlTitle_style{
+    display: flex;
+    align-items: center;
+    padding-right: 50px;
+    font-weight: 600;
+    justify-content: end;
+    
+}

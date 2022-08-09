@@ -146,12 +146,17 @@ export default class CreateCheck extends React.Component {
   };
   loopStatus = () => {
     if (!this.mount) return;
+    const eventId = this.props.location && 
+                    this.props.location.query && 
+                    this.props.location.query.event_id || 
+                    this.props.event_id
     const appAlias = this.getAppAlias();
     const teamName = globalUtil.getCurrTeamName();
     getCreateCheckResult({
       team_name: teamName,
       app_alias: appAlias,
-      check_uuid: this.state.checkUuid
+      check_uuid: this.state.checkUuid,
+      event_id: eventId 
     })
       .then(data => {
         if (data && this.mount) {
@@ -176,10 +181,15 @@ export default class CreateCheck extends React.Component {
   };
   startCheck = loopStatus => {
     const { appAlias, teamName } = this.getParameter();
+    const eventId = this.props.location && 
+                    this.props.location.query && 
+                    this.props.location.query.event_id || 
+                    this.props.event_id
     getCreateCheckId(
       {
         team_name: teamName,
-        app_alias: appAlias
+        app_alias: appAlias,
+        event_id: eventId
       },
       res => {
         if (res.status === 404) {

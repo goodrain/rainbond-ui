@@ -152,3 +152,44 @@ export async function fetchHelmJoinStatus(param) {
     }
   });
 }
+/* 导入集群NameSpace */
+export async function fetchImportMessage(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/namespace`, {
+    method: 'get',
+    params: {
+      content: 'unmanaged'
+    }
+  });
+}
+/* 获取NameSpace下的资源 */ 
+export async function fetchNameSpaceResource(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/resource`, {
+    method: 'get',
+    params: {
+      content: 'unmanaged',
+      namespace: param.namespace
+    }
+  });
+}
+/* 获取NameSpace下的高级资源 */ 
+export async function fetchNameSpaceAdvancedResource(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/convert-resource`, {
+    method: 'get',
+    params: {
+      content: 'unmanaged',
+      namespace: param.namespace
+    }
+  });
+}
+/*高级资源页面确认导入*/ 
+export async function backNameSpaceAdvancedResource(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/convert-resource`, {
+    method: 'post',
+    data: {
+      content: 'unmanaged',
+      namespace: param.namespace
+    }
+  });
+}
+
+

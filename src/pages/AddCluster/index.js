@@ -666,7 +666,6 @@ export default class EnterpriseClusters extends PureComponent {
             </Col>
             <Col span={12}>
               <div
-                // onClick={() => this.toClusterList('custom')}
                 onClick={() => {
                   this.handleInstallRegion('helm');
                 }}
@@ -729,16 +728,6 @@ export default class EnterpriseClusters extends PureComponent {
                 </div>
               </div>
             </Col>
-
-            {/* <Col span={12}>
-              <div onClick={this.addClusterShow} className={styles.import}>
-                <div className={styles.importicon}>{icon}</div>
-                <div className={styles.importDesc}>
-                  <h3>接入已安装平台集群</h3>
-                  <p>导入已经完成安装的平台集群，由当前控制台调度管理。</p>
-                </div>
-              </div>
-            </Col> */}
           </Row>
         </Card>
         {addClusterShow && (

@@ -1,3 +1,5 @@
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-unresolved */
 /* eslint-disable react/jsx-indent */
 /* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react/sort-comp */
@@ -16,7 +18,8 @@ import {
   notification,
   Select,
   Spin,
-  Tabs
+  Tabs,
+  Upload
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -69,7 +72,13 @@ export default class Index extends PureComponent {
       fullList: [],
       tabList: [],
       OauthLoading: true,
-      page: 1
+      page: 1,
+      uploadFile: false,
+      fileList: [],
+      record: {},
+      event_id: '',
+      percents: false,
+      existFileList: [],
     };
   }
   componentDidMount() {
@@ -77,6 +86,194 @@ export default class Index extends PureComponent {
     this.getRuntimeInfo();
     this.loadBuildSourceInfo();
   }
+  componentWillUnmount() {
+    this.loop = false;
+    this.statusloop = false;
+  }
+
+  // 上传文件取消
+  handleUploadCancel = () => {
+    this.setState({ uploadFile: false })
+  }
+  //上传文件确认
+  handleUploadOk = e => {
+    const { 
+      dispatch, 
+      appDetail 
+    } = this.props;
+    const { existFileList, event_id } = this.state
+    const teamName = globalUtil.getCurrTeamName()
+    const regionName = globalUtil.getCurrRegionName()
+    const serviceId = appDetail && appDetail.service && appDetail.service.service_id
+   if (existFileList.length > 0) {
+      dispatch({
+        type: "createApp/createJarWarSubmit",
+        payload: {
+          team_name: teamName,
+          event_id,
+          service_id:serviceId,
+          region_name:regionName
+        },
+        callback: (data) => {
+          this.setState({ uploadFile: false })
+          this.loadBuildSourceInfo()
+        },
+      });
+    } else {
+      this.loop = true
+      this.handleJarWarUploadStatus()
+      notification.error({
+        message: '未检测到上传文件'
+      })
+    }
+  };
+  handleJarWarUpload = () => {
+    const teamName = globalUtil.getCurrTeamName()
+    const regionName = globalUtil.getCurrRegionName()
+    const {
+      dispatch,
+      appDetail
+    } = this.props;
+    const service_id = appDetail.service.service_id
+    //获取上传事件
+    dispatch({
+      type: "createApp/createJarWarServices",
+      payload: {
+        region: regionName,
+        team_name: teamName,
+        component_id: service_id,
+      },
+      callback: (res) => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            record: res.bean,
+            event_id: res.bean.event_id
+          }, () => {
+            if (res.bean.region !== '') {
+              this.loop = true;
+              this.handleJarWarUploadStatus();
+            }
+          })
+        }
+      },
+    });
+  }
+  //查询上传记录
+  handleJarWarUploadRecord = () => {
+    const {
+      dispatch,
+      appDetail
+    } = this.props;
+    const service_id = appDetail.service.service_id
+    dispatch({
+      type: 'createApp/createJarWarUploadRecord',
+      payload: {
+        region: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+        component_id: service_id,
+        file_type: 'jwar'
+      },
+      callback: data => {
+        if (data.bean && data.bean.source_dir && data.bean.source_dir.length > 0) {
+          this.setState({
+            existFileList: data.bean.source_dir,
+            event_id: data.bean.event_id
+          })
+        } else {
+          this.handleJarWarUpload()
+        }
+      },
+      handleError: () => { }
+    });
+  }
+  //查询上传状态
+  handleJarWarUploadStatus = () => {
+    const {
+      dispatch
+    } = this.props;
+    const { event_id } = this.state
+    dispatch({
+      type: 'createApp/createJarWarUploadStatus',
+      payload: {
+        region: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+        event_id: event_id
+      },
+      callback: data => {
+        if (data) {
+          if (data.bean.package_name && data.bean.package_name.length > 0) {
+            this.setState({
+              existFileList: data.bean.package_name
+            });
+            notification.success({
+              message: '上传文件成功'
+            })
+            this.loop = false
+          }
+        }
+        if (this.loop) {
+          setTimeout(() => {
+            this.handleJarWarUploadStatus();
+          }, 3000);
+        }
+      },
+      handleError: () => { }
+    });
+  };
+  //删除上传文件
+  handleJarWarUploadDelete = () => {
+    const { event_id } = this.state
+    const { dispatch } = this.props
+    dispatch({
+      type: "createApp/deleteJarWarUploadStatus",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        event_id
+      },
+      callback: (data) => {
+        if (data.bean.res == 'ok') {
+          this.setState({
+            existFileList: []
+          });
+          notification.success({
+            message: '删除文件成功'
+          })
+          this.handleJarWarUpload()
+        }
+      },
+    });
+  }
+  //上传
+  onChangeUpload = info => {
+    let { fileList } = info;
+    fileList = fileList.filter(file => {
+      if (file.response) {
+        return file.response.msg === 'success';
+      }
+      return true;
+    });
+    if (info && info.event && info.event.percent) {
+      this.setState({
+        percents: info.event.percent
+      });
+    }
+
+    const { status } = info.file;
+    if (status === 'done') {
+      this.setState({
+        percents: false
+      });
+    }
+    this.setState({ fileList });
+  };
+  //删除
+  onRemove = () => {
+    this.setState({ fileList: [] });
+  };
+
+
+
+
   setOauthService = () => {
     const { rainbondInfo, enterprise } = this.props;
     const tabList = [];
@@ -163,7 +360,6 @@ export default class Index extends PureComponent {
   hideBuildSource = () => {
     this.setState({ changeBuildSource: false });
   };
-
   changeEditOauth = () => {
     this.handleProvinceChange();
     this.setState({ editOauth: true });
@@ -171,7 +367,7 @@ export default class Index extends PureComponent {
   hideEditOauth = () => {
     this.setState({ editOauth: false });
   };
-
+  
   loadBuildSourceInfo = () => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
@@ -184,6 +380,15 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data) {
           const { bean } = data;
+          if(bean.service_source === 'package_build'){
+            const url = bean && bean.git_url
+            const str = url.lastIndexOf("\/");  
+            const eventId = url.substring(str + 1, url.length);
+            this.setState({ 
+              event_id: eventId
+            })
+          }
+          
           this.setState({ buildSource: bean }, () => {
             if (
               bean &&
@@ -213,6 +418,7 @@ export default class Index extends PureComponent {
           this.setState({
             thirdInfo: res.bean
           });
+
         }
       }
     });
@@ -221,6 +427,10 @@ export default class Index extends PureComponent {
   handleToDetect = () => {
     this.setState({ languageBox: true });
   };
+  handleToUpload = () => {
+    this.setState({ uploadFile: true });
+    this.handleJarWarUploadRecord()
+  }
   handlelanguageBox = () => {
     this.setState({ languageBox: false, create_status: '' });
   };
@@ -242,7 +452,7 @@ export default class Index extends PureComponent {
               res.bean.check_status != 'success' &&
               res.bean.check_status != 'failure'
             ) {
-              setTimeout(function() {
+              setTimeout(function () {
                 _th.handleDetectGetLanguage();
               }, 3000);
             } else {
@@ -261,11 +471,13 @@ export default class Index extends PureComponent {
 
   handleDetectPutLanguage = () => {
     const { dispatch } = this.props;
+    const { event_id } = this.state
     dispatch({
       type: 'appControl/putLanguage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail.service.service_alias
+        service_alias: this.props.appDetail.service.service_alias,
+        eventId: event_id
       },
       callback: res => {
         if (res) {
@@ -467,8 +679,12 @@ export default class Index extends PureComponent {
       fullList,
       tabList,
       firstPage,
-      lastPage
+      lastPage,
+      fileList,
+      record,
+      existFileList,
     } = this.state;
+    const myheaders = {};
     const language = appUtil.getLanguage(appDetail);
     const formItemLayout = {
       labelCol: {
@@ -528,11 +744,9 @@ export default class Index extends PureComponent {
                   编辑
                 </a>
               ) : (
-                !appUtil.isMarketAppByBuildSource(buildSource) && (
-                  <a onClick={this.changeBuildSource} href="javascript:;">
-                    更改
-                  </a>
-                )
+                <a onClick={this.changeBuildSource} href="javascript:;">
+                  更改
+                </a>
               )
             ]}
           >
@@ -702,6 +916,55 @@ export default class Index extends PureComponent {
             ) : (
               ''
             )}
+            {appUtil.isUploadFilesAppSource(buildSource) ? (
+              <Fragment>
+                <FormItem
+                  style={{
+                    marginBottom: 0
+                  }}
+                  {...formItemLayout}
+                  label="文件名称"
+                >
+                  {buildSource.package_name}
+                  <Button
+                    size="small"
+                    onClick={this.handleToUpload}
+                    style={{ marginLeft: '6px' }}
+                  >
+                    重新上传文件
+                  </Button>
+                </FormItem>
+
+                <FormItem
+                  style={{
+                    marginBottom: 0
+                  }}
+                  {...formItemLayout}
+                  className={styles.ant_form_item}
+                  label="语言"
+                >
+                  {languageType != 'static' ? (
+                    <>
+                      {languageType}
+                    </>
+                  ) : (
+                    <>
+                      {languageType}
+                    </>
+                  )}
+                  <Button
+                    size="small"
+                    type="primary"
+                    onClick={this.handleToDetect}
+                    style={{ marginLeft: '6px' }}
+                  >
+                    重新检测
+                  </Button>
+                </FormItem>
+              </Fragment>
+            ) : (
+              ''
+            )}
             {/* <ChangeBranch
                   isCreateFromCustomCode={appUtil.isCreateFromCustomCode(appDetail)}
                   appAlias={this.props.appAlias}
@@ -727,19 +990,19 @@ export default class Index extends PureComponent {
             footer={
               !this.state.create_status
                 ? [
-                    <Button key="back" onClick={this.handlelanguageBox}>
-                      关闭
-                    </Button>,
-                    <Button
-                      key="submit"
-                      type="primary"
-                      onClick={this.handleDetectPutLanguage}
-                    >
-                      检测
-                    </Button>
-                  ]
+                  <Button key="back" onClick={this.handlelanguageBox}>
+                    关闭
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    onClick={this.handleDetectPutLanguage}
+                  >
+                    检测
+                  </Button>
+                ]
                 : this.state.create_status == 'success'
-                ? [
+                  ? [
                     <Button key="back" onClick={this.handlelanguageBox}>
                       关闭
                     </Button>,
@@ -751,12 +1014,12 @@ export default class Index extends PureComponent {
                       确认
                     </Button>
                   ]
-                : [<Button key="back">关闭</Button>]
+                  : [<Button  onClick={this.handlelanguageBox} key="back">关闭</Button>]
             }
           >
             <div>
               {this.state.create_status == 'checking' ||
-              this.state.create_status == 'complete' ? (
+                this.state.create_status == 'complete' ? (
                 <div>
                   <p style={{ textAlign: 'center' }}>
                     <Spin />
@@ -856,12 +1119,44 @@ export default class Index extends PureComponent {
             </div>
           </Modal>
         )}
-
-        {language && runtimeInfo && (
+        {this.state.uploadFile &&
+          <Modal
+            visible
+            onCancel={this.handleUploadCancel}
+            onOk={this.handleUploadOk}
+            title="上传文件"
+          >
+            <Upload
+              fileList={fileList}
+              accept=".jar,.war"
+              name="packageTarFile"
+              onChange={this.onChangeUpload}
+              onRemove={this.onRemove}
+              action={record.upload_url}
+              headers={myheaders}
+            >
+              <Button>
+                <Icon type="upload" /> 上传文件
+              </Button>
+            </Upload>
+            <div style={{marginTop:'20px'}}>
+              {existFileList.length > 0 && existFileList.map((item) => {
+                return (
+                  <div className={styles.update}>
+                    <Icon style={{ marginRight: '12px' }} type="inbox" />
+                    {item}
+                    <Icon onClick={this.handleJarWarUploadDelete} className={styles.delete} style={{ textAlign: 'right', color: 'red', cursor: 'pointer' }} type="delete" />
+                  </div>
+                )
+              })}
+            </div>
+          </Modal>
+        }
+        {languageType && runtimeInfo && (
           <CodeBuildConfig
             appDetail={this.props.appDetail}
             onSubmit={this.handleEditRuntime}
-            language={language}
+            language={languageType}
             runtimeInfo={this.state.runtimeInfo}
           />
         )}
@@ -875,7 +1170,6 @@ export default class Index extends PureComponent {
             onCancel={this.hideBuildSource}
           />
         )}
-
         {this.state.editOauth && (
           <Modal
             visible={this.state.editOauth}
