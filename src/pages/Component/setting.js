@@ -886,7 +886,7 @@ export default class Index extends React.Component {
           <EditHealthCheck
             ports={ports}
             onOk={this.handleEditHealth}
-            title="健康检测1"
+            title="健康检测"
             data={this.state.editStartHealth}
             onCancel={this.onCancelEditStartProbe}
             loading={loading}
