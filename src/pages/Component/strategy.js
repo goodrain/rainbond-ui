@@ -110,7 +110,7 @@ class Index extends PureComponent {
     ]
     return (
       <div style={{ marginBottom: '24px' }}>
-        <Card title="任务运行策略" key={scheduleValue}>
+        <Card title="任务运行策略">
           <Form {...formItemLayout} onSubmit={this.handleSubmit}>
             {extend_method === 'cronjob' &&
             <div style={{position:'relative'}}>
