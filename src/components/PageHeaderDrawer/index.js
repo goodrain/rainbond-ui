@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import globalUtil from '@/utils/global';
-import { Breadcrumb, Icon, Tabs,Row,Col } from 'antd';
+import { Breadcrumb, Icon, Tabs, Row, Col } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import pathToRegexp from 'path-to-regexp';
@@ -21,10 +21,10 @@ function getBreadcrumb(breadcrumbNameMap, url) {
 }
 @connect()
 export default class PageHeader extends PureComponent {
-  constructor(arg){
+  constructor(arg) {
     super(arg)
     this.state = {
-      back:''
+      back: ''
     }
   }
   static contextTypes = {
@@ -33,15 +33,15 @@ export default class PageHeader extends PureComponent {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object
   };
-  handleTitleList = values =>{
+  handleTitleList = values => {
     if (this.props.onTabChange) {
       this.props.onTabChange(values.key);
       this.setState({
-        back:'#e3e3e3'
+        back: '#e3e3e3'
       })
-    }else{
+    } else {
       this.setState({
-        back:''
+        back: ''
       })
     }
   }
@@ -73,12 +73,12 @@ export default class PageHeader extends PureComponent {
             )}
             {item.href
               ? createElement(
-                  linkElement,
-                  {
-                    [linkElement === 'a' ? 'href' : 'to']: item.href
-                  },
-                  item.title
-                )
+                linkElement,
+                {
+                  [linkElement === 'a' ? 'href' : 'to']: item.href
+                },
+                item.title
+              )
               : item.title}
           </Breadcrumb.Item>
         ))}
@@ -177,7 +177,7 @@ export default class PageHeader extends PureComponent {
       tabActiveKey,
       isSvg
     } = this.props;
-    const {back} = this.state
+    const { back } = this.state
     const appMarketSvg = globalUtil.fetchSvg('appmarket');
     const clsString = classNames(styles.pageHeader, className);
     // const { teamName, regionName } = this.props.match.params;
@@ -212,32 +212,71 @@ export default class PageHeader extends PureComponent {
             </div>
           </div>
         </div>
-        {tabList && tabList.length && (
-          <div className={styles.ServiceBox}>
-          <Row style={{ marginBottom: '20px' }}>
-          {tabList.map(item => {
+        {tabList.length > 3 ? (
+          <>
+            {tabList && tabList.length && (
+              <div className={styles.ServiceBox} style={{ margin: '0 0 -55px 15px' }}>
+                <Row style={{ marginBottom: '20px' }}>
+                  <Tabs defaultActiveKey="0">
+                    {tabList.map((item, index) => {
+                      const { key, tab } = item;
+                      return (
+                        <TabPane
+                          tab={
+                            <Col
+                              span={8}
+                              {...activeKeyProps}
+                              className={styles.ServiceDivs}
+                              onClick={this.handleTitleList.bind(this, item)}
+                            >
+                              <div style={{ display: 'flex', flexDirection: "column", justifyContent: 'center', alignItems: 'center', paddingLeft: '10px' }}>
+                                {isSvg &&
+                                  globalUtil.fetchSvg(
+                                    key === 'localApplication'
+                                      ? 'appComponent'
+                                      : key.indexOf('Helm-') > -1
+                                        ? 'HelmSvg'
+                                        : 'appmarket'
+                                  )}
+                                <p className={styles.ServiceSmallTitle} style={{ marginTop: "25px" }}>{tab}</p>
+                              </div>
+                            </Col>
+                          }
+                          key={index}
+                        >
+                        </TabPane>
+                      );
+                    })
+                    }
+                  </Tabs>
+                </Row>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {tabList.map(item => {
               const { key, tab } = item;
               return (
                 <Col
                   span={8}
                   {...activeKeyProps}
                   className={styles.ServiceDiv}
-                  onClick={this.handleTitleList.bind(this,item)}
+                  onClick={this.handleTitleList.bind(this, item)}
                 >
                   {isSvg &&
                     globalUtil.fetchSvg(
-                    key === 'localApplication'
-                      ? 'appComponent'
-                      : key.indexOf('Helm-') > -1
-                      ? 'HelmSvg'
-                      : 'appmarket'
+                      key === 'localApplication'
+                        ? 'appComponent'
+                        : key.indexOf('Helm-') > -1
+                          ? 'HelmSvg'
+                          : 'appmarket'
                     )}
                   <p className={styles.ServiceSmallTitle}>{tab}</p>
                 </Col>
-                );
-              })}
-          </Row>
-          </div>
+              );
+            })}
+          </>
         )}
       </div>
     );
