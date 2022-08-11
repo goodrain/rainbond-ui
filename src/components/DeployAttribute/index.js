@@ -31,7 +31,7 @@ export default class DeployAttribute extends Component {
                 </Row>
                 <Row>
                     <div className={styles.cpu}>
-                        <h3>CPU:<span>{(value.cpu != null && value.cpu === 0) ?  "无限制" : value.cpu}</span>MB</h3>
+                        <h3>CPU:<span>{(value.cpu != null && value.cpu === 0) ?  "无限制" : value.cpu}</span>Mi</h3>
                     </div>
                 </Row>
             </>
