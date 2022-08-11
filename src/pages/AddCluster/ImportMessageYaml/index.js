@@ -13,7 +13,7 @@ import { object } from 'prop-types';
 const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 @Form.create()
-@connect(({ user, list, loading, global, index, region }) => ({
+@connect(({ user, list, loading, global, index, region, groups }) => ({
     user: user.currentUser,
     list,
     loading: loading.models.list,
@@ -22,7 +22,7 @@ const { Option, OptGroup } = Select;
     isRegist: global.isRegist,
     oauthLongin: loading.effects['global/creatOauth'],
     overviewInfo: index.overviewInfo,
-    baseConfiguration: region.base_configuration
+    baseConfiguration: region.base_configuration,
 }))
 export default class ImportMessage extends PureComponent {
     constructor(props) {
@@ -32,12 +32,12 @@ export default class ImportMessage extends PureComponent {
         this.state = {
             adminer,
             resourceData: {},
-            loadingSwitch: true
+            loadingSwitch: true,
         };
     }
     componentWillMount() {
         const { adminer } = this.state;
-        const { dispatch } = this.props;
+        const { dispatch, } = this.props;
         if (!adminer) {
             dispatch(routerRedux.push(`/`));
         }
@@ -99,9 +99,10 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
-        const { resourceData, loadingSwitch } = this.state
+        const { resourceData, loadingSwitch, } = this.state
         const errorArr = resourceData.error_yaml
         const successArr = resourceData.app_resource
+        const group_name = this.props.location && this.props.location.query && this.props.location.query.group_name || ''
         return (
             <PageHeaderLayout
                 title="导入资源"
@@ -153,7 +154,7 @@ export default class ImportMessage extends PureComponent {
                                             >
                                                 <Panel
                                                     header={
-                                                        <div>label: app={item === "unclassified" ? "未分组" : item}</div>
+                                                        <div>label: {group_name}={item === "unclassified" ? "未分组" : item}</div>
                                                     }
                                                     key={index}
                                                     extra={this.genExtra()}

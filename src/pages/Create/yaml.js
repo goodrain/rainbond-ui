@@ -43,6 +43,7 @@ export default class Index extends PureComponent {
       team_name: '',
       percents: false,
       existFileList: [],
+      groupName: '',
     };
   }
   componentWillMount() {
@@ -64,13 +65,13 @@ export default class Index extends PureComponent {
     const { form, dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const regionName = globalUtil.getCurrRegionName()
-    const { event_id, existFileList } = this.state
+    const { event_id, existFileList,groupName } = this.state
     form.validateFields((err, value) => {
       if (err) return;
       if (value.up_type === 'yaml' && existFileList.length > 0) {
         dispatch(
           routerRedux.push(
-            `/team/${teamName}/region/${regionName}/importMessageYaml?event_id=${event_id}&group_id=${value.group_id}`
+            `/team/${teamName}/region/${regionName}/importMessageYaml?event_id=${event_id}&group_id=${value.group_id}&group_name=${groupName}`
           )
         );
       } else if (value.up_type === 'jwar' && existFileList.length > 0) {
@@ -91,7 +92,7 @@ export default class Index extends PureComponent {
             );
           },
         });
-      }else{
+      } else {
         this.loop = true
         this.handleJarWarUploadStatus()
         notification.error({
@@ -118,6 +119,16 @@ export default class Index extends PureComponent {
     }
   };
   handleChange = (values) => {
+    const { dispatch, groups } = this.props;
+    for (let index = 0; index < groups.length; index++) {
+      if (groups[index].group_id === values) {
+        this.setState({
+          groupName: groups[index].group_name
+        })
+        break;
+      }
+
+    }
   }
   //新建应用
   onAddGroup = () => {
@@ -179,7 +190,7 @@ export default class Index extends PureComponent {
             existFileList: data.bean.source_dir,
             event_id: data.bean.event_id
           })
-        }else{
+        } else {
           this.setState({
             existFileList: []
           })
@@ -205,11 +216,11 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data) {
           if (data.bean.package_name.length > 0) {
-            this.setState({ 
+            this.setState({
               existFileList: data.bean.package_name
-             });
+            });
             notification.success({
-              message:"上传文件成功"
+              message: "上传文件成功"
             })
             this.loop = false
           }
@@ -234,10 +245,10 @@ export default class Index extends PureComponent {
         event_id
       },
       callback: (data) => {
-        if(data.bean.res == 'ok'){
-          this.setState({ 
+        if (data.bean.res == 'ok') {
+          this.setState({
             existFileList: []
-           });
+          });
           notification.success({
             message: '删除文件成功'
           })
@@ -405,20 +416,20 @@ export default class Index extends PureComponent {
                       }
                     ]
                   })(
-                      <Dragger
-                        fileList={fileList} 
-                        accept=".yaml,.yml"
-                        name="packageTarFile"
-                        onChange={this.onChangeUpload}
-                        onRemove={this.onRemove}
-                        action={record.upload_url}
-                        headers={myheaders}
-                        multiple={true}
-                      >
-                        <p className="ant-upload-drag-icon">
-                          <Icon type="inbox" />
-                        </p>
-                      </Dragger>
+                    <Dragger
+                      fileList={fileList}
+                      accept=".yaml,.yml"
+                      name="packageTarFile"
+                      onChange={this.onChangeUpload}
+                      onRemove={this.onRemove}
+                      action={record.upload_url}
+                      headers={myheaders}
+                      multiple={true}
+                    >
+                      <p className="ant-upload-drag-icon">
+                        <Icon type="inbox" />
+                      </p>
+                    </Dragger>
                   )}
                 </Form.Item>
               )}
@@ -437,19 +448,19 @@ export default class Index extends PureComponent {
                 {existFileList.length > 0 &&
                   <div className={styles.update}>
                     <div className={styles.delete}>
-                      <Icon onClick={this.handleJarWarUploadDelete} style={{marginLeft:'12px', color:'red', cursor:'pointer'}} type="close" /> 
+                      <Icon onClick={this.handleJarWarUploadDelete} style={{ marginLeft: '12px', color: 'red', cursor: 'pointer' }} type="close" />
                     </div>
                     {existFileList.map((item) => {
                       return (
                         <div className={styles.fileName}>
-                          <Icon style={{marginRight:'6px'}} type="inbox" />
+                          <Icon style={{ marginRight: '6px' }} type="inbox" />
                           {item}
                         </div>
                       )
                     })}
                   </div>
                 }
-               
+
               </Form.Item>
               <Form.Item
                 wrapperCol={{
