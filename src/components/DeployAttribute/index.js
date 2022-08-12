@@ -26,12 +26,12 @@ export default class DeployAttribute extends Component {
                 </Row>
                 <Row>
                     <div className={styles.ram}>
-                        <h3 >内存:<span>{( value.memory != null && value.memory === 0 ) ? "无限制" : value.memory}</span>MB</h3>
+                        <h3 >内存:<span>{( value.memory != null && value.memory === 0 ) ? "无限制" : value.memory}</span>M</h3> 
                     </div>
                 </Row>
                 <Row>
                     <div className={styles.cpu}>
-                        <h3>CPU:<span>{(value.cpu != null && value.cpu === 0) ?  "无限制" : value.cpu}</span>Mi</h3>
+                        <h3>CPU:<span>{(value.cpu != null && value.cpu === 0) ?  "无限制" : value.cpu >= 1000 ? ((value.cpu/1000).toFixed(2)):(value.cpu) }</span>{value.cpu >= 1000 ?'c' : 'm' }</h3>
                     </div>
                 </Row>
             </>
