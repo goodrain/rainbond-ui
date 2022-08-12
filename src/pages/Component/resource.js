@@ -34,6 +34,7 @@ import { languageObj } from '../../utils/utils';
 import styles from './resource.less';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
+import { ResumeContext } from './funContext'
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -81,6 +82,8 @@ export default class Index extends PureComponent {
       existFileList: [],
     };
   }
+  static contextType = ResumeContext;
+
   componentDidMount() {
     this.setOauthService();
     this.getRuntimeInfo();
@@ -307,6 +310,8 @@ export default class Index extends PureComponent {
   onChangeBuildSource = () => {
     this.hideBuildSource();
     this.loadBuildSourceInfo();
+    const {  loadBuildState } = this.context;
+    loadBuildState(true);
   };
   getRuntimeInfo = () => {
     this.props.dispatch({
