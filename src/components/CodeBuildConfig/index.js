@@ -204,6 +204,7 @@ class CodeBuildConfig extends PureComponent {
         )}
         {(languageType === 'Golang' ||
           languageType === 'go' ||
+          languageType === 'Go' ||
           languageType === 'golang') && (
           <GoConfig envs={runtimeInfo} form={this.props.form} />
         )}
@@ -224,16 +225,18 @@ class CodeBuildConfig extends PureComponent {
           <StaticConfig envs={runtimeInfo} form={this.props.form} />
         )}
         {(languageType === 'nodejsstatic' ||
+          languageType === 'NodeJSStatic' ||
           languageType === 'nodejs' ||
           languageType === 'Node' ||
-          languageType === 'node') && (
+          languageType === 'node' ||
+          languageType === 'Node.js') && (
           <NodeJSConfig
             languageType={languageType}
             envs={runtimeInfo}
             form={this.props.form}
           />
         )}
-        {(languageType === 'NetCore' ||
+        {(languageType === '.NetCore' ||
           languageType === 'netCore' ||
           languageType === 'netcore') && (
           <NetCoreConfig
