@@ -9,13 +9,16 @@
 .icons:hover {
   background: #4d73b1;
 }
+
 .verticalCen {
   display: flex;
   align-items: center;
+
   svg {
     margin: 0;
   }
 }
+
 .icons {
   background: #d8d8d8;
 
@@ -61,7 +64,7 @@
     margin-right: 16px;
     padding-top: 1px;
 
-    > img {
+    >img {
       width: 28px;
       height: 28px;
       border-radius: @border-radius-base;
@@ -81,12 +84,13 @@
     min-width: 266px;
 
     :global {
+
       .ant-btn-group:not(:last-child),
       .ant-btn:not(:last-child) {
         margin-right: 8px;
       }
 
-      .ant-btn-group > .ant-btn {
+      .ant-btn-group>.ant-btn {
         margin-right: 0;
       }
     }
@@ -176,8 +180,7 @@
           display: block;
           margin-bottom: 8px;
         }
-
-        .ant-btn-group > .ant-btn {
+        .ant-btn-group>.ant-btn {
           display: inline-block;
           margin-bottom: 0;
         }
@@ -185,6 +188,7 @@
     }
   }
 }
+
 .ServiceTitle {
   height: 22px;
   line-height: 22px;
@@ -196,9 +200,41 @@
   font-family: SourceHanSansSC-regular;
   margin-bottom: 10px;
 }
+
 .ServiceBox {
   margin-bottom: 10px;
+  :global {
+    .ant-tabs-tab{
+      width: 33.33%;
+      padding: 12px 0 ;
+      margin: 0;
+    }
+    .ant-tabs-bar {
+      border-bottom: 0;
+      .ant-tabs-ink-bar {
+        visibility: hidden;
+      }
+    }
+  }
 }
+
+.ServiceDivs {
+  width: 100%;
+  color: rgba(16, 16, 16, 1);
+  font-size: 15px;
+  font-family: SourceHanSansSC-regular;
+  margin: 5px 0;
+  text-align: center;
+  cursor: pointer;
+  height: 100px;
+  p {
+    margin: 10px 0;
+  }
+  i {
+    font-size: 50px;
+  }
+}
+
 .ServiceDiv {
   color: rgba(16, 16, 16, 1);
   font-size: 15px;
@@ -210,11 +246,11 @@
   p {
     margin: 10px 0;
   }
-
   i {
     font-size: 50px;
   }
 }
+
 .ServiceSmallTitle {
   font-size: 12px;
 }

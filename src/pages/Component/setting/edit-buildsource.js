@@ -246,34 +246,7 @@ export default class ChangeBuildSource extends PureComponent {
                     )}
                   </Form.Item>
                 }
-                {gitUrl && isSSH ? (
-                  <div style={{ textAlign: 'left' }}>
-                    这是一个私有仓库?{' '}
-                    <a
-                      onClick={() => {
-                        this.setState({ showKey: true });
-                      }}
-                    >
-                      配置授权Key
-                    </a>
-                  </div>
-                ) : (
-                  ''
-                )}
-                {gitUrl && isHttp && !showUsernameAndPass ? (
-                  <div style={{ textAlign: 'left' }}>
-                    这是一个私有仓库?
-                    <a
-                      onClick={() => {
-                        this.setState({ showUsernameAndPass: true });
-                      }}
-                    >
-                      填写仓库账号密码
-                    </a>
-                  </div>
-                ) : (
-                  ''
-                )}
+               
 
                 <Form.Item
                   {...formItemLayout}

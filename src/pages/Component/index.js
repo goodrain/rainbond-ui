@@ -60,6 +60,7 @@ import Relation from './relation';
 import Resource from './resource';
 import Setting from './setting';
 import ThirdPartyServices from './ThirdPartyServices';
+import { ResumeContext } from "./funContext"
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -444,36 +445,41 @@ class Main extends PureComponent {
     }
   };
 
-  loadBuildState = appDetail => {
+  loadBuildState = (appDetail, val) => {
     const { team_name, serviceAlias } = this.fetchParameter();
     const { dispatch } = this.props;
+    if(val){
+      this.setState({
+        BuildState: null
+      });
+    }
     if (
       appDetail &&
       appDetail.service &&
       appDetail.service.service_source === 'market'
     ) {
-      dispatch({
-        type: 'appControl/getBuildInformation',
-        payload: {
-          team_name,
-          app_alias: serviceAlias
-        },
-        callback: res => {
-          if (res && res.status_code === 200) {
-            this.setState({
-              BuildState:
-                res.list && res.list.length > 0 ? res.list.length : null
-            });
+        dispatch({
+          type: 'appControl/getBuildInformation',
+          payload: {
+            team_name,
+            app_alias: serviceAlias
+          },
+          callback: res => {
+            if (res && res.status_code === 200) {
+              this.setState({
+                BuildState:
+                  res.list && res.list.length > 0 ? res.list.length : null
+              });
+            }
           }
-        }
-      });
+        });
     }
   };
   fetchPrefixUrl = () => {
     const { team_name, region_name } = this.fetchParameter();
     return `/team/${team_name}/region/${region_name}/`;
   };
-  loadDetail = () => {
+  loadDetail = (val) => {
     const { dispatch } = this.props;
     const {
       app_alias,
@@ -490,7 +496,11 @@ class Main extends PureComponent {
       },
       callback: appDetail => {
         this.fetchAppDetail();
-        this.loadBuildState(appDetail);
+        if(val){
+          this.loadBuildState(appDetail,val);
+        }else{
+          this.loadBuildState(appDetail);
+        }
         if (appDetail.service.service_source) {
           this.setState({
             isShowThirdParty: appDetail.is_third ? appDetail.is_third : false
@@ -1394,6 +1404,7 @@ class Main extends PureComponent {
       }
     );
     return (
+      <ResumeContext.Provider value = {{loadBuildState: this.loadDetail }}>
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         action={action}
@@ -1587,6 +1598,7 @@ class Main extends PureComponent {
           />
         )}
       </PageHeaderLayout>
+      </ResumeContext.Provider>
     );
   }
 }
