@@ -226,7 +226,8 @@ class CodeBuildConfig extends PureComponent {
         {(languageType === 'nodejsstatic' ||
           languageType === 'nodejs' ||
           languageType === 'Node' ||
-          languageType === 'node') && (
+          languageType === 'node' ||
+          languageType === 'Node.js') && (
           <NodeJSConfig
             languageType={languageType}
             envs={runtimeInfo}
