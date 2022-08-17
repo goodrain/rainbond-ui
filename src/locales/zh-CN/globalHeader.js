@@ -1,4 +1,6 @@
-export default {
+// 头部总览信息
+
+const headerOverview = {
     'header.team.re':'返回企业视图',
     'header.team.name':'团队视图',
     'header.team.search':'筛选团队',
@@ -17,4 +19,8 @@ export default {
     'header.component.search':'根据组件名称筛选组件',
     'header.component.getall':'查看应用下所有组件',
     'header.component.noselect': '未选择组件'
-};
+}
+    
+  
+
+export default Object.assign({}, headerOverview);

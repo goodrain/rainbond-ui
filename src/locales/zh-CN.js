@@ -1,3 +1,5 @@
+// 中文入口文件
+
 import globalHeader from './zh-CN/globalHeader';
 import menu from './zh-CN/menu';
 import settings from './zh-CN/settings';
@@ -5,7 +7,9 @@ import sidecar from './zh-CN/sidecar';
 import app from './zh-CN/app';
 import team from './zh-CN/team';
 import component from './zh-CN/component';
-
+import enterprise from './zh-CN/enterprise';
+import error from './zh-CN/error';
+import common from './zh-CN/common';
 export default {
   'navBar.lang': '语言',
   'layout.user.link.help': '帮助',
@@ -21,4 +25,7 @@ export default {
   ...app,
   ...team,
   ...component,
+  ...enterprise,
+  ...error,
+  ...common,
 };

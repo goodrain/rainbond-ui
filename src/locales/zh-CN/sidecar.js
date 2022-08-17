@@ -1,4 +1,6 @@
-export default {
+// sidecar信息栏
+
+const sidecar = {
   'sidecar.title': '视图切换',
   'sidecar.collection': '收藏',
   'sidecar.collection.add': '新增收藏视图',
@@ -7,4 +9,8 @@ export default {
   'sidecar.currentEnterprise': '当前企业',
   'sidecar.currentTeam': '当前团队',
   'sidecar.searchTeam': '搜索团队名称',
-};
+}
+    
+  
+
+export default Object.assign({}, sidecar);

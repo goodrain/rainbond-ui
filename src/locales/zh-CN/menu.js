@@ -1,8 +1,11 @@
-export default {
+//整体导航栏信息
+const enterpriseMenu = {
   'menu.enterprise.dashboard': '总览',
   'menu.enterprise.share': '应用市场',
   'menu.enterprise.team': '团队',
   'menu.enterprise.setting': '设置',
+}
+const teamMenu = {
   'menu.team.dashboard': '总览',
   'menu.team.create': '新增',
   'menu.team.create.code': '基于源码创建组件',
@@ -16,11 +19,18 @@ export default {
   'menu.team.gateway.control': '访问策略管理',
   'menu.team.plugin': '插件',
   'menu.team.setting': '团队管理',
+}
+const appMenu = {
   'menu.app.dashboard': '总览',
   'menu.app.publish': '发布',
   'menu.app.backup': '备份',
   'menu.app.gateway': '网关',
   'menu.app.configgroups': '配置',
   'menu.app.k8s': 'k8s资源',
-  'menu.app.upgrade': '升级'
+  'menu.app.upgrade': '升级',
 };
+
+
+
+
+export default Object.assign({}, enterpriseMenu, teamMenu, appMenu);
