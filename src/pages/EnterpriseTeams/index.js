@@ -32,6 +32,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import roleUtil from '../../utils/role';
 import userUtil from '../../utils/user';
 import styles from './index.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const { Search } = Input;
 
@@ -566,7 +567,8 @@ export default class EnterpriseTeams extends PureComponent {
                 this.showExitTeam(exitTeamName);
               }}
             >
-              退出项目/团队
+              {/* 退出项目/团队 */}
+              <FormattedMessage id='enterpriseTeamManagement.handle.quit'/>
             </a>
           </Menu.Item>
         </Menu>
@@ -582,7 +584,8 @@ export default class EnterpriseTeams extends PureComponent {
                 this.showApply(item);
               }}
             >
-              撤销申请
+              {/* 撤销申请 */}
+              <FormattedMessage id='enterpriseTeamManagement.handle.backout'/>
             </a>
           </Menu.Item>
         </Menu>
@@ -598,7 +601,8 @@ export default class EnterpriseTeams extends PureComponent {
                 this.showCloseAllComponent(exitTeamName);
               }}
             >
-              关闭所有组件
+              {/* 关闭所有组件 */}
+              <FormattedMessage id='enterpriseTeamManagement.admin.handle.turnoff'/>
             </a>
           </Menu.Item>
           <Menu.Item>
@@ -610,7 +614,8 @@ export default class EnterpriseTeams extends PureComponent {
                 });
               }}
             >
-              开通集群
+              {/* 开通集群 */}
+              <FormattedMessage id='enterpriseTeamManagement.admin.handle.open'/>
             </a>
           </Menu.Item>
           <Menu.Item>
@@ -619,7 +624,8 @@ export default class EnterpriseTeams extends PureComponent {
                 this.showDelTeam(exitTeamName);
               }}
             >
-              删除项目/团队
+              {/* 删除项目/团队 */}
+              <FormattedMessage id='enterpriseTeamManagement.admin.handle.delete'/>
             </a>
           </Menu.Item>
         </Menu>
@@ -633,11 +639,13 @@ export default class EnterpriseTeams extends PureComponent {
             onClick={this.onAddTeam}
             style={{ marginRight: '5px' }}
           >
-            创建 项目/团队
+            {/* 创建 项目/团队 */}
+            <FormattedMessage id='enterpriseTeamManagement.allProject.button.setup'/>
           </Button>
         ) : (
           <Button type="primary" onClick={this.onJoinTeam}>
-            加入项目/团队
+            {/* 加入 项目/团队 */}
+            <FormattedMessage id='enterpriseTeamManagement.allProject.button.join'/>
           </Button>
         )}
       </Col>
@@ -657,7 +665,8 @@ export default class EnterpriseTeams extends PureComponent {
             className={styles.teamsTit}
             style={{ marginBottom: '0' }}
           >
-            全部项目/团队
+            {/* 全部项目/团队 */}
+            <FormattedMessage id='enterpriseTeamManagement.allProject.lable'/>
           </Col>
           <Col span={15} style={{ textAlign: 'left' }}>
             <Search
@@ -670,16 +679,43 @@ export default class EnterpriseTeams extends PureComponent {
         </Row>
         <Row style={{ width:'100%' }} className={styles.rowTitle}>
         <Row className={styles.teamMinTit} type="flex" align="middle">
-          <Col span={4} style={{width:'16%',textAlign:'center'}}>项目/团队名称</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>管理员</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>人数</Col>
-          <Col span={7} style={{width:'30%',textAlign:'center'}}>集群</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>内存使用量(MB)</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>CPU使用量</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>租户限额(MB)</Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>运行应用数</Col>
+          <Col span={4} style={{width:'16%',textAlign:'center'}}>
+            {/* 项目/团队名称 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.teamName'/>
+          </Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>
+            {/* 管理员 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.Administrator'/>
+          </Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>
+            {/* 人数 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.number'/>
+          </Col>
+          <Col span={7} style={{width:'30%',textAlign:'center'}}>
+            {/* 集群 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.colony'/>
+          </Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>
+            {/* 内存使用量(MB) */}
+            <FormattedMessage id='enterpriseTeamManagement.table.memory'/>
+          </Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>
+            {/* CPU使用量 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.CUP'/>
+          </Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>
+            {/* 租户限额(MB) */}
+            <FormattedMessage id='enterpriseTeamManagement.table.quota'/>
+          </Col>
+          <Col span={2} style={{width:'9%',textAlign:'center'}}>
+            {/* 运行应用数 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.operation'/>
+          </Col>
         </Row>
-          <Col className={styles.borTitle}>操作</Col>
+          <Col className={styles.borTitle}>
+            {/* 操作 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.handle'/>
+          </Col>
         </Row>
         {teamList.map(item => {
           const {
@@ -745,16 +781,29 @@ export default class EnterpriseTeams extends PureComponent {
       <div>
         <Row>
           <Col span={17} className={styles.teamsTit}>
-            {haveNewJoinTeam && '最新加入项目/团队'}
+            {/* {haveNewJoinTeam && '最新加入项目/团队'} */}
+            {haveNewJoinTeam && <FormattedMessage id='enterpriseTeamManagement.other.haveNewJoinTeam'/>}
           </Col>
           {operation}
         </Row>
         {haveNewJoinTeam && (
           <Row className={styles.teamMinTits} type="flex" align="middle">
-            <Col span={6}>项目/团队名称</Col>
-            <Col span={3}>管理员</Col>
-            <Col span={3}>角色</Col>
-            <Col span={12}>状态</Col>
+            <Col span={6}>
+              {/* 项目/团队名称 */}
+              <FormattedMessage id='enterpriseTeamManagement.table.teamName'/>
+            </Col>
+            <Col span={3}>
+              {/* 管理员 */}
+              <FormattedMessage id='enterpriseTeamManagement.table.Administrator'/>
+            </Col>
+            <Col span={3}>
+              {/* 角色 */}
+              <FormattedMessage id='enterpriseTeamManagement.table.td.role'/>
+            </Col>
+            <Col span={12}>
+              {/* 状态 */}
+              <FormattedMessage id='enterpriseTeamManagement.table.td.status'/>
+            </Col>
           </Row>
         )}
         {request_join_team &&
@@ -796,7 +845,9 @@ export default class EnterpriseTeams extends PureComponent {
                     {is_pass === 0 && (
                       <span>
                         <img src={WarningImg} alt="" />
-                        &nbsp;申请加入项目/团队审批中
+                        &nbsp;
+                        {/* 申请加入项目/团队审批中 */}
+                          <FormattedMessage id='enterpriseTeamManagement.other.examine'/>
                       </span>
                     )}
                   </Col>
@@ -827,7 +878,8 @@ export default class EnterpriseTeams extends PureComponent {
             className={styles.teamsTit}
             style={{ marginBottom: '0' }}
           >
-            我的项目/团队
+            {/* 我的项目/团队 */}
+            <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title'/>
           </Col>
 
           <Col span={20} style={{ textAlign: 'right' }}>
@@ -841,17 +893,33 @@ export default class EnterpriseTeams extends PureComponent {
         {userTeam && (
           <Row style={{ width:'100%' }} className={styles.rowTitle}>
           <Row className={styles.teamMinTit} type="flex" align="middle">
-            <Col span={6} style={{width:'16%',textAlign:'center'}}>项目/团队名称</Col>
-            <Col span={3} style={{width:'10%',textAlign:'center'}}>管理员</Col>
-            <Col span={3} style={{width:'26%',textAlign:'center'}}>角色</Col>
-            <Col span={12} style={{width:'48%',textAlign:'left'}}>集群</Col>
+            <Col span={6} style={{width:'16%',textAlign:'center'}}>
+              {/* 项目/团队名称 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.teamName'/>
+            </Col>
+            <Col span={3} style={{width:'10%',textAlign:'center'}}>
+              {/* 管理员 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.Administrator'/>
+            </Col>
+            <Col span={3} style={{width:'26%',textAlign:'center'}}>
+              {/* 角色 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.td.role'/>
+            </Col>
+            <Col span={12} style={{width:'48%',textAlign:'left'}}>
+              {/* 集群 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.colony'/>
+            </Col>
           </Row>
-            <Col className={styles.borTitle}>操作</Col>
+            <Col className={styles.borTitle}>
+              {/* 操作 */}
+            <FormattedMessage id='enterpriseTeamManagement.table.handle'/>
+            </Col>
           </Row>
         )}
         {!userTeam && (
           <Empty
             description="暂无项目/团队，请点击创建项目/团队进行创建"
+            description={ <FormattedMessage id='enterpriseTeamManagement.other.description'/>}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         )}
@@ -914,11 +982,14 @@ export default class EnterpriseTeams extends PureComponent {
           })}
       </div>
     );
-    let title = '我的项目/团队';
-    const content =
-      '项目/团队是企业下多租户资源划分的一个层级，应用、插件、权限划分等都基于项目/团队进行隔离。一个项目/团队可以开通多个集群。';
+    // let title = '我的项目/团队';
+    let title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title'/>;
+    // const content =
+    //   '项目/团队是企业下多租户资源划分的一个层级，应用、插件、权限划分等都基于项目/团队进行隔离。一个项目/团队可以开通多个集群。';
+    const content = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.context'/>;
     if (adminer) {
-      title = '项目/团队管理';
+      // title = '项目/团队管理';
+      title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title.admin'/>;
     }
     return (
       <PageHeaderLayout title={title} content={content}>

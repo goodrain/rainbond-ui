@@ -50,16 +50,35 @@ export default class EnterpriseSetting extends PureComponent {
         content="支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供"
       >
         <Tabs onChange={this.onChange} activeKey={activeKey}>
-          <TabPane tab={<div>基础设置</div>} key="infrastructure">
+          <TabPane 
+          tab={
+               <div>
+                基础设置
+               </div>
+          }
+          key="infrastructure"
+          >
             <Infrastructure {...this.props} />
           </TabPane>
           {adminer && (
-            <TabPane tab={<div>企业管理员管理</div>} key="management">
+            <TabPane 
+            tab={
+                 <div>
+                  企业管理员管理
+                 </div>
+            } 
+            key="management">
               <Management {...this.props} />
             </TabPane>
           )}
           {adminer && (
-            <TabPane tab={<div>数据备份</div>} key="backup">
+            <TabPane 
+            tab={
+                 <div>
+                  数据备份
+                 </div>
+                } 
+            key="backup">
               <BackupManage {...this.props} />
             </TabPane>
           )}
