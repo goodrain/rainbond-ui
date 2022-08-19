@@ -48,6 +48,7 @@ import userUtil from '../../utils/user';
 import ExportOperation from './ExportOperation';
 import styles from './index.less';
 import TagList from './TagList';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const { TabPane } = Tabs;
 const { Search } = Input;
@@ -964,11 +965,13 @@ export default class EnterpriseShared extends PureComponent {
           guideStep === 1 &&
           indexs === 0 &&
           this.handleNewbieGuiding({
-            tit: '安装应用',
+            // tit: '安装应用',
+            tit: formatMessage({id:'applicationMarket.localMarket.have.title'}),
             send: true,
             configName: 'installApp',
-            desc:
-              '从应用商店安装应用是最简单的应用部署方式，后面你也可以很方便的将您的企业应用发布到应用商店中',
+            // desc:
+            //   '从应用商店安装应用是最简单的应用部署方式，后面你也可以很方便的将您的企业应用发布到应用商店中',
+            desc: formatMessage({id:'applicationMarket.localMarket.have.desc'}),
             nextStep: 2,
             conPosition: { right: 0, marginTop: '60px' },
             svgPosition: { right: 0, marginTop: '27px' },
@@ -997,7 +1000,10 @@ export default class EnterpriseShared extends PureComponent {
                       e.stopPropagation();
                     }}
                   >
-                    <Tooltip title="安装量">
+                    {/* <Tooltip title="安装量"> */}
+                    <Tooltip 
+                    title={<FormattedMessage id='applicationMarket.localMarket.have.installNumber'/>}
+                    >
                       <div title={installNumber}>
                         {globalUtil.nFormatter(installNumber)}
                       </div>
@@ -1043,7 +1049,10 @@ export default class EnterpriseShared extends PureComponent {
                         : versions[0].app_version}
                     </p>
                   ) : (
-                    <p className={styles.dev_version}>无版本</p>
+                    <p className={styles.dev_version}>
+                      {/* 无版本 */}
+                      <FormattedMessage id='applicationMarket.localMarket.have.versions'/>
+                    </p>
                   )}
                 </div>
               </Col>
@@ -1074,7 +1083,8 @@ export default class EnterpriseShared extends PureComponent {
                       this.handleOpenMoreTags(customTags);
                     }}
                   >
-                    更多
+                    {/* 更多 */}
+                    <FormattedMessage id='enterpriseOverview.team.more'/>
                   </a>
                 )}
               </Col>
@@ -1102,7 +1112,10 @@ export default class EnterpriseShared extends PureComponent {
                   }}
                 >
                   {globalUtil.fetchSvg('InstallApp')}
-                  <div style={{ background: '#fff' }}>安装</div>
+                  <div style={{ background: '#fff' }}>
+                    {/* 安装 */}
+                    <FormattedMessage id='applicationMarket.localMarket.have.install'/>
+                  </div>
                 </div>
               </Col>
             </div>
@@ -1407,7 +1420,8 @@ export default class EnterpriseShared extends PureComponent {
               this.showOfflineApp(info);
             }}
           >
-            删除应用模版
+            {/* 删除应用模版 */}
+            <FormattedMessage id='applicationMarket.localMarket.delete.template'/>
           </a>
         </Menu.Item>
       );
@@ -1418,7 +1432,8 @@ export default class EnterpriseShared extends PureComponent {
               this.handleOpenUpDataAppModel(info);
             }}
           >
-            编辑应用模版
+            {/* 编辑应用模版 */}
+            <FormattedMessage id='applicationMarket.localMarket.edit.template'/>
           </a>
         </Menu.Item>
       );
@@ -1461,12 +1476,16 @@ export default class EnterpriseShared extends PureComponent {
       <Col span={5} style={rightStyle} className={styles.btns}>
         {isImportApp && (
           <Button style={{ margin: '0 14px 0 10px' }}>
-            <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
+            <Link to={`/enterprise/${eid}/shared/import`}>
+              {/* 离线导入 */}
+              <FormattedMessage id='applicationMarket.localMarket.import'/>
+            </Link>
           </Button>
         )}
         {isCreateApp && (
           <Button type="primary" onClick={this.handleOpenCreateAppModel}>
-            创建应用模版
+            {/* 创建应用模版 */}
+            <FormattedMessage id='applicationMarket.localMarket.setup'/>
           </Button>
         )}
       </Col>
@@ -1479,12 +1498,14 @@ export default class EnterpriseShared extends PureComponent {
             onClick={this.handleOpenDeleteAppMarket}
             style={{ marginRight: '22px' }}
           >
-            删除
+            {/* 删除 */}
+            <FormattedMessage id='button.delete'/>
           </Button>
         )}
         {isEditAppStore && (
           <Button type="primary" onClick={this.handleOpenUpAppMarket}>
-            编辑
+            {/* 编辑 */}
+          <FormattedMessage id='button.edit'/>
           </Button>
         )}
       </div>
@@ -1495,14 +1516,16 @@ export default class EnterpriseShared extends PureComponent {
           onClick={this.handleOpenDeleteHelmAppMarket}
           style={{ marginRight: '22px' }}
         >
-          删除
+          {/* 删除 */}
+          <FormattedMessage id='button.delete'/>
         </Button>
         <Button
           style={{ marginRight: '22px' }}
           type="primary"
           onClick={this.handleOpenUpHelmAppMarket}
         >
-          编辑
+          {/* 编辑 */}
+          <FormattedMessage id='button.edit'/>
         </Button>
         <Button
           onClick={() => {
@@ -1517,16 +1540,23 @@ export default class EnterpriseShared extends PureComponent {
     const noLocalMarket = (
       <div className={styles.noShared}>
         <img src={NoComponent} />
-        <p>当前无应用模版，请选择方式添加</p>
+        <p>
+          {/* 当前无应用模版，请选择方式添加 */}
+          <FormattedMessage id='applicationMarket.localMarket.nothing.msg'/>
+        </p>
         <div className={styles.btns}>
           {isCreateApp && (
             <Button type="primary" onClick={this.handleOpenCreateAppModel}>
-              创建应用模版
+              {/* 创建应用模版 */}
+              <FormattedMessage id='applicationMarket.localMarket.setup'/>
             </Button>
           )}
           {isImportApp && (
             <Button type="primary">
-              <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
+              <Link to={`/enterprise/${eid}/shared/import`}>
+                {/* 导入应用模版 */}
+              <FormattedMessage id='applicationMarket.localMarket.import.template'/>
+              </Link>
             </Button>
           )}
         </div>
@@ -1557,6 +1587,8 @@ export default class EnterpriseShared extends PureComponent {
             <Search
               style={{ width: '250px' }}
               placeholder="请输入名称进行搜索"
+              // placeholder={'hello'}
+              // placeholder={ intl.formatMessage({id:'applicationMarket.localMarket.placeholder'})}
               onSearch={this.handleSearchLocal}
             />
             <div className={styles.serBox}>
@@ -1565,8 +1597,14 @@ export default class EnterpriseShared extends PureComponent {
                 value={this.state.scope}
                 onChange={this.onChangeRadio}
               >
-                <Radio.Button value="enterprise">企业</Radio.Button>
-                <Radio.Button value="team">团队</Radio.Button>
+                <Radio.Button value="enterprise">
+                  {/* 企业 */}
+                  <FormattedMessage id="applicationMarket.localMarket.radioValue.enterprise"/>
+                </Radio.Button>
+                <Radio.Button value="team">
+                  {/* 团队 */}
+                  <FormattedMessage id="applicationMarket.localMarket.radioValue.team"/>
+                </Radio.Button>
               </Radio.Group>
               {tagLists && <Divider type="vertical" />}
               {tagLists && (
@@ -1587,7 +1625,8 @@ export default class EnterpriseShared extends PureComponent {
                     );
                   })}
                   <a onClick={this.handleOpenEditorMoreTags} style={rightStyle}>
-                    更多标签
+                  <FormattedMessage id="applicationMarket.localMarket.checkboxValue.more"/>
+                    {/* 更多标签 */}
                   </a>
                 </Checkbox.Group>
               )}
@@ -1632,7 +1671,9 @@ export default class EnterpriseShared extends PureComponent {
           <Row style={contentStyle}>
             <Col span={19} style={contentLeftStyle}>
               <div>
-                市场已经正常连接，该平台具有&nbsp;
+                <FormattedMessage id='applicationMarket.cloudMarket.msg'/>
+                {/* 市场已经正常连接，该平台具有 */}
+                &nbsp;
                 {accessActions &&
                   accessActions.map((item, index) => {
                     return (
@@ -1647,7 +1688,9 @@ export default class EnterpriseShared extends PureComponent {
                       </a>
                     );
                   })}
-                &nbsp;应用权限
+                &nbsp;
+                {/* 应用权限 */}
+                <FormattedMessage id='applicationMarket.cloudMarket.msgs'/>
               </div>
               <Search
                 style={{ width: '400px', marginLeft: '100px' }}
@@ -1739,8 +1782,10 @@ export default class EnterpriseShared extends PureComponent {
     );
     return (
       <PageHeaderLayout
-        title="应用市场管理"
-        content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
+        // title="应用市场管理"
+        // content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
+        title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title"/>}
+        content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content"/>}
       >
         {/* {initShow && isNewbieGuide && (
           <PlatformIntroduced onCancel={this.hideInitShow} />
@@ -1918,7 +1963,8 @@ export default class EnterpriseShared extends PureComponent {
             tab={
               <span className={styles.verticalCen}>
                 {globalUtil.fetchSvg('localMarket')}
-                本地组件库
+                {/* 本地组件库 */}
+                <FormattedMessage id="applicationMarket.localMarket.title"/>
               </span>
             }
             key="local"
@@ -1969,7 +2015,11 @@ export default class EnterpriseShared extends PureComponent {
           {isCreateAppStore && (
             <TabPane
               tab={
-                <Tooltip placement="top" title="添加应用市场">
+                <Tooltip 
+                placement="top" 
+                // title="添加应用市场"
+                title={<FormattedMessage id='applicationMarket.addMarket.tooltip.title'/>}
+                >
                   <Icon type="plus" className={styles.addSvg} />
                 </Tooltip>
               }
