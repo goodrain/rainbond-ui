@@ -253,8 +253,8 @@ export default class AppPublishList extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         loading={loadingDetail}
-        title={formatMessage({ id: 'app.publish.title' })}
-        content={formatMessage({ id: 'app.publish.desc' })}
+        title={formatMessage({ id: 'appPublish.title' })}
+        content={formatMessage({ id: 'appPublish.desc' })}
         extraContent={
           <div>
             <Button

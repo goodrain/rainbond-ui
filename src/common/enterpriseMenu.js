@@ -1,4 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
+import { formatMessage } from 'umi-plugin-locale';
 import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
 import { isUrl } from '../utils/utils';
@@ -66,13 +67,13 @@ function menuData(eid, currentUser, enterprise) {
 
   const menuArr = [
     {
-      name: '总览',
+      name: formatMessage({ id: 'menu.enterprise.dashboard' }),
       icon: 'dashboard',
       path: `/enterprise/${eid}/index`,
       authority: ['admin', 'user']
     },
     {
-      name: '应用市场',
+      name: formatMessage({ id: 'menu.enterprise.share' }),
       icon: 'share-alt',
       path: `/enterprise/${eid}/shared/local`,
       authority: ['admin', 'user']
@@ -87,7 +88,7 @@ function menuData(eid, currentUser, enterprise) {
     });
   }
   menuArr.push({
-    name: '项目/团队',
+    name: formatMessage({ id: 'menu.enterprise.team' }),
     icon: 'team',
     path: `/enterprise/${eid}/teams`,
     authority: ['admin', 'user']
@@ -95,13 +96,13 @@ function menuData(eid, currentUser, enterprise) {
   if (adminer) {
     menuArr.push(
       {
-        name: '集群',
+        name: formatMessage({ id: 'menu.enterprise.cluster' }),
         icon: clusterSvg,
         path: `/enterprise/${eid}/clusters`,
         authority: ['admin', 'user']
       },
       {
-        name: '用户',
+        name: formatMessage({ id: 'menu.enterprise.user' }),
         icon: 'user',
         path: `/enterprise/${eid}/users`,
         authority: ['admin', 'user']
@@ -131,7 +132,7 @@ function menuData(eid, currentUser, enterprise) {
       });
 
       menuArr.push({
-        name: '监控',
+        name: formatMessage({ id: 'menu.enterprise.monitoring' }),
         icon: monitoringSvg,
         path: `/enterprise/${eid}/monitoring`,
         authority: ['admin', 'user'],
@@ -139,7 +140,7 @@ function menuData(eid, currentUser, enterprise) {
       });
     }
     menuArr.push({
-      name: '设置',
+      name: formatMessage({ id: 'menu.enterprise.setting' }),
       icon: 'setting',
       path: `/enterprise/${eid}/setting`,
       authority: ['admin', 'user']
