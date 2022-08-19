@@ -28,6 +28,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const { confirm } = Modal;
 
@@ -536,7 +537,8 @@ export default class EnterpriseClusters extends PureComponent {
     };
     const columns = [
       {
-        title: '名称',
+        // title: '名称',
+        title: formatMessage({ id: 'table.tr.name' }),
         dataIndex: 'region_alias',
         align: 'center',
         width: 120,
@@ -549,7 +551,8 @@ export default class EnterpriseClusters extends PureComponent {
         }
       },
       {
-        title: '安装方式',
+        // title: '安装方式',
+        title: formatMessage({ id: 'table.tr.wayToInstall' }),
         dataIndex: 'provider',
         align: 'center',
         width: 80,
@@ -564,14 +567,16 @@ export default class EnterpriseClusters extends PureComponent {
             case 'custom':
               return (
                 <span style={{ marginRight: '8px' }} key={item}>
-                  自建Kubernetes
+                  {/* 自建Kubernetes */}
+                  <FormattedMessage id='enterpriseColony.table.custom'/>
                 </span>
               );
             case 'rke':
               return (
-                <Tooltip title="支持节点配置">
+                <Tooltip title={<FormattedMessage id='enterpriseColony.table.rke.tooltip'/>}>
                   <span style={{ marginRight: '8px' }} key={item}>
-                    基于主机自建
+                    {/* 基于主机自建 */}
+                    <FormattedMessage id='enterpriseColony.table.rke'/>
                   </span>
                 </Tooltip>
               );
@@ -584,20 +589,23 @@ export default class EnterpriseClusters extends PureComponent {
             case 'helm':
               return (
                 <span style={{ marginRight: '8px' }} key={item}>
-                  Helm对接
+                  {/* Helm对接 */}
+                  <FormattedMessage id='enterpriseColony.table.helm'/>
                 </span>
               );
             default:
               return (
                 <span style={{ marginRight: '8px' }} key={item}>
-                  直接对接
+                  {/* 直接对接 */}
+                  <FormattedMessage id='enterpriseColony.table.other'/>
                 </span>
               );
           }
         }
       },
       {
-        title: '内存(GB)',
+        // title: '内存(GB)',
+        title: formatMessage({ id: 'table.tr.memory' }),
         dataIndex: 'total_memory',
         align: 'center',
         width: 80,
@@ -615,40 +623,48 @@ export default class EnterpriseClusters extends PureComponent {
         }
       },
       {
-        title: '版本',
+        // title: '版本',
+        title: formatMessage({ id: 'table.tr.versions' }),
         dataIndex: 'rbd_version',
         align: 'center',
         width: 180
       },
       {
-        title: '状态',
+        // title: '状态',
+        title: formatMessage({ id: 'table.tr.status' }),
         dataIndex: 'status',
         align: 'center',
         width: 60,
         render: (val, data) => {
           if (data.health_status === 'failure') {
-            return <span style={{ color: 'red' }}>通信异常</span>;
+            return <span style={{ color: 'red' }}>
+                      {/* 通信异常 */}
+                      <FormattedMessage id='enterpriseColony.table.state.err'/>
+                   </span>;
           }
           switch (val) {
             case '0':
               return (
                 <div style={colorbj('#1890ff', '#e6f7ff')}>
                   <Badge color="#1890ff" />
-                  编辑中
+                  {/* 编辑中 */}
+                  <FormattedMessage id='enterpriseColony.table.state.edit'/>
                 </div>
               );
             case '1':
               return (
                 <div style={colorbj('#52c41a', '#e9f8e2')}>
                   <Badge color="#52c41a" />
-                  运行中
+                  {/* 运行中 */}
+                  <FormattedMessage id='enterpriseColony.table.state.run'/>
                 </div>
               );
             case '2':
               return (
                 <div style={colorbj('#b7b7b7', '#f5f5f5')}>
                   <Badge color="#b7b7b7" />
-                  已下线
+                  {/* 已下线 */}
+                  <FormattedMessage id='enterpriseColony.table.state.down'/>
                 </div>
               );
 
@@ -656,28 +672,32 @@ export default class EnterpriseClusters extends PureComponent {
               return (
                 <div style={colorbj('#1890ff', '#e6f7ff')}>
                   <Badge color="#1890ff" />
-                  维护中
+                  {/* 维护中 */}
+                  <FormattedMessage id='enterpriseColony.table.state.maintain'/>
                 </div>
               );
             case '5':
               return (
                 <div style={colorbj('#fff', '#f54545')}>
                   <Badge color="#fff" />
-                  异常
+                  {/* 异常 */}
+                  <FormattedMessage id='enterpriseColony.table.state.abnormal'/>
                 </div>
               );
             default:
               return (
                 <div style={colorbj('#fff', '#ffac38')}>
                   <Badge color="#fff" />
-                  未知
+                  {/* 未知 */}
+                  <FormattedMessage id='enterpriseColony.table.state.unknown'/>
                 </div>
               );
           }
         }
       },
       {
-        title: '操作',
+        // title: '操作',
+        title: formatMessage({ id: 'table.tr.handle' }),
         dataIndex: 'method',
         align: 'center',
         width: 150,
@@ -688,26 +708,30 @@ export default class EnterpriseClusters extends PureComponent {
                 this.delUser(item);
               }}
             >
-              删除
+              <FormattedMessage id='enterpriseColony.table.handle.delete'/>
+              {/* 删除 */}
             </a>,
             <a
               onClick={() => {
                 this.handleEdit(item);
               }}
             >
-              编辑
+              <FormattedMessage id='enterpriseColony.table.handle.edit'/>
+              {/* 编辑 */}
             </a>,
             <a
               onClick={() => {
                 this.showRegions(item);
               }}
             >
-              资源限额
+              <FormattedMessage id='enterpriseColony.table.handle.quota'/>
+              {/* 资源限额 */}
             </a>,
             <Link
               to={`/enterprise/${eid}/importMessage?region_id=${item.region_id}`}
             >
-              导入
+              <FormattedMessage id='enterpriseColony.table.handle.import'/>
+              {/* 导入 */}
             </Link> 
           ];
           if (item.provider === 'rke') {
@@ -715,7 +739,8 @@ export default class EnterpriseClusters extends PureComponent {
               <Link
                 to={`/enterprise/${eid}/provider/rke/kclusters?clusterID=${item.provider_cluster_id}&updateKubernetes=true`}
               >
-                节点配置
+              <FormattedMessage id='enterpriseColony.table.handle.deploy'/>
+                {/* 节点配置 */}
               </Link>
             );
           }
@@ -792,8 +817,8 @@ export default class EnterpriseClusters extends PureComponent {
     };
     return (
       <PageHeaderLayout
-        title="集群管理"
-        content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
+        title={<FormattedMessage id='enterpriseColony.PageHeaderLayout.title'/>}
+        content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
       >
         {isNewbieGuide &&
         showClusterIntroduced &&
@@ -814,7 +839,10 @@ export default class EnterpriseClusters extends PureComponent {
         <Row style={{ marginBottom: '20px' }}>
           <Col span={24} style={{ textAlign: 'right' }}>
             <Link to={`/enterprise/${eid}/addCluster`}>
-              <Button type="primary">添加集群</Button>
+              <Button type="primary">
+                {/* 添加集群 */}
+              <FormattedMessage id='enterpriseColony.button.text'/>
+              </Button>
             </Link>
             <Button
               style={{ marginLeft: '16px' }}
@@ -830,8 +858,10 @@ export default class EnterpriseClusters extends PureComponent {
               clusters &&
               clusters.length === 0 &&
               this.handleNewbieGuiding({
-                tit: '去添加集群',
-                desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
+                // tit: '去添加集群',
+                tit: formatMessage({id:'enterpriseColony.guideStep.title'}),
+                // desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
+                desc: formatMessage({id:'enterpriseColony.guideStep.desc'}),
                 nextStep: 2,
                 configName: 'addCluster',
                 isSuccess: false,
@@ -863,7 +893,8 @@ export default class EnterpriseClusters extends PureComponent {
           )}
           <Alert
             style={{ marginBottom: '16px' }}
-            message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
+            // message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
+            message={<FormattedMessage id='enterpriseColony.alert.message'/>}
           />
           <Table
             // scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}

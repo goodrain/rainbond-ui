@@ -41,9 +41,9 @@
         
     }
     const button = {
-        'button.delete':'删除',
-        'button.edit':'编辑',
-        'button.search':'搜索'
+        'button.delete':'delete',
+        'button.edit':'edit',
+        'button.search':'search'
     }
     const notification = {
         // 成功

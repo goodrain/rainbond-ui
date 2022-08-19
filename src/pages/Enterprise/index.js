@@ -44,6 +44,7 @@ import Meiqia from '../../layouts/Meiqia';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from '../List/BasicList.less';
 
 @connect(({ user, global, index }) => ({
@@ -620,7 +621,7 @@ export default class Enterprise extends PureComponent {
         >
           <img src={AddTeam} alt="" />
           <div style={{ marginTop: '5px' }}>
-            <a className={styles.teamTit}>加入团队</a>
+            <a className={styles.teamTit}><FormattedMessage id="enterpriseOverview.team.join"/></a>
           </div>
         </div>
 
@@ -631,7 +632,7 @@ export default class Enterprise extends PureComponent {
           >
             <img src={CreationTeam} alt="" />
             <div style={{ marginTop: '5px' }}>
-              <a className={styles.teamTit}>创建团队</a>
+              <a className={styles.teamTit}><FormattedMessage id="enterpriseOverview.team.setup"/></a>
             </div>
           </div>
         )}
@@ -677,11 +678,15 @@ export default class Enterprise extends PureComponent {
               <div>
                 <div className={styles.enterpriseInfo}>
                   <img src={EnterpriseInfo} alt="" />
-                  <span>企业信息</span>
+                  <span>
+                    {/* 企业信息 */}
+                    <FormattedMessage id="enterpriseOverview.information.message"/>
+                  </span>
                 </div>
                 {enterpriseInfo && (
                   <div className={styles.enterpriseName}>
-                    企业名称：{enterpriseInfo.enterprise_alias}
+                    {/* 企业名称 */}
+                   <FormattedMessage id="enterpriseOverview.information.name"/>{enterpriseInfo.enterprise_alias}
                     {!enterpriseEdition && enterpriseVersion !== 'cloud' && (
                       <a
                         style={{ marginLeft: 32 }}
@@ -689,7 +694,8 @@ export default class Enterprise extends PureComponent {
                         target="_blank"
                         // onClick={this.handelConsulting}
                       >
-                        了解企业服务
+                        {/* 了解企业服务 */}
+                        <FormattedMessage id="enterpriseOverview.information.serve"/>
                       </a>
                     )}
                   </div>
@@ -698,19 +704,22 @@ export default class Enterprise extends PureComponent {
                   <div className={styles.enterpriseBox}>
                     <p>
                       <Tooltip title={enterpriseInfo.enterprise_id}>
-                        联合云ID&nbsp;
+                        {/* 联合云id */}
+                      <FormattedMessage id="enterpriseOverview.information.unite"/>&nbsp;
                         {enterpriseInfo.enterprise_id}
                       </Tooltip>
                     </p>
                     <p>
                       <Tooltip title={enterpriseVersion}>
-                        平台版本&nbsp;
+                        {/* 平台版本 */}
+                      <FormattedMessage id="enterpriseOverview.information.versions"/>&nbsp;
                         {enterpriseVersion}
                       </Tooltip>
                     </p>
                     <p>
                       <Tooltip title={enterpriseInfo.create_time}>
-                        创建时间&nbsp;
+                        {/* 创建时间 */}
+                      <FormattedMessage id="enterpriseOverview.information.time"/>&nbsp;
                         {enterpriseInfo.create_time}
                       </Tooltip>
                     </p>
@@ -746,10 +755,12 @@ export default class Enterprise extends PureComponent {
                 >
                   <Row style={{ marginBottom: '6px' }}>
                     <Col className={styles.grays} span={12}>
-                      应用数量
+                      {/* 应用数量 */}
+                      <FormattedMessage id="enterpriseOverview.app.number"/>
                     </Col>
                     <Col className={styles.grays} span={12}>
-                      组件数量
+                      {/* 组件数量 */}
+                      <FormattedMessage id="enterpriseOverview.module.number"/>
                     </Col>
                   </Row>
                   <Row>
@@ -765,8 +776,12 @@ export default class Enterprise extends PureComponent {
                           <div className={styles.appContent}>
                             <h6>{runApp}个</h6>
                             <div>
-                              共{appTotal}
-                              个应用数量
+                              {/*  共{appTotal}
+                              个应用数量 */}
+                              <FormattedMessage 
+                              id="enterpriseOverview.app.overview"
+                              values={{number:appTotal}}
+                              />
                             </div>
                           </div>
                         }
@@ -777,7 +792,10 @@ export default class Enterprise extends PureComponent {
                     <Col span={4}>
                       <div>
                         <div>
-                          <div className={styles.appnumno}>运行中应用</div>
+                          <div className={styles.appnumno}>
+                          {/* 运行中应用 */}
+                            <FormattedMessage id="enterpriseOverview.app.run"/>
+                          </div>
                           <div className={styles.nums}>
                             <span>{runApp}个</span>
                             <span>|</span>
@@ -789,7 +807,8 @@ export default class Enterprise extends PureComponent {
                             className={styles.appnums}
                             style={{ marginTop: '26px' }}
                           >
-                            未运行应用
+                            {/* 未运行应用 */}
+                            <FormattedMessage id="enterpriseOverview.app.notrun"/>
                           </div>
                           <div className={styles.nums}>
                             <span>{appClosed}个</span>
@@ -811,12 +830,18 @@ export default class Enterprise extends PureComponent {
                             <div className={styles.elements}>
                               <div>
                                 <div>{comClosed}</div>
-                                <div>未运行</div>
+                                <div>
+                                  {/* 未运行 */}
+                                <FormattedMessage id="enterpriseOverview.module.notrun"/>
+                                </div>
                               </div>
                               <div />
                               <div>
                                 <div>{runCom}</div>
-                                <div>运行中</div>
+                                <div>
+                                  {/* 运行中 */}
+                                <FormattedMessage id="enterpriseOverview.module.run"/>
+                                </div>
                               </div>
                             </div>
                           }
@@ -827,7 +852,10 @@ export default class Enterprise extends PureComponent {
                     <Col span={4}>
                       <div>
                         <div>
-                          <div className={styles.appnumno}>运行中组件</div>
+                          <div className={styles.appnumno}>
+                            {/* 运行中组件 */}
+                            <FormattedMessage id="enterpriseOverview.module.notrun.component"/>
+                          </div>
                           <div className={styles.nums}>
                             <span>{runCom}个</span>
                             <span>|</span>
@@ -839,7 +867,8 @@ export default class Enterprise extends PureComponent {
                             className={styles.appnums}
                             style={{ marginTop: '26px' }}
                           >
-                            未运行组件
+                            {/* 未运行组件 */}
+                            <FormattedMessage id="enterpriseOverview.module.run.component"/>
                           </div>
                           <div className={styles.nums}>
                             <span>{comClosed}个</span>
@@ -875,7 +904,10 @@ export default class Enterprise extends PureComponent {
                             {overviewInfo && overviewInfo.shared_apps}
                           </Link>
                         </li>
-                        <li>应用模版数量</li>
+                        <li>
+                          {/* 应用模版数量 */}
+                        <FormattedMessage id="enterpriseOverview.overview.template"/>
+                        </li>
                         <li>——</li>
                       </ul>
                     </Col>
@@ -892,7 +924,10 @@ export default class Enterprise extends PureComponent {
                           </Link>
                         </li>
 
-                        <li>团队数量</li>
+                        <li>
+                          {/* 团队数量 */}
+                        <FormattedMessage id="enterpriseOverview.overview.team"/>
+                        </li>
                         <li>——</li>
                       </ul>
                     </Col>
@@ -908,7 +943,10 @@ export default class Enterprise extends PureComponent {
                             {overviewInfo && overviewInfo.total_users}
                           </Link>
                         </li>
-                        <li>用户数量</li>
+                        <li>
+                          {/* 用户数量 */}
+                        <FormattedMessage id="enterpriseOverview.overview.user"/>
+                        </li>
                         <li>——</li>
                       </ul>
                     </Col>
@@ -931,7 +969,8 @@ export default class Enterprise extends PureComponent {
               >
                 <Row style={{ marginBottom: '4px' }}>
                   <Col className={styles.grays} span={12}>
-                    团队
+                    {/* 团队 */}
+                    <FormattedMessage id="enterpriseOverview.team.group"/>
                   </Col>
 
                   {active_teams ? (
@@ -943,9 +982,11 @@ export default class Enterprise extends PureComponent {
                         justifyContent: 'space-between'
                       }}
                     >
-                      常用团队
+                      {/* 常用团队 */}
+                      <FormattedMessage id="enterpriseOverview.team.frequently"/>
                       <Link style={colors} to={`/enterprise/${eid}/teams`}>
-                        更多
+                        <FormattedMessage id="enterpriseOverview.team.more"/>
+                      {/* 更多 */}
                       </Link>
                     </Col>
                   ) : (
@@ -958,7 +999,8 @@ export default class Enterprise extends PureComponent {
                       }}
                     >
                       <span style={colors} onClick={this.onJoinTeam}>
-                        加入团队
+                        {/* 加入团队 */}
+                        <FormattedMessage id="enterpriseOverview.team.join"/>
                       </span>
 
                       {this.state.adminer && (
@@ -970,7 +1012,8 @@ export default class Enterprise extends PureComponent {
                           }}
                           onClick={this.onAddTeam}
                         >
-                          创建团队
+                          {/*  创建团队 */}
+                          <FormattedMessage id="enterpriseOverview.team.setup"/>
                         </span>
                       )}
                     </Col>
@@ -1006,11 +1049,13 @@ export default class Enterprise extends PureComponent {
                               alt=""
                             />
                           </div>
-                          <Tooltip title="新加入团队:">
+                          <Tooltip title={<FormattedMessage id="enterpriseOverview.team.new"/>}>
                             <div
                               className={`${styles.grays} ${styles.addteam}`}
                             >
-                              新加入团队:
+                              {/* 新加入团队: */}
+                          <FormattedMessage id="enterpriseOverview.team.new"/>
+
                             </div>
                           </Tooltip>
 
@@ -1100,7 +1145,10 @@ export default class Enterprise extends PureComponent {
                               {overviewMonitorInfo.total_regions || 0}
                             </Link>
                           </li>
-                          <li>集群数量</li>
+                          <li>
+                            {/* 集群数量 */}
+                          <FormattedMessage id="enterpriseOverview.overview.colony"/>
+                          </li>
                           <li>——</li>
                         </ul>
                       </Col>
@@ -1112,7 +1160,13 @@ export default class Enterprise extends PureComponent {
                           <li>
                             <Tooltip
                               className={styles.cen}
-                              title={`${memoryUsed}${memoryUsedUnit} 包含各团队内存使用量、系统使用量和平台组件使用量`}
+                              title={
+                                <FormattedMessage 
+                                id="enterpriseOverview.overview.tooltip"
+                                values={{num:memoryUsed,unit:memoryUsedUnit}}
+                                />
+                              }
+                              // title={`${memoryUsed}${memoryUsedUnit} 包含各团队内存使用量、系统使用量和平台组件使用量`}
                             >
                               <span className={styles.numbers}>
                                 {memoryUsed}
@@ -1133,7 +1187,10 @@ export default class Enterprise extends PureComponent {
                               </span>
                             </Tooltip>
                           </li>
-                          <li>内存使用量/总量</li>
+                          <li>
+                            {/* 内存使用量/总量 */}
+                          <FormattedMessage id="enterpriseOverview.overview.memory"/>
+                          </li>
                           <li>——</li>
                         </ul>
                       </Col>
@@ -1162,7 +1219,10 @@ export default class Enterprise extends PureComponent {
                               </span>
                             </Tooltip>
                           </li>
-                          <li>CPU使用量/总量</li>
+                          <li>
+                            {/* CPU使用量/总量 */}
+                          <FormattedMessage id="enterpriseOverview.overview.cpu"/>
+                          </li>
                           <li>——</li>
                         </ul>
                       </Col>
@@ -1179,7 +1239,9 @@ export default class Enterprise extends PureComponent {
                 >
                   <Row style={{ marginBottom: '4px' }}>
                     <Col className={styles.grays} span={12}>
-                      便捷入口
+                      {/* 便捷入口 */}
+                      <FormattedMessage id="enterpriseOverview.overview.entrance"/>
+
                     </Col>
                     <Col
                       className={styles.grays}
@@ -1196,7 +1258,9 @@ export default class Enterprise extends PureComponent {
                           this.onConvenientEntrance();
                         }}
                       >
-                        新增
+                        {/* 新增 */}
+                        <FormattedMessage id="enterpriseOverview.overview.add"/>
+
                       </span>
                       {collections && (
                         <span
@@ -1205,7 +1269,9 @@ export default class Enterprise extends PureComponent {
                             this.handleIsConvenientEntrance();
                           }}
                         >
-                          编辑
+                          {/* 编辑 */}
+                          <FormattedMessage id="enterpriseOverview.overview.edit"/>
+
                         </span>
                       )}
                     </Col>
