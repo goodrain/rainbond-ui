@@ -60,7 +60,8 @@ import Relation from './relation';
 import Resource from './resource';
 import Setting from './setting';
 import ThirdPartyServices from './ThirdPartyServices';
-import { ResumeContext } from "./funContext"
+import { ResumeContext } from "./funContext";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -1008,7 +1009,8 @@ class Main extends PureComponent {
                     }
                   }}
                 >
-                  重启
+                  {/* 重启 */}
+                  <FormattedMessage id='componentOverview.header.left.reset'/>
                 </a>
               ):isStop &&
               status &&
@@ -1019,7 +1021,8 @@ class Main extends PureComponent {
                     this.handleDropClick('restart');
                   }}
                 >
-                  重启
+                  {/* 重启 */}
+                  <FormattedMessage id='componentOverview.header.left.reset'/>
                 </a>
               ) : null}
               {!appDetail.is_third && isRestart && <Divider type="vertical" />}
@@ -1038,7 +1041,8 @@ class Main extends PureComponent {
                       }
                     }}
                   >
-                    关闭
+                    {/* 关闭 */}
+                    <FormattedMessage id='componentOverview.header.left.turnoff'/>
                   </a>
                   <Divider type="vertical" />
                 </span>
@@ -1053,7 +1057,8 @@ class Main extends PureComponent {
                       this.handleOpenHelpfulHints('stop');
                     }}
                   >
-                    关闭
+                    {/* 关闭 */}
+                    <FormattedMessage id='componentOverview.header.left.turnoff'/>
                   </a>
                   <Divider type="vertical" />
                 </span>
@@ -1068,7 +1073,8 @@ class Main extends PureComponent {
                     cursor: 'pointer'
                   }}
                 >
-                  修改所属应用
+                  {/* 修改所属应用 */}
+                  <FormattedMessage id='componentOverview.header.left.edit'/>
                 </a>
               )}
               {isEdit && !loadingDetail && !isHelm && (
@@ -1083,7 +1089,8 @@ class Main extends PureComponent {
                     cursor: 'pointer'
                   }}
                 >
-                  删除
+                  {/* 删除 */}
+                  <FormattedMessage id='componentOverview.header.left.delete'/>
                 </a>
               )}
             </div>
@@ -1142,7 +1149,7 @@ class Main extends PureComponent {
       groupDetail
     } = this.state;
     const { getFieldDecorator } = form;
-    const upDataText = isShowThirdParty ? '更新' : '更新(滚动）';
+    const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update'/> : <FormattedMessage id='componentOverview.header.right.update.roll'/>;
     const codeObj = {
       start: '启动',
       restart: '重启',
@@ -1181,7 +1188,8 @@ class Main extends PureComponent {
               this.handleOpenHelpfulHints('start');
             }}
           >
-            启动
+            {/* 启动 */}
+            <FormattedMessage id='componentOverview.header.right.start'/>
           </Button>
         )}
 
@@ -1191,7 +1199,8 @@ class Main extends PureComponent {
               to={`${this.fetchPrefixUrl()}components/${serviceAlias}/webconsole`}
               target="_blank"
             >
-              Web终端
+              {/* Web终端 */}
+              <FormattedMessage id='componentOverview.header.right.web'/>
             </Link>
           </Button>
         )}
@@ -1211,7 +1220,8 @@ class Main extends PureComponent {
                 count="有更新版本"
                 title="有更新版本"
               />
-              构建
+              {/* 构建 */}
+              <FormattedMessage id='componentOverview.header.right.build'/>
             </Button>
           </Tooltip>
         ) : status && status.status === 'undeploy' && isConstruct ? (
@@ -1219,7 +1229,8 @@ class Main extends PureComponent {
             onClick={this.handleOpenBuild}
             loading={buildInformationLoading}
           >
-            构建
+            {/* 构建 */}
+            <FormattedMessage id='componentOverview.header.right.build'/>
           </Button>
         ) : (
           isConstruct && (
@@ -1227,7 +1238,8 @@ class Main extends PureComponent {
               onClick={this.handleOpenBuild}
               loading={buildInformationLoading}
             >
-              构建
+              {/* 构建 */}
+              <FormattedMessage id='componentOverview.header.right.build'/>
             </Button>
           )
         )}
@@ -1263,90 +1275,106 @@ class Main extends PureComponent {
     const tabs = [
       {
         key: 'overview',
-        tab: '总览'
+        // tab: '总览',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.overview'})
+
       },
       {
         key: 'monitor',
-        tab: '监控'
+        // tab: '监控',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.monitor'})
       },
       {
         key: 'log',
-        tab: '日志'
+        // tab: '日志',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.log'})
       }
     ];
 
     if (isTelescopic && appDetail.service.extend_method !== 'job' && appDetail.service.extend_method !== 'cronjob') {
       tabs.push({
         key: 'expansion',
-        tab: '伸缩'
+        // tab: '伸缩',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.expansion'})
       });
     }
 
     if (isEnv) {
       tabs.push({
         key: 'environmentConfiguration',
-        tab: '环境配置'
+        // tab: '环境配置',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.environmentConfiguration'})
       });
     }
 
     if (isRely) {
       tabs.push({
         key: 'relation',
-        tab: '依赖'
+        // tab: '依赖',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.relation'})
       });
     }
 
     if (isStorage) {
       tabs.push({
         key: 'mnt',
-        tab: '存储'
+        // tab: '存储',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.mnt'})
       });
     }
 
     if (isPort) {
       tabs.push({
         key: 'port',
-        tab: '端口'
+        // tab: '端口',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.port'})
       });
     }
 
     if (isPlugin) {
       tabs.push({
         key: 'plugin',
-        tab: '插件'
+        // tab: '插件',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.plugin'})
       });
     }
 
     if (isSource) {
       tabs.push({
         key: 'resource',
-        tab: '构建源'
+        // tab: '构建源',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.resource'})
       });
     }
 
     if (isDeploytype || isCharacteristic || isHealth) {
       tabs.push({
         key: 'setting',
-        tab: '其他设置'
+        // tab: '其他设置',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.setting'})
       });
     }
     const tabList = isShowThirdParty
       ? [
           {
             key: 'thirdPartyServices',
-            tab: '总览'
+            // tab: '总览',
+            tab: formatMessage({id:'componentOverview.body.tab.bar.overview'})
           },
           {
             key: 'port',
-            tab: '端口'
+            // tab: '端口',
+            tab: formatMessage({id:'componentOverview.body.tab.bar.port'})
           },
           {
             key: 'connectionInformation',
-            tab: '连接信息'
+            // tab: '连接信息',
+            tab: formatMessage({id:'componentOverview.body.tab.bar.connectionInformation'})
           },
           {
             key: 'members',
-            tab: '更多设置'
+            // tab: '更多设置',
+            tab: formatMessage({id:'componentOverview.body.tab.bar.members'})
           }
         ]
       : tabs;

@@ -41,9 +41,9 @@
         
     }
     const button = {
-        'button.delete':'delete',
-        'button.edit':'edit',
-        'button.search':'search'
+        'button.delete':'Delete',
+        'button.edit':'Edit',
+        'button.search':'Search'
     }
     const notification = {
         // 成功

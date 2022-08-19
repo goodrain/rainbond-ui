@@ -5,6 +5,7 @@ import numeral from 'numeral';
 import React, { Fragment, PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
 import styles from '../../Index.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 @Form.create()
 class Index extends PureComponent {
@@ -33,7 +34,7 @@ class Index extends PureComponent {
       buildSource
     } = this.props;
 
-    const setMemory = memory === 0 ? '不限制' : numeral(memory).format('0,0');
+    const setMemory = memory === 0 ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
     return (
       <Row gutter={24}>
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
@@ -62,7 +63,8 @@ class Index extends PureComponent {
                         <li>
                           <a target="_blank">
                             {globalUtil.fetchSvg('runTime')}
-                            运行
+                            {/* 运行 */}
+                            <FormattedMessage id='componentOverview.body.tab.overview.run'/>
                             <span
                               style={{
                                 color: 'rgba(0,0,0,0.45)',
@@ -82,7 +84,8 @@ class Index extends PureComponent {
                     <li>
                       <a>
                         {globalUtil.fetchSvg('distributionMemory')}
-                        分配
+                        {/* 分配 */}
+                        <FormattedMessage id='componentOverview.body.tab.overview.allocation'/>
                         {!resourcesLoading && (
                           <Fragment>
                             <Tooltip title={setMemory}>
@@ -96,7 +99,7 @@ class Index extends PureComponent {
                                 {setMemory}
                               </span>
                             </Tooltip>
-                            {memory !== 0 && 'MB 内存'}
+                            {memory !== 0 && <FormattedMessage id='componentOverview.body.tab.overview.memory'/>}
                           </Fragment>
                         )}
                       </a>
@@ -104,7 +107,8 @@ class Index extends PureComponent {
                     <li>
                       <a>
                         {globalUtil.fetchSvg('useDisk')}
-                        占用
+                        {/* 占用 */}
+                        <FormattedMessage id='componentOverview.body.tab.overview.occupy'/>
                         {!resourcesLoading && (
                           <Fragment>
                             <Tooltip title={numeral(disk).format('0,0')}>
@@ -118,7 +122,8 @@ class Index extends PureComponent {
                                 {numeral(disk).format('0,0')}
                               </span>
                             </Tooltip>
-                            MB 磁盘
+                            {/* MB 磁盘 */}
+                            <FormattedMessage id='componentOverview.body.tab.overview.disk'/>
                           </Fragment>
                         )}
                       </a>
@@ -131,7 +136,10 @@ class Index extends PureComponent {
                   <span className={` ${styles.alcen} ${styles.buildwidth} `}>
                     {globalUtil.fetchSvg('version')}
 
-                    <span style={{ color: 'rgba(0,0,0,0.65)' }}>版本号</span>
+                    <span style={{ color: 'rgba(0,0,0,0.65)' }}>
+                      {/* 版本号 */}
+                      <FormattedMessage id='componentOverview.body.tab.overview.version'/>
+                    </span>
                   </span>
                   <span
                     style={{
@@ -143,7 +151,7 @@ class Index extends PureComponent {
                   >
                     {beanData && beanData.build_version
                       ? beanData.build_version
-                      : '暂无'}
+                      : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
                   </span>
                 </h2>
                 <div className={styles.buildCommitInfo}>
@@ -155,10 +163,10 @@ class Index extends PureComponent {
                         >
                           {globalUtil.fetchSvg('warehouse')}
                           {buildSource && buildSource === 'source_code'
-                            ? '代码版本'
+                            ? <FormattedMessage id='componentOverview.body.tab.overview.codeVersion'/>
                             : buildSource === 'package_build'
-                            ? '文件MD5'
-                            : '仓库地址'}
+                            ? <FormattedMessage id='componentOverview.body.tab.overview.file'/>
+                            : <FormattedMessage id='componentOverview.body.tab.overview.warehouse.address'/>}
                         </span>
                         <Tooltip
                           title={
@@ -179,8 +187,8 @@ class Index extends PureComponent {
                                 ? beanData.code_version
                                 : beanData.image_domain
                                 ? beanData.image_domain
-                                : '暂无'
-                              : '暂无'}
+                                : <FormattedMessage id='componentOverview.body.tab.overview.not'/>
+                              : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
                           </span>
                         </Tooltip>
                       </a>
@@ -192,10 +200,10 @@ class Index extends PureComponent {
                         >
                           {globalUtil.fetchSvg('basicInfo')}
                           {buildSource && buildSource === 'source_code'
-                            ? '提交信息' 
+                            ?  <FormattedMessage id='componentOverview.body.tab.overview.submit'/>
                             : buildSource === 'package_build'
-                            ? '文件名称'
-                            : '镜像名称'}
+                            ?  <FormattedMessage id='componentOverview.body.tab.overview.fileName'/>
+                            :  <FormattedMessage id='componentOverview.body.tab.overview.imageName'/>}
                         </span>
                         <Tooltip
                           title={
@@ -219,8 +227,8 @@ class Index extends PureComponent {
                                   beanData.code_commit_msg
                                 : beanData.image_repo
                                 ? beanData.image_repo
-                                : '暂无'
-                              : '暂无'}
+                                : <FormattedMessage id='componentOverview.body.tab.overview.not'/>
+                              : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
                           </span>
                         </Tooltip>
                       </a>
@@ -233,10 +241,10 @@ class Index extends PureComponent {
                           {globalUtil.fetchSvg('branch')}
 
                           {buildSource && buildSource === 'source_code'
-                            ? '代码分支'
+                            ? <FormattedMessage id='componentOverview.body.tab.overview.codeBranch'/>
                             : buildSource === 'package_build'
-                            ? '上传时间'
-                            : '镜像tag'}
+                            ? <FormattedMessage id='componentOverview.body.tab.overview.uploadTime'/>
+                            : <FormattedMessage id='componentOverview.body.tab.overview.image'/>}
                         </span>
                         <Tooltip
                           title={
@@ -256,8 +264,8 @@ class Index extends PureComponent {
                                 ? beanData.code_branch && beanData.code_branch
                                 : beanData.image_tag
                                 ? beanData.image_tag
-                                : '暂无'
-                              : '暂无'}
+                                : <FormattedMessage id='componentOverview.body.tab.overview.not'/>
+                              : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
                           </span>
                         </Tooltip>
                       </a>
@@ -270,7 +278,8 @@ class Index extends PureComponent {
                           this.handleMore(true);
                         }}
                       >
-                        查看更多版本
+                        {/* 查看更多版本 */}
+                        <FormattedMessage id='componentOverview.body.tab.overview.moreVersion'/>
                       </a>
                     ) : (
                       more === true && (
@@ -279,7 +288,8 @@ class Index extends PureComponent {
                             this.handleMore(false);
                           }}
                         >
-                          返回实例列表
+                          {/* 返回实例列表 */}
+                          <FormattedMessage id='componentOverview.body.tab.overview.return'/>
                         </a>
                       )
                     )}

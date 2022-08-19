@@ -20,6 +20,7 @@ import Basic from './component/Basic/index';
 import OperationRecord from './component/Basic/operationRecord';
 import BuildHistory from './component/BuildHistory/index';
 import Instance from './component/Instance/index';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from './Index.less';
 
 const ButtonGroup = Button.Group;
@@ -795,7 +796,7 @@ export default class Index extends PureComponent {
           <Card
             bordered={0}
             loading={runLoading}
-            title="运行实例"
+            title={<FormattedMessage id='componentOverview.body.tab.overview.instance.title'/>}
             style={{ margin: '20px 0', minHeight: '170px' }}
             bodyStyle={{ padding: '0', background: '#F0F2F5' }}
           >
