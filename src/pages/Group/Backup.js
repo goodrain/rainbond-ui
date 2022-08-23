@@ -17,6 +17,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import apiconfig from '../../../config/api.config';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from '../../components/CreateTeam/index.less';
@@ -503,33 +504,33 @@ export default class AppList extends PureComponent {
     } = this.state;
     const columns = [
       {
-        title: '备份时间',
+        title: formatMessage({id: 'appBackups.table.backupsTime'}),
         dataIndex: 'create_time'
       },
       {
-        title: '备份人',
+        title: formatMessage({id: 'appBackups.table.backupsPerson'}),
         dataIndex: 'user'
       },
       {
-        title: '备份模式',
+        title: formatMessage({id: 'appBackups.table.backupsPattern'}),
         dataIndex: 'mode',
         render: val => {
           const map = {
-            'full-online': '云端备份',
-            'full-offline': '本地备份'
+            'full-online': formatMessage({id: 'appBackups.table.backupsPattern.cloud'}),
+            'full-offline': formatMessage({id: 'appBackups.table.backupsPattern.local'})
           };
           return map[val] || '';
         }
       },
       {
-        title: '包大小',
+        title: formatMessage({id: 'appBackups.table.packetSize'}),
         dataIndex: 'backup_size',
         render: val => {
           return sourceUtil.unit(val, 'Byte');
         }
       },
       {
-        title: '状态',
+        title: formatMessage({id: 'appBackups.table.status'}),
         dataIndex: 'status',
         render: (val, data) => {
           return (
@@ -542,11 +543,11 @@ export default class AppList extends PureComponent {
         }
       },
       {
-        title: '备注',
+        title: formatMessage({id: 'appBackups.table.comment'}),
         dataIndex: 'note'
       },
       {
-        title: '操作',
+        title: formatMessage({id: 'appBackups.table.operate'}),
         dataIndex: 'action',
         render: (_, data) => {
           const isSuccess = data.status === 'success';
@@ -569,12 +570,12 @@ export default class AppList extends PureComponent {
             <div>
               {migrateSuccess && (
                 <Fragment>
-                  {box('恢复', 'handleRecovery')}
-                  {box('迁移', 'handleMove')}
+                  {box(formatMessage({id: 'appBackups.table.btn.recover'}), 'handleRecovery')}
+                  {box(formatMessage({id: 'appBackups.table.btn.removal'}), 'handleMove')}
                 </Fragment>
               )}
-              {exportSuccess && box('导出', 'handleExport')}
-              {box('删除', 'handleDel')}
+              {exportSuccess && box(formatMessage({id: 'appBackups.table.btn.export'}), 'handleExport')}
+              {box(formatMessage({id: 'appBackups.table.btn.delete'}), 'handleDel')}
             </div>
           );
         }
@@ -597,10 +598,10 @@ export default class AppList extends PureComponent {
       <PageHeaderLayout
         loading={loadingDetail}
         breadcrumbList={breadcrumbList}
-        title="备份管理"
+        title={formatMessage({id: 'appBackups.title'})}
         content={
           <p>
-            应用备份是指将当前应用元数据、持久化数据、版本数据完整备份，备份记录可用于应用迁移和回滚，云端备份记录可用于跨集群应用迁移操作
+            {formatMessage({id: 'appBackups.desc'})}
           </p>
         }
         extraContent={
@@ -610,14 +611,16 @@ export default class AppList extends PureComponent {
               type="primary"
               onClick={this.onBackup}
             >
-              新增备份
+              {formatMessage({id: 'appBackups.btn.addBackups'})}
             </Button>
             {isImport && (
               <Button style={{ marginRight: 8 }} onClick={this.toAdd}>
-                导入备份
+                {formatMessage({id: 'appBackups.btn.importBackups'})}
               </Button>
             )}
-            <Button onClick={this.jumpToAllbackup}>团队全部备份</Button>
+            <Button onClick={this.jumpToAllbackup}>
+              {formatMessage({id: 'appBackups.btn.allBackups'})}
+            </Button>
           </div>
         }
       >

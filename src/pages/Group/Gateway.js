@@ -1,6 +1,7 @@
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import HttpTable from '../../components/HttpTable';
 import TcpTable from '../../components/TcpTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -134,8 +135,8 @@ export default class AppGatewayList extends PureComponent {
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title="网关访问策略管理"
-        content="访问策略是指从集群外访问组件的方式，包括使用HTTP域名访问或IP+Port(TCP/UDP)访问，这里仅管理当前应用下的所有组件的访问策略"
+        title={formatMessage({id: 'appGateway.title'})}
+        content={formatMessage({id: 'appGateway.desc'})}
         tabList={[
           {
             key: 'http',

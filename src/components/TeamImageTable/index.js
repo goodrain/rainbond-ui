@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Table } from 'antd';
 import teamUtil from '../../utils/team';
 import roleUtil from '../../utils/role';
@@ -24,20 +25,20 @@ class TeamMemberTable extends PureComponent {
     } = this.props;
     const columns = [
       {
-        title: '镜像仓库地址',
+        title: formatMessage({id: 'teamManage.tabs.image.table.imageAddress'}),
         dataIndex: 'domain',
         key: "domain",
         align:'center'
         
       },
       {
-        title: '用户名',
+        title: formatMessage({id: 'teamManage.tabs.image.table.user'}),
         dataIndex: 'username',
         key: "username",
         align:'center'
       },
       {
-        title: '密码',
+        title: formatMessage({id: 'teamManage.tabs.image.table.password'}),
         dataIndex: 'password',
         key: "password",
         align:'center',
@@ -51,7 +52,7 @@ class TeamMemberTable extends PureComponent {
         }
       },
         {
-          title: isAccess && (isEdit || isDelete) ? '操作' : '',
+          title: isAccess && (isEdit || isDelete) ? formatMessage({id: 'teamManage.tabs.image.table.operate'}) : '',
           dataIndex: 'action',
           key: "action",
           align:'center',
@@ -68,7 +69,7 @@ class TeamMemberTable extends PureComponent {
                     }}
                     href="javascript:;"
                   >
-                    修改
+                    {formatMessage({id: 'teamManage.tabs.image.table.btn.edit'})}
                   </a>
                 )}
                 {isDelete && (
@@ -78,7 +79,7 @@ class TeamMemberTable extends PureComponent {
                       onDelete(data);
                     }}
                   >
-                    删除
+                    {formatMessage({id: 'teamManage.tabs.image.table.btn.delete'})}
                   </a>
                 )}
               </div>

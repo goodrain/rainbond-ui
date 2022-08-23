@@ -4,6 +4,7 @@
 import { Button, Checkbox, Col, Form, Input, Row, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import ShowRegionKey from '../../components/ShowRegionKey';
 
@@ -159,19 +160,19 @@ export default class Index extends PureComponent {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入组件英文名称'));
+      return callback(new Error(formatMessage({id: 'placeholder.k8s_component_name'})));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+          new Error(formatMessage({id: 'placeholder.nameSpaceReg'}))
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error(formatMessage({id: 'placeholder.max32'})));
     }
   };
   render() {
@@ -232,7 +233,7 @@ export default class Index extends PureComponent {
         style={{ width: 100 }}
         getPopupContainer={triggerNode => triggerNode.parentNode}
       >
-        <Option value="branch">分支</Option>
+        <Option value="branch">{formatMessage({id: 'teamAdd.create.code.branch'})}</Option>
         <Option value="tag">Tag</Option>
       </Select>
     );
@@ -241,13 +242,13 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
-              rules: [{ required: true, message: '请选择' }]
+              rules: [{ required: true, message: formatMessage({id: 'placeholder.appName'}) }]
             })(
               <Select
-                placeholder="请选择要所属应用"
+                placeholder={formatMessage({id: 'placeholder.appName'})}
                 style={{
                   display: 'inline-block',
                   width: isService ? '' : 292,
@@ -264,23 +265,23 @@ export default class Index extends PureComponent {
             )}
             {handleType &&
             handleType === 'Service' ? null : showCreateGroups ? (
-              <Button onClick={this.onAddGroup}>新建应用</Button>
+              <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamOverview.createApp'})}</Button>
             ) : null}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="组件名称">
+          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
-                { required: true, message: '要创建的组件还没有名字' },
+                { required: true, message: formatMessage({id: 'placeholder.service_cname'}) },
                 {
                   max: 24,
                   message: '最大长度24位'
                 }
               ]
-            })(<Input placeholder="请为创建的组件起个名字吧" />)}
+            })(<Input placeholder={formatMessage({id: 'placeholder.service_cname'})} />)}
           </Form.Item>
           {/* 集群内组件名称 */}
-          <Form.Item {...formItemLayout} label="组件英文名称">
+          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
             {getFieldDecorator('k8s_component_name', {
               rules: [
                 {
@@ -288,20 +289,20 @@ export default class Index extends PureComponent {
                   validator: this.handleValiateNameSpace
                 }
               ]
-            })(<Input placeholder="组件的英文名称" />)}
+            })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="仓库地址">
+          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.code.address'})}>
             {getFieldDecorator('git_url', {
               initialValue: data.git_url || '',
               force: true,
               rules: [
-                { required: true, message: '请输入仓库地址' },
-                { validator: this.checkURL, message: '仓库地址不合法' }
+                { required: true, message: formatMessage({id: 'placeholder.git_url'}) },
+                { validator: this.checkURL, message: formatMessage({id: 'placeholder.notGit_url'}) }
               ]
             })(
               <Input
                 addonBefore={prefixSelector}
-                placeholder="请输入仓库地址"
+                placeholder={formatMessage({id: 'placeholder.git_url'})}
               />
             )}
           </Form.Item>
@@ -311,45 +312,45 @@ export default class Index extends PureComponent {
             this.fetchCheckboxGroup('showUsernameAndPass', serverType)}
 
           {showUsernameAndPass && isHttp && (
-            <Form.Item {...formItemLayout} label="仓库用户名">
+            <Form.Item {...formItemLayout} label={formatMessage({id: "teamAdd.create.form.user"})}>
               {getFieldDecorator('username_1', {
                 initialValue: data.username || '',
-                rules: [{ required: false, message: '请输入仓库用户名' }]
-              })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+                rules: [{ required: false, message: formatMessage({id: 'placeholder.username_1'}) }]
+              })(<Input autoComplete="off" placeholder={formatMessage({id: 'placeholder.username_1'})} />)}
             </Form.Item>
           )}
           {showUsernameAndPass && isHttp && (
-            <Form.Item {...formItemLayout} label="仓库密码">
+            <Form.Item {...formItemLayout} label={formatMessage({id: "teamAdd.create.form.password"})}>
               {getFieldDecorator('password_1', {
                 initialValue: data.password || '',
-                rules: [{ required: false, message: '请输入仓库密码' }]
+                rules: [{ required: false, message: formatMessage({id: 'placeholder.password_1'}) }]
               })(
                 <Input
                   autoComplete="new-password"
                   type="password"
-                  placeholder="请输入仓库密码"
+                  placeholder={formatMessage({id: 'placeholder.password_1'})}
                 />
               )}
             </Form.Item>
           )}
 
           {subdirectories && serverType === 'git' && (
-            <Form.Item {...formItemLayout} label="子目录路径">
+            <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.code.path'})}>
               {getFieldDecorator('subdirectories', {
                 initialValue: '',
-                rules: [{ required: true, message: '请输入子目录路径' }]
-              })(<Input placeholder="请输入子目录路径" />)}
+                rules: [{ required: true, message: formatMessage({id: 'placeholder.subdirectories'}) }]
+              })(<Input placeholder={formatMessage({id: 'placeholder.subdirectories'})} />)}
             </Form.Item>
           )}
           {serverType !== 'oss' && (
-            <Form.Item {...formItemLayout} label="代码版本">
+            <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.code.versions'})}>
               {getFieldDecorator('code_version', {
                 initialValue: data.code_version || this.getDefaultBranchName(),
-                rules: [{ required: true, message: '请输入代码版本' }]
+                rules: [{ required: true, message: formatMessage({id: 'placeholder.code_version'}) }]
               })(
                 <Input
                   addonBefore={versionSelector}
-                  placeholder="请输入代码版本"
+                  placeholder={formatMessage({id: 'placeholder.code_version'})}
                 />
               )}
             </Form.Item>
@@ -373,7 +374,7 @@ export default class Index extends PureComponent {
                       type="primary"
                       loading={createAppByCodeLoading}
                     >
-                      新建组件
+                      {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
                     </Button>,
                     false
                   )
@@ -383,7 +384,7 @@ export default class Index extends PureComponent {
                       type="primary"
                       loading={createAppByCodeLoading}
                     >
-                      确认创建
+                      {formatMessage({id: 'teamAdd.create.btn.create'})}
                     </Button>
                   )}
             </Form.Item>

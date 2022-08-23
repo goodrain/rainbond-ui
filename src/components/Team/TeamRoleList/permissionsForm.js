@@ -2,6 +2,7 @@
 import { Button, Form, Input, notification, Spin, Tree } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import roleUtil from '../../../utils/role';
 import styles from './index.less';
@@ -345,21 +346,21 @@ export default class RoleList extends PureComponent {
       <Form onSubmit={this.handleSubmit}>
         <Spin spinning={permissionsLoading}>
           <div className={styles.AuthModuleWrap}>
-            <FormItem {...formItemLayout} label="角色名称">
+            <FormItem {...formItemLayout} label={formatMessage({id: 'teamManage.tabs.role.list.permissions.roleName'})}>
               {getFieldDecorator('name', {
                 rules: [
                   {
                     required: true,
-                    message: '请输入角色名称!'
+                    message: formatMessage({id: 'placeholder.roleName'})
                   },
-                  { max: 32, message: '最大长度32位' }
+                  { max: 32, message:formatMessage({id: 'placeholder.max32'})  }
                 ]
-              })(<Input placeholder="请输入角色名称" />)}
+              })(<Input placeholder={formatMessage({id: 'placeholder.roleName'})} />)}
             </FormItem>
             {permissions && (
-              <FormItem {...formItemLayout} label="权限分配">
+              <FormItem {...formItemLayout} label={formatMessage({id: 'teamManage.tabs.role.list.permissions.allot'})}>
                 {getFieldDecorator('permissions', {
-                  rules: [{ required: false, message: '权限分配!' }]
+                  rules: [{ required: false, message:formatMessage({id: 'placeholder.permissions'})  }]
                   // initialValue: '',
                 })(
                   <Tree
@@ -395,7 +396,7 @@ export default class RoleList extends PureComponent {
         <div className={styles.systemFormBtn}>
           {isAddRole && (
             <Button onClick={onCancelAddRole} style={{ marginRight: '20px' }}>
-              取消
+              {formatMessage({id: 'teamManage.tabs.role.list.permissions.btn.cancel'})}
             </Button>
           )}
           {!isAddRole && isEdit && this.handleSubmitButton(loading, isAddRole)}

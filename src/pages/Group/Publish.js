@@ -262,10 +262,10 @@ export default class AppPublishList extends PureComponent {
               type="primary"
               onClick={this.onPublishLocal}
             >
-              发布到组件库
+              {formatMessage({ id: 'appPublish.btn.local' })}
             </Button>
             <Button style={{ marginRight: 8 }} onClick={this.onPublishStore}>
-              发布到云应用商店
+              {formatMessage({ id: 'appPublish.btn.market' })}
             </Button>
           </div>
         }
@@ -282,7 +282,7 @@ export default class AppPublishList extends PureComponent {
               dataSource={recoders || []}
               columns={[
                 {
-                  title: '发布模版名称',
+                  title: formatMessage({ id: 'appPublish.table.publishName' }),
                   dataIndex: 'app_model_name',
                   render: (val, data) => {
                     if (val) {
@@ -290,13 +290,13 @@ export default class AppPublishList extends PureComponent {
                     }
                     return (
                       <span style={{ color: '#999999' }}>
-                        {data.status === 0 ? '未指定' : '-'}
+                        {data.status === 0 ? formatMessage({ id: 'appPublish.table.versions.notSpecified' }) : '-'}
                       </span>
                     );
                   }
                 },
                 {
-                  title: '版本号(别名)',
+                  title: formatMessage({ id: 'appPublish.table.versions' }),
                   dataIndex: 'version',
                   align: 'left',
                   render: (val, data) => {
@@ -312,7 +312,7 @@ export default class AppPublishList extends PureComponent {
                           content={
                             appVersionInfo
                               ? this.handleBox(appVersionInfo)
-                              : '暂无版本描述'
+                              : formatMessage({ id: 'appPublish.table.versions.null' })
                           }
                           title={this.handleBox(`${val}${versionAlias}`)}
                         >
@@ -323,11 +323,11 @@ export default class AppPublishList extends PureComponent {
                         </Popover>
                       );
                     }
-                    return <span style={{ color: '#999999' }}>未指定</span>;
+                    return <span style={{ color: '#999999' }}>{formatMessage({ id: 'appPublish.table.versions.notSpecified' })}</span>;
                   }
                 },
                 {
-                  title: '发布范围',
+                  title: formatMessage({ id: 'appPublish.table.scope' }),
                   dataIndex: 'scope',
                   align: 'center',
                   render: (val, data) => {
@@ -336,22 +336,22 @@ export default class AppPublishList extends PureComponent {
                     const marketAddress = `/enterprise/${currentEnterprise.enterprise_id}/shared/local`;
                     switch (val) {
                       case '':
-                        return <Link to={marketAddress}>应用市场</Link>;
+                        return <Link to={marketAddress}>{formatMessage({ id: 'appPublish.table.scope.market' })}</Link>;
                       case 'team':
-                        return <Link to={marketAddress}>应用市场(团队)</Link>;
+                        return <Link to={marketAddress}>{formatMessage({ id: 'appPublish.table.scope.team_market' })}</Link>;
                       case 'enterprise':
-                        return <Link to={marketAddress}>应用市场(企业)</Link>;
+                        return <Link to={marketAddress}>{formatMessage({ id: 'appPublish.table.scope.enterprise_market' })}</Link>;
                       default:
                         return (
                           <p style={{ marginBottom: 0 }}>
-                            {storeName || '应用商店'}
+                            {storeName || formatMessage({ id: 'appPublish.table.scope.app_shop' }) }
                           </p>
                         );
                     }
                   }
                 },
                 {
-                  title: '发布时间',
+                  title: formatMessage({ id: 'appPublish.table.publishTime' }),
                   align: 'center',
                   dataIndex: 'create_time',
                   render: val => (
@@ -363,24 +363,24 @@ export default class AppPublishList extends PureComponent {
                   )
                 },
                 {
-                  title: '状态',
+                  title: formatMessage({ id: 'appPublish.table.status' }),
                   align: 'center',
                   dataIndex: 'status',
                   render: val => {
                     // eslint-disable-next-line default-case
                     switch (val) {
                       case 0:
-                        return '发布中';
+                        return formatMessage({ id: 'appPublish.table.status.release' });
                       case 1:
-                        return <span style={{ color: 'green' }}>发布完成</span>;
+                        return <span style={{ color: 'green' }}>{formatMessage({ id: 'appPublish.table.status.release_finish' })}</span>;
                       case 2:
-                        return <span style={{ color: '#999999' }}>已取消</span>;
+                        return <span style={{ color: '#999999' }}>{formatMessage({ id: 'appPublish.table.status.canceled' })}</span>;
                     }
                     return '';
                   }
                 },
                 {
-                  title: '操作',
+                  title: formatMessage({ id: 'appPublish.table.operate' }),
                   width: '200px',
                   dataIndex: 'dataIndex',
                   render: (val, data) => {
@@ -394,7 +394,7 @@ export default class AppPublishList extends PureComponent {
                                 this.continuePublish(data.record_id, data.step);
                               }}
                             >
-                              继续发布
+                              {formatMessage({ id: 'appPublish.table.btn.continue' })}
                             </a>
                             <a
                               style={{ marginRight: '5px' }}
@@ -402,19 +402,19 @@ export default class AppPublishList extends PureComponent {
                                 this.cancelPublish(data.record_id);
                               }}
                             >
-                              取消发布
+                              {formatMessage({ id: 'appPublish.table.btn.release_cancel' })}
                             </a>
                           </div>
                         ) : (
                           <Popconfirm
-                            title="确认要删除当前记录吗?"
+                            title={formatMessage({ id: 'appPublish.table.btn.confirm_delete'})}
                             onConfirm={() => {
                               this.deleteRecord(data.record_id);
                             }}
-                            okText="确认"
-                            cancelText="取消"
+                            okText={formatMessage({ id: 'appPublish.table.btn.confirm' })}
+                            cancelText={formatMessage({ id: 'appPublish.table.btn.cancel' })}
                           >
-                            <a href="#">删除</a>
+                            <a href="#">{formatMessage({ id: 'appPublish.table.btn.delete' })}</a>
                           </Popconfirm>
                         )}
                       </div>

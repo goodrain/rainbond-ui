@@ -13,6 +13,7 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import InfoConnectModal from '../InfoConnectModal';
@@ -423,7 +424,7 @@ export default class TcpTable extends PureComponent {
     } = this.state;
     const columns = [
       {
-        title: '端口',
+        title: formatMessage({id: 'teamGateway.strategy.table.end_point'}),
         dataIndex: 'end_point',
         key: 'end_point',
         align: 'left',
@@ -452,24 +453,24 @@ export default class TcpTable extends PureComponent {
         // width: "25%",
       },
       {
-        title: '类型',
+        title: formatMessage({id: 'teamGateway.strategy.table.type'}),
         dataIndex: 'type',
         key: 'type',
         align: 'center',
         // width: "10%",
         render: (text, record, index) => {
-          return text == '0' ? <span>默认</span> : <span>自定义</span>;
+          return text == '0' ? <span>{formatMessage({id: 'teamGateway.strategy.table.type.default'})}</span> : <span>{formatMessage({id: 'teamGateway.strategy.table.type.custom'})}</span>;
         }
       },
       {
-        title: '协议',
+        title: formatMessage({id: 'teamGateway.strategy.table.protocol'}),
         dataIndex: 'protocol',
         key: 'protocol',
         align: 'center'
         // width: "10%",
       },
       {
-        title: '应用',
+        title: formatMessage({id: 'teamGateway.strategy.table.group_name'}),
         dataIndex: 'group_name',
         key: 'group_name',
         align: 'center',
@@ -491,7 +492,7 @@ export default class TcpTable extends PureComponent {
         }
       },
       {
-        title: '组件(端口)',
+        title: formatMessage({id: 'teamGateway.strategy.table.service_cname'}),
         dataIndex: 'container_port',
         key: 'container_port',
         align: 'center',
@@ -514,7 +515,7 @@ export default class TcpTable extends PureComponent {
         }
       },
       {
-        title: '操作',
+        title: formatMessage({id: 'teamGateway.strategy.table.operate'}),
         dataIndex: 'action',
         key: 'action',
         align: 'center',
@@ -530,7 +531,7 @@ export default class TcpTable extends PureComponent {
                     this.handleConectInfo(record);
                   }}
                 >
-                  连接信息
+                  {formatMessage({id: 'teamGateway.strategy.table.type.joinMsg'})}
                 </a>
               )}
               {isEdit && (
@@ -540,7 +541,7 @@ export default class TcpTable extends PureComponent {
                     this.handleEdit(record);
                   }}
                 >
-                  编辑
+                  {formatMessage({id: 'teamGateway.strategy.table.edit'})}
                 </a>
               )}
               {isDelete && (
@@ -549,14 +550,14 @@ export default class TcpTable extends PureComponent {
                     this.handleToDeleteHttp(record);
                   }}
                 >
-                  删除
+                  {formatMessage({id: 'teamGateway.strategy.table.delete'})}
                 </a>
               )}
             </div>
           ) : (
             <Tooltip
               placement="topLeft"
-              title="请点击开启对外服务方可操作"
+              title={formatMessage({id: 'teamGateway.strategy.table.type.tooltip.onclick'})}
               arrowPointAtCenter
             >
               <div>
@@ -567,7 +568,7 @@ export default class TcpTable extends PureComponent {
                       this.handleToDeleteHttp(record);
                     }}
                   >
-                    删除
+                   {formatMessage({id: 'teamGateway.strategy.table.delete'})}
                   </a>
                 )}
                 {isEdit && (
@@ -577,7 +578,7 @@ export default class TcpTable extends PureComponent {
                       this.openService(record);
                     }}
                   >
-                    开启
+                    {formatMessage({id: 'teamGateway.strategy.table.type.open'})}
                   </a>
                 )}
               </div>
@@ -619,7 +620,7 @@ export default class TcpTable extends PureComponent {
               onClick={this.handleClick}
               loading={this.props.addTcpLoading}
             >
-              添加策略
+            {formatMessage({id: 'teamGateway.strategy.btn.add'})}
             </Button>
           )}
         </Row>

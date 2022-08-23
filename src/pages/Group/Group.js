@@ -20,6 +20,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AppState from '../../components/ApplicationState';
 import ConfirmModal from '../../components/ConfirmModal';
 import RapidCopy from '../../components/RapidCopy';
@@ -610,10 +611,10 @@ export default class Index extends PureComponent {
       iframeHeight
     } = this.state;
     const codeObj = {
-      start: '启动',
-      restart: '重启',
-      stop: '停用',
-      deploy: '构建'
+      start: formatMessage({id: 'appOverview.btn.start'}),
+      restart: formatMessage({id: 'appOverview.list.table.restart'}),
+      stop: formatMessage({id: 'appOverview.btn.stop'}),
+      deploy: formatMessage({id: 'appOverview.btn.build'}),
     };
     const BtnDisabled = !(jsonDataLength > 0);
     const MR = { marginRight: '10px' };
@@ -642,7 +643,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    更新
+                    {formatMessage({id: 'appOverview.btn.update'})}
                   </Button>
                 )}
                 {isConstruct && isComponentConstruct && (
@@ -653,7 +654,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('deploy');
                     }}
                   >
-                    构建
+                    {formatMessage({id: 'appOverview.btn.build'})}
                   </Button>
                 )}
                 {isCopy && (
@@ -662,7 +663,7 @@ export default class Index extends PureComponent {
                     disabled={BtnDisabled}
                     onClick={this.handleOpenRapidCopy}
                   >
-                    快速复制
+                    {formatMessage({id: 'appOverview.btn.copy'})}
                   </Button>
                 )}
                 {linkList.length > 0 && <VisterBtn linkList={linkList} />}
@@ -679,7 +680,7 @@ export default class Index extends PureComponent {
                   }}
                   disabled={BtnDisabled}
                 >
-                  启动
+                  {formatMessage({id: 'appOverview.btn.start'})}
                 </a>
                 <Divider type="vertical" />
               </span>
@@ -697,13 +698,15 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    重启
+                    {formatMessage({id: 'appOverview.list.table.restart'})}
                   </a>
                   <Divider type="vertical" />
                 </span>
               )}
             {isDelete && resources.status !== 'RUNNING' && (
-              <a onClick={this.toDelete}>删除</a>
+              <a onClick={this.toDelete}>
+                {formatMessage({id: 'appOverview.list.table.delete'})}
+              </a>
             )}
             {resources.status && resources.status !== 'CLOSED' && isStop && (
               <span>
@@ -713,7 +716,7 @@ export default class Index extends PureComponent {
                     this.handleTopology('stop');
                   }}
                 >
-                  停用
+                  {formatMessage({id: 'appOverview.btn.stop'})}
                 </a>
               </span>
             )}
@@ -721,21 +724,21 @@ export default class Index extends PureComponent {
           <div className={styles.connect_Bot}>
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
-                <div>使用内存</div>
+                <div>{formatMessage({id: 'appOverview.memory'})}</div>
                 <div>{`${sourceUtil.unit(resources.memory || 0, 'MB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
-                <div>使用CPU</div>
+                <div>{formatMessage({id: 'appOverview.cpu'})}</div>
                 <div>{(resources.cpu && resources.cpu / 1000) || 0}Core</div>
               </div>
             </div>
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
-                <div>使用磁盘</div>
+                <div>{formatMessage({id: 'appOverview.disk'})}</div>
                 <div>{`${sourceUtil.unit(resources.disk || 0, 'KB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
-                <div>组件数量</div>
+                <div>{formatMessage({id: 'appOverview.componentNum'})}</div>
                 <div>{currApp.service_num || 0}</div>
               </div>
             </div>
@@ -744,7 +747,7 @@ export default class Index extends PureComponent {
         <div className={styles.contentr}>
           <div className={styles.conrHeader}>
             <div>
-              <span>创建时间</span>
+              <span>{formatMessage({id: 'appOverview.createTime'})}</span>
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
@@ -754,7 +757,7 @@ export default class Index extends PureComponent {
               </span>
             </div>
             <div>
-              <span>更新时间</span>
+              <span>{formatMessage({id: 'appOverview.updateTime'})}</span>
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
@@ -766,7 +769,7 @@ export default class Index extends PureComponent {
           </div>
           <div className={styles.conrHeader}>
             <div>
-              <span>治理模式</span>
+              <span>{formatMessage({id: 'appOverview.govern'})}</span>
               <span>
                 {currApp.governance_mode
                   ? globalUtil.fetchGovernanceMode(currApp.governance_mode)
@@ -774,13 +777,13 @@ export default class Index extends PureComponent {
               </span>
               {currApp.governance_mode && isEdit && (
                 <a style={{ marginLeft: '5px' }} onClick={this.handleSwitch}>
-                  切换
+                  {formatMessage({id: 'appOverview.btn.change'})}
                 </a>
               )}
             </div>
 
             <div>
-              <span>负责人</span>
+              <span>{formatMessage({id: 'appOverview.principal'})}</span>
               <span>
                 {currApp.principal ? (
                   <Tooltip
@@ -815,7 +818,7 @@ export default class Index extends PureComponent {
           </div>
           <div className={styles.conrBot}>
             <div className={styles.conrBox}>
-              <div>备份</div>
+              <div>{formatMessage({id: 'appOverview.backups'})}</div>
               <div
                 onClick={() => {
                   isBackup && this.handleJump('backup');
@@ -826,7 +829,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>模型发布</div>
+              <div>{formatMessage({id: 'appOverview.modelRelease'})}</div>
               <div
                 onClick={() => {
                   isShare && this.handleJump('publish');
@@ -837,7 +840,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>网关策略</div>
+              <div>{formatMessage({id: 'appOverview.gateway'})}</div>
               <div
                 onClick={() => {
                   isControl && this.handleJump('gateway');
@@ -848,7 +851,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>待升级</div>
+              <div>{formatMessage({id: 'appOverview.upgrade'})}</div>
               <div
                 onClick={() => {
                   !upgradableNumLoading &&
@@ -861,7 +864,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>配置组</div>
+              <div>{formatMessage({id: 'appOverview.config'})}</div>
               <div
                 onClick={() => {
                   isConfigGroup && this.handleJump('configgroups');
@@ -899,7 +902,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    启动
+                    {formatMessage({id: 'appOverview.btn.start'})}
                   </a>
                   <Divider type="vertical" />
                 </span>
@@ -917,13 +920,15 @@ export default class Index extends PureComponent {
                       }}
                       disabled={BtnDisabled}
                     >
-                      重启
+                      {formatMessage({id: 'appOverview.list.table.restart'})}
                     </a>
                     <Divider type="vertical" />
                   </span>
                 )}
               {isDelete && resources.status !== 'RUNNING' && (
-                <a onClick={this.toDelete}>删除</a>
+                <a onClick={this.toDelete}>
+                  {formatMessage({id: 'appOverview.list.table.delete'})}
+                </a>
               )}
               {resources.status && resources.status !== 'CLOSED' && isStop && (
                 <span>
@@ -935,7 +940,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('stop');
                     }}
                   >
-                    停用
+                    {formatMessage({id: 'appOverview.btn.stop'})}
                   </a>
                 </span>
               )}
@@ -950,7 +955,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    更新
+                    {formatMessage({id: 'appOverview.btn.update'})}
                   </Button>
                 )}
                 {isConstruct && isComponentConstruct && (
@@ -961,7 +966,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('deploy');
                     }}
                   >
-                    构建
+                    {formatMessage({id: 'appOverview.btn.build'})}
                   </Button>
                 )}
                 {isCopy && (
@@ -970,7 +975,7 @@ export default class Index extends PureComponent {
                     disabled={BtnDisabled}
                     onClick={this.handleOpenRapidCopy}
                   >
-                    快速复制
+                    {formatMessage({id: 'appOverview.btn.copy'})}
                   </Button>
                 )}
                 {linkList.length > 0 && <VisterBtn linkList={linkList} />}
@@ -981,7 +986,7 @@ export default class Index extends PureComponent {
         <div className={styles.contentr}>
           <div className={styles.conrHeader}>
             <div>
-              <span>创建时间</span>
+              <span>{formatMessage({id: 'appOverview.createTime'})}</span>
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
@@ -991,7 +996,7 @@ export default class Index extends PureComponent {
               </span>
             </div>
             <div>
-              <span>更新时间</span>
+              <span>{formatMessage({id: 'appOverview.updateTime'})}</span>
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
@@ -1080,7 +1085,7 @@ export default class Index extends PureComponent {
                   color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
                 }}
               >
-                拓扑图
+                {formatMessage({id: 'appOverview.topology'})}
               </a>
               {isComponentDescribe && (
                 <a
@@ -1092,7 +1097,7 @@ export default class Index extends PureComponent {
                     color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
                   }}
                 >
-                  列表
+                  {formatMessage({id: 'appOverview.list'})}
                 </a>
               )}
             </Col>
@@ -1120,7 +1125,7 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                      普通模式
+                      {formatMessage({id: 'appOverview.btn.ordinary'})}
                     </Radio.Button>
                   ) : (
                     <Radio.Button
@@ -1139,7 +1144,7 @@ export default class Index extends PureComponent {
                         });
                       }}
                     >
-                      普通模式
+                      {formatMessage({id: 'appOverview.btn.ordinary'})}
                     </Radio.Button>
                   )}
                   {aggregation ? (
@@ -1159,7 +1164,7 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                      聚合模式
+                      {formatMessage({id: 'appOverview.btn.aggregation'})}
                     </Radio.Button>
                   ) : (
                     <Radio.Button
@@ -1177,7 +1182,7 @@ export default class Index extends PureComponent {
                         });
                       }}
                     >
-                      聚合模式
+                      {formatMessage({id: 'appOverview.btn.aggregation'})}
                     </Radio.Button>
                   )}
                   {compile ? (
@@ -1198,7 +1203,7 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                      编排模式
+                     {formatMessage({id: 'appOverview.btn.arrange'})}
                     </Radio.Button>
                   ) : (
                     <Radio.Button
@@ -1216,7 +1221,7 @@ export default class Index extends PureComponent {
                         });
                       }}
                     >
-                      编排模式
+                      {formatMessage({id: 'appOverview.btn.arrange'})}
                     </Radio.Button>
                   )}
                 </Radio.Group>

@@ -1,6 +1,7 @@
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
@@ -59,16 +60,15 @@ export default class Main extends PureComponent {
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title="添加第三方组件"
+        title={formatMessage({id: 'teamAdd.create.third.title'})}
         onTabChange={this.handleTabChange}
         content={
           <p>
-            第三方组件，即运行于平台集群外的组件，在平台中创建组件即可以将其与平台网关无缝对接，同时也可以被平台内服务访问。满足用户通过平台可以对
-            各类组件进行统一的监控和管理的需要
+            {formatMessage({id: 'teamAdd.create.third.desc'})}
           </p>
         }
       >
-        {Com ? <Com {...this.props} /> : '参数错误'}
+        {Com ? <Com {...this.props} /> : <>{formatMessage({id: 'teamAdd.create.error'})}</>}
       </PageHeaderLayout>
     );
   }

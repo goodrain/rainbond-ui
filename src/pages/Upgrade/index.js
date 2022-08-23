@@ -26,6 +26,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
@@ -497,8 +498,8 @@ export default class AppList extends PureComponent {
     const ListContent = ({ data: { upgrade_versions, current_version } }) => (
       <div className={styles.listContent}>
         <div className={styles.listContentItem}>
-          <Tooltip title="当前版本是指安装的组件中最大的版本号，因此升级其中一个组件该版本号跟随增加。">
-            <span>当前版本</span>
+          <Tooltip title={formatMessage({id: 'appUpgrade.current_version.tooltip'})}>
+            <span>{formatMessage({id: 'appUpgrade.current_version'})}</span>
           </Tooltip>
           <p>
             <Tag
@@ -515,8 +516,8 @@ export default class AppList extends PureComponent {
           </p>
         </div>
         <div className={styles.listContentItem}>
-          <Tooltip title="可升级版本是指比当前版本号大的版本">
-            <span>可升级版本</span>
+          <Tooltip title={formatMessage({id: 'appUpgrade.Upgradable_version.tooltip'})}>
+            <span>{formatMessage({id: 'appUpgrade.Upgradable_version'})}</span>
           </Tooltip>
           <p>
             {upgrade_versions && upgrade_versions.length > 0
@@ -544,7 +545,7 @@ export default class AppList extends PureComponent {
 
     const columns = [
       {
-        title: '创建时间',
+        title: formatMessage({id: 'appUpgrade.table.createTime'}),
         dataIndex: 'create_time',
         key: '1',
         width: '20%',
@@ -557,28 +558,28 @@ export default class AppList extends PureComponent {
         )
       },
       {
-        title: '应用模版名称',
+        title: formatMessage({id: 'appUpgrade.table.app'}),
         dataIndex: 'group_name',
         key: '2',
         width: '20%',
         render: text => <span>{text}</span>
       },
       {
-        title: '版本',
+        title: formatMessage({id: 'appUpgrade.table.versions'}),
         dataIndex: 'version',
         key: '3',
         width: '30%',
         render: (_, data) => this.getVersionChangeShow(data)
       },
       {
-        title: '状态',
+        title: formatMessage({id: 'appUpgrade.table.status'}),
         dataIndex: 'status',
         key: '4',
         width: '15%',
         render: status => <span>{infoUtil.getStatusText(status)}</span>
       },
       {
-        title: '操作',
+        title: formatMessage({id: 'appUpgrade.table.operate'}),
         dataIndex: 'tenant_id',
         key: '5',
         width: '15%',
@@ -591,7 +592,7 @@ export default class AppList extends PureComponent {
                   this.showRollback(item);
                 }}
               >
-                回滚
+                {formatMessage({id: 'appUpgrade.table.operate.roll_back'})}
               </a>
 
               <a
@@ -600,7 +601,7 @@ export default class AppList extends PureComponent {
                   this.showRollbackList(item);
                 }}
               >
-                回滚记录
+                {formatMessage({id: 'appUpgrade.table.operate.roll_back_record'})}
               </a>
             </div>
           )
@@ -608,7 +609,7 @@ export default class AppList extends PureComponent {
     ];
     const helmColumns = [
       {
-        title: '创建时间',
+        title: formatMessage({id: 'appUpgrade.table.createTime'}),
         dataIndex: 'updated',
         key: '1',
         render: text => (
@@ -620,19 +621,19 @@ export default class AppList extends PureComponent {
         )
       },
       {
-        title: '名字',
+        title: formatMessage({id: 'appUpgrade.table.chart'}),
         dataIndex: 'chart',
         key: '2',
         render: text => <span>{text}</span>
       },
       {
-        title: '版本',
+        title: formatMessage({id: 'appUpgrade.table.versions'}),
         dataIndex: 'app_version',
         key: '3',
         render: text => <span>{text}</span>
       },
       {
-        title: '状态',
+        title: formatMessage({id: 'appUpgrade.table.status'}),
         dataIndex: 'status',
         key: '4',
         render: status => <span>{infoUtil.getHelmStatus(status)}</span>
@@ -656,8 +657,8 @@ export default class AppList extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         loading={loadingDetail}
-        title="升级管理"
-        content="当前应用内具有从应用市场或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作"
+        title={formatMessage({id: 'appUpgrade.title'})}
+        content={formatMessage({id: 'appUpgrade.desc'})}
         extraContent={null}
       >
         <div>
@@ -670,7 +671,7 @@ export default class AppList extends PureComponent {
               className={styles.tabss}
             >
               {!isHelm && (
-                <TabPane tab="应用模型列表" key="1">
+                <TabPane tab={formatMessage({id: 'appUpgrade.tabs.list'})} key="1">
                   <div className={styles.cardList}>
                     <List
                       rowKey="id"
@@ -686,14 +687,14 @@ export default class AppList extends PureComponent {
                                 this.fetchAppLastRollbackRecord(item);
                               }}
                             >
-                              升级
+                              {formatMessage({id: 'appUpgrade.btn.upgrade'})}
                             </a>,
                             <a
                               onClick={() => {
                                 this.showComponentVersion(item);
                               }}
                             >
-                              查看组件
+                              {formatMessage({id: 'appUpgrade.btn.addon'})}
                             </a>
                           ]}
                         >
@@ -726,7 +727,7 @@ export default class AppList extends PureComponent {
                   </div>
                 </TabPane>
               )}
-              <TabPane tab="升级记录" key="2">
+              <TabPane tab={formatMessage({id: 'appUpgrade.tabs.record'})} key="2">
                 <Table
                   style={{ padding: '24px' }}
                   loading={recordLoading || upgradeLoading}

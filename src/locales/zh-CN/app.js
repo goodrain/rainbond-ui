@@ -21,6 +21,7 @@ const appOverview = {
   'appOverview.btn.visit':'访问',
   'appOverview.btn.start':'启动',
   'appOverview.btn.stop':'停用',
+  'appOverview.btn.change':'切换',
   'appOverview.btn.ordinary':'普通模式',
   'appOverview.btn.aggregation':'聚合模式',
   'appOverview.btn.arrange':'编排模式',
@@ -33,6 +34,7 @@ const appOverview = {
   'appOverview.list.table.updateTime': '更新时间',
   'appOverview.list.table.operate': '操作',
   'appOverview.list.table.restart': '重启',
+  'appOverview.list.table.delete': '删除',
   'appOverview.list.table.start': '启动',
   'appOverview.list.table.stop': '关闭',
   'appOverview.list.table.batchOperate': '批量操作',
@@ -48,13 +50,32 @@ const appPublish = {
   'appPublish.btn.market':'发布到云应用商店',
   'appPublish.table.publishName':'发布模版名称',
   'appPublish.table.versions':'版本号(别名)',
+  //
+  'appPublish.table.versions.null':'暂无版本描述',
+  'appPublish.table.versions.notSpecified':'未指定',
+
   'appPublish.table.scope':'发布范围',
+  //
+  'appPublish.table.scope.market':'应用市场',
+  'appPublish.table.scope.team_market':'应用市场(团队)',
+  'appPublish.table.scope.enterprise_market':'应用市场(企业)',
+  'appPublish.table.scope.app_shop':'应用商店',
+
   'appPublish.table.publishTime':'发布时间',
   'appPublish.table.status':'状态',
+  //
+  'appPublish.table.status.release':'发布中',
+  'appPublish.table.status.release_finish':'发布完成',
+  'appPublish.table.status.canceled':'已取消',
+
   'appPublish.table.operate':'操作',
   'appPublish.table.btn.delete':'删除',
+  'appPublish.table.btn.confirm_delete':'确认要删除当前记录吗',
+  'appPublish.table.btn.confirm':'确认',
+  'appPublish.table.btn.cancel':'取消',
+
   'appPublish.table.btn.continue':'继续发布',
-  'appPublish.table.btn.cancel':'取消发布',
+  'appPublish.table.btn.release_cancel':'取消发布',
 }
 
 //备份
@@ -67,6 +88,8 @@ const appBackups = {
   'appBackups.table.backupsTime':'备份时间',
   'appBackups.table.backupsPerson':'备份人',
   'appBackups.table.backupsPattern':'备份模式',
+  'appBackups.table.backupsPattern.cloud':'云端备份',
+  'appBackups.table.backupsPattern.local':'本地备份',
   'appBackups.table.packetSize':'包大小',
   'appBackups.table.status':'状态',
   'appBackups.table.comment':'备注',
@@ -82,7 +105,8 @@ const appBackups = {
 const appGateway = {
   'appGateway.title':'网关访问策略管理',
   'appGateway.desc':'访问策略是指从集群外访问组件的方式，包括使用HTTP域名访问或IP+Port(TCP/UDP)访问，这里仅管理当前应用下的所有组件的访问策略',
-  'appGateway.placeholder':'搜索域名/组件',
+  'appGateway.placeholder.domain':'搜索域名/组件',
+  'appGateway.placeholder.port':'搜索端口/组件',
   'appGateway.btn.search':'搜索',
   'appGateway.btn.add':'添加策略',
   'appGateway.table.domain':'域名',
@@ -104,14 +128,19 @@ const appUpgrade = {
   'appUpgrade.tabs.list':'应用模型列表',
   'appUpgrade.current_version':'当前版本',
   'appUpgrade.Upgradable_version':'可升级版本',
+  'appUpgrade.current_version.tooltip':'当前版本是指安装的组件中最大的版本号，因此升级其中一个组件该版本号跟随增加。',
+  'appUpgrade.Upgradable_version.tooltip':'可升级版本是指比当前版本号大的版本',
   'appUpgrade.btn.upgrade':'升级',
   'appUpgrade.btn.addon':'查看组件',
   'appUpgrade.tabs.record':'升级记录',
   'appUpgrade.table.createTime':'创建时间',
+  'appUpgrade.table.chart':'名字',
   'appUpgrade.table.app':'应用模版名称',
   'appUpgrade.table.versions':'版本',
   'appUpgrade.table.status':'状态',
   'appUpgrade.table.operate':'操作',
+  'appUpgrade.table.operate.roll_back':'回滚',
+  'appUpgrade.table.operate.roll_back_record':'回滚记录',
 }
 
 //配置
@@ -124,6 +153,9 @@ const appConfiguration = {
   'appConfiguration.table.name':'配置组名称',
   'appConfiguration.table.createTime':'创建时间',
   'appConfiguration.table.componentNum':'生效组件数',
+  'appConfiguration.table.take_effect_component':'生效组件',
+  'appConfiguration.table.take_effect':'生效中',
+  'appConfiguration.table.not_take_effect':'不生效',
   'appConfiguration.table.status':'生效状态',
   'appConfiguration.table.operate':'操作',
   'appConfiguration.table.btn.edit':'编辑',
@@ -134,6 +166,7 @@ const appConfiguration = {
 const addKubenetesResource = {
   'addKubenetesResource.title': 'K8s 资源管理',
   'addKubenetesResource.desc': '此处管理直接通过 Yaml 文件部署到 Kubernetes 集群中的资源。',
+  'addKubenetesResource.btn.add':'添加',
   'addKubenetesResource.table.name': '资源名称',
   'addKubenetesResource.table.type': '资源类型',
   'addKubenetesResource.table.status': '状态',
@@ -142,8 +175,11 @@ const addKubenetesResource = {
   'addKubenetesResource.table.btn.edit': '编辑',
   'addKubenetesResource.table.btn.delete': '删除',
   'addKubenetesResource.table.success': '创建成功',
+  'addKubenetesResource.table.update_success': '更新成功',
+  'addKubenetesResource.table.update_error': '更新失败',
   'addKubenetesResource.table.error': '创建失败',
   'addKubenetesResource.table.checkDetail': '查看详情',
+  'addKubenetesResource.table.errorDetail': '查看详情',
 }
 
 //动态

@@ -9,6 +9,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import LicenseDrawer from '../../components/LicenseDrawer';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -199,14 +200,14 @@ class Control extends Component {
     } = this.state;
     const columns = [
       {
-        title: '证书名称',
+        title: formatMessage({id: 'teamGateway.certificate.table.name'}),
         dataIndex: 'alias',
         key: 'alias',
         align: 'center',
         width: '12%'
       },
       {
-        title: '证书地址',
+        title: formatMessage({id: 'teamGateway.certificate.table.address'}),
         dataIndex: 'issued_to',
         key: 'issued_to',
         align: 'center',
@@ -235,7 +236,7 @@ class Control extends Component {
         }
       },
       {
-        title: '过期时间',
+        title: formatMessage({id: 'teamGateway.certificate.table.time'}),
         dataIndex: 'end_data',
         key: 'end_data',
         align: 'center',
@@ -253,21 +254,21 @@ class Control extends Component {
         }
       },
       {
-        title: '证书类型',
+        title: formatMessage({id: 'teamGateway.certificate.table.type'}),
         dataIndex: 'certificate_type',
         key: 'certificate_type',
         align: 'center',
         width: '13%'
       },
       {
-        title: '证书来源',
+        title: formatMessage({id: 'teamGateway.certificate.table.source'}),
         dataIndex: 'issued_by',
         key: 'issued_by',
         align: 'center',
         width: '15%'
       },
       {
-        title: '操作',
+        title: formatMessage({id: 'teamGateway.certificate.table.operate'}),
         dataIndex: 'action',
         key: 'action',
         align: 'center',
@@ -282,7 +283,7 @@ class Control extends Component {
                     this.handleEdit(record);
                   }}
                 >
-                  编辑
+                 {formatMessage({id: 'teamGateway.certificate.table.edit'})}
                 </a>
               )}
 
@@ -293,7 +294,7 @@ class Control extends Component {
                     this.handleUpdate(record);
                   }}
                 >
-                  更新
+                  {formatMessage({id: 'teamGateway.certificate.table.update'})}
                 </a>
               )}
 
@@ -304,7 +305,7 @@ class Control extends Component {
                     this.handleDelete(record);
                   }}
                 >
-                  <a>删除</a>
+                  <a>{formatMessage({id: 'teamGateway.certificate.table.delete'})}</a>
                 </Popconfirm>
               )}
             </span>
@@ -318,12 +319,12 @@ class Control extends Component {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: '网关管理' });
+    breadcrumbList.push({ title: formatMessage({id: 'teamGateway.strategy.manage'}) });
     return (
       <PageHeaderLayout
-        title="证书管理"
+        title={formatMessage({id: 'teamGateway.certificate.title'})}
         breadcrumbList={breadcrumbList}
-        content="TLS证书管理，支持服务端证书，支持展示证书过期时间"
+        content={formatMessage({id: 'teamGateway.certificate.desc'})}
       >
         <Row>
           {isCreate && (
@@ -333,7 +334,7 @@ class Control extends Component {
               style={{ float: 'right', marginBottom: '10px' }}
               onClick={this.handleCick}
             >
-              添加证书
+              {formatMessage({id: 'teamGateway.certificate.btn.add'})}
             </Button>
           )}
         </Row>
