@@ -3,6 +3,7 @@ import { Button, Table, Modal, Tooltip } from 'antd';
 import styless from '../CreateTeam/index.less';
 import globalUtil from '../../utils/global';
 import { Link } from 'dva/router';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 class RelyComponentModal extends PureComponent {
   render() {
@@ -16,7 +17,7 @@ class RelyComponentModal extends PureComponent {
         onCancel={onCancel}
         className={styless.TelescopicModal}
         footer={[
-          <Button onClick={onCancel}> 关闭 </Button>,
+          <Button onClick={onCancel}><FormattedMessage id='componentOverview.body.RelyComponentModal.close'/> </Button>,
         ]}
       >
         <Table
@@ -24,13 +25,13 @@ class RelyComponentModal extends PureComponent {
           style={{marginBottom:'20px'}}
           columns={[
             {
-              title: '存储名称',
+              title: formatMessage({id:'componentOverview.body.RelyComponentModal.volume_name'}),
               dataIndex: 'volume_name',
               width: '50%',
               key: 'volume_name',
             },
             {
-              title: '组件名称',
+              title: formatMessage({id:'componentOverview.body.RelyComponentModal.service_name'}),
               dataIndex: 'service_name',
               key: 'service_name',
               width: '50%',

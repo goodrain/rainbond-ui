@@ -10,6 +10,7 @@ import MonitorHistory from './component/monitor/pahistoryshow';
 import MonitorNow from './component/monitor/pashow';
 import ResourceShow from './component/monitor/resourceshow';
 import TraceShow from './component/monitor/trace';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const ButtonGroup = Button.Group;
 
@@ -98,7 +99,8 @@ export default class Index extends PureComponent {
                 }}
                 type={type === 'now' ? 'primary' : ''}
               >
-                实时
+                {/* 实时 */}
+                <FormattedMessage id='componentOverview.body.tab.monitor.now'/>
               </Button>
               <Button
                 onClick={() => {
@@ -106,7 +108,8 @@ export default class Index extends PureComponent {
                 }}
                 type={type === 'history' ? 'primary' : ''}
               >
-                历史
+                {/* 历史 */}
+                <FormattedMessage id='componentOverview.body.tab.monitor.history'/>
               </Button>
             </ButtonGroup>
           </div>
@@ -127,7 +130,8 @@ export default class Index extends PureComponent {
             padding: '30px 0',
           }}
         >
-          尚未开通性能分析插件
+          {/* 尚未开通性能分析插件 */}
+          <FormattedMessage id='componentOverview.body.tab.monitor.analysis'/>
           <p
             style={{
               paddingTop: 8,
@@ -138,7 +142,8 @@ export default class Index extends PureComponent {
                 appDetail.service.service_alias
               }/plugin`}
             >
-              去开通
+              {/* 去开通 */}
+              <FormattedMessage id='componentOverview.body.tab.monitor.open'/>
             </Link>
           </p>
         </div>
@@ -166,10 +171,22 @@ export default class Index extends PureComponent {
               defaultSelectedKeys={defaultShow}
               style={{ height: '590px' }}
             >
-              <Menu.Item key="pm">性能分析</Menu.Item>
-              <Menu.Item key="resource">资源监控</Menu.Item>
-              {enablePM && <Menu.Item key="trace">链路追踪</Menu.Item>}
-              {isServiceMonitor && <Menu.Item key="custom">业务监控</Menu.Item>}
+              <Menu.Item key="pm">
+                {/* 性能分析 */}
+                <FormattedMessage id='componentOverview.body.tab.monitor.performanceAnalysis'/>
+              </Menu.Item>
+              <Menu.Item key="resource">
+                {/* 资源监控 */}
+                <FormattedMessage id='componentOverview.body.tab.monitor.monitoring'/>
+              </Menu.Item>
+              {enablePM && <Menu.Item key="trace">
+                              {/* 链路追踪 */}
+                              <FormattedMessage id='componentOverview.body.tab.monitor.tracking'/>
+                           </Menu.Item>}
+              {isServiceMonitor && <Menu.Item key="custom">
+                                      {/* 业务监控 */}
+                                      <FormattedMessage id='componentOverview.body.tab.monitor.business'/>
+                                    </Menu.Item>}
             </Menu>
           </div>
         </Col>

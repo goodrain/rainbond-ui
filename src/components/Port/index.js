@@ -20,6 +20,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import appPortUtil from '../../utils/appPort-util';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -77,12 +78,12 @@ class ChangeProtocol extends PureComponent {
         <div>
           <FormItem>
             <Button onClick={this.handleSubmit} type="primary" size="small">
-              确定
+              <FormattedMessage id='componentOverview.body.Ports.determine'/>
             </Button>
           </FormItem>
           <FormItem>
             <Button onClick={this.handleCancel} type="" size="small">
-              取消
+              <FormattedMessage id='componentOverview.body.Ports.cancel'/>
             </Button>
           </FormItem>
         </div>
@@ -229,19 +230,19 @@ export default class Index extends PureComponent {
         className={styles.tdPadding}
         columns={[
           {
-            title: '变量名',
+            title: formatMessage({id:'componentOverview.body.Ports.attr_name'}),
             dataIndex: 'attr_name',
             key: 'attr_name',
             align: 'center'
           },
           {
-            title: '变量值',
+            title: formatMessage({id:'componentOverview.body.Ports.attr_value'}),
             dataIndex: 'attr_value',
             key: 'attr_value',
             align: 'center'
           },
           {
-            title: '说明',
+            title: formatMessage({id:'componentOverview.body.Ports.name'}),
             dataIndex: 'name',
             key: 'name',
             align: 'center'
@@ -314,21 +315,27 @@ export default class Index extends PureComponent {
                 width: 60
               }}
             >
-              端口号
+              
+              <FormattedMessage id='componentOverview.body.Ports.port_number'/>
+
             </th>
             <th
               style={{
                 width: 100
               }}
             >
-              端口协议
+              
+              <FormattedMessage id='componentOverview.body.Ports.port_protocol'/>
+
             </th>
             <th
               style={{
                 width: '50%'
               }}
             >
-              服务信息
+              
+              <FormattedMessage id='componentOverview.body.Ports.service_information'/>
+
             </th>
             {showDomain && (
               <th
@@ -336,7 +343,9 @@ export default class Index extends PureComponent {
                   width: '30%'
                 }}
               >
-                访问策略
+                
+              <FormattedMessage id='componentOverview.body.Ports.access_policy'/>
+
               </th>
             )}
             <th
@@ -344,7 +353,9 @@ export default class Index extends PureComponent {
                 width: 100
               }}
             >
-              操作
+              
+              <FormattedMessage id='componentOverview.body.Ports.operation'/>
+
             </th>
           </tr>
         </thead>
@@ -376,7 +387,7 @@ export default class Index extends PureComponent {
                 }}
               >
                 <p>
-                  <span className={styles.label}>对内服务</span>
+                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.internal_service'/></span>
                   <Switch
                     checked={appPortUtil.isOpenInner(port)}
                     onChange={this.handleInnerChange}
@@ -384,11 +395,11 @@ export default class Index extends PureComponent {
                   />
                 </p>
                 <p>
-                  <span className={styles.label}>访问地址</span>
+                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.access_address'/></span>
                   {innerUrl || '-'}
                 </p>
                 <p className={styles.lr}>
-                  <span className={styles.label}>使用别名</span>
+                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.use_alias'/></span>
                   <a
                     href="javascript:;"
                     onClick={() => {
@@ -417,7 +428,7 @@ export default class Index extends PureComponent {
                       :
                       ''
                   } */}
-                  <span className={styles.label}>对外服务</span>
+                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.external_service'/></span>
                   <Switch
                     checked={appPortUtil.isOpenOuter(port)}
                     onChange={value => {
@@ -585,7 +596,7 @@ export default class Index extends PureComponent {
                     style={{ marginTop: '5px' }}
                     onClick={this.onAddDomain}
                   >
-                    添加域名
+                    <FormattedMessage id='componentOverview.body.Ports.add'/>
                   </Button>
                 )}
                 {port && port.protocol != 'http' && (
@@ -597,7 +608,7 @@ export default class Index extends PureComponent {
                       color: '#1890ff'
                     }}
                   >
-                    <Button size="small">管理访问策略</Button>
+                    <Button size="small"><FormattedMessage id='componentOverview.body.Ports.manage'/></Button>
                   </Link>
                 )}
               </td>
@@ -606,7 +617,7 @@ export default class Index extends PureComponent {
               <p>
                 {!isHelm && (
                   <Button onClick={this.handleDelete} size="small">
-                    删除
+                    <FormattedMessage id='componentOverview.body.Ports.delete'/>
                   </Button>
                 )}
               </p>
@@ -615,7 +626,7 @@ export default class Index extends PureComponent {
         </tbody>
         {this.state.visibleModal && (
           <Modal
-            title="访问信息"
+            title={<FormattedMessage id='componentOverview.body.Ports.msg'/>}
             width="800px"
             visible={this.state.visibleModal}
             footer={null}
@@ -624,15 +635,16 @@ export default class Index extends PureComponent {
             <ul className={styles.ul}>
               {port && port.protocol != 'mysql' ? (
                 <li style={{ fontWeight: 'bold' }}>
-                  您当前的访问协议是{port.protocol}
+                  <FormattedMessage id='componentOverview.body.Ports.current' values={{protocol:port.protocol}}/>
                 </li>
               ) : (
                 <li style={{ fontWeight: 'bold' }}>
-                  您当前的访问协议是{agreement.protocol},打开MySQL客户端访问
+                  <FormattedMessage id='componentOverview.body.Ports.current_protocol' values={{protocol:agreement.protocol}}/>
                 </li>
               )}
               <li>
-                推荐访问地址&nbsp;
+                <FormattedMessage id='componentOverview.body.Ports.recommend'/>
+                &nbsp;
                 <a href="javascript:void(0)" style={{ marginRight: '10px' }}>
                   {agreement.end_point.indexOf('0.0.0.0') > -1 &&
                   currentRegion &&
@@ -660,7 +672,7 @@ export default class Index extends PureComponent {
                 >
                   <Button size="small" type="primary">
                     <Icon type="copy" />
-                    复制
+                    <FormattedMessage id='componentOverview.body.Ports.copy'/>
                   </Button>
                 </CopyToClipboard>
               </li>

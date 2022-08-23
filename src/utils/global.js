@@ -4,6 +4,7 @@ import axios from 'axios';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import cookie from './cookie';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from './utils.less';
 
 const global = {
@@ -1187,37 +1188,37 @@ const global = {
   },
   fetchStateText(state) {
     const statusColorMap = {
-      RUNNING: '运行中',
-      running: '运行中',
-      starting: '启动中',
-      checking: '检测中',
-      stopping: '关闭中',
-      unusual: '运行异常',
-      closed: '已关闭',
-      undeploy: '未部署',
-      unKnow: '未知',
-      UNKNOWN: '未知',
-      ABNORMAL: '运行异常',
-      TEMINATING: '关闭中',
-      INITIATING: '等待启动',
-      SCHEDULING: '调度中',
-      TheInternet: '未知',
-      upgrade: '升级中',
-      creating: '部署中',
-      expired: '过期',
-      NOTREADY: '未就绪',
-      UNHEALTHY: '不健康',
-      succeeded: '已完成',
-      failed:'执行失败',
-      SUCCEEDED:'已完成'
+      RUNNING: formatMessage({id:'global.fetchStateText.RUNNING'}),
+      running: formatMessage({id:'global.fetchStateText.running'}),
+      starting: formatMessage({id:'global.fetchStateText.starting'}),
+      checking: formatMessage({id:'global.fetchStateText.checking'}),
+      stopping: formatMessage({id:'global.fetchStateText.stopping'}),
+      unusual: formatMessage({id:'global.fetchStateText.unusual'}),
+      closed: formatMessage({id:'global.fetchStateText.closed'}),
+      undeploy: formatMessage({id:'global.fetchStateText.undeploy'}),
+      unKnow: formatMessage({id:'global.fetchStateText.unKnow'}),
+      UNKNOWN: formatMessage({id:'global.fetchStateText.UNKNOWN'}),
+      ABNORMAL: formatMessage({id:'global.fetchStateText.ABNORMAL'}),
+      TEMINATING: formatMessage({id:'global.fetchStateText.TEMINATING'}),
+      INITIATING: formatMessage({id:'global.fetchStateText.INITIATING'}),
+      SCHEDULING: formatMessage({id:'global.fetchStateText.SCHEDULING'}),
+      TheInternet: formatMessage({id:'global.fetchStateText.TheInternet'}),
+      upgrade: formatMessage({id:'global.fetchStateText.upgrade'}),
+      creating: formatMessage({id:'global.fetchStateText.creating'}),
+      expired: formatMessage({id:'global.fetchStateText.expired'}),
+      NOTREADY: formatMessage({id:'global.fetchStateText.NOTREADY'}),
+      UNHEALTHY: formatMessage({id:'global.fetchStateText.UNHEALTHY'}),
+      succeeded: formatMessage({id:'global.fetchStateText.succeeded'}),
+      failed: formatMessage({id:'global.fetchStateText.failed'}),
+      SUCCEEDED: formatMessage({id:'global.fetchStateText.SUCCEEDED'}),
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
   },
   fetchGovernanceMode(state) {
     const GovernanceMode = {
-      KUBERNETES_NATIVE_SERVICE: '原生 service 模式',
-      BUILD_IN_SERVICE_MESH: '内置 ServiceMesh 模式',
-      ISTIO_SERVICE_MESH: 'Istio治理模式'
+      KUBERNETES_NATIVE_SERVICE: formatMessage({id: 'global.fetchGovernanceMode.KUBERNETES_NATIVE_SERVICE'}),
+      BUILD_IN_SERVICE_MESH: formatMessage({id: 'global.fetchGovernanceMode.BUILD_IN_SERVICE_MESH'}),
+      ISTIO_SERVICE_MESH: formatMessage({id: 'global.fetchGovernanceMode.ISTIO_SERVICE_MESH'}),
     };
     return GovernanceMode[state] || '-';
   },
@@ -1241,20 +1242,21 @@ const global = {
     const seconds = Math.round(leave3 / 1000);
 
     if (days && days >= 1) {
-      result += `${days}天`;
+      result += `${formatMessage({id:'global.fetchTime.day'},{num:days})}`;
+
     }
     if (hours && hours >= 1) {
-      result += `${hours}小时`;
+      result += `${formatMessage({id:'global.fetchTime.hour'},{num:hours})}`;
     }
 
     if (minutes && minutes >= 1) {
-      result += `${minutes}分钟`;
+      result += `${formatMessage({id:'global.fetchTime.minute'},{num:minutes})}`;
     }
 
     if (seconds && seconds >= 1) {
-      result += `${seconds}秒`;
+      result += `${formatMessage({id:'global.fetchTime.second'},{num:seconds})}`;
     }
-    return result || '1秒';
+    return result || `${formatMessage({id:'global.fetchTime.second.one'})}`;
   },
   fetchdayTime(date) {
     const second = Date.parse(new Date()) - new Date(date).getTime();
@@ -1278,47 +1280,61 @@ const global = {
         .locale('zh-cn')
         .format('YYYY-MM-DD');
     } else if (days && days >= 1 && days < 7) {
-      result += `${days}天前`;
+      // result += <FormattedMessage id='global.fetchTime.day.ago' values={{num: days}}/>;
+      result += `${formatMessage({id:'global.fetchTime.day.ago'},{num:days})}`;
+
     } else if (hours && hours >= 1 && hours <= 23) {
-      result += `${hours}小时前`;
+      // result += <FormattedMessage id='global.fetchTime.hour.ago' values={{num: hours}}/>;
+      result += `${formatMessage({id:'global.fetchTime.hour.ago'},{num:hours})}`;
+
     } else if (minutes && minutes >= 1 && minutes <= 59) {
-      result += `${minutes}分钟前`;
+      // result += <FormattedMessage id='global.fetchTime.minute.ago' values={{num: minutes}}/>;
+      result += `${formatMessage({id:'global.fetchTime.minute.ago'},{num:minutes})}`;
+
     } else if (seconds && seconds >= 1 && seconds <= 59) {
-      result += `${seconds}秒前`;
+      // result += <FormattedMessage id='global.fetchTime.second.ago' values={{num: seconds}}/>;
+      result += `${formatMessage({id:'global.fetchTime.second.ago'},{num:seconds})}`;
+
     } else {
-      result = '1秒前';
+      // result = <FormattedMessage id='global.fetchTime.second.ago.one'/>;
+      result = `${formatMessage({id:'global.fetchTime.second.ago.one'})}`;
+
     }
     return result;
   },
   fetchInstanceReasons(type) {
     const reasonsType = {
-      UnknownContainerStatuses: '未知的容器状态',
-      ContainersNotReady: '容器未就绪',
-      ContainersNotInitialized: '容器尚未初始化'
+      UnknownContainerStatuses: formatMessage({id:'global.fetchInstanceReasons.UnknownContainerStatuses'}),
+      ContainersNotReady: formatMessage({id:'global.fetchInstanceReasons.ContainersNotReady'}),
+      ContainersNotInitialized: formatMessage({id:'global.fetchInstanceReasons.ContainersNotInitialized'})
     };
     return reasonsType[type] || type;
   },
   fetchInstanceAdvice(type) {
     const adviceType = {
-      OutOfMemory:
-        '内存不足, 建议为程序分配更多内存, 或检查程序是否合理使用内存',
-      Unhealthy:
-        '健康检测不通过, 请检查程序的端口是否可用, 以及健康检测配置是否正确',
-      Initiating: '等待启动中, 请检查该组件所依赖的组件是否已经正常启动'
+      OutOfMemory: formatMessage({id:'global.fetchInstanceAdvice.OutOfMemory'}),
+      Unhealthy: formatMessage({id:'global.fetchInstanceAdvice.Unhealthy'}),
+      Initiating: formatMessage({id:'global.fetchInstanceAdvice.Initiating'}),
     };
     return adviceType[type] || type;
   },
   fetchOperation(finalstatus, status) {
     if (finalstatus === '') {
       return (
-        <span style={{ color: '#F69C49', paddingLeft: '5px' }}>进行中</span>
+        <span style={{ color: '#F69C49', paddingLeft: '5px' }}>
+          {/* 进行中 */}
+          <FormattedMessage id='global.fetchOperation.doing'/>
+        </span>
       );
     }
     if (
       finalstatus === 'timeout' ||
       (finalstatus === 'complete' && status === 'timeout')
     ) {
-      return <span style={{ color: 'rgba(0, 0, 0, 0.65)' }}>操作已超时</span>;
+      return <span style={{ color: 'rgba(0, 0, 0, 0.65)' }}>
+              {/* 操作已超时 */}
+              <FormattedMessage id='global.fetchOperation.timeOut'/>
+             </span>;
     }
 
     if (finalstatus === 'empty' || finalstatus === 'emptycomplete') {
@@ -1327,15 +1343,21 @@ const global = {
     // eslint-disable-next-line default-case
     switch (status) {
       case 'success':
-        return <span style={{ color: '#39AA56' }}>成功</span>;
+        return <span style={{ color: '#39AA56' }}>
+                {/* 成功 */}
+                 <FormattedMessage id='global.fetchOperation.success'/>
+               </span>;
       case 'failure':
-        return <span style={{ color: '#F5212D' }}>失败</span>;
+        return <span style={{ color: '#F5212D' }}>
+                {/* 失败 */}
+                 <FormattedMessage id='global.fetchOperation.lose'/>
+               </span>;
     }
   },
   fetchReason(type) {
     const status = {
-      tenant_lack_of_memory: '超过租户限额',
-      cluster_lack_of_memory: '集群资源不足'
+      tenant_lack_of_memory: formatMessage({id:'global.fetchReason.tenant_lack_of_memory'}),
+      cluster_lack_of_memory: formatMessage({id:'global.fetchReason.cluster_lack_of_memory'}),
     };
     if (type && status[type]) {
       return <span>(&nbsp;{status[type]}&nbsp;)</span>;
@@ -1344,14 +1366,14 @@ const global = {
   },
   fetchAccessText(text) {
     const AccessText = {
-      component: '组件管理',
-      app: '应用管理',
-      gatewayRule: '网关访问策略',
-      certificate: '证书管理',
-      plugin: '插件管理',
-      teamMember: '团队成员管理',
-      teamRole: '团队角色管理',
-      teamRegion: '团队集群管理'
+      component: formatMessage({id: 'global.fetchAccessText.component'}),
+      app: formatMessage({id: 'global.fetchAccessText.app'}),
+      gatewayRule: formatMessage({id: 'global.fetchAccessText.gatewayRule'}),
+      certificate: formatMessage({id: 'global.fetchAccessText.certificate'}),
+      plugin: formatMessage({id: 'global.fetchAccessText.plugin'}),
+      teamMember: formatMessage({id: 'global.fetchAccessText.teamMember'}),
+      teamRole: formatMessage({id: 'global.fetchAccessText.teamRole'}),
+      teamRegion: formatMessage({id: 'global.fetchAccessText.teamRegion'}),
     };
     return AccessText[text] || text;
   },
@@ -1369,103 +1391,103 @@ const global = {
   },
   fetchStateOptTypeText(state) {
     const statusOptType = {
-      deploy: '构建组件',
-      delete: '删除组件',
-      HorizontalUpgrade: '水平升级',
-      VerticalUpgrade: '垂直升级',
-      create: '创建组件',
-      callback: '回滚',
-      'git-change': '代码仓库修改',
-      own_money: '欠费关闭',
-      add_label: '添加标签',
-      delete_label: '删除标签',
-      service_state: '应用状态修改',
-      reboot: '重启组件',
-      market_sync: '云市同步',
-      truncate: '删除组件',
-      EventTypeAbnormalExited: '组件异常退出',
-      OOMKilled: '发生OOM',
-      LivenessProbeFailed: '健康检查不通过(重启)',
-      ReadinessProbeFailed: '健康检查不通过(下线)',
-      AbnormalShtdown: ' 组件异常退出',
-      AbnormalExited: '组件异常退出',
-      AbnormalRecovery: '恢复正常',
+      deploy: formatMessage({id:'global.fetchStateOptTypeText.deploy'}),
+      delete: formatMessage({id:'global.fetchStateOptTypeText.delete'}),
+      HorizontalUpgrade: formatMessage({id:'global.fetchStateOptTypeText.HorizontalUpgrade'}),
+      VerticalUpgrade: formatMessage({id:'global.fetchStateOptTypeText.VerticalUpgrade'}),
+      create:  formatMessage({id:'global.fetchStateOptTypeText.create'}),
+      callback: formatMessage({id:'global.fetchStateOptTypeText.callback'}),
+      'git-change': formatMessage({id:'global.fetchStateOptTypeText.git-change'}),
+      own_money:  formatMessage({id:'global.fetchStateOptTypeText.own_money'}),
+      add_label: formatMessage({id:'global.fetchStateOptTypeText.add_label'}),
+      delete_label:  formatMessage({id:'global.fetchStateOptTypeText.delete_label'}),
+      service_state: formatMessage({id:'global.fetchStateOptTypeText.service_state'}),
+      reboot:  formatMessage({id:'global.fetchStateOptTypeText.reboot'}),
+      market_sync: formatMessage({id:'global.fetchStateOptTypeText.market_sync'}),
+      truncate: formatMessage({id:'global.fetchStateOptTypeText.truncate'}),
+      EventTypeAbnormalExited: formatMessage({id:'global.fetchStateOptTypeText.EventTypeAbnormalExited'}),
+      OOMKilled: formatMessage({id:'global.fetchStateOptTypeText.OOMKilled'}),
+      LivenessProbeFailed: formatMessage({id:'global.fetchStateOptTypeText.LivenessProbeFailed'}),
+      ReadinessProbeFailed: formatMessage({id:'global.fetchStateOptTypeText.ReadinessProbeFailed'}),
+      AbnormalShtdown: formatMessage({id:'global.fetchStateOptTypeText.AbnormalShtdown'}),
+      AbnormalExited: formatMessage({id:'global.fetchStateOptTypeText.AbnormalExited'}),
+      AbnormalRecovery: formatMessage({id:'global.fetchStateOptTypeText.AbnormalRecovery'}),
       '': '-',
-      'create-service': '创建组件',
-      'batch-build-service': '批量构建组件',
-      'batch-start-service': '批量启动组件',
-      'batch-stop-service': '批量停止组件',
-      'batch-upgrade-service': '批量升级组件',
-      'build-service': '构建组件',
-      build: '构建组件',
-      upgrade: '滚动升级组件',
-      'update-service': '更新组件部署类型',
-      'start-service': '启动组件',
-      start: '启动组件',
-      'add-app-autoscaler-rule': '添加自动伸缩规则',
-      'update-app-autoscaler-rule': '更新自动伸缩规则',
-      'stop-service': '停止组件',
-      stop: '停止组件',
-      'restart-service': '重启组件',
-      restart: '重启组件',
-      'vertical-service': '垂直扩展组件',
-      vertical: '垂直扩展组件',
-      'horizontal-service': '水平扩展组件',
-      horizontal: '水平扩展组件',
-      'stop-tennant': '停止租户',
-      'set-language': '设置组件语言',
-      'delete-service': '删除组件',
-      'upgrade-service': '升级组件',
-      'delete-buildversion': '删除构建版本',
-      'share-service': '发布组件',
-      'share-wb': '发布到内部市场',
-      'share-ws': '发布到云端市场',
-      'share-yb': '发布到市场',
-      'share-ys': '发布到市场',
-      updata: '更新组件',
-      'add-app-service-monitor': '添加监控点',
-      'add-service-dependency': '添加组件依赖',
-      'delete-service-dependency': '删除组件依赖',
-      'add-service-env': '添加组件环境变量',
-      'update-service-env': '更新组件环境变量',
-      'delete-service-env': '删除组件环境变量',
-      'add-service-port': '添加组件端口',
-      'update-service-port-old': '更新组件端口',
-      'update-service-port': '更新组件端口',
-      'delete-service-port': '删除组件端口',
-      'handle-service-outerport': '修改组件对外端口',
-      'handle-service-innerport': '修改组件对内端口',
-      'change-service-lbport': '修改组件LB端口',
-      'rollback-service': '回滚',
-      'add-service-volume': '添加组件持久化存储',
-      'update-service-volume': '更新组件持久化存储',
-      'delete-service-volume': '删除组件持久化存储',
-      'add-service-depvolume': '添加组件依赖存储',
-      'delete-service-depvolume': '删除组件依赖存储',
-      'add-service-probe': '添加组件探针',
-      'update-service-probe': '更新组件探针',
-      'delete-service-probe': '删除组件探针',
-      'add-service-label': '添加组件标签',
-      'update-service-label': '更新组件标签',
-      'delete-service-label': '删除组件标签',
-      'add-thirdpart-service': '添加第三方组件',
-      'update-thirdpart-service': '更新第三方组件',
-      'delete-thirdpart-service': '删除第三方组件',
-      'update-service-gateway-rule': '更新组件网关规则',
-      'app-restore-envs': '重新加载应用环境变量',
-      'app-restore-ports': '重新加载应用端口',
-      'app-restore-volumes': '重新加载应用存储',
-      'app-restore-probe': '重新加载应用探针',
-      'app-restore-deps': '重新加载应用依赖',
-      'app-restore-depvols': '重新加载应用依赖存储',
-      'app-restore-plugins': '重新加载应用插件',
-      'create-service-plugin': '创建组件插件',
-      'update-service-plugin': '更新组件插件',
-      'delete-service-plugin': '删除组件插件',
-      'update-service-plugin-config': '更新组件插件配置',
-      'delete-component-k8s-attributes': '删除 k8s 属性',
-      'update-component-k8s-attributes': '更新 k8s 属性',
-      'create-component-k8s-attributes': '创建 k8s 属性'
+      'create-service': formatMessage({id:'global.fetchStateOptTypeText.create-service'}),
+      'batch-build-service': formatMessage({id:'global.fetchStateOptTypeText.batch-build-service'}),
+      'batch-start-service': formatMessage({id:'global.fetchStateOptTypeText.batch-start-service'}),
+      'batch-stop-service': formatMessage({id:'global.fetchStateOptTypeText.batch-stop-service'}),
+      'batch-upgrade-service': formatMessage({id:'global.fetchStateOptTypeText.batch-upgrade-service'}),
+      'build-service': formatMessage({id:'global.fetchStateOptTypeText.build-service'}),
+      build: formatMessage({id:'global.fetchStateOptTypeText.build'}),
+      upgrade: formatMessage({id:'global.fetchStateOptTypeText.upgrade'}),
+      'update-service': formatMessage({id:'global.fetchStateOptTypeText.update-service'}),
+      'start-service': formatMessage({id:'global.fetchStateOptTypeText.start-service'}),
+      start: formatMessage({id:'global.fetchStateOptTypeText.start'}),
+      'add-app-autoscaler-rule': formatMessage({id:'global.fetchStateOptTypeText.add-app-autoscaler-rule'}),
+      'update-app-autoscaler-rule': formatMessage({id:'global.fetchStateOptTypeText.update-app-autoscaler-rule'}),
+      'stop-service': formatMessage({id:'global.fetchStateOptTypeText.stop-service'}),
+      stop: formatMessage({id:'global.fetchStateOptTypeText.stop'}),
+      'restart-service': formatMessage({id:'global.fetchStateOptTypeText.restart-service'}),
+      restart: formatMessage({id:'global.fetchStateOptTypeText.restart'}),
+      'vertical-service': formatMessage({id:'global.fetchStateOptTypeText.vertical-service'}),
+      vertical: formatMessage({id:'global.fetchStateOptTypeText.vertical'}),
+      'horizontal-service': formatMessage({id:'global.fetchStateOptTypeText.horizontal-service'}),
+      horizontal: formatMessage({id:'global.fetchStateOptTypeText.horizontal'}),
+      'stop-tennant': formatMessage({id:'global.fetchStateOptTypeText.stop-tennant'}),
+      'set-language': formatMessage({id:'global.fetchStateOptTypeText.set-language'}),
+      'delete-service': formatMessage({id:'global.fetchStateOptTypeText.delete-service'}),
+      'upgrade-service': formatMessage({id:'global.fetchStateOptTypeText.upgrade-service'}),
+      'delete-buildversion': formatMessage({id:'global.fetchStateOptTypeText.delete-buildversion'}),
+      'share-service': formatMessage({id:'global.fetchStateOptTypeText.share-service'}),
+      'share-wb': formatMessage({id:'global.fetchStateOptTypeText.share-wb'}),
+      'share-ws': formatMessage({id:'global.fetchStateOptTypeText.share-ws'}),
+      'share-yb': formatMessage({id:'global.fetchStateOptTypeText.share-yb'}),
+      'share-ys': formatMessage({id:'global.fetchStateOptTypeText.share-ys'}),
+      updata: formatMessage({id:'global.fetchStateOptTypeText.updata'}),
+      'add-app-service-monitor': formatMessage({id:'global.fetchStateOptTypeText.add-app-service-monitor'}),
+      'add-service-dependency': formatMessage({id:'global.fetchStateOptTypeText.add-service-dependency'}),
+      'delete-service-dependency': formatMessage({id:'global.fetchStateOptTypeText.delete-service-dependency'}),
+      'add-service-env': formatMessage({id:'global.fetchStateOptTypeText.add-service-env'}),
+      'update-service-env': formatMessage({id:'global.fetchStateOptTypeText.update-service-env'}),
+      'delete-service-env': formatMessage({id:'global.fetchStateOptTypeText.delete-service-env'}),
+      'add-service-port': formatMessage({id:'global.fetchStateOptTypeText.add-service-port'}),
+      'update-service-port-old': formatMessage({id:'global.fetchStateOptTypeText.update-service-port-old'}),
+      'update-service-port': formatMessage({id:'global.fetchStateOptTypeText.update-service-port'}),
+      'delete-service-port': formatMessage({id:'global.fetchStateOptTypeText.delete-service-port'}),
+      'handle-service-outerport': formatMessage({id:'global.fetchStateOptTypeText.handle-service-outerport'}),
+      'handle-service-innerport': formatMessage({id:'global.fetchStateOptTypeText.handle-service-innerport'}),
+      'change-service-lbport': formatMessage({id:'global.fetchStateOptTypeText.change-service-lbport'}),
+      'rollback-service': formatMessage({id:'global.fetchStateOptTypeText.rollback-service'}),
+      'add-service-volume':formatMessage({id:'global.fetchStateOptTypeText.add-service-volume'}),
+      'update-service-volume': formatMessage({id:'global.fetchStateOptTypeText.update-service-volume'}),
+      'delete-service-volume': formatMessage({id:'global.fetchStateOptTypeText.delete-service-volume'}),
+      'add-service-depvolume': formatMessage({id:'global.fetchStateOptTypeText.add-service-depvolume'}),
+      'delete-service-depvolume': formatMessage({id:'global.fetchStateOptTypeText.delete-service-depvolume'}),
+      'add-service-probe': formatMessage({id:'global.fetchStateOptTypeText.add-service-probe'}),
+      'update-service-probe': formatMessage({id:'global.fetchStateOptTypeText.update-service-probe'}),
+      'delete-service-probe': formatMessage({id:'global.fetchStateOptTypeText.delete-service-probe'}),
+      'add-service-label': formatMessage({id:'global.fetchStateOptTypeText.add-service-label'}),
+      'update-service-label': formatMessage({id:'global.fetchStateOptTypeText.update-service-label'}),
+      'delete-service-label': formatMessage({id:'global.fetchStateOptTypeText.delete-service-label'}),
+      'add-thirdpart-service': formatMessage({id:'global.fetchStateOptTypeText.add-thirdpart-service'}),
+      'update-thirdpart-service': formatMessage({id:'global.fetchStateOptTypeText.update-thirdpart-service'}),
+      'delete-thirdpart-service': formatMessage({id:'global.fetchStateOptTypeText.delete-thirdpart-service'}),
+      'update-service-gateway-rule': formatMessage({id:'global.fetchStateOptTypeText.update-service-gateway-rule'}),
+      'app-restore-envs': formatMessage({id:'global.fetchStateOptTypeText.app-restore-envs'}),
+      'app-restore-ports': formatMessage({id:'global.fetchStateOptTypeText.app-restore-ports'}),
+      'app-restore-volumes': formatMessage({id:'global.fetchStateOptTypeText.app-restore-volumes'}),
+      'app-restore-probe': formatMessage({id:'global.fetchStateOptTypeText.app-restore-probe'}),
+      'app-restore-deps': formatMessage({id:'global.fetchStateOptTypeText.app-restore-deps'}),
+      'app-restore-depvols': formatMessage({id:'global.fetchStateOptTypeText.app-restore-depvols'}),
+      'app-restore-plugins': formatMessage({id:'global.fetchStateOptTypeText.app-restore-plugins'}),
+      'create-service-plugin': formatMessage({id:'global.fetchStateOptTypeText.create-service-plugin'}),
+      'update-service-plugin': formatMessage({id:'global.fetchStateOptTypeText.update-service-plugin'}),
+      'delete-service-plugin': formatMessage({id:'global.fetchStateOptTypeText.delete-service-plugin'}),
+      'update-service-plugin-config': formatMessage({id:'global.fetchStateOptTypeText.update-service-plugin-config'}),
+      'delete-component-k8s-attributes': formatMessage({id:'global.fetchStateOptTypeText.delete-component-k8s-attributes'}),
+      'update-component-k8s-attributes': formatMessage({id:'global.fetchStateOptTypeText.update-component-k8s-attributes'}),
+      'create-component-k8s-attributes': formatMessage({id:'global.fetchStateOptTypeText.create-component-k8s-attributes'})
     };
     return statusOptType[state] || state;
   },
@@ -1498,39 +1520,39 @@ const global = {
       {
         type: 'stateless_multiple',
         name: this.getComponentType('stateless_multiple'),
-        desc: '部署为无状态服务(Deployment类型),一般用于Web类、API类等组件。'
+        desc: formatMessage({id:'global.getSupportComponentTyps.stateless_multiple'})
       },
       {
         type: 'state_multiple',
         name: this.getComponentType('state_multiple'),
-        desc: '部署为有状态服务(Statefulset类型),一般用于DB类、消息中间件类、数据类组件。'
+        desc: formatMessage({id:'global.getSupportComponentTyps.state_multiple'})
       },
       {
         type: 'job',
         name: this.getComponentType('job'),
-        desc: '部署为任务(Job类型),一般用于一次性任务,完成后容器就退出。'
+        desc: formatMessage({id:'global.getSupportComponentTyps.job'})
       },
       {
         type: 'cronjob',
         name: this.getComponentType('cronjob'),
-        desc: '部署为周期性任务(Cronjob类型),一般用于处理周期性的、需反复执行的定时任务。'
+        desc: formatMessage({id:'global.getSupportComponentTyps.cronjob'})
       }
     ];
   },
   getComponentType(componentType) {
     switch (componentType) {
       case 'stateless_multiple':
-        return '无状态服务(Deployment类型)';
+        return <FormattedMessage id='global.getComponentType.stateless_multiple'/>;
       case 'state_singleton':
-        return '有状态服务(Statefulset类型)';
+        return <FormattedMessage id='global.getComponentType.state_singleton'/>;
       case 'stateless_singleton':
-        return '无状态服务(Deployment类型)';
+        return <FormattedMessage id='global.getComponentType.stateless_singleton'/>;
       case 'state_multiple':
-        return '有状态服务(Statefulset类型)';
+        return <FormattedMessage id='global.getComponentType.state_multiple'/>;
       case 'job':
-        return '任务(Job类型)';
+        return <FormattedMessage id='global.getComponentType.job'/>;
       case 'cronjob':
-        return '周期性任务(Cronjob类型)';
+        return <FormattedMessage id='global.getComponentType.cronjob'/>;
       default:
         return '';
     }

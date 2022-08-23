@@ -22,6 +22,7 @@ import ScrollerX from '../../components/ScrollerX';
 import { addMnt, getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import AddVarModal from './setting/env';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -449,7 +450,7 @@ export default class Index extends React.Component {
           <Col span={12}>
             <Alert
               showIcon
-              message="组件环境配置变更后需要更新或重启组件生效"
+              message={<FormattedMessage id='componentOverview.body.tab.env.environmentVariable.message'/>}
               type="info"
               style={{
                 marginBottom: 24
@@ -459,7 +460,7 @@ export default class Index extends React.Component {
         </Row>
         <Row>
           <EnvironmentVariable
-            title="自定义环境变量"
+            title={<FormattedMessage id='componentOverview.body.tab.env.environmentVariable.title'/>}
             type="Inner"
             appAlias={this.props.appAlias}
           />
@@ -467,7 +468,7 @@ export default class Index extends React.Component {
             <Alert
               showIcon
               // eslint-disable-next-line no-template-curly-in-string
-              message="配置文件内容支持使用环境变量动态渲染，方式为：${ENV_NAME}"
+              message={<FormattedMessage id='componentOverview.body.tab.env.setting.message'/>}
               type="info"
               style={{
                 marginBottom: 24
@@ -479,11 +480,11 @@ export default class Index extends React.Component {
           style={{
             marginBottom: 24
           }}
-          title={<span> 配置文件设置 </span>}
+          title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title'/> </span>}
           extra={
             <Button onClick={this.handleAddVars}>
               <Icon type="plus" />
-              添加配置文件
+              <FormattedMessage id='componentOverview.body.tab.env.setting.add'/>
             </Button>
           }
         >
@@ -492,19 +493,19 @@ export default class Index extends React.Component {
               pagination={false}
               columns={[
                 {
-                  title: '配置文件名称',
+                  title: formatMessage({id:'componentOverview.body.tab.env.setting.volume_name'}),
                   dataIndex: 'volume_name'
                 },
                 {
-                  title: '配置文件挂载路径',
+                  title: formatMessage({id:'componentOverview.body.tab.env.setting.volume_path'}),
                   dataIndex: 'volume_path'
                 },
                 {
-                  title: '权限',
+                  title: formatMessage({id:'componentOverview.body.tab.env.setting.mode'}),
                   dataIndex: 'mode'
                 },
                 {
-                  title: '操作',
+                  title: formatMessage({id:'componentOverview.body.tab.env.setting.action'}),
                   dataIndex: 'action',
                   render: (v, data) => (
                     <div>
@@ -514,7 +515,7 @@ export default class Index extends React.Component {
                         }}
                         href="javascript:;"
                       >
-                        删除
+                        <FormattedMessage id='componentOverview.body.tab.env.setting.delete'/>
                       </a>
                       <a
                         onClick={() => {
@@ -522,7 +523,7 @@ export default class Index extends React.Component {
                         }}
                         href="javascript:;"
                       >
-                        编辑
+                        <FormattedMessage id='componentOverview.body.tab.env.setting.edit'/>
                       </a>
                     </div>
                   )
@@ -533,11 +534,11 @@ export default class Index extends React.Component {
           </ScrollerX>
         </Card>
         <Card
-          title={<span> 共享配置文件 </span>}
+          title={<span> <FormattedMessage id='componentOverview.body.tab.env.file.share'/> </span>}
           extra={
             <Button onClick={this.showAddRelation}>
               <Icon type="plus" />
-              挂载共享配置文件
+              <FormattedMessage id='componentOverview.body.tab.env.file.mount'/>
             </Button>
           }
         >
@@ -546,7 +547,7 @@ export default class Index extends React.Component {
               pagination={false}
               columns={[
                 {
-                  title: '本地挂载配置文件路径',
+                  title: formatMessage({id:'componentOverview.body.tab.env.file.localMount'}),
                   dataIndex: 'local_vol_path',
                   key: '1',
                   width: '20%',
@@ -557,7 +558,7 @@ export default class Index extends React.Component {
                   )
                 },
                 {
-                  title: '配置文件名称',
+                  title: formatMessage({id:'componentOverview.body.tab.env.file.name'}),
                   dataIndex: 'dep_vol_name',
                   key: '2',
                   width: '15%',
@@ -568,7 +569,7 @@ export default class Index extends React.Component {
                   )
                 },
                 {
-                  title: '目标挂载配置文件路径',
+                  title: formatMessage({id:'componentOverview.body.tab.env.file.path'}),
                   dataIndex: 'dep_vol_path',
                   key: '3',
                   width: '20%',
@@ -579,7 +580,7 @@ export default class Index extends React.Component {
                   )
                 },
                 {
-                  title: '所属组件',
+                  title: formatMessage({id:'componentOverview.body.tab.env.file.Component'}),
                   dataIndex: 'dep_app_name',
                   key: '4',
                   width: '15%',
@@ -594,7 +595,7 @@ export default class Index extends React.Component {
                   )
                 },
                 {
-                  title: '组件所属应用',
+                  title: formatMessage({id:'componentOverview.body.tab.env.file.Components'}),
                   dataIndex: 'dep_app_group',
                   key: '5',
                   width: '15%',
@@ -609,7 +610,7 @@ export default class Index extends React.Component {
                   )
                 },
                 {
-                  title: '操作',
+                  title: formatMessage({id:'componentOverview.body.tab.env.file.action'}),
                   dataIndex: 'action',
                   key: '6',
                   width: '15%',
@@ -620,7 +621,7 @@ export default class Index extends React.Component {
                       }}
                       href="javascript:;"
                     >
-                      取消挂载
+                      <FormattedMessage id='componentOverview.body.tab.env.file.cancel'/>
                     </a>
                   )
                 }

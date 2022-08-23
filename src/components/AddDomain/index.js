@@ -2,6 +2,7 @@ import { Alert, Divider, Form, Icon, Input, Modal, Select } from 'antd';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -40,7 +41,8 @@ export default class AddDomain extends PureComponent {
       return;
     }
 
-    callback('请选择证书!');
+    callback(<FormattedMessage id='componentOverview.body.AddDomain.callback'/>);
+
   };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -66,53 +68,56 @@ export default class AddDomain extends PureComponent {
     const { isAddLicense, certificates, addLicense } = this.props;
     return (
       <Modal
-        title="绑定域名"
+        title={<FormattedMessage id='componentOverview.body.AddDomain.title'/>}
         onOk={this.handleSubmit}
         visible
         onCancel={this.handleCancel}
       >
         <Alert
           style={{ textAlign: 'center', marginBottom: 16 }}
-          message="请确保将域名cname指向到本组件的对外服务访问地址"
+          message={<FormattedMessage id='componentOverview.body.AddDomain.message'/>}
           type="warning"
         />
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="协议">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.AddDomain.title'/>}>
             {getFieldDecorator('protocol', {
               initialValue: 'http',
               rules: [
                 {
                   required: true,
-                  message: '请添加端口'
+                  message: formatMessage({id:'componentOverview.body.AddDomain.label_protocol.required'})
+
                 }
               ]
             })(
               <Select getPopupContainer={triggerNode => triggerNode.parentNode}>
                 <Option value="http">HTTP</Option>
                 <Option value="https">HTTPS</Option>
-                <Option value="httptohttps">HTTP转HTTPS</Option>
-                <Option value="httpandhttps">HTTP与HTTPS共存</Option>
+                <Option value="httptohttps"><FormattedMessage id='componentOverview.body.AddDomain.httptohttps'/></Option>
+                <Option value="httpandhttps"><FormattedMessage id='componentOverview.body.AddDomain.httpandhttps'/></Option>
               </Select>
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="域名">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.AddDomain.label_protocol.domain'/>}>
             {getFieldDecorator('domain', {
               rules: [
                 {
                   required: true,
-                  message: '请添加域名'
+                  message: formatMessage({id:'componentOverview.body.AddDomain.label_protocol.requireds'})
+
                 },
                 {
                   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                  message: '请填写正确的域名格式，支持泛域名'
+                  message: formatMessage({id:'componentOverview.body.AddDomain.label_protocol.pattern'})
+
                 }
               ]
-            })(<Input placeholder="请填写域名" />)}
+            })(<Input placeholder={formatMessage({id:'componentOverview.body.AddDomain.label_protocol.placeholder'})}/>)}
           </FormItem>
           {protocol == 'http' ? (
             ''
           ) : (
-            <FormItem {...formItemLayout} label="选择证书">
+            <FormItem {...formItemLayout} title={<FormattedMessage id='componentOverview.body.AddDomain.lable_certificate_id'/>}>
               {getFieldDecorator('certificate_id', {
                 initialValue: '',
                 rules: [
@@ -124,7 +129,7 @@ export default class AddDomain extends PureComponent {
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder="请选择证书"
+                  placeholder={formatMessage({id:'componentOverview.body.AddDomain.select.placeholder'})}
                   dropdownRender={menu => (
                     <div>
                       {menu}
@@ -141,14 +146,15 @@ export default class AddDomain extends PureComponent {
                               addLicense && addLicense();
                             }}
                           >
-                            <Icon type="plus" /> 加载更多
+                            <Icon type="plus" /> 
+                            <FormattedMessage id='componentOverview.body.AddDomain.Load_more'/>
                           </div>
                         </div>
                       )}
                     </div>
                   )}
                 >
-                  <Option value="">请选择证书</Option>
+                  <Option value=""><FormattedMessage id='componentOverview.body.AddDomain.select'/></Option>
                   {certificates.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.alias}
@@ -157,21 +163,21 @@ export default class AddDomain extends PureComponent {
                 </Select>
               )}
               <p>
-                无可用证书？
+                <FormattedMessage id='componentOverview.body.AddDomain.no_available'/>
                 <a
                   onClick={() => {
                     this.props.onCreateKey();
                   }}
                   href="javascript:;"
                 >
-                  去新建
+                  <FormattedMessage id='componentOverview.body.AddDomain.new'/>
                 </a>
               </p>
             </FormItem>
           )}
 
           <div>
-            如果需要设置更多路由策略参数 ：
+            <FormattedMessage id='componentOverview.body.AddDomain.setting'/>
             <Link
               to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/http/true`}
               style={{
@@ -180,7 +186,7 @@ export default class AddDomain extends PureComponent {
                 color: '#1890ff'
               }}
             >
-              点击进入访问策略设置
+              <FormattedMessage id='componentOverview.body.AddDomain.into'/>
             </Link>
           </div>
         </Form>
