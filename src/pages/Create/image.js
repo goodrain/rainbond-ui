@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ImageName from './image-name';
@@ -44,11 +45,11 @@ export default class Main extends PureComponent {
     const tabList = [
       {
         key: 'custom',
-        tab: '指定镜像',
+        tab: formatMessage({id: 'teamAdd.create.image.tabImage'}),
       },
       {
         key: 'dockerrun',
-        tab: 'DockerRun命令',
+        tab: formatMessage({id: 'teamAdd.create.image.DockerRun'}),
       },
       {
         key: 'Dockercompose',
@@ -73,17 +74,17 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: '创建组件' });
+    breadcrumbList.push({ title: formatMessage({id: 'teamAdd.create.createComponentTitle'}) });
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title="从Docker镜像创建组件"
+        title={formatMessage({id: 'teamAdd.create.image.title'})}
         onTabChange={this.handleTabChange}
-        content="支持从单一镜像、Docker命令、DockerCompose配置创建应用"
+        content={formatMessage({id: 'teamAdd.create.image.desc'})}
         tabActiveKey={type}
         tabList={tabList}
       >
-        {Com ? <Com {...this.props} /> : '参数错误'}
+        {Com ? <Com {...this.props} /> : <FormattedMessage id="teamAdd.create.error" />}
       </PageHeaderLayout>
     );
   }

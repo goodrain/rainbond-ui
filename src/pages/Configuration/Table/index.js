@@ -17,6 +17,7 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 const { confirm } = Modal;
 const FormItem = Form.Item;
@@ -200,7 +201,7 @@ export default class ConfigurationTable extends PureComponent {
           <Form layout="inline" style={{ display: 'inline-block' }}>
             <FormItem>
               <Input
-                placeholder="搜索配置组名称"
+                placeholder={formatMessage({id: 'appConfiguration.placeholder'})}
                 onChange={this.handelChange}
                 onPressEnter={this.handleEnter}
                 style={{ width: 250 }}
@@ -208,7 +209,7 @@ export default class ConfigurationTable extends PureComponent {
             </FormItem>
             <FormItem>
               <Button type="primary" onClick={this.handleSearch} icon="search">
-                搜索
+              {formatMessage({id: 'appConfiguration.btn.search'})}
               </Button>
             </FormItem>
           </Form>
@@ -221,7 +222,7 @@ export default class ConfigurationTable extends PureComponent {
                 this.handleConfigurationOperation();
               }}
             >
-              添加配置组
+              {formatMessage({id: 'appConfiguration.btn.add'})}
             </Button>
           )}
         </Row>
@@ -248,11 +249,11 @@ export default class ConfigurationTable extends PureComponent {
             dataSource={apps || []}
             columns={[
               {
-                title: '配置组名称',
+                title: formatMessage({id: 'appConfiguration.table.name'}),
                 dataIndex: 'config_group_name'
               },
               {
-                title: '创建时间',
+                title: formatMessage({id: 'appConfiguration.table.createTime'}),
                 dataIndex: 'create_time',
                 align: 'center',
                 render: val => {
@@ -262,7 +263,7 @@ export default class ConfigurationTable extends PureComponent {
                 }
               },
               {
-                title: '生效组件数',
+                title: formatMessage({id: 'appConfiguration.table.componentNum'}),
                 dataIndex: 'services_num',
                 align: 'center',
                 render: (val, data) => {
@@ -271,7 +272,7 @@ export default class ConfigurationTable extends PureComponent {
                       {val ? (
                         <Popover
                           placement="top"
-                          title="生效组件"
+                          title={formatMessage({id: 'appConfiguration.table.take_effect_component'})}
                           content={
                             <div>
                               {data.services.map(item => {
@@ -302,7 +303,7 @@ export default class ConfigurationTable extends PureComponent {
                 }
               },
               {
-                title: '生效状态',
+                title: formatMessage({id: 'appConfiguration.table.status'}),
                 dataIndex: 'enable',
                 align: 'center',
                 render: val => {
@@ -310,14 +311,14 @@ export default class ConfigurationTable extends PureComponent {
                     <div>
                       <Badge
                         status={val ? 'success' : 'error'}
-                        text={<span>{val ? '生效中' : '不生效'}</span>}
+                        text={<span>{val ? formatMessage({id: 'appConfiguration.table.take_effect'}) : formatMessage({id: 'appConfiguration.table.not_take_effect'})}</span>}
                       />
                     </div>
                   );
                 }
               },
               {
-                title: '操作',
+                title: formatMessage({id: 'appConfiguration.table.operate'}),
                 dataIndex: 'action',
                 align: 'center',
 
@@ -330,7 +331,7 @@ export default class ConfigurationTable extends PureComponent {
                             this.handleConfigurationOperation(data);
                           }}
                         >
-                          编辑
+                         {formatMessage({id: 'appConfiguration.table.btn.edit'})}
                         </a>
                       )}
                       {isDelete && (
@@ -339,7 +340,7 @@ export default class ConfigurationTable extends PureComponent {
                             this.handleDelete(data);
                           }}
                         >
-                          删除
+                          {formatMessage({id: 'appConfiguration.table.btn.delete'})}
                         </a>
                       )}
                     </div>

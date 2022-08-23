@@ -2,7 +2,11 @@
 const enterpriseMenu = {
   'menu.enterprise.dashboard': '总览',
   'menu.enterprise.share': '应用市场',
-  'menu.enterprise.team': '团队',
+  'menu.enterprise.team': '项目/团队',
+  'menu.enterprise.cluster': '集群',
+  'menu.enterprise.user': '用户',
+  'menu.enterprise.monitoring': '监控',
+  'menu.enterprise.audit': '审计',
   'menu.enterprise.setting': '设置',
 }
 const teamMenu = {

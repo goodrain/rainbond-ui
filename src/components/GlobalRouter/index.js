@@ -2,7 +2,7 @@ import { Icon, Menu } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import CollectionView from '../SiderMenu/CollectionView';
@@ -352,7 +352,7 @@ export default class GlobalRouter extends PureComponent {
           >
             <a>
               <Icon type="star" />
-              <span>收藏</span>
+              <span><FormattedMessage id="sidecar.collection" /></span>
             </a>
           </Menu.Item>
         </Menu>

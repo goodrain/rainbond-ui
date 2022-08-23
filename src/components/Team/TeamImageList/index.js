@@ -1,6 +1,7 @@
 import { Card, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import AddImage from '../../AddImage';
 import EditAdmin from '../../EditAdmin';
@@ -159,11 +160,11 @@ export default class MemberList extends PureComponent {
             paddingTop: 12
           }}
           bordered={false}
-          title="镜像仓库授权信息"
+          title={formatMessage({id: 'teamManage.tabs.image'})}
           extra={
             isCreate && (
               <a href="javascript:;" onClick={this.showAddMember}>
-                添加
+                {formatMessage({id: 'teamManage.tabs.image.table.btn.add'})}
               </a>
             )
           }

@@ -1,6 +1,7 @@
 import { Button, Empty, Icon, Menu, Spin, Tabs } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import roleUtil from '../../../utils/role';
 import ConfirmModal from '../../ConfirmModal';
@@ -123,7 +124,9 @@ export default class RoleList extends PureComponent {
       <Fragment>
         <div className={styles.systemRoleWrapper}>
           <div className={styles.systemRole}>
-            <div className={styles.systemRoleTitle}>角色列表</div>
+            <div className={styles.systemRoleTitle}>
+              {formatMessage({id: 'teamManage.tabs.role.title'})}
+            </div>
             <Spin spinning={rolesLoading}>
               <div className={styles.systemRoleList}>
                 {roles && (
@@ -155,17 +158,17 @@ export default class RoleList extends PureComponent {
             <div className={styles.systemRoleBtn}>
               {!showAddRole && isCreate && (
                 <Button type="primary" onClick={this.showAddRole}>
-                  添加角色
+                  {formatMessage({id: 'teamManage.tabs.role.btn.add'})}
                 </Button>
               )}
             </div>
           </div>
           <div className={styles.authSettingBody}>
             <Tabs defaultActiveKey="1">
-              <TabPane tab="权限设置" key="1">
+              <TabPane tab={formatMessage({id: 'teamManage.tabs.role.list.permissions'})} key="1">
                 {!roles && !permissionsLoading && !showAddRole ? (
                   <div className={styles.noRole}>
-                    <Empty description={<span>暂无角色、请先添加角色</span>} />
+                    <Empty description={<span>{formatMessage({id: 'teamManage.tabs.role.null'})}</span>} />
                   </div>
                 ) : (
                   <PermissionsForm

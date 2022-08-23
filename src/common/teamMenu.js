@@ -131,14 +131,15 @@ function menuData(teamName, regionName, permissionsInfo) {
     }
     if (newbieGuide === 'false') {
       return menuArr;
-    } else if (newbieGuide !== undefined) {
-      addMenuArr({
-        name: '任务',
-        icon: 'exclamation-circle',
-        path: `team/${teamName}/region/${regionName}/guide`,
-        authority: ['admin', 'user']
-      });
-    }
+    } 
+    // else if (newbieGuide !== undefined) {
+    //   addMenuArr({
+    //     name: '任务',
+    //     icon: 'exclamation-circle',
+    //     path: `team/${teamName}/region/${regionName}/guide`,
+    //     authority: ['admin', 'user']
+    //   });
+    // }
   }
 
   return menuArr;

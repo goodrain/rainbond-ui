@@ -2,6 +2,7 @@ import { Card } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ConfirmModal from '../../../components/ConfirmModal';
 import globalUtil from '../../../utils/global';
 import OpenRegion from '../../OpenRegion';
@@ -90,9 +91,11 @@ export default class DatacenterList extends PureComponent {
           style={{
             marginBottom: 24
           }}
-          title="已开通集群"
+          title={formatMessage({id: 'teamManage.tabs.cluster.openCluster'})}
           bordered={false}
-          extra={isInstall && <a onClick={this.onOpenRegion}>开通集群</a>}
+          extra={isInstall && <a onClick={this.onOpenRegion}>
+            {formatMessage({id: 'teamManage.tabs.cluster.open'})}
+          </a>}
           loading={projectLoading}
           bodyStyle={{
             padding: 0
@@ -142,7 +145,7 @@ export default class DatacenterList extends PureComponent {
                           onClick={() => this.showCloseRegion(item.region_name)}
                           style={{ float: 'right', color: '#1890ff' }}
                         >
-                          卸载
+                          {formatMessage({id: 'teamManage.tabs.cluster.unload'})}
                         </a>
                       )}
                     </div>
@@ -151,7 +154,8 @@ export default class DatacenterList extends PureComponent {
                 />
                 <div className={styles.projectItemContent}>
                   <span className={styles.datetime}>
-                    开通于{' '}
+                  {formatMessage({id: 'teamManage.tabs.cluster.opened'})}
+                    {' '}
                     {moment(item.create_time)
                       .locale('zh-cn')
                       .format('YYYY年-MM月-DD日')}
@@ -167,7 +171,7 @@ export default class DatacenterList extends PureComponent {
                 paddingTop: 20
               }}
             >
-              暂无集群
+            {formatMessage({id: 'teamManage.tabs.cluster.null'})}
             </p>
           ) : (
             ''
@@ -183,8 +187,8 @@ export default class DatacenterList extends PureComponent {
           <ConfirmModal
             onOk={this.handleCloseRegion}
             loading={closeRegionLoading}
-            title="卸载集群"
-            desc="卸载当前集群将同时删除团队在该集群创建的相关资源，确认要卸载吗?"
+            title={formatMessage({id: 'teamManage.tabs.cluster.unloadCluster'})}
+            desc={formatMessage({id: 'teamManage.tabs.cluster.unloadCluster.desc'})}
             onCancel={this.cancelCloseRegion}
           />
         )}
