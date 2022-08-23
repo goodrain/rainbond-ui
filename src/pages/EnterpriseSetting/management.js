@@ -17,6 +17,7 @@ import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import AddAdmin from '../../components/AddAdmin';
 import ConfirmModal from '../../components/ConfirmModal';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from './index.less';
 @connect(({ user, loading, global }) => ({
   user: user.currentUser,
@@ -210,7 +211,8 @@ export default class Management extends PureComponent {
                 this.showDelTeam(item.user_id);
               }}
             >
-              删除管理员
+              {/* 删除管理员 */}
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.delete'/>
             </a>
           </Menu.Item>
           <Menu.Item>
@@ -220,7 +222,8 @@ export default class Management extends PureComponent {
                 this.handleEdit(item);
               }}
             >
-              编辑管理员
+              {/* 编辑管理员 */}
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.edit'/>
             </a>
           </Menu.Item>
         </Menu>
@@ -233,7 +236,8 @@ export default class Management extends PureComponent {
           onClick={this.onAddAdmin}
           className={styles.btns}
         >
-          添加管理员
+          {/* 添加管理员 */}
+          <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time.add'/>
         </Button>
       </Col>
     );
@@ -247,10 +251,22 @@ export default class Management extends PureComponent {
             align="middle"
             style={{ padding: ' 0 0 10px 24px' }}
           >
-            <Col span={5}>名称</Col>
-            <Col span={5}>姓名</Col>
-            <Col span={6}>角色</Col>
-            <Col span={5}>时间</Col>
+            <Col span={5}>
+              {/* 名称 */}
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.designation'/>
+            </Col>
+            <Col span={5}>
+              {/* 姓名 */}
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.name'/>
+            </Col>
+            <Col span={6}>
+              {/* 角色 */}
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.role'/>
+            </Col>
+            <Col span={5}>
+              {/* 时间 */}
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time'/>
+            </Col>
           </Row>
         )}
         {adminLists ? (

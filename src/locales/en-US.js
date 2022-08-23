@@ -9,6 +9,7 @@ import team from './en-US/team';
 import enterprise from "./en-US/enterprise"
 import common from './en-US/common';
 import component from './en-US/component';
+import global from './en-US/global';
 
 export default {
   'navBar.lang': 'lang',
@@ -26,5 +27,6 @@ export default {
   ...team,
   ...component,
   ...enterprise,
-  ...common
+  ...common,
+  ...global
 };

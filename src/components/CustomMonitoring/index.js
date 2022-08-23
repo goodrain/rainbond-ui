@@ -21,6 +21,7 @@ import {
 import styless from './index.less';
 import styles from '../CreateTeam/index.less';
 import RangeChart from '@/components/CustomChart/rangeChart';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 @Form.create()
@@ -117,7 +118,7 @@ export default class CustomMonitoring extends PureComponent {
     };
     return (
       <Modal
-        title={info && info.ID ? '编辑图表' : '添加图表'}
+        title={info && info.ID ? <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitoring.editChart'/> : <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitoring.addChart'/>}
         visible
         width={600}
         confirmLoading={loading}
@@ -126,7 +127,8 @@ export default class CustomMonitoring extends PureComponent {
         onOk={this.onOk}
         footer={[
           <Button style={{ marginTop: '10px' }} onClick={onCancel}>
-            取消
+            {/* 取消 */}
+            <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitoring.cancel'/>
           </Button>,
           <Button
             style={{ marginTop: '10px' }}
@@ -134,7 +136,7 @@ export default class CustomMonitoring extends PureComponent {
             loading={addLoading || editLoading}
             onClick={this.onOk}
           >
-            {info && info.graph_id ? '保存' : '添加'}
+            {info && info.graph_id ? <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitoring.preservation'/> : <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitoring.add'/>}
           </Button>
         ]}
       >
@@ -143,7 +145,8 @@ export default class CustomMonitoring extends PureComponent {
             <Spin spinning={loading}>
               <Alert
                 style={{ marginBottom: '10px' }}
-                message="请输入 标准PromQL 语法进行查询显示图表"
+                // message="请输入 标准PromQL 语法进行查询显示图表"
+                message={<FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitoring.input'/>}
                 type="info"
                 showIcon
               />
@@ -155,16 +158,16 @@ export default class CustomMonitoring extends PureComponent {
                     {getFieldDecorator('title', {
                       initialValue: info.title || '',
                       rules: [
-                        { required: true, message: '请填写标题' },
+                        { required: true, message: formatMessage({id:'componentOverview.body.tab.monitor.CustomMonitoring.title'}) },
                         {
                           max: 64,
-                          message: '最大长度64位'
+                          message: formatMessage({id:'componentOverview.body.tab.monitor.CustomMonitoring.max'})
                         }
                       ]
                     })(
                       <Input
                         style={{ width: 'calc(100% - 15px)' }}
-                        placeholder="请填写标题"
+                        placeholder={formatMessage({id:'componentOverview.body.tab.monitor.CustomMonitoring.title'})}
                       />
                     )}
                   </FormItem>
@@ -175,10 +178,10 @@ export default class CustomMonitoring extends PureComponent {
                     {getFieldDecorator('promql', {
                       initialValue: info.promql || '',
                       rules: [
-                        { required: true, message: '请填写查询条件' },
+                        { required: true, message: formatMessage({id:'componentOverview.body.tab.monitor.CustomMonitoring.queryCriteria'}) },
                         {
                           max: 255,
-                          message: '最大长度255位'
+                          message: formatMessage({id:'componentOverview.body.tab.monitor.CustomMonitoring.maxLength'})
                         }
                       ]
                     })(
@@ -193,10 +196,13 @@ export default class CustomMonitoring extends PureComponent {
                             .toUpperCase()
                             .indexOf(inputValue.toUpperCase()) !== -1
                         }
-                        placeholder="请填写查询条件"
+                        placeholder={formatMessage({id:'componentOverview.body.tab.monitor.CustomMonitoring.queryCriteria'})}
                       />
                     )}
-                    <Button onClick={this.handleSearch}>查询</Button>
+                    <Button onClick={this.handleSearch}>
+                      {/* 查询 */}
+                      <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitoring.query'/>
+                    </Button>
                   </FormItem>
                   <div style={{ minHeight: '300px' }}>
                     {RangeData.length > 0 &&

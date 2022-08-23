@@ -6,6 +6,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import userUtil from '../../utils/user';
 import BackupManage from './backup';
 import Infrastructure from './infrastructure';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Management from './management';
 
 const { TabPane } = Tabs;
@@ -46,14 +47,17 @@ export default class EnterpriseSetting extends PureComponent {
     const { adminer, activeKey } = this.state;
     return (
       <PageHeaderLayout
-        title="企业设置"
-        content="支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供"
+        // title="企业设置"
+        title={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.title'/>}
+        // content="支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供"
+        content={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.content'/>}
       >
         <Tabs onChange={this.onChange} activeKey={activeKey}>
           <TabPane 
           tab={
                <div>
-                基础设置
+                {/* 基础设置 */}
+                <FormattedMessage id='enterpriseSetting.TabPane.basicsSetting'/>
                </div>
           }
           key="infrastructure"
@@ -64,7 +68,8 @@ export default class EnterpriseSetting extends PureComponent {
             <TabPane 
             tab={
                  <div>
-                  企业管理员管理
+                  {/* 企业管理员管理 */}
+                  <FormattedMessage id='enterpriseSetting.TabPane.enterpriseAdmin'/>
                  </div>
             } 
             key="management">
@@ -75,7 +80,8 @@ export default class EnterpriseSetting extends PureComponent {
             <TabPane 
             tab={
                  <div>
-                  数据备份
+                  {/* 数据备份 */}
+                  <FormattedMessage id='enterpriseSetting.TabPane.dataBackups'/>
                  </div>
                 } 
             key="backup">

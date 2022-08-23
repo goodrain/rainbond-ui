@@ -17,6 +17,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import { openInNewTab } from '../../utils/utils';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from './index.less';
 
 /*
@@ -172,7 +173,8 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
-            访问
+            {/* 访问 */}
+            <FormattedMessage id='componentOverview.header.right.visit'/>
           </Button>
         </Tooltip>
         {showModal && (
@@ -249,7 +251,8 @@ export default class Index extends PureComponent {
               openInNewTab(links[0]);
             }}
           >
-            访问
+            {/* 访问 */}
+            <FormattedMessage id='componentOverview.header.right.visit'/>
           </Button>
         </Tooltip>
       );
@@ -261,7 +264,8 @@ export default class Index extends PureComponent {
             placement="topRight"
           >
             <Button type={this.props.btntype} onClick={this.showModal}>
-              访问
+              {/* 访问 */}
+              <FormattedMessage id='componentOverview.header.right.visit'/>
             </Button>
           </Tooltip>
           {showModal && (
@@ -308,7 +312,8 @@ export default class Index extends PureComponent {
         >
           <Button type={this.props.btntype}>
             <a href={links[0]} target="_blank">
-              访问
+            <FormattedMessage id='componentOverview.header.right.visit'/>
+              {/* 访问 */}
             </a>
           </Button>
         </Dropdown>
@@ -322,7 +327,8 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
-            访问
+            <FormattedMessage id='componentOverview.header.right.visit'/>
+            {/* 访问 */}
           </Button>
         </Tooltip>
         {showModal && (
@@ -370,6 +376,7 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
+            <FormattedMessage id='componentOverview.header.right.visit'/>
             访问
           </Button>
         </Tooltip>
@@ -594,7 +601,8 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
-            访问
+          <FormattedMessage id='componentOverview.header.right.visit'/>
+            {/* 访问 */}
           </Button>
         </Tooltip>
         {showModal && (

@@ -15,6 +15,7 @@ import React, { Fragment } from 'react';
 import globalUtil from '../../utils/global';
 import ConfirmModal from '../ConfirmModal';
 import ScrollerX from '../ScrollerX';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from './Index.less';
 
 const { Search } = Input;
@@ -97,47 +98,48 @@ class EditableCell extends React.Component {
     let rulesList = [];
 
     if (dataIndex === 'attr_name') {
-      placeholders = '请输入变量名称';
+      placeholders = `${formatMessage({id:'componentOverview.body.tab.env.table.attr_name.placeholders'})}`;
 
       rulesList = [
         {
           required: true,
-          message: '请输入变量名称'
+          message: formatMessage({id:'componentOverview.body.tab.env.table.attr_name.required'})
         },
         {
           max: 1024,
-          message: '最大长度1024位'
+          message: formatMessage({id:'componentOverview.body.tab.env.table.attr_name.max'})
         },
         {
           pattern: /[-._a-zA-Z][-._a-zA-Z0-9]/,
-          message: ' 必须由字母、数字和 - . _ 组成，不支持数字开头'
+          message: formatMessage({id:'componentOverview.body.tab.env.table.attr_name.pattern'})
         }
       ];
     } else if (dataIndex === 'attr_value') {
       rulesList = [
         {
           required: false,
-          message: '请输入变量值'
+          message: formatMessage({id:'componentOverview.body.tab.env.table.attr_value.required'})
         },
         {
           max: 65535,
-          message: '最大长度65535位'
+          message: formatMessage({id:'componentOverview.body.tab.env.table.attr_value.max'})
         }
       ];
-      placeholders = '请输入变量值';
+      placeholders = `${formatMessage({id:'componentOverview.body.tab.env.table.attr_value.placeholders'})}`;
     } else {
       rulesList = [
         {
           required: false,
-          message: '请输入变量说明'
+          message: formatMessage({id:'componentOverview.body.tab.env.table.attr_path.required'})
         },
         {
           max: 1024,
-          message: '最大长度1024位'
+          message: formatMessage({id:'componentOverview.body.tab.env.table.attr_path.max'})
         }
       ];
 
-      placeholders = '请输入变量说明';
+      // placeholders = '请输入变量说明';
+      placeholders = `${formatMessage({id:'componentOverview.body.tab.env.table.attr_path.placeholders'})}`;
     }
     return (
       <td {...restProps}>
@@ -510,7 +512,7 @@ class EnvironmentVariable extends React.Component {
 
     const column = [
       {
-        title: '变量名',
+        title: formatMessage({id:'componentOverview.body.tab.env.table.column.attr_name'}),
         dataIndex: 'attr_name',
         key: '1',
         width: '30%',
@@ -518,7 +520,7 @@ class EnvironmentVariable extends React.Component {
         render: v => this.handleDiv(v)
       },
       {
-        title: '变量值',
+        title: formatMessage({id:'componentOverview.body.tab.env.table.column.attr_value'}),
         dataIndex: 'attr_value',
         key: '2',
         width: '30%',
@@ -543,7 +545,7 @@ class EnvironmentVariable extends React.Component {
         }
       },
       {
-        title: '说明',
+        title: formatMessage({id:'componentOverview.body.tab.env.table.column.name'}),
         dataIndex: 'name',
         key: '3',
         width: '25%',
@@ -554,7 +556,7 @@ class EnvironmentVariable extends React.Component {
 
     if (type !== 'OuterEnvs') {
       column.push({
-        title: '操作',
+        title: formatMessage({id:'componentOverview.body.tab.env.table.column.action'}),
         dataIndex: 'action',
         key: '4',
         width: '15%',
@@ -572,7 +574,8 @@ class EnvironmentVariable extends React.Component {
                       onClick={() => this.save(form, data.ID)}
                       type="link"
                     >
-                      保存
+                      {/* 保存 */}
+                      <FormattedMessage id='componentOverview.body.tab.env.table.column.preservation'/>
                     </Button>
                   )}
                 </EditableContext.Consumer>
@@ -582,7 +585,8 @@ class EnvironmentVariable extends React.Component {
                       onClick={() => this.save(form, data.ID, true)}
                       style={{ marginRight: 8 }}
                     >
-                      取消
+                      {/* 取消 */}
+                      <FormattedMessage id='componentOverview.body.tab.env.table.column.cancel'/>
                     </a>
                   )}
                 </EditableContext.Consumer>
@@ -593,7 +597,8 @@ class EnvironmentVariable extends React.Component {
                   onClick={() => this.onDeleteVariabl(data.ID)}
                   style={{ marginRight: '5px' }}
                 >
-                  删除
+                  {/* 删除 */}
+                  <FormattedMessage id='componentOverview.body.tab.env.table.column.delete'/>
                 </a>
                 {(type === 'Inner' || autoQuery) && (
                   <Tooltip
@@ -601,15 +606,19 @@ class EnvironmentVariable extends React.Component {
                       <p>
                         {autoQuery ? (
                           <span>
-                            将此连接信息变量转换为
+                            {/* 将此连接信息变量转换为 */}
+                            <FormattedMessage id='componentOverview.body.tab.env.table.column.msg'/>
                             <br />
-                            环境变量
+                            {/* 环境变量 */}
+                            <FormattedMessage id='componentOverview.body.tab.env.table.column.nextMsg'/>
                           </span>
                         ) : (
                           <span>
-                            将此环境变量转换为
+                            {/* 将此环境变量转换为 */}
+                            <FormattedMessage id='componentOverview.body.tab.env.table.column.explain'/>
                             <br />
-                            组件连接信息变量
+                            {/* 组件连接信息变量 */}
+                            <FormattedMessage id='componentOverview.body.tab.env.table.column.nextExplain'/>
                           </span>
                         )}
                       </p>
@@ -622,7 +631,8 @@ class EnvironmentVariable extends React.Component {
                       }}
                       style={{ marginRight: '5px' }}
                     >
-                      转移
+                      {/* 转移 */}
+                      <FormattedMessage id='componentOverview.body.tab.env.table.column.transfer'/>
                     </a>
                   </Tooltip>
                 )}
@@ -632,7 +642,8 @@ class EnvironmentVariable extends React.Component {
                     this.edit(data.ID);
                   }}
                 >
-                  修改
+                  {/* 修改 */}
+                  <FormattedMessage id='componentOverview.body.tab.env.table.column.edit'/>
                 </a>
               </Fragment>
             );
@@ -663,7 +674,8 @@ class EnvironmentVariable extends React.Component {
     const addButton = (
       <Button onClick={this.handleAdd} disabled={addVariable}>
         <Icon type="plus" />
-        添加变量
+        {/* 添加变量 */}
+        <FormattedMessage id='componentOverview.body.tab.env.table.column.add'/>
       </Button>
     );
 
@@ -713,7 +725,7 @@ class EnvironmentVariable extends React.Component {
             >
               <Search
                 style={{ width: '260px' }}
-                placeholder="请输入变量名进行搜索"
+                placeholder={formatMessage({id:'componentOverview.body.tab.env.table.column.placeholder'})}
                 onSearch={this.handleSearch}
               />
               {addButton}

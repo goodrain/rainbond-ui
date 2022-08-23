@@ -22,6 +22,7 @@ import {
 import cookie from '../../utils/cookie';
 import download from '../../utils/download';
 import sourceUtil from '../../utils/source-unit';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -171,16 +172,19 @@ export default class BackupManage extends PureComponent {
     const { form } = this.props;
     const columns = [
       {
-        title: '备份文件',
+        // title: '备份文件',
+        title: formatMessage({id:'enterpriseSetting.BackupManage.table.backupFile'}),
         dataIndex: 'name'
       },
       {
-        title: '大小',
+        // title: '大小',
+        title: formatMessage({id:'enterpriseSetting.BackupManage.table.size'}),
         dataIndex: 'size',
         render: value => sourceUtil.unit(value / 1024)
       },
       {
-        title: '操作',
+        // title: '操作',
+        title: formatMessage({id:'enterpriseSetting.BackupManage.table.handle'}),
         dataIndex: 'name',
         render: value => [
           <Popconfirm
@@ -188,16 +192,23 @@ export default class BackupManage extends PureComponent {
             okText="确定"
             onConfirm={() => this.onRemove(value)}
           >
-            <a>删除</a>
+            <a>
+              {/* 删除 */}
+              <FormattedMessage id='enterpriseSetting.BackupManage.table.handle.delete'/>
+            </a>
           </Popconfirm>,
           <a
             onClick={() => {
               this.onDownload(value);
             }}
           >
-            下载
+            {/* 下载 */}
+            <FormattedMessage id='enterpriseSetting.BackupManage.table.handle.install'/>
           </a>,
-          <a onClick={() => this.onRecover(value)}>恢复</a>
+          <a onClick={() => this.onRecover(value)}>
+            {/* 恢复 */}
+            <FormattedMessage id='enterpriseSetting.BackupManage.table.handle.recover'/>
+          </a>
         ]
       }
     ];
@@ -211,7 +222,8 @@ export default class BackupManage extends PureComponent {
             <Col span={16}>
               <Alert
                 type="info"
-                message="数据备份与恢复适用于数据迁移场景，比如你需要将控制台进行迁移部署。"
+                // message="数据备份与恢复适用于数据迁移场景，比如你需要将控制台进行迁移部署。"
+                message={<FormattedMessage id='enterpriseSetting.BackupManage.alert.message'/>}
               />
             </Col>
             <Col span={8} style={{ textAlign: 'right' }}>
@@ -225,7 +237,8 @@ export default class BackupManage extends PureComponent {
                 disabled={uploadLoading}
               >
                 <Button loading={uploadLoading} style={{ marginRight: '16px' }}>
-                  导入备份
+                  {/* 导入备份 */}
+                  <FormattedMessage id='enterpriseSetting.BackupManage.button.importBackups'/>
                 </Button>
               </Upload>
               <Button
@@ -234,7 +247,8 @@ export default class BackupManage extends PureComponent {
                 loading={addLoading}
                 className={styles.btns}
               >
-                增加备份
+                {/* 增加备份 */}
+                <FormattedMessage id='enterpriseSetting.BackupManage.button.addBackups'/>
               </Button>
             </Col>
           </Row>

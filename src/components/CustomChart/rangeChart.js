@@ -12,6 +12,7 @@ import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styless from './index.less';
 
 @connect(({ application }) => ({ curAppDetail: application.groupDetail }))
@@ -150,19 +151,54 @@ export default class RangeChart extends PureComponent {
     }
     switch (type) {
       case 'containerMem':
-        return { title: '内存使用量', label: '内存（MB）', unit: ' MB' };
+        // return { title: '内存使用量', label: '内存（MB）', unit: ' MB' };
+        return { 
+          title: formatMessage({id:'componentOverview.body.tab.monitor.history.containerMem.title'}),
+          label: formatMessage({id:'componentOverview.body.tab.monitor.history.containerMem.label'}),
+          unit: ' MB'
+      }
       case 'containerCpu':
-        return { title: 'CPU使用率', label: 'CPU使用率（%）', unit: '%' };
+        // return { title: 'CPU使用率', label: 'CPU使用率（%）', unit: '%' };
+        return { 
+          title: formatMessage({id:'componentOverview.body.tab.monitor.history.containerCpu.title'}),
+          label: formatMessage({id:'componentOverview.body.tab.monitor.history.containerCpu.label'}),
+          unit: '%'
+      }
       case 'containerNetR':
-        return { title: '传入流量', label: '流量（KB/s）', unit: ' KB/s' };
+        // return { title: '传入流量', label: '流量（KB/s）', unit: ' KB/s' };
+        return { 
+          title: formatMessage({id:'componentOverview.body.tab.monitor.history.containerNetR.title'}),
+          label: formatMessage({id:'componentOverview.body.tab.monitor.history.containerNetR.label'}),
+          unit: ' KB/s'
+      }
       case 'containerNetT':
-        return { title: '传出流量', label: '流量（KB/s）', unit: ' KB/s' };
+        // return { title: '传出流量', label: '流量（KB/s）', unit: ' KB/s' };
+        return { 
+          title: formatMessage({id:'componentOverview.body.tab.monitor.history.containerNetT.title'}),
+          label: formatMessage({id:'componentOverview.body.tab.monitor.history.containerNetT.label'}),
+          unit: ' KB/s'
+      }
       case 'responseTime':
-        return { title: '响应时间', label: '响应时间（ms）', unit: ' ms' };
+        // return { title: '响应时间', label: '响应时间（ms）', unit: ' ms' };
+        return { 
+          title: formatMessage({id:'componentOverview.body.tab.monitor.history.responseTime.title'}),
+          label: formatMessage({id:'componentOverview.body.tab.monitor.history.responseTime.label'}),
+          uunit: ' ms'
+      }
       case 'throughput':
-        return { title: '吞吐率', label: '吞吐率（dps）', unit: ' dps' };
+        // return { title: '吞吐率', label: '吞吐率（dps）', unit: ' dps' };
+        return { 
+          title: formatMessage({id:'componentOverview.body.tab.monitor.history.throughput.title'}),
+          label: formatMessage({id:'componentOverview.body.tab.monitor.history.throughput.label'}),
+          uunit: ' dps'
+      }
       case 'numberOnline':
-        return { title: '在线人数', label: '在线人数', unit: '' };
+        // return { title: '在线人数', label: '在线人数', unit: '' };
+        return { 
+          title: formatMessage({id:'componentOverview.body.tab.monitor.history.numberOnline.title'}),
+          label: formatMessage({id:'componentOverview.body.tab.monitor.history.numberOnline.label'}),
+          unit: ''
+      }
       default:
         return { title: '', label: '', unit: '' };
     }
@@ -248,7 +284,7 @@ export default class RangeChart extends PureComponent {
         : this.converData(memoryRange);
     const cols = {
       time: {
-        alias: '时间',
+        alias:  formatMessage({id:'componentOverview.body.tab.monitor.history.time'}),
         tickCount: 10,
         type: 'time',
         formatter: v =>
@@ -288,7 +324,8 @@ export default class RangeChart extends PureComponent {
                         }}
                         style={{ marginRight: '10px' }}
                       >
-                        编辑
+                        {/* 编辑 */}
+                        <FormattedMessage id='componentOverview.body.tab.monitor.history.edit'/>
                       </a>
                       <a
                         onClick={e => {
@@ -297,11 +334,15 @@ export default class RangeChart extends PureComponent {
                         }}
                         style={{ marginRight: '10px' }}
                       >
-                        删除
+                        {/* 删除 */}
+                        <FormattedMessage id='componentOverview.body.tab.monitor.history.delete'/>
                       </a>
                     </span>
                   )}
-                  <a onClick={this.loadRefresh}>刷新</a>
+                  <a onClick={this.loadRefresh}>
+                    {/* 刷新 */}
+                    <FormattedMessage id='componentOverview.body.tab.monitor.history.refresh'/>
+                  </a>
                 </div>
               )
             }

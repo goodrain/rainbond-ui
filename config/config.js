@@ -27,7 +27,7 @@ export default {
         locale: {
           // default false
           enable: false,
-          // default zh-CN,
+          // default 'zh-CN',
           // default: 'zh-CN',
           // default true, when it is true, will use `navigator.language` overwrite default
           baseNavigator: true,
@@ -49,11 +49,11 @@ export default {
   routes: routerConfig,
   proxy: {
     '/console': {
-      target: 'http://127.0.0.1:8000',
+      target: 'http://47.104.161.96:7070',
       changeOrigin: true
     },
     '/data': {
-      target: 'http://127.0.0.1:7070',
+      target: 'http://47.104.161.96:7070',
       changeOrigin: true
     }
   }
