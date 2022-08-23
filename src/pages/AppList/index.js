@@ -12,6 +12,7 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import ScrollerX from '../../components/ScrollerX';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -146,18 +147,18 @@ export default class AppList extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: '应用列表' });
+    breadcrumbList.push({ title: formatMessage({id: 'teamOverview.appList'}) });
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title="应用管理"
-        content="应用可以是一个工程，一个架构，一个业务系统的管理单元，其由多个组件和应用配置构成"
+        title={<FormattedMessage id="teamApply.title" />}
+        content={<FormattedMessage id="teamApply.desc" />}
       >
         <Row>
           <Form layout="inline" style={{ display: 'inline-block' }}>
             <FormItem>
               <Input
-                placeholder="搜索应用"
+                placeholder={formatMessage({id: 'teamApply.searchTips'})}
                 onChange={this.handelChange}
                 onPressEnter={this.handleEnter}
                 style={{ width: 250 }}
@@ -165,7 +166,7 @@ export default class AppList extends PureComponent {
             </FormItem>
             <FormItem>
               <Button type="primary" onClick={this.handleSearch} icon="search">
-                搜索
+              <FormattedMessage id="teamApply.search" />
               </Button>
             </FormItem>
           </Form>
@@ -176,7 +177,7 @@ export default class AppList extends PureComponent {
               style={{ float: 'right', marginBottom: '20px' }}
               onClick={this.onAddGroup}
             >
-              新建应用
+              <FormattedMessage id="teamApply.createApp" />
             </Button>
           )}
         </Row>
@@ -206,7 +207,7 @@ export default class AppList extends PureComponent {
               dataSource={apps || []}
               columns={[
                 {
-                  title: '应用名称',
+                  title: formatMessage({id: 'teamApply.appName'}),
                   dataIndex: 'group_name',
                   width: 300,
                   render: (val, data) => {
@@ -224,7 +225,7 @@ export default class AppList extends PureComponent {
                   }
                 },
                 {
-                  title: '更新时间',
+                  title: formatMessage({id: 'teamApply.updateTime'}),
                   dataIndex: 'update_time',
                   width: 200,
                   render: val => {
@@ -235,7 +236,7 @@ export default class AppList extends PureComponent {
                   }
                 },
                 {
-                  title: '创建时间',
+                  title: formatMessage({id: 'teamApply.createTime'}),
                   dataIndex: 'create_time',
                   width: 200,
                   render: val => {
@@ -246,7 +247,7 @@ export default class AppList extends PureComponent {
                   }
                 },
                 {
-                  title: '组件(运行/总数)',
+                  title: formatMessage({id: 'teamApply.componentNumComparison'}),
                   dataIndex: 'services_num',
                   align: 'center',
                   width: 150,
@@ -259,7 +260,7 @@ export default class AppList extends PureComponent {
                   }
                 },
                 {
-                  title: '占用内存/分配内存(MB)',
+                  title: formatMessage({id: 'teamApply.memoryNumComparison'}),
                   dataIndex: 'used_mem',
                   align: 'center',
                   width: 200,
@@ -272,7 +273,7 @@ export default class AppList extends PureComponent {
                   }
                 },
                 {
-                  title: '备份记录',
+                  title: formatMessage({id: 'teamApply.duplicateRecord'}),
                   width: 150,
                   dataIndex: 'backup_record_num',
                   align: 'center',
@@ -287,7 +288,7 @@ export default class AppList extends PureComponent {
                   }
                 },
                 {
-                  title: '发布记录',
+                  title: formatMessage({id: 'teamApply.releaseRecord'}),
                   width: 150,
                   dataIndex: 'share_record_num',
                   align: 'center',
@@ -302,7 +303,7 @@ export default class AppList extends PureComponent {
                   }
                 },
                 {
-                  title: '备注',
+                  title: formatMessage({id: 'teamApply.remarks'}),
                   dataIndex: 'group_note',
                   width: 100,
                   render: val => {

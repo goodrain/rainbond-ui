@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import HttpTable from '../../components/HttpTable';
 import TcpTable from '../../components/TcpTable';
@@ -73,11 +74,11 @@ class Control extends Component {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: '网关管理' });
+    breadcrumbList.push({ title: formatMessage({id: 'teamGateway.strategy.manage'}) });
 
     return (
       <PageHeaderLayout
-        title="访问控制"
+        title={formatMessage({id: 'teamGateway.strategy.title'})}
         tabActiveKey={this.state.tabKey}
         breadcrumbList={breadcrumbList}
         tabList={[

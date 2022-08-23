@@ -4,6 +4,7 @@
 import PageHeaderLayout from '@/layouts/PageHeaderLayout';
 import { Button, Card, Drawer, Form, Table, notification, Popover, Spin } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from "../../utils/global"
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 import { getKubernetesVal, getSingleKubernetesVal, addSingleKubernetesVal, delSingleKubernetesVal, editSingleKubernetesVal } from "../../services/application";
@@ -215,32 +216,32 @@ class Index extends PureComponent {
 
     const columns = [
       {
-        title: '资源名称',
+        title: formatMessage({id: 'addKubenetesResource.table.name'}),
         dataIndex: 'name',
         key: 'name',
         align: 'center',
         width: 300
       },
       {
-        title: '资源类型',
+        title: formatMessage({id: 'addKubenetesResource.table.type'}),
         dataIndex: 'kind',
         key: 'kind',
         align: 'center',
         width: 200
       },
       {
-        title: '状态',
+        title: formatMessage({id: 'addKubenetesResource.table.status'}),
         dataIndex: 'state',
         key: 'state',
         align: 'center',
         width: 200,
         render: (text, record) => {
           return <div>
-            {text == 1 && <span style={{ color: 'green' }}>创建成功</span>}
-            {text == 2 && <span style={{ color: 'green' }}>更新成功</span>}
+            {text == 1 && <span style={{ color: 'green' }}>{formatMessage({id: 'addKubenetesResource.table.success'})}</span>}
+            {text == 2 && <span style={{ color: 'green' }}>{formatMessage({id: 'addKubenetesResource.table.update_success'})}</span>}
             {text == 3 &&
               <>
-                <span style={{ color: 'red' }}>创建失败</span>
+                <span style={{ color: 'red' }}>{formatMessage({id: 'addKubenetesResource.table.error'})}</span>
                 <Popover
                   overlayClassName={styles.tooltip_style}
                   placement="bottom"
@@ -251,25 +252,25 @@ class Index extends PureComponent {
                   <span
                     style={{ marginLeft: "20px", color: "#5672ac", cursor: "pointer" }}
                   >
-                    查看详情
+                    {formatMessage({id: 'addKubenetesResource.table.checkDetail'})}
                   </span>
                 </Popover>
               </>
             }
             {text == 4 &&
               <div >
-                <span style={{ color: 'red' }}>更新失败</span>
+                <span style={{ color: 'red' }}>{formatMessage({id: 'addKubenetesResource.table.update_error'})}</span>
                 <Popover
                   overlayClassName={styles.tooltip_style}
                   placement="bottom"
-                  title="失败详情"
+                  title={formatMessage({id: 'addKubenetesResource.table.errorDetail'})}
                   content={record.error_overview}
                   trigger="click"
                 >
                   <span
                     style={{ marginLeft: "20px", color: "#5672ac", cursor: "pointer" }}
                   >
-                    查看详情
+                    {formatMessage({id: 'addKubenetesResource.table.checkDetail'})}
                   </span>
                 </Popover>
               </div>
@@ -278,7 +279,7 @@ class Index extends PureComponent {
         }
       },
       {
-        title: '操作',
+        title: formatMessage({id: 'addKubenetesResource.table.operate'}),
         dataIndex: 'content',
         key: 'content',
         align: 'center',
@@ -287,12 +288,12 @@ class Index extends PureComponent {
           return (
             <>
               {record.state === 3 ? (
-                <span className={styles.action} onClick={() => this.editErrButton("edit", record)} style={{ marginRight: "10px" }}>查看</span>
+                <span className={styles.action} onClick={() => this.editErrButton("edit", record)} style={{ marginRight: "10px" }}>{formatMessage({id: 'addKubenetesResource.table.btn.check'})}</span>
               ) : (
-                <span className={styles.action} onClick={() => this.editButton("edit", record)} style={{ marginRight: "10px" }}>编辑</span>
+                <span className={styles.action} onClick={() => this.editButton("edit", record)} style={{ marginRight: "10px" }}>{formatMessage({id: 'addKubenetesResource.table.btn.edit'})}</span>
               )
               }
-              <span className={styles.action} onClick={() => this.deleteButton(record)}>删除</span>
+              <span className={styles.action} onClick={() => this.deleteButton(record)}>{formatMessage({id: 'addKubenetesResource.table.btn.delete'})}</span>
             </>
           );
         }
@@ -301,8 +302,8 @@ class Index extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="K8s 资源管理"
-        content="此处管理直接通过 Yaml 文件部署到 Kubernetes 集群中的资源。"
+        title={formatMessage({id: 'addKubenetesResource.title'})}
+        content={formatMessage({id: 'addKubenetesResource.desc'})}
       >
         <div
           style={{
@@ -318,7 +319,7 @@ class Index extends PureComponent {
               this.handleConfigurationOperation();
             }}
           >
-            添加
+            {formatMessage({id: 'addKubenetesResource.btn.add'})}
           </Button>
         </div>
         <Card>

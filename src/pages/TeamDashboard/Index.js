@@ -19,6 +19,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import EditGroupName from '../../components/AddOrEditGroup';
 import AppState from '../../components/ApplicationState';
 import Result from '../../components/Result';
@@ -561,7 +562,7 @@ export default class Index extends PureComponent {
             {/* 应用 */}
             <div>
               <div className={styles.teamApp}>
-                <h3 className={styles.teamAppTitle}>应用</h3>
+                <h3 className={styles.teamAppTitle}><FormattedMessage id="teamOverview.app.name" /></h3>
                 <div className={styles.teamAppContent}>
                   {/* 图表 */}
                   <div id="appEcharts" className={styles.appEcharts} />
@@ -575,10 +576,10 @@ export default class Index extends PureComponent {
                         className={styles.ellipsis}
                         style={{ width: '100%' }}
                       >
-                        {(index.overviewInfo &&
-                          index.overviewInfo.running_app_num) ||
-                          0}
-                        个运行的应用
+                        <FormattedMessage 
+                          id="teamOverview.runAppNum" 
+                          values={{number:(index.overviewInfo && index.overviewInfo.running_app_num) || 0}}
+                        />
                       </span>
                     </div>
                     <div className={styles.defaultApp}>
@@ -593,20 +594,17 @@ export default class Index extends PureComponent {
                         className={styles.ellipsis}
                         style={{ width: '100%' }}
                       >
-                        {index.overviewInfo.team_app_num -
-                          index.overviewInfo.running_app_num || 0}
-                        个未运行的应用
+                        <FormattedMessage 
+                          id="teamOverview.notRunAppNum"
+                          values={{number:(index.overviewInfo.team_app_num - index.overviewInfo.running_app_num) || 0}}
+                        />
                       </span>
                     </div>
                     <div className={styles.totalApp}>
-                      <span>
-                        共
-                        {(index.overviewInfo &&
-                          index.overviewInfo &&
-                          index.overviewInfo.team_app_num) ||
-                          0}
-                        个应用
-                      </span>
+                      <FormattedMessage 
+                        id="teamOverview.appSum" 
+                        values={{number:(index.overviewInfo &&index.overviewInfo && index.overviewInfo.team_app_num) || 0 }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -615,7 +613,7 @@ export default class Index extends PureComponent {
             {/* 组件 */}
             <div>
               <div className={styles.teamApp}>
-                <h3 className={styles.teamAppTitle}>组件</h3>
+                <h3 className={styles.teamAppTitle}> <FormattedMessage id="teamOverview.component.name" /></h3>
                 <div className={styles.teamAppContent}>
                   {/* 图表 */}
                   <div id="componmentEcharts" className={styles.appEcharts} />
@@ -629,10 +627,10 @@ export default class Index extends PureComponent {
                         className={styles.ellipsis}
                         style={{ width: '100%' }}
                       >
-                        {(index.overviewInfo &&
-                          index.overviewInfo.running_component_num) ||
-                          0}
-                        个运行的组件
+                        <FormattedMessage 
+                          id="teamOverview.runComponentNum" 
+                          values={{number:(index.overviewInfo && index.overviewInfo.running_component_num) || 0 }}
+                        />
                       </span>
                     </div>
                     <div className={styles.defaultApp}>
@@ -647,20 +645,19 @@ export default class Index extends PureComponent {
                         className={styles.ellipsis}
                         style={{ width: '100%' }}
                       >
-                        {index.overviewInfo.team_service_num -
-                          index.overviewInfo.running_component_num || 0}
-                        个未运行的组件
+                        <FormattedMessage 
+                          id="teamOverview.notRunComponentNum" 
+                          values={{number:(index.overviewInfo.team_service_num - index.overviewInfo.running_component_num) || 0 }}
+                        />
                       </span>
                     </div>
                     <div className={styles.totalApp}>
-                      <span>
-                        共
-                        {(index.overviewInfo &&
+                      <FormattedMessage 
+                        id="teamOverview.componentSum" 
+                        values={{number:(index.overviewInfo &&
                           index.overviewInfo &&
-                          index.overviewInfo.team_service_num) ||
-                          0}
-                        个组件
-                      </span>
+                          index.overviewInfo.team_service_num) || 0 }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -669,7 +666,9 @@ export default class Index extends PureComponent {
             {/* 使用资源 */}
             <div>
               <div className={styles.teamDisk}>
-                <h3 className={styles.teamDiskTitle}>使用资源</h3>
+                <h3 className={styles.teamDiskTitle}>
+                  <FormattedMessage id="teamOverview.useResource" />
+                </h3>
                 <div className={styles.teamDiskContent}>
                   <div>
                     <div className={styles.save}>
@@ -686,7 +685,9 @@ export default class Index extends PureComponent {
                           )}
                         </span>
                       </div>
-                      <p style={{ marginBottom: '0px' }}>内存使用量</p>
+                      <p style={{ marginBottom: '0px' }}>
+                        <FormattedMessage id="teamOverview.memoryUsage" />
+                      </p>
                     </div>
                     <span className={styles.useLine} />
                     <div className={styles.disk}>
@@ -703,7 +704,9 @@ export default class Index extends PureComponent {
                           )}
                         </span>
                       </div>
-                      <p style={{ marginBottom: '0px' }}>磁盘使用量</p>
+                      <p style={{ marginBottom: '0px' }}>
+                        <FormattedMessage id="teamOverview.diskUsage" />
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -722,14 +725,17 @@ export default class Index extends PureComponent {
                   );
                 }}
               >
-                <h3 className={styles.teamDiskTitle}>用户数量</h3>
+                <h3 className={styles.teamDiskTitle}>
+                  <FormattedMessage id="teamOverview.UserNum" />
+                </h3>
                 <div className={styles.teamDiskContent}>
                   <div className={styles.userNum}>
                     <p>
                       {(index.overviewInfo && index.overviewInfo.user_nums) ||
                         0}
                     </p>
-                    <span>个</span>
+                    
+                    <span><FormattedMessage id="unit.entries" /></span>
                   </div>
                 </div>
               </div>
@@ -741,21 +747,21 @@ export default class Index extends PureComponent {
           <div className={styles.teamHotAppTitle}>
             <div className={styles.teamHotAppTitleLeft}>
               <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
-              <h2>应用列表</h2>
+              <h2><FormattedMessage id="teamOverview.appList" /></h2>
             </div>
             {/* {(!loadingOfApp || searchVisible) && ( */}
               <div className={styles.teamHotAppTitleSearch}>
                 <Select
-                  style={{ width: '130px' }}
-                  placeholder="请选择排序方式"
+                  style={{ width: '140px' }}
+                  placeholder={formatMessage({id: 'teamOverview.sortTips'})}
                   defaultValue={1}
                   onChange={this.handleSortChange}
                 >
-                  <Option title="运行状态排序" value={1}>运行状态排序</Option>
-                  <Option title="更新时间排序" value={2}>更新时间排序</Option>
+                  <Option title={formatMessage({id: 'teamOverview.runStatusSort'})} value={1}><FormattedMessage id="teamOverview.runStatusSort" /></Option>
+                  <Option title={formatMessage({id: 'teamOverview.updateTimeSort'})} value={2}><FormattedMessage id="teamOverview.updateTimeSort" /></Option>
                 </Select>
                 <Search
-                  placeholder="请输入应用名称进行搜索"
+                  placeholder={formatMessage({id: 'teamOverview.searchTips'})}
                   onSearch={this.onSearch}
                   defaultValue={query}
                   allowClear
@@ -767,7 +773,7 @@ export default class Index extends PureComponent {
                   }}
                   style={{ cursor: 'pointer' }}
                 >
-                  新建应用
+                  <FormattedMessage id="teamOverview.createApp" />
                 </span>
               </div>
             {/* )} */}
@@ -815,7 +821,7 @@ export default class Index extends PureComponent {
                             </div>
                             <div className={styles.useDeatil}>
                               <div className={styles.hotAppUseSave}>
-                                <p style={{ marginBottom: '0px' }}>内存:</p>
+                                <p style={{ marginBottom: '0px' }}><FormattedMessage id="teamOverview.memory" />:</p>
                                 <div>
                                   <p style={{ marginBottom: '0px' }}>
                                     {this.handlUnit(item.used_mem || 0)}
@@ -826,9 +832,9 @@ export default class Index extends PureComponent {
                                 </div>
                               </div>
                               <div className={styles.hotAppComNum}>
-                                <span>组件:</span>
+                                <span><FormattedMessage id="teamOverview.component.name" />:</span>
                                 <span> {item.services_num}</span>
-                                <span>个</span>
+                                <span><FormattedMessage id="unit.entries" /></span>
                               </div>
                             </div>
                           </div>
@@ -843,7 +849,7 @@ export default class Index extends PureComponent {
                                 {item.update_time &&
                                   moment(item.update_time).fromNow()}
                               </span>
-                              <span>更新</span>
+                              <span><FormattedMessage id="teamOverview.update" /></span>
                             </div>
                           </div>
                           {/* 访问 */}
@@ -886,7 +892,7 @@ export default class Index extends PureComponent {
         {/* 新建应用 */}
         {createAppVisible && (
           <EditGroupName
-            title="新建应用"
+            title={formatMessage({id: 'teamOverview.createApp'})}
             onCancel={this.handleCancelApplication}
             onOk={this.handleOkApplication}
             handleAppLoading={this.handleAppLoading}
@@ -899,8 +905,8 @@ export default class Index extends PureComponent {
             <div>
               <Result
                 type="warning"
-                title="集群端失去响应，稍后重试"
-                description="若一直无法加载，请联系集群管理员查看集群状态"
+                title={formatMessage({id: 'teamOverview.result.title'})}
+                description={formatMessage({id: 'teamOverview.result.description'})}
                 actions={[
                   <Button
                     loading={loadingOverview}
@@ -908,7 +914,7 @@ export default class Index extends PureComponent {
                     type="primary"
                     key="console"
                   >
-                    重新加载
+                    <FormattedMessage id="teamOverview.loadOverview" />
                   </Button>
                 ]}
               />

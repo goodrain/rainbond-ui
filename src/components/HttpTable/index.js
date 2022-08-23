@@ -15,6 +15,7 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import DrawerForm from '../DrawerForm';
@@ -549,7 +550,7 @@ export default class HttpTable extends PureComponent {
 
     const columns = [
       {
-        title: '域名',
+        title: formatMessage({id: 'teamGateway.strategy.table.domain'}),
         dataIndex: 'domain_name',
         key: 'domain_name',
         align: 'left',
@@ -571,37 +572,37 @@ export default class HttpTable extends PureComponent {
         }
       },
       {
-        title: '类型',
+        title: formatMessage({id: 'teamGateway.strategy.table.type'}),
         dataIndex: 'type',
         key: 'type',
         align: 'center',
         width: 100,
         render: text => {
-          return text == '0' ? <span>默认</span> : <span>自定义</span>;
+          return text == '0' ? <span>{formatMessage({id: 'teamGateway.strategy.table.type.default'})}</span> : <span>{formatMessage({id: 'teamGateway.strategy.table.type.custom'})}</span>;
         }
       },
       {
-        title: '高级路由',
+        title: formatMessage({id: 'teamGateway.strategy.table.is_senior'}),
         dataIndex: 'is_senior',
         key: 'is_senior',
         align: 'center',
         width: 100,
         render: (text, record) => {
-          return text == '0' ? <span>无</span> : this.seeHighRoute(record);
+          return text == '0' ? <span>{formatMessage({id: 'teamGateway.strategy.table.type.null'})}</span> : this.seeHighRoute(record);
         }
       },
       {
-        title: '证书',
+        title: formatMessage({id: 'teamGateway.strategy.table.certificate_alias'}),
         dataIndex: 'certificate_alias',
         key: 'certificate_alias',
         align: 'center',
         width: 60,
         render: text => {
-          return text ? <span>{text}</span> : <span>无</span>;
+          return text ? <span>{text}</span> : <span>{formatMessage({id: 'teamGateway.strategy.table.type.null'})}</span>;
         }
       },
       {
-        title: '应用',
+        title: formatMessage({id: 'teamGateway.strategy.table.group_name'}),
         dataIndex: 'group_name',
         key: 'group_name',
         align: 'center',
@@ -623,7 +624,7 @@ export default class HttpTable extends PureComponent {
         }
       },
       {
-        title: '组件(端口)',
+        title: formatMessage({id: 'teamGateway.strategy.table.service_cname'}),
         dataIndex: 'service_cname',
         key: 'service_cname',
         align: 'center',
@@ -645,7 +646,7 @@ export default class HttpTable extends PureComponent {
         }
       },
       {
-        title: '操作',
+        title: formatMessage({id: 'teamGateway.strategy.table.operate'}),
         dataIndex: 'action',
         key: 'action',
         align: 'center',
@@ -659,7 +660,7 @@ export default class HttpTable extends PureComponent {
                     this.handleParameterVisibleClick(record);
                   }}
                 >
-                  参数配置
+                  {formatMessage({id: 'teamGateway.strategy.table.config'})}
                 </a>
               )}
               {/* <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a> */}
@@ -669,7 +670,7 @@ export default class HttpTable extends PureComponent {
                     this.handleEdit(record);
                   }}
                 >
-                  编辑
+                  {formatMessage({id: 'teamGateway.strategy.table.edit'})}
                 </a>
               )}
               {isDelete && (
@@ -678,14 +679,14 @@ export default class HttpTable extends PureComponent {
                     this.handleToDeleteHttp(record);
                   }}
                 >
-                  删除
+                  {formatMessage({id: 'teamGateway.strategy.table.delete'})}
                 </a>
               )}
             </div>
           ) : (
             <Tooltip
               placement="topLeft"
-              title="请开启对外服务方可操作"
+              title={formatMessage({id: 'teamGateway.strategy.table.type.tooltip'})}
               arrowPointAtCenter
             >
               <div style={{ display: 'flex', justifyContent: 'space-around' }}>
@@ -695,7 +696,7 @@ export default class HttpTable extends PureComponent {
                       this.handleToDeleteHttp(record);
                     }}
                   >
-                    删除
+                    {formatMessage({id: 'teamGateway.strategy.table.delete'})}
                   </a>
                 )}
                 {isEdit && (
@@ -704,7 +705,7 @@ export default class HttpTable extends PureComponent {
                       this.openService(record);
                     }}
                   >
-                    开启
+                   {formatMessage({id: 'teamGateway.strategy.table.type.open'})}
                   </a>
                 )}
               </div>
@@ -732,7 +733,7 @@ export default class HttpTable extends PureComponent {
               onClick={this.handleClick}
               loading={addHttpLoading}
             >
-              添加策略
+              {formatMessage({id: 'teamGateway.strategy.btn.add'})}
             </Button>
           )}
         </Row>

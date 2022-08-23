@@ -1,6 +1,7 @@
 import { Card, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import AddMember from '../../AddMember';
 import ConfirmModal from '../../ConfirmModal';
@@ -180,11 +181,11 @@ export default class MemberList extends PureComponent {
             paddingTop: 12
           }}
           bordered={false}
-          title="团队成员"
+          title={formatMessage({id: 'teamManage.tabs.member.title'})}
           extra={
             isCreate && (
               <a href="javascript:;" onClick={this.showAddMember}>
-                添加成员
+                {formatMessage({id: 'teamManage.tabs.member.btn.add'})}
               </a>
             )
           }

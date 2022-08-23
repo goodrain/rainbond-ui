@@ -2,6 +2,7 @@
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeGitRepostory from '../../components/GitRepostory';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -56,11 +57,11 @@ export default class Main extends PureComponent {
     const tabList = [
       {
         key: 'custom',
-        tab: '自定义源码'
+        tab: formatMessage({id: 'teamAdd.create.code.customSource'})
       }
     ];
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
-      tabList.push({ key: 'demo', tab: '官方DEMO' });
+      tabList.push({ key: 'demo', tab: formatMessage({id:'teamAdd.create.code.demo'})});
     }
     const servers = oauthUtil.getEnableGitOauthServer(enterprise);
     if (servers && servers.length > 0) {
@@ -100,9 +101,9 @@ export default class Main extends PureComponent {
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title="由源码创建组件"
+        title={formatMessage({id: 'teamAdd.create.code.title'})}
         onTabChange={this.handleTabChange}
-        content={<p> 从指定源码仓库中获取源码，基于源码信息创建新组件 </p>}
+        content={<p><FormattedMessage id="teamAdd.create.code.desc" /></p>}
         tabActiveKey={type}
         tabList={tabList}
       >
@@ -113,7 +114,9 @@ export default class Main extends PureComponent {
             tabList={tabList}
           />
         ) : (
-          '参数错误'
+          <>
+          {formatMessage({id: 'teamAdd.create.error'})}
+          </>
         )}
       </PageHeaderLayout>
     );

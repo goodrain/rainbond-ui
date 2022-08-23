@@ -1,6 +1,6 @@
 export default {
   'sidecar.title': 'The view switches',
-  'sidecar.collection': 'collect',
+  'sidecar.collection': 'Collection',
   'sidecar.collection.add': 'Add Favorites view',
   'sidecar.enterprise': 'enterprise view',
   'sidecar.team': 'Team Perspective',

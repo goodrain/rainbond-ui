@@ -13,6 +13,7 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import roleUtil from '../../../utils/role';
 import styles from './index.less';
@@ -156,7 +157,7 @@ export default class EventList extends PureComponent {
             paddingTop: 20
           }}
         >
-          暂无动态
+        {formatMessage({id: 'teamManage.tabs.dynamic.notDynamic'})}
         </p>
       );
     }
@@ -190,7 +191,9 @@ export default class EventList extends PureComponent {
                     {item.service_name}
                   </Link>
                 )}
-                <span>应用</span>
+                <span>
+                  {formatMessage({id: 'teamManage.tabs.dynamic.meta.app'})}
+                </span>
                 <span
                   style={{
                     color: globalUtil.fetchAbnormalcolor(OptType)
@@ -245,7 +248,7 @@ export default class EventList extends PureComponent {
                 paddingTop: 12
               }}
               bordered={false}
-              title="动态"
+              title={formatMessage({id: 'teamManage.tabs.dynamic'})}
               loading={activitiesLoading}
             >
               <List
@@ -265,35 +268,39 @@ export default class EventList extends PureComponent {
                 paddingTop: 12
               }}
               bordered={false}
-              title="以下用户申请加入团队"
+              title={formatMessage({id: 'teamManage.tabs.dynamic.title.addTeam'})}
             >
               <Table
                 pagination={false}
                 dataSource={this.state.joinUsers || []}
                 columns={[
                   {
-                    title: '用户',
+                    title: formatMessage({id: 'teamManage.tabs.dynamic.table.user'}),
                     dataIndex: 'user_name'
                   },
                   {
-                    title: '申请时间',
+                    title: formatMessage({id: 'teamManage.tabs.dynamic.table.time'}),
                     dataIndex: 'apply_time'
                   },
                   {
-                    title: '操作',
+                    title: formatMessage({id: 'teamManage.tabs.dynamic.table.operate'}),
                     dataIndex: '',
                     render: (v, data) =>
                       data.is_pass === 0 &&
                       isCreate && (
                         <Fragment>
-                          <a onClick={() => this.handleJoinShow(data)}>通过</a>
+                          <a onClick={() => this.handleJoinShow(data)}>
+                            {formatMessage({id: 'teamManage.tabs.dynamic.table.btn.through'})}
+                          </a>
                           <Popconfirm
-                            title="确定要拒绝用户么?"
+                            title={formatMessage({id: 'teamManage.tabs.dynamic.table.btn.popconfirm'})}
                             onConfirm={() => {
                               this.handleRefused(data);
                             }}
                           >
-                            <a style={{ marginLeft: 6 }}>拒绝</a>
+                            <a style={{ marginLeft: 6 }}>
+                            {formatMessage({id: 'teamManage.tabs.dynamic.table.btn.refuse'})}
+                            </a>
                           </Popconfirm>
                         </Fragment>
                       )
@@ -305,25 +312,25 @@ export default class EventList extends PureComponent {
         </Row>
         {joinSettingShow && (
           <Modal
-            title="用户授权"
+            title={formatMessage({id: 'teamManage.tabs.dynamic.modal.title'})}
             visible
             onOk={this.handleJoin}
             onCancel={this.hideJoinShow}
           >
             <Form>
-              <FormItem {...formItemLayout} label="选择角色">
+              <FormItem {...formItemLayout} label={formatMessage({id: 'teamManage.tabs.dynamic.form.lable'})}>
                 {getFieldDecorator('role_ids', {
                   rules: [
                     {
                       required: true,
-                      message: '请选择角色'
+                      message: formatMessage({id: 'teamManage.tabs.dynamic.form.placeholder'})
                     }
                   ]
                 })(
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
                     mode="multiple"
-                    placeholder="请选择角色"
+                    placeholder={formatMessage({id: 'teamManage.tabs.dynamic.form.placeholder'})}
                     style={{ width: '100%' }}
                   >
                     {roles.map(item => {

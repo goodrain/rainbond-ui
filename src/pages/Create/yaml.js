@@ -5,6 +5,7 @@ import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notifi
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AddGroup from '../../components/AddOrEditGroup'
 import roleUtil from '../../utils/role'
@@ -305,39 +306,38 @@ export default class Index extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="上传文件创建"
+        title={formatMessage({id: 'teamAdd.create.upload.title'})}
         content={
           <p>
-            第三方组件，即运行于平台集群外的组件，在平台中创建组件即可以将其与
-            平台网关无缝对接，同时也可以被平台内服务访问。满足用户通过平台可以对各类组件进行统一的监控和管理需要。
+            {formatMessage({id: 'teamAdd.create.upload.desc'})}
           </p>
         }
       >
         <Card>
           <div className={styles.yaml_container}>
             <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-              <Form.Item label="应用名称" style={{ display: 'flex' }}>
+              <Form.Item label={formatMessage({id: 'teamAdd.create.form.appName'})} style={{ display: 'flex' }}>
                 {getFieldDecorator('group_id', {
                   rules: [
                     {
                       required: true,
-                      message: '请输入应用名称'
+                      message: formatMessage({id: 'placeholder.group_name'})
                     }
                   ]
                 })(
                   <Select
                     onChange={this.handleChange}
                     getPopupContainer={triggerNode => triggerNode.parentNode}
-                    placeholder="请选择要所属应用"
+                    placeholder={formatMessage({id: 'placeholder.appName'})}
                   >
                     {(groups || []).map(group => (
                       <Option value={group.group_id}>{group.group_name}</Option>
                     ))}
                   </Select>
                 )}
-                <Button style={{ marginLeft: '4px' }} onClick={this.onAddGroup}>新建应用</Button>
+                <Button style={{ marginLeft: '4px' }} onClick={this.onAddGroup}>{formatMessage({id: 'teamApply.createApp'})}</Button>
               </Form.Item>
-              <Form.Item label="上传格式">
+              <Form.Item label={formatMessage({id: 'teamApply.createApp'})}>
                 {getFieldDecorator('up_type', {
                   initialValue: 'jwar'
                 })(
@@ -351,40 +351,37 @@ export default class Index extends PureComponent {
                 )}
               </Form.Item>
               {isShowCom && (
-                <Form.Item label="组件名称">
+                <Form.Item label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
                   {getFieldDecorator('service_cname', {
                     rules: [
                       {
                         required: true,
-                        message: '请输入组件名称'
+                        message: formatMessage({id: 'placeholder.component_cname'})
                       }
                     ]
-                  })(<Input placeholder="请输入" />)}
+                  })(<Input placeholder={formatMessage({id: 'placeholder.component_cname'})} />)}
                 </Form.Item>
               )}
               {isShowCom && (
-                <Form.Item label="组件英文名称">
+                <Form.Item label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
                   {getFieldDecorator('k8s_component_name', {
                     rules: [
                       {
                         required: true,
-                        message: '请输入组件英文名称'
+                        message: formatMessage({id: 'placeholder.k8s_component_name'})
                       }
                     ]
-                  })(<Input placeholder="请输入" />)}
+                  })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})} />)}
                 </Form.Item>
               )}
               {isShowCom ? (
                 <Form.Item
-                  label="上传文件"
-                  extra="支持Jar、War格式上传文件"
+                  label={formatMessage({id: 'teamAdd.create.upload.uploadFiles'})}
+                  extra={formatMessage({id: 'teamAdd.create.upload.uploadJWar'})}
                 >
                   {getFieldDecorator('packageTarFile', {
                     rules: [
-                      {
-                        required: false,
-                        message: '请上传文件'
-                      }
+                   
                     ]
                   })(
                     <Upload
@@ -398,23 +395,19 @@ export default class Index extends PureComponent {
                     // disabled={region_name === ''}
                     >
                       <Button>
-                        <Icon type="upload" /> 上传文件
+                        <Icon type="upload" /> 
+                        {formatMessage({id: 'teamAdd.create.upload.uploadFiles'})}
                       </Button>
                     </Upload>
                   )}
                 </Form.Item>
               ) : (
                 <Form.Item
-                  label="上传文件"
-                  extra="只支持yaml格式上传多文件"
+                  label={formatMessage({id: 'teamAdd.create.upload.uploadFiles'})}
+                  extra={formatMessage({id: 'teamAdd.create.upload.uploadYaml'})}
                 >
                   {getFieldDecorator('packageTarFile', {
-                    rules: [
-                      {
-                        required: false,
-                        message: '请上传文件'
-                      }
-                    ]
+                  
                   })(
                     <Dragger
                       fileList={fileList}
@@ -475,7 +468,7 @@ export default class Index extends PureComponent {
                 }}
               >
                 <Button type="primary" htmlType="submit">
-                  点击创建
+                {formatMessage({id: 'teamAdd.create.btn.create'})}
                 </Button>
               </Form.Item>
             </Form>
