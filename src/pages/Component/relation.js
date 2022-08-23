@@ -15,6 +15,7 @@ import {
   removeRelationedApp
 } from '../../services/app';
 import globalUtil from '../../utils/global';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 // 查看连接信息
 class ViewRelationInfo extends PureComponent {
@@ -22,11 +23,11 @@ class ViewRelationInfo extends PureComponent {
     const { appAlias, onCancel } = this.props;
     return (
       <Modal
-        title="依赖信息查看"
+        title={<FormattedMessage id='componentOverview.body.Relation.ViewRelationInfo.title'/>}
         width={1000}
         visible
         onCancel={onCancel}
-        footer={[<Button onClick={onCancel}>关闭</Button>]}
+        footer={[<Button onClick={onCancel}><FormattedMessage id='componentOverview.body.Relation.ViewRelationInfo.close'/></Button>]}
       >
         <EnvironmentVariable
           title=""
@@ -154,21 +155,22 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <EnvironmentVariable
-          title="组件连接信息"
+          // title="组件连接信息"
+          title={<FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.title'/>}
           type="Outer"
           autoQuery
           appAlias={appAlias}
         />
         <Card
           title={[
-            <span>依赖组件信息</span>,
+            <span><FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.information'/></span>,
             <span style={{ color: 'red' }}>
-              {showText && '（依赖的组件有相同的端口冲突,请处理）'}
+              {showText && `${<FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.conflict'/>}`}
             </span>
           ]}
           extra={
             <Button onClick={this.showAddRelation}>
-              <Icon type="plus" /> 添加依赖
+              <Icon type="plus" /> <FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.add'/>
             </Button>
           }
         >
@@ -182,7 +184,8 @@ export default class Index extends PureComponent {
               }}
               columns={[
                 {
-                  title: '组件名',
+                  // title: '组件名',
+                  title: formatMessage({id:'componentOverview.body.Relation.table.service_cname'}),
                   dataIndex: 'service_cname',
                   render: (val, data) => (
                     <Link
@@ -195,7 +198,8 @@ export default class Index extends PureComponent {
                   )
                 },
                 {
-                  title: '所属应用',
+                  title: formatMessage({id:'componentOverview.body.Relation.table.group_name'}),
+                  // title: '所属应用',
                   dataIndex: 'group_name',
                   render: (val, data) => (
                     <Link
@@ -208,7 +212,8 @@ export default class Index extends PureComponent {
                   )
                 },
                 {
-                  title: '操作',
+                  title: formatMessage({id:'componentOverview.body.Relation.table.operation'}),
+                  // title: '操作',
                   dataIndex: 'var',
                   render: (val, data) => (
                     <Fragment>
@@ -217,7 +222,8 @@ export default class Index extends PureComponent {
                         href="javascript:;"
                         style={{ margintRight: 10 }}
                       >
-                        连接信息
+                        {/* 连接信息 */}
+                        <FormattedMessage id='componentOverview.body.Relation.table.connection'/>
                       </a>
                       <a
                         onClick={() => {
@@ -226,7 +232,8 @@ export default class Index extends PureComponent {
                         href="javascript:;"
                         style={{ margintRight: 10 }}
                       >
-                        取消依赖
+                        {/* 取消依赖 */}
+                        <FormattedMessage id='componentOverview.body.Relation.table.cancel'/>
                       </a>
                     </Fragment>
                   )

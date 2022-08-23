@@ -8,6 +8,7 @@ import {
   Form,
   Icon,
   Input,
+  message,
   notification,
   Row,
   Select,
@@ -30,6 +31,8 @@ import licenseUtil from '../../utils/license';
 import sourceUtil from '../../utils/source';
 import AddScaling from './component/AddScaling';
 import styles from './Index.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+
 
 const { Option } = Select;
 
@@ -655,7 +658,7 @@ export default class Index extends PureComponent {
 
     if (num == '' || num == null) {
       this.setState({
-        errorDesc: '不能为空',
+        errorDesc: formatMessage({id:'componentOverview.body.Expansion.empty'}),
         [errorTypeDesc]: errorDesc,
         errorType: type
       });
@@ -678,13 +681,13 @@ export default class Index extends PureComponent {
     }
     const re = /^[0-9]+.?[0-9]*/;
     if (!re.test(num)) {
-      errorDesc = '请输入数字';
+      errorDesc = `${formatMessage({id:'componentOverview.body.Expansion.enter'})}`;
     } else if (num <= 0 || num > 65535) {
-      errorDesc = '输入范围1-65535';
+      errorDesc = `${formatMessage({id:'componentOverview.body.Expansion.Input'})}`;
     } else if (type === 'minNum' && num > Number(maxNum)) {
-      errorDesc = '不能大于最大实例数';
+      errorDesc = `${formatMessage({id:'componentOverview.body.Expansion.max'})}`;
     } else if (type === 'maxNum' && num < Number(minNum)) {
-      errorDesc = '不能小于最小实例数';
+      errorDesc = `${formatMessage({id:'componentOverview.body.Expansion.min'})}`;
     } else {
       this.setState(
         {
@@ -776,14 +779,14 @@ export default class Index extends PureComponent {
 
     if (!cpuUse) {
       MemoryList.push(
-        { value: 'cpuaverage_value', name: 'CPU使用量' },
-        { value: 'cpuutilization', name: 'CPU使用率' }
+        { value: 'cpuaverage_value', name: formatMessage({id:'componentOverview.body.Expansion.cup_usage'})},
+        { value: 'cpuutilization', name: formatMessage({id:'componentOverview.body.Expansion.cpu_use'})}
       );
     }
     if (!memoryUse) {
       MemoryList.push(
-        { value: 'memoryaverage_value', name: '内存使用量' },
-        { value: 'memoryutilization', name: '内存使用率' }
+        { value: 'memoryaverage_value', name: formatMessage({id:'componentOverview.body.Expansion.usage'})},
+        { value: 'memoryutilization', name: formatMessage({id:'componentOverview.body.Expansion.use'})}
       );
     }
     const descBox = text => <div className={styles.remindDesc}>{text}</div>;
@@ -791,7 +794,7 @@ export default class Index extends PureComponent {
       <div>
         <Card
           className={styles.InstancesCard}
-          title="实例情况"
+          title={<FormattedMessage id='componentOverview.body.Expansion.instance'/>}
           extra={
             <a
               style={{ marginRight: '22px', color: '#1790FF' }}
@@ -806,7 +809,7 @@ export default class Index extends PureComponent {
                 );
               }}
             >
-              刷新
+              <FormattedMessage id='componentOverview.body.Expansion.refresh'/>
             </a>
           }
         >
@@ -828,14 +831,14 @@ export default class Index extends PureComponent {
               <div>
                 <Row>
                   <Col span={24} style={{ display: 'flex' }}>
-                    <span className={styles.commandText}>查询命令：</span>
+                    <span className={styles.commandText}><FormattedMessage id='componentOverview.body.Expansion.query'/></span>
                     <div className={styles.commandWidth}>
                       <Input
                         value={grctlCmd}
                         style={{ background: '#F9FAFC', textAlign: 'center' }}
                       />
                       <div className={styles.remindDesc}>
-                        查询详细的组件实例信息,请复制查询命令到集群管理节点查询
+                        <FormattedMessage id='componentOverview.body.Expansion.copyCommand'/>
                       </div>
                     </div>
 
@@ -846,7 +849,7 @@ export default class Index extends PureComponent {
                       }}
                     >
                       <Button type="primary" style={{ marginLeft: 19 }}>
-                        复制
+                        <FormattedMessage id='componentOverview.body.Expansion.copy'/>
                       </Button>
                     </CopyToClipboard>
                   </Col>
@@ -861,24 +864,25 @@ export default class Index extends PureComponent {
             style={{ marginTop: '16px' }}
             message={
               <p style={{ marginBottom: 0 }}>
-                单实例类型组件不能进行水平伸缩，若需要请修改为相应的多实例组件类型。{' '}
+                <FormattedMessage id='componentOverview.body.Expansion.modify'/>
+                {' '}
                 <Link
                   to={`/team/${teamName}/region/${regionName}/components/${appAlias}/setting`}
                 >
-                  去设置
+                  <FormattedMessage id='componentOverview.body.Expansion.set'/>
                 </Link>
               </p>
             }
             type="warning"
           />
         )}
-        <Card className={styles.clerBorder} border={false} title="手动伸缩">
+        <Card className={styles.clerBorder} border={false}  title={<FormattedMessage id='componentOverview.body.Expansion.telescopic'/>}>
           {!enableGPU && (
             <Alert
               style={{ marginBottom: '16px' }}
               type="warning"
               closable
-              message="当前产品授权不支持 GPU 调度，需要 GPU 共享调度能力请获取企业版授权。"
+              message={<FormattedMessage id='componentOverview.body.Expansion.empower'/>}
             />
           )}
           <Form layout="inline" hideRequiredMark className={styles.fromItem}>
@@ -887,7 +891,7 @@ export default class Index extends PureComponent {
                 <Form.Item
                   labelCol={{ span: 5 }}
                   wrapperCol={{ span: 19 }}
-                  label="内存"
+                  label={<FormattedMessage id='componentOverview.body.Expansion.memory'/>}
                   className={styles.customFormItem}
                 >
                   {getFieldDecorator('memory', {
@@ -898,7 +902,7 @@ export default class Index extends PureComponent {
                       className={styles.memorySelect}
                     >
                       <Option key={0} value={0}>
-                        不限制
+                        <FormattedMessage id='componentOverview.body.Expansion.unlimited'/>
                       </Option>
                       {(extendInfo.memory_list || []).map(item => (
                         <Option key={item} value={item}>
@@ -908,14 +912,14 @@ export default class Index extends PureComponent {
                     </Select>
                   )}
                 </Form.Item>
-                {descBox('CPU 限制值目前基于比例算法基于设置内存值计算。')}
+                {descBox(`${formatMessage({id:'componentOverview.body.Expansion.algorithm'})}`)}
               </Col>
               <Col lg={8} md={8} sm={24}>
                 <Form.Item
                   labelCol={{ span: 6 }}
                   wrapperCol={{ span: 18 }}
                   className={styles.customFormItem}
-                  label="GPU显存"
+                  label={<FormattedMessage id='componentOverview.body.Expansion.video'/>}
                 >
                   {getFieldDecorator('gpu', {
                     initialValue: `${extendInfo.current_gpu}`
@@ -927,9 +931,9 @@ export default class Index extends PureComponent {
                     />
                   )}
                 </Form.Item>
-                {descBox(
-                  'GPU设置为0则不分配GPU资源，请求显存超过集群中单颗显卡的最大可用容量时无法进行调度。'
-                )}
+
+                {descBox(`${formatMessage({id:'componentOverview.body.Expansion.resources'})}`)}
+
               </Col>
               <Col lg={8} md={8} sm={24}>
                 <Form.Item
@@ -943,11 +947,11 @@ export default class Index extends PureComponent {
                     rules: [
                       {
                         required: true,
-                        message: '请输入CPU'
+                        message: formatMessage({id:'componentOverview.body.Expansion.input_cup'})
                       },
                       {
                         pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                        message: '只允许输入整数'
+                        message: formatMessage({id:'componentOverview.body.Expansion.onlyAllowed'})
                       }
                     ]
                   })(
@@ -955,7 +959,7 @@ export default class Index extends PureComponent {
                       type="number"
                       min={0}
                       addonAfter="m"
-                      placeholder="请输入CPU"
+                      placeholder={formatMessage({id:'componentOverview.body.Expansion.input_cup'})}
                     />
                   )}
                   <Button
@@ -966,18 +970,16 @@ export default class Index extends PureComponent {
                       marginLeft: '10px'
                     }}
                   >
-                    设置
+                    <FormattedMessage id='componentOverview.body.Expansion.setUp'/>
                   </Button>
                 </Form.Item>
-                {descBox(
-                  'CPU分配额0为不限制，1000m=1core、超出集群中单节点CPU的最大可用容量时无法进行调度。'
-                )}
+                {descBox(`${formatMessage({id:'componentOverview.body.Expansion.algorithm'})}`)}
               </Col>
             </Row>
             <Row gutter={16}>
               <Col lg={8} md={8} sm={24}>
                 <Form.Item
-                  label="实例数量"
+                  label={<FormattedMessage id='componentOverview.body.Expansion.number'/>}
                   labelCol={{ span: 5 }}
                   wrapperCol={{ span: 19 }}
                   className={styles.customFormItem}
@@ -1005,12 +1007,12 @@ export default class Index extends PureComponent {
                       marginLeft: '10px'
                     }}
                   >
-                    设置
+                    <FormattedMessage id='componentOverview.body.Expansion.setUp'/>
                   </Button>
                 </Form.Item>
-                {descBox(
-                  '该值定义组件实例数量的初始值，实际值可能被自动伸缩调整。'
-                )}
+
+                {descBox(`${formatMessage({id:'componentOverview.body.Expansion.initialValue'})}`)}
+
               </Col>
             </Row>
           </Form>
@@ -1019,25 +1021,25 @@ export default class Index extends PureComponent {
         <Card
           style={{ marginTop: 16, border: 'none' }}
           className={styles.clearCard}
-          title="自动伸缩"
+          title={<FormattedMessage id='componentOverview.body.Expansion.flex'/>}
         >
           <Row gutter={24} className={styles.automaTictelescopingBOX}>
             <Col span={12} className={styles.automaTictelescopingTitle}>
-              <div>功能开关</div>
-              <div>最小实例数</div>
-              <div>最大实例数</div>
+              <div><FormattedMessage id='componentOverview.body.Expansion.switch'/></div>
+              <div><FormattedMessage id='componentOverview.body.Expansion.minNumber'/></div>
+              <div><FormattedMessage id='componentOverview.body.Expansion.maxNumber'/></div>
             </Col>
             <Col span={12} className={styles.automaTictelescopingTitle}>
               {cpuUse && (
                 <div>
-                  CPU使用
+                  <FormattedMessage id='componentOverview.body.Expansion.CPU_usage'/>
                   {this.setMetric_target_value(
                     rulesList[0].metrics,
                     'cpu',
                     true
                   ) === 'utilization'
-                    ? '率'
-                    : '量(m)'}
+                    ? <FormattedMessage id='componentOverview.body.Expansion.rate'/>
+                    : <FormattedMessage id='componentOverview.body.Expansion.amount_m'/>}
                   {memoryUse && (
                     <img
                       src={Deleteimg}
@@ -1051,14 +1053,14 @@ export default class Index extends PureComponent {
               )}
               {memoryUse && (
                 <div>
-                  内存使用
+                  <FormattedMessage id='componentOverview.body.Expansion.CPU_umemory'/>
                   {this.setMetric_target_value(
                     rulesList[0].metrics,
                     'memory',
                     true
                   ) === 'utilization'
-                    ? '率'
-                    : '量(Mi)'}
+                    ? <FormattedMessage id='componentOverview.body.Expansion.rate'/>
+                    : <FormattedMessage id='componentOverview.body.Expansion.amount_mi'/>}
                   {cpuUse && (
                     <img
                       src={Deleteimg}
@@ -1119,9 +1121,9 @@ export default class Index extends PureComponent {
                       rules: [
                         {
                           pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                          message: '请输入数字'
+                          message:formatMessage({id:'componentOverview.body.Expansion.enter'})
                         },
-                        { required: true, message: '请输入最大数量' },
+                        { required: true,message:formatMessage({id:'componentOverview.body.Expansion.input_num_max'}) },
                         { validator: this.checkContent }
                       ]
                     })(
@@ -1147,9 +1149,9 @@ export default class Index extends PureComponent {
                         rules: [
                           {
                             pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                            message: '请输入数字'
+                            message: formatMessage({id:'componentOverview.body.Expansion.enter'})
                           },
-                          { required: true, message: '请输入CPU' },
+                          { required: true ,message: formatMessage({id:'componentOverview.body.Expansion.input_cup'}) },
                           { validator: this.checkContent }
                         ]
                       })(
@@ -1174,9 +1176,9 @@ export default class Index extends PureComponent {
                         rules: [
                           {
                             pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                            message: '请输入数字'
+                            message: formatMessage({id:'componentOverview.body.Expansion.enter'})
                           },
-                          { required: true, message: '请输入内存' },
+                          { required: true, message: formatMessage({id:'componentOverview.body.Expansion.input_memory'}) },
                           { validator: this.checkContent }
                         ]
                       })(
@@ -1262,7 +1264,7 @@ export default class Index extends PureComponent {
         <Card
           className={styles.clearCard}
           style={{ marginTop: 16 }}
-          title="水平伸缩记录"
+          title={<FormattedMessage id='componentOverview.body.Expansion.horizontal'/>}
         >
           <Table
             className={styles.horizontalExpansionRecordTable}
@@ -1275,7 +1277,7 @@ export default class Index extends PureComponent {
             }}
             columns={[
               {
-                title: '时间',
+                title: formatMessage({id:'componentOverview.body.Expansion.time'}),
                 dataIndex: 'last_time',
                 key: 'last_time',
                 align: 'center',
@@ -1291,7 +1293,7 @@ export default class Index extends PureComponent {
                 )
               },
               {
-                title: '伸缩详情',
+                title: formatMessage({id:'componentOverview.body.Expansion.telescopicDetails'}),
                 dataIndex: 'description',
                 key: 'description',
                 align: 'center',
@@ -1309,7 +1311,7 @@ export default class Index extends PureComponent {
                 )
               },
               {
-                title: '类型',
+                title: formatMessage({id:'componentOverview.body.Expansion.type'}),
                 dataIndex: 'record_type',
                 key: 'record_type',
                 align: 'center',
@@ -1317,15 +1319,15 @@ export default class Index extends PureComponent {
                 render: record_type => (
                   <div>
                     {record_type === 'hpa'
-                      ? '水平自动伸缩'
+                      ?  <FormattedMessage id='componentOverview.body.Expansion.horizontalAutomatic'/>
                       : record_type === 'manual'
-                      ? '手动伸缩'
-                      : '垂直自动伸缩'}
+                      ? <FormattedMessage id='componentOverview.body.Expansion.manualTelescopic'/>
+                      : <FormattedMessage id='componentOverview.body.Expansion.vertical'/>}
                   </div>
                 )
               },
               {
-                title: '操作人',
+                title: formatMessage({id:'componentOverview.body.Expansion.operator'}),
                 dataIndex: 'operator',
                 key: 'operator',
                 align: 'center',
@@ -1335,7 +1337,7 @@ export default class Index extends PureComponent {
                 }
               },
               {
-                title: '原因',
+                title: formatMessage({id:'componentOverview.body.Expansion.reason'}),
                 dataIndex: 'reason',
                 align: 'center',
                 key: 'reason',

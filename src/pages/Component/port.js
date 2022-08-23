@@ -6,6 +6,7 @@ import {
   Form,
   Icon,
   Input,
+  message,
   Modal,
   notification,
   Row
@@ -22,6 +23,7 @@ import SubDomain from '../../components/SubDomain';
 import SubPort from '../../components/SubPort';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -75,43 +77,47 @@ class EditAlias extends PureComponent {
     const port = this.props.port || {};
     return (
       <Modal
-        title="编辑别名"
+        title={<FormattedMessage id='componentOverview.body.EditAlias.title'/>}
         onOk={this.handleSubmit}
         maskClosable={false}
         visible
         onCancel={this.handleCancel}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="别名">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.EditAlias.label_alias'/>}>
             {getFieldDecorator('alias', {
               initialValue: port.port_alias,
               rules: [
                 {
                   required: true,
-                  message: '请填写端口别名'
+                  message: formatMessage({id:'componentOverview.body.EditAlias.label_alias.message'})
+
                 }
               ]
-            })(<Input placeholder="请填写端口别名" />)}
+            })(<Input  placeholder={formatMessage({id:'componentOverview.body.EditAlias.label_alias.message'})}/>)}
           </FormItem>
-          <FormItem {...formItemLayout} label="内部域名">
+          <FormItem {...formItemLayout}  lable={<FormattedMessage id='componentOverview.body.EditAlias.label_k8s_service_name'/>}>
             {getFieldDecorator('k8s_service_name', {
               initialValue: port.k8s_service_name,
               rules: [
                 {
                   required: true,
-                  message: '请填写内部域名'
+                  message: formatMessage({id:'componentOverview.body.EditAlias.label_k8s_service_name_message'})
+
                 },
                 {
                   max: 63,
-                  message: '最大长度63位'
+                  message: formatMessage({id:'componentOverview.body.EditAlias.label_k8s_service_name.max'})
+
                 },
                 {
                   pattern: /^[a-z]([-a-z0-9]*[a-z0-9])?$/,
-                  message:
-                    '必须由小写字母、数字和-组成，并且必须以小写字母开始,数字和小写字母结束'
+
+                  message: formatMessage({id:'componentOverview.body.EditAlias.label_k8s_service_name.pattern'})
+
                 }
               ]
-            })(<Input placeholder="请填写内部域名" />)}
+            })(<Input  placeholder={formatMessage({id:'componentOverview.body.EditAlias.label_k8s_service_name_message'})}/>)}
           </FormItem>
         </Form>
       </Modal>
@@ -170,46 +176,46 @@ class AddKey extends PureComponent {
     };
     return (
       <Modal
-        title="新建证书"
+        title={<FormattedMessage id='componentOverview.body.AddKey.title'/>}
         onOk={this.handleSubmit}
         visible
         onCancel={this.handleCancel}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="证书名称">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.AddKey.alias'/>}>
             {getFieldDecorator('alias', {
               initialValue: '',
               rules: [
                 {
                   required: true,
-                  message: '请填写证书名称'
+                  message: formatMessage({id:'componentOverview.body.AddKey.required'})
                 },
                 {
                   max: 64,
-                  message: '最大长度64位'
+                  message: formatMessage({id:'componentOverview.body.AddKey.max'})
                 }
               ]
-            })(<Input placeholder="请填写证书名称" />)}
+            })(<Input  placeholder={formatMessage({id:'componentOverview.body.AddKey.required'})}/>)}
           </FormItem>
-          <FormItem {...formItemLayout} label="key">
+          <FormItem {...formItemLayout} label="key" >
             {getFieldDecorator('private_key', {
               rules: [
                 {
                   required: true,
-                  message: '请添加key'
+                  message: formatMessage({id:'componentOverview.body.AddKey.private_key'})
                 }
               ]
-            })(<TextArea placeholder="请添加key" />)}
+            })(<TextArea  placeholder={formatMessage({id:'componentOverview.body.AddKey.private_key'})}/>)}
           </FormItem>
-          <FormItem {...formItemLayout} label="证书">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.AddKey.certificate'/>}> 
             {getFieldDecorator('certificate', {
               rules: [
                 {
                   required: true,
-                  message: '请添加证书'
+                  message: formatMessage({id:'componentOverview.body.AddKey.placeholder'})
                 }
               ]
-            })(<TextArea placeholder="请添加证书" />)}
+            })(<TextArea placeholder={formatMessage({id:'componentOverview.body.AddKey.placeholder'})} />)}
           </FormItem>
         </Form>
       </Modal>
@@ -643,7 +649,7 @@ export default class Index extends PureComponent {
           <Col span={12}>
             <Alert
               showIcon
-              message="端口配置信息发生变化后需要重启组件才能生效"
+              message={<FormattedMessage id='componentOverview.body.Port.message'/>}
               type="info"
               style={{
                 marginBottom: 24
@@ -659,7 +665,7 @@ export default class Index extends PureComponent {
             >
               <Button onClick={this.showAddPort} type="primary">
                 <Icon type="plus" />
-                添加端口
+                <FormattedMessage id='componentOverview.body.Port.add'/>
               </Button>
             </Col>
           )}
@@ -674,9 +680,9 @@ export default class Index extends PureComponent {
                 textAlign: 'center'
               }}
             >
-              如需要提供访问服务，请
+              <FormattedMessage id='componentOverview.body.Port.msg'/>
               <a onClick={this.showAddPort} href="javascript:;">
-                添加端口
+                <FormattedMessage id='componentOverview.body.Port.addMsg'/>
               </a>
             </p>
           </Card>

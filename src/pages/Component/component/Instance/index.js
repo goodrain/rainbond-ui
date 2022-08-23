@@ -4,6 +4,7 @@ import moment from 'moment';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
 import styles from '../../Index.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 @connect()
 @Form.create()
@@ -138,7 +139,7 @@ class Index extends PureComponent {
                   key={podName}
                   className={styles.boxImg}
                 >
-                  <Tooltip title="点击查看详情">
+                  <Tooltip title={<FormattedMessage id='componentOverview.body.tab.overview.instance.tooltip'/>}>
                     <div
                       className={styles.nodeBox}
                       onClick={() => {

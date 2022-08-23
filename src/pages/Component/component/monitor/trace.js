@@ -6,6 +6,7 @@ import globalUtil from "@/utils/global";
 import { Alert, Button, Card, notification } from "antd";
 import { connect } from "dva";
 import React, { Fragment, PureComponent } from "react";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl }) => ({
@@ -72,16 +73,19 @@ export default class TraceShow extends PureComponent {
       <Fragment>
         <Alert
           style={{ marginBottom: "16px" }}
-          message="当前基于Java类源代码构建的组件默认支持Pinpoint链路追踪数据采集"
+          // message="当前基于Java类源代码构建的组件默认支持Pinpoint链路追踪数据采集"
+          message={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.message"/>}
         />
         <Card>
           {trace.collector_host && !trace.enable_apm && (
             <Result
               type="success"
-              description="已经对接Pinpoint，可以开启数据采集"
+              // description="已经对接Pinpoint，可以开启数据采集"
+              description={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.Docking"/>}
               actions={[
                 <Button type="primary" onClick={this.openTrace}>
-                  开启
+                  {/* 开启 */}
+                  <FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.open"/>
                 </Button>
               ]}
             />
@@ -89,10 +93,12 @@ export default class TraceShow extends PureComponent {
           {trace.collector_host && trace.enable_apm && (
             <Result
               type="success"
-              description="已经开启Pinpoint链路追踪数据采集"
+              // description="已经开启Pinpoint链路追踪数据采集"
+              description={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.alreadyOpen"/>}
               actions={[
                 <Button type="primary" onClick={this.closeTrace}>
-                  关闭
+                  {/* 关闭 */}
+                  <FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.close"/>
                 </Button>
               ]}
             />
@@ -100,7 +106,8 @@ export default class TraceShow extends PureComponent {
           {!trace.collector_host && (
             <Result
               type="warning"
-              description="当前组件未依赖Pinpoint服务，请先依赖Pinpoint服务"
+              // description="当前组件未依赖Pinpoint服务，请先依赖Pinpoint服务"
+              description={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.notDependent"/>}
             />
           )}
         </Card>

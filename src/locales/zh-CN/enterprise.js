@@ -207,6 +207,10 @@
         'enterpriseSetting.BackupManage.button.addBackups':'增加备份',
         'enterpriseSetting.BackupManage.table.backupFile':'备份文件',
         'enterpriseSetting.BackupManage.table.size':'大小',
+        'enterpriseSetting.BackupManage.table.handle':'操作',
+        'enterpriseSetting.BackupManage.table.handle.delete':'删除',
+        'enterpriseSetting.BackupManage.table.handle.install':'下载',
+        'enterpriseSetting.BackupManage.table.handle.recover':'恢复',
         'enterpriseSetting.BackupManage.alert.message':'数据备份与恢复适用于数据迁移场景，比如你需要将控制台进行迁移部署。',
     }
 

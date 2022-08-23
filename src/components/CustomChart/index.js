@@ -9,6 +9,7 @@ import { Button, Col, DatePicker, Form, Row } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import {
   arrayMove,
   SortableContainer,
@@ -184,7 +185,7 @@ export default class ChartTitle extends PureComponent {
         <Row>
           <Col span={24} className={styless.customBox}>
             <RangePicker
-              separator="至"
+              separator={<FormattedMessage id='componentOverview.body.tab.monitor.to'/>}
               style={{ width: '390px' }}
               disabledDate={this.disabledDate}
               onChange={value => {
@@ -203,7 +204,8 @@ export default class ChartTitle extends PureComponent {
               format="YYYY-MM-DD HH:mm:ss"
             />
             <Button style={{ marginLeft: '5px' }} onClick={this.queryAll}>
-              查询
+              {/* 查询 */}
+              <FormattedMessage id='componentOverview.body.tab.monitor.query'/>
             </Button>
             {operation}
           </Col>

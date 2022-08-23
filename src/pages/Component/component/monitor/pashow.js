@@ -9,6 +9,7 @@ import { Button, Card, Col, Icon, Row, Table, Tooltip } from "antd";
 import { connect } from "dva";
 import numeral from "numeral";
 import React, { Fragment, PureComponent } from "react";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const ButtonGroup = Button.Group;
 
@@ -224,9 +225,13 @@ export default class MonitorNow extends PureComponent {
           <Col {...topColResponsiveProps}>
             <ChartCard
               bordered={false}
-              title="平均响应时间（ms）"
+              // title="平均响应时间（ms）"
+              title={<FormattedMessage id="componentOverview.body.tab.monitor.now.time"/>}
               action={
-                <Tooltip title="平均响应时间，单位毫秒">
+                <Tooltip 
+                // title="平均响应时间，单位毫秒"
+                title={<FormattedMessage id="componentOverview.body.tab.monitor.now.averageTime"/>}
+                >
                   {" "}
                   <Icon type="info-circle-o" />{" "}
                 </Tooltip>
@@ -248,9 +253,13 @@ export default class MonitorNow extends PureComponent {
           <Col {...topColResponsiveProps}>
             <ChartCard
               bordered={false}
-              title="吞吐率（dps）"
+              // title="吞吐率（dps）"
+              title={<FormattedMessage id="componentOverview.body.tab.monitor.now.throughput"/>}
               action={
-                <Tooltip title="过去一分钟平均每5s的请求次数">
+                <Tooltip 
+                // title="过去一分钟平均每5s的请求次数"
+                title={<FormattedMessage id="componentOverview.body.tab.monitor.now.NumberOfRequests"/>}
+                >
                   {" "}
                   <Icon type="info-circle-o" />{" "}
                 </Tooltip>
@@ -272,9 +281,13 @@ export default class MonitorNow extends PureComponent {
           <Col {...topColResponsiveProps}>
             <ChartCard
               bordered={false}
-              title="在线人数"
+              // title="在线人数"
+              title={<FormattedMessage id="componentOverview.body.tab.monitor.now.onlineNumber"/>}
               action={
-                <Tooltip title="过去5分钟的独立IP数量">
+                <Tooltip 
+                // title="过去5分钟的独立IP数量"
+                title={<FormattedMessage id="componentOverview.body.tab.monitor.now.independent"/>}
+                >
                   {" "}
                   <Icon type="info-circle-o" />{" "}
                 </Tooltip>
@@ -293,7 +306,10 @@ export default class MonitorNow extends PureComponent {
             </ChartCard>
           </Col>
         </Row>
-        <Card title="过去5分钟耗时最多的URL排行">
+        <Card 
+        // title="过去5分钟耗时最多的URL排行"
+        title={<FormattedMessage id="componentOverview.body.tab.monitor.now.ranking"/>}
+        >
           <ScrollerX sm={700}>
             <Table
               columns={[
@@ -302,22 +318,26 @@ export default class MonitorNow extends PureComponent {
                   dataIndex: "Key"
                 },
                 {
-                  title: "累计时间(ms)",
+                  // title: "累计时间(ms)",
+                  title: formatMessage({id:'componentOverview.body.tab.monitor.now.cumulativeTime'}),
                   dataIndex: "CumulativeTime",
                   width: 150
                 },
                 {
-                  title: "平均时间(ms)",
+                  // title: "平均时间(ms)",
+                  title: formatMessage({id:'componentOverview.body.tab.monitor.now.AverageTime'}),
                   dataIndex: "AverageTime",
                   width: 150
                 },
                 {
-                  title: "请求次数",
+                  // title: "请求次数",
+                  title: formatMessage({id:'componentOverview.body.tab.monitor.now.requests'}),
                   dataIndex: "Count",
                   width: 100
                 },
                 {
-                  title: "异常次数",
+                  // title: "异常次数",
+                  title: formatMessage({id:'componentOverview.body.tab.monitor.now.abnormalTimes'}),
                   dataIndex: "AbnormalCount",
                   width: 100
                 }
