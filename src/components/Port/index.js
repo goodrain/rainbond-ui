@@ -465,7 +465,7 @@ export default class Index extends PureComponent {
                                 }`}
                               </a>
                               <a
-                                title="解绑"
+                                title={<FormattedMessage id='componentOverview.body.Ports.unbound'/>}
                                 onClick={() => {
                                   this.props.onDeleteDomain({
                                     port: port.container_port,
@@ -514,7 +514,7 @@ export default class Index extends PureComponent {
                                 }`}
                               </a>
                               <a
-                                title="解绑"
+                                title={<FormattedMessage id='componentOverview.body.Ports.unbound'/>}
                                 onClick={() => {
                                   this.props.onDeleteDomain({
                                     port: port.container_port,
@@ -667,7 +667,7 @@ export default class Index extends PureComponent {
                       : agreement.end_point.replace(/\s+/g, '')
                   }
                   onCopy={() => {
-                    notification.success({ message: '复制成功' });
+                    notification.success({ message:  formatMessage({id:'notification.success.copy'})});
                   }}
                 >
                   <Button size="small" type="primary">

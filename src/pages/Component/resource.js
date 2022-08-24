@@ -127,7 +127,7 @@ export default class Index extends PureComponent {
       this.loop = true
       this.handleJarWarUploadStatus()
       notification.error({
-        message: '未检测到上传文件'
+        message: formatMessage({id:'notification.error.notDetected'})
       })
     }
   };
@@ -210,7 +210,7 @@ export default class Index extends PureComponent {
               existFileList: data.bean.package_name
             });
             notification.success({
-              message: '上传文件成功'
+              message:  formatMessage({id:'notification.success.upload_file'})
             })
             this.loop = false
           }
@@ -240,7 +240,7 @@ export default class Index extends PureComponent {
             existFileList: []
           });
           notification.success({
-            message: '删除文件成功'
+            message: formatMessage({id:'notification.success.delete_file'})
           })
           this.handleJarWarUpload()
         }
@@ -338,7 +338,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '修改成功' });
+          notification.success({ message: formatMessage({id:'notification.success.modified'}) });
           this.getRuntimeInfo();
         }
       }
@@ -494,7 +494,7 @@ export default class Index extends PureComponent {
             },
             () => {
               if (this.state.create_status == 'failure') {
-                notification.warning({ message: '更新语言失败' });
+                notification.warning({ message: formatMessage({id:'notification.warn.update_language'}) });
               } else {
                 this.handleDetectGetLanguage();
               }
@@ -658,7 +658,7 @@ export default class Index extends PureComponent {
           service_source: 'source_code'
         },
         callback: () => {
-          notification.success({ message: '修改成功，下次构建部署时生效' });
+          notification.success({ message: formatMessage({id:'notification.success.edit_deploy'}) });
           this.loadBuildSourceInfo();
           this.hideEditOauth();
         }

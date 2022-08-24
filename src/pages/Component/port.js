@@ -271,7 +271,7 @@ export default class Index extends PureComponent {
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功' });
+          : notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -289,7 +289,7 @@ export default class Index extends PureComponent {
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功' });
+          : notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -380,7 +380,7 @@ export default class Index extends PureComponent {
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功' });
+          : notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -406,7 +406,7 @@ export default class Index extends PureComponent {
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功' });
+          : notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -426,7 +426,7 @@ export default class Index extends PureComponent {
       callback: data => {
         const portlist = data && data.list;
         if (portlist && portlist.length == 0) {
-          notification.info({ message: '端口不能修改' });
+          notification.info({ message:  formatMessage({id:'notification.success.cannotModify'})});
         } else {
           this.setState({
             showSubPort: true,
@@ -450,7 +450,7 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         this.setState({ showSubPort: false });
-        notification.success({ message: '端口修改成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.edit_port'})});
         this.fetchPorts();
       }
     });
@@ -488,7 +488,7 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         this.setState({ sld_suffix: null, showSubDomain: false });
-        notification.success({ message: '二级域名添加成功' });
+        notification.success({ message: formatMessage({id:'notification.success.secondary'}) });
         this.fetchPorts();
       }
     });
@@ -508,7 +508,7 @@ export default class Index extends PureComponent {
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功' });
+          : notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -548,7 +548,7 @@ export default class Index extends PureComponent {
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功' });
+          : notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -566,7 +566,7 @@ export default class Index extends PureComponent {
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功' });
+          : notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -622,7 +622,7 @@ export default class Index extends PureComponent {
         this.hideEditAlias();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功、需要更新才能生效' });
+          : notification.success({ message: formatMessage({id:'notification.success.operationToUpdate'}) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -710,17 +710,17 @@ export default class Index extends PureComponent {
         )}
         {this.state.showDeletePort && (
           <ConfirmModal
-            title="端口删除"
-            desc="确定要删除此端口吗？"
-            subDesc="此操作不可恢复"
+            title={<FormattedMessage id='confirmModal.deldete.port.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.port.desc'/>}
+            subDesc={<FormattedMessage id='confirmModal.deldete.port.subDesc'/>}
             onOk={this.handleSubmitDeletePort}
             onCancel={this.cancalDeletePort}
           />
         )}
         {this.state.showDeleteDomain && (
           <ConfirmModal
-            title="域名解绑"
-            desc="确定要解绑此域名吗？"
+            title={<FormattedMessage id='confirmModal.deldete.unbound.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.unbound.desc'/>}
             subDesc={this.state.showDeleteDomain.domain}
             onOk={this.handleSubmitDeleteDomain}
             onCancel={this.cancalDeleteDomain}

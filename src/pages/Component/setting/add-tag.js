@@ -15,7 +15,7 @@ export default class AddTag extends PureComponent {
   handleOk = () => {
     const keys = Object.keys(this.state.selected);
     if (!keys.length) {
-      notification.warning({ message: "请选择要添加的标签" });
+      notification.warning({ message: formatMessage({id:'notification.warn.label'}) });
       return;
     }
     this.props.onOk && this.props.onOk(keys);

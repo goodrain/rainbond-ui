@@ -28,7 +28,7 @@ export default class AddVolumes extends PureComponent {
 
   modeCheck = (_, value, callback) => {
     if (value && !/^[0-7]{1,3}$/.test(value)) {
-      callback('权限的数值限制在0-777之间的8进制数');
+      callback(<FormattedMessage id='componentOverview.body.tab.AddStorage.limit'/>);
       return;
     }
     callback();
@@ -51,7 +51,7 @@ export default class AddVolumes extends PureComponent {
 
     return (
       <Drawer
-        title={editor ? '编辑配置文件' : '添加配置文件'}
+        title={editor ? <FormattedMessage id='componentOverview.body.tab.AddStorage.edit'/> : <FormattedMessage id='componentOverview.body.tab.AddStorage.add'/>}
         placement="right"
         width={500}
         closable={false}
@@ -63,13 +63,13 @@ export default class AddVolumes extends PureComponent {
         }}
       >
         <Form onSubmit={this.handleSubmit} labelAlign="left">
-          <FormItem {...formItemLayout} label="配置文件名称">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.tab.AddStorage.name"/>}>
             {getFieldDecorator('volume_name', {
               initialValue: data.volume_name || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入配置文件名称'
+                  message:formatMessage({id:'componentOverview.body.tab.AddStorage.input'})
                 },
                 {
                   pattern: /^[^\s]*$/,
@@ -77,23 +77,23 @@ export default class AddVolumes extends PureComponent {
                 },
                 {
                   max: 30,
-                  message: '最大长度30位'
+                  message:formatMessage({id:'componentOverview.body.tab.AddStorage.max'})
                 }
               ]
             })(
               <Input
-                placeholder="请输入配置文件名称"
+                placeholder={formatMessage({id:'componentOverview.body.tab.AddStorage.input'})}
                 disabled={!!this.props.editor}
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="配置文件挂载路径">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.tab.AddStorage.path"/>}>
             {getFieldDecorator('volume_path', {
               initialValue: data.volume_path || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入配置文件挂载路径'
+                  message:formatMessage({id:'componentOverview.body.tab.AddStorage.input_path'})
                 },
                 {
                   pattern: /^[^\s]*$/,
@@ -101,33 +101,33 @@ export default class AddVolumes extends PureComponent {
                 },
                 {
                   max: 255,
-                  message: '最大长度255位'
+                  message:formatMessage({id:'componentOverview.body.tab.AddStorage.Maximum_length'})
                 }
               ]
-            })(<Input placeholder="请输入配置文件挂载路径" />)}
+            })(<Input  placeholder={formatMessage({id:'componentOverview.body.tab.AddStorage.input_path'})}/>)}
           </FormItem>
           <div style={{ display: 'none' }}>
-            <FormItem {...formItemLayout} label="类型">
+            <FormItem {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.tab.AddStorage.type"/>}>
               {getFieldDecorator('volume_type', {
                 initialValue: 'config-file',
                 rules: [
                   {
                     required: true,
-                    message: '请选择存储类型'
+                    message:formatMessage({id:'componentOverview.body.tab.AddStorage.input_type'})
                   }
                 ]
               })(
                 <RadioGroup>
                   <Radio value="config-file" disabled={!!this.props.editor}>
-                    <Tooltip title="编辑或上传您的配置文件内容">
-                      配置文件
+                    <Tooltip title={<FormattedMessage id='componentOverview.body.tab.AddStorage.content'/>}>
+                    <FormattedMessage id='componentOverview.body.tab.AddStorage.AddStoragefile'/>
                     </Tooltip>
                   </Radio>
                 </RadioGroup>
               )}
             </FormItem>
           </div>
-          <FormItem {...formItemLayout} label="权限">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.tab.AddStorage.mode"/>}>
             {getFieldDecorator('mode', {
               initialValue: data.mode || 777,
               rules: [{ required: true, validator: this.modeCheck }]
@@ -140,8 +140,8 @@ export default class AddVolumes extends PureComponent {
             style={{ marginBottom: '20px' }}
             getFieldDecorator={getFieldDecorator}
             name="file_content"
-            label="配置文件内容"
-            message="请编辑内容"
+            label={<FormattedMessage id="componentOverview.body.tab.AddStorage.Document"/>}
+            message={<FormattedMessage id="componentOverview.body.tab.AddStorage.edit_content"/>}
             data={data.file_content || ''}
           />
         </Form>
@@ -160,10 +160,10 @@ export default class AddVolumes extends PureComponent {
             }}
             onClick={this.handleCancel}
           >
-            取消
+            <FormattedMessage id='button.cancel'/>
           </Button>
           <Button onClick={this.handleSubmit} type="primary">
-            确认
+            <FormattedMessage id='button.determine'/>
           </Button>
         </div>
       </Drawer>

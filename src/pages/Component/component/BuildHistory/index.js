@@ -67,13 +67,13 @@ class Index extends PureComponent {
   showStatus = status => {
     switch (status) {
       case '':
-        return '构建中';
+        return <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.under'/>;
       case 'success':
-        return '构建成功';
+        return <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.success'/>;
       case 'failure':
-        return '构建失败';
+        return <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.fail'/>;
       default:
-        return '未知';
+        return <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.unknown'/>;
     }
   };
 
@@ -93,7 +93,6 @@ class Index extends PureComponent {
       <Row gutter={24}>
         {logVisible && (
           <LogShow
-            // title="构建日志"
             title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.buildLog'/>}
             EventID={EventID}
             onOk={this.handleOk}
@@ -104,7 +103,6 @@ class Index extends PureComponent {
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
           <Card
             bordered={false}
-            // title="构建版本历史"
             title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.buildVersionHistory'/>}
             style={{ margin: '20px 0' }}
           >
@@ -502,7 +500,7 @@ class Index extends PureComponent {
                           </span>
                           {upgrade_or_rollback == 1 && isRollback ? (
                             <Popconfirm
-                              title="确定要升级到此版本吗?"
+                              title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.popUpgrade'/>}
                               onConfirm={() => {
                                 this.handleRolback(item);
                               }}
@@ -521,7 +519,7 @@ class Index extends PureComponent {
                             isRollback &&
                             current_version ? (
                             <Popconfirm
-                              title="确定要回滚到此版本吗?"
+                              title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.poprollback'/>}
                               onConfirm={() => {
                                 this.handleRolback(item);
                               }}
@@ -540,6 +538,7 @@ class Index extends PureComponent {
 
                           <Popconfirm
                             title="确定要删除此版本吗?"
+                            title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.popDelete'/>}
                             onConfirm={() => {
                               this.handleDel(item);
                             }}

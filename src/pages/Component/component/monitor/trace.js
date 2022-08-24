@@ -46,7 +46,7 @@ export default class TraceShow extends PureComponent {
         app_alias: appDetail.service.service_alias
       },
       callback: () => {
-        notification.success({ message: "设置成功，更新组件后生效" });
+        notification.success({ message: formatMessage({id:'notification.success.setupAssembly'}) });
         this.loadTraceSetting();
       }
     });
@@ -60,7 +60,7 @@ export default class TraceShow extends PureComponent {
         app_alias: appDetail.service.service_alias
       },
       callback: () => {
-        notification.success({ message: "关闭成功，更新组件后生效" });
+        notification.success({ message: formatMessage({id:'notification.success.closeAssembly'}) });
         this.loadTraceSetting();
       }
     });

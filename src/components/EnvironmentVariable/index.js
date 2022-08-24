@@ -71,7 +71,7 @@ class EditableCell extends React.Component {
         }
         if (err && err.data && err.data.msg_show) {
           notification.warning({
-            message: `请求错误`,
+            message: formatMessage({id:'notification.warn.error'}),
             description: err.data.msg_show
           });
         }
@@ -291,7 +291,7 @@ class EnvironmentVariable extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '编辑成功' });
+          notification.success({ message:  formatMessage({id:'notification.success.edit'})});
           this.fetchInnerEnvs();
           this.handleCancelAddVariabl();
         }
@@ -343,7 +343,7 @@ class EnvironmentVariable extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '删除成功' });
+          notification.success({ message:  formatMessage({id:'notification.success.delete'})});
           this.fetchInnerEnvs();
         }
         this.cancelDeleteVariabl();
@@ -369,7 +369,7 @@ class EnvironmentVariable extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '转移成功' });
+          notification.success({ message:  formatMessage({id:'notification.success.transfer'})});
           this.fetchInnerEnvs();
           this.cancelTransfer();
           this.handleCancelAddVariabl();
@@ -686,9 +686,9 @@ class EnvironmentVariable extends React.Component {
             loading={deleteEnvsEnvsLoading}
             onOk={this.handleDeleteVariabl}
             onCancel={this.cancelDeleteVariabl}
-            title="删除变量"
-            desc="确定要删除此变量吗？"
-            subDesc="此操作不可恢复"
+            title={<FormattedMessage id='confirmModal.deldete.env.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.env.desc'/>}
+            subDesc={<FormattedMessage id='confirmModal.deldete.env.subDesc'/>}
           />
         )}
 
@@ -697,13 +697,13 @@ class EnvironmentVariable extends React.Component {
             loading={putTransferLoading}
             onOk={this.handleTransfer}
             onCancel={this.cancelTransfer}
-            title={autoQuery ? '转移连接信息变量' : '转移环境变量'}
+            title={autoQuery ? <FormattedMessage id='confirmModal.deldete.transfer.title_information'/> : <FormattedMessage id='confirmModal.deldete.transfer.title'/>}
             desc={
               autoQuery
-                ? '确定要将此连接信息变量转换为环境变量吗'
-                : '确定要将此环境变量转换为组件连接信息变量吗?'
+                ? <FormattedMessage id='confirmModal.deldete.transfer.desc_information'/>
+                : <FormattedMessage id='confirmModal.deldete.transfer.desc'/>
             }
-            subDesc="此操作不可恢复"
+            subDesc={<FormattedMessage id='confirmModal.deldete.transfer.subDesc'/>}
           />
         )}
 

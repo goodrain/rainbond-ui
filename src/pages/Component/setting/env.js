@@ -84,7 +84,7 @@ export default class AddVarModal extends PureComponent {
         }
         if (err && err.data && err.data.msg_show) {
           notification.warning({
-            message: `请求错误`,
+            message:  formatMessage({id:'notification.warn.error'}),
             description: err.data.msg_show,
           });
         }

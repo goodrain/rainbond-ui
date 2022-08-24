@@ -129,7 +129,7 @@ class Index extends PureComponent {
           showDeletePort:!this.state.showDeletePort,
         })
         notification.success({
-          message:'属性删除成功'
+          message: formatMessage({id:'notification.success.attribute_delete'})
         })
         this.handleGetKubernetes()
       }
@@ -266,7 +266,7 @@ class Index extends PureComponent {
       }).then(res => {
         if(res && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message:'属性添加成功,重启后生效'
+          message:  formatMessage({id:'notification.success.attribute_add'})
         })
         this.handleGetKubernetes()
       }
@@ -283,7 +283,7 @@ class Index extends PureComponent {
       }).then(res => {
         if(res && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message:'属性修改成功,重启后生效'
+          message:  formatMessage({id:'notification.success.attribute_edit'})
         })
         this.handleGetKubernetes()
       }
@@ -542,9 +542,9 @@ class Index extends PureComponent {
           </div>
           {this.state.showDeletePort && (
           <ConfirmModal
-            title="属性删除"
-            desc="确定要删除此属性吗？"
-            subDesc="此操作不可恢复"
+            title={<FormattedMessage id='confirmModal.attribute.port.title'/>}
+            desc={<FormattedMessage id='confirmModal.attribute.port.desc'/>}
+            subDesc={<FormattedMessage id='confirmModal.attribute.port.subDesc'/>}
             onOk={this.deleteBtn}
             onCancel={this.cancalDeletePort}
           />
