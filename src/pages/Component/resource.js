@@ -24,6 +24,7 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import CodeBuildConfig from '../../components/CodeBuildConfig';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import NoPermTip from '../../components/NoPermTip';
@@ -739,18 +740,18 @@ export default class Index extends PureComponent {
       <Fragment>
         {buildSource && (
           <Card
-            title="构建源"
+            title={<FormattedMessage id='componentOverview.body.Resource.Jianyuan'/>}
             style={{
               marginBottom: 24
             }}
             extra={[
               appUtil.isOauthByBuildSource(buildSource) ? (
                 <a onClick={this.changeEditOauth} href="javascript:;">
-                  编辑
+                  <FormattedMessage id='componentOverview.body.Resource.edit'/>
                 </a>
               ) : (
                 <a onClick={this.changeBuildSource} href="javascript:;">
-                  更改
+                  <FormattedMessage id='componentOverview.body.Resource.change'/>
                 </a>
               )
             ]}
@@ -763,8 +764,8 @@ export default class Index extends PureComponent {
                 {...formItemLayout}
                 label={
                   appUtil.isOauthByBuildSource(buildSource) && thirdInfo
-                    ? 'OAuth服务'
-                    : '创建方式'
+                    ? <FormattedMessage id='componentOverview.body.Resource.oauth'/>
+                    : <FormattedMessage id='componentOverview.body.Resource.type'/>
                 }
               >
                 <Link
@@ -788,7 +789,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label="镜像名称"
+                  label={<FormattedMessage id='componentOverview.body.Resource.name'/>}
                 >
                   {buildSource.image}
                 </FormItem>
@@ -797,7 +798,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label="版本"
+                  label={<FormattedMessage id='componentOverview.body.Resource.edition'/>}
                 >
                   {buildSource.version}
                 </FormItem>
@@ -806,7 +807,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label="启动命令"
+                  label={<FormattedMessage id='componentOverview.body.Resource.command'/>}
                 >
                   {buildSource.cmd || ''}
                 </FormItem>
@@ -821,7 +822,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label="应用模版名称"
+                  label={<FormattedMessage id='componentOverview.body.Resource.template'/>}
                 >
                   {buildSource.group_key ? (
                     <a
@@ -840,7 +841,7 @@ export default class Index extends PureComponent {
                       {buildSource.rain_app_name}
                     </a>
                   ) : (
-                    '无法找到源应用，可能已删除'
+                    <FormattedMessage id='componentOverview.body.Resource.notfind'/>
                   )}
                 </FormItem>
                 <FormItem
@@ -848,7 +849,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label="版本"
+                  label={<FormattedMessage id='componentOverview.body.Resource.edition'/>}
                 >
                   {buildSource.version}
                 </FormItem>
@@ -863,7 +864,7 @@ export default class Index extends PureComponent {
                   marginBottom: 0
                 }}
                 {...formItemLayout}
-                label="项目名称"
+                label={<FormattedMessage id='componentOverview.body.Resource.entry_name'/>}
               >
                 <a href={buildSource.git_url} target="_blank">
                   {buildSource.full_name}
@@ -878,7 +879,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label="仓库地址"
+                  label={<FormattedMessage id='componentOverview.body.Resource.git_add'/>}
                 >
                   <a href={buildSource.git_url} target="_blank">
                     {buildSource.git_url}
@@ -889,7 +890,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label="代码版本"
+                  label={<FormattedMessage id='componentOverview.body.Resource.code_edition'/>}
                 >
                   {buildSource.code_version}
                 </FormItem>
@@ -900,7 +901,7 @@ export default class Index extends PureComponent {
                   }}
                   {...formItemLayout}
                   className={styles.ant_form_item}
-                  label="语言"
+                  label={<FormattedMessage id='componentOverview.body.Resource.language'/>}
                 >
                   {languageType != 'static' ? (
                     <a target="blank" href={languageObj[`${languageType}`]}>
@@ -914,7 +915,7 @@ export default class Index extends PureComponent {
                     type="primary"
                     onClick={this.handleToDetect}
                   >
-                    重新检测
+                    <FormattedMessage id='componentOverview.body.Resource.Retest'/>
                   </Button>
                 </FormItem>
               </Fragment>
@@ -928,7 +929,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label="文件名称"
+                  label={<FormattedMessage id='componentOverview.body.Resource.file_name'/>}
                 >
                   {buildSource.package_name}
                   <Button
@@ -936,7 +937,7 @@ export default class Index extends PureComponent {
                     onClick={this.handleToUpload}
                     style={{ marginLeft: '6px' }}
                   >
-                    重新上传文件
+                    <FormattedMessage id='componentOverview.body.Resource.Re_upload_file'/>
                   </Button>
                 </FormItem>
 
@@ -946,7 +947,7 @@ export default class Index extends PureComponent {
                   }}
                   {...formItemLayout}
                   className={styles.ant_form_item}
-                  label="语言"
+                  label={<FormattedMessage id='componentOverview.body.Resource.language'/>}
                 >
                   {languageType != 'static' ? (
                     <>
@@ -963,7 +964,7 @@ export default class Index extends PureComponent {
                     onClick={this.handleToDetect}
                     style={{ marginLeft: '6px' }}
                   >
-                    重新检测
+                    <FormattedMessage id='componentOverview.body.Resource.Retest'/>
                   </Button>
                 </FormItem>
               </Fragment>
@@ -991,35 +992,37 @@ export default class Index extends PureComponent {
           <Modal
             visible={this.state.languageBox}
             onCancel={this.handlelanguageBox}
-            title="重新检测"
+            title={<FormattedMessage id='componentOverview.body.Resource.Retest'/>}
             footer={
               !this.state.create_status
                 ? [
                   <Button key="back" onClick={this.handlelanguageBox}>
-                    关闭
+                    
+                    <FormattedMessage id='componentOverview.body.Resource.close'/>
                   </Button>,
                   <Button
                     key="submit"
                     type="primary"
                     onClick={this.handleDetectPutLanguage}
                   >
-                    检测
+                    <FormattedMessage id='componentOverview.body.Resource.testing'/>
                   </Button>
                 ]
                 : this.state.create_status == 'success'
                   ? [
                     <Button key="back" onClick={this.handlelanguageBox}>
-                      关闭
+                      
+                      <FormattedMessage id='componentOverview.body.Resource.close'/>
                     </Button>,
                     <Button
                       key="submit"
                       type="primary"
                       onClick={this.handlelanguageBox}
                     >
-                      确认
+                      <FormattedMessage id='componentOverview.body.Resource.confirm'/>
                     </Button>
                   ]
-                  : [<Button  onClick={this.handlelanguageBox} key="back">关闭</Button>]
+                  : [<Button  onClick={this.handlelanguageBox} key="back"><FormattedMessage id='componentOverview.body.Resource.close'/></Button>]
             }
           >
             <div>
@@ -1030,7 +1033,7 @@ export default class Index extends PureComponent {
                     <Spin />
                   </p>
                   <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                    检测中，请稍后(请勿关闭弹窗)
+                    <FormattedMessage id='componentOverview.body.Resource.Testing'/>
                   </p>
                 </div>
               ) : (
@@ -1107,7 +1110,7 @@ export default class Index extends PureComponent {
                     <Icon type="close-circle-o" />
                   </p>
                   <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                    检测失败，请重新检测
+                    <FormattedMessage id='componentOverview.body.Resource.fail'/>
                   </p>
                 </div>
               ) : (
@@ -1117,7 +1120,7 @@ export default class Index extends PureComponent {
               {!this.state.create_status && (
                 <div>
                   <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                    确定要重新检测吗?
+                    <FormattedMessage id='componentOverview.body.Resource.testing_again'/>
                   </p>
                 </div>
               )}
@@ -1129,7 +1132,7 @@ export default class Index extends PureComponent {
             visible
             onCancel={this.handleUploadCancel}
             onOk={this.handleUploadOk}
-            title="上传文件"
+            title={<FormattedMessage id='componentOverview.body.Resource.upload'/>}
           >
             <Upload
               fileList={fileList}
@@ -1141,7 +1144,7 @@ export default class Index extends PureComponent {
               headers={myheaders}
             >
               <Button>
-                <Icon type="upload" /> 上传文件
+                <Icon type="upload" /> <FormattedMessage id='componentOverview.body.Resource.upload'/>
               </Button>
             </Upload>
             <div style={{marginTop:'20px'}}>
@@ -1171,7 +1174,7 @@ export default class Index extends PureComponent {
             onOk={this.onChangeBuildSource}
             buildSource={buildSource}
             appAlias={this.props.appDetail.service.service_alias}
-            title="更改组件构建源"
+            title={<FormattedMessage id='componentOverview.body.Resource.Change_component_build_source'/>}
             onCancel={this.hideBuildSource}
           />
         )}
@@ -1181,24 +1184,24 @@ export default class Index extends PureComponent {
             onCancel={this.hideEditOauth}
             onOk={this.handleSubmitOauth}
             loading={this.state.OauthLoading}
-            title="编辑"
+            title={<FormattedMessage id='componentOverview.body.Resource.edit'/>}
           >
             <Spin spinning={this.state.OauthLoading}>
               <Form onSubmit={this.handleSubmitOauth}>
-                <FormItem {...formOauthLayout} label="OAuth服务">
+                <FormItem {...formOauthLayout} label={<FormattedMessage id='componentOverview.body.Resource.oauth'/>}>
                   {getFieldDecorator('oauth_service_id', {
                     initialValue: thirdInfo ? `${thirdInfo.service_id}` : '',
                     rules: [
                       {
                         required: true,
-                        message: '请选择OAuth服务'
+                        message: formatMessage({id:'componentOverview.body.Resource.choice_oauth'}),
                       }
                     ]
                   })(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
                       onChange={this.handleProvinceChange}
-                      placeholder="请选择OAuth服务"
+                      placeholder={formatMessage({id:'componentOverview.body.Resource.choice_oauth'})}
                     >
                       {tabList.length > 0 &&
                         tabList.map(
@@ -1213,12 +1216,12 @@ export default class Index extends PureComponent {
                   )}
                 </FormItem>
 
-                <FormItem {...formOauthLayout} label="项目名称">
+                <FormItem {...formOauthLayout}  label={<FormattedMessage id='componentOverview.body.Resource.entry_name'/>}>
                   {getFieldDecorator('full_name', {
                     initialValue: buildSource
                       ? buildSource.full_name
                       : fullList.length > 0 && fullList[0].project_full_name,
-                    rules: [{ required: true, message: '请选择项目' }]
+                    rules: [{ required: true,  message: formatMessage({id:'componentOverview.body.Resource.choice_entry'})}]
                   })(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -1237,7 +1240,7 @@ export default class Index extends PureComponent {
                                 onMouseDown={e => e.preventDefault()}
                                 onClick={this.onPagePre}
                               >
-                                上一页
+                                <FormattedMessage id='componentOverview.body.Resource.previous'/>
                               </div>
                             </div>
                           )}
@@ -1253,13 +1256,13 @@ export default class Index extends PureComponent {
                                 onMouseDown={e => e.preventDefault()}
                                 onClick={this.onPageNext}
                               >
-                                下一页
+                                <FormattedMessage id='componentOverview.body.Resource.next'/>
                               </div>
                             </div>
                           )}
                         </div>
                       )}
-                      placeholder="请选择项目"
+                      placeholder={formatMessage({id:'componentOverview.body.Resource.choice_entry'})}
                     >
                       {fullList.length > 0 &&
                         fullList.map(item => (
@@ -1274,27 +1277,27 @@ export default class Index extends PureComponent {
                   )}
                 </FormItem>
 
-                <FormItem {...formOauthLayout} label="仓库地址">
+                <FormItem {...formOauthLayout} label={<FormattedMessage id='componentOverview.body.Resource.git_add'/>}>
                   {getFieldDecorator('git_url', {
                     initialValue: buildSource
                       ? buildSource.git_url
                       : fullList.length > 0 && fullList[0].git_url,
-                    rules: [{ required: true, message: '请选择创建方式' }]
-                  })(<Input placeholder="请输入配置组名" disabled />)}
+                    rules: [{ required: true,  message: formatMessage({id:'componentOverview.body.Resource.placese_type'}),}]
+                  })(<Input placeholder={formatMessage({id:'componentOverview.body.Resource.input_name'})} disabled />)}
                 </FormItem>
 
                 <Form.Item
                   className={styles.clearConform}
                   {...formOauthLayout}
-                  label="代码版本"
+                  label={<FormattedMessage id='componentOverview.body.Resource.code_edition'/>}
                 >
                   {getFieldDecorator('code_version', {
                     initialValue: buildSource ? buildSource.code_version : '',
-                    rules: [{ required: true, message: '请输入代码版本' }]
+                    rules: [{ required: true,  message: formatMessage({id:'componentOverview.body.Resource.input_code'}),}]
                   })(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
-                      placeholder="请输入代码版本"
+                      placeholder={formatMessage({id:'componentOverview.body.Resource.input_code'})}
                     >
                       <OptGroup
                         label={
@@ -1303,7 +1306,7 @@ export default class Index extends PureComponent {
                             onChange={this.onTabChange}
                             className={styles.selectTabs}
                           >
-                            <TabPane tab="分支" key="branches" />
+                            <TabPane tab={<FormattedMessage id='componentOverview.body.Resource.branch'/>} key="branches" />
                             <TabPane tab="Tags" key="tags" />
                           </Tabs>
                         }

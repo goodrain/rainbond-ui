@@ -1,5 +1,6 @@
 import { Form, Input, Modal, Radio, Select } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import KVinput from '../../../components/KVinput';
 import appProbeUtil from '../../../utils/appProbe-util';
 
@@ -35,7 +36,7 @@ export default class EditRunHealthCheck extends PureComponent {
       return;
     }
 
-    callback('请填写路径!');
+    callback(<FormattedMessage id='componentOverview.body.EditRunHealthCheck.input_path'/>);
   };
   render() {
     const { title, onCancel, ports } = this.props;
@@ -69,7 +70,7 @@ export default class EditRunHealthCheck extends PureComponent {
         visible
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="检测端口">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.EditRunHealthCheck.port'/>}>
             {getFieldDecorator('port', {
               initialValue:
                 appProbeUtil.getPort(data) ||
@@ -84,7 +85,7 @@ export default class EditRunHealthCheck extends PureComponent {
               </Select>
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="探针协议">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.EditRunHealthCheck.agreement'/>}>
             {getFieldDecorator('scheme', {
               initialValue: data.scheme || 'tcp'
             })(
@@ -104,7 +105,7 @@ export default class EditRunHealthCheck extends PureComponent {
           </FormItem>
           <FormItem
             {...formItemLayout}
-            label="http请求头"
+            label={<FormattedMessage id='componentOverview.body.EditRunHealthCheck.http'/>}
             style={{
               display: scheme === 'tcp' ? 'none' : ''
             }}
@@ -115,7 +116,7 @@ export default class EditRunHealthCheck extends PureComponent {
           </FormItem>
           <FormItem
             {...formItemLayout}
-            label="路径"
+            label={<FormattedMessage id='componentOverview.body.EditRunHealthCheck.path'/>}
             style={{
               display: scheme === 'tcp' ? 'none' : ''
             }}
@@ -127,15 +128,15 @@ export default class EditRunHealthCheck extends PureComponent {
                   validator: this.checkPath
                 }
               ]
-            })(<Input placeholder="响应码2xx、3xx为正常" />)}
+            })(<Input placeholder={formatMessage({id:'componentOverview.body.EditRunHealthCheck.Response'})}/> )}
           </FormItem>
-          <FormItem {...formItemLayout} label="初始化等候时间">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.EditRunHealthCheck.initialization'/>}>
             {getFieldDecorator('initial_delay_second', {
               initialValue: data.initial_delay_second || '20',
               rules: [
                 {
                   required: true,
-                  message: '请填写初始化等候时间'
+                  message: formatMessage({id:'componentOverview.body.EditRunHealthCheck.input_initialization'}),
                 }
               ]
             })(
@@ -151,16 +152,16 @@ export default class EditRunHealthCheck extends PureComponent {
                 marginLeft: 8
               }}
             >
-              秒
+              <FormattedMessage id='componentOverview.body.EditRunHealthCheck.second'/>
             </span>
           </FormItem>
-          <FormItem {...formItemLayout} label="检测间隔时间">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.EditRunHealthCheck.time'/>}>
             {getFieldDecorator('period_second', {
               initialValue: data.period_second || '3',
               rules: [
                 {
                   required: true,
-                  message: '请填写检测间隔时间'
+                  message: formatMessage({id:'componentOverview.body.EditRunHealthCheck.input_time'}),
                 }
               ]
             })(
@@ -176,16 +177,16 @@ export default class EditRunHealthCheck extends PureComponent {
                 marginLeft: 8
               }}
             >
-              秒
+              <FormattedMessage id='componentOverview.body.EditRunHealthCheck.second'/>
             </span>
           </FormItem>
-          <FormItem {...formItemLayout} label="检测超时时间">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.EditRunHealthCheck.over_time'/>}>
             {getFieldDecorator('timeout_second', {
               initialValue: data.timeout_second || '20',
               rules: [
                 {
                   required: true,
-                  message: '请填写检测超时时间'
+                  message: formatMessage({id:'componentOverview.body.EditRunHealthCheck.input_over_time'}),
                 }
               ]
             })(
@@ -201,16 +202,16 @@ export default class EditRunHealthCheck extends PureComponent {
                 marginLeft: 8
               }}
             >
-              秒
+              <FormattedMessage id='componentOverview.body.EditRunHealthCheck.second'/>
             </span>
           </FormItem>
-          <FormItem {...formItemLayout} label="连续错误次数">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.EditRunHealthCheck.error'/>}>
             {getFieldDecorator('failure_threshold', {
               initialValue: data.failure_threshold || '3',
               rules: [
                 {
                   required: true,
-                  message: '请填写连续错误次数'
+                  message: formatMessage({id:'componentOverview.body.EditRunHealthCheck.error_frequency'}),
                 }
               ]
             })(

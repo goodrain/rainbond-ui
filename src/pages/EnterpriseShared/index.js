@@ -1586,9 +1586,7 @@ export default class EnterpriseShared extends PureComponent {
           <Col span={19} style={contentLeftStyle}>
             <Search
               style={{ width: '250px' }}
-              placeholder="请输入名称进行搜索"
-              // placeholder={'hello'}
-              // placeholder={ intl.formatMessage({id:'applicationMarket.localMarket.placeholder'})}
+              placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
               onSearch={this.handleSearchLocal}
             />
             <div className={styles.serBox}>
@@ -1694,7 +1692,7 @@ export default class EnterpriseShared extends PureComponent {
               </div>
               <Search
                 style={{ width: '400px', marginLeft: '100px' }}
-                placeholder="请输入名称进行搜索"
+                placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
                 onSearch={this.handleSearchMarket}
               />
             </Col>
@@ -1740,7 +1738,7 @@ export default class EnterpriseShared extends PureComponent {
           <Col span={19} style={contentLeftStyle}>
             <Search
               style={{ width: '400px' }}
-              placeholder="请输入名称进行搜索"
+              placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
               onSearch={this.handleSearchHelmMarket}
             />
           </Col>

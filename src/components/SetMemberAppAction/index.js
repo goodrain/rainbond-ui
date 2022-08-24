@@ -1,6 +1,7 @@
 import { Form, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import RolePermsSelect from '../RolePermsSelect';
 
@@ -50,7 +51,7 @@ class ConfirmModal extends PureComponent {
     const members = this.props.members || [];
     return (
       <Modal
-        title="设置成员应用权限"
+        title={<FormattedMessage id='componentOverview.body.SetMemberAppAction.member'/>}
         visible
         width={800}
         onOk={this.handleSubmit}
@@ -58,12 +59,12 @@ class ConfirmModal extends PureComponent {
         maskClosable={false}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="选择成员" hasFeedback>
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.SetMemberAppAction.Select_member'/>} hasFeedback>
             {getFieldDecorator('user_ids', {
               rules: [
                 {
                   required: true,
-                  message: '请选择团队成员'
+                  message: formatMessage({id:'componentOverview.body.SetMemberAppAction.team_memner'}),
                 }
               ]
             })(
@@ -82,19 +83,20 @@ class ConfirmModal extends PureComponent {
             )}
           </FormItem>
 
-          <FormItem {...formItemLayout} label="选择权限">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.SetMemberAppAction.mode'/>}>
             {getFieldDecorator('perm_ids', {
               initialValue: [],
               rules: [
                 {
                   required: true,
-                  message: '请选择权限'
+                  message: formatMessage({id:'componentOverview.body.SetMemberAppAction.palce_mode'}),
+                  
                 }
               ]
             })(
               <RolePermsSelect
                 showGroupName={false}
-                hides={['团队相关']}
+                hides={[`${formatMessage({id:'componentOverview.body.SetMemberAppAction.team'})}`]}
                 datas={options}
               />
             )}

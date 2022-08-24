@@ -1,5 +1,6 @@
 import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty, message, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { addKubernetes, getKubernetes, deleteKubernetes, editKubernetes } from '../../services/app';
 import DApvcinput from '../../components/DApvcinput';
 import globalUtil from '../../utils/global';
@@ -16,7 +17,7 @@ class Index extends PureComponent {
       allData: [],
       minArr: {},
       visible: false,
-      drawerTitle: "新增属性",
+      drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.add'}),
       selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged",'env'],
       selectVal: undefined,
       havevalArr: [],
@@ -79,7 +80,7 @@ class Index extends PureComponent {
     const { selectArr, havevalArr } = this.state
     this.setState({
       visible: true,
-      drawerTitle: "新增属性",
+      drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.add'}),
       drawerSwitch: val,
       selectVal: undefined,
       jsonValue: '',
@@ -105,7 +106,7 @@ class Index extends PureComponent {
     this.setState({
       minArr: allData[index],
       visible: true,
-      drawerTitle: '修改属性',
+      drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.edit_attribute'}),
       drawerSwitch: str,
       selectVal: val.name,
       TooltipValue: TooltipValueArr.[val.name]
@@ -238,7 +239,7 @@ class Index extends PureComponent {
         this.handelAddOrEdit(label)
       }else{
         notification.error({
-          message:'文件内容不能为空'
+          message: formatMessage({id:'componentOverview.body.Kubernetes.null'}),
         })
       }
     })
@@ -364,9 +365,9 @@ class Index extends PureComponent {
     return (
       <div>
         <Card
-          title="Kubernetes属性"
+          title={<FormattedMessage id='componentOverview.body.Kubernetes.attribute'/>}
           style={{ marginBottom: '24px' }}
-          extra={<Button onClick={() => this.addAttribute("add")}><Icon type="plus" />新增属性</Button>}
+          extra={<Button onClick={() => this.addAttribute("add")}><Icon type="plus" /><FormattedMessage id='componentOverview.body.Kubernetes.add'/></Button>}
         >
           <Drawer
             title={drawerTitle}
@@ -378,16 +379,16 @@ class Index extends PureComponent {
           >
             <div className={styles.selectstyle}>
             <Row>
-              <Col span={4} >属性名称</Col>
+              <Col span={4} ><FormattedMessage id='componentOverview.body.Kubernetes.name'/></Col>
               <Col span={20}>
                 <Select
                   style={{ width: 220 }}
                   onChange={this.handleChange}
-                  placeholder="请选择属性"
+                  placeholder={formatMessage({id:'componentOverview.body.Kubernetes.choice'})}
                   disabled={drawerSwitch === "change"}
                   value={selectVal}
                 >
-                  <OptGroup label="可添加">
+                  <OptGroup  label={<FormattedMessage id='componentOverview.body.Kubernetes.added'/>}>
                     {notAddible.map((item, index) => {
                       return <Option
                                 key={index}
@@ -397,7 +398,7 @@ class Index extends PureComponent {
                               </Option>
                     })}
                   </OptGroup>
-                  <OptGroup label="不可添加">
+                  <OptGroup label={<FormattedMessage id='componentOverview.body.Kubernetes.Cannot'/>}>
                     {addible.map((item, index) => {
                       return <Option
                                 key={index}
@@ -415,11 +416,11 @@ class Index extends PureComponent {
               {selectVal &&
                 ((selectVal == "nodeSelector") || (selectVal == "labels")) &&
                 <Form.Item {...formItemLayouts}>
-                  <p>请输入对应的key,value</p>
+                  <p><FormattedMessage id='componentOverview.body.Kubernetes.key'/></p>
                   <div className={styles.nodeSelector_sytle}>
                   {getFieldDecorator(`${selectVal}`, {
                     initialValue: jsonValue || [],
-                    rules: [{ required: false, message: `请输入${selectVal}` }]
+                    rules: [{ required: false, message: formatMessage({id:'componentOverview.body.Kubernetes.msg'},{selectVal:selectVal}),}]
                   })(<DApvcinput />)}
                   </div>
                 </Form.Item>
@@ -436,7 +437,7 @@ class Index extends PureComponent {
                     style={{ marginBottom: '20px' }}
                     getFieldDecorator={getFieldDecorator}
                     name={selectVal}
-                    message="请编辑内容"
+                    message={<FormattedMessage id='componentOverview.body.Kubernetes.content'/>}
                     data={yamlValue || ''}
                     mode={'yaml'}
                     bool = { isBool }
@@ -448,12 +449,12 @@ class Index extends PureComponent {
                 selectVal &&
                 selectVal == "serviceAccountName" &&
                 <Form.Item  {...formItemLayouts}>
-                  <p>请输入serviceAccountName属性</p>
+                  <p><FormattedMessage id='componentOverview.body.Kubernetes.input'/></p>
                   <div className={styles.accountName_style}>
                   {getFieldDecorator(`${selectVal}`, {
                     initialValue: strValue || '',
-                    rules: [{ required: false, message: '请输入ServiceAccountName' }]
-                  })(<Input placeholder='请输入ServiceAccountName' />)}
+                    rules: [{ required: false, message: formatMessage({id:'componentOverview.body.Kubernetes.input'}),}]
+                  })(<Input  placeholder={formatMessage({id:'componentOverview.body.Kubernetes.input'})}/>)}
                   </div>
                 </Form.Item>
               }
@@ -461,7 +462,7 @@ class Index extends PureComponent {
                 selectVal &&
                 selectVal == "privileged" &&
                 <Form.Item  {...formItemLayouts}>
-                  <p>是否开启privileged属性</p>
+                  <p><FormattedMessage id='componentOverview.body.Kubernetes.privileged'/></p>
                   {getFieldDecorator(`${selectVal}`, {
                     initialValue: boolvalue || false,
                     rules: [{ required: false }]
@@ -475,13 +476,13 @@ class Index extends PureComponent {
                 style={{marginRight:"10px"}}
                 onClick={this.handleCancel}
               >
-                取 消
+                <FormattedMessage id='componentOverview.body.Kubernetes.Cancel'/>
               </Button>
               <Button
                 type="primary"
                 onClick={this.handleSubmit}
               >
-                确 认
+                <FormattedMessage id='componentOverview.body.Kubernetes.Confirm'/>
               </Button>
             </div>
           </Drawer>
@@ -513,7 +514,7 @@ class Index extends PureComponent {
                                 (item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env")  &&
                                 item.attribute_value.length > 0 &&
                                 <div className={styles.yamlValue_style}>
-                                  {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;该配置以yaml文件形式存储,请点击右侧编辑按钮进行查看或修改。
+                                  {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml'/>
                                 </div>
                                 }
                                 {item.name &&
@@ -528,10 +529,10 @@ class Index extends PureComponent {
                                 {item.name &&
                                 (item.name == "privileged")  &&
                                 item.attribute_value.length > 0 &&
-                                <span style={{paddingTop:"6px"}}>当前状态：{item.attribute_value == "true" ? "已开启 ": "已关闭"}</span>
+                                <span style={{paddingTop:"6px"}}><FormattedMessage id='componentOverview.body.Kubernetes.current'/>{item.attribute_value == "true" ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened'/>: <FormattedMessage id='componentOverview.body.Kubernetes.Closed'/>}</span>
                                 }
                               </Col>
-                              <Col span={2}><span onClick={() => this.changeBtn(item, "change", index)}>编辑</span>&nbsp;&nbsp;&nbsp;&nbsp;<span onClick={()=>this.cancalDeletePort(item)}>删除</span></Col>
+                              <Col span={2}><span onClick={() => this.changeBtn(item, "change", index)}><FormattedMessage id='componentOverview.body.Kubernetes.edit'/></span>&nbsp;&nbsp;&nbsp;&nbsp;<span onClick={()=>this.cancalDeletePort(item)}><FormattedMessage id='componentOverview.body.Kubernetes.deldete'/></span></Col>
                          </Row>
                 })
               ) : (

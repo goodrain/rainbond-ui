@@ -1,6 +1,7 @@
 import { Button, Card, Col, Form, Modal, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Dockerinput from '../Dockerinput';
 import GoConfig from './golang';
 import JavaJarConfig from './java-jar';
@@ -145,7 +146,7 @@ class CodeBuildConfig extends PureComponent {
     validateFields(err => {
       if (err) return;
       confirm({
-        title: '确认修改吗?',
+        title: formatMessage({id:'componentOverview.body.CodeBuildConfig.title'}),
         content: '',
         onOk() {
           _th.handleSubmit();
@@ -159,7 +160,7 @@ class CodeBuildConfig extends PureComponent {
     const runtime = this.props.form.getFieldValue('RUNTIMES');
     if (runtime === 'Jdk') {
       if (!value) {
-        callback('自定义JDK下载地址不能为空');
+        callback(<FormattedMessage id='componentOverview.body.CodeBuildConfig.callback_msg'/>);
       }
     }
     callback();
@@ -188,7 +189,7 @@ class CodeBuildConfig extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     const { languageType, arr } = this.state;
     return (
-      <Card title="源码构建参数设置">
+      <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title'/>}>
         {(languageType === 'java-maven' || languageType === 'Java-maven') && (
           <JavaMavenConfig envs={runtimeInfo} form={this.props.form} />
         )}
@@ -247,7 +248,7 @@ class CodeBuildConfig extends PureComponent {
         )}
         {languageType === 'dockerfile' && (
           <div>
-            <Form.Item {...formItemLayout} label="ARG参数">
+            <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.CodeBuildConfig.label'/>}>
               {getFieldDecorator('set_dockerfile', { initialValue: [] })(
                 <Dockerinput
                   onChange={value => {
@@ -263,7 +264,7 @@ class CodeBuildConfig extends PureComponent {
           <Col span="5" />
           <Col span="19">
             <Button onClick={this.showConfirm} type="primary">
-              确认修改
+              <FormattedMessage id='componentOverview.body.CodeBuildConfig.Confirm'/>
             </Button>
           </Col>
         </Row>
