@@ -790,9 +790,9 @@ export default class Index extends PureComponent {
                     placement="top"
                     title={
                       <div>
-                        <div>账号:{currApp.username}</div>
-                        <div>姓名:{currApp.principal}</div>
-                        <div>邮箱:{currApp.email}</div>
+                        <div>{formatMessage({id: 'appOverview.principal.username'})}{currApp.username}</div>
+                          <div>{formatMessage({id: 'appOverview.principal.principal'})}{currApp.principal}</div>
+                          <div>{formatMessage({id: 'appOverview.principal.email'})}{currApp.email}</div>
                       </div>
                     }
                   >
@@ -1267,7 +1267,7 @@ export default class Index extends PureComponent {
               copyFlag={true}
               on={this.handleCloseRapidCopy}
               onCancel={this.handleCloseRapidCopy}
-              title="应用复制"
+              title={formatMessage({id:'confirmModal.app.title.copy'})}
             />
           )}
 
@@ -1322,9 +1322,9 @@ export default class Index extends PureComponent {
 
         {toDelete && (
           <ConfirmModal
-            title="删除应用"
-            desc="确定要此删除此应用吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({id:'confirmModal.app.title.delete'})}
+            desc={formatMessage({id:'confirmModal.app.delete.desc'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
             loading={deleteLoading}
             onOk={this.handleDelete}
             onCancel={this.cancelDelete}
@@ -1338,7 +1338,7 @@ export default class Index extends PureComponent {
             note={groupDetail.note}
             loading={editGroupLoading}
             k8s_app={groupDetail.k8s_app}
-            title="修改应用信息"
+            title={formatMessage({id:'confirmModal.app.title.edit'})}
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}
             isEditEnglishName={currApp.can_edit}
@@ -1359,13 +1359,13 @@ export default class Index extends PureComponent {
 
         {promptModal && (
           <Modal
-            title="友情提示"
+            title={formatMessage({id:'confirmModal.friendly_reminder.title'})}
             confirmLoading={buildShapeLoading}
             visible={promptModal}
             onOk={this.handlePromptModalOpen}
             onCancel={this.handlePromptModalClose}
           >
-            <p>{codeObj[code]}当前应用下的全部组件？</p>
+            <p>{formatMessage({id:'confirmModal.friendly_reminder.pages.desc'},{codeObj: codeObj[code]})}</p>
           </Modal>
         )}
       </Fragment>

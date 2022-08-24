@@ -13,6 +13,7 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddStorage from '../../components/AddStorage';
 import RelationMnt from '../../components/AddStorage/relationMnt';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -22,7 +23,7 @@ import ScrollerX from '../../components/ScrollerX';
 import { addMnt, getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import AddVarModal from './setting/env';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+
 
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -187,7 +188,7 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '添加成功' });
+          notification.success({ message: formatMessage({id:'notification.success.add'}) });
           this.fetchInnerEnvs();
           this.handleCancelAddVar();
         }
@@ -340,7 +341,7 @@ export default class Index extends React.Component {
           if (res && res.status_code === 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();
-            notification.success({ message: '添加成功' });
+            notification.success({ message: formatMessage({id:'notification.success.add'}) });
             this.props.onshowRestartTips(true);
           }
         }

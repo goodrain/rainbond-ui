@@ -419,7 +419,7 @@ export default class Index extends PureComponent {
                 : !automaticTelescopic
                 ? '开启成功'
                 : addindicators
-                ? '添加成功'
+                ? formatMessage({id:'notification.success.add'})
                 : '编辑成功'
             });
 

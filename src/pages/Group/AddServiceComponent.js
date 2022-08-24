@@ -5,6 +5,7 @@
 import { Alert, Button, Col, Drawer, Icon, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeGitRepostory from '../../components/GitRepostory';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
@@ -256,10 +257,10 @@ export default class AddServiceComponent extends PureComponent {
           }}
         >
           <Icon type="plus" />
-          添加组件
+          {formatMessage({id:'appOverview.btn.addComponent'})}
         </Button>
         <Drawer
-          title="添加组件"
+          title={formatMessage({id:'appOverview.btn.addComponent'})}
           placement="right"
           onClose={this.cancelAddService}
           visible={toAddService}

@@ -3,6 +3,7 @@
 import { Button, Form, Input, Select, Upload, Icon, notification, message } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global'
 import styles from './index.less'
@@ -274,7 +275,9 @@ export default class Index extends PureComponent {
               </Select>
             )}
             {isService ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>新建应用</Button>
+              <Button onClick={this.onAddGroup}>
+                {formatMessage({id:'popover.newApp.title'})}
+              </Button>
             ) : null}
           </Form.Item>
           <Form.Item {...formItemLayout} label="组件名称">

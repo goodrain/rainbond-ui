@@ -221,9 +221,9 @@ export default class MemberList extends PureComponent {
         {toDeleteMember && (
           <ConfirmModal
             onOk={this.handleDelMember}
-            title="删除成员"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此成员吗？"
+            title={formatMessage({id:'confirmModal.delete.member'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.member.desc'})}
             onCancel={this.hideDelMember}
           />
         )}
@@ -231,9 +231,9 @@ export default class MemberList extends PureComponent {
           <ConfirmModal
             onOk={this.handleMoveTeam}
             loading={toMoveTeamLoading}
-            title="移交团队"
-            subDesc="移交后您将失去所有权"
-            desc={`确定要把团队移交给 ${toMoveTeam.nick_name} 吗？`}
+            title={formatMessage({id:'confirmModal.MoveTeam.title'})}
+            subDesc={formatMessage({id:'confirmModal.MoveTeam.subDesc'})}
+            desc={formatMessage({id:'confirmModal.MoveTeam.desc'},{nick_name: toMoveTeam.nick_name})}
             onCancel={this.hideMoveTeam}
           />
         )}

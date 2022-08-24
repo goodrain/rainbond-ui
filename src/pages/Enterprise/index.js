@@ -19,6 +19,7 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddTeam from '../../../public/images/addTeam.png';
 import Arrow from '../../../public/images/arrow.png';
 import Cpus from '../../../public/images/cpus.png';
@@ -44,7 +45,6 @@ import Meiqia from '../../layouts/Meiqia';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from '../List/BasicList.less';
 
 @connect(({ user, global, index }) => ({
@@ -467,7 +467,7 @@ export default class Enterprise extends PureComponent {
   };
 
   handleConvenientEntrance = () => {
-    notification.success({ message: '添加成功' });
+    notification.success({ message: formatMessage({id:'notification.success.add'}) });
     this.fetchCollectionViewInfo();
     this.cancelConvenientEntrance();
   };

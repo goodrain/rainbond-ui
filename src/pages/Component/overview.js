@@ -7,6 +7,7 @@ import { Button, Card, notification } from 'antd';
 import { connect } from 'dva';
 import PropTypes from 'prop-types';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import LogProcress from '../../components/LogProcress';
 import { getActionLogDetail } from '../../services/app';
 import appAcionLogUtil from '../../utils/app-action-log-util';
@@ -20,7 +21,6 @@ import Basic from './component/Basic/index';
 import OperationRecord from './component/Basic/operationRecord';
 import BuildHistory from './component/BuildHistory/index';
 import Instance from './component/Instance/index';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from './Index.less';
 
 const ButtonGroup = Button.Group;

@@ -129,7 +129,7 @@ export default class customMonitor extends PureComponent {
       callback: res => {
         if (res) {
           notification.success({
-            message: editorData.name ? '保存成功' : '添加成功'
+            message: editorData.name ? '保存成功' : formatMessage({id:'notification.success.add'})
           });
           this.fetchServiceMonitor();
           this.cancelAddCustomMonitor();

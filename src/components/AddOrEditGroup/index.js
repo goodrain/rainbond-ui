@@ -5,6 +5,7 @@
 import { Form, Icon, Input, Modal, Upload } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import apiconfig from '../../../config/api.config';
 import { addGroup } from '../../services/application';
 import handleAPIError from '../../utils/error';
@@ -121,7 +122,7 @@ export default class EditGroupName extends PureComponent {
       this.setState({
         previewVisible: true,
         previewImage: info.thumbUrl || info.url,
-        previewTitle: '预览图片'
+        previewTitle: formatMessage({id:'placeholder.preview_image'})
       });
     }
   };
@@ -155,21 +156,21 @@ export default class EditGroupName extends PureComponent {
   }
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入应用英文名称'));
+      return callback(new Error(formatMessage({id:'placeholder.appEngName'})));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
           new Error(
-            '只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾'
+            formatMessage({id:'placeholder.nameSpaceReg'})
           )
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error(formatMessage({id:'placeholder.max32'})));
     }
   };
   render() {
@@ -209,12 +210,12 @@ export default class EditGroupName extends PureComponent {
     const uploadButton = (
       <div>
         <Icon type="plus" />
-        <div className="ant-upload-text">上传图标</div>
+        <div className="ant-upload-text">{formatMessage({id:'popover.newApp.upload_pictures'})}</div>
       </div>
     );
     return (
       <Modal
-        title={title || '新建应用'}
+        title={title || formatMessage({id:'popover.newApp.title'})}
         visible
         confirmLoading={appLoading || loading}
         className={styles.TelescopicModal}
@@ -222,22 +223,22 @@ export default class EditGroupName extends PureComponent {
         onOk={this.handleSubmit}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="应用名称">
+          <FormItem {...formItemLayout} label={formatMessage({id:'popover.newApp.appName'})}>
             {getFieldDecorator('group_name', {
               initialValue: groupName || '',
               rules: [
-                { required: true, message: '请填写应用名称' },
+                { required: true, message: formatMessage({id:'popover.newApp.appName.placeholder'}) },
                 {
                   max: 24,
-                  message: '最大长度24位'
+                  message: formatMessage({id:'placeholder.max24'})
                 }
               ]
-            })(<Input disabled={isNoEditName} placeholder="请填写应用名称" />)}
+            })(<Input disabled={isNoEditName} placeholder={formatMessage({id:'popover.newApp.appName.placeholder'})} />)}
           </FormItem>
           <FormItem
             {...formItemLayout}
-            label="应用英文名称"
-            extra="需关闭应用下所有组件方可修改应用英文名称"
+            label={formatMessage({id:'popover.newApp.appEngName'})}
+            extra={formatMessage({id:'popover.newApp.appEngName.extra'})}
           >
             {getFieldDecorator('k8s_app', {
               initialValue: k8sApp || '',
@@ -247,13 +248,13 @@ export default class EditGroupName extends PureComponent {
                   validator: this.handleValiateNameSpace
                 }
               ]
-            })(<Input placeholder="应用的英文名称" disabled={!isDisabled} />)}
+            })(<Input placeholder={formatMessage({id:'popover.newApp.appEngName.placeholder'})} disabled={!isDisabled} />)}
           </FormItem>
           {/* 应用Logo */}
           <FormItem
             {...formItemLayout}
-            label="Logo"
-            extra="请上传 48 × 48 的图片"
+            label={formatMessage({id:'popover.newApp.logo'})}
+            extra={formatMessage({id:'popover.newApp.upload_pictures.extra'})}
           >
             <Upload
               action={apiconfig.imageUploadUrl}
@@ -276,16 +277,16 @@ export default class EditGroupName extends PureComponent {
             </Modal>
           </FormItem>
 
-          <FormItem {...formItemLayout} label="应用备注">
+          <FormItem {...formItemLayout} label={formatMessage({id:'popover.newApp.appRemark'})}>
             {getFieldDecorator('note', {
               initialValue: note || '',
               rules: [
                 {
                   max: 255,
-                  message: '最大长度255位'
+                  message: formatMessage({id:'placeholder.max255'})
                 }
               ]
-            })(<Input.TextArea placeholder="请填写应用备注信息" />)}
+            })(<Input.TextArea placeholder={formatMessage({id:'popover.newApp.appRemark.placeholder'})} />)}
           </FormItem>
         </Form>
       </Modal>

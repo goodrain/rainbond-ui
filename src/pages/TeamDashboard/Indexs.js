@@ -15,6 +15,7 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import EditableLinkGroup from '../../components/EditableLinkGroup';
 import IndexTable from '../../components/IndexTable';
 import ScrollerX from '../../components/ScrollerX';

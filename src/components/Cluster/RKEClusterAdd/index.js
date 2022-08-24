@@ -30,6 +30,7 @@ import {
 import copy from 'copy-to-clipboard';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { rkeconfig } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from './index.less';
@@ -773,7 +774,7 @@ export default class RKEClusterConfig extends PureComponent {
                   configName: 'kclustersAttention',
                   desc: '确认RKE集群配置信息填写正确并立即开始安装。',
                   nextStep: 7,
-                  btnText: '安装',
+                  btnText: formatMessage({id:'button.install'}),
                   conPosition: { right: '110px', bottom: 0 },
                   svgPosition: { right: '50px', marginTop: '-11px' },
                   handleClick: () => {
@@ -791,7 +792,7 @@ export default class RKEClusterConfig extends PureComponent {
         {isCheck && (
           <Modal
             title={`确定已完成所有节点的初始化并开始
-            ${clusterID ? '配置' : '安装'}
+            ${clusterID ? '配置' : formatMessage({id:'button.install'})}
            集群吗?`}
             confirmLoading={loading}
             className={styles.TelescopicModal}

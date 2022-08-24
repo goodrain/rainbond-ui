@@ -4,6 +4,7 @@
 import { Button, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import { getCodeBranchs } from '../../services/createApp';
 import { getGitlabInfo } from '../../services/team';
@@ -233,10 +234,10 @@ export default class Index extends PureComponent {
 
     return (
       <Form layout="horizontal" hideRequiredMark>
-        <Form.Item {...formItemLayout} label="应用名称">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'popover.newApp.appName'})}>
           {getFieldDecorator('group_id', {
             initialValue: isService ? Number(groupId) : data.groupd_id,
-            rules: [{ required: true, message: '请选择' }]
+            rules: [{ required: true, message: formatMessage({id:'placeholder.select'}) }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -255,29 +256,31 @@ export default class Index extends PureComponent {
             </Select>
           )}
           {isService ? null : (
-            <Button onClick={this.onAddGroup}>新建应用</Button>
+            <Button onClick={this.onAddGroup}>
+              {formatMessage({id:'popover.newApp.title'})}
+            </Button>
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="组件名称">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'popover.newComponent.componentName'})}>
           {getFieldDecorator('service_cname', {
             initialValue: data.service_cname || '',
             rules: [
-              { required: true, message: '要创建的组件还没有名字' },
+              { required: true, message: formatMessage({id:'placeholder.service_cname'}) },
               {
                 max: 24,
-                message: '最大长度24位'
+                message: formatMessage({id:'placeholder.max24'})
               }
             ]
-          })(<Input placeholder="请为创建的组件起个名字吧" />)}
+          })(<Input placeholder={formatMessage({id:'placeholder.service_cname'})} />)}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="Gitlab项目">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'popover.newComponent.gitHub'})}>
           {getFieldDecorator('git_project_id', {
             initialValue: defaultProject,
-            rules: [{ required: true, message: '请选择' }]
+            rules: [{ required: true, message: formatMessage({id:'placeholder.select'}) }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
-              placeholder={defaultProject ? '请选择' : '暂无项目，请先创建'}
+              placeholder={defaultProject ? formatMessage({id:'placeholder.select'}) : formatMessage({id:'placeholder.not_available'}) }
               onChange={this.handleCodeIdChange}
               style={{ display: 'inline-block', width: 290, marginRight: 15 }}
             >
@@ -286,12 +289,12 @@ export default class Index extends PureComponent {
               ))}
             </Select>
           )}
-          <Button onClick={this.onCreateProject}>新建项目</Button>
+          <Button onClick={this.onCreateProject}>{formatMessage({id:'popover.newComponent.newProject'})}</Button>
         </Form.Item>
-        <Form.Item {...formItemLayout} label="代码分支">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'popover.newComponent.codeBranch'})}>
           {getFieldDecorator('code_version', {
             initialValue: data.code_version || 'master',
-            rules: [{ required: true, message: '请选择' }]
+            rules: [{ required: true, message: formatMessage({id:'placeholder.select'}) }]
           })(
             <Select getPopupContainer={triggerNode => triggerNode.parentNode}>
               {branchs.map(item => (
@@ -317,7 +320,7 @@ export default class Index extends PureComponent {
                   onClick={this.handleSubmit}
                   type="primary"
                 >
-                  新建组件
+                  {formatMessage({id:'popover.newComponent.title'})}
                 </Button>,
                 false
               )
@@ -327,7 +330,7 @@ export default class Index extends PureComponent {
                   onClick={this.handleSubmit}
                   type="primary"
                 >
-                  新建应用
+                  {formatMessage({id:'popover.newApp.title'})}
                 </Button>
               )}
         </Form.Item>

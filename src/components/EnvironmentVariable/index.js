@@ -312,7 +312,7 @@ class EnvironmentVariable extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '添加成功' });
+          notification.success({ message: formatMessage({id:'notification.success.add'}) });
           this.fetchInnerEnvs();
           this.handleCancelAddVariabl();
         }

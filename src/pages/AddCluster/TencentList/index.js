@@ -5,6 +5,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
@@ -304,7 +305,7 @@ export default class ClusterLink extends PureComponent {
                       },
                       {
                         pattern: /^[^\s]*$/,
-                        message: '禁止输入空格'
+                        message: formatMessage({id:'placeholder.no_spaces'})
                       }
                     ]
                   })(<Input placeholder="请填写IP地址  例：1.2.3.4" />)}
@@ -357,7 +358,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(
@@ -373,7 +374,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(
@@ -407,7 +408,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写数据库连接地址" />)}
@@ -423,7 +424,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写连接端口  例：3306" />)}
@@ -439,7 +440,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写用户名  例：root" />)}
@@ -455,7 +456,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input type="password" placeholder="请填写密码" />)}
@@ -471,7 +472,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写数据库库名称  例：region" />)}
@@ -502,7 +503,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写镜像仓库域名" />)}
@@ -520,7 +521,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(
@@ -540,7 +541,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写用户名" />)}
@@ -558,7 +559,7 @@ export default class ClusterLink extends PureComponent {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input type="password" placeholder="请填写密码" />)}

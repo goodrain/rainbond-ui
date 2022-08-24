@@ -169,7 +169,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title="跳转到组件对外访问端口对应的域名地址"
+          title={formatMessage({id:'tooltip.visit'})}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
@@ -243,7 +243,7 @@ export default class Index extends PureComponent {
     const links = this.getHttpLinks(demo.access_info || {});
     if (links.length === 1) {
       return (
-        <Tooltip title="跳转到组件对外访问端口对应的域名地址">
+        <Tooltip title={formatMessage({id:'tooltip.visit'})}>
           <Button
             type={this.props.btntype}
             onClick={() => {
@@ -260,7 +260,7 @@ export default class Index extends PureComponent {
       return (
         <Fragment>
           <Tooltip
-            title="跳转到组件对外访问端口对应的域名地址"
+            title={formatMessage({id:'tooltip.visit'})}
             placement="topRight"
           >
             <Button type={this.props.btntype} onClick={this.showModal}>
@@ -296,7 +296,7 @@ export default class Index extends PureComponent {
     }
     return (
       <Tooltip
-        title="跳转到组件对外访问端口对应的域名地址"
+        title={formatMessage({id:'tooltip.visit'})}
         placement="topRight"
       >
         <Dropdown
@@ -323,7 +323,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title="跳转到组件对外访问端口对应的域名地址"
+          title={formatMessage({id:'tooltip.visit'})}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
@@ -372,12 +372,11 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title="跳转到组件对外访问端口对应的域名地址"
+          title={formatMessage({id:'tooltip.visit'})}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
             <FormattedMessage id='componentOverview.header.right.visit'/>
-            访问
           </Button>
         </Tooltip>
         {showModal && (
@@ -597,7 +596,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title="跳转到组件对外访问端口对应的域名地址"
+          title={formatMessage({id:'tooltip.visit'})}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>

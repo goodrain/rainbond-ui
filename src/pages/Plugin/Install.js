@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { connect } from 'dva';
 import { Card } from 'antd';
 import { routerRedux } from 'dva/router';
@@ -34,7 +35,7 @@ export default class Index extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="安装插件"
+        title={formatMessage({id:'teamPlugin.install.title'})}
         isFooter={true}
         // content={content}
         // extraContent={extraContent}

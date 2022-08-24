@@ -28,6 +28,7 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import NoComponent from '../../../public/images/noComponent.png';
 import AuthCompany from '../../components/AuthCompany';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -48,7 +49,6 @@ import userUtil from '../../utils/user';
 import ExportOperation from './ExportOperation';
 import styles from './index.less';
 import TagList from './TagList';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const { TabPane } = Tabs;
 const { Search } = Input;

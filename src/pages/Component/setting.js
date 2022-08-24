@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import NoPermTip from '../../components/NoPermTip';
@@ -380,7 +381,7 @@ export default class Index extends React.Component {
           if (res && res.status_code && res.status_code === 200) {
             this.onCancelEditStartProbe();
             this.fetchStartProbe();
-            notification.success({ message: '添加成功' });
+            notification.success({ message: formatMessage({id:'notification.success.add'}) });
             notification.info({ message: '需要更新后才能生效' });
           }
         }

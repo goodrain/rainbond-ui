@@ -17,6 +17,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Application from '../../../public/images/application.svg';
 import Branches from '../../../public/images/branches.svg';
 import Component from '../../../public/images/component.svg';
@@ -209,7 +210,9 @@ class Index extends React.Component {
                 </Select>
               )}
               {ServiceComponent ? null : showCreateGroup ? (
-                <Button onClick={this.onAddGroup}>新建应用</Button>
+                <Button onClick={this.onAddGroup}>
+                  {formatMessage({id:'popover.newApp.title'})}
+                </Button>
               ) : null}
             </Form.Item>
             <Form.Item

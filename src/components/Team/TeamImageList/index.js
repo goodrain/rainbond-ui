@@ -94,7 +94,7 @@ export default class MemberList extends PureComponent {
     }).then(res =>{
       if(res  && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message: '添加成功'
+          message: formatMessage({id:'notification.success.add'})
         })
         this.getInitializeVal()
       }else{

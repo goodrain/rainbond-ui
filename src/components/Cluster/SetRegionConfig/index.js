@@ -14,6 +14,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import cloud from '../../../utils/cloud';
 
 @connect()
@@ -69,7 +70,7 @@ export default class SetRegionConfig extends PureComponent {
         },
         callback: res => {
           if (res && res._condition === 200) {
-            notification.success({ message: '添加成功' });
+            notification.success({ message: formatMessage({id:'notification.success.add'}) });
             if (task) {
               dispatch({
                 type: 'cloud/updateInitTaskStatus',

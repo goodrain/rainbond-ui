@@ -20,6 +20,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import { getApplicationUpgradeDetail } from '../../../services/app';
 import {

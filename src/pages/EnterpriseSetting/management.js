@@ -104,7 +104,7 @@ export default class Management extends PureComponent {
           ...values
         },
         callback: () => {
-          notification.success({ message: '添加成功' });
+          notification.success({ message: formatMessage({id:'notification.success.add'}) });
           this.getEnterpriseAdmins();
           this.cancelCreateAdmin();
         }

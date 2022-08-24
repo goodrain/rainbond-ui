@@ -17,6 +17,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from '../../components/CreateTeam/index.less';
 import OauthForm from '../../components/OauthForm';
@@ -162,7 +163,7 @@ export default class OauthTable extends PureComponent {
               ? '关闭成功'
               : oauthInfo
               ? '编辑成功'
-              : '添加成功'
+              : formatMessage({id:'notification.success.add'})
           });
           this.handelOauthInfo();
         }

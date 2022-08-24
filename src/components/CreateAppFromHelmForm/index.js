@@ -1,6 +1,7 @@
 import { Button, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
 
@@ -115,7 +116,7 @@ export default class Index extends PureComponent {
             style={{ marginRight: '5px' }}
             loading={installLoading}
           >
-            安装
+            {formatMessage({id:'button.install'})}
           </Button>
         ]}
       >

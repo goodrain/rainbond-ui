@@ -1,6 +1,7 @@
 import { Alert, Button, Card, Modal, notification, Table } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { unOpenRegion } from '../../services/team';
 import globalUtil from '../../utils/global';
 
@@ -40,7 +41,7 @@ class OpenRegion extends PureComponent {
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
       notification.warning({
-        message: '请选择要开通的集群'
+        message: formatMessage({id:'placeholder.open_colony'})
       });
       return;
     }
@@ -71,7 +72,7 @@ class OpenRegion extends PureComponent {
     if (mode === 'modal') {
       return (
         <Modal
-          title="开通集群"
+          title={formatMessage({id:'confirmModal.openRegion.title'})}
           width={600}
           visible
           onOk={this.handleSubmit}
@@ -81,7 +82,7 @@ class OpenRegion extends PureComponent {
             <Alert
               type="warning"
               style={{ marginBottom: '16px' }}
-              message="暂无其他集群，请到集群管理面板中添加更多集群"
+              message={formatMessage({id:'confirmModal.openRegion.alert'})}
             />
           )}
           <Table
@@ -91,11 +92,11 @@ class OpenRegion extends PureComponent {
             rowSelection={rowSelection}
             columns={[
               {
-                title: '名称',
+                title: formatMessage({id:'confirmModal.openRegion.table.region_alias'}),
                 dataIndex: 'region_alias'
               },
               {
-                title: '简介',
+                title: formatMessage({id:'confirmModal.openRegion.table.desc'}),
                 dataIndex: 'desc'
               }
             ]}
@@ -105,7 +106,7 @@ class OpenRegion extends PureComponent {
     }
 
     return (
-      <Card title="当前团队没有集群，请先开通" style={{ height: '500px' }}>
+      <Card title={formatMessage({id:'confirmModal.openRegion.card.title'})} style={{ height: '500px' }}>
         <Table
           size="small"
           pagination={false}
@@ -113,18 +114,18 @@ class OpenRegion extends PureComponent {
           rowSelection={rowSelection}
           columns={[
             {
-              title: '集群',
+              title: formatMessage({id:'confirmModal.openRegion.table.region_name'}),
               dataIndex: 'region_alias'
             },
             {
-              title: '简介',
+              title: formatMessage({id:'confirmModal.openRegion.table.desc'}),
               dataIndex: 'desc'
             }
           ]}
         />
         <div style={{ textAlign: 'right', paddingTop: 16 }}>
           <Button type="primary" onClick={this.handleSubmit}>
-            开通
+            {formatMessage({id:'button.open'})}
           </Button>
         </div>
       </Card>

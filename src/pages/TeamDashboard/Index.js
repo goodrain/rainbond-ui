@@ -127,11 +127,11 @@ export default class Index extends PureComponent {
         formatter(params) {
           if (params.data.name === '已用') {
             return `
-           <div>运行:${params.data.value}个</div>
+           <div>${formatMessage({id:'teamOverview.runAppNums'},{number:params.data.value})}</div>
           `;
           }
           return `
-           <div>未运行:${params.data.value}个</div>
+           <div>${formatMessage({id:'teamOverview.notRunAppNums'},{number:params.data.value})}</div>
           `;
         }
       },
@@ -219,11 +219,11 @@ export default class Index extends PureComponent {
         formatter(params) {
           if (params.data.name === '已用') {
             return `
-           <div>运行:${params.data.value}个</div>
+           <div>${formatMessage({id:'teamOverview.runAppNums'},{number:params.data.value})}</div>
           `;
           }
           return `
-           <div>未运行:${params.data.value}个</div>
+           <div>${formatMessage({id:'teamOverview.notRunAppNums'},{number:params.data.value})}</div>
           `;
         }
       },
@@ -485,7 +485,7 @@ export default class Index extends PureComponent {
   };
   // OK
   handleOkApplication = () => {
-    notification.success({ message: '添加成功' });
+    notification.success({ message: formatMessage({id:'notification.success.add'}) });
     this.handleCancelApplication();
     // 重新加载页面数据
     this.loadOverview();
