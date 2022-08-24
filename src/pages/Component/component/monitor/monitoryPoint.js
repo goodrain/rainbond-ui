@@ -129,7 +129,7 @@ export default class customMonitor extends PureComponent {
       callback: res => {
         if (res) {
           notification.success({
-            message: editorData.name ? '保存成功' : formatMessage({id:'notification.success.add'})
+            message: editorData.name ? formatMessage({id:'notification.success.save'}) : formatMessage({id:'notification.success.add'})
           });
           this.fetchServiceMonitor();
           this.cancelAddCustomMonitor();
@@ -202,8 +202,8 @@ export default class customMonitor extends PureComponent {
         <Card loading={loading}>
           {dleCustomMonitor && (
             <ConfirmModal
-              title="删除配置"
-              desc="确定要删除配置?"
+              ttitle={<FormattedMessage id="confirmModal.deldete.configure.title"/>}
+              desc={<FormattedMessage id="confirmModal.deldete.configure.desc"/>}
               loading={deleteServiceMonitorLoading}
               onCancel={this.cancelDeleteCustomMonitor}
               onOk={this.handleDeleteCustomMonitor}

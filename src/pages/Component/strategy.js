@@ -38,7 +38,7 @@ class Index extends PureComponent {
         scheduleValue: scheduleValue
       }).then(res => {
         notification.success({
-          message: '数据保存成功'
+          message: formatMessage({id:'notification.success.data_save'})
         });
         this.handleRunStrategy()
       })

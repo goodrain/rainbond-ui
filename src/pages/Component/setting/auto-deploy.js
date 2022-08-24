@@ -130,7 +130,7 @@ export default class AutoDeploy extends PureComponent {
           secret_key: secretKey
         },
         callback: () => {
-          notification.success({ message: '更新成功' });
+          notification.success({ message: formatMessage({id:'notification.success.to_update'}) });
         }
       });
     });
@@ -149,7 +149,7 @@ export default class AutoDeploy extends PureComponent {
         },
         callback: data => {
           if (data && data.status_code === 200) {
-            notification.success({ message: '更新成功' });
+            notification.success({ message: formatMessage({id:'notification.success.to_update'}) });
             this.setState({
               deploy_keyword: data.bean.deploy_keyword
             });
@@ -172,7 +172,7 @@ export default class AutoDeploy extends PureComponent {
         },
         callback: data => {
           if (data && data.status_code === 200) {
-            notification.success({ message: '更新成功' });
+            notification.success({ message: formatMessage({id:'notification.success.to_update'}) });
             this.setState({
               deploy_mirror: data.bean.trigger,
               url: data.bean.url
@@ -458,7 +458,7 @@ export default class AutoDeploy extends PureComponent {
                     <CopyToClipboard
                       text={setUrl}
                       onCopy={() => {
-                        notification.success({ message: '复制成功' });
+                        notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                       }}
                     >
                       <Button size="small"><FormattedMessage id='componentOverview.body.AutoDeploy.copy'/></Button>

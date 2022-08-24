@@ -1,4 +1,5 @@
 import React, { PureComponent } from "react";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { Form, Radio, Input } from "antd";
 import { connect } from "dva";
 import JavaJDK from "../java-jdk";
@@ -39,7 +40,7 @@ class Index extends PureComponent {
     return (
       <div>
         <JavaJDK form={this.props.form} envs={this.props.envs} />
-        <Form.Item {...formItemLayout} label="启动命令">
+        <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.GoConfig.Start"/>}>
           {getFieldDecorator("BUILD_PROCFILE", {
             initialValue: (envs && envs.BUILD_PROCFILE) || ""
           })(

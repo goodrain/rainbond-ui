@@ -107,7 +107,7 @@ export default class ChangeBuildSource extends PureComponent {
           ...fieldsValue
         },
         callback: () => {
-          notification.success({ message: '修改成功，下次构建部署时生效' });
+          notification.success({ message: formatMessage({id:'notification.success.edit_deploy'}) });
           if (this.props.onOk) {
             this.props.onOk();
           }

@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Form, Radio, Switch, Input } from 'antd';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const RadioGroup = Radio.Group;
 
@@ -52,8 +53,8 @@ class Index extends PureComponent {
       <div>
         <Form.Item
           {...formItemLayout}
-          label="禁用缓存"
-          help="开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库"
+          label={<FormattedMessage id="componentOverview.body.GoConfig.Disable"/>}
+          help={<FormattedMessage id="componentOverview.body.GoConfig.remove"/>}
         >
           {getFieldDecorator('BUILD_NO_CACHE', {
             initialValue: !!(envs && envs.BUILD_NO_CACHE),
@@ -61,26 +62,26 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item
           {...formItemLayout}
-          label="JDK类型"
-          help="默认提供OpenJDK,若需要其他JDK,请选用自定义JDK"
+          label={<FormattedMessage id="componentOverview.body.JavaJDKConfig.type"/>}
+          help={<FormattedMessage id="componentOverview.body.JavaJDKConfig.OpenJDK"/>}
         >
           {getFieldDecorator('JDK_TYPE', {
             initialValue: initialJDKType,
           })(
             <RadioGroup onChange={this.onRadioGroupChange}>
-              <Radio value="OpenJDK">内置OpenJDK</Radio>
-              <Radio value="Jdk">自定义JDK</Radio>
+              <Radio value="OpenJDK"><FormattedMessage id="componentOverview.body.JavaJDKConfig.built_in"/></Radio>
+              <Radio value="Jdk"><FormattedMessage id="componentOverview.body.JavaJDKConfig.jdk"/></Radio>
             </RadioGroup>
           )}
         </Form.Item>
 
         {JDKType === 'OpenJDK' && (
-          <Form.Item {...formItemLayout} label="OpenJDK版本">
+          <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.GoConfig.edition"/>}>
             {getFieldDecorator('BUILD_RUNTIMES', {
               initialValue: (envs && envs.BUILD_RUNTIMES) || '1.8',
             })(
               <RadioGroup>
-                <Radio value="1.8">1.8(默认)</Radio>
+                <Radio value="1.8">1.8<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
                 <Radio value="1.6">1.6</Radio>
                 <Radio value="1.7">1.7</Radio>
                 <Radio value="1.9">1.9</Radio>
@@ -94,11 +95,11 @@ class Index extends PureComponent {
         )}
 
         {JDKType === 'Jdk' && (
-          <Form.Item {...formItemLayout} label="自定义JDK下载路径">
+          <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.GoConfig.path"/>}>
             {getFieldDecorator('BUILD_ORACLEJDK_URL', {
               initialValue: envs && envs.BUILD_ORACLEJDK_URL,
               rules: [{ validator: this.validCustomJDK }],
-            })(<Input placeholder="请提供自定义JDK的下载路径" />)}
+            })(<Input  placeholder={formatMessage({id:'componentOverview.body.JavaJDKConfig.provide_path'})}/>)}
           </Form.Item>
         )}
       </div>

@@ -3,6 +3,7 @@
 import { Button, Checkbox, Col, Form, Modal, notification, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styless from '../CreateTeam/index.less';
 const FormItem = Form.Item;
 
@@ -62,7 +63,7 @@ class ConfirmModal extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
           onOk();
         }
@@ -96,9 +97,9 @@ class ConfirmModal extends PureComponent {
         onCancel={onCancel}
         className={styless.TelescopicModal}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}>  <FormattedMessage id='button.cancel'/></Button>,
           <Button type="primary" loading={loading} onClick={this.onOk}>
-            确定
+            <FormattedMessage id='button.determine'/>
           </Button>
         ]}
       >
@@ -115,13 +116,13 @@ class ConfirmModal extends PureComponent {
               onChange={this.onCheckAllChange}
               checked={checkAll}
             >
-              全选
+              <FormattedMessage id='componentOverview.body.tab.BatchDeleteChart.all'/>
             </Checkbox>
           </div>
           <FormItem {...formItemLayout} label="">
             {getFieldDecorator('graphIds', {
               initialValue: defaultCheckedList || [],
-              rules: [{ required: true, message: '请选择监控视图' }]
+              rules: [{ required: true, message: formatMessage({id:''}) }]
             })(
               <Checkbox.Group
                 style={{ width: '472px' }}

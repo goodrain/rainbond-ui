@@ -73,7 +73,7 @@ class LogItem extends PureComponent {
         }
         if (appAcionLogUtil.isActioning(data)) {
           this.setState({ status: 'ing' });
-          this.ref.querySelector('.actionresultcn').innerHTML = '进行中';
+          this.ref.querySelector('.actionresultcn').innerHTML = <FormattedMessage id='componentOverview.body.tab.LogItem.hand'/>;
           this.context.isActionIng(true);
         }
         this.ref.querySelector(
@@ -138,11 +138,11 @@ class LogItem extends PureComponent {
   };
   onSuccess = data => {
     this.setState({ resultStatus: 'success' });
-    this.ref.querySelector('.actionresultcn').innerHTML = '完成';
+    this.ref.querySelector('.actionresultcn').innerHTML = <FormattedMessage id='componentOverview.body.tab.LogItem.complete'/>;
   };
   onTimeout = data => {
     this.setState({ resultStatus: 'timeout' });
-    this.ref.querySelector('.actionresultcn').innerHTML = '超时';
+    this.ref.querySelector('.actionresultcn').innerHTML = <FormattedMessage id='componentOverview.body.tab.LogItem.timeout'/>;
 
     this.ref.querySelector(
       '.action-error-msg'
@@ -150,7 +150,7 @@ class LogItem extends PureComponent {
   };
   onFail = data => {
     this.setState({ resultStatus: 'fail' });
-    this.ref.querySelector('.actionresultcn').innerHTML = '失败';
+    this.ref.querySelector('.actionresultcn').innerHTML = <FormattedMessage id='componentOverview.body.tab.LogItem.fail'/>;
 
     this.ref.querySelector(
       '.action-error-msg'
@@ -255,11 +255,11 @@ class LogItem extends PureComponent {
             <div className={styles.btns}>
               {!opened ? (
                 <span onClick={this.open} className={styles.btn}>
-                  查看详情
+                  <FormattedMessage id='componentOverview.body.tab.LogItem.details'/>
                 </span>
               ) : (
                 <span onClick={this.close} className={styles.btn}>
-                  收起
+                  <FormattedMessage id='componentOverview.body.tab.LogItem.put'/>
                 </span>
               )}
             </div>
@@ -267,7 +267,7 @@ class LogItem extends PureComponent {
           {appAcionLogUtil.isShowCommitInfo(data) ? (
             <div className={styles.codeVersion}>
               <div className={styles.versionInfo}>
-                代码信息： {appAcionLogUtil.getCommitLog(data)}
+                <FormattedMessage id='componentOverview.body.tab.LogItem.information'/> {appAcionLogUtil.getCommitLog(data)}
               </div>
               <div className={styles.versionAuthor}>
                 #{appAcionLogUtil.getCodeVersion(data)}
@@ -292,7 +292,7 @@ class LogItem extends PureComponent {
               className={logType === 'info' ? 'active' : ''}
               type="dashed"
             >
-              Info日志
+              <FormattedMessage id='componentOverview.body.tab.LogItem.info'/>
             </Button>
             <Button
               onClick={() => {
@@ -301,7 +301,7 @@ class LogItem extends PureComponent {
               className={logType === 'debug' ? 'active' : ''}
               type="dashed"
             >
-              Debug日志
+              <FormattedMessage id='componentOverview.body.tab.LogItem.debug'/>
             </Button>
             <Button
               onClick={() => {
@@ -310,7 +310,7 @@ class LogItem extends PureComponent {
               className={logType === 'error' ? 'active' : ''}
               type="dashed"
             >
-              Error日志
+              <FormattedMessage id='componentOverview.body.tab.LogItem.error'/>
             </Button>
           </ButtonGroup>
           <div
@@ -551,7 +551,7 @@ export default class Index extends PureComponent {
     }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
-        message: `请求错误`,
+        message: formatMessage({id:'notification.warn.error'}),
         description: err.data.msg_show
       });
     }
@@ -607,7 +607,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res) {
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
           this.getVersionList();
         }

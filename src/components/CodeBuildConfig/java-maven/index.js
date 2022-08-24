@@ -7,6 +7,7 @@ import { Button, Form, Input, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import JavaJDK from '../java-jdk';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;
@@ -134,12 +135,12 @@ class Index extends PureComponent {
             onOk={this.handleSubmit}
           />
         )}
-        <Form.Item {...formItemLayout} label="Maven版本">
+        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Maven'/>}>
           {getFieldDecorator('BUILD_RUNTIMES_MAVEN', {
             initialValue: (envs && envs.BUILD_RUNTIMES_MAVEN) || '3.3.1'
           })(
             <RadioGroup>
-              <Radio value="3.3.1">3.3.1(默认)</Radio>
+              <Radio value="3.3.1">3.3.1<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
               <Radio value="3.0.5">3.0.5</Radio>
               <Radio value="3.1.1">3.1.1</Radio>
               <Radio value="3.2.5">3.2.5</Radio>
@@ -151,14 +152,14 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item
           {...formItemLayout}
-          label="Web服务器版本"
-          help="仅适用于打包为War包的项目"
+          label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Web'/>}
+          help={<FormattedMessage id='componentOverview.body.JavaMavenConfig.War'/>}
         >
           {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
             initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || 'tomcat85'
           })(
             <RadioGroup>
-              <Radio value="tomcat85">tomcat85(默认)</Radio>
+              <Radio value="tomcat85">tomcat85<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
               <Radio value="tomcat7">tomcat7</Radio>
               <Radio value="tomcat8">tomcat8</Radio>
               <Radio value="tomcat9">tomcat9</Radio>
@@ -167,19 +168,19 @@ class Index extends PureComponent {
             </RadioGroup>
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="Maven配置">
+        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.configure'/>}>
           {getFieldDecorator('BUILD_MAVEN_SETTING_NAME', {
             initialValue: Default_BUILD_MAVEN_SETTING_NAME,
             rules: [
               {
                 required: true,
-                message: '请选择Maven配置'
+                message: formatMessage({id:'componentOverview.body.JavaMavenConfig.choice'})
               }
             ]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
-              placeholder="请选择Maven配置"
+              placeholder={formatMessage({id:'componentOverview.body.JavaMavenConfig.choice'})}
               style={{ width: '300px', marginRight: '20px' }}
             >
               {MavenList.map(item => {
@@ -194,7 +195,7 @@ class Index extends PureComponent {
           )}
           {mavenPermissions && (
             <Button onClick={this.handleMavenConfiguration} type="primary">
-              管理Maven配置
+              <FormattedMessage id='componentOverview.body.JavaMavenConfig.Administration'/>
             </Button>
           )}
         </Form.Item>
@@ -224,19 +225,19 @@ class Index extends PureComponent {
               (envs && envs.BUILD_MAVEN_MIRROR_URL) || "maven.goodrain.me"
           })(<Input placeholder="" />)}
         </Form.Item> */}
-        <Form.Item {...formItemLayout} label="Maven构建参数">
+        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.parameter'/>}>
           {getFieldDecorator('BUILD_MAVEN_CUSTOM_OPTS', {
             initialValue:
               (envs && envs.BUILD_MAVEN_CUSTOM_OPTS) || '-DskipTests',
             rules: [
               {
                 required: true,
-                message: '请输入Maven构建参数'
+                message: formatMessage({id:'componentOverview.body.JavaMavenConfig.parameters'})
               }
             ]
-          })(<Input placeholder="请输入Maven构建参数" />)}
+          })(<Input  placeholder={formatMessage({id:'componentOverview.body.JavaMavenConfig.parameters'})} />)}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="Maven构建命令">
+        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Build_command'/>}>
           {getFieldDecorator('BUILD_MAVEN_CUSTOM_GOALS', {
             initialValue:
               (envs && envs.BUILD_MAVEN_CUSTOM_GOALS) ||
@@ -244,29 +245,29 @@ class Index extends PureComponent {
             rules: [
               {
                 required: true,
-                message: '请输入Maven构建命令'
+                message: formatMessage({id:'componentOverview.body.JavaMavenConfig.input_parameters'})
               }
             ]
-          })(<Input placeholder="请输入Maven构建命令" />)}
+          })(<Input  placeholder={formatMessage({id:'componentOverview.body.JavaMavenConfig.input_parameters'})}/>)}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="MAVEN构建Java参数配置">
+        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.configuration'/>}>
           {getFieldDecorator('BUILD_MAVEN_JAVA_OPTS', {
             initialValue: (envs && envs.BUILD_MAVEN_JAVA_OPTS) || '-Xmx1024m',
             rules: [
               {
                 required: true,
-                message: '请输入MAVEN构建Java参数配置'
+                message: formatMessage({id:'componentOverview.body.JavaMavenConfig.input_configuration'})
               }
             ]
-          })(<Input placeholder="请输入MAVEN构建Java参数配置" />)}
+          })(<Input  placeholder={formatMessage({id:'componentOverview.body.JavaMavenConfig.input_configuration'})}/>)}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="启动命令">
+        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.start'/>}>
           {getFieldDecorator('BUILD_PROCFILE', {
             initialValue: (envs && envs.BUILD_PROCFILE) || '',
             rules: [
               {
                 required: true,
-                message: '请输入启动命令'
+                message: formatMessage({id:'componentOverview.body.JavaMavenConfig.input'})
               }
             ]
           })(

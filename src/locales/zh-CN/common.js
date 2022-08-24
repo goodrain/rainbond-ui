@@ -127,6 +127,13 @@
         'button.switch.close':'关',
         'button.close':'关闭',
         'button.open':'开通',
+        'button.determine':'确定',
+        'button.cancel':'取消',
+        'button.preservation':'保存',
+        'button.add':'添加',
+        'button.added':'新增',
+        'button.freshen':'刷新',
+        'button.copy':'复制',
     }
     const status = {
         'status.component.running':'运行中',
@@ -217,7 +224,80 @@
         'confirmModal.image.lable.username':'用户名',
         'confirmModal.image.lable.password':'密码',
 
-        
+        // 删除组件
+        'confirmModal.assembly.delete.title':'删除组件',
+        'confirmModal.assembly.delete.desc':'确定要删除此组件吗？',
+        'confirmModal.assembly.delete.subDesc':'此操作不可恢复',
+
+        // 删除配置
+        'confirmModal.deldete.configure.title':'删除配置',
+        'confirmModal.deldete.configure.desc':'确定要删除配置?',
+
+        // 删除监控视图
+        'confirmModal.deldete.monitor.title':'删除监控视图',
+        'confirmModal.deldete.monitor.desc':'确定要删除此视图吗？',
+        'confirmModal.deldete.monitor.subDesc':'此操作不可恢复',
+
+        // 删除指标
+        'confirmModal.deldete.index.title':'删除指标',
+        'confirmModal.deldete.index.desc':'是否删除该指标',
+
+        // 删除配置文件
+        'confirmModal.deldete.configurationFile.title':'删除配置文件',
+        'confirmModal.deldete.configurationFile.desc':'确定要删除此配置文件吗?',
+
+        // 取消挂载共享配置文件
+        'confirmModal.deldete.unmount.title':'取消挂载共享配置文件',
+        'confirmModal.deldete.unmount.desc':'确定要取消此挂载共享配置文件目录吗?',
+
+        // 转移环境变量
+        'confirmModal.deldete.transfer.title':'转移环境变量',
+        'confirmModal.deldete.transfer.desc':'确定要将此环境变量转换为组件连接信息变量吗?',
+        'confirmModal.deldete.transfer.title_information':'转移连接信息变量',
+        'confirmModal.deldete.transfer.desc_information':'确定要将此连接信息变量转换为环境变量吗?',
+        'confirmModal.deldete.transfer.subDesc':'此操作不可恢复',
+        'confirmModal.deldete.transfer.determine':'确定要转移此变量吗？',
+
+
+    
+        // 删除环境变量
+        'confirmModal.deldete.env.title':'删除变量',
+        'confirmModal.deldete.env.desc':'确定要删除此变量吗？',
+        'confirmModal.deldete.env.subDesc':'此操作不可恢复',
+
+        // 取消挂载
+        'confirmModal.deldete.Unmount.title':'取消挂载',
+        'confirmModal.deldete.Unmount.desc':'确定要取消此挂载目录吗?',
+
+        // 删除目录
+        'confirmModal.deldete.storage.title':'删除存储目录',
+        'confirmModal.deldete.storage.desc':'确定要删除此存储目录吗?',
+
+        // 端口删除
+        'confirmModal.deldete.port.title':'端口删除',
+        'confirmModal.deldete.port.desc':'确定要删除此端口吗？',
+        'confirmModal.deldete.port.subDesc':'此操作不可恢复?',
+
+        // 域名解绑
+        'confirmModal.deldete.unbound.title':'域名解绑',
+        'confirmModal.deldete.unbound.desc':'确定要解绑此域名吗？',
+
+        // 卸载插件
+        'confirmModal.deldete.plugin.title':'卸载插件',
+        'confirmModal.deldete.plugin.desc':'确定要卸载此插件吗？',
+
+        //删除此Maven配置
+        'confirmModal.deldete.Maven.title':'删除此Maven配置',
+        'confirmModal.deldete.Maven.desc':'该配置为集群下的默认Maven配置，若删除，整个集群使用该配置的组件均会受到影响，是否确认删除？',
+        'confirmModal.deldete.Maven.desc_delete':'确定要删除此Maven配置吗?',
+        'confirmModal.deldete.Maven.subDesc':'此操作不可恢复',
+
+        // 属性删除
+        'confirmModal.deldete.attribute.title':'属性删除',
+        'confirmModal.deldete.attribute.desc':'确定要删除此属性吗？',
+        'confirmModal.deldete.attribute.subDesc':'此操作不可恢复',
+
+
     }
     const notification = {
         // 成功
@@ -229,6 +309,42 @@
         'notification.success.open':'开启成功',
         'notification.success.close':'关闭成功',
         'notification.success.save':'保存成功',
+        'notification.success.deployment':'操作成功，部署中',
+        'notification.success.upgrade':'操作成功，升级中',
+        'notification.success.rollback':'操作成功，回滚中',
+        'notification.success.takeEffect':'重启应用后生效',
+        'notification.success.succeeded':'操作成功',
+        'notification.success.operationRestart':'操作成功，重启中',
+        'notification.success.operationStart':'操作成功，启动中',
+        'notification.success.operationClose':'操作成功，关闭中',
+        'notification.success.operationUpdata':'操作成功，更新中',
+        'notification.success.operationImplement':'操作成功，执行中',
+        'notification.success.modified':'修改成功',
+        'notification.success.setupAssembly':'设置成功，更新组件后生效',
+        'notification.success.closeAssembly':'关闭成功，更新组件后生效',
+        'notification.success.Failed':'失败！',
+        'notification.success.transfer':'转移成功',
+        'notification.success.copy':'复制成功',
+        'notification.success.enable':'启用成功',
+        'notification.success.deactivate':'停用成功',
+        'notification.success.operationToUpdate':'操作成功、需要更新才能生效',
+        'notification.success.openToUpdate':'开通成功,需要更新才能生效',
+        'notification.success.uninstallToUpdate':'卸载成功，需要更新才能生效',
+        'notification.success.secondary':'二级域名添加成功',
+        'notification.success.edit_port':'端口修改成功',
+        'notification.success.cannotModify':'端口不能修改',
+        'notification.success.upload_file':'上传文件成功',
+        'notification.success.delete_file':'删除文件成功',
+        'notification.success.edit_deploy':'修改成功，下次构建部署时生效',
+        'notification.success.to_update':'更新成功',
+        'notification.success.assembly_start':'启用成功,请更新组件后生效',
+        'notification.success.assembly_disable':'禁用成功,请更新组件后生效',
+        'notification.success.assembly_edit':'编辑成功,请更新组件后生效',
+        'notification.success.assembly_add':'添加成功,需重启或更新才能生效',
+        'notification.success.data_save':'数据保存成功',
+        'notification.success.attribute_delete':'属性删除成功',
+        'notification.success.attribute_edit':'属性修改成功,重启后生效',
+        'notification.success.attribute_add':'属性添加成功,重启后生效',
 
         // 失败
         'notification.error.delete':'删除失败',
@@ -236,10 +352,29 @@
         'notification.error.edit':'编辑失败',
         'notification.error.add':'添加失败',
         'notification.error.update':'上传失败',
+        'notification.error.close':'关闭失败',
+        'notification.error.upload':'请上传以.txt, .json, .yaml, .yaml, .xml结尾的文件',
+        'notification.error.notDetected':'未检测到上传文件',
 
         // 警告
         'notification.warn.team':'请先加入团队！',
         'notification.warn.app':'请先创建应用！',
+        'notification.warn.cannot_select':'不能选择当前所在应用',
+        'notification.warn.error':'请求错误',
+        'notification.warn.executing':'正在执行操作，请稍后',
+        'notification.warn.notYet':'暂无实例详情',
+        'notification.warn.choice.catalogue':'请选择要挂载共享配置文件目录',
+        'notification.warn.inspect.fillIn':'请检查本地配置文件目录是否填写',
+        'notification.warn.relyOn':'请选择要依赖的应用',
+        'notification.warn.state':'有状态组件存储配置发生变化后',
+        'notification.warn.restart':'需要重启组件才能生效',
+        'notification.warn.mountPath':'挂载路径不可使用',
+        'notification.warn.catalogue':'请选择要挂载的目录',
+        'notification.warn.fillIn':'请检查本地存储目录是否填写',
+        'notification.warn.update_language':'更新语言失败',
+        'notification.warn.update_xml':'请上传以.xml结尾的文件',
+        'notification.warn.assembly_close':'请先关闭组件后再更改状态',
+        'notification.warn.label':'请选择要添加的标签',
 
         //提示
         'notification.hint.component.change':'切换成功、更新组件后生效',
@@ -252,6 +387,9 @@
         'notification.hint.component.putReStart':'操作成功，重启中',
         'notification.hint.component.putStart':'操作成功，启动中',
         'notification.hint.component.putStop':'操作成功，关闭中',
+        'notification.hint.toUpdata':'需要更新才能生效',
+        'notification.hint.selectPort':'您还没有选择端口，请先选择端口！',
+        'notification.hint.need_updata':'需要更新后才能生效',
 
     }
     const placeholder = {

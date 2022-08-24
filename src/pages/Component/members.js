@@ -6,6 +6,7 @@
 import { Card, Form, notification } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import appProbeUtil from '../../utils/appProbe-util';
 import globalUtil from '../../utils/global';
 import EditHealthCheck from './setting/edit-health-check';
@@ -101,7 +102,7 @@ export default class Index extends React.Component {
         this.handleCancel();
         this.fetchStartProbe();
         if (res && res.status_code && res.status_code === 200) {
-          notification.info({ message: '需要更新才能生效' });
+          notification.info({ message: formatMessage({id:'notification.hint.need_updata'})});
         }
       }
     });
@@ -142,23 +143,23 @@ export default class Index extends React.Component {
     ) {
       return (
         <span>
-          (<span style={{ color: 'green' }}>健康</span>)
+          (<span style={{ color: 'green' }}><FormattedMessage id='componentOverview.body.Members.health'/></span>)
         </span>
       );
     } else if (healthy != 0 && (unhealthy != 0 || Unknown != 0)) {
       return (
         <span>
-          (<span style={{ color: 'green' }}>部分健康</span>)
+          (<span style={{ color: 'green' }}><FormattedMessage id='componentOverview.body.Members.partial_health'/></span>)
         </span>
       );
     } else if (healthy == 0 && unhealthy != 0 && Unknown == 0 && nos == '') {
       return (
         <span>
-          (<span style={{ color: 'red' }}>不健康</span>)
+          (<span style={{ color: 'red' }}><FormattedMessage id='componentOverview.body.Members.unhealth'/></span>)
         </span>
       );
     } else if (healthy == 0 && unhealthy == 0 && Unknown != 0 && nos == '') {
-      return '(未知)';
+      return <FormattedMessage id='componentOverview.body.Members.unknown'/>;
     }
     return '(-)';
   };
@@ -174,7 +175,7 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res.status_code && res.status_code === 200) {
-          notification.info({ message: '需要更新才能生效' });
+          notification.info({ message:  formatMessage({id:'notification.hint.need_updata'})});
         }
         this.fetchStartProbe();
       }
@@ -187,8 +188,8 @@ export default class Index extends React.Component {
     }
     const { showHealth, loading, healthCheckLoading } = this.state;
     const probeMap = {
-      readiness: '下线',
-      liveness: '重启'
+      readiness: formatMessage({id:'componentOverview.body.Members.offline'}),
+      liveness: formatMessage({id:'componentOverview.body.Members.restart'}),
     };
     const isStartProbe = JSON.stringify(startProbe) != '{}';
     const setWidth = { width: '33%', textAlign: 'center' };
@@ -199,7 +200,7 @@ export default class Index extends React.Component {
             loading={loading}
             title={
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                健康检测
+                <FormattedMessage id='componentOverview.body.setting.health'/>
                 <div>
                   {startProbe && (
                     <a
@@ -212,7 +213,7 @@ export default class Index extends React.Component {
                         this.openCancel();
                       }}
                     >
-                      {isStartProbe ? '编辑' : '设置'}
+                      {isStartProbe ? <FormattedMessage id='componentOverview.body.setting.edit'/> : <FormattedMessage id='componentOverview.body.setting.set'/>}
                     </a>
                   )}
                   {isStartProbe &&
@@ -228,7 +229,7 @@ export default class Index extends React.Component {
                       }}
                       href="javascript:;"
                     >
-                      禁用
+                      <FormattedMessage id='componentOverview.body.setting.Disable'/>
                     </a>
                   ) : (
                     isStartProbe && (
@@ -243,7 +244,7 @@ export default class Index extends React.Component {
                         }}
                         href="javascript:;"
                       >
-                        启用
+                        <FormattedMessage id='componentOverview.body.setting.Enable'/>
                       </a>
                     )
                   )}
@@ -253,13 +254,13 @@ export default class Index extends React.Component {
           >
             {startProbe && (
               <div style={{ display: 'flex' }}>
-                <div style={setWidth}>当前状态:{this.handleState()}</div>
+                <div style={setWidth}><FormattedMessage id='componentOverview.body.setting.state'/>{this.handleState()}</div>
                 <div style={setWidth}>
-                  检测方式:{startProbe.scheme || '未设置'}
+                  <FormattedMessage id='componentOverview.body.setting.method'/>{startProbe.scheme || <FormattedMessage id='componentOverview.body.setting.Not_set'/>}
                 </div>
                 <div style={setWidth}>
-                  不健康处理方式:
-                  {probeMap[startProbe.mode] || '未设置'}
+                  <FormattedMessage id='componentOverview.body.setting.unhealth'/>
+                  {probeMap[startProbe.mode] || <FormattedMessage id='componentOverview.body.setting.Not_set'/>}
                 </div>
               </div>
             )}
@@ -267,7 +268,7 @@ export default class Index extends React.Component {
         )}
         {showHealth && (
           <EditHealthCheck
-            title="健康检测"
+            title={<FormattedMessage id='componentOverview.body.setting.health'/>}
             types="third"
             ports={ports}
             loading={healthCheckLoading}

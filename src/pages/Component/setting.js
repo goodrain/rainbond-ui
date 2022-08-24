@@ -261,7 +261,7 @@ export default class Index extends React.Component {
       callback: () => {
         this.cancelDeleteVar();
         this.fetchInnerEnvs();
-        notification.success({ message: '操作成功' });
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -280,7 +280,7 @@ export default class Index extends React.Component {
       callback: () => {
         this.cancelTransfer();
         this.fetchInnerEnvs();
-        notification.success({ message: '操作成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
       }
     });
   };
@@ -323,9 +323,9 @@ export default class Index extends React.Component {
           if (res.status_code === 200) {
             this.fetchStartProbe();
             if (isUsed) {
-              notification.success({ message: '启用成功,请更新组件后生效' });
+              notification.success({ message:  formatMessage({id:'notification.success.assembly_start'})});
             } else {
-              notification.success({ message: '禁用成功,请更新组件后生效' });
+              notification.success({ message:  formatMessage({id:'notification.success.assembly_disable'})});
             }
           }
         }
@@ -365,7 +365,7 @@ export default class Index extends React.Component {
           if (res && res.status_code && res.status_code === 200) {
             this.onCancelEditStartProbe();
             this.fetchStartProbe();
-            notification.success({ message: '编辑成功,请更新组件后生效!' });
+            notification.success({ message: formatMessage({id:'notification.success.assembly_edit'}) });
           }
         }
       });
@@ -382,7 +382,7 @@ export default class Index extends React.Component {
             this.onCancelEditStartProbe();
             this.fetchStartProbe();
             notification.success({ message: formatMessage({id:'notification.success.add'}) });
-            notification.info({ message: '需要更新后才能生效' });
+            notification.info({ message: formatMessage({id:'notification.hint.need_updata'}) });
           }
         }
       });
@@ -444,7 +444,7 @@ export default class Index extends React.Component {
         label_id: tag.label_id
       },
       callback: () => {
-        notification.success({ message: '删除成功' });
+        notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.fetchTags();
       }
     });
@@ -479,7 +479,7 @@ export default class Index extends React.Component {
       },
       callback: () => {
         this.cancelAddTag();
-        notification.success({ message: '添加成功需重启或更新才能生效' });
+        notification.success({ message:  formatMessage({id:'notification.success.assembly_add'})});
         this.fetchTags();
         this.setState({ tabData: [] });
       }
@@ -531,7 +531,7 @@ export default class Index extends React.Component {
   };
   setupAttribute = () => {
     if (appStatusUtil.canVisit(this.props.status)) {
-      notification.warning({ message: '请先关闭组件后再更改状态' });
+      notification.warning({ message:  formatMessage({id:'notification.warn.assembly_close'})});
       return;
     }
     this.setState({
@@ -552,7 +552,7 @@ export default class Index extends React.Component {
           },
           callback: data => {
             if (data) {
-              notification.success({ message: data.msg_show || '修改成功' });
+              notification.success({ message: data.msg_show ||  formatMessage({id:'notification.success.modified'})});
               this.setState(
                 {
                   visibleAppSetting: false,
@@ -858,9 +858,9 @@ export default class Index extends React.Component {
           <ConfirmModal
             onOk={this.handleDeleteVar}
             onCancel={this.cancelDeleteVar}
-            title="删除变量"
-            desc="确定要删除此变量吗？"
-            subDesc="此操作不可恢复"
+            title={<FormattedMessage id='confirmModal.deldete.env.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.env.desc'/>}
+            subDesc={<FormattedMessage id='confirmModal.deldete.env.subDesc'/>}
           />
         )}
 
@@ -868,8 +868,8 @@ export default class Index extends React.Component {
           <ConfirmModal
             onOk={this.handleTransfer}
             onCancel={this.cancelTransfer}
-            title="转移环境变量"
-            desc="确定要转移此变量吗？"
+            title={<FormattedMessage id='confirmModal.deldete.transfer.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.transfer.determine'/>}
             subDesc=""
           />
         )}

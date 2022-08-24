@@ -1,6 +1,7 @@
 import { Form, Input, Radio, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const RadioGroup = Radio.Group;
 
@@ -36,14 +37,14 @@ class Index extends PureComponent {
       <div>
         <Form.Item
           {...formItemLayout}
-          label="禁用缓存"
-          help="开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库"
+          label={<FormattedMessage id="componentOverview.body.GoConfig.Disable"/>}
+          help={<FormattedMessage id="componentOverview.body.GoConfig.remove"/>}
         >
           {getFieldDecorator('BUILD_NO_CACHE', {
             initialValue: !!(envs && envs.BUILD_NO_CACHE),
           })(<Switch defaultChecked={!!(envs && envs.BUILD_NO_CACHE)} />)}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="Python版本">
+        <Form.Item {...formItemLayout}   label={<FormattedMessage id="componentOverview.body.PythonConfig.Python"/>}>
           {getFieldDecorator('BUILD_RUNTIMES', {
             initialValue: (envs && envs.BUILD_RUNTIMES) || 'python-3.6.6',
           })(
@@ -59,7 +60,7 @@ class Index extends PureComponent {
             </RadioGroup>
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="Pypi源">
+        <Form.Item {...formItemLayout}   label={<FormattedMessage id="componentOverview.body.PythonConfig.Pypi"/>} >
           {getFieldDecorator('BUILD_PIP_INDEX_URL', {
             initialValue:
               (envs && envs.BUILD_PIP_INDEX_URL) ||
