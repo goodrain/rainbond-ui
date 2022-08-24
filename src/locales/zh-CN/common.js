@@ -236,7 +236,7 @@
         'notification.error.edit':'编辑失败',
         'notification.error.add':'添加失败',
         'notification.error.update':'上传失败',
-        
+
         // 警告
         'notification.warn.team':'请先加入团队！',
         'notification.warn.app':'请先创建应用！',

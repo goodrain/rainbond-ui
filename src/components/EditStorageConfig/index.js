@@ -14,6 +14,7 @@ import {
   Tooltip
 } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 import pluginUtil from '../../utils/plugin';
 
@@ -47,20 +48,20 @@ export default class AddVolumes extends PureComponent {
   };
   checkMountPath = (_, value, callback) => {
     if (value === '' || !value) {
-      callback('请输入挂载路径');
+      callback(<FormattedMessage id='componentOverview.body.StorageConfig.path'/>);
       return;
     }
 
     if (pluginUtil.isMountPath(value)) {
-      callback('挂载路径为系统保留路径，请更换其他路径');
+      callback(<FormattedMessage id='componentOverview.body.StorageConfig.change_patnh'/>);
       return;
     }
     if (value && value.length > 100) {
-      callback('最大长度100位');
+      callback(<FormattedMessage id='componentOverview.body.StorageConfig.max'/>);
       return;
     }
     if (!/^\//g.test(value)) {
-      callback('挂载路径必须以/开头');
+      callback(<FormattedMessage id='componentOverview.body.StorageConfig.start'/>);
       return;
     }
     callback();
@@ -97,11 +98,11 @@ export default class AddVolumes extends PureComponent {
   checkVolumeCapacity = (rules, value, callback) => {
     if (value) {
       if (value > 1000) {
-        callback(`限额最大值为1000GB`);
+        callback(<FormattedMessage id='componentOverview.body.StorageConfig.Maximum_limit'/>);
         return;
       }
       if (value < 0) {
-        callback(`限额最小值为0，即不进行限制`);
+        callback(<FormattedMessage id='componentOverview.body.StorageConfig.Limit'/>);
         return;
       }
     }
@@ -180,7 +181,7 @@ export default class AddVolumes extends PureComponent {
     };
     return (
       <Drawer
-        title={this.props.editor ? '编辑存储' : '添加存储'}
+        title={this.props.editor ? <FormattedMessage id='componentOverview.body.StorageConfig.edit'/> : <FormattedMessage id='componentOverview.body.StorageConfig.add'/>}
         placement="right"
         width={500}
         closable={false}
@@ -194,32 +195,31 @@ export default class AddVolumes extends PureComponent {
         }}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="名称">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.StorageConfig.name'/>}>
             {getFieldDecorator('volume_name', {
               initialValue: data.volume_name || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入存储名称'
+                  message: formatMessage({id:'componentOverview.body.StorageConfig.input_name'}),
                 },
                 {
                   max: 40,
-                  message: '最大长度40位'
+                  message: formatMessage({id:'componentOverview.body.StorageConfig.Maximum_length'}),
                 },
                 {
                   pattern: /^[a-zA-Z0-9]([-a-zA-Z0-9_]*[a-zA-Z0-9])?$/,
-                  message:
-                    '只支持字母、数字和-_组合，并且必须以字母数字开始和结束'
+                  message: formatMessage({id:'componentOverview.body.StorageConfig.only'}),
                 }
               ]
             })(
               <Input
-                placeholder="请输入存储名称"
+                placeholder={formatMessage({id:'componentOverview.body.StorageConfig.input_name'})}
                 disabled={!!this.props.editor}
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="挂载路径">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.StorageConfig.mount_path'/>}>
             {getFieldDecorator('volume_path', {
               initialValue: data.volume_path || '',
               rules: [
@@ -228,7 +228,7 @@ export default class AddVolumes extends PureComponent {
                   validator: this.checkMountPath
                 }
               ]
-            })(<Input placeholder="请输入挂载路径" />)}
+            })(<Input  placeholder={formatMessage({id:'componentOverview.body.StorageConfig.path'})}/>)}
           </FormItem>
           {/* <FormItem {...formItemLayout} label="存储配额(GB)">
             {getFieldDecorator('volume_capacity', {
@@ -256,26 +256,26 @@ export default class AddVolumes extends PureComponent {
             )}
           </FormItem> */}
           {!this.props.editor && (
-            <FormItem {...formItemLayout} label="类型">
+            <FormItem {...formItemLayout} label="类型" label={<FormattedMessage id='componentOverview.body.StorageConfig.type'/>}>
               {getFieldDecorator('volume_type', {
                 initialValue: data.attr_type || 'storage',
                 rules: [
                   {
                     required: true,
-                    message: '请选择存储类型'
+                    message: formatMessage({id:'componentOverview.body.StorageConfig.select_type'}),
                   }
                 ]
               })(
                 <Radio.Group onChange={this.handleChange}>
                   <Radio key="1" value="storage" disabled={!!this.props.editor}>
-                    <Tooltip title="">共享存储</Tooltip>
+                    <Tooltip title=""><FormattedMessage id='componentOverview.body.StorageConfig.shared_storage'/></Tooltip>
                   </Radio>
                   <Radio
                     key="2"
                     value="config-file"
                     disabled={!!this.props.editor}
                   >
-                    <Tooltip title="">配置文件</Tooltip>
+                    <Tooltip title=""><FormattedMessage id='componentOverview.body.StorageConfig.file'/></Tooltip>
                   </Radio>
                 </Radio.Group>
               )}
@@ -291,8 +291,8 @@ export default class AddVolumes extends PureComponent {
               style={{ marginBottom: '20px' }}
               getFieldDecorator={getFieldDecorator}
               name="file_content"
-              label="配置文件内容"
-              message="请编辑内容"
+              title={<FormattedMessage id='componentOverview.body.StorageConfig.msg'/>}
+              label={<FormattedMessage id='componentOverview.body.StorageConfig.content'/>}
               data={data.file_content || ''}
             />
           )}
@@ -316,14 +316,14 @@ export default class AddVolumes extends PureComponent {
             }}
             onClick={this.handleCancel}
           >
-            取消
+            <FormattedMessage id='componentOverview.body.StorageConfig.cancel'/>
           </Button>
           <Button
             onClick={this.handleSubmit}
             type="primary"
             loading={this.state.loading}
           >
-            确认
+            <FormattedMessage id='componentOverview.body.StorageConfig.confirm'/>
           </Button>
         </div>
       </Drawer>

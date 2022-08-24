@@ -10,6 +10,7 @@ import enterprise from "./en-US/enterprise"
 import common from './en-US/common';
 import component from './en-US/component';
 import global from './en-US/global';
+import ApplicationState from "./en-US/ApplicationState"
 
 export default {
   'navBar.lang': 'lang',
@@ -28,5 +29,6 @@ export default {
   ...component,
   ...enterprise,
   ...common,
-  ...global
+  ...global,
+  ...ApplicationState
 };

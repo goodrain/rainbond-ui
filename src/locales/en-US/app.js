@@ -80,6 +80,7 @@ const appOverview = {
   'appOverview.helm.pages.explain': '应用配置说明和使用方法概述',
   'appOverview.helm.pages.option': '配置选项',
   'appOverview.helm.pages.standard': '基于Helm规范应用配置的查看与设置',
+
 };
 
 //应用发布

@@ -1,5 +1,6 @@
 import { Button, Form, Modal } from 'antd';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import appProbeUtil from '../../../utils/appProbe-util';
 
 const FormItem = Form.Item;
@@ -32,26 +33,26 @@ export default class ViewRunHealthCheck extends PureComponent {
         title={title}
         visible
         onCancel={onCancel}
-        footer={[<Button onClick={onCancel}> 关闭 </Button>]}
+        footer={[<Button onClick={onCancel}> <FormattedMessage id='componentOverview.body.ViewRunHealthCheck.close'/> </Button>]}
       >
         <Form>
-          <FormItem {...formItemLayout} label="监测端口">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewRunHealthCheck.port'/>}>
             <span>{appProbeUtil.getPort(data)}</span>
           </FormItem>
-          <FormItem {...formItemLayout} label="探针使用协议">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewRunHealthCheck.probe'/>}>
             <span>{appProbeUtil.getProtocol(data)}</span>
           </FormItem>
           {data.scheme === 'http' ? (
             <Fragment>
-              <FormItem {...formItemLayout} label="http请求头">
+              <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.ViewRunHealthCheck.http'/>}>
                 <span>{appProbeUtil.getHeaders(data)}</span>
               </FormItem>
-              <FormItem {...formItemLayout} label="路径">
+              <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewRunHealthCheck.path'/>}>
                 <span>{appProbeUtil.getPath(data)}</span>
               </FormItem>
             </Fragment>
           ) : null}
-          <FormItem {...formItemLayout} label="初始化等候时间">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.ViewRunHealthCheck.initialization'/>}>
             <span>
               {appProbeUtil.getInitWaitTime(data)}
               <span
@@ -59,11 +60,11 @@ export default class ViewRunHealthCheck extends PureComponent {
                   marginLeft: 8
                 }}
               >
-                秒
+                <FormattedMessage id='componentOverview.body.ViewRunHealthCheck.second'/>
               </span>
             </span>
           </FormItem>
-          <FormItem {...formItemLayout} label="检测监测时间">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewRunHealthCheck.time'/>}>
             <span>
               {appProbeUtil.getIntervalTime(data)}
               <span
@@ -71,11 +72,11 @@ export default class ViewRunHealthCheck extends PureComponent {
                   marginLeft: 8
                 }}
               >
-                秒
+                <FormattedMessage id='componentOverview.body.ViewRunHealthCheck.second'/>
               </span>
             </span>
           </FormItem>
-          <FormItem {...formItemLayout} label="检测超时时间">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewRunHealthCheck.overtime'/>}>
             <span>
               {appProbeUtil.getTimeoutTime(data)}
               <span
@@ -83,11 +84,11 @@ export default class ViewRunHealthCheck extends PureComponent {
                   marginLeft: 8
                 }}
               >
-                秒
+                <FormattedMessage id='componentOverview.body.ViewRunHealthCheck.second'/>
               </span>
             </span>
           </FormItem>
-          <FormItem {...formItemLayout} label="连续错误次数">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewRunHealthCheck.frequency'/>}>
             <span>{appProbeUtil.getFailTimes(data)}</span>
           </FormItem>
         </Form>
