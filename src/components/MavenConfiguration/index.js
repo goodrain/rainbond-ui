@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import CodeMirrorForm from '../CodeMirrorForm';
 import ConfirmModal from '../ConfirmModal';
 import styles from '../CreateTeam/index.less';
@@ -168,7 +169,7 @@ export default class AddAdmin extends PureComponent {
                 contentLoading: true
               });
               this.fetchMavensettings();
-              notification.success({ message: '添加成功' });
+              notification.success({ message: formatMessage({id:'notification.success.add'}) });
             }
           }
         });

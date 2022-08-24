@@ -36,6 +36,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Markdown from 'react-markdown';
 import { Link } from 'umi';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -98,7 +99,7 @@ export default class Index extends PureComponent {
         },
         {
           key: 'installing',
-          value: '安装'
+          value: formatMessage({id:'button.install'})
         }
       ],
       appType: {
@@ -731,7 +732,7 @@ export default class Index extends PureComponent {
           loading={submitLoading}
           type="primary"
         >
-          {type === 'Create' ? '安装' : '更新'}
+          {type === 'Create' ? formatMessage({id:'button.install'}) : '更新'}
         </Button>
       </div>
     );
@@ -904,8 +905,8 @@ export default class Index extends PureComponent {
           <Panel
             header={
               <div className={styles.customPanelHeader}>
-                <h6>应用介绍</h6>
-                <p>应用配置说明和使用方法概述</p>
+                <h6>{formatMessage({id: 'appOverview.helm.pages.appIntroduce'})}</h6>
+                <p>{formatMessage({id: 'appOverview.helm.pages.explain'})}</p>
               </div>
             }
             key="1"
@@ -927,8 +928,8 @@ export default class Index extends PureComponent {
           <Panel
             header={
               <div className={styles.customPanelHeader}>
-                <h6>配置选项</h6>
-                <p>基于Helm规范应用配置的查看与设置</p>
+                <h6>{formatMessage({id: 'appOverview.helm.pages.option'})}</h6>
+                <p>{formatMessage({id: 'appOverview.helm.pages.standard'})}</p>
               </div>
             }
             key="2"
@@ -952,12 +953,12 @@ export default class Index extends PureComponent {
                   />
                 )}
                 <div className={PublicFormStyles.over_hr}>
-                  <span>通用配置</span>
+                  <span>{formatMessage({id: 'appOverview.helm.pages.over_hr'})}</span>
                 </div>
-                <FormItem {...formItemLayout} label="Values配置">
+                <FormItem {...formItemLayout} label={formatMessage({id: 'appOverview.helm.pages.overrides'})}>
                   {getFieldDecorator('overrides', {
                     initialValue: overrides || [],
-                    rules: [{ required: false, message: '请填写Values配置' }]
+                    rules: [{ required: false, message: formatMessage({id: 'placeholder.helm.overrides'}) }]
                   })(
                     <Parameterinput
                       disableds={upDataVersion || errPrompt || noVersion}
@@ -969,18 +970,18 @@ export default class Index extends PureComponent {
                 <Row>
                   {currentSteps > 3 && (
                     <Col span={12}>
-                      <FormItem {...formItemLayout} label="版本">
+                      <FormItem {...formItemLayout} label={formatMessage({id: 'appOverview.helm.pages.version'})}>
                         {getFieldDecorator('version', {
                           initialValue: resources.version || undefined,
                           rules: [
                             {
                               required: true,
-                              message: '请选择版本'
+                              message: formatMessage({id: 'placeholder.helm.version'})
                             }
                           ]
                         })(
                           <Select
-                            placeholder="请选择版本"
+                            placeholder={formatMessage({id: 'placeholder.helm.version'})}
                             style={{ width: '95%' }}
                             disabled={upDataVersion || errPrompt}
                             onChange={val => {
@@ -992,7 +993,7 @@ export default class Index extends PureComponent {
                               return (
                                 <Option key={version} value={version}>
                                   {resources.version === version
-                                    ? `${version} 当前版本`
+                                    ? formatMessage({id: 'appOverview.helm.pages.current_version'},{version: version})
                                     : version}
                                 </Option>
                               );
@@ -1008,7 +1009,7 @@ export default class Index extends PureComponent {
                         style={{ marginTop: '40px' }}
                         message={
                           noVersion
-                            ? '应用版本不存在、请重新选择版本'
+                            ? formatMessage({id: 'appOverview.helm.pages.alert.message'})
                             : upDataVersion
                         }
                         type="warning"
@@ -1019,15 +1020,15 @@ export default class Index extends PureComponent {
                 <Col span={24} style={{ position: 'relative', zIndex: 1 }}>
                   <FormItem
                     {...formItemLayout}
-                    label="Values文件"
+                    label={formatMessage({id: 'appOverview.helm.pages.yaml.templateFile'})}
                     className={styles.clearStar}
                   >
                     {getFieldDecorator('templateFile', {
                       initialValue: valueFiles.length > 0 && valueFiles[0],
-                      rules: [{ required: true, message: '请选择Values文件' }]
+                      rules: [{ required: true, message: formatMessage({id: 'placeholder.templateFile'}) }]
                     })(
                       <Select
-                        placeholder="请选择Values文件"
+                        placeholder={formatMessage({id: 'placeholder.templateFile'})}
                         style={{ width: '100%' }}
                         onChange={this.handleTemplateFile}
                         disabled={upDataVersion || errPrompt || noVersion}
@@ -1060,7 +1061,7 @@ export default class Index extends PureComponent {
                   beforeUpload={this.beforeUpload}
                   mode="yaml"
                   name="yamls"
-                  message="填写配置"
+                  message={formatMessage({id: 'appOverview.helm.pages.yaml.yamlMsg'})}
                 />
                 {currentSteps > 3 && this.handleOperationBtn('UpDate')}
               </div>
@@ -1101,10 +1102,10 @@ export default class Index extends PureComponent {
       appInfoLoading
     } = this.state;
     const codeObj = {
-      start: '启动',
-      restart: '重启',
-      stop: '停用',
-      deploy: '构建'
+      start: formatMessage({id: 'appOverview.btn.start'}),
+      restart: formatMessage({id: 'appOverview.list.table.restart'}),
+      stop: formatMessage({id: 'appOverview.btn.stop'}),
+      deploy: formatMessage({id: 'appOverview.btn.build'}),
     };
     const appStateColor = {
       deployed: 'success',
@@ -1170,7 +1171,7 @@ export default class Index extends PureComponent {
                 )}
                 {isDelete && (
                   <a className={styles.operationState} onClick={this.toDelete}>
-                    删除
+                   {formatMessage({id: 'appOverview.list.table.delete'})}
                   </a>
                 )}
                 {linkList.length > 0 && (
@@ -1184,21 +1185,21 @@ export default class Index extends PureComponent {
                 style={{ width: '100%', marginRight: '0' }}
               >
                 <div className={styles.connect_Boxs}>
-                  <div>使用内存</div>
+                  <div>{formatMessage({id: 'appOverview.memory'})}</div>
                   <div>
                     {resources.memory
                       ? `${sourceUtil.unit(resources.memory || 0, 'MB')}`
-                      : '不限制'}
+                      : formatMessage({id: 'appOverview.no_limit'})}
                   </div>
                 </div>
                 <div className={styles.connect_Boxs}>
-                  <div>使用CPU</div>
+                  <div>{formatMessage({id: 'appOverview.cpu'})}</div>
                   <div>
-                    {resources.cpu ? `${resources.cpu / 1000}Core` : '不限制'}
+                    {resources.cpu ? `${resources.cpu / 1000}Core` : formatMessage({id: 'appOverview.no_limit'})}
                   </div>
                 </div>
                 <div className={styles.connect_Boxs}>
-                  <div>服务数量</div>
+                  <div>{formatMessage({id: 'appOverview.serviceNum'})}</div>
                   <div>{(components && components.length) || 0}</div>
                 </div>
               </div>
@@ -1213,7 +1214,7 @@ export default class Index extends PureComponent {
           <div className={styles.contentr}>
             <div className={styles.conrHeader}>
               <div>
-                <span>创建时间</span>
+                <span>{formatMessage({id: 'appOverview.createTime'})}</span>
                 <span>
                   {currApp.create_time
                     ? moment(currApp.create_time)
@@ -1223,7 +1224,7 @@ export default class Index extends PureComponent {
                 </span>
               </div>
               <div>
-                <span>更新时间</span>
+                <span>{formatMessage({id: 'appOverview.updateTime'})}</span>
                 <span>
                   {currApp.update_time
                     ? moment(currApp.update_time)
@@ -1235,16 +1236,16 @@ export default class Index extends PureComponent {
             </div>
             <div className={styles.conrHeader}>
               <div>
-                <span>负责人</span>
+                <span>{formatMessage({id: 'appOverview.principal'})}</span>
                 <span>
                   {currApp.principal ? (
                     <Tooltip
                       placement="top"
                       title={
                         <div>
-                          <div>账号:{currApp.username}</div>
-                          <div>姓名:{currApp.principal}</div>
-                          <div>邮箱:{currApp.email}</div>
+                          <div>{formatMessage({id: 'appOverview.principal.username'})}{currApp.username}</div>
+                          <div>{formatMessage({id: 'appOverview.principal.principal'})}{currApp.principal}</div>
+                          <div>{formatMessage({id: 'appOverview.principal.email'})}{currApp.email}</div>
                         </div>
                       }
                     >
@@ -1269,14 +1270,14 @@ export default class Index extends PureComponent {
               </div>
               {resources.version && (
                 <div>
-                  <span>版本号</span>
+                  <span>{formatMessage({id: 'appOverview.versions'})}</span>
                   <span>{resources.version}</span>
                 </div>
               )}
             </div>
             <div className={styles.conrBot}>
               <div className={styles.conrBox} style={{ width: '33.3%' }}>
-                <div>网关策略</div>
+                <div>{formatMessage({id: 'appOverview.gateway'})}</div>
                 <div
                   onClick={() => {
                     isControl && this.handleJump('gateway');
@@ -1286,7 +1287,7 @@ export default class Index extends PureComponent {
                 </div>
               </div>
               <div className={styles.conrBox} style={{ width: '33.3%' }}>
-                <div>待升级</div>
+                <div>{formatMessage({id: 'appOverview.upgrade'})}</div>
                 <div
                   onClick={() => {
                     isUpgrade && this.handleJump('upgrade');
@@ -1299,7 +1300,7 @@ export default class Index extends PureComponent {
                 </div>
               </div>
               <div className={styles.conrBox} style={{ width: '33.3%' }}>
-                <div>商店</div>
+                <div>{formatMessage({id: 'appOverview.shop'})}</div>
                 <div
                   onClick={() => {
                     !errPrompt &&
@@ -1312,7 +1313,7 @@ export default class Index extends PureComponent {
                       color: errPrompt ? 'rgba(0, 0, 0, 0.45)' : '#4d73b1'
                     }}
                   >
-                    {currApp.app_store_name || '商店已被删除'}
+                    {currApp.app_store_name || formatMessage({id: 'appOverview.shopDelete'})}
                   </a>
                 </div>
               </div>
@@ -1343,7 +1344,7 @@ export default class Index extends PureComponent {
           <Card
             type="inner"
             loading={appStateLoading}
-            title="服务实例"
+            title={formatMessage({id: 'appOverview.helm.title'})}
             bodyStyle={{ padding: '0', background: '#F0F2F5' }}
           >
             <div style={{ background: '#fff' }}>
@@ -1365,7 +1366,7 @@ export default class Index extends PureComponent {
                         <Link
                           to={`/team/${teamName}/region/${service_region}/components/${service_alias}/thirdPartyServices`}
                         >
-                          组件详情
+                          {formatMessage({id: 'appOverview.helm.componentDetail'})}
                         </Link>
                       );
                       return (
@@ -1390,7 +1391,7 @@ export default class Index extends PureComponent {
                 </Tabs>
               ) : (
                 <div style={{ padding: '24px' }}>
-                  当前应用未定义 Service, 无法查询实例列表
+                  {formatMessage({id: 'appOverview.helm.pages.desc.service'})}
                 </div>
               )}
             </div>
@@ -1425,8 +1426,8 @@ export default class Index extends PureComponent {
               <div className={styles.process}>
                 <Result
                   type="ing"
-                  title={currentSteps < 1 ? '初始化中...' : '安装中...'}
-                  description="此过程可能比较耗时，请耐心等待"
+                  title={currentSteps < 1 ? formatMessage({id: 'appOverview.helm.pages.result.init'}) : formatMessage({id: 'appOverview.helm.pages.result.install'})}
+                  description={formatMessage({id: 'appOverview.helm.pages.result.loading'})}
                   style={{
                     marginTop: 48,
                     marginBottom: 16
@@ -1468,9 +1469,9 @@ export default class Index extends PureComponent {
         )}
         {toDelete && (
           <ConfirmModal
-            title="删除应用"
-            desc="确定要此删除此应用吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({id:'confirmModal.app.title.delete'})}
+            desc={formatMessage({id:'confirmModal.app.delete.desc'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
             loading={deleteLoading}
             onOk={this.handleDelete}
             onCancel={this.cancelDelete}
@@ -1483,7 +1484,7 @@ export default class Index extends PureComponent {
             group_name={groupDetail.group_name}
             note={groupDetail.note}
             loading={editGroupLoading}
-            title="修改应用信息"
+            title={formatMessage({id:'confirmModal.app.title.edit'})}
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}
           />
@@ -1503,13 +1504,13 @@ export default class Index extends PureComponent {
 
         {promptModal && (
           <Modal
-            title="友情提示"
+            title={formatMessage({id:'confirmModal.friendly_reminder.title'})}
             confirmLoading={buildShapeLoading}
             visible={promptModal}
             onOk={this.handlePromptModalOpen}
             onCancel={this.handlePromptModalClose}
           >
-            <p>{codeObj[code]}当前应用下的全部组件？</p>
+            <p>{formatMessage({id:'confirmModal.friendly_reminder.pages.desc'},{codeObj: codeObj[code]})}</p>
           </Modal>
         )}
       </Fragment>

@@ -2,6 +2,7 @@
 import { Button, Form, Modal, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
@@ -105,7 +106,7 @@ export default class Index extends PureComponent {
             style={{ marginRight: '5px' }}
             loading={addAppLoading || disabled}
           >
-            安装
+            {formatMessage({id:'button.install'})}
           </Button>,
           <Radio
             size="small"
@@ -182,7 +183,9 @@ export default class Index extends PureComponent {
                 ))}
               </Select>
             )}
-            <Button onClick={this.onAddGroup}>新建应用</Button>
+            <Button onClick={this.onAddGroup}>
+            {formatMessage({id:'popover.newApp.title'})}
+            </Button>
           </Form.Item>
           {this.state.addGroup && (
             <AddGroup

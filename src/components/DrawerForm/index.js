@@ -20,6 +20,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import teamUtil from '../../utils/team';
@@ -427,7 +428,7 @@ class DrawerForm extends PureComponent {
     const checkLengths = [
       {
         pattern: /^[^\s]*$/,
-        message: '禁止输入空格'
+        message: formatMessage({id:'placeholder.no_spaces'})
       },
       {
         validator: this.checkLength
@@ -437,7 +438,7 @@ class DrawerForm extends PureComponent {
     return (
       <div>
         <Drawer
-          title={editInfo ? '编辑Http访问策略' : '添加http访问策略'}
+          title={editInfo ? formatMessage({id:'popover.access_strategy.title.edit'}) : formatMessage({id:'popover.access_strategy.title.add'})}
           placement="right"
           width={500}
           closable={false}
@@ -455,29 +456,30 @@ class DrawerForm extends PureComponent {
                 marginBottom: '10px'
               }}
             >
-              路由规则
+              {formatMessage({id:'popover.access_strategy.lable.routingRule'})}
             </h3>
             <FormItem
               {...formItemLayout}
-              label="域名"
+              label={formatMessage({id:'popover.access_strategy.lable.domain_name'})}
               className={styles.antd_form}
             >
               {getFieldDecorator('domain_name', {
                 rules: [
                   {
                     required: true,
-                    message: '请添加域名'
+                    message: formatMessage({id:'placeholder.addDomain'})
                   },
                   {
                     pattern: /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                    message: '请填写正确的域名格式，支持泛域名'
+                    message: formatMessage({id:'placeholder.addDomain.pattern'})
                   }
                 ],
                 initialValue: editInfo.domain_name
-              })(<Input placeholder="请输入域名" />)}
+              })(<Input placeholder={formatMessage({id:'placeholder.addDomain'})} />)}
               <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                 <a href="javascript:void(0)" onClick={this.showDescription}>
-                  请将域名解析到：{currentRegion && currentRegion.tcpdomain}
+                {formatMessage({id:'popover.access_strategy.lable.analysis'})}
+                {currentRegion && currentRegion.tcpdomain}
                 </a>
               </span>
             </FormItem>
@@ -488,10 +490,10 @@ class DrawerForm extends PureComponent {
                     required: false,
                     message: '/'
                   },
-                  { max: 1024, message: '最大长度1024' },
+                  { max: 1024, message: formatMessage({id:'placeholder.max1024'}) },
                   {
                     pattern: /^\/+.*/,
-                    message: '请输入绝对路径'
+                    message: formatMessage({id:'placeholder.path.absolute'})
                   }
                 ],
                 initialValue: editInfo.domain_path
@@ -500,7 +502,7 @@ class DrawerForm extends PureComponent {
             {!routingConfiguration && (
               <div>
                 <p style={{ textAlign: 'center' }}>
-                  更多高级路由参数
+                  {formatMessage({id:'popover.access_strategy.lable.more'})}
                   <br />
                   <Icon type="down" onClick={this.handleRoutingConfiguration} />
                 </p>
@@ -521,7 +523,7 @@ class DrawerForm extends PureComponent {
                     rules: [{ validator: this.handleValidators }]
                   })(<DAinputs />)}
                 </FormItem>
-                <FormItem {...formItemLayout} label="请求头">
+                <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.domain_heander'})}>
                   {getFieldDecorator('domain_heander', {
                     initialValue: editInfo.domain_heander,
                     rules: checkLengths
@@ -533,7 +535,7 @@ class DrawerForm extends PureComponent {
                     rules: checkLengths
                   })(<DAinput />)}
                 </FormItem>
-                <FormItem {...formItemLayout} label="权重">
+                <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.the_weight'})}>
                   {getFieldDecorator('the_weight', {
                     initialValue: editInfo.the_weight || 100,
                     rules: [{ required: false, validator: this.weightCheck }]
@@ -542,7 +544,7 @@ class DrawerForm extends PureComponent {
                   )}
                 </FormItem>
                 {licenseList && (
-                  <FormItem {...formItemLayout} label="HTTPs证书">
+                  <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.certificate_id'})}>
                     {getFieldDecorator('certificate_id', {
                       initialValue:
                         AutomaticCertificate && editInfo.auto_ssl
@@ -553,7 +555,7 @@ class DrawerForm extends PureComponent {
                         getPopupContainer={triggerNode =>
                           triggerNode.parentNode
                         }
-                        placeholder="请绑定证书"
+                        placeholder={formatMessage({id:'placeholder.certificate.bound'})}
                         onSelect={this.handeCertificateSelect}
                         dropdownRender={menu => (
                           <div>
@@ -576,19 +578,19 @@ class DrawerForm extends PureComponent {
                           </div>
                         )}
                       >
-                        <OptGroup label="功能选择">
+                        <OptGroup label={formatMessage({id:'popover.access_strategy.lable.function_select'})}>
                           {licenseList && licenseList.length > 0 && (
                             <Option value="" key={99}>
-                              移除证书绑定
+                              {formatMessage({id:'placeholder.certificate.remove'})}
                             </Option>
                           )}
                           {AutomaticCertificate && (
                             <Option value="auto_ssl" key="auto_ssl">
-                              自动签发证书（由控制器自动完成证书签发和匹配）
+                              {formatMessage({id:'popover.access_strategy.lable.automatic_issued'})}
                             </Option>
                           )}
                         </OptGroup>
-                        <OptGroup label="已有证书选择">
+                        <OptGroup label={formatMessage({id:'popover.access_strategy.lable.exist_certificate_select'})}>
                           {licenseList.map((license, index) => {
                             return (
                               <Option value={license.id} key={index}>
@@ -604,13 +606,13 @@ class DrawerForm extends PureComponent {
                 {AutomaticCertificate &&
                   automaticCertificateVisible &&
                   AutomaticCertificateDeleteValue && (
-                    <FormItem {...formItemLayout} label="认证配置">
+                    <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.auto_ssl_config'})}>
                       {getFieldDecorator('auto_ssl_config', {
                         initialValue: editInfo.auto_ssl_config,
                         rules: [
                           {
                             required: true,
-                            message: '请选择签发证书认证配置'
+                            message: formatMessage({id:'placeholder.select.sign_issue'})
                           }
                         ]
                       })(
@@ -618,7 +620,7 @@ class DrawerForm extends PureComponent {
                           getPopupContainer={triggerNode =>
                             triggerNode.parentNode
                           }
-                          placeholder="请选择签发证书认证配置"
+                          placeholder={formatMessage({id:'placeholder.select.sign_issue'})}
                         >
                           {Object.keys(AutomaticCertificateDeleteValue).map(
                             item => {
@@ -630,7 +632,7 @@ class DrawerForm extends PureComponent {
                     </FormItem>
                   )}
 
-                <FormItem {...formItemLayout} label="扩展功能">
+                <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.rule_extensions_http'})}>
                   {(this.state.rule_extensions_visible ||
                     (editInfo.certificate_id && is_httptohttps)||
                     (editInfo.auto_ssl && is_httptohttps)) &&
@@ -655,11 +657,13 @@ class DrawerForm extends PureComponent {
                         getPopupContainer={triggerNode =>
                           triggerNode.parentNode
                         }
-                        placeholder="请选择负载均衡类型"
+                        placeholder={formatMessage({id:'placeholder.select.rule_extensions_round'})}
                       >
-                        <Option value="round-robin">负载均衡算法：轮询</Option>
+                        <Option value="round-robin">
+                          {formatMessage({id:'popover.access_strategy.lable.poll'})}
+                        </Option>
                         <Option value="cookie-session-affinity">
-                          负载均衡算法：会话保持
+                          {formatMessage({id:'popover.access_strategy.lable.conversation'})}
                         </Option>
                       </Select>
                     )}
@@ -677,20 +681,20 @@ class DrawerForm extends PureComponent {
                 marginBottom: '10px'
               }}
             >
-              访问目标
+              {formatMessage({id:'popover.access_strategy.lable.access_target'})}
             </h3>
             <Skeleton loading={serviceComponentLoading} active>
               <Fragment>
-                <FormItem {...formItemLayout} label="应用名称">
+                <FormItem {...formItemLayout} label={formatMessage({id:'popover.newApp.appName'})}>
                   {getFieldDecorator('group_id', {
-                    rules: [{ required: true, message: '请选择' }],
+                    rules: [{ required: true, message: formatMessage({id:'placeholder.select'}) }],
                     initialValue: appKey || appKeys || undefined
                   })(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
                       labelInValue
                       disabled={appID}
-                      placeholder="请选择要所属应用"
+                      placeholder={formatMessage({id:'placeholder.appName'})}
                       onChange={this.handleServices}
                     >
                       {(groups || []).map(group => {
@@ -707,16 +711,16 @@ class DrawerForm extends PureComponent {
                   )}
                 </FormItem>
                 <Spin spinning={componentLoading}>
-                  <FormItem {...formItemLayout} label="组件">
+                  <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.component'})}>
                     {getFieldDecorator('service_id', {
-                      rules: [{ required: true, message: '请选择' }],
+                      rules: [{ required: true, message: formatMessage({id:'placeholder.select'}) }],
                       initialValue: serviceId || serviceIds || undefined
                     })(
                       <Select
                         getPopupContainer={triggerNode =>
                           triggerNode.parentNode
                         }
-                        placeholder="请选择组件"
+                        placeholder={formatMessage({id:'placeholder.selectComponent'})}
                         onChange={this.handlePorts}
                       >
                         {(serviceComponentList || []).map((service, index) => {
@@ -733,19 +737,19 @@ class DrawerForm extends PureComponent {
                 <Spin spinning={!isOk}>
                   <FormItem
                     {...formItemLayout}
-                    label="端口号"
+                    label={formatMessage({id:'popover.access_strategy.lable.port'})}
                     style={{ marginBottom: '150px' }}
                   >
                     {getFieldDecorator('container_port', {
                       initialValue:
                         containerPort || containerPorts || undefined,
-                      rules: [{ required: true, message: '请选择端口号' }]
+                      rules: [{ required: true, message: formatMessage({id:'placeholder.selectPort'}) }]
                     })(
                       <Select
                         getPopupContainer={triggerNode =>
                           triggerNode.parentNode
                         }
-                        placeholder="请选择端口号"
+                        placeholder={formatMessage({id:'placeholder.selectPort'})}
                       >
                         {(portList || []).map((port, index) => {
                           return (
@@ -781,7 +785,7 @@ class DrawerForm extends PureComponent {
               }}
               onClick={onClose}
             >
-              取消
+              {formatMessage({id:'popover.cancel'})}
             </Button>
             <Button
               onClick={() => {
@@ -793,14 +797,14 @@ class DrawerForm extends PureComponent {
               type="primary"
               loading={addHttpStrategyLoading || editHttpStrategyLoading}
             >
-              确认
+              {formatMessage({id:'popover.confirm'})}
             </Button>
           </div>
         </Drawer>
         {this.state.descriptionVisible && (
           <Modal
             closable={false}
-            title="域名解析说明"
+            title={formatMessage({id:'popover.cancel'})}
             visible={this.state.descriptionVisible}
             onOk={this.handleOk_description}
             footer={[
@@ -809,22 +813,25 @@ class DrawerForm extends PureComponent {
                 size="small"
                 onClick={this.handleOk_description}
               >
-                确定
+                {formatMessage({id:'popover.access_strategy.modal.domain'})}
               </Button>
             ]}
             zIndex={9999}
           >
             <ul className={styles.ulStyle}>
               <li>
-                1.HTTP访问控制策略是基于“域名"等组成路由规则，你需要在所绑定域名的域名服务商增加域名DNS
-                A记录 到当前集群的应用网关出口IP地址之上域名访问即可生效。
+              {formatMessage({id:'popover.access_strategy.lable.li1'})}
               </li>
               <li>
-                2.当前集群（
-                {currentRegion && currentRegion.team_region_alias}
-                ）出口IP地址是: {currentRegion && currentRegion.tcpdomain}
+              {formatMessage(
+                {id:'popover.access_strategy.lable.li2'},
+                {currentRegion:currentRegion && currentRegion.team_region_alias},
+                {ip: currentRegion && currentRegion.tcpdomain}
+                )}
               </li>
-              <li>3.如有疑问请联系平台运营管理员</li>
+              <li>
+              {formatMessage({id:'popover.access_strategy.lable.li3'})}
+              </li>
             </ul>
           </Modal>
         )}

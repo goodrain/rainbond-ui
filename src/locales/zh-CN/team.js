@@ -27,6 +27,8 @@ const teamOverview = {
   'teamOverview.result.title':'集群端失去响应，稍后重试',
   'teamOverview.result.description':'若一直无法加载，请联系集群管理员查看集群状态',
   'teamOverview.loadOverview':'重新加载',
+  'teamOverview.runAppNums': '运行：{ number }个',
+  'teamOverview.notRunAppNums': '未运行：{ number }个',
 }
 
 //团队下的应用
@@ -165,6 +167,32 @@ const teamPlugin = {
   'teamPlugin.btn.delete':'删除',
   'teamPlugin.btn.manage':'管理',
   'teamPlugin.btn.install':'安装',
+  'teamPlugin.install.title':'安装插件',
+  'teamPlugin.create.title':'创建插件',
+  'teamPlugin.create.lable.plugin_alias':'插件名称',
+  'teamPlugin.create.lable.build_source':'安装来源',
+  'teamPlugin.create.lable.category':'插件类别',
+  'teamPlugin.create.lable.image':'镜像地址',
+  'teamPlugin.create.lable.code_repo':'源码地址',
+  'teamPlugin.create.lable.username':'仓库用户名',
+  'teamPlugin.create.lable.password':'仓库密码',
+  'teamPlugin.create.lable.code_version':'代码版本',
+  'teamPlugin.create.lable.min_cpu':'CPU',
+  'teamPlugin.create.lable.min_cpu':'启动命令',
+  'teamPlugin.create.lable.update_info':'更新说明',
+  'teamPlugin.create.lable.desc':'一句话说明',
+  'teamPlugin.create.pages.key':'配置授权Key',
+  'teamPlugin.create.pages.btn':'填写仓库账号密码',
+  'teamPlugin.create.pages.image':'镜像',
+  'teamPlugin.create.pages.dockerfile':'Dockerfile',
+  'teamPlugin.create.pages.entrance':'入口网络',
+  'teamPlugin.create.pages.exit':'出口网络',
+  'teamPlugin.create.pages.entrance_exit':'出口入口共治网络',
+  'teamPlugin.create.pages.performance':'性能分析',
+  'teamPlugin.create.pages.initialize':'初始化类型',
+  'teamPlugin.create.pages.ordinary':'一般类型',
+  'teamPlugin.create.pages.monitor':'监控',
+  'teamPlugin.create.pages.cpu':'CPU分配额0为不限制，1000m=1core。',
 }
 
 const teamManage = {

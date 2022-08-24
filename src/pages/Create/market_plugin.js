@@ -24,6 +24,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AuthCompany from '../../components/AuthCompany';
 import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
 import CreateAppFromPlugin from '../../components/CreateAppFromPlugin';
@@ -102,7 +103,7 @@ export default class Main extends PureComponent {
       localAppTab: [
         {
           key: 'localApplication',
-          tab: '本地组件库'
+          tab: formatMessage({id:'popover.applicationMarket.local'})
         }
       ],
       rainStoreTab: [],
@@ -823,7 +824,7 @@ export default class Main extends PureComponent {
               }
             }}
           >
-            安装
+            {formatMessage({id:'button.install'})}
           </span>
         ]
       : [];
@@ -1160,8 +1161,8 @@ export default class Main extends PureComponent {
           <Input.Search
             // eslint-disable-next-line react/no-string-refs
             ref="searchs"
-            placeholder="请输入应用名称"
-            enterButton="搜索"
+            placeholder={formatMessage({id:'placeholder.group_name'})}
+            enterButton={formatMessage({id:'button.search'})}
             size="large"
             value={defaultValue}
             onChange={event => {
@@ -1183,17 +1184,17 @@ export default class Main extends PureComponent {
     const tabAllList = [
       {
         key: '',
-        tab: '全部'
+        tab: formatMessage({id:'popover.applicationMarket.all'})
       }
     ];
     const tabComponentList = [
       {
         key: 'enterprise',
-        tab: '公司发布'
+        tab: formatMessage({id:'popover.applicationMarket.company'})
       },
       {
         key: 'team',
-        tab: '团队发布'
+        tab: formatMessage({id:'popover.applicationMarket.team'})
       }
     ];
     const tabList = tabAllList.concat(tabComponentList);
@@ -1297,7 +1298,7 @@ export default class Main extends PureComponent {
                   style={{ marginRight: '5px' }}
                   loading={loading.effects['createApp/installAppPlugin']}
                 >
-                  安装
+                  {formatMessage({id:'button.install'})}
                 </Button>
                 <Radio
                   size="small"

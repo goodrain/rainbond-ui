@@ -2,6 +2,7 @@
 import { Button, Form, Modal, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddGroup from '../AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
@@ -124,7 +125,7 @@ export default class Index extends PureComponent {
                   style={{ marginRight: '5px' }}
                   loading={addAppLoading || disabled}
                 >
-                  安装
+                  {formatMessage({id:'button.install'})}
                 </Button>
               ) :
                 btnStatus == 'AlreadyInstalled' ? (
@@ -152,7 +153,7 @@ export default class Index extends PureComponent {
                       style={{ marginRight: '5px' }}
                       loading={addAppLoading || disabled}
                     >
-                      安装
+                      {formatMessage({id:'button.install'})}
                     </Button>
                   )
             }

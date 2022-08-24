@@ -381,7 +381,7 @@ export default class Index extends React.Component {
           if (res && res.status_code && res.status_code === 200) {
             this.onCancelEditStartProbe();
             this.fetchStartProbe();
-            notification.success({ message: '添加成功' });
+            notification.success({ message: formatMessage({id:'notification.success.add'}) });
             notification.info({ message: '需要更新后才能生效' });
           }
         }

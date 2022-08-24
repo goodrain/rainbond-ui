@@ -18,6 +18,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import cloud from '../../utils/cloud';
 
 const RadioGroup = Radio.Group;
@@ -201,7 +202,7 @@ export default class Index extends PureComponent {
               },
               {
                 pattern: /^[^\s]*$/,
-                message: '禁止输入空格'
+                message: formatMessage({id:'placeholder.no_spaces'})
               }
             ]
           })(<Input type="text" placeholder="请填写商店地址" />)}

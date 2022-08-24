@@ -23,6 +23,7 @@ import { routerRedux } from 'dva/router';
 import { cloneDeep } from 'lodash';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';

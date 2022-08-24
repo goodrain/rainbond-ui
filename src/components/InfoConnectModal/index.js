@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { connect } from 'dva';
 import { Table, Button, Modal } from 'antd';
 const confirm = Modal.confirm;
@@ -13,19 +14,19 @@ class UserTable extends Component {
     render() {
         const columns = [
             {
-                title: '变量名',
+                title: formatMessage({id:'popover.tcp.config.table.attr_name'}),
                 dataIndex: 'attr_name',
                 key: "attr_name",
                 align: 'center',
             },
             {
-                title: '变量值',
+                title: formatMessage({id:'popover.tcp.config.table.attr_value'}),
                 dataIndex: 'attr_value',
                 key: "attr_value",
                 align: 'center',
             },
             {
-                title: '说明',
+                title: formatMessage({id:'popover.tcp.config.table.name'}),
                 dataIndex: 'name',
                 key: "name",
                 align: 'center',
@@ -35,11 +36,11 @@ class UserTable extends Component {
         const dataList = dataSource.filter((item)=>{
             return (!item.attr_name.endsWith("_HOST")&&!item.attr_name.endsWith("_PORT")) ;
         })
-        const footer = [<Button key="back" onClick={this.onCancel}>关闭</Button>]
+        const footer = [<Button key="back" onClick={this.onCancel}>{formatMessage({id:'button.close'})}</Button>]
         return (
             <div>
                 <Modal
-                    title="连接信息"
+                    title={formatMessage({id:'popover.tcp.config.title'})}
                     visible={this.props.visible}
                     footer={footer}
                     onCancel={this.onCancel}

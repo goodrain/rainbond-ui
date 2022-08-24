@@ -1,3 +1,4 @@
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 const categoryMap = {
   'net-plugin:up': '入口网络',
   'net-plugin:in-and-out': '出口入口共治网络',

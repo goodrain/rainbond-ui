@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { Button, Dropdown, Menu, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 /*
   access_type : no_port|无端口、
@@ -46,7 +47,7 @@ export default class Index extends PureComponent {
       }
       return singleLink ? (
         <Tooltip
-          title="跳转到组件对外访问端口对应的域名地址"
+          title={formatMessage({id:'tooltip.visit'})}
           placement="topRight"
         >
           {type === 'link' ? (
@@ -57,7 +58,7 @@ export default class Index extends PureComponent {
                 window.open(singleLink);
               }}
             >
-              访问
+             <FormattedMessage id='componentOverview.header.right.visit'/>
             </a>
           ) : (
             <Button
@@ -67,7 +68,7 @@ export default class Index extends PureComponent {
                 window.open(singleLink);
               }}
             >
-              访问
+              <FormattedMessage id='componentOverview.header.right.visit'/>
             </Button>
           )}
         </Tooltip>
@@ -77,7 +78,7 @@ export default class Index extends PureComponent {
       <Tooltip
         placement="topLeft"
         arrowPointAtCenter
-        title="跳转到组件对外访问端口对应的域名地址"
+        title={formatMessage({id:'tooltip.visit'})}
       >
         <Dropdown
           overlay={
@@ -109,9 +110,9 @@ export default class Index extends PureComponent {
           placement="bottomRight"
         >
           {type === 'link' ? (
-            <a style={{ fontSize: '14px' }}>访问</a>
+            <a style={{ fontSize: '14px' }}><FormattedMessage id='componentOverview.header.right.visit'/></a>
           ) : (
-            <Button type="primary">访问</Button>
+            <Button type="primary"><FormattedMessage id='componentOverview.header.right.visit'/></Button>
           )}
         </Dropdown>
       </Tooltip>

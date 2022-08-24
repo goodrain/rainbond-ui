@@ -1,5 +1,6 @@
 import { Button, Drawer, Form, Input, InputNumber, Radio, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const FormItem = Form.Item;
@@ -72,7 +73,7 @@ export default class AddVolumes extends PureComponent {
                 },
                 {
                   pattern: /^[^\s]*$/,
-                  message: '禁止输入空格'
+                  message: formatMessage({id:'placeholder.no_spaces'})
                 },
                 {
                   max: 30,
@@ -96,7 +97,7 @@ export default class AddVolumes extends PureComponent {
                 },
                 {
                   pattern: /^[^\s]*$/,
-                  message: '禁止输入空格'
+                  message: formatMessage({id:'placeholder.no_spaces'})
                 },
                 {
                   max: 255,

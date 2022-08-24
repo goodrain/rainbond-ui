@@ -6,6 +6,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
@@ -195,7 +196,7 @@ export default class ClusterLink extends PureComponent {
           if(item.externalIP.match(patt) && item.internalIP.match(patt) && item.name.match(patt)){
             callback();
           }else{
-            callback(new Error('禁止输入空格'));
+            callback(new Error(formatMessage({id:'placeholder.no_spaces'})));
           }
           isPass = true;
         } else {
@@ -271,7 +272,7 @@ export default class ClusterLink extends PureComponent {
                       },
                       {
                         pattern: /^[^\s]*$/,
-                        message: '禁止输入空格'
+                        message: formatMessage({id:'placeholder.no_spaces'})
                       }
                     ]
                   })(<Input placeholder="请输入IP地址  例：1.2.3.4" />)}

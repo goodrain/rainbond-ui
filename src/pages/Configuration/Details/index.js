@@ -18,6 +18,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ConfigurationHeader from '../Header';
 import styles from './index.less';
 
@@ -126,7 +127,7 @@ export default class ConfigurationDetails extends PureComponent {
         callback: res => {
           if (res) {
             this.handleClose();
-            notification.success({ message: '添加成功' });
+            notification.success({ message: formatMessage({id:'notification.success.add'}) });
             if (serviceIds && serviceIds.length > 0 && enable) {
               this.showRemind(serviceIds);
             } else {

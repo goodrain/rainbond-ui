@@ -23,6 +23,7 @@ import {
   import { connect } from 'dva';
   import { routerRedux } from 'dva/router';
   import React, { Fragment, PureComponent } from 'react';
+  import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
   import AuthCompany from '../../components/AuthCompany';
   import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
   import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
@@ -99,7 +100,7 @@ import {
         localAppTab: [
           {
             key: 'localApplication',
-            tab: '本地组件库'
+            tab: formatMessage({id:'popover.applicationMarket.local'})
           }
         ],
         rainStoreTab: [],
@@ -766,7 +767,7 @@ import {
                 }
               }}
             >
-              安装
+              {formatMessage({id:'button.install'})}
             </span>
           ]
         : [];
@@ -1101,8 +1102,8 @@ import {
             <Input.Search
               // eslint-disable-next-line react/no-string-refs
               ref="searchs"
-              placeholder="请输入应用名称"
-              enterButton="搜索"
+              placeholder={formatMessage({id:'placeholder.group_name'})}
+              enterButton={formatMessage({id:'button.search'})}
               size="large"
               value={defaultValue}
               onChange={event => {
@@ -1124,17 +1125,17 @@ import {
       const tabAllList = [
         {
           key: '',
-          tab: '全部'
+          tab: formatMessage({id:'popover.applicationMarket.all'})
         }
       ];
       const tabComponentList = [
         {
           key: 'enterprise',
-          tab: '公司发布'
+          tab: formatMessage({id:'popover.applicationMarket.company'})
         },
         {
           key: 'team',
-          tab: '团队发布'
+          tab: formatMessage({id:'popover.applicationMarket.team'})
         }
       ];
       const tabList = tabAllList.concat(tabComponentList);
@@ -1230,7 +1231,7 @@ import {
                     style={{ marginRight: '5px' }}
                     loading={loading.effects['createApp/installApp']}
                   >
-                    安装
+                    {formatMessage({id:'button.install'})}
                   </Button>
                   <Radio
                     size="small"

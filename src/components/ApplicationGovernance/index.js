@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 
 const FormItem = Form.Item;
@@ -110,7 +111,7 @@ export default class ApplicationGovernance extends PureComponent {
   };
   handleNotification = () => {
     notification.success({
-      message: '切换成功、更新组件后生效',
+      message: formatMessage({id: 'notification.hint.component.change'}),
       duration: '3'
     });
   };
@@ -171,7 +172,7 @@ export default class ApplicationGovernance extends PureComponent {
           if (res && res.bean && !res.bean.is_valid) {
             callback(); // +
           } else {
-            throw new Error('格式错误!');
+            throw new Error(formatMessage({id: 'placeholder.govern.is_valid'}));
           }
         }
       });
@@ -208,7 +209,7 @@ export default class ApplicationGovernance extends PureComponent {
       handleError: err => {
         if (err && err.data && err.data.code === 11009) {
           notification.warning({
-            message: '未安装控制平面，无法切换'
+            message: formatMessage({id: 'placeholder.govern.change'})
           });
           this.setState({
             btnConfig: true
@@ -219,9 +220,9 @@ export default class ApplicationGovernance extends PureComponent {
   };
   render() {
     const list = [
-      { key: 'KUBERNETES_NATIVE_SERVICE', name: 'Kubernetes原生 service 模式' },
-      { key: 'BUILD_IN_SERVICE_MESH', name: '内置 ServiceMesh 模式' },
-      { key: 'ISTIO_SERVICE_MESH', name: 'Istio治理模式' }
+      { key: 'KUBERNETES_NATIVE_SERVICE', name: formatMessage({id: 'global.fetchGovernanceMode.KUBERNETES_NATIVE_SERVICE'}) },
+      { key: 'BUILD_IN_SERVICE_MESH', name: formatMessage({id: 'global.fetchGovernanceMode.BUILD_IN_SERVICE_MESH'}) },
+      { key: 'ISTIO_SERVICE_MESH', name: formatMessage({id: 'global.fetchGovernanceMode.ISTIO_SERVICE_MESH'}) }
     ];
     const {
       loading = false,
@@ -238,27 +239,29 @@ export default class ApplicationGovernance extends PureComponent {
 
     return (
       <Modal
-        title="应用治理模式切换"
+        title={formatMessage({id: 'confirmModal.app.govern.title'})}
         visible
         confirmLoading={loading || checkK8sLoading || governanceLoading}
         onOk={this.handleSubmit}
         onCancel={this.handleOnCancel}
         width={800}
         footer={[
-          <Button onClick={this.handleOnCancel}> 取消 </Button>,
+          <Button onClick={this.handleOnCancel}> 
+          {formatMessage({id: 'popover.cancel'})}
+          </Button>,
           <Button
             type="primary"
             disabled={btnConfig}
             loading={loading || checkK8sLoading || governanceLoading}
             onClick={this.handleSubmit}
           >
-            确定
+            {formatMessage({id: 'popover.confirm'})}
           </Button>
         ]}
       >
         <Alert
           style={{ marginBottom: '20px' }}
-          message="应用治理模式主要指组件间通信模式的治理，目前支持内置ServiceMesh模式,Istio治理模式和Kubernetes原生Service模式"
+          message={formatMessage({id: 'confirmModal.app.govern.alert.msg'})}
           type="info"
           showIcon
         />
@@ -271,7 +274,7 @@ export default class ApplicationGovernance extends PureComponent {
               dataSource={ServiceNameList || []}
               columns={[
                 {
-                  title: '组件名称/端口',
+                  title: formatMessage({id: 'confirmModal.app.govern.label.name_port'}),
                   dataIndex: 'service_alias',
                   width: 200,
                   render: (_, data) => (
@@ -281,7 +284,7 @@ export default class ApplicationGovernance extends PureComponent {
                   )
                 },
                 {
-                  title: '别名',
+                  title: formatMessage({id: 'confirmModal.app.govern.label.alias'}),
                   dataIndex: 'port_alias',
                   width: 200,
                   render: (val, data) => (
@@ -293,7 +296,7 @@ export default class ApplicationGovernance extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: '不能为空'
+                              message: formatMessage({id: 'placeholder.copy.not_null'})
                             }
                           ]
                         }
@@ -302,7 +305,7 @@ export default class ApplicationGovernance extends PureComponent {
                   )
                 },
                 {
-                  title: '内部域名',
+                  title: formatMessage({id: 'confirmModal.app.govern.label.DNS'}),
                   dataIndex: 'k8s_service_name',
                   width: 200,
                   render: (val, data) => (
@@ -314,16 +317,15 @@ export default class ApplicationGovernance extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: '不能为空'
+                              message: formatMessage({id: 'placeholder.copy.not_null'})
                             },
                             {
                               max: 63,
-                              message: '最大长度63位'
+                              message: formatMessage({id: 'placeholder.max63'})
                             },
                             {
                               pattern: /^[a-z]([-a-z0-9]*[a-z0-9])?$/,
-                              message:
-                                '必须由小写字母、数字和-组成，并且必须以小写字母开始,数字和小写字母结束'
+                              message: formatMessage({id: 'placeholder.k8s_service_name.msg'})
                             }
                           ]
                         }
@@ -348,14 +350,14 @@ export default class ApplicationGovernance extends PureComponent {
                   xs: { span: 14, offset: 0 },
                   sm: { span: 8 }
                 }}
-                label="治理模式选择"
+                label={formatMessage({id: 'confirmModal.app.govern.label.change'})}
               >
                 {getFieldDecorator('governance_mode', {
                   initialValue: mode || 'KUBERNETES_NATIVE_SERVICE',
                   rules: [
                     {
                       required: true,
-                      message: '不能为空!'
+                      message: formatMessage({id: 'placeholder.copy.not_null'})
                     }
                   ]
                 })(
@@ -386,17 +388,17 @@ export default class ApplicationGovernance extends PureComponent {
                 <label
                   htmlFor="governance_mode"
                   className="ant-form-item-required"
-                  title="模式说明"
+                  title={formatMessage({id: 'confirmModal.app.govern.label.mode'})}
                 >
-                  模式说明
+                  {formatMessage({id: 'confirmModal.app.govern.label.mode'})}
                 </label>
 
                 <div style={{ marginTop: '10px' }}>
                   {type === 'KUBERNETES_NATIVE_SERVICE'
-                    ? '该模式组件间使用Kubernetes service名称域名进行通信，用户需要配置每个组件端口注册的service名称，治理能力有限.'
+                    ? formatMessage({id: 'confirmModal.app.govern.label.service'})
                     : type === 'BUILD_IN_SERVICE_MESH'
-                    ? '内置ServiceMesh模式需要用户显示的配置组件间的依赖关系，平台会在下游组件中自动注入sidecar容器组成ServiceMesh微服务架构，业务间通信地址统一为localhost模式'
-                    : '该模式组件间使用Kubernetes service名称域名进行通信，用户需要配置每个组件端口注册的service名称，且安装Istio  control plane ，通过Istio进行治理。'}
+                    ? formatMessage({id: 'confirmModal.app.govern.label.serviceMesh'})
+                    : formatMessage({id: 'confirmModal.app.govern.label.istio'})}
                 </div>
               </div>
             </div>

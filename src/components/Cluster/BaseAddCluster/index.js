@@ -2,6 +2,7 @@
 import { Col, Form, Input, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import CodeMirrorForm from '../../CodeMirrorForm';
 import styles from '../../CreateTeam/index.less';
@@ -73,7 +74,7 @@ class EditClusterInfo extends PureComponent {
       },
       callback: res => {
         if (res && res._condition === 200) {
-          notification.success({ message: '添加成功' });
+          notification.success({ message: formatMessage({id:'notification.success.add'}) });
           globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
             eid,
             status: 'complete',

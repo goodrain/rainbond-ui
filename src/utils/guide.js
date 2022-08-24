@@ -1,3 +1,4 @@
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 const guideutil = {
   getStatus(key, info) {
     let status = false;

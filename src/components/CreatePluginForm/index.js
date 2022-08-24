@@ -2,6 +2,7 @@ import MemoryForm from '@/components/MemoryForm';
 import { Button, Checkbox, Col, Form, Input, Radio, Row, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ShowRegionKey from '../ShowRegionKey';
 
 const RadioGroup = Radio.Group;
@@ -104,10 +105,12 @@ export default class Index extends PureComponent {
           <Col span={24} style={{ textAlign: 'right' }}>
             {isShow && (
               <Checkbox value="showKey" checked={showKey}>
-                配置授权Key
+                {formatMessage({id:'teamPlugin.create.pages.key'})}
               </Checkbox>
             )}
-            <Checkbox value="showUsernameAndPass">填写仓库账号密码</Checkbox>
+            <Checkbox value="showUsernameAndPass">
+              {formatMessage({id:'teamPlugin.create.pages.btn'})}
+            </Checkbox>
           </Col>
         </Row>
       </Checkbox.Group>
@@ -135,7 +138,7 @@ export default class Index extends PureComponent {
       Modifys = false,
       isEdit = false,
       allDisabled = false,
-      submitText = '创建插件',
+      submitText = formatMessage({id:'teamPlugin.create.title'}),
       isCreate
     } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
@@ -148,74 +151,92 @@ export default class Index extends PureComponent {
 
     return (
       <Form layout="horizontal" hideRequiredMark onSubmit={this.handleSubmit}>
-        <Form.Item {...formItemLayout} label="插件名称">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'teamPlugin.create.lable.plugin_alias'})}>
           {getFieldDecorator('plugin_alias', {
             initialValue: data.plugin_alias || '',
             rules: [
-              { required: true, message: '要创建的插件还没有名字' },
+              { required: true, message: formatMessage({id:'placeholder.plugin.plugin_alias'}) },
               {
                 max: 32,
-                message: '最大长度32位'
+                message: formatMessage({id:'placeholder.max32'})
               }
             ]
           })(
             <Input
               disabled={allDisabled}
-              placeholder="请为创建的插件起个名字吧"
+              placeholder={formatMessage({id:'placeholder.plugin.plugin_aliasMsg'})}
             />
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="安装来源">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'teamPlugin.create.lable.build_source'})}>
           {getFieldDecorator('build_source', {
             initialValue: data.build_source || defaultType,
-            rules: [{ required: true, message: '请选择插件安装来源' }]
+            rules: [{ required: true, message: formatMessage({id:'placeholder.plugin.build_source'}) }]
           })(
             <RadioGroup disabled={allDisabled || isEdit}>
-              <Radio value="image">镜像</Radio>
-              <Radio value="dockerfile">Dockerfile</Radio>
+              <Radio value="image">
+              {formatMessage({id:'teamPlugin.create.pages.image'})}
+              </Radio>
+              <Radio value="dockerfile">
+              {formatMessage({id:'teamPlugin.create.pages.dockerfile'})}
+              </Radio>
             </RadioGroup>
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="插件类别">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'teamPlugin.create.lable.category'})}>
           {getFieldDecorator('category', {
             initialValue: data.category || 'net-plugin:up',
-            rules: [{ required: true, message: '请选择插件安装来源' }]
+            rules: [{ required: true, message: formatMessage({id:'placeholder.plugin.build_source'}) }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               disabled={allDisabled || isEdit}
-              placeholder="请选择类别"
+              placeholder={formatMessage({id:'placeholder.plugin.category'})}
             >
-              <Option value="net-plugin:up">入口网络</Option>
-              <Option value="net-plugin:down">出口网络</Option>
-              <Option value="net-plugin:in-and-out">出口入口共治网络</Option>
-              <Option value="analyst-plugin:perf">性能分析</Option>
-              <Option value="init-plugin">初始化类型</Option>
-              <Option value="general-plugin">一般类型</Option>
-              <Option value="exporter-plugin">监控</Option>
+              <Option value="net-plugin:up">
+              {formatMessage({id:'teamPlugin.create.pages.entrance'})}
+              </Option>
+              <Option value="net-plugin:down">
+              {formatMessage({id:'teamPlugin.create.pages.exit'})}
+              </Option>
+              <Option value="net-plugin:in-and-out">
+              {formatMessage({id:'teamPlugin.create.pages.entrance_exit'})}
+              </Option>
+              <Option value="analyst-plugin:perf">
+              {formatMessage({id:'teamPlugin.create.pages.performance'})}
+              </Option>
+              <Option value="init-plugin">
+              {formatMessage({id:'teamPlugin.create.pages.initialize'})}
+              </Option>
+              <Option value="general-plugin">
+              {formatMessage({id:'teamPlugin.create.pages.ordinary'})}
+              </Option>
+              <Option value="exporter-plugin">
+              {formatMessage({id:'teamPlugin.create.pages.monitor'})}
+              </Option>
             </Select>
           )}
         </Form.Item>
         <Form.Item
           style={{ display: type === 'image' ? '' : 'none' }}
           {...formItemLayout}
-          label="镜像地址"
+          label={formatMessage({id:'teamPlugin.create.lable.image'})}
         >
           {getFieldDecorator('image', {
             initialValue: data.image || '',
             rules: [{ validator: this.checkCmd }]
-          })(<Input placeholder="请输入镜像地址（名称:tag）如nginx:1.11" />)}
+          })(<Input placeholder={formatMessage({id:'placeholder.plugin.image'})} />)}
         </Form.Item>
         <Form.Item
           style={{ display: type === 'dockerfile' ? '' : 'none' }}
           {...formItemLayout}
-          label="源码地址"
+          label={formatMessage({id:'teamPlugin.create.lable.code_repo'})}
         >
           {getFieldDecorator('code_repo', {
             initialValue: data.code_repo || '',
             rules: [{ validator: this.checkCode }]
           })(
-            <Input placeholder="请输入源码Git地址（必须包含Dockerfile文件）" />
+            <Input placeholder={formatMessage({id:'placeholder.plugin.code_repo'})} />
           )}
         </Form.Item>
         {visibleKey && (
@@ -228,38 +249,38 @@ export default class Index extends PureComponent {
         <Form.Item
           style={{ display: showUsernameAndPass ? '' : 'none' }}
           {...formItemLayout}
-          label="仓库用户名"
+          label={formatMessage({id:'teamPlugin.create.lable.username'})}
         >
           {getFieldDecorator('username', {
             initialValue: data.username || '',
-            rules: [{ required: false, message: '请输入仓库用户名' }]
-          })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+            rules: [{ required: false, message: formatMessage({id:'placeholder.user_name'}) }]
+          })(<Input autoComplete="off" placeholder={formatMessage({id:'placeholder.user_name'})} />)}
         </Form.Item>
         <Form.Item
           style={{ display: showUsernameAndPass ? '' : 'none' }}
           {...formItemLayout}
-          label="仓库密码"
+          label={formatMessage({id:'teamPlugin.create.lable.password'})}
         >
           {getFieldDecorator('password', {
             initialValue: data.password || '',
-            rules: [{ required: false, message: '请输入仓库密码' }]
+            rules: [{ required: false, message: formatMessage({id:'placeholder.password'}) }]
           })(
             <Input
               autoComplete="new-password"
               type="password"
-              placeholder="请输入仓库密码"
+              placeholder={formatMessage({id:'placeholder.password'})}
             />
           )}
         </Form.Item>
         <Form.Item
           style={{ display: type === 'dockerfile' ? '' : 'none' }}
           {...formItemLayout}
-          label="代码版本"
+          label={formatMessage({id:'teamPlugin.create.lable.code_version'})}
         >
           {getFieldDecorator('code_version', {
             initialValue: data.code_version || 'master',
             rules: [{ validator: this.checkCodeVersion }]
-          })(<Input disabled={allDisabled} placeholder="请输入代码版本" />)}
+          })(<Input disabled={allDisabled} placeholder={formatMessage({id:'placeholder.code_version'})} />)}
         </Form.Item>
         <MemoryForm
           {...formItemLayout}
@@ -268,21 +289,21 @@ export default class Index extends PureComponent {
           FormItem={Form.Item}
           initialValue={data.min_memory}
           disabled={allDisabled}
-          labelName="最小内存"
-          message="请选择最小内存"
+          labelName={formatMessage({id:'placeholder.plugin.labelName'})}
+          message={formatMessage({id:'placeholder.plugin.message'})}
           getFieldDecorator={getFieldDecorator}
         />
-        <Form.Item {...formItemLayout} label="CPU">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'teamPlugin.create.lable.min_cpu'})}>
           {getFieldDecorator('min_cpu', {
             initialValue: data.min_cpu || 0,
             rules: [
               {
                 required: true,
-                message: '请输入CPU'
+                message: formatMessage({id:'placeholder.plugin.min_cpu'})
               },
               {
                 pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                message: '只允许输入整数'
+                message: formatMessage({id:'placeholder.plugin.min_cpuMsg'})
               }
             ]
           })(
@@ -290,50 +311,50 @@ export default class Index extends PureComponent {
               type="number"
               min={0}
               addonAfter="m"
-              placeholder="请输入CPU"
+              placeholder={formatMessage({id:'placeholder.plugin.min_cpu'})}
             />
           )}
           <div style={{ color: '#999999', fontSize: '12px' }}>
-            CPU分配额0为不限制，1000m=1core。
+          {formatMessage({id:'teamPlugin.create.pages.cpu'})}
           </div>
         </Form.Item>
         <Form.Item
           style={{ display: type === 'image' ? 'none' : '' }}
           {...formItemLayout}
-          label="启动命令"
+          label={formatMessage({id:'teamPlugin.create.lable.build_cmd'})}
         >
           {getFieldDecorator('build_cmd', {
             initialValue: data.build_cmd || '',
-            rules: [{ required: false, message: '请输入插件的启动命令' }]
+            rules: [{ required: false, message: formatMessage({id:'placeholder.plugin.build_cmd'}) }]
           })(
-            <Input disabled={allDisabled} placeholder="请输入插件的启动命令" />
+            <Input disabled={allDisabled} placeholder={formatMessage({id:'placeholder.plugin.build_cmd'})}/>
           )}
         </Form.Item>
         <Form.Item
           style={{ display: isEdit ? '' : 'none' }}
           {...formItemLayout}
-          label="更新说明"
+          label={formatMessage({id:'teamPlugin.create.lable.update_info'})}
         >
           {getFieldDecorator('update_info', {
             initialValue: data.update_info || data.desc || '',
-            rules: [{ required: false, message: '请输入更新说明' }]
-          })(<Input disabled={allDisabled} placeholder="请输入更新说明" />)}
+            rules: [{ required: false, message: formatMessage({id:'placeholder.plugin.update_info'}) }]
+          })(<Input disabled={allDisabled} placeholder={formatMessage({id:'placeholder.plugin.update_info'})} />)}
         </Form.Item>
         <Form.Item
           style={{ display: !isEdit ? '' : 'none' }}
           {...formItemLayout}
-          label="一句话说明"
+          label={formatMessage({id:'teamPlugin.create.lable.desc'})}
         >
           {getFieldDecorator('desc', {
             initialValue: data.desc || '',
             rules: [
-              { required: true, message: '请输入一句话说明' },
+              { required: true, message: formatMessage({id:'placeholder.plugin.desc'}) },
               {
                 max: 255,
-                message: '最大长度255位'
+                message: formatMessage({id:'placeholder.max255'})
               }
             ]
-          })(<Input disabled={allDisabled} placeholder="请输入一句话说明" />)}
+          })(<Input disabled={allDisabled} placeholder={formatMessage({id:'placeholder.plugin.desc'})} />)}
         </Form.Item>
         {!allDisabled ? (
           <Row>

@@ -1,6 +1,6 @@
 /* eslint-disable prefer-destructuring */
 import { notification } from 'antd';
-
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 export default function handleAPIError(err) {
   let data = null;
   let messages = null;

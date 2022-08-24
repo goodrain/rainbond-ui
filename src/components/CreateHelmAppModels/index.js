@@ -3,6 +3,7 @@ import { Button, Checkbox, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import CreateTeam from '../../components/CreateTeam';
 import cookie from '../../utils/cookie';
@@ -441,7 +442,7 @@ class CreateHelmAppModels extends PureComponent {
                   rules: [
                     {
                       required: true,
-                      message: '请输入应用名称'
+                      message: formatMessage({id:'placeholder.group_name'})
                     },
                     {
                       min: 4,
@@ -498,7 +499,9 @@ class CreateHelmAppModels extends PureComponent {
                     ))}
                   </Select>
                 )}
-                <Button onClick={this.onAddGroup}>新建应用</Button>
+                <Button onClick={this.onAddGroup}>
+                {formatMessage({id:'popover.newApp.title'})}
+                </Button>
                 <div className={styles.conformDesc}>请选择安装的目标应用</div>
               </Form.Item>
             )}

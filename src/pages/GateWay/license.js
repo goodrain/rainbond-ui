@@ -105,7 +105,7 @@ class Control extends Component {
         },
         callback: data => {
           if (data && data.status_code === 200) {
-            notification.success({ message: '添加成功' });
+            notification.success({ message: formatMessage({id:'notification.success.add'}) });
             this.setState({ visibleDrawer: false }, () => {
               this.load();
             });

@@ -226,7 +226,7 @@ export default class TcpTable extends PureComponent {
             return null;
           }
           if (data) {
-            notification.success({ message: data.msg_show || '添加成功' });
+            notification.success({ message: data.msg_show || formatMessage({id:'notification.success.add'}) });
           }
           this.setState({
             TcpDrawerVisible: false
@@ -594,9 +594,9 @@ export default class TcpTable extends PureComponent {
           <ConfirmModal
             onOk={this.handleDelete}
             loading={deleteLoading}
-            title="删除策略"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此策略吗?"
+            title={formatMessage({id: 'confirmModal.delete.strategy.title'})}
+            subDesc={formatMessage({id: 'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id: 'confirmModal.delete.strategy.desc'})}
             onCancel={() => {
               this.handleToDeleteHttp(false);
             }}

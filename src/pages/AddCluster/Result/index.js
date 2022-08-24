@@ -7,6 +7,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import Result from '../../../components/Result';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';

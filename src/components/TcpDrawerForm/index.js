@@ -2,6 +2,7 @@
 import { Button, Drawer, Form, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import PortInput from './portInput';
 
@@ -136,15 +137,15 @@ class DrawerForm extends PureComponent {
   checkport = (_, value, callback) => {
     const availablPort = value.available_port;
     if (!value.ip || (availablPort !== 0 && !availablPort)) {
-      callback(new Error('请输入完整的ip和端口'));
+      callback(new Error(formatMessage({id:'placeholder.ipOrPort'})));
       return;
     }
     const internalTcps = [80, 443, 6060, 8443, 10254, 18080, 18081];
     if (availablPort && internalTcps.includes(availablPort)) {
-      callback(new Error('该端口属于内部端口、请重新输入'));
+      callback(new Error(formatMessage({id:'placeholder.internal_port'})));
     }
     if (availablPort > 65534 || availablPort < 1) {
-      callback(new Error('端口号限制在 1-65534'));
+      callback(new Error(formatMessage({id:'placeholder.limit'})));
     }
     callback();
   };
@@ -206,7 +207,7 @@ class DrawerForm extends PureComponent {
       <div>
         {domain_port && (
           <Drawer
-            title={editInfo ? '编辑tcp/udp访问策略' : '添加tcp/udp访问策略'}
+            title={editInfo ? formatMessage({id:'popover.tcp.title.edit'}) : formatMessage({id:'popover.tcp.title.add'})}
             placement="right"
             width={500}
             closable={false}
@@ -224,7 +225,7 @@ class DrawerForm extends PureComponent {
                   marginBottom: '10px'
                 }}
               >
-                路由规则
+                {formatMessage({id:'popover.access_strategy.lable.routingRule'})}
               </h3>
 
               <FormItem {...formItemLayout} label="IP">
@@ -249,19 +250,19 @@ class DrawerForm extends PureComponent {
                   marginBottom: '10px'
                 }}
               >
-                访问目标
+                {formatMessage({id:'popover.access_strategy.lable.access_target'})}
               </h3>
 
-              <FormItem {...formItemLayout} label="应用名称">
+              <FormItem {...formItemLayout} label={formatMessage({id:'popover.newApp.appName'})}>
                 {getFieldDecorator('group_id', {
-                  rules: [{ required: true, message: '请选择应用' }],
+                  rules: [{ required: true, message: formatMessage({id:'placeholder.app'}) }],
                   initialValue: appKey || appKeys || undefined
                 })(
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
                     labelInValue
                     disabled={appID}
-                    placeholder="请选择要所属应用"
+                    placeholder={formatMessage({id:'placeholder.appName'})}
                     onChange={this.handleServices}
                   >
                     {(this.props.groups || []).map((group, index) => {
@@ -274,14 +275,14 @@ class DrawerForm extends PureComponent {
                   </Select>
                 )}
               </FormItem>
-              <FormItem {...formItemLayout} label="组件">
+              <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.component'})}>
                 {getFieldDecorator('service_id', {
-                  rules: [{ required: true, message: '请选择' }],
+                  rules: [{ required: true, message: formatMessage({id:'placeholder.select'}) }],
                   initialValue: serviceId || serviceIds || undefined
                 })(
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
-                    placeholder="请选择组件"
+                    placeholder={formatMessage({id:'placeholder.selectComponent'})}
                     onChange={this.handlePorts}
                   >
                     {(serviceComponentList || []).map((service, index) => {
@@ -294,14 +295,14 @@ class DrawerForm extends PureComponent {
                   </Select>
                 )}
               </FormItem>
-              <FormItem {...formItemLayout} label="端口号">
+              <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.port'})}>
                 {getFieldDecorator('container_port', {
                   initialValue: containerPort || containerPorts || undefined,
-                  rules: [{ required: true, message: '请选择端口号' }]
+                  rules: [{ required: true, message: formatMessage({id:'placeholder.selectPort'}) }]
                 })(
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
-                    placeholder="请选择端口号"
+                    placeholder={formatMessage({id:'placeholder.selectPort'})}
                   >
                     {(portList || []).map((port, index) => {
                       return (
@@ -313,15 +314,15 @@ class DrawerForm extends PureComponent {
                   </Select>
                 )}
               </FormItem>
-              <FormItem {...formItemLayout} label="负载均衡">
+              <FormItem {...formItemLayout} label={formatMessage({id:'popover.tcp.lable.rule_extensions'})}>
                 {getFieldDecorator('rule_extensions', {
                   initialValue: rule_round || 'round-robin'
                 })(
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
-                    placeholder="请选择负载均衡类型"
+                    placeholder={formatMessage({id:'placeholder.select.rule_extensions_round'})}
                   >
-                    <Option value="round-robin">轮询</Option>
+                    <Option value="round-robin">{formatMessage({id:'popover.tcp.lable.poll'})}</Option>
                   </Select>
                 )}
               </FormItem>
@@ -346,14 +347,14 @@ class DrawerForm extends PureComponent {
                 }}
                 onClick={onClose}
               >
-                取消
+                {formatMessage({id:'popover.cancel'})}
               </Button>
               <Button
                 onClick={this.resolveOk}
                 type="primary"
                 loading={addTcpLoading || editTcpLoading}
               >
-                确认
+                {formatMessage({id:'popover.confirm'})}
               </Button>
             </div>
           </Drawer>

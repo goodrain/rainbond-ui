@@ -5,6 +5,7 @@ import { Button, Card, Col, Form, Row, Steps, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ACKBuyConfig from '../../../components/Cluster/ACKBuyConfig';
 import CustomClusterAdd from '../../../components/Cluster/CustomClusterAdd';
 import KubernetesTableShow from '../../../components/Cluster/KubernetesTableShow';

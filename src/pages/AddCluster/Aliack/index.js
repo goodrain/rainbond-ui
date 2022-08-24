@@ -6,6 +6,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
@@ -212,7 +213,7 @@ handleValidatorsGateway = (_, val, callback) => {
         if(item.externalIP.match(patt) && item.internalIP.match(patt) && item.name.match(patt)){
           callback();
         }else{
-          callback(new Error('禁止输入空格'));
+          callback(new Error(formatMessage({id:'placeholder.no_spaces'})));
         }
         isPass = true;
       } else {
@@ -312,7 +313,7 @@ handleValidatorsGateway = (_, val, callback) => {
                       },
                       {
                         pattern: /^[^\s]*$/,
-                        message: '禁止输入空格'
+                        message: formatMessage({id:'placeholder.no_spaces'})
                       }
                     ]
                   })(<Input placeholder="请填写IP地址  例：1.2.3.4" />)}
@@ -362,7 +363,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(
@@ -381,7 +382,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                           {
                             pattern: /^[^\s]*$/,
-                            message: '禁止输入空格'
+                            message: formatMessage({id:'placeholder.no_spaces'})
                           }
                       ]
                     })(
@@ -413,7 +414,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写数据库连接地址" />)}
@@ -429,7 +430,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写连接端口  例：3306" />)}
@@ -445,7 +446,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写用户名  例：root" />)}
@@ -461,7 +462,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input type="password" placeholder="请填写密码" />)}
@@ -477,7 +478,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写数据库库名称  例：region" />)}
@@ -508,7 +509,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input placeholder="请填写镜像仓库域名" />)}
@@ -526,7 +527,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                           {
                             pattern: /^[^\s]*$/,
-                            message: '禁止输入空格'
+                            message: formatMessage({id:'placeholder.no_spaces'})
                           }
                       ]
                     })(
@@ -546,7 +547,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                           {
                             pattern: /^[^\s]*$/,
-                            message: '禁止输入空格'
+                            message: formatMessage({id:'placeholder.no_spaces'})
                           }
                       ]
                     })(<Input placeholder="请填写用户名" />)}
@@ -564,7 +565,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         },
                         {
                           pattern: /^[^\s]*$/,
-                          message: '禁止输入空格'
+                          message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
                     })(<Input type="password" placeholder="请填写密码" />)}
