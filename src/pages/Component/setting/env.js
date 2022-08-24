@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { Form, Modal, Input, notification, Select } from 'antd';
 import { connect } from 'dva';
 import globalUtil from '../../../utils/global';
@@ -115,54 +116,54 @@ export default class AddVarModal extends PureComponent {
     const { list } = this.state;
     return (
       <Modal
-        title={data ? '编辑变量' : '添加变量'}
+        title={data ? <FormattedMessage id='componentOverview.body.AddVarModal.edit'/> : <FormattedMessage id='componentOverview.body.AddVarModal.add'/>}
         onOk={this.handleSubmit}
         maskClosable={false}
         onCancel={this.handleCancel}
         visible
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="变量名">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.AddVarModal.name'/>}>
             {getFieldDecorator('attr_name', {
               initialValue: (data && data.attr_name) || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入变量名称',
+                  message: formatMessage({id:'componentOverview.body.AddVarModal.input_name'}),
                 },
                 {
                   pattern: /[-._a-zA-Z][-._a-zA-Z0-9]/,
-                  message: ' 必须由字母、数字和 - . _ 组成，不支持数字开头',
+                  message: formatMessage({id:'componentOverview.body.AddVarModal.only'}),
                 },
               ],
             })(
               <Input
                 disabled={!!(data && data.attr_name)}
-                placeholder="请输入变量名称"
+                placeholder={formatMessage({id:'componentOverview.body.AddVarModal.input_name'})}
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="变量值">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.AddVarModal.Variable_value'/>}>
             {getFieldDecorator('attr_value', {
               initialValue: (data && data.attr_value) || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入变量值',
+                  message: formatMessage({id:'componentOverview.body.AddVarModal.input_value'}),
                 },
               ],
-            })(<Input placeholder="请输入变量值" />)}
+            })(<Input  placeholder={formatMessage({id:'componentOverview.body.AddVarModal.input_value'})}/>)}
           </FormItem>
-          <FormItem {...formItemLayout} label="说明">
+          <FormItem {...formItemLayout} label="说明"label={<FormattedMessage id='componentOverview.body.AddVarModal.explain'/>}>
             {getFieldDecorator('name', {
               initialValue: (data && data.name) || '',
               rules: [
                 {
                   required: false,
-                  message: '请输入变量说明',
+                  message: formatMessage({id:'componentOverview.body.AddVarModal.input_explain'}),
                 },
               ],
-            })(<Input placeholder="请输入变量说明" />)}
+            })(<Input  placeholder={formatMessage({id:'componentOverview.body.AddVarModal.input_explain'})}/>)}
           </FormItem>
         </Form>
       </Modal>

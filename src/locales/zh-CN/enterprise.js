@@ -69,6 +69,37 @@
         'applicationMarket.cloudMarket.msgs':'应用权限',
         // 添加应用商店
         'applicationMarket.addMarket.tooltip.title':'添加应用市场',
+        // applicationMarket>AuthCompany
+        'applicationMarket.AuthCompany.title':'欢迎使用该平台，请先完成连接云应用商店授权',
+        'applicationMarket.AuthCompany.Not_available':'应用市场不可用，请检查应用市场地址，或联系应用市场的管理员',
+        'applicationMarket.AuthCompany.authentication':'企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
+        'applicationMarket.AuthCompany.Accessing':'正在访问',
+        'applicationMarket.AuthCompany.store':'云应用商店',
+        'applicationMarket.AuthCompany.grant':'进行用户授权，完成后可获取安装应用的权限。',
+        'applicationMarket.AuthCompany.RainStore':'RainStore商店',
+        'applicationMarket.AuthCompany.Helm':'Helm商店',
+        'applicationMarket.AuthCompany.market':'请先进行应用市场认证',
+        'applicationMarket.AuthCompany.go_authentication':'去认证',
+        'applicationMarket.AuthCompany.url':'请填写需要进行绑定的应用市场的URL',
+        'applicationMarket.AuthCompany.max':'最大长度255位',
+        'applicationMarket.AuthCompany.next':'下一步',
+        'applicationMarket.AuthCompany.success':'认证成功，选择需要绑定的商店',
+        'applicationMarket.AuthCompany.choice':'请选择需要绑定的商店',
+        'applicationMarket.AuthCompany.binding':'绑定',
+        // // applicationMarket>TagList
+        // 'applicationMarket.TagList.':'',
+        // 'applicationMarket.TagList.':'',
+        // // applicationMarket>CreateAppModels
+        // 'applicationMarket.CreateAppModels.':'',
+        // // applicationMarket>CreateHelmAppModels
+        // 'applicationMarket.CreateHelmAppModels.':'',
+        // // applicationMarket>CreateAppMarket
+        // 'applicationMarket.CreateAppMarket.':'',
+        // // applicationMarket>HelmAppMarket
+        // 'applicationMarket.HelmAppMarket.':''
+        // // applicationMarket>DeleteApp
+        // 'applicationMarket.DeleteApp':'',
+
     }
     // 团队项目
     const enterpriseTeamManagement = {

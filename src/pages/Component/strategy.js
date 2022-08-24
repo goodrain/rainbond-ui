@@ -2,6 +2,7 @@
 import { Card, Form, Input, Select, Button, AutoComplete, notification, Popover } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { addRunStrategy, getRunStrategy } from '../../services/app';
 import globalUtil from '../../utils/global'
@@ -81,7 +82,7 @@ class Index extends PureComponent {
     const { getFieldValue } = this.props.form;
     const float = /\D/g;
     if (value.match(float)) {
-      callback('禁止输入浮点数和负数');
+      callback(<FormattedMessage id='componentOverview.body.Strategy.Floating'/>);
     }
     callback();
   };
@@ -102,25 +103,25 @@ class Index extends PureComponent {
       }
     };
     const arrOption = [
-      { name: '0 * * * * (每小时执行)', value: '0 * * * *' },
-      { name: '0 0 * * * (每天执行)', value: '0 0 * * *' },
-      { name: '0 0 * * 0 (每周执行)', value: '0 0 * * 0' },
-      { name: '0 0 1 * * (每月执行)', value: '0 0 1 * *' },
-      { name: '0 0 1 1 * (每年执行)', value: '0 0 1 1 *' }
+      { name: formatMessage({id:'componentOverview.body.Strategy.hour'}), value: '0 * * * *' },
+      { name: formatMessage({id:'componentOverview.body.Strategy.day'}), value: '0 0 * * *' },
+      { name: formatMessage({id:'componentOverview.body.Strategy.week'}), value: '0 0 * * 0' },
+      { name: formatMessage({id:'componentOverview.body.Strategy.month'}), value: '0 0 1 * *' },
+      { name: formatMessage({id:'componentOverview.body.Strategy.year'}), value: '0 0 1 1 *' }
     ]
     return (
       <div style={{ marginBottom: '24px' }}>
-        <Card title="任务运行策略">
+        <Card  title={<FormattedMessage id='componentOverview.body.Strategy.run'/>}>
           <Form {...formItemLayout} onSubmit={this.handleSubmit}>
             {extend_method === 'cronjob' &&
             <div style={{position:'relative'}}>
-              <Form.Item label="运行规则">
+              <Form.Item  label={<FormattedMessage id='componentOverview.body.Strategy.rule'/>}>
                 {getFieldDecorator('schedule', {
                   initialValue: data.schedule || '',
                   rules: [
                     {
                       required: true,
-                      message: '不能为空'
+                      message: formatMessage({id:'componentOverview.body.Strategy.not_null'}),
                     }
                   ]
                 })(
@@ -144,7 +145,7 @@ class Index extends PureComponent {
                   height: 'auto',
                   fontSize: '12px',
                   color: '#757575'
-                }}>定时配置必填，如 */1 * * * * 一分钟执行一次</div>}
+                }}><FormattedMessage id='componentOverview.body.Strategy.timing'/></div>}
                 placement="right"
                 trigger="hover">
                 <QuestionCircleOutlined 
@@ -160,21 +161,21 @@ class Index extends PureComponent {
             }
 
             <div style={{position:'relative'}}>
-            <Form.Item label="最大重试次数">
+            <Form.Item label={<FormattedMessage id='componentOverview.body.Strategy.max'/>}>
               {getFieldDecorator('backoff_limit', {
                 initialValue: data.backoff_limit || '',
                 rules: [
                   {
                     required: false,
-                    message: '不能为空'
+                    message: formatMessage({id:'componentOverview.body.Strategy.not_null'}),
                   },
                   { 
-                    max:20, message: '长度应小于20位' 
+                    max:20, message: formatMessage({id:'componentOverview.body.Strategy.length'}),
                   },
                   { validator: this.handleCheckPort }
 
                 ]
-              })(<Input type="number" placeholder="请输入最大重试次数" />)}
+              })(<Input type="number" placeholder={formatMessage({id:'componentOverview.body.Strategy.input_max'})}/>)}
             </Form.Item>
             <Popover
                 content={<div style={{
@@ -182,7 +183,7 @@ class Index extends PureComponent {
                   height: 'auto',
                   fontSize: '12px',
                   color: '#757575'
-                }}>如果任务失败，默认失败认定重启次数为6，可以通过配置调整失败重启次数</div>}
+                }}><FormattedMessage id='componentOverview.body.Strategy.fail'/></div>}
                 placement="right"
                 trigger="hover">
                 <QuestionCircleOutlined 
@@ -197,20 +198,20 @@ class Index extends PureComponent {
             </div>
 
             <div style={{position:'relative'}}>
-            <Form.Item label="并行任务数">
+            <Form.Item  label={<FormattedMessage id='componentOverview.body.Strategy.number'/>}>
               {getFieldDecorator('parallelism', {
                 initialValue: data.parallelism || '',
                 rules: [
                   {
                     required: false,
-                    message: '不能为空'
+                    message: formatMessage({id:'componentOverview.body.Strategy.not_null'}),
                   },
                   { 
-                    max:20, message: '长度应小于20位' 
+                    max:20,  message: formatMessage({id:'componentOverview.body.Strategy.length'}),
                   },
                   { validator: this.handleCheckPort }
                 ]
-              })(<Input type="number" placeholder="请输入并行任务数" />)}
+              })(<Input type="number"  placeholder={formatMessage({id:'componentOverview.body.Strategy.input_number'})}/>)}
             </Form.Item>
             <Popover
                 content={<div style={{
@@ -218,7 +219,7 @@ class Index extends PureComponent {
                   height: 'auto',
                   fontSize: '12px',
                   color: '#757575'
-                }}>能够同时运行的Pod数</div>}
+                }}><FormattedMessage id='componentOverview.body.Strategy.pod_onetime'/></div>}
                 placement="right"
                 trigger="hover">
                 <QuestionCircleOutlined 
@@ -233,20 +234,20 @@ class Index extends PureComponent {
             </div>
 
             <div style={{position:'relative'}}>
-            <Form.Item label="最大运行时间">
+            <Form.Item  label={<FormattedMessage id='componentOverview.body.Strategy.max_time'/>}>
               {getFieldDecorator('active_deadline_seconds', {
                 initialValue: data.active_deadline_seconds || '',
                 rules: [
                   {
                     required: false,
-                    message: '不能为空'
+                    message: formatMessage({id:'componentOverview.body.Strategy.not_null'}),
                   },
                   { 
-                    max:20, message: '长度应小于20位' 
+                    max:20, message: formatMessage({id:'componentOverview.body.Strategy.length'}),
                   },
                   { validator: this.handleCheckPort }
                 ]
-              })(<Input type="number" placeholder="请输入最大运行时间" />)}
+              })(<Input type="number" placeholder={formatMessage({id:'componentOverview.body.Strategy.Run_time'})}/>)}
             </Form.Item>
             <Popover
                 content={<div style={{
@@ -254,7 +255,7 @@ class Index extends PureComponent {
                   height: 'auto',
                   fontSize: '12px',
                   color: '#757575'
-                }}>如果Job运行的时间超过了设定的秒数，那么此Job就自动停止运行所有的Pod</div>}
+                }}><FormattedMessage id='componentOverview.body.Strategy.job'/></div>}
                 placement="right"
                 trigger="hover">
                 <QuestionCircleOutlined 
@@ -269,20 +270,20 @@ class Index extends PureComponent {
             </div>
 
             <div style={{position:'relative'}}>
-            <Form.Item label="完成数">
+            <Form.Item  label={<FormattedMessage id='componentOverview.body.Strategy.completions'/>}>
               {getFieldDecorator('completions', {
                 initialValue: data.completions || '',
                 rules: [
                   {
                     required: false,
-                    message: '不能为空'
+                    message: formatMessage({id:'componentOverview.body.Strategy.not_null'}),
                   },
                   { 
-                    max:20, message: '长度应小于20位' 
+                    max:20,  message: formatMessage({id:'componentOverview.body.Strategy.length'}),
                   },
                   { validator: this.handleCheckPort }
                 ]
-              })(<Input type="number" placeholder="请输入完成数" />)}
+              })(<Input type="number"  placeholder={formatMessage({id:'componentOverview.body.Strategy.input_completions'})}/>)}
             </Form.Item>
             <Popover
                 content={<div style={{
@@ -290,7 +291,7 @@ class Index extends PureComponent {
                   height: 'auto',
                   fontSize: '12px',
                   color: '#757575'
-                }}>完成该Job需要执行成功的Pod数</div>}
+                }}><FormattedMessage id='componentOverview.body.Strategy.pod'/></div>}
                 placement="right"
                 trigger="hover">
                 <QuestionCircleOutlined 
@@ -317,7 +318,7 @@ class Index extends PureComponent {
               }}
             >
               <Button type="primary" htmlType="submit">
-                点击保存
+                <FormattedMessage id='componentOverview.body.Strategy.save'/>
               </Button>
             </Form.Item>
           </Form>

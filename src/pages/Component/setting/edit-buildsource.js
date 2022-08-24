@@ -3,6 +3,7 @@
 import { Alert, Form, Input, Modal, notification, Select, Tabs } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ShowRegionKey from '../../../components/ShowRegionKey';
 import { getCodeBranch } from '../../../services/app';
 import appUtil from '../../../utils/app';
@@ -76,7 +77,7 @@ export default class ChangeBuildSource extends PureComponent {
     if (urlCheck.test(value)) {
       callback();
     } else {
-      callback('非法仓库地址');
+      callback(<FormattedMessage id='componentOverview.body.ChangeBuildSource.Illegal'/>);
     }
   };
   loadBranch() {
@@ -186,7 +187,7 @@ export default class ChangeBuildSource extends PureComponent {
         getPopupContainer={triggerNode => triggerNode.parentNode}
         style={{ width: 100 }}
       >
-        <Option value="branch">分支</Option>
+        <Option value="branch"><FormattedMessage id='componentOverview.body.ChangeBuildSource.git_branch'/></Option>
         <Option value="tag">Tag</Option>
       </Select>
     );
@@ -201,7 +202,7 @@ export default class ChangeBuildSource extends PureComponent {
         visible
       >
         <Alert
-          message="您可以在此修改创建方式"
+          message={<FormattedMessage id='componentOverview.body.ChangeBuildSource.creat'/>}
           type="warning"
           closable
           size="small"
@@ -209,39 +210,39 @@ export default class ChangeBuildSource extends PureComponent {
         // onClose={onClose}
         />
         <Tabs defaultActiveKey={tabKey} onChange={this.handleTabs} >
-          <TabPane tab="源码" key="1" >
+          <TabPane  tab={<FormattedMessage id='componentOverview.body.ChangeBuildSource.Source_code'/>} key="1" >
             {tabValue === 'source_code' && (
               <Form onSubmit={this.handleSubmit}>
                 <Form.Item
                   {...formItemLayout}
-                  label="仓库地址"
+                  label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.address'/>}
                 >
                   {getFieldDecorator('git_url', {
                     initialValue: buildSource.service_source == "source_code" && buildSource.git_url ? buildSource.git_url : '',
                     force: true,
                     rules: [
-                      { required: true, message: '请输入仓库地址' },
-                      { validator: this.checkURL, message: '仓库地址不合法' }
+                      { required: true,  message: formatMessage({id:'componentOverview.body.ChangeBuildSource.input_address'}),},
+                      { validator: this.checkURL,  message: formatMessage({id:'componentOverview.body.ChangeBuildSource.Illegal_address'}),}
                     ]
                   })(
                     <Input
                       addonBefore={prefixSelector}
-                      placeholder="请输入仓库地址"
+                      placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_address'})}
                     />
                   )}
                 </Form.Item>
                 {isFlag &&
                   <Form.Item
                     {...formItemLayout}
-                    label="代码版本"
+                    label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.version'/>}
                   >
                     {getFieldDecorator('code_version', {
                       initialValue: buildSource.service_source == "source_code" && codeVersion ? codeVersion : '',
-                      rules: [{ required: true, message: '请输入代码版本' }]
+                      rules: [{ required: true,  message: formatMessage({id:'componentOverview.body.ChangeBuildSource.input_version'}),}]
                     })(
                       <Input
                         addonBefore={versionSelector}
-                        placeholder="请输入代码版本"
+                        placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_version'})}
                       />
                     )}
                   </Form.Item>
@@ -250,7 +251,7 @@ export default class ChangeBuildSource extends PureComponent {
 
                 <Form.Item
                   {...formItemLayout}
-                  label="用户名"
+                  label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.name'/>}
                 >
                   {getFieldDecorator('user_name', {
                     initialValue:
@@ -259,21 +260,21 @@ export default class ChangeBuildSource extends PureComponent {
                       //   '',
                       (buildSource.service_source == "source_code") &&
                         (buildSource.user_name || buildSource.user) ? (buildSource.user_name || buildSource.user) : '',
-                    rules: [{ required: false, message: '请输入仓库用户名' }]
-                  })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+                    rules: [{ required: false,  message: formatMessage({id:'componentOverview.body.ChangeBuildSource.input_name'}),}]
+                  })(<Input autoComplete="off"  placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_name'})}/>)}
                 </Form.Item>
                 <Form.Item
                   {...formItemLayout}
-                  label="密码"
+                  label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.password'/>}
                 >
                   {getFieldDecorator('password', {
                     initialValue: buildSource.service_source == "source_code" && buildSource.password ? buildSource.password : '',
-                    rules: [{ required: false, message: '请输入仓库密码' }]
+                    rules: [{ required: false,  message: formatMessage({id:'componentOverview.body.ChangeBuildSource.input_password'})}]
                   })(
                     <Input
                       autoComplete="new-password"
                       type="password"
-                      placeholder="请输入仓库密码"
+                      placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_password'})}
                     />
                   )}
                 </Form.Item>
@@ -281,56 +282,56 @@ export default class ChangeBuildSource extends PureComponent {
             )}
 
           </TabPane>
-          <TabPane tab="镜像" key="2">
+          <TabPane  tab={<FormattedMessage id='componentOverview.body.ChangeBuildSource.image'/>} key="2">
             {tabValue === 'docker_run' && (
               <Form onSubmit={this.handleSubmit}>
                 <FormItem
                   {...formItemLayout}
-                  label="镜像名称"
+                  label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.image_name'/>}
                 >
                   {getFieldDecorator('image', {
                     initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source =='docker_run') && buildSource.image ? buildSource.image : '',
                     rules: [
-                      { required: true, message: '镜像名称不能为空' },
+                      { required: true,  message: formatMessage({id:'componentOverview.body.ChangeBuildSource.image_name_null'}),},
                       {
                         max: 190,
-                        message: '最大长度190位'
+                        message: formatMessage({id:'componentOverview.body.ChangeBuildSource.max'}),
                       }
                     ],
-                  })(<Input placeholder="请输入镜像名称" />)}
+                  })(<Input  placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_image_name'})}/>)}
                 </FormItem>
                 <FormItem
                   {...formItemLayout}
-                  label="启动命令"
+                  label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.Start'/>}
                 >
                   {getFieldDecorator('cmd', {
                     initialValue: (buildSource.service_source == "docker_image" ) && buildSource.cmd ? buildSource.cmd : '',
-                  })(<Input placeholder="请输入启动命令" />)}
+                  })(<Input  placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_Start'})}/>)}
                 </FormItem>
 
                 <Form.Item
                   {...formItemLayout}
-                  label="用户名"
+                  label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.name'/>}
                 >
                   {getFieldDecorator('user_name', {
                     initialValue:
                       (buildSource.service_source == "docker_image" ) &&
                       (buildSource.user_name || buildSource.user) ? (buildSource.user_name || buildSource.user) : '',
-                    rules: [{ required: false, message: '请输入仓库用户名' }]
-                  })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+                    rules: [{ required: false,  message: formatMessage({id:'componentOverview.body.ChangeBuildSource.input_name'}),}]
+                  })(<Input autoComplete="off"  placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_name'})}/>)}
                 </Form.Item>
                 <Form.Item
                   {...formItemLayout}
-                  label="密码"
+                  label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.password'/>}
                 >
                   {getFieldDecorator('password', {
                     initialValue: (buildSource.service_source == "docker_image") && buildSource.password ? buildSource.password : '',
-                    rules: [{ required: false, message: '请输入仓库密码' }]
+                    rules: [{ required: false,  essage: formatMessage({id:'componentOverview.body.ChangeBuildSource.input_password'})}]
                   })(
                     <Input
                       autoComplete="new-password"
                       type="password"
-                      placeholder="请输入仓库密码"
+                      placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_password'})}
                     />
                   )}
                 </Form.Item>

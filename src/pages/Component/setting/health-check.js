@@ -32,36 +32,36 @@ export default class ViewHealthCheck extends PureComponent {
         title={title}
         visible
         onCancel={onCancel}
-        footer={[<Button onClick={onCancel}> 关闭 </Button>]}
+        footer={[<Button onClick={onCancel}> <FormattedMessage id='componentOverview.body.ViewHealthCheck.close'/> </Button>]}
       >
         <Form>
-          <FormItem {...formItemLayout} label="监测端口">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.ViewHealthCheck.Monitoring_port'/>}>
             <span>{data.port}</span>
           </FormItem>
-          <FormItem {...formItemLayout} label="探针使用协议">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewHealthCheck.agreement'/>}>
             <span>{data.scheme}</span>
           </FormItem>
-          <FormItem {...formItemLayout} label="不健康处理方式">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewHealthCheck.unhealth'/>}>
             <span>
               {data.mode == 'readiness'
-                ? '下线'
+                ? <FormattedMessage id='componentOverview.body.ViewHealthCheck.OfflineOffline'/>
                 : data.mode == 'liveness'
-                ? '重启'
-                : '未设置'}
+                ? <FormattedMessage id='componentOverview.body.ViewHealthCheck.restart'/>
+                : <FormattedMessage id='componentOverview.body.ViewHealthCheck.setting'/>}
             </span>
           </FormItem>
           {data.scheme === 'http' ? (
             <Fragment>
-              <FormItem {...formItemLayout} label="http请求头">
+              <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewHealthCheck.http'/>}>
                 <span>{appProbeUtil.getHeaders(data)}</span>
               </FormItem>
-              <FormItem {...formItemLayout} label="路径">
+              <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewHealthCheck.path'/>}>
                 <span>{appProbeUtil.getPath(data)}</span>
               </FormItem>
             </Fragment>
           ) : null}
 
-          <FormItem {...formItemLayout} label="初始化等候时间">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.ViewHealthCheck.initialization'/>}>
             <span>
               {appProbeUtil.getInitWaitTime(data)}
               <span
@@ -69,11 +69,11 @@ export default class ViewHealthCheck extends PureComponent {
                   marginLeft: 8
                 }}
               >
-                秒
+                <FormattedMessage id='componentOverview.body.ViewHealthCheck.second'/>
               </span>
             </span>
           </FormItem>
-          <FormItem {...formItemLayout} label="检测监测时间">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.ViewHealthCheck.testing_time'/>}>
             <span>
               {appProbeUtil.getIntervalTime(data)}
               <span
@@ -81,11 +81,11 @@ export default class ViewHealthCheck extends PureComponent {
                   marginLeft: 8
                 }}
               >
-                秒
+                <FormattedMessage id='componentOverview.body.ViewHealthCheck.second'/>
               </span>
             </span>
           </FormItem>
-          <FormItem {...formItemLayout} label="检测超时时间">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewHealthCheck.overtime'/>}>
             <span>
               {appProbeUtil.getTimeoutTime(data)}
               <span
@@ -93,11 +93,11 @@ export default class ViewHealthCheck extends PureComponent {
                   marginLeft: 8
                 }}
               >
-                秒
+                <FormattedMessage id='componentOverview.body.ViewHealthCheck.second'/>
               </span>
             </span>
           </FormItem>
-          <FormItem {...formItemLayout} label="连续成功次数">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ViewHealthCheck.success'/>}>
             <span>{appProbeUtil.getSuccessTimes(data)}</span>
           </FormItem>
         </Form>

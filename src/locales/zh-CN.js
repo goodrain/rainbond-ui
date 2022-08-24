@@ -11,6 +11,7 @@ import enterprise from './zh-CN/enterprise';
 import error from './zh-CN/error';
 import common from './zh-CN/common';
 import global from './zh-CN/global';
+import ApplicationState from'./zh-CN/ApplicationState';
 export default {
   'navBar.lang': '语言',
   'layout.user.link.help': '帮助',
@@ -29,5 +30,6 @@ export default {
   ...enterprise,
   ...error,
   ...common,
-  ...global
+  ...global,
+  ...ApplicationState
 };
