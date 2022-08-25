@@ -1,4 +1,4 @@
-export default {
+const sidecar =  {
   'sidecar.title': 'The view switches',
   'sidecar.collection': 'Collection',
   'sidecar.collection.add': 'Add Favorites view',
@@ -8,3 +8,5 @@ export default {
   'sidecar.currentTeam': 'The current team',
   'sidecar.searchTeam': 'Search Team Name',
 };
+
+export default Object.assign({}, sidecar);

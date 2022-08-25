@@ -10,6 +10,7 @@ import enterprise from "./en-US/enterprise"
 import common from './en-US/common';
 import component from './en-US/component';
 import global from './en-US/global';
+import error from './en-US/error';
 import ApplicationState from "./en-US/ApplicationState"
 
 export default {
@@ -30,5 +31,6 @@ export default {
   ...enterprise,
   ...common,
   ...global,
-  ...ApplicationState
+  ...ApplicationState,
+  ...error,
 };
