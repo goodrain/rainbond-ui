@@ -831,7 +831,7 @@ const componentOverview = {
     'componentOverview.body.setting.Disable':'Disable',
     'componentOverview.body.setting.Enable':'Enable',
     'componentOverview.body.setting.state':'Current state:',
-    'componentOverview.body.setting.method':'Detection method::',
+    'componentOverview.body.setting.method':'Detection method:',
     'componentOverview.body.setting.unhealth':'Unhealthy treatment:',
     'componentOverview.body.setting.OfflineOffline':'Offline',
     'componentOverview.body.setting.restart':'Restart',
