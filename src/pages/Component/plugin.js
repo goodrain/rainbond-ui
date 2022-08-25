@@ -532,7 +532,7 @@ class StorageManage extends PureComponent {
         data: newConfigs
       },
       callback: () => {
-        notification.success({ message: '修改成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.openPlugin()
       }
     });
@@ -792,7 +792,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.getPlugins();
-        notification.success({ message: '启用成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.enable'})});
       }
     });
   };
@@ -808,7 +808,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.getPlugins();
-        notification.success({ message: '停用成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.deactivate'})});
       }
     });
   };
@@ -857,7 +857,7 @@ export default class Index extends PureComponent {
         data
       },
       callback: () => {
-        notification.success({ message: '修改成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.modified'})});
       }
     });
   };
@@ -1117,7 +1117,7 @@ export default class Index extends PureComponent {
         build_version: plugin.build_version
       },
       callback: () => {
-        notification.success({ message: '开通成功,需要更新才能生效' });
+        notification.success({ message:  formatMessage({id:'notification.success.openToUpdate'})});
         this.getPlugins();
         this.props.onshowRestartTips(true);
       }
@@ -1142,7 +1142,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         delete this.state.openedPlugin[plugin.plugin_id];
-        notification.success({ message: '卸载成功，需要更新才能生效' });
+        notification.success({ message: formatMessage({id:'notification.success.uninstallToUpdate'}) });
         this.cancelDeletePlugin();
         this.getPlugins();
         this.props.onshowRestartTips(true);
@@ -1165,7 +1165,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.getPlugins();
         this.cancelUpdateMemory();
-        notification.success({ message: '操作成功' });
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'})});
       }
     });
   };
@@ -1210,8 +1210,8 @@ export default class Index extends PureComponent {
           <ConfirmModal
             onOk={this.hanldeUnInstallPlugin}
             onCancel={this.cancelDeletePlugin}
-            title="卸载插件"
-            desc="确定要卸载此插件吗？"
+            title={<FormattedMessage id='confirmModal.deldete.plugin.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.plugin.desc'/>}
           />
         )}
 

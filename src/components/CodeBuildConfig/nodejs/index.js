@@ -1,4 +1,5 @@
 import { Form, Input, Radio, Switch } from 'antd';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 
@@ -58,20 +59,20 @@ class Index extends PureComponent {
       <div>
         <Form.Item
           {...formItemLayout}
-          label="禁用缓存"
-          help="开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库"
+          label={<FormattedMessage id="componentOverview.body.GoConfig.Disable"/>}
+          help={<FormattedMessage id="componentOverview.body.GoConfig.remove"/>}
         >
           {getFieldDecorator('BUILD_NO_CACHE', {
             initialValue: !!(envs && envs.BUILD_NO_CACHE)
           })(<Switch defaultChecked={!!(envs && envs.BUILD_NO_CACHE)} />)}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="Node版本">
+        <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.NodeJSConfig.node"/>}>
           {getFieldDecorator('BUILD_RUNTIMES', {
             initialValue: (envs && envs.BUILD_RUNTIMES) || '8.12.0'
           })(
             <RadioGroup onChange={this.onRadioNodeTypeChange}>
               <Radio value="8.12.0" selected="selected">
-                8.12.0(默认)
+                8.12.0<FormattedMessage id='componentOverview.body.GoConfig.default'/>
               </Radio>
               <Radio value="4.9.1">4.9.1</Radio>
               <Radio value="5.12.0">5.12.0</Radio>
@@ -95,7 +96,7 @@ class Index extends PureComponent {
         <Form.Item
           {...formItemLayout}
           label="NPM MIRROR_URL"
-          help="使用 NPM 进行项目依赖管理时生效"
+          help={<FormattedMessage id="componentOverview.body.NodeJSConfig.npm"/>}
         >
           {getFieldDecorator('BUILD_NPM_REGISTRY', {
             initialValue:
@@ -105,7 +106,7 @@ class Index extends PureComponent {
         </Form.Item>
 
         <Form.Item
-          help="使用 YARN 进行项目依赖管理时生效"
+          label={<FormattedMessage id="componentOverview.body.NodeJSConfig.yarn"/>}
           {...formItemLayout}
           label="YARN MIRROR_URL"
         >
@@ -119,8 +120,8 @@ class Index extends PureComponent {
         {languageType === 'nodejsstatic' && (
           <Form.Item
             {...formItemLayout}
-            label="构建命令"
-            help="不指定时根据编译工具类型填充为npm run build 或者 yarn run build"
+            label={<FormattedMessage id="componentOverview.body.NodeJSConfig.build"/>}
+            help={<FormattedMessage id="componentOverview.body.NodeJSConfig.fill"/>}
           >
             {getFieldDecorator('BUILD_NODE_BUILD_CMD', {
               initialValue: envs && envs.BUILD_NODE_BUILD_CMD
@@ -131,8 +132,8 @@ class Index extends PureComponent {
         {languageType !== 'nodejsstatic' && (
           <Form.Item
             {...formItemLayout}
-            label="启动命令"
-            help="此处启动命令优先级高于package.json中的scripts.start"
+            label={<FormattedMessage id="componentOverview.body.NodeJSConfig.start"/>}
+            help={<FormattedMessage id="componentOverview.body.NodeJSConfig.priority"/>}
           >
             {getFieldDecorator('BUILD_PROCFILE', {
               initialValue: (envs && envs.BUILD_PROCFILE) || 'node index.js'

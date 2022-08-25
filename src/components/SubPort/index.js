@@ -21,7 +21,7 @@ export default class AddDomain extends PureComponent {
       (err, values) => {
         if (!err) {
           if (values.port == '请选择端口') {
-            notification.info({ message: '您还没有选择端口，请先选择端口！' });
+            notification.info({ message: formatMessage({id:'notification.hint.selectPort'}) });
             return;
           }
           this.props.onOk && this.props.onOk(values);

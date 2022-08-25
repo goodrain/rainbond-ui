@@ -68,8 +68,8 @@ class Parameterinput extends Component {
         this.setValues(values);
     }
     render() {
-        const keyPlaceholder = this.props.keyPlaceholder || formatMessage({id:'placeholder.contiguration.msg.key'});
-        const valuePlaceholder = this.props.valuePlaceholder || formatMessage({id:'placeholder.contiguration.msg.value'});
+        const keyPlaceholder = this.props.keyPlaceholder || `${formatMessage({id:'componentOverview.body.Dockerinput.key'})}`;
+        const valuePlaceholder = this.props.valuePlaceholder || `${formatMessage({id:'componentOverview.body.Dockerinput.value'})}`;
         const values = this.state.values;
         const {editInfo}=this.props
         return (

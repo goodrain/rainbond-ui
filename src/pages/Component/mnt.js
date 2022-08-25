@@ -193,14 +193,14 @@ export default class Index extends PureComponent {
       notification.warning({
         message: (
           <div>
-            有状态组件存储配置发生变化后
+            <FormattedMessage id='notification.warn.state'/>
             <br />
-            需要重启组件才能生效!
+            <FormattedMessage id='notification.warn.restart'/>
           </div>
         )
       });
     } else {
-      notification.success({ message: '操作成功' });
+      notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
     }
   };
   showAddRelation = () => {
@@ -219,7 +219,7 @@ export default class Index extends PureComponent {
     }).then(data => {
       if (data) {
         this.handleCancelAddRelation();
-        notification.success({ message: '操作成功' });
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -236,7 +236,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.onCancelDeleteVolume();
         this.fetchVolumes();
-        notification.success({ message: '操作成功' });
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -252,7 +252,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
-        notification.success({ message: '操作成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -533,16 +533,16 @@ export default class Index extends PureComponent {
         )}
         {this.state.toDeleteMnt && (
           <ConfirmModal
-            title="取消挂载"
-            desc="确定要取消此挂载目录吗?"
+            title={<FormattedMessage id='confirmModal.deldete.Unmount.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.Unmount.desc'/>}
             onCancel={this.cancelDeleteMnt}
             onOk={this.handleDeleteMnt}
           />
         )}
         {this.state.toDeleteVolume && (
           <ConfirmModal
-            title="删除存储目录"
-            desc="确定要删除此存储目录吗?"
+            title={<FormattedMessage id='confirmModal.deldete.storage.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.storage.desc'/>}
             onCancel={this.onCancelDeleteVolume}
             onOk={this.handleDeleteVolume}
           />

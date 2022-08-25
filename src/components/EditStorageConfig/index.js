@@ -40,7 +40,7 @@ export default class AddVolumes extends PureComponent {
         this.setState({ loading: true });
         const ismount = pluginUtil.isMountPath(values.volume_path);
         if (ismount) {
-          return notification.warning({ message: '挂载路径不可使用' });
+          return notification.warning({ message:  formatMessage({id:'notification.warn.mountPath'})});
         }
         onSubmit(values, data);
       }
@@ -137,7 +137,7 @@ export default class AddVolumes extends PureComponent {
       fileArr[length - 1] == 'yml' ||
       fileArr[length - 1] == 'xml';
     if (!isRightType) {
-      message.error('请上传以.txt, .json, .yaml, .yaml, .xml结尾的文件', 5);
+      message.error( `${formatMessage({id:'notification.error.upload'})}`, 5);
       return false;
     }
     return true;
@@ -256,7 +256,7 @@ export default class AddVolumes extends PureComponent {
             )}
           </FormItem> */}
           {!this.props.editor && (
-            <FormItem {...formItemLayout} label="类型" label={<FormattedMessage id='componentOverview.body.StorageConfig.type'/>}>
+            <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.StorageConfig.type'/>}>
               {getFieldDecorator('volume_type', {
                 initialValue: data.attr_type || 'storage',
                 rules: [

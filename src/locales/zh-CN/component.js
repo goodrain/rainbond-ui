@@ -28,6 +28,41 @@ const componentOverview = {
     'componentOverview.body.tab.bar.setting':'其他设置',
     'componentOverview.body.tab.bar.connectionInformation':'连接信息',
     'componentOverview.body.tab.bar.members':'更多设置',
+    // MoveGroup
+    'componentOverview.MoveGroup.edit':'修改组件所属应用',
+    'componentOverview.MoveGroup.not_empty':'不能为空!',
+    // EditName
+    'componentOverview.EditName.title':'修改组件名称',
+    'componentOverview.EditName.input_en_name':'请输入组件英文名称',
+    'componentOverview.EditName.Cannot':'不能大于32个字符',
+    'componentOverview.EditName.only':'只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾',
+    'componentOverview.EditName.edit':'修改组件名称',
+    'componentOverview.EditName.name':'组件名称',
+    'componentOverview.EditName.not_null':'组件名称不能为空。',
+    'componentOverview.EditName.max':'最大长度24位',
+    'componentOverview.EditName.input_new_name':'请输入新的组件名称',
+    'componentOverview.EditName.input_new_app_name':'请输入新的应用名称',
+    'componentOverview.EditName.en_name':'组件英文名称',
+    'componentOverview.EditName.close':'关闭当前组件方可修改组件英文名称',
+    'componentOverview.EditName.placeholder':'组件的英文名称',
+    // isShowThirdParty
+    'componentOverview.isShowThirdParty.New_version':'有新版本',
+    'componentOverview.isShowThirdParty.updata':'有更新版本',
+    // promptModal
+    'componentOverview.promptModal.tips':'友情提示',
+    'componentOverview.promptModal.determine':'确定',
+    'componentOverview.promptModal.Current':'当前组件？',
+    'componentOverview.promptModal.Upgrade':'从应用商店升级构建',
+    'componentOverview.promptModal.cancel':'取消',
+    'componentOverview.promptModal.build':'构建',
+    'componentOverview.promptModal.Force_build':'强制构建',
+    'componentOverview.promptModal.app':'从应用商店应用',
+    'componentOverview.promptModal.app_build':'构建而来,当前云市应用版本有更新!',
+    'componentOverview.promptModal.version':'版本:',
+    'componentOverview.promptModal.updata':'可更新',
+    'componentOverview.promptModal.choice':'选择版本',
+    'componentOverview.promptModal.cloud':'云市应用暂未有新版本更新，您无需构建。',
+    'componentOverview.promptModal.error':'参数错误',
 
 
 // tabs栏>overview
@@ -70,15 +105,62 @@ const componentOverview = {
     'componentOverview.body.tab.overview.buildHistory.fileName':'文件名称',
     'componentOverview.body.tab.overview.buildHistory.runTime':'运行时间',
     'componentOverview.body.tab.overview.buildHistory.buildLog':'构建日志',
+    'componentOverview.body.tab.overview.buildHistory.under':'构建中',
+    'componentOverview.body.tab.overview.buildHistory.success':'构建成功',
+    'componentOverview.body.tab.overview.buildHistory.fail':'构建失败',
+    'componentOverview.body.tab.overview.buildHistory.unknown':'未知',
+    'componentOverview.body.tab.overview.buildHistory.popUpgrade':'确定要升级到此版本吗?',
+    'componentOverview.body.tab.overview.buildHistory.poprollback':'确定要回滚到此版本吗?',
+    'componentOverview.body.tab.overview.buildHistory.popDelete':'确定要删除此版本吗?',
     // tabs栏>overview>运行实例
     'componentOverview.body.tab.overview.instance.title':'运行实例',
     'componentOverview.body.tab.overview.instance.tooltip':'点击查看详情',
+    'componentOverview.body.tab.overview.instance.operation':'运行中',
+    'componentOverview.body.tab.overview.instance.waiting':'等待中',
+    'componentOverview.body.tab.overview.instance.completed':'已完成',
+    'componentOverview.body.tab.overview.instance.terminated':'已终止',
+    'componentOverview.body.tab.overview.instance.node':'所在节点:',
+    'componentOverview.body.tab.overview.instance.time':'创建时间:',
+    'componentOverview.body.tab.overview.instance.ip':'实例IP地址:',
+    'componentOverview.body.tab.overview.instance.state':'实例状态:',
+    'componentOverview.body.tab.overview.instance.namespace':'命名空间:',
+    'componentOverview.body.tab.overview.instance.reason':'原因:',
+    'componentOverview.body.tab.overview.instance.explain':'说明:',
+    'componentOverview.body.tab.overview.instance.Explain':'说明',
+    'componentOverview.body.tab.overview.instance.proposal':'建议:',
+    'componentOverview.body.tab.overview.instance.edition':'版本:',
+    'componentOverview.body.tab.overview.instance.container':'实例中的容器',
+    'componentOverview.body.tab.overview.instance.image':'镜像名',
+    'componentOverview.body.tab.overview.instance.memory':'内存',
+    'componentOverview.body.tab.overview.instance.creation':'创建时间',
+    'componentOverview.body.tab.overview.instance.Staue':'状态',
+    'componentOverview.body.tab.overview.instance.event':'事件',
+    'componentOverview.body.tab.overview.instance.type':'类型',
+    'componentOverview.body.tab.overview.instance.Reason':'原因',
+    'componentOverview.body.tab.overview.instance.Time':'时间',
+    'componentOverview.body.tab.overview.instance.Updating':'正在更新中',
+    'componentOverview.body.tab.overview.instance.noRun':'暂无运行实例',
+    'componentOverview.body.tab.overview.instance.Unlimited':'不限制',
+
+
+
     // tabs栏>overview>操作记录
     'componentOverview.body.tab.overview.handle.operationRecord':'操作记录',
     'componentOverview.body.tab.overview.handle.log':'日志',
     'componentOverview.body.tab.overview.handle.lookLog':'查看日志',
     'componentOverview.body.tab.overview.handle.handler':'暂无操作记录',
     'componentOverview.body.tab.overview.handle.system':'@系统',
+    // LogItem
+    'componentOverview.body.tab.LogItem.hand':'进行中',
+    'componentOverview.body.tab.LogItem.complete':'完成',
+    'componentOverview.body.tab.LogItem.timeout':'超时',
+    'componentOverview.body.tab.LogItem.fail':'失败',
+    'componentOverview.body.tab.LogItem.details':'查看详情',
+    'componentOverview.body.tab.LogItem.put':'收起',
+    'componentOverview.body.tab.LogItem.information':'代码信息：',
+    'componentOverview.body.tab.LogItem.info':'Info日志',
+    'componentOverview.body.tab.LogItem.debug':'Debug日志',
+    'componentOverview.body.tab.LogItem.error':'Error日志',
 
 // tabs栏>Monitor
     'componentOverview.body.tab.monitor.now':'实时',
@@ -160,6 +242,12 @@ const componentOverview = {
     'componentOverview.body.tab.monitor.CustomMonitoring.queryCriteria':'请填写查询条件',
     'componentOverview.body.tab.monitor.CustomMonitoring.maxLength':'最大长度255位',
     'componentOverview.body.tab.monitor.CustomMonitoring.query':'查询',
+    // tabs栏>Monitor>BatchDeleteChart
+    'componentOverview.body.tab.BatchDeleteChart.title':'批量删除监控视图',
+    'componentOverview.body.tab.BatchDeleteChart.all':'全选',
+    'componentOverview.body.tab.BatchDeleteChart.view':'请选择监控视图',
+
+
 
 // tabs栏>log
     'componentOverview.body.tab.log.push':'暂停推送',
@@ -233,6 +321,33 @@ const componentOverview = {
    'componentOverview.body.tab.env.table.column.edit':'修改',
    'componentOverview.body.tab.env.table.column.add':'添加变量',
    'componentOverview.body.tab.env.table.column.placeholder':'请输入变量名进行搜索',
+   // tabs栏>Environment configuration>AddStorage
+   'componentOverview.body.tab.AddStorage.limit':'权限的数值限制在0-777之间的8进制数',
+   'componentOverview.body.tab.AddStorage.edit':'编辑配置文件',
+   'componentOverview.body.tab.AddStorage.add':'添加配置文件',
+   'componentOverview.body.tab.AddStorage.name':'配置文件名称',
+   'componentOverview.body.tab.AddStorage.input':'请输入配置文件名称',
+   'componentOverview.body.tab.AddStorage.max':'最大长度30位',
+   'componentOverview.body.tab.AddStorage.path':'配置文件挂载路径',
+   'componentOverview.body.tab.AddStorage.input_path':'请输入配置文件挂载路径',
+   'componentOverview.body.tab.AddStorage.Maximum_length':'最大长度255位',
+   'componentOverview.body.tab.AddStorage.type':'类型',
+   'componentOverview.body.tab.AddStorage.input_type':'请选择存储类型',
+   'componentOverview.body.tab.AddStorage.content':'编辑或上传您的配置文件内容',
+   'componentOverview.body.tab.AddStoragefile':'配置文件',
+   'componentOverview.body.tab.AddStorage.mode':'权限',
+   'componentOverview.body.tab.AddStorage.Document':'配置文件内容',
+   'componentOverview.body.tab.AddStorage.edit_content':'请编辑内容',
+    // tabs栏>Environment configuration>RelationMnt
+    'componentOverview.body.tab.RelationMnt.title':'挂载共享配置文件目录',
+    'componentOverview.body.tab.RelationMnt.localpath':'本地挂载配置文件路径',
+    'componentOverview.body.tab.RelationMnt.dep_vol_name':'配置文件名称',
+    'componentOverview.body.tab.RelationMnt.dep_vol_path':'挂载配置文件路径',
+    'componentOverview.body.tab.RelationMnt.dep_app_name':'所属组件',
+    'componentOverview.body.tab.RelationMnt.dep_app_group':'组件所属应用',
+
+
+
 
 // tabs栏>Relation
    'componentOverview.body.Relation.ViewRelationInfo.title':'依赖信息查看',
@@ -643,6 +758,75 @@ const componentOverview = {
     // tabs栏>Resource>MarketAppDetailShow
     'componentOverview.body.MarketAppDetailShow.determine':'确定',
     'componentOverview.body.MarketAppDetailShow.details':'未编辑应用详情',
+    // tabs栏>Resource>Dockerinput
+    'componentOverview.body.Dockerinput.key':'请输入key值',
+    'componentOverview.body.Dockerinput.value':'请输入value值',
+    // tabs栏>Resource>GoConfig
+    'componentOverview.body.GoConfig.Disable':'禁用缓存',
+    'componentOverview.body.GoConfig.remove':'开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库',
+    'componentOverview.body.GoConfig.only':'仅在GoModules编译模式下生效',
+    'componentOverview.body.GoConfig.url':'输入数据不是合法的URL',
+    'componentOverview.body.GoConfig.edition':'Golang版本',
+    'componentOverview.body.GoConfig.default':'(默认)',
+    'componentOverview.body.GoConfig.blocks':'构建模块',
+    'componentOverview.body.GoConfig.Start':'启动命令',
+    'componentOverview.body.GoConfig.all':'未指定情况下默认构建所有模块',
+    'componentOverview.body.GoConfig.Example':'构建的二进制都将置于bin目录下，启动命令示例: web: bin/xxx-server ',
+    // tabs栏>Resource>JavaJDKConfig
+    'componentOverview.body.JavaJDKConfig.type':'JDK类型',
+    'componentOverview.body.JavaJDKConfig.OpenJDK':'默认提供OpenJDK,若需要其他JDK,请选用自定义JDK',
+    'componentOverview.body.JavaJDKConfig.built_in':'内置OpenJDK',
+    'componentOverview.body.JavaJDKConfig.jdk':'自定义JDK',
+    'componentOverview.body.JavaJDKConfig.edition':'OpenJDK版本',
+    'componentOverview.body.JavaJDKConfig.path':'自定义JDK下载路径',
+    'componentOverview.body.JavaJDKConfig.provide_path':'请提供自定义JDK的下载路径',
+    // tabs栏>Resource>JavaMavenConfig
+    'componentOverview.body.JavaMavenConfig.Maven':'Maven版本',
+    'componentOverview.body.JavaMavenConfig.Web':'Web服务器版本',
+    'componentOverview.body.JavaMavenConfig.War':'仅适用于打包为War包的项目',
+    'componentOverview.body.JavaMavenConfig.configure':'Maven配置',
+    'componentOverview.body.JavaMavenConfig.choice':'请选择Maven配置',
+    'componentOverview.body.JavaMavenConfig.Administration':'管理Maven配置',
+    'componentOverview.body.JavaMavenConfig.parameter':'Maven构建参数',
+    'componentOverview.body.JavaMavenConfig.parameters':'请输入Maven构建参数',
+    'componentOverview.body.JavaMavenConfig.input_parameters':'请输入Maven构建命令',
+    'componentOverview.body.JavaMavenConfig.Build_command':'Maven构建命令',
+    'componentOverview.body.JavaMavenConfig.configuration':'MAVEN构建Java参数配置',
+    'componentOverview.body.JavaMavenConfig.input_configuration':'请输入MAVEN构建Java参数配置',
+    'componentOverview.body.JavaMavenConfig.start':'启动命令',
+    'componentOverview.body.JavaMavenConfig.input':'请输入启动命令',
+    // tabs栏>Resource>NetCoreConfig
+    'componentOverview.body.NetCoreConfig.compile':'编译环境版本',
+    'componentOverview.body.NetCoreConfig.function':'运行环境版本',
+    // tabs栏>Resource>NodeJSConfig
+    'componentOverview.body.NodeJSConfig.node':'Node版本',
+    'componentOverview.body.NodeJSConfig.npm':'使用 NPM 进行项目依赖管理时生效',
+    'componentOverview.body.NodeJSConfig.yarn':'使用 YARN 进行项目依赖管理时生效',
+    'componentOverview.body.NodeJSConfig.build':'构建命令',
+    'componentOverview.body.NodeJSConfig.fill':'不指定时根据编译工具类型填充为npm run build 或者 yarn run build',
+    'componentOverview.body.NodeJSConfig.start':'启动命令',
+    'componentOverview.body.NodeJSConfig.priority':'此处启动命令优先级高于package.json中的scripts.start',
+    // tabs栏>Resource>PHPConfig
+    'componentOverview.body.PHPConfig.web':'Web服务器支持',
+    'componentOverview.body.PHPConfig.php':'PHP版本',
+    'componentOverview.body.PHPConfig.definition':'源码主目录composer.json文件中必须定义php版本',
+    // tabs栏>Resource>PythonConfig
+    'componentOverview.body.PythonConfig.Python':'Python版本',
+    'componentOverview.body.PythonConfig.Pypi':'Pypi源',
+    'componentOverview.body.StaticConfig.web':'Web服务器',
+
+    // tabs栏>Resource>AddAdmin
+    'componentOverview.body.AddAdmin.profile':'配置文件内容',
+    'componentOverview.body.AddAdmin.content':'请编辑内容',
+    'componentOverview.body.AddAdmin.only':'必须由小写的字母、数字和-组成，并且必须以字母数字开始和结束',
+    'componentOverview.body.AddAdmin.max':'最大长度64位',
+    'componentOverview.body.AddAdmin.min':'最小长度2位',
+    'componentOverview.body.AddAdmin.input_name':'请输入配置名称',
+    'componentOverview.body.AddAdmin.name':'配置名称',
+    'componentOverview.body.AddAdmin.title':'Maven配置文件管理',
+    'componentOverview.body.AddAdmin.list':'配置列表',
+
+
 
 // tabs栏>setting
     'componentOverview.body.setting.Enabled':'已启用',
@@ -819,7 +1003,45 @@ const componentOverview = {
     // tabs栏>setting> MarketAppDetailShow
     'componentOverview.body.MarketAppDetailShow.determine':'确定',
     'componentOverview.body.MarketAppDetailShow.app':'未编辑应用详情',
-   
+// tabs栏>ThirdPartyServices
+    'componentOverview.body.ThirdPartyServices.port':'端口未开启',
+    'componentOverview.body.ThirdPartyServices.foreign':'上线前必须开启端口对内或对外属性',
+    'componentOverview.body.ThirdPartyServices.configure':'去配置',
+    'componentOverview.body.ThirdPartyServices.ip':'请输入正确的IP地址',
+    'componentOverview.body.ThirdPartyServices.address':'不支持1.1.1.1地址',
+    'componentOverview.body.ThirdPartyServices.correct_address':'请输入正确的地址',
+    'componentOverview.body.ThirdPartyServices.instance_address':'实例地址',
+    'componentOverview.body.ThirdPartyServices.health_state':'健康状态',
+    'componentOverview.body.ThirdPartyServices.health':'健康',
+    'componentOverview.body.ThirdPartyServices.unhealth':'不健康',
+    'componentOverview.body.ThirdPartyServices.not_ready':'未就绪',
+    'componentOverview.body.ThirdPartyServices.unknown':'未知',
+    'componentOverview.body.ThirdPartyServices.not_online':'未上线',
+    'componentOverview.body.ThirdPartyServices.add':'新增实例',
+    'componentOverview.body.ThirdPartyServices.input_address':'请输入实例地址',
+    'componentOverview.body.ThirdPartyServices.service_instance':'服务实例',
+    'componentOverview.body.ThirdPartyServices.operation':'操作',
+    'componentOverview.body.ThirdPartyServices.type':'注册方式:',
+    'componentOverview.body.ThirdPartyServices.api':'API地址:',
+    'componentOverview.body.ThirdPartyServices.key':'秘钥：',
+    'componentOverview.body.ThirdPartyServices.re_key':'重置密钥',
+
+    'componentOverview.body.ThirdPartyServices.number':'当前实例数:',
+    'componentOverview.body.ThirdPartyServices.dynamic':'动态类型:',
+    'componentOverview.body.ThirdPartyServices.dynamic_key':'动态key:',
+    'componentOverview.body.ThirdPartyServices.msg':'调用参考（将其中的192.168.1.1修改为你的真实IP地址即可）：',
+    'componentOverview.body.ConnectionInformation.title':'组件连接信息',
+
+    'componentOverview.body.Members.health':'健康',
+    'componentOverview.body.Members.partial_health':'部分健康',
+    'componentOverview.body.Members.unhealth':'不健康',
+    'componentOverview.body.Members.unknown':'(未知)',
+    'componentOverview.body.Members.offline':'下线',
+    'componentOverview.body.Members.restart':'重启',
+
+
+
+
 
 }
     

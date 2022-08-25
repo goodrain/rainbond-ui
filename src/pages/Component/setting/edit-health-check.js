@@ -142,7 +142,7 @@ export default class EditHealthCheck extends PureComponent {
           marginLeft: 8
         }}
       >
-        秒
+        <FormattedMessage id='componentOverview.body.ViewRunHealthCheck.second'/>
       </span>
     );
     const numberBox = (disabled = false) => (

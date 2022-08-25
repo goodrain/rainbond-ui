@@ -24,14 +24,15 @@ class ConfirmModal extends PureComponent {
         onCancel={onCancel}
         className={styless.TelescopicModal}
         footer={[
-          <Button onClick={onCancel}> {formatMessage({id:'popover.cancel'})} </Button>,
+          <Button onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,
           <Button
             type="primary"
             loading={loading || deleteLoading}
             disabled={this.props.disabled}
             onClick={onOk}
           >
-            {formatMessage({id:'popover.confirm'})}
+            
+            <FormattedMessage id='button.determine'/>
           </Button>
         ]}
       >

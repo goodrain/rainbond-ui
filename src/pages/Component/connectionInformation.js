@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import { connect } from 'dva';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
 
 @connect()
@@ -9,7 +10,7 @@ export default class Index extends React.Component {
     const { appAlias } = this.props;
     return (
       <EnvironmentVariable
-        title="组件连接信息"
+        title={<FormattedMessage id='componentOverview.body.ConnectionInformation.title'/>}
         type="Outer"
         appAlias={appAlias}
       />

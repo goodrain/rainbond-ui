@@ -39,7 +39,7 @@ export default class AddRelation extends PureComponent {
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
       notification.warning({
-        message: formatMessage({id:'notification.hint.select_depend.msg'})
+        message: formatMessage({id:'notification.warn.relyOn'})
       });
       return;
     }

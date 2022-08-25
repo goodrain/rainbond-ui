@@ -47,7 +47,7 @@ export default class Index extends PureComponent {
     const { onSubmit } = this.props;
     const { selectedRowKeys } = this.state;
     if (!selectedRowKeys.length) {
-      notification.warning({ message: formatMessage({id:'componentCheck.advanced.setup.mount_share_path.msg.selectedRowKeys'}) });
+      notification.warning({ message:  formatMessage({id:'notification.warn.catalogue'})});
       return;
     }
 
@@ -62,18 +62,18 @@ export default class Index extends PureComponent {
     res = res.filter(item => !!item.path);
 
     if (!res.length) {
-      notification.warning({ message: formatMessage({id:'componentCheck.advanced.setup.mount_share_path.msg.local'}) });
+      notification.warning({ message: formatMessage({id:'notification.warn.fillIn'}) });
       return;
     }
     let mag = '';
     const isMountList = res.filter(item => {
       const { path } = item;
       if (path === '') {
-        mag = formatMessage({id:'componentCheck.advanced.setup.mount_share_path.msg.localPath'});
+        mag = `${formatMessage({id:'componentOverview.body.AddRelationMnt.mag'})}`;
       }
       const isMountPath = pluginUtil.isMountPath(path);
       if (isMountPath) {
-        mag = `${path}${formatMessage({id:'componentCheck.advanced.setup.mount_share_path.msg.isMountPath'})}`;
+        mag = `${formatMessage({id:'componentOverview.body.AddRelationMnt.mag'},{path:path})}`;
       }
       return path !== '' && !isMountPath;
     });
@@ -147,7 +147,7 @@ export default class Index extends PureComponent {
 
     return (
       <Modal
-        title={formatMessage({id:'componentCheck.advanced.setup.mount_share_path.title'})}
+        title={<FormattedMessage id="componentOverview.body.AddRelationMnt.title"/>}
         width={1150}
         visible
         onOk={this.handleSubmit}
@@ -155,7 +155,7 @@ export default class Index extends PureComponent {
       >
         <Search
           style={{ width: '350px', marginBottom: '20px' }}
-          placeholder={formatMessage({id:'placeholder.component_search'})}
+          placeholder={formatMessage({id:'componentOverview.body.AddRelationMnt.placeholder'})}
           onSearch={this.handleSearchTeamList}
         />
 
@@ -166,7 +166,7 @@ export default class Index extends PureComponent {
           style={{ width: '100%', overflowX: 'auto' }}
           columns={[
             {
-              title: formatMessage({id:'componentCheck.advanced.setup.mount_share_path.label.localpath'}),
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.localpath'}),
               dataIndex: 'localpath',
               key: '1',
               width: '20%',
@@ -180,7 +180,7 @@ export default class Index extends PureComponent {
               ),
             },
             {
-              title: formatMessage({id:'componentCheck.advanced.setup.mount_share_path.label.dep_vol_name'}),
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_vol_name'}),
               dataIndex: 'dep_vol_name',
               key: '2',
               width: '15%',
@@ -198,7 +198,7 @@ export default class Index extends PureComponent {
               ),
             },
             {
-              title: formatMessage({id:'componentCheck.advanced.setup.mount_share_path.label.dep_vol_path'}),
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_vol_path'}),
               dataIndex: 'dep_vol_path',
               key: '3',
               width: '15%',
@@ -216,7 +216,7 @@ export default class Index extends PureComponent {
               ),
             },
             {
-              title: formatMessage({id:'componentCheck.advanced.setup.mount_share_path.label.dep_vol_type'}),
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_vol_type'}),
               dataIndex: 'dep_vol_type',
               key: '4',
               width: '15%',
@@ -236,7 +236,7 @@ export default class Index extends PureComponent {
               },
             },
             {
-              title: formatMessage({id:'componentCheck.advanced.setup.mount_share_path.label.dep_app_name'}),
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_app_name'}),
               dataIndex: 'dep_app_name',
               key: '5',
               width: '15%',
@@ -262,7 +262,7 @@ export default class Index extends PureComponent {
               },
             },
             {
-              title: formatMessage({id:'componentCheck.advanced.setup.mount_share_path.label.dep_app_group'}),
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_app_group'}),
               dataIndex: 'dep_app_group',
               key: '6',
               width: '15%',

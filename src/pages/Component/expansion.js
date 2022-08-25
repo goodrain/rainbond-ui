@@ -142,7 +142,7 @@ export default class Index extends PureComponent {
       new_cpu: cpu
     }).then(data => {
       if (data && !data.status) {
-        notification.success({ message: '操作成功，执行中' });
+        notification.success({ message: formatMessage({id:'notification.success.operationImplement'}) });
       }
     });
   };
@@ -154,7 +154,7 @@ export default class Index extends PureComponent {
       new_node: node
     }).then(data => {
       if (data && !data.status) {
-        notification.success({ message: '操作成功，执行中' });
+        notification.success({ message: formatMessage({id:'notification.success.operationImplement'}) });
       }
     });
   };
@@ -296,7 +296,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '关闭成功' });
+          notification.success({ message: formatMessage({id:'notification.success.close'}) });
           this.setState(
             {
               showEditAutoScaling: false,
@@ -309,7 +309,7 @@ export default class Index extends PureComponent {
             }
           );
         } else {
-          notification.success({ message: '关闭失败' });
+          notification.success({ message: formatMessage({id:'notification.error.close'}) });
         }
       }
     });
@@ -347,7 +347,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '开启成功' });
+          notification.success({ message: formatMessage({id:'notification.success.open'}) });
           this.setState(
             { showEditAutoScaling: false, addindicators: false },
             () => {
@@ -417,10 +417,10 @@ export default class Index extends PureComponent {
               message: toDeleteMnt
                 ? formatMessage({id:'notification.success.delete'})
                 : !automaticTelescopic
-                ? '开启成功'
+                ? formatMessage({id:'notification.success.open'})
                 : addindicators
                 ? formatMessage({id:'notification.success.add'})
-                : '编辑成功'
+                : formatMessage({id:'notification.success.edit'})
             });
 
             _th.setState(
@@ -435,7 +435,7 @@ export default class Index extends PureComponent {
               }
             );
           } else {
-            notification.success({ message: '失败！' });
+            notification.success({ message: formatMessage({id:'notification.success.Failed'}) });
             _th.setState({ showEditAutoScaling: false, addindicators: false });
           }
         }
@@ -1236,8 +1236,8 @@ export default class Index extends PureComponent {
         </Card>
         {this.state.toDeleteMnt && (
           <ConfirmModal
-            title="删除指标"
-            desc="是否删除该指标?"
+            title={<FormattedMessage id="confirmModal.deldete.index.title"/>}
+            desc={<FormattedMessage id="confirmModal.deldete.index.desc"/>}
             onCancel={this.cancelDeleteMnt}
             onOk={() => {
               this.handleAddIndicators('delete');

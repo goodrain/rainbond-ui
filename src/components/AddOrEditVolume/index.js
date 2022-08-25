@@ -39,7 +39,7 @@ export default class AddVolumes extends PureComponent {
       if (!err && onSubmit) {
         const ismount = pluginUtil.isMountPath(values.volume_path);
         if (ismount) {
-          return notification.warning({ message: '挂载路径不可使用' });
+          return notification.warning({ message: <FormattedMessage id='notification.warn.mountPath'/> });
         }
         onSubmit(values);
       }

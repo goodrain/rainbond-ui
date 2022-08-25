@@ -257,7 +257,7 @@ export default class RangeChart extends PureComponent {
         callback: res => {
           if (res && res.status_code === 200) {
             notification.success({
-              message: '保存成功'
+              message: formatMessage({id:'notification.success.save'})
             });
             upData();
             this.onCancelCustomMonitoring();

@@ -291,6 +291,80 @@
         'confirmModal.check.appShare.title.success':'应用同步成功',
         'confirmModal.check.appShare.title.error':'请查看以下日志确认问题后重试',
         'confirmModal.check.appShare.title.loading':'应用同步中',
+        // 删除组件
+        'confirmModal.assembly.delete.title':'Remove component',
+        'confirmModal.assembly.delete.desc':'Are you sure you want to delete this component?',
+        'confirmModal.assembly.delete.subDesc':'This operation is not recoverable',
+
+        // 删除配置
+        'confirmModal.deldete.configure.title':'Delete configuration',
+        'confirmModal.deldete.configure.desc':'Are you sure you want to delete the configuration?',
+
+        // 删除监控视图
+        'confirmModal.deldete.monitor.title':'Delete monitoring view',
+        'confirmModal.deldete.monitor.desc':'Are you sure you want to delete this view?',
+        'confirmModal.deldete.monitor.subDesc':'This operation is not recoverable',
+
+        // 删除指标
+        'confirmModal.deldete.index.title':'Delete indicator',
+        'confirmModal.deldete.index.desc':'Delete this indicator',
+
+        // 删除配置文件
+        'confirmModal.deldete.configurationFile.title':'Delete profile',
+        'confirmModal.deldete.configurationFile.desc':'Are you sure you want to delete this profile?',
+
+        // 取消挂载共享配置文件
+        'confirmModal.deldete.unmount.title':'Unmount shared profile',
+        'confirmModal.deldete.unmount.desc':'Are you sure you want to cancel this mounting of the shared profile directory?',
+
+        // 转移环境变量
+        'confirmModal.deldete.transfer.title':'Transfer environment variable',
+        'confirmModal.deldete.transfer.desc':'Are you sure you want to convert this environment variable to a component connection information variable?',
+        'confirmModal.deldete.transfer.title_information':'Transfer connection information variable',
+        'confirmModal.deldete.transfer.desc_information':'Are you sure you want to convert this connection information variable to an environment variable?',
+        'confirmModal.deldete.transfer.subDesc':'This operation is not recoverable',
+        'confirmModal.deldete.transfer.determine':'Are you sure you want to transfer this variable?',
+
+
+    
+        // 删除环境变量
+        'confirmModal.deldete.env.title':'Delete variable',
+        'confirmModal.deldete.env.desc':'Are you sure you want to delete this variable?',
+        'confirmModal.deldete.env.subDesc':'This operation is not recoverable',
+
+        // 取消挂载
+        'confirmModal.deldete.Unmount.title':'Unmount',
+        'confirmModal.deldete.Unmount.desc':'Are you sure you want to cancel this mount directory?',
+
+        // 删除目录
+        'confirmModal.deldete.storage.title':'Delete storage directory',
+        'confirmModal.deldete.storage.desc':'Are you sure you want to delete this storage directory?',
+
+        // 端口删除
+        'confirmModal.deldete.port.title':'Port delete',
+        'confirmModal.deldete.port.desc':'Are you sure you want to delete this port?',
+        'confirmModal.deldete.port.subDesc':'This operation is not recoverable?',
+
+        // 域名解绑
+        'confirmModal.deldete.unbound.title':'Domain name unbound',
+        'confirmModal.deldete.unbound.desc':'Are you sure you want to unbind this domain name?',
+
+        // 卸载插件
+        'confirmModal.deldete.plugin.title':'Uninstall plug-ins',
+        'confirmModal.deldete.plugin.desc':'Are you sure you want to uninstall this plug-in?',
+
+        //删除此Maven配置
+        'confirmModal.deldete.Maven.title':'Delete this Maven configuration',
+        'confirmModal.deldete.Maven.desc':'Delete this Maven configuration. This configuration is the default Maven configuration in the cluster. If deleted, all components that use this configuration will be affected in the cluster？',
+        'confirmModal.deldete.Maven.desc_delete':'Are you sure you want to delete this Maven configuration?',
+        'confirmModal.deldete.Maven.subDesc':'This operation is not recoverable',
+
+        // 属性删除
+        'confirmModal.deldete.attribute.title':'Attribute to delete',
+        'confirmModal.deldete.attribute.desc':'Are you sure you want to delete this property?',
+        'confirmModal.deldete.attribute.subDesc':'This operation is not recoverable',
+
+        
     }
     const notification = {
         // 成功
@@ -305,6 +379,46 @@
         'notification.success.updates':'Update success',
         'notification.success.migration':'Migration success',
         'notification.success.change':'Modify success',
+        'notification.success.update':'Update success',
+        'notification.success.open':'Open success',
+        'notification.success.close':'Close success',
+        'notification.success.save':'Save success',
+        'notification.success.deployment':'Operation successful, deployment in progress',
+        'notification.success.upgrade':'Operation succeeded, upgrading in progress',
+        'notification.success.rollback':'Operation succeeded, rollback in progress',
+        'notification.success.takeEffect':'Take effect after restarting the application',
+        'notification.success.succeeded':'Operation succeeded',
+        'notification.success.operationRestart':'Operation successful, restarting',
+        'notification.success.operationStart':'Operation successful, starting',
+        'notification.success.operationClose':'Operation succeeded, closing',
+        'notification.success.operationUpdata':'Operation succeeded, updating',
+        'notification.success.operationImplement':'Operation succeeded, executing',
+        'notification.success.modified':'Modified successfully',
+        'notification.success.setupAssembly':'The setting is successful and takes effect after the component is updated',
+        'notification.success.closeAssembly':'The setting takes effect after the component is updated. The setting takes effect after the component is updated',
+        'notification.success.Failed':'Failed!',
+        'notification.success.transfer':'Transfer succeeded',
+        'notification.success.copy':'Copy succeeded',
+        'notification.success.enable':'Enabled successfully',
+        'notification.success.deactivate':'Deactivated successfully',
+        'notification.success.operationToUpdate':'The operation is successful and needs to be updated to take effect',
+        'notification.success.openToUpdate':'Successfully opened. It needs to be updated to take effect',
+        'notification.success.uninstallToUpdate':'Uninstallation succeeded. Update is required to take effect',
+        'notification.success.secondary':'Secondary domain name added successfully',
+        'notification.success.edit_port':'Port modified successfully',
+        'notification.success.cannotModify':'Port cannot be modified',
+        'notification.success.upload_file':'File uploaded successfully',
+        'notification.success.delete_file':'File deleted successfully',
+        'notification.success.edit_deploy':'The modification is successful. It will take effect when the next deployment is built',
+        'notification.success.to_update':'Update succeeded',
+        'notification.success.assembly_start':'Enabled successfully. Please update the component before it takes effect',
+        'notification.success.assembly_disable':'Disabled successfully. Please update the component before it takes effect',
+        'notification.success.assembly_edit':'Edit succeeded. Please update the component before it takes effect',
+        'notification.success.assembly_add':'Successfully added, restart or update is required to take effect',
+        'notification.success.data_save':'Data saved successfully',
+        'notification.success.attribute_delete':'Property deleted successfully',
+        'notification.success.attribute_edit':'The property is modified successfully and takes effect after restart',
+        'notification.success.attribute_add':'The content is added successfully and takes effect after restart',
 
         // 失败
         'notification.error.delete':'Delete failure',
@@ -314,10 +428,30 @@
         'notification.error.update':'Update failure',
         'notification.error.migration':'Migration failure，Please migrate again.',
         'notification.error.change':'Modify failure',
+        'notification.error.close':'Closing failed',
+        'notification.error.upload':'Please upload files ending in. txt.json.yaml.yaml.xml',
+        'notification.error.notDetected':'Upload file not detected',
+
 
         // 警告
         'notification.warn.team':'Please join the team first!',
         'notification.warn.app':'Create the app first!',
+        'notification.warn.cannot_select':'Cannot select the current application',
+        'notification.warn.error':'Request error',
+        'notification.warn.executing':'Executing operation, please wait',
+        'notification.warn.notYet':'No instance details',
+        'notification.warn.choice.catalogue':'Please select the directory to mount the shared profile',
+        'notification.warn.inspect.fillIn':'Please check whether the local configuration file directory is filled in',
+        'notification.warn.relyOn':'Please select the application to depend on',
+        'notification.warn.state':'After the storage configuration of stateful components changes',
+        'notification.warn.restart':'You need to restart the component to take effect',
+        'notification.warn.mountPath':'The mount path is not available',
+        'notification.warn.catalogue':'Please select the directory to mount',
+        'notification.warn.fillIn':'Please check whether the local storage directory is filled in',
+        'notification.warn.update_language':'Failed to update language',
+        'notification.warn.update_xml':'Please upload a file ending in. XML',
+        'notification.warn.assembly_close':'Please close the component before changing the status',
+        'notification.warn.label':'Please select the label to add',
 
         //提示
         'notification.hint.component.change':'切换成功、更新组件后生效',
@@ -347,6 +481,9 @@
          'notification.hint.resource.msg':'yaml文件内容不能为空',
          'notification.hint.needUpdate.msg':'需要更新才能生效',
          'notification.hint.select_depend.msg':'请选择要依赖的应用',
+        'notification.hint.toUpdata':'Update required to take effect',
+        'notification.hint.selectPort':'You have not selected a port, please select a port first!',
+        'notification.hint.need_updata':'It needs to be updated before it can take effect',
     }
     const placeholder = {
         'placeholder.appName':'Select an application to which you want to apply',

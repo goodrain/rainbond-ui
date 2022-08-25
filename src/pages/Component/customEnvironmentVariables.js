@@ -233,7 +233,7 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '转移成功' });
+          notification.success({ message: formatMessage({id:'notification.success.transfer'}) });
           this.fetchInnerEnvs();
           this.cancelTransfer();
         }
@@ -254,7 +254,7 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '编辑成功' });
+          notification.success({ message:  formatMessage({id:'notification.success.edit'})});
           this.cancelEditVar();
           this.fetchInnerEnvs();
         }
@@ -324,7 +324,7 @@ export default class Index extends React.Component {
           if (res && res.status_code === 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();
-            notification.success({ message: '编辑成功' });
+            notification.success({ message:  formatMessage({id:'notification.success.edit'})});
             this.props.onshowRestartTips(true);
           }
         }
@@ -363,7 +363,7 @@ export default class Index extends React.Component {
       if (data) {
         this.handleCancelAddRelation();
         this.loadMntList();
-        notification.success({ message: '操作成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -379,7 +379,7 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
+          notification.success({ message:  formatMessage({id:'notification.success.delete'})});
           this.onCancelDeleteVolume();
           this.fetchVolumes();
           this.props.onshowRestartTips(true);
@@ -398,7 +398,7 @@ export default class Index extends React.Component {
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
-        notification.success({ message: '操作成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -651,16 +651,16 @@ export default class Index extends React.Component {
         )}
         {this.state.toDeleteMnt && (
           <ConfirmModal
-            title="取消挂载共享配置文件"
-            desc="确定要取消此挂载共享配置文件目录吗?"
+            title={<FormattedMessage id='confirmModal.deldete.unmount.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.unmount.desc'/>}
             onCancel={this.cancelDeleteMnt}
             onOk={this.handleDeleteMnt}
           />
         )}
         {this.state.toDeleteVolume && (
           <ConfirmModal
-            title="删除配置文件"
-            desc="确定要删除此配置文件吗?"
+            title={<FormattedMessage id='confirmModal.deldete.configurationFile.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.configurationFile.desc'/>}
             onCancel={this.onCancelDeleteVolume}
             onOk={this.handleDeleteVolume}
           />
@@ -679,8 +679,8 @@ export default class Index extends React.Component {
           <ConfirmModal
             onOk={this.handleTransfer}
             onCancel={this.cancelTransfer}
-            title="转移环境变量"
-            desc="确定要将此环境变量转换为组件连接信息变量吗?"
+            title={<FormattedMessage id='confirmModal.deldete.transfer.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.transfer.desc'/>}
             subDesc=""
           />
         )}
@@ -697,10 +697,11 @@ export default class Index extends React.Component {
         {this.state.deleteVar && (
           <ConfirmModal
             onOk={this.handleDeleteVar}
-            onCancel={this.cancelDeleteVar}
-            title="删除变量"
-            desc="确定要删除此变量吗？"
-            subDesc="此操作不可恢复"
+            onCancel={this.cancelDeleteVar} 
+            title={<FormattedMessage id='confirmModal.deldete.env.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.env.desc'/>}
+            subDesc={<FormattedMessage id='confirmModal.deldete.env.subDesc'/>}
+
           />
         )}
       </Fragment>
