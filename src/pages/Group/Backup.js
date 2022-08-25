@@ -47,9 +47,9 @@ class BackupStatus extends PureComponent {
     super(props);
     this.state = {
       map: {
-        starting: '备份中',
-        success: '备份成功',
-        failed: '备份失败'
+        starting: formatMessage({id:'status.app.backups.backuping'}),
+        success: formatMessage({id:'status.app.backups.error'}),
+        failed: formatMessage({id:'status.app.backups.success'})
       }
     };
     this.timer = null;
@@ -159,47 +159,49 @@ class Backup extends PureComponent {
       }
     };
     const cloudBackupTip = is_configed
-      ? '备份到云端存储上，可实现跨集群迁移'
-      : '需要企业管理员在企业设置中配置 OSS 云对象存储';
+      ? formatMessage({id:'appBackups.table.pages.is_configed'})
+      : formatMessage({id:'appBackups.table.pages.no_configed'});
     return (
       <Modal
-        title="新增备份"
+        title={formatMessage({id:'appBackups.btn.addBackups'})}
         visible
         className={styles.TelescopicModal}
         onOk={this.onOk}
         onCancel={onCancel}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}> {formatMessage({id:'popover.cancel'})} </Button>,
           <Button type="primary" onClick={this.onOk} loading={loading}>
-            {warningText ? '强制备份' : '确定'}
+            {warningText ? formatMessage({id:'button.forced_backup'}) : formatMessage({id:'popover.confirm'})}
           </Button>
         ]}
       >
         <Form layout="horizontal">
-          <Form.Item {...formItemLayout} label={<span>备份方式</span>}>
+          <Form.Item {...formItemLayout} label={<span>{formatMessage({id:'appBackups.table.pages.label.mode'})}</span>}>
             {getFieldDecorator('mode', {
               initialValue: is_configed
                 ? data.mode || 'full-online'
                 : 'full-offline',
-              rules: [{ required: true, message: '要创建的应用还没有名字' }]
+              rules: [{ required: true, message: formatMessage({id:'placeholder.app_not_name'}) }]
             })(
               <RadioGroup>
                 <Tooltip title={cloudBackupTip}>
                   <RadioButton disabled={!is_configed} value="full-online">
-                    云端备份
+                  {formatMessage({id:'appBackups.table.pages.label.full-online'})}
                   </RadioButton>
                 </Tooltip>
-                <Tooltip title="备份到当前集群本地，不能跨集群迁移">
-                  <RadioButton value="full-offline">本地备份</RadioButton>
+                <Tooltip title={formatMessage({id:'appBackups.table.pages.label.tooltip.title'})}>
+                  <RadioButton value="full-offline">
+                  {formatMessage({id:'appBackups.table.pages.label.full-offline'})}
+                  </RadioButton>
                 </Tooltip>
               </RadioGroup>
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="备份说明">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'appBackups.table.pages.label.note'})}>
             {getFieldDecorator('note', {
               initialValue: data.note || '',
-              rules: [{ required: true, message: '请写入备份说明' }]
-            })(<TextArea placeholder="请写入备份说明" />)}
+              rules: [{ required: true, message: formatMessage({id:'placeholder.backup.note'}) }]
+            })(<TextArea placeholder={formatMessage({id:'placeholder.backup.note'})} />)}
           </Form.Item>
 
           {warningText && (
@@ -210,7 +212,7 @@ class Backup extends PureComponent {
                 style={{ margin: '10px 0' }}
                 header={
                   <h6 style={{ marginBottom: '0', fontSize: '15px' }}>
-                    组件名称
+                    {formatMessage({id:'appDynamic.table.componentName'})}
                   </h6>
                 }
                 // footer={<div>Footer</div>}
@@ -344,8 +346,8 @@ export default class AppList extends PureComponent {
             this.setState({
               warningText:
                 code === 4122
-                  ? '备份有异常 ：组件使用了自定义存储，是否强制备份'
-                  : '备份有异常 ：有状态组件未停止，是否强制备份',
+                  ? formatMessage({id: 'appBackups.table.pages.abnormal.custom'})
+                  : formatMessage({id: 'appBackups.table.pages.abnormal.not_stop'}),
               componentList: res.data.data.list || []
             });
           } else if (res.data.msg_show) {
@@ -393,7 +395,7 @@ export default class AppList extends PureComponent {
   };
   handleImportBackup = () => {
     notification.success({
-      message: '备份已导入',
+      message: formatMessage({id: 'status.app.backups.imported'}),
       duration: 2
     });
     this.setState({ showImport: false });
@@ -444,7 +446,7 @@ export default class AppList extends PureComponent {
     }`;
     window.open(exportURl);
     notification.success({
-      message: '备份导出中',
+      message: formatMessage({id: 'status.app.backups.yolkStroke'}),
       duration: 2
     });
   };
@@ -466,7 +468,7 @@ export default class AppList extends PureComponent {
       callback: data => {
         if (data) {
           notification.success({
-            message: '删除成功',
+            message: formatMessage({id: 'notification.success.delete'}),
             duration: 2
           });
           this.cancelDelete();
@@ -691,9 +693,9 @@ export default class AppList extends PureComponent {
             backupId={this.state.backup_id}
             onOk={this.handleDelete}
             onCancel={this.cancelDelete}
-            title="删除备份"
-            desc="确定要删除此备份吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({id: 'confirmModal.backup.title.delete'})}
+            desc={formatMessage({id: 'confirmModal.backup.delete.desc'})}
+            subDesc={formatMessage({id: 'confirmModal.delete.strategy.subDesc'})}
             deleteLoading={deleteLoading}
           />
         )}

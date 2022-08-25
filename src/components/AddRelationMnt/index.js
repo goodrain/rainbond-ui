@@ -3,7 +3,7 @@
 */
 
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import { Input, Table, Modal, notification, Tooltip } from 'antd';

@@ -362,7 +362,7 @@ export default class HttpTable extends PureComponent {
       },
       callback: data => {
         notification.success({
-          message: (data && data.msg_show) || '删除成功'
+          message: (data && data.msg_show) || formatMessage({id:'notification.success.delete'})
         });
         this.handleToDeleteHttp(false);
         this.handleDeleteLoading(false);

@@ -132,7 +132,7 @@ export default class Management extends PureComponent {
         user_id: exitAdminNameID
       },
       callback: () => {
-        notification.success({ message: '删除成功' });
+        notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.getEnterpriseAdmins();
         this.hideDelAdmin();
       }

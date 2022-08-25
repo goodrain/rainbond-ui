@@ -2,6 +2,7 @@
 /* eslint-disable react/jsx-no-bind */
 import { Col, Icon, Input, Row } from 'antd';
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const { TextArea } = Input;
 
@@ -59,8 +60,8 @@ class Parameterinput extends Component {
 
   render() {
     const {
-      keyPlaceholder = '请输入key值',
-      valuePlaceholder = '请输入value值',
+      keyPlaceholder = formatMessage({id:'placeholder.contiguration.msg.key'}),
+      valuePlaceholder = formatMessage({id:'placeholder.contiguration.msg.value'}),
       isHalf = false,
       disableds = false
     } = this.props;

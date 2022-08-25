@@ -118,7 +118,7 @@ export default class MemberList extends PureComponent {
     }).then( res =>{
       if(res  && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message: '删除成功'
+          message: formatMessage({id:'notification.success.delete'})
         })
         this.getInitializeVal()
       }else{

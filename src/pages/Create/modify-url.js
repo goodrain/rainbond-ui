@@ -1,6 +1,6 @@
 import { Form, Input, Modal } from 'antd';
 import React, { PureComponent } from 'react';
-
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 @Form.create()
 export default class ModifyUrl extends PureComponent {
   constructor(props) {
@@ -31,36 +31,36 @@ export default class ModifyUrl extends PureComponent {
     const showUsernameAndPass = !!this.props.showUsernameAndPass;
     return (
       <Modal
-        title="信息修改"
+        title={formatMessage({id:'componentCheck.modify_image_name.title'})}
         width={600}
         visible
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.modify_image_name.label.service_cname'})}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
                 {
                   required: true,
-                  message: '要创建的应用还没有名字'
+                  message: formatMessage({id:'placeholder.app_not_name'})
                 }
               ]
-            })(<Input disabled placeholder="请为创建的应用起个名字吧" />)}
+            })(<Input disabled placeholder={formatMessage({id:'placeholder.image.service_cname'})} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="仓库地址">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.modify_image_name.label.git_url'})}>
             <Input.Group compact>
               {getFieldDecorator('git_url', {
                 initialValue: data.git_url || '',
                 rules: [
                   {
                     required: true,
-                    message: '请输入仓库地址'
+                    message: formatMessage({id:'placeholder.git_url'})
                   },
                   {
                     pattern: /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi,
-                    message: '仓库地址不正确'
+                    message: formatMessage({id:'placeholder.git_url.error'})
                   }
                 ]
               })(
@@ -68,7 +68,7 @@ export default class ModifyUrl extends PureComponent {
                   style={{
                     width: 'calc(100% - 100px)'
                   }}
-                  placeholder="请输入仓库地址"
+                  placeholder={formatMessage({id:'placeholder.git_url'})}
                 />
               )}
             </Input.Group>
@@ -78,34 +78,34 @@ export default class ModifyUrl extends PureComponent {
               display: showUsernameAndPass ? '' : 'none'
             }}
             {...formItemLayout}
-            label="仓库用户名"
+            label={formatMessage({id:'componentCheck.modify_image_name.label.username'})}
           >
             {getFieldDecorator('user_name', {
               initialValue: data.user_name || '',
               rules: [
                 {
                   required: false,
-                  message: '请输入仓库用户名'
+                  message: formatMessage({id:'placeholder.user_name'})
                 }
               ]
-            })(<Input placeholder="请输入仓库用户名" />)}
+            })(<Input placeholder={formatMessage({id:'placeholder.user_name'})} />)}
           </Form.Item>
           <Form.Item
             style={{
               display: showUsernameAndPass ? '' : 'none'
             }}
             {...formItemLayout}
-            label="仓库密码"
+            label={formatMessage({id:'componentCheck.modify_image_name.label.password'})}
           >
             {getFieldDecorator('password', {
               initialValue: data.password || '',
               rules: [
                 {
                   required: false,
-                  message: '请输入仓库密码'
+                  message: formatMessage({id:'placeholder.password'})
                 }
               ]
-            })(<Input type="password" placeholder="请输入仓库密码" />)}
+            })(<Input type="password" placeholder={formatMessage({id:'placeholder.password'})} />)}
           </Form.Item>
         </Form>
       </Modal>

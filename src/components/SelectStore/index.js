@@ -2,6 +2,7 @@
 /* eslint-disable no-nested-ternary */
 import { Button, Form, Modal, Select, Spin } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { fetchMarketAuthority } from '../../utils/authority';
 import styles from '../CreateTeam/index.less';
 
@@ -75,20 +76,20 @@ class SelectStore extends PureComponent {
     };
     return (
       <Modal
-        title="选择应用商店"
+        title={formatMessage({id:'appPublish.btn.record.makert.select.title'})}
         visible={visible}
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={onCancel}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}> {formatMessage({id:'popover.cancel'})} </Button>,
           stores && (
             <Button
               type="primary"
               onClick={this.handleSubmit}
               loading={submitLoading}
             >
-              确定
+              {formatMessage({id:'popover.confirm'})}
             </Button>
           )
         ]}
@@ -99,19 +100,19 @@ class SelectStore extends PureComponent {
             layout="horizontal"
             hideRequiredMark
           >
-            <FormItem {...formItemLayout} label="发布商店">
+            <FormItem {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.makert.select.store_id'})}>
               {getFieldDecorator('store_id', {
                 initialValue: stores[0].name || '',
                 rules: [
                   {
                     required: true,
-                    message: '请选择发布的商店'
+                    message: formatMessage({id:'placeholder.appShare.select.shop'})
                   }
                 ]
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder="请选择发布的商店"
+                  placeholder={formatMessage({id:'placeholder.appShare.select.shop'})}
                 >
                   {stores.map(item => {
                     const { name, alias } = item;
@@ -123,15 +124,15 @@ class SelectStore extends PureComponent {
                   })}
                 </Select>
               )}
-              <div className={styles.conformDesc}>选择需要发布的商店名称</div>
+              <div className={styles.conformDesc}>{formatMessage({id:'appPublish.btn.record.makert.select.store_id.desc'})}</div>
             </FormItem>
           </Form>
         ) : loading ? (
           <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-            <Spin tip="应用商店列表加载中..." />
+            <Spin tip={formatMessage({id:'appPublish.btn.record.makert.select.loading'})} />
           </div>
         ) : (
-          <p style={{ textAlign: 'center' }}>暂无推送权限的应用商店</p>
+          <p style={{ textAlign: 'center' }}>{formatMessage({id:'appPublish.btn.record.makert.select.desc'})}</p>
         )}
       </Modal>
     );

@@ -87,7 +87,7 @@ export default class BackupManage extends PureComponent {
     } = this.props;
     removeBackup({ enterprise_id: eid, name }).then(re => {
       if (re && re.status_code === 200) {
-        notification.success({ message: '删除成功' });
+        notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.loadBackups();
       }
     });

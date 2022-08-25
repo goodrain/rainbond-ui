@@ -145,7 +145,7 @@ class Control extends Component {
       callback: data => {
         if (data && data.status_code === 200) {
           notification.success({
-            message: (data && data.msg_show) || '删除成功'
+            message: (data && data.msg_show) || formatMessage({id:'notification.success.delete'})
           });
           this.load();
         }

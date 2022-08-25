@@ -2,6 +2,7 @@ import { Alert, Button, notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Component, Fragment } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AccesstokenForm from '../../../components/AccesstokenForm';
 import ConfirmModal from '../../../components/ConfirmModal';
 
@@ -53,7 +54,7 @@ class BindingView extends Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
           this.loadAccessTokenList();
           this.onCanceAccessToken();
         }

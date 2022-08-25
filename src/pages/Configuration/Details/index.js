@@ -158,7 +158,7 @@ export default class ConfigurationDetails extends PureComponent {
               UpDataList = Array.from(new Set([...serviceIds, ...arr]));
             }
 
-            notification.success({ message: '保存成功' });
+            notification.success({ message: formatMessage({id:'notification.success.save'}) });
             this.handleClose();
             if (UpDataList.length > 0) {
               this.showRemind(UpDataList);
@@ -174,10 +174,10 @@ export default class ConfigurationDetails extends PureComponent {
   showRemind = serviceIds => {
     const th = this;
     confirm({
-      title: '需更新组件立即生效',
-      content: '是否立即更新组件',
-      okText: '更新',
-      cancelText: '取消',
+      title: formatMessage({id:'notification.hint.confiuration.update.title'}),
+      content: formatMessage({id:'notification.hint.confiuration.update.content'}),
+      okText: formatMessage({id:'button.update'}),
+      cancelText: formatMessage({id:'button.cancel'}),
       onOk() {
         th.handleBatchOperation(serviceIds);
         return new Promise((resolve, reject) => {
@@ -277,7 +277,7 @@ export default class ConfigurationDetails extends PureComponent {
       if (value[0].item_key === '' && value[0].item_value === '') {
         callback();
       } else if (arr && arr.length > 0) {
-        callback('配置项key值不能为空');
+        callback(formatMessage({id:'placeholder.contiguration.msg.not_null'}));
       } else {
         let judge = false;
         let isMax = false;
@@ -291,11 +291,11 @@ export default class ConfigurationDetails extends PureComponent {
           }
         });
         if (judge) {
-          callback(' 必须由字母、数字和 - . _ 组成，不支持数字开头');
+          callback(formatMessage({id:'placeholder.contiguration.msg.rule'}));
           return;
         }
         if (isMax) {
-          callback('最大长度65535');
+          callback(formatMessage({id:'placeholder.max65535'}));
           return;
         }
         callback();
@@ -373,17 +373,17 @@ export default class ConfigurationDetails extends PureComponent {
         <Card
           loading={loading}
           style={{ minHeight: '600px' }}
-          title={isCreate ? '添加配置组' : '修改配置组'}
+          title={isCreate ? formatMessage({id:'appConfiguration.btn.add'}) : formatMessage({id:'appConfiguration.btn.edit'})}
           extra={[
             <Button onClick={this.onCancel} style={{ marginRight: '20px' }}>
-              取消
+              {formatMessage({id:'button.cancel'})}
             </Button>,
             <Button
               type="primary"
               onClick={this.onOk}
               loading={AddConfigurationLoading || EditConfigurationLoading}
             >
-              {isCreate ? '确定' : '保存'}
+              {isCreate ? formatMessage({id:'button.confirm'}) : formatMessage({id:'button.save'})}
             </Button>
           ]}
         >
@@ -392,36 +392,35 @@ export default class ConfigurationDetails extends PureComponent {
             style={{ margin: '0 auto', width: '820px' }}
           >
             <Row style={{ display: 'flex', alignItems: 'center' }}>
-              <FormItem style={{ width: '370px' }} label="配置组名称">
+              <FormItem style={{ width: '370px' }} label={formatMessage({id:'appConfiguration.table.name'})}>
                 {getFieldDecorator('config_group_name', {
                   initialValue: (info && info.config_group_name) || '',
                   rules: [
-                    { required: true, message: '请填写配置组名称' },
+                    { required: true, message: formatMessage({id:'placeholder.contiguration.msg.config_group_name'}) },
                     {
                       min: 2,
-                      message: '最小长度2位'
+                      message: formatMessage({id:'placeholder.contiguration.msg.min2'})
                     },
                     {
                       max: 64,
-                      message: '最大长度64位'
+                      message: formatMessage({id:'placeholder.appShare.max64'})
                     },
                     {
                       pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/,
-                      message:
-                        '必须由小写的字母、数字和-组成，并且必须以字母数字开始和结束'
+                      message: formatMessage({id:'placeholder.k8s_service_name.msg'})
                     }
                   ]
                 })(
                   <Input
                     style={{ width: '370px' }}
                     disabled={info && info.config_group_name}
-                    placeholder="请填写配置组名称"
+                    placeholder={formatMessage({id:'placeholder.contiguration.msg.config_group_name'})}
                   />
                 )}
               </FormItem>
               <Form.Item
                 style={{ width: '370px', marginLeft: '24px' }}
-                label="生效状态"
+                label={formatMessage({id:'appConfiguration.table.enable'})}
               >
                 {getFieldDecorator('enable', {
                   initialValue: info && info.enable,
@@ -429,11 +428,11 @@ export default class ConfigurationDetails extends PureComponent {
                 })(<Switch defaultChecked={info && info.enable} />)}
               </Form.Item>
             </Row>
-            <FormItem label="配置项">
+            <FormItem label={formatMessage({id:'appConfiguration.table.config_items'})}>
               {getFieldDecorator('config_items', {
                 initialValue: (info && info.config_items) || [],
                 rules: [
-                  { required: false, message: '请填写配置项' },
+                  { required: false, message: formatMessage({id:'placeholder.contiguration.msg.config_items'}) },
                   {
                     validator: this.checkConfiguration
                   }
@@ -443,13 +442,13 @@ export default class ConfigurationDetails extends PureComponent {
               )}
             </FormItem>
             {apps.length > 0 && (
-              <FormItem label="生效组件">
+              <FormItem label={formatMessage({id:'appConfiguration.table.service_ids'})}>
                 <Checkbox checked={allChecked} onChange={this.handleIsAll}>
-                  全选
+                  {formatMessage({id:'appConfiguration.table.btn.all'})}
                 </Checkbox>
                 {getFieldDecorator('service_ids', {
                   initialValue: serviceIds,
-                  rules: [{ required: false, message: '请选择生效组件' }]
+                  rules: [{ required: false, message: formatMessage({id:'placeholder.contiguration.msg.service_ids'}) }]
                 })(
                   <Checkbox.Group
                     className={styles.setCheckbox}
