@@ -287,7 +287,6 @@
         'confirmModal.check.appShare.title.loading':'应用同步中',
         'confirmModal.check.appShare.title.success':'应用同步成功',
         'confirmModal.check.appShare.title.error':'请查看以下日志确认问题后重试',
-        'confirmModal.check.appShare.title.loading':'应用同步中',
         
         // 删除组件
         'confirmModal.assembly.delete.title':'删除组件',

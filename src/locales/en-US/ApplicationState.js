@@ -18,3 +18,5 @@ const ApplicationState =    {
     'ApplicationState.pending-upgrade':'Upgrading',
     'ApplicationState.pending-rollback':'Rolling back',
 }
+
+export default Object.assign({}, ApplicationState);
