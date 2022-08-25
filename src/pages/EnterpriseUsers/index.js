@@ -135,7 +135,7 @@ export default class EnterpriseUsers extends PureComponent {
         if (res && res._condition === 200) {
           this.loadUser();
           this.cancelDelUser();
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         }
       }
     });

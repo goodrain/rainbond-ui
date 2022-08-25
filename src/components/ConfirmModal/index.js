@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Button, Icon, Modal } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styless from '../CreateTeam/index.less';
 import styles from './index.less';
 
@@ -23,14 +24,14 @@ class ConfirmModal extends PureComponent {
         onCancel={onCancel}
         className={styless.TelescopicModal}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}> {formatMessage({id:'popover.cancel'})} </Button>,
           <Button
             type="primary"
             loading={loading || deleteLoading}
             disabled={this.props.disabled}
             onClick={onOk}
           >
-            确定
+            {formatMessage({id:'popover.confirm'})}
           </Button>
         ]}
       >

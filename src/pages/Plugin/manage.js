@@ -253,7 +253,7 @@ export default class Index extends PureComponent {
         config_name: configVisible.config_name
       },
       callback: () => {
-        Notification.success({ message: '删除成功' });
+        Notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.getPluginVersionConfig();
         this.handleCloseDelConfigVisible();
       }
@@ -346,7 +346,7 @@ export default class Index extends PureComponent {
         }
       },
       callback: () => {
-        Notification.success({ message: '删除成功' });
+        Notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.getPluginVersionConfig();
         this.handleCloseStorage();
       }

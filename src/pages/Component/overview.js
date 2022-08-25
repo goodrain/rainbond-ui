@@ -607,7 +607,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res) {
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
           this.getVersionList();
         }

@@ -6,6 +6,7 @@ import { Button, Card, Icon, Modal, notification, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';
@@ -299,7 +300,7 @@ export default class CreateCheck extends React.Component {
         if ((appDetail.git_url || '').indexOf('@') === -1) {
           window.open(appDetail.git_url);
         } else {
-          Modal.info({ title: '仓库地址', content: appDetail.git_url });
+          Modal.info({ title: formatMessage({id:'componentCheck.warehouse_address'}), content: appDetail.git_url });
         }
       }
 
@@ -502,11 +503,11 @@ export default class CreateCheck extends React.Component {
           type="primary"
           style={{ marginRight: '8px' }}
         >
-          重新检测
+          {formatMessage({id:'button.retest_check'})}
         </Button>
         {isDelete && (
           <Button onClick={this.showDelete} type="default">
-            放弃创建
+            {formatMessage({id:'button.abandon_create'})}
           </Button>
         )}
       </div>
@@ -521,8 +522,8 @@ export default class CreateCheck extends React.Component {
     return (
       <Result
         type="error"
-        title="组件构建源检测未通过"
-        description="请核对并修改以下信息后，再重新检测。"
+        title={formatMessage({id:'confirmModal.component.check.title.error'})}
+        description={formatMessage({id:'confirmModal.component.check.title.error.description'})}
         extra={extra}
         actions={ServiceGetData ? '' : actions}
         style={{
@@ -619,7 +620,7 @@ export default class CreateCheck extends React.Component {
               type="default"
               style={{ marginRight: '8px' }}
             >
-              放弃创建
+              {formatMessage({id:'button.abandon_create'})}
             </Button>
           )}
           <Button
@@ -627,7 +628,7 @@ export default class CreateCheck extends React.Component {
             onClick={this.handleSetting}
             style={{ marginRight: '8px' }}
           >
-            高级设置
+            {formatMessage({id:'button.advanced_setup'})}
           </Button>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Button
@@ -636,15 +637,15 @@ export default class CreateCheck extends React.Component {
               style={{ marginRight: '8px' }}
               loading={this.state.buildAppLoading}
             >
-              创建
+              {formatMessage({id:'button.create'})}
             </Button>
             <Tooltip
               placement="topLeft"
               title={
                 <p>
-                  取消本选项你可以先对组件进行
+                  {formatMessage({id:'componentCheck.tooltip.title.p1'})}
                   <br />
-                  高级设置再构建启动。
+                  {formatMessage({id:'componentCheck.tooltip.title.p2'})}
                 </p>
               }
             >
@@ -653,7 +654,7 @@ export default class CreateCheck extends React.Component {
                 onClick={this.renderSuccessOnChange}
                 checked={isDeploy}
               >
-                并构建启动
+                {formatMessage({id:'button.build_start'})}
               </Radio>
             </Tooltip>
           </div>
@@ -669,7 +670,7 @@ export default class CreateCheck extends React.Component {
               style={{ marginRight: '8px' }}
               loading={this.state.buildAppLoading}
             >
-              创建
+              {formatMessage({id:'button.create'})}
             </Button>
           </div>
         </div>
@@ -679,11 +680,11 @@ export default class CreateCheck extends React.Component {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           {isDelete && (
             <Button onClick={this.showDelete} type="default">
-              放弃创建
+              {formatMessage({id:'button.abandon_create'})}
             </Button>
           )}
           <Button type="default" onClick={this.handleSetting}>
-            高级设置
+              {formatMessage({id:'button.advanced_setup'})}
           </Button>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
@@ -692,16 +693,16 @@ export default class CreateCheck extends React.Component {
               style={{ marginRight: '8px' }}
               loading={this.state.buildAppLoading}
             >
-              创建
+              {formatMessage({id:'button.create'})}
             </Button>
             {appDetail.service_source === 'third_party'}
             <Tooltip
               placement="topLeft"
               title={
                 <p>
-                  取消本选项你可以先对组件进行
+                  {formatMessage({id:'componentCheck.tooltip.title.p1'})}
                   <br />
-                  高级设置再构建启动。
+                  {formatMessage({id:'componentCheck.tooltip.title.p2'})}
                 </p>
               }
             >
@@ -710,7 +711,7 @@ export default class CreateCheck extends React.Component {
                 onClick={this.renderSuccessOnChange}
                 checked={isDeploy}
               >
-                并构建启动
+                {formatMessage({id:'button.build_start'})}
               </Radio>
             </Tooltip>
           </div>
@@ -728,11 +729,11 @@ export default class CreateCheck extends React.Component {
               style={{ marginRight: '8px' }}
               loading={this.state.buildAppLoading}
             >
-              创建
+              {formatMessage({id:'button.create'})}
             </Button>
             {isDelete && (
               <Button onClick={this.showDelete} type="default">
-                放弃创建
+                {formatMessage({id:'button.abandon_create'})}
               </Button>
             )}
           </div>
@@ -753,8 +754,8 @@ export default class CreateCheck extends React.Component {
         type="success"
         title={
           appDetail.service_source === 'third_party'
-            ? '第三方组件检测通过'
-            : '组件构建源检测通过'
+            ? formatMessage({id:'confirmModal.third_party.check.title.success'})
+            : formatMessage({id:'confirmModal.component.check.title.success'})
         }
         description={
           appDetail.service_source === 'third_party' ? (
@@ -762,17 +763,17 @@ export default class CreateCheck extends React.Component {
           ) : (
             <div>
               <div>
-                组件构建源检测通过仅代表平台可以检测到代码语言类型和代码源。
+              {formatMessage({id:'componentCheck.tooltip.title.p3'})}
               </div>
-              90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{' '}
+              {formatMessage({id:'componentCheck.tooltip.title.p4'})}{' '}
               <a
                 href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                平台源码支持规范
+                {formatMessage({id:'componentCheck.tooltip.title.p5'})}
               </a>{' '}
-              对代码进行调整。
+              {formatMessage({id:'componentCheck.tooltip.title.p6'})}
             </div>
           )
         }
@@ -798,11 +799,12 @@ export default class CreateCheck extends React.Component {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           {isDelete && (
             <Button onClick={this.showDelete} type="default" style={mr8}>
-              放弃创建
+              {formatMessage({id:'button.abandon_create'})}
             </Button>
           )}
           <Button type="primary" onClick={this.handleMoreService}>
-            进入多组件构建
+            
+            {formatMessage({id:'button.components_build'})}
           </Button>
         </div>
       ];
@@ -811,7 +813,7 @@ export default class CreateCheck extends React.Component {
         <div style={{ display: 'flex' }}>
           {isDelete && (
             <Button onClick={this.showDelete} type="default" style={mr8}>
-              放弃创建
+              {formatMessage({id:'button.abandon_create'})}
             </Button>
           )}
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -821,16 +823,16 @@ export default class CreateCheck extends React.Component {
               style={mr8}
               loading={this.state.buildAppLoading}
             >
-              创建
+              {formatMessage({id:'button.create'})}
             </Button>
             <div>
               <Tooltip
                 placement="topLeft"
                 title={
                   <p>
-                    取消本选项你可以先对组件进行
+                    {formatMessage({id:'componentCheck.tooltip.title.p1'})}
                     <br />
-                    高级设置再构建启动。
+                    {formatMessage({id:'componentCheck.tooltip.title.p2'})}
                   </p>
                 }
               >
@@ -839,7 +841,7 @@ export default class CreateCheck extends React.Component {
                   onClick={this.renderSuccessOnChange}
                   checked={isDeploy}
                 >
-                  并构建启动
+                {formatMessage({id:'button.build_start'})}
                 </Radio>
               </Tooltip>
             </div>
@@ -857,11 +859,11 @@ export default class CreateCheck extends React.Component {
                 style={mr8}
                 loading={this.state.buildAppLoading}
               >
-                放弃创建
+                {formatMessage({id:'button.abandon_create'})}
               </Button>
             )}
             <Button type="primary" onClick={this.handleMoreService}>
-              进入多组件构建
+              {formatMessage({id:'button.components_build'})}
             </Button>
           </div>
         </div>
@@ -871,11 +873,12 @@ export default class CreateCheck extends React.Component {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           {isDelete && (
             <Button onClick={this.showDelete} type="default">
-              放弃创建
+              {formatMessage({id:'button.abandon_create'})}
             </Button>
           )}
           <Button type="primary" onClick={this.handleMoreService}>
-            进入多服务构建
+            
+            {formatMessage({id:'button.service_build'})}
           </Button>
         </div>
       ];
@@ -891,7 +894,7 @@ export default class CreateCheck extends React.Component {
               style={mr8}
               loading={this.state.buildAppLoading}
             >
-              创建
+              {formatMessage({id:'button.create'})}
             </Button>
           </div>
         </div>
@@ -917,22 +920,22 @@ export default class CreateCheck extends React.Component {
         type="success"
         title={
           appDetail.service_source === 'third_party'
-            ? '第三方组件检测通过'
-            : '组件构建源检测出多模块构建'
+            ? formatMessage({id:'confirmModal.third_party.check.title.success'})
+            : formatMessage({id:'confirmModal.component_build.check.model.build'})
         }
         description={
           appDetail.service_source !== 'third_party' && (
             <div>
-              <div>组件构建源检测通过仅代表平台可以检测到多模块构建。</div>
-              90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{' '}
+              <div>{formatMessage({id:'componentCheck.tooltip.title.p7'})}</div>
+              {formatMessage({id:'componentCheck.tooltip.title.p4'})}{' '}
               <a
                 href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                平台源码支持规范
+                {formatMessage({id:'componentCheck.tooltip.title.p5'})}
               </a>{' '}
-              对代码进行调整。
+              {formatMessage({id:'componentCheck.tooltip.title.p6'})}
             </div>
           )
         }
@@ -951,7 +954,7 @@ export default class CreateCheck extends React.Component {
     } = this.state;
     const actions = isDelete && (
       <Button onClick={this.showDelete} type="default">
-        放弃创建
+        {formatMessage({id:'button.abandon_create'})}
       </Button>
     );
     if (ServiceGetData && ButtonGroupState) {
@@ -972,9 +975,9 @@ export default class CreateCheck extends React.Component {
     return (
       <Result
         type="ing"
-        title="组件构建源检测中..."
+        title={formatMessage({id:'confirmModal.component.check.title.loading'})}
         extra={extra}
-        description="此过程可能比较耗时，请耐心等待"
+        description={formatMessage({id:'confirmModal.component.check.appShare.desc'})}
         actions={ServiceGetData ? '' : actions}
         style={{
           marginTop: 48,
@@ -1054,9 +1057,9 @@ export default class CreateCheck extends React.Component {
           <ConfirmModal
             onOk={this.handleDelete}
             loading={deleteLoading}
-            title="放弃创建"
-            subDesc="此操作不可恢复"
-            desc="确定要放弃创建此组件吗？"
+            title={formatMessage({id:'confirmModal.abandon_create.create_check.title'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.create_check.desc'})}
             onCancel={() => {
               this.setState({ showDelete: false });
             }}

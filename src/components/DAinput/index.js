@@ -1,5 +1,6 @@
 import { Col, Icon, Input, notification, Row } from 'antd';
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 class DAinput extends Component {
   constructor(props) {
@@ -80,8 +81,8 @@ class DAinput extends Component {
   }
 
   render() {
-    const keyPlaceholder = this.props.keyPlaceholder || '请输入key值';
-    const valuePlaceholder = this.props.valuePlaceholder || '请输入value值';
+    const keyPlaceholder = this.props.keyPlaceholder || formatMessage({id:'placeholder.contiguration.msg.key'});
+    const valuePlaceholder = this.props.valuePlaceholder || formatMessage({id:'placeholder.contiguration.msg.value'});
     const { values } = this.state;
     return (
       <div>

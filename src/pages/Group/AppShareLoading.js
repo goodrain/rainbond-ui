@@ -5,6 +5,7 @@ import { Button, Card, Icon, List, notification, Progress } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import Result from '../../components/Result';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -197,8 +198,8 @@ class ShareEvent extends React.Component {
                       {this.renderStatus()}
                     </span>
                     {datas.type === 'plugin'
-                      ? `插件: ${datas.plugin_name}`
-                      : `组件: ${datas.service_name}`}
+                      ? `${formatMessage({id:'appPublish.btn.record.makert.publish.pulgin'})} ${datas.plugin_name}`
+                      : `${formatMessage({id:'appPublish.btn.record.makert.publish.component'})} ${datas.service_name}`}
                   </div>
                   <div>
                     {isLogs && [
@@ -207,7 +208,7 @@ class ShareEvent extends React.Component {
                           this.handleOpenedEventId(eventId);
                         }}
                       >
-                        日志
+                        {formatMessage({id:'appPublish.btn.record.makert.publish.log'})}
                       </a>
                     ]}
                   </div>
@@ -219,7 +220,7 @@ class ShareEvent extends React.Component {
 
         {openedEventId && (
           <LogShow
-            title="日志"
+            title={formatMessage({id:'appPublish.btn.record.makert.publish.log'})}
             width="1000px"
             onOk={this.handleCancel}
             onCancel={this.handleCancel}
@@ -403,40 +404,40 @@ export default class shareCheck extends PureComponent {
     let actions = [];
     if (status === 'success') {
       type = 'success';
-      title = '应用同步成功';
+      title = formatMessage({id:'confirmModal.check.appShare.title.loading'});
       desc = '';
       actions = [
         <Button onClick={this.showDelete} type="default">
-          放弃发布
+          {formatMessage({id:'button.give_up_release'})}
         </Button>,
         <Button
           loading={completeLoading}
           onClick={this.handleCompleteShare}
           type="primary"
         >
-          确认发布
+          {formatMessage({id:'button.affirm_publish'})}
         </Button>
       ];
     }
     if (status === 'checking') {
       type = 'ing';
-      title = '应用同步中';
-      desc = '此过程可能比较耗时，请耐心等待';
+      title = formatMessage({id:'confirmModal.check.appShare.title.loading'});
+      desc = formatMessage({id:'confirmModal.component.check.appShare.desc'});
       actions = [
         <Button onClick={this.showDelete} type="default">
-          放弃发布
+          {formatMessage({id:'button.give_up_release'})}
         </Button>
       ];
     }
     if (status === 'failure') {
       type = 'error';
-      desc = '请查看以下日志确认问题后重试';
+      desc = formatMessage({id:'confirmModal.check.appShare.title.error'});
       actions = [
         <Button onClick={this.handleReStart} type="primary">
-          重试
+          {formatMessage({id:'button.retry'})}
         </Button>,
         <Button onClick={this.showDelete} type="default">
-          放弃发布
+          {formatMessage({id:'button.give_up_release'})}
         </Button>
       ];
     }
@@ -484,8 +485,8 @@ export default class shareCheck extends PureComponent {
             disabled={loading.effects['application/giveupShare']}
             onOk={this.handleGiveUp}
             onCancel={this.hideShowDelete}
-            title="放弃发布"
-            desc="确定要放弃此次发布吗?"
+            title={formatMessage({id:'button.give_up_release'})}
+            desc={formatMessage({id:'confirmModal.component.abandon.publish.title'})}
           />
         )}
       </PageHeaderLayout>

@@ -64,7 +64,7 @@ export default class AddServiceComponent extends PureComponent {
     const setName = typeMap[type] || '';
     const tabName = setName
       ? `${setName} ${name && `(${name})`}`
-      : `${name}项目`;
+      : `${name} ${formatMessage({id:'appOverview.list.btn.addComponent.project'})}`;
     return tabName;
   };
 
@@ -272,7 +272,9 @@ export default class AddServiceComponent extends PureComponent {
             <div style={{ marginTop: '-12px' }}>
               <div className={styles.ServiceBox}>
                 <Row>
-                  <p className={styles.ServiceTitle}>从源代码开始</p>
+                  <p className={styles.ServiceTitle}>
+                    {formatMessage({id:'appOverview.list.btn.addComponent.code.title'})}
+                  </p>
                 </Row>
                 <Row>
                   <Col
@@ -283,7 +285,9 @@ export default class AddServiceComponent extends PureComponent {
                     }}
                   >
                     {codeSvg}
-                    <p className={styles.ServiceSmallTitle}>自定义仓库</p>
+                    <p className={styles.ServiceSmallTitle}>
+                    {formatMessage({id:'appOverview.list.btn.addComponent.custom'})}
+                    </p>
                   </Col>
                   {servers &&
                     servers.length > 0 &&
@@ -322,7 +326,7 @@ export default class AddServiceComponent extends PureComponent {
                     <Alert
                       message={
                         <p className={styles.prompt}>
-                          注:支持
+                          {formatMessage({id:'appOverview.list.btn.addComponent.support'})}
                           {Object.keys(languageObj).map(key => {
                             return (
                               <a
@@ -335,7 +339,7 @@ export default class AddServiceComponent extends PureComponent {
                               </a>
                             );
                           })}
-                          等语言规范
+                          {formatMessage({id:'appOverview.list.btn.addComponent.standard'})}
                         </p>
                       }
                       type="info"
@@ -347,7 +351,9 @@ export default class AddServiceComponent extends PureComponent {
               </div>
               <div className={styles.ServiceBox}>
                 <Row>
-                  <p className={styles.ServiceTitle}>从镜像开始</p>
+                  <p className={styles.ServiceTitle}>
+                  {formatMessage({id:'appOverview.list.btn.addComponent.image.title'})}
+                  </p>
                 </Row>
                 <Row style={{ marginTop: '-8px' }}>
                   <Col
@@ -358,7 +364,9 @@ export default class AddServiceComponent extends PureComponent {
                     }}
                   >
                     {dockerSvg}
-                    <p className={styles.ServiceSmallTitle}>指定镜像</p>
+                    <p className={styles.ServiceSmallTitle}>
+                    {formatMessage({id:'appOverview.list.btn.addComponent.image'})}
+                    </p>
                   </Col>
                   <Col
                     span={8}
@@ -369,7 +377,7 @@ export default class AddServiceComponent extends PureComponent {
                   >
                     {dockerSvg}
                     <p className={styles.ServiceSmallTitle}>
-                      指定DockerRun命令
+                    {formatMessage({id:'appOverview.list.btn.addComponent.dockerRun'})}
                     </p>
                   </Col>
                 </Row>
@@ -380,7 +388,7 @@ export default class AddServiceComponent extends PureComponent {
                     className={styles.ServiceTitle}
                     style={{ marginBottom: '20px' }}
                   >
-                    从应用市场开始
+                   {formatMessage({id:'appOverview.list.btn.addComponent.market.title'})}
                   </p>
                 </Row>
                 <Row>
@@ -405,7 +413,9 @@ export default class AddServiceComponent extends PureComponent {
               </div>
               <div className={styles.ServiceBox} style={{marginBottom:'60px'}}>
                 <Row>
-                  <p className={styles.ServiceTitle}>从上传文件包开始</p>
+                  <p className={styles.ServiceTitle}>
+                  {formatMessage({id:'appOverview.list.btn.addComponent.update.title'})}
+                  </p>
                 </Row>
                 <Row>
                   <Col
@@ -416,7 +426,9 @@ export default class AddServiceComponent extends PureComponent {
                     }}
                   >
                     {uploadJarWar}
-                    <p className={styles.ServiceSmallTitle}>Jar、War</p>
+                    <p className={styles.ServiceSmallTitle}>
+                    {formatMessage({id:'appOverview.list.btn.addComponent.jwar'})}
+                    </p>
                   </Col>
                   <Col
                     span={8}
@@ -427,7 +439,7 @@ export default class AddServiceComponent extends PureComponent {
                   >
                     {uploadYaml}
                     <p className={styles.ServiceSmallTitle}>
-                      Yaml
+                      {formatMessage({id:'appOverview.list.btn.addComponent.yaml'})}
                     </p>
                   </Col>
                 </Row>
@@ -507,12 +519,12 @@ export default class AddServiceComponent extends PureComponent {
           >
             {!ServiceComponentOnePage && ServiceComponentThreePage !== 'check' && (
               <Button style={mr8} onClick={this.handleBackEvents}>
-                上一步
+                {formatMessage({id:'popover.back'})}
               </Button>
             )}
             {ButtonGroup && <span style={mr8}>{ButtonGroup}</span>}
             <Button style={mr8} onClick={this.cancelAddService}>
-              取消
+              {formatMessage({id:'popover.cancel'})}
             </Button>
           </div>
         </Drawer>

@@ -1,6 +1,6 @@
 import { Form, Input, Modal } from 'antd';
 import React, { PureComponent } from 'react';
-
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 const formItemLayout = {
   labelCol: {
     span: 5
@@ -27,51 +27,46 @@ export default class ModifyImageName extends PureComponent {
     return (
       <Modal
         visible
-        title="修改信息"
+        title={formatMessage({id:'componentCheck.modify_image_name.title'})}
         onOk={this.handleSubmit}
         onCancel={this.props.onCancel}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.modify_image_name.label.service_cname'})}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
                 {
                   required: true,
-                  message: '要创建的应用还没有名字'
+                  message: formatMessage({id:'placeholder.app_not_name'})
                 }
               ]
-            })(<Input disabled placeholder="请为创建的应用起个名字吧" />)}
+            })(<Input disabled placeholder={formatMessage({id:'placeholder.image.service_cname'})} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="镜像地址">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.modify_image_name.label.docker_cmd'})}>
             {getFieldDecorator('docker_cmd', {
               initialValue: data.docker_cmd || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入镜像名称'
+                  message: formatMessage({id:'placeholder.docker_cmdMsg'})
                 }
               ]
             })(
-              <Input
-                // style={{
-                //   width: "calc(100% - 100px)",
-                // }}
-                placeholder="请输入镜像名称, 如 nginx : 1.11"
-              />
+              <Input placeholder={formatMessage({id:'placeholder.docker_cmd'})}/>
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="仓库用户名">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.modify_image_name.label.username'})}>
             {getFieldDecorator('username', {
               initialValue: data.user_name || '',
-              rules: [{ required: false, message: '请输入仓库用户名' }]
-            })(<Input placeholder="请输入仓库用户名" />)}
+              rules: [{ required: false, message: formatMessage({id:'placeholder.user_name'}) }]
+            })(<Input placeholder={formatMessage({id:'placeholder.user_name'})} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="仓库密码">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.modify_image_name.label.password'})}>
             {getFieldDecorator('password', {
               initialValue: data.password || '',
-              rules: [{ required: false, message: '请输入仓库密码' }]
-            })(<Input type="password" placeholder="请输入仓库密码" />)}
+              rules: [{ required: false, message: formatMessage({id:'placeholder.password'}) }]
+            })(<Input type="password" placeholder={formatMessage({id:'placeholder.password'})} />)}
           </Form.Item>
         </Form>
       </Modal>

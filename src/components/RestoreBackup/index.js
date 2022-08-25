@@ -4,6 +4,7 @@ import { Button, Form, Icon, Modal, notification, Spin } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 
 @connect(({ user }) => ({ currUser: user.currentUser }))
@@ -86,7 +87,7 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         if (data) {
-          notification.success({ message: '删除成功', duration: '2' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}), duration: '2' });
           if (restore) {
             this.JumpAddress();
           }
@@ -159,33 +160,33 @@ export default class Index extends PureComponent {
       <Modal
         visible
         onCancel={onCancel}
-        title="恢复"
+        title={formatMessage({id:'button.recover'})}
         footer={
           !showRestore
             ? [
                 <Button key="back" onClick={onCancel}>
-                  关闭
+                  {formatMessage({id:'button.close'})}
                 </Button>,
                 <Button
                   key="submit"
                   type="primary"
                   onClick={this.handleRestore}
                 >
-                  恢复
+                  {formatMessage({id:'button.recover'})}
                 </Button>
               ]
             : restoreStatus == 'success'
             ? [
                 <Button key="back" onClick={this.JumpAddress}>
-                  关闭
+                  {formatMessage({id:'button.close'})}
                 </Button>,
                 <Button key="submit" type="primary" onClick={this.handleSubmit}>
-                  确认
+                  {formatMessage({id:'popover.confirm'})}
                 </Button>
               ]
             : [
                 <Button key="back" onClick={onCancel}>
-                  关闭
+                  {formatMessage({id:'button.close'})}
                 </Button>
               ]
         }
@@ -197,7 +198,7 @@ export default class Index extends PureComponent {
                 <p style={{ textAlign: 'center' }}>
                   <Spin />
                 </p>
-                <p style={cenStyle}>恢复中，请稍后(请勿关闭弹窗)</p>
+                <p style={cenStyle}>{formatMessage({id:'notification.hint.recover.loading'})}</p>
               </div>
             )}
             {restoreStatus == 'success' && (
@@ -211,7 +212,7 @@ export default class Index extends PureComponent {
                 >
                   <Icon type="check-circle-o" />
                 </p>
-                <p style={cenStyle}>恢复成功，是否删除当前应用？</p>
+                <p style={cenStyle}>{formatMessage({id:'notification.hint.recover.success.delete'})}</p>
               </div>
             )}
             {restoreStatus == 'failed' && (
@@ -225,17 +226,17 @@ export default class Index extends PureComponent {
                 >
                   <Icon type="close-circle-o" />
                 </p>
-                <p style={cenStyle}>恢复失败，请重新恢复</p>
+                <p style={cenStyle}>{formatMessage({id:'notification.hint.recover.error.alert'})}</p>
               </div>
             )}
           </div>
         ) : isFinished ? (
           <div>
-            <p>您是否要恢复备份到当前集群?</p>
+            <p>{formatMessage({id:'notification.hint.recover.alert'})}</p>
           </div>
         ) : (
           <div>
-            <p>您当前应用未完全恢复，是否继续？</p>
+            <p>{formatMessage({id:'notification.hint.recover.warning.continue'})}</p>
           </div>
         )}
       </Modal>

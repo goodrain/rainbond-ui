@@ -692,7 +692,7 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
           this.handleCancelDelete();
           this.getApps();
@@ -725,7 +725,7 @@ export default class EnterpriseShared extends PureComponent {
             deleteAppMarketLoading: false
           });
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
         }
       }
@@ -756,7 +756,7 @@ export default class EnterpriseShared extends PureComponent {
             deleteHelmAppMarketLoading: false
           });
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
         }
       }

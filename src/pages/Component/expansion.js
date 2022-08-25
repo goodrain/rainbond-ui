@@ -415,7 +415,7 @@ export default class Index extends PureComponent {
           if (res && res.status_code === 200) {
             notification.success({
               message: toDeleteMnt
-                ? '删除成功'
+                ? formatMessage({id:'notification.success.delete'})
                 : !automaticTelescopic
                 ? '开启成功'
                 : addindicators

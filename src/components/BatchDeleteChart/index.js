@@ -3,6 +3,7 @@
 import { Button, Checkbox, Col, Form, Modal, notification, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styless from '../CreateTeam/index.less';
 const FormItem = Form.Item;
 
@@ -62,7 +63,7 @@ class ConfirmModal extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
           onOk();
         }

@@ -198,7 +198,7 @@ export default class AddAdmin extends PureComponent {
             () => {
               this.onCancelDelete();
               this.fetchMavensettings(true);
-              notification.success({ message: '删除成功' });
+              notification.success({ message: formatMessage({id:'notification.success.delete'}) });
             }
           );
         }

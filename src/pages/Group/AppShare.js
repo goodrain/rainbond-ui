@@ -122,7 +122,7 @@ class AppInfo extends PureComponent {
               marginBottom: 8
             }}
           >
-            连接信息
+            {formatMessage({id:'appPublish.shop.pages.title.joinMsg'})}
           </h4>
           <Divider />
           <Row>
@@ -155,7 +155,7 @@ class AppInfo extends PureComponent {
                         item.attr_value
                       )}
                     >
-                      生成随机值
+                      {formatMessage({id:'appPublish.shop.pages.title.random'})}
                     </Checkbox>
                   )}
                 </FormItem>
@@ -183,7 +183,8 @@ class AppInfo extends PureComponent {
               marginBottom: 8
             }}
           >
-            环境变量
+            
+            {formatMessage({id:'appPublish.shop.pages.title.environment_variable'})}
           </h4>
           <Divider />
           <Row>
@@ -197,7 +198,7 @@ class AppInfo extends PureComponent {
                       rules: [
                         {
                           required: false,
-                          message: '不能为空'
+                          message: formatMessage({id:'placeholder.copy.not_null'})
                         }
                       ]
                     })(<Input />)}
@@ -228,24 +229,24 @@ class AppInfo extends PureComponent {
               marginBottom: 8
             }}
           >
-            伸缩规则
+            {formatMessage({id:'appPublish.shop.pages.title.flexible'})}
           </h4>
           <Divider />
           <Row>
             <Col span={8}>
-              <FormItem label="最小节点(个)" style={pd16}>
+              <FormItem label={formatMessage({id:'appPublish.shop.pages.form.label.min_node'})} style={pd16}>
                 {getFieldDecorator(`${ID}||min_node`, {
                   initialValue: app.extend_method_map.min_node,
                   rules: [
                     {
                       required: true,
-                      message: '输入格式不正确'
+                      message: formatMessage({id:'placeholder.appShare.formatError'})
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
-                    placeholder="请输入最小节点"
+                    placeholder={formatMessage({id:'placeholder.appShare.min_node'})}
                     min={1}
                     step={steps || app.extend_method_map.step_node}
                   />
@@ -253,19 +254,19 @@ class AppInfo extends PureComponent {
               </FormItem>
             </Col>
             <Col span={8}>
-              <FormItem label="最大节点(个)" style={pd16}>
+              <FormItem label={formatMessage({id:'appPublish.shop.pages.form.label.max_node'})} style={pd16}>
                 {getFieldDecorator(`${ID}||max_node`, {
                   initialValue: app.extend_method_map.max_node,
                   rules: [
                     {
                       required: true,
-                      message: '输入格式不正确'
+                      message: formatMessage({id:'placeholder.appShare.formatError'})
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
-                    placeholder="请输入最大节点"
+                    placeholder={formatMessage({id:'placeholder.appShare.max_node'})}
                     min={1}
                     step={steps || app.extend_method_map.step_node}
                   />
@@ -273,19 +274,19 @@ class AppInfo extends PureComponent {
               </FormItem>
             </Col>
             <Col span={8}>
-              <FormItem label="节点步长(个)" style={pd16}>
+              <FormItem label={formatMessage({id:'appPublish.shop.pages.form.label.step_node'})} style={pd16}>
                 {getFieldDecorator(`${ID}||step_node`, {
                   initialValue: app.extend_method_map.step_node,
                   rules: [
                     {
                       required: true,
-                      message: '输入格式不正确'
+                      message: formatMessage({id:'placeholder.appShare.formatError'})
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
-                    placeholder="请输入节点步长"
+                    placeholder={formatMessage({id:'placeholder.appShare.step_node'})}
                     min={app.extend_method_map.min_node}
                     max={app.extend_method_map.max_node}
                   />
@@ -293,52 +294,52 @@ class AppInfo extends PureComponent {
               </FormItem>
             </Col>
             <Col span={8}>
-              <FormItem label="初始内存(M)" style={pd16}>
+              <FormItem label={formatMessage({id:'appPublish.shop.pages.form.label.init_memory'})} style={pd16}>
                 {getFieldDecorator(`${ID}||init_memory`, {
                   initialValue: app.extend_method_map.init_memory || 0,
                   rules: [
                     {
                       required: true,
-                      message: '输入格式不正确'
+                      message: formatMessage({id:'placeholder.appShare.formatError'})
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
-                    placeholder="请输入初始内存"
+                    placeholder={formatMessage({id:'placeholder.appShare.init_memory'})}
                     min={0}
                     max={app.extend_method_map.max_memory}
                     step={app.extend_method_map.step_memory}
                   />
                 )}
                 <div style={{ color: '#999999', fontSize: '12px' }}>
-                  内存分配额0为不限制。
+                 {formatMessage({id:'appPublish.shop.pages.form.quota0.desc'})}
                 </div>
               </FormItem>
             </Col>
             <Col span={8}>
-              <FormItem label="初始CPU(m)" style={pd16}>
+              <FormItem label={formatMessage({id:'appPublish.shop.pages.form.label.container_cpu'})} style={pd16}>
                 {getFieldDecorator(`${ID}||container_cpu`, {
                   initialValue: app.extend_method_map.container_cpu || 0,
                   rules: [
                     {
                       required: true,
-                      message: '请输入CPU'
+                      message: formatMessage({id:'placeholder.appShare.container_cpu'})
                     },
                     {
                       pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                      message: '只允许输入整数'
+                      message: formatMessage({id:'placeholder.plugin.min_cpuMsg'})
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
                     min={0}
-                    placeholder="请输入CPU"
+                    placeholder={formatMessage({id:'placeholder.appShare.container_cpu'})}
                   />
                 )}
                 <div style={{ color: '#999999', fontSize: '12px' }}>
-                  CPU分配额0为不限制，1000m=1core。
+                  {formatMessage({id:'appPublish.shop.pages.form.quota1000.desc'})}
                 </div>
               </FormItem>
             </Col>
@@ -630,11 +631,10 @@ export default class Main extends PureComponent {
             versionInfo.dev_status
           ) {
             confirm({
-              title:
-                '当前发布版本是Release状态，发布成功后该版本将取消Release状态',
+              title:formatMessage({id:'appPublish.shop.pages.confirm.title'}),
               content: '',
-              okText: '确认',
-              cancelText: '取消',
+              okText: formatMessage({id:'popover.confirm'}),
+              cancelText: formatMessage({id:'popover.cancel'}),
               onOk: () => {
                 this.handleSubmit();
               }
@@ -781,11 +781,11 @@ export default class Main extends PureComponent {
             const data = errs && errs.data;
             const msg = data && data.msg_show;
             if (data && data.code && data.code === 10501) {
-              notification.warning({ message: '提示', description: msg });
+              notification.warning({ message: formatMessage({id:'confirmModal.component.hint'}), description: msg });
               this.setState({ isShare: 'true' });
               return null;
             }
-            notification.warning({ message: '请求错误', description: msg });
+            notification.warning({ message: formatMessage({id:'confirmModal.component.request_Error'}), description: msg });
           }
         });
       }
@@ -833,7 +833,7 @@ export default class Main extends PureComponent {
     this.setState({ showCreateAppModel: false });
   };
   handleCreateAppModel = () => {
-    notification.success({ message: '创建成功' });
+    notification.success({ message: formatMessage({id:'notification.success.setUp'}) });
     this.fetchModels(true);
     this.hideCreateAppModel();
   };
@@ -895,7 +895,7 @@ export default class Main extends PureComponent {
   };
 
   handleEditorAppModel = info => {
-    notification.success({ message: '编辑成功' });
+    notification.success({ message: formatMessage({id:'notification.success.edit'}) });
     this.fetchModels(false, info);
     this.hideEditorAppModel();
   };
@@ -920,11 +920,11 @@ export default class Main extends PureComponent {
   // 验证上传文件方式
   checkVersion = (rules, value, callback) => {
     if (value === '' || !value) {
-      callback('版本不能为空, 请选择或添加版本');
+      callback(formatMessage({id:'placeholder.appShare.versions_notNull'}));
     }
     if (value) {
       if (!/^[0-9]+(\.[0-9]+){1,2}$/.test(value)) {
-        callback('只允许输入数字、版本格式:1.0或1.0.0');
+        callback(formatMessage({id:'placeholder.appShare.layout_grid_mode'}));
         return;
       }
     }
@@ -934,7 +934,7 @@ export default class Main extends PureComponent {
     const { share_service_list } = this.state;
     const dep_service_name = [];
     if (share_service_list.length === 1) {
-      message.info('请至少发布一个组件');
+      message.info(formatMessage({id:'placeholder.appShare.leastOne'}));
       return;
     }
     share_service_list.map(component => {
@@ -1088,13 +1088,13 @@ export default class Main extends PureComponent {
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
     breadcrumbList.push({
-      title: '发布记录列表',
+      title: formatMessage({id:'appPublish.btn.record.list.title'}),
       href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`
     });
     if (record && record.scope === 'goodrain') {
-      breadcrumbList.push({ title: '发布到云应用商店' });
+      breadcrumbList.push({ title: formatMessage({id:'appPublish.btn.market'}) });
     } else {
-      breadcrumbList.push({ title: '发布到组件库' });
+      breadcrumbList.push({ title: formatMessage({id:'appPublish.btn.local'}) });
     }
     const marketId = record.scope_target && record.scope_target.store_id;
     const marketVersion =
@@ -1117,7 +1117,7 @@ export default class Main extends PureComponent {
             style={{
               marginBottom: 24
             }}
-            title="应用模版及发布版本设置"
+            title={formatMessage({id:'appPublish.btn.record.list.title.versions'})}
             bordered={false}
             bodyStyle={{
               padding: 0
@@ -1130,13 +1130,13 @@ export default class Main extends PureComponent {
             >
               <Row gutter={24}>
                 <Col span="12">
-                  <Form.Item {...formItemLayout} label="应用模版">
+                  <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.title.appMode'})}>
                     {getFieldDecorator('app_id', {
                       initialValue: model.app_id,
                       rules: [
                         {
                           required: true,
-                          message: '应用模版选择是必须的'
+                          message: formatMessage({id:'placeholder.appShare.appTemplate'})
                         }
                       ]
                     })(
@@ -1146,7 +1146,7 @@ export default class Main extends PureComponent {
                         }
                         style={{ width: 280 }}
                         onChange={this.changeCurrentModel}
-                        placeholder="选择发布的应用模版"
+                        placeholder={formatMessage({id:'placeholder.appShare.selectAppTemplate'})}
                         dropdownRender={menu => (
                           <div>
                             {menu}
@@ -1160,7 +1160,8 @@ export default class Main extends PureComponent {
                               onMouseDown={e => e.preventDefault()}
                               onClick={this.showCreateAppModel}
                             >
-                              <Icon type="plus" /> 新建应用模版
+                              <Icon type="plus" /> 
+                              {formatMessage({id:'appPublish.btn.record.list.label.newAppTemplate'})}
                             </div>
                           </div>
                         )}
@@ -1177,13 +1178,13 @@ export default class Main extends PureComponent {
                           this.showEditorAppModel(Application);
                         }}
                       >
-                        编辑应用模版
+                       {formatMessage({id:'appPublish.btn.record.list.label.deitAppTemplate'})}
                       </a>
                     )}
                   </Form.Item>
                 </Col>
                 <Col span="12">
-                  <Form.Item {...formItemLayout} label="版本号">
+                  <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.label.version'})}>
                     {getFieldDecorator('version', {
                       initialValue: (versionInfo && versionInfo.version) || '',
                       rules: [
@@ -1196,7 +1197,7 @@ export default class Main extends PureComponent {
                       <AutoComplete
                         style={{ width: 280 }}
                         onChange={this.changeCurrentVersion}
-                        placeholder="版本号默认为选择模版的上次发布版本"
+                        placeholder={formatMessage({id:'placeholder.appShare.version'})}
                       >
                         {versions &&
                           versions.length > 0 &&
@@ -1216,25 +1217,25 @@ export default class Main extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col span="12">
-                  <Form.Item {...formItemLayout} label="版本别名">
+                  <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.label.version_alias'})}>
                     {getFieldDecorator('version_alias', {
                       initialValue:
                         (versionInfo && versionInfo.version_alias) || '',
                       rules: [
                         {
                           max: 64,
-                          message: '最大长度64位'
+                          message: formatMessage({id:'placeholder.appShare.max64'})
                         }
                       ]
                     })(
                       <Input
                         style={{ width: 280 }}
-                        placeholder="设置版本别名，比如高级版"
+                        placeholder={formatMessage({id:'placeholder.appShare.version_alias'})}
                       />
                     )}
                   </Form.Item>
 
-                  <Form.Item {...formItemLayout} label="作为插件">
+                  <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.label.is_plugin'})}>
                     {getFieldDecorator('is_plugin', {
                       initialValue: (versionInfo && (versionInfo.is_plugin)) || false
                     })(
@@ -1250,7 +1251,7 @@ export default class Main extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col span="12" style={{ height: '104px' }}>
-                  <Form.Item {...formItemLayout} label="版本说明">
+                  <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.label.describe'})}>
                     {getFieldDecorator('describe', {
                       initialValue:
                         (versionInfo &&
@@ -1259,12 +1260,12 @@ export default class Main extends PureComponent {
                       rules: [
                         {
                           max: 255,
-                          message: '最大长度255位'
+                          message: formatMessage({id:'placeholder.max255'})
                         }
                       ]
                     })(
                       <TextArea
-                        placeholder="请输入版本说明"
+                        placeholder={formatMessage({id:'placeholder.appShare.describe'})}
                         style={{ height: '70px' }}
                       />
                     )}
@@ -1277,7 +1278,7 @@ export default class Main extends PureComponent {
             style={{
               marginBottom: 24
             }}
-            title="发布组件模型配置"
+            title={formatMessage({id:'appPublish.btn.record.list.title.publish_component_config'})}
             bordered={false}
             bodyStyle={{
               padding: 0
@@ -1303,7 +1304,7 @@ export default class Main extends PureComponent {
                       marginBottom: 0
                     }}
                   >
-                    编辑发布组件信息
+                    {formatMessage({id:'appPublish.btn.record.list.title.edit_publish_componentMsg'})}}
                   </h4>
                   <Button
                     style={{ float: 'right' }}
@@ -1311,7 +1312,7 @@ export default class Main extends PureComponent {
                       this.setState({ batchEditShow: true });
                     }}
                   >
-                    批量编辑
+                    {formatMessage({id:'appPublish.btn.record.list.title.bulk_edit'})}
                   </Button>
                 </div>
                 <div className={mytabcss.mytabtit} id="mytabtit">
@@ -1364,7 +1365,7 @@ export default class Main extends PureComponent {
             style={{
               marginBottom: 24
             }}
-            title="发布插件模型信息"
+            title={formatMessage({id:'appPublish.btn.record.list.title.publish_pluginMsg'})}
             bordered={false}
           >
             <Table
@@ -1372,18 +1373,18 @@ export default class Main extends PureComponent {
               dataSource={plugins}
               columns={[
                 {
-                  title: '插件名',
+                  title: formatMessage({id:'appPublish.btn.record.list.table.plugin_alias'}),
                   dataIndex: 'plugin_alias'
                 },
                 {
-                  title: '分类',
+                  title: formatMessage({id:'appPublish.btn.record.list.table.category'}),
                   dataIndex: 'category',
                   render: v => {
                     return pluginUtil.getCategoryCN(v);
                   }
                 },
                 {
-                  title: '版本',
+                  title: formatMessage({id:'appPublish.btn.record.list.table.build_version'}),
                   dataIndex: 'build_version'
                 }
               ]}
@@ -1393,7 +1394,7 @@ export default class Main extends PureComponent {
             style={{
               marginBottom: 128
             }}
-            title="K8S 资源"
+            title={formatMessage({id:'appPublish.btn.record.list.title.k8s'})}
             bordered={false}
           >
             <Table
@@ -1401,25 +1402,27 @@ export default class Main extends PureComponent {
               dataSource={curPageData}
               columns={[
                 {
-                  title: '资源名称',
+                  title: formatMessage({id:'appPublish.btn.record.list.table.name'}),
                   dataIndex: 'name',
                   key: 'name',
                   align: 'left',
                 },
                 {
-                  title: '资源类型',
+                  title: formatMessage({id:'appPublish.btn.record.list.table.kind'}),
                   dataIndex: 'kind',
                   key: 'kind',
                   align: 'left',
                 },
                 {
-                  title: '文件详情',
+                  title: formatMessage({id:'appPublish.btn.record.list.table.content'}),
                   dataIndex: 'content',
                   key: "content",
                   align:'center',
                   render: (text, record) => {
                     return <>
-                      <Button onClick={() => this.showDrawer(text, record)}>查看详情</Button>
+                      <Button onClick={() => this.showDrawer(text, record)}>
+                        {formatMessage({id:'appPublish.btn.record.list.table.view_details'})}
+                      </Button>
                     </>
                   }
                 },
@@ -1428,7 +1431,7 @@ export default class Main extends PureComponent {
             />
           </Card>
           <Drawer
-            title="详情信息"
+            title={formatMessage({id:'appPublish.btn.record.list.title.detailMsg'})}
             placement="right"
             closable={true}
             onClose={this.onClose}
@@ -1449,18 +1452,18 @@ export default class Main extends PureComponent {
           </Drawer>
           {shareModal && (
             <Modal
-              title="依赖检测"
+              title={formatMessage({id:'appPublish.btn.record.list.title.check'})}
               visible={shareModal}
               onOk={() => {
                 this.removeComponentReal(this.state.del_component_share_key);
                 this.onCancels();
               }}
               onCancel={this.onCancels}
-              okText="确定"
-              cancelText="取消"
+              okText={formatMessage({id:'popover.confirm'})}
+              cancelText={formatMessage({id:'popover.cancel'})}
             >
               <div>
-                该组件被需要发布的
+                {formatMessage({id:'appPublish.btn.record.list.pages.needPublish'})}
                 {dep_service_name &&
                   dep_service_name.length > 0 &&
                   dep_service_name.map((item, index) => {
@@ -1473,7 +1476,7 @@ export default class Main extends PureComponent {
                       </span>
                     );
                   })}
-                组件依赖, 确认要取消该组件的发布吗？
+                {formatMessage({id:'appPublish.btn.record.list.pages.componentPublish'})}
               </div>
             </Modal>
           )}
@@ -1489,7 +1492,7 @@ export default class Main extends PureComponent {
           )}
           {showCreateAppModel && (
             <CreateAppModels
-              title="创建应用模版"
+              title={formatMessage({id:'appPublish.btn.record.list.pages.createAppTemplate'})}
               appName={appDetail && appDetail.group_name}
               eid={currentEnterprise.enterprise_id}
               onOk={this.handleCreateAppModel}
@@ -1502,7 +1505,7 @@ export default class Main extends PureComponent {
 
           {editorAppModel && (
             <CreateAppModels
-              title="编辑应用模版"
+              title={formatMessage({id:'appPublish.btn.record.list.pages.editAppTemplate'})}
               team_name={currentTeam.team_name}
               appInfo={appModelInfo}
               eid={currentEnterprise.enterprise_id}
@@ -1519,13 +1522,13 @@ export default class Main extends PureComponent {
               loading={submitLoading}
               onClick={this.handleSubmitConditions}
             >
-              提交
+              {formatMessage({id:'button.submit'})}
             </Button>
             <Button
               disabled={loading.effects['application/giveupShare']}
               onClick={this.handleGiveup}
             >
-              放弃发布
+              {formatMessage({id:'button.give_up_release'})}
             </Button>
           </FooterToolbar>
         </div>

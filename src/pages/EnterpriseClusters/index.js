@@ -116,7 +116,7 @@ export default class EnterpriseClusters extends PureComponent {
       callback: res => {
         if (res && res._condition === 200) {
           this.loadClusters();
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         }
         this.cancelClusters();
       },

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { Form, Checkbox, Row, Col, Select, Input, Button, Icon } from 'antd';
 
 let uuid = 0;
@@ -67,8 +68,8 @@ class Parameterinput extends Component {
         this.setValues(values);
     }
     render() {
-        const keyPlaceholder = this.props.keyPlaceholder || '请输入key值';
-        const valuePlaceholder = this.props.valuePlaceholder || '请输入value值';
+        const keyPlaceholder = this.props.keyPlaceholder || formatMessage({id:'placeholder.contiguration.msg.key'});
+        const valuePlaceholder = this.props.valuePlaceholder || formatMessage({id:'placeholder.contiguration.msg.value'});
         const values = this.state.values;
         const {editInfo}=this.props
         return (

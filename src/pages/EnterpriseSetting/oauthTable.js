@@ -89,7 +89,7 @@ export default class OauthTable extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
           this.handelOauthInfo();
         }
       }

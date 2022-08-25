@@ -81,6 +81,7 @@
 
         // 弹框确定取消
         'popover.confirm':'确定',
+        'popover.back':'上一步',
         'popover.cancel':'取消',
 
         // 位置：企业视图>总览>加入团队
@@ -127,6 +128,32 @@
         'button.switch.close':'关',
         'button.close':'关闭',
         'button.open':'开通',
+        'button.submit':'提交',
+        'button.give_up_release':'放弃发布',
+        'button.affirm_publish':'确认发布',
+        'button.retry':'重试',
+        'button.forced_backup':'强制备份',
+        'button.migration':'迁移',
+        'button.recover':'恢复',
+        'button.update':'更新',
+        'button.cancel':'取消',
+        'button.confirm':'确定',
+        'button.save':'保存',
+        'button.retest_check':'重新检测',
+        'button.abandon_create':'放弃创建',
+        'button.advanced_setup':'高级设置',
+        'button.create':'创建',
+        'button.confirm_create':'确认创建',
+        'button.confirm_update':'确认修改',
+        'button.components_build':'进入多组件构建',
+        'button.service_build':'进入多服务构建',
+        'button.build_start':'并构建启动',
+        'button.be_authorized':'已授权',
+        'button.umount':'取消挂载',
+        'button.build_component':'构建组件',
+        'button.add_depend':'添加依赖',
+        'button.add_port':'添加端口',
+
     }
     const status = {
         'status.component.running':'运行中',
@@ -135,17 +162,48 @@
         'status.component.abnormally':'运行异常',
         'status.component.closed':'已关闭',
         'status.component.off_line':'下线',
+        'status.app.backups.backuping':'备份中',
+        'status.app.backups.error':'备份失败',
+        'status.app.backups.success':'备份成功',
+        'status.app.backups.yolkStroke':'备份导出中',
+        'status.app.backups.imported':'备份已导入',
+        'status.loading':'加载中...',
+        'status.not_mount':'未挂载',
+        'status.mounted':'已挂载',
     }
     const confirmModal = {
-        //修改应用信息 删除应用
+        //修改 删除
         'confirmModal.app.title.edit':'修改应用信息',
         'confirmModal.app.title.delete':'删除应用',
-        'confirmModal.app.delete.desc':'确定要此删除此应用吗？',
+        'confirmModal.backup.title.delete':'删除备份',
+        'confirmModal.delete.strategy.title':'删除策略',
+        'confirmModal.delete.configuration.title':'删除配置组',
+        'confirmModal.delete.resource.title':'属性删除',
+        'confirmModal.abandon_create.create_check.title':'放弃创建',
+        'confirmModal.compose.update.title':'修改compose内容',
+        'confirmModal.umount.dalete.title':'取消挂载',
+        'confirmModal.path.delete.title':'删除存储目录',
+        'confirmModal.port.delete.title':'端口删除',
+        'confirmModal.domain.delete.title':'域名解绑',
+
 
         //组件提示
+        'confirmModal.delete.strategy.subDesc':'此操作不可恢复',
         'confirmModal.component.restart.title':'确认要重启该组件吗？',
         'confirmModal.component.start.title':'确认要启动该组件吗？',
         'confirmModal.component.stop.title':'确认要关闭该组件吗？',
+        'confirmModal.component.abandon.publish.title':'确定要放弃此次发布吗?',
+        'confirmModal.app.delete.desc':'确定要此删除此应用吗？',
+        'confirmModal.backup.delete.desc':'确定要删除此备份吗？',
+        'confirmModal.delete.strategy.desc':'确定要删除此策略吗?',
+        'confirmModal.delete.configuration.desc':'确定要删除此配置组吗？',
+        'confirmModal.delete.resource.desc':'确定要删除此属性吗？',
+        'confirmModal.delete.create_check.desc':'确定要放弃创建此组件吗？',
+        'confirmModal.delete.create_check_app.desc':'确定要放弃创建此应用吗？',
+        'confirmModal.delete.umount.desc':'确定要取消此挂载目录吗?',
+        'confirmModal.delete.path.desc':'确定要删除此存储目录吗?',
+        'confirmModal.delete.port.desc':'确定要删除此端口吗？',
+        'confirmModal.delete.domain.desc':'确定要解绑此域名吗？',
 
         //友情提示
         'confirmModal.friendly_reminder.title':'友情提示',
@@ -183,11 +241,6 @@
         'confirmModal.app.lable.principal':'负责人',
 
 
-        //删除策略
-        'confirmModal.delete.strategy.title':'删除策略',
-        'confirmModal.delete.strategy.subDesc':'此操作不可恢复',
-        'confirmModal.delete.strategy.desc':'确定要删除此策略吗?',
-
         //删除/编辑/添加成员
         'confirmModal.add.member':'添加成员',
         'confirmModal.delete.member':'删除成员',
@@ -217,6 +270,24 @@
         'confirmModal.image.lable.username':'用户名',
         'confirmModal.image.lable.password':'密码',
 
+        //提示
+        'confirmModal.component.hint':'提示',
+        'confirmModal.component.request_Error':'请求错误',
+
+        //检测
+        'confirmModal.component.check.title.loading':'组件构建源检测中...',
+        'confirmModal.component.check.title.success':'组件构建源检测通过',
+        'confirmModal.component.check.title.error':'组件构建源检测未通过',
+        'confirmModal.component.check.title.error.component_check':'组件检测未通过',
+        'confirmModal.component.check.title.success.component_check':'组件检测通过',
+        'confirmModal.component_build.check.model.build':'组件构建源检测出多模块构建',
+        'confirmModal.component.check.title.error.description':'请核对并修改以下信息后，再重新检测。',
+        'confirmModal.third_party.check.title.success':'第三方组件检测通过',
+        'confirmModal.component.check.appShare.desc':'此过程可能比较耗时，请耐心等待',
+        'confirmModal.check.appShare.title.loading':'应用同步中',
+        'confirmModal.check.appShare.title.success':'应用同步成功',
+        'confirmModal.check.appShare.title.error':'请查看以下日志确认问题后重试',
+        'confirmModal.check.appShare.title.loading':'应用同步中',
         
     }
     const notification = {
@@ -225,10 +296,13 @@
         'notification.success.setUp':'创建成功',
         'notification.success.edit':'编辑成功',
         'notification.success.add':'添加成功',
-        'notification.success.update':'上传成功',
         'notification.success.open':'开启成功',
         'notification.success.close':'关闭成功',
         'notification.success.save':'保存成功',
+        'notification.success.updates':'更新成功',
+        'notification.success.migration':'迁移成功',
+        'notification.success.change':'修改成功',
+        'notification.success.upload':'上传成功',
 
         // 失败
         'notification.error.delete':'删除失败',
@@ -236,6 +310,8 @@
         'notification.error.edit':'编辑失败',
         'notification.error.add':'添加失败',
         'notification.error.update':'上传失败',
+        'notification.error.migration':'迁移失败，请重新迁移',
+        'notification.error.change':'修改失败',
 
         // 警告
         'notification.warn.team':'请先加入团队！',
@@ -253,6 +329,22 @@
         'notification.hint.component.putStart':'操作成功，启动中',
         'notification.hint.component.putStop':'操作成功，关闭中',
 
+        //其他
+        'notification.hint.migration.team':'请选择迁移团队',
+        'notification.hint.migration.cluster':'请选择迁移集群',
+        'notification.hint.migration.loading.desc':'迁移中，请稍后(请勿关闭弹窗)',
+        'notification.hint.migration.warning.alert':'本地备份不能进行跨集群迁移',
+        'notification.hint.recover.loading':'恢复中，请稍后(请勿关闭弹窗)',
+        'notification.hint.recover.success.delete':'恢复成功，是否删除当前应用？',
+        'notification.hint.recover.error.alert':'恢复失败，请重新恢复',
+        'notification.hint.recover.alert':'您是否要恢复备份到当前集群?',
+        'notification.hint.recover.warning.continue':'您当前应用未完全恢复，是否继续？',
+        'notification.hint.confiuration.update.title':'需更新组件立即生效',
+        'notification.hint.confiuration.update.content':'是否立即更新组件',
+        'notification.hint.confiuration.editContent':'请编辑内容',
+        'notification.hint.resource.msg':'yaml文件内容不能为空',
+        'notification.hint.needUpdate.msg':'需要更新才能生效',
+        'notification.hint.select_depend.msg':'请选择要依赖的应用',
     }
     const placeholder = {
         'placeholder.appName':'请选择要所属应用',
@@ -271,7 +363,7 @@
         'placeholder.max24':'最大长度24位',
         'placeholder.docker_cmdMsg':'请输入镜像名称',
         'placeholder.docker_cmd':'请输入镜像名称, 如 nginx : 1.11',
-        'placeholder.dockerRunMsg':'输入DockerRun命令',
+        'placeholder.dockerRunMsg':'请输入DockerRun命令',
         'placeholder.dockerRun':'例如： docker run -d -p 8080:8080 -e PWD=1qa2ws --name=tomcat_demo tomcat',
         'placeholder.yaml_content':'请输入DockerCompose配置内容',
         'placeholder.user_name':'请输入仓库用户名',
@@ -347,7 +439,48 @@
         'placeholder.max63':'最大长度63位',
         'placeholder.govern.change':'未安装控制平面，无法切换',
         'placeholder.govern.is_valid':'格式错误!',
-        
+        'placeholder.app_not_name':'要创建的应用还没有名字',
+        'placeholder.appShare.formatError':'输入格式不正确',
+        'placeholder.appShare.min_node':'请输入最小节点',
+        'placeholder.appShare.max_node':'请输入最大节点',
+        'placeholder.appShare.step_node':'请输入节点步长',
+        'placeholder.appShare.init_memory':'请输入初始内存',
+        'placeholder.appShare.container_cpu':'请输入CPU',
+        'placeholder.appShare.versions_notNull':'版本不能为空, 请选择或添加版本',
+        'placeholder.appShare.layout_grid_mode':'只允许输入数字、版本格式:1.0或1.0.0',
+        'placeholder.appShare.leastOne':'请至少发布一个组件',
+        'placeholder.appShare.appTemplate':'应用模版选择是必须的',
+        'placeholder.appShare.selectAppTemplate':'选择发布的应用模版',
+        'placeholder.appShare.version':'版本号默认为选择模版的上次发布版本',
+        'placeholder.appShare.max64':'最大长度64位',
+        'placeholder.appShare.version_alias':'设置版本别名，比如高级版',
+        'placeholder.appShare.describe':'请输入版本说明',
+        'placeholder.appShare.retain':'请至少保留一个组件',
+        'placeholder.appShare.appPublish.name':'请输入名称',
+        'placeholder.appShare.scopePublish':'请选择发布范围',
+        'placeholder.appShare.org_id':'请选择行业',
+        'placeholder.appShare.addTag_ids':'请添加标签',
+        'placeholder.appShare.kindTag':'请选择分类标签',
+        'placeholder.appShare.describe':'请输入简介',
+        'placeholder.appShare.picLogo':'请上传图标',
+        'placeholder.appShare.select.shop':'请选择发布的商店',
+        'placeholder.backup.note':'请写入备份说明',
+        'placeholder.backup.select.team':'请选择团队',
+        'placeholder.contiguration.msg.config_group_name':'请填写配置组名称',
+        'placeholder.contiguration.msg.min2':'最小长度2位',
+        'placeholder.contiguration.msg.config_items':'请填写配置项',
+        'placeholder.contiguration.msg.service_ids':'请选择生效组件',
+        'placeholder.contiguration.msg.rule':'必须由字母、数字和 - . _ 组成，不支持数字开头',
+        'placeholder.contiguration.msg.not_null':'配置项key值不能为空',
+        'placeholder.contiguration.msg.key':'请输入key值',
+        'placeholder.contiguration.msg.value':'请输入value值',
+        'placeholder.image.service_cname':'请为创建的应用起个名字吧',
+        'placeholder.git_url.error':'仓库地址不正确',
+        'placeholder.input_content':'请输入内容',
+        'placeholder.setting.extend_method':'请选择组件类型',
+        'placeholder.setting.schedule':'请选择运行规则',
+        'placeholder.setting.min_memory':'请选择内存',
+        'placeholder.component_search':'请输入组件名称进行搜索',
 
     }
     const tooltip = {

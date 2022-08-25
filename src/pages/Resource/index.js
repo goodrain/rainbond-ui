@@ -20,14 +20,14 @@ class Index extends PureComponent {
       content: [],
       localContent: '',
       type: "add",
-      title: "新增",
+      title: formatMessage({id:'addKubenetesResource.btn.add'}),
       showDeletePort: false,
       deleteVal: {},
       editName: '',
       editId: 0,
       isSubmit: true,
       loadingSwitch: true,
-      TooltipValue:'#请填写yaml文件'
+      TooltipValue: formatMessage({id:'addKubenetesResource.localContent.yaml'})
     };
   }
   componentDidMount() {
@@ -60,9 +60,9 @@ class Index extends PureComponent {
   handleConfigurationOperation = () => {
     this.setState({
       visible: true,
-      title: "新增",
+      title: formatMessage({id:'addKubenetesResource.btn.add'}),
       type: "add",
-      localContent: '#请填写yaml文件',
+      localContent: formatMessage({id:'addKubenetesResource.localContent.yaml'}),
     });
   };
   handleSubmit = () => {
@@ -75,7 +75,7 @@ class Index extends PureComponent {
         this.handelAddOrEdit(label)
       } else {
         notification.error({
-          message: 'yaml文件内容不能为空'
+          message: formatMessage({id:'notification.hint.resource.msg'})
         })
       }
     });
@@ -88,7 +88,7 @@ class Index extends PureComponent {
       editName: row.name,
       localContent: row.content,
       editId: row.ID,
-      title: "修改"
+      title: formatMessage({id:'addKubenetesResource.table.btn.edit'})
     })
   }
   editErrButton = (val, row) => {
@@ -122,7 +122,7 @@ class Index extends PureComponent {
     }).then(res => {
       if (res && res.response_data && res.response_data.code == 200) {
         notification.success({
-          message: '删除成功'
+          message: formatMessage({id:'notification.success.delete'})
         })
         this.getPageContent()
       }
@@ -150,12 +150,12 @@ class Index extends PureComponent {
       }).then(res => {
         if (res && res.response_data && res.response_data.code == 200) {
           notification.success({
-            message: '添加完成'
+            message: formatMessage({id:'notification.success.add'})
           })
           this.getPageContent()
         } else {
           notification.error({
-            message: '添加失败'
+            message: formatMessage({id:'notification.error.add'})
           })
           this.getPageContent()
         }
@@ -170,12 +170,12 @@ class Index extends PureComponent {
       }).then(res => {
         if (res && res.response_data && res.response_data.code == 200) {
           notification.success({
-            message: '修改成功'
+            message: formatMessage({id:'notification.success.change'})
           })
           this.getPageContent()
         } else {
           notification.error({
-            message: '修改失败'
+            message: formatMessage({id:'notification.error.change'})
           })
           this.getPageContent()
         }
@@ -245,7 +245,7 @@ class Index extends PureComponent {
                 <Popover
                   overlayClassName={styles.tooltip_style}
                   placement="bottom"
-                  title="失败详情"
+                  title={formatMessage({id:'addKubenetesResource.table.errorDetail'})}
                   content={record.error_overview}
                   trigger="click"
                 >
@@ -348,7 +348,7 @@ class Index extends PureComponent {
               getFieldDecorator={getFieldDecorator}
               formItemLayout={formItemLayouts}
               name={"yaml"}
-              message="请编辑内容"
+              message={formatMessage({id:'notification.hint.confiuration.editContent'})}
               data={localContent || "" }
               mode={'yaml'}
               TooltipValue={TooltipValue}
@@ -368,20 +368,20 @@ class Index extends PureComponent {
             }}
           >
             <Button onClick={this.onClose} style={{ marginRight: 8 }}>
-              取消
+              {formatMessage({id:'button.cancel'})}
             </Button>
             {isSubmit &&
               <Button onClick={this.handleSubmit} type="primary">
-                确定
+                {formatMessage({id:'button.confirm'})}
               </Button>
             }
           </div>
         </Drawer>
         {this.state.showDeletePort && (
           <ConfirmModal
-            title="属性删除"
-            desc="确定要删除此属性吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({id:'confirmModal.delete.resource.title'})}
+            desc={formatMessage({id:'confirmModal.delete.resource.desc'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
             onOk={this.handleDel}
             onCancel={this.cancalDeletePort}
           />

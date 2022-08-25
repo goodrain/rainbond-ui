@@ -4,6 +4,7 @@ import { Card, Icon, notification, Table } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import apiconfig from '../../../config/api.config';
 import ConfirmModal from '../../components/ConfirmModal';
 import MigrationBackup from '../../components/MigrationBackup';
@@ -178,7 +179,7 @@ class Index extends React.Component {
       },
       callback: () => {
         notification.success({
-          message: '删除成功',
+          message: formatMessage({id:'notification.success.delete'}),
           duration: '2'
         });
         this.cancelDelete();
@@ -211,7 +212,7 @@ class Index extends React.Component {
       },
       callback: () => {
         notification.success({
-          message: '删除成功',
+          message: formatMessage({id:'notification.success.delete'}),
           duration: '2'
         });
         this.cancelDeleteBackup();

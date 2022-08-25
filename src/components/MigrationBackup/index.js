@@ -14,6 +14,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 
 const { Option } = Select;
@@ -49,7 +50,7 @@ export default class Index extends PureComponent {
     const { mode, currentRegion } = this.props;
     if (mode !== 'full-online' && value !== currentRegion) {
       notification.warning({
-        message: '当前备份模式是本地模式，不能进行跨集群迁移'
+        message: formatMessage({id:'appBackups.table.pages.model.migration'})
       });
       return;
     }
@@ -74,16 +75,16 @@ export default class Index extends PureComponent {
     const { teamsName } = this.state;
     const { regionName } = this.state;
     if (teamsName === '') {
-      notification.warning({ message: '请选择迁移团队' });
+      notification.warning({ message: formatMessage({id:'notification.hint.migration.team'}) });
       return;
     }
     if (regionName === '') {
-      notification.warning({ message: '请选择迁移集群' });
+      notification.warning({ message: formatMessage({id:'notification.hint.migration.cluster'}) });
       return;
     }
     if (mode !== 'full-online' && regionName !== currentRegion) {
       notification.warning({
-        message: '当前备份模式是本地模式，不能进行跨集群迁移'
+        message: formatMessage({id:'appBackups.table.pages.model.migration'})
       });
       return;
     }
@@ -201,20 +202,20 @@ export default class Index extends PureComponent {
         visible
         onCancel={this.props.onCancel}
         onOk={this.handleSubmit}
-        title="迁移"
+        title={formatMessage({id:'appBackups.table.pages.migration.title'})}
         footer={
           this.state.showRestore
             ? [
                 <Button key="back" onClick={this.props.onCancel}>
-                  关闭
+                  {formatMessage({id:'button.close'})}
                 </Button>
               ]
             : [
                 <Button key="back" onClick={this.props.onCancel}>
-                  关闭
+                  {formatMessage({id:'button.close'})}
                 </Button>,
                 <Button key="submit" type="primary" onClick={this.handleSubmit}>
-                  迁移
+                  {formatMessage({id:'button.migration'})}
                 </Button>
               ]
         }
@@ -227,7 +228,7 @@ export default class Index extends PureComponent {
                   <Spin />
                 </p>
                 <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                  迁移中，请稍后(请勿关闭弹窗)
+                  {formatMessage({id:'notification.hint.migration.loading.desc'})}
                 </p>
               </div>
             ) : (
@@ -245,7 +246,7 @@ export default class Index extends PureComponent {
                   <Icon type="check-circle-o" />
                 </p>
                 <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                  迁移成功
+                  {formatMessage({id:'notification.success.migration'})}
                 </p>
               </div>
             ) : (
@@ -263,7 +264,7 @@ export default class Index extends PureComponent {
                   <Icon type="close-circle-o" />
                 </p>
                 <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                  迁移失败，请重新迁移
+                  {formatMessage({id:'notification.error.migration'})}
                 </p>
               </div>
             ) : (
@@ -273,15 +274,15 @@ export default class Index extends PureComponent {
         ) : (
           <div>
             {moveBackupMode === 'full-offline' && (
-              <Alert type="warning" message="本地备份不能进行跨集群迁移" />
+              <Alert type="warning" message={formatMessage({id:'notification.hint.migration.warning.alert'})} />
             )}
-            <p>请选择迁移的团队和集群</p>
+            <p>{formatMessage({id:'appBackups.table.pages.migration.teamOrCluster'})}</p>
             <Row>
               <Col span={12}>
                 <Select
                   style={{ width: '90%', marginRight: '10px' }}
                   onSelect={this.handleTeamsChange}
-                  defaultValue="请选择团队"
+                  defaultValue={formatMessage({id:'placeholder.backup.select.team'})}
                 >
                   {teamsData.map(order => {
                     return (

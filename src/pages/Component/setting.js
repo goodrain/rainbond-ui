@@ -444,7 +444,7 @@ export default class Index extends React.Component {
         label_id: tag.label_id
       },
       callback: () => {
-        notification.success({ message: '删除成功' });
+        notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.fetchTags();
       }
     });

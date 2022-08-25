@@ -143,7 +143,7 @@ export default class ConfigurationTable extends PureComponent {
             this.handleResetInfo();
           }
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
         }
       }
@@ -153,10 +153,10 @@ export default class ConfigurationTable extends PureComponent {
   showRemind = serviceIds => {
     const th = this;
     confirm({
-      title: '需更新组件立即生效',
-      content: '是否立即更新组件',
-      okText: '更新',
-      cancelText: '取消',
+      title: formatMessage({id:'notification.hint.confiuration.update.title'}),
+      content: formatMessage({id:'notification.hint.confiuration.update.content'}),
+      okText: formatMessage({id:'button.update'}),
+      cancelText: formatMessage({id:'button.cancel'}),
       onOk() {
         th.handleBatchOperation(serviceIds);
         return new Promise((resolve, reject) => {
@@ -178,7 +178,7 @@ export default class ConfigurationTable extends PureComponent {
     }).then(data => {
       if (data) {
         notification.success({
-          message: '更新成功',
+          message: formatMessage({id:'notification.success.updates'}),
           duration: '3'
         });
         this.handleResetInfo();
@@ -231,9 +231,9 @@ export default class ConfigurationTable extends PureComponent {
             onOk={this.handleDeleteVariabl}
             onCancel={this.cancelDeleteVariabl}
             loading={deleteConfigurationLoading}
-            title="删除配置组"
-            desc="确定要删除此配置组吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({id: 'confirmModal.delete.configuration.title'})}
+            desc={formatMessage({id: 'confirmModal.delete.configuration.desc'})}
+            subDesc={formatMessage({id: 'confirmModal.delete.strategy.subDesc'})}
           />
         )}
         <Card loading={loading}>

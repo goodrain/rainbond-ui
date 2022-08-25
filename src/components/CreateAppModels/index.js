@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import apiconfig from '../../../config/api.config';
 import { fetchAppModelsTags, fetchOrganizations } from '../../services/market';
 import cookie from '../../utils/cookie';
@@ -444,7 +445,7 @@ class CreateAppModels extends PureComponent {
     const uploadButton = (
       <div>
         <Icon type={loading ? 'loading' : 'plus'} />
-        <div className="ant-upload-text">上传图标</div>
+        <div className="ant-upload-text">{formatMessage({id:'appPublish.btn.record.creactAppModel.pages.uploadIcon'})}</div>
       </div>
     );
 
@@ -466,45 +467,44 @@ class CreateAppModels extends PureComponent {
           onCancel={onCancel}
           footer={
             <Fragment>
-              <Button onClick={onCancel}> 取消 </Button>
+              <Button onClick={onCancel}> {formatMessage({id:'popover.cancel'})} </Button>
               <Button
                 type="primary"
                 disabled={organizationsLoading || tagLoading}
                 onClick={this.handleSubmit}
                 loading={submitLoading}
               >
-                确定
+                {formatMessage({id:'popover.confirm'})}
               </Button>
             </Fragment>
           }
         >
           <Spin spinning={organizationsLoading || tagLoading}>
             <Form onSubmit={this.handleSubmit} layout="horizontal">
-              <FormItem {...formItemLayout} label="名称">
+              <FormItem {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.name'})}>
                 {getFieldDecorator('name', {
                   initialValue: appName || (appInfo ? appInfo.app_name : ''),
                   rules: [
                     {
                       required: true,
-                      message: '请输入名称'
+                      message: formatMessage({id:'placeholder.appShare.appPublish.name'})
                     },
                     {
                       max: 32,
-                      message: '最大长度32位'
+                      message: formatMessage({id:'placeholder.max32'})
                     },
                     {
                       pattern: /^[a-z0-9A-Z\u4e00-\u9fa5]([a-zA-Z0-9_\-\u4e00-\u9fa5]*[a-z0-9A-Z\u4e00-\u9fa5])?$/,
-                      message:
-                        '只支持中文、字母、数字和-_组合，并且必须以中文、字母、数字开始和结束'
+                      message: formatMessage({id:'placeholder.nameSpaceReg'})
                     }
                   ]
-                })(<Input placeholder="请输入名称" />)}
+                })(<Input placeholder={formatMessage({id:'placeholder.appShare.appPublish.name'})} />)}
                 <div className={styles.conformDesc}>
-                  请输入创建的应用模版名称，最大长度32位.
+                  {formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.max32'})}
                 </div>
               </FormItem>
               {!marketId && (
-                <FormItem {...formItemLayout} label="发布范围">
+                <FormItem {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.scope'})}>
                   {getFieldDecorator('scope', {
                     initialValue: appInfo
                       ? isShared && appInfo.scope && appInfo.scope === 'team'
@@ -514,7 +514,7 @@ class CreateAppModels extends PureComponent {
                     rules: [
                       {
                         required: true,
-                        message: '请输入名称'
+                        message: formatMessage({id:'placeholder.appShare.appPublish.name'})
                       }
                     ]
                   })(
@@ -523,7 +523,7 @@ class CreateAppModels extends PureComponent {
                         getPopupContainer={triggerNode =>
                           triggerNode.parentNode
                         }
-                        placeholder="请选择发布范围"
+                        placeholder={formatMessage({id:'placeholder.appShare.scopePublish'})}
                         dropdownRender={menu => (
                           <div>
                             {menu}
@@ -543,7 +543,7 @@ class CreateAppModels extends PureComponent {
                                       this.addTeams();
                                     }}
                                   >
-                                    <Icon type="plus" /> 加载更多
+                                    <Icon type="plus" /> {formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.loadingMore'})}
                                   </div>
                                 )}
                               </div>
@@ -553,7 +553,7 @@ class CreateAppModels extends PureComponent {
                       >
                         <Option value="enterprise" key="enterprise">
                           <div style={{ borderBottom: '1px solid #ccc' }}>
-                            当前企业
+                            {formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.present_enterprise'})}
                           </div>
                         </Option>
 
@@ -571,25 +571,25 @@ class CreateAppModels extends PureComponent {
                       </Select>
                     ) : (
                       <Radio.Group name="scope">
-                        <Radio value="team">当前团队</Radio>
-                        <Radio value="enterprise">企业</Radio>
+                        <Radio value="team">{formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.present_team'})}</Radio>
+                        <Radio value="enterprise">{formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.enterprise'})}</Radio>
                       </Radio.Group>
                     )
                   )}
-                  <div className={styles.conformDesc}>发布模型的可视范围</div>
+                  <div className={styles.conformDesc}>{formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.scope_Publish'})}</div>
                 </FormItem>
               )}
               {marketId && marketVersion && marketVersion === '2.0' && (
-                <FormItem {...formItemLayout} label="行业名称">
+                <FormItem {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.org_id'})}>
                   {getFieldDecorator('org_id', {
                     rules: [
                       {
                         required: true,
-                        message: '请选择行业'
+                        message: formatMessage({id:'placeholder.appShare.org_id'})
                       }
                     ]
                   })(
-                    <Select placeholder="请选择行业">
+                    <Select placeholder={formatMessage({id:'placeholder.appShare.org_id'})}>
                       {organizations &&
                         organizations.length > 0 &&
                         organizations.map(item => {
@@ -601,13 +601,13 @@ class CreateAppModels extends PureComponent {
                   )}
                 </FormItem>
               )}
-              <Form.Item {...formItemLayout} label="分类标签">
+              <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.tag_ids'})}>
                 {getFieldDecorator('tag_ids', {
                   initialValue: arr,
                   rules: [
                     {
                       required: false,
-                      message: '请添加标签'
+                      message: formatMessage({id:'placeholder.appShare.addTag_ids'})
                     }
                   ]
                 })(
@@ -617,7 +617,7 @@ class CreateAppModels extends PureComponent {
                     style={{ width: '100%' }}
                     onSelect={this.handleOnSelect}
                     tokenSeparators={[',']}
-                    placeholder="请选择分类标签"
+                    placeholder={formatMessage({id:'placeholder.appShare.kindTag'})}
                   >
                     {tagList.map(item => {
                       const { tag_id, name } = item;
@@ -630,7 +630,7 @@ class CreateAppModels extends PureComponent {
                   </Select>
                 )}
               </Form.Item>
-              <FormItem {...formItemLayout} label="简介">
+              <FormItem {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.describe'})}>
                 {getFieldDecorator('describe', {
                   initialValue: appInfo
                     ? appInfo.describe || appInfo.app_describe
@@ -638,21 +638,21 @@ class CreateAppModels extends PureComponent {
                   rules: [
                     {
                       required: false,
-                      message: '请输入简介'
+                      message: formatMessage({id:'placeholder.appShare.describe'})
                     }
                   ]
-                })(<TextArea placeholder="请输入简介" />)}
+                })(<TextArea placeholder={formatMessage({id:'placeholder.appShare.describe'})} />)}
                 <div className={styles.conformDesc}>
-                  请输入创建的应用模版简介
+                  {formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.model_intro'})}
                 </div>
               </FormItem>
-              <Form.Item {...formItemLayout} label="LOGO">
+              <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.logo'})}>
                 {getFieldDecorator('pic', {
                   initialValue: appInfo ? appInfo.pic : '',
                   rules: [
                     {
                       required: false,
-                      message: '请上传图标'
+                      message: formatMessage({id:'placeholder.appShare.picLogo'})
                     }
                   ]
                 })(

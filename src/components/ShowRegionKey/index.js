@@ -1,4 +1,5 @@
 import React, { PureComponent } from "react";
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Button, Icon, Modal } from "antd";
 import { connect } from "dva";
 import globalUtil from "../../utils/global";
@@ -31,14 +32,14 @@ export default class ShowKeyModal extends PureComponent {
     const { key } = this.state;
     return (
       <Modal
-        title="配置授权Key"
+        title={formatMessage({id:'componentCheck.modify_image_name.key.title'})}
         visible
         onCancel={onCancel}
-        footer={[<Button onClick={onOk || onCancel}>已授权</Button>]}
+        footer={[<Button onClick={onOk || onCancel}>{formatMessage({id:'button.be_authorized'})}</Button>]}
       >
         <p>
           <Icon type="info-circle-o" />{" "}
-          请拷贝如下Key到您的私有Git仓库进行授权，云帮平台方可访问您的私有Git仓库
+          {formatMessage({id:'componentCheck.modify_image_name.key.pages.desc'})}
         </p>
         <p
           style={{
@@ -48,7 +49,7 @@ export default class ShowKeyModal extends PureComponent {
             wordBreak: "normal"
           }}
         >
-          {key || "加载中..."}
+          {key || formatMessage({id:'status.loading'})}
         </p>
       </Modal>
     );

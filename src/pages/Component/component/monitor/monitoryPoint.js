@@ -98,7 +98,7 @@ export default class customMonitor extends PureComponent {
       },
       callback: res => {
         if (res) {
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
           this.fetchServiceMonitor();
           this.cancelDeleteCustomMonitor();
         }
