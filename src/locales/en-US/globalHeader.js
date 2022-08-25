@@ -1,4 +1,4 @@
-export default {
+const headerOverview = {
     'header.team.re':'Back to Enterprise View',
     'header.team.name':'Team Perspective',
     'header.team.search':'Screening team',
@@ -18,3 +18,4 @@ export default {
     'header.component.getall':'View all components of an application',
     'header.component.noselect': 'Component not selected'
 };
+export default Object.assign({}, headerOverview);
