@@ -96,10 +96,13 @@
         'popover.enterpriseOverview.setUpTeam.label.name':'Team name',
         'popover.enterpriseOverview.setUpTeam.label.englishName':'English team name',
         'popover.enterpriseOverview.setUpTeam.label.colony':'Cluster',
+        'popover.enterpriseOverview.setUpTeam.label.creat_name':'Click to create a team.',
+        'popover.enterpriseOverview.setUpTeam.label.creat_colony':'Lack of cluster, to create',
         // placeholder
         'popover.enterpriseOverview.setUpTeam.placeholder.name':'Please enter the team name',
         'popover.enterpriseOverview.setUpTeam.placeholder.englishName':'The English name of the team',
         'popover.enterpriseOverview.setUpTeam.placeholder.colony':'Select the cluster',
+        'popover.enterpriseOverview.setUpTeam.placeholder.max':'Maximum length: 10 bits',
         // conformDesc
         'popover.enterpriseOverview.setUpTeam.conformDesc.name':'Please enter the name of the team to be created. The maximum length is 10 characters',
         'popover.enterpriseOverview.setUpTeam.conformDesc.englishName':'The namespace used by the team in the cluster',
@@ -153,6 +156,16 @@
         'button.build_component':'Build component',
         'button.add_depend':'Add dependent',
         'button.add_port':'Add port',
+        'button.add':'Add to',
+        'button.apply':'Apply',
+        'button.previous':'Previous step',
+        'button.next':'Next step',
+        'button.uninstall':'Uninstall',
+        'button.copy':'Copy',
+        'button.operation':'Operation',
+        'button.Docking':'Docking',
+        'button.return':'Return',
+        'button.configuration':'Advanced configuration',
     }
     const status = {
         'status.component.running':'Running',

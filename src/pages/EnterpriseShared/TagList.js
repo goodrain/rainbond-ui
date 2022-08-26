@@ -3,6 +3,7 @@
 import { Button, Checkbox, Col, Form, Modal, Row } from "antd";
 import { connect } from "dva";
 import React, { PureComponent } from "react";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from "../../components/CreateTeam/index.less";
 
 const FormItem = Form.Item;
@@ -59,9 +60,9 @@ export default class TagList extends PureComponent {
         onOk={this.handleSubmit}
         onCancel={this.handleSubmit}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}>  <FormattedMessage id='button.cancel'/></Button>,
           <Button type="primary" onClick={this.handleSubmit}>
-            确定
+            <FormattedMessage id='button.confirm'/>
           </Button>
         ]}
       >
@@ -87,7 +88,8 @@ export default class TagList extends PureComponent {
                   rules: [
                     {
                       required: false,
-                      message: '请选择标签',
+                      message: formatMessage({id:'applicationMarket.TagList.select_label'}),
+
                     },
                   ],
                 })(

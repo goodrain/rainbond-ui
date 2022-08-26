@@ -671,7 +671,7 @@ export default class EnterpriseTeams extends PureComponent {
           <Col span={15} style={{ textAlign: 'left' }}>
             <Search
               style={{ width: '500px' }}
-              placeholder="请输入项目/团队名称进行搜索"
+              placeholder={formatMessage({id:'enterpriseTeamManagement.allProject.search'})}
               onSearch={this.handleSearchTeam}
             />
           </Col>
@@ -918,7 +918,6 @@ export default class EnterpriseTeams extends PureComponent {
         )}
         {!userTeam && (
           <Empty
-            description="暂无项目/团队，请点击创建项目/团队进行创建"
             description={ <FormattedMessage id='enterpriseTeamManagement.other.description'/>}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
@@ -1020,7 +1019,7 @@ export default class EnterpriseTeams extends PureComponent {
         )}
         {initShow && (
           <CreateTeam
-            title="创建您的第一个项目/团队"
+            title={<FormattedMessage id='enterpriseTeamManagement.allProject.title'/>}
             enterprise_id={eid}
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}

@@ -108,16 +108,16 @@ export default class ClusterLink extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: '基本配置'
+        title: formatMessage({id:'enterpriseColony.ACksterList.basic'})
       },
       {
-        title: '高级配置'
+        title: formatMessage({id:'enterpriseColony.ACksterList.senior'})
       },
       {
-        title: '执行安装'
+        title: formatMessage({id:'enterpriseColony.ACksterList.install'})
       },
       {
-        title: '对接集群'
+        title: formatMessage({id:'enterpriseColony.ACksterList.Docking'})
       }
     ];
     return steps;
@@ -240,7 +240,7 @@ export default class ClusterLink extends PureComponent {
       if (isPass) {
         callback();
       } else {
-        callback(new Error('需填写完整的网关安装节点'));
+        callback(new Error(`${formatMessage({id:'enterpriseColony.cloud.gateway_node'})}`));
       }
     } else {
       callback();
@@ -286,8 +286,8 @@ export default class ClusterLink extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="添加集群"
-        content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
+      title={<FormattedMessage id='enterpriseColony.button.text'/>}
+      content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
       >
         {/* 步骤 */}
         <Row style={{ marginBottom: '16px' }}>
@@ -305,17 +305,16 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    ELB 负载均衡:
+                    {formatMessage({id:'enterpriseColony.cloud.elb'})}
                   </span>
                 </div>
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
                   extra={
-                    <div>根据自身需求，提前在华为云官网准备好云资源：ELB负载均衡，
-                      ELB负载流量到后端网关节点的 80、443、6060、6443、7070、8443 端口，所以需要配置ELB监听端口，
+                    <div>{formatMessage({id:'enterpriseColony.huaweicloud.slb'})}
                       <a target="_blank" href="https://support.huaweicloud.com/qs-elb/zh-cn_topic_0052569751.html">
-                        详细配置见官方文档。
+                        {formatMessage({id:'enterpriseColony.cloud.doc'})}
                       </a>
                     </div>
                   }
@@ -324,38 +323,37 @@ export default class ClusterLink extends PureComponent {
                     rules: [
                       {
                         required: true,
-                        message: '请填写IP地址'
+                        message: formatMessage({id:'enterpriseColony.cloud.ip'})
                       },
                       {
                         pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
-                        message: '请填写正确的IP地址'
+                        message: formatMessage({id:'enterpriseColony.cloud.input_ip'})
                       },
                       {
                         pattern: /^[^\s]*$/,
                         message: formatMessage({id:'placeholder.no_spaces'})
                       }
                     ]
-                  })(<Input placeholder="请填写IP地址  例：1.2.3.4" />)}
+                  })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_ip'})} />)}
                 </FormItem>
               </Row>
               {/* 网关安装节点 */}
               <Row className={styles.antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    网关安装节点:
+                    {formatMessage({id:'enterpriseColony.cloud.gateway'})}
                   </span>
                 </div>
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="rainbond网关安装到的节点，可以安装到多个节点，实现网关高可用。节点名称填写k8s集群中node名称，
-                  华为云请确认安装节点可以连接外网。"
+                  extra={formatMessage({id:'enterpriseColony.huaweicloud.access'})}
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
                       {
                         required: true,
-                        message: '请填写网关安装节点'
+                        message: formatMessage({id:'enterpriseColony.cloud.input_gateway'})
                       },
                       {
                         validator: this.handleValidatorsGateway
@@ -367,22 +365,22 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}>SFS 存储:</span>
+                    <span className={styles.titleSpan}>{formatMessage({id:'enterpriseColony.cloud.sfs'})}</span>
                   </div>
                   <div className={styles.desc}>
-                    (非必填) 根据自身需求，在华为云官网准备好SFS文件系统，用于持久化数据，
+                    {formatMessage({id:'enterpriseColony.huaweicloud.doc'})}
                     <a target="_blank" href="https://support.huaweicloud.com/qs-sfs/zh-cn_topic_0034428727.html">
-                      详细配置见官方文档。
+                      {formatMessage({id:'enterpriseColony.cloud.doc'})}
                     </a>
                   </div>
                 </div>
                 <div className={styles.config}>
-                  <FormItem {...storageFormItemLayout} label="挂载点地址">
+                  <FormItem {...storageFormItemLayout} label={formatMessage({id:'enterpriseColony.cloud.mount'})}>
                     {getFieldDecorator('server', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写挂载点地址'
+                          message: formatMessage({id:'enterpriseColony.cloud.mount_add'})
                         },
                         {
                           pattern: /^[^\s]*$/,
@@ -390,15 +388,15 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder="请填写挂载点地址  例：192.168.0.12" />
+                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.mounting_dome'})} />
                     )}
                   </FormItem>
-                  <FormItem {...storageFormItemLayout} label="挂载点路径">
+                  <FormItem {...storageFormItemLayout} label={formatMessage({id:'enterpriseColony.cloud.path'})}>
                     {getFieldDecorator('path', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写挂载点路径'
+                          message: formatMessage({id:'enterpriseColony.cloud.input_path'})
                         },
                         {
                           pattern: /^[^\s]*$/,
@@ -406,7 +404,7 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder="请填写挂载点路径  例：/" />
+                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.dome_path'})} />
                     )}
                   </FormItem>
                 </div>
@@ -415,95 +413,95 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}>RDS 数据库</span>
+                    <span className={styles.titleSpan}>{formatMessage({id:'enterpriseColony.cloud.rds'})}</span>
                   </div>
                   <div className={styles.desc}>
-                    (非必填) 根据自身需求，在华为云官网准备好“云数据库 RDS for MySQL 8.0“，并开放3306连接端口，登录RDS创建，授权用户，创建好相对应的数据库，
+                    {formatMessage({id:'enterpriseColony.huaweicloud.gateway'})}
                     <a target="_blank" href="https://support.huaweicloud.com/qs-rds/zh-cn_topic_0046585334.html">
-                      详细配置见官方文档。
+                      {formatMessage({id:'enterpriseColony.cloud.doc'})}
                     </a>
                   </div>
                 </div>
                 <div className={styles.config}>
                   {/* 连接地址 */}
-                  <FormItem {...formItemLayouts} label="连接地址">
+                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.address'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_host', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写连接地址'
+                          message: formatMessage({id:'enterpriseColony.cloud.inputAddress'})
                         },
                         {
                           pattern: /^[^\s]*$/,
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder="请填写数据库连接地址" />)}
+                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_address'})} />)}
                   </FormItem>
                   {/* 连接端口 */}
-                  <FormItem {...formItemLayouts} label="连接端口">
+                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.port'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_port', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写连接端口'
+                          message: formatMessage({id:'enterpriseColony.cloud.input_port'})
                         },
                         {
                           pattern: /^[^\s]*$/,
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder="请填写连接端口  例：3306" />)}
+                    })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.demo_port'})}/>)}
                   </FormItem>
                   {/* 用户名 */}
-                  <FormItem {...formItemLayouts} label="用户名">
+                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.name'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_username', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写用户名'
+                          message: formatMessage({id:'enterpriseColony.cloud.input_name'})
                         },
                         {
                           pattern: /^[^\s]*$/,
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder="请填写用户名  例：root" />)}
+                    })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.demo_name'})}/>)}
                   </FormItem>
                   {/* 密码 */}
-                  <FormItem {...formItemLayouts} label="密码">
+                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.password'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_password', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写密码'
+                          message: formatMessage({id:'enterpriseColony.cloud.input_password'})
                         },
                         {
                           pattern: /^[^\s]*$/,
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input type="password" placeholder="请填写密码" />)}
+                    })(<Input type="password" placeholder= {formatMessage({id:'enterpriseColony.cloud.input_password'})}/>)}
                   </FormItem>
                   {/* 数据库名称 */}
-                  <FormItem {...formItemLayouts} label="数据库名称">
+                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.access_name'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_dbname', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写数据库名称'
+                          message: formatMessage({id:'enterpriseColony.cloud.input_access_name'})
                         },
                         {
                           pattern: /^[^\s]*$/,
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder="请填写数据库库名称  例：region" />)}
+                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_access_name'})} />)}
                   </FormItem>
                 </div>
               </Row>
@@ -511,41 +509,41 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}>容器镜像服务</span>
+                    <span className={styles.titleSpan}>{formatMessage({id:'enterpriseColony.cloud.image'})}</span>
                   </div>
                   <div className={styles.desc}>
-                    (非必填) 根据自身需求，在华为云官网准备好”容器镜像服务SWR“，根据提示开通之后，会得到一个仓库域名，组织名称（或命名空间），登录镜像仓库的用户名，密码。
+                    {formatMessage({id:'enterpriseColony.huaweicloud.nas'})}
                   </div>
                 </div>
                 <div className={styles.config}>
                   <FormItem
                     {...formItemLayouts}
-                    label="镜像仓库域名"
+                    label={formatMessage({id:'enterpriseColony.cloud.image_address'})}
                     className={styles.antd_form}
                   >
                     {getFieldDecorator('domain', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写镜像仓库域名'
+                          message: formatMessage({id:'enterpriseColony.cloud.input_image_address'})
                         },
                         {
                           pattern: /^[^\s]*$/,
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder="请填写镜像仓库域名" />)}
+                    })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.input_image_address'})}/>)}
                   </FormItem>
                   <FormItem
                     {...formItemLayouts}
-                    label="命名空间"
+                    label={formatMessage({id:'enterpriseColony.cloud.namespace'})}
                     className={styles.antd_form}
                   >
                     {getFieldDecorator('namespace', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写命名空间'
+                          message: formatMessage({id:'enterpriseColony.cloud.input_namespace'})
                         },
                         {
                           pattern: /^[^\s]*$/,
@@ -553,44 +551,44 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder="请填写命名空间" />
+                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_namespace'})} />
                     )}
                   </FormItem>
                   <FormItem
                     {...formItemLayouts}
-                    label="用户名"
+                    label={formatMessage({id:'enterpriseColony.cloud.name'})}
                     className={styles.antd_form}
                   >
                     {getFieldDecorator('username', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写用户名'
+                          message: formatMessage({id:'enterpriseColony.cloud.input_name'})
                         },
                         {
                           pattern: /^[^\s]*$/,
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder="请填写用户名" />)}
+                    })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.input_name'})}/>)}
                   </FormItem>
                   <FormItem
                     {...formItemLayouts}
-                    label="密码"
+                    label={formatMessage({id:'enterpriseColony.cloud.password'})}
                     className={styles.antd_form}
                   >
                     {getFieldDecorator('password', {
                       rules: [
                         {
                           required: false,
-                          message: '请填写密码'
+                          message: formatMessage({id:'enterpriseColony.cloud.input_password'})
                         },
                         {
                           pattern: /^[^\s]*$/,
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input type="password" placeholder="请填写密码" />)}
+                    })(<Input type="password" placeholder={formatMessage({id:'enterpriseColony.cloud.input_password'})} />)}
                   </FormItem>
                 </div>
               </Row>
@@ -606,7 +604,7 @@ export default class ClusterLink extends PureComponent {
                     );
                   }}
                 >
-                  返回
+                  <FormattedMessage id='button.return'/>
                 </Button>
                 <Button
                   className={styles.antd_btn}
@@ -615,7 +613,7 @@ export default class ClusterLink extends PureComponent {
                     this.toLinkNext('advanced');
                   }}
                 >
-                  高级配置
+                  <FormattedMessage id='button.configuration'/>
                 </Button>
                 <Button
                   className={styles.antd_btn}
@@ -624,7 +622,7 @@ export default class ClusterLink extends PureComponent {
                     this.toLinkNext('next');
                   }}
                 >
-                  下一步
+                  <FormattedMessage id='button.next'/>
                 </Button>
               </FormItem>
             </Row>

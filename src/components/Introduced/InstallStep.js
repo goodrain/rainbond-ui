@@ -93,16 +93,16 @@ export default class InstallStep extends PureComponent {
         onCancel={() => onCancel(false, installType)}
       >
         <h2 className={styless.initTitle}>
-          {isCluster ? '恭喜你安装成功！' : '安装步骤'}
+          {isCluster ? <FormattedMessage id='enterpriseOverview.overview.InstallStep.success'/> : <FormattedMessage id='enterpriseOverview.overview.InstallStep.install_step'/>}
         </h2>
         <p style={{ textAlign: 'center' }}>
           {isCluster
-            ? '默认集群环境已经安装成功,去部署应用'
-            : '我们将引导您完成第一次应用安装，体验平台最基础的能力。'}
+            ? <FormattedMessage id='enterpriseOverview.overview.InstallStep.app'/>
+            : <FormattedMessage id='enterpriseOverview.overview.InstallStep.guide'/>}
         </p>
         <div style={{ padding: '0px 90px' }}>
           <Tabs value={installType} onChange={this.onTabChange}>
-            <TabPane tab="部署我自己的应用" key="1">
+            <TabPane  tab={<FormattedMessage id='enterpriseOverview.overview.InstallStep.our_app'/>}key="1">
               <Steps direction="vertical" current="1">
                 {/* {!isHaveCluters && (
                   <Step
@@ -137,7 +137,7 @@ export default class InstallStep extends PureComponent {
                         fontWeight: 'bold'
                       }}
                     >
-                      安装应用
+                      <FormattedMessage id='enterpriseOverview.overview.InstallStep.install'/>
                     </span>
                   }
                   icon={
@@ -150,18 +150,18 @@ export default class InstallStep extends PureComponent {
                     <span
                       style={{ color: isCluster ? '#000000A6' : '#00000073' }}
                     >
-                      进入团队，选择新增(源码、镜像、应用市场、第三方)
+                      <FormattedMessage id='enterpriseOverview.overview.InstallStep.into'/>
                     </span>
                   }
                 />
               </Steps>
             </TabPane>
-            <TabPane tab="从应用市场安装应用" key="2">
+            <TabPane  tab={<FormattedMessage id='enterpriseOverview.overview.InstallStep.market'/>}key="2">
               <Steps direction="vertical" current={isCluster ? '2' : '1'}>
                 <Step
                   title={
                     <span style={{ color: '#4D73B1', fontWeight: 'bold' }}>
-                      获取授权
+                      <FormattedMessage id='enterpriseOverview.overview.InstallStep.authorization'/>
                     </span>
                   }
                   icon={
@@ -172,7 +172,7 @@ export default class InstallStep extends PureComponent {
                   }
                   description={
                     <span style={{ color: '#000000A6' }}>
-                      当前应用商店无安装权限，需要进行商店的授权
+                      <FormattedMessage id='enterpriseOverview.overview.InstallStep.mode'/>
                     </span>
                   }
                 />
@@ -220,7 +220,7 @@ export default class InstallStep extends PureComponent {
                         fontWeight: 'bold'
                       }}
                     >
-                      安装应用
+                      <FormattedMessage id='enterpriseOverview.overview.InstallStep.install'/>
                     </span>
                   }
                   icon={
@@ -231,7 +231,7 @@ export default class InstallStep extends PureComponent {
                   }
                   description={
                     <span style={{ color: '#00000073' }}>
-                      需要可用的计算资源和商店的安装权限
+                      <FormattedMessage id='enterpriseOverview.overview.InstallStep.install_mode'/>
                     </span>
                   }
                 />
@@ -247,16 +247,16 @@ export default class InstallStep extends PureComponent {
               onClick={() => onStartInstall(installType)}
               type="primary"
             >
-              {installType === '1' ? '部署自己的应用' : '对接应用市场,获取授权'}
+              {installType === '1' ? <FormattedMessage id='enterpriseOverview.overview.InstallStep.our_app'/> : <FormattedMessage id='enterpriseOverview.overview.InstallStep.Docking'/>}
             </Button>
             {installType === '1' && (
-              <Button onClick={() => onViewInstance()}>查看演示示例</Button>
+              <Button onClick={() => onViewInstance()}><FormattedMessage id='enterpriseOverview.overview.InstallStep.demo'/></Button>
             )}{' '}
           </p>
         ) : (
           <p style={{ textAlign: 'center', padding: '16px 0' }}>
             <Button onClick={() => onCancel(true, installType)} type="primary">
-              马上开始
+              <FormattedMessage id='enterpriseOverview.overview.InstallStep.start'/>
             </Button>
           </p>
         )}

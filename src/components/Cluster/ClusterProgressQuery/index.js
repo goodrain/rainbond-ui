@@ -3,6 +3,7 @@ import rainbondUtil from '@/utils/rainbond';
 import { Alert, Button, Modal, Popover, Row, Timeline } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import modelstyles from '../../CreateTeam/index.less';
 import ClusterComponents from '../ClusterComponents';
 import ClusterCreationLog from '../ClusterCreationLog';
@@ -58,7 +59,7 @@ class ClusterProgressQuery extends PureComponent {
       operators.length &&
       clusterID &&
       (provider === 'rke' || provider === 'custom');
-    let pending = '进行中';
+    let pending = `${formatMessage({id:'enterpriseColony.ClusterProgressQuery.hand'})}`;
     if (complete) {
       pending = false;
     }
@@ -72,7 +73,7 @@ class ClusterProgressQuery extends PureComponent {
         className={modelstyles.TelescopicModal}
         footer={[
           <Button type="primary" onClick={onCancel}>
-            关闭
+            <FormattedMessage id='button.cancel'/>
           </Button>
         ]}
       >
@@ -105,9 +106,9 @@ class ClusterProgressQuery extends PureComponent {
                 {!enterpriseEdition && (
                   <>
                     <a target="_blank" href="https://www.rainbond.com/community/support" style={{ padding: 0 }}>
-                      钉钉群
+                      <FormattedMessage id='enterpriseColony.ClusterProgressQuery.ding'/>
                     </a>
-                    获取官方支持
+                    <FormattedMessage id='enterpriseColony.ClusterProgressQuery.support'/>
                   </>
                 )}
               </span>
@@ -117,9 +118,8 @@ class ClusterProgressQuery extends PureComponent {
           />
           {guideStep && guideStep !== 13 && handleNewbieGuiding
             ? handleNewbieGuiding({
-                tit:
-                  '请等待Rainbond集群服务初始化完成，你可以随时查看组件列表获取最新的服务启动状态',
-                btnText: '已知晓',
+                tit: formatMessage({id:'enterpriseColony.ClusterProgressQuery.state'}),
+                btnText: formatMessage({id:'enterpriseColony.ClusterProgressQuery.Known'}),
                 configName: 'clusterTheInitialization',
                 showSvg: false,
                 conPosition: { right: '-97px', top: '88px' },
@@ -134,7 +134,7 @@ class ClusterProgressQuery extends PureComponent {
                   {pending}&nbsp;
                   {showComponentText ? (
                     <a onClick={() => this.handleIsComponents(true)}>
-                      查看组件
+                      <FormattedMessage id='enterpriseColony.ClusterProgressQuery.components'/>
                     </a>
                   ) : (
                     ''
@@ -155,12 +155,7 @@ class ClusterProgressQuery extends PureComponent {
                     {reason && reason === 'NamespaceBeingTerminated' && (
                       <Alert
                         style={{ marginBottom: '16px' }}
-                        message="
-                          命名空间 rbd-system 处于 terminating, 请待定删除完成.
-                          或执行命令 curl
-                          http://sh.rainbond.com/delete-ns-rbd-system.sh | bash
-                          进行强制删除.
-                      "
+                        message= {<FormattedMessage id='enterpriseColony.ClusterProgressQuery.name'/>}
                         type="warning"
                         showIcon
                       />
@@ -172,7 +167,7 @@ class ClusterProgressQuery extends PureComponent {
                           style={{ padding: 0 }}
                           onClick={this.queryCreateLog}
                         >
-                          查看日志
+                          <FormattedMessage id='enterpriseColony.ClusterProgressQuery.log'/>
                         </Button>
                       </div>
                     )}
@@ -180,7 +175,7 @@ class ClusterProgressQuery extends PureComponent {
                 );
               })}
           </Timeline>
-          {complete && <span>已结束</span>}
+          {complete && <span><FormattedMessage id='enterpriseColony.ClusterProgressQuery.over'/></span>}
         </Row>
       </Modal>
     );

@@ -1,6 +1,7 @@
 /* eslint-disable react/sort-comp */
 import { Col, Icon, Input, Row } from 'antd';
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 class DAinput extends Component {
   constructor(props) {
@@ -57,7 +58,7 @@ class DAinput extends Component {
     }
   }
   render() {
-    const regexPlaceholder = '请输入endpoints地址  例：192.168.0.1:2379';
+    const regexPlaceholder = `${formatMessage({id:'enterpriseColony.Advanced.end'})}`;
     const { values } = this.state;
     return (
       <div>

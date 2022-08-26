@@ -160,6 +160,7 @@ const appPublish = {
   'appPublish.btn.record.creactAppModel.pages.label.describe':'简介',
   'appPublish.btn.record.creactAppModel.pages.label.logo':'LOGO',
   'appPublish.btn.record.creactAppModel.pages.label.max32':'请输入创建的应用模版名称，最大长度32位.',
+  'appPublish.btn.record.creactAppModel.pages.label.model_intro':'请输入创建的应用模版简介.',
   'appPublish.btn.record.creactAppModel.pages.label.loadingMore':'加载更多',
   'appPublish.btn.record.creactAppModel.pages.label.present_enterprise':'当前企业',
   'appPublish.btn.record.creactAppModel.pages.label.present_team':'当前团队',
