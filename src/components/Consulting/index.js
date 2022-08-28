@@ -65,76 +65,76 @@ export default class Consulting extends PureComponent {
 
     return (
       <Modal
-        title="了解企业服务"
+        title={<FormattedMessage id='enterpriseOverview.overview.Consulting.understand'/>}
         visible
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={onCancel}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}>  <FormattedMessage id='button.cancel'/></Button>,
           <Button type="primary" loading={loading} onClick={this.handleSubmit}>
-            申请
+            <FormattedMessage id='button.apply'/>
           </Button>
         ]}
       >
         <div style={{ background: 'rgba(22, 184, 248, 0.1)', padding: '16px' }}>
-          <h3>获取企业版授权，获得以下能力：</h3>
+          <h3><FormattedMessage id='enterpriseOverview.overview.Consulting.ability'/></h3>
           <Paragraph className={styles.describe}>
             <ul>
               <li>
-                【授权】交付客户商业化场景的产品授权（开源版本进行商业交付违背开源协议）
+                <FormattedMessage id='enterpriseOverview.overview.Consulting.product'/>
               </li>
-              <li>【功能】应用状态全局监控与报警。</li>
-              <li>【功能】站内信支持。</li>
-              <li>【功能】操作日志审计。</li>
-              <li>【功能】集群监控可视化和报警。</li>
-              <li>【服务】多种级别的售后支持服务可选。</li>
+              <li><FormattedMessage id='enterpriseOverview.overview.Consulting.state'/></li>
+              <li><FormattedMessage id='enterpriseOverview.overview.Consulting.support'/></li>
+              <li><FormattedMessage id='enterpriseOverview.overview.Consulting.log'/></li>
+              <li><FormattedMessage id='enterpriseOverview.overview.Consulting.monitor'/></li>
+              <li><FormattedMessage id='enterpriseOverview.overview.Consulting.after'/></li>
             </ul>
           </Paragraph>
         </div>
         <Form onSubmit={this.handleSubmit} layout="horizontal">
-          <FormItem {...formItemLayout} label="姓名" hasFeedback>
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='enterpriseOverview.overview.Consulting.name'/>}hasFeedback>
             {getFieldDecorator('name', {
               rules: [
                 {
                   required: true,
-                  message: '请填写姓名'
+                  message:formatMessage({id:'enterpriseOverview.overview.Consulting.input_name'})
                 }
               ]
-            })(<Input placeholder="请填写姓名" />)}
+            })(<Input  placeholder={formatMessage({id:'enterpriseOverview.overview.Consulting.input_name'})}/>)}
           </FormItem>
 
-          <FormItem {...formItemLayout} label="手机号">
+          <FormItem {...formItemLayout} label="iphone"label={<FormattedMessage id='enterpriseOverview.overview.Consulting.iphone'/>}>
             {getFieldDecorator('phone', {
               rules: [
-                { required: true, message: '请填写手机号!' },
+                { required: true,  message:formatMessage({id:'enterpriseOverview.overview.Consulting.input_iphone'})},
                 {
                   pattern: /^1\d{10}$/,
-                  message: '手机号格式错误！'
+                  message:formatMessage({id:'enterpriseOverview.overview.Consulting.error'})
                 }
               ]
-            })(<Input type="text" placeholder="请填写手机号!" />)}
+            })(<Input type="text"  placeholder={formatMessage({id:'enterpriseOverview.overview.Consulting.input_iphone'})}/>)}
           </FormItem>
-          <FormItem {...formItemLayout} label="公司名称" hasFeedback>
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='enterpriseOverview.overview.Consulting.company'/>}hasFeedback>
             {getFieldDecorator('enterpriseName', {
               initialValue: name || '',
               rules: [
                 {
                   required: true,
-                  message: '请填写公司名称'
+                  message:formatMessage({id:'enterpriseOverview.overview.Consulting.company_name'})
                 }
               ]
-            })(<Input placeholder="请填写公司名称" />)}
+            })(<Input  placeholder={formatMessage({id:'enterpriseOverview.overview.Consulting.company_name'})}/>)}
           </FormItem>
-          <FormItem {...formItemLayout} label="职位" hasFeedback>
+          <FormItem {...formItemLayout} label={<FormattedMessage id='enterpriseOverview.overview.Consulting.position'/>} hasFeedback>
             {getFieldDecorator('position', {
               rules: [
                 {
                   required: true,
-                  message: '请填写职位'
+                  message:formatMessage({id:'enterpriseOverview.overview.Consulting.input_position'})
                 }
               ]
-            })(<Input placeholder="请填写职位" />)}
+            })(<Input  placeholder={formatMessage({id:'enterpriseOverview.overview.Consulting.input_position'})}/>)}
           </FormItem>
         </Form>
       </Modal>

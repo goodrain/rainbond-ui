@@ -1,6 +1,7 @@
 import { Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -91,48 +92,48 @@ class CreateAppMarket extends PureComponent {
             marginBottom: '16px'
           }}
         >
-          开通自己的应用商店？
+          <FormattedMessage id='applicationMarket.CreateAppMarket.open'/>
           <a
             target="_blank"
             rel="noopener noreferrer"
             href="https://store.goodrain.com/marketregist"
           >
-            去开通
+            <FormattedMessage id='applicationMarket.CreateAppMarket.go_open'/>
           </a>
         </span>
         <Form onSubmit={this.handleSubmit} layout="horizontal">
-          <FormItem {...formItemLayout} label="标识">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateAppMarket.identification'/>}>
             {getFieldDecorator('name', {
               initialValue: marketInfo.name || '',
               rules: [
-                { required: true, message: '请输入标识' },
+                { required: true, message:formatMessage({id:'applicationMarket.CreateAppMarket.input_identification'})},
                 {
                   pattern: /^[a-z0-9A-Z-_]+$/,
-                  message: '只支持字母、数字和-_组合'
+                  message:formatMessage({id:'applicationMarket.CreateAppMarket.only'})
                 },
                 {
                   max: 64,
-                  message: '最大长度64位'
+                  message:formatMessage({id:'applicationMarket.CreateAppMarket.max'})
                 }
               ]
-            })(<Input placeholder="请输入标识" />)}
+            })(<Input placeholder={formatMessage({id:'applicationMarket.CreateAppMarket.input_identification'})}/>)}
             <div className={styles.conformDesc}>
-              相同的标识可以帮助用户在删除已有市场后重新添加回来
+              <FormattedMessage id='applicationMarket.CreateAppMarket.identical'/>
             </div>
           </FormItem>
-          <FormItem {...formItemLayout} label="类型">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateAppMarket.type'/>}>
             {getFieldDecorator('type', {
               initialValue: marketInfo.type || 'rainstore',
               rules: [
                 {
                   required: true,
-                  message: '请选择应用市场类型'
+                  message:formatMessage({id:'applicationMarket.CreateAppMarket.shop_type'})
                 }
               ]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择应用市场类型"
+                placeholder={formatMessage({id:'applicationMarket.CreateAppMarket.shop_type'})}
               >
                 {marketType.map(item => {
                   return <Option key={item.key}>{item.name}</Option>;
@@ -141,44 +142,44 @@ class CreateAppMarket extends PureComponent {
             )}
           </FormItem>
 
-          <FormItem {...formItemLayout} label="通信地址">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateAppMarket.address'/>}>
             {getFieldDecorator('url', {
               initialValue: marketInfo.url || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入通信地址'
+                  message:formatMessage({id:'applicationMarket.CreateAppMarket.input_address'})
                 }
               ]
-            })(<Input placeholder="请输入通信地址" />)}
+            })(<Input placeholder={formatMessage({id:'applicationMarket.CreateAppMarket.input_address'})}/>)}
           </FormItem>
 
-          <FormItem {...formItemLayout} label="市场域">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateAppMarket.domain'/>}>
             {getFieldDecorator('domain', {
               initialValue: marketInfo.domain || '',
 
               rules: [
                 {
                   required: true,
-                  message: '请输入市场域'
+                  message:formatMessage({id:'applicationMarket.CreateAppMarket.input_domain'})
                 }
               ]
-            })(<Input placeholder="请输入市场域" />)}
+            })(<Input  placeholder={formatMessage({id:'applicationMarket.CreateAppMarket.input_domain'})}/>)}
           </FormItem>
 
           <FormItem {...formItemLayout} label="AccessKey">
             {getFieldDecorator('access_key', {
               initialValue: marketInfo.access_key || '',
               rules: [
-                { required: false, message: '请输入AccessKey' },
+                { required: false, message:formatMessage({id:'applicationMarket.CreateAppMarket.input'})},
                 {
                   max: 64,
-                  message: '最大长度64位'
+                  message:formatMessage({id:'applicationMarket.CreateAppMarket.max'})
                 }
               ]
-            })(<Input placeholder="请输入AccessKey" />)}
+            })(<Input  placeholder={formatMessage({id:'applicationMarket.CreateAppMarket.input'})}/>)}
             <div className={styles.conformDesc}>
-              为空则只读权限、请前往应用市场获取AccessKey
+              <FormattedMessage id='applicationMarket.CreateAppMarket.get_AccessKey'/>
             </div>
           </FormItem>
         </Form>

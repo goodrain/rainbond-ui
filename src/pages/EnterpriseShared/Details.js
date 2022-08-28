@@ -400,11 +400,11 @@ export default class Main extends PureComponent {
     const _th = this;
     confirm({
       title: record.dev_status
-        ? '确定取消Release状态?'
-        : '确定设为Release状态?',
+        ? formatMessage({id:'applicationMarket.appsetting.cancel'})
+        : formatMessage({id:'applicationMarket.appsetting.determine'}),
       content: '',
-      okText: '确认',
-      cancelText: '取消',
+      okText: formatMessage({id:'button.confirm'}),
+      cancelText: formatMessage({id:'button.cancel'}),
       onOk() {
         _th.handleRelease(record);
       }
@@ -517,7 +517,7 @@ export default class Main extends PureComponent {
     const uploadButton = (
       <div>
         <Icon type="plus" />
-        <div className="ant-upload-text">上传图标</div>
+        <div className="ant-upload-text"><FormattedMessage id='applicationMarket.appsetting.logo'/></div>
       </div>
     );
     const defaulAppImg = globalUtil.fetchSvg('defaulAppImg');
@@ -542,8 +542,8 @@ export default class Main extends PureComponent {
           />
         )}
         <PageHeaderLayout
-          title="应用市场管理"
-          content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
+          title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title"/>}
+          content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content"/>}
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
             <Card
@@ -569,29 +569,29 @@ export default class Main extends PureComponent {
                 {isEdit && (
                   <Row gutter={24}>
                     <Col span="12">
-                      <FormItem {...formItemLayout} label="名称">
+                      <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.appsetting.name'/>}>
                         <div>
                           {getFieldDecorator('name', {
                             initialValue: (appInfo && appInfo.app_name) || '',
                             rules: [
                               {
                                 required: true,
-                                message: '请输入名称'
+                                message: formatMessage({id:'applicationMarket.appsetting.input_name'})
                               },
                               {
                                 max: 32,
-                                message: '最大长度32位'
+                                message: formatMessage({id:'applicationMarket.appsetting.max'})
                               }
                             ]
-                          })(<Input placeholder="请输入名称" />)}
+                          })(<Input  placeholder={formatMessage({id:'applicationMarket.appsetting.input_name'})}/>)}
                           <div className={styles.conformDesc}>
-                            请输入应用模版名称，最大长度32位.
+                            <FormattedMessage id='applicationMarket.appsetting.input_max'/>
                           </div>
                         </div>
                       </FormItem>
                     </Col>
                     <Col span="12">
-                      <FormItem {...formItemLayout} label="发布范围">
+                      <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.appsetting.release'/>}>
                         {getFieldDecorator('scope', {
                           initialValue:
                             (appInfo &&
@@ -602,7 +602,7 @@ export default class Main extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: '请输入名称'
+                              message: formatMessage({id:'applicationMarket.appsetting.input_name'})
                             }
                           ]
                         })(
@@ -610,7 +610,7 @@ export default class Main extends PureComponent {
                             getPopupContainer={triggerNode =>
                               triggerNode.parentNode
                             }
-                            placeholder="请选择发布范围"
+                            placeholder={formatMessage({id:'applicationMarket.appsetting.select_release'})}
                             dropdownRender={menu => (
                               <div>
                                 {menu}
@@ -630,7 +630,7 @@ export default class Main extends PureComponent {
                                           this.addTeams();
                                         }}
                                       >
-                                        <Icon type="plus" /> 加载更多
+                                        <Icon type="plus" /> <FormattedMessage id='applicationMarket.appsetting.more'/>
                                       </div>
                                     )}
                                   </div>
@@ -640,7 +640,7 @@ export default class Main extends PureComponent {
                           >
                             <Option value="enterprise" key="enterprise">
                               <div style={{ borderBottom: '1px solid #ccc' }}>
-                                当前企业
+                                <FormattedMessage id='applicationMarket.appsetting.now'/>
                               </div>
                             </Option>
 
@@ -658,18 +658,18 @@ export default class Main extends PureComponent {
                           </Select>
                         )}
                         <div className={styles.conformDesc}>
-                          发布模型的可视范围
+                          <FormattedMessage id='applicationMarket.appsetting.visual'/>
                         </div>
                       </FormItem>
                     </Col>
                     <Col span="12">
-                      <Form.Item {...formItemLayout} label="分类标签">
+                      <Form.Item {...formItemLayout}  label={<FormattedMessage id='applicationMarket.appsetting.label'/>}>
                         {getFieldDecorator('tag_ids', {
                           initialValue: arr,
                           rules: [
                             {
                               required: false,
-                              message: '请添加标签'
+                              message: formatMessage({id:'applicationMarket.appsetting.add_lable'})
                             }
                           ]
                         })(
@@ -681,7 +681,7 @@ export default class Main extends PureComponent {
                             style={{ width: '100%' }}
                             onSelect={this.handleOnSelect}
                             tokenSeparators={[',']}
-                            placeholder="请选择分类标签"
+                            placeholder={formatMessage({id:'applicationMarket.appsetting.type'})}
                           >
                             {tagList.map(item => {
                               const { tag_id, name } = item;
@@ -693,26 +693,26 @@ export default class Main extends PureComponent {
                             })}
                           </Select>
                         )}
-                        <div className={styles.conformDesc}>请选择分类标签</div>
+                        <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.appsetting.type'/></div>
                       </Form.Item>
                     </Col>
                     <Col span="12">
-                      <FormItem {...formItemLayout} label="简介">
+                      <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.appsetting.introduction'/>}>
                         {getFieldDecorator('describe', {
                           initialValue: (appInfo && appInfo.describe) || '',
                           rules: [
                             {
                               required: false,
-                              message: '请输入简介'
+                              message: formatMessage({id:'applicationMarket.appsetting.input_introduction'})
                             },
                             {
                               max: 255,
-                              message: '最大长度255位'
+                              message: formatMessage({id:'applicationMarket.AuthCompany.max'})
                             }
                           ]
-                        })(<TextArea placeholder="请输入简介" />)}
+                        })(<TextArea  placeholder={formatMessage({id:'applicationMarket.appsetting.input_introduction'})}/>)}
                         <div className={styles.conformDesc}>
-                          请输入应用模版简介
+                          <FormattedMessage id='applicationMarket.appsetting.input_app_introduction'/>
                         </div>
                       </FormItem>
                     </Col>
@@ -723,7 +723,7 @@ export default class Main extends PureComponent {
                           rules: [
                             {
                               required: false,
-                              message: '请上传图标'
+                              message: formatMessage({id:'applicationMarket.appsetting.input_logo'})
                             }
                           ]
                         })(
@@ -769,14 +769,14 @@ export default class Main extends PureComponent {
                         );
                       }}
                     >
-                      保存
+                      <FormattedMessage id='button.save'/>
                     </Button>
                     <Button
                       onClick={() => {
                         this.handleIsEdit(!isEdit);
                       }}
                     >
-                      取消
+                      <FormattedMessage id='button.cancel'/>
                     </Button>
                   </div>
                 )}
@@ -827,7 +827,7 @@ export default class Main extends PureComponent {
                           this.handleIsEdit(!isEdit);
                         }}
                       >
-                        编辑
+                        <FormattedMessage id='button.edit'/>
                       </a>
                     )}
                   </div>
@@ -838,7 +838,7 @@ export default class Main extends PureComponent {
               style={{
                 marginBottom: 24
               }}
-              title="版本管理"
+              title={<FormattedMessage id='applicationMarket.appsetting.edition'/>}
               bordered={false}
               bodyStyle={{
                 padding: 0
@@ -855,7 +855,7 @@ export default class Main extends PureComponent {
                   style={{ width: '100%', overflowX: 'auto' }}
                   columns={[
                     {
-                      title: '版本号',
+                      title: formatMessage({id:'applicationMarket.appsetting.edition_nmu'}),
                       dataIndex: 'version',
                       width: 220,
                       fixed: 'left',
@@ -868,7 +868,7 @@ export default class Main extends PureComponent {
                       }
                     },
                     {
-                      title: '状态',
+                      title: formatMessage({id:'applicationMarket.appsetting.state'}),
                       dataIndex: 'dev_status',
                       align: 'center',
                       width: 100,
@@ -886,17 +886,17 @@ export default class Main extends PureComponent {
                       }
                     },
                     {
-                      title: '发布人',
+                      title: formatMessage({id:'applicationMarket.appsetting.Issued'}),
                       dataIndex: 'share_user',
                       align: 'center',
                       width: 150
                     },
                     {
-                      title: '版本简介',
+                      title: formatMessage({id:'applicationMarket.appsetting.msg'}),
                       dataIndex: 'app_version_info'
                     },
                     {
-                      title: '发布时间',
+                      title: formatMessage({id:'applicationMarket.appsetting.time'}),
                       dataIndex: 'create_time',
                       width: 190,
                       align: 'center',
@@ -911,7 +911,7 @@ export default class Main extends PureComponent {
                       }
                     },
                     {
-                      title: '更新时间',
+                      title: formatMessage({id:'applicationMarket.appsetting.updata_time'}),
                       dataIndex: 'update_time',
                       width: 190,
                       align: 'center',
@@ -926,7 +926,7 @@ export default class Main extends PureComponent {
                       }
                     },
                     {
-                      title: '操作',
+                      title: formatMessage({id:'applicationMarket.appsetting.operation'}),
                       dataIndex: 'action',
                       width: 230,
                       fixed: 'right',
@@ -941,7 +941,7 @@ export default class Main extends PureComponent {
                                   this.handleEditAppVersionInfo(record);
                                 }}
                               >
-                                编辑
+                                <FormattedMessage id='button.edit'/>
                               </a>
                             )}
                             {isEditVersionApp && (
@@ -952,8 +952,8 @@ export default class Main extends PureComponent {
                                 }}
                               >
                                 {record.dev_status
-                                  ? '取消Release状态'
-                                  : '设为Release状态'}
+                                  ? <FormattedMessage id='applicationMarket.appsetting.cancel_release'/>
+                                  : <FormattedMessage id='applicationMarket.appsetting.determine_release'/>}
                               </a>
                             )}
                             {isDeleteAppVersion && (
@@ -962,7 +962,7 @@ export default class Main extends PureComponent {
                                   this.handleToDelete(record);
                                 }}
                               >
-                                删除
+                                <FormattedMessage id='button.delete'/>
                               </a>
                             )}
                           </div>
@@ -983,13 +983,13 @@ export default class Main extends PureComponent {
               style={{
                 marginBottom: 24
               }}
-              title="详情介绍"
+              title={<FormattedMessage id='applicationMarket.appsetting.details'/>}
               bordered={false}
               extra={
                 <div>
                   {!isAppDetails && isEditApp && (
                     <a onClick={() => this.handleAppDetails(!isAppDetails)}>
-                      编辑
+                      <FormattedMessage id='button.edit'/>
                     </a>
                   )}
                 </div>
@@ -1017,7 +1017,7 @@ export default class Main extends PureComponent {
                             required: true,
                             validator: (_, value, callback) => {
                               if (value.isEmpty()) {
-                                callback('请输入详情');
+                                callback(`${formatMessage({id:'applicationMarket.appsetting.input_details'})}`);
                               } else {
                                 callback();
                               }
@@ -1028,7 +1028,7 @@ export default class Main extends PureComponent {
                         <BraftEditor
                           className="my-editor"
                           controls={controls}
-                          placeholder="请输入详情"
+                          placeholder={formatMessage({id:'applicationMarket.appsetting.input_details'})}
                         />
                       )}
                     </FormItem>
@@ -1053,14 +1053,14 @@ export default class Main extends PureComponent {
                           this.upAppModel(appInfo, tagId);
                         }}
                       >
-                        保存
+                        <FormattedMessage id='button.save'/>
                       </Button>
                       <Button
                         onClick={() => {
                           this.handleAppDetails(!isAppDetails);
                         }}
                       >
-                        取消
+                        <FormattedMessage id='button.cancel'/>
                       </Button>
                     </div>
                   )}

@@ -196,7 +196,7 @@ export default class Index extends PureComponent {
   };
   handleNoCloudAppStoreUrl = () => {
     this.setState({
-      alertText: '应用市场不可用，请检查应用市场地址，或联系应用市场的管理员',
+      alertText: formatMessage({id:'applicationMarket.AuthCompany.Not_available'}),
       loading: false
     });
   };
@@ -310,7 +310,7 @@ export default class Index extends PureComponent {
 
   render() {
     const {
-      title = '企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
+      title = `${formatMessage({id:'applicationMarket.AuthCompany.authentication'})}`,
       onCancel,
       onOk,
       rainbondInfo,
@@ -343,11 +343,11 @@ export default class Index extends PureComponent {
     const defaultMarketUrl = rainbondInfo && rainbondInfo.default_market_url;
     const message = (
       <span>
-        正在访问
+        <FormattedMessage id='applicationMarket.AuthCompany.Accessing'/>
         <a target="_blank" rel="noopener noreferrer" href={marketUrl}>
-          云应用商店
+          <FormattedMessage id='applicationMarket.AuthCompany.store'/>
         </a>
-        进行用户授权，完成后可获取安装应用的权限。
+        <FormattedMessage id='applicationMarket.AuthCompany.grant'/>
       </span>
     );
     return (
@@ -369,7 +369,7 @@ export default class Index extends PureComponent {
                 tab={
                   <span className={PluginStyles.verticalCen}>
                     {globalUtil.fetchSvg('cloudMarket')}
-                    RainStore商店
+                    <FormattedMessage id='applicationMarket.AuthCompany.RainStore'/>
                   </span>
                 }
                 key="rainbondStore"
@@ -382,7 +382,7 @@ export default class Index extends PureComponent {
                       style={{ width: 100, display: 'block' }}
                     >
                       {globalUtil.fetchSvg('HelmSvg')}
-                      Helm商店
+                      <FormattedMessage id='applicationMarket.AuthCompany.Helm'/>
                     </span>
                   </Badge>
                 }
@@ -425,7 +425,7 @@ export default class Index extends PureComponent {
                   {step === 0 && (
                     <div>
                       <p style={{ fontSize: '18px', margin: '8px 0 20px' }}>
-                        请先进行应用市场认证
+                        <FormattedMessage id='applicationMarket.AuthCompany.market'/>
                       </p>
                       <Button
                         onClick={() => {
@@ -434,14 +434,14 @@ export default class Index extends PureComponent {
                         loading={loading}
                         type="primary"
                       >
-                        去认证
+                        <FormattedMessage id='applicationMarket.AuthCompany.go_authentication'/>
                       </Button>
                     </div>
                   )}
                   {step === 1 && (
                     <div>
                       <p style={{ fontSize: '18px', margin: '8px 0 20px' }}>
-                        请填写需要进行绑定的应用市场的URL
+                        <FormattedMessage id='applicationMarket.AuthCompany.url'/>
                       </p>
                       {alertText && (
                         <Alert
@@ -457,17 +457,17 @@ export default class Index extends PureComponent {
                             rules: [
                               {
                                 required: true,
-                                message: '请填写需要进行绑定的应用市场的URL'
+                                message:formatMessage({id:'applicationMarket.AuthCompany.url'})
                               },
                               {
                                 max: 255,
-                                message: '最大长度255位'
+                                message:formatMessage({id:'applicationMarket.AuthCompany.max'})
                               }
                             ]
                           })(
                             <Input
                               type="text"
-                              placeholder="请填写需要进行绑定的应用市场的URL"
+                              placeholder={formatMessage({id:'applicationMarket.AuthCompany.url'})}
                             />
                           )}
                         </Form.Item>
@@ -478,7 +478,7 @@ export default class Index extends PureComponent {
                           loading={loading}
                           type="primary"
                         >
-                          下一步
+                          <FormattedMessage id='applicationMarket.AuthCompany.next'/>
                         </Button>
                       </Form>
                     </div>
@@ -486,7 +486,7 @@ export default class Index extends PureComponent {
                   {step === 4 && (
                     <div>
                       <p style={{ fontSize: '18px', margin: '8px 0 20px' }}>
-                        认证成功，选择需要绑定的商店
+                        <FormattedMessage id='applicationMarket.AuthCompany.success'/>
                       </p>
                       <Form className={PluginStyles.customGroup}>
                         <Form.Item {...formItemLayout} label="">
@@ -495,7 +495,7 @@ export default class Index extends PureComponent {
                             rules: [
                               {
                                 required: true,
-                                message: '请选择需要绑定的商店'
+                                message:formatMessage({id:'applicationMarket.AuthCompany.choice'})
                               }
                             ]
                           })(
@@ -574,7 +574,7 @@ export default class Index extends PureComponent {
                         loading={loading}
                         type="primary"
                       >
-                        绑定
+                        <FormattedMessage id='applicationMarket.AuthCompany.binding'/>
                       </Button>
                     </div>
                   )}

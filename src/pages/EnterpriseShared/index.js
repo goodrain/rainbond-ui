@@ -531,15 +531,14 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200 && res.bean.remind) {
           Modal.confirm({
-            title: '配置提醒',
-            cancelText: '已了解',
-            okText: '去配置',
+            title: formatMessage({id:'applicationMarket.confirm.remind'}),
+            cancelText: formatMessage({id:'applicationMarket.confirm.understand'}),
+            okText: formatMessage({id:'applicationMarket.confirm.Deconfiguration'}),
             onCancel: () => {},
             onOk: () => {
               dispatch(routerRedux.push(`/enterprise/${eid}/setting`));
             },
-            content:
-              '该平台已对接多个集群，但本地组件库暂未配置多集群可用的镜像仓库，将导致应用无法跨集群安装。'
+            content:formatMessage({id:'applicationMarket.confirm.Docking'})
           });
         }
       }
@@ -633,7 +632,7 @@ export default class EnterpriseShared extends PureComponent {
     this.setState({
       appInfo,
       deleteApp: true,
-      bouncedText: '删除应用模版',
+      bouncedText: formatMessage({id:'applicationMarket.confirm.delete'}),
       bouncedType: 'delete'
     });
   };
@@ -965,12 +964,9 @@ export default class EnterpriseShared extends PureComponent {
           guideStep === 1 &&
           indexs === 0 &&
           this.handleNewbieGuiding({
-            // tit: '安装应用',
             tit: formatMessage({id:'applicationMarket.localMarket.have.title'}),
             send: true,
             configName: 'installApp',
-            // desc:
-            //   '从应用商店安装应用是最简单的应用部署方式，后面你也可以很方便的将您的企业应用发布到应用商店中',
             desc: formatMessage({id:'applicationMarket.localMarket.have.desc'}),
             nextStep: 2,
             conPosition: { right: 0, marginTop: '60px' },
@@ -1000,7 +996,6 @@ export default class EnterpriseShared extends PureComponent {
                       e.stopPropagation();
                     }}
                   >
-                    {/* <Tooltip title="安装量"> */}
                     <Tooltip 
                     title={<FormattedMessage id='applicationMarket.localMarket.have.installNumber'/>}
                     >
@@ -1050,7 +1045,6 @@ export default class EnterpriseShared extends PureComponent {
                     </p>
                   ) : (
                     <p className={styles.dev_version}>
-                      {/* 无版本 */}
                       <FormattedMessage id='applicationMarket.localMarket.have.versions'/>
                     </p>
                   )}
@@ -1083,7 +1077,6 @@ export default class EnterpriseShared extends PureComponent {
                       this.handleOpenMoreTags(customTags);
                     }}
                   >
-                    {/* 更多 */}
                     <FormattedMessage id='enterpriseOverview.team.more'/>
                   </a>
                 )}
@@ -1113,7 +1106,6 @@ export default class EnterpriseShared extends PureComponent {
                 >
                   {globalUtil.fetchSvg('InstallApp')}
                   <div style={{ background: '#fff' }}>
-                    {/* 安装 */}
                     <FormattedMessage id='applicationMarket.localMarket.have.install'/>
                   </div>
                 </div>
@@ -1477,14 +1469,12 @@ export default class EnterpriseShared extends PureComponent {
         {isImportApp && (
           <Button style={{ margin: '0 14px 0 10px' }}>
             <Link to={`/enterprise/${eid}/shared/import`}>
-              {/* 离线导入 */}
               <FormattedMessage id='applicationMarket.localMarket.import'/>
             </Link>
           </Button>
         )}
         {isCreateApp && (
           <Button type="primary" onClick={this.handleOpenCreateAppModel}>
-            {/* 创建应用模版 */}
             <FormattedMessage id='applicationMarket.localMarket.setup'/>
           </Button>
         )}
@@ -1498,13 +1488,11 @@ export default class EnterpriseShared extends PureComponent {
             onClick={this.handleOpenDeleteAppMarket}
             style={{ marginRight: '22px' }}
           >
-            {/* 删除 */}
             <FormattedMessage id='button.delete'/>
           </Button>
         )}
         {isEditAppStore && (
           <Button type="primary" onClick={this.handleOpenUpAppMarket}>
-            {/* 编辑 */}
           <FormattedMessage id='button.edit'/>
           </Button>
         )}
@@ -1572,7 +1560,7 @@ export default class EnterpriseShared extends PureComponent {
         }}
         description={
           <span>
-            {!isHelm && !isMarket ? '市场未连接、暂无数据' : '暂无数据'}
+            {!isHelm && !isMarket ? <FormattedMessage id='applicationMarket.confirm.connected'/> : <FormattedMessage id='applicationMarket.confirm.null'/>}
           </span>
         }
       >
@@ -1803,7 +1791,7 @@ export default class EnterpriseShared extends PureComponent {
           <AuthCompany
             eid={eid}
             marketName={marketInfo.name}
-            title="欢迎使用该平台，请先完成连接云应用商店授权"
+            title={<FormattedMessage id='applicationMarket.AuthCompany.title'/>}
             onCancel={() => {
               this.setState({ showMarketCloudAuth: false });
             }}
@@ -1821,7 +1809,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {moreTags && (
           <TagList
-            title="查看标签"
+            title={<FormattedMessage id='applicationMarket.TagList.label'/>}
             onOk={this.handleCloseMoreTags}
             onChangeCheckbox={this.onChangeCheckbox}
             onCancel={this.handleCloseMoreTags}
@@ -1844,7 +1832,7 @@ export default class EnterpriseShared extends PureComponent {
 
         {installHelmApp && (
           <CreateHelmAppModels
-            title="安装应用"
+            title={<FormattedMessage id='applicationMarket.CreateHelmAppModels.install'/>}
             eid={eid}
             appTypes={appTypes}
             appInfo={appInfo}
@@ -1876,7 +1864,7 @@ export default class EnterpriseShared extends PureComponent {
 
         {createAppModel && (
           <CreateAppModels
-            title="创建应用模版"
+            title={<FormattedMessage id='applicationMarket.localMarket.setup'/>}
             eid={eid}
             onOk={this.handleCreateAppModel}
             onCancel={this.handleCancelAppModel}
@@ -1887,7 +1875,7 @@ export default class EnterpriseShared extends PureComponent {
           <AuthCompany
             isHelm
             eid={eid}
-            title="添加应用商店"
+            title={<FormattedMessage id='applicationMarket.localMarket.add_app'/>}
             onOk={this.getHelmMarketsTab}
             onCancel={this.handleCancelAppMarket}
             currStep={1}
@@ -1904,7 +1892,7 @@ export default class EnterpriseShared extends PureComponent {
         )} */}
         {upAppMarket && (
           <CreateAppMarket
-            title="编辑应用商店连接信息"
+            title={<FormattedMessage id="applicationMarket.CreateAppMarket.title"/>}
             eid={eid}
             loading={upAppMarketLoading}
             marketInfo={marketInfo}
@@ -1914,7 +1902,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {upHelmAppMarket && (
           <HelmAppMarket
-            title={`编辑${helmInfo.name}商店`}
+            title={<FormattedMessage id='applicationMarket.HelmForm.title' values={{name:helmInfo.name}}/>}
             eid={eid}
             data={helmInfo}
             onOk={this.handleUpHelmAppMarket}
@@ -1924,7 +1912,7 @@ export default class EnterpriseShared extends PureComponent {
 
         {upDataAppModel && (
           <CreateAppModels
-            title="编辑应用模版"
+            title={<FormattedMessage id='applicationMarket.localMarket.edit_app'/>}
             eid={eid}
             appInfo={appInfo}
             onOk={this.handleupDataAppModel}
@@ -1945,7 +1933,7 @@ export default class EnterpriseShared extends PureComponent {
           <AuthCompany
             eid={eid}
             marketName={marketInfo.name}
-            title="您在该云应用商店无安装权限，请登录获取授权"
+            title={<FormattedMessage id='applicationMarket.AuthCompany.title_one'/>}
             onCancel={() => {
               this.setState({ showCloudMarketAuth: false });
             }}

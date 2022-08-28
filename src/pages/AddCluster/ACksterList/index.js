@@ -109,16 +109,16 @@ export default class ClusterLink extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: '基本配置'
+        title: formatMessage({id:'enterpriseColony.ACksterList.basic'})
       },
       {
-        title: '高级配置'
+        title: formatMessage({id:'enterpriseColony.ACksterList.senior'})
       },
       {
-        title: '执行安装'
+        title: formatMessage({id:'enterpriseColony.ACksterList.install'})
       },
       {
-        title: '对接集群'
+        title: formatMessage({id:'enterpriseColony.ACksterList.Docking'})
       }
     ];
     return steps;
@@ -196,7 +196,7 @@ export default class ClusterLink extends PureComponent {
           if(item.externalIP.match(patt) && item.internalIP.match(patt) && item.name.match(patt)){
             callback();
           }else{
-            callback(new Error(formatMessage({id:'placeholder.no_spaces'})));
+            callback(new Error(`${formatMessage({id:'placeholder.no_spaces'})}`));
           }
           isPass = true;
         } else {
@@ -207,7 +207,7 @@ export default class ClusterLink extends PureComponent {
       if (isPass) {
         callback();
       } else {
-        callback(new Error('需填写完整的网关安装节点'));
+        callback(new Error(`${formatMessage({id:'enterpriseColony.ACksterList.node'})}`));
       }
     } else {
       callback();
@@ -233,8 +233,8 @@ export default class ClusterLink extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="添加集群"
-        content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
+      title={<FormattedMessage id='enterpriseColony.button.text'/>}
+      content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
       >
         {/* 步骤 */}
         <Row style={{ marginBottom: '16px' }}>
@@ -252,47 +252,47 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    入口访问IP:
+                    <FormattedMessage id='enterpriseColony.ACksterList.ip'/>
                   </span>
                 </div>
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="入口IP请开放 80、443、6060、6443、7070、8443 端口。"
+                  extra={<FormattedMessage id='enterpriseColony.ACksterList.open_ip'/>}
                 >
                   {getFieldDecorator('gatewayIngressIPs', {
                     rules: [
                       {
                         required: true,
-                        message: '请填写IP地址'
+                        message: formatMessage({id:'enterpriseColony.ACksterList.input_ip'})
                       },
                       {
                         pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
-                        message: '请填写正确的IP地址'
+                        message: formatMessage({id:'enterpriseColony.ACksterList.input_correct_ip'})
                       },
                       {
                         pattern: /^[^\s]*$/,
                         message: formatMessage({id:'placeholder.no_spaces'})
                       }
                     ]
-                  })(<Input placeholder="请输入IP地址  例：1.2.3.4" />)}
+                  })(<Input placeholder={formatMessage({id:'enterpriseColony.ACksterList.ip_demo'})} />)}
                 </FormItem>
               </Row>
               {/* 网关安装节点 */}
               <Row className={styles.antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    网关安装节点:
+                    <FormattedMessage id='enterpriseColony.ACksterList.gateway'/>
                   </span>
                 </div>
                 <FormItem
                   {...formItemLayout}
                   className={styles.antd_form}
-                  extra="网关安装的节点，可以安装到多个节点，实现高可用。"
+                  extra={<FormattedMessage id='enterpriseColony.ACksterList.availability'/>}
                 >
                   {getFieldDecorator('nodesForGateway', {
                     rules: [
-                      { required: true, message: '请填写网关安装节点' },
+                      { required: true, message: formatMessage({id:'enterpriseColony.ACksterList.input_install'}) },
                       {
                         validator: this.handleValidatorsGateway
                       }
@@ -312,7 +312,7 @@ export default class ClusterLink extends PureComponent {
                     );
                   }}
                 >
-                  返回
+                  <FormattedMessage id='button.return'/>
                 </Button>
                 <Button
                   className={styles.antd_btn}
@@ -321,7 +321,7 @@ export default class ClusterLink extends PureComponent {
                     this.toLinkNext('advanced');
                   }}
                 >
-                  高级配置
+                  <FormattedMessage id='button.configuration'/>
                 </Button>
                 <Button
                   className={styles.antd_btn}
@@ -330,7 +330,8 @@ export default class ClusterLink extends PureComponent {
                     this.toLinkNext('next');
                   }}
                 >
-                  下一步
+                  <FormattedMessage id='button.next'/>
+                  
                 </Button>
               </FormItem>
             </Row>

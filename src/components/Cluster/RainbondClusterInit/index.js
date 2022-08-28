@@ -256,34 +256,34 @@ export default class RainbondClusterInit extends PureComponent {
         style={{ marginRight: '16px' }}
         onClick={() => this.handleIsComponents(true)}
       >
-        查看组件
+        <FormattedMessage id='enterpriseColony.RainbondClusterInit.look'/>
       </Button>
     );
     return (
       <Form>
-        <h4>注意事项：</h4>
+        <h4><FormattedMessage id='enterpriseColony.RainbondClusterInit.careful'/></h4>
         <Col span={24} style={{ padding: '16px' }}>
           {selectProvider === 'ack' && (
             <Paragraph className={styles.describe} style={highlighted}>
               <ul>
                 <li>
                   <span>
-                    若你选择的是已经在使用的Kubernetes集群，不要担心，接下来的初始化动作不会影响集群已有的业务形态。
+                    <FormattedMessage id='enterpriseColony.RainbondClusterInit.initialization'/>
                   </span>
                 </li>
                 <li>
                   <span>
-                    平台集群初始化需要以下资源：RDS(1个)、NAS(1个)、SLB(1个)，并将(80、443、8443、6060、10000-11000)端口添加到安全组策略。
+                    <FormattedMessage id='enterpriseColony.RainbondClusterInit.resources'/>
                   </span>
                 </li>
                 <li>
                   <span>
-                    新购资源都将采用按需后付费模式，因此请确保你的阿里云账号能够进行按需购买资源，后续用户根据需要进行付费模式变更
+                    <FormattedMessage id='enterpriseColony.RainbondClusterInit.mode'/>
                   </span>
                 </li>
                 <li>
                   <span>
-                    我们将通过KubeAPI进行相关的资源创建和初始化，集群对接完成后即可关闭KubeAPI的公网访问（移除绑定的EIP）
+                    <FormattedMessage id='enterpriseColony.RainbondClusterInit.remove'/>
                   </span>
                 </li>
               </ul>
@@ -294,39 +294,36 @@ export default class RainbondClusterInit extends PureComponent {
               <ul>
                 <li>
                   <span>
-                    若你选择的是已经在使用的平台集群，不要担心，接下来的初始化动作不会影响集群已有的业务形态。
+                    <FormattedMessage id='enterpriseColony.RainbondClusterInit.select'/>
                   </span>
                 </li>
                 <li>
                   <span>
-                    平台
-                    集群初始化时默认采用第1、2个节点为网关节点和构建节点，你也可以在Kubernetes节点上增加Annotations来指定对应节点(rainbond.io/gateway-node=true
-                    或rainbond.io/chaos-node=true)。
+                    <FormattedMessage id='enterpriseColony.RainbondClusterInit.default'/>
                   </span>
                 </li>
                 <li>
                   <span>
-                    网关节点以下端口必须空闲：80, 443, 6060, 7070, 8443, 10254,
-                    18080, 18081，否则将导致初始化失败
+                    <FormattedMessage id='enterpriseColony.RainbondClusterInit.port'/>
                   </span>
                 </li>
                 <li>
-                  <span>如果集群节点数量大于3将默认安装高可用模式。</span>
+                  <span><FormattedMessage id='enterpriseColony.RainbondClusterInit.availability'/></span>
                 </li>
                 <li>
                   <span>
-                    安装过程中需要访问网关节点6443、8443、6060端口，请确保相关端口可被访问。
+                    <FormattedMessage id='enterpriseColony.RainbondClusterInit.Installed'/>
                   </span>
                 </li>
                 <li>
                   <span>
-                    若您希望自定义集群初始化参数{' '}
+                    <FormattedMessage id='enterpriseColony.RainbondClusterInit.cluster'/>{' '}
                     <a
                       onClick={() => {
                         this.showSetRainbondCluster();
                       }}
                     >
-                      点击这里
+                      <FormattedMessage id='enterpriseColony.RainbondClusterInit.click'/>
                     </a>
                   </span>
                 </li>
@@ -339,15 +336,15 @@ export default class RainbondClusterInit extends PureComponent {
               style={highlighted}
               checked={checked}
             >
-              我已阅读并已清楚认识上述注意事项
+              <FormattedMessage id='enterpriseColony.RainbondClusterInit.precautions'/>
             </Checkbox>
             {guideStep === 10 &&
               this.handleNewbieGuiding({
-                tit: '请仔细阅读平台集群服务的初始化安装的说明和前提条件。',
+                tit: formatMessage({id:'enterpriseColony.RainbondClusterInit.service'}),
                 send: false,
                 configName: 'kclustersAttentionAttention',
                 nextStep: 11,
-                btnText: '已知晓',
+                btnText: formatMessage({id:'enterpriseColony.RainbondClusterInit.Known'}),
                 conPosition: { left: 0, bottom: '-192px' },
                 svgPosition: { left: '3px', marginTop: '-19px' },
                 handleClick: () => {
@@ -360,7 +357,7 @@ export default class RainbondClusterInit extends PureComponent {
           {task && task.status !== 'complete' ? (
             <Fragment>
               <Button onClick={preStep} style={{ marginRight: '16px' }}>
-                上一步
+                <FormattedMessage id='button.previous'/>
               </Button>
               {showComponent}
               <Button
@@ -369,13 +366,13 @@ export default class RainbondClusterInit extends PureComponent {
                 }}
                 type="primary"
               >
-                正在初始化/确认进度
+                <FormattedMessage id='enterpriseColony.RainbondClusterInit.Initializing'/>
               </Button>
             </Fragment>
           ) : (
             <Fragment>
               <Button onClick={preStep} style={{ marginRight: '16px' }}>
-                上一步
+                <FormattedMessage id='button.previous'/>
               </Button>
               {showComponent}
               <Button
@@ -383,14 +380,14 @@ export default class RainbondClusterInit extends PureComponent {
                 onClick={this.initRainbondCluster}
                 type="primary"
               >
-                {task ? '重新初始化' : '开始初始化'}
+                {task ? <FormattedMessage id='enterpriseColony.RainbondClusterInit.Reinitialize'/> : <FormattedMessage id='enterpriseColony.RainbondClusterInit.start'/>}
               </Button>
             </Fragment>
           )}
           {guideStep === 11 &&
             this.handleNewbieGuiding({
-              tit: '开始初始化',
-              desc: '采用默认初始化配置开始安装。',
+              tit: formatMessage({id:'enterpriseColony.RainbondClusterInit.start'}),
+              desc: formatMessage({id:'enterpriseColony.RainbondClusterInit.configuration'}),
               send: true,
               configName: 'kclustersAttentionAttention',
               nextStep: 12,
@@ -426,7 +423,7 @@ export default class RainbondClusterInit extends PureComponent {
         {showClusterInitConfig && (
           <Modal
             visible
-            title="设置集群初始化配置"
+            title={<FormattedMessage id='enterpriseColony.RainbondClusterInit.set'/>}
             onOk={this.handleSubmit}
             width={800}
             confirmLoading={loading}
@@ -435,12 +432,12 @@ export default class RainbondClusterInit extends PureComponent {
             }}
           >
             <Alert
-              message="请注意，默认数据仅作为示例，各字段若需要使用默认值则不要配置该字段。"
+              message={<FormattedMessage id='enterpriseColony.RainbondClusterInit.Example'/>}
               type="warning"
               style={{ marginBottom: '16px' }}
             />
             <CodeMirrorForm
-              titles="集群初始化配置包含平台集群的初始化的全部配置"
+              titles={<FormattedMessage id='enterpriseColony.RainbondClusterInit.all'/>}
               setFieldsValue={setFieldsValue}
               formItemLayout={formItemLayout}
               Form={Form}
@@ -448,8 +445,8 @@ export default class RainbondClusterInit extends PureComponent {
               mode="yaml"
               name="config"
               data={initconfig}
-              label="集群初始化配置"
-              message="集群初始化配置配置是必需的"
+              label={<FormattedMessage id='enterpriseColony.RainbondClusterInit.Cluster'/>}
+              message={<FormattedMessage id='enterpriseColony.RainbondClusterInit.required'/>}
               width="750px"
             />
           </Modal>

@@ -91,7 +91,7 @@ class CreateHelmAppModels extends PureComponent {
             if (name === appName) {
               callbacks();
             } else {
-              callbacks('应用名称已存在');
+              callbacks(`${formatMessage({id:'applicationMarket.CreateHelmAppModels.install'})}`);
             }
           } else {
             this.handleFieldsValue({
@@ -373,24 +373,24 @@ class CreateHelmAppModels extends PureComponent {
           onCancel={onCancel}
           footer={
             <Fragment>
-              <Button onClick={onCancel}> 取消 </Button>
+              <Button onClick={onCancel}>  <FormattedMessage id='button.cancel'/></Button>
               <Button
                 type="primary"
                 onClick={this.handleSubmit}
                 loading={helmInstallLoading}
               >
-                确定
+                <FormattedMessage id='button.confirm'/>
               </Button>
             </Fragment>
           }
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
-            <FormItem {...formItemLayout} label="团队名称">
+            <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.name'/>}>
               {getFieldDecorator('team_name', {
                 rules: [
                   {
                     required: true,
-                    message: '请选择团队'
+                    message:formatMessage({id:'applicationMarket.CreateHelmAppModels.input_team'})
                   }
                 ],
                 initialValue: (userTeams && userTeams[0].team_name) || undefined
@@ -398,7 +398,7 @@ class CreateHelmAppModels extends PureComponent {
                 <Select
                   style={{ width: 220, marginRight: 15 }}
                   onChange={this.handleTeamChange}
-                  placeholder="请选择团队"
+                  placeholder={formatMessage({id:'applicationMarket.CreateHelmAppModels.input_team'})}
                 >
                   {userTeams &&
                     userTeams.map(item => (
@@ -408,22 +408,22 @@ class CreateHelmAppModels extends PureComponent {
                     ))}
                 </Select>
               )}
-              <Button onClick={this.onAddTeam}>新建团队</Button>
+              <Button onClick={this.onAddTeam}><FormattedMessage id='applicationMarket.CreateHelmAppModels.creat_team'/></Button>
               <div className={styles.conformDesc}>
-                请选择安装该应用模版的团队
+                <FormattedMessage id='applicationMarket.CreateHelmAppModels.install_app'/>
               </div>
             </FormItem>
-            <FormItem {...formItemLayout} label="集群名称">
+            <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.colony'/>}>
               {getFieldDecorator('region_name', {
                 initialValue: undefined,
                 rules: [
                   {
                     required: true,
-                    message: '请选择集群'
+                    message:formatMessage({id:'applicationMarket.CreateHelmAppModels.select_colony'})
                   }
                 ]
               })(
-                <Select placeholder="请选择集群" style={{ width: '323px' }}>
+                <Select  placeholder={formatMessage({id:'applicationMarket.CreateHelmAppModels.select_colony'})}style={{ width: '323px' }}>
                   {regionList.map(item => (
                     <Option key={item.region_name} value={item.region_name}>
                       {item.region_alias}
@@ -431,11 +431,11 @@ class CreateHelmAppModels extends PureComponent {
                   ))}
                 </Select>
               )}
-              <div className={styles.conformDesc}>选择安装该应用模版的集群</div>
+              <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app_colony'/></div>
             </FormItem>
 
             {appTypes === 'helmContent' ? (
-              <FormItem {...formItemLayout} label="应用名称">
+              <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.app_name'/>}>
                 {getFieldDecorator('app_name', {
                   initialValue: appName,
                   validateTrigger: 'onBlur',
@@ -446,15 +446,16 @@ class CreateHelmAppModels extends PureComponent {
                     },
                     {
                       min: 4,
-                      message: '应用名称最小长度4位'
+                      message:formatMessage({id:'applicationMarket.CreateHelmAppModels.min'})
                     },
                     {
                       max: 53,
-                      message: '应用名称最大长度53位'
+                      message:formatMessage({id:'applicationMarket.CreateHelmAppModels.max'})
                     },
                     {
                       pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/,
-                      message: '只支持小写字母和数字开头结尾'
+                      message:formatMessage({id:'applicationMarket.CreateHelmAppModels.only'})
+
                     },
                     {
                       validator: (_, value, callback) => {
@@ -468,24 +469,24 @@ class CreateHelmAppModels extends PureComponent {
                     }
                   ]
                 })(
-                  <Input style={{ width: '323px' }} placeholder="请输入名称" />
+                  <Input style={{ width: '323px' }}  placeholder={formatMessage({id:'applicationMarket.CreateHelmAppModels.input_name'})}/>
                 )}
                 <div className={styles.conformDesc}>
-                  请输入创建的应用名称，最多不超过53字符。
+                  <FormattedMessage id='applicationMarket.CreateHelmAppModels.input_number'/>
                 </div>
               </FormItem>
             ) : (
-              <Form.Item {...formItemLayout} label="选择应用">
+              <Form.Item {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app'/>}>
                 {getFieldDecorator('group_id', {
                   rules: [
                     {
                       required: true,
-                      message: '请选择应用'
+                      message:formatMessage({id:'applicationMarket.CreateHelmAppModels.input_app'})
                     }
                   ]
                 })(
                   <Select
-                    placeholder="请选择应用"
+                    placeholder={formatMessage({id:'applicationMarket.CreateHelmAppModels.input_name'})}
                     style={{
                       display: 'inline-block',
                       width: 220,
@@ -502,18 +503,18 @@ class CreateHelmAppModels extends PureComponent {
                 <Button onClick={this.onAddGroup}>
                 {formatMessage({id:'popover.newApp.title'})}
                 </Button>
-                <div className={styles.conformDesc}>请选择安装的目标应用</div>
+                <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.input_install'/></div>
               </Form.Item>
             )}
 
-            <FormItem {...formItemLayout} label="应用版本">
+            <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.version'/>}>
               {getFieldDecorator('version', {
                 initialValue:
                   versions && (versions[0].version || versions[0].app_version),
                 rules: [
                   {
                     required: true,
-                    message: '请选择版本'
+                    message:formatMessage({id:'applicationMarket.CreateHelmAppModels.select_version'})
                   }
                 ]
               })(
@@ -529,9 +530,9 @@ class CreateHelmAppModels extends PureComponent {
                     })}
                 </Select>
               )}
-              <div className={styles.conformDesc}>请选择应用的版本。</div>
+              <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.select_version_app'/></div>
             </FormItem>
-            <FormItem {...formItemLayout} label="应用备注">
+            <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.install'/>}>
               {getFieldDecorator('note', {
                 initialValue: appInfo.versions
                   ? appInfo.versions[0].description || appInfo.describe
@@ -539,20 +540,20 @@ class CreateHelmAppModels extends PureComponent {
                 rules: [
                   {
                     max: 255,
-                    message: '最大长度255位'
+                    message:formatMessage({id:'applicationMarket.CreateHelmAppModels.max_num'})
                   }
                 ]
               })(
                 <Input.TextArea
-                  placeholder="请填写应用备注信息"
+                  placeholder={formatMessage({id:'applicationMarket.CreateHelmAppModels.remarks'})}
                   style={{ width: '323px' }}
                 />
               )}
-              <div className={styles.conformDesc}>请输入创建的应用模版描述</div>
+              <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.describe'/></div>
             </FormItem>
 
             {appTypes !== 'helmContent' && (
-              <FormItem {...formItemLayout} label="构建启动">
+              <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.start'/>}>
                 {getFieldDecorator('is_deploy', {
                   initialValue: isDeploy
                 })(

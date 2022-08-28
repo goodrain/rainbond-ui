@@ -12,8 +12,8 @@ import {
   Spin
 } from 'antd';
 import { connect } from 'dva';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -308,10 +308,10 @@ export default class Convenient extends PureComponent {
         onOk={this.handleSubmit}
         onCancel={onCancel}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}>  <FormattedMessage id='button.confirm'/></Button>,
           userTeams && (
             <Button type="primary" onClick={this.handleSubmit}>
-              添加
+              <FormattedMessage id='button.add'/>
             </Button>
           )
         ]}
@@ -322,7 +322,7 @@ export default class Convenient extends PureComponent {
           ) : (
             !userTeams && (
               <Alert
-                message="暂无团队可以添加"
+                message=  {<FormattedMessage id='enterpriseOverview.Convenient.not'/>}
                 type="warning"
                 style={{ marginBottom: '20px' }}
               />
@@ -331,13 +331,13 @@ export default class Convenient extends PureComponent {
           <Row>
             {userTeams && (
               <Col span={12}>
-                <FormItem {...formItemLayout} label="团队视图" hasFeedback>
+                <FormItem {...formItemLayout}  label={<FormattedMessage id='enterpriseOverview.Convenient.team'/>}hasFeedback>
                   {getFieldDecorator('team_name')(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
                       style={{ width: '100%' }}
                       onChange={this.handleTeamChange}
-                      placeholder="请选择团队"
+                      placeholder={formatMessage({id:'enterpriseOverview.Convenient.select_team'})}
                     >
                       {userTeams.map(item => (
                         <Option key={item.team_name} value={item.team_name}>
@@ -355,7 +355,7 @@ export default class Convenient extends PureComponent {
                   {getFieldDecorator('region')(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
-                      placeholder="请选择集群"
+                      placeholder={formatMessage({id:'enterpriseOverview.Convenient.select_cluster'})}
                       style={{ width: '100%' }}
                     >
                       {region_list &&
@@ -374,12 +374,12 @@ export default class Convenient extends PureComponent {
             )}
             {appList && (
               <Col span={12}>
-                <FormItem {...formItemLayout} label="应用视图" hasFeedback>
+                <FormItem {...formItemLayout} label={<FormattedMessage id='enterpriseOverview.Convenient.app'/>} hasFeedback>
                   {getFieldDecorator('apps')(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
                       style={{ width: '100%' }}
-                      placeholder="请选择应用"
+                      placeholder={formatMessage({id:'enterpriseOverview.Convenient.select'})}
                       dropdownRender={menu => (
                         <div>
                           {menu}
@@ -394,7 +394,7 @@ export default class Convenient extends PureComponent {
                                 onMouseDown={e => e.preventDefault()}
                                 onClick={this.addApps}
                               >
-                                <Icon type="plus" /> 加载更多
+                                <Icon type="plus" /> <FormattedMessage id='enterpriseOverview.Convenient.more'/>
                               </div>
                             </div>
                           )}
@@ -417,11 +417,11 @@ export default class Convenient extends PureComponent {
           <Row>
             {componentList && (
               <Col span={12}>
-                <FormItem {...formItemLayout} label="组件视图" hasFeedback>
+                <FormItem {...formItemLayout} label={<FormattedMessage id='enterpriseOverview.Convenient.component'/>} hasFeedback>
                   {getFieldDecorator('component')(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
-                      placeholder="请选择组件"
+                      placeholder={formatMessage({id:'enterpriseOverview.Convenient.select_component'})}
                       dropdownRender={menu => (
                         <div>
                           {menu}
@@ -436,7 +436,7 @@ export default class Convenient extends PureComponent {
                                 onMouseDown={e => e.preventDefault()}
                                 onClick={this.addComponents}
                               >
-                                <Icon type="plus" /> 加载更多
+                                <Icon type="plus" /> <FormattedMessage id='enterpriseOverview.Convenient.more'/>
                               </div>
                             </div>
                           )}

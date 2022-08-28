@@ -1,6 +1,7 @@
-import { Button, Checkbox, Form, Modal } from 'antd';
+import { Button, Checkbox, Form, message, Modal } from 'antd';
 import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 const CheckboxGroup = Checkbox.Group;
@@ -53,16 +54,16 @@ export default class DeleteApp extends PureComponent {
         className={styles.TelescopicModal}
         onCancel={onCancel}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}>  <FormattedMessage id='button.cancel'/></Button>,
           <Button type="primary" onClick={this.handleSubmit}>
-            确定
+            <FormattedMessage id='button.confirm'/>
           </Button>
         ]}
       >
         <Form onSubmit={this.handleSubmit}>
           <FormItem
             {...formItemLayout}
-            label={appInfo && `${appInfo.app_name}版本`}
+            label={appInfo &&  `${formatMessage({id:'applicationMarket.DeleteApp'},{name:appInfo.app_name})}`}
           >
             {getFieldDecorator('chooseVersion', {
               initialValue: appInfo &&
@@ -73,7 +74,7 @@ export default class DeleteApp extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请选择版本'
+                  message:formatMessage({id:'applicationMarket.CreateHelmAppModels.select_version'})
                 }
               ]
             })(

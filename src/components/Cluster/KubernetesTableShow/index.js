@@ -281,7 +281,7 @@ export default class KubernetesClusterShow extends PureComponent {
         }
       },
       {
-        title: '名称(ID)',
+        title: formatMessage({id:'enterpriseColony.addCluster.host.name'}),
         width: 120,
         dataIndex: 'name',
         render: (text, row) => {
@@ -294,7 +294,7 @@ export default class KubernetesClusterShow extends PureComponent {
         }
       },
       {
-        title: '类型',
+        title: formatMessage({id:'enterpriseColony.addCluster.host.cluster_type'}),
         width: 180,
         dataIndex: 'cluster_type',
         render: text => {
@@ -304,35 +304,35 @@ export default class KubernetesClusterShow extends PureComponent {
     ];
     if (selectProvider !== 'custom' && selectProvider !== 'rke') {
       columns.push({
-        title: '区域',
+        title: formatMessage({id:'enterpriseColony.addCluster.host.region_id'}),
         dataIndex: 'region_id',
         render: text => {
           return cloud.getAliyunRegionName(text);
         }
       });
       columns.push({
-        title: '可用区',
+        title: formatMessage({id:'enterpriseColony.addCluster.host.zone_id'}),
         dataIndex: 'zone_id'
       });
     } else {
       columns.push({
-        title: 'API地址',
+        title: formatMessage({id:'enterpriseColony.addCluster.host.master_url'}),
         width: 300,
         dataIndex: 'master_url.api_server_endpoint'
       });
     }
     columns.push({
-      title: '节点数量',
+      title: formatMessage({id:'enterpriseColony.addCluster.host.size'}),
       width: 100,
       dataIndex: 'size'
     });
     columns.push({
-      title: '版本',
+      title: formatMessage({id:'enterpriseColony.addCluster.host.current_version'}),
       width: 250,
       dataIndex: 'current_version'
     });
     columns.push({
-      title: '状态',
+      title: formatMessage({id:'enterpriseColony.addCluster.host.state'}),
       width: 150,
       dataIndex: 'state',
       render: (text, row) => {
@@ -340,7 +340,7 @@ export default class KubernetesClusterShow extends PureComponent {
       }
     });
     columns.push({
-      title: '操作',
+      title: formatMessage({id:'enterpriseColony.addCluster.host.cluster_id'}),
       dataIndex: 'cluster_id',
       render: (_, row) => {
         return (
@@ -356,7 +356,7 @@ export default class KubernetesClusterShow extends PureComponent {
                   this.handleInstallRemind(row.cluster_id || row.name);
                 }}
               >
-                重新安装
+                <FormattedMessage id='enterpriseColony.addCluster.host.Reinstall'/>
               </a>
             )}
             {row.rainbond_init === true &&
@@ -364,7 +364,7 @@ export default class KubernetesClusterShow extends PureComponent {
                 <Link
                   to={`/enterprise/${eid}/provider/${selectProvider}/kclusters/${row.cluster_id}/link`}
                 >
-                  对接
+                  <FormattedMessage id='enterpriseColony.addCluster.host.Docking'/>
                 </Link>
               )}
             {selectProvider !== 'rke' &&
@@ -377,7 +377,7 @@ export default class KubernetesClusterShow extends PureComponent {
                     window.open(row.create_log_path, '_blank');
                   }}
                 >
-                  查看日志
+                  <FormattedMessage id='enterpriseColony.addCluster.host.view_log'/>
                 </Button>
               )}
             {selectProvider === 'rke' && (
@@ -388,46 +388,47 @@ export default class KubernetesClusterShow extends PureComponent {
                   this.queryCreateLog(row);
                 }}
               >
-                查看日志
+                <FormattedMessage id='enterpriseColony.addCluster.host.view_log'/>
               </Button>
             )}
             {!row.rainbond_init &&
               (selectProvider === 'rke' || selectProvider === 'custom') && (
                 <Popconfirm
                   placement="top"
-                  title="确认要删除当前集群吗？"
+                  title={<FormattedMessage id='enterpriseColony.addCluster.host.current_cluster'/>}
                   onConfirm={() => {
                     this.deleteCluster(row.cluster_id || row.name);
                   }}
-                  okText="确定"
-                  cancelText="取消"
+                  okText={<FormattedMessage id='button.confirm'/>}
+                  cancelText={<FormattedMessage id='button.cancel'/>}
                 >
-                  <a>删除</a>
+                  <a><FormattedMessage id='button.delete'/></a>
                 </Popconfirm>
               )}
 
             {selectProvider === 'rke' && (
               <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
-                集群配置
+                <FormattedMessage id='enterpriseColony.addCluster.host.Cluster_configuration'/>
               </a>
             )}
             {row.state === 'running' &&
               (selectProvider === 'rke' || selectProvider === 'custom') && (
                 <a onClick={() => this.handleIsComponents(row.cluster_id)}>
-                  查看组件
+                  <FormattedMessage id='enterpriseColony.addCluster.host.look'/>
                 </a>
+                
               )}
             {row.rainbond_init === true && (
               <Popconfirm
                 placement="top"
-                title="卸载后不可恢复，确认要卸载当前集群的平台服务吗？"
+                title={<FormattedMessage id='enterpriseColony.addCluster.host.After_uninstallation'/>}
                 onConfirm={() => {
                   this.uninstallCluster(row.cluster_id || row.name);
                 }}
-                okText="确定"
-                cancelText="取消"
+                okText={<FormattedMessage id='button.confirm'/>}
+                cancelText={<FormattedMessage id='button.cancel'/>}
               >
-                <a>卸载</a>
+                <a><FormattedMessage id='button.uninstall'/></a>
               </Popconfirm>
             )}
           </div>
@@ -468,20 +469,20 @@ export default class KubernetesClusterShow extends PureComponent {
               <Paragraph className={styles.describe}>
                 <ul>
                   <li>
-                    <span>目前平台支持阿里云托管集群自动化购买</span>
+                    <span><FormattedMessage id='enterpriseColony.addCluster.host.managed'/></span>
                   </li>
                   <li>
                     <span>
-                      若暂无可用集群，可点击
+                      <FormattedMessage id='enterpriseColony.addCluster.host.click'/>
                       <Button type="link" onClick={showBuyClusterConfig}>
-                        新购买集群
+                        <FormattedMessage id='enterpriseColony.addCluster.host.Newly'/>
                       </Button>
-                      快速购买
+                      <FormattedMessage id='enterpriseColony.addCluster.host.Quick'/>
                     </span>
                   </li>
                   <li>
                     <span>
-                      若集群创建出现错误，请再次确保以下服务已开通或授权已授予后重试：
+                      <FormattedMessage id='enterpriseColony.addCluster.host.try_again'/>
                       {cloud.getAliyunCountDescribe().map(item => {
                         return (
                           <a
@@ -498,7 +499,7 @@ export default class KubernetesClusterShow extends PureComponent {
                   </li>
                   <li>
                     <span>
-                      集群购买成功后处于初始化中的状态，阿里云将完成集群创建，正常情况下10分钟左右即可初始化完成
+                      <FormattedMessage id='enterpriseColony.addCluster.host.successfully'/>
                     </span>
                   </li>
                 </ul>
@@ -508,8 +509,8 @@ export default class KubernetesClusterShow extends PureComponent {
           <Col span={12} style={{ textAlign: 'left' }}>
             {selectClusterName && (
               <span style={{ marginRight: '16px' }}>
-                已选择集群: {selectClusterName},
-                该集群符合平台接入规则，可以开始平台集群初始化。
+                <FormattedMessage id='enterpriseColony.addCluster.host.Cluster_selected'/> {selectClusterName},
+                <FormattedMessage id='enterpriseColony.addCluster.host.cluster_complies'/>
               </span>
             )}
             {!selectClusterName &&
@@ -517,16 +518,16 @@ export default class KubernetesClusterShow extends PureComponent {
               lastTask.name &&
               showLastTaskDetail && (
                 <span>
-                  上一次创建任务: {lastTask.name},
+                   <FormattedMessage id='enterpriseColony.addCluster.host.Last_created'/>{lastTask.name},
                   <Button onClick={showLastTaskDetail} type="link">
-                    点击查看创建进度
+                    <FormattedMessage id='enterpriseColony.addCluster.host.creation_progress'/>
                   </Button>
                 </span>
               )}
           </Col>
           <Col span={12} style={{ textAlign: 'right' }}>
             <Button type="primary" onClick={showBuyClusterConfig}>
-              新增集群
+              <FormattedMessage id='enterpriseColony.addCluster.host.add'/>
             </Button>
             <Button
               style={{ marginLeft: '16px' }}
@@ -545,7 +546,7 @@ export default class KubernetesClusterShow extends PureComponent {
         />
         {isInstallRemind && (
           <Modal
-            title="确定要重新安装当前集群吗?"
+            title={<FormattedMessage id='enterpriseColony.addCluster.host.reinstall_current_cluster'/>}
             confirmLoading={installLoading}
             className={styless.TelescopicModal}
             width={900}
@@ -560,10 +561,10 @@ export default class KubernetesClusterShow extends PureComponent {
           >
             <Row style={{ padding: '0 16px' }}>
               <span style={{ fontWeight: 600, color: 'red' }}>
-                请在重新安装前在所有节点执行以下
-                两条命令（该命令将会清除k8s的相关容器及配置）
+                <FormattedMessage id='enterpriseColony.addCluster.host.following'/>
+                <FormattedMessage id='enterpriseColony.addCluster.host.commands'/>
                 <br />
-                执行用户需要具有sudo权限：
+                <FormattedMessage id='enterpriseColony.addCluster.host.permission'/>
               </span>
               {this.handleCommandBox(delK8sConfigurationFile)}
               {this.handleCommandBox(removek8sAssociatedContainer)}
@@ -595,7 +596,7 @@ export default class KubernetesClusterShow extends PureComponent {
               copy(kubeConfig);
               notification.success({ message: formatMessage({id:'notification.success.copy'}) });
             }}
-            okText="复制"
+            okText={<FormattedMessage id='button.copy'/>}
           >
             <div className={istyles.cmd}>
               <CodeMirror
