@@ -650,7 +650,7 @@ export default class Enterprise extends PureComponent {
         {convenientVisible && (
           <Convenient
             {...this.props}
-            title="添加快捷入口"
+            title={<FormattedMessage id="enterpriseOverview.Convenient.title"/>}
             onOk={this.handleConvenientEntrance}
             onCancel={this.cancelConvenientEntrance}
           />

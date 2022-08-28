@@ -103,7 +103,7 @@ class EditClusterInfo extends PureComponent {
     return (
       <Modal
         visible
-        title="添加集群"
+        title={<FormattedMessage id='enterpriseColony.BaseAddCluster.add'/>}
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         width={800}
@@ -113,7 +113,7 @@ class EditClusterInfo extends PureComponent {
           <Col style={{ display: 'flex' }}>
             <FormItem
               {...formItemLayout}
-              label="集群ID"
+              label={<FormattedMessage id='enterpriseColony.BaseAddCluster.id'/>}
               style={{
                 width: '50%',
                 padding: '0 16px'
@@ -122,18 +122,18 @@ class EditClusterInfo extends PureComponent {
               {getFieldDecorator('region_name', {
                 initialValue: '',
                 rules: [
-                  { required: true, message: '集群ID是必填项，不可修改' },
+                  { required: true, message: formatMessage({id:'enterpriseColony.BaseAddCluster.not'}) },
                   {
                     pattern: /^[a-z0-9A-Z-_]+$/,
-                    message: '只支持字母、数字和-_组合'
+                    message: formatMessage({id:'enterpriseColony.addCluster.host.supported'})
                   }
                 ]
-              })(<Input placeholder="请填写集群ID，添加后不可修改" />)}
+              })(<Input placeholder= {formatMessage({id:'enterpriseColony.BaseAddCluster.input_id'})}/>)}
             </FormItem>
 
             <FormItem
               {...formItemLayout}
-              label="集群名称"
+              label={<FormattedMessage id='enterpriseColony.addCluster.host.name_Cluster'/>}
               style={{
                 width: '50%',
                 padding: '0 16px'
@@ -142,16 +142,16 @@ class EditClusterInfo extends PureComponent {
               {getFieldDecorator('region_alias', {
                 initialValue: '',
                 rules: [
-                  { required: true, message: '请填写集群名称!' },
-                  { max: 24, message: '最大长度24位' }
+                  { required: true, message: formatMessage({id:'enterpriseColony.addCluster.host.input_name'}) },
+                  { max: 24, message:  formatMessage({id:'enterpriseColony.addCluster.host.max'})}
                 ]
-              })(<Input placeholder="请填写集群名称" />)}
+              })(<Input placeholder= {formatMessage({id:'enterpriseColony.BaseAddCluster.name'})}/>)}
             </FormItem>
           </Col>
           <Col style={{ display: 'flex' }}>
             <FormItem
               {...formItemLayout}
-              label="备注"
+              label={<FormattedMessage id='enterpriseColony.BaseAddCluster.lable'/>}
               style={{
                 width: '100%',
                 padding: '0 16px'
@@ -159,11 +159,11 @@ class EditClusterInfo extends PureComponent {
             >
               {getFieldDecorator('desc', {
                 initialValue: ''
-              })(<Input placeholder="备注信息" />)}
+              })(<Input placeholder= {formatMessage({id:'enterpriseColony.BaseAddCluster.Remarks'})}/>)}
             </FormItem>
           </Col>
           <CodeMirrorForm
-            titles="Region-Config 文件内容可通过执行`grctl config`命令获得"
+            titles={<FormattedMessage id='enterpriseColony.BaseAddCluster.titles'/>}
             setFieldsValue={setFieldsValue}
             formItemLayout={formItemLayout}
             Form={Form}
@@ -172,7 +172,7 @@ class EditClusterInfo extends PureComponent {
             mode="yaml"
             name="token"
             label="Region Config"
-            message="Region Config是必须的"
+            message={<FormattedMessage id='enterpriseColony.CustomClusterAdd.msg'/>}
             width="752px"
           />
         </Form>

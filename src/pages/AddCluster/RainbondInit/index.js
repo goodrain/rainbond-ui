@@ -3,6 +3,7 @@
 import { Card, Form, Row, Steps } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import React, { PureComponent } from 'react';
 import RainbondClusterInit from '../../../components/Cluster/RainbondClusterInit';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
@@ -61,18 +62,18 @@ export default class RainbondInit extends PureComponent {
   };
   loadSteps = () => {
     const steps = [
-      {
-        title: '选择供应商'
-      },
-      {
-        title: '选择(创建)平台集群'
-      },
-      {
-        title: '初始化平台集群'
-      },
-      {
-        title: '完成对接'
-      }
+        {
+          title: formatMessage({id:'enterpriseColony.addCluster.supplier'})
+        },
+        {
+          title: formatMessage({id:'enterpriseColony.addCluster.cluster'})
+        },
+        {
+          title: formatMessage({id:'enterpriseColony.addCluster.Initialize'})
+        },
+        {
+          title: formatMessage({id:'enterpriseColony.addCluster.docking'})
+        }
     ];
     return steps;
   };
@@ -98,8 +99,8 @@ export default class RainbondInit extends PureComponent {
     } = this.props;
     return (
       <PageHeaderLayout
-        title="添加集群"
-        content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
+      title={<FormattedMessage id='enterpriseColony.button.text'/>}
+      content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={2}>

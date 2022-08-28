@@ -97,10 +97,13 @@
         'popover.enterpriseOverview.setUpTeam.label.name':'团队名称',
         'popover.enterpriseOverview.setUpTeam.label.englishName':'团队英文名称',
         'popover.enterpriseOverview.setUpTeam.label.colony':'集群',
+        'popover.enterpriseOverview.setUpTeam.label.creat_name':'点击可以创建团队。',
+        'popover.enterpriseOverview.setUpTeam.label.creat_colony':'缺少集群、去创建',
         // placeholder
         'popover.enterpriseOverview.setUpTeam.placeholder.name':'请输入团队名称',
         'popover.enterpriseOverview.setUpTeam.placeholder.englishName':'团队的英文名称',
         'popover.enterpriseOverview.setUpTeam.placeholder.colony':'选择集群',
+        'popover.enterpriseOverview.setUpTeam.placeholder.max':'最大长度10位',
         // conformDesc
         'popover.enterpriseOverview.setUpTeam.conformDesc.name':'请输入创建的团队名称，最大长度10位',
         'popover.enterpriseOverview.setUpTeam.conformDesc.englishName':'对应该团队在集群使用的命名空间',
@@ -153,6 +156,16 @@
         'button.build_component':'构建组件',
         'button.add_depend':'添加依赖',
         'button.add_port':'添加端口',
+        'button.add':'添加',
+        'button.apply':'申请',
+        'button.previous':'上一步',
+        'button.next':'下一步',
+        'button.uninstall':'卸载',
+        'button.copy':'复制',
+        'button.operation':'操作',
+        'button.Docking':'对接',
+        'button.return':'返回',
+        'button.configuration':'高级配置',
 
     }
     const status = {

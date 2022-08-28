@@ -18,6 +18,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import userUtil from '../../utils/user';
 import styles from './index.less';
@@ -182,7 +183,7 @@ export default class EnterpriseShared extends PureComponent {
         if (res && res.status_code === 200) {
           if (!res.bean || res.bean.region_name === '') {
             confirm({
-              content: '您还未对接集群，应用模版导入功能暂不可用'
+              content: formatMessage({id:'applicationMarket.Offline.not'})
             });
           }
           this.setState(
@@ -366,18 +367,18 @@ export default class EnterpriseShared extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="离线应用模版导入"
-        content="离线应用模版导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他在线平台导出或云应用商店导出"
+        title={<FormattedMessage id='applicationMarket.Offline.import'/>}
+        content={<FormattedMessage id='applicationMarket.Offline.mode'/>}
       >
         <div style={{ margin: '75px 21px 0 24px' }}>
-          <div className={styles.tit}>离线应用模版导入</div>
+          <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.import'/></div>
           <Card
             bodyStyle={{ padding: '25px 0 25px 29px' }}
             className={styles.mb10}
           >
             <Row className={styles.box}>
               <Col span={24} className={styles.desc}>
-                正在使用<span>“{region_name}”</span>完成本次导入任务
+                <FormattedMessage id='applicationMarket.Offline.use'/><span>“{region_name}”</span><FormattedMessage id='applicationMarket.Offline.import_task'/>
               </Col>
             </Row>
           </Card>
@@ -385,7 +386,7 @@ export default class EnterpriseShared extends PureComponent {
           <Card bodyStyle={{ padding: '0 0 0 27px' }} className={styles.mb10}>
             <Row className={styles.box}>
               <Col span={23} className={styles.con}>
-                上传APP文件
+                <FormattedMessage id='applicationMarket.Offline.upload_app'/>
                 {percents && (
                   <Progress
                     percent={parseInt(percents)}
@@ -407,7 +408,7 @@ export default class EnterpriseShared extends PureComponent {
                   disabled={region_name === ''}
                 >
                   <Icon component={upSvg} />
-                  <div className={styles.upText}>上传</div>
+                  <div className={styles.upText}><FormattedMessage id='applicationMarket.Offline.upload'/></div>
                 </Upload>
               </Col>
             </Row>
@@ -415,7 +416,7 @@ export default class EnterpriseShared extends PureComponent {
 
           {existFiles && (
             <div>
-              <div className={styles.tit}>已上传文件列表</div>
+              <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.upload_list'/></div>
               <Card className={styles.mb10}>
                 <Checkbox.Group
                   style={{ width: '100%' }}
@@ -459,7 +460,7 @@ export default class EnterpriseShared extends PureComponent {
                 </Checkbox.Group>
               </Card>
 
-              <div className={styles.tit}>导入范围</div>
+              <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.import_Range'/></div>
 
               <Card className={styles.mb10}>
                 <Radio.Group
@@ -471,14 +472,14 @@ export default class EnterpriseShared extends PureComponent {
                     value="enterprise"
                     disabled={!enterpriseAdmin}
                   >
-                    上传到企业
+                    <FormattedMessage id='applicationMarket.Offline.upload_enterprise'/>
                   </Radio>
                   <Radio style={radioStyle} value="team">
-                    上传到团队
+                    <FormattedMessage id='applicationMarket.Offline.upload_team'/>
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
                       size="small"
-                      defaultValue="请选择一个团队"
+                      defaultValue={<FormattedMessage id='applicationMarket.Offline.select'/>}
                       style={{ width: 150, marginLeft: '15px' }}
                       onChange={this.handleChangeTeam}
                     >
@@ -502,7 +503,7 @@ export default class EnterpriseShared extends PureComponent {
                       this.cancelImport();
                     }}
                   >
-                    放弃导入
+                    <FormattedMessage id='applicationMarket.Offline.Abort_import'/>
                   </Button>
                   {this.state.import_file_status.length === 0 && (
                     <Button
@@ -511,7 +512,7 @@ export default class EnterpriseShared extends PureComponent {
                         this.handleSubmit();
                       }}
                     >
-                      确认导入
+                      <FormattedMessage id='applicationMarket.Offline.confirm_import'/>
                     </Button>
                   )}
                 </Col>

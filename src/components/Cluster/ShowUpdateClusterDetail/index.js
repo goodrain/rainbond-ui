@@ -1,6 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
 import ClusterProgressQuery from '../ClusterProgressQuery';
@@ -75,8 +76,8 @@ class UpdateClusterDetail extends PureComponent {
 
     return (
       <ClusterProgressQuery
-        title={title || 'Kubernetes 集群配置进度查询'}
-        msg="配置流程预计耗时10分钟，请耐心等待，若遇到错误请反馈到社区"
+        title={title || <FormattedMessage id="enterpriseColony.ShowUpdateClusterDetail.title"/>}
+        msg={<FormattedMessage id="enterpriseColony.ShowUpdateClusterDetail.msg"/>}
         {...this.state}
         {...this.props}
       />

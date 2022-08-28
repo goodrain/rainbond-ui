@@ -4,6 +4,8 @@ import React, { PureComponent } from 'react';
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
 import ClusterProgressQuery from '../ClusterProgressQuery';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+
 
 @connect(({ global }) => ({
   rainbondInfo: global.rainbondInfo,
@@ -103,8 +105,8 @@ class ShowKubernetesCreateDetail extends PureComponent {
     const { title } = this.props;
     return (
       <ClusterProgressQuery
-        title={title || '集群创建进度'}
-        msg="集群安装过程预计10分钟，请耐心等待，若遇到错误请反馈到社区"
+        title={title || <FormattedMessage id='enterpriseColony.ShowKubernetesCreateDetail.msg'/>}
+        msg={formatMessage({id:'enterpriseColony.ShowKubernetesCreateDetail.msg'})}
         {...this.state}
         {...this.props}
       />
