@@ -818,7 +818,7 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.handleCancelDelete();
-          notification.success({ message: '更新成功' });
+          notification.success({ message: formatMessage({id:'notification.success.updates'}) });
           this.getApps();
         }
       }
@@ -826,19 +826,19 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   handleCreateAppModel = () => {
-    notification.success({ message: '创建成功' });
+    notification.success({ message: formatMessage({id:'notification.success.setUp'}) });
     this.getApps();
     this.handleCancelAppModel();
   };
 
   handleCreateAppMarket = ID => {
     const { upAppMarket } = this.state;
-    notification.success({ message: upAppMarket ? '编辑成功' : '创建成功' });
+    notification.success({ message: upAppMarket ? formatMessage({id:'notification.success.edit'}) : formatMessage({id:'notification.success.setUp'}) });
     this.getMarketsTab(ID);
     this.handleCancelAppMarket();
   };
   handleUpHelmAppMarket = ID => {
-    notification.success({ message: '编辑成功' });
+    notification.success({ message: formatMessage({id:'notification.success.edit'}) });
     this.getHelmMarketsTab(ID);
     this.handleCancelHelmAppMarket();
   };
@@ -883,7 +883,7 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
   handleupDataAppModel = () => {
-    notification.success({ message: '编辑成功' });
+    notification.success({ message: formatMessage({id:'notification.success.edit'}) });
     this.getApps();
     this.handleCancelupDataAppModel();
   };
@@ -1276,7 +1276,7 @@ export default class EnterpriseShared extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: '请先创建团队！'
+              message: formatMessage({id:'notification.warn.create_team'})
             });
           }
         }
@@ -1311,7 +1311,7 @@ export default class EnterpriseShared extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: '请先创建应用！'
+              message: formatMessage({id:'notification.warn.app'})
             });
           }
         }
@@ -1835,9 +1835,9 @@ export default class EnterpriseShared extends PureComponent {
         {deleteApp && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
-            desc="确定要删除此应用模型吗?"
-            subDesc="删除后其他人将无法安装此应用模型"
-            title="删除应用模版"
+            desc={formatMessage({id:'confirmModal.delete.app_template.desc'})}
+            subDesc={formatMessage({id:'confirmModal.delete.app_template.subDesc'})}
+            title={formatMessage({id:'confirmModal.app_template.delete.title'})}
             onCancel={this.handleCancelDelete}
           />
         )}
@@ -1857,9 +1857,9 @@ export default class EnterpriseShared extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteAppMarket}
             loading={deleteAppMarketLoading}
-            subDesc="此操作不可恢复"
-            desc="确定要删除此商店吗?"
-            title="删除应用商店"
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.app_store.desc'})}
+            title={formatMessage({id:'confirmModal.app_store.delete.title'})}
             onCancel={this.handleCloseDeleteAppMarket}
           />
         )}
@@ -1867,9 +1867,9 @@ export default class EnterpriseShared extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteHelmAppMarket}
             loading={deleteHelmAppMarketLoading}
-            subDesc="此操作不可恢复"
-            desc="确定要删除此商店吗?"
-            title="删除Helm应用商店"
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.app_store.desc'})}
+            title={formatMessage({id:'confirmModal.helm_store.delete.title'})}
             onCancel={this.handleCloseDeleteHelmAppMarket}
           />
         )}

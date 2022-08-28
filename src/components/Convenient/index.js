@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -106,7 +107,7 @@ export default class Convenient extends PureComponent {
       result = `/team/${teamName}/region/${regionName}/index`;
     } else {
       notification.warning({
-        message: '请至少选择一个'
+        message: formatMessage({id:'notification.warn.choose_one'})
       });
       return null;
     }

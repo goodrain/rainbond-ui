@@ -25,6 +25,7 @@ import {
 import axios from 'axios';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PluginStyles from '../../pages/Create/Index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
@@ -239,7 +240,7 @@ export default class Index extends PureComponent {
                   this.hidden();
                 }
                 notification.success({
-                  message: '绑定成功',
+                  message: formatMessage({id:'notification.success.binding_success'}),
                   duration: 1
                 });
                 if (isReload) {

@@ -5,7 +5,7 @@
 import { Col, Icon, Input, notification, Row } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
-
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 @connect(({ region }) => ({
 }))
 class DAinput extends Component {
@@ -50,7 +50,7 @@ class DAinput extends Component {
     const { values } = this.state;
     if (values.length > 100) {
       notification.warning({
-        message: '最多添加100个'
+        message: formatMessage({id:'notification.warn.add_max'})
       });
       return null;
     }

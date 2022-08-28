@@ -219,8 +219,8 @@ class BindingView extends Component {
         )}
         {openDeleteAccessToken && (
           <ConfirmModal
-            title="删除令牌"
-            desc="确定要删除访问令牌?"
+            title={formatMessage({ id: 'confirmModal.token.delete.title' })}
+            desc={formatMessage({ id: 'confirmModal.delete.token.desc' })}
             loading={deleteAccessLoading}
             onCancel={this.onCanceAccessToken}
             onOk={this.handleDeleteAccessToken}

@@ -1,4 +1,5 @@
 import React, {Fragment} from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../utils/global';
 import {Layout, Icon, message, notification, Modal, Button} from 'antd';
 
@@ -29,7 +30,7 @@ export default class PayMoneyTip extends React.PureComponent {
         if(regionId){
             window.open(`https://www.goodrain.com/spa/#/resBuy/${regionId}`)
         }else{
-            notification.warning({message: '当前集群不可购买'})
+            notification.warning({message: formatMessage({id:'notification.warn.purchase'})})
         }
         this.handleCancel();
     }

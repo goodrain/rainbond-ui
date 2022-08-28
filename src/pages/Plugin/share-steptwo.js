@@ -2,6 +2,7 @@ import { Button, Card, Icon } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';
@@ -430,8 +431,8 @@ export default class shareCheck extends PureComponent {
             disabled={loading.effects['application/giveupShare']}
             onOk={this.handleGiveup}
             onCancel={this.hideShowDelete}
-            title="放弃发布"
-            desc="确定要放弃此次发布吗?"
+            title={formatMessage({ id: 'confirmModal.give_up_release.delete.title' })}
+            desc={formatMessage({ id: 'confirmModal.delete.give_up_release.desc' })}
           />
         )}
       </PageHeaderLayout>

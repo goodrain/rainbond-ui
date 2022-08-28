@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import globalUtil from '../utils/global';
 import { connect } from 'dva';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Layout, Icon, message, notification, Modal, Button } from 'antd';
 import { routerRedux } from 'dva/router';
 
@@ -33,7 +34,7 @@ export default class PayTip extends React.PureComponent {
       const url = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/finance`;
       this.props.dispatch(routerRedux.push(url));
     } else {
-      notification.warning({ message: '当前集群不可购买' });
+      notification.warning({ message: formatMessage({id:'notification.warn.purchase'}) });
     }
     this.handleCancel();
   };

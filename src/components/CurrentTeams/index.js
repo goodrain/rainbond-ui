@@ -1,6 +1,7 @@
 import { Button, Modal, notification, Table } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import roleUtil from '../../utils/role';
 import AddMember from '../AddMember';
 import styles from '../CreateTeam/index.less';
@@ -65,7 +66,7 @@ class currentTeams extends PureComponent {
       },
       callback: () => {
         this.getEnterpriseTeams();
-        notification.success({ message: '设置成功' });
+        notification.success({ message: formatMessage({id:'notification.success.setting_successfully'}) });
         this.handleRole(false);
       }
     });

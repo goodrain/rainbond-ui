@@ -127,7 +127,7 @@ export default class AddVolumes extends PureComponent {
       fileArr[length - 1] == 'yml' ||
       fileArr[length - 1] == 'xml';
     if (!isRightType) {
-      message.error('请上传以.txt, .json, .yaml, .yaml, .xml结尾的文件', 5);
+      message.error(formatMessage({id:'notification.error.upload'}), 5);
       return false;
     }
     return true;

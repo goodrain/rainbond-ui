@@ -1,6 +1,7 @@
 import { Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import TenantSelect from '../../components/TenantSelect';
 import styles from '../CreateTeam/index.less';
 
@@ -93,7 +94,7 @@ class CreateUserForm extends PureComponent {
       <Modal
         visible
         maskClosable={false}
-        title={title || '添加用户'}
+        title={title || formatMessage({id:'enterpriseUser.button.adduser'})}
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={onCancel}
@@ -101,47 +102,47 @@ class CreateUserForm extends PureComponent {
       >
         <Form onSubmit={this.handleSubmit}>
           {!userInfo && (
-            <FormItem {...formItemLayout} label="用户名">
+            <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.user_name'})}>
               {getFieldDecorator('user_name', {
                 initialValue: userInfo ? userInfo.nick_name : '',
                 rules: [
-                  { required: true, message: '请填写用户名!' },
+                  { required: true, message: formatMessage({id:'placeholder.createUser.user_name'}) },
                   {
                     min: 3,
-                    message: '最小长度3位'
+                    message: formatMessage({id:'placeholder.createUser.min3'})
                   },
                   {
                     max: 24,
-                    message: '最大长度24位'
+                    message: formatMessage({id:'placeholder.max24'})
                   },
                   {
                     pattern: /^[a-zA-Z0-9_\-]+$/,
-                    message: '只支持字母、数字、_和-组合'
+                    message: formatMessage({id:'placeholder.createUser.real_nameMsg'})
                   }
                 ]
-              })(<Input autoComplete="off" placeholder="请填写用户名!" />)}
+              })(<Input autoComplete="off" placeholder={formatMessage({id:'placeholder.createUser.user_name'})} />)}
             </FormItem>
           )}
-          <FormItem {...formItemLayout} label="姓名">
+          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.real_name'})}>
             {getFieldDecorator('real_name', {
               initialValue: (userInfo && userInfo.real_name) || '',
               rules: [
-                { required: true, message: '请填写姓名!' },
+                { required: true, message: formatMessage({id:'placeholder.createUser.real_name'}) },
                 {
                   max: 24,
-                  message: '最大长度24位'
+                  message: formatMessage({id:'placeholder.max24'})
                 },
                 {
                   pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
-                  message: '只支持字母、数字、中文、_和-组合'
+                  message: formatMessage({id:'placeholder.createUser.real_nameMsg'})
                 }
               ]
             })(
-              <Input autoComplete="off" type="text" placeholder="请填写姓名!" />
+              <Input autoComplete="off" type="text" placeholder={formatMessage({id:'placeholder.createUser.real_name'})} />
             )}
           </FormItem>
           {!userInfo && (
-            <FormItem {...formItemLayout} label="密码">
+            <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.password'})}>
               {getFieldDecorator('password', {
                 initialValue: (userInfo && userInfo.password) || '',
                 rules: [
@@ -153,47 +154,47 @@ class CreateUserForm extends PureComponent {
               })(
                 <Input.Password
                   autoComplete="new-password"
-                  placeholder="请填写密码"
+                  placeholder={formatMessage({id:'placeholder.createUser.password'})}
                 />
               )}
             </FormItem>
           )}
           {!userInfo && (
-            <FormItem {...formItemLayout} label="邮箱">
+            <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.email'})}>
               {getFieldDecorator('email', {
                 initialValue: (userInfo && userInfo.email) || '',
                 rules: [
-                  { required: true, message: '请填写邮箱!' },
-                  { type: 'email', message: '邮箱格式不正确!' }
+                  { required: true, message: formatMessage({id:'placeholder.createUser.email'}) },
+                  { type: 'email', message: formatMessage({id:'placeholder.createUser.emailMsg'}) }
                 ]
               })(
                 <Input
                   type="text"
-                  placeholder="请填写邮箱!"
+                  placeholder={formatMessage({id:'placeholder.createUser.email'})}
                   autoComplete="off"
                 />
               )}
             </FormItem>
           )}
-          <FormItem {...formItemLayout} label="电话">
+          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.phone'})}>
             {getFieldDecorator('phone', {
               initialValue: (userInfo && userInfo.phone) || '',
               rules: [
                 {
                   pattern: /^[0-9]{11}$/,
-                  message: '请输入正确的手机号'
+                  message: formatMessage({id:'placeholder.createUser.phoneMsg'})
                 }
               ]
             })(
               <Input
                 type="text"
-                placeholder="请填写手机号"
+                placeholder={formatMessage({id:'placeholder.createUser.phone'})}
                 autoComplete="off"
               />
             )}
           </FormItem>
           {userInfo && (
-            <FormItem {...formItemLayout} label="设置新密码">
+            <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.new_password'})}>
               {getFieldDecorator('password', {
                 initialValue: (userInfo && userInfo.password) || '',
                 rules: [
@@ -204,34 +205,34 @@ class CreateUserForm extends PureComponent {
               })(
                 <Input.Password
                   autoComplete="new-password"
-                  placeholder="留空则不修改密码"
+                  placeholder={formatMessage({id:'placeholder.createUser.new_password'})}
                 />
               )}
             </FormItem>
           )}
           {!userInfo && (
             <div>
-              <FormItem {...formItemLayout} label="所属团队">
+              <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.tenant_name'})}>
                 {getFieldDecorator('tenant_name', {
-                  rules: [{ required: false, message: '请选择团队!' }]
+                  rules: [{ required: false, message: formatMessage({id:'placeholder.createUser.selectTeam'}) }]
                 })(
                   <TenantSelect
-                    placeholder="请输入团队名称进行查询"
+                    placeholder={formatMessage({id:'placeholder.createUser.tenant_name'})}
                     eid={eid}
                     onSelect={this.handleSelect}
                   />
                 )}
               </FormItem>
-              <FormItem {...formItemLayout} label="角色权限">
+              <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.role_ids'})}>
                 {getFieldDecorator('role_ids', {
                   initialValue: [],
-                  rules: [{ required: false, message: '请选择用户角色!' }]
+                  rules: [{ required: false, message: formatMessage({id:'placeholder.createUser.role_ids'}) }]
                 })(
                   <Select
                     getPopupContainer={triggerNode => triggerNode.parentNode}
                     mode="multiple"
                     style={{ width: '100%' }}
-                    placeholder="请选择用户角色"
+                    placeholder={formatMessage({id:'placeholder.createUser.role_ids'})}
                   >
                     {authorityList.map(item => {
                       const { ID, name } = item;

@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import {Card, Empty} from 'antd';
 class HealthAttribute extends PureComponent {
     constructor(props) {
@@ -11,19 +12,19 @@ class HealthAttribute extends PureComponent {
                 style={{
                     marginBottom: 24
                 }}
-                title="健康监测"
+                title={formatMessage({id:'enterpriseColony.import.recognition.tabs.health'})}
             >
                 {value && Object.keys(value).length > 0 ? (
                     <div style={{ display: 'flex' }}>
                         <div style={{ width: '33%', textAlign: 'center' }}>
-                            当前状态:{value.status && value.status === 1 ? "启动" : "暂无状态"}
+                        {formatMessage({id:'enterpriseColony.import.recognition.tabs.health.status'})}{value.status && value.status === 1 ? formatMessage({id:'enterpriseColony.import.recognition.tabs.health.start'}) : formatMessage({id:'enterpriseColony.import.recognition.tabs.health.null'})}
                         </div>
                         <div style={{ width: '33%', textAlign: 'center' }}>
-                            检测方式:{value.detection_method ? value.detection_method : '未设置'}
+                        {formatMessage({id:'enterpriseColony.import.recognition.tabs.health.check'})}{value.detection_method ? value.detection_method : formatMessage({id:'enterpriseColony.import.recognition.tabs.health.notSetting'})}
                         </div>
                         <div style={{ width: '33%', textAlign: 'center' }}>
-                            不健康处理方式:
-                            {value.mode && value.mode === "liveness"? "重启" : "下线"}
+                        {formatMessage({id:'enterpriseColony.import.recognition.tabs.health.notHealth'})}
+                            {value.mode && value.mode === "liveness"? formatMessage({id:'enterpriseColony.import.recognition.tabs.health.restart'}) : formatMessage({id:'enterpriseColony.import.recognition.tabs.health.offLine'})}
                         </div>
                     </div>
                 ) : (

@@ -203,7 +203,7 @@ export default class Main extends PureComponent {
         if (res && res.status_code === 200) {
           this.handleCloseEditAppVersion();
           this.getAppModelsDetails();
-          notification.success({ message: '编辑成功' });
+          notification.success({ message: formatMessage({id:'notification.success.edit'}) });
         }
       }
     });
@@ -359,7 +359,7 @@ export default class Main extends PureComponent {
           payload: parameter,
           callback: res => {
             if (res && res.status_code === 200) {
-              notification.success({ message: '保存成功' });
+              notification.success({ message: formatMessage({id:'notification.success.save'}) });
               if (appInfo) {
                 this.handleAppDetails(!isAppDetails);
               } else {
@@ -526,8 +526,8 @@ export default class Main extends PureComponent {
       <div>
         {toDelete && (
           <ConfirmModal
-            title="删除应用版本"
-            desc="确定要删除应用版本?"
+            title={formatMessage({id:'confirmModal.app_versions.delete.title'})}
+            desc={formatMessage({id:'confirmModal.delete.app_versions.desc'})}
             loading={loading.effects['market/deleteAppVersion']}
             onCancel={this.handleCancelDelete}
             onOk={this.handleDeleteVersion}

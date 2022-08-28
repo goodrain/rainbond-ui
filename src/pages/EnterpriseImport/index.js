@@ -18,6 +18,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import userUtil from '../../utils/user';
 import styles from './index.less';
@@ -72,7 +73,7 @@ export default class EnterpriseShared extends PureComponent {
       },
       callback: data => {
         if (data) {
-          notification.success({ message: `取消成功` });
+          notification.success({ message: formatMessage({id:'notification.success.cancel_successfully'}) });
           dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
         }
       }
@@ -127,14 +128,14 @@ export default class EnterpriseShared extends PureComponent {
     if (file_list.length === 0) {
       notification.destroy();
       notification.warning({
-        message: '请至少选择一个应用'
+        message: formatMessage({id:'notification.warn.choose_one'})
       });
       return;
     }
     if (tenant_name === '' && scopeValue !== 'enterprise') {
       notification.destroy();
       notification.warning({
-        message: '请选择一个团队'
+        message: formatMessage({id:'popover.enterpriseOverview.joinTeam.placeholder'})
       });
       return;
     }
@@ -157,7 +158,7 @@ export default class EnterpriseShared extends PureComponent {
       callback: data => {
         if (data) {
           notification.success({
-            message: '开始导入应用'
+            message: formatMessage({id:'notification.success.starting_imported'})
           });
           this.loop = false;
           this.openQueryImportStatus();
@@ -225,13 +226,13 @@ export default class EnterpriseShared extends PureComponent {
           }
           if (data.bean && data.bean.status === 'partial_success') {
             notification.success({
-              message: '部分应用导入失败，你可以重试或取消导入'
+              message: formatMessage({id:'notification.error.failed_import_app'})
             });
             return;
           }
           if (data.bean && data.bean.status === 'success') {
             notification.success({
-              message: '导入完成'
+              message: formatMessage({id:'notification.success.imports_closure'})
             });
 
             dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
@@ -240,7 +241,7 @@ export default class EnterpriseShared extends PureComponent {
           }
           if (data.bean && data.bean.status === 'failed') {
             notification.warning({
-              message: '应用导入失败'
+              message: formatMessage({id:'notification.error.failed_import'})
             });
             this.setState({
               import_file_status: []

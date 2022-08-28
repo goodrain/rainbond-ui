@@ -204,7 +204,7 @@ export default class ClusterLink extends PureComponent {
     const { copyCommand } = this.state;
     copy(copyCommand);
     notification.success({
-      message: '复制成功'
+      message: formatMessage({id:'notification.success.copy'})
     });
   };
   render() {

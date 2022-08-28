@@ -132,7 +132,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          callbacks('仓库名称已存在');
+          callbacks(formatMessage({id:'notification.warn.warehouse_exist'}));
         } else {
           callbacks();
         }
@@ -140,7 +140,7 @@ export default class Index extends PureComponent {
       handleError: res => {
         if (callbacks && res && res.data && res.data.code) {
           if (res.data.code === 8001) {
-            callbacks('仓库名称已存在');
+            callbacks(formatMessage({id:'notification.warn.warehouse_exist'}));
           } else {
             callbacks();
           }
@@ -151,7 +151,7 @@ export default class Index extends PureComponent {
   handleError = res => {
     if (res && res.data && res.data.code) {
       notification.warning({
-        message: '仓库名称已存在'
+        message: formatMessage({id:'notification.warn.warehouse_exist'})
       });
     }
   };

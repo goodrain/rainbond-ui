@@ -312,18 +312,18 @@ export default class Index extends PureComponent {
         {showDelTeam && (
           <ConfirmModal
             onOk={this.handleDelTeam}
-            title="删除团队"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此团队和团队下的所有资源吗？"
+            title={formatMessage({id:'confirmModal.project_team_delete.delete.title'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.project_team_delete.desc'})}
             onCancel={this.hideDelTeam}
           />
         )}
         {showExitTeam && (
           <ConfirmModal
             onOk={this.handleExitTeam}
-            title="退出团队"
-            subDesc="此操作不可恢复"
-            desc="确定要退出此团队吗?"
+            title={formatMessage({id:'confirmModal.project_team_quit.delete.title'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.project_team_quit.desc'})}
             onCancel={this.hideExitTeam}
           />
         )}

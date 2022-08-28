@@ -18,6 +18,7 @@ import {
   Col,
   Upload,
 } from 'antd';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import { getVolumeTypeShowName } from '../../utils/utils';
@@ -56,7 +57,7 @@ export default class AddVolumes extends PureComponent {
 
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
-      notification.warning({ message: '请选择要挂载的目录' });
+      notification.warning({ message: formatMessage({id:'notification.warn.catalogue'}) });
       return;
     }
 
@@ -71,7 +72,7 @@ export default class AddVolumes extends PureComponent {
     res = res.filter(item => !!item.path);
 
     if (!res.length) {
-      notification.warning({ message: '请检查本地存储目录是否填写' });
+      notification.warning({ message: formatMessage({id:'notification.warn.fillIn'}) });
       return;
     }
 

@@ -2,6 +2,7 @@
 import { Button, Form, Input, Modal, Select, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Application from '../../../public/images/application.svg';
 import Branches from '../../../public/images/branches.svg';
 import styless from '../CreateTeam/index.less';
@@ -71,7 +72,7 @@ class CreateOAuthForm extends PureComponent {
     return (
       <Modal
         visible
-        title={edit ? '编辑第三方服务配置' : '添加 Oauth 第三方服务'}
+        title={edit ? formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.title.edit'}) : formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.title.add'})}
         maskClosable={false}
         onOk={this.handleSubmit}
         onCancel={onCancel}
@@ -79,9 +80,9 @@ class CreateOAuthForm extends PureComponent {
         className={styless.TelescopicModal}
         footer={[
           <Button type="primary" loading={loading} onClick={this.handleSubmit}>
-            确定
+            {formatMessage({id:'button.confirm'})}
           </Button>,
-          <Button onClick={onCancel}>取消</Button>
+          <Button onClick={onCancel}> {formatMessage({id:'button.cancel'})}</Button>
         ]}
       >
         <Form layout="horizontal" hideRequiredMark onSubmit={this.handleSubmit}>
@@ -91,18 +92,18 @@ class CreateOAuthForm extends PureComponent {
             label={
               <div className={styles.clearConformMinTitle}>
                 <img src={Application} alt="" />
-                OAuth类型
+                {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.oauth_type'})}
               </div>
             }
           >
             {getFieldDecorator('oauth_type', {
               initialValue: oauthInfo ? oauthInfo.oauth_type : 'github',
-              rules: [{ required: true, message: '请选择oauth_type类型' }]
+              rules: [{ required: true, message: formatMessage({id:'placeholder.oauth.oauth_type'}) }]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 disabled={edit}
-                placeholder="请选择要oauth_type类型"
+                placeholder={formatMessage({id:'placeholder.oauth.oauth_type'})}
               >
                 {oauthList &&
                   oauthList.map(item => (
@@ -114,7 +115,7 @@ class CreateOAuthForm extends PureComponent {
             )}
             {edit && (
               <div className={styles.conformDesc}>
-                如需编辑类型，请删除配置后重新添加
+                {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.oauth_type.desc'})}
               </div>
             )}
           </Form.Item>
@@ -124,21 +125,21 @@ class CreateOAuthForm extends PureComponent {
             label={
               <div className={styles.clearConformMinTitle}>
                 <img src={Application} alt="" />
-                名称
+                {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.name'})}
               </div>
             }
           >
             {getFieldDecorator('name', {
               initialValue: oauthInfo ? oauthInfo.name : '',
               rules: [
-                { required: true, message: '请输入名称' },
+                { required: true, message: formatMessage({id:'placeholder.appShare.appPublish.name'}) },
                 {
                   max: 32,
-                  message: '最大长度32位'
+                  message: formatMessage({id:'placeholder.max32'})
                 }
               ]
-            })(<Input placeholder="请输入名称" />)}
-            <div className={styles.conformDesc}>OAuth服务显示名称</div>
+            })(<Input placeholder={formatMessage({id:'placeholder.appShare.appPublish.name'})} />)}
+            <div className={styles.conformDesc}>{formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.name.desc'})}</div>
           </Form.Item>
 
           {oauthType !== 'github' &&
@@ -150,22 +151,22 @@ class CreateOAuthForm extends PureComponent {
                 label={
                   <div className={styles.clearConformMinTitle}>
                     <img src={Branches} alt="" />
-                    服务地址
+                    {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.home_url'})}
                   </div>
                 }
               >
                 {getFieldDecorator('home_url', {
                   initialValue: oauthInfo ? oauthInfo.home_url : '',
                   rules: [
-                    { required: true, message: '请输入服务地址' },
-                    { type: 'url', message: '输入数据不是合法的URL' },
+                    { required: true, message: formatMessage({id:'placeholder.oauth.home_url'}) },
+                    { type: 'url', message: formatMessage({id:'placeholder.oauth.not_url'}) },
                     {
                       max: 255,
-                      message: '最大长度255位'
+                      message: formatMessage({id:'placeholder.max255'})
                     }
                   ]
-                })(<Input disabled={edit} placeholder="请输入服务地址" />)}
-                <div className={styles.conformDesc}>第三方服务访问地址</div>
+                })(<Input disabled={edit} placeholder={formatMessage({id:'placeholder.oauth.home_url'})} />)}
+                <div className={styles.conformDesc}>{formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.home_url.desc'})}</div>
               </Form.Item>
             )}
 
@@ -175,21 +176,21 @@ class CreateOAuthForm extends PureComponent {
             label={
               <div className={styles.clearConformMinTitle}>
                 <img src={Branches} alt="" />
-                客户端ID
+                {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.client_id'})}
               </div>
             }
           >
             {getFieldDecorator('client_id', {
               initialValue: oauthInfo ? oauthInfo.client_id : '',
               rules: [
-                { required: true, message: '请输入client_id' },
+                { required: true, message: formatMessage({id:'placeholder.oauth.client_id'}) },
                 {
                   max: 64,
-                  message: '最大长度64位'
+                  message: formatMessage({id:'placeholder.appShare.max64'})
                 }
               ]
-            })(<Input disabled={edit} placeholder="请输入client_id" />)}
-            <div className={styles.conformDesc}>Client ID</div>
+            })(<Input disabled={edit} placeholder={formatMessage({id:'placeholder.oauth.client_id'})} />)}
+            <div className={styles.conformDesc}>{formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.client_id.desc'})}</div>
           </Form.Item>
           <Form.Item
             className={styles.clearConform}
@@ -197,21 +198,21 @@ class CreateOAuthForm extends PureComponent {
             label={
               <div className={styles.clearConformMinTitle}>
                 <img src={Branches} alt="" />
-                客户端密钥
+                {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.client_secret'})}
               </div>
             }
           >
             {getFieldDecorator('client_secret', {
               initialValue: oauthInfo ? oauthInfo.client_secret : '',
               rules: [
-                { required: true, message: '请输入client_secret' },
+                { required: true, message: formatMessage({id:'placeholder.oauth.client_secret'}) },
                 {
                   max: 64,
-                  message: '最大长度64位'
+                  message: formatMessage({id:'placeholder.appShare.max64'})
                 }
               ]
-            })(<Input disabled={edit} placeholder="请输入client_secret" />)}
-            <div className={styles.conformDesc}>Client Secret</div>
+            })(<Input disabled={edit} placeholder={formatMessage({id:'placeholder.oauth.client_secret'})} />)}
+            <div className={styles.conformDesc}>{formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.client_secret.desc'})}</div>
           </Form.Item>
           <Form.Item
             className={styles.clearConform}
@@ -219,7 +220,7 @@ class CreateOAuthForm extends PureComponent {
             label={
               <div className={styles.clearConformMinTitle}>
                 <img src={Branches} alt="" />
-                回调地址
+                {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.redirect_domain'})}
               </div>
             }
           >
@@ -228,24 +229,23 @@ class CreateOAuthForm extends PureComponent {
                 ? oauthInfo.redirect_uri.replace('/console/oauth/redirect', '')
                 : `${window.location.protocol}//${window.location.host}`,
               rules: [
-                { required: true, message: '请输入正确的回调地址' },
-                { type: 'url', message: '输入数据不是合法的URL' },
+                { required: true, message: formatMessage({id:'placeholder.oauth.redirect_domain'}) },
+                { type: 'url', message: formatMessage({id:'placeholder.oauth.not_url'}) },
                 {
                   max: 255,
-                  message: '最大长度255位'
+                  message: formatMessage({id:'placeholder.max255'})
                 }
               ]
             })(
               <Input
-                placeholder="请输入回调地址"
+                placeholder={formatMessage({id:'placeholder.oauth.redirect_domains'})}
                 addonAfter="/console/oauth/redirect"
               />
             )}
 
             <div className={styles.conformDesc}>
-              回调地址是用于 OAuth
-              认证完回跳时的访问地址，默认填充为当前访问地址。通常也需要您在
-              Oauth 服务提供商进行相同的配置。
+              
+              {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.redirect_domain.desc'})}
             </div>
           </Form.Item>
           <Form.Item
@@ -254,22 +254,22 @@ class CreateOAuthForm extends PureComponent {
             label={
               <div className={styles.clearConformMinTitle}>
                 <img src={Branches} alt="" />
-                自动登录
+                {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login'})}
               </div>
             }
           >
             {getFieldDecorator('is_auto_login', {
               initialValue: oauthInfo ? oauthInfo.is_auto_login : false,
-              rules: [{ required: true, message: '设置是否开启自动登录选项' }]
+              rules: [{ required: true, message: formatMessage({id:'placeholder.oauth.is_auto_login'}) }]
             })(
               <Switch
-                checkedChildren="开启"
-                unCheckedChildren="关闭"
+                checkedChildren={formatMessage({id:'button.switch.open'})}
+                unCheckedChildren={formatMessage({id:'button.switch.close'})}
                 defaultChecked={oauthInfo ? oauthInfo.is_auto_login : false}
               />
             )}
             <div className={styles.conformDesc}>
-              开启自动登录即需要登录时将自动跳转到该Oauth服务进行认证，实现单点登录效果，未确认该服务可用之前请谨慎开启。
+            {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login.desc'})}
             </div>
           </Form.Item>
         </Form>

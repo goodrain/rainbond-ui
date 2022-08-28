@@ -104,7 +104,7 @@ export default class GlobalHeader extends PureComponent {
       }
     }).then(() => {
       notification.success({
-        message: '关闭成功'
+        message: formatMessage({id:'notification.success.close'})
       });
       dispatch({
         type: 'global/fetchEnterpriseInfo',

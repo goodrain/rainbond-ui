@@ -26,7 +26,7 @@ const metaType = {
 const buildStatusMap = {
   unbuild: '未构建',
   building: '构建中',
-  build_success: '构建成功',
+  build_success: formatMessage({id:'notification.success.build_success'}),
   build_fail: '构建失败',
   time_out: '构建超时',
 };

@@ -56,7 +56,7 @@ class DAinput extends Component {
     const { values } = this.state;
     if (values.length > 100) {
       notification.warning({
-        message: '最多添加100个'
+        message: formatMessage({id:'notification.warn.add_max'})
       });
       return null;
     }

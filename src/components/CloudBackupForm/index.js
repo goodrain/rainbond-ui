@@ -1,5 +1,6 @@
 import { Form, Input, Modal, Select } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -45,13 +46,13 @@ export default class CloudBackupForm extends PureComponent {
         onOk={this.onOk}
       >
         <Form onSubmit={this.onOk}>
-          <FormItem {...formItemLayout} label="存储类型">
+          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.storage.form.label.provider'})}>
             {getFieldDecorator('provider', {
               initialValue: data.provider || '',
               rules: [
                 {
                   required: true,
-                  message: '不能为空!'
+                  message: formatMessage({id:'placeholder.copy.not_null'})
                 }
               ]
             })(
@@ -73,14 +74,14 @@ export default class CloudBackupForm extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请输入endpoint'
+                  message: formatMessage({id:'placeholder.oauth.endpoint'})
                 },
                 {
                   max: 255,
-                  message: '最大长度255位'
+                  message: formatMessage({id:'placeholder.max255'})
                 }
               ]
-            })(<Input placeholder="请输入endpoint" />)}
+            })(<Input placeholder={formatMessage({id:'placeholder.oauth.endpoint'})} />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="bucket_name">
             {getFieldDecorator('bucket_name', {
@@ -88,14 +89,14 @@ export default class CloudBackupForm extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请输入bucket_name'
+                  message: formatMessage({id:'placeholder.oauth.bucket_name'})
                 },
                 {
                   max: 255,
-                  message: '最大长度255位'
+                  message: formatMessage({id:'placeholder.max255'})
                 }
               ]
-            })(<Input placeholder="请输入bucket_name" />)}
+            })(<Input placeholder={formatMessage({id:'placeholder.oauth.bucket_name'})} />)}
           </Form.Item>
 
           <Form.Item {...formItemLayout} name="access_key" label="Access Key">
@@ -104,11 +105,11 @@ export default class CloudBackupForm extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请提供具有足够权限的Access Key'
+                  message: formatMessage({id:'placeholder.oauth.access_key'})
                 },
                 {
                   max: 1024,
-                  message: '最大长度1024位'
+                  message: formatMessage({id:'placeholder.max1024'})
                 }
               ]
             })(<Input placeholder="Access Key" />)}
@@ -119,11 +120,11 @@ export default class CloudBackupForm extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请提供具有足够权限的Secret Key'
+                  message: formatMessage({id:'placeholder.oauth.secret_key'})
                 },
                 {
                   max: 1024,
-                  message: '最大长度1024位'
+                  message: formatMessage({id:'placeholder.max1024'})
                 }
               ]
             })(<Input type="password" placeholder="Secret Key" />)}

@@ -77,11 +77,11 @@ export default class EnterpriseUsers extends PureComponent {
     const { userInfo } = this.state;
     let info = values;
     let setType = 'global/creatUser';
-    let setMessage = '新增成功';
+    let setMessage = formatMessage({id:'notification.success.add_success'});
     if (userInfo) {
       info = Object.assign({}, userInfo, info);
       setType = 'global/upEnterpriseUsers';
-      setMessage = '编辑成功';
+      setMessage = formatMessage({id:'notification.success.edit'});
     }
     dispatch({
       type: setType,
@@ -169,7 +169,7 @@ export default class EnterpriseUsers extends PureComponent {
   addUser = () => {
     this.setState({
       userVisible: true,
-      text: '新增用户'
+      text: formatMessage({id:'enterpriseUser.button.adduser'})
     });
   };
 
@@ -186,7 +186,7 @@ export default class EnterpriseUsers extends PureComponent {
     this.setState({
       userInfo: item,
       userVisible: true,
-      text: '编辑用户'
+      text: formatMessage({id:'enterpriseUser.button.edituser'})
     });
   };
 
@@ -342,7 +342,7 @@ export default class EnterpriseUsers extends PureComponent {
             <Form layout="inline" style={{ display: 'inline-block' }}>
               <FormItem>
                 <Input
-                  placeholder="搜索用户"
+                  placeholder={formatMessage({id:'placeholder.searchUser.user'})}
                   onChange={e => this.handelChange(e.target.value)}
                   onPressEnter={this.handleSearch}
                   style={{ width: 250 }}
@@ -379,9 +379,9 @@ export default class EnterpriseUsers extends PureComponent {
           {delVisible && (
             <ConfirmModal
               onOk={this.handleDelete}
-              title="删除用户"
-              subDesc="此操作不可恢复"
-              desc="确定要删除此用户吗？"
+              title={formatMessage({ id: 'confirmModal.user.delete.title' })}
+              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+              desc={formatMessage({ id: 'confirmModal.delete.user.desc' })}
               onCancel={this.cancelDelUser}
             />
           )}

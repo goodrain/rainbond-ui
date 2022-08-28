@@ -248,10 +248,10 @@ class EditorData extends PureComponent {
             if (res && res.status_code === 200) {
               this.loadTopology();
               shape == 'undeploy' || shape == 'closed' || shape == 'stopping'
-                ? notification.success({ message: '依赖添加成功。' })
+                ? notification.success({ message: formatMessage({id:'notification.success.Depend_add'}) })
                 : this.handleUpdateConfirm(
                   name,
-                  '依赖添加成功，需要更新才能生效。'
+                  formatMessage({id:'notification.success.Depend_add_need_update'})
                 );
               this.setState({ visible: false, shape: '' });
               return;
@@ -311,7 +311,7 @@ class EditorData extends PureComponent {
       if (res && res.status_code === 201) {
         if (res.list.length == 0) {
           this.handleUndo();
-          notification.warning({ message: '暂无端口可用' });
+          notification.warning({ message: formatMessage({id:'notification.warn.port_null'}) });
           return;
         }
         this.setState({
@@ -330,8 +330,8 @@ class EditorData extends PureComponent {
         sourceShape == 'undeploy' ||
           sourceShape == 'closed' ||
           sourceShape == 'stopping'
-          ? notification.success({ message: '依赖添加成功。' })
-          : this.handleUpdateConfirm(name, '依赖添加成功，需要更新才能生效。');
+          ? notification.success({ message: formatMessage({id:'notification.success.Depend_add'}) })
+          : this.handleUpdateConfirm(name, formatMessage({id:'notification.success.Depend_add_need_update'}));
         return;
       }
       this.handleUndo();
@@ -413,7 +413,7 @@ class EditorData extends PureComponent {
         if (res && res.status_code === 201) {
           if (res.list.length == 0) {
             this.handleUndo();
-            notification.warning({ message: '暂无端口可用' });
+            notification.warning({ message: formatMessage({id:'notification.warn.port_null'}) });
             return;
           }
           this.setState({
@@ -468,7 +468,7 @@ class EditorData extends PureComponent {
           app_alias: name,
         }).then(data => {
           if (data) {
-            notification.success({ message: `操作成功，更新中` });
+            notification.success({ message: formatMessage({id:'notification.success.operationUpdata'}) });
           }
         });
       },

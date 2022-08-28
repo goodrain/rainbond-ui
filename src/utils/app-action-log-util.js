@@ -37,14 +37,14 @@ const appActionLogUtil = {
     let status;
     const status_json = {
       success: '完成',
-      failure: '失败',
+      failure: formatMessage({id:'notification.success.Failed'}),
       timeout: '超时',
       abnormal: '异常'
     };
     const final_status_json = {
       complate: '完成',
       timeout: '超时',
-      failure: '失败',
+      failure: formatMessage({id:'notification.success.Failed'}),
       timeout: '超时'
     };
 

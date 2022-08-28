@@ -188,7 +188,7 @@ export default class Enterprise extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: '请先创建团队！'
+              message: formatMessage({id:'notification.warn.create_team'})
             });
           }
         }
@@ -218,7 +218,7 @@ export default class Enterprise extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: '请先创建应用！'
+              message: formatMessage({id:'notification.warn.app'})
             });
           }
         }
@@ -460,7 +460,7 @@ export default class Enterprise extends PureComponent {
       type: 'global/joinTeam',
       payload: values,
       callback: () => {
-        notification.success({ message: '申请成功，请等待审核' });
+        notification.success({ message: formatMessage({id:'notification.success.wait_review'}) });
         this.cancelJoinTeam();
       }
     });
@@ -658,9 +658,9 @@ export default class Enterprise extends PureComponent {
 
         {delcollectionVisible && (
           <ConfirmModal
-            title="删除快捷入口"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此快捷入口吗？"
+            title={formatMessage({ id: 'confirmModal.fast_entrance.delete.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.fast_entrance.desc' })}
             onOk={this.deleteCollectionViewInfo}
             onCancel={this.handleCloseDelCollectionVisible}
           />

@@ -1,5 +1,6 @@
 import { Card, Empty } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Duankou from "./port"
 import styles from './index.less'
 class PortAttribute extends PureComponent {
@@ -10,7 +11,7 @@ render() {
   const {value} = this.props
   return (
       <Card
-      title="端口管理"
+      title={formatMessage({id:'enterpriseColony.import.recognition.tabs.port'})}
       className={styles.cardstyle}
       style={{
           marginBottom: 16,

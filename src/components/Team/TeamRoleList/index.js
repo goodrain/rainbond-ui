@@ -190,9 +190,9 @@ export default class RoleList extends PureComponent {
         {deleteRole && (
           <ConfirmModal
             onOk={this.handleDelRole}
-            title="删除角色"
-            subDesc="此操作不可恢复"
-            desc={`确定要删除角色 （${deleteRole.name}） 吗？`}
+            title={formatMessage({ id: 'confirmModal.role.delete.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.role.desc' },{ deleteRole: deleteRole.name})}
             onCancel={this.hideDelRole}
           />
         )}

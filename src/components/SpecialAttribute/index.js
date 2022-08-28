@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react'
 import { Button, Card, Form, Row, Icon, Col, Switch, Empty, Drawer, Tooltip } from 'antd';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import DAinput from "../DAinput";
 import DApvcinput from '../DApvcinput'
 import styles from "./index.less"
@@ -58,7 +59,7 @@ export default class SpecialAttribute extends PureComponent {
         const { getFieldDecorator, setFieldsValue } = form;
         
         return (
-            <Card title="特殊属性" style={{ marginBottom: '10px' }}>
+            <Card title={formatMessage({id:'enterpriseColony.import.recognition.tabs.specialAttr'})} style={{ marginBottom: '10px' }}>
 
                 {value && value.length > 0 ? (
                     value.map((item, index) => {
@@ -83,11 +84,11 @@ export default class SpecialAttribute extends PureComponent {
                                 {item.save_type && item.save_type === "yaml" &&
                                 <>
                                     <div className={styles.yamlFiles_style }>
-                                        {yamlIcon}&nbsp;&nbsp;&nbsp;&nbsp;该配置以yaml文件形式存储,请点击右侧按钮查看详情。
+                                        {yamlIcon}&nbsp;&nbsp;&nbsp;&nbsp;{formatMessage({id:'enterpriseColony.import.recognition.tabs.specialAttr.desc'})}
                                         <Button
                                             style={{marginLeft:'100px'}}
                                             onClick={()=>this.drawervalShow(item)}
-                                        >查看详情
+                                        >{formatMessage({id:'enterpriseColony.import.recognition.tabs.specialAttr.btn.detail'})}
                                         </Button>
                                     </div>
                                         <Drawer

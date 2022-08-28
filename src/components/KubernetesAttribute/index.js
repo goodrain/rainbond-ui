@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react'
 import { Card, Table, Button, Drawer, Empty, Form } from 'antd';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import CodeMirrorForm from "../CodeMirrorForm"
 
 @Form.create()
@@ -30,7 +31,7 @@ export default class index extends PureComponent {
         const { drawerValue, name } = this.state;
         return (
             <Card
-                title="k8s资源"
+                title={formatMessage({id:'enterpriseColony.import.recognition.tabs'})}
                 style={{
                     marginBottom: 16,
                 }}>
@@ -39,34 +40,36 @@ export default class index extends PureComponent {
                     <Table
                         columns={[
                             {
-                                title: '名称',
+                                title: formatMessage({id:'enterpriseColony.import.recognition.tabs.k8s.name'}),
                                 dataIndex: 'name',
                                 key: "name",
                                 width: 500,
                                 render: text => {
                                     return <>
-                                        {text ? text : "暂无名称"}
+                                        {text ? text : formatMessage({id:'enterpriseColony.import.recognition.tabs.k8s.name_null'})}
                                     </>
                                 }
 
                             },
                             {
-                                title: '类型',
+                                title: formatMessage({id:'enterpriseColony.import.recognition.tabs.k8s.kind'}),
                                 dataIndex: 'kind',
                                 key: "kind",
                                 render: text => {
                                     return <>
-                                        {text ? text : "未分类"}
+                                        {text ? text : formatMessage({id:'enterpriseColony.import.recognition.tabs.k8s.not_kind'})}
                                     </>
                                 }
                             },
                             {
-                                title: 'yaml',
+                                title: formatMessage({id:'enterpriseColony.import.recognition.tabs.k8s.content'}),
                                 dataIndex: 'content',
                                 key: "content",
                                 render: (text, record) => {
                                     return <>
-                                        <Button onClick={() => this.showDrawer(text, record)}>查看详情</Button>
+                                        <Button onClick={() => this.showDrawer(text, record)}>
+                                            {formatMessage({id:'enterpriseColony.import.recognition.tabs.specialAttr.btn.detail'})}
+                                        </Button>
                                     </>
                                 }
                             },

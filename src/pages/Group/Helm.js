@@ -163,7 +163,7 @@ export default class Index extends PureComponent {
     }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
-        message: `请求错误`,
+        message: formatMessage({id:'notification.warn.error'}),
         description: err.data.msg_show
       });
     }
@@ -428,7 +428,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '修改成功' });
+          notification.success({ message: formatMessage({id:'notification.success.change'}) });
         }
         this.handleUpDataHeader();
         this.cancelEdit();
@@ -464,7 +464,7 @@ export default class Index extends PureComponent {
       }).then(res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: '重启成功'
+            message: formatMessage({id:'notification.success.reboot_success'})
           });
           this.handlePromptModalClose();
         }
@@ -481,7 +481,7 @@ export default class Index extends PureComponent {
         callback: res => {
           if (res && res.status_code === 200) {
             notification.success({
-              message: res.msg_show || '构建成功',
+              message: res.msg_show || formatMessage({id:'notification.success.build_success'}),
               duration: '3'
             });
             this.handlePromptModalClose();
@@ -519,7 +519,7 @@ export default class Index extends PureComponent {
     if (!isRightType) {
       if (isMessage) {
         notification.warning({
-          message: '请上传以.yaml、.yml结尾的 Region Config 文件'
+          message: formatMessage({id:'notification.warn.yaml_file'})
         });
       }
       return false;
@@ -705,7 +705,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.fetchAppDetailState();
-          notification.success({ message: '更新中、请耐心等待' });
+          notification.success({ message: formatMessage({id:'notification.success.wait_patiently'}) });
         }
         this.setState({
           submitLoading: false
