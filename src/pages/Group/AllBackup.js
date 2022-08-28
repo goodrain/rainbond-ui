@@ -253,7 +253,7 @@ class Index extends React.Component {
     const exportURl = `${apiconfig.baseUrl}/console/teams/${team_name}/groupapp/${group_id}/backup/export?backup_id=${backup_id}`;
     window.open(exportURl);
     notification.success({
-      message: '备份导出中',
+      message: formatMessage({id:'status.app.backups.yolkStroke'}),
       duration: '2'
     });
   };
@@ -432,9 +432,9 @@ class Index extends React.Component {
             backupId={this.state.backup_id}
             onOk={this.handleDelete}
             onCancel={this.cancelDelete}
-            title="删除备份"
-            desc="确定要删除此备份吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({ id: 'confirmModal.backup.title.delete' })}
+            desc={formatMessage({ id: 'confirmModal.backup.delete.desc' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
           />
         )}
 
@@ -443,9 +443,9 @@ class Index extends React.Component {
             backupId={this.state.backup_id}
             onOk={this.handleDeleteBackup}
             onCancel={this.cancelDeleteBackup}
-            title="删除备份"
-            desc="确定要删除此备份吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({ id: 'confirmModal.backup.title.delete' })}
+            desc={formatMessage({ id: 'confirmModal.backup.delete.desc' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
           />
         )}
       </PageHeaderLayout>

@@ -3,6 +3,7 @@ import { Button, notification, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AppCreateMoreService from '../../components/AppCreateMoreService';
 import ConfirmModal from '../../components/ConfirmModal';
 import { batchOperation } from '../../services/app';
@@ -92,7 +93,7 @@ export default class Index extends PureComponent {
       });
     } else {
       this.setState({ buildState: false });
-      notification.warning({ message: '请选择需要构建的模块' });
+      notification.warning({ message: formatMessage({ id: 'notification.warn.need_build_module' }) });
     }
   };
 
@@ -117,7 +118,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         notification.success({
-          message: '成功创建多组件',
+          message: formatMessage({ id: 'notification.success.success_create_components' }),
           duration: '3'
         });
         this.setState({ buildState: false });
@@ -238,7 +239,7 @@ export default class Index extends PureComponent {
                 loading={buildState}
                 type="primary"
               >
-                确认创建
+                {formatMessage({ id: 'button.confirm_create' })}
               </Button>
               <div>
                 <Tooltip
@@ -250,13 +251,13 @@ export default class Index extends PureComponent {
                     onClick={this.renderSuccessOnChange}
                     checked={is_deploy}
                   >
-                    并构建启动
+                  {formatMessage({ id: 'button.build_start' })}
                   </Radio>
                 </Tooltip>
               </div>
               {isDelete && (
                 <Button onClick={this.showDelete} type="default">
-                  放弃创建
+                  {formatMessage({ id: 'button.abandon_create' })}
                 </Button>
               )}
             </div>
@@ -265,9 +266,9 @@ export default class Index extends PureComponent {
             <ConfirmModal
               onOk={this.handleDelete}
               loading={deleteLoading}
-              title="放弃创建"
-              subDesc="此操作不可恢复"
-              desc="确定要放弃创建此组件吗？"
+              title={formatMessage({ id: 'confirmModal.abandon_create.create_check.title' })}
+              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+              desc={formatMessage({ id: 'confirmModal.delete.create_check.desc' })}
               onCancel={() => {
                 this.setState({ showDelete: false });
               }}

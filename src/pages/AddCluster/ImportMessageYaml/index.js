@@ -4,6 +4,7 @@ import { Button, Card, Form, Input, Row, Steps, Select, Collapse, Icon, Checkbox
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
@@ -105,7 +106,7 @@ export default class ImportMessage extends PureComponent {
         const group_name = this.props.location && this.props.location.query && this.props.location.query.group_name || ''
         return (
             <PageHeaderLayout
-                title="导入资源"
+                title={formatMessage({id:'enterpriseColony.import.title'})}
                 content=""
             >
                 {loadingSwitch ? (
@@ -123,10 +124,10 @@ export default class ImportMessage extends PureComponent {
                                     ) : (
                                         <>
                                             <Row type="flex" style={{ width: '100%', padding: '24px 0px', }}>
-                                                <div style={{ width: '120px', textAlign: 'right' }}><h3>未识别列表：</h3></div>
+                                                <div style={{ width: '120px', textAlign: 'right' }}><h3>{formatMessage({id:'enterpriseColony.import.unidentification.list.title'})}</h3></div>
                                                 <Alert
                                                     style={{ width: 'calc(100% - 120px)', marginTop: '-6px' }}
-                                                    message={`未识别文件:${item} 未识别原因:${errorItem.status}`}
+                                                    message={`${formatMessage({id:'enterpriseColony.import.unidentification.file'})}${item} ${formatMessage({id:'enterpriseColony.import.unidentification.cause'})}${errorItem.status}`}
                                                     banner
                                                 />
                                             </Row>
@@ -146,7 +147,7 @@ export default class ImportMessage extends PureComponent {
                                     Object.keys(resourceDataItem.un_support).length > 0 ||
                                     Object.keys(resourceDataItem.others).length > 0 )  &&
                                     <Row type="flex" style={{ width: '100%', padding: '24px 0px', minHeight: '400px' }}>
-                                        <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3></div>
+                                        <div style={{ width: '120px', textAlign: 'right' }}><h3>{formatMessage({id:'enterpriseColony.import.list.title'})}</h3></div>
                                         <Row className={styles.importCard}>
                                             <Collapse
                                                 defaultActiveKey={[0]}
@@ -154,7 +155,7 @@ export default class ImportMessage extends PureComponent {
                                             >
                                                 <Panel
                                                     header={
-                                                        <div>label: {group_name}={item === "unclassified" ? "未分组" : item}</div>
+                                                        <div>label: {group_name}={item === "unclassified" ? formatMessage({id:'enterpriseColony.import.app.title'}) : item}</div>
                                                     }
                                                     key={index}
                                                     extra={this.genExtra()}
@@ -236,7 +237,7 @@ export default class ImportMessage extends PureComponent {
 
                         <Row style={{ textAlign: 'center' }}>
                             <Button type="primary" onClick={this.onNext} style={{ marginLeft: '120px', padding: '0px 36px' }}>
-                                下一步
+                            {formatMessage({id:'button.next_step'})}
                             </Button>
                         </Row>
                     </Card>

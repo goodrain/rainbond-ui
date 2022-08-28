@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Form, Modal, notification, Select } from 'antd';
 import React, { PureComponent } from 'react';
-
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 const FormItem = Form.Item;
 const { Option } = Select;
 
@@ -13,7 +13,9 @@ export default class MoveGroup extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       if (fieldsValue.group_id === currGroupID) {
-        notification.warning({ message: '不能选择当前所在应用' });
+        notification.warning({ 
+          message: formatMessage({id:'notification.warn.not_select_app'}) 
+        });
         return;
       }
       this.props.onOk(fieldsValue.group_id);

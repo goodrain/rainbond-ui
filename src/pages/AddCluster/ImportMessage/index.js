@@ -4,6 +4,7 @@ import { Button, Card, Form, Input, Row, Steps, Select, Collapse, Icon, Checkbox
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
@@ -29,7 +30,6 @@ export default class ImportMessage extends PureComponent {
         const adminer = userUtil.isCompanyAdmin(user);
         this.state = {
             adminer,
-            text: '这是折叠面板',
             nameSpaceArr: [],
             resourceData: {},
             resourceDataIndex:[],
@@ -136,10 +136,10 @@ export default class ImportMessage extends PureComponent {
                 params: { eid }
             },
         } = this.props;
-        const { text, nameSpaceArr, resourceData, loadingSwitch, resourceDataIndex, namespace} = this.state
+        const { nameSpaceArr, resourceData, loadingSwitch, resourceDataIndex, namespace} = this.state
         return (
             <PageHeaderLayout
-                title="导入资源"
+                title={formatMessage({id:'enterpriseColony.import.title'})}
                 content=""
             >
                 {/* NameSpace */}
@@ -155,7 +155,7 @@ export default class ImportMessage extends PureComponent {
                         </Select>
                     </Row>
                     <Row type="flex" style={{ width: '100%', padding: '24px 0px', minHeight: '400px' }}>
-                        <div style={{ width: '120px', textAlign: 'right' }}><h3>资源列表：</h3></div>
+                        <div style={{ width: '120px', textAlign: 'right' }}><h3>{formatMessage({id:'enterpriseColony.import.list.title'})}</h3></div>
                         {loadingSwitch ? (
                             <div className={styles.loadingstyle}>
                                 <Spin size="large" />
@@ -177,7 +177,7 @@ export default class ImportMessage extends PureComponent {
                                         return (
                                             <Panel
                                                 header={
-                                                    <div>label: app={item === "unclassified" ? "未分组" : item}</div>
+                                                    <div>label: app={item === "unclassified" ? formatMessage({id:'enterpriseColony.import.app.title'}) : item}</div>
                                                 }
                                                 key={index}
                                                 extra={this.genExtra()}
@@ -239,7 +239,7 @@ export default class ImportMessage extends PureComponent {
                     </Row>
                     <Row style={{ textAlign: 'center' }}>
                         <Button type="primary" onClick={this.onNext} style={{ marginLeft: '120px', padding: '0px 36px' }}>
-                            下一步
+                            {formatMessage({id:'button.next_step'})}
                         </Button>
                     </Row>
                 </Card>

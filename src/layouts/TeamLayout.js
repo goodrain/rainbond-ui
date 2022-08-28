@@ -11,6 +11,7 @@ import { Redirect, routerRedux } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
 import PropTypes from 'prop-types';
 import { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';
@@ -196,7 +197,7 @@ class TeamLayout extends PureComponent {
               )
             );
           } else {
-            notification.warning({ message: '请求错误' });
+            notification.warning({ message: formatMessage({id:'notification.warn.error'}) });
           }
         }
       }

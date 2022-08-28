@@ -1,6 +1,7 @@
 import { notification } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import router from 'umi/router';
 import PageLoading from '../components/PageLoading';
 import Exception from '../pages/Exception/403';
@@ -45,7 +46,7 @@ class TeamPermissions extends React.PureComponent {
     const teamPermissions = userUtil.getTeamByTeamPermissions(teams, teamName);
     if (teamPermissions && teamPermissions.length === 0) {
       notification.warning({
-        message: '请先加入团队'
+        message: formatMessage({id:'notification.warn.team'})
       });
       return router.push('/');
     }

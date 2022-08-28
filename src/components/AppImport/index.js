@@ -11,14 +11,15 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 
 const appstatus = {
-  pending: '等待中',
-  importing: '导入中',
-  success: '成功',
-  failed: '失败'
+  pending: formatMessage({id:'notification.success.pending'}),
+  importing: formatMessage({id:'notification.success.importing'}),
+  success: formatMessage({id:'notification.success.successed'}),
+  failed: formatMessage({id:'notification.success.Failed'})
 };
 
 @connect(({ user, global }) => ({ groups: global.groups }), null, null, {
@@ -56,7 +57,7 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         if (data) {
-          notification.success({ message: `取消成功` });
+          notification.success({ message: formatMessage({id:'notification.success.cancel_successfully'}) });
           this.props.cancelImport && this.props.cancelImport();
         }
       }
@@ -73,7 +74,7 @@ export default class Index extends PureComponent {
     const file = this.state.fileList;
     if (file.length == 0) {
       notification.info({
-        message: '您还没有上传文件'
+        message: formatMessage({id:'notification.warn.upload_file'})
       });
       return;
     }
@@ -97,7 +98,7 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         if (data) {
-          notification.success({ message: `操作成功，正在导入` });
+          notification.success({ message: formatMessage({id:'notification.success.being_imported'}) });
           this.props.onOk && this.props.onOk(data);
         }
       }
@@ -131,7 +132,7 @@ export default class Index extends PureComponent {
   handleSubmit = () => {
     if (this.state.file_list.length == 0) {
       notification.warning({
-        message: '请至少选择一个应用'
+        message: formatMessage({id:'notification.warn.choose_one'})
       });
       return;
     }
@@ -151,7 +152,7 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data) {
           notification.success({
-            message: '开始导入应用'
+            message: formatMessage({id:'notification.success.starting_imported'})
           });
           this.closeAutoQuery();
           this.openQueryImportStatus();
@@ -192,20 +193,20 @@ export default class Index extends PureComponent {
           }
           if (data.bean && data.bean.status == 'partial_success') {
             notification.success({
-              message: '部分应用导入失败，你可以重试或取消导入'
+              message: formatMessage({id:'notification.error.failed_import_app'})
             });
             return;
           }
           if (data.bean && data.bean.status == 'success') {
             notification.success({
-              message: '导入完成'
+              message: formatMessage({id:'notification.success.imports_closure'})
             });
             this.props.onOK && this.props.onOK();
             return;
           }
           if (data.bean && data.bean.status == 'failed') {
             notification.success({
-              message: '应用导入失败'
+              message: formatMessage({id:'notification.error.failed_import'})
             });
             return;
           }
@@ -250,7 +251,7 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data) {
           notification.success({
-            message: '开始重新导入'
+            message: formatMessage({id:'notification.success.reimport'})
           });
           this.openQueryImportStatus();
         }
@@ -271,7 +272,7 @@ export default class Index extends PureComponent {
               <CopyToClipboard
                 text={this.state.record.source_dir}
                 onCopy={() => {
-                  notification.success({ message: '复制成功' });
+                  notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                 }}
               >
                 <Button size="small">复制</Button>

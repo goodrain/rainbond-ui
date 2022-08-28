@@ -306,7 +306,7 @@ export default class EnterpriseTeams extends PureComponent {
       callback: res => {
         this.setState({ closeTeamComponentLoading: false });
         if (res && res.status_code === 200) {
-          notification.success({ message: '操作成功，组件正在关闭中' });
+          notification.success({ message: formatMessage({id:'notification.success.operate_successfully_close'}) });
         }
         this.hideCloseAllComponent();
       },
@@ -317,7 +317,7 @@ export default class EnterpriseTeams extends PureComponent {
           });
         }
         notification.warning({
-          message: '操作遇到故障，请稍后重试'
+          message: formatMessage({id:'notification.warn.malfunction'})
         });
         this.setState({ closeTeamComponentLoading: false });
       }
@@ -347,7 +347,7 @@ export default class EnterpriseTeams extends PureComponent {
           );
 
           this.hideDelTeam();
-          notification.success({ message: '项目/团队删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.project_team_delete'}) });
         }
       },
       handleError: err => {
@@ -369,7 +369,7 @@ export default class EnterpriseTeams extends PureComponent {
         team_name: ApplyInfo.team_name
       },
       callback: () => {
-        notification.success({ message: '撤销申请成功' });
+        notification.success({ message: formatMessage({id:'notification.success.withdraw_claim'}) });
         this.getOverviewTeam();
         this.hideDelApply();
       }
@@ -381,7 +381,7 @@ export default class EnterpriseTeams extends PureComponent {
       type: 'global/joinTeam',
       payload: values,
       callback: () => {
-        notification.success({ message: '申请成功，请等待审核' });
+        notification.success({ message: formatMessage({id:'notification.success.wait_review'}) });
         this.getOverviewTeam();
         this.cancelJoinTeam();
       }
@@ -996,9 +996,9 @@ export default class EnterpriseTeams extends PureComponent {
           <ConfirmModal
             onOk={this.handleCloseAllComponentInTeam}
             loading={closeTeamComponentLoading}
-            title="关闭项目/团队下所有组件"
-            subDesc="此操作不可恢复"
-            desc="确定要关闭项目/团队下所有组件吗?"
+            title={formatMessage({ id: 'confirmModal.project_team_close.delete.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.project_team_close.desc' })}
             onCancel={this.hideCloseAllComponent}
           />
         )}
@@ -1031,18 +1031,18 @@ export default class EnterpriseTeams extends PureComponent {
         {this.state.showExitTeam && (
           <ConfirmModal
             onOk={this.handleExitTeam}
-            title="退出项目/团队"
-            subDesc="此操作不可恢复"
-            desc="确定要退出此项目/团队吗?"
+            title={formatMessage({ id: 'confirmModal.project_team_quit.delete.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.project_team_quit.desc' })}
             onCancel={this.hideExitTeam}
           />
         )}
         {this.state.showDelApply && (
           <ConfirmModal
             onOk={this.handleDelApply}
-            title="撤销申请"
-            subDesc="此操作不可恢复"
-            desc="确定要撤销此申请吗?"
+            title={formatMessage({ id: 'confirmModal.revocation.delete.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.revocation.desc' })}
             onCancel={this.hideDelApply}
           />
         )}
@@ -1050,9 +1050,9 @@ export default class EnterpriseTeams extends PureComponent {
           <ConfirmModal
             loading={delTeamLoading}
             onOk={this.handleDelTeam}
-            title="删除项目/团队"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此项目/团队和项目/团队下的所有资源吗？"
+            title={formatMessage({ id: 'confirmModal.project_team_delete.delete.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.project_team_delete.desc' })}
             onCancel={this.hideDelTeam}
           />
         )}

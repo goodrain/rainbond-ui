@@ -125,7 +125,7 @@ class Control extends Component {
         },
         callback: data => {
           if (data && data.status_code === 200) {
-            notification.success({ message: data ? '修改成功' : '修改失败' });
+            notification.success({ message: data ? formatMessage({id:'notification.success.change'}) : formatMessage({id:'notification.error.change'}) });
             this.setState({ visibleDrawer: false }, () => {
               this.load();
             });

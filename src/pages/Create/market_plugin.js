@@ -667,7 +667,7 @@ export default class Main extends PureComponent {
           },
           callback: () => {
             // 关闭弹框
-            notification.success({ message: `安装成功` });
+            notification.success({ message: formatMessage({id:'notification.success.install_success'}) });
             this.onCancelCreate();
             this.setState({ is_deploy: true });
             this.props.dispatch(

@@ -99,7 +99,7 @@ class Infrastructure extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: enable ? '开启Oauth2.0认证' : '关闭成功'
+            message: enable ? formatMessage({id:'notification.success.Oauth2'}) : formatMessage({id:'notification.success.close'})
           });
           this.fetchEnterpriseInfo();
         }
@@ -131,10 +131,10 @@ class Infrastructure extends PureComponent {
         if (res && res.status_code === 200) {
           notification.success({
             message: !isEnableAppstoreImageHub
-              ? '开通成功'
+              ? formatMessage({id:'notification.success.opened_successfully'})
               : enable && value
-              ? '修改成功'
-              : '关闭成功'
+              ? formatMessage({id:'notification.success.change'})
+              : formatMessage({id:'notification.success.close'})
           });
           this.fetchEnterpriseInfo();
           this.handelCloseImageHub();
@@ -164,10 +164,10 @@ class Infrastructure extends PureComponent {
         if (res && res.status_code === 200) {
           notification.success({
             message: !isEnableMonitoring
-              ? '开通成功'
+              ? formatMessage({id:'notification.success.opened_successfully'})
               : enable && value
-              ? '修改成功'
-              : '关闭成功'
+              ? formatMessage({id:'notification.success.change'})
+              : formatMessage({id:'notification.success.close'})
           });
           this.fetchEnterpriseInfo();
           this.handelCloseMonitoring();
@@ -201,10 +201,10 @@ class Infrastructure extends PureComponent {
         if (res && res.status_code === 200) {
           notification.success({
             message: !isEnableObjectStorage
-              ? '开通成功'
+              ? formatMessage({id:'notification.success.opened_successfully'})
               : enable && value
-              ? '修改成功'
-              : '关闭成功'
+              ? formatMessage({id:'notification.success.change'})
+              : formatMessage({id:'notification.success.close'})
           });
           this.fetchEnterpriseInfo();
           this.handelCloseCloudBackup();
@@ -368,10 +368,10 @@ class Infrastructure extends PureComponent {
         if (res && res._condition === 200) {
           notification.success({
             message: !values
-              ? '关闭成功'
+              ? formatMessage({id:'notification.success.close'})
               : !AutomaticCertificate
-              ? '开通成功'
-              : '编辑成功'
+              ? formatMessage({id:'notification.success.opened_successfully'})
+              : formatMessage({id:'notification.success.edit'})
           });
           this.fetchEnterpriseInfo();
         }
@@ -382,7 +382,7 @@ class Infrastructure extends PureComponent {
   isJSON = str => {
     const clues = () => {
       notification.warning({
-        message: '格式错误、请输入正确的JSON格式'
+        message: formatMessage({id:'notification.error.json_format_failed'})
       });
     };
     if (typeof str === 'string') {
@@ -727,8 +727,8 @@ class Infrastructure extends PureComponent {
             eid={eid}
             title={
               !isEnableAppstoreImageHub
-                ? '开通组件库镜像仓库'
-                : '组件库镜像仓库'
+                ? formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.modal.title'})
+                : formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.modal.comp_title'})
             }
             loading={imageHubLongin}
             onCancel={this.handelCloseImageHub}
@@ -741,7 +741,7 @@ class Infrastructure extends PureComponent {
         {openEnableMonitoring && (
           <MonitoringForm
             eid={eid}
-            title="监控配置"
+            title={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.modal.title'})}
             loading={monitoringLongin}
             onCancel={this.handelCloseMonitoring}
             data={MonitoringValue}
@@ -753,7 +753,7 @@ class Infrastructure extends PureComponent {
         {openCloudBackup && (
           <CloudBackupForm
             eid={eid}
-            title={!isEnableObjectStorage ? '配置云端备份对象存储' : '对象存储'}
+            title={!isEnableObjectStorage ? formatMessage({id:'enterpriseSetting.basicsSetting.storage.modal.title'}) : formatMessage({id:'enterpriseSetting.basicsSetting.storage.title'})}
             loading={objectStorageLongin}
             onCancel={this.handelCloseCloudBackup}
             data={ObjectStorageValue}
@@ -765,7 +765,7 @@ class Infrastructure extends PureComponent {
         )}
         {openBasicInformation && (
           <PlatformBasicInformationForm
-            title="基础信息"
+            title={formatMessage({id:'enterpriseSetting.basicsSetting.basicInformation.title'})}
             eid={eid}
             loading={objectStorageLongin}
             data={infos}
@@ -793,18 +793,18 @@ class Infrastructure extends PureComponent {
                 ? objectStorageLongin
                 : false
             }
-            title="关闭"
+            title={formatMessage({ id: 'confirmModal.close.delete.title' })}
             desc={
               closeMonitoring
-                ? '确定要关闭监控？'
+                ? formatMessage({ id: 'confirmModal.delete.monitor.desc' })
                 : closeImageHub
-                ? '确定要关闭组件库镜像仓库？'
+                ? formatMessage({ id: 'confirmModal.delete.component_ibrary_mirror.desc' })
                 : closeCertificate
-                ? '确定要关闭自动签发证书？'
+                ? formatMessage({ id: 'confirmModal.delete.automatic_issued.desc' })
                 : showDeleteDomain
-                ? '确定要关闭Oauth2.0认证？'
+                ? formatMessage({ id: 'confirmModal.delete.Oauth.desc' })
                 : closeCloudBackup
-                ? '确定要关闭对象存储？'
+                ? formatMessage({ id: 'confirmModal.delete.object_storage.desc' })
                 : ''
             }
             onOk={() => {

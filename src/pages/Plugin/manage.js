@@ -237,7 +237,7 @@ export default class Index extends PureComponent {
         ...values
       },
       callback: () => {
-        Notification.success({ message: '修改成功' });
+        Notification.success({ message: formatMessage({id:'notification.success.change'}) });
       }
     });
   };
@@ -387,7 +387,7 @@ export default class Index extends PureComponent {
         plugin_id: this.getId()
       },
       callback: () => {
-        Notification.success({ message: '操作成功' });
+        Notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
         this.state.currVersion = '';
         this.getVersions();
       }
@@ -440,7 +440,7 @@ export default class Index extends PureComponent {
     });
     type &&
       Notification.success({
-        message: type === 'storageAdd' ? '新增成功' : '修改成功'
+        message: type === 'storageAdd' ? formatMessage({id:'notification.success.add_success'}) : formatMessage({id:'notification.success.change'})
       });
   };
   // 新增或编辑存储
@@ -863,9 +863,9 @@ export default class Index extends PureComponent {
         </Card>
         {configVisible && (
           <ConfirmModal
-            title="删除配置项"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此配置项？"
+            title={formatMessage({id:'confirmModal.configuration_item.delete.title'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.drop_procedure.desc'})}
             loading={removeConfigLoading}
             onOk={this.handleDelConfig}
             onCancel={this.handleCloseDelConfigVisible}
@@ -874,9 +874,9 @@ export default class Index extends PureComponent {
         {/* 删除存储 */}
         {configStorageVisible && (
           <ConfirmModal
-            title="删除存储"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此存储？"
+            title={formatMessage({id:'confirmModal.drop_procedure.delete.title'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
             loading={removeStorageLoading}
             onOk={this.handleDelStorage}
             onCancel={this.handleCloseStorage}
@@ -903,9 +903,9 @@ export default class Index extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteVersion}
             onCancel={this.cancelDeleteVersion}
-            title="删除版本"
-            desc="确定要删除当前版本吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({id:'confirmModal.drop_versions.delete.title'})}
+            desc={formatMessage({id:'confirmModal.delete.drop_versions.desc'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
           />
         )}
         {showBuildLog && currVersion && (

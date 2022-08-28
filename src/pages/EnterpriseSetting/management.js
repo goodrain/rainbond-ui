@@ -91,7 +91,7 @@ export default class Management extends PureComponent {
           ...values
         },
         callback: () => {
-          notification.success({ message: '编辑成功' });
+          notification.success({ message: formatMessage({id:'notification.success.edit'}) });
           this.getEnterpriseAdmins();
           this.cancelCreateAdmin();
         }
@@ -337,9 +337,9 @@ export default class Management extends PureComponent {
         {showDelTeam && (
           <ConfirmModal
             onOk={this.handleDelAdmin}
-            title="删除管理员"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此管理员吗？"
+            title={formatMessage({ id: 'confirmModal.admin.delete.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.admin.desc' })}
             onCancel={this.hideDelAdmin}
           />
         )}

@@ -126,7 +126,7 @@ export default class Index extends PureComponent {
     }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
-        message: `请求错误`,
+        message: formatMessage({id:'notification.warn.error'}),
         description: err.data.msg_show
       });
     }
@@ -447,7 +447,7 @@ export default class Index extends PureComponent {
                               : accessUrls && accessUrls.replace(/\s+/g, '')
                           }
                           onCopy={() => {
-                            notification.success({ message: '复制成功' });
+                            notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                           }}
                         >
                           <Button size="small" type="primary">

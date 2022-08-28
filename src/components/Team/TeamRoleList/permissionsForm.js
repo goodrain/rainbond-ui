@@ -244,7 +244,7 @@ export default class RoleList extends PureComponent {
           if (res && res.status_code === 200) {
             onCancelAddRole(parseInt(res.bean.role_id));
             notification.success({
-              message: isAddRole ? '创建成功' : '编辑成功'
+              message: isAddRole ? formatMessage({id:'notification.success.setUp'}) : formatMessage({id:'notification.success.edit'})
             });
           }
           this.handleCloseLoading();

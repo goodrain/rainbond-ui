@@ -9,6 +9,7 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import styles from './index.less';
 
@@ -33,21 +34,21 @@ class Index extends PureComponent {
                 width: 60
               }}
             >
-              端口号
+              {formatMessage({id:'enterpriseColony.import.recognition.tabs.port.port_number'})}
             </th>
             <th
               style={{
                 width: 100
               }}
             >
-              端口协议
+              {formatMessage({id:'enterpriseColony.import.recognition.tabs.port.agreement'})}
             </th>
             <th
               style={{
                 width: '50%'
               }}
             >
-              服务信息
+              {formatMessage({id:'enterpriseColony.import.recognition.tabs.port.message'})}
             </th>
           </tr>
         </thead>
@@ -66,7 +67,7 @@ class Index extends PureComponent {
                 }}
               >
                 <p>
-                  <span className={styles.label}>对内服务</span>
+                  <span className={styles.label}>{formatMessage({id:'enterpriseColony.import.recognition.tabs.port.internal'})}</span>
                   <Switch
                     disabled
                     defaultChecked={port.inner ? port.inner : false}
@@ -74,7 +75,7 @@ class Index extends PureComponent {
                   />
                 </p>
                 <p>
-                  <span className={styles.label}>访问地址</span>
+                  <span className={styles.label}>{formatMessage({id:'enterpriseColony.import.recognition.tabs.port.address'})}</span>
                   {'-'}
                 </p>
                 <p className={styles.lr}>
@@ -84,7 +85,7 @@ class Index extends PureComponent {
               </div>
               <div>
                 <p>
-                  <span className={styles.label}>对外服务</span>
+                  <span className={styles.label}>{formatMessage({id:'enterpriseColony.import.recognition.tabs.port.foreign'})}</span>
                   <Switch
                     disabled
                     defaultChecked={port.outer ? port.inner : false}

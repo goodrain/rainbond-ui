@@ -340,7 +340,7 @@ export default class AutoDeploy extends PureComponent {
                         <CopyToClipboard
                           text={setUrl}
                           onCopy={() => {
-                            notification.success({ message: '复制成功' });
+                            notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                           }}
                         >
                           <Button size="small"><FormattedMessage id='componentOverview.body.AutoDeploy.copy'/></Button>
@@ -543,7 +543,7 @@ export default class AutoDeploy extends PureComponent {
                       <CopyToClipboard
                         text={setUrl}
                         onCopy={() => {
-                          notification.success({ message: '复制成功' });
+                          notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                         }}
                       >
                         <Button size="small"><FormattedMessage id='componentOverview.body.AutoDeploy.copy'/></Button>

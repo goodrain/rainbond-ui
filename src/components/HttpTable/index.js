@@ -228,7 +228,7 @@ export default class HttpTable extends PureComponent {
               callback: data => {
                 if (data) {
                   notification.success({
-                    message: data.msg_show || '编辑成功'
+                    message: data.msg_show || formatMessage({id:'notification.success.edit'})
                   });
                   this.setState({
                     drawerVisible: false,
@@ -425,7 +425,7 @@ export default class HttpTable extends PureComponent {
               {val && (
                 <CopyToClipboard
                   text={val}
-                  onCopy={() => notification.success({ message: '复制成功' })}
+                  onCopy={() => notification.success({ message: formatMessage({id:'notification.success.copy'}) })}
                 >
                   <Icon type="copy" />
                 </CopyToClipboard>

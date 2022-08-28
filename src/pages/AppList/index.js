@@ -111,7 +111,7 @@ export default class AppList extends PureComponent {
   };
 
   handleAddGroup = () => {
-    notification.success({ message: '新建成功' });
+    notification.success({ message: formatMessage({id: 'notification.success.new_success'}) });
     this.getTeamAppList();
     this.cancelAddGroup();
   };

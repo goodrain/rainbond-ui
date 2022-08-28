@@ -517,7 +517,7 @@ export default class RKEClusterConfig extends PureComponent {
     if (!isRightType) {
       if (isMessage) {
         notification.warning({
-          message: '请上传以.yaml、.yml结尾的 Region Config 文件'
+          message: formatMessage({id:'notification.warn.yaml_file'})
         });
       }
       return false;
@@ -841,7 +841,7 @@ export default class RKEClusterConfig extends PureComponent {
                     type="copy"
                     onClick={() => {
                       copy(initNodeCmd);
-                      notification.success({ message: '复制成功' });
+                      notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                     }}
                   />
                   {guideStep &&

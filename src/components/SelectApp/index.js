@@ -59,7 +59,7 @@ export default class SelectApp extends PureComponent {
     this.setState({ showCreateApp: true });
   };
   handleCreateApp = () => {
-    notification.success({ message: formatMessage({ id: 'add.success' }) });
+    notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
     this.cancelCreateApp();
     this.loadTeamApps();
   };
