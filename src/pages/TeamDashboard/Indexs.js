@@ -371,7 +371,7 @@ export default class Index extends PureComponent {
     const statusCNMap = {
       '': '进行中',
       complete: '完成',
-      failure: '失败',
+      failure: formatMessage({id:'notification.success.Failed'}),
       timeout: '超时'
     };
 

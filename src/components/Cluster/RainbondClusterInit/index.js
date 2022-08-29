@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import {
   getRainbondClusterConfig,
   setRainbondClusterConfig
@@ -97,7 +97,7 @@ export default class RainbondClusterInit extends PureComponent {
         }
       });
     } else {
-      notification.warning({ message: '请阅读并同意注意事项' });
+      notification.warning({ message: formatMessage({id:'notification.warn.read'}) });
     }
   };
 
@@ -179,7 +179,7 @@ export default class RainbondClusterInit extends PureComponent {
           }
         ).then(re => {
           if (re && re.status_code === 200) {
-            notification.success({ message: '设置成功' });
+            notification.success({ message: formatMessage({id:'notification.success.setting_successfully'}) });
             this.setState({ showClusterInitConfig: false });
           }
         });

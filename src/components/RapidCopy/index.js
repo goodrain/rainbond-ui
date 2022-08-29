@@ -229,7 +229,7 @@ export default class Index extends PureComponent {
       if (!err) {
         if (checkedList && checkedList.length > 20) {
           notification.warning({
-            message: '应用复制最多20个组件'
+            message: formatMessage({id:'notification.warn.app_copy_max20'})
           });
         } else {
           this.setState({ Loading: true });
@@ -272,7 +272,7 @@ export default class Index extends PureComponent {
       callback: res => {
         this.handleCloseLoading();
         if (res && res.status_code === 200) {
-          notification.success({ message: '复制成功' });
+          notification.success({ message: formatMessage({id:'notification.success.copy'}) });
           const { tar_team_name, tar_region_name, tar_group_id } = res.bean;
           dispatch(
             routerRedux.push(

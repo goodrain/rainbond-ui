@@ -250,8 +250,8 @@ export default class TcpTable extends PureComponent {
         },
         callback: data => {
           data
-            ? notification.success({ message: data.msg_show || '编辑成功' })
-            : notification.warning({ message: '编辑失败' });
+            ? notification.success({ message: data.msg_show || formatMessage({id:'notification.success.edit'}) })
+            : notification.warning({ message: formatMessage({id:'notification.error.edit'}) });
           this.setState({
             TcpDrawerVisible: false,
             editInfo: false
@@ -717,7 +717,7 @@ export default class TcpTable extends PureComponent {
                       : agreement.end_point.replace(/\s+/g, '')
                   }
                   onCopy={() => {
-                    notification.success({ message: '复制成功' });
+                    notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                   }}
                 >
                   <Button size="small" type="primary">

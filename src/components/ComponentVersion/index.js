@@ -11,6 +11,7 @@ import {
   Tooltip
 } from 'antd';
 import { connect } from 'dva';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
 import handleAPIError from '../../utils/error';
@@ -92,7 +93,7 @@ export default class componentVersion extends PureComponent {
               if (ok) {
                 ok();
               }
-              notification.success({ message: `升级成功` });
+              notification.success({ message: formatMessage({id:'notification.success.upgrade_successfully'}) });
             }
           },
           handleError: errs => {

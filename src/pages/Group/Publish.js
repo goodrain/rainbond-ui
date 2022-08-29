@@ -11,7 +11,7 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ScrollerX from '../../components/ScrollerX';
 import SelectStore from '../../components/SelectStore';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -172,7 +172,7 @@ export default class AppPublishList extends PureComponent {
 
   cancelPublish = recordID => {
     if (recordID === undefined || recordID === '') {
-      notification.warning({ message: '参数异常' });
+      notification.warning({ message: formatMessage({id:'notification.warn.parameter_error'}) });
       return;
     }
     const { teamName } = this.props.match.params;

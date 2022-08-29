@@ -5,6 +5,7 @@ import UploadForm from '@/components/UploadForm';
 import { Form, Input, Modal } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
@@ -87,52 +88,52 @@ export default class PlatformBasicInformationForm extends PureComponent {
         onOk={this.onOk}
       >
         <Form onSubmit={this.onOk}>
-          <FormItem {...formItemLayout} label="网站标题">
+          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.basicInformation.form.label.title'})}>
             {getFieldDecorator('title', {
               initialValue: data.title || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入标题'
+                  message: formatMessage({id:'placeholder.oauth.title'})
                 },
                 {
                   max: 64,
-                  message: '最大长度64位'
+                  message: formatMessage({id:'placeholder.appShare.max64'})
                 }
               ]
-            })(<Input placeholder="请输入标题" />)}
+            })(<Input placeholder={formatMessage({id:'placeholder.oauth.title'})} />)}
           </FormItem>
-          <FormItem {...formItemLayout} label="企业名称">
+          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.basicInformation.form.label.enterprise_alias'})}>
             {getFieldDecorator('enterprise_alias', {
               initialValue: data.enterprise_alias || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入企业名称'
+                  message: formatMessage({id:'placeholder.oauth.enterprise_alias'})
                 },
                 {
                   max: 64,
-                  message: '最大长度64位'
+                  message: formatMessage({id:'placeholder.appShare.max64'})
                 }
               ]
-            })(<Input placeholder="请输入企业名称" />)}
+            })(<Input placeholder={formatMessage({id:'placeholder.oauth.enterprise_alias'})} />)}
           </FormItem>
-          <FormItem {...formItemLayout} label="文档地址">
+          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.basicInformation.form.label.doc_url'})}>
             {getFieldDecorator('doc_url', {
               rules: [
                 {
                   max: 255,
-                  message: '最大长度255位'
+                  message: formatMessage({id:'placeholder.max255'})
                 }
               ],
               initialValue: data.doc_url || ''
-            })(<Input placeholder="请输入文档地址" />)}
+            })(<Input placeholder={formatMessage({id:'placeholder.oauth.doc_url'})} />)}
           </FormItem>
           <UploadForm
             {...parameters}
             name="logo"
-            label="LOGO"
-            extra="请上传236 ✖️ 35的图片"
+            label={formatMessage({id:'enterpriseSetting.basicsSetting.basicInformation.form.label.logo'})}
+            extra={formatMessage({id:'placeholder.oauth.logo'})}
             initialValue={data.logo}
             required={false}
             uploadBtnStyle={{ width: '236px', height: '35px' }}
@@ -141,8 +142,8 @@ export default class PlatformBasicInformationForm extends PureComponent {
           <UploadForm
             {...parameters}
             name="favicon"
-            label="网页图标"
-            extra="请上传33 ✖️ 33的图片"
+            label={formatMessage({id:'enterpriseSetting.basicsSetting.basicInformation.form.label.favicon'})}
+            extra={formatMessage({id:'placeholder.oauth.favicon'})}
             initialValue={data.favicon}
             required={false}
             uploadBtnStyle={{ width: '33px', height: '33px' }}

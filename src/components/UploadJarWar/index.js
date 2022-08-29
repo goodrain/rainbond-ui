@@ -140,7 +140,7 @@ export default class Index extends PureComponent {
               existFileList: data.bean.package_name
              });
             notification.success({
-              message:"上传文件成功"
+              message: formatMessage({id:'notification.success.upload_file'})
             })
             this.loop = false
           }
@@ -170,7 +170,7 @@ export default class Index extends PureComponent {
             existFileList: []
            });
           notification.success({
-            message: '删除文件成功'
+            message: formatMessage({id:'notification.success.delete_file'})
           })
           this.handleJarWarUpload()
         }

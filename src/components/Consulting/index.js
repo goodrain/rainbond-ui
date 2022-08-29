@@ -2,7 +2,7 @@ import { Button, Form, Input, Modal, notification, Typography } from 'antd';
 import axios from 'axios';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -37,7 +37,7 @@ export default class Consulting extends PureComponent {
               .then(res => {
                 if (res.status === 200) {
                   this.setState({ loading: false });
-                  notification.success({ message: '获取成功,稍后将与您联系' });
+                  notification.success({ message: formatMessage({id:'notification.success.relation_successfully'}) });
                   if (onOk) {
                     onOk();
                   }

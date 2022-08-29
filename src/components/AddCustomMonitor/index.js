@@ -1,6 +1,7 @@
 import { Form, Input, Modal, notification, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -60,7 +61,7 @@ export default class AddCustomMonitor extends PureComponent {
             },
             callback: () => {
               onPropOk(vals);
-              notification.success({ message: '开通成功' });
+              notification.success({ message: formatMessage({id:'notification.success.opened_successfully'}) });
               Modal.destroyAll();
             }
           });

@@ -1,5 +1,6 @@
 import { Table, Card, Empty } from 'antd';
 import React, { PureComponent, Fragment } from 'react'
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from './index.less'
 
 export default class ConfigurationFiles extends PureComponent {
@@ -10,7 +11,7 @@ export default class ConfigurationFiles extends PureComponent {
     const { value } = this.props
     const columns = [
       {
-        title: '配置文件名称',
+        title: formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.config_name'}),
         dataIndex: 'config_name',
         key:'config_name',
         render: (text) => {
@@ -20,7 +21,7 @@ export default class ConfigurationFiles extends PureComponent {
         }
       },
       {
-        title: '配置文件挂载路径',
+        title: formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.config_path'}),
         dataIndex: 'config_path',
         key:"config_path",
         render: (text) => {
@@ -30,7 +31,7 @@ export default class ConfigurationFiles extends PureComponent {
         }
       },
       {
-        title: '权限',
+        title: formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.mode'}),
         dataIndex: 'mode',
         key:"mode",
         render: (text) =>{
@@ -44,7 +45,7 @@ export default class ConfigurationFiles extends PureComponent {
     return (
       <Fragment>
         <Card
-          title="配置文件"
+          title={formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles'})}
           className={styles.cardstyle}
           style={{
             marginBottom: 16,

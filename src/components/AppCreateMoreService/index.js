@@ -18,6 +18,7 @@ import {
   notification
 } from "antd";
 import { connect } from "dva";
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { routerRedux } from "dva/router";
 import globalUtil from "../../utils/global";
 import httpResponseUtil from "../../utils/httpResponse";
@@ -104,7 +105,7 @@ class BaseInfo extends PureComponent {
         },
         () => {
           notification.destroy();
-          notification.success({ message: "编辑成功" });
+          notification.success({ message: formatMessage({id:'notification.success.edit'}) });
           this.handleCancel();
         }
       );

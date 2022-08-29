@@ -6,6 +6,7 @@ import {
 } from 'antd';
 
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 class EnvVariable extends PureComponent {
   constructor(props) {
@@ -16,7 +17,7 @@ class EnvVariable extends PureComponent {
     const { value } = this.props
     const column = [
       {
-        title: '变量名',
+        title: formatMessage({id:'enterpriseColony.import.recognition.tabs.env.env_key'}),
         dataIndex: 'env_key',
         key: '1',
         width: '30%',
@@ -28,7 +29,7 @@ class EnvVariable extends PureComponent {
         }
       },
       {
-        title: '变量值',
+        title: formatMessage({id:'enterpriseColony.import.recognition.tabs.env.env_value'}),
         dataIndex: 'env_value',
         key: '2',
         width: '30%',
@@ -40,7 +41,7 @@ class EnvVariable extends PureComponent {
         }
       },
       {
-        title: '说明',
+        title: formatMessage({id:'enterpriseColony.import.recognition.tabs.env.env_explain'}),
         dataIndex: 'env_explain',
         key: '3',
         width: '25%',
@@ -59,7 +60,7 @@ class EnvVariable extends PureComponent {
           style={{
             marginBottom: 24
           }}
-          title="环境变量"
+          title={formatMessage({id:'enterpriseColony.import.recognition.tabs.env'})}
         >
           {value && value.length > 0 ? (
             <Table

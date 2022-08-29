@@ -51,7 +51,7 @@ class MarketPlugin extends PureComponent {
       },
       callback: data => {
         notification.success({
-          message: '安装成功'
+          message: formatMessage({id:'notification.success.install_success'})
         });
         this.fetchPlugins();
         this.props.onInstallSuccess && this.props.onInstallSuccess();
@@ -213,7 +213,7 @@ class PluginList extends PureComponent {
           },
           callback: res => {
             if (res && res.status_code === 200) {
-              notification.success({ message: '安装成功' });
+              notification.success({ message: formatMessage({id:'notification.success.install_success'}) });
             }
             this.fetchDefaultPlugin();
           }
@@ -543,8 +543,8 @@ class PluginList extends PureComponent {
           />
           {this.state.deletePlugin && (
             <ConfirmModal
-              title="删除插件"
-              desc="确定要删除此插件吗？"
+              title={formatMessage({id: 'confirmModal.plugin.delete.title'})}
+              desc={formatMessage({id: 'confirmModal.delete.plugin.desc'})}
               loading={deletePluginLoading}
               onOk={() => {
                 this.hanldeDeletePlugin(false);

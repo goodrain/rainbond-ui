@@ -176,7 +176,7 @@ export default class KubernetesClusterShow extends PureComponent {
       }
     ).then(re => {
       if (re && re.status_code === 200) {
-        notification.success({ message: '集群正在卸载中，稍后请刷新列表' });
+        notification.success({ message: formatMessage({id:'notification.success.cluster_uninstalled'}) });
       }
     });
   };
@@ -199,7 +199,7 @@ export default class KubernetesClusterShow extends PureComponent {
             type="copy"
             onClick={() => {
               copy(command);
-              notification.success({ message: '复制成功' });
+              notification.success({ message: formatMessage({id:'notification.success.copy'}) });
             }}
           />
           {command}
@@ -594,7 +594,7 @@ export default class KubernetesClusterShow extends PureComponent {
             bodyStyle={{ background: '#000' }}
             onOk={() => {
               copy(kubeConfig);
-              notification.success({ message: '复制成功' });
+              notification.success({ message: formatMessage({id:'notification.success.copy'}) });
             }}
             okText={<FormattedMessage id='button.copy'/>}
           >

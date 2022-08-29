@@ -287,9 +287,9 @@ export default class SiderMenu extends PureComponent {
 
           {delcollectionVisible && (
             <ConfirmModal
-              title="删除收藏视图"
-              subDesc="此操作不可恢复"
-              desc="确定要删除此视图吗？"
+              title={formatMessage({ id: 'confirmModal.collect_view.delete.title' })}
+              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+              desc={formatMessage({ id: 'confirmModal.delete.collect_view.desc' })}
               onOk={this.deleteCollectionViewInfo}
               onCancel={this.handleCloseDelCollectionVisible}
             />

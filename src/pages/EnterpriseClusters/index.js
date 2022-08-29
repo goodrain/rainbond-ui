@@ -211,7 +211,7 @@ export default class EnterpriseClusters extends PureComponent {
           this.setState({
             regionInfo: res.bean,
             editClusterShow: true,
-            text: '编辑集群'
+            text: formatMessage({id:'enterpriseColony.button.edit'})
           });
         }
       }
@@ -299,7 +299,7 @@ export default class EnterpriseClusters extends PureComponent {
             },
             callback: () => {
               notification.success({
-                message: '设置成功'
+                message: formatMessage({id:'notification.success.setting_successfully'})
               });
               this.setState({
                 limitSummitLoading: false,
@@ -309,7 +309,7 @@ export default class EnterpriseClusters extends PureComponent {
             },
             handleError: () => {
               notification.warning({
-                message: '设置失败咯，请稍后重试'
+                message: formatMessage({id:'notification.error.setting_failed'})
               });
               this.setState({ limitSummitLoading: false });
             }
@@ -446,7 +446,7 @@ export default class EnterpriseClusters extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: '请先创建团队！'
+              message: formatMessage({id:'notification.warn.create_team'})
             });
           }
         }
@@ -482,7 +482,7 @@ export default class EnterpriseClusters extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: '请先创建应用！'
+              message: formatMessage({id:'notification.warn.app'})
             });
           }
         }
@@ -751,7 +751,7 @@ export default class EnterpriseClusters extends PureComponent {
 
     const tenantColumns = [
       {
-        title: '所属团队',
+        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.team_name'}),
         dataIndex: 'team_name',
         align: 'center',
         render: (_, item) => {
@@ -767,27 +767,27 @@ export default class EnterpriseClusters extends PureComponent {
         }
       },
       {
-        title: '内存使用量(MB)',
+        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.memory_request'}),
         dataIndex: 'memory_request',
         align: 'center'
       },
       {
-        title: 'CPU使用量',
+        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.cpu_request'}),
         dataIndex: 'cpu_request',
         align: 'center'
       },
       {
-        title: '租户限额(MB)',
+        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.set_limit_memory'}),
         dataIndex: 'set_limit_memory',
         align: 'center'
       },
       {
-        title: '运行组件数',
+        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.running_app_num'}),
         dataIndex: 'running_app_num',
         align: 'center'
       },
       {
-        title: '操作',
+        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.method'}),
         dataIndex: 'method',
         align: 'center',
         width: '100px',
@@ -798,7 +798,7 @@ export default class EnterpriseClusters extends PureComponent {
                 this.setTenantLimit(item);
               }}
             >
-              设置限额
+              {formatMessage({id:'enterpriseColony.table.handle.quota.table.label.method.btn'})}
             </a>
           ];
         }
@@ -874,9 +874,9 @@ export default class EnterpriseClusters extends PureComponent {
           {delVisible && (
             <ConfirmModal
               loading={delclusterLongin}
-              title="删除集群"
-              subDesc="此操作不可恢复"
-              desc="确定要删除此集群吗？"
+              title={formatMessage({ id: 'confirmModal.cluster.delete.title' })}
+              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+              desc={formatMessage({ id: 'confirmModal.delete.cluster.desc' })}
               onOk={() => this.handleDelete(false)}
               onCancel={this.cancelClusters}
             />
@@ -906,7 +906,7 @@ export default class EnterpriseClusters extends PureComponent {
         {showTenantList && (
           <Modal
             maskClosable={false}
-            title="租户资源占用排行"
+            title=""
             width={800}
             visible={showTenantList}
             footer={null}
@@ -917,20 +917,20 @@ export default class EnterpriseClusters extends PureComponent {
               <div>
                 <Alert
                   style={{ marginBottom: '16px' }}
-                  message={`正在设置 ${limitTeamName} 在 ${regionAlias} 集群的内存限额`}
+                  message={formatMessage({id:'enterpriseColony.table.handle.quota.alert'},{limitTeamName:limitTeamName},{regionAlias:regionAlias})}
                 />
                 <Form onSubmit={this.submitLimit}>
                   <Form.Item
                     {...formItemLayout}
                     name="limit_memory"
-                    label="内存限额(MB)"
+                    label={formatMessage({id:'enterpriseColony.table.handle.quota.form.label.limit_memory'})}
                   >
                     {getFieldDecorator('limit_memory', {
                       initialValue: initLimitValue,
                       rules: [
                         {
                           required: true,
-                          message: '内存限制值必填'
+                          message: formatMessage({id:'placeholder.limit_memory'})
                         }
                       ]
                     })(
@@ -951,7 +951,7 @@ export default class EnterpriseClusters extends PureComponent {
                         });
                       }}
                     >
-                      取消
+                      {formatMessage({id:'button.cancel'})}
                     </Button>
                     <Button
                       style={{ marginLeft: '16px' }}
@@ -959,7 +959,7 @@ export default class EnterpriseClusters extends PureComponent {
                       loading={limitSummitLoading}
                       htmlType="submit"
                     >
-                      确认
+                      {formatMessage({id:'button.confirm'})}
                     </Button>
                   </div>
                 </Form>
@@ -969,7 +969,7 @@ export default class EnterpriseClusters extends PureComponent {
               <div>
                 <Alert
                   style={{ marginBottom: '16px' }}
-                  message="CPU 使用量 1000 相当于分配1核 CPU"
+                  message={formatMessage({id:'enterpriseColony.table.handle.quota.form.label.alert'})}
                 />
                 <Table
                   pagination={pagination}

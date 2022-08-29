@@ -151,7 +151,7 @@ export default class Index extends PureComponent {
   handleError = res => {
     if (res && res.data && res.data.code) {
       notification.warning({
-        message: '仓库名称已存在'
+        message: formatMessage({id:'notification.warn.warehouse_exist'})
       });
     }
   };

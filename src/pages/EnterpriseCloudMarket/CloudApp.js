@@ -11,6 +11,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import globalUtil from '../../utils/global';
 import BasicListStyles from '../List/BasicList.less';
@@ -89,7 +90,7 @@ export default class CloudApp extends PureComponent {
         }
       },
       callback: () => {
-        notification.success({ message: '操作成功' });
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
         this.loadApps();
         if (onSyncSuccess) {
           onSyncSuccess();

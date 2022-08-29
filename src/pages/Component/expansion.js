@@ -845,7 +845,7 @@ export default class Index extends PureComponent {
                     <CopyToClipboard
                       text={grctlCmd}
                       onCopy={() => {
-                        notification.success({ message: '复制成功' });
+                        notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                       }}
                     >
                       <Button type="primary" style={{ marginLeft: 19 }}>

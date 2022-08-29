@@ -12,6 +12,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ordersUtil from '../../../../utils/orders';
 import styles from '../../index.less';
 
@@ -53,7 +54,7 @@ export default class OrderDetails extends PureComponent {
       },
       handleError: res => {
         if (res && res.data && res.data.code === 6004) {
-          notification.warning({ message: '订单不存在' });
+          notification.warning({ message: formatMessage({id:'notification.warn.Order_longer_exist'}) });
           this.jump();
         }
       }

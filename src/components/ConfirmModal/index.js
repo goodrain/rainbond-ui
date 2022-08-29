@@ -32,7 +32,7 @@ class ConfirmModal extends PureComponent {
             onClick={onOk}
           >
             
-            <FormattedMessage id='button.determine'/>
+            <FormattedMessage id='button.delete'/>
           </Button>
         ]}
       >

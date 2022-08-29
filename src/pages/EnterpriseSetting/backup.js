@@ -57,14 +57,14 @@ export default class BackupManage extends PureComponent {
     } = this.props;
     this.setState({ addLoading: true });
     confirm({
-      title: '确定要进行数据备份吗?',
-      content: '该操作将完整备份控制台的数据。',
-      okText: '确定',
-      cancelText: '取消',
+      title: formatMessage({id:'confirmModal.delete.data_backup.desc'}),
+      content: formatMessage({id:'confirmModal.delete.data_backup.subDesc'}),
+      okText: formatMessage({id:'button.confirm'}),
+      cancelText: formatMessage({id:'button.cancel'}),
       onOk: () => {
         createBackup({ enterprise_id: eid }).then(re => {
           if (re && re.status_code === 200) {
-            notification.success({ message: '备份成功' });
+            notification.success({ message: formatMessage({id:'status.app.backups.success'}) });
             this.loadBackups();
           }
           this.setState({ addLoading: false });
@@ -103,7 +103,7 @@ export default class BackupManage extends PureComponent {
   onChangeUpload = info => {
     const { status } = info.file;
     if (status === 'done') {
-      notification.success({ message: '上传成功' });
+      notification.success({ message: formatMessage({id:'notification.success.upload'}) });
       this.loadBackups();
       this.setState({ uploadLoading: false });
     } else {
@@ -144,7 +144,7 @@ export default class BackupManage extends PureComponent {
           password: vals.password
         }).then(re => {
           if (re && re.status_code === 200) {
-            notification.success({ message: '恢复成功，请退出后重新登录' });
+            notification.success({ message: formatMessage({id:'notification.success.restore_success'}) });
             this.loadBackups();
             this.setState({ recoverShow: false, recoverLoading: false });
           } else {
@@ -188,8 +188,8 @@ export default class BackupManage extends PureComponent {
         dataIndex: 'name',
         render: value => [
           <Popconfirm
-            title="删除后不可恢复，确定要删除吗？"
-            okText="确定"
+            title={formatMessage({id:'confirmModal.delete.take_hand.desc'})}
+            okText={formatMessage({id:'button.confirm'})}
             onConfirm={() => this.onRemove(value)}
           >
             <a>
@@ -271,23 +271,23 @@ export default class BackupManage extends PureComponent {
               confirmLoading={recoverLoading}
               visible
               width={400}
-              title="确认恢复数据"
+              title={formatMessage({id:'enterpriseSetting.BackupManage.importBackups.title'})}
             >
               <Alert
                 type="error"
-                message="备份数据恢复是一个危险的操作，该操作最好用于数据跨平台迁移场景，原地还原仅做增量动作。如果确定进行，需要二次验证您的身份。"
+                message={formatMessage({id:'enterpriseSetting.BackupManage.importBackups.alert'})}
               />
               <Form>
-                <FormItem label="账号密码">
+                <FormItem label={formatMessage({id:'enterpriseSetting.BackupManage.importBackups.form.label.password'})}>
                   {getFieldDecorator('password', {
                     initialValue: '',
                     rules: [
-                      { required: true, message: '请填写当前登录账号密码' }
+                      { required: true, message: formatMessage({id:'placeholder.oauth.importBackups'}) }
                     ]
                   })(
                     <Input
                       type="password"
-                      placeholder="请填写当前登录账号密码"
+                      placeholder={formatMessage({id:'placeholder.oauth.importBackups'})}
                     />
                   )}
                 </FormItem>

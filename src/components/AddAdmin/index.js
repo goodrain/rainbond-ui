@@ -1,6 +1,7 @@
 import { Form, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import roleUtil from '../../utils/role';
 import styles from '../CreateTeam/index.less';
 
@@ -95,20 +96,20 @@ export default class AddAdmin extends PureComponent {
 
     return (
       <Modal
-        title={info ? '编辑管理员' : '添加管理员'}
+        title={info ? formatMessage({id:'enterpriseSetting.enterpriseAdmin.col.Menu.edit'}) : formatMessage({id:'enterpriseSetting.enterpriseAdmin.col.time.add'})}
         visible
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={onCancel}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal">
-          <FormItem {...formItemLayout} label="用户名称">
+          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseSetting.enterpriseAdmin.form.select.user_id'})}>
             {getFieldDecorator('user_id', {
               initialValue: (info && info.user_id) || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入用户名称'
+                  message: formatMessage({id:'placeholder.userName'})
                 }
               ]
             })(
@@ -116,7 +117,7 @@ export default class AddAdmin extends PureComponent {
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 showSearch
                 style={{ width: 300 }}
-                placeholder="请输入用户名称"
+                placeholder={formatMessage({id:'placeholder.userName'})}
                 optionFilterProp="children"
                 onSearch={this.onSearch}
                 filterOption={(input, option) =>
@@ -138,20 +139,20 @@ export default class AddAdmin extends PureComponent {
               </Select>
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="选择角色">
+          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseSetting.enterpriseAdmin.form.select.roles'})}>
             {getFieldDecorator('roles', {
               initialValue: (info && info.roles) || [],
               rules: [
                 {
                   required: true,
-                  message: '请选择角色'
+                  message: formatMessage({id:'placeholder.role_ids'})
                 }
               ]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 mode="multiple"
-                placeholder="请选择角色"
+                placeholder={formatMessage({id:'placeholder.role_ids'})}
                 style={{ width: 300 }}
               >
                 {roles.map((item, index) => {

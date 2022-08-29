@@ -3,6 +3,7 @@
 import { Alert, Button, Modal, notification, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from '../../components/CreateTeam/index.less';
 import DescriptionList from '../../components/DescriptionList';
 
@@ -170,10 +171,10 @@ export default class AppExporter extends PureComponent {
       return '未导出';
     }
     if (status.status == 'success') {
-      return '成功';
+      return formatMessage({id:'notification.success.successed'});
     }
     if (status.status == 'failed') {
-      return '失败';
+      return formatMessage({id:'notification.success.Failed'});
     }
     if (status.status == 'exporting') {
       return '进行中';
@@ -233,7 +234,7 @@ export default class AppExporter extends PureComponent {
       },
       callback: data => {
         if (data && data.bean) {
-          notification.success({ message: '操作成功，开始导出，请稍等！' });
+          notification.success({ message: formatMessage({id:'notification.success.operate_successfully'}) });
           this.queryExport();
         }
       }

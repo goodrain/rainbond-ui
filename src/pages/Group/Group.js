@@ -231,7 +231,7 @@ export default class Index extends PureComponent {
     }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
-        message: `请求错误`,
+        message: formatMessage({id:'notification.warn.error'}),
         description: err.data.msg_show
       });
     }
@@ -428,7 +428,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '修改成功' });
+          notification.success({ message: formatMessage({id:'notification.success.change'}) });
           dispatch({
             type: 'application/editGroups',
             payload: {
@@ -436,7 +436,7 @@ export default class Index extends PureComponent {
               group_id: this.getGroupId()
             },
             callback: res => {
-              notification.success({ message: '重启应用后生效' });
+              notification.success({ message: formatMessage({id:'notification.success.takeEffect'}) });
             }
           });
         }
@@ -492,7 +492,7 @@ export default class Index extends PureComponent {
       }).then(res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: '重启成功'
+            message: formatMessage({id:'notification.success.reboot_success'})
           });
           this.handlePromptModalClose();
         }
@@ -509,7 +509,7 @@ export default class Index extends PureComponent {
         callback: res => {
           if (res && res.status_code === 200) {
             notification.success({
-              message: res.msg_show || '构建成功',
+              message: res.msg_show || formatMessage({id:'notification.success.build_success'}),
               duration: '3'
             });
             this.handlePromptModalClose();

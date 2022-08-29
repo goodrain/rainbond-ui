@@ -47,7 +47,7 @@ export default class SelectRegion extends PureComponent {
       },
       callback: () => {
         notification.success({
-          message: formatMessage({ id: 'open.success' })
+          message: formatMessage({ id: 'notification.success.opened_successfully' })
         });
         this.cancelOpenRegion();
         this.props.dispatch({

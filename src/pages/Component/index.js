@@ -600,7 +600,7 @@ class Main extends PureComponent {
     });
     const { build_upgrade, dispatch, appDetail } = this.props;
     if (this.state.actionIng) {
-      notification.warning({ message: `正在执行操作，请稍后` });
+      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
       return;
     }
     const { team_name, app_alias } = this.fetchParameter();
