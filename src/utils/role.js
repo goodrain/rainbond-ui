@@ -1,27 +1,28 @@
 import globalUtil from '../utils/global';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const actionMaps = {
-  admin: '管理员',
-  developer: '开发者',
-  viewer: '观察者',
-  access: '访问者',
-  owner: '拥有者'
+  admin: formatMessage({id:'utils.role.admin'}),
+  developer: formatMessage({id:'utils.role.developer'}),
+  viewer: formatMessage({id:'utils.role.viewer'}),
+  access: formatMessage({id:'utils.role.access'}),
+  owner: formatMessage({id:'utils.role.owner'})
 };
 const roleMaps = {
-  admin: '企业管理员',
-  app_store: '应用市场管理员'
+  admin: formatMessage({id:'utils.role.roleMaps_admin'}),
+  app_store: formatMessage({id:'utils.role.roleMaps_app_store'})
 };
 const AccessText = {
-  component: '组件管理',
-  app: '应用管理',
-  gatewayRule: '网关访问策略管理',
-  certificate: '证书管理',
-  plugin: '插件管理',
-  teamMember: '团队成员管理',
-  teamRole: '团队角色管理',
-  teamRegion: '团队集群管理',
-  app_config_group: '应用配置组管理',
-  teamRegistryAuth: '镜像仓库授权信息管理'
+  component: formatMessage({id:'utils.role.component'}),
+  app: formatMessage({id:'utils.role.app'}),
+  gatewayRule: formatMessage({id:'utils.role.gatewayRule'}),
+  certificate: formatMessage({id:'utils.role.certificate'}),
+  plugin: formatMessage({id:'utils.role.plugin'}),
+  teamMember: formatMessage({id:'utils.role.teamMember'}),
+  teamRole: formatMessage({id:'utils.role.teamRole'}),
+  teamRegion: formatMessage({id:'utils.role.teamRegion'}),
+  app_config_group: formatMessage({id:'utils.role.app_config_group'}),
+  teamRegistryAuth: formatMessage({id:'utils.role.teamRegistryAuth'})
 };
 
 let arr = [

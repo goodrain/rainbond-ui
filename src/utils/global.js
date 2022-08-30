@@ -1542,17 +1542,17 @@ const global = {
   getComponentType(componentType) {
     switch (componentType) {
       case 'stateless_multiple':
-        return <FormattedMessage id='global.getComponentType.stateless_multiple'/>;
+        return `${formatMessage({id:'global.getComponentType.stateless_multiple'})}`;
       case 'state_singleton':
-        return <FormattedMessage id='global.getComponentType.state_singleton'/>;
+        return `${formatMessage({id:'global.getComponentType.state_singleton'})}`;
       case 'stateless_singleton':
-        return <FormattedMessage id='global.getComponentType.stateless_singleton'/>;
+        return `${formatMessage({id:'global.getComponentType.stateless_singleton'})}`;
       case 'state_multiple':
-        return <FormattedMessage id='global.getComponentType.state_multiple'/>;
+        return `${formatMessage({id:'global.getComponentType.state_multiple'})}`;
       case 'job':
-        return <FormattedMessage id='global.getComponentType.job'/>;
+        return `${formatMessage({id:'global.getComponentType.job'})}`;
       case 'cronjob':
-        return <FormattedMessage id='global.getComponentType.cronjob'/>;
+        return `${formatMessage({id:'global.getComponentType.cronjob'})}`;
       default:
         return '';
     }

@@ -12,6 +12,7 @@ import component from './en-US/component';
 import global from './en-US/global';
 import error from './en-US/error';
 import ApplicationState from "./en-US/ApplicationState"
+import utils from './en-US/utils'
 
 export default {
   'navBar.lang': 'lang',
@@ -33,4 +34,5 @@ export default {
   ...global,
   ...ApplicationState,
   ...error,
+  ...utils
 };
