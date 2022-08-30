@@ -169,6 +169,7 @@
         'button.Docking':'对接',
         'button.return':'返回',
         'button.configuration':'高级配置',
+        'button.determine':'确认',
 
     }
     const status = {

@@ -1,79 +1,80 @@
 /*
     配置应用各个状态下的各种对应信息
 */
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 const appStatusMap = {
   running: {
-    statusCN: '运行中',
+    statusCN: formatMessage({id:'utils.app.Operation'}),
     bgClass: 'bg-green',
     disabledAction: ['restart'],
     activeAction: ['stop', 'deploy', 'visit', 'manage_container'],
     iconUrl: '/static/www/img/appOutline/appOutline0.png',
   },
   starting: {
-    statusCN: '启动中',
+    statusCN: formatMessage({id:'utils.app.Starting'}),
     bgClass: 'bg-yellow',
     disabledAction: ['deploy', 'restart', 'visit', 'manage_container'],
     activeAction: ['stop'],
     iconUrl: '/static/www/img/appOutline/appOutline7.png',
   },
   checking: {
-    statusCN: '检测中',
+    statusCN: formatMessage({id:'utils.app.Testing'}),
     bgClass: 'bg-yellow',
     disabledAction: ['deploy', 'restart', 'visit', 'manage_container'],
     activeAction: ['stop'],
     iconUrl: '/static/www/img/appOutline/appOutline1.png',
   },
   stoping: {
-    statusCN: '关闭中',
+    statusCN: formatMessage({id:'utils.app.Closing'}),
     bgClass: 'bg-yellow',
     disabledAction: ['deploy', 'restart', 'stop', 'visit', 'manage_container'],
     activeAction: [],
     iconUrl: '/static/www/img/appOutline/appOutline1.png',
   },
   unusual: {
-    statusCN: '运行异常',
+    statusCN: formatMessage({id:'utils.app.Error'}),
     bgClass: 'bg-red',
     disabledAction: ['visit', 'restart', 'manage_container'],
     activeAction: ['stop', 'deploy'],
     iconUrl: '/static/www/img/appOutline/appOutline1.png',
   },
   closed: {
-    statusCN: '已关闭',
+    statusCN: formatMessage({id:'utils.app.Closed'}),
     bgClass: 'bg-red',
     disabledAction: ['visit', 'stop', 'manage_container'],
     activeAction: ['restart', 'deploy'],
     iconUrl: '/static/www/img/appOutline/appOutline1.png',
   },
   owed: {
-    statusCN: '余额不足已关闭',
+    statusCN: formatMessage({id:'utils.app.Insufficient_balance'}),
     bgClass: 'bg-red',
     disabledAction: ['deploy', 'visit', 'restart', 'stop', 'manage_container'],
     activeAction: ['pay'],
     iconUrl: '/static/www/img/appOutline/appOutline1.png',
   },
   Owed: {
-    statusCN: '余额不足已关闭',
+    statusCN: formatMessage({id:'utils.app.Insufficient_balance'}),
     bgClass: 'bg-red',
     disabledAction: ['deploy', 'visit', 'restart', 'stop', 'manage_container'],
     activeAction: ['pay'],
     iconUrl: '/static/www/img/appOutline/appOutline1.png',
   },
   expired: {
-    statusCN: '试用已到期',
+    statusCN: formatMessage({id:'utils.app.Trial_expired'}),
     bgClass: 'bg-red',
     disabledAction: ['visit', 'restart', 'deploy', 'stop', 'manage_container'],
     activeAction: ['pay'],
     iconUrl: '/static/www/img/appOutline/appOutline1.png',
   },
   undeploy: {
-    statusCN: '未部署',
+    statusCN: formatMessage({id:'utils.app.Not_deployed'}),
     bgClass: 'bg-gray',
     disabledAction: ['restart', 'stop', 'visit', 'manage_container'],
     activeAction: ['deploy'],
     iconUrl: '/static/www/img/appOutline/appOutline1.png',
   },
   unKnow: {
-    statusCN: '未知',
+    statusCN: formatMessage({id:'utils.app.Unkonw'}),
     bgClass: 'bg-red',
     disabledAction: ['deploy', 'restart', 'stop', 'visit', 'manage_container'],
     activeAction: [],
@@ -281,11 +282,11 @@ const appUtil = {
   getCreateTypeCN(appDetail) {
     const source = this.getInstallSource(appDetail);
     const map = {
-      source_code: '源码',
-      market: '云市',
+      source_code: formatMessage({id:'utils.app.Source'}),
+      market: formatMessage({id:'utils.app.Yunshi'}),
       docker_compose: 'DockerCompose',
       docker_run: 'DockerRun',
-      docker_image: '镜像',
+      docker_image: formatMessage({id:'utils.app.image'}),
     };
     return map[source] || '';
   },
@@ -295,12 +296,12 @@ const appUtil = {
       return '';
     }
     const map = {
-      source_code: '源码',
-      market: buildSource.install_from_cloud ? '云应用商店' : '本地应用市场',
+      source_code: formatMessage({id:'utils.app.Source'}),
+      market: buildSource.install_from_cloud ? formatMessage({id:'utils.app.store'}) : formatMessage({id:'utils.app.Local'}),
       docker_compose: 'DockerCompose',
       docker_run: 'DockerRun',
-      docker_image: '镜像',
-      package_build: '本地文件'
+      docker_image: formatMessage({id:'utils.app.image'}),
+      package_build: formatMessage({id:'utils.app.Local_file'})
     };
     return map[source] || '';
   },

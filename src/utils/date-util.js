@@ -1,4 +1,5 @@
 import { Modal } from 'antd';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const dateUtil = {
   isWebSocketOpen(websocketURL) {
@@ -7,10 +8,10 @@ const dateUtil = {
     if (protocolStr === 'https:' && str && str === 'ws') {
       Modal.destroyAll();
       Modal.error({
-        title: '消息通道不可用',
+        title: formatMessage({id:'utils.date_util.available'}),
         content: (
           <div>
-            <p>消息通道为ws，请切换为http协议访问本系统</p>
+            {formatMessage({id:'utils.date_util.ws'})}
           </div>
         ),
         onOk() {}
@@ -109,9 +110,9 @@ const dateUtil = {
         // return '今天';
         return dateUtil.format(date, 'yyyy-MM-dd hh:mm:ss');
       } else if (isYestday(date)) {
-        return '昨天';
+        return `${formatMessage({id:'utils.date_util.yesterday'})}`;
       } else if (isBeforeYestday(date)) {
-        return '前天';
+        return `${formatMessage({id:'utils.date_util.before_yesterday'})}`;
       }
       return dateUtil.format(date, format);
     }

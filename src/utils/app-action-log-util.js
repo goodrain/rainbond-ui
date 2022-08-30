@@ -1,22 +1,23 @@
 /*
   应用操作日志模型工具
 */
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 const actionCNMap = {
-  deploy: '部署',
-  restart: '启动',
-  delete: '删除',
-  stop: '关闭',
-  HorizontalUpgrade: '水平升级',
-  VerticalUpgrade: '垂直升级',
-  callback: '回滚',
-  create: '创建',
-  own_money: '应用欠费关闭',
-  expired: '应用过期关闭',
-  'share-ys': '发布到云市',
-  'share-yb': '发布到云帮',
-  reboot: '应用重启',
-  'git-change': '仓库地址修改',
-  imageUpgrade: '应用更新'
+  deploy: formatMessage({id:'utils.app-action-log-util.deploy'}),
+  restart: formatMessage({id:'utils.app-action-log-util.restart'}),
+  delete: formatMessage({id:'utils.app-action-log-util.delete'}),
+  stop: formatMessage({id:'utils.app-action-log-util.stop'}),
+  HorizontalUpgrade: formatMessage({id:'utils.app-action-log-util.HorizontalUpgrade'}),
+  VerticalUpgrade: formatMessage({id:'utils.app-action-log-util.VerticalUpgrade'}),
+  callback: formatMessage({id:'utils.app-action-log-util.callback'}),
+  create: formatMessage({id:'utils.app-action-log-util.create'}),
+  own_money: formatMessage({id:'utils.app-action-log-util.own_money'}),
+  expired: formatMessage({id:'utils.app-action-log-util.expired'}),
+  'share-ys': formatMessage({id:'utils.app-action-log-util.share-ys'}),
+  'share-yb': formatMessage({id:'utils.app-action-log-util.share-yb'}),
+  reboot: formatMessage({id:'utils.app-action-log-util.reboot'}),
+  'git-change': formatMessage({id:'utils.app-action-log-util.git-change'}),
+  imageUpgrade: formatMessage({id:'utils.app-action-log-util.imageUpgrade'})
 };
 
 const appActionLogUtil = {
@@ -36,16 +37,16 @@ const appActionLogUtil = {
   getActionResultCN(log) {
     let status;
     const status_json = {
-      success: '完成',
-      failure: formatMessage({id:'notification.success.Failed'}),
-      timeout: '超时',
-      abnormal: '异常'
+      success: formatMessage({id:'utils.app-action-log-util.deploy'}),
+      failure: formatMessage({id:'utils.app-action-log-util.failure'}),
+      timeout: formatMessage({id:'utils.app-action-log-util.timeout'}),
+      abnormal: formatMessage({id:'utils.app-action-log-util.abnormal'})
     };
     const final_status_json = {
-      complate: '完成',
-      timeout: '超时',
-      failure: formatMessage({id:'notification.success.Failed'}),
-      timeout: '超时'
+      complate: formatMessage({id:'utils.app-action-log-util.complate'}),
+      timeout: formatMessage({id:'utils.app-action-log-util.timeout'}),
+      failure: formatMessage({id:'utils.app-action-log-util.failure'}),
+      abnormal: formatMessage({id:'utils.app-action-log-util.abnormal'})
     };
 
     if (log.final_status == 'complete') {
@@ -53,7 +54,7 @@ const appActionLogUtil = {
     } else if (log.final_status == 'timeout') {
       status = final_status_json[log.final_status];
     } else {
-      status = '进行中';
+      status = `${formatMessage({id:'utils.app-action-log-util.ongoing'})}`;
     }
 
     return status;

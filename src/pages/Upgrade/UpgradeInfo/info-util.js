@@ -1,3 +1,4 @@
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 const statusMap = {
   1: '升级',
   2: '升级中',

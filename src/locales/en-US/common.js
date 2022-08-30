@@ -169,6 +169,7 @@
         'button.Docking':'Docking',
         'button.return':'Return',
         'button.configuration':'Advanced configuration',
+        'button.determine':'Confirm',
     }
     const status = {
         'status.component.running':'Running',
