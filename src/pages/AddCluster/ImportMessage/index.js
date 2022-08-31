@@ -155,7 +155,7 @@ export default class ImportMessage extends PureComponent {
                         </Select>
                     </Row>
                     <Row type="flex" style={{ width: '100%', padding: '24px 0px', minHeight: '400px' }}>
-                        <div style={{ width: '120px', textAlign: 'right' }}><h3>{formatMessage({id:'enterpriseColony.import.list.title'})}</h3></div>
+                        <div style={{ width: '120px', textAlign: 'right' }}><h3 style={{whiteSpace: 'nowrap'}}>{formatMessage({id:'enterpriseColony.import.list.title'})}</h3></div>
                         {loadingSwitch ? (
                             <div className={styles.loadingstyle}>
                                 <Spin size="large" />

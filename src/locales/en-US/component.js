@@ -455,7 +455,7 @@ const componentOverview = {
     'componentOverview.body.mnt.volume_capacity':'Storage capacity ',
     'componentOverview.body.mnt.unlimited':'Unlimited',
     'componentOverview.body.mnt.status':'Statu',
-    'componentOverview.body.mnt.unmounted ':'Unmounted ',
+    'componentOverview.body.mnt.unmounted':'Unmounted ',
     'componentOverview.body.mnt.mounted':'Mounted',
     'componentOverview.body.mnt.action':'Operation',
     'componentOverview.body.mnt.deldete':'Delete',

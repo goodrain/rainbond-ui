@@ -63,7 +63,6 @@ export default class JoinTeam extends PureComponent {
 
     return (
       <Modal
-        title="加入团队"
         title={<FormattedMessage id='popover.enterpriseOverview.joinTeam.title'/>}
         visible
         className={styles.TelescopicModal}
@@ -77,7 +76,7 @@ export default class JoinTeam extends PureComponent {
         ]}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <FormItem {...formItemLayout}  hasFeedback label={<FormattedMessage id='popover.enterpriseOverview.joinTeam.label'/>}>
+          <FormItem {...formItemLayout}  hasFeedback label={<FormattedMessage id='popover.enterpriseOverview.joinTeam.label'/> }extra={!teamList && <FormattedMessage id='popover.enterpriseOverview.joinTeam.hint'/>}>
             {getFieldDecorator('team_name', {
               initialValue: (teamList && teamList[0].team_name) || '',
               rules: [
@@ -99,7 +98,7 @@ export default class JoinTeam extends PureComponent {
                   ))}
               </Select>
             )}
-            {!teamList && <div><FormattedMessage id='popover.enterpriseOverview.joinTeam.hint'/></div>}
+            {}
           </FormItem>
         </Form>
       </Modal>

@@ -464,7 +464,7 @@ const componentOverview = {
     'componentOverview.body.mnt.volume_capacity':'存储容量',
     'componentOverview.body.mnt.unlimited':'不限制',
     'componentOverview.body.mnt.status':'状态',
-    'componentOverview.body.mnt.unmounted ':'未挂载',
+    'componentOverview.body.mnt.unmounted':'未挂载',
     'componentOverview.body.mnt.mounted':'已挂载',
     'componentOverview.body.mnt.action':'操作',
     'componentOverview.body.mnt.deldete':'删除',

@@ -119,7 +119,6 @@ export default class ComponentList extends Component {
       },
       callback: data => {
         if (data && data.status_code === 200) {
-          console.log(data.list,'list')
           this.setState({
             apps: data.list || [],
             total: data.total || 0,

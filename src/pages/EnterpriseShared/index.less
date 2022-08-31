@@ -110,14 +110,13 @@
 
   & > div {
     button {
-      width: 76px;
       height: 32px;
       margin-right: 20px;
       font-family: PingFangSC-Regular;
       font-size: 12px;
       color: #ffffff;
       letter-spacing: 0;
-      padding: 0;
+      padding: 0 5px;
     }
   }
 }
@@ -371,3 +370,15 @@
   padding: 3px 0px 5px;
   margin-right: 0 !important;
 }
+.setTabs{
+  :global{
+    .ant-input-search {
+      input{
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    }
+  }
+}
+

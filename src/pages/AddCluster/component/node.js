@@ -99,6 +99,7 @@ class DAinput extends Component {
                   }}
                   value={item.externalIP}
                   placeholder={externalIPPlaceholder}
+                  style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
               </Col>
               <Col span={24} style={{ marginRight: '10px' }}>
@@ -109,6 +110,7 @@ class DAinput extends Component {
                   }}
                   value={item.internalIP}
                   placeholder={repPlaceholder}
+                  style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
               </Col>
               <Col span={24}>
@@ -119,6 +121,7 @@ class DAinput extends Component {
                   }}
                   value={item.name}
                   placeholder={namePlaceholder}
+                  style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
               </Col>
               <Col span={4} style={{ textAlign: 'center' }}>
