@@ -1,6 +1,7 @@
 import { Select, Spin } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 
 const { Option } = Select;
@@ -54,7 +55,7 @@ class UserRemoteSelect extends React.Component {
         mode="multiple"
         labelInValue
         value={value}
-        placeholder="输入用户名称进行搜索"
+        placeholder={formatMessage({id:'placeholder.userName.search'})}
         notFoundContent={fetching ? <Spin size="small" /> : null}
         filterOption={false}
         onSearch={this.fetchUser}

@@ -15,7 +15,7 @@
         'popover.newComponent.codeBranch':'Code branch',
 
         // 弹窗新建/修改应用
-        'popover.newApp.title':'New app',
+        'popover.newApp.title':'Create',
         'popover.newApp.appName':'App name',
         'popover.newApp.appEngName':'English name App',
         'popover.newApp.logo':'Logo',
@@ -64,6 +64,15 @@
         'popover.config.lable.WebSocket':'WebSocket Support',
         'popover.config.lable.proxy_buffering':'Open ProxyBuffer',
         'popover.config.lable.set_headers':'Customize request header',
+
+        //证书管理
+        'popover.manage.certificate.title.add':'Add certificate',
+        'popover.manage.certificate.title.edit':'Edit certificate',
+        'popover.manage.certificate.label.name':'Name certificate',
+        'popover.manage.certificate.label.kind':'Certificate type',
+        'popover.manage.certificate.label.public':'Public key',
+        'popover.manage.certificate.label.private':'Private key',
+        'popover.manage.certificate.label.server':'Server Certificate',
 
         // 添加/编辑tcp/udp访问策略
         'popover.tcp.title.add':'TCP/UDP access policy is added',
@@ -274,6 +283,7 @@
         'confirmModal.delete.give_up_release.desc':'Are you sure you want to abandon this release?',
         'confirmModal.delete.data_backup.desc':'Are you sure you want to back up your data?',
         'confirmModal.delete.take_hand.desc':'It cannot be restored after being deleted. Are you sure to delete it?',
+        'confirmModal.install.app.desc':'Are you sure you want to install this application as your component?',
 
         //友情提示
         'confirmModal.friendly_reminder.title':'Friendly reminder',
@@ -598,6 +608,12 @@
         'notification.hint.toUpdata':'Update required to take effect',
         'notification.hint.selectPort':'You have not selected a port, please select a port first!',
         'notification.hint.need_updata':'It needs to be updated before it can take effect',
+        'notification.market.hint.null_app1':'No application model yet. You can',
+        'notification.market.hint.null_app2':'Publishing an Application Model',
+        'notification.market.hint.null_app3':'or',
+        'notification.market.hint.null_app4':'Sync from the cloud',
+        'notification.market.hint.null_app5':'The current market does not have the installation permission,',
+        'notification.market.hint.null_app6':'To authorize',
     }
     const placeholder = {
         'placeholder.appName':'Select an application to which you want to apply',
@@ -791,6 +807,11 @@
         'placeholder.cluster.edit.key_file':'API-Client certificate key This parameter is mandatory',
         'placeholder.cluster.edit.key_file.content':'API-Client certificate key content',
         'placeholder.cluster.edit.desc':'Cluster Remarks',
+        'placeholder.appEngName':'Please enter the English name of the application',
+        'placeholder.certificate.name':'Please enter the certificate name',
+        'placeholder.certificate.private':'Please enter your private key',
+        'placeholder.userName.search':'Please enter a user name to search',
+
     }
     const tooltip = {
         'tooltip.visit':'Go to the domain address corresponding to the component external access port',

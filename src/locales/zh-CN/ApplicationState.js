@@ -17,6 +17,7 @@ const ApplicationState =    {
     'ApplicationState.pending-install':'安装中',
     'ApplicationState.pending-upgrade':'升级中',
     'ApplicationState.pending-rollback':'回滚中',
+    'ApplicationState.leave_unused':'闲置',
 }
 
 export default Object.assign({}, ApplicationState);

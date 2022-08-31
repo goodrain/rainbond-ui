@@ -356,11 +356,11 @@ class DrawerForm extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 5 },
-        sm: { span: 5 }
+        sm: { span: 8 }
       },
       wrapperCol: {
         xs: { span: 19 },
-        sm: { span: 19 }
+        sm: { span: 16 }
       }
     };
     // const currentGroup = editInfo ? editInfo.g_id : groups.lenth > 0 ? groups[0].group_id : null;
