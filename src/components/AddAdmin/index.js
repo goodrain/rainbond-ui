@@ -56,7 +56,6 @@ export default class AddAdmin extends PureComponent {
     dispatch({
       type: 'global/fetchEnterpriseUsers',
       payload: { enterprise_id: eid, page: 1, page_size: 999, name },
-
       callback: res => {
         if (res) {
           this.setState({ adminList: res.list });

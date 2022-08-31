@@ -51,10 +51,10 @@ export default class Index extends PureComponent {
   render() {
     const formItemLayout = {
       labelCol: {
-        span: 5
+        span: 7
       },
       wrapperCol: {
-        span: 19
+        span: 17
       }
     };
     const {
@@ -96,7 +96,7 @@ export default class Index extends PureComponent {
               setFieldsValue={setFieldsValue}
               formItemLayout={formItemLayout}
               Form={Form}
-              width="594px"
+              // width="594px"
               getFieldDecorator={getFieldDecorator}
               name="yaml_content"
               label={formatMessage({id: 'teamAdd.create.image.config'})}

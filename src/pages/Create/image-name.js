@@ -74,7 +74,7 @@ export default class Index extends PureComponent {
     return (
       <Card>
         <TopUpHints />
-        <div className={styles.formWrap} style={{width:this.props.handleType&&this.props.handleType==="Service"?"auto":"500px"}}>
+        <div className={styles.formWrap} style={{width:this.props.handleType&&this.props.handleType==="Service"?"auto":"600px"}}>
           <ImageNameForm data={{ docker_cmd: image || "" }} onSubmit={this.handleSubmit} {...this.props}/>
         </div>
       </Card>

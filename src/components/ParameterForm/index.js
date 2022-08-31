@@ -129,11 +129,11 @@ class ParameterForm extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 }
+        sm: { span: 10 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 }
+        sm: { span: 14 }
       }
     };
     const setHeaders = editInfo && editInfo.set_headers;

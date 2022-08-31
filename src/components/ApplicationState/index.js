@@ -51,7 +51,7 @@ export default class Index extends PureComponent {
         <Badge
           className={styles.states}
           status={appStateColor[AppStatus] || 'default'}
-          text={appState[AppStatus] || '闲置'}
+          text={appState[AppStatus] || formatMessage({id:'ApplicationState.leave_unused'})}
         />
       </Fragment>
     );

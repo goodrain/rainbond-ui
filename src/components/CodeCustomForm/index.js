@@ -12,10 +12,10 @@ const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 9
   },
   wrapperCol: {
-    span: 19
+    span: 15
   }
 };
 
@@ -84,7 +84,7 @@ export default class Index extends PureComponent {
     if (urlCheck.test(value)) {
       callback();
     } else {
-      callback('非法仓库地址');
+      callback(formatMessage({id:'componentOverview.body.ChangeBuildSource.Illegal'}));
     }
   };
 
@@ -142,16 +142,20 @@ export default class Index extends PureComponent {
           <Col span={isSubdirectories ? 16 : 24} style={{ textAlign: 'right' }}>
             {type === 'showKey' && (
               <Checkbox value="showKey" checked={showKey}>
-                配置授权Key
+                {formatMessage({id:'teamPlugin.create.pages.key'})}
               </Checkbox>
             )}
             {type === 'showUsernameAndPass' && (
-              <Checkbox value="showUsernameAndPass">填写仓库账号密码</Checkbox>
+              <Checkbox value="showUsernameAndPass">
+                {formatMessage({id:'teamAdd.create.code.fillInUser'})}
+              </Checkbox>
             )}
           </Col>
           {isSubdirectories && (
             <Col span={8} style={{ textAlign: 'right' }}>
-              <Checkbox value="subdirectories">填写子目录路径</Checkbox>
+              <Checkbox value="subdirectories">
+                {formatMessage({id:'teamAdd.create.code.fillInPath'})}
+              </Checkbox>
             </Col>
           )}
         </Row>
@@ -251,8 +255,8 @@ export default class Index extends PureComponent {
                 placeholder={formatMessage({id: 'placeholder.appName'})}
                 style={{
                   display: 'inline-block',
-                  width: isService ? '' : 292,
-                  marginRight: 15
+                  width: isService ? '' : 276,
+                  marginRight: 10
                 }}
                 disabled={!!isService}
               >
@@ -275,7 +279,7 @@ export default class Index extends PureComponent {
                 { required: true, message: formatMessage({id: 'placeholder.service_cname'}) },
                 {
                   max: 24,
-                  message: '最大长度24位'
+                  message: formatMessage({id:'placeholder.max24'})
                 }
               ]
             })(<Input placeholder={formatMessage({id: 'placeholder.service_cname'})} />)}
