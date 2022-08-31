@@ -266,7 +266,7 @@ export default class Index extends PureComponent {
                 placeholder={formatMessage({id: 'placeholder.component_cname'})}
                 style={{
                   display: 'inline-block',
-                  width: isService ? 350 : 277,
+                  width: 350,
                   marginRight: 15
                 }}
               />
@@ -281,7 +281,7 @@ export default class Index extends PureComponent {
               <Input
                 style={{
                   display: 'inline-block',
-                  width: isService ? 350 : 277,
+                  width: 350,
                   marginRight: 15
                 }}
                 placeholder={formatMessage({id: 'placeholder.k8s_component_name'})}
@@ -299,7 +299,7 @@ export default class Index extends PureComponent {
                 placeholder={formatMessage({id: 'placeholder.appName'})}
                 style={{
                   display: 'inline-block',
-                  width: isService ? 350 : 277,
+                  width: 350,
                   marginRight: 15
                 }}
                 disabled={!!isService}
@@ -411,7 +411,7 @@ export default class Index extends PureComponent {
                   <Input
                     style={{
                       display: 'inline-block',
-                      width: isService ? 350 : 277,
+                      width: 350,
                       marginRight: 15
                     }}
                     placeholder={formatMessage({id: "placeholder.nameSpace"})}
@@ -426,7 +426,7 @@ export default class Index extends PureComponent {
                   <Input
                     style={{
                       display: 'inline-block',
-                      width: isService ? 350 : 277,
+                      width: 350,
                       marginRight: 15
                     }}
                     placeholder={formatMessage({id: "placeholder.serviceName"})}

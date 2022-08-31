@@ -199,8 +199,8 @@ export default class EditGroupName extends PureComponent {
     } = this.state;
     const formItemLayout = {
       labelCol: {
-        xs: { span: 24 },
-        sm: { span: 6 }
+        xs: { span: 23 },
+        sm: { span: 7 }
       },
       wrapperCol: {
         xs: { span: 24 },

@@ -10,10 +10,10 @@ const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 9
   },
   wrapperCol: {
-    span: 19
+    span: 15
   }
 };
 
@@ -106,8 +106,8 @@ export default class Index extends PureComponent {
                 placeholder={formatMessage({id: 'placeholder.appName'})}
                 style={{
                   display: 'inline-block',
-                  width: isService ? '' : 292,
-                  marginRight: 15
+                  width: isService ? '' : 276,
+                  marginRight: 10
                 }}
                 disabled={!!isService}
               >

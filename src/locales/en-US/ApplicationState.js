@@ -17,6 +17,8 @@ const ApplicationState =    {
     'ApplicationState.pending-install':'Installation in progress',
     'ApplicationState.pending-upgrade':'Upgrading',
     'ApplicationState.pending-rollback':'Rolling back',
+    'ApplicationState.leave_unused':'Unused',
+
 }
 
 export default Object.assign({}, ApplicationState);

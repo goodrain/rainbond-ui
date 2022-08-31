@@ -295,12 +295,10 @@ export default class Index extends PureComponent {
 
     const formItemLayout = {
       labelCol: {
-        xs: { span: 9 },
-        sm: { span: 9 }
+        span:9
       },
       wrapperCol: {
-        xs: { span: 5 },
-        sm: { span: 5 }
+        span:7
       }
     };
 

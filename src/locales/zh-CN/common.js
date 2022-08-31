@@ -66,6 +66,14 @@
         'popover.config.lable.proxy_buffering':'开启ProxyBuffer',
         'popover.config.lable.set_headers':'自定义请求头',
 
+        //证书管理
+        'popover.manage.certificate.title.add':'添加证书',
+        'popover.manage.certificate.title.edit':'编辑证书',
+        'popover.manage.certificate.label.name':'证书名称',
+        'popover.manage.certificate.label.kind':'证书类型',
+        'popover.manage.certificate.label.public':'公钥证书',
+        'popover.manage.certificate.label.private':'私钥',
+        'popover.manage.certificate.label.server':'服务端证书',
         // 添加/编辑tcp/udp访问策略
         'popover.tcp.title.add':'添加tcp/udp访问策略',
         'popover.tcp.title.edit':'编辑tcp/udp访问策略',
@@ -275,7 +283,8 @@
         'confirmModal.delete.drop_versions.desc':'确定要删除当前版本吗？',
         'confirmModal.delete.give_up_release.desc':'确定要放弃此次发布吗? ',
         'confirmModal.delete.data_backup.desc':'确定要进行数据备份吗? ',
-        'confirmModal.delete.take_hand.desc':'删除后不可恢复，确定要删除吗？ ',
+        'confirmModal.delete.take_hand.desc':'删除后不可恢复，确定要删除吗？',
+        'confirmModal.install.app.desc':'确认要安装此应用作为你的组件么？',
 
         //友情提示
         'confirmModal.friendly_reminder.title':'友情提示',
@@ -603,6 +612,12 @@
         'notification.hint.toUpdata':'需要更新才能生效',
         'notification.hint.selectPort':'您还没有选择端口，请先选择端口！',
         'notification.hint.need_updata':'需要更新后才能生效',
+        'notification.market.hint.null_app1':'暂无应用模型， 你可以',
+        'notification.market.hint.null_app2':'发布应用模型',
+        'notification.market.hint.null_app3':'或',
+        'notification.market.hint.null_app4':'从云端同步',
+        'notification.market.hint.null_app5':'当前市场没有安装权限，',
+        'notification.market.hint.null_app6':'去授权',
 
     }
     const placeholder = {
@@ -799,6 +814,9 @@
         'placeholder.cluster.edit.key_file':'API-Client证书密钥必填',
         'placeholder.cluster.edit.key_file.content':'API-Client证书密钥内容',
         'placeholder.cluster.edit.desc':'集群备注信息',
+        'placeholder.certificate.name':'请输入证书名称',
+        'placeholder.certificate.private':'请输入私钥', 
+        'placeholder.userName.search':'请输入用户名称进行搜索',
 
     }
     const tooltip = {

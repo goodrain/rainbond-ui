@@ -113,7 +113,7 @@ export default class Index extends PureComponent {
             onClick={this.renderSuccessOnChange}
             checked={this.state.is_deploy}
           >
-            并构建启动
+            {formatMessage({id:'button.build_start'})}
           </Radio>
         ]}
       >

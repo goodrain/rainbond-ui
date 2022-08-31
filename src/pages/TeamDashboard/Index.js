@@ -13,7 +13,8 @@ import {
   notification,
   Pagination,
   Spin,
-  Select
+  Select,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -572,6 +573,7 @@ export default class Index extends PureComponent {
                       <span>
                         {globalUtil.fetchSvg('teamAppActive', '#4f75af', '24')}
                       </span>
+                      <Tooltip title={formatMessage({id:'teamOverview.runAppNum'},{number:(index.overviewInfo && index.overviewInfo.running_app_num) || 0})}>
                       <span
                         className={styles.ellipsis}
                         style={{ width: '100%' }}
@@ -579,8 +581,9 @@ export default class Index extends PureComponent {
                         <FormattedMessage 
                           id="teamOverview.runAppNum" 
                           values={{number:(index.overviewInfo && index.overviewInfo.running_app_num) || 0}}
-                        />
+                        /> 
                       </span>
+                      </Tooltip>
                     </div>
                     <div className={styles.defaultApp}>
                       <span>
@@ -590,6 +593,7 @@ export default class Index extends PureComponent {
                           '24'
                         )}
                       </span>
+                      <Tooltip title={formatMessage({id:'teamOverview.notRunAppNum'},{number:(index.overviewInfo.team_app_num - index.overviewInfo.running_app_num) || 0})}>
                       <span
                         className={styles.ellipsis}
                         style={{ width: '100%' }}
@@ -599,6 +603,7 @@ export default class Index extends PureComponent {
                           values={{number:(index.overviewInfo.team_app_num - index.overviewInfo.running_app_num) || 0}}
                         />
                       </span>
+                      </Tooltip>
                     </div>
                     <div className={styles.totalApp}>
                       <FormattedMessage 
@@ -623,6 +628,8 @@ export default class Index extends PureComponent {
                       <span>
                         {globalUtil.fetchSvg('teamAppActive', '#4f75af', '24')}
                       </span>
+
+                      <Tooltip title={formatMessage({id:'teamOverview.runComponentNum'},{number:(index.overviewInfo && index.overviewInfo.running_component_num) || 0})}>
                       <span
                         className={styles.ellipsis}
                         style={{ width: '100%' }}
@@ -632,6 +639,7 @@ export default class Index extends PureComponent {
                           values={{number:(index.overviewInfo && index.overviewInfo.running_component_num) || 0 }}
                         />
                       </span>
+                    </Tooltip>
                     </div>
                     <div className={styles.defaultApp}>
                       <span>
@@ -641,6 +649,7 @@ export default class Index extends PureComponent {
                           '24'
                         )}
                       </span>
+                      <Tooltip title={formatMessage({id:'teamOverview.notRunComponentNum'},{number:(index.overviewInfo.team_service_num - index.overviewInfo.running_component_num) || 0})}>
                       <span
                         className={styles.ellipsis}
                         style={{ width: '100%' }}
@@ -650,6 +659,7 @@ export default class Index extends PureComponent {
                           values={{number:(index.overviewInfo.team_service_num - index.overviewInfo.running_component_num) || 0 }}
                         />
                       </span>
+                      </Tooltip>
                     </div>
                     <div className={styles.totalApp}>
                       <FormattedMessage 
@@ -752,7 +762,7 @@ export default class Index extends PureComponent {
             {/* {(!loadingOfApp || searchVisible) && ( */}
               <div className={styles.teamHotAppTitleSearch}>
                 <Select
-                  style={{ width: '140px' }}
+                  style={{ width: '200px' }}
                   placeholder={formatMessage({id: 'teamOverview.sortTips'})}
                   defaultValue={1}
                   onChange={this.handleSortChange}

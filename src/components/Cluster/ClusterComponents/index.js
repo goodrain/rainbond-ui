@@ -190,7 +190,7 @@ class ClusterComponents extends PureComponent {
               onCancel();
             }}
           >
-            关闭
+            {formatMessage({id:'button.close'})}
           </Button>
         }
       >

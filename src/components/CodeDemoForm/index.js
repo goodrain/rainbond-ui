@@ -9,12 +9,13 @@ import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 
 const { Option } = Select;
+
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 9
   },
   wrapperCol: {
-    span: 19
+    span: 15
   }
 };
 
@@ -215,7 +216,7 @@ export default class Index extends PureComponent {
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               placeholder={formatMessage({id: 'placeholder.appName'})}
-              style={{ display: 'inline-block', width: 292, marginRight: 15 }}
+              style={{ display: 'inline-block', width: 276, marginRight: 10 }}
             >
               {(groups || []).map(group => (
                 <Option key={group.group_id} value={group.group_id}>
@@ -238,7 +239,7 @@ export default class Index extends PureComponent {
             ]
           })(
             <Input
-              style={{ width: 292 }}
+              // style={{ width: 292 }}
               placeholder={formatMessage({id: 'placeholder.service_cname'})}
             />
           )}
@@ -251,7 +252,7 @@ export default class Index extends PureComponent {
                 validator: this.handleValiateNameSpace
               }
             ]
-          })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})} style={{ width: 292 }} />)}
+          })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})}  />)}
         </Form.Item>
         <Form.Item {...formItemLayout} label={<span>Demo</span>}>
           {getFieldDecorator('git_url', {
@@ -261,7 +262,7 @@ export default class Index extends PureComponent {
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
-              style={{ display: 'inline-block', width: 292, marginRight: 15 }}
+              style={{ display: 'inline-block', width: 290, marginRight: 10 }}
               onChange={this.handleChangeDemo}
             >
               <Option value={`${configureGlobal.documentAddress}demo-2048.git`}>

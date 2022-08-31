@@ -1087,10 +1087,10 @@ export default class Main extends PureComponent {
         locale={{
           emptyText: !isSpinList && list && list.length <= 0 && (
             <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-              暂无应用模型， 你可以
+              {formatMessage({id:'notification.market.hint.null_app1'})}
               <br />
               <br />
-              发布应用模型
+              {formatMessage({id:'notification.market.hint.null_app2'})}
             </p>
           )
         }}
@@ -1273,7 +1273,7 @@ export default class Main extends PureComponent {
         )}
         {handleType && installBounced && (
           <Modal
-            title="确认要安装此应用作为你的组件么？"
+            title={formatMessage({id:'confirmModal.install.app.desc'})}
             className={styles.TelescopicModal}
             visible={installBounced}
             onOk={this.handleInstallBounced}
@@ -1290,7 +1290,7 @@ export default class Main extends PureComponent {
                     });
                   }}
                 >
-                  取消
+                  {formatMessage({id:'button.cancel'})}
                 </Button>
                 <Button
                   onClick={this.handleInstallBounced}
@@ -1305,7 +1305,7 @@ export default class Main extends PureComponent {
                   onClick={this.renderSuccessOnChange}
                   checked={isDeploy}
                 >
-                  并构建启动
+                  {formatMessage({id:'button.build_start'})}
                 </Radio>
               </div>
             }
@@ -1340,13 +1340,13 @@ export default class Main extends PureComponent {
                 <Alert
                   message={
                     <div>
-                      当前市场没有安装权限，
+                      {formatMessage({id:'notification.market.hint.null_app5'})}
                       <a
                         onClick={() => {
                           this.handleCertification(scopeMax);
                         }}
                       >
-                        去授权
+                        {formatMessage({id:'notification.market.hint.null_app6'})}
                       </a>
                     </div>
                   }
@@ -1414,13 +1414,13 @@ export default class Main extends PureComponent {
                 <Alert
                   message={
                     <div>
-                      当前市场没有安装权限，
+                      {formatMessage({id:'notification.market.hint.null_app5'})}
                       <a
                         onClick={() => {
                           this.handleCertification(scopeMax);
                         }}
                       >
-                        去授权
+                        {formatMessage({id:'notification.market.hint.null_app6'})}
                       </a>
                     </div>
                   }
