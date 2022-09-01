@@ -22,6 +22,7 @@ import {
 } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import cookie from '../../utils/cookie';
 import style from './publish.less';
 
 @connect(({ list, loading, teamControl, enterprise }) => ({
@@ -42,7 +43,8 @@ export default class AppPublishList extends PureComponent {
       pageSize: 10,
       total: 0,
       storeLoading: false,
-      selectStoreShow: false
+      selectStoreShow: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentWillMount() {
@@ -230,7 +232,8 @@ export default class AppPublishList extends PureComponent {
       total,
       selectStoreShow,
       recoders,
-      storeLoading
+      storeLoading,
+      language
     } = this.state;
     const {
       currentEnterprise,
@@ -256,15 +259,15 @@ export default class AppPublishList extends PureComponent {
         title={formatMessage({ id: 'appPublish.title' })}
         content={formatMessage({ id: 'appPublish.desc' })}
         extraContent={
-          <div>
+          <div style={language ? {}:{display:'flex'}}>
             <Button
-              style={{ marginRight: 8 }}
+              style={language ? {marginRight: 8}:{ marginRight: 8 ,padding:5,}}
               type="primary"
               onClick={this.onPublishLocal}
             >
               {formatMessage({ id: 'appPublish.btn.local' })}
             </Button>
-            <Button style={{ marginRight: 8 }} onClick={this.onPublishStore}>
+            <Button  onClick={this.onPublishStore} style={language ? {marginRight: 8}:{marginRight: 8 ,padding:5,}}>
               {formatMessage({ id: 'appPublish.btn.market' })}
             </Button>
           </div>

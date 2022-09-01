@@ -11,6 +11,7 @@ import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
 import DAinput from '../component/node';
+import cookie from '../../../utils/cookie';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -95,7 +96,9 @@ export default class ClusterLink extends PureComponent {
     const { user } = this.props;
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
-      adminer
+      adminer,
+      language: cookie.get('language') === 'zh-CN' ? true : false
+
     };
   }
   componentWillMount() {
@@ -230,6 +233,17 @@ export default class ClusterLink extends PureComponent {
         sm: { span: 5 }
       }
     };
+    const formItemLayouts = {
+      labelCol: {
+        xs: { span: 0 },
+        sm: { span: 0 }
+      },
+      wrapperCol: {
+        xs: { span: 6 },
+        sm: { span: 6 }
+      }
+    };
+    const is_formItemLayout = this.state.language ? formItemLayout : formItemLayouts;
 
     return (
       <PageHeaderLayout
@@ -249,14 +263,14 @@ export default class ClusterLink extends PureComponent {
           <Form onSubmit={this.handleSubmit}>
             <div className={styles.base_configuration}>
               {/* 入口IP */}
-              <Row className={styles.antd_row}>
+              <Row className={ this.state.language ? styles.antd_row : styles.en_antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                     <FormattedMessage id='enterpriseColony.ACksterList.ip'/>
                   </span>
                 </div>
                 <FormItem
-                  {...formItemLayout}
+                  {...is_formItemLayout}
                   className={styles.antd_form}
                   extra={<FormattedMessage id='enterpriseColony.ACksterList.open_ip'/>}
                 >
@@ -279,14 +293,14 @@ export default class ClusterLink extends PureComponent {
                 </FormItem>
               </Row>
               {/* 网关安装节点 */}
-              <Row className={styles.antd_row}>
+              <Row className={ this.state.language ? styles.antd_row : styles.en_antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                     <FormattedMessage id='enterpriseColony.ACksterList.gateway'/>
                   </span>
                 </div>
                 <FormItem
-                  {...formItemLayout}
+                  {...is_formItemLayout}
                   className={styles.antd_form}
                   extra={<FormattedMessage id='enterpriseColony.ACksterList.availability'/>}
                 >

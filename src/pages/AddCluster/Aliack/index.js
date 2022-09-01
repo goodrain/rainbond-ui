@@ -12,6 +12,8 @@ import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
 import DAinput from '../component/node';
 import styles from './index.less';
+import cookie from '../../../utils/cookie';
+
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -95,7 +97,8 @@ export default class ClusterLink extends PureComponent {
     const { user } = this.props;
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
-      adminer
+      adminer,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentWillMount() {
@@ -237,6 +240,7 @@ handleValidatorsGateway = (_, val, callback) => {
       },
       form: { getFieldDecorator },
     } = this.props;
+    const {language} = this.state
     const formItemLayout = {
       labelCol: {
         xs: { span: 0 },
@@ -257,6 +261,16 @@ handleValidatorsGateway = (_, val, callback) => {
         sm: { span: 10 }
       }
     };
+    const en_storageFormItemLayout = {
+      labelCol: {
+        xs: { span: 5 },
+        sm: { span: 5 }
+      },
+      wrapperCol: {
+        xs: { span: 10 },
+        sm: { span: 10 }
+      }
+    };
     const formItemLayouts = {
       labelCol: {
         xs: { span: 3 },
@@ -267,6 +281,18 @@ handleValidatorsGateway = (_, val, callback) => {
         sm: { span: 6 }
       }
     };
+    const en_formItemLayouts = {
+      labelCol: {
+        xs: { span: 6 },
+        sm: { span: 6 }
+      },
+      wrapperCol: {
+        xs: { span: 6 },
+        sm: { span: 6 }
+      }
+    };
+    const is_language = language ? formItemLayouts : en_formItemLayouts
+    const is_storageFormItemLayout =  language ? storageFormItemLayout : en_storageFormItemLayout
     const docs = (
       <div>
         <a href=''>详细配置见官方文档</a>
@@ -290,7 +316,7 @@ handleValidatorsGateway = (_, val, callback) => {
           <Form onSubmit={this.handleSubmit}>
             <div className={styles.base_configuration}>
               {/* 入口IP */}
-              <Row className={styles.antd_row}>
+              <Row className={language ? styles.antd_row : styles.en_antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                     <FormattedMessage id='enterpriseColony.cloud.slb'/>
@@ -316,11 +342,11 @@ handleValidatorsGateway = (_, val, callback) => {
                         message: formatMessage({id:'placeholder.no_spaces'})
                       }
                     ]
-                  })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_ip'})} />)}
+                  })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_ip'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                 </FormItem>
               </Row>
               {/* 网关安装节点 */}
-              <Row className={styles.antd_row}>
+              <Row className={language ? styles.antd_row : styles.en_antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                     <FormattedMessage id='enterpriseColony.cloud.gateway'/>
@@ -347,14 +373,14 @@ handleValidatorsGateway = (_, val, callback) => {
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}><FormattedMessage id='enterpriseColony.cloud.nas'/></span>
+                    <span className={language ?  styles.titleSpan :  styles.en_titleSpan}><FormattedMessage id='enterpriseColony.cloud.nas'/></span>
                   </div>
                   <div className={styles.desc}>
                    <FormattedMessage id='enterpriseColony.alcloud.nas'/><a target="_blank" href="https://help.aliyun.com/document_detail/312360.html"><FormattedMessage id='enterpriseColony.alcloud.doc'/></a>
                   </div>
                 </div>
-                <div className={styles.config}>
-                  <FormItem {...storageFormItemLayout} label={formatMessage({id:'enterpriseColony.cloud.mount'})}>
+                <div className={language ? styles.config : styles.enconfig}>
+                  <FormItem {...is_storageFormItemLayout} label={formatMessage({id:'enterpriseColony.cloud.mount'})}>
                     {getFieldDecorator('server', {
                       rules: [
                         {
@@ -367,7 +393,7 @@ handleValidatorsGateway = (_, val, callback) => {
                         }
                       ]
                     })(
-                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.dome_mount'})} />
+                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.dome_mount'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>
                     )}
                   </FormItem>
                   {/* <FormItem
@@ -395,16 +421,16 @@ handleValidatorsGateway = (_, val, callback) => {
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}><FormattedMessage id='enterpriseColony.cloud.access'/></span>
+                    <span className={language ?  styles.titleSpan :  styles.en_titleSpan}><FormattedMessage id='enterpriseColony.cloud.access'/></span>
                   </div>
                   <div className={styles.desc}>
                   <FormattedMessage id='enterpriseColony.alcloud.access'/>
                   <a target="_blank" href="https://help.aliyun.com/document_detail/309008.html"><FormattedMessage id='enterpriseColony.alcloud.doc'/></a>
                   </div>
                 </div>
-                <div className={styles.config}>
+                <div className={language ? styles.config :styles.config_en}>
                   {/* 连接地址 */}
-                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.address'})}>
+                  <FormItem {...is_language} label={formatMessage({id:'enterpriseColony.cloud.address'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_host', {
                       rules: [
@@ -417,10 +443,10 @@ handleValidatorsGateway = (_, val, callback) => {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_address'})} />)}
+                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_address'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   {/* 连接端口 */}
-                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.port'})}>
+                  <FormItem {...is_language} label={formatMessage({id:'enterpriseColony.cloud.port'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_port', {
                       rules: [
@@ -433,10 +459,10 @@ handleValidatorsGateway = (_, val, callback) => {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_port'})} />)}
+                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_port'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   {/* 用户名 */}
-                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.name'})}>
+                  <FormItem {...is_language} label={formatMessage({id:'enterpriseColony.cloud.name'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_username', {
                       rules: [
@@ -449,10 +475,10 @@ handleValidatorsGateway = (_, val, callback) => {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_name'})}/>)}
+                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_name'})}style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   {/* 密码 */}
-                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.password'})}>
+                  <FormItem {...is_language} label={formatMessage({id:'enterpriseColony.cloud.password'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_password', {
                       rules: [
@@ -465,10 +491,10 @@ handleValidatorsGateway = (_, val, callback) => {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input type="password" placeholder={formatMessage({id:'enterpriseColony.cloud.input_password'})} />)}
+                    })(<Input type="password" placeholder={formatMessage({id:'enterpriseColony.cloud.input_password'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   {/* 数据库名称 */}
-                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.access_name'})}>
+                  <FormItem {...is_language} label={formatMessage({id:'enterpriseColony.cloud.access_name'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_dbname', {
                       rules: [
@@ -481,7 +507,7 @@ handleValidatorsGateway = (_, val, callback) => {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_access_name'})} />)}
+                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_access_name'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                 </div>
               </Row>
@@ -489,15 +515,15 @@ handleValidatorsGateway = (_, val, callback) => {
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}><FormattedMessage id='enterpriseColony.cloud.image'/></span>
+                    <span className={language ?  styles.titleSpan :  styles.en_titleSpan}><FormattedMessage id='enterpriseColony.cloud.image'/></span>
                   </div>
                   <div className={styles.desc}>
                    <FormattedMessage id='enterpriseColony.alcloud.acr'/>
                   </div>
                 </div>
-                <div className={styles.config}>
+                <div className={language ? styles.config :styles.en_config}>
                   <FormItem
-                    {...formItemLayouts}
+                    {...is_language}
                     label={formatMessage({id:'enterpriseColony.cloud.image_address'})}
                     className={styles.antd_form}
                   >
@@ -512,10 +538,10 @@ handleValidatorsGateway = (_, val, callback) => {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_image_address'})} />)}
+                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_image_address'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   <FormItem
-                    {...formItemLayouts}
+                    {...is_language}
                     label={formatMessage({id:'enterpriseColony.cloud.namespace'})}
                     className={styles.antd_form}
                   >
@@ -531,11 +557,11 @@ handleValidatorsGateway = (_, val, callback) => {
                           }
                       ]
                     })(
-                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_namespace'})} />
+                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_namespace'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>
                     )}
                   </FormItem>
                   <FormItem
-                    {...formItemLayouts}
+                    {...is_language}
                     label={formatMessage({id:'enterpriseColony.cloud.name'})}
                     className={styles.antd_form}
                   >
@@ -550,10 +576,10 @@ handleValidatorsGateway = (_, val, callback) => {
                             message: formatMessage({id:'placeholder.no_spaces'})
                           }
                       ]
-                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_name'})} />)}
+                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_name'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   <FormItem
-                    {...formItemLayouts}
+                    {...is_language}
                     label={formatMessage({id:'enterpriseColony.cloud.password'})}
                     className={styles.antd_form}
                   >
@@ -568,7 +594,7 @@ handleValidatorsGateway = (_, val, callback) => {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input type="password" placeholder={formatMessage({id:'enterpriseColony.cloud.input_password'})} />)}
+                    })(<Input type="password" placeholder={formatMessage({id:'enterpriseColony.cloud.input_password'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                 </div>
               </Row>

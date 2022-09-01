@@ -1,5 +1,6 @@
 import { Form, Input, Modal } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styless from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -48,19 +49,19 @@ export default class CollectionView extends PureComponent {
         }}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="名称">
+          <FormItem {...formItemLayout} label={formatMessage({id:'otherEnterprise.SiderMenu.name'})}>
             {getFieldDecorator('name', {
               initialValue: (data && data.name) || '',
               rules: [
-                { required: true, message: '请输入名称' },
+                { required: true, message: formatMessage({id:'otherEnterprise.SiderMenu.input_name'}) },
                 {
                   max: 10,
-                  message: '最大长度10位'
+                  message: formatMessage({id:'otherEnterprise.SiderMenu.max'})
                 }
               ]
-            })(<Input placeholder="请输入名称" />)}
+            })(<Input placeholder={formatMessage({id:'otherEnterprise.SiderMenu.input_name'})} />)}
             <div className={styless.conformDesc}>
-              请输入收藏名称，最大长度10位
+              {formatMessage({id:'otherEnterprise.SiderMenu.imput_max'})}
             </div>
           </FormItem>
         </Form>

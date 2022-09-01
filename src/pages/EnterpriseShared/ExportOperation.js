@@ -1,5 +1,6 @@
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AppExporter from './AppExporter';
 
 @connect(({ user }) => ({
@@ -34,7 +35,8 @@ export default class ExportOperation extends PureComponent {
     return (
       <Fragment>
         <a onClick={this.showAppExport} style={{ marginRight: 8 }}>
-          导出应用模版{this.state.is_exporting ? '(导出中)' : ''}
+          {formatMessage({id:'applicationMarket.localMarket.import_app'})}
+          {this.state.is_exporting ? `${formatMessage({id:''})}` : ''}
         </a>
         {this.state.showExporterApp && (
           <AppExporter

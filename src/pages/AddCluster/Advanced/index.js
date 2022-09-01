@@ -19,6 +19,7 @@ import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
 import Build from '../component/build';
 import Etcd from '../component/etcd';
+import cookie from '../../../utils/cookie';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -54,7 +55,8 @@ export default class ClusterLink extends PureComponent {
       storage_enabled: formatMessage({id:'enterpriseColony.Advanced.configuration'}),
       database_enabled: formatMessage({id:'enterpriseColony.Advanced.configuration'}),
       image_enabled: formatMessage({id:'enterpriseColony.Advanced.configuration'}),
-      node_enabled: formatMessage({id:'enterpriseColony.Advanced.configuration'})
+      node_enabled: formatMessage({id:'enterpriseColony.Advanced.configuration'}),
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentWillMount() {
@@ -98,7 +100,8 @@ export default class ClusterLink extends PureComponent {
       storage_enabled,
       database_enabled,
       image_enabled,
-      node_enabled
+      node_enabled,
+      language
     } = this.state;
     //   页面跳转
     if (value === 'next') {
@@ -395,12 +398,23 @@ export default class ClusterLink extends PureComponent {
       storage_enabled,
       database_enabled,
       image_enabled,
-      node_enabled
+      node_enabled,
+      language
     } = this.state;
     const formItemLayout = {
       labelCol: {
-        xs: { span: 3 },
-        sm: { span: 3 }
+        xs: { span: 4 },
+        sm: { span: 4 }
+      },
+      wrapperCol: {
+        xs: { span: 9 },
+        sm: { span: 9 }
+      }
+    };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: { span: 4 },
+        sm: { span: 4 }
       },
       wrapperCol: {
         xs: { span: 9 },
@@ -409,8 +423,8 @@ export default class ClusterLink extends PureComponent {
     };
     const storageFormItemLayout = {
       labelCol: {
-        xs: { span: 7 },
-        sm: { span: 7 }
+        xs: { span: 8 },
+        sm: { span: 8 }
       },
       wrapperCol: {
         xs: { span: 8 },
@@ -427,6 +441,30 @@ export default class ClusterLink extends PureComponent {
         sm: { span: 6 }
       }
     };
+    const en_formItemLayouts = {
+      labelCol: {
+        xs: { span: 8 },
+        sm: { span: 8 }
+      },
+      wrapperCol: {
+        xs: { span: 6 },
+        sm: { span: 6 }
+      }
+    };
+    const formItemLayouts_en = {
+      labelCol: {
+        xs: { span: 4 },
+        sm: { span: 4 }
+      },
+      wrapperCol: {
+        xs: { span: 6 },
+        sm: { span: 6 }
+      }
+    };
+    const is_language = language ? formItemLayouts : en_formItemLayouts;
+    const is_formItemLayout = language ?  formItemLayout : en_formItemLayout;
+    const is_formItemLayouts_en = language ? formItemLayouts : formItemLayouts_en;
+
 
     return (
       <PageHeaderLayout
@@ -446,7 +484,7 @@ export default class ClusterLink extends PureComponent {
             <Row className={styles.antd_row}>
               <div className={styles.titleBox}>
                 <div className={styles.title}>
-                  <span className={styles.titleSpan}>Etcd</span>
+                  <span className={language ?  styles.titleSpan : styles.en_titleSpan}>Etcd</span>
                   <CheckableTag
                     checked={etcd_enabled !== `${formatMessage({id:'enterpriseColony.Advanced.Close'})}` || false}
                     onChange={() => {
@@ -474,7 +512,7 @@ export default class ClusterLink extends PureComponent {
               {/* 配置项 */}
               {etcd_enabled !== `${formatMessage({id:'enterpriseColony.Advanced.configuration'})}` ? (
                 <div className={styles.config}>
-                  <FormItem {...formItemLayout} label={<FormattedMessage id='enterpriseColony.Advanced.name'/>}>
+                  <FormItem {...is_formItemLayout} label={<FormattedMessage id='enterpriseColony.Advanced.name'/>}>
                     {getFieldDecorator('secretName', {
                       rules: [
                         {
@@ -487,11 +525,11 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder={formatMessage({id:'enterpriseColony.Advanced.inpiut_Name'})} />
+                      <Input placeholder={formatMessage({id:'enterpriseColony.Advanced.inpiut_Name'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}} />
                     )}
                   </FormItem>
                   <FormItem
-                    {...formItemLayout}
+                    {...is_formItemLayout}
                     label={<FormattedMessage id='enterpriseColony.Advanced.node'/>}
                     className={styles.antd_form}
                   >
@@ -520,7 +558,7 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}><FormattedMessage id='enterpriseColony.Advanced.storage'/></span>
+                    <span className={language ?  styles.titleSpan : styles.en_titleSpan}><FormattedMessage id='enterpriseColony.Advanced.storage'/></span>
                     <CheckableTag
                       checked={storage_enabled !== `${formatMessage({id:'enterpriseColony.Advanced.Close'})}` || false}
                       onChange={() => {
@@ -564,7 +602,7 @@ export default class ClusterLink extends PureComponent {
                           }
                         ]
                       })(
-                        <Input placeholder={formatMessage({id:'enterpriseColony.Advanced.input_StorageClass'})} />
+                        <Input placeholder={formatMessage({id:'enterpriseColony.Advanced.input_StorageClass'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}} />
                       )}
                     </FormItem>
                     <FormItem
@@ -584,7 +622,7 @@ export default class ClusterLink extends PureComponent {
                           }
                         ]
                       })(
-                        <Input placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_storage'})}/>
+                        <Input placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_storage'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>
                       )}
                     </FormItem>
                   </div>
@@ -600,7 +638,7 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}><FormattedMessage id='enterpriseColony.Advanced.access'/></span>
+                    <span className={language ?  styles.titleSpan : styles.en_titleSpan}><FormattedMessage id='enterpriseColony.Advanced.access'/></span>
                     <CheckableTag
                       checked={database_enabled !== `${formatMessage({id:'enterpriseColony.Advanced.Close'})}` || false}
                       onChange={() => {
@@ -629,7 +667,7 @@ export default class ClusterLink extends PureComponent {
                   <div className={`${styles.config} ${styles.data_base}`}>
                     {/* 连接地址 */}
                     <FormItem
-                      {...formItemLayouts}
+                      {...is_language}
                       label={<FormattedMessage id='enterpriseColony.Advanced.address'/>}
                       style={{ display: 'flex' }}
                     >
@@ -645,11 +683,11 @@ export default class ClusterLink extends PureComponent {
                             message: formatMessage({id:'placeholder.no_spaces'})
                           }
                         ]
-                      })(<Input placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_address'})}/>)}
+                      })(<Input placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_address'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                     </FormItem>
                     {/* 连接端口 */}
                     <FormItem
-                      {...formItemLayouts}
+                      {...is_language}
                       label={<FormattedMessage id='enterpriseColony.Advanced.port'/>}
                       style={{ display: 'flex' }}
                     >
@@ -665,11 +703,11 @@ export default class ClusterLink extends PureComponent {
                             message: formatMessage({id:'placeholder.no_spaces'})
                           }
                         ]
-                      })(<Input placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_Port'})}/>)}
+                      })(<Input placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_Port'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                     </FormItem>
                     {/* 用户名 */}
                     <FormItem
-                      {...formItemLayouts}
+                      {...is_language}
                       label={<FormattedMessage id='enterpriseColony.Advanced.user_name'/>}
                       style={{ display: 'flex' }}
                     >
@@ -685,11 +723,11 @@ export default class ClusterLink extends PureComponent {
                             message: formatMessage({id:'placeholder.no_spaces'})
                           }
                         ]
-                      })(<Input placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_user_Name'})}/>)}
+                      })(<Input placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_user_Name'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                     </FormItem>
                     {/* 密码 */}
                     <FormItem
-                      {...formItemLayouts}
+                      {...is_language}
                       label={<FormattedMessage id='enterpriseColony.Advanced.password'/>}
                       style={{ display: 'flex' }}
                     >
@@ -705,11 +743,11 @@ export default class ClusterLink extends PureComponent {
                             message: formatMessage({id:'placeholder.no_spaces'})
                           }
                         ]
-                      })(<Input type="password" placeholder={formatMessage({id:'enterpriseColony.Advanced.input_password'})} />)}
+                      })(<Input type="password" placeholder={formatMessage({id:'enterpriseColony.Advanced.input_password'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                     </FormItem>
                     {/* 数据库名称 */}
                     <FormItem
-                      {...formItemLayouts}
+                      {...is_language}
                       label={<FormattedMessage id='enterpriseColony.Advanced.access_name'/>}
                       style={{ display: 'flex' }}
                     >
@@ -726,7 +764,7 @@ export default class ClusterLink extends PureComponent {
                           }
                         ]
                       })(
-                        <Input placeholder={formatMessage({id:'enterpriseColony.Advanced.input_access_Name'})} />
+                        <Input placeholder={formatMessage({id:'enterpriseColony.Advanced.input_access_Name'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>
                       )}
                     </FormItem>
                   </div>
@@ -742,7 +780,7 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_row}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}><FormattedMessage id='enterpriseColony.Advanced.mirror'/></span>
+                    <span className={language ?  styles.titleSpan : styles.en_titleSpan}><FormattedMessage id='enterpriseColony.Advanced.mirror'/></span>
                     <CheckableTag
                       checked={image_enabled !== `${formatMessage({id:'enterpriseColony.Advanced.Close'})}` || false}
                       onChange={() => {
@@ -770,7 +808,7 @@ export default class ClusterLink extends PureComponent {
                 {image_enabled !== `${formatMessage({id:'enterpriseColony.Advanced.configuration'})}` ? (
                   <div className={styles.config}>
                     <FormItem
-                      {...formItemLayouts}
+                      {...is_language}
                       label={<FormattedMessage id='enterpriseColony.Advanced.mirror_name'/>}
                       className={styles.antd_form}
                     >
@@ -785,10 +823,10 @@ export default class ClusterLink extends PureComponent {
                             message: formatMessage({id:'placeholder.no_spaces'})
                           }
                         ]
-                      })(<Input placeholder={formatMessage({id:'enterpriseColony.Advanced.input_mirror'})} />)}
+                      })(<Input placeholder={formatMessage({id:'enterpriseColony.Advanced.input_mirror'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                     </FormItem>
                     <FormItem
-                      {...formItemLayouts}
+                      {...is_language}
                       label={<FormattedMessage id='enterpriseColony.Advanced.namespace'/>}
                       className={styles.antd_form}
                     >
@@ -804,11 +842,11 @@ export default class ClusterLink extends PureComponent {
                           }
                         ]
                       })(
-                        <Input placeholder={formatMessage({id:'enterpriseColony.Advanced.input_namespace'})} />
+                        <Input placeholder={formatMessage({id:'enterpriseColony.Advanced.input_namespace'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>
                       )}
                     </FormItem>
                     <FormItem
-                      {...formItemLayouts}
+                      {...is_language}
                       label={<FormattedMessage id='enterpriseColony.Advanced.user_name'/>}
                       className={styles.antd_form}
                     >
@@ -823,10 +861,10 @@ export default class ClusterLink extends PureComponent {
                             message: formatMessage({id:'placeholder.no_spaces'})
                           }
                         ]
-                      })(<Input placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_user_name'})}/>)}
+                      })(<Input placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_user_name'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                     </FormItem>
                     <FormItem
-                      {...formItemLayouts}
+                      {...is_language}
                       label={<FormattedMessage id='enterpriseColony.Advanced.password'/>}
                       className={styles.antd_form}
                     >
@@ -841,7 +879,7 @@ export default class ClusterLink extends PureComponent {
                             message: formatMessage({id:'placeholder.no_spaces'})
                           }
                         ]
-                      })(<Input type="password" placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_password'})}/>)}
+                      })(<Input type="password" placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_password'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                     </FormItem>
                   </div>
                 ) : (
@@ -855,7 +893,7 @@ export default class ClusterLink extends PureComponent {
             <Row className={styles.antd_row}>
               <div className={styles.titleBox}>
                 <div className={styles.title}>
-                  <span className={styles.titleSpan}><FormattedMessage id='enterpriseColony.Advanced.creat_node'/></span>
+                  <span className={language ?  styles.titleSpan : styles.en_titleSpan}><FormattedMessage id='enterpriseColony.Advanced.creat_node'/></span>
                   <CheckableTag
                     checked={node_enabled !== `${formatMessage({id:'enterpriseColony.Advanced.Close'})}` || false}
                     onChange={() => {
@@ -883,7 +921,7 @@ export default class ClusterLink extends PureComponent {
               {node_enabled !== `${formatMessage({id:'enterpriseColony.Advanced.configuration'})}` ? (
                 <div className={styles.config}>
                   <FormItem
-                    {...formItemLayouts}
+                    {...is_formItemLayouts_en}
                     label={<FormattedMessage id='enterpriseColony.Advanced.node_name'/>}
                     className={styles.antd_form}
                   >

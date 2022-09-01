@@ -10,6 +10,7 @@ import {
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -154,14 +155,14 @@ class AccesstokenForm extends PureComponent {
         confirmLoading={loading}
         maskClosable={false}
         className={styles.TelescopicModal}
-        title={ID || accessKey ? '请保存AccessKey' : '新增访问令牌'}
+        title={ID || accessKey ? formatMessage({id:'otherEnterprise.AccesstokenForm.save'}) : formatMessage({id:'otherEnterprise.AccesstokenForm.add'})}
         onOk={this.handleSubmit}
         onCancel={this.handleCloneAccessKey}
       >
         {ID || accessKey ? (
           <Fragment>
             <Alert
-              message="注意：AccessKey只显示一次请保存记录。"
+              message={formatMessage({id:'otherEnterprise.AccesstokenForm.be_careful'})}
               type="info"
               showIcon
               style={{ marginBottom: '20px' }}
@@ -178,22 +179,22 @@ class AccesstokenForm extends PureComponent {
           </Fragment>
         ) : (
           <Fragment>
-            <FormItem {...formItemLayout} label="用途">
+            <FormItem {...formItemLayout} label={formatMessage({id:'otherEnterprise.AccesstokenForm.purpose'})}>
               {getFieldDecorator('note', {
                 rules: [
-                  { required: true, message: '请输入用途!' },
+                  { required: true, message: formatMessage({id:'otherEnterprise.AccesstokenForm.input_purpose'}) },
                   {
                     max: 32,
-                    message: '最大长度32位'
+                    message: formatMessage({id:'otherEnterprise.AccesstokenForm.max'})
                   }
                 ],
                 initialValue: ''
-              })(<Input placeholder="请输入用途" />)}
+              })(<Input placeholder={formatMessage({id:'otherEnterprise.AccesstokenForm.input_purpose'})} />)}
             </FormItem>
 
-            <FormItem {...formItemLayout} label="过期时间">
+            <FormItem {...formItemLayout} label={formatMessage({id:'otherEnterprise.AccesstokenForm.time'})}>
               {getFieldDecorator('age', {
-                rules: [{ required: false, message: '请输入时间!' }],
+                rules: [{ required: false, message: formatMessage({id:'otherEnterprise.AccesstokenForm.import_time'}) }],
                 initialValue: ''
               })(
                 <DatePicker

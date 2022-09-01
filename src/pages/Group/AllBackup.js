@@ -21,9 +21,9 @@ class BackupStatus extends PureComponent {
     super(props);
     this.state = {
       map: {
-        starting: '备份中',
-        success: '备份成功',
-        failed: '备份失败'
+        starting: formatMessage({id:'teamOther.AllBackup.Backup'}),
+        success: formatMessage({id:'teamOther.AllBackup.success'}),
+        failed: formatMessage({id:'teamOther.AllBackup.failed'})
       }
     };
     this.timer = null;
@@ -260,33 +260,33 @@ class Index extends React.Component {
   render() {
     const columns = [
       {
-        title: '备份时间',
+        title: formatMessage({id:'teamOther.AllBackup.create_time'}),
         dataIndex: 'create_time'
       },
       {
-        title: '备份人',
+        title: formatMessage({id:'teamOther.AllBackup.user'}),
         dataIndex: 'user'
       },
       {
-        title: '备份模式',
+        title: formatMessage({id:'teamOther.AllBackup.mode'}),
         dataIndex: 'mode',
         render: (val, data) => {
           const map = {
-            'full-online': '云端备份',
-            'full-offline': '本地备份'
+            'full-online': `${formatMessage({id:'teamOther.AllBackup.full-online'})}`,
+            'full-offline': `${formatMessage({id:'teamOther.AllBackup.full-offline'})}`
           };
           return map[val] || '';
         }
       },
       {
-        title: '包大小',
+        title: formatMessage({id:'teamOther.AllBackup.backup_size'}),
         dataIndex: 'backup_size',
         render: (val, data) => {
           return sourceUtil.unit(val, 'Byte');
         }
       },
       {
-        title: '状态',
+        title: formatMessage({id:'teamOther.AllBackup.state'}),
         dataIndex: 'status',
         render: (val, data) => {
           return (
@@ -299,7 +299,7 @@ class Index extends React.Component {
         }
       },
       {
-        title: '备份应用',
+        title: formatMessage({id:'teamOther.AllBackup.app'}),
         dataIndex: 'group_name',
         render: (text, record) => {
           return text.includes('已删除') ? (
@@ -318,11 +318,11 @@ class Index extends React.Component {
         }
       },
       {
-        title: '备注',
+        title: formatMessage({id:'teamOther.AllBackup.remarks'}),
         dataIndex: 'note'
       },
       {
-        title: '操作',
+        title: formatMessage({id:'teamOther.AllBackup.operation'}),
         dataIndex: 'action',
         render: (val, data) => {
           return (
@@ -334,14 +334,14 @@ class Index extends React.Component {
                     style={{ marginRight: '5px' }}
                     onClick={this.handleRecovery.bind(this, data)}
                   >
-                    恢复
+                    {formatMessage({id:'teamOther.AllBackup.recovery'})}
                   </a>
                   <a
                     href="javascript:;"
                     style={{ marginRight: '5px' }}
                     onClick={this.handleMove.bind(this, data)}
                   >
-                    迁移
+                    {formatMessage({id:'teamOther.AllBackup.transfer'})}
                   </a>
                   {data.mode == 'full-online' && (
                     <a
@@ -349,7 +349,7 @@ class Index extends React.Component {
                       style={{ marginRight: '5px' }}
                       onClick={this.handleExport.bind(this, data)}
                     >
-                      导出
+                      {formatMessage({id:'teamOther.AllBackup.export'})}
                     </a>
                   )}
                   {data.is_delete && (
@@ -358,7 +358,7 @@ class Index extends React.Component {
                       style={{ marginRight: '5px' }}
                       onClick={this.handleDelBackup.bind(this, data)}
                     >
-                      删除
+                      {formatMessage({id:'teamOther.AllBackup.delete'})}
                     </a>
                   )}
                 </Fragment>
@@ -371,7 +371,7 @@ class Index extends React.Component {
                     href="javascript:;"
                     onClick={this.handleDel.bind(this, data)}
                   >
-                    删除
+                    {formatMessage({id:'teamOther.AllBackup.delete'})}
                   </a>
                 </Fragment>
               ) : (
@@ -386,8 +386,8 @@ class Index extends React.Component {
     const { regionName } = this.props.match.params;
     return (
       <PageHeaderLayout
-        title="应用备份记录"
-        content="应用备份记录是当前团队下的所有备份记录，包括已删除应用的备份记录，基于备份可以恢复或迁移已删除的应用"
+        title={formatMessage({id:'teamOther.AllBackup.records'})}
+        content={formatMessage({id:'teamOther.AllBackup.all_records'})}
       >
         <Card>
           <Table

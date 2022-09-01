@@ -99,6 +99,8 @@ const applicationMarket = {
     'applicationMarket.localMarket.add_app':'添加应用商店',
     'applicationMarket.localMarket.edit_app':'编辑应用模版',
     'applicationMarket.AuthCompany.title_one':'您在该云应用商店无安装权限，请登录获取授权',
+    'applicationMarket.localMarket.import_app':'导出应用模版',
+    'applicationMarket.localMarket.in_import':'(导出中)',
     // 三个点
     'applicationMarket.localMarket.delete.template':'删除应用模板',
     'applicationMarket.localMarket.import.template':'导入应用模板',
@@ -258,7 +260,30 @@ const applicationMarket = {
     'applicationMarket.appsetting.determine':'确定设为Release状态',
     'applicationMarket.appsetting.cancel_release':'取消Release状态',
     'applicationMarket.appsetting.determine_release':'设为Release状态',
-
+    // AppExporter
+    'applicationMarket.AppExporter.import_rain':'导出云市应用',
+    'applicationMarket.AppExporter.import_app':'导出云市应用适用于交付环境',
+    'applicationMarket.AppExporter.import_edition':'导出版本：',
+    'applicationMarket.AppExporter.Docker':'DockerComposeApp规范(DockerCompose环境可用)',
+    'applicationMarket.AppExporter.state':'导出状态',
+    'applicationMarket.AppExporter.standard':'应用模型规范',
+    'applicationMarket.AppExporter.Not_exported':'未导出',
+    'applicationMarket.AppExporter.hand':'进行中',
+    'applicationMarket.AppExporter.Re_export':'重新导出',
+    'applicationMarket.AppExporter.install':'下载',
+    'applicationMarket.AppExporter.import':'导出',
+    'applicationMarket.AppExporter.title':'当前导出版本非Release状态',
+    'applicationMarket.AppExporter.content':'是否继续导出',
+    // EditAppVersion
+    'applicationMarket.EditAppVersion.edit':'编辑版本',
+    'applicationMarket.EditAppVersion.name':'版本别名',
+    'applicationMarket.EditAppVersion.input_name':'请填写版本别名',
+    'applicationMarket.EditAppVersion.max':'最大长度64位',
+    'applicationMarket.EditAppVersion.state':'状态',
+    'applicationMarket.EditAppVersion.release':'release代表版本测试完成，可以进行交付。',
+    'applicationMarket.EditAppVersion.introduction':'版本简介',
+    'applicationMarket.EditAppVersion.input_introduction':'请输入版本简介',
+    'applicationMarket.EditAppVersion.max_length':'最大长度255位',
 }
 // 团队项目
 const enterpriseTeamManagement = {
@@ -391,8 +416,8 @@ const enterpriseColonys = {
     'enterpriseColony.addCluster.host.rke':'RKE集群配置不合格、请重新配置',
     'enterpriseColony.addCluster.host.unkonw':'未知',
     'enterpriseColony.addCluster.host.input_rke':'填写RKE集群配置',
-    'enterpriseColony.addCluster.host.ip':'IP 地址',
-    'enterpriseColony.addCluster.host.Intranet_ip':'内网 IP 地址',
+    'enterpriseColony.addCluster.host.ip':' IP 地址',
+    'enterpriseColony.addCluster.host.Intranet_ip':' 内网 IP 地址',
     'enterpriseColony.addCluster.host.ssh':'SSH 端口',
     'enterpriseColony.addCluster.host.Node_type':'节点类型',
     'enterpriseColony.addCluster.host.operation':'操作',
@@ -600,10 +625,10 @@ const enterpriseColonys = {
     'enterpriseColony.ACksterList.Docking':'对接集群',
     'enterpriseColony.ACksterList.node':'需填写完整的网关安装节点',
     'enterpriseColony.ACksterList.ip':'入口访问IP:',
-    'enterpriseColony.ACksterList.open_ip':'入口IP请开放 80、443、6060、6443、7070、8443 端口。:',
+    'enterpriseColony.ACksterList.open_ip':'入口IP请开放 80、443、6060、6443、7070、8443 端口。',
     'enterpriseColony.ACksterList.input_ip':'请填写IP地址:',
     'enterpriseColony.ACksterList.input_correct_ip':'请填写正确的IP地址:',
-    'enterpriseColony.ACksterList.ip_demo':'请输入IP地址  例：1.2.3.4:',
+    'enterpriseColony.ACksterList.ip_demo':'请输入IP地址  例：1.2.3.4',
     'enterpriseColony.ACksterList.gateway':'网关安装节点:',
     'enterpriseColony.ACksterList.availability':'网关安装的节点，可以安装到多个节点，实现高可用。',
     'enterpriseColony.ACksterList.input_install':'请填写网关安装节点',
@@ -684,7 +709,7 @@ const enterpriseColonys = {
     'enterpriseColony.cloud.mount_add':'请填写挂载点地址',
     'enterpriseColony.cloud.dome_mount':'挂载点地址  例：123456789-var48.cn-shanghai.nas.aliyuncs.com:/',
     'enterpriseColony.cloud.access':'RDS 数据库',
-    'enterpriseColony.cloud.address':'连接地址:',
+    'enterpriseColony.cloud.address':'连接地址',
     'enterpriseColony.cloud.inputAddress':'请填写连接地址',
     'enterpriseColony.cloud.input_address':'请填写数据库连接地址',
     'enterpriseColony.cloud.port':'连接端口',
@@ -1043,5 +1068,52 @@ const enterpriseSettings = {
 
     }
 
+    const otherEnterprise= {
+        'otherEnterprise.AccesstokenView.note':'用途',
+        'otherEnterprise.AccesstokenView.expire_time':'过期时间',
+        'otherEnterprise.AccesstokenView.user_id':'状态',
+        'otherEnterprise.AccesstokenView.overdue':'过期',
+        'otherEnterprise.AccesstokenView.normal':'正常',
+        'otherEnterprise.AccesstokenView.var':'操作',
+        'otherEnterprise.AccesstokenView.delete':'删除',
+        'otherEnterprise.AccesstokenView.Regenerate':'重新生成',
+        'otherEnterprise.AccesstokenView.api':'访问令牌用于访问平台API, 访问令牌的权限与你的账号权限一致',
+        'otherEnterprise.AccesstokenView.add':'新增',
+        'otherEnterprise.AccesstokenView.Unlimited':'不限制',
+        'otherEnterprise.ChangePassword.max':'密码长度至少为8位',
+        'otherEnterprise.ChangePassword.maxLength':'最大长度16位',
+        'otherEnterprise.ChangePassword.Mismatch':'两次输入的密码不匹配!',
+        'otherEnterprise.ChangePassword.edit':'修改密码',
+        'otherEnterprise.ChangePassword.old':'旧密码',
+        'otherEnterprise.ChangePassword.input_password':'请输入旧密码',
+        'otherEnterprise.ChangePassword.new':'新密码',
+        'otherEnterprise.ChangePassword.input_new':'请输入您的新密码',
+        'otherEnterprise.ChangePassword.confirm':'确认新密码',
+        'otherEnterprise.ChangePassword.input_confirm':'请确认新密码',
+        'otherEnterprise.SiderMenu.name':'名称',
+        'otherEnterprise.SiderMenu.input_name':'请输入名称',
+        'otherEnterprise.SiderMenu.max':'最大长度10位',
+        'otherEnterprise.SiderMenu.imput_max':'请输入收藏名称，最大长度10位',
+        'otherEnterprise.SiderMenu.title':'收藏标签页方便快速访问',
 
-export default Object.assign({}, enterpriseOverview,applicationMarket,enterpriseTeamManagement,enterpriseColony,enterpriseUser,enterpriseSetting,enterpriseColonys,enterpriseUsers,enterpriseSettings);
+        'otherEnterprise.BindingView.Certified':'已认证',
+        'otherEnterprise.BindingView.Expired ':'已过期重新认证',
+        'otherEnterprise.BindingView.De_certification':'去认证',
+        'otherEnterprise.BindingView.Not_certified':'未认证',
+        'otherEnterprise.BindingView.now':'当前',
+        'otherEnterprise.BindingView.number':'账号',
+
+        'otherEnterprise.AccesstokenForm.save':'请保存AccessKey',
+        'otherEnterprise.AccesstokenForm.add':'新增访问令牌',
+        'otherEnterprise.AccesstokenForm.be_careful':'注意：AccessKey只显示一次请保存记录。',
+        'otherEnterprise.AccesstokenForm.purpose':'用途',
+        'otherEnterprise.AccesstokenForm.input_purpose':'请输入用途',
+        'otherEnterprise.AccesstokenForm.max':'最大长度32位',
+        'otherEnterprise.AccesstokenForm.time':'过期时间',
+        'otherEnterprise.AccesstokenForm.import_time':'请输入时间',
+
+
+    }
+
+
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, enterpriseColonys, enterpriseUsers, enterpriseSettings, otherEnterprise);

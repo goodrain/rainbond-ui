@@ -46,10 +46,10 @@ export default class AppExporter extends PureComponent {
     return (
       <DescriptionList
         size="large"
-        title="DockerComposeApp规范(DockerCompose环境可用)"
+        title={formatMessage({id:'applicationMarket.AppExporter.Docker'})}
         style={{ marginBottom: 32 }}
       >
-        <Description term="导出状态">
+        <Description term={formatMessage({id:'applicationMarket.AppExporter.state'})}>
           {this.getStatus(compose_app_status)}
         </Description>
         {this.getAction(compose_app_status, 'docker-compose')}
@@ -65,10 +65,10 @@ export default class AppExporter extends PureComponent {
     return (
       <DescriptionList
         size="large"
-        title="应用模型规范"
+        title={formatMessage({id:'applicationMarket.AppExporter.standard'})}
         style={{ marginBottom: 32 }}
       >
-        <Description term="导出状态">
+        <Description term={formatMessage({id:'applicationMarket.AppExporter.state'})}>
           {this.getStatus(rainbond_app_status)}
         </Description>
         {this.getAction(rainbond_app_status, 'rainbond-app')}
@@ -85,7 +85,7 @@ export default class AppExporter extends PureComponent {
             this.handleRelease(type);
           }}
         >
-          导出
+          {formatMessage({id:'applicationMarket.AppExporter.import'})}
         </Button>
       );
     }
@@ -100,7 +100,7 @@ export default class AppExporter extends PureComponent {
               this.download(app_status.file_path);
             }}
           >
-            下载
+            {formatMessage({id:'applicationMarket.AppExporter.install'})}
           </Button>
           <Button
             style={{ marginLeft: 16 }}
@@ -109,7 +109,7 @@ export default class AppExporter extends PureComponent {
               this.handleRelease(type);
             }}
           >
-            重新导出
+            {formatMessage({id:'applicationMarket.AppExporter.Re_export'})}
           </Button>
         </div>
       );
@@ -125,7 +125,7 @@ export default class AppExporter extends PureComponent {
               this.download(app_status.file_path);
             }}
           >
-            下载
+            {formatMessage({id:'applicationMarket.AppExporter.install'})}
           </Button>
           <Button
             disabled
@@ -135,7 +135,7 @@ export default class AppExporter extends PureComponent {
               this.handleExporter(type);
             }}
           >
-            重新导出
+            {formatMessage({id:'applicationMarket.AppExporter.Re_export'})}
           </Button>
         </div>
       );
@@ -151,7 +151,7 @@ export default class AppExporter extends PureComponent {
               this.download(app_status.file_path);
             }}
           >
-            下载
+            {formatMessage({id:'applicationMarket.AppExporter.install'})}
           </Button>
           <Button
             style={{ marginLeft: 16 }}
@@ -160,7 +160,7 @@ export default class AppExporter extends PureComponent {
               this.handleExporter(type);
             }}
           >
-            重新导出
+            {formatMessage({id:'applicationMarket.AppExporter.Re_export'})}
           </Button>
         </div>
       );
@@ -168,16 +168,16 @@ export default class AppExporter extends PureComponent {
   };
   getStatus = status => {
     if (!status.is_export_before) {
-      return '未导出';
+      return `${formatMessage({id:'applicationMarket.AppExporter.Not_exported'})}`;
     }
     if (status.status == 'success') {
-      return formatMessage({id:'notification.success.successed'});
+      return `${formatMessage({id:'notification.success.successed'})}`;
     }
     if (status.status == 'failed') {
-      return formatMessage({id:'notification.success.Failed'});
+      return `${formatMessage({id:'notification.success.Failed'})}`;
     }
     if (status.status == 'exporting') {
-      return '进行中';
+      return `${formatMessage({id:'applicationMarket.AppExporter.hand'})}`;
     }
   };
   handleVersionInfo = () => {
@@ -199,10 +199,10 @@ export default class AppExporter extends PureComponent {
     const th = this;
     if (versionInfo.dev_status === '') {
       confirm({
-        title: '当前导出版本非Release状态',
-        content: '是否继续导出',
-        okText: '确认',
-        cancelText: '取消',
+        title: formatMessage({id:'applicationMarket.AppExporter.title'}),
+        content: formatMessage({id:'applicationMarket.AppExporter.content'}),
+        okText: formatMessage({id:'button.confirm'}),
+        cancelText: formatMessage({id:'button.cancel'}),
         onOk() {
           th.handleExporter(type);
           return new Promise((resolve, reject) => {
@@ -326,25 +326,25 @@ export default class AppExporter extends PureComponent {
     const { exportVersion, exportVersionList } = this.state;
     return (
       <Modal
-        title="导出云市应用"
+        title={formatMessage({id:'applicationMarket.AppExporter.import_rain'})}
         onOk={onOk}
         visible
         className={styles.TelescopicModal}
         onCancel={onCancel}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}> {formatMessage({id:'button.cancel'})}</Button>,
           <Button type="primary" loading={loading || false} onClick={onOk}>
-            确定
+            {formatMessage({id:'button.confirm'})}
           </Button>
         ]}
       >
         <Alert
           style={{ textAlign: 'center', marginBottom: 16 }}
-          message="导出云市应用适用于交付环境"
+          message={formatMessage({id:'applicationMarket.AppExporter.import_app'})}
           type="success"
         />
         <div style={{ marginBottom: '30px' }}>
-          导出版本：
+          {formatMessage({id:'applicationMarket.AppExporter.import_edition'})}
           <Select
             style={{ width: '300px' }}
             getPopupContainer={triggerNode => triggerNode.parentNode}

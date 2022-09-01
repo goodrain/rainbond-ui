@@ -10,6 +10,7 @@ import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
 import DAinput from '../component/node';
+import cookie from '../../../utils/cookie';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -94,7 +95,8 @@ export default class ClusterLink extends PureComponent {
     const { user } = this.props;
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
-      adminer
+      adminer,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentWillMount() {
@@ -253,6 +255,7 @@ export default class ClusterLink extends PureComponent {
       },
       form: { getFieldDecorator },
     } = this.props;
+    const {language} = this.state
     const formItemLayout = {
       labelCol: {
         xs: { span: 0 },
@@ -273,6 +276,16 @@ export default class ClusterLink extends PureComponent {
         sm: { span: 7 }
       }
     };
+    const en_storageFormItemLayout = {
+      labelCol: {
+        xs: { span: 5 },
+        sm: { span: 5 }
+      },
+      wrapperCol: {
+        xs: { span: 10 },
+        sm: { span: 10 }
+      }
+    };
     const formItemLayouts = {
       labelCol: {
         xs: { span: 3 },
@@ -283,6 +296,18 @@ export default class ClusterLink extends PureComponent {
         sm: { span: 6 }
       }
     };
+    const en_formItemLayouts = {
+      labelCol: {
+        xs: { span: 6 },
+        sm: { span: 6 }
+      },
+      wrapperCol: {
+        xs: { span: 6 },
+        sm: { span: 6 }
+      }
+    };
+    const is_language = language ? formItemLayouts : en_formItemLayouts
+    const is_storageFormItemLayout =  language ? storageFormItemLayout : en_storageFormItemLayout
 
     return (
       <PageHeaderLayout
@@ -302,7 +327,7 @@ export default class ClusterLink extends PureComponent {
           <Form onSubmit={this.handleSubmit}>
             <div className={styles.base_configuration}>
               {/* 入口IP */}
-              <Row className={styles.antd_row}>
+              <Row className={language ? styles.antd_row : styles.en_antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                     {formatMessage({id:'enterpriseColony.cloud.elb'})}
@@ -334,11 +359,11 @@ export default class ClusterLink extends PureComponent {
                         message: formatMessage({id:'placeholder.no_spaces'})
                       }
                     ]
-                  })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_ip'})} />)}
+                  })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_ip'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                 </FormItem>
               </Row>
               {/* 网关安装节点 */}
-              <Row className={styles.antd_row}>
+              <Row className={language ? styles.antd_row : styles.en_antd_row}>
                 <div>
                   <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                     {formatMessage({id:'enterpriseColony.cloud.gateway'})}
@@ -365,7 +390,7 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}>{formatMessage({id:'enterpriseColony.cloud.sfs'})}</span>
+                    <span className={language ?  styles.titleSpan :  styles.en_titleSpan}>{formatMessage({id:'enterpriseColony.cloud.sfs'})}</span>
                   </div>
                   <div className={styles.desc}>
                     {formatMessage({id:'enterpriseColony.huaweicloud.doc'})}
@@ -374,8 +399,8 @@ export default class ClusterLink extends PureComponent {
                     </a>
                   </div>
                 </div>
-                <div className={styles.config}>
-                  <FormItem {...storageFormItemLayout} label={formatMessage({id:'enterpriseColony.cloud.mount'})}>
+                <div className={language ? styles.config : styles.enconfig}>
+                  <FormItem {...is_storageFormItemLayout} label={formatMessage({id:'enterpriseColony.cloud.mount'})}>
                     {getFieldDecorator('server', {
                       rules: [
                         {
@@ -388,10 +413,10 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.mounting_dome'})} />
+                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.mounting_dome'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>
                     )}
                   </FormItem>
-                  <FormItem {...storageFormItemLayout} label={formatMessage({id:'enterpriseColony.cloud.path'})}>
+                  <FormItem {...is_storageFormItemLayout} label={formatMessage({id:'enterpriseColony.cloud.path'})}>
                     {getFieldDecorator('path', {
                       rules: [
                         {
@@ -404,7 +429,7 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.dome_path'})} />
+                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.dome_path'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>
                     )}
                   </FormItem>
                 </div>
@@ -413,7 +438,7 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}>{formatMessage({id:'enterpriseColony.cloud.rds'})}</span>
+                    <span className={language ?  styles.titleSpan :  styles.en_titleSpan}>{formatMessage({id:'enterpriseColony.cloud.rds'})}</span>
                   </div>
                   <div className={styles.desc}>
                     {formatMessage({id:'enterpriseColony.huaweicloud.gateway'})}
@@ -422,9 +447,9 @@ export default class ClusterLink extends PureComponent {
                     </a>
                   </div>
                 </div>
-                <div className={styles.config}>
+                <div className={language ? styles.config :styles.config_en}>
                   {/* 连接地址 */}
-                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.address'})}>
+                  <FormItem {...is_language} label={formatMessage({id:'enterpriseColony.cloud.address'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_host', {
                       rules: [
@@ -437,10 +462,10 @@ export default class ClusterLink extends PureComponent {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_address'})} />)}
+                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_address'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   {/* 连接端口 */}
-                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.port'})}>
+                  <FormItem {...is_language} label={formatMessage({id:'enterpriseColony.cloud.port'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_port', {
                       rules: [
@@ -456,7 +481,7 @@ export default class ClusterLink extends PureComponent {
                     })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.demo_port'})}/>)}
                   </FormItem>
                   {/* 用户名 */}
-                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.name'})}>
+                  <FormItem {...is_language} label={formatMessage({id:'enterpriseColony.cloud.name'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_username', {
                       rules: [
@@ -469,10 +494,10 @@ export default class ClusterLink extends PureComponent {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.demo_name'})}/>)}
+                    })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.demo_name'})}style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   {/* 密码 */}
-                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.password'})}>
+                  <FormItem {...is_language} label={formatMessage({id:'enterpriseColony.cloud.password'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_password', {
                       rules: [
@@ -485,10 +510,10 @@ export default class ClusterLink extends PureComponent {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input type="password" placeholder= {formatMessage({id:'enterpriseColony.cloud.input_password'})}/>)}
+                    })(<Input type="password" placeholder= {formatMessage({id:'enterpriseColony.cloud.input_password'})}style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   {/* 数据库名称 */}
-                  <FormItem {...formItemLayouts} label={formatMessage({id:'enterpriseColony.cloud.access_name'})}>
+                  <FormItem {...is_language} label={formatMessage({id:'enterpriseColony.cloud.access_name'})}>
                     {/* 控制台数据库 */}
                     {getFieldDecorator('regionDatabase_dbname', {
                       rules: [
@@ -501,7 +526,7 @@ export default class ClusterLink extends PureComponent {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_access_name'})} />)}
+                    })(<Input placeholder={formatMessage({id:'enterpriseColony.cloud.demo_access_name'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                 </div>
               </Row>
@@ -509,15 +534,15 @@ export default class ClusterLink extends PureComponent {
               <Row className={styles.antd_rows}>
                 <div className={styles.titleBox}>
                   <div className={styles.title}>
-                    <span className={styles.titleSpan}>{formatMessage({id:'enterpriseColony.cloud.image'})}</span>
+                    <span className={language ?  styles.titleSpan :  styles.en_titleSpan}>{formatMessage({id:'enterpriseColony.cloud.image'})}</span>
                   </div>
                   <div className={styles.desc}>
                     {formatMessage({id:'enterpriseColony.huaweicloud.nas'})}
                   </div>
                 </div>
-                <div className={styles.config}>
+                <div className={language ? styles.config :styles.en_config}>
                   <FormItem
-                    {...formItemLayouts}
+                    {...is_language}
                     label={formatMessage({id:'enterpriseColony.cloud.image_address'})}
                     className={styles.antd_form}
                   >
@@ -532,10 +557,10 @@ export default class ClusterLink extends PureComponent {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.input_image_address'})}/>)}
+                    })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.input_image_address'})}style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   <FormItem
-                    {...formItemLayouts}
+                    {...is_language}
                     label={formatMessage({id:'enterpriseColony.cloud.namespace'})}
                     className={styles.antd_form}
                   >
@@ -551,11 +576,11 @@ export default class ClusterLink extends PureComponent {
                         }
                       ]
                     })(
-                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_namespace'})} />
+                      <Input placeholder={formatMessage({id:'enterpriseColony.cloud.input_namespace'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>
                     )}
                   </FormItem>
                   <FormItem
-                    {...formItemLayouts}
+                    {...is_language}
                     label={formatMessage({id:'enterpriseColony.cloud.name'})}
                     className={styles.antd_form}
                   >
@@ -570,10 +595,10 @@ export default class ClusterLink extends PureComponent {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.input_name'})}/>)}
+                    })(<Input placeholder= {formatMessage({id:'enterpriseColony.cloud.input_name'})}style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                   <FormItem
-                    {...formItemLayouts}
+                    {...is_language}
                     label={formatMessage({id:'enterpriseColony.cloud.password'})}
                     className={styles.antd_form}
                   >
@@ -588,7 +613,7 @@ export default class ClusterLink extends PureComponent {
                           message: formatMessage({id:'placeholder.no_spaces'})
                         }
                       ]
-                    })(<Input type="password" placeholder={formatMessage({id:'enterpriseColony.cloud.input_password'})} />)}
+                    })(<Input type="password" placeholder={formatMessage({id:'enterpriseColony.cloud.input_password'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                   </FormItem>
                 </div>
               </Row>

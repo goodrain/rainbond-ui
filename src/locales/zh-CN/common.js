@@ -320,6 +320,7 @@
         //修改负责人
         'confirmModal.app.title.principal':'修改负责人',
         'confirmModal.app.lable.principal':'负责人',
+        'confirmModal.app.lable.principal':'请选择负责人',
 
 
         //删除/编辑/添加成员

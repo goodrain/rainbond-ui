@@ -45,6 +45,7 @@ import Meiqia from '../../layouts/Meiqia';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
+import cookie from '../../utils/cookie';
 import styles from '../List/BasicList.less';
 
 @connect(({ user, global, index }) => ({
@@ -87,7 +88,8 @@ export default class Enterprise extends PureComponent {
       showClusterIntroduced: false,
       marketName: '',
       guideStep: 1,
-      clusters: []
+      clusters: [],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -565,9 +567,9 @@ export default class Enterprise extends PureComponent {
       eid,
       total,
       page_size,
-      page
+      page,
+      language
     } = this.state;
-
     const new_join_team =
       overviewTeamInfo &&
       overviewTeamInfo.new_join_team &&
@@ -827,7 +829,7 @@ export default class Enterprise extends PureComponent {
                           types="component"
                           color="#3D58DA"
                           subTitle={
-                            <div className={styles.elements}>
+                            <div className={language ? styles.elements : styles.en_elements}>
                               <div>
                                 <div>{comClosed}</div>
                                 <div>
