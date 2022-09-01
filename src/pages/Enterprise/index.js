@@ -570,7 +570,6 @@ export default class Enterprise extends PureComponent {
       page,
       language
     } = this.state;
-    console.log(language,"language");
     const new_join_team =
       overviewTeamInfo &&
       overviewTeamInfo.new_join_team &&

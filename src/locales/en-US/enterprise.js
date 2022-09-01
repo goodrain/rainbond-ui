@@ -973,7 +973,52 @@
         'enterpriseSetting.BackupManage.importBackups.alert':'Backup data restoration is a risky operation. This operation is recommended for cross-platform data migration scenarios, and the original restoration is performed only increments. If you do proceed, you will need to verify your identity twice.',
         'enterpriseSetting.BackupManage.importBackups.form.label.password':'Account password',
     }
+    const otherEnterprise= {
+        'otherEnterprise.AccesstokenView.note':'Purpose',
+        'otherEnterprise.AccesstokenView.expire_time':'Expiration time',
+        'otherEnterprise.AccesstokenView.user_id':'State',
+        'otherEnterprise.AccesstokenView.overdue':'Be overdue',
+        'otherEnterprise.AccesstokenView.normal':'Normal',
+        'otherEnterprise.AccesstokenView.var':'Operation',
+        'otherEnterprise.AccesstokenView.delete':'Delete',
+        'otherEnterprise.AccesstokenView.Regenerate':'Regenerate',
+        'otherEnterprise.AccesstokenView.api':'The access token is used to access the platform API. The permissions of the access token are consistent with your account permissions',
+        'otherEnterprise.AccesstokenView.add':'Add',
+        'otherEnterprise.AccesstokenView.Unlimited':'Unlimited',
+        'otherEnterprise.ChangePassword.max':'The password must be at least 8 digits long',
+        'otherEnterprise.ChangePassword.maxLength':'Maximum length: 16 bits',
+        'otherEnterprise.ChangePassword.Mismatch':'The passwords entered twice do not match!',
+        'otherEnterprise.ChangePassword.edit':'Change Password',
+        'otherEnterprise.ChangePassword.old':'Old password',
+        'otherEnterprise.ChangePassword.input_password':'Please enter your old password',
+        'otherEnterprise.ChangePassword.new':'New password',
+        'otherEnterprise.ChangePassword.input_new':'Please enter your new password',
+        'otherEnterprise.ChangePassword.confirm':'Confirm new password',
+        'otherEnterprise.ChangePassword.input_confirm':'Please confirm the new password',
+        'otherEnterprise.SiderMenu.name':'Name',
+        'otherEnterprise.SiderMenu.input_name':'Please enter a name',
+        'otherEnterprise.SiderMenu.max':'Maximum length: 10 bits',
+        'otherEnterprise.SiderMenu.imput_max':'Please enter the collection name, with a maximum length of 10 digits',
+        'otherEnterprise.SiderMenu.title':'Favorites tab for easy and quick access',
+
+        'otherEnterprise.BindingView.Certified':'Certified',
+        'otherEnterprise.BindingView.Expired ':'Expired recertification',
+        'otherEnterprise.BindingView.De_certification':'De certification',
+        'otherEnterprise.BindingView.Not_certified':'Not certified',
+        'otherEnterprise.BindingView.now':'current',
+        'otherEnterprise.BindingView.number':'account number',
+
+        'otherEnterprise.AccesstokenForm.save':'Please save the AccessKey',
+        'otherEnterprise.AccesstokenForm.add':'New access token',
+        'otherEnterprise.AccesstokenForm.be_careful':'Note: the accessKey is only displayed once. Please save the record.',
+        'otherEnterprise.AccesstokenForm.purpose':'Purpose',
+        'otherEnterprise.AccesstokenForm.input_purpose':'Please enter the purpose',
+        'otherEnterprise.AccesstokenForm.max':'Maximum length: 32 bits',
+        'otherEnterprise.AccesstokenForm.time':'Expiration time',
+        'otherEnterprise.AccesstokenForm.import_time':'Please enter the time',
+        
+    }
 
   
 
-export default Object.assign({}, enterpriseOverview,applicationMarket,enterpriseTeamManagement,enterpriseColony,enterpriseUser,enterpriseSetting);
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise);

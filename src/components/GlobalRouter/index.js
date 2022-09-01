@@ -342,7 +342,7 @@ export default class GlobalRouter extends PureComponent {
           {this.getNavMenuItems(menuData || [])}
           <Menu.Item
             key="collection"
-            title="收藏标签页方便快速访问"
+            title={formatMessage({id:'otherEnterprise.SiderMenu.title'})}
             onClick={this.handleOpenCollectionVisible}
             style={{
               width: '100%',

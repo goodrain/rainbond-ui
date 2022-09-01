@@ -77,7 +77,8 @@ export default class Index extends PureComponent {
       common: true,
       compile: false,
       flagHeight: false,
-      iframeHeight: '500px'
+      iframeHeight: '500px',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
 
@@ -608,7 +609,8 @@ export default class Index extends PureComponent {
       common,
       compile,
       flagHeight,
-      iframeHeight
+      iframeHeight,
+      language
     } = this.state;
     const codeObj = {
       start: formatMessage({id: 'appOverview.btn.start'}),
@@ -768,9 +770,9 @@ export default class Index extends PureComponent {
             </div>
           </div>
           <div className={styles.conrHeader}>
-            <div>
+            <div style={{display:'flex',alignItems:'center',}}>
               <span>{formatMessage({id: 'appOverview.govern'})}</span>
-              <span>
+              <span style={language ? {}:{display:'inline-block'}}>
                 {currApp.governance_mode
                   ? globalUtil.fetchGovernanceMode(currApp.governance_mode)
                   : '-'}
@@ -816,7 +818,7 @@ export default class Index extends PureComponent {
               </span>
             </div>
           </div>
-          <div className={styles.conrBot}>
+          <div className={language ? styles.conrBot : styles.en_conrBot}>
             <div className={styles.conrBox}>
               <div>{formatMessage({id: 'appOverview.backups'})}</div>
               <div
@@ -1026,13 +1028,12 @@ export default class Index extends PureComponent {
         </Row>
         {guideStep === 1 &&
           this.handleNewbieGuiding({
-            tit: '应用信息',
+            tit: formatMessage({id:'teamOther.Group.tit'}),
             showSvg: false,
             showArrow: true,
             send: false,
             configName: 'applicationInfo',
-            desc:
-              '应用由一个或多个服务组成，可以管理一个完整业务系统，比如：OA、CRM、ERP等，也可以管理一个完整的微服务架构的系统，这里展示了应用的基本信息。',
+            desc: formatMessage({id:'teamOther.Group.desc'}),
             nextStep: 2,
             conPosition: { top: '336px', left: '42%' }
           })}
@@ -1111,8 +1112,8 @@ export default class Index extends PureComponent {
                   {common ? (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
+                       textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
                       color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
                       onClick={() => {
@@ -1130,8 +1131,8 @@ export default class Index extends PureComponent {
                   ) : (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
                       color:'#595959', borderColor: '#D9D9D9',
                     }}
 
@@ -1150,8 +1151,8 @@ export default class Index extends PureComponent {
                   {aggregation ? (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
                       color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
                       onClick={() => {
@@ -1169,8 +1170,8 @@ export default class Index extends PureComponent {
                   ) : (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
                       color:'#595959', borderColor: '#D9D9D9'
                     }}
                       onClick={() => {
@@ -1188,8 +1189,8 @@ export default class Index extends PureComponent {
                   {compile ? (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
+                     textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
                       color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
 
@@ -1208,8 +1209,8 @@ export default class Index extends PureComponent {
                   ) : (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
                       color:'#595959', borderColor: '#D9D9D9'
                     }}
                       onClick={() => {
@@ -1307,14 +1308,13 @@ export default class Index extends PureComponent {
         </Row>
         {guideStep === 2 &&
           this.handleNewbieGuiding({
-            tit: '应用拓扑图',
-            btnText: '已知晓',
+            tit: formatMessage({id:'teamOther.Group.app'}),
+            btnText: formatMessage({id:'teamOther.Group.know'}),
             showSvg: false,
             showArrow: true,
             send: true,
             configName: 'applicationInfo',
-            desc:
-              '这是应用内部的服务拓扑图，通过拓扑图可以整体了解服务的运行状态和依赖关系，每个六边形就是一个服务，点击六边形可以进入服务的管理页面。',
+            desc:formatMessage({id:'teamOther.Group.Topological'}),
             nextStep: 3,
             conPosition: { bottom: '-16px', left: '45%' }
           })}

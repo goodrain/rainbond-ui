@@ -5,15 +5,24 @@ import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
+import cookie from '../../utils/cookie';
 
 const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 9
+    span: 5
   },
   wrapperCol: {
-    span: 15
+    span: 19
+  }
+};
+const formItemLayouts = {
+  labelCol: {
+    span: 10
+  },
+  wrapperCol: {
+    span: 14
   }
 };
 
@@ -33,7 +42,8 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       showUsernameAndPass: false,
-      addGroup: false
+      addGroup: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onAddGroup = () => {
@@ -88,10 +98,12 @@ export default class Index extends PureComponent {
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
     const isService = handleType && handleType === 'Service';
+    const {language} = this.state;
+    const is_language = language ? formItemLayout : formItemLayouts;
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
               rules: [
@@ -107,7 +119,7 @@ export default class Index extends PureComponent {
                 style={{
                   display: 'inline-block',
                   width: isService ? '' : 276,
-                  marginRight: 10
+                  marginRight: 10,textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'
                 }}
                 disabled={!!isService}
               >
@@ -120,7 +132,7 @@ export default class Index extends PureComponent {
               <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamApply.createApp'})}</Button>
             ) : null}
           </Form.Item>
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
@@ -137,18 +149,19 @@ export default class Index extends PureComponent {
               <Input
                 disabled={disableds.indexOf('service_cname') > -1}
                 placeholder={formatMessage({id: 'placeholder.service_cname'})}
+                style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
               />
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
             {getFieldDecorator('k8s_component_name', {
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]
-            })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})} />)}
+            })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
           </Form.Item>
 
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.image.mirrorAddress'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.image.mirrorAddress'})}>
             {getFieldDecorator('docker_cmd', {
               initialValue: data.docker_cmd || '',
               rules: [
@@ -157,7 +170,7 @@ export default class Index extends PureComponent {
                   message: formatMessage({id: 'placeholder.docker_cmdMsg'})
                 }
               ]
-            })(<Input placeholder={formatMessage({id: 'placeholder.docker_cmd'})} />)}
+            })(<Input placeholder={formatMessage({id: 'placeholder.docker_cmd'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
           </Form.Item>
           <div style={{ textAlign: 'right' }}>
             {formatMessage({id: 'teamAdd.create.image.hint1'})}
@@ -172,17 +185,17 @@ export default class Index extends PureComponent {
           </div>
           <Form.Item
             style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-            {...formItemLayout}
+            {...is_language}
             label={formatMessage({id: 'teamAdd.create.form.user'})}
           >
             {getFieldDecorator('user_name', {
               initialValue: data.user_name || '',
               rules: [{ required: false, message: formatMessage({id: 'placeholder.username_1'}) }]
-            })(<Input autoComplete="off" placeholder={formatMessage({id: 'placeholder.username_1'})} />)}
+            })(<Input autoComplete="off" placeholder={formatMessage({id: 'placeholder.username_1'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
           </Form.Item>
           <Form.Item
             style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-            {...formItemLayout}
+            {...is_language}
             label={formatMessage({id: 'teamAdd.create.form.password'})}
           >
             {getFieldDecorator('password', {

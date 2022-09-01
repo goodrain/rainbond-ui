@@ -35,6 +35,7 @@ import globalUtil from '../../utils/global';
 import logSocket from '../../utils/logSocket';
 import roleUtil from '../../utils/role';
 import sourceUtil from '../../utils/source-unit';
+import cookie from '../../utils/cookie';
 import userUtil from '../../utils/user';
 
 const { TextArea } = Input;
@@ -258,7 +259,8 @@ export default class AppList extends PureComponent {
       componentList: [],
       operationPermissions: this.handlePermissions('queryAppInfo'),
       loading: false,
-      deleteLoading: false
+      deleteLoading: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
 
@@ -502,7 +504,8 @@ export default class AppList extends PureComponent {
       list = [],
       operationPermissions: { isMigrate, isImport, isExport },
       loading,
-      deleteLoading
+      deleteLoading,
+      language
     } = this.state;
     const columns = [
       {
@@ -607,20 +610,20 @@ export default class AppList extends PureComponent {
           </p>
         }
         extraContent={
-          <div>
+          <div style={language?{}:{display:'flex'}}>
             <Button
-              style={{ marginRight: 8 }}
+              style={language?{marginRight: 8 }:{ marginRight: 8 ,padding: 6}}
               type="primary"
               onClick={this.onBackup}
             >
               {formatMessage({id: 'appBackups.btn.addBackups'})}
             </Button>
             {isImport && (
-              <Button style={{ marginRight: 8 }} onClick={this.toAdd}>
+              <Button style={language?{marginRight: 8 }:{ marginRight: 8 ,padding: 6}} onClick={this.toAdd}>
                 {formatMessage({id: 'appBackups.btn.importBackups'})}
               </Button>
             )}
-            <Button onClick={this.jumpToAllbackup}>
+            <Button onClick={this.jumpToAllbackup} style={language?{}:{padding: 6}}>
               {formatMessage({id: 'appBackups.btn.allBackups'})}
             </Button>
           </div>

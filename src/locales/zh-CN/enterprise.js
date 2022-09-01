@@ -1068,5 +1068,52 @@ const enterpriseSettings = {
 
     }
 
+    const otherEnterprise= {
+        'otherEnterprise.AccesstokenView.note':'用途',
+        'otherEnterprise.AccesstokenView.expire_time':'过期时间',
+        'otherEnterprise.AccesstokenView.user_id':'状态',
+        'otherEnterprise.AccesstokenView.overdue':'过期',
+        'otherEnterprise.AccesstokenView.normal':'正常',
+        'otherEnterprise.AccesstokenView.var':'操作',
+        'otherEnterprise.AccesstokenView.delete':'删除',
+        'otherEnterprise.AccesstokenView.Regenerate':'重新生成',
+        'otherEnterprise.AccesstokenView.api':'访问令牌用于访问平台API, 访问令牌的权限与你的账号权限一致',
+        'otherEnterprise.AccesstokenView.add':'新增',
+        'otherEnterprise.AccesstokenView.Unlimited':'不限制',
+        'otherEnterprise.ChangePassword.max':'密码长度至少为8位',
+        'otherEnterprise.ChangePassword.maxLength':'最大长度16位',
+        'otherEnterprise.ChangePassword.Mismatch':'两次输入的密码不匹配!',
+        'otherEnterprise.ChangePassword.edit':'修改密码',
+        'otherEnterprise.ChangePassword.old':'旧密码',
+        'otherEnterprise.ChangePassword.input_password':'请输入旧密码',
+        'otherEnterprise.ChangePassword.new':'新密码',
+        'otherEnterprise.ChangePassword.input_new':'请输入您的新密码',
+        'otherEnterprise.ChangePassword.confirm':'确认新密码',
+        'otherEnterprise.ChangePassword.input_confirm':'请确认新密码',
+        'otherEnterprise.SiderMenu.name':'名称',
+        'otherEnterprise.SiderMenu.input_name':'请输入名称',
+        'otherEnterprise.SiderMenu.max':'最大长度10位',
+        'otherEnterprise.SiderMenu.imput_max':'请输入收藏名称，最大长度10位',
+        'otherEnterprise.SiderMenu.title':'收藏标签页方便快速访问',
 
-export default Object.assign({}, enterpriseOverview,applicationMarket,enterpriseTeamManagement,enterpriseColony,enterpriseUser,enterpriseSetting,enterpriseColonys,enterpriseUsers,enterpriseSettings);
+        'otherEnterprise.BindingView.Certified':'已认证',
+        'otherEnterprise.BindingView.Expired ':'已过期重新认证',
+        'otherEnterprise.BindingView.De_certification':'去认证',
+        'otherEnterprise.BindingView.Not_certified':'未认证',
+        'otherEnterprise.BindingView.now':'当前',
+        'otherEnterprise.BindingView.number':'账号',
+
+        'otherEnterprise.AccesstokenForm.save':'请保存AccessKey',
+        'otherEnterprise.AccesstokenForm.add':'新增访问令牌',
+        'otherEnterprise.AccesstokenForm.be_careful':'注意：AccessKey只显示一次请保存记录。',
+        'otherEnterprise.AccesstokenForm.purpose':'用途',
+        'otherEnterprise.AccesstokenForm.input_purpose':'请输入用途',
+        'otherEnterprise.AccesstokenForm.max':'最大长度32位',
+        'otherEnterprise.AccesstokenForm.time':'过期时间',
+        'otherEnterprise.AccesstokenForm.import_time':'请输入时间',
+
+
+    }
+
+
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, enterpriseColonys, enterpriseUsers, enterpriseSettings, otherEnterprise);
