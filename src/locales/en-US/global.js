@@ -27,9 +27,9 @@ const global = {
     'global.fetchStateText.SUCCEEDED':'Completed',
 
     // fetchGovernanceMode
-    'global.fetchGovernanceMode.KUBERNETES_NATIVE_SERVICE':'Native Service pattern',
-    'global.fetchGovernanceMode.BUILD_IN_SERVICE_MESH':'The built-in ServiceMesh mode',
-    'global.fetchGovernanceMode.ISTIO_SERVICE_MESH':'Istio governance pattern',
+    'global.fetchGovernanceMode.KUBERNETES_NATIVE_SERVICE':'Native Service ',
+    'global.fetchGovernanceMode.BUILD_IN_SERVICE_MESH':'Built-in ServiceMesh ',
+    'global.fetchGovernanceMode.ISTIO_SERVICE_MESH':'Istio governance ',
 
     // fetchTime
     'global.fetchTime.day':' {num}day',

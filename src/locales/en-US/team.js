@@ -26,7 +26,7 @@ const teamOverview = {
   'teamOverview.memory': 'Memory',
   'teamOverview.visit': 'Access',
   'teamOverview.appList': 'App list',
-  'teamOverview.result.title':'The cluster end is not responding. Try again later',
+  'teamOverview.result.title':'The cluster end is not responding, Try again later.',
   'teamOverview.result.description':'If the loading fails, contact the cluster administrator to check the cluster status',
   'teamOverview.loadOverview':'Reload',
   'teamOverview.runAppNums': 'Running：{ number }',
@@ -109,7 +109,7 @@ const teamAdd = {
   //third
   'teamAdd.create.third.title':'Adding Third-Party Component',
   'teamAdd.create.third.desc':'Third-party components are components that run outside the platform cluster. Creating a component on a platform can connect it seamlessly to the platform gateway and be accessed by services on the platform. To meet the users through the platform can be unified monitoring and management of various components.',
-  'teamAdd.create.third.componentRegister':'Component Registration Mode',
+  'teamAdd.create.third.componentRegister':'Registration Mode',
   'teamAdd.create.third.staticRegister':'Static registration',
   'teamAdd.create.third.apiRegister':'API registration',
   'teamAdd.create.third.componentAddress':'Component address',
@@ -293,7 +293,43 @@ const teamManage = {
   'teamManage.tabs.image.table.btn.delete':'Delete',
   
 }
+const teamOther = {
+  'teamOther.AddThirdParty.start':'Start with third-party components',
+  'teamOther.AddThirdParty.Third':'Third party components',
+  'teamOther.AddThirdParty.add':'Add third party components',
+  'teamOther.Group.tit':'Application information',
+  'teamOther.Group.desc':'An application is composed of one or more services, which can manage a complete business system, such as OA, CRM, ERP, etc., and can also manage a complete microservice architecture system. Here is the basic information of the application.',
+  'teamOther.Group.app':'Application topology',
+  'teamOther.Group.know':'Known',
+  'teamOther.Group.Topological':'This is the internal service topology diagram of the application. Through the topology diagram, you can understand the running status and dependency of the service as a whole. Each hexagon is a service. Click the hexagon to enter the service management page.',
+  // AllBackup
+  'teamOther.AllBackup.Backup':'Backup in progress',
+  'teamOther.AllBackup.success':'Backup succeeded',
+  'teamOther.AllBackup.failed':'Backup failed',
+  'teamOther.AllBackup.create_time':'Backup time',
+  'teamOther.AllBackup.user':'Backup by',
+  'teamOther.AllBackup.mode':'Backup mode',
+  'teamOther.AllBackup.full-online':'Cloud Backup ',
+  'teamOther.AllBackup.full-offline':'Local backup',
+  'teamOther.AllBackup.backup_size':'Package size',
+  'teamOther.AllBackup.state':'state',
+  'teamOther.AllBackup.app':'Backup application',
+  'teamOther.AllBackup.remarks':'Remarks',
+  'teamOther.AllBackup.operation':'Operation',
+  'teamOther.AllBackup.recovery':'Recovery',
+  'teamOther.AllBackup.transfer':'Transfer',
+  'teamOther.AllBackup.export':'Export',
+  'teamOther.AllBackup.delete':'Delete',
+  'teamOther.AllBackup.records':'Apply backup records',
+  'teamOther.AllBackup.all_records':'Application backup records are all backup records of the current team, including those of deleted applications. Deleted applications can be recovered or migrated based on the backup',
+
+  'teamOther.edit.editHead':'Modify responsible person',
+  'teamOther.edit.head':'head',
+  'teamOther.edit.choose':'Please select the person in charge',
+  'teamOther.edit.go':'Go to the certification',
+  'teamOther.edit.unbounded':'The {type} account has not been bound',
+
+}
 
 
-
-export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage);   
+export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther);   

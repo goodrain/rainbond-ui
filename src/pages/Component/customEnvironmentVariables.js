@@ -448,7 +448,7 @@ export default class Index extends React.Component {
     return (
       <Fragment>
         <Row>
-          <Col span={12}>
+          <Col span={15}>
             <Alert
               showIcon
               message={<FormattedMessage id='componentOverview.body.tab.env.environmentVariable.message'/>}
@@ -465,7 +465,7 @@ export default class Index extends React.Component {
             type="Inner"
             appAlias={this.props.appAlias}
           />
-          <Col span={12}>
+          <Col span={16}>
             <Alert
               showIcon
               // eslint-disable-next-line no-template-curly-in-string

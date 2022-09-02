@@ -11,6 +11,7 @@ import {
 } from 'antd';
 import React, { PureComponent } from 'react';
 import pluginUtil from '../../utils/plugin';
+import cookie from '../../utils/cookie';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 
@@ -21,7 +22,7 @@ const RadioGroup = Radio.Group;
 export default class AddVolumes extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { volumeCapacityValidation: {} };
+    this.state = { volumeCapacityValidation: {}, language: cookie.get('language') === 'zh-CN' ? true : false };
   }
   componentDidMount = () => {
     const { data } = this.props;
@@ -88,11 +89,11 @@ export default class AddVolumes extends PureComponent {
   checkVolumeCapacity = (rules, value, callback) => {
     if (value) {
       if (value > 1000) {
-        callback(<FormattedMessage id='componentOverview.body.AddVolumes.Max'/>);
+        callback(`${formatMessage({id:'componentOverview.body.AddVolumes.Max'})}`);
         return;
       }
       if (value < 0) {
-        callback(<FormattedMessage id='componentOverview.body.AddVolumes.Min'/>);
+        callback(`${formatMessage({id:'componentOverview.body.AddVolumes.Min'})}`);
         return;
       }
     }
@@ -148,7 +149,7 @@ export default class AddVolumes extends PureComponent {
   render() {
     const { getFieldDecorator } = this.props.form;
     const { data = {}, volumeOpts } = this.props;
-    const { volumeCapacityValidation } = this.state;
+    const { volumeCapacityValidation, language } = this.state;
     let defaultVolumeCapacity = '';
     if (data.volume_capacity) {
       defaultVolumeCapacity = data.volume_capacity;
@@ -167,6 +168,17 @@ export default class AddVolumes extends PureComponent {
         sm: { span: 18 }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 17 }
+      }
+    };
+    const is_language = language ? formItemLayout : en_formItemLayout
     return (
       <Drawer
         title={this.props.editor ? <FormattedMessage id='componentOverview.body.AddVolumes.edit'/> : <FormattedMessage id='componentOverview.body.AddVolumes.add'/>}
@@ -183,7 +195,7 @@ export default class AddVolumes extends PureComponent {
         }}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label= {<FormattedMessage id='componentOverview.body.AddVolumes.name'/>}>
+          <FormItem {...is_language} label= {<FormattedMessage id='componentOverview.body.AddVolumes.name'/>}>
             {getFieldDecorator('volume_name', {
               initialValue: data.volume_name || '',
               rules: [
@@ -208,7 +220,7 @@ export default class AddVolumes extends PureComponent {
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_path'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_path'/>}>
             {getFieldDecorator('volume_path', {
               initialValue: data.volume_path || '',
               rules: [
@@ -219,7 +231,7 @@ export default class AddVolumes extends PureComponent {
               ]
             })(<Input placeholder={formatMessage({id:'componentOverview.body.AddVolumes.volume_path_placeholder'})} />)}
           </FormItem>
-          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity'/>}>
             {getFieldDecorator('volume_capacity', {
               initialValue: defaultVolumeCapacity,
               rules: [
@@ -245,7 +257,7 @@ export default class AddVolumes extends PureComponent {
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.AddVolumes.type'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.type'/>}>
             {getFieldDecorator('volume_type', {
               initialValue: data.volume_type || 'share-file',
               rules: [

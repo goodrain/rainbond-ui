@@ -2,6 +2,7 @@ import { Alert, Form, Input, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import cookie from '../../../utils/cookie';
 import styles from '../../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -12,7 +13,8 @@ class EditClusterInfo extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      healthStatus: true
+      healthStatus: true,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   handleSubmit = () => {
@@ -48,7 +50,7 @@ class EditClusterInfo extends PureComponent {
 
   render() {
     const { form, onCancel, title, regionInfo } = this.props;
-    const { healthStatus } = this.state;
+    const { healthStatus, language } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -60,8 +62,19 @@ class EditClusterInfo extends PureComponent {
         sm: { span: 13 }
       }
     };
+      const formItemLayouts = {
+        labelCol: {
+          xs: { span: 24 },
+          sm: { span: 14 }
+        },
+        wrapperCol: {
+          xs: { span: 24 },
+          sm: { span: 10 }
+        }
+      }
     const rulesApiUrl = /(http|https):\/\/+([\w]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
     const rulesWebSocketUrl = /(ws|wss):\/\/+([\w]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
+    const is_language = language ? formItemLayout : formItemLayouts
 
     return (
       <Modal
@@ -82,7 +95,7 @@ class EditClusterInfo extends PureComponent {
         <Form onSubmit={this.handleSubmit}>
           <div style={{ display: 'flex' }}>
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id:'enterpriseColony.edit.form.label.region_name'})}
               style={{
                 width: '50%'
@@ -100,7 +113,7 @@ class EditClusterInfo extends PureComponent {
             </FormItem>
 
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id:'enterpriseColony.edit.form.label.region_alias'})}
               style={{
                 width: '50%'
@@ -118,7 +131,7 @@ class EditClusterInfo extends PureComponent {
           <div style={{ display: 'flex' }}>
             <FormItem
               label={formatMessage({id:'enterpriseColony.edit.form.label.url'})}
-              {...formItemLayout}
+              {...is_language}
               style={{
                 width: '50%'
               }}
@@ -137,7 +150,7 @@ class EditClusterInfo extends PureComponent {
 
             <FormItem
               label={formatMessage({id:'enterpriseColony.edit.form.label.wsurl'})}
-              {...formItemLayout}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('wsurl', {
@@ -155,7 +168,7 @@ class EditClusterInfo extends PureComponent {
           <div style={{ display: 'flex' }}>
             <FormItem
               label={formatMessage({id:'enterpriseColony.edit.form.label.httpdomain'})}
-              {...formItemLayout}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('httpdomain', {
@@ -172,7 +185,7 @@ class EditClusterInfo extends PureComponent {
 
             <FormItem
               label={formatMessage({id:'enterpriseColony.edit.form.label.tcpdomain'})}
-              {...formItemLayout}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('tcpdomain', {
@@ -190,7 +203,7 @@ class EditClusterInfo extends PureComponent {
           <div style={{ display: 'flex' }}>
             <FormItem
               label={formatMessage({id:'enterpriseColony.edit.form.label.ssl_ca_cert'})}
-              {...formItemLayout}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('ssl_ca_cert', {
@@ -205,7 +218,7 @@ class EditClusterInfo extends PureComponent {
             </FormItem>
             <FormItem
               label={formatMessage({id:'enterpriseColony.edit.form.label.cert_file'})}
-              {...formItemLayout}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('cert_file', {
@@ -222,7 +235,7 @@ class EditClusterInfo extends PureComponent {
           <div style={{ display: 'flex' }}>
             <FormItem
               label={formatMessage({id:'enterpriseColony.edit.form.label.key_file'})}
-              {...formItemLayout}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('key_file', {
@@ -235,7 +248,7 @@ class EditClusterInfo extends PureComponent {
                 />
               )}
             </FormItem>
-            <FormItem label={formatMessage({id:'enterpriseColony.edit.form.label.desc'})} {...formItemLayout} style={{ width: '50%' }}>
+            <FormItem label={formatMessage({id:'enterpriseColony.edit.form.label.desc'})} {...is_language} style={{ width: '50%' }}>
               {getFieldDecorator('desc', {
                 initialValue: regionInfo.desc
               })(

@@ -32,6 +32,7 @@ import sourceUtil from '../../utils/source';
 import AddScaling from './component/AddScaling';
 import styles from './Index.less';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import cookie from '../../utils/cookie';
 
 
 const { Option } = Select;
@@ -83,7 +84,8 @@ export default class Index extends PureComponent {
       errorMaxNum: '',
       errorCpuValue: '',
       errorMemoryValue: '',
-      enableGPU: licenseUtil.haveFeature(this.props.features, 'GPU')
+      enableGPU: licenseUtil.haveFeature(this.props.features, 'GPU'),
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -759,7 +761,8 @@ export default class Index extends PureComponent {
       errorMaxNum,
       errorCpuValue,
       errorMemoryValue,
-      enableGPU
+      enableGPU,
+      language
     } = this.state;
     if (!extendInfo) {
       return null;
@@ -889,8 +892,8 @@ export default class Index extends PureComponent {
             <Row gutter={16}>
               <Col lg={8} md={8} sm={24}>
                 <Form.Item
-                  labelCol={{ span: 5 }}
-                  wrapperCol={{ span: 19 }}
+                  labelCol={language ?{ span: 5 } : {span:6}}
+                  wrapperCol={language ? { span: 19 } : {span: 18}}
                   label={<FormattedMessage id='componentOverview.body.Expansion.memory'/>}
                   className={styles.customFormItem}
                 >
@@ -916,8 +919,8 @@ export default class Index extends PureComponent {
               </Col>
               <Col lg={8} md={8} sm={24}>
                 <Form.Item
-                  labelCol={{ span: 6 }}
-                  wrapperCol={{ span: 18 }}
+                  labelCol={language ?{ span: 6 } : {span:8}}
+                  wrapperCol={language ? { span: 18 } : {span: 16}}
                   className={styles.customFormItem}
                   label={<FormattedMessage id='componentOverview.body.Expansion.video'/>}
                 >
@@ -938,8 +941,8 @@ export default class Index extends PureComponent {
               <Col lg={8} md={8} sm={24}>
                 <Form.Item
                   label="CPU"
-                  labelCol={{ span: 5 }}
-                  wrapperCol={{ span: 19 }}
+                  labelCol={language ?{ span: 5 } : {span:6}}
+                  wrapperCol={language ? { span: 19 } : {span: 18}}
                   className={styles.customFormItem}
                 >
                   {getFieldDecorator('new_cpu', {
@@ -980,8 +983,8 @@ export default class Index extends PureComponent {
               <Col lg={8} md={8} sm={24}>
                 <Form.Item
                   label={<FormattedMessage id='componentOverview.body.Expansion.number'/>}
-                  labelCol={{ span: 5 }}
-                  wrapperCol={{ span: 19 }}
+                  labelCol={language ?{ span: 5 } : {span:8}}
+                  wrapperCol={language ? { span: 19 } : {span: 16}}
                   className={styles.customFormItem}
                 >
                   {getFieldDecorator('node', {
@@ -1024,7 +1027,7 @@ export default class Index extends PureComponent {
           title={<FormattedMessage id='componentOverview.body.Expansion.flex'/>}
         >
           <Row gutter={24} className={styles.automaTictelescopingBOX}>
-            <Col span={12} className={styles.automaTictelescopingTitle}>
+            <Col span={12} className={ language ?  styles.automaTictelescopingTitle : styles.en_automaTictelescopingTitle }>
               <div><FormattedMessage id='componentOverview.body.Expansion.switch'/></div>
               <div><FormattedMessage id='componentOverview.body.Expansion.minNumber'/></div>
               <div><FormattedMessage id='componentOverview.body.Expansion.maxNumber'/></div>

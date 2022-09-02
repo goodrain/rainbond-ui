@@ -48,6 +48,7 @@ import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
 import ExportOperation from './ExportOperation';
 import styles from './index.less';
+import cookie from '../../utils/cookie';
 import TagList from './TagList';
 
 const { TabPane } = Tabs;
@@ -137,7 +138,8 @@ export default class EnterpriseShared extends PureComponent {
       isAuthorize: false,
       installType: '1',
       isStoreCluster: false,
-      clusters: []
+      clusters: [],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -1394,7 +1396,8 @@ export default class EnterpriseShared extends PureComponent {
       isNewbieGuide,
       isInStallShow,
       showMarketCloudAuth,
-      isAuthorize
+      isAuthorize,
+      language
     } = this.state;
     const tagLists = tagList && tagList.length > 0 && tagList;
     const accessActions =
@@ -1465,7 +1468,7 @@ export default class EnterpriseShared extends PureComponent {
     };
 
     const operation = (
-      <Col span={5} style={rightStyle} className={styles.btns}>
+      <Col span={language ? 5 : 7 } style={rightStyle} className={styles.btns}>
         {isImportApp && (
           <Button style={{ margin: '0 14px 0 10px' }}>
             <Link to={`/enterprise/${eid}/shared/import`}>
@@ -1535,6 +1538,7 @@ export default class EnterpriseShared extends PureComponent {
         <div className={styles.btns}>
           {isCreateApp && (
             <Button type="primary" onClick={this.handleOpenCreateAppModel}>
+
               {/* 创建应用模版 */}
               <FormattedMessage id='applicationMarket.localMarket.setup'/>
             </Button>
@@ -1571,9 +1575,9 @@ export default class EnterpriseShared extends PureComponent {
     const localsContent = (
       <div>
         <Row style={contentStyle}>
-          <Col span={19} style={contentLeftStyle}>
+          <Col span={language ? 19 : 17} style={contentLeftStyle}>
             <Search
-              style={{ width: '250px' }}
+              style={{ width: '250px'}}
               placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
               onSearch={this.handleSearchLocal}
             />

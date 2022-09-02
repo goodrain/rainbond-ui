@@ -83,7 +83,7 @@ class CreateTeam extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 }
+        sm: { span: 8 }
       },
       wrapperCol: {
         xs: { span: 24 },
@@ -128,7 +128,11 @@ class CreateTeam extends PureComponent {
         }
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal">
-          <FormItem {...formItemLayout}  label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.name'/>}>
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.name'/>} 
+          extra= {<div className={styles.conformDesc}>
+                    <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.name'/>
+                  </div>}
+          >
             {getFieldDecorator('team_name', {
               rules: [
                 {
@@ -141,12 +145,18 @@ class CreateTeam extends PureComponent {
                 }
               ]
             })(<Input  placeholder={formatMessage({id:'popover.enterpriseOverview.setUpTeam.placeholder.name'})}/>)}
-            <div className={styles.conformDesc}>
+            {/* <div className={styles.conformDesc}>
               <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.name'/>
-            </div>
+            </div> */}
           </FormItem>
           {/* 团队的命名空间 */}
-          <FormItem {...formItemLayout}  label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.englishName'/>}>
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.englishName'/>}
+          extra={
+            <div className={styles.conformDesc}>
+              <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.englishName'/>
+            </div>
+          }
+          >
             {getFieldDecorator('namespace', {
               rules: [
                 {
@@ -155,11 +165,11 @@ class CreateTeam extends PureComponent {
                 }
               ]
             })(<Input  placeholder={formatMessage({id:'popover.enterpriseOverview.setUpTeam.placeholder.englishName'})} />)}
-            <div className={styles.conformDesc}>
-              <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.englishName'/>
-            </div>
+
           </FormItem>
-          <FormItem {...formItemLayout}  label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.colony'/>}>
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.colony'/>} extra={
+            <div className={styles.conformDesc}> <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.colony'/></div>
+          }>
             {getFieldDecorator('useable_regions', {
               rules: [
                 {
@@ -181,7 +191,7 @@ class CreateTeam extends PureComponent {
                 })}
               </Select>
             )}
-            <div className={styles.conformDesc}> <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.colony'/></div>
+
           </FormItem>
         </Form>
       </Modal>

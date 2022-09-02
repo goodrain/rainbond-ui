@@ -21,6 +21,7 @@ import {
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import cookie from '../../utils/cookie';
 import AddGroup from '../../components/AddOrEditGroup';
 import rainbondUtil from '../../utils/rainbond';
 
@@ -34,6 +35,14 @@ const formItemLayout = {
   },
   wrapperCol: {
     span: 18
+  }
+};
+const formItemLayouts = {
+  labelCol: {
+    span: 11
+  },
+  wrapperCol: {
+    span: 13
   }
 };
 const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
@@ -58,7 +67,8 @@ export default class Index extends PureComponent {
       addGroup: false,
       endpointsType: 'static',
       visible: false,
-      staticList: ['']
+      staticList: [''],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onAddGroup = () => {
@@ -236,22 +246,23 @@ export default class Index extends PureComponent {
       showCreateGroup = true
     } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
-    const { endpointsType, staticList, addGroup } = this.state;
+    const { endpointsType, staticList, addGroup, language, } = this.state;
     const data = this.props.data || {};
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     const isService = handleType && handleType === 'Service';
+    const is_language = language ? formItemLayout : formItemLayouts
     const apiMessage = (
       <Alert
         message={formatMessage({id: 'teamAdd.create.third.Alert.warning'})}
         type="warning"
         showIcon
-        style={{ width: '350px', marginBottom: '20px' }}
+        style={language ? { width: '350px', marginBottom: '20px' } : { width: '250px', marginBottom: '20px' } }
       />
     );
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
@@ -264,32 +275,52 @@ export default class Index extends PureComponent {
             })(
               <Input
                 placeholder={formatMessage({id: 'placeholder.component_cname'})}
-                style={{
+                style={((language == false) && (isService==true)) ? {
+                  display: 'inline-block',
+                  width: 200,
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
+                } : {
                   display: 'inline-block',
                   width: 350,
-                  marginRight: 15
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
                 }}
               />
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
             {getFieldDecorator('k8s_component_name', {
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]
             })(
               <Input
-                style={{
+                style={((language == false) && (isService==true)) ? {
+                  display: 'inline-block',
+                  width: 200,
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
+                }  : {
                   display: 'inline-block',
                   width: 350,
-                  marginRight: 15
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
                 }}
                 placeholder={formatMessage({id: 'placeholder.k8s_component_name'})}
               />
             )}
           </Form.Item>
 
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
               rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
@@ -297,10 +328,19 @@ export default class Index extends PureComponent {
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({id: 'placeholder.appName'})}
-                style={{
+                style={((language == false) && (isService==true)) ? {
+                  display: 'inline-block',
+                  width: 200,
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  // overflow: 'hidden',
+                  whiteSpace: 'nowrap'
+                } : {
                   display: 'inline-block',
                   width: 350,
-                  marginRight: 15
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
                 }}
                 disabled={!!isService}
               >
@@ -316,7 +356,7 @@ export default class Index extends PureComponent {
             ) : null}
           </Form.Item>
 
-          <FormItem {...formItemLayout} label={formatMessage({id: 'teamAdd.create.third.componentRegister'})}>
+          <FormItem {...is_language} label={formatMessage({id: 'teamAdd.create.third.componentRegister'})}>
             {getFieldDecorator('endpoints_type', {
               rules: [{ required: true, message: formatMessage({id: 'placeholder.endpoints'}) }],
               initialValue: this.state.endpointsType
@@ -340,7 +380,7 @@ export default class Index extends PureComponent {
 
           {endpointsType == 'static' && (
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={
                 <span>
                   {formatMessage({id: 'teamAdd.create.third.componentAddress'})}
@@ -364,7 +404,7 @@ export default class Index extends PureComponent {
                 <div>
                   {staticList.map((item, index) => {
                     return (
-                      <Row style={{ width: 370 }} key={index}>
+                      <Row style={language&&isService ? { width: 370 } :  { width: 280 } } key={index}>
                         <Col span={18}>
                           <Input
                             onChange={this.onKeyChange.bind(
@@ -403,31 +443,52 @@ export default class Index extends PureComponent {
 
           {endpointsType === 'kubernetes' && (
             <div>
-              <FormItem {...formItemLayout} label="Namespace">
+              <FormItem {...is_language} label="Namespace">
                 {getFieldDecorator('namespace', {
                   rules: [{ required: false, message: formatMessage({id: "placeholder.nameSpaceMsg"}) }],
                   initialValue: ''
                 })(
                   <Input
-                    style={{
+                    style={((language == false) && (isService==true))? {
+                      display: 'inline-block',
+                      width: 200,
+                      marginRight: 15,
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
+                    } : {
                       display: 'inline-block',
                       width: 350,
-                      marginRight: 15
-                    }}
+                      marginRight: 15,
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
+                    }
+                  }
                     placeholder={formatMessage({id: "placeholder.nameSpace"})}
                   />
                 )}
               </FormItem>
-              <FormItem {...formItemLayout} label="Service">
+              <FormItem {...is_language} label="Service">
                 {getFieldDecorator('serviceName', {
                   rules: [{ required: true, message: formatMessage({id: "placeholder.serviceName"}) }],
                   initialValue: ''
                 })(
                   <Input
-                    style={{
+                    style={((language == false) && (isService==true))? {
+                      display: 'inline-block',
+                      width: 200,
+                      marginRight: 15,
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
+                    } : {
                       display: 'inline-block',
                       width: 350,
-                      marginRight: 15
+                      marginRight: 15,
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
                     }}
                     placeholder={formatMessage({id: "placeholder.serviceName"})}
                   />
@@ -441,8 +502,8 @@ export default class Index extends PureComponent {
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
                 sm: {
-                  span: formItemLayout.wrapperCol.span,
-                  offset: formItemLayout.labelCol.span
+                  span: is_language.wrapperCol.span,
+                  offset: is_language.labelCol.span
                 }
               }}
               label=""

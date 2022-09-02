@@ -1,12 +1,20 @@
 import { Form, Input, Modal } from 'antd';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 
 @Form.create()
 export default class ImageHubForm extends PureComponent {
+  constructor(props){
+    super(props);
+    this.state= {
+      language: cookie.get('language') === 'zh-CN' ? true : false
+    }
+    
+  }
   onOk = e => {
     e.preventDefault();
     const { onOk, form } = this.props;
@@ -19,6 +27,7 @@ export default class ImageHubForm extends PureComponent {
   render() {
     const { title, onCancel, data = {}, form, loading = false } = this.props;
     const { getFieldDecorator } = form;
+    const {language} = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -26,9 +35,20 @@ export default class ImageHubForm extends PureComponent {
       },
       wrapperCol: {
         xs: { span: 24 },
+        sm: { span: 15 }
+      }
+    };
+    const formItemLayouts = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 8 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
         sm: { span: 16 }
       }
     };
+    const is_language = language ? formItemLayout : formItemLayouts
     return (
       <Modal
         title={title}
@@ -39,7 +59,7 @@ export default class ImageHubForm extends PureComponent {
         onOk={this.onOk}
       >
         <Form onSubmit={this.onOk}>
-          <Form.Item {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_url'})}>
+          <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_url'})}>
             <Input.Group compact>
               {getFieldDecorator('hub_url', {
                 initialValue: data.hub_url || '',
@@ -56,7 +76,7 @@ export default class ImageHubForm extends PureComponent {
               })(<Input placeholder={formatMessage({id:'placeholder.git_url'})} />)}
             </Input.Group>
           </Form.Item>
-          <Form.Item {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.namespace'})}>
+          <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.namespace'})}>
             {getFieldDecorator('namespace', {
               initialValue: data.namespace || '',
               rules: [
@@ -66,12 +86,12 @@ export default class ImageHubForm extends PureComponent {
                 },
                 {
                   pattern: /^[a-zA-Z][\da-zA-Z]*$/,
-                  message: formatMessage({id:'placeholder.oauth.namespace.reg'})
+                  message: formatMessage({id:'placeholder.appShare.formatError'})
                 }
               ]
             })(<Input placeholder={formatMessage({id:'placeholder.oauth.namespace'})} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_user'})}>
+          <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_user'})}>
             {getFieldDecorator('hub_user', {
               initialValue: data.hub_user || '',
               rules: [
@@ -82,7 +102,7 @@ export default class ImageHubForm extends PureComponent {
               ]
             })(<Input placeholder={formatMessage({id:'placeholder.userName'})} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_password'})}>
+          <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_password'})}>
             {getFieldDecorator('hub_password', {
               initialValue: data.hub_password || '',
               rules: [

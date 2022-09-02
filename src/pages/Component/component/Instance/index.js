@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
+import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
@@ -13,7 +14,8 @@ class Index extends PureComponent {
     super(props);
     this.state = {
       visible: false,
-      instanceInfo: null
+      instanceInfo: null,
+      language : cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
 
@@ -161,7 +163,7 @@ class Index extends PureComponent {
   };
   render() {
     const { new_pods: newPods, old_pods: oldPods } = this.props;
-    const { instanceInfo, visible } = this.state;
+    const { instanceInfo, visible, language } = this.state;
     const isOldPods = oldPods && oldPods.length > 0;
     return (
       <div>
@@ -178,7 +180,7 @@ class Index extends PureComponent {
             {instanceInfo && JSON.stringify(instanceInfo) !== '{}' && (
               <div className={styles.instanceBox}>
                 <div>
-                  <ul className={styles.instanceInfo}>
+                  <ul className={language ? styles.instanceInfo : styles.en_instanceInfo }>
                     <li>
                       <span><FormattedMessage id='componentOverview.body.tab.overview.instance.node'/></span>
                       <Tooltip title={instanceInfo.node_ip}>

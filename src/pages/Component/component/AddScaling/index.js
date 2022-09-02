@@ -4,6 +4,7 @@ import React, { PureComponent } from 'react';
 import Indicators from '../../../../../public/images/indicators.png';
 import Shangxian from '../../../../../public/images/shangxian.png';
 import Testimg from '../../../../../public/images/test.png';
+import cookie from '../../../../utils/cookie';
 import styles from './AddScaling.less';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
@@ -23,7 +24,8 @@ class AddScaling extends PureComponent {
         { value: 'memoryutilization', name: formatMessage({id:'componentOverview.body.Expansion.AddScaling.memory_rate'}) },
         { value: 'cpuaverage_value', name: formatMessage({id:'componentOverview.body.Expansion.AddScaling.usage'}) },
         { value: 'cpuutilization', name: formatMessage({id:'componentOverview.body.Expansion.AddScaling.rate'}) }
-      ]
+      ],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   handleSubmit = e => {
@@ -74,7 +76,7 @@ class AddScaling extends PureComponent {
       memoryList
     } = this.props;
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { selectMemoryList } = this.state;
+    const { selectMemoryList, language } = this.state;
     const propsData = data || false;
 
     const minNumber = getFieldValue('minNum') || 0;
@@ -90,7 +92,17 @@ class AddScaling extends PureComponent {
         sm: { span: 19 }
       }
     };
-
+    const en_formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 8 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 16 }
+      }
+    };
+ const is_language = language ? formItemLayout : en_formItemLayout
     return (
       <div>
         <Modal
@@ -122,7 +134,7 @@ class AddScaling extends PureComponent {
                     &nbsp;:
                   </div>
                 }
-                {...formItemLayout}
+                {...is_language}
                 style={{ textAlign: 'left' }}
               >
                 {getFieldDecorator('minNum', {
@@ -155,7 +167,7 @@ class AddScaling extends PureComponent {
                     &nbsp;:
                   </div>
                 }
-                {...formItemLayout}
+                {...is_language}
                 style={{ textAlign: 'left' }}
               >
                 {getFieldDecorator('maxNum', {
@@ -181,7 +193,7 @@ class AddScaling extends PureComponent {
 
             <FormItem
               className={styles.clearConform}
-              {...formItemLayout}
+              {...is_language}
               label={
                 <div className={styles.clearConformMinTitle}>
                   <img src={Indicators} alt="" />
@@ -228,7 +240,7 @@ class AddScaling extends PureComponent {
                   &nbsp;:
                 </div>
               }
-              {...formItemLayout}
+              {...is_language}
               style={{ textAlign: 'left' }}
             >
               {getFieldDecorator('value', {

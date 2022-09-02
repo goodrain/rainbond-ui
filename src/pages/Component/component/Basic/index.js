@@ -4,6 +4,7 @@ import { Col, Form, Row, Tooltip } from 'antd';
 import numeral from 'numeral';
 import React, { Fragment, PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
+import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
@@ -11,7 +12,9 @@ import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 class Index extends PureComponent {
   constructor(arg) {
     super(arg);
-    this.state = {};
+    this.state = {
+      language : cookie.get('language') === 'zh-CN' ? true : false,
+    };
   }
   componentDidMount() {}
 
@@ -23,6 +26,7 @@ class Index extends PureComponent {
     }
   };
   render() {
+    const { language } = this.state; 
     const {
       status,
       beanData,
@@ -52,7 +56,7 @@ class Index extends PureComponent {
                     color: globalUtil.fetchStateColor(status && status.status)
                   }}
                 >
-                  {(status && status.status_cn) || ''}
+                  {(status && (language == true) ?  status.status_cn : status.status) || ''}
                 </h2>
                 <div className={styles.buildCommitInfo}>
                   <ul className={styles.buildInfo}>
@@ -132,8 +136,8 @@ class Index extends PureComponent {
                 </div>
               </div>
               <div className={styles.buildRightBox}>
-                <h2 className={` ${styles.alcen} ${styles.buildState} `}>
-                  <span className={` ${styles.alcen} ${styles.buildwidth} `}>
+                <h2 className={` ${styles.en_alcen} ${styles.buildState} `}>
+                  <span className={` ${styles.en_alcen}  `}>
                     {globalUtil.fetchSvg('version')}
 
                     <span style={{ color: 'rgba(0,0,0,0.65)' }}>
@@ -159,7 +163,7 @@ class Index extends PureComponent {
                     <li>
                       <a target="_blank">
                         <span
-                          className={` ${styles.alcen} ${styles.buildwidth} `}
+                          className={` ${styles.en_alcen}  `}
                         >
                           {globalUtil.fetchSvg('warehouse')}
                           {buildSource && buildSource === 'source_code'
@@ -196,7 +200,7 @@ class Index extends PureComponent {
                     <li>
                       <a target="_blank">
                         <span
-                          className={` ${styles.alcen} ${styles.buildwidth} `}
+                          className={` ${styles.en_alcen}  `}
                         >
                           {globalUtil.fetchSvg('basicInfo')}
                           {buildSource && buildSource === 'source_code'
@@ -217,6 +221,7 @@ class Index extends PureComponent {
                               : beanData.image_repo && beanData.image_repo)
                           }
                         >
+                          {console.log(beanData,"beanData")}
                           <span className={styles.buildText}>
                             {beanData
                               ? beanData.kind && beanData.kind === '源码构建'
@@ -236,7 +241,7 @@ class Index extends PureComponent {
                     <li>
                       <a target="_blank">
                         <span
-                          className={` ${styles.alcen} ${styles.buildwidth} `}
+                          className={` ${styles.en_alcen}  `}
                         >
                           {globalUtil.fetchSvg('branch')}
 

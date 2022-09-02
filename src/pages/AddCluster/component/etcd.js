@@ -74,6 +74,7 @@ class DAinput extends Component {
                   }}
                   value={item.ip}
                   placeholder={regexPlaceholder}
+                  style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
               </Col>
               <Col span={4} style={{ textAlign: 'center' }}>

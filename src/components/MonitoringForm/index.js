@@ -1,6 +1,7 @@
 import { Form, Icon, Input, Modal } from 'antd';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -10,7 +11,8 @@ export default class MonitoringForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      advancedConfiguration: false
+      advancedConfiguration: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onOk = e => {
@@ -32,6 +34,7 @@ export default class MonitoringForm extends PureComponent {
   render() {
     const { title, onCancel, data = {}, form, loading = false } = this.props;
     const { getFieldDecorator } = form;
+    const { language } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -42,6 +45,17 @@ export default class MonitoringForm extends PureComponent {
         sm: { span: 16 }
       }
     };
+    const formItemLayouts = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 8 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 16 }
+      }
+    };
+    const is_language = language ? formItemLayout : formItemLayouts;
     const { advancedConfiguration } = this.state;
     const monitoringObj = { display: advancedConfiguration ? 'block' : 'none' };
     return (
@@ -54,7 +68,7 @@ export default class MonitoringForm extends PureComponent {
         onOk={this.onOk}
       >
         <Form onSubmit={this.onOk}>
-          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.home_url'})}>
+          <FormItem {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.home_url'})}>
             <Input.Group compact>
               {getFieldDecorator('home_url', {
                 initialValue: data.home_url || '',
@@ -81,7 +95,7 @@ export default class MonitoringForm extends PureComponent {
             </div>
           )}
 
-          <FormItem style={monitoringObj} {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix'})}>
+          <FormItem style={monitoringObj} {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix'})}>
             {getFieldDecorator('cluster_monitor_suffix', {
               initialValue: data.cluster_monitor_suffix || '',
               rules: [
@@ -92,7 +106,7 @@ export default class MonitoringForm extends PureComponent {
               ]
             })(<Input placeholder={formatMessage({id:'placeholder.oauth.cluster_monitor_suffix'})} />)}
           </FormItem>
-          <FormItem style={monitoringObj} {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.node_monitor_suffix'})}>
+          <FormItem style={monitoringObj} {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.node_monitor_suffix'})}>
             {getFieldDecorator('node_monitor_suffix', {
               initialValue: data.node_monitor_suffix || '',
               rules: [
@@ -103,7 +117,7 @@ export default class MonitoringForm extends PureComponent {
               ]
             })(<Input placeholder={formatMessage({id:'placeholder.oauth.node_monitor_suffix'})} />)}
           </FormItem>
-          <FormItem style={monitoringObj} {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.component_monitor_suffix'})}>
+          <FormItem style={monitoringObj} {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.component_monitor_suffix'})}>
             {getFieldDecorator('component_monitor_suffix', {
               initialValue: data.component_monitor_suffix || '',
               rules: [
@@ -114,7 +128,7 @@ export default class MonitoringForm extends PureComponent {
               ]
             })(<Input placeholder={formatMessage({id:'placeholder.oauth.component_monitor_suffix'})} />)}
           </FormItem>
-          <FormItem style={monitoringObj} {...formItemLayout} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.slo_monitor_suffix'})}>
+          <FormItem style={monitoringObj} {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.slo_monitor_suffix'})}>
             {getFieldDecorator('slo_monitor_suffix', {
               initialValue: data.slo_monitor_suffix || '',
               rules: [

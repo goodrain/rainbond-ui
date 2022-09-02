@@ -303,7 +303,7 @@
         'confirmModal.app.label.tag':'Tag',
         'confirmModal.app.label.not_change':'The version change is not supported',
         'confirmModal.app.label.third_party':'Third-party Components',
-        'confirmModal.app.label.mirror_image':'Mirror image:',
+        'confirmModal.app.label.mirror_image':'Image:',
         'confirmModal.app.label.sound_code':'Sound code:',
         'confirmModal.app.label.component_library':'Component gallery:',
         'confirmModal.app.label.local':'Local file:',
@@ -324,6 +324,7 @@
         //修改负责人
         'confirmModal.app.title.principal':'Modify responsible person',
         'confirmModal.app.lable.principal':'Principal',
+        'confirmModal.app.lable.principal':'Please select the person in charge',
 
         //删除/编辑/添加成员
         'confirmModal.add.member':'Add members',

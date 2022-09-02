@@ -149,21 +149,21 @@ class EditName extends PureComponent {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error(<FormattedMessage id='componentOverview.EditName.input_en_name'/>));
+      return callback(new Error(`${formatMessage({id:'componentOverview.EditName.input_en_name'})}` ));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
           new Error(
-            <FormattedMessage id='componentOverview.EditName.only'/>
+            `${formatMessage({id:'componentOverview.EditName.only'})}`
           )
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error(<FormattedMessage id='componentOverview.EditName.Cannot'/>));
+      return callback(new Error( `${formatMessage({id:'componentOverview.EditName.Cannot'})}` ));
     }
   };
   render() {
@@ -212,7 +212,7 @@ class EditName extends PureComponent {
           {/* 集群组件名称 */}
           <FormItem
             label={<FormattedMessage id="componentOverview.EditName.en_name"/>}
-            extra={<FormattedMessage id="componentOverview.EditName.close"/>}
+            extra={formatMessage({id:'componentOverview.EditName.close'})}
           >
             {getFieldDecorator('k8s_component_name', {
               initialValue: k8sComponentName || '',

@@ -5,6 +5,7 @@ import { Card } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ThirdList from '../../components/ThirdList';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
@@ -148,7 +149,7 @@ export default class Index extends PureComponent {
                 fontSize: 14,
               }}
             >
-              尚未绑定{type}账号
+              {formatMessage({id:'teamOther.edit.unbounded'},{type:type})}
               <a
                 href={authUrl}
                 target="_blank"
@@ -158,7 +159,7 @@ export default class Index extends PureComponent {
                 }}
                 type="primary"
               >
-                去认证
+                {formatMessage({id:'teamOther.edit.go'})}
               </a>
             </div>
           ) : (

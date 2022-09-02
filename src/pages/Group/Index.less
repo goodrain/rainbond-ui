@@ -54,8 +54,9 @@
         width: 50%;
         display: flex;
         padding: 10px;
+        justify-content: space-evenly;
         .connect_Boxs {
-          width: 50%;
+          // width: 50%;
           text-align: center;
           div:nth-of-type(1) {
             font-size: 14px;
@@ -104,6 +105,25 @@
         }
         text-align: center;
         width: 25%;
+      }
+    }
+    .en_conrBot {
+      display: flex;
+      border: 1px solid #eee;
+      padding: 10px;
+      border-radius: 10px;
+      justify-content: space-evenly;
+      & > div:nth-of-type(1) {
+        font-size: 14px;
+      }
+      .conrBox {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        & > div:nth-of-type(2) {
+          margin-top: 10px;
+        }
+        text-align: center;
       }
     }
   }

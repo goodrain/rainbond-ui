@@ -88,8 +88,8 @@ const appOverview = {
 const appPublish = {
   'appPublish.title': 'Release record management',
   'appPublish.desc': 'Application publishing means to model the currently running applications, form application templates and release them to the enterprise application market or cloud application store, so as to support standardized application delivery or sharing',
-  'appPublish.btn.local':'Publish to a component library',
-  'appPublish.btn.market':'Publish to the cloud app store',
+  'appPublish.btn.local':'Publish to Local',
+  'appPublish.btn.market':'Publish to Cloud',
   'appPublish.table.publishName':'Publish template name',
   'appPublish.table.versions':'Version number (alias)',
   'appPublish.table.versions.null':'No version description is available',
@@ -180,8 +180,8 @@ const appPublish = {
 const appBackups = {
   'appBackups.title':'Backup management',
   'appBackups.desc':'Application backup is a complete backup of the metadata, persistent data, and version data of the current application. Backup records can be used for application migration and rollback, and cloud backup records can be used for cross-cluster application migration',
-  'appBackups.btn.addBackups':'New backup',
-  'appBackups.btn.importBackups':'Import backup',
+  'appBackups.btn.addBackups':'New',
+  'appBackups.btn.importBackups':'Import',
   'appBackups.btn.allBackups':'Full team backup',
   'appBackups.table.backupsTime':'Backup time',
   'appBackups.table.backupsPerson':'Backup person',
@@ -387,4 +387,15 @@ const componentCheck = {
 
 
 }
-export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck);
+const otherAppAssembly = {
+  'otherApp.marketDrawer.edition':'edition:',
+  'otherApp.marketDrawer.click':'Click Install',
+  'otherApp.marketDrawer.not':'Not installable',
+  'otherApp.marketDrawer.Memory':'Memory:',
+  'otherApp.marketDrawer.Select_version':'Select version',
+  'otherApp.marketDrawer.input_version':'Please select version',
+  'otherApp.marketDrawer.more':'See more...',
+  'otherApp.marketDrawer.creat':'Create component',
+  'otherApp.marketDrawer.store':'Obtain cloud app store authorization',
+}
+export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly);

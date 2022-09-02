@@ -52,7 +52,9 @@ class CreateAppModels extends PureComponent {
       organizationsLoading: true,
       tagLoading: true,
       isAddLicense: false,
-      enterpriseTeamsLoading: true
+      enterpriseTeamsLoading: true,
+      language: cookie.get('language') === 'zh-CN' ? true : false
+
     };
   }
   componentDidMount() {
@@ -410,7 +412,8 @@ class CreateAppModels extends PureComponent {
       enterpriseTeamsLoading,
       organizationsLoading,
       organizations,
-      submitLoading
+      submitLoading,
+      language
     } = this.state;
 
     const formItemLayout = {
@@ -423,6 +426,17 @@ class CreateAppModels extends PureComponent {
         sm: { span: 19 }
       }
     };
+    const formItemLayouts = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 6 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 18 }
+      }
+    };
+    const is_formItemLayout = language ? formItemLayout : formItemLayouts
     const arr = [];
 
     if (
@@ -481,7 +495,7 @@ class CreateAppModels extends PureComponent {
         >
           <Spin spinning={organizationsLoading || tagLoading}>
             <Form onSubmit={this.handleSubmit} layout="horizontal">
-              <FormItem {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.name'})}>
+              <FormItem {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.name'})}>
                 {getFieldDecorator('name', {
                   initialValue: appName || (appInfo ? appInfo.app_name : ''),
                   rules: [
@@ -504,7 +518,7 @@ class CreateAppModels extends PureComponent {
                 </div>
               </FormItem>
               {!marketId && (
-                <FormItem {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.scope'})}>
+                <FormItem {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.scope'})}>
                   {getFieldDecorator('scope', {
                     initialValue: appInfo
                       ? isShared && appInfo.scope && appInfo.scope === 'team'
@@ -580,7 +594,7 @@ class CreateAppModels extends PureComponent {
                 </FormItem>
               )}
               {marketId && marketVersion && marketVersion === '2.0' && (
-                <FormItem {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.org_id'})}>
+                <FormItem {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.org_id'})}>
                   {getFieldDecorator('org_id', {
                     rules: [
                       {
@@ -601,7 +615,7 @@ class CreateAppModels extends PureComponent {
                   )}
                 </FormItem>
               )}
-              <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.tag_ids'})}>
+              <Form.Item {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.tag_ids'})}>
                 {getFieldDecorator('tag_ids', {
                   initialValue: arr,
                   rules: [
@@ -630,7 +644,7 @@ class CreateAppModels extends PureComponent {
                   </Select>
                 )}
               </Form.Item>
-              <FormItem {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.describe'})}>
+              <FormItem {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.describe'})}>
                 {getFieldDecorator('describe', {
                   initialValue: appInfo
                     ? appInfo.describe || appInfo.app_describe
@@ -646,7 +660,7 @@ class CreateAppModels extends PureComponent {
                   {formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.model_intro'})}
                 </div>
               </FormItem>
-              <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.logo'})}>
+              <Form.Item {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.logo'})}>
                 {getFieldDecorator('pic', {
                   initialValue: appInfo ? appInfo.pic : '',
                   rules: [

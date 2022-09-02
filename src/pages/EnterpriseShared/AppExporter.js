@@ -199,16 +199,16 @@ export default class AppExporter extends PureComponent {
   };
   getStatus = status => {
     if (!status.is_export_before) {
-      return formatMessage({id:'status.not_export'});
+      return `${formatMessage({id:'status.not_export'})}`;
     }
     if (status.status == 'success') {
-      return formatMessage({id:'notification.success.successed'});
+      return `${formatMessage({id:'notification.success.successed'})}`;
     }
     if (status.status == 'failed') {
-      return formatMessage({id:'notification.success.Failed'});
+      return `${formatMessage({id:'notification.success.Failed'})}`;
     }
     if (status.status == 'exporting') {
-      return formatMessage({id:'status.underway'});
+      return `${formatMessage({id:'status.underway'})}`;
     }
   };
   handleVersionInfo = () => {

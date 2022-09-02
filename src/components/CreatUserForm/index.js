@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import TenantSelect from '../../components/TenantSelect';
+import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -13,7 +14,8 @@ class CreateUserForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      authorityList: []
+      authorityList: [],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   /**
@@ -79,7 +81,7 @@ class CreateUserForm extends PureComponent {
     } = this.props;
 
     const { getFieldDecorator } = form;
-    const { authorityList } = this.state;
+    const { authorityList, language } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -90,6 +92,17 @@ class CreateUserForm extends PureComponent {
         sm: { span: 18 }
       }
     };
+    const formItemLayouts = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 17 }
+      }
+    };
+    const is_language = language ? formItemLayout : formItemLayouts;
     return (
       <Modal
         visible
@@ -102,7 +115,7 @@ class CreateUserForm extends PureComponent {
       >
         <Form onSubmit={this.handleSubmit}>
           {!userInfo && (
-            <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.user_name'})}>
+            <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.user_name'})}>
               {getFieldDecorator('user_name', {
                 initialValue: userInfo ? userInfo.nick_name : '',
                 rules: [
@@ -123,7 +136,7 @@ class CreateUserForm extends PureComponent {
               })(<Input autoComplete="off" placeholder={formatMessage({id:'placeholder.createUser.user_name'})} />)}
             </FormItem>
           )}
-          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.real_name'})}>
+          <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.real_name'})}>
             {getFieldDecorator('real_name', {
               initialValue: (userInfo && userInfo.real_name) || '',
               rules: [
@@ -142,7 +155,7 @@ class CreateUserForm extends PureComponent {
             )}
           </FormItem>
           {!userInfo && (
-            <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.password'})}>
+            <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.password'})}>
               {getFieldDecorator('password', {
                 initialValue: (userInfo && userInfo.password) || '',
                 rules: [
@@ -160,7 +173,7 @@ class CreateUserForm extends PureComponent {
             </FormItem>
           )}
           {!userInfo && (
-            <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.email'})}>
+            <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.email'})}>
               {getFieldDecorator('email', {
                 initialValue: (userInfo && userInfo.email) || '',
                 rules: [
@@ -176,7 +189,7 @@ class CreateUserForm extends PureComponent {
               )}
             </FormItem>
           )}
-          <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.phone'})}>
+          <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.phone'})}>
             {getFieldDecorator('phone', {
               initialValue: (userInfo && userInfo.phone) || '',
               rules: [
@@ -194,7 +207,7 @@ class CreateUserForm extends PureComponent {
             )}
           </FormItem>
           {userInfo && (
-            <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.new_password'})}>
+            <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.new_password'})}>
               {getFieldDecorator('password', {
                 initialValue: (userInfo && userInfo.password) || '',
                 rules: [
@@ -206,13 +219,14 @@ class CreateUserForm extends PureComponent {
                 <Input.Password
                   autoComplete="new-password"
                   placeholder={formatMessage({id:'placeholder.createUser.new_password'})}
+                  style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
               )}
             </FormItem>
           )}
           {!userInfo && (
             <div>
-              <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.tenant_name'})}>
+              <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.tenant_name'})}>
                 {getFieldDecorator('tenant_name', {
                   rules: [{ required: false, message: formatMessage({id:'placeholder.createUser.selectTeam'}) }]
                 })(
@@ -223,7 +237,7 @@ class CreateUserForm extends PureComponent {
                   />
                 )}
               </FormItem>
-              <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseUser.form.label.role_ids'})}>
+              <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.role_ids'})}>
                 {getFieldDecorator('role_ids', {
                   initialValue: [],
                   rules: [{ required: false, message: formatMessage({id:'placeholder.createUser.role_ids'}) }]

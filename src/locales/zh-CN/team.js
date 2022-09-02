@@ -24,7 +24,7 @@ const teamOverview = {
   'teamOverview.memory': '内存',
   'teamOverview.visit': '访问',
   'teamOverview.appList': '应用列表',
-  'teamOverview.result.title':'集群端失去响应，稍后重试',
+  'teamOverview.result.title':'集群端失去响应，稍后重试。',
   'teamOverview.result.description':'若一直无法加载，请联系集群管理员查看集群状态',
   'teamOverview.loadOverview':'重新加载',
   'teamOverview.runAppNums': '运行：{ number }个',
@@ -292,6 +292,42 @@ const teamManage = {
   
 }
 
+const teamOther = {
+  'teamOther.AddThirdParty.start':'从第三方组件开始',
+  'teamOther.AddThirdParty.Third':'第三方组件',
+  'teamOther.AddThirdParty.add':'添加第三方组件',
+  'teamOther.Group.tit':'应用信息',
+  'teamOther.Group.desc':'应用由一个或多个服务组成，可以管理一个完整业务系统，比如：OA、CRM、ERP等，也可以管理一个完整的微服务架构的系统，这里展示了应用的基本信息。',
+  'teamOther.Group.app':'应用拓扑图',
+  'teamOther.Group.know':'已知晓',
+  'teamOther.Group.Topological':'这是应用内部的服务拓扑图，通过拓扑图可以整体了解服务的运行状态和依赖关系，每个六边形就是一个服务，点击六边形可以进入服务的管理页面。',
+  // AllBackup
+  'teamOther.AllBackup.Backup':'备份中',
+  'teamOther.AllBackup.success':'备份成功',
+  'teamOther.AllBackup.failed':'备份失败',
+  'teamOther.AllBackup.create_time':'备份时间',
+  'teamOther.AllBackup.user':'备份人',
+  'teamOther.AllBackup.mode':'备份模式',
+  'teamOther.AllBackup.full-online':'云端备份',
+  'teamOther.AllBackup.full-offline':'本地备份',
+  'teamOther.AllBackup.backup_size':'包大小',
+  'teamOther.AllBackup.state':'状态',
+  'teamOther.AllBackup.app':'备份应用',
+  'teamOther.AllBackup.remarks':'备注',
+  'teamOther.AllBackup.operation':'操作',
+  'teamOther.AllBackup.recovery':'恢复',
+  'teamOther.AllBackup.transfer':'迁移',
+  'teamOther.AllBackup.export':'导出',
+  'teamOther.AllBackup.delete':'删除',
+  'teamOther.AllBackup.records':'应用备份记录',
+  'teamOther.AllBackup.all_records':'应用备份记录是当前团队下的所有备份记录，包括已删除应用的备份记录，基于备份可以恢复或迁移已删除的应用',
 
+  'teamOther.edit.editHead':'修改负责人',
+  'teamOther.edit.head':'负责人',
+  'teamOther.edit.choose':'请选择负责人',
+  'teamOther.edit.go':'去认证',
+  'teamOther.edit.unbounded':'尚未绑定{type}账号',
 
-export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage);
+}
+
+export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther);

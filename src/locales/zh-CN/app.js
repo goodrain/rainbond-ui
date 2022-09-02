@@ -389,8 +389,17 @@ const componentCheck = {
   'componentCheck.advanced.setup.port_manage.title':'端口管理',
   'componentCheck.advanced.setup.environment_variable.title':'环境变量',
   'componentCheck.advanced.setup.port_manage.btn.null':'暂无端口',
-
-
-
 }
-export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck);
+
+const otherAppAssembly = {
+  'otherApp.marketDrawer.edition':'版本:',
+  'otherApp.marketDrawer.click':'点击安装',
+  'otherApp.marketDrawer.not':'不可安装',
+  'otherApp.marketDrawer.Memory':'内存:',
+  'otherApp.marketDrawer.Select_version':'选择版本',
+  'otherApp.marketDrawer.input_version':'请选择版本',
+  'otherApp.marketDrawer.more':'查看更多...',
+  'otherApp.marketDrawer.creat':'创建组件',
+  'otherApp.marketDrawer.store':'获取云应用商店授权',
+}
+export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly);

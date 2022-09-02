@@ -3,6 +3,7 @@ import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import cookie from '../../utils/cookie';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -11,7 +12,9 @@ const Option = Select.Option;
 export default class AddDomain extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      language: cookie.get('language') === 'zh-CN' ? true : false
+    };
   }
   handleSubmit = e => {
     e.preventDefault();
@@ -46,6 +49,7 @@ export default class AddDomain extends PureComponent {
   };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { language } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -64,6 +68,25 @@ export default class AddDomain extends PureComponent {
         }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 7
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 16
+        }
+      }
+    };
+    const is_language = language ? formItemLayout : en_formItemLayout
     const protocol = getFieldValue('protocol') || 'http';
     const { isAddLicense, certificates, addLicense } = this.props;
     return (
@@ -79,7 +102,7 @@ export default class AddDomain extends PureComponent {
           type="warning"
         />
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.AddDomain.title'/>}>
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.AddDomain.title'/>}>
             {getFieldDecorator('protocol', {
               initialValue: 'http',
               rules: [
@@ -98,7 +121,7 @@ export default class AddDomain extends PureComponent {
               </Select>
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.AddDomain.label_protocol.domain'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddDomain.label_protocol.domain'/>}>
             {getFieldDecorator('domain', {
               rules: [
                 {
@@ -117,7 +140,7 @@ export default class AddDomain extends PureComponent {
           {protocol == 'http' ? (
             ''
           ) : (
-            <FormItem {...formItemLayout} title={<FormattedMessage id='componentOverview.body.AddDomain.lable_certificate_id'/>}>
+            <FormItem {...is_language} title={<FormattedMessage id='componentOverview.body.AddDomain.lable_certificate_id'/>}>
               {getFieldDecorator('certificate_id', {
                 initialValue: '',
                 rules: [

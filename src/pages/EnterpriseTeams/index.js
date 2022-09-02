@@ -31,6 +31,7 @@ import OpenRegion from '../../components/OpenRegion';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import roleUtil from '../../utils/role';
 import userUtil from '../../utils/user';
+import cookie from '../../utils/cookie';
 import styles from './index.less';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
@@ -67,7 +68,8 @@ export default class EnterpriseTeams extends PureComponent {
       showOpenRegion: false,
       initShow: false,
       guideStep: 1,
-      searchConfig: false
+      searchConfig: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -518,7 +520,8 @@ export default class EnterpriseTeams extends PureComponent {
       showCloseAllComponent,
       closeTeamComponentLoading,
       initShow,
-      guideStep
+      guideStep,
+      language
     } = this.state;
 
     const request_join_team =
@@ -632,7 +635,7 @@ export default class EnterpriseTeams extends PureComponent {
       );
     };
     const operation = (
-      <Col span={7} style={{ textAlign: 'right' }} className={styles.btns}>
+      <Col span={language ? 7 : 6} style={{ textAlign: 'right' }} className={styles.btns}>
         {adminer ? (
           <Button
             type="primary"
@@ -661,7 +664,7 @@ export default class EnterpriseTeams extends PureComponent {
           }}
         >
           <Col
-            span={2}
+            span={language ? 2 : 3}
             className={styles.teamsTit}
             style={{ marginBottom: '0' }}
           >

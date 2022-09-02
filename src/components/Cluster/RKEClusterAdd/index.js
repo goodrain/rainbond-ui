@@ -141,7 +141,7 @@ class EditableCell extends React.Component {
             />
           ) : (
             <Input
-              placeholder={formatMessage({id:'enterpriseColony.addCluster.host.placese_input'},{title:title})}
+              placeholder={formatMessage({id:'enterpriseColony.addCluster.host.placese_input'},{title:title})} 
               ref={node => {
                 this.input = node;
                 if (
@@ -155,6 +155,9 @@ class EditableCell extends React.Component {
               }}
               onPressEnter={this.save}
               onBlur={this.save}
+              style={{textOverflow: 'ellipsis',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',width:'100%'}}
             />
           )
         )}
@@ -954,7 +957,10 @@ export default class RKEClusterConfig extends PureComponent {
                       },
                       { max: 24, message: formatMessage({id:'enterpriseColony.addCluster.host.max'}) }
                     ]
-                  })(<Input placeholder={formatMessage({id:'enterpriseColony.addCluster.host.only'})} />)}
+                  })(<Input placeholder={formatMessage({id:'enterpriseColony.addCluster.host.only'})}  
+                            style={{textOverflow: 'ellipsis',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap'}}/>)}
                 </Form.Item>
                 {guideStep && guideStep === 4 && handleNewbieGuiding && clusters && clusters.length === 0  && (
                   <Fragment>
