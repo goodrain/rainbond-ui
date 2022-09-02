@@ -212,72 +212,29 @@ export default class PageHeader extends PureComponent {
             </div>
           </div>
         </div>
-        {tabList.length > 3 ? (
-          <>
-            {tabList && tabList.length && (
-              <div className={styles.ServiceBox} style={{ margin: '0 0 -55px 15px' }}>
-                <Row style={{ marginBottom: '20px' }}>
-                  <Tabs defaultActiveKey="0">
-                    {tabList.map((item, index) => {
-                      const { key, tab } = item;
-                      return (
-                        <TabPane
-                          tab={
-                            <Col
-                              span={8}
-                              {...activeKeyProps}
-                              className={styles.ServiceDivs}
-                              onClick={this.handleTitleList.bind(this, item)}
-                            >
-                              <div style={{ display: 'flex', flexDirection: "column", justifyContent: 'center', alignItems: 'center', paddingLeft: '10px' }}>
-                                {isSvg &&
-                                  globalUtil.fetchSvg(
-                                    key === 'localApplication'
-                                      ? 'appComponent'
-                                      : key.indexOf('Helm-') > -1
-                                        ? 'HelmSvg'
-                                        : 'appmarket'
-                                  )}
-                                <p className={styles.ServiceSmallTitle} style={{ marginTop: "25px" }}>{tab}</p>
-                              </div>
-                            </Col>
-                          }
-                          key={index}
-                        >
-                        </TabPane>
-                      );
-                    })
-                    }
-                  </Tabs>
-                </Row>
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            {tabList.map(item => {
-              const { key, tab } = item;
-              return (
-                <Col
-                  span={8}
-                  {...activeKeyProps}
-                  className={styles.ServiceDiv}
-                  onClick={this.handleTitleList.bind(this, item)}
-                >
-                  {isSvg &&
-                    globalUtil.fetchSvg(
-                      key === 'localApplication'
-                        ? 'appComponent'
-                        : key.indexOf('Helm-') > -1
-                          ? 'HelmSvg'
-                          : 'appmarket'
-                    )}
-                  <p className={styles.ServiceSmallTitle}>{tab}</p>
-                </Col>
-              );
-            })}
-          </>
-        )}
+        <div style={{display:'flex'}}>
+          {tabList.map(item => {
+            const { key, tab } = item;
+            return (
+              <Col
+                style={{width:'20%'}}
+                {...activeKeyProps}
+                className={styles.ServiceDiv}
+                onClick={this.handleTitleList.bind(this, item)}
+              >
+                {isSvg &&
+                  globalUtil.fetchSvg(
+                    key === 'localApplication'
+                      ? 'appComponent'
+                      : key.indexOf('Helm-') > -1
+                        ? 'HelmSvg'
+                        : 'appmarket'
+                  )}
+                <p className={styles.ServiceSmallTitle}>{tab}</p>
+              </Col>
+            );
+          })}
+        </div>
       </div>
     );
   }

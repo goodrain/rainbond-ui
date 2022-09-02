@@ -62,11 +62,14 @@ const teamAdd = {
   'teamAdd.create.btn.createComponent':'New component',
   'teamAdd.create.error':'Parameter error',
   'teamAdd.create.createComponentTitle':'Create components',
+  'teamAdd.create.fileList':'List Files',
+  'teamAdd.create.null_data':'No Data',
   
   // code
   'teamAdd.create.code.title':'Create components from the source code',
   'teamAdd.create.code.desc':'Obtains the source code from the specified source repository and creates a new component based on the source information',
   'teamAdd.create.code.customSource':'Custom source code',
+  'teamAdd.create.code.package':'Package upload',
   'teamAdd.create.code.demo':'Official DEMO',
   'teamAdd.create.code.address':'Warehouse address',
   'teamAdd.create.code.versions':'Code version',
@@ -96,6 +99,8 @@ const teamAdd = {
   'teamAdd.create.upload.desc':'Third-party components are components that run outside the platform cluster. Creating a component on a platform can connect it seamlessly to the platform gateway and be accessed by services on the platform. To meet the users through the platform can be unified monitoring and management of various components.',
   'teamAdd.create.upload.format':'Upload format',
   'teamAdd.create.upload.uploadFiles':'Upload file',
+  'teamAdd.create.upload.uploadFiles.yaml':'YAML file upload',
+  'teamAdd.create.upload.uploadFiles.k8s':'Existing Kubernetes cluster imports',
   'teamAdd.create.upload.uploadJWar':'You can upload files in Jar and War formats',
   'teamAdd.create.upload.uploadYaml':'Only YAML files can be uploaded',
 

@@ -60,11 +60,14 @@ const teamAdd = {
   'teamAdd.create.btn.createComponent':'新建组件',
   'teamAdd.create.error':'参数错误',
   'teamAdd.create.createComponentTitle':'创建组件',
+  'teamAdd.create.fileList':'文件列表',
+  'teamAdd.create.null_data':'暂无数据',
   
   // code
   'teamAdd.create.code.title':'由源码创建组件',
   'teamAdd.create.code.desc':'从指定源码仓库中获取源码，基于源码信息创建新组件',
   'teamAdd.create.code.customSource':'自定义源码',
+  'teamAdd.create.code.package':'软件包上传',
   'teamAdd.create.code.demo':'官方DEMO',
   'teamAdd.create.code.address':'仓库地址',
   'teamAdd.create.code.versions':'代码版本',
@@ -94,6 +97,8 @@ const teamAdd = {
   'teamAdd.create.upload.desc':'第三方组件，即运行于平台集群外的组件，在平台中创建组件即可以将其与 平台网关无缝对接，同时也可以被平台内服务访问。满足用户通过平台可以对各类组件进行统一的监控和管理需要。',
   'teamAdd.create.upload.format':'上传格式',
   'teamAdd.create.upload.uploadFiles':'上传文件',
+  'teamAdd.create.upload.uploadFiles.yaml':'YAML文件上传',
+  'teamAdd.create.upload.uploadFiles.k8s':'已有Kubernetes集群导入',
   'teamAdd.create.upload.uploadJWar':'支持Jar、War格式上传文件',
   'teamAdd.create.upload.uploadYaml':'只支持yaml格式上传多文件',
 
