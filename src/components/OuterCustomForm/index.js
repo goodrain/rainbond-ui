@@ -22,7 +22,6 @@ import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import cookie from '../../utils/cookie';
-import cookie from '../../utils/cookie';
 import AddGroup from '../../components/AddOrEditGroup';
 import rainbondUtil from '../../utils/rainbond';
 
@@ -36,14 +35,6 @@ const formItemLayout = {
   },
   wrapperCol: {
     span: 18
-  }
-};
-const formItemLayouts = {
-  labelCol: {
-    span: 11
-  },
-  wrapperCol: {
-    span: 13
   }
 };
 const formItemLayouts = {
@@ -77,7 +68,6 @@ export default class Index extends PureComponent {
       endpointsType: 'static',
       visible: false,
       staticList: [''],
-      language: cookie.get('language') === 'zh-CN' ? true : false,
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
@@ -256,18 +246,17 @@ export default class Index extends PureComponent {
       showCreateGroup = true
     } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
-    const { endpointsType, staticList, addGroup, language, language } = this.state;
+    const { endpointsType, staticList, addGroup, language, } = this.state;
     const data = this.props.data || {};
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     const isService = handleType && handleType === 'Service';
-    const is_language = language ? formItemLayout : formItemLayouts
     const is_language = language ? formItemLayout : formItemLayouts
     const apiMessage = (
       <Alert
         message={formatMessage({id: 'teamAdd.create.third.Alert.warning'})}
         type="warning"
         showIcon
-        style={language ? language ? { width: '350px', marginBottom: '20px' } : { width: '250px', marginBottom: '20px' } : { width: '250px', marginBottom: '20px' }}
+        style={language ? { width: '350px', marginBottom: '20px' } : { width: '250px', marginBottom: '20px' } }
       />
     );
     return (
@@ -293,20 +282,10 @@ export default class Index extends PureComponent {
                   textOverflow: 'ellipsis',
                   overflow: 'hidden',
                   whiteSpace: 'nowrap'
-                } : ((language == false) && (isService==true)) ? {
-                  display: 'inline-block',
-                  width: 200,
-                  marginRight: 15,
-                  textOverflow: 'ellipsis',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap'
                 } : {
                   display: 'inline-block',
                   width: 350,
                   marginRight: 15,
-                  textOverflow: 'ellipsis',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis',
                   overflow: 'hidden',
                   whiteSpace: 'nowrap'
@@ -328,20 +307,10 @@ export default class Index extends PureComponent {
                   textOverflow: 'ellipsis',
                   overflow: 'hidden',
                   whiteSpace: 'nowrap'
-                } : ((language == false) && (isService==true)) ? {
-                  display: 'inline-block',
-                  width: 200,
-                  marginRight: 15,
-                  textOverflow: 'ellipsis',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap'
-                } : {
+                }  : {
                   display: 'inline-block',
                   width: 350,
                   marginRight: 15,
-                  textOverflow: 'ellipsis',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis',
                   overflow: 'hidden',
                   whiteSpace: 'nowrap'
@@ -366,19 +335,10 @@ export default class Index extends PureComponent {
                   textOverflow: 'ellipsis',
                   // overflow: 'hidden',
                   whiteSpace: 'nowrap'
-                } : ((language == false) && (isService==true)) ? {
-                  display: 'inline-block',
-                  width: 200,
-                  marginRight: 15,
-                  textOverflow: 'ellipsis',
-                  // overflow: 'hidden',
-                  whiteSpace: 'nowrap'
                 } : {
                   display: 'inline-block',
                   width: 350,
                   marginRight: 15,
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap'
                 }}
@@ -444,7 +404,7 @@ export default class Index extends PureComponent {
                 <div>
                   {staticList.map((item, index) => {
                     return (
-                      <Row style={language&&isService ? language&&isService ? { width: 370 } :  { width: 280 } :  { width: 280 }} key={index}>
+                      <Row style={language&&isService ? { width: 370 } :  { width: 280 } } key={index}>
                         <Col span={18}>
                           <Input
                             onChange={this.onKeyChange.bind(
@@ -502,12 +462,8 @@ export default class Index extends PureComponent {
                       marginRight: 15,
                       textOverflow: 'ellipsis',
                       overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
                       whiteSpace: 'nowrap'
                     }
-                  
                   }
                     placeholder={formatMessage({id: "placeholder.nameSpace"})}
                   />
@@ -530,9 +486,6 @@ export default class Index extends PureComponent {
                       display: 'inline-block',
                       width: 350,
                       marginRight: 15,
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
                       textOverflow: 'ellipsis',
                       overflow: 'hidden',
                       whiteSpace: 'nowrap'
