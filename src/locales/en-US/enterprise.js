@@ -276,6 +276,19 @@
         'applicationMarket.appsetting.determine':'Confirm to set to release status',
         'applicationMarket.appsetting.cancel_release':'Cancel the Release status',
         'applicationMarket.appsetting.determine_release':'Set it to the Release state',
+        // 导出离线包
+        'applicationMarket.offline_installer.title':'Export cloud city application',
+        'applicationMarket.offline_installer.alert':'The exported cloud city application is suitable for the delivery environment',
+        'applicationMarket.offline_installer.form.label.exoprt_versions':'Export version: ',
+        'applicationMarket.offline_installer.form.label.rainbond_app':'Application model specification',
+        'applicationMarket.offline_installer.form.label.rainbond_app.desc':'(Supports full application operation features)',
+        'applicationMarket.offline_installer.form.label.status':'Export state',
+        'applicationMarket.offline_installer.form.label.slug':'Export non-container packages',
+        'applicationMarket.offline_installer.form.label.slug.desc':'(Building from a container image does not export)',
+        'applicationMarket.offline_installer.form.label.docker_compose':'DockerComposeApp specification',
+        'applicationMarket.offline_installer.form.label.docker_compose.desc':'(The DockerCompose environment is available)',
+        'applicationMarket.offline_installer.confirm.label.release':'The current export version is not in Release state',
+        'applicationMarket.offline_installer.confirm.label.release.desc':'Continue exporting or not',
             // AppExporter
         'applicationMarket.AppExporter.import_rain':'Export cloud market application',
         'applicationMarket.AppExporter.import_app':'Export cloud market application (suitable for delivery environment)',
@@ -319,9 +332,9 @@
         'enterpriseTeamManagement.table.Administrator':'Administrators',
         'enterpriseTeamManagement.table.number':'Number',
         'enterpriseTeamManagement.table.colony':'Colony',
-        'enterpriseTeamManagement.table.memory':'Memory usage (MB)',
-        'enterpriseTeamManagement.table.CUP':'CPU Usage',
-        'enterpriseTeamManagement.table.quota':'Tenant quota (MB)',
+        'enterpriseTeamManagement.table.memory':'Memory usage (GB)',
+        'enterpriseTeamManagement.table.CUP':'CPU Usage (m)',
+        'enterpriseTeamManagement.table.quota':'Tenant quota (GB)',
         'enterpriseTeamManagement.table.operation':'Number of running applications',
         'enterpriseTeamManagement.table.handle':'Operation',
         // td 表体
@@ -358,9 +371,9 @@
         'table.tr.handle':'Operation',
         'table.tr.wayToInstall':'Installation method',
         'table.tr.belongToTeam':'Team',
-        'table.tr.useMemory':'Memory usage(MB)',
-        'table.tr.useCUP':'CPUUsage',
-        'table.tr.quota':'Tenant quota(MB)',
+        'table.tr.useMemory':'Memory usage(GB)',
+        'table.tr.useCUP':'CPUUsage(m)',
+        'table.tr.quota':'Tenant quota(GB)',
         'table.tr.runModule':'Number of running components',
         // 安装方式
         'enterpriseColony.table.custom':'Build by oneself Kubernetes',
@@ -973,6 +986,7 @@
         'enterpriseSetting.BackupManage.importBackups.alert':'Backup data restoration is a risky operation. This operation is recommended for cross-platform data migration scenarios, and the original restoration is performed only increments. If you do proceed, you will need to verify your identity twice.',
         'enterpriseSetting.BackupManage.importBackups.form.label.password':'Account password',
     }
+    //个人中心
     const otherEnterprise= {
         'otherEnterprise.AccesstokenView.note':'Purpose',
         'otherEnterprise.AccesstokenView.expire_time':'Expiration time',

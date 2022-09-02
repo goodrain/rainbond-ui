@@ -338,6 +338,7 @@ const componentCheck = {
   'componentCheck.advanced.setup.deploy_attr':'Deployment properties',
   'componentCheck.advanced.setup.component_attr':'Component attributes',
   'componentCheck.advanced.setup.basic_info.label.extend_method':'Component type',
+  'componentCheck.advanced.setup.basic_info.label.noLimit':'No limit',
   'componentCheck.advanced.setup.basic_info.label.schedule':'Operating rules：',
   'componentCheck.advanced.setup.basic_info.label.min_memory':'Memory',
   'componentCheck.advanced.setup.basic_info.label.min_cpu':'CPU',

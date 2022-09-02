@@ -288,7 +288,7 @@ export default class AddThirdParty extends PureComponent {
       <div>
         <div className={styles.ServiceBox}>
           <Row>
-            <p className={styles.ServiceTitle}>{formatMessage({id:'teamOther.AddThirdParty.start'})}</p>
+            <p className={styles.ServiceTitle}>{formatMessage({id:'menu.team.create.third'})}</p>
           </Row>
           <Row style={{ marginBottom: '30px' }}>
             <Col

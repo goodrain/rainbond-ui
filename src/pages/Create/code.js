@@ -12,6 +12,7 @@ import rainbondUtil from '../../utils/rainbond';
 import roleUtil from '../../utils/role';
 import CodeCustom from './code-custom';
 import CodeDemo from './code-demo';
+import Jwar from './jwar';
 
 @connect(
   ({ teamControl, global, enterprise }) => ({
@@ -48,22 +49,28 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName
     } = this.props;
-
+    console.log(match.params,'match.params')
     const map = {
       custom: CodeCustom,
-      demo: CodeDemo
+      demo: CodeDemo,
+      jwar: Jwar
     };
 
     const tabList = [
       {
         key: 'custom',
         tab: formatMessage({id: 'teamAdd.create.code.customSource'})
+      },
+      {
+        key: 'jwar',
+        tab: formatMessage({id: 'teamAdd.create.code.package'})
       }
     ];
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
       tabList.push({ key: 'demo', tab: formatMessage({id:'teamAdd.create.code.demo'})});
     }
     const servers = oauthUtil.getEnableGitOauthServer(enterprise);
+    console.log(servers,'servers')
     if (servers && servers.length > 0) {
       servers.map(item => {
         const { name, service_id, oauth_type } = item;
@@ -86,6 +93,7 @@ export default class Main extends PureComponent {
         return tabList;
       });
     }
+    
     let { type } = match.params;
     if (!type) {
       type = 'custom';
