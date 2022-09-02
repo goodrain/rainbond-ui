@@ -68,7 +68,6 @@ export default class Index extends PureComponent {
       endpointsType: 'static',
       visible: false,
       staticList: [''],
-      language: cookie.get('language') === 'zh-CN' ? true : false,
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
@@ -289,9 +288,6 @@ export default class Index extends PureComponent {
                   marginRight: 15,
                   textOverflow: 'ellipsis',
                   overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                  textOverflow: 'ellipsis',
-                  overflow: 'hidden',
                   whiteSpace: 'nowrap'
                 }}
               />
@@ -315,9 +311,6 @@ export default class Index extends PureComponent {
                   display: 'inline-block',
                   width: 350,
                   marginRight: 15,
-                  textOverflow: 'ellipsis',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis',
                   overflow: 'hidden',
                   whiteSpace: 'nowrap'
@@ -346,8 +339,6 @@ export default class Index extends PureComponent {
                   display: 'inline-block',
                   width: 350,
                   marginRight: 15,
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap'
                 }}
@@ -413,7 +404,7 @@ export default class Index extends PureComponent {
                 <div>
                   {staticList.map((item, index) => {
                     return (
-                      <Row style={language&&isService ? { width: 370 } :  { width: 280 }} key={index}>
+                      <Row style={language&&isService ? { width: 370 } :  { width: 280 } } key={index}>
                         <Col span={18}>
                           <Input
                             onChange={this.onKeyChange.bind(
@@ -471,12 +462,8 @@ export default class Index extends PureComponent {
                       marginRight: 15,
                       textOverflow: 'ellipsis',
                       overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
                       whiteSpace: 'nowrap'
                     }
-                  
                   }
                     placeholder={formatMessage({id: "placeholder.nameSpace"})}
                   />
@@ -499,9 +486,6 @@ export default class Index extends PureComponent {
                       display: 'inline-block',
                       width: 350,
                       marginRight: 15,
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
                       textOverflow: 'ellipsis',
                       overflow: 'hidden',
                       whiteSpace: 'nowrap'
