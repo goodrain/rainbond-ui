@@ -178,6 +178,9 @@
         'button.return':'返回',
         'button.configuration':'高级配置',
         'button.determine':'确认',
+        'button.to_export':'重新导出',
+        'button.download':'下载',
+        'button.export':'导出',
 
     }
     const status = {
@@ -195,6 +198,8 @@
         'status.loading':'加载中...',
         'status.not_mount':'未挂载',
         'status.mounted':'已挂载',
+        'status.not_export':'未导出',
+        'status.underway':'进行中',
     }
     const confirmModal = {
         //修改 删除

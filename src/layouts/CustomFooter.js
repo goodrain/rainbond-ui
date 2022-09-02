@@ -5,6 +5,7 @@ import styles from './PageHeaderLayout.less';
 
 export default () => (
   <DefaultFooter
+    style={{background:'none'}}
     className={styles.customFooter}
     copyright={new Date().getFullYear() + ' 北京好雨科技有限公司出品'}
     links={[

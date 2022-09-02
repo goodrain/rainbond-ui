@@ -273,20 +273,32 @@ export default class AddServiceComponent extends PureComponent {
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>
-                    {formatMessage({id:'appOverview.list.btn.addComponent.code.title'})}
+                    {formatMessage({id:'menu.team.create.code'})}
                   </p>
                 </Row>
-                <Row>
+                <Row type="flex">
                   <Col
-                    span={8}
+                    span={4}
                     className={styles.ServiceDiv}
                     onClick={() => {
                       this.handleServiceComponent(false, 'custom');
                     }}
                   >
                     {codeSvg}
-                    <p className={styles.ServiceSmallTitle}>
+                    <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
                     {formatMessage({id:'appOverview.list.btn.addComponent.custom'})}
+                    </p>
+                  </Col>
+                  <Col
+                    span={4}
+                    className={styles.ServiceDiv}
+                    onClick={() => {
+                      this.handleServiceComponent(false, 'jwar');
+                    }}
+                  >
+                    {uploadJarWar}
+                    <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
+                    {formatMessage({id:'appOverview.list.btn.addComponent.jwar'})}
                     </p>
                   </Col>
                   {servers &&
@@ -296,7 +308,7 @@ export default class AddServiceComponent extends PureComponent {
                       return (
                         <Col
                           key={id}
-                          span={8}
+                          span={4}
                           className={styles.ServiceDiv}
                           onClick={() => {
                             this.setState(
@@ -313,7 +325,7 @@ export default class AddServiceComponent extends PureComponent {
                             );
                           }}
                         >
-                          {oauthUtil.getIcon(item, '50px')}
+                          {oauthUtil.getIcon(item, '40px')}
                           <p className={styles.ServiceSmallTitle}>
                             {this.getGitServerName(item)}
                           </p>
@@ -321,7 +333,7 @@ export default class AddServiceComponent extends PureComponent {
                       );
                     })}
                 </Row>
-                <Row style={{ marginBottom: '2px' }}>
+                {/* <Row style={{ marginBottom: '2px' }}>
                   {rainbondUtil.documentPlatform_url(rainbondInfo) && (
                     <Alert
                       message={
@@ -347,12 +359,38 @@ export default class AddServiceComponent extends PureComponent {
                       showIcon
                     />
                   )}
+                </Row> */}
+              </div>
+              <div className={styles.ServiceBox}>
+                <Row>
+                  <p
+                    className={styles.ServiceTitle}
+                    style={{ marginBottom: '20px' }}
+                  >
+                   {formatMessage({id:'menu.team.create.market'})}
+                  </p>
+                </Row>
+                <Row>
+                  <MarketDrawer
+                    {...MarketParameter}
+                    isHelm={false}
+                    handleServiceComponent={scopeMax => {
+                      this.handleServiceComponent(
+                        false,
+                        'market',
+                        null,
+                        'moreState',
+                        false
+                      );
+                      this.handleScopeMax(scopeMax);
+                    }}
+                  />
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>
-                  {formatMessage({id:'appOverview.list.btn.addComponent.image.title'})}
+                  {formatMessage({id:'menu.team.create.image'})}
                   </p>
                 </Row>
                 <Row style={{ marginTop: '-8px' }}>
@@ -376,7 +414,7 @@ export default class AddServiceComponent extends PureComponent {
                     }}
                   >
                     {dockerSvg}
-                    <p className={styles.ServiceSmallTitle}>
+                    <p className={styles.ServiceSmallTitle} style={{whiteSpace:'nowrap'}}>
                     {formatMessage({id:'appOverview.list.btn.addComponent.dockerRun'})}
                     </p>
                   </Col>
@@ -384,52 +422,11 @@ export default class AddServiceComponent extends PureComponent {
               </div>
               <div className={styles.ServiceBox}>
                 <Row>
-                  <p
-                    className={styles.ServiceTitle}
-                    style={{ marginBottom: '20px' }}
-                  >
-                   {formatMessage({id:'appOverview.list.btn.addComponent.market.title'})}
-                  </p>
-                </Row>
-                <Row>
-                  <MarketDrawer
-                    {...MarketParameter}
-                    isHelm={false}
-                    handleServiceComponent={scopeMax => {
-                      this.handleServiceComponent(
-                        false,
-                        'market',
-                        null,
-                        'moreState',
-                        false
-                      );
-                      this.handleScopeMax(scopeMax);
-                    }}
-                  />
-                </Row>
-              </div>
-              <div className={styles.ServiceBox}>
-                <ThirdParty content={this.getValue.bind(this)} groupId={groupId} />
-              </div>
-              <div className={styles.ServiceBox} style={{marginBottom:'60px'}}>
-                <Row>
                   <p className={styles.ServiceTitle}>
-                  {formatMessage({id:'appOverview.list.btn.addComponent.update.title'})}
+                  {formatMessage({id:'menu.team.create.upload'})}
                   </p>
                 </Row>
                 <Row>
-                  <Col
-                    span={8}
-                    className={styles.ServiceDiv}
-                    onClick={() => {
-                      this.handleServiceComponent(false, 'jwar');
-                    }}
-                  >
-                    {uploadJarWar}
-                    <p className={styles.ServiceSmallTitle}>
-                    {formatMessage({id:'appOverview.list.btn.addComponent.jwar'})}
-                    </p>
-                  </Col>
                   <Col
                     span={8}
                     className={styles.ServiceDiv}
@@ -443,6 +440,9 @@ export default class AddServiceComponent extends PureComponent {
                     </p>
                   </Col>
                 </Row>
+              </div>
+              <div className={styles.ServiceBox} style={{marginBottom:'60px'}}>
+                <ThirdParty content={this.getValue.bind(this)} groupId={groupId} />
               </div>
             </div>
           )}

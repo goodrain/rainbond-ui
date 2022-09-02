@@ -67,6 +67,7 @@ export default class GlobalHeader extends PureComponent {
     this.setState({
       language: e.item.props.children
     })
+    console.log(navigator.language,'navigator.language')
   }
   showChangePass = () => {
     this.setState({ showChangePassword: true });

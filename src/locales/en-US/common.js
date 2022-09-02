@@ -179,6 +179,9 @@
         'button.return':'Return',
         'button.configuration':'Advanced configuration',
         'button.determine':'Confirm',
+        'button.to_export':'To export',
+        'button.download':'Download',
+        'button.export':'Export',
     }
     const status = {
         'status.component.running':'Running',
@@ -195,6 +198,8 @@
         'status.loading':'Loading...',
         'status.not_mount':'Not mount',
         'status.mounted':'Mounted',
+        'status.not_export':'Not export',
+        'status.underway':'Underway',
     }
     const confirmModal = {
         //修改应用信息 删除应用

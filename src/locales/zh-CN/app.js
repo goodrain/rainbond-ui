@@ -344,6 +344,7 @@ const componentCheck = {
   'componentCheck.advanced.setup.deploy_attr':'部署属性',
   'componentCheck.advanced.setup.component_attr':'组件属性',
   'componentCheck.advanced.setup.basic_info.label.extend_method':'组件类型',
+  'componentCheck.advanced.setup.basic_info.label.noLimit':'不限制',
   'componentCheck.advanced.setup.basic_info.label.schedule':'运行规则：',
   'componentCheck.advanced.setup.basic_info.label.min_memory':'内存',
   'componentCheck.advanced.setup.basic_info.label.min_cpu':'CPU',

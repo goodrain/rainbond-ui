@@ -1,6 +1,7 @@
 import { Button, Drawer, Icon, Row, Col } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Check from '../Create/create-check';
 import Market from '../Create/market';
 import globalUtil from '../../utils/global';
@@ -286,7 +287,7 @@ export default class AddThirdParty extends PureComponent {
       <div>
         <div className={styles.ServiceBox}>
           <Row>
-            <p className={styles.ServiceTitle}>从第三方组件开始</p>
+            <p className={styles.ServiceTitle}>{formatMessage({id:'menu.team.create.third'})}</p>
           </Row>
           <Row style={{ marginBottom: '30px' }}>
             <Col

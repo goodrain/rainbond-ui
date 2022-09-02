@@ -117,7 +117,7 @@ class Index extends PureComponent {
           })(<Input placeholder="https://registry.npm.taobao.org" />)}
         </Form.Item>
 
-        {languageType === 'nodejsstatic' && (
+        {(languageType === 'nodejsstatic' || languageType === 'NodeJSStatic')&& (
           <Form.Item
             {...formItemLayout}
             label={<FormattedMessage id="componentOverview.body.NodeJSConfig.build"/>}
@@ -129,7 +129,7 @@ class Index extends PureComponent {
           </Form.Item>
         )}
 
-        {languageType !== 'nodejsstatic' && (
+        {languageType !== 'nodejsstatic' && languageType !== 'NodeJSStatic' && (
           <Form.Item
             {...formItemLayout}
             label={<FormattedMessage id="componentOverview.body.NodeJSConfig.start"/>}

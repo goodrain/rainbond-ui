@@ -274,6 +274,19 @@
         'applicationMarket.appsetting.determine':'Confirm to set to release status',
         'applicationMarket.appsetting.cancel_release':'Cancel the Release status',
         'applicationMarket.appsetting.determine_release':'Set it to the Release state',
+        // 导出离线包
+        'applicationMarket.offline_installer.title':'Export cloud city application',
+        'applicationMarket.offline_installer.alert':'The exported cloud city application is suitable for the delivery environment',
+        'applicationMarket.offline_installer.form.label.exoprt_versions':'Export version: ',
+        'applicationMarket.offline_installer.form.label.rainbond_app':'Application model specification',
+        'applicationMarket.offline_installer.form.label.rainbond_app.desc':'(Supports full application operation features)',
+        'applicationMarket.offline_installer.form.label.status':'Export state',
+        'applicationMarket.offline_installer.form.label.slug':'Export non-container packages',
+        'applicationMarket.offline_installer.form.label.slug.desc':'(Building from a container image does not export)',
+        'applicationMarket.offline_installer.form.label.docker_compose':'DockerComposeApp specification',
+        'applicationMarket.offline_installer.form.label.docker_compose.desc':'(The DockerCompose environment is available)',
+        'applicationMarket.offline_installer.confirm.label.release':'The current export version is not in Release state',
+        'applicationMarket.offline_installer.confirm.label.release.desc':'Continue exporting or not',
     }
     // 团队项目
     const enterpriseTeamManagement = {
@@ -293,9 +306,9 @@
         'enterpriseTeamManagement.table.Administrator':'Administrators',
         'enterpriseTeamManagement.table.number':'Number',
         'enterpriseTeamManagement.table.colony':'Colony',
-        'enterpriseTeamManagement.table.memory':'Memory usage (MB)',
-        'enterpriseTeamManagement.table.CUP':'CPU Usage',
-        'enterpriseTeamManagement.table.quota':'Tenant quota (MB)',
+        'enterpriseTeamManagement.table.memory':'Memory usage (GB)',
+        'enterpriseTeamManagement.table.CUP':'CPU Usage (m)',
+        'enterpriseTeamManagement.table.quota':'Tenant quota (GB)',
         'enterpriseTeamManagement.table.operation':'Number of running applications',
         'enterpriseTeamManagement.table.handle':'Operation',
         // td 表体
