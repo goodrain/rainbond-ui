@@ -14,7 +14,7 @@ const formItemLayout = {
     span: 5
   },
   wrapperCol: {
-    span: 19
+    span: 15
   }
 };
 const formItemLayouts = {
@@ -116,10 +116,14 @@ export default class Index extends PureComponent {
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({id: 'placeholder.appName'})}
-                style={{
+                style={ language ? {
                   display: 'inline-block',
                   width: isService ? '' : 276,
-                  marginRight: 10,textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'
+                  marginRight: 10,textOverflow: 'ellipsis',whiteSpace: 'nowrap'
+                } : {
+                  display: 'inline-block',
+                  width: isService ? '' : 262,
+                  marginRight: 10,textOverflow: 'ellipsis',whiteSpace: 'nowrap'
                 }}
                 disabled={!!isService}
               >

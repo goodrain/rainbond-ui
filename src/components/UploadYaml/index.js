@@ -45,6 +45,7 @@ export default class Index extends PureComponent {
       existFileList: [],
     };
   }
+
   componentWillMount() {
     this.loop = false;
   }
@@ -216,19 +217,19 @@ export default class Index extends PureComponent {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入组件英文名称'));
+      return callback(new Error(formatMessage({id:'otherApp.UploadYaml.input_en_name'})));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+          new Error(formatMessage({id:'otherApp.UploadYaml.only'}))
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error(formatMessage({id:'otherApp.UploadYaml.max'})));
     }
   };
   render() {
@@ -249,19 +250,19 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'otherApp.UploadYaml.name'})}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
               rules: [
                 {
                   required: true,
-                  message: '请选择'
+                  message: formatMessage({id:'otherApp.UploadYaml.app'})
                 }
               ]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择要所属应用"
+                placeholder={formatMessage({id:'otherApp.UploadYaml.app'})}
                 style={{
                   display: 'inline-block',
                   width: isService ? '' : 292,
@@ -281,15 +282,15 @@ export default class Index extends PureComponent {
             ) : null}
           </Form.Item>
           <Form.Item
-                label="上传文件"
-                extra="支持yaml、yml格式上传文件"
+                label={formatMessage({id:'otherApp.UploadYaml.up'})}
+                extra={formatMessage({id:'otherApp.UploadYaml.yaml'})}
                 {...formItemLayout}
             >
                 {getFieldDecorator('packageTarFile', {
                 rules: [
                     {
                     required: false,
-                    message: '请上传文件'
+                    message: formatMessage({id:'otherApp.UploadYaml.placese_up'})
                     }
                 ]
                 })(
@@ -340,7 +341,7 @@ export default class Index extends PureComponent {
                     type="primary"
                     loading={createAppByDockerrunLoading}
                 >
-                    确认创建
+                    {formatMessage({id:'otherApp.UploadYaml.creat'})}
                 </Button>
             </Form.Item>
         </Form>

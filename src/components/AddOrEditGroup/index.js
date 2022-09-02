@@ -10,6 +10,7 @@ import apiconfig from '../../../config/api.config';
 import { addGroup } from '../../services/application';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
+import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -25,7 +26,8 @@ export default class EditGroupName extends PureComponent {
       previewImage: '',
       previewTitle: '',
       // PUT 接口图片路径参数
-      paramsSrc: ''
+      paramsSrc: '',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
 
@@ -195,9 +197,20 @@ export default class EditGroupName extends PureComponent {
       previewVisible,
       previewImage,
       fileList,
-      previewTitle
+      previewTitle,
+      language
     } = this.state;
     const formItemLayout = {
+      labelCol: {
+        xs: { span: 23 },
+        sm: { span: 6 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 17 }
+      }
+    };
+    const en_formItemLayout = {
       labelCol: {
         xs: { span: 23 },
         sm: { span: 7 }
@@ -207,6 +220,7 @@ export default class EditGroupName extends PureComponent {
         sm: { span: 16 }
       }
     };
+    const is_language = language ? formItemLayout : en_formItemLayout;
     const uploadButton = (
       <div>
         <Icon type="plus" />
@@ -223,7 +237,7 @@ export default class EditGroupName extends PureComponent {
         onOk={this.handleSubmit}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label={formatMessage({id:'popover.newApp.appName'})}>
+          <FormItem {...is_language} label={formatMessage({id:'popover.newApp.appName'})}>
             {getFieldDecorator('group_name', {
               initialValue: groupName || '',
               rules: [
@@ -236,7 +250,7 @@ export default class EditGroupName extends PureComponent {
             })(<Input disabled={isNoEditName} placeholder={formatMessage({id:'popover.newApp.appName.placeholder'})} />)}
           </FormItem>
           <FormItem
-            {...formItemLayout}
+            {...is_language}
             label={formatMessage({id:'popover.newApp.appEngName'})}
             extra={formatMessage({id:'popover.newApp.appEngName.extra'})}
           >
@@ -252,7 +266,7 @@ export default class EditGroupName extends PureComponent {
           </FormItem>
           {/* 应用Logo */}
           <FormItem
-            {...formItemLayout}
+            {...is_language}
             label={formatMessage({id:'popover.newApp.logo'})}
             extra={formatMessage({id:'popover.newApp.upload_pictures.extra'})}
           >
@@ -277,7 +291,8 @@ export default class EditGroupName extends PureComponent {
             </Modal>
           </FormItem>
 
-          <FormItem {...formItemLayout} label={formatMessage({id:'popover.newApp.appRemark'})}>
+          <FormItem {...is_language
+          } label={formatMessage({id:'popover.newApp.appRemark'})}>
             {getFieldDecorator('note', {
               initialValue: note || '',
               rules: [
