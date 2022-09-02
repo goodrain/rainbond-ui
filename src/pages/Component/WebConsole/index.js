@@ -1,6 +1,7 @@
 import { Col, Row, Spin, Tabs, Tree } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import styles from './index.less';
 import XTerm from './xTerm';
@@ -189,10 +190,11 @@ export default class WebConsole extends PureComponent {
     ) {
       defaultSelectedKeys = [pods[0].container[0].container_name];
     }
+
     return (
       <div className={styles.menus}>
         <div className={styles.header}>
-          <span>实例列表</span>
+          <span>{formatMessage({id:'componentOverview.header.list'})}</span>
           <span
             className={styles.sync}
             onClick={() => {
@@ -231,16 +233,16 @@ export default class WebConsole extends PureComponent {
                   title = title.slice(title.indexOf('-') + 1);
                 }
                 return (
-                  <TreeNode title={`实例/${title}`} key={podName}>
+                  <TreeNode title={formatMessage({id:'componentOverview.header.example'},{title:title})} key={podName}>
                     {pod.container.map(container => {
                       const { container_name: containerName } = container;
-                      let titleName = `容器/${containerName}`;
+                      let titleName = `${formatMessage({id:'componentOverview.header.container'},{name:containerName})}`;
                       if (containerName.includes(service.k8s_component_name) && !containerName.includes('default-tcpmesh')) {
-                        titleName = `组件容器`;
+                        titleName = `${formatMessage({id:'componentOverview.header.Component_container'})}`;
                       } else if (containerName.includes('plugin')) {
-                        titleName = `插件容器`;
+                        titleName = `${formatMessage({id:'componentOverview.header.Plug_container'})}`;
                       } else if (containerName.includes('default-tcpmesh')) {
-                        titleName = `默认Mesh容器`;
+                        titleName = `${formatMessage({id:'componentOverview.header.mesh'})}`;
                       }
                       
 

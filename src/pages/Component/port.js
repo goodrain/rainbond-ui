@@ -646,7 +646,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Row>
-          <Col span={12}>
+          <Col span={13}>
             <Alert
               showIcon
               message={<FormattedMessage id='componentOverview.body.Port.message'/>}
@@ -658,7 +658,7 @@ export default class Index extends PureComponent {
           </Col>
           {!isHelm && (
             <Col
-              span={12}
+              span={11}
               style={{
                 textAlign: 'right'
               }}

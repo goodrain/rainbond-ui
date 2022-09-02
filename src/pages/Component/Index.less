@@ -158,6 +158,30 @@
     }
   }
 }
+.en_automaTictelescopingTitle {
+  padding: 0 !important;
+  display: flex;
+  margin-bottom: 10px;
+
+  div {
+    width: 33.33%;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: rgba(102, 102, 102, 1);
+    line-height: 17px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    padding: 0 !important;
+
+    img {
+      cursor: pointer;
+      margin-left: 2px;
+    }
+  }
+}
+
 
 .fromItem {
   width: 100% !important;
@@ -555,6 +579,72 @@
   }
 }
 
+.en_instanceInfo {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 15px 0;
+
+  li {
+    width: 50%;
+    margin: 5px 0;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+
+    span {
+      color: rgba(0, 0, 0, 0.85);
+      font-size: 14px;
+      display: inline-block;
+      width: 150px;
+      text-align: end;
+    }
+
+    span:nth-of-type(2) {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      width: 80%;
+      color: #0000008c;
+      text-align: start;
+      padding-left: 20px;
+    }
+  }
+
+  div {
+    padding-left: 10px;
+    color: rgba(0, 0, 0, 0.85);
+    font-size: 14px;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+
+    li {
+      width: 50%;
+      margin: 5px 0;
+      padding-left: 10px;
+      display: flex;
+      align-items: center;
+
+      span {
+        color: rgba(0, 0, 0, 0.85);
+        font-size: 14px;
+        display: inline-block;
+        width: 30%;
+      }
+
+      span:nth-of-type(2) {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        text-align: left;
+        width: 70%;
+        color: #13c2c2;
+      }
+    }
+  }
+}
+
 .buildBox {
   background: linear-gradient(
       to right,
@@ -878,6 +968,11 @@ font {
   display: flex;
   align-items: center;
 }
+.en_alcen {
+  display: flex;
+  align-items: center;
+  padding-right: 20px;
+}
 
 .passed {
   background: linear-gradient(
@@ -922,6 +1017,12 @@ font {
 .prRow {
   display: flex;
   justify-content: space-around;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+.en_prRow {
+  display: flex;
+  justify-content: flex-start;
   flex-flow: row nowrap;
   align-items: center;
 }
@@ -975,6 +1076,15 @@ font {
       padding-left: 0.5em;
       border-right: 1px solid #eff0ec;
     }
+    .en_lineone {
+      padding: 0;
+      margin: 0.4em 0;
+      white-space: nowrap;
+      width: 50%;
+      padding-left: 0.5em;
+      border-right: 1px solid #eff0ec;
+      margin-left: 40px;
+    }
 
     .linetwo {
       padding: 0;
@@ -983,10 +1093,22 @@ font {
       width: 66px;
       margin-left: 10px;
     }
+    .en_linetwo {
+      padding: 0;
+      margin: 0.4em 0;
+      white-space: nowrap;
+      width: 66px;
+      margin-left: 30px;
+    }
 
     .linestree {
       // flex: 0 0 22%;
       width: 160px;
+    }
+    .en_linestree {
+      // flex: 0 0 22%;
+      width: 160px;
+      margin-left: 110px;
     }
 
     .linefour {
@@ -996,6 +1118,15 @@ font {
       display: flex;
       align-items: center;
       text-align: right;
+    }
+    .en_linefour {
+      // flex        : 0 0 22%;
+      max-width: 155px;
+      min-width: 110px;
+      display: flex;
+      align-items: center;
+      text-align: right;
+      margin-left: 20px;
     }
 
     .fadeOute:after {

@@ -6,6 +6,7 @@ import DApvcinput from '../../components/DApvcinput';
 import globalUtil from '../../utils/global';
 import ConfirmModal from "../../components/ConfirmModal"
 import styles from "./kubernets.less"
+import cookie from '../../utils/cookie';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const { Option, OptGroup } = Select;
@@ -27,13 +28,14 @@ class Index extends PureComponent {
       strValue: '',
       showDeletePort: false,
       TooltipValueArr: {
-        affinity:'#示例\n#nodeAffinity:\n#      preferredDuringSchedulingIgnoredDuringExecution:\n#      - weight: 1\n#        preference:\n#          matchExpressions:\n#          - key: disktype\n#            operator: In\n#            values:\n#           - ssd\n',
-        tolerations:'#示例\n#- key: "test"\n#  operator: "Equal"\n#  value: "yk"\n#  effect: "NoSchedule"\n',
-        env:'#示例\n#- name: NGINX_USERNAEM\n#  valueFrom:\n#    secretKeyRef:\n#      key: username\n#      name: test-secret\n#      optional: false\n#- name: NGINX_PASSWORD\n#  valueFrom:\n#    secretKeyRef:\n#      key: password\n#      name: test-secret\n#      optional: false\n#- name: MY_POD_IP\n#  valueFrom:\n#   fieldRef:\n#     fieldPath: status.podIP\n',
-        volumes:'#示例\n#- hostPath:\n#    path: /test\n#  name: data\n#- name: mydata\n#  persistentVolumeClaim:\n#    claimName: test-pvc\n#- configMap:\n#    name: test\n#  name: config\n',
-        volumeMounts:'#示例\n#- mountPath: /opt\n#  name: data\n#- mountPath: /etc/test/conf/aa\n#  name: mydata\n#  subPath: aa\n#- mountPath: /etc/test/conf/nginx.conf\n#  name: config\n#  subPath: test.conf\n'
+        affinity:'#sample\n#nodeAffinity:\n#      preferredDuringSchedulingIgnoredDuringExecution:\n#      - weight: 1\n#        preference:\n#          matchExpressions:\n#          - key: disktype\n#            operator: In\n#            values:\n#           - ssd\n',
+        tolerations:'#sample\n#- key: "test"\n#  operator: "Equal"\n#  value: "yk"\n#  effect: "NoSchedule"\n',
+        env:'#sample\n#- name: NGINX_USERNAEM\n#  valueFrom:\n#    secretKeyRef:\n#      key: username\n#      name: test-secret\n#      optional: false\n#- name: NGINX_PASSWORD\n#  valueFrom:\n#    secretKeyRef:\n#      key: password\n#      name: test-secret\n#      optional: false\n#- name: MY_POD_IP\n#  valueFrom:\n#   fieldRef:\n#     fieldPath: status.podIP\n',
+        volumes:'#sample\n#- hostPath:\n#    path: /test\n#  name: data\n#- name: mydata\n#  persistentVolumeClaim:\n#    claimName: test-pvc\n#- configMap:\n#    name: test\n#  name: config\n',
+        volumeMounts:'#sample\n#- mountPath: /opt\n#  name: data\n#- mountPath: /etc/test/conf/aa\n#  name: mydata\n#  subPath: aa\n#- mountPath: /etc/test/conf/nginx.conf\n#  name: config\n#  subPath: test.conf\n'
       },
-      TooltipValue:''
+      TooltipValue:'',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     }
   }
 
@@ -316,7 +318,7 @@ class Index extends PureComponent {
           </path>
       </svg>
   )
-    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, jsonValue, yamlValue, strValue, boolvalue, TooltipValue } = this.state;
+    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, jsonValue, yamlValue, strValue, boolvalue, TooltipValue, language } = this.state;
     const { getFieldDecorator, setFieldsValue } = form;
     const isBool = (drawerSwitch == "add") ? true : false
     const addible = [];
@@ -379,8 +381,8 @@ class Index extends PureComponent {
           >
             <div className={styles.selectstyle}>
             <Row>
-              <Col span={4} ><FormattedMessage id='componentOverview.body.Kubernetes.name'/></Col>
-              <Col span={20}>
+              <Col span={language ? 4 : 6} ><p style={language ? {} : {whiteSpace:'nowrap',fontWeight: 600, marginTop: 5}}><FormattedMessage id='componentOverview.body.Kubernetes.name'/></p></Col>
+              <Col span={language ? 20 : 18}>
                 <Select
                   style={{ width: 220 }}
                   onChange={this.handleChange}
@@ -416,12 +418,14 @@ class Index extends PureComponent {
               {selectVal &&
                 ((selectVal == "nodeSelector") || (selectVal == "labels")) &&
                 <Form.Item {...formItemLayouts}>
-                  <p><FormattedMessage id='componentOverview.body.Kubernetes.key'/></p>
+                  <div style={ language ? {} :{marginLeft: 38} }>
+                  <p style={{whiteSpace:'nowrap'}}><FormattedMessage id='componentOverview.body.Kubernetes.key'/></p>
                   <div className={styles.nodeSelector_sytle}>
                   {getFieldDecorator(`${selectVal}`, {
                     initialValue: jsonValue || [],
                     rules: [{ required: false, message: formatMessage({id:'componentOverview.body.Kubernetes.msg'},{selectVal:selectVal}),}]
                   })(<DApvcinput />)}
+                  </div>
                   </div>
                 </Form.Item>
               }
@@ -449,12 +453,14 @@ class Index extends PureComponent {
                 selectVal &&
                 selectVal == "serviceAccountName" &&
                 <Form.Item  {...formItemLayouts}>
-                  <p><FormattedMessage id='componentOverview.body.Kubernetes.input'/></p>
-                  <div className={styles.accountName_style}>
+                  <div style={ language ? {} :{marginLeft: 38} }>
+                  <p style={{whiteSpace:'nowrap'}}><FormattedMessage id='componentOverview.body.Kubernetes.input'/></p>
+                  <div className={language ? styles.accountName_style : styles.en_accountName_style }>
                   {getFieldDecorator(`${selectVal}`, {
                     initialValue: strValue || '',
                     rules: [{ required: false, message: formatMessage({id:'componentOverview.body.Kubernetes.input'}),}]
                   })(<Input  placeholder={formatMessage({id:'componentOverview.body.Kubernetes.input'})}/>)}
+                  </div>
                   </div>
                 </Form.Item>
               }
@@ -462,11 +468,13 @@ class Index extends PureComponent {
                 selectVal &&
                 selectVal == "privileged" &&
                 <Form.Item  {...formItemLayouts}>
-                  <p><FormattedMessage id='componentOverview.body.Kubernetes.privileged'/></p>
+                  <div style={ language ? {} :{marginLeft: 38} }>
+                  <p style={{whiteSpace:'nowrap'}}><FormattedMessage id='componentOverview.body.Kubernetes.privileged'/></p>
                   {getFieldDecorator(`${selectVal}`, {
                     initialValue: boolvalue || false,
                     rules: [{ required: false }]
                   })(<Switch style={{margin:"20px 0  0 50px"}}/>)}
+                  </div>
                 </Form.Item>
               }
             </Form>
