@@ -3,6 +3,7 @@ import React, { PureComponent } from 'react';
 import KVinput from '../../../components/KVinput';
 import appProbeUtil from '../../../utils/appProbe-util';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import cookie from '../../../utils/cookie';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -19,7 +20,8 @@ export default class EditHealthCheck extends PureComponent {
       isRestart: this.handleUnhealthyTreatment(data && data.mode),
       list: HeavyList,
       prolist: HeavyList,
-      showHTTP: data.scheme === 'http'
+      showHTTP: data.scheme === 'http',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onChanges = e => {
@@ -65,11 +67,11 @@ export default class EditHealthCheck extends PureComponent {
       callback();
       return;
     }
-    callback(<FormattedMessage id='componentOverview.body.EditHealthCheck.input_path'/>);
+    callback(`${formatMessage({id:'componentOverview.body.EditHealthCheck.input_path'})}`);
   };
   checkNums = (_, value, callback) => {
     if (value && value < 1) {
-      callback(<FormattedMessage id='componentOverview.body.EditHealthCheck.min'/>);
+      callback(`${formatMessage({id:'componentOverview.body.EditHealthCheck.min'})}`);
       return;
     }
     callback();
@@ -133,8 +135,27 @@ export default class EditHealthCheck extends PureComponent {
         }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 9
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 15
+        }
+      }
+    };
     const { getFieldDecorator, getFieldValue } = form;
-    const { list, prolist, isRestart, showHTTP } = this.state;
+    const { list, prolist, isRestart, showHTTP, language } = this.state;
+    const is_language = language ? formItemLayout : en_formItemLayout
     const scheme = getFieldValue('scheme') || 'tcp';
     const secondBox = (
       <span
@@ -171,7 +192,7 @@ export default class EditHealthCheck extends PureComponent {
         confirmLoading={loading}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.port'/>}>
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.port'/>}>
             {getFieldDecorator('port', {
               initialValue:
                 appProbeUtil.getPort(data) ||
@@ -194,7 +215,7 @@ export default class EditHealthCheck extends PureComponent {
               </Select>
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.agreement'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.agreement'/>}>
             {getFieldDecorator('scheme', {
               initialValue: data.scheme || 'tcp'
             })(
@@ -215,7 +236,7 @@ export default class EditHealthCheck extends PureComponent {
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.unhealth'/>}>
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.unhealth'/>}>
             {getFieldDecorator('mode', {
               initialValue: data.mode || 'readiness',
               rules: [{ required: true, message: formatMessage({id:'componentOverview.body.EditHealthCheck.select'}),}]
@@ -227,7 +248,7 @@ export default class EditHealthCheck extends PureComponent {
             )}
           </FormItem>
           <FormItem
-            {...formItemLayout}
+            {...is_language}
             label={<FormattedMessage id='componentOverview.body.EditHealthCheck.http'/>}
             style={{
               display: !showHTTP ? 'none' : ''
@@ -238,7 +259,7 @@ export default class EditHealthCheck extends PureComponent {
             })(<KVinput />)}
           </FormItem>
           <FormItem
-            {...formItemLayout}
+            {...is_language}
             label={<FormattedMessage id='componentOverview.body.EditHealthCheck.path'/>}
             style={{
               display: !showHTTP ? 'none' : ''
@@ -253,7 +274,7 @@ export default class EditHealthCheck extends PureComponent {
               ]
             })(<Input  placeholder={formatMessage({id:'componentOverview.body.EditHealthCheck.Response'})} />)}
           </FormItem>
-          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.initialization'/>}>
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.initialization'/>}>
             {getFieldDecorator('initial_delay_second', {
               initialValue: data.initial_delay_second || '2',
               rules: [
@@ -266,7 +287,7 @@ export default class EditHealthCheck extends PureComponent {
             })(numberBox())}
             {secondBox}
           </FormItem>
-          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.time'/>}>
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.time'/>}>
             {getFieldDecorator('period_second', {
               initialValue: data.period_second || '3',
               rules: [
@@ -279,7 +300,7 @@ export default class EditHealthCheck extends PureComponent {
             })(numberBox())}
             {secondBox}
           </FormItem>
-          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.over_time'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.over_time'/>}>
             {getFieldDecorator('timeout_second', {
               initialValue: data.timeout_second || '20',
               rules: [
@@ -292,7 +313,7 @@ export default class EditHealthCheck extends PureComponent {
             })(numberBox())}
             {secondBox}
           </FormItem>
-          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.success'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.success'/>}>
             {getFieldDecorator('success_threshold', {
               initialValue: isRestart ? '1' : data.success_threshold || '1',
               rules: [

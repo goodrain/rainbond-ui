@@ -449,7 +449,7 @@ export default class Index extends PureComponent {
                   initialValue: ''
                 })(
                   <Input
-                    style={(language&&isService)== true ? {
+                    style={((language == false) && (isService==true))? {
                       display: 'inline-block',
                       width: 200,
                       marginRight: 15,
@@ -475,7 +475,7 @@ export default class Index extends PureComponent {
                   initialValue: ''
                 })(
                   <Input
-                    style={(language&&isService)== true ? {
+                    style={((language == false) && (isService==true))? {
                       display: 'inline-block',
                       width: 200,
                       marginRight: 15,

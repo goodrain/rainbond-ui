@@ -15,6 +15,7 @@ import React, { Fragment } from 'react';
 import globalUtil from '../../utils/global';
 import ConfirmModal from '../ConfirmModal';
 import ScrollerX from '../ScrollerX';
+import cookie from '../../utils/cookie';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from './Index.less';
 
@@ -191,7 +192,8 @@ class EnvironmentVariable extends React.Component {
       innerEnvsList: [],
       addVariable: false,
       deleteVar: false,
-      transfer: false
+      transfer: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -498,7 +500,8 @@ class EnvironmentVariable extends React.Component {
       total,
       page,
       page_size,
-      loading
+      loading,
+      language
     } = this.state;
     const wraps = {
       wordBreak: 'break-all',
@@ -724,7 +727,7 @@ class EnvironmentVariable extends React.Component {
               }}
             >
               <Search
-                style={{ width: '260px' }}
+                style={language ? { width: '260px' } : { width: '320px' }}
                 placeholder={formatMessage({id:'componentOverview.body.tab.env.table.column.placeholder'})}
                 onSearch={this.handleSearch}
               />

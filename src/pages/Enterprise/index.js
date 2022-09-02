@@ -776,10 +776,10 @@ export default class Enterprise extends PureComponent {
                         color="#3D58DA"
                         subTitle={
                           <div className={styles.appContent}>
-                            <h6>{runApp}个</h6>
+                            <h6>{runApp} {formatMessage({id:'unit.entries'})}</h6>
                             <div>
                               {/*  共{appTotal}
-                              个应用数量 */}
+                              应用数量 */}
                               <FormattedMessage 
                               id="enterpriseOverview.app.overview"
                               values={{number:appTotal}}
@@ -799,9 +799,9 @@ export default class Enterprise extends PureComponent {
                             <FormattedMessage id="enterpriseOverview.app.run"/>
                           </div>
                           <div className={styles.nums}>
-                            <span>{runApp}个</span>
+                            <span>{runApp} {formatMessage({id:'unit.entries'})}</span>
                             <span>|</span>
-                            <span>{appTotal}个</span>
+                            <span>{appTotal} {formatMessage({id:'unit.entries'})}</span>
                           </div>
                         </div>
                         <div>
@@ -813,9 +813,9 @@ export default class Enterprise extends PureComponent {
                             <FormattedMessage id="enterpriseOverview.app.notrun"/>
                           </div>
                           <div className={styles.nums}>
-                            <span>{appClosed}个</span>
+                            <span>{appClosed} {formatMessage({id:'unit.entries'})}</span>
                             <span>|</span>
-                            <span>{appTotal}个</span>
+                            <span>{appTotal} {formatMessage({id:'unit.entries'})}</span>
                           </div>
                         </div>
                       </div>
@@ -859,9 +859,9 @@ export default class Enterprise extends PureComponent {
                             <FormattedMessage id="enterpriseOverview.module.notrun.component"/>
                           </div>
                           <div className={styles.nums}>
-                            <span>{runCom}个</span>
+                            <span>{runCom} {formatMessage({id:'unit.entries'})}</span>
                             <span>|</span>
-                            <span>{comTotal}个</span>
+                            <span>{comTotal} {formatMessage({id:'unit.entries'})}</span>
                           </div>
                         </div>
                         <div>
@@ -873,9 +873,9 @@ export default class Enterprise extends PureComponent {
                             <FormattedMessage id="enterpriseOverview.module.run.component"/>
                           </div>
                           <div className={styles.nums}>
-                            <span>{comClosed}个</span>
+                            <span>{comClosed} {formatMessage({id:'unit.entries'})}</span>
                             <span>|</span>
-                            <span>{comTotal}个</span>
+                            <span>{comTotal} {formatMessage({id:'unit.entries'})}</span>
                           </div>
                         </div>
                       </div>

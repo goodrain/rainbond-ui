@@ -386,4 +386,15 @@ const componentCheck = {
 
 
 }
-export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck,appGateway);
+const otherAppAssembly = {
+  'otherApp.marketDrawer.edition':'edition:',
+  'otherApp.marketDrawer.click':'Click Install',
+  'otherApp.marketDrawer.not':'Not installable',
+  'otherApp.marketDrawer.Memory':'Memory:',
+  'otherApp.marketDrawer.Select_version':'Select version',
+  'otherApp.marketDrawer.input_version':'Please select version',
+  'otherApp.marketDrawer.more':'See more...',
+  'otherApp.marketDrawer.creat':'Create component',
+  'otherApp.marketDrawer.store':'Obtain cloud app store authorization',
+}
+export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly);

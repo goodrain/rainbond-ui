@@ -7,6 +7,7 @@ import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ShowRegionKey from '../../../components/ShowRegionKey';
 import { getCodeBranch } from '../../../services/app';
 import appUtil from '../../../utils/app';
+import cookie from '../../../utils/cookie';
 import globalUtil from '../../../utils/global';
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -31,6 +32,7 @@ export default class ChangeBuildSource extends PureComponent {
       showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource),
       showImage: appUtil.isImageAppByBuildSource(this.props.buildSource),
       tabKey: '',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -133,7 +135,7 @@ export default class ChangeBuildSource extends PureComponent {
   render() {
     const { title, onCancel, appBuidSourceLoading, form } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
-    const { showUsernameAndPass, showKey, isFlag, tabValue, buildSource, tabKey } = this.state;
+    const { showUsernameAndPass, showKey, isFlag, tabValue, buildSource, tabKey, language } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -152,6 +154,25 @@ export default class ChangeBuildSource extends PureComponent {
         }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 5
+        },
+        sm: {
+          span: 5
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 10
+        },
+        sm: {
+          span: 16
+        }
+      }
+    };
+    const is_language = language ? formItemLayout : en_formItemLayout
     const gitUrl = getFieldValue('git_url');
     let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || '');
     if (this.state.serverType !== 'git') {
@@ -214,7 +235,7 @@ export default class ChangeBuildSource extends PureComponent {
             {tabValue === 'source_code' && (
               <Form onSubmit={this.handleSubmit}>
                 <Form.Item
-                  {...formItemLayout}
+                  {...is_language}
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.address'/>}
                 >
                   {getFieldDecorator('git_url', {
@@ -233,7 +254,7 @@ export default class ChangeBuildSource extends PureComponent {
                 </Form.Item>
                 {isFlag &&
                   <Form.Item
-                    {...formItemLayout}
+                    {...is_language}
                     label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.version'/>}
                   >
                     {getFieldDecorator('code_version', {
@@ -250,7 +271,7 @@ export default class ChangeBuildSource extends PureComponent {
                
 
                 <Form.Item
-                  {...formItemLayout}
+                  {...is_language}
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.name'/>}
                 >
                   {getFieldDecorator('user_name', {
@@ -264,7 +285,7 @@ export default class ChangeBuildSource extends PureComponent {
                   })(<Input autoComplete="off"  placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_name'})}/>)}
                 </Form.Item>
                 <Form.Item
-                  {...formItemLayout}
+                  {...is_language}
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.password'/>}
                 >
                   {getFieldDecorator('password', {
@@ -286,7 +307,7 @@ export default class ChangeBuildSource extends PureComponent {
             {tabValue === 'docker_run' && (
               <Form onSubmit={this.handleSubmit}>
                 <FormItem
-                  {...formItemLayout}
+                  {...is_language}
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.image_name'/>}
                 >
                   {getFieldDecorator('image', {
@@ -301,7 +322,7 @@ export default class ChangeBuildSource extends PureComponent {
                   })(<Input  placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_image_name'})}/>)}
                 </FormItem>
                 <FormItem
-                  {...formItemLayout}
+                  {...is_language}
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.Start'/>}
                 >
                   {getFieldDecorator('cmd', {
@@ -310,7 +331,7 @@ export default class ChangeBuildSource extends PureComponent {
                 </FormItem>
 
                 <Form.Item
-                  {...formItemLayout}
+                  {...is_language}
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.name'/>}
                 >
                   {getFieldDecorator('user_name', {
@@ -321,7 +342,7 @@ export default class ChangeBuildSource extends PureComponent {
                   })(<Input autoComplete="off"  placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_name'})}/>)}
                 </Form.Item>
                 <Form.Item
-                  {...formItemLayout}
+                  {...is_language}
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.password'/>}
                 >
                   {getFieldDecorator('password', {

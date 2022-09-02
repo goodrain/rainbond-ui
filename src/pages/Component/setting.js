@@ -30,6 +30,7 @@ import ViewHealthCheck from './setting/health-check';
 import EditActions from './setting/perm';
 import ViewRunHealthCheck from './setting/run-health-check';
 import Strategy from './strategy';
+import cookie from '../../utils/cookie';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -77,7 +78,8 @@ export default class Index extends React.Component {
       page: 1,
       page_size: 5,
       env_name: '',
-      loading: false
+      loading: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -597,11 +599,11 @@ export default class Index extends React.Component {
   handleState = data => {
     if (appProbeUtil.isStartProbeUsed(data)) {
       if (appProbeUtil.isStartProbeStart(data)) {
-        return <FormattedMessage id='componentOverview.body.setting.Enabled'/>;
+        return `${formatMessage({id:'componentOverview.body.setting.Enabled'})}`;
       }
-      return <FormattedMessage id='componentOverview.body.setting.disabled'/>;
+      return `${formatMessage({id:'componentOverview.body.setting.disabled'})}`;
     }
-    return <FormattedMessage id='componentOverview.body.setting.Not_set'/>;
+    return `${formatMessage({id:'componentOverview.body.setting.Not_set'})}`;
   };
 
   onPageChange = page => {
@@ -638,7 +640,7 @@ export default class Index extends React.Component {
       componentPermissions: { isDeploytype, isCharacteristic, isHealth },
       appDetail
     } = this.props;
-    const { viewStartHealth, tags, tabData, isShow, loading } = this.state;
+    const { viewStartHealth, tags, tabData, isShow, loading, language } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -658,6 +660,25 @@ export default class Index extends React.Component {
         }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 6
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 18
+        }
+      }
+    };
+    const is_language = language ? formItemLayout : en_formItemLayout
     const appsetting_formItemLayout = {
       wrapperCol: {
         span: 24
@@ -685,7 +706,7 @@ export default class Index extends React.Component {
               style={{
                 marginBottom: 0
               }}
-              {...formItemLayout}
+              {...is_language}
               label={<FormattedMessage id='componentOverview.body.setting.time'/>}
             >
               {baseInfo.create_time || ''}
@@ -694,7 +715,7 @@ export default class Index extends React.Component {
               style={{
                 marginBottom: 0
               }}
-              {...formItemLayout}
+              {...is_language}
               label={<FormattedMessage id='componentOverview.body.setting.type'/>}
             >
               {globalUtil.getComponentType(baseInfo.extend_method)}
@@ -737,7 +758,7 @@ export default class Index extends React.Component {
               style={{
                 marginBottom: 0
               }}
-              {...formItemLayout}
+              {...is_language}
               label={<FormattedMessage id='componentOverview.body.setting.upgrade'/>}
             >
               <Switch

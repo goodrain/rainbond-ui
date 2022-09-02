@@ -14,6 +14,7 @@ import {
 import React, { PureComponent } from 'react';
 import { getUnRelationedApp } from '../../services/app';
 import globalUtil from '../../utils/global';
+import cookie from '../../utils/cookie';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
@@ -30,7 +31,8 @@ export default class AddRelation extends PureComponent {
       page_size: 6,
       total: 0,
       search_key: '',
-      condition: ''
+      condition: '',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -120,7 +122,7 @@ export default class AddRelation extends PureComponent {
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               size="small"
-              style={{ width: 100 }}
+              style={this.state.language ? { width: 100 } : { width: 200 }}
               value={this.state.condition}
               onChange={this.handleConditionChange}
             >
