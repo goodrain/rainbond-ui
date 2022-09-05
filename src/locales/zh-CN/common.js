@@ -198,7 +198,7 @@
         'status.loading':'加载中...',
         'status.not_mount':'未挂载',
         'status.mounted':'已挂载',
-        'status.not_export':'未导出',
+        'status.not_export':'未导出',
         'status.underway':'进行中',
     }
     const confirmModal = {
