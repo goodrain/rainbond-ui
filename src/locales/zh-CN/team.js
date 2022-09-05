@@ -328,6 +328,32 @@ const teamOther = {
   'teamOther.edit.go':'去认证',
   'teamOther.edit.unbounded':'尚未绑定{type}账号',
 
+  'teamOther.CreateAppFromMarketForm.title':'要安装到哪个应用?',
+  'teamOther.CreateAppFromMarketForm.install':'安装版本',
+  'teamOther.CreateAppFromMarketForm.setect':'请选择版本',
+  'teamOther.CreateAppFromMarketForm.app':'选择应用',
+  'teamOther.CreateAppFromMarketForm.setect_app':'请选择应用',
+
+  'teamOther.CreateAppFromHelmForm.name_app':'应用名称',
+  'teamOther.CreateAppFromHelmForm.version_app':'应用版本',
+  'teamOther.CreateAppFromHelmForm.name':'应用名称已存在',
+  'teamOther.CreateAppFromHelmForm.input_name':'请填写应用名称',
+  'teamOther.CreateAppFromHelmForm.min':'应用名称最小长度4位',
+  'teamOther.CreateAppFromHelmForm.max':'应用名称最大长度53位',
+  'teamOther.CreateAppFromHelmForm.only':'只支持小写字母和数字开头结尾',
+  'teamOther.CreateAppFromHelmForm.note':'应用备注',
+  'teamOther.CreateAppFromHelmForm.max_length':'最大长度255位',
+  'teamOther.CreateAppFromHelmForm.note_app':'请填写应用备注信息',
+
+  'teamOther.CreateAppFromPlugin.been_installed':'已安装',
+  'teamOther.CreateAppFromPlugin.upgrade':'升级',
+
+  'teamOther.move_team.name':'修改团队名称',
+  'teamOther.move_team.null':'不能为空!',
+  'teamOther.move_team.max':'最大长度32位',
+  'teamOther.move_team.input_name':'请输入新的团队名称',
+
+
 }
 
 export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther);

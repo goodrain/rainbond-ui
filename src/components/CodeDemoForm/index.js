@@ -7,10 +7,19 @@ import AddGroup from '../../components/AddOrEditGroup';
 import configureGlobal from '../../utils/configureGlobal';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
+import cookie from '../../utils/cookie';
 
 const { Option } = Select;
 
 const formItemLayout = {
+  labelCol: {
+    span: 5
+  },
+  wrapperCol: {
+    span: 15
+  }
+};
+const en_formItemLayout = {
   labelCol: {
     span: 9
   },
@@ -34,6 +43,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      language: cookie.get('language') === 'zh-CN' ? true : false,
       addGroup: false,
       demoHref:
         this.props.data.git_url || configureGlobal.documentAddressDefault
@@ -206,9 +216,11 @@ export default class Index extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     const { groups, createAppByCodeLoading, rainbondInfo } = this.props;
     const data = this.props.data || {};
+    const { language } = this.state;
+    const is_language = language ? formItemLayout : en_formItemLayout;
     return (
       <Form layout="horizontal" hideRequiredMark>
-        <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
+        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
           {getFieldDecorator('group_id', {
             initialValue: data.groupd_id ? data.groupd_id : undefined,
             rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
@@ -216,7 +228,7 @@ export default class Index extends PureComponent {
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               placeholder={formatMessage({id: 'placeholder.appName'})}
-              style={{ display: 'inline-block', width: 276, marginRight: 10 }}
+              style={{ display: 'inline-block', width: language ? 275 : 289, marginRight: 10 }}
             >
               {(groups || []).map(group => (
                 <Option key={group.group_id} value={group.group_id}>
@@ -227,7 +239,7 @@ export default class Index extends PureComponent {
           )}
           <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamApply.createApp'})}</Button>
         </Form.Item>
-        <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
+        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
           {getFieldDecorator('service_cname', {
             initialValue: data.service_cname || '',
             rules: [
@@ -239,12 +251,11 @@ export default class Index extends PureComponent {
             ]
           })(
             <Input
-              // style={{ width: 292 }}
               placeholder={formatMessage({id: 'placeholder.service_cname'})}
             />
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
+        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
           {getFieldDecorator('k8s_component_name', {
             rules: [
               {
@@ -252,9 +263,9 @@ export default class Index extends PureComponent {
                 validator: this.handleValiateNameSpace
               }
             ]
-          })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})}  />)}
+          })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})}   />)}
         </Form.Item>
-        <Form.Item {...formItemLayout} label={<span>Demo</span>}>
+        <Form.Item {...is_language} label={<span>Demo</span>}>
           {getFieldDecorator('git_url', {
             initialValue:
               data.git_url || configureGlobal.documentAddressDefault,
@@ -327,8 +338,8 @@ export default class Index extends PureComponent {
           wrapperCol={{
             xs: { span: 24, offset: 0 },
             sm: {
-              span: formItemLayout.wrapperCol.span,
-              offset: formItemLayout.labelCol.span
+              span: is_language.wrapperCol.span,
+              offset: is_language.labelCol.span
             }
           }}
           label=""

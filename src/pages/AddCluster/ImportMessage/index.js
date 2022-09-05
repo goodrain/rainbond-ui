@@ -50,13 +50,18 @@ export default class ImportMessage extends PureComponent {
             match: {
                 params: { eid }
             },
+            location: {
+                query: {
+                    region_id
+                }
+            }
         } = this.props;
         const { nameSpaceArr, resourceData, loadingSwitch, resourceDataIndex, namespace} = this.state
         return (
             <PageHeaderLayout
                 title={formatMessage({id:'enterpriseColony.import.title'})}
             >
-                <Message />
+                <Message eid={eid} region_id={region_id} />
             </PageHeaderLayout>
         );
     }

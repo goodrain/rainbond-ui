@@ -22,7 +22,7 @@ export default class MoveTeam extends PureComponent {
     const initValue = this.props.teamAlias;
     return (
       <Modal
-        title="修改团队名称"
+        title={formatMessage({id:'teamOther.move_team.name'})}
         visible
         onOk={this.handleSubmit}
         onCancel={this.onCancel}
@@ -34,11 +34,11 @@ export default class MoveTeam extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '不能为空!'
+                  message: formatMessage({id:'teamOther.move_team.null'})
                 },
-                { max: 32, message: '最大长度32位' }
+                { max: 32, message:  formatMessage({id:'teamOther.move_team.max'})}
               ]
-            })(<Input placeholder="请输入新的团队名称" />)}
+            })(<Input placeholder= {formatMessage({id:'teamOther.move_team.input_name'})}/>)}
           </FormItem>
         </Form>
       </Modal>

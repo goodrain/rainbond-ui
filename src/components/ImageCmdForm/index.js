@@ -15,7 +15,7 @@ const formItemLayout = {
     span: 5
   },
   wrapperCol: {
-    span: 19
+    span: 14
   }
 };
 const formItemLayouts = {
@@ -111,9 +111,13 @@ export default class Index extends PureComponent {
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({id: 'placeholder.appName'})}
-                style={{
+                style={ language ? {
                   display: 'inline-block',
-                  width: isService ? '' : 276,
+                  width: isService ? '' : 250,
+                  marginRight: 10
+                } : {
+                  display: 'inline-block',
+                  width: isService ? '' : 264,
                   marginRight: 10
                 }}
                 disabled={!!isService}
@@ -154,7 +158,7 @@ export default class Index extends PureComponent {
               initialValue: data.docker_cmd || '',
               rules: [{ required: true, message: formatMessage({id: 'placeholder.dockerRunMsg'}) }]
             })(
-              <TextArea placeholder={formatMessage({id: 'placeholder.dockerRun'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>
+              <TextArea placeholder={formatMessage({id: 'placeholder.dockerRun'})} />
             )}
           </Form.Item>
 

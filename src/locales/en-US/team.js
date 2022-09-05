@@ -329,6 +329,30 @@ const teamOther = {
   'teamOther.edit.go':'Go to the certification',
   'teamOther.edit.unbounded':'The {type} account has not been bound',
 
+  'teamOther.CreateAppFromMarketForm.title':'Which app do you want to install?',
+  'teamOther.CreateAppFromMarketForm.install':'Installation version',
+  'teamOther.CreateAppFromMarketForm.setect':'Please select version',
+  'teamOther.CreateAppFromMarketForm.app':'Select application',
+  'teamOther.CreateAppFromMarketForm.setect_app':'Please select an application',
+
+  'teamOther.CreateAppFromHelmForm.name_app':'Apply name',
+  'teamOther.CreateAppFromHelmForm.version_app':'Application version',
+  'teamOther.CreateAppFromHelmForm.name':'App name already exists',
+  'teamOther.CreateAppFromHelmForm.input_name':'Please fill in the application name',
+  'teamOther.CreateAppFromHelmForm.min':'Application name (minimum length: 4 digits)',
+  'teamOther.CreateAppFromHelmForm.max':'The maximum length of application name is 53 bits',
+  'teamOther.CreateAppFromHelmForm.only':'Only lowercase letters and numbers are supported',
+  'teamOther.CreateAppFromHelmForm.note':'Application notes',
+  'teamOther.CreateAppFromHelmForm.max_length':'Maximum length: 255 bits',
+  'teamOther.CreateAppFromHelmForm.note_app':'Please fill in the application notes',
+
+  'teamOther.CreateAppFromPlugin.been_installed':'Already installed',
+  'teamOther.CreateAppFromPlugin.upgrade':'Upgrade',
+
+  'teamOther.move_team.name':'Modify team name',
+  'teamOther.move_team.null':'Cannot be empty!',
+  'teamOther.move_team.max':'Maximum length: 32 bits',
+  'teamOther.move_team.input_name':'Please enter a new team name',
 }
 
 

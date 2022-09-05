@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
+import cookie from '../../utils/cookie';
 
 @connect(
   ({ global, loading }) => ({
@@ -18,7 +19,8 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      showUsernameAndPass: false
+      showUsernameAndPass: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   handleSubmit = e => {
@@ -51,10 +53,18 @@ export default class Index extends PureComponent {
   render() {
     const formItemLayout = {
       labelCol: {
-        span: 7
+        span: 5
       },
       wrapperCol: {
-        span: 17
+        span: 19
+      }
+    };
+    const en_formItemLayout = {
+      labelCol: {
+        span: 8
+      },
+      wrapperCol: {
+        span: 16
       }
     };
     const {
@@ -64,6 +74,8 @@ export default class Index extends PureComponent {
       showSubmitBtn = true
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
+    const {language } = this.state;
+    const is_language = language ? formItemLayout : en_formItemLayout;
     return (
       <Fragment>
         <Card style={{ width: '800px', margin: '0 auto' }} bordered={false}>
@@ -73,19 +85,19 @@ export default class Index extends PureComponent {
             layout="horizontal"
             hideRequiredMark
           >
-            <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
+            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
               {getFieldDecorator('group_name', {
                 initialValue: data.group_name || '',
                 rules: [{ required: true, message: formatMessage({id: 'placeholder.appName'}) }]
               })(
                 <Input
                   style={{ maxWidth: 300 }}
-                  placeholder={formatMessage({id: 'placeholder.appName'})}
+                  placeholder={formatMessage({id: 'placeholder.group_name'})}
                   autocomplete="off"
                 />
               )}
             </Form.Item>
-            <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
+            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
               {getFieldDecorator('k8s_app', {
                 rules: [
                   { required: true, validator: this.handleValiateNameSpace }
@@ -94,7 +106,7 @@ export default class Index extends PureComponent {
             </Form.Item>
             <CodeMirrorForm
               setFieldsValue={setFieldsValue}
-              formItemLayout={formItemLayout}
+              formItemLayout={is_language}
               Form={Form}
               // width="594px"
               getFieldDecorator={getFieldDecorator}
@@ -105,7 +117,7 @@ export default class Index extends PureComponent {
               data={data.yaml_content || ''}
             />
 
-            <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.image.notice'})}>
+            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.image.notice'})}>
               {formatMessage({id: 'teamAdd.create.image.configHint'})}{' '}
               <a
                 onClick={() => {
@@ -118,7 +130,7 @@ export default class Index extends PureComponent {
             </Form.Item>
             <Form.Item
               style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id: 'teamAdd.create.form.user'})}
             >
               {getFieldDecorator('user_name', {
@@ -134,7 +146,7 @@ export default class Index extends PureComponent {
             </Form.Item>
             <Form.Item
               style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id: 'teamAdd.create.form.password'})}
             >
               {getFieldDecorator('password', {
@@ -154,8 +166,8 @@ export default class Index extends PureComponent {
                 wrapperCol={{
                   xs: { span: 24, offset: 0 },
                   sm: {
-                    span: formItemLayout.wrapperCol.span,
-                    offset: formItemLayout.labelCol.span
+                    span: is_language.wrapperCol.span,
+                    offset: is_language.labelCol.span
                   }
                 }}
                 label=""

@@ -12,7 +12,7 @@ import styles from './index.less';
 const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 @Form.create()
-@connect(({ user, list, loading, global, index, region, enterprise }) => ({
+@connect(({ user, list, loading, global, index, region, enterprise, team }) => ({
     user: user.currentUser,
     list,
     loading: loading.models.list,
@@ -22,6 +22,7 @@ const { Option, OptGroup } = Select;
     oauthLongin: loading.effects['global/creatOauth'],
     overviewInfo: index.overviewInfo,
     baseConfiguration: region.base_configuration,
+    team: team
 }))
 export default class ImportMessage extends PureComponent {
     constructor(props) {
@@ -50,17 +51,19 @@ export default class ImportMessage extends PureComponent {
     //NameSpace列表
     handleNameSpace = () => {
         const {
-            dispatch,
-            enterprise: {
-                enterprise_id
-            },
+            dispatch
         } = this.props;
-
+        const regionId = this.props.region_id
+            ? this.props.region_id
+            : this.props.overviewInfo.region_id
+        const eid = this.props.eid
+            ? this.props.eid
+            : this.props.overviewInfo.eid
         dispatch({
             type: 'region/fetchImportMessage',
             payload: {
-                eid: enterprise_id,
-                region_id: this.props.location.query.region_id
+                eid: eid,
+                region_id: regionId
             },
             callback: res => {
                 this.setState({
@@ -73,17 +76,18 @@ export default class ImportMessage extends PureComponent {
     }
     //资源数据列表
     handleResource = (namespace) => {
-        const {
-            dispatch,
-            enterprise: {
-                enterprise_id
-            },
-        } = this.props;
+        const { dispatch } = this.props
+        const regionId = this.props.region_id
+            ? this.props.region_id
+            : this.props.overviewInfo.region_id
+        const eid = this.props.eid
+            ? this.props.eid
+            : this.props.overviewInfo.eid
         dispatch({
             type: 'region/fetchNameSpaceResource',
             payload: {
-                eid: enterprise_id,
-                region_id: this.props.location.query.region_id,
+                eid: eid,
+                region_id: regionId,
                 namespace
             },
             callback: res => {
@@ -122,22 +126,16 @@ export default class ImportMessage extends PureComponent {
     }
     //下一步
     onNext = () => {
-        const { dispatch,
-            match: {
-                enterprise: {
-                    enterprise_id
-                },
-            },
-        } = this.props
-        const region_id = this.props.location.query && this.props.location.query.region_id
-        dispatch(routerRedux.push(`/enterprise/${enterprise_id}/ResourceConversion?region_id=${region_id}&namespace=${this.state.namespace}`));
+        const { dispatch } = this.props
+        const regionId = this.props.region_id
+            ? this.props.region_id
+            : this.props.overviewInfo.region_id
+        const eid = this.props.eid
+            ? this.props.eid
+            : this.props.overviewInfo.eid
+        dispatch(routerRedux.push(`/enterprise/${eid}/ResourceConversion?region_id=${regionId}&namespace=${this.state.namespace}`));
     }
     render() {
-        // const {
-        //     match: {
-        //         params: { eid }
-        //     },
-        // } = this.props;
         const { nameSpaceArr, resourceData, loadingSwitch, resourceDataIndex, namespace } = this.state
         return (
             <Card style={{ padding: '24px 12px' }}>
