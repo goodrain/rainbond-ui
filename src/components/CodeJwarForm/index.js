@@ -306,13 +306,9 @@ export default class Index extends PureComponent {
                   onChange={this.handleChange}
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder={formatMessage({ id: 'placeholder.appName' })}
-                  style={language ? {
+                  style={{ 
                     display: 'inline-block',
-                    width: 276,
-                    marginRight: 10
-                  } : {
-                    display: 'inline-block',
-                    width: 289,
+                    width: language ? 276 : 289,
                     marginRight: 10
                   }}
                 >
