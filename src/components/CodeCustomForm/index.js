@@ -7,15 +7,24 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import ShowRegionKey from '../../components/ShowRegionKey';
+import cookie from '../../utils/cookie';
 
 const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 9
+    span: 5
   },
   wrapperCol: {
-    span: 15
+    span: 16
+  }
+};
+const en_formItemLayout = {
+  labelCol: {
+    span: 8
+  },
+  wrapperCol: {
+    span: 16
   }
 };
 
@@ -40,7 +49,8 @@ export default class Index extends PureComponent {
       serverType: 'git',
       subdirectories: false,
       checkedList: [],
-      visibleKey: false
+      visibleKey: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onAddGroup = () => {
@@ -199,9 +209,10 @@ export default class Index extends PureComponent {
       subdirectories,
       serverType,
       visibleKey,
-      addGroup
+      addGroup,
+      language
     } = this.state;
-
+    const is_language = language ? formItemLayout : en_formItemLayout;
     const gitUrl = getFieldValue('git_url');
 
     let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || '');
@@ -246,17 +257,21 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
               rules: [{ required: true, message: formatMessage({id: 'placeholder.appName'}) }]
             })(
               <Select
                 placeholder={formatMessage({id: 'placeholder.appName'})}
-                style={{
+                style={language ? {
                   display: 'inline-block',
-                  width: isService ? '' : 276,
-                  marginRight: 10
+                  width: isService ? '' : 292,
+                  marginRight: 15
+                } : {
+                  display: 'inline-block',
+                  width: isService ? '' : 310,
+                  marginRight: 15
                 }}
                 disabled={!!isService}
               >
@@ -272,7 +287,7 @@ export default class Index extends PureComponent {
               <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamOverview.createApp'})}</Button>
             ) : null}
           </Form.Item>
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
@@ -285,7 +300,7 @@ export default class Index extends PureComponent {
             })(<Input placeholder={formatMessage({id: 'placeholder.service_cname'})} />)}
           </Form.Item>
           {/* 集群内组件名称 */}
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
             {getFieldDecorator('k8s_component_name', {
               rules: [
                 {
@@ -295,7 +310,7 @@ export default class Index extends PureComponent {
               ]
             })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.code.address'})}>
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.address'})}>
             {getFieldDecorator('git_url', {
               initialValue: data.git_url || '',
               force: true,
@@ -316,7 +331,7 @@ export default class Index extends PureComponent {
             this.fetchCheckboxGroup('showUsernameAndPass', serverType)}
 
           {showUsernameAndPass && isHttp && (
-            <Form.Item {...formItemLayout} label={formatMessage({id: "teamAdd.create.form.user"})}>
+            <Form.Item {...is_language} label={formatMessage({id: "teamAdd.create.form.user"})}>
               {getFieldDecorator('username_1', {
                 initialValue: data.username || '',
                 rules: [{ required: false, message: formatMessage({id: 'placeholder.username_1'}) }]
@@ -324,7 +339,7 @@ export default class Index extends PureComponent {
             </Form.Item>
           )}
           {showUsernameAndPass && isHttp && (
-            <Form.Item {...formItemLayout} label={formatMessage({id: "teamAdd.create.form.password"})}>
+            <Form.Item {...is_language} label={formatMessage({id: "teamAdd.create.form.password"})}>
               {getFieldDecorator('password_1', {
                 initialValue: data.password || '',
                 rules: [{ required: false, message: formatMessage({id: 'placeholder.password_1'}) }]
@@ -339,7 +354,7 @@ export default class Index extends PureComponent {
           )}
 
           {subdirectories && serverType === 'git' && (
-            <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.code.path'})}>
+            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.path'})}>
               {getFieldDecorator('subdirectories', {
                 initialValue: '',
                 rules: [{ required: true, message: formatMessage({id: 'placeholder.subdirectories'}) }]
@@ -347,7 +362,7 @@ export default class Index extends PureComponent {
             </Form.Item>
           )}
           {serverType !== 'oss' && (
-            <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.code.versions'})}>
+            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.versions'})}>
               {getFieldDecorator('code_version', {
                 initialValue: data.code_version || this.getDefaultBranchName(),
                 rules: [{ required: true, message: formatMessage({id: 'placeholder.code_version'}) }]
@@ -365,8 +380,8 @@ export default class Index extends PureComponent {
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
                 sm: {
-                  span: formItemLayout.wrapperCol.span,
-                  offset: formItemLayout.labelCol.span
+                  span: is_language.wrapperCol.span,
+                  offset: is_language.labelCol.span
                 }
               }}
               label=""

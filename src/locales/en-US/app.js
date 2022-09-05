@@ -397,5 +397,27 @@ const otherAppAssembly = {
   'otherApp.marketDrawer.more':'See more...',
   'otherApp.marketDrawer.creat':'Create component',
   'otherApp.marketDrawer.store':'Obtain cloud app store authorization',
+
+  // yaml上传
+  'otherApp.UploadYaml.name_en':'Please enter the English name of the component',
+  'otherApp.UploadYaml.only':'Only lowercase letters, numbers or "-" are supported, and must start with a letter, end with a number or a letter',
+  'otherApp.UploadYaml.max':'Cannot be greater than 32 characters',
+  'otherApp.UploadYaml.name':'Apply name',
+  'otherApp.UploadYaml.app':'Please select the application to which you want to belong',
+  'otherApp.UploadYaml.up':'Upload file',
+  'otherApp.UploadYaml.yaml':'Supports uploading files in yaml and YML formats',
+  'otherApp.UploadYaml.placese_up':'Please upload the file',
+  'otherApp.UploadYaml.creat':'Confirm creation',
+
+  // jar上传
+ 'otherApp.UploadJarWar.name':'Component name',
+ 'otherApp.UploadJarWar.input_name':'The component to be created does not have a name',
+ 'otherApp.UploadJarWar.max':'Maximum length: 24 bits',
+ 'otherApp.UploadJarWar.placese':'Please give the component you created a name',
+ 'otherApp.UploadJarWar.en_name':'English name',
+ 'otherApp.UploadJarWar.input_en_name':'Please enter the English name of the component',
+ 'otherApp.UploadJarWar.up':'Upload file',
+ 'otherApp.UploadJarWar.jar':'Support uploading files in jar and war formats',
+ 'otherApp.UploadJarWar.new':'New component',
 }
 export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly);

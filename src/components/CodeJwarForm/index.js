@@ -10,6 +10,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AddGroup from '../../components/AddOrEditGroup'
 import roleUtil from '../../utils/role'
 import globalUtil from '../../utils/global'
+import cookie from '../../utils/cookie';
 import styles from './index.less';
 import { getUploadInformation } from '../../services/app';
 const { Dragger } = Upload;
@@ -44,6 +45,7 @@ export default class Index extends PureComponent {
       percents: false,
       existFileList: [],
       groupName: '',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentWillMount() {
@@ -268,9 +270,17 @@ export default class Index extends PureComponent {
       groups
     } = this.props;
     const myheaders = {};
-    const { fileList, defaultRadio, addGroup, record, region_name, existFileList } = this.state;
+    const { fileList, defaultRadio, addGroup, record, region_name, existFileList, language } = this.state;
 
     const formItemLayout = {
+      labelCol: {
+        span: 5
+      },
+      wrapperCol: {
+        span: 15
+      }
+    };
+    const en_formItemLayout = {
       labelCol: {
         span: 9
       },
@@ -278,12 +288,12 @@ export default class Index extends PureComponent {
         span: 15
       }
     };
-
+    const is_language = language ? formItemLayout : en_formItemLayout;
     return (
       <>
         <div className={styles.yaml_container}>
           <Form onSubmit={this.handleSubmit}>
-            <Form.Item  {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.appName' })} style={{ display: 'flex' }}>
+            <Form.Item  {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })} style={{ display: 'flex' }}>
               {getFieldDecorator('group_id', {
                 rules: [
                   {
@@ -296,9 +306,13 @@ export default class Index extends PureComponent {
                   onChange={this.handleChange}
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder={formatMessage({ id: 'placeholder.appName' })}
-                  style={{
+                  style={language ? {
                     display: 'inline-block',
                     width: 276,
+                    marginRight: 10
+                  } : {
+                    display: 'inline-block',
+                    width: 289,
                     marginRight: 10
                   }}
                 >
@@ -309,7 +323,7 @@ export default class Index extends PureComponent {
               )}
               <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamApply.createApp' })}</Button>
             </Form.Item>
-            <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
               {getFieldDecorator('service_cname', {
                 rules: [
                   {
@@ -319,7 +333,7 @@ export default class Index extends PureComponent {
                 ]
               })(<Input placeholder={formatMessage({ id: 'placeholder.component_cname' })} />)}
             </Form.Item>
-            <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
               {getFieldDecorator('k8s_component_name', {
                 rules: [
                   {
@@ -330,7 +344,7 @@ export default class Index extends PureComponent {
               })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
             </Form.Item>
             <Form.Item
-            {...formItemLayout}
+            {...is_language}
               label={formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
               extra={formatMessage({ id: 'teamAdd.create.upload.uploadJWar' })}
             >
@@ -356,8 +370,8 @@ export default class Index extends PureComponent {
               )}
             </Form.Item>
             <Form.Item
-              labelCol={{ span: 9 }}
-              wrapperCol={{ span: 15 }}
+              labelCol={language ? { span: 5 } : { span: 9}}
+              wrapperCol={language ? { span: 19 } : { span: 15 }}
               label={formatMessage({id:'teamAdd.create.fileList'})}
             >
             {existFileList.length > 0 ?

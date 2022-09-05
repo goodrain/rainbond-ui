@@ -27,6 +27,7 @@ import Result from '../../components/Result';
 import VisterBtn from '../../components/visitBtnForAlllink';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
+import cookie from '../../utils/cookie';
 import styles from './Index.less';
 
 const { Search } = Input;
@@ -86,7 +87,8 @@ export default class Index extends PureComponent {
       // 新建应用显示与隐藏
       createAppVisible: false,
       emptyConfig: false,
-      searchVisible: false
+      searchVisible: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -527,8 +529,10 @@ export default class Index extends PureComponent {
       page_size,
       query,
       emptyConfig,
-      searchVisible
+      searchVisible,
+      language
     } = this.state;
+    console.log(language,"language");
     const {
       index,
       dispatch,
@@ -762,7 +766,7 @@ export default class Index extends PureComponent {
             {/* {(!loadingOfApp || searchVisible) && ( */}
               <div className={styles.teamHotAppTitleSearch}>
                 <Select
-                  style={{ width: '200px' }}
+                  style={language ? { width: '140px' } : { width:'200px' } }
                   placeholder={formatMessage({id: 'teamOverview.sortTips'})}
                   defaultValue={1}
                   onChange={this.handleSortChange}

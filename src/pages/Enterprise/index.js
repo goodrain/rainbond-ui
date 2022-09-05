@@ -776,7 +776,7 @@ export default class Enterprise extends PureComponent {
                         color="#3D58DA"
                         subTitle={
                           <div className={styles.appContent}>
-                            <h6>{runApp} {formatMessage({id:'unit.entries'})}</h6>
+                            <h6>{runApp} {language ? formatMessage({id:'unit.entries'}) : ''}</h6>
                             <div>
                               {/*  共{appTotal}
                               应用数量 */}
@@ -799,9 +799,9 @@ export default class Enterprise extends PureComponent {
                             <FormattedMessage id="enterpriseOverview.app.run"/>
                           </div>
                           <div className={styles.nums}>
-                            <span>{runApp} {formatMessage({id:'unit.entries'})}</span>
+                            <span>{runApp} {language ? formatMessage({id:'unit.entries'}) : ''}</span>
                             <span>|</span>
-                            <span>{appTotal} {formatMessage({id:'unit.entries'})}</span>
+                            <span>{appTotal} {language ? formatMessage({id:'unit.entries'}) : ''}</span>
                           </div>
                         </div>
                         <div>
@@ -813,9 +813,9 @@ export default class Enterprise extends PureComponent {
                             <FormattedMessage id="enterpriseOverview.app.notrun"/>
                           </div>
                           <div className={styles.nums}>
-                            <span>{appClosed} {formatMessage({id:'unit.entries'})}</span>
+                            <span>{appClosed} {language ? formatMessage({id:'unit.entries'}) : ''}</span>
                             <span>|</span>
-                            <span>{appTotal} {formatMessage({id:'unit.entries'})}</span>
+                            <span>{appTotal} {language ? formatMessage({id:'unit.entries'}) : ''}</span>
                           </div>
                         </div>
                       </div>
@@ -856,12 +856,12 @@ export default class Enterprise extends PureComponent {
                         <div>
                           <div className={styles.appnumno}>
                             {/* 运行中组件 */}
-                            <FormattedMessage id="enterpriseOverview.module.notrun.component"/>
+                            <FormattedMessage id="enterpriseOverview.module.run.component"/>
                           </div>
                           <div className={styles.nums}>
-                            <span>{runCom} {formatMessage({id:'unit.entries'})}</span>
+                            <span>{runCom} {language ? formatMessage({id:'unit.entries'}) : ''}</span>
                             <span>|</span>
-                            <span>{comTotal} {formatMessage({id:'unit.entries'})}</span>
+                            <span>{comTotal} {language ? formatMessage({id:'unit.entries'}) : ''}</span>
                           </div>
                         </div>
                         <div>
@@ -870,12 +870,12 @@ export default class Enterprise extends PureComponent {
                             style={{ marginTop: '26px' }}
                           >
                             {/* 未运行组件 */}
-                            <FormattedMessage id="enterpriseOverview.module.run.component"/>
+                            <FormattedMessage id="enterpriseOverview.module.notrun.component"/>
                           </div>
                           <div className={styles.nums}>
-                            <span>{comClosed} {formatMessage({id:'unit.entries'})}</span>
+                            <span>{comClosed} {language ? formatMessage({id:'unit.entries'}) : ''}</span>
                             <span>|</span>
-                            <span>{comTotal} {formatMessage({id:'unit.entries'})}</span>
+                            <span>{comTotal} {language ? formatMessage({id:'unit.entries'}) : ''}</span>
                           </div>
                         </div>
                       </div>

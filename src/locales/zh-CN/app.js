@@ -401,5 +401,27 @@ const otherAppAssembly = {
   'otherApp.marketDrawer.more':'查看更多...',
   'otherApp.marketDrawer.creat':'创建组件',
   'otherApp.marketDrawer.store':'获取云应用商店授权',
+  
+  // yaml上传
+  'otherApp.UploadYaml.name_en':'请输入组件英文名称',
+  'otherApp.UploadYaml.only':'只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾',
+  'otherApp.UploadYaml.max':'不能大于32个字符',
+  'otherApp.UploadYaml.name':'应用名称',
+  'otherApp.UploadYaml.app':'请选择要所属应用',
+  'otherApp.UploadYaml.up':'上传文件',
+  'otherApp.UploadYaml.yaml':'支持yaml、yml格式上传文件',
+  'otherApp.UploadYaml.placese_up':'请上传文件',
+  'otherApp.UploadYaml.creat':'确认创建',
+
+  // jar上传
+  'otherApp.UploadJarWar.name':'组件名称',
+  'otherApp.UploadJarWar.input_name':'要创建的组件还没有名字',
+  'otherApp.UploadJarWar.max':'最大长度24位',
+  'otherApp.UploadJarWar.placese':'请为创建的组件起个名字吧',
+  'otherApp.UploadJarWar.en_name':'组件英文名称',
+  'otherApp.UploadJarWar.input_en_name':'请输入组件的英文名称',
+  'otherApp.UploadJarWar.up':'上传文件',
+  'otherApp.UploadJarWar.jar':'支持Jar、War格式上传文件',
+  'otherApp.UploadJarWar.new':'新建组件',
 }
 export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly);
