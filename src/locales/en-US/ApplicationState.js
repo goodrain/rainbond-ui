@@ -1,7 +1,7 @@
 
 // 组件运行状态
 const ApplicationState =    {
-    'ApplicationState.RUNNING':'In operation',
+    'ApplicationState.RUNNING':'Running',
     'ApplicationState.STARTING':'Starting',
     'ApplicationState.CLOSED':'Closed',
     'ApplicationState.STOPPING':'Closing',
