@@ -35,8 +35,8 @@ export default class ExportOperation extends PureComponent {
     return (
       <Fragment>
         <a onClick={this.showAppExport} style={{ marginRight: 8 }}>
-          {formatMessage({id:'applicationMarket.localMarket.import_app'})}
-          {this.state.is_exporting ? `${formatMessage({id:'applicationMarket.localMarket.in_import'})}` : ''}
+          {formatMessage({id:'applicationMarket.localMarket.export_app'})}
+          {this.state.is_exporting ? `${formatMessage({id:'applicationMarket.localMarket.in_export'})}` : ''}
         </a>
         {this.state.showExporterApp && (
           <AppExporter

@@ -1,6 +1,6 @@
 const headerOverview = {
     'header.team.re':'Back to Enterprise View',
-    'header.team.name':'Team Perspective',
+    'header.team.name':'Team View',
     'header.team.search':'Screening team',
     'header.team.create':'set up a team',
     'header.team.getall':'View all Teams',

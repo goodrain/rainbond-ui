@@ -233,7 +233,7 @@ const teamManage = {
   'teamManage.tabs.member':'Members',
   'teamManage.tabs.member.title':'Team members',
   'teamManage.tabs.member.btn.add':'Add members',
-  'teamManage.tabs.member.table.userName':'User name',
+  'teamManage.tabs.member.table.userName':'Username',
   'teamManage.tabs.member.table.name':'Name',
   'teamManage.tabs.member.table.email':'Email',
   'teamManage.tabs.member.table.role':'Role',

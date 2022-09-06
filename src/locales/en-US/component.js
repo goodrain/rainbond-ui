@@ -764,7 +764,7 @@ const componentOverview = {
     'componentOverview.body.ChangeBuildSource.Illegal_address':'Illegal warehouse address',
     'componentOverview.body.ChangeBuildSource.version':'Code version',
     'componentOverview.body.ChangeBuildSource.input_version':'Please enter the code version',
-    'componentOverview.body.ChangeBuildSource.name':'User name',
+    'componentOverview.body.ChangeBuildSource.name':'Username',
     'componentOverview.body.ChangeBuildSource.input_name':'Please enter the warehouse user name',
     'componentOverview.body.ChangeBuildSource.password':'Password',
     'componentOverview.body.ChangeBuildSource.input_password':'Please enter the warehouse password',
