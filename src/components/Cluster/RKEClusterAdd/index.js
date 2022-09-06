@@ -907,8 +907,8 @@ export default class RKEClusterConfig extends PureComponent {
                   <li>
                     <span>
                       <FormattedMessage id='enterpriseColony.addCluster.host.already_installed'/>
-                      <b>19.03.x</b> <FormattedMessage id='enterpriseColony.addCluster.host.adn_lower_than'/>
-                      <b>1.13.x</b> <FormattedMessage id='enterpriseColony.addCluster.host.edition'/>
+                      <b> 19.03.x</b> <FormattedMessage id='enterpriseColony.addCluster.host.adn_lower_than'/>
+                      <b> 1.13.x</b> <FormattedMessage id='enterpriseColony.addCluster.host.edition'/>
                     </span>
                   </li>
                 </ul>

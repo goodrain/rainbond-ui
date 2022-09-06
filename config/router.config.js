@@ -35,7 +35,7 @@ export default [
     component: '../layouts/SecurityLayout',
     authority: ['admin', 'user'],
     routes: [
-      // enterprise view layout
+      // Enterprise view layout
       {
         path: '/',
         redirect: '/enterprise/auto'

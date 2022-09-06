@@ -250,7 +250,7 @@ class ClusterComponents extends PureComponent {
                 </div>
                 <div>
                   <div>
-                    <span>Pod IP：</span>
+                    <span>PodIP：</span>
                     <span>
                       {componentInfo.status && componentInfo.status.podIP}
                     </span>

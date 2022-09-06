@@ -306,13 +306,9 @@ export default class Index extends PureComponent {
                   onChange={this.handleChange}
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder={formatMessage({ id: 'placeholder.appName' })}
-                  style={language ? {
+                  style={{ 
                     display: 'inline-block',
-                    width: 276,
-                    marginRight: 10
-                  } : {
-                    display: 'inline-block',
-                    width: 289,
+                    width: language ? 276 : 289,
                     marginRight: 10
                   }}
                 >
@@ -333,7 +329,7 @@ export default class Index extends PureComponent {
                 ]
               })(<Input placeholder={formatMessage({ id: 'placeholder.component_cname' })} />)}
             </Form.Item>
-            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })+"11"}>
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
               {getFieldDecorator('k8s_component_name', {
                 rules: [
                   {
