@@ -1,6 +1,6 @@
 const enterpriseMenu = {
   'menu.enterprise.dashboard': 'Overview',
-  'menu.enterprise.share': 'Share',
+  'menu.enterprise.share': 'Market',
   'menu.enterprise.team': 'Team',
   'menu.enterprise.cluster': 'Cluster',
   'menu.enterprise.user': 'User',
@@ -27,12 +27,12 @@ const teamMenu = {
 
 const appMenu = {
   'menu.app.dashboard': 'Overview',
-  'menu.app.publish': 'release',
-  'menu.app.backup': 'backups',
-  'menu.app.gateway': 'gateway',
-  'menu.app.configgroups': 'configuration',
-  'menu.app.k8s': 'K8s resources',
-  'menu.app.upgrade': 'upgrade'
+  'menu.app.publish': 'Publish',
+  'menu.app.backup': 'Backups',
+  'menu.app.gateway': 'Gateway',
+  'menu.app.configgroups': 'Config Group',
+  'menu.app.k8s': 'K8S Resources',
+  'menu.app.upgrade': 'Upgrade'
 }
 
 
