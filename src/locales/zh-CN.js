@@ -13,6 +13,7 @@ import common from './zh-CN/common';
 import global from './zh-CN/global';
 import ApplicationState from'./zh-CN/ApplicationState';
 import utils from './zh-CN/utils'
+import login from './zh-CN/login'
 export default {
   'navBar.lang': '语言',
   'layout.user.link.help': '帮助',
@@ -33,5 +34,6 @@ export default {
   ...common,
   ...global,
   ...ApplicationState,
-  ...utils
+  ...utils,
+  ...login
 };

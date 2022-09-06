@@ -1,30 +1,32 @@
 import { DefaultFooter } from '@ant-design/pro-layout';
 import { Icon } from 'antd';
 import React from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import cookie from '..//utils/cookie';
 import styles from './PageHeaderLayout.less';
 
 export default () => (
   <DefaultFooter
     style={{background:'none'}}
     className={styles.customFooter}
-    copyright={new Date().getFullYear() + ' 北京好雨科技有限公司出品'}
+    copyright={new Date().getFullYear() + `${formatMessage({id:'CustomFooter.goodrain'})}`}
     links={[
       {
         key: 'Rainbond',
-        title: '官网',
-        href: 'https://www.rainbond.com',
+        title: formatMessage({id:'CustomFooter.website'}),
+        href: (cookie.get('language') === 'zh-CN' ? true : false)  ?  'https://www.rainbond.com' : 'https://www.rainbond.com/en/',
         blankTarget: true
       },
       {
         key: 'poc',
-        title: '企业服务',
-        href: 'https://goodrain.com',
+        title: formatMessage({id:'CustomFooter.services'}),
+        href: (cookie.get('language') === 'zh-CN' ? true : false) ? 'https://www.rainbond.com/enterprise_server' : 'https://www.rainbond.com/en/enterprise_server/',
         blankTarget: true
       },
       {
         key: 'community',
-        title: '社区',
-        href: 'https://t.goodrain.com',
+        title: formatMessage({id:'CustomFooter.community'}),
+        href: (cookie.get('language') === 'zh-CN' ? true : false) ? 'https://www.rainbond.com/community/support' : 'https://www.rainbond.com/en/community/support/',
         blankTarget: true
       },
       {

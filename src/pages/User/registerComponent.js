@@ -5,6 +5,7 @@ import { Button, Col, Form, Input, Row } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import apiconfig from '../../../config/api.config';
 import userUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
@@ -71,16 +72,16 @@ export default class RegisterComponent extends Component {
   checkPassword = (rule, value, callback) => {
     const { form } = this.props;
     if (value && value.length < 8) {
-      callback('密码长度至少为8位');
+      callback(formatMessage({id:'login.registerComponent.min'}));
     } else if (value && value.length > 16) {
-      callback('最大长度16位');
+      callback(formatMessage({id:'login.registerComponent.max'}));
     } else if (
       rule &&
       rule.field === 'password_repeat' &&
       value &&
       value !== form.getFieldValue('password')
     ) {
-      callback('两次输入的密码不匹配!');
+      callback(formatMessage({id:'login.registerComponent.pass'}));
     } else {
       callback();
     }
@@ -123,11 +124,11 @@ export default class RegisterComponent extends Component {
               rules: [
                 {
                   required: true,
-                  message: '请输入企业名称'
+                  message: formatMessage({id:'login.registerComponent.input_en_name'})
                 }
               ]
             })(
-              <Input autoComplete="off" size="large" placeholder="企业名称" />
+              <Input autoComplete="off" size="large" placeholder={formatMessage({id:'login.registerComponent.en_name'})}/>
             )}
           </FormItem>
         )}
@@ -137,17 +138,17 @@ export default class RegisterComponent extends Component {
               {getFieldDecorator('real_name', {
                 initialValue: userInfo ? userInfo.oauth_user_name : '',
                 rules: [
-                  { required: true, message: '请输入姓名' },
+                  { required: true, message: formatMessage({id:'login.registerComponent.input_name'}) },
                   {
                     max: 24,
-                    message: '最大长度24位'
+                    message: formatMessage({id:'login.registerComponent.Max'})
                   },
                   {
                     pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
-                    message: '只支持字母、数字、中文、_和-组合'
+                    message: formatMessage({id:'login.registerComponent.only'})
                   }
                 ]
-              })(<Input autoComplete="off" size="large" placeholder="姓名" />)}
+              })(<Input autoComplete="off" size="large" placeholder={formatMessage({id:'login.registerComponent.name'})} />)}
             </FormItem>
           </Col>
           <Col span="12" style={{ padding: '0 0 0 8px' }}>
@@ -155,22 +156,22 @@ export default class RegisterComponent extends Component {
               {getFieldDecorator('user_name', {
                 initialValue: firstRegist ? 'admin' : '',
                 rules: [
-                  { required: true, message: '请输入用户名!' },
+                  { required: true, message: formatMessage({id:'login.registerComponent.username'}) },
                   {
                     min: 3,
-                    message: '最小长度3位'
+                    message: formatMessage({id:'login.registerComponent.min_length'})
                   },
                   {
                     max: 24,
-                    message: '最大长度24位'
+                    message: formatMessage({id:'login.registerComponent.max_length'})
                   },
                   {
                     pattern: /^[a-zA-Z0-9_\-]+$/,
-                    message: '只支持字母、数字、_和-组合'
+                    message: formatMessage({id:'login.registerComponent.Only'})
                   }
                 ]
               })(
-                <Input autoComplete="off" size="large" placeholder="用户名" />
+                <Input autoComplete="off" size="large" placeholder={formatMessage({id:'login.registerComponent.user'})}/>
               )}
             </FormItem>
           </Col>
@@ -183,14 +184,14 @@ export default class RegisterComponent extends Component {
                 rules: [
                   {
                     required: true,
-                    message: '请输入邮箱地址！'
+                    message: formatMessage({id:'login.registerComponent.input_add'})
                   },
                   {
                     type: 'email',
-                    message: '邮箱地址格式错误！'
+                    message: formatMessage({id:'login.registerComponent.add_error'})
                   }
                 ]
-              })(<Input autoComplete="off" size="large" placeholder="邮箱" />)}
+              })(<Input autoComplete="off" size="large" placeholder={formatMessage({id:'login.registerComponent.mailbox'})} />)}
             </FormItem>
           </Col>
           <Col span="12" style={{ padding: '0 0 0 8px' }}>
@@ -200,39 +201,39 @@ export default class RegisterComponent extends Component {
                 rules: [
                   {
                     required: true,
-                    message: '请输入手机号'
+                    message: formatMessage({id:'login.registerComponent.iphone'})
                   },
                   {
                     pattern: /^[0-9]{11}$/,
-                    message: '请输入正确的手机号'
+                    message: formatMessage({id:'login.registerComponent.input_iphone'})
                   }
                 ]
               })(
-                <Input autoComplete="off" size="large" placeholder="手机号" />
+                <Input autoComplete="off" size="large" placeholder= {formatMessage({id:'login.registerComponent.Iphone'})}/>
               )}
             </FormItem>
           </Col>
         </Row>
         <FormItem>
           {getFieldDecorator('password', {
-            rules: checks('请输入密码')
+            rules: checks(formatMessage({id:'login.registerComponent.password'}))
           })(
             <Input
               size="large"
               type="password"
-              placeholder="请输入密码"
+              placeholder={formatMessage({id:'login.registerComponent.password'})}
               autoComplete="new-password"
             />
           )}
         </FormItem>
         <FormItem>
           {getFieldDecorator('password_repeat', {
-            rules: checks('请确认密码')
+            rules: checks(formatMessage({id:'login.registerComponent.Confirm_password'}))
           })(
             <Input
               size="large"
               type="password"
-              placeholder="确认密码"
+              placeholder={formatMessage({id:'login.registerComponent.Confirm_password'})}
               autoComplete="new-password"
             />
           )}
@@ -244,19 +245,19 @@ export default class RegisterComponent extends Component {
                 rules: [
                   {
                     required: true,
-                    message: '请输入验证码！'
+                    message: formatMessage({id:'login.registerComponent.Verification_Code'})
                   },
                   {
                     min: 4,
-                    message: '请输入4位的验证码'
+                    message: formatMessage({id:'login.registerComponent.four'})
                   },
                   {
                     max: 4,
-                    message: '请输入正确的验证码'
+                    message: formatMessage({id:'login.registerComponent.success'})
                   }
                 ]
               })(
-                <Input autoComplete="off" size="large" placeholder="验证码" />
+                <Input autoComplete="off" size="large" placeholder={formatMessage({id:'login.registerComponent.Verification'})} />
               )}
             </Col>
             <Col span={8}>
@@ -281,15 +282,15 @@ export default class RegisterComponent extends Component {
             htmlType="submit"
           >
             {firstRegist
-              ? '管理员注册'
+              ? <FormattedMessage id='login.registerComponent.admin'/>
               : type === 'register'
-              ? '注册'
-              : '注册并绑定'}
+              ? <FormattedMessage id='login.registerComponent.register'/>
+              : <FormattedMessage id='login.registerComponent.bind'/>}
           </Button>
 
           {!firstRegist && type === 'register' && (
             <Link className={styles.login} to="/user/login">
-              使用已有账户登录
+              <FormattedMessage id='login.registerComponent.use'/>
             </Link>
           )}
         </FormItem>
@@ -299,7 +300,7 @@ export default class RegisterComponent extends Component {
               span={24}
               style={{ fontSize: 12, marginTop: -12, color: '#666666' }}
             >
-              请注意：注册使用即同意产品发行版用户许可协议。
+              <FormattedMessage id='login.registerComponent.be_careful'/>
             </Col>
           </Row>
         )}

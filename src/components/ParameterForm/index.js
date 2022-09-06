@@ -4,6 +4,7 @@ import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Parameterinput from '../Parameterinput';
+import cookie from '../../utils/cookie';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -27,7 +28,8 @@ class ParameterForm extends PureComponent {
       webSockets: [
         { item_key: 'Connection', item_value: 'Upgrade' },
         { item_key: 'Upgrade', item_value: '$http_upgrade' }
-      ]
+      ],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onChangeWebSocket = () => {
@@ -118,7 +120,7 @@ class ParameterForm extends PureComponent {
   render() {
     const { editInfo, form, onClose, visible } = this.props;
     const { getFieldDecorator } = form;
-    const { proxyBuffering, WebSocket } = this.state;
+    const { proxyBuffering, WebSocket, language } = this.state;
     const customRules = [
       {
         pattern: new RegExp(/^[0-9]\d*$/, 'g'),
@@ -129,6 +131,16 @@ class ParameterForm extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
+        sm: { span: 8 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 16 }
+      }
+    };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
         sm: { span: 10 }
       },
       wrapperCol: {
@@ -136,6 +148,7 @@ class ParameterForm extends PureComponent {
         sm: { span: 14 }
       }
     };
+    const is_language = language ? formItemLayout : en_formItemLayout
     const setHeaders = editInfo && editInfo.set_headers;
     const defaultSetHeaders = this.handleSetWebSocket(setHeaders, true);
     return (
@@ -154,7 +167,7 @@ class ParameterForm extends PureComponent {
         >
           <Form>
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id:'popover.config.lable.proxy_connect_timeout'})}
               className={styles.antd_form}
             >
@@ -170,7 +183,7 @@ class ParameterForm extends PureComponent {
             </FormItem>
 
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id:'popover.config.lable.proxy_send_timeout'})}
               className={styles.antd_form}
             >
@@ -186,7 +199,7 @@ class ParameterForm extends PureComponent {
             </FormItem>
 
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id:'popover.config.lable.proxy_read_timeout'})}
               className={styles.antd_form}
             >
@@ -202,7 +215,7 @@ class ParameterForm extends PureComponent {
             </FormItem>
 
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id:'popover.config.lable.proxy_body_size'})}
               className={styles.antd_form}
             >
@@ -218,7 +231,7 @@ class ParameterForm extends PureComponent {
               })(<Input addonAfter="Mb" />)}
             </FormItem>
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id:'popover.config.lable.proxy_buffer_numbers'})}
               className={styles.antd_form}
             >
@@ -228,7 +241,7 @@ class ParameterForm extends PureComponent {
               })(<Input />)}
             </FormItem>
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id:'popover.config.lable.proxy_buffer_size'})}
               className={styles.antd_form}
             >
@@ -238,7 +251,7 @@ class ParameterForm extends PureComponent {
               })(<Input addonAfter="K" placeholder={formatMessage({id:'placeholder.proxy_buffer_size'})} />)}
             </FormItem>
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id:'popover.config.lable.WebSocket'})}
               className={styles.antd_form}
             >
@@ -256,7 +269,7 @@ class ParameterForm extends PureComponent {
               )}
             </FormItem>
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={formatMessage({id:'popover.config.lable.proxy_buffering'})}
               className={styles.antd_form}
             >
@@ -274,7 +287,7 @@ class ParameterForm extends PureComponent {
               )}
             </FormItem>
 
-            <FormItem {...formItemLayout} label={formatMessage({id:'popover.config.lable.set_headers'})}>
+            <FormItem {...is_language} label={formatMessage({id:'popover.config.lable.set_headers'})}>
               {getFieldDecorator('set_headers', {
                 initialValue: defaultSetHeaders
               })(<Parameterinput editInfo={defaultSetHeaders} />)}

@@ -35,6 +35,23 @@ const appMenu = {
 };
 
 
+const CustomFooter = {
+  'CustomFooter.goodrain':' 北京好雨科技有限公司出品',
+  'CustomFooter.website':'官网',
+  'CustomFooter.services':'企业服务',
+  'CustomFooter.community':'社区',
+
+  'GlobalHeader.success':'修改成功，请重新登录',
+  'GlobalHeader.core':'个人中心',
+  'GlobalHeader.edit':'修改密码',
+  'GlobalHeader.exit':'退出登录',
+  'GlobalHeader.serve':'企业服务',
+  'GlobalHeader.close':'是否要关闭新手引导功能、关闭后并无法开启此功能?',
+  'GlobalHeader.manual':'平台使用手册',
+  'GlobalHeader.new':'新手引导',
+}
 
 
-export default Object.assign({}, enterpriseMenu, teamMenu, appMenu);
+
+
+export default Object.assign({}, enterpriseMenu, teamMenu, appMenu, CustomFooter);

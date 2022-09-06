@@ -4,6 +4,7 @@ import { message } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Result from '../../components/Result';
 import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';
@@ -18,8 +19,8 @@ export default class ThirdLogin extends Component {
     super(props);
     this.state = {
       resultState: 'ing',
-      title: '第三方认证中...',
-      desc: '此过程可能比较耗时，请耐心等待'
+      title: formatMessage({id:'login.Third.authentication'}),
+      desc: formatMessage({id:'login.Third.wait_for'})
     };
   }
   // eslint-disable-next-line consistent-return
@@ -52,8 +53,8 @@ export default class ThirdLogin extends Component {
                 this.setState(
                   {
                     resultState: 'error',
-                    title: '第三方认证未通过',
-                    desc: '认证失败,请重新认证'
+                    title: formatMessage({id:'login.Third.Failed'}),
+                    desc: formatMessage({id:'login.Third.Authentication'})
                   },
                   () => {
                     setTimeout(() => {
@@ -65,7 +66,7 @@ export default class ThirdLogin extends Component {
                 this.setState(
                   {
                     resultState: 'success',
-                    title: '第三方认证通过',
+                    title: formatMessage({id:'login.Third.success'}),
                     desc: ''
                   },
                   () => {
@@ -107,8 +108,8 @@ export default class ThirdLogin extends Component {
               this.setState(
                 {
                   resultState: 'error',
-                  title: '第三方认证未通过',
-                  desc: res.msg_show || '未成功获取access_token,请重新认证。'
+                  title: formatMessage({id:'login.Third.Failed'}),
+                  desc: res.msg_show || formatMessage({id:'login.Third.token'})
                 },
                 () => {
                   setTimeout(() => {
@@ -162,7 +163,7 @@ export default class ThirdLogin extends Component {
   handleError = err => {
     const status = (err && err.status) || (err.response && err.response.status);
     if (status && status === 500) {
-      message.warning('第三方认证失败，请重新认证');
+      message.warning(formatMessage({id:'login.Third.again'}));
     } else {
       handleAPIError(err);
     }

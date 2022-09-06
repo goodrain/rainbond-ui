@@ -25,6 +25,7 @@ import AppState from '../../components/ApplicationState';
 import ConfirmModal from '../../components/ConfirmModal';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
+import CustomFooter from "../../layouts/CustomFooter";
 import { batchOperation } from '../../services/app';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
@@ -1368,6 +1369,7 @@ export default class Index extends PureComponent {
             <p>{formatMessage({id:'confirmModal.friendly_reminder.pages.desc'},{codeObj: codeObj[code]})}</p>
           </Modal>
         )}
+        <CustomFooter/>
       </Fragment>
     );
   }

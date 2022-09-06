@@ -39,6 +39,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import Consulting from '../../components/Consulting';
 import Convenient from '../../components/Convenient';
 import CreateTeam from '../../components/CreateTeam';
+import CustomFooter from "../../layouts/CustomFooter";
 import InstallStep from '../../components/Introduced/InstallStep';
 import JoinTeam from '../../components/JoinTeam';
 import Meiqia from '../../layouts/Meiqia';
@@ -1413,6 +1414,7 @@ export default class Enterprise extends PureComponent {
               onViewInstance={this.onViewInstance}
             />
           )}
+          <CustomFooter/>
       </div>
     );
   }

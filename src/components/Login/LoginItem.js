@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PropTypes from 'prop-types';
 import { Form, Button, Row, Col } from 'antd';
 import omit from 'omit.js';
@@ -80,7 +81,7 @@ function generator({ defaultProps, defaultRules, type }) {
                     size="large"
                     onClick={this.onGetCaptcha}
                   >
-                    {count ? `${count} s` : '获取验证码'}
+                    {count ? `${count} s` : `${formatMessage({id:'login.LoginItem'})}`}
                   </Button>
                 </Col>
               </Row>

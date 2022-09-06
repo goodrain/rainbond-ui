@@ -37,7 +37,6 @@ class Index extends PureComponent {
       dataList,
       buildSource
     } = this.props;
-
     const setMemory = memory === 0 ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
     return (
       <Row gutter={24}>
@@ -56,7 +55,7 @@ class Index extends PureComponent {
                     color: globalUtil.fetchStateColor(status && status.status)
                   }}
                 >
-                  {(status && (language == true) ?  status.status_cn : status.status) || ''}
+                  {(status && language  ?  status.status_cn : status.status) || ''}
                 </h2>
                 <div className={styles.buildCommitInfo}>
                   <ul className={styles.buildInfo}>

@@ -36,5 +36,22 @@ const appMenu = {
 }
 
 
+const CustomFooter = {
+  'CustomFooter.goodrain':'Goodrain, Inc.',
+  'CustomFooter.website':'Website',
+  'CustomFooter.services':'Enterprise service',
+  'CustomFooter.community':'Community',
 
-export default Object.assign({}, enterpriseMenu, teamMenu, appMenu);
+  'GlobalHeader.success':'If the modification is successful, log in again',
+  'GlobalHeader.core':'Personal center',
+  'GlobalHeader.edit':'Change  password',
+  'GlobalHeader.exit':'Log out',
+  'GlobalHeader.serve':'Enterprise service',
+  'GlobalHeader.close':'Do you want to turn off the novice boot function, or fail to turn it on after turning it off?',
+  'GlobalHeader.manual':'Platform User Manual',
+  'GlobalHeader.new':'Newbie guide',
+}
+
+
+
+export default Object.assign({}, enterpriseMenu, teamMenu, appMenu, CustomFooter);

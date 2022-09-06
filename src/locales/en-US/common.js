@@ -239,6 +239,7 @@
         'confirmModal.drop_procedure.delete.title':'Delete memory',
         'confirmModal.drop_versions.delete.title':'Delete version',
         'confirmModal.give_up_release.delete.title':'Give up release',
+        'confirmModal.quit.team.title':'Quit team',
 
         //组件提示
         'confirmModal.delete.strategy.subDesc':'This operation cannot be undone',
@@ -289,7 +290,7 @@
         'confirmModal.delete.data_backup.desc':'Are you sure you want to back up your data?',
         'confirmModal.delete.take_hand.desc':'It cannot be restored after being deleted. Are you sure to delete it?',
         'confirmModal.install.app.desc':'Are you sure you want to install this application as your component?',
-
+        'confirmModal.return.team.desc': 'Are you sure you want to quit this team?',
         //友情提示
         'confirmModal.friendly_reminder.title':'Friendly reminder',
         'confirmModal.friendly_reminder.pages.desc':'{ codeObj } All the components in the current application?',

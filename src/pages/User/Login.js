@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
 import rainbondUtil from '../../utils/rainbond';
+import { formatMessage, setLocale, getLocale, FormattedMessage } from 'umi/locale'
+import cookie from '../../utils/cookie';
 import styles from './Login.less';
 import LoginComponent from './loginComponent';
 
@@ -16,13 +18,46 @@ import LoginComponent from './loginComponent';
 export default class LoginPage extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      language: cookie.get('language') === 'zh-CN' ?  true : false ,
+    };
   }
   componentWillMount() {
     const { dispatch } = this.props;
     dispatch({ type: 'global/hideNeedLogin' });
     globalUtil.removeCookie();
   }
+  componentDidMount(){
+    let lan = navigator.systemLanguage || navigator.language;
+    const Language = cookie.get('language')
+    if(Language == null) {
+    if(lan.toLowerCase().indexOf('zh')!==-1){
+      const language = 'zh-CN'
+      cookie.set('language', language)
+      const lang = cookie.get('language')
+      setLocale('zh-CN')
+      this.setState({
+        language:true,
+      })
+    }else if(lan.toLowerCase().indexOf('en')!==-1){
+      const language = 'en-US'
+      cookie.set('language', language)
+      const lang = cookie.get('language')
+      setLocale('en-US')
+      this.setState({
+        language:false,
+      })
+    }else{
+      const language = 'zh-CN'
+      cookie.set('language', language)
+      const lang = cookie.get('language')
+      setLocale('zh-CN')
+      this.setState({
+        language:true,
+      })
+    }
+    }
+      }
   handleSubmit = values => {
     const { dispatch, location } = this.props;
     const query_params = new URLSearchParams(location.search);
@@ -90,16 +125,18 @@ export default class LoginPage extends Component {
       oauthServicesList = rainbondInfo.oauth_services.value;
     }
     const inlineBlock = { display: 'inline-block' };
+    const { language } = this.state;
+    console.log(language,"language");
     return (
       <div className={styles.main} style={{ marginTop: '100px' }}>
-        <h3>用户登录</h3>
+        <h3><FormattedMessage id="login.Login.title"/></h3>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
         {rainbondUtil.OauthbEnable(rainbondInfo) &&
           (oauthInfo ||
             (oauthServicesList && oauthServicesList.length > 0)) && (
             <div className={styles.thirdBox}>
               <Divider>
-                <div className={styles.thirdLoadingTitle}>第三方登录</div>
+                <div className={styles.thirdLoadingTitle}><FormattedMessage id="login.Login.three"/></div>
               </Divider>
               <Row className={styles.third}>
                 {oauthInfo && (

@@ -1,6 +1,7 @@
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import styles from './Register.less';
@@ -50,7 +51,7 @@ export default class Register extends Component {
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     return (
       <div className={styles.main} style={{ marginTop: '37px' }}>
-        <h3>{firstRegist ? '管理员注册' : '用户注册'}</h3>
+        <h3>{firstRegist ? <FormattedMessage id="login.Register.admin"/> :  <FormattedMessage id="login.Register.user"/>}</h3>
         <RegisterComponent onSubmit={this.handleSubmit} type="register" />
       </div>
     );

@@ -312,9 +312,9 @@ export default class Index extends PureComponent {
         {showDelTeam && (
           <ConfirmModal
             onOk={this.handleDelTeam}
-            title={formatMessage({id:'confirmModal.project_team_delete.delete.title'})}
+            title={formatMessage({id:'confirmModal.quit.team.title'})}
             subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            desc={formatMessage({id:'confirmModal.delete.project_team_delete.desc'})}
+            desc={formatMessage({id:'confirmModal.return.team.desc'})}
             onCancel={this.hideDelTeam}
           />
         )}

@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
+import cookie from '../../utils/cookie';
 import roleUtil from '../../utils/role';
 import UserSelect from '../UserSelect';
 
@@ -18,7 +19,8 @@ class ConfirmModal extends PureComponent {
       roles: [],
       currentRoles: [],
       roleLoading: true,
-      currentRolesLoading: true
+      currentRolesLoading: true,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -119,7 +121,8 @@ class ConfirmModal extends PureComponent {
       roles,
       currentRoles,
       roleLoading,
-      currentRolesLoading
+      currentRolesLoading,
+      language
     } = this.state;
     const initialValueRoles = [];
     const arr =
@@ -141,7 +144,17 @@ class ConfirmModal extends PureComponent {
         sm: { span: 14 }
       }
     };
-
+    const en_formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 10 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 14 }
+      }
+    };
+    const is_language = language ? formItemLayout : en_formItemLayout;
     return (
       <Modal
         confirmLoading={loading}
@@ -152,7 +165,7 @@ class ConfirmModal extends PureComponent {
       >
         <Skeleton loading={roleLoading || currentRolesLoading}>
           <Form onSubmit={this.handleSubmit}>
-            <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.image.lable.domain'})}>
+            <FormItem {...is_language} label={formatMessage({id:'confirmModal.image.lable.domain'})}>
               {getFieldDecorator('domain', {
                 initialValue: '',
                 rules: [
@@ -172,7 +185,7 @@ class ConfirmModal extends PureComponent {
                 getValueFromEvent: event => {return event.target.value.replace(/(^\s*)|(\s*$)/g, '');},
               })(<Input placeholder={formatMessage({id:'placeholder.git_url'})} />)}
             </FormItem>
-            <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.image.lable.username'})}>
+            <FormItem {...is_language} label={formatMessage({id:'confirmModal.image.lable.username'})}>
               {getFieldDecorator('username', {
                 initialValue: '',
                 rules: [
@@ -187,7 +200,7 @@ class ConfirmModal extends PureComponent {
                 ]
               })(<Input placeholder={formatMessage({id:'placeholder.userName'})} />)}
             </FormItem>
-            <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.image.lable.password'})}>
+            <FormItem {...is_language} label={formatMessage({id:'confirmModal.image.lable.password'})}>
               {getFieldDecorator('password', {
                 initialValue: '',
                 rules: [

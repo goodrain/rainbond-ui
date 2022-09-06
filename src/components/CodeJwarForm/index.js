@@ -333,7 +333,7 @@ export default class Index extends PureComponent {
                 ]
               })(<Input placeholder={formatMessage({ id: 'placeholder.component_cname' })} />)}
             </Form.Item>
-            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })+"11"}>
               {getFieldDecorator('k8s_component_name', {
                 rules: [
                   {

@@ -92,6 +92,13 @@ class Parameterinput extends Component {
                     maxLength={255}
                     placeholder={keyPlaceholder}
                     onChange={this.onKeyChange.bind(this, index)}
+                    style = {
+                      {
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
+                    }
+                    }
                   />
                 </Col>
                 <Col span={1} style={{ textAlign: 'center' }}>

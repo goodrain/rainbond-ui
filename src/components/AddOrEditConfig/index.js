@@ -6,6 +6,7 @@
 import { Form, Icon, Input, Modal, Radio, Select, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;
@@ -34,7 +35,7 @@ class EvnOption extends React.Component {
   checkAttrAltValue = (_, value, callback) => {
     const { getFieldValue } = this.props.form;
     if (getFieldValue('attr_type') !== 'string' && !value) {
-      callback('请输入可选值');
+      callback(`${formatMessage({id:'teamOther.AddOrEditConfig.input'})}`);
     } else {
       callback();
     }
@@ -42,7 +43,7 @@ class EvnOption extends React.Component {
 
   validAttrName = (_, value, callback) => {
     if (value && !/^[-._a-zA-Z][-._a-zA-Z0-9]*$/.test(value)) {
-      callback('只能由 - . _ 字母和数字组成，不能以数字开头');
+      callback(`${formatMessage({id:'teamOther.AddOrEditConfig.only'})}`);
       return;
     }
     callback();
@@ -85,11 +86,11 @@ class EvnOption extends React.Component {
             rules: [
               {
                 required: true,
-                message: '请输入属性名'
+                message: formatMessage({id:'teamOther.AddOrEditConfig.input_name'})
               },
               {
                 max: 32,
-                message: '最大长度32位'
+                message: formatMessage({id:'teamOther.AddOrEditConfig.max'})
               },
               {
                 validator: this.validAttrName
@@ -100,7 +101,7 @@ class EvnOption extends React.Component {
               onChange={e => {
                 this.handleOnchange('attr_name', e.target.value);
               }}
-              placeholder="属性名"
+              placeholder={formatMessage({id:'teamOther.AddOrEditConfig.name'})}
             />
           )}
         </Form.Item>
@@ -108,7 +109,7 @@ class EvnOption extends React.Component {
           {getFieldDecorator('protocol', {
             initialValue:
               (data.protocol && data.protocol.toString().split(',')) || '',
-            rules: [{ required: false, message: '协议' }]
+            rules: [{ required: false, message: formatMessage({id:'teamOther.AddOrEditConfig.agreement'})}]
           })(
             <Select
               showArrow
@@ -118,9 +119,9 @@ class EvnOption extends React.Component {
                 this.handleOnchange('protocol', values);
               }}
               style={{ width: 120 }}
-              placeholder="选择协议"
+              placeholder={formatMessage({id:'teamOther.AddOrEditConfig.select_agreement'})}
             >
-              <Option value="">所有协议</Option>
+              <Option value="">{formatMessage({id:'teamOther.AddOrEditConfig.all_agreement'})}</Option>
               {protocols.map(item => (
                 <Option value={item}>{item}</Option>
               ))}
@@ -130,7 +131,7 @@ class EvnOption extends React.Component {
         <Form.Item>
           {getFieldDecorator('attr_type', {
             initialValue: data.attr_type || 'string',
-            rules: [{ required: true, message: '属性名' }]
+            rules: [{ required: true, message: formatMessage({id:'teamOther.AddOrEditConfig.name'}) }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -139,9 +140,9 @@ class EvnOption extends React.Component {
               }}
               style={{ width: 100 }}
             >
-              <Option value="string">字符串</Option>
-              <Option value="radio">单选</Option>
-              <Option value="checkbox">多选</Option>
+              <Option value="string">{formatMessage({id:'teamOther.AddOrEditConfig.string'})}</Option>
+              <Option value="radio">{formatMessage({id:'teamOther.AddOrEditConfig.choice'})}</Option>
+              <Option value="checkbox">{formatMessage({id:'teamOther.AddOrEditConfig.Multiple'})}</Option>
             </Select>
           )}
         </Form.Item>
@@ -149,10 +150,10 @@ class EvnOption extends React.Component {
           {getFieldDecorator('attr_default_value', {
             initialValue: data.attr_default_value || '',
             rules: [
-              { required: false, message: '默认值' },
+              { required: false, message: formatMessage({id:'teamOther.AddOrEditConfig.Default'}) },
               {
                 max: 65535,
-                message: '最大长度65535位'
+                message: formatMessage({id:'teamOther.AddOrEditConfig.max_length'})
               }
             ]
           })(
@@ -161,18 +162,18 @@ class EvnOption extends React.Component {
                 this.handleOnchange('attr_default_value', e.target.value);
               }}
               style={{ width: 80 }}
-              placeholder="默认值"
+              placeholder={formatMessage({id:'teamOther.AddOrEditConfig.Default'})}
             />
           )}
         </Form.Item>
         <Form.Item style={{ display: attrType === 'string' ? 'none' : '' }}>
-          <Tooltip title="单选或多选的可选值， 多个用逗号分割，如：value1, value2">
+          <Tooltip title={formatMessage({id:'teamOther.AddOrEditConfig.tooltip'})}>
             {getFieldDecorator('attr_alt_value', {
               initialValue: data.attr_alt_value || '',
               rules: [
                 {
                   max: 65535,
-                  message: '最大长度65535位'
+                  message: formatMessage({id:'teamOther.AddOrEditConfig.max_length'})
                 },
                 { validator: this.checkAttrAltValue }
               ]
@@ -182,7 +183,7 @@ class EvnOption extends React.Component {
                   this.handleOnchange('attr_alt_value', e.target.value);
                 }}
                 style={{ width: 100 }}
-                placeholder="可选值"
+                placeholder={formatMessage({id:'teamOther.AddOrEditConfig.Optional_values'})}
               />
             )}
           </Tooltip>
@@ -190,7 +191,7 @@ class EvnOption extends React.Component {
         <Form.Item>
           {getFieldDecorator('is_change', {
             initialValue: data.is_change === void 0 ? true : data.is_change,
-            rules: [{ required: false, message: '默认值' }]
+            rules: [{ required: false, message: formatMessage({id:'teamOther.AddOrEditConfig.Default'}) }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -199,8 +200,8 @@ class EvnOption extends React.Component {
               }}
               style={{ width: 100 }}
             >
-              <Option value>可修改</Option>
-              <Option value={false}>不可修改</Option>
+              <Option value>{formatMessage({id:'teamOther.AddOrEditConfig.Modifiable'})}</Option>
+              <Option value={false}>{formatMessage({id:'teamOther.AddOrEditConfig.unModifiable'})}</Option>
             </Select>
           )}
         </Form.Item>
@@ -208,10 +209,10 @@ class EvnOption extends React.Component {
           {getFieldDecorator('attr_info', {
             initialValue: data.attr_info || '',
             rules: [
-              { required: false, message: '默认值' },
+              { required: false, message: formatMessage({id:'teamOther.AddOrEditConfig.Default'}) },
               {
                 max: 40,
-                message: '最大长度40位'
+                message: formatMessage({id:'teamOther.AddOrEditConfig.Max'})
               }
             ]
           })(
@@ -220,7 +221,7 @@ class EvnOption extends React.Component {
                 this.handleOnchange('attr_info', e.target.value);
               }}
               style={{ width: 100 }}
-              placeholder="简要说明"
+              placeholder={formatMessage({id:'teamOther.AddOrEditConfig.explain'})}
             />
           )}
         </Form.Item>
@@ -354,10 +355,10 @@ class EnvGroup extends PureComponent {
 
 const formItemLayout = {
   labelCol: {
-    span: 3
+    span: 5
   },
   wrapperCol: {
-    span: 21
+    span: 19
   }
 };
 
@@ -412,7 +413,7 @@ export default class Index extends PureComponent {
     const metaType = getFieldValue('service_meta_type') || 'un_define';
     return (
       <Modal
-        title={title || '新增配置组'}
+        title={title || formatMessage({id:'teamOther.AddOrEditConfig.add'})}
         width={1100}
         visible
         confirmLoading={loading}
@@ -423,49 +424,49 @@ export default class Index extends PureComponent {
           <Form.Item
             style={{ marginRight: 8 }}
             {...formItemLayout}
-            label="配置组名"
+            label={formatMessage({id:'teamOther.AddOrEditConfig.config_name'})}
           >
             {getFieldDecorator('config_name', {
               initialValue: data.config_name || '',
               rules: [
-                { required: true, message: '请输入配置组名' },
+                { required: true, message: formatMessage({id:'teamOther.AddOrEditConfig.enter_name'}) },
                 {
                   max: 32,
-                  message: '最大长度32位'
+                  message: formatMessage({id:'teamOther.AddOrEditConfig.max'})
                 }
               ],
               validateFirst: true
-            })(<Input placeholder="请输入配置组名" />)}
+            })(<Input placeholder={formatMessage({id:'teamOther.AddOrEditConfig.input_name'})} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="依赖元数据">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'teamOther.AddOrEditConfig.rely_on'})}>
             {getFieldDecorator('service_meta_type', {
               initialValue: data.service_meta_type || 'un_define',
-              rules: [{ required: true, message: '请输入配置组名' }]
+              rules: [{ required: true, message: formatMessage({id:'teamOther.AddOrEditConfig.enter_name'}) }]
             })(
               <RadioGroup onChange={this.hanldeMetaTypeChange}>
-                <Radio value="un_define">不依赖</Radio>
-                <Radio value="upstream_port">组件端口</Radio>
-                <Radio value="downstream_port">下游组件端口</Radio>
+                <Radio value="un_define">{formatMessage({id:'teamOther.AddOrEditConfig.unrely_on'})}</Radio>
+                <Radio value="upstream_port">{formatMessage({id:'teamOther.AddOrEditConfig.port'})}</Radio>
+                <Radio value="downstream_port">{formatMessage({id:'teamOther.AddOrEditConfig.downstream'})}</Radio>
               </RadioGroup>
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="注入类型">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'teamOther.AddOrEditConfig.type'})}>
             {getFieldDecorator('injection', {
               initialValue: data.injection || 'env',
-              rules: [{ required: true, message: '请输入配置组名' }]
+              rules: [{ required: true, message: formatMessage({id:'teamOther.AddOrEditConfig.enter_name'}) }]
             })(
               <RadioGroup>
                 <Radio
                   style={{ display: metaType === 'un_define' ? '' : 'none' }}
                   value="env"
                 >
-                  环境变量
+                  {formatMessage({id:'teamOther.AddOrEditConfig.env'})}
                 </Radio>
-                <Radio value="auto">主动发现</Radio>
+                <Radio value="auto">{formatMessage({id:'teamOther.AddOrEditConfig.find'})}</Radio>
               </RadioGroup>
             )}
           </Form.Item>
-          <Form.Item validateStatus="t" {...formItemLayout} label="配置项">
+          <Form.Item validateStatus="t" {...formItemLayout} label={formatMessage({id:'teamOther.AddOrEditConfig.config'})}>
             {getFieldDecorator('options', {
               initialValue: data.options || []
             })(
