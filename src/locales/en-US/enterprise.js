@@ -145,7 +145,7 @@
         'applicationMarket.TagList.select_label':'Select a label',
         // applicationMarket>CreateHelmAppModels
         'applicationMarket.CreateHelmAppModels.install':'Install',
-        'applicationMarket.CreateHelmAppModels.name_existence':'App name already exists',
+        'applicationMarket.CreateHelmAppModels.name_existence':'App Name already exists',
         'applicationMarket.CreateHelmAppModels.name':'Team',
         'applicationMarket.CreateHelmAppModels.input_team':'Select a team',
         'applicationMarket.CreateHelmAppModels.creat_team':'Create',
@@ -233,7 +233,7 @@
         'applicationMarket.appsetting.input_name':'Enter a name',
         'applicationMarket.appsetting.max':'Maximum length: 32 bits',
         'applicationMarket.appsetting.input_max':'Enter the name of the application template, the maximum length is 32 bits',
-        'applicationMarket.appsetting.release':'Release scope',
+        'applicationMarket.appsetting.release':'Scope',
         'applicationMarket.appsetting.input_name':'Enter a name',
         'applicationMarket.appsetting.select_release':'Select the publishing scope',
         'applicationMarket.appsetting.more':'Load more',

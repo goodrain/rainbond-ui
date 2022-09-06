@@ -767,7 +767,7 @@ export default class CreateCheck extends React.Component {
               </div>
               {formatMessage({id:'componentCheck.tooltip.title.p4'})}{' '}
               <a
-                href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
+                href="https://www.rainbond.com/en/docs/use-manual/component-create/language-support/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -929,7 +929,7 @@ export default class CreateCheck extends React.Component {
               <div>{formatMessage({id:'componentCheck.tooltip.title.p7'})}</div>
               {formatMessage({id:'componentCheck.tooltip.title.p4'})}{' '}
               <a
-                href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
+                href="https://www.rainbond.com/en/docs/use-manual/component-create/language-support/"
                 target="_blank"
                 rel="noopener noreferrer"
               >

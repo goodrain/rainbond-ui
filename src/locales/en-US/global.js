@@ -82,10 +82,10 @@ const global = {
     'global.getComponentType.cronjob':'Recurring tasks(Cronjob type)',
 
     // getSupportComponentTyps
-    'global.getSupportComponentTyps.stateless_multiple':'Deployed as a stateless service (Deployment type), it is generally used for components such as web classes and API classes.',
-    'global.getSupportComponentTyps.state_multiple':'Deployed as stateful service (Statefulset type), it is generally used for DB class, message middleware class and data class components.',
-    'global.getSupportComponentTyps.job':'Deployed as a task (Job type), it is generally used for one-time tasks, and the container exits after completion.',
-    'global.getSupportComponentTyps.cronjob':'It is deployed as a periodic task (Cronjob type) and is generally used to process periodic scheduled tasks that need to be executed repeatedly.',
+    'global.getSupportComponentTyps.stateless_multiple':'Deployed as a stateless service (Deployment), it is generally used for components such as web classes and API classes.',
+    'global.getSupportComponentTyps.state_multiple':'Deployed as stateful service (Statefulset), it is generally used for DB class, message middleware class and data class components.',
+    'global.getSupportComponentTyps.job':'Deployed as a task (Job), it is generally used for one-time tasks, and the container exits after completion.',
+    'global.getSupportComponentTyps.cronjob':'Deployed as a periodic task (Cronjob) and is generally used to process periodic scheduled tasks that need to be executed repeatedly.',
 
     // fetchStateOptTypeText
     'global.fetchStateOptTypeText.deploy':'Building components',
