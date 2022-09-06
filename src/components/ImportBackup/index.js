@@ -1,6 +1,7 @@
 import { Button, Modal, notification, Upload } from "antd";
 import { connect } from "dva";
 import React, { PureComponent } from "react";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import apiconfig from "../../../config/api.config";
 import cookie from "../../utils/cookie";
 import globalUtil from "../../utils/global";
@@ -58,7 +59,7 @@ export default class Index extends PureComponent {
   };
   onRemove = file => {
     notification.info({
-      message: "备份已导入",
+      message: formatMessage({id:'status.app.backups.imported'}),
       duration: "2"
     });
     return false;
@@ -86,10 +87,10 @@ export default class Index extends PureComponent {
       <Modal
         visible
         onCancel={this.props.onCancel}
-        title="请导入备份"
+        title={formatMessage({id:'appBackups.table.pages.importBackup.title'})}
         footer={[
           <Button key="back" onClick={this.props.onCancel}>
-            关闭
+            {formatMessage({id:'button.close'})}
           </Button>
         ]}
       >
@@ -102,7 +103,7 @@ export default class Index extends PureComponent {
           onProgress={this.handleProgress}
           data={this.onData}
         >
-          {fileList.length > 0 ? null : <Button>请选择文件</Button>}
+          {fileList.length > 0 ? null : <Button>{formatMessage({id:'appBackups.importBackup.select.file'})}</Button>}
         </Upload>
       </Modal>
     );

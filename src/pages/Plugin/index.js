@@ -3,6 +3,7 @@ import { Button, Card, Icon, List, Modal, notification, Col, Tooltip, Form, Sele
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import Ellipsis from '../../components/Ellipsis';
 import MarketPluginDetailShow from '../../components/MarketPluginDetailShow';
@@ -50,7 +51,7 @@ class MarketPlugin extends PureComponent {
       },
       callback: data => {
         notification.success({
-          message: '安装成功'
+          message: formatMessage({id:'notification.success.install_success'})
         });
         this.fetchPlugins();
         this.props.onInstallSuccess && this.props.onInstallSuccess();
@@ -98,7 +99,7 @@ class MarketPlugin extends PureComponent {
                     this.handleInstall(item);
                   }}
                 >
-                  安装
+                  
                 </span>
               ]}
             >
@@ -212,7 +213,7 @@ class PluginList extends PureComponent {
           },
           callback: res => {
             if (res && res.status_code === 200) {
-              notification.success({ message: '安装成功' });
+              notification.success({ message: formatMessage({id:'notification.success.install_success'}) });
             }
             this.fetchDefaultPlugin();
           }
@@ -233,7 +234,7 @@ class PluginList extends PureComponent {
               this.onDeletePlugin(item);
             }}
           >
-            删除
+            {formatMessage({id: 'teamPlugin.btn.delete'})}
           </span>
         );
       }
@@ -242,7 +243,7 @@ class PluginList extends PureComponent {
           to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${item.plugin_id
             }`}
         >
-          管理
+          {formatMessage({id: 'teamPlugin.btn.manage'})}
         </Link>
       );
 
@@ -260,7 +261,7 @@ class PluginList extends PureComponent {
             this.onInstallPlugin(item);
           }}
         >
-          安装
+          {formatMessage({id: 'teamPlugin.btn.install'})}
         </Button>
       ];
     }
@@ -356,7 +357,7 @@ class PluginList extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         }
         this.fetchDefaultPlugin();
         this.cancelDeletePlugin();
@@ -440,7 +441,7 @@ class PluginList extends PureComponent {
     const { list, appPlugin, appVersions, appOutPlugin } = this.state;
     const content = (
       <div className={styles.pageHeaderContent}>
-        <p>应用插件是标准化的为应用提供功能扩展，与应用共同运行的程序</p>
+        <p>{formatMessage({id: 'teamPlugin.desc'})}</p>
       </div>
     );
     const extraContent = <div></div>;
@@ -450,11 +451,11 @@ class PluginList extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: '插件列表' });
+    breadcrumbList.push({ title: formatMessage({id: 'teamPlugin.list'}) });
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title="我的插件"
+        title={formatMessage({id: 'teamPlugin.title'})}
         content={content}
         extraContent={extraContent}
       >
@@ -519,15 +520,15 @@ class PluginList extends PureComponent {
                       !appOutPlugin && (
                         <div style={{ display: appOutPlugin ? 'none' : 'block'}}>
                         <Icon type="plus" style={{fontSize:'40px',fontWeight:'bolder',marginTop:'50px'}}/>
-                        <p style={{marginTop:'20px',fontSize:'14px'}}>从应用商店安装/新建插件</p>
+                        <p style={{marginTop:'20px',fontSize:'14px'}}>{formatMessage({id: 'teamPlugin.hint'})}</p>
                         </div>
                       )
                     }
                     {
                       appOutPlugin && (
                       <div className={styles.changeBtn} >
-                        <div onClick={this.handleInstall} className={styles.appBtn}>从应用商店安装插件</div>
-                        <div onClick={this.handleCreate} className={styles.instBtn}>新建插件</div>
+                        <div onClick={this.handleInstall} className={styles.appBtn}>{formatMessage({id: 'teamPlugin.btn.marketAdd'})}</div>
+                        <div onClick={this.handleCreate} className={styles.instBtn}>{formatMessage({id: 'teamPlugin.btn.add'})}</div>
                       </div>
                     )
                     
@@ -542,8 +543,8 @@ class PluginList extends PureComponent {
           />
           {this.state.deletePlugin && (
             <ConfirmModal
-              title="删除插件"
-              desc="确定要删除此插件吗？"
+              title={formatMessage({id: 'confirmModal.plugin.delete.title'})}
+              desc={formatMessage({id: 'confirmModal.delete.plugin.desc'})}
               loading={deletePluginLoading}
               onOk={() => {
                 this.hanldeDeletePlugin(false);

@@ -23,6 +23,7 @@ import { routerRedux } from 'dva/router';
 import { cloneDeep } from 'lodash';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
@@ -102,16 +103,16 @@ export default class ClusterLink extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: '基本配置'
+        title: formatMessage({id:'enterpriseColony.ACksterList.basic'})
       },
       {
-        title: '高级配置'
+        title: formatMessage({id:'enterpriseColony.ACksterList.senior'})
       },
       {
-        title: '执行安装'
+        title: formatMessage({id:'enterpriseColony.ACksterList.install'})
       },
       {
-        title: '对接集群'
+        title: formatMessage({id:'enterpriseColony.ACksterList.Docking'})
       }
     ];
     return steps;
@@ -203,7 +204,7 @@ export default class ClusterLink extends PureComponent {
     const { copyCommand } = this.state;
     copy(copyCommand);
     notification.success({
-      message: '复制成功'
+      message: formatMessage({id:'notification.success.copy'})
     });
   };
   render() {
@@ -226,8 +227,8 @@ export default class ClusterLink extends PureComponent {
     };
     return (
       <PageHeaderLayout
-        title="添加集群"
-        content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
+      title={<FormattedMessage id='enterpriseColony.button.text'/>}
+      content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={2}>
@@ -263,7 +264,7 @@ export default class ClusterLink extends PureComponent {
               <Alert
                 style={{ fontSize: '16px', fontWeight: 'bolder' }}
                 type="info"
-                message="复制命令去服务器执行，服务器执行完成，点击 “下一步”。"
+                message={formatMessage({id:'enterpriseColony.cloud.msg'})}
               />
             </Col>
           </Row>
@@ -274,14 +275,14 @@ export default class ClusterLink extends PureComponent {
                 type="primary"
                 onClick={() => this.toLinkNext('goback')}
               >
-                上一步
+                <FormattedMessage id='button.previous'/>
               </Button>
               <Button
                 className={styles.antd_btn}
                 type="primary"
                 onClick={() => this.toLinkNext('next')}
               >
-                下一步
+                <FormattedMessage id='button.next'/>
               </Button>
             </div>
           </Row>

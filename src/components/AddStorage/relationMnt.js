@@ -5,6 +5,7 @@
 import { Input, Modal, notification, Table, Tooltip } from 'antd';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 
@@ -25,7 +26,7 @@ export default class Index extends PureComponent {
   }
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
-      notification.warning({ message: '请选择要挂载共享配置文件目录' });
+      notification.warning({ message: formatMessage({id:'notification.warn.choice.catalogue'}) });
       return;
     }
 
@@ -40,7 +41,7 @@ export default class Index extends PureComponent {
     res = res.filter(item => !!item.path);
 
     if (!res.length) {
-      notification.warning({ message: '请检查本地配置文件目录是否填写' });
+      notification.warning({ message: formatMessage({id:'notification.warn.inspect.fillIn'}) });
       return;
     }
 
@@ -105,7 +106,7 @@ export default class Index extends PureComponent {
 
     return (
       <Modal
-        title="挂载共享配置文件目录"
+        title={<FormattedMessage id='componentOverview.body.tab.RelationMnt.title'/>}
         width={1150}
         visible
         onOk={this.handleSubmit}
@@ -118,7 +119,7 @@ export default class Index extends PureComponent {
           style={{ width: '100%', overflowX: 'auto' }}
           columns={[
             {
-              title: '本地挂载配置文件路径',
+              title:formatMessage({id:'componentOverview.body.tab.RelationMnt.localpath'}),
               dataIndex: 'localpath',
               key: '1',
               width: '20%',
@@ -132,7 +133,7 @@ export default class Index extends PureComponent {
               )
             },
             {
-              title: '配置文件名称',
+              title:formatMessage({id:'componentOverview.body.tab.RelationMnt.dep_vol_name'}),
               dataIndex: 'dep_vol_name',
               key: '2',
               width: '20%',
@@ -150,7 +151,7 @@ export default class Index extends PureComponent {
               )
             },
             {
-              title: '挂载配置文件路径',
+              title:formatMessage({id:'componentOverview.body.tab.RelationMnt.dep_vol_path'}),
               dataIndex: 'dep_vol_path',
               key: '3',
               width: '20%',
@@ -168,7 +169,7 @@ export default class Index extends PureComponent {
               )
             },
             {
-              title: '所属组件',
+              title:formatMessage({id:'componentOverview.body.tab.RelationMnt.dep_app_name'}),
               dataIndex: 'dep_app_name',
               key: '5',
               width: '20%',
@@ -194,7 +195,7 @@ export default class Index extends PureComponent {
               }
             },
             {
-              title: '组件所属应用',
+              title:formatMessage({id:'componentOverview.body.tab.RelationMnt.dep_app_group'}),
               dataIndex: 'dep_app_group',
               key: '6',
               width: '15%',

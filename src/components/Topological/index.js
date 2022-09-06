@@ -16,6 +16,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux, Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import apiconfig from '../../../config/api.config';
 import ConfirmModal from '../ConfirmModal'
 import globalUtil from '../../utils/global';
@@ -255,15 +256,15 @@ class Index extends React.Component {
     const regionName = globalUtil.getCurrRegionName();
     const { group_id: groupId, dispatch } = this.props;
     if (actionIng) {
-      notification.warning({ message: `正在执行操作，请稍后` });
+      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
       return;
     }
     const operationMap = {
-      putReStart: '操作成功，重启中',
-      putStart: '操作成功，启动中',
-      putStop: '操作成功，关闭中',
-      putUpdateRolling: '操作成功，更新中',
-      putBuild: '操作成功，部署中'
+      putReStart: formatMessage({id:'notification.success.operationRestart'}),
+      putStart: formatMessage({id:'notification.success.operationStart'}),
+      putStop: formatMessage({id:'notification.success.operationClose'}),
+      putUpdateRolling: formatMessage({id:'notification.success.operationUpdata'}),
+      putBuild: formatMessage({id:'notification.success.deployment'})
     };
     dispatch({
       type: `appControl/${state}`,
@@ -312,7 +313,7 @@ class Index extends React.Component {
     const regionName = globalUtil.getCurrRegionName();
     const { build_upgrade, dispatch } = this.props;
     if (actionIng) {
-      notification.warning({ message: `正在执行操作，请稍后` });
+      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
       return;
     }
 
@@ -326,7 +327,7 @@ class Index extends React.Component {
       },
       callback: res => {
         if (res) {
-          notification.success({ message: `操作成功，部署中` });
+          notification.success({ message: formatMessage({id:'notification.success.deployment'}) });
         }
         this.handleOffHelpfulHints();
         this.refreshFrame()
@@ -352,9 +353,9 @@ class Index extends React.Component {
             onOk={this.handleDeleteApp}
             onCancel={this.cancelDeleteApp}
             loading={deleteAppLoading}
-            title="删除组件"
-            desc="确定要删除此组件吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({ id: 'confirmModal.component.delete.title' })}
+            desc={formatMessage({ id: 'confirmModal.delete.component.desc' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
           />
         )}
         {(closes || start || updated || build) && (

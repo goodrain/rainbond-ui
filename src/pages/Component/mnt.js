@@ -21,6 +21,7 @@ import ScrollerX from '../../components/ScrollerX';
 import { addMnt, getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import { getVolumeTypeShowName } from '../../utils/utils';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 @connect(
   ({ user, appControl }) => ({
@@ -192,14 +193,14 @@ export default class Index extends PureComponent {
       notification.warning({
         message: (
           <div>
-            有状态组件存储配置发生变化后
+            <FormattedMessage id='notification.warn.state'/>
             <br />
-            需要重启组件才能生效!
+            <FormattedMessage id='notification.warn.restart'/>
           </div>
         )
       });
     } else {
-      notification.success({ message: '操作成功' });
+      notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
     }
   };
   showAddRelation = () => {
@@ -218,7 +219,7 @@ export default class Index extends PureComponent {
     }).then(data => {
       if (data) {
         this.handleCancelAddRelation();
-        notification.success({ message: '操作成功' });
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -235,7 +236,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.onCancelDeleteVolume();
         this.fetchVolumes();
-        notification.success({ message: '操作成功' });
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -251,7 +252,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
-        notification.success({ message: '操作成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.props.onshowRestartTips(true);
       }
     });
@@ -277,7 +278,8 @@ export default class Index extends PureComponent {
           <Col span={12}>
             <Alert
               showIcon
-              message="存储配置发生变化后需要更新组件才能生效"
+              // message="存储配置发生变化后需要更新组件才能生效"
+              message={<FormattedMessage id='componentOverview.body.mnt.Alert.message'/>}
               type="info"
               style={{
                 marginBottom: 24
@@ -289,11 +291,12 @@ export default class Index extends PureComponent {
           style={{
             marginBottom: 24
           }}
-          title={<span> 存储设置 </span>}
+          title={<span>  <FormattedMessage id='componentOverview.body.mnt.save_setting'/></span>}
           extra={
             <Button onClick={this.handleAddVar}>
               <Icon type="plus" />
-              添加存储
+              {/* 添加存储 */}
+              <FormattedMessage id='componentOverview.body.mnt.add_storage'/>
             </Button>
           }
         >
@@ -302,7 +305,7 @@ export default class Index extends PureComponent {
               pagination={false}
               columns={[
                 {
-                  title: '存储名称',
+                  title: formatMessage({id:'componentOverview.body.mnt.volume_name'}),
                   dataIndex: 'volume_name',
                   render: (text, item) => {
                     return (
@@ -323,38 +326,39 @@ export default class Index extends PureComponent {
                   }
                 },
                 {
-                  title: '挂载路径',
+                  title: formatMessage({id:'componentOverview.body.mnt.volume_path'}),
                   dataIndex: 'volume_path'
                 },
                 {
-                  title: '存储类型',
+                  title: formatMessage({id:'componentOverview.body.mnt.volume_type'}),
                   dataIndex: 'volume_type',
                   render: text => {
                     return <span>{this.getVolumeTypeShowName(text)}</span>;
                   }
                 },
                 {
-                  title: '存储容量',
+                  title: formatMessage({id:'componentOverview.body.mnt.volume_capacity'}),
                   dataIndex: 'volume_capacity',
                   render: text => {
                     if (text == 0) {
-                      return <span>不限制</span>;
+                      return <span><FormattedMessage id='componentOverview.body.mnt.unlimited'/></span>;
                     }
                     return <span>{text}GB</span>;
                   }
                 },
                 {
                   title: '状态',
+                  title: formatMessage({id:'componentOverview.body.mnt.volume_name'}),
                   dataIndex: 'status',
                   render: text => {
                     if (text == 'not_bound') {
-                      return <span style={{ color: 'red' }}>未挂载</span>;
+                      return <span style={{ color: 'red' }}><FormattedMessage id='componentOverview.body.mnt.unmounted'/></span>;
                     }
-                    return <span style={{ color: 'green' }}>已挂载</span>;
+                    return <span style={{ color: 'green' }}><FormattedMessage id='componentOverview.body.mnt.mounted'/></span>;
                   }
                 },
                 {
-                  title: '操作',
+                  title: formatMessage({id:'componentOverview.body.mnt.action'}),
                   dataIndex: 'action',
                   render: (v, data) => (
                     <div>
@@ -364,7 +368,7 @@ export default class Index extends PureComponent {
                         }}
                         href="javascript:;"
                       >
-                        删除
+                        <FormattedMessage id='componentOverview.body.mnt.deldete'/>
                       </a>
                       <a
                         onClick={() => {
@@ -372,7 +376,7 @@ export default class Index extends PureComponent {
                         }}
                         href="javascript:;"
                       >
-                        编辑
+                        <FormattedMessage id='componentOverview.body.mnt.edit'/>
                       </a>
                     </div>
                   )
@@ -383,11 +387,11 @@ export default class Index extends PureComponent {
           </ScrollerX>
         </Card>
         <Card
-          title={<span> 共享其他组件存储 </span>}
+          title={<span> <FormattedMessage id='componentOverview.body.mnt.share'/> </span>}
           extra={
             <Button onClick={this.showAddRelation}>
               <Icon type="plus" />
-              挂载共享存储
+              <FormattedMessage id='componentOverview.body.mnt.mount'/>
             </Button>
           }
         >
@@ -396,7 +400,7 @@ export default class Index extends PureComponent {
               pagination={false}
               columns={[
                 {
-                  title: '本地挂载路径',
+                  title: formatMessage({id:'componentOverview.body.mnt.local_vol_path'}),
                   dataIndex: 'local_vol_path',
                   key: '1',
                   width: '20%',
@@ -414,7 +418,7 @@ export default class Index extends PureComponent {
                   )
                 },
                 {
-                  title: '目标存储名称',
+                  title: formatMessage({id:'componentOverview.body.mnt.dep_vol_name'}),
                   dataIndex: 'dep_vol_name',
                   key: '2',
                   width: '15%',
@@ -432,7 +436,7 @@ export default class Index extends PureComponent {
                   )
                 },
                 {
-                  title: '目标挂载路径',
+                  title: formatMessage({id:'componentOverview.body.mnt.dep_vol_path'}),
                   dataIndex: 'dep_vol_path',
                   key: '3',
                   width: '15%',
@@ -450,7 +454,7 @@ export default class Index extends PureComponent {
                   )
                 },
                 {
-                  title: '目标存储类型',
+                  title: formatMessage({id:'componentOverview.body.mnt.dep_vol_type'}),
                   dataIndex: 'dep_vol_type',
                   key: '4',
                   width: '10%',
@@ -459,7 +463,7 @@ export default class Index extends PureComponent {
                   }
                 },
                 {
-                  title: '目标所属组件',
+                  title: formatMessage({id:'componentOverview.body.mnt.dep_app_name'}),
                   dataIndex: 'dep_app_name',
                   key: '5',
                   width: '10%',
@@ -474,7 +478,7 @@ export default class Index extends PureComponent {
                   )
                 },
                 {
-                  title: '目标组件所属应用',
+                  title: formatMessage({id:'componentOverview.body.mnt.dep_app_group'}),
                   dataIndex: 'dep_app_group',
                   key: '6',
                   width: '15%',
@@ -489,7 +493,7 @@ export default class Index extends PureComponent {
                   )
                 },
                 {
-                  title: '操作',
+                  title: formatMessage({id:'componentOverview.body.mnt.action'}),
                   dataIndex: 'action',
                   key: '7',
                   width: '15%',
@@ -500,7 +504,7 @@ export default class Index extends PureComponent {
                       }}
                       href="javascript:;"
                     >
-                      取消挂载
+                      <FormattedMessage id='componentOverview.body.mnt.unmount'/>
                     </a>
                   )
                 }
@@ -529,23 +533,23 @@ export default class Index extends PureComponent {
         )}
         {this.state.toDeleteMnt && (
           <ConfirmModal
-            title="取消挂载"
-            desc="确定要取消此挂载目录吗?"
+            title={<FormattedMessage id='confirmModal.deldete.Unmount.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.Unmount.desc'/>}
             onCancel={this.cancelDeleteMnt}
             onOk={this.handleDeleteMnt}
           />
         )}
         {this.state.toDeleteVolume && (
           <ConfirmModal
-            title="删除存储目录"
-            desc="确定要删除此存储目录吗?"
+            title={<FormattedMessage id='confirmModal.deldete.storage.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.storage.desc'/>}
             onCancel={this.onCancelDeleteVolume}
             onOk={this.handleDeleteVolume}
           />
         )}
         {relyComponent && (
           <RelyComponentModal
-            title="存储被依赖的组件"
+            title={<FormattedMessage id='componentOverview.body.RelyComponentModal.title'/>}
             relyComponentList={relyComponentList}
             onCancel={this.handleCloseRelyComponent}
             onOk={this.handleCloseRelyComponent}

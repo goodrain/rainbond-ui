@@ -4,7 +4,9 @@ import React, { PureComponent } from 'react';
 import Indicators from '../../../../../public/images/indicators.png';
 import Shangxian from '../../../../../public/images/shangxian.png';
 import Testimg from '../../../../../public/images/test.png';
+import cookie from '../../../../utils/cookie';
 import styles from './AddScaling.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -18,11 +20,12 @@ class AddScaling extends PureComponent {
     super(props);
     this.state = {
       selectMemoryList: [
-        { value: 'memoryaverage_value', name: '内存使用量' },
-        { value: 'memoryutilization', name: '内存使用率' },
-        { value: 'cpuaverage_value', name: 'CPU使用量' },
-        { value: 'cpuutilization', name: 'CPU使用率' }
-      ]
+        { value: 'memoryaverage_value', name: formatMessage({id:'componentOverview.body.Expansion.AddScaling.memory_usage'}) },
+        { value: 'memoryutilization', name: formatMessage({id:'componentOverview.body.Expansion.AddScaling.memory_rate'}) },
+        { value: 'cpuaverage_value', name: formatMessage({id:'componentOverview.body.Expansion.AddScaling.usage'}) },
+        { value: 'cpuutilization', name: formatMessage({id:'componentOverview.body.Expansion.AddScaling.rate'}) }
+      ],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   handleSubmit = e => {
@@ -52,11 +55,11 @@ class AddScaling extends PureComponent {
     const num = Number(value);
     if (num || num === 0) {
       if (num < min) {
-        callback(`最小输入值${min}`);
+        callback(<FormattedMessage id='componentOverview.body.Expansion.AddScaling.input_min' values={{num:num}}/>);
         return;
       }
       if (num > 65535) {
-        callback('最大输入值65535');
+        callback(<FormattedMessage id='componentOverview.body.Expansion.AddScaling.input_max'/>);
         return;
       }
     }
@@ -73,7 +76,7 @@ class AddScaling extends PureComponent {
       memoryList
     } = this.props;
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { selectMemoryList } = this.state;
+    const { selectMemoryList, language } = this.state;
     const propsData = data || false;
 
     const minNumber = getFieldValue('minNum') || 0;
@@ -89,18 +92,29 @@ class AddScaling extends PureComponent {
         sm: { span: 19 }
       }
     };
-
+    const en_formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 8 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 16 }
+      }
+    };
+ const is_language = language ? formItemLayout : en_formItemLayout
     return (
       <div>
         <Modal
           className={styles.TelescopicModal}
-          title={editRules ? '添加指标' : '自动伸缩'}
+          title={editRules ? <FormattedMessage id='componentOverview.body.Expansion.AddScaling.add_indicator'/> : <FormattedMessage id='componentOverview.body.Expansion.AddScaling.flex'/>}
           visible={isvisable}
           onOk={this.handleSubmit}
           onCancel={onClose}
           footer={[
             <Button type="primary" onClick={this.handleSubmit}>
-              确定
+              {/* 确定 */}
+              <FormattedMessage id='componentOverview.body.Expansion.AddScaling.determine'/> 
             </Button>
           ]}
         >
@@ -115,10 +129,12 @@ class AddScaling extends PureComponent {
                 label={
                   <div className={styles.clearConformMinTitle}>
                     <img src={Shangxian} alt="" />
-                    最小数量&nbsp;:
+                    {/* 最小数量 */}
+                    <FormattedMessage id='componentOverview.body.Expansion.AddScaling.minimum_quantity'/> 
+                    &nbsp;:
                   </div>
                 }
-                {...formItemLayout}
+                {...is_language}
                 style={{ textAlign: 'left' }}
               >
                 {getFieldDecorator('minNum', {
@@ -126,18 +142,19 @@ class AddScaling extends PureComponent {
                   rules: [
                     {
                       pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                      message: '请输入数字'
+                      message: formatMessage({id:'componentOverview.body.Expansion.AddScaling.number'})
+
                     },
-                    { required: true, message: '请输入最小数量' },
+                    { required: true, message: formatMessage({id:'componentOverview.body.Expansion.AddScaling.placese_input_min'}) },
                     { validator: this.checkContent }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
-                    placeholder="请输入最小数量"
+                    placeholder={formatMessage({id:'componentOverview.body.Expansion.AddScaling.placese_input_min'})}
                   />
                 )}
-                <div className={styles.conformDesc}>自动伸缩副本数的下限</div>
+                <div className={styles.conformDesc}><FormattedMessage id='componentOverview.body.Expansion.AddScaling.lower_limit'/> </div>
               </FormItem>
             )}
             {!isaddindicators && (
@@ -146,10 +163,11 @@ class AddScaling extends PureComponent {
                 label={
                   <div className={styles.clearConformMinTitle}>
                     <img src={Testimg} alt="" />
-                    最大数量&nbsp;:
+                    <FormattedMessage id='componentOverview.body.Expansion.AddScaling.max'/> 
+                    &nbsp;:
                   </div>
                 }
-                {...formItemLayout}
+                {...is_language}
                 style={{ textAlign: 'left' }}
               >
                 {getFieldDecorator('maxNum', {
@@ -157,29 +175,29 @@ class AddScaling extends PureComponent {
                   rules: [
                     {
                       pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                      message: '请输入数字'
+                      message: formatMessage({id:'componentOverview.body.Expansion.AddScaling.number'})
                     },
-                    { required: true, message: '请输入最大数量' },
+                    { required: true, message: formatMessage({id:'componentOverview.body.Expansion.AddScaling.placese_input_max'}) },
                     { validator: this.checkContent }
                   ]
                 })(
                   <InputNumber
-                    placeholder="请输入最大数量"
+                    placeholder={formatMessage({id:'componentOverview.body.Expansion.AddScaling.placese_input_max'})}
                     style={{ width: '100%' }}
                     min={minNumber}
                   />
                 )}
-                <div className={styles.conformDesc}>自动伸缩副本数的上限</div>
+                <div className={styles.conformDesc}><FormattedMessage id='componentOverview.body.Expansion.AddScaling.upper_limit'/> </div>
               </FormItem>
             )}
 
             <FormItem
               className={styles.clearConform}
-              {...formItemLayout}
+              {...is_language}
               label={
                 <div className={styles.clearConformMinTitle}>
                   <img src={Indicators} alt="" />
-                  指标&nbsp;:
+                  <FormattedMessage id='componentOverview.body.Expansion.AddScaling.index'/> &nbsp;:
                 </div>
               }
               style={{ textAlign: 'left' }}
@@ -192,7 +210,7 @@ class AddScaling extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: '请选择需要的指标'
+                    message: formatMessage({id:'componentOverview.body.Expansion.AddScaling.select_needs'})
                   }
                 ]
               })(
@@ -218,10 +236,11 @@ class AddScaling extends PureComponent {
               label={
                 <div className={styles.clearConformMinTitle}>
                   <img src={Testimg} alt="" />
-                  目标值&nbsp;:
+                  <FormattedMessage id='componentOverview.body.Expansion.AddScaling.target_value'/> 
+                  &nbsp;:
                 </div>
               }
-              {...formItemLayout}
+              {...is_language}
               style={{ textAlign: 'left' }}
             >
               {getFieldDecorator('value', {
@@ -230,31 +249,31 @@ class AddScaling extends PureComponent {
                 rules: [
                   {
                     pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                    message: '请输入数字'
+                    message: formatMessage({id:'componentOverview.body.Expansion.AddScaling.number'})
                   },
-                  { required: true, message: '请输入数字' },
+                  { required: true,  message: formatMessage({id:'componentOverview.body.Expansion.AddScaling.number'})},
                   { validator: this.checkContent }
                 ]
               })(
                 <InputNumber
-                  placeholder="请输入数字"
+                  placeholder={formatMessage({id:'componentOverview.body.Expansion.AddScaling.number'})}
                   min={1}
                   max={65535}
                   style={{ width: '100%' }}
                 />
               )}
               <div className={styles.conformDesc}>
-                当
+                <FormattedMessage id='componentOverview.body.Expansion.AddScaling.dang'/> 
                 {selectMemoryDesc === 'memoryaverage_value' ||
                 selectMemoryDesc === 'memoryutilization'
-                  ? '内存'
+                  ? <FormattedMessage id='componentOverview.body.Expansion.AddScaling.Memory'/> 
                   : 'cpu'}
-                使用
+                <FormattedMessage id='componentOverview.body.Expansion.AddScaling.use'/> 
                 {selectMemoryDesc === 'memoryaverage_value' ||
                 selectMemoryDesc === 'cpuaverage_value'
-                  ? '量'
-                  : '率'}
-                超过或低于该目标值时, 实例数量会增加或减少
+                  ? <FormattedMessage id='componentOverview.body.Expansion.AddScaling.amount'/> 
+                  : <FormattedMessage id='componentOverview.body.Expansion.AddScaling.rate_unit'/> }
+                  <FormattedMessage id='componentOverview.body.Expansion.AddScaling.numberOfInstances'/> 
               </div>
             </FormItem>
           </Form>

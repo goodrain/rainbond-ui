@@ -1,6 +1,7 @@
 import { Button, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { getAllRegion } from '../../services/api';
 import styles from './index.less';
 
@@ -52,19 +53,19 @@ class CreateTeam extends PureComponent {
   // 团队命名空间的检验
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入团队英文名称'));
+      return callback(new Error(`${formatMessage({id:'popover.enterpriseOverview.setUpTeam.message.englishName'})}`));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+          new Error(`${formatMessage({id:'placeholder.nameSpaceReg'})}`)
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error(`${formatMessage({id:'placeholder.max32'})}`));
     }
   };
   render() {
@@ -82,7 +83,7 @@ class CreateTeam extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 }
+        sm: { span: 8 }
       },
       wrapperCol: {
         xs: { span: 24 },
@@ -92,7 +93,7 @@ class CreateTeam extends PureComponent {
     const isRegions = regions && regions.length;
     return (
       <Modal
-        title={title || '创建团队'}
+        title={title || <FormattedMessage id='popover.enterpriseOverview.setUpTeam.title'/>}
         visible
         maskClosable={false}
         className={styles.TelescopicModal}
@@ -100,19 +101,19 @@ class CreateTeam extends PureComponent {
         onCancel={onCancel}
         footer={
           <Fragment>
-            <Button onClick={onCancel}> 取消 </Button>
+            <Button onClick={onCancel}> <FormattedMessage id='button.cancel'/></Button>
             <Button
               type="primary"
               onClick={this.handleSubmit}
               loading={Loading}
             >
-              确定
+              <FormattedMessage id='button.confirm'/>
             </Button>
             {guideStep &&
               !regionLoading &&
               handleNewbieGuiding({
-                tit: '创建团队',
-                desc: isRegions ? '点击可以创建团队。' : '缺少集群、去创建',
+                tit: formatMessage({id:'popover.enterpriseOverview.setUpTeam.title'}),
+                desc: isRegions ? formatMessage({id:'popover.enterpriseOverview.setUpTeam.creat_name'}) : formatMessage({id:'popover.enterpriseOverview.setUpTeam.creat_colony'}),
                 isCoverScreen: false,
                 prevStep: false,
                 nextStep: 1,
@@ -127,25 +128,35 @@ class CreateTeam extends PureComponent {
         }
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal">
-          <FormItem {...formItemLayout} label="团队名称">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.name'/>} 
+          extra= {<div className={styles.conformDesc}>
+                    <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.name'/>
+                  </div>}
+          >
             {getFieldDecorator('team_name', {
               rules: [
                 {
                   required: true,
-                  message: '请输入团队名称'
+                  message:formatMessage({id:'popover.enterpriseOverview.setUpTeam.placeholder.name'})
                 },
                 {
                   max: 10,
-                  message: '最大长度10位'
+                  message:formatMessage({id:'popover.enterpriseOverview.setUpTeam.placeholder.max'})
                 }
               ]
-            })(<Input placeholder="请输入团队名称" />)}
-            <div className={styles.conformDesc}>
-              请输入创建的团队名称，最大长度10位
-            </div>
+            })(<Input  placeholder={formatMessage({id:'popover.enterpriseOverview.setUpTeam.placeholder.name'})}/>)}
+            {/* <div className={styles.conformDesc}>
+              <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.name'/>
+            </div> */}
           </FormItem>
           {/* 团队的命名空间 */}
-          <FormItem {...formItemLayout} label="团队英文名称">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.englishName'/>}
+          extra={
+            <div className={styles.conformDesc}>
+              <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.englishName'/>
+            </div>
+          }
+          >
             {getFieldDecorator('namespace', {
               rules: [
                 {
@@ -153,17 +164,17 @@ class CreateTeam extends PureComponent {
                   validator: this.handleValiateNameSpace
                 }
               ]
-            })(<Input placeholder="团队的英文名称" />)}
-            <div className={styles.conformDesc}>
-              对应该团队在集群使用的命名空间
-            </div>
+            })(<Input  placeholder={formatMessage({id:'popover.enterpriseOverview.setUpTeam.placeholder.englishName'})} />)}
+
           </FormItem>
-          <FormItem {...formItemLayout} label="集群">
+          <FormItem {...formItemLayout}  label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.colony'/>} extra={
+            <div className={styles.conformDesc}> <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.colony'/></div>
+          }>
             {getFieldDecorator('useable_regions', {
               rules: [
                 {
                   required: true,
-                  message: '请选择集群'
+                  message:formatMessage({id:'popover.enterpriseOverview.setUpTeam.message.colony'})
                 }
               ]
             })(
@@ -171,7 +182,7 @@ class CreateTeam extends PureComponent {
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 mode="multiple"
                 style={{ width: '100%' }}
-                placeholder="选择集群"
+                placeholder={formatMessage({id:'popover.enterpriseOverview.setUpTeam.message.colony'})}
               >
                 {(regions || []).map(item => {
                   return (
@@ -180,7 +191,7 @@ class CreateTeam extends PureComponent {
                 })}
               </Select>
             )}
-            <div className={styles.conformDesc}>请选择使用的集群</div>
+
           </FormItem>
         </Form>
       </Modal>

@@ -1,6 +1,7 @@
 import { Card, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import AddMember from '../../AddMember';
 import ConfirmModal from '../../ConfirmModal';
@@ -180,11 +181,11 @@ export default class MemberList extends PureComponent {
             paddingTop: 12
           }}
           bordered={false}
-          title="团队成员"
+          title={formatMessage({id: 'teamManage.tabs.member.title'})}
           extra={
             isCreate && (
               <a href="javascript:;" onClick={this.showAddMember}>
-                添加成员
+                {formatMessage({id: 'teamManage.tabs.member.btn.add'})}
               </a>
             )
           }
@@ -220,9 +221,9 @@ export default class MemberList extends PureComponent {
         {toDeleteMember && (
           <ConfirmModal
             onOk={this.handleDelMember}
-            title="删除成员"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此成员吗？"
+            title={formatMessage({id:'confirmModal.delete.member'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.member.desc'})}
             onCancel={this.hideDelMember}
           />
         )}
@@ -230,9 +231,9 @@ export default class MemberList extends PureComponent {
           <ConfirmModal
             onOk={this.handleMoveTeam}
             loading={toMoveTeamLoading}
-            title="移交团队"
-            subDesc="移交后您将失去所有权"
-            desc={`确定要把团队移交给 ${toMoveTeam.nick_name} 吗？`}
+            title={formatMessage({id:'confirmModal.MoveTeam.title'})}
+            subDesc={formatMessage({id:'confirmModal.MoveTeam.subDesc'})}
+            desc={formatMessage({id:'confirmModal.MoveTeam.desc'},{nick_name: toMoveTeam.nick_name})}
             onCancel={this.hideMoveTeam}
           />
         )}

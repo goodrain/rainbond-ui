@@ -69,7 +69,7 @@ export default class SelectTeam extends PureComponent {
       callback: () => {
         // 获取最新的用户信息
         dispatch({ type: 'user/fetchCurrent' });
-        notification.success({ message: formatMessage({ id: 'add.success' }) });
+        notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
         this.cancelCreateTeam();
         this.loadUserTeams();
       }

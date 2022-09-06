@@ -3,6 +3,7 @@
 import { Alert, Button, Modal, notification, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from '../../components/CreateTeam/index.less';
 import DescriptionList from '../../components/DescriptionList';
 
@@ -39,16 +40,20 @@ export default class AppExporter extends PureComponent {
   getDockerComposeAppShow = () => {
     const { app_exporte_status } = this.state;
     if (!app_exporte_status || !app_exporte_status.docker_compose) {
+      // console.log(!app_exporte_status.docker_compose,'进来了')
       return;
     }
     const compose_app_status = app_exporte_status.docker_compose;
     return (
       <DescriptionList
         size="large"
-        title="DockerComposeApp规范(DockerCompose环境可用)"
+        title={<div>
+            <span>{formatMessage({id:'applicationMarket.offline_installer.form.label.docker_compose'})}</span>
+            <span style={{color:'rgb(148 146 146)', fontSize:'14px', marginLeft:'6px'}}>{formatMessage({id:'applicationMarket.offline_installer.form.label.docker_compose.desc'})}</span>
+          </div>}
         style={{ marginBottom: 32 }}
       >
-        <Description term="导出状态">
+        <Description style={{width:'40%'}} term={formatMessage({id:'applicationMarket.offline_installer.form.label.status'})}>
           {this.getStatus(compose_app_status)}
         </Description>
         {this.getAction(compose_app_status, 'docker-compose')}
@@ -58,19 +63,46 @@ export default class AppExporter extends PureComponent {
   getRainbondAppShow = () => {
     const { app_exporte_status } = this.state;
     if (!app_exporte_status || !app_exporte_status.rainbond_app) {
+      // console.log(!app_exporte_status.rainbond_app,'进来了')
       return;
     }
     const rainbond_app_status = app_exporte_status.rainbond_app;
     return (
       <DescriptionList
         size="large"
-        title="应用模型规范"
+        title={<div>
+          <span>{formatMessage({id:'applicationMarket.offline_installer.form.label.rainbond_app'})}</span>
+          <span style={{color:'rgb(148 146 146)', fontSize:'14px', marginLeft:'6px'}}>{formatMessage({id:'applicationMarket.offline_installer.form.label.rainbond_app.desc'})}</span>
+        </div>}
         style={{ marginBottom: 32 }}
       >
-        <Description term="导出状态">
+        <Description style={{width:'40%'}} term={formatMessage({id:'applicationMarket.offline_installer.form.label.status'})}>
           {this.getStatus(rainbond_app_status)}
         </Description>
         {this.getAction(rainbond_app_status, 'rainbond-app')}
+      </DescriptionList>
+    );
+  };
+  getRainbondNotContainerBag = () => {
+    const { app_exporte_status } = this.state;
+    if (!app_exporte_status || !app_exporte_status.slug) {
+      // console.log(!app_exporte_status.slug,'进来了')
+      return;
+    }
+    const slug_status = app_exporte_status.slug;
+    return (
+      <DescriptionList
+        size="large"
+        title={<div>
+          <span>{formatMessage({id:'applicationMarket.offline_installer.form.label.slug'})}</span>
+          <span style={{color:'rgb(148 146 146)', fontSize:'14px', marginLeft:'6px'}}>{formatMessage({id:'applicationMarket.offline_installer.form.label.slug.desc'})}</span>
+        </div>}
+        style={{ marginBottom: 32 }}
+      >
+        <Description style={{width:'40%'}} term={formatMessage({id:'applicationMarket.offline_installer.form.label.status'})}>
+          {this.getStatus(slug_status)}
+        </Description>
+        {this.getAction(slug_status, 'slug')}
       </DescriptionList>
     );
   };
@@ -84,7 +116,7 @@ export default class AppExporter extends PureComponent {
             this.handleRelease(type);
           }}
         >
-          导出
+          {formatMessage({id:'button.export'})}
         </Button>
       );
     }
@@ -99,7 +131,7 @@ export default class AppExporter extends PureComponent {
               this.download(app_status.file_path);
             }}
           >
-            下载
+            {formatMessage({id:'button.download'})}
           </Button>
           <Button
             style={{ marginLeft: 16 }}
@@ -108,7 +140,7 @@ export default class AppExporter extends PureComponent {
               this.handleRelease(type);
             }}
           >
-            重新导出
+            {formatMessage({id:'button.to_export'})}
           </Button>
         </div>
       );
@@ -124,7 +156,7 @@ export default class AppExporter extends PureComponent {
               this.download(app_status.file_path);
             }}
           >
-            下载
+            {formatMessage({id:'button.download'})}
           </Button>
           <Button
             disabled
@@ -134,7 +166,7 @@ export default class AppExporter extends PureComponent {
               this.handleExporter(type);
             }}
           >
-            重新导出
+            {formatMessage({id:'button.to_export'})}
           </Button>
         </div>
       );
@@ -150,7 +182,7 @@ export default class AppExporter extends PureComponent {
               this.download(app_status.file_path);
             }}
           >
-            下载
+            {formatMessage({id:'button.download'})}
           </Button>
           <Button
             style={{ marginLeft: 16 }}
@@ -159,7 +191,7 @@ export default class AppExporter extends PureComponent {
               this.handleExporter(type);
             }}
           >
-            重新导出
+            {formatMessage({id:'button.to_export'})}
           </Button>
         </div>
       );
@@ -167,16 +199,16 @@ export default class AppExporter extends PureComponent {
   };
   getStatus = status => {
     if (!status.is_export_before) {
-      return '未导出';
+      return `${formatMessage({id:'status.not_export'})}`;
     }
     if (status.status == 'success') {
-      return '成功';
+      return `${formatMessage({id:'notification.success.successed'})}`;
     }
     if (status.status == 'failed') {
-      return '失败';
+      return `${formatMessage({id:'notification.success.Failed'})}`;
     }
     if (status.status == 'exporting') {
-      return '进行中';
+      return `${formatMessage({id:'status.underway'})}`;
     }
   };
   handleVersionInfo = () => {
@@ -198,10 +230,10 @@ export default class AppExporter extends PureComponent {
     const th = this;
     if (versionInfo.dev_status === '') {
       confirm({
-        title: '当前导出版本非Release状态',
-        content: '是否继续导出',
-        okText: '确认',
-        cancelText: '取消',
+        title: formatMessage({id:'applicationMarket.offline_installer.confirm.label.release'}),
+        content: formatMessage({id:'applicationMarket.offline_installer.confirm.label.release.desc'}),
+        okText: formatMessage({id:'button.confirm'}),
+        cancelText: formatMessage({id:'button.cancel'}),
         onOk() {
           th.handleExporter(type);
           return new Promise((resolve, reject) => {
@@ -233,7 +265,7 @@ export default class AppExporter extends PureComponent {
       },
       callback: data => {
         if (data && data.bean) {
-          notification.success({ message: '操作成功，开始导出，请稍等！' });
+          notification.success({ message: formatMessage({id:'notification.success.operate_successfully'}) });
           this.queryExport();
         }
       }
@@ -254,6 +286,7 @@ export default class AppExporter extends PureComponent {
         }
       },
       callback: data => {
+        console.log(data,'data')
         if (data) {
           if (
             (data.list &&
@@ -263,7 +296,11 @@ export default class AppExporter extends PureComponent {
             (data.list &&
               data.list.length > 0 &&
               data.list[0].docker_compose &&
-              data.list[0].docker_compose.status == 'exporting')
+              data.list[0].docker_compose.status == 'exporting') ||
+            (data.list &&
+              data.list.length > 0 &&
+              data.list[0].slug &&
+              data.list[0].slug.status == 'exporting')
           ) {
             setIsExporting(true);
             setTimeout(() => {
@@ -279,7 +316,11 @@ export default class AppExporter extends PureComponent {
             (data.list &&
               data.list.length > 0 &&
               data.list[0].docker_compose &&
-              data.list[0].docker_compose.status != 'exporting')
+              data.list[0].docker_compose.status != 'exporting') ||
+            (data.list &&
+              data.list.length > 0 &&
+              data.list[0].slug &&
+              data.list[0].slug.status != 'exporting')
           ) {
             setIsExporting(false);
           }
@@ -325,25 +366,25 @@ export default class AppExporter extends PureComponent {
     const { exportVersion, exportVersionList } = this.state;
     return (
       <Modal
-        title="导出云市应用"
+        title={formatMessage({id:'applicationMarket.offline_installer.title'})}
         onOk={onOk}
         visible
         className={styles.TelescopicModal}
         onCancel={onCancel}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}> {formatMessage({id:'button.cancel'})} </Button>,
           <Button type="primary" loading={loading || false} onClick={onOk}>
-            确定
+            {formatMessage({id:'button.confirm'})}
           </Button>
         ]}
       >
         <Alert
           style={{ textAlign: 'center', marginBottom: 16 }}
-          message="导出云市应用适用于交付环境"
+          message={formatMessage({id:'applicationMarket.offline_installer.alert'})}
           type="success"
         />
         <div style={{ marginBottom: '30px' }}>
-          导出版本：
+          {formatMessage({id:'applicationMarket.offline_installer.form.label.exoprt_versions'})}
           <Select
             style={{ width: '300px' }}
             getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -362,6 +403,7 @@ export default class AppExporter extends PureComponent {
           </Select>
         </div>
         {this.getRainbondAppShow()}
+        {this.getRainbondNotContainerBag()}
         {!(this.props.app.source == 'market') && this.getDockerComposeAppShow()}
       </Modal>
     );

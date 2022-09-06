@@ -12,6 +12,7 @@ import {
 } from "antd";
 import { connect } from "dva";
 import React, { PureComponent } from "react";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from '../../pages/Component/Index.less';
 import globalUtil from "../../utils/global";
 
@@ -136,11 +137,13 @@ export default class ViewRelationInfo extends PureComponent {
     };
     return (
       <Modal
-        title="依赖信息查看"
+        title={formatMessage({id:'componentCheck.advanced.setup.depend_msg.title'})}
         width={600}
         visible={true}
         onCancel={this.props.onCancel}
-        footer={[<Button onClick={this.props.onCancel}>关闭</Button>]}
+        footer={[<Button onClick={this.props.onCancel}>
+          {formatMessage({id:'button.close'})}
+        </Button>]}
       >
         <Table
           rowKey={this.rowKey}
@@ -152,12 +155,12 @@ export default class ViewRelationInfo extends PureComponent {
           }}
           columns={[
             {
-              title: "变量名",
+              title: formatMessage({id:'componentCheck.advanced.setup.depend_msg.table.attr_name'}),
               dataIndex: "attr_name",
               render: v => this.handleOver(v)
             },
             {
-              title: "变量值",
+              title: formatMessage({id:'componentCheck.advanced.setup.depend_msg.table.attr_value'}),
               dataIndex: "attr_value",
               render: (v, item) => {
                 const isHidden = isAttrNameList.includes(item.ID);
@@ -187,7 +190,7 @@ export default class ViewRelationInfo extends PureComponent {
               },
             },
             {
-              title: "说明",
+              title: formatMessage({id:'componentCheck.advanced.setup.depend_msg.table.name'}),
               dataIndex: "name",
               render: v => this.handleOver(v)
             }

@@ -17,6 +17,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import { openInNewTab } from '../../utils/utils';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from './index.less';
 
 /*
@@ -125,7 +126,7 @@ export default class Index extends PureComponent {
     }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
-        message: `请求错误`,
+        message: formatMessage({id:'notification.warn.error'}),
         description: err.data.msg_show
       });
     }
@@ -168,11 +169,12 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title="跳转到组件对外访问端口对应的域名地址"
+          title={formatMessage({id:'tooltip.visit'})}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
-            访问
+            {/* 访问 */}
+            <FormattedMessage id='componentOverview.header.right.visit'/>
           </Button>
         </Tooltip>
         {showModal && (
@@ -241,7 +243,7 @@ export default class Index extends PureComponent {
     const links = this.getHttpLinks(demo.access_info || {});
     if (links.length === 1) {
       return (
-        <Tooltip title="跳转到组件对外访问端口对应的域名地址">
+        <Tooltip title={formatMessage({id:'tooltip.visit'})}>
           <Button
             type={this.props.btntype}
             onClick={() => {
@@ -249,7 +251,8 @@ export default class Index extends PureComponent {
               openInNewTab(links[0]);
             }}
           >
-            访问
+            {/* 访问 */}
+            <FormattedMessage id='componentOverview.header.right.visit'/>
           </Button>
         </Tooltip>
       );
@@ -257,11 +260,12 @@ export default class Index extends PureComponent {
       return (
         <Fragment>
           <Tooltip
-            title="跳转到组件对外访问端口对应的域名地址"
+            title={formatMessage({id:'tooltip.visit'})}
             placement="topRight"
           >
             <Button type={this.props.btntype} onClick={this.showModal}>
-              访问
+              {/* 访问 */}
+              <FormattedMessage id='componentOverview.header.right.visit'/>
             </Button>
           </Tooltip>
           {showModal && (
@@ -292,7 +296,7 @@ export default class Index extends PureComponent {
     }
     return (
       <Tooltip
-        title="跳转到组件对外访问端口对应的域名地址"
+        title={formatMessage({id:'tooltip.visit'})}
         placement="topRight"
       >
         <Dropdown
@@ -308,7 +312,8 @@ export default class Index extends PureComponent {
         >
           <Button type={this.props.btntype}>
             <a href={links[0]} target="_blank">
-              访问
+            <FormattedMessage id='componentOverview.header.right.visit'/>
+              {/* 访问 */}
             </a>
           </Button>
         </Dropdown>
@@ -318,11 +323,12 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title="跳转到组件对外访问端口对应的域名地址"
+          title={formatMessage({id:'tooltip.visit'})}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
-            访问
+            <FormattedMessage id='componentOverview.header.right.visit'/>
+            {/* 访问 */}
           </Button>
         </Tooltip>
         {showModal && (
@@ -366,11 +372,11 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title="跳转到组件对外访问端口对应的域名地址"
+          title={formatMessage({id:'tooltip.visit'})}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
-            访问
+            <FormattedMessage id='componentOverview.header.right.visit'/>
           </Button>
         </Tooltip>
         {showModal && (
@@ -441,7 +447,7 @@ export default class Index extends PureComponent {
                               : accessUrls && accessUrls.replace(/\s+/g, '')
                           }
                           onCopy={() => {
-                            notification.success({ message: '复制成功' });
+                            notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                           }}
                         >
                           <Button size="small" type="primary">
@@ -590,11 +596,12 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title="跳转到组件对外访问端口对应的域名地址"
+          title={formatMessage({id:'tooltip.visit'})}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
-            访问
+          <FormattedMessage id='componentOverview.header.right.visit'/>
+            {/* 访问 */}
           </Button>
         </Tooltip>
         {showModal && (

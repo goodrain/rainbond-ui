@@ -14,6 +14,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import cloud from '../../../utils/cloud';
 
 @connect()
@@ -37,19 +38,19 @@ export default class SetRegionConfig extends PureComponent {
     let desc;
     switch (selectProvider) {
       case 'ack':
-        desc = '从阿里云托管集群安装对接';
+        desc = `${formatMessage({id:'enterpriseColony.SetRegionConfig.staackrt'})}`;
         break;
       case 'tke':
-        desc = '从腾讯云托管集群安装对接';
+        desc = `${formatMessage({id:'enterpriseColony.SetRegionConfig.tke'})}`;
         break;
       case 'custom':
-        desc = '从自定义 Kubernetes 集群对接';
+        desc = `${formatMessage({id:'enterpriseColony.SetRegionConfig.custom'})}`;
         break;
       case 'rke':
-        desc = '提供主机安装 Kubernetes 集群并对接';
+        desc = `${formatMessage({id:'enterpriseColony.SetRegionConfig.rke'})}`;
         break;
       default:
-        desc = '自建集群';
+        desc = `${formatMessage({id:'enterpriseColony.SetRegionConfig.Self'})}`;
     }
     form.validateFields((err, fieldsValue) => {
       if (err) {
@@ -69,7 +70,7 @@ export default class SetRegionConfig extends PureComponent {
         },
         callback: res => {
           if (res && res._condition === 200) {
-            notification.success({ message: '添加成功' });
+            notification.success({ message: formatMessage({id:'notification.success.add'}) });
             if (task) {
               dispatch({
                 type: 'cloud/updateInitTaskStatus',
@@ -186,19 +187,19 @@ export default class SetRegionConfig extends PureComponent {
     let clusterTitle;
     switch (selectProvider) {
       case 'ack':
-        clusterTitle = '阿里云托管集群';
+        clusterTitle = `${formatMessage({id:'enterpriseColony.SetRegionConfig.ali'})}`;
         break;
       case 'tke':
-        clusterTitle = '腾讯云托管集群';
+        clusterTitle = `${formatMessage({id:'enterpriseColony.SetRegionConfig.tenxun'})}`;
         break;
       case 'custom':
-        clusterTitle = '自定义对接集群';
+        clusterTitle = `${formatMessage({id:'enterpriseColony.SetRegionConfig.docking'})}`;
         break;
       case 'rke':
-        clusterTitle = '自建集群';
+        clusterTitle = `${formatMessage({id:'enterpriseColony.SetRegionConfig.Self'})}`;
         break;
       default:
-        clusterTitle = '自建集群';
+        clusterTitle = `${formatMessage({id:'enterpriseColony.SetRegionConfig.Self'})}`;
     }
     const highlighted = {
       position: 'relative',
@@ -213,18 +214,18 @@ export default class SetRegionConfig extends PureComponent {
           <Row>
             {!configs.apiAddress && (
               <Alert
-                message="未正常获取到集群的初始化状态，不能进行对接"
+                message={<FormattedMessage id='enterpriseColony.SetRegionConfig.state'/>}
                 type="error"
               />
             )}
             {configs.apiAddress && (
               <Descriptions>
-                <Descriptions.Item label="API通信地址">
+                <Descriptions.Item  label={<FormattedMessage id='enterpriseColony.SetRegionConfig.api'/>}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     {configs.apiAddress}
                     <Alert
                       style={{ marginLeft: '20px' }}
-                      message="请确保该IP地址的8443端口，6060端口对外开放"
+                      message={<FormattedMessage id='enterpriseColony.SetRegionConfig.ip'/>}
                       type="warning"
                     />
                   </div>
@@ -233,42 +234,42 @@ export default class SetRegionConfig extends PureComponent {
             )}
           </Row>
           <Row style={{ marginTop: '32px' }}>
-            <h4>集群设置</h4>
+            <h4><FormattedMessage id='enterpriseColony.SetRegionConfig.setting'/></h4>
           </Row>
           <Row style={guideStep === 13 ? highlighted : {}}>
             <Col span={6} style={{ paddingRight: '16px' }}>
-              <Form.Item label="集群ID">
+              <Form.Item  label={<FormattedMessage id='enterpriseColony.SetRegionConfig.id'/>}>
                 {getFieldDecorator('region_name', {
                   initialValue: '',
                   rules: [
                     {
                       required: true,
-                      message: '请填写辨识度高的集群ID，不可修改'
+                      message: formatMessage({id:'enterpriseColony.SetRegionConfig.input_id'})
                     },
                     {
                       pattern: /^[a-z0-9A-Z-_]+$/,
-                      message: '只支持字母、数字和-_组合'
+                      message: formatMessage({id:'enterpriseColony.SetRegionConfig.only'})
                     }
                   ]
-                })(<Input placeholder="请填写辨识度高的集群ID，不可修改" />)}
+                })(<Input placeholder={formatMessage({id:'enterpriseColony.SetRegionConfig.input_id'})} />)}
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item label="集群名称">
+              <Form.Item  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.colony'/>}>
                 {getFieldDecorator('region_alias', {
                   initialValue: clusterTitle,
                   rules: [
-                    { required: true, message: '请填写集群名称!' },
-                    { max: 24, message: '最大长度24位' }
+                    { required: true, message:formatMessage({id:'enterpriseColony.BaseAddCluster.name'}) },
+                    { max: 24, message:formatMessage({id:'enterpriseColony.addCluster.host.max'}) }
                   ]
-                })(<Input placeholder="请填写集群名称" />)}
+                })(<Input  placeholder={formatMessage({id:'enterpriseColony.BaseAddCluster.name'})}/>)}
               </Form.Item>
             </Col>
           </Row>
           {guideStep === 13 &&
             this.handleNewbieGuiding({
-              tit: '集群服务已经安装成功了',
-              desc: '请输入集群设置信息',
+              tit: formatMessage({id:'enterpriseColony.SetRegionConfig.success'}),
+              desc: formatMessage({id:'enterpriseColony.SetRegionConfig.input'}),
               send: false,
               configName: 'clusterDocking',
               showSvg: false,
@@ -283,12 +284,12 @@ export default class SetRegionConfig extends PureComponent {
                 disabled={!configs.apiAddress}
                 type="primary"
               >
-                对接
+                <FormattedMessage id='button.Docking'/>
               </Button>
               {guideStep === 14 &&
                 this.handleNewbieGuiding({
-                  tit: '集群设置配置完成后请开始对接',
-                  btnText: '对接',
+                  tit: formatMessage({id:'enterpriseColony.SetRegionConfig.start'}),
+                  btnText:formatMessage({id:'button.Docking'}),
                   send: true,
                   configName: 'clusterDocking',
                   nextStep: 15,

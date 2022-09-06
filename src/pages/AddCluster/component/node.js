@@ -5,7 +5,7 @@
 import { Col, Icon, Input, notification, Row } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
-
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 @connect(({ region }) => ({
 }))
 class DAinput extends Component {
@@ -50,7 +50,7 @@ class DAinput extends Component {
     const { values } = this.state;
     if (values.length > 100) {
       notification.warning({
-        message: '最多添加100个'
+        message: formatMessage({id:'notification.warn.add_max'})
       });
       return null;
     }
@@ -80,9 +80,9 @@ class DAinput extends Component {
     }
   }
   render() {
-    const externalIPPlaceholder = '外部IP  例：1.2.3.4';
-    const repPlaceholder = '内部IP  例：192.168.0.1';
-    const namePlaceholder = '节点名称  例：node1';
+    const externalIPPlaceholder = `${formatMessage({id:'enterpriseColony.alcloud.External_IP'})}`;
+    const repPlaceholder = `${formatMessage({id:'enterpriseColony.alcloud.Internal_IP'})}`;
+    const namePlaceholder = `${formatMessage({id:'enterpriseColony.alcloud.node_name'})}`;
     const { values } = this.state;
 
     return (
@@ -99,6 +99,7 @@ class DAinput extends Component {
                   }}
                   value={item.externalIP}
                   placeholder={externalIPPlaceholder}
+                  style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
               </Col>
               <Col span={24} style={{ marginRight: '10px' }}>
@@ -109,6 +110,7 @@ class DAinput extends Component {
                   }}
                   value={item.internalIP}
                   placeholder={repPlaceholder}
+                  style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
               </Col>
               <Col span={24}>
@@ -119,6 +121,7 @@ class DAinput extends Component {
                   }}
                   value={item.name}
                   placeholder={namePlaceholder}
+                  style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
               </Col>
               <Col span={4} style={{ textAlign: 'center' }}>

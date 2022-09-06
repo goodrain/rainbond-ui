@@ -2,18 +2,29 @@
 import { Button, Form, Input, Modal, Select, Tag } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import configureGlobal from '../../utils/configureGlobal';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
+import cookie from '../../utils/cookie';
 
 const { Option } = Select;
+
 const formItemLayout = {
   labelCol: {
     span: 5
   },
   wrapperCol: {
-    span: 19
+    span: 15
+  }
+};
+const en_formItemLayout = {
+  labelCol: {
+    span: 9
+  },
+  wrapperCol: {
+    span: 15
   }
 };
 
@@ -32,6 +43,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      language: cookie.get('language') === 'zh-CN' ? true : false,
       addGroup: false,
       demoHref:
         this.props.data.git_url || configureGlobal.documentAddressDefault
@@ -68,7 +80,7 @@ export default class Index extends PureComponent {
 
   handleOpenDemo = () => {
     Modal.warning({
-      title: '查看Dmeo源码',
+      title: formatMessage({id: 'teamAdd.create.code.demoBtn'}),
       content: (
         <div>
           <Tag color="magenta" style={{ marginBottom: '10px' }}>
@@ -77,7 +89,7 @@ export default class Index extends PureComponent {
               style={{ color: '#EA2E96' }}
               href={`${configureGlobal.documentAddress}demo-2048.git`}
             >
-              2048小游戏
+              {formatMessage({id: 'teamAdd.create.code.demoBtn'})}
             </a>
           </Tag>
           <Tag color="green" style={{ marginBottom: '10px' }}>
@@ -86,7 +98,7 @@ export default class Index extends PureComponent {
               style={{ color: '#74CC49' }}
               href={`${configureGlobal.documentAddress}static-demo.git`}
             >
-              静态Web：hello world !
+              {formatMessage({id: 'teamAdd.create.code.demoBtn'})}
             </a>
           </Tag>
           <Tag color="volcano" style={{ marginBottom: '10px' }}>
@@ -183,38 +195,40 @@ export default class Index extends PureComponent {
 
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入组件英文名称'));
+      return callback(new Error(formatMessage({id:'placeholder.k8s_component_name'})));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
           new Error(
-            '只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾'
+            formatMessage({id: 'placeholder.nameSpaceReg'})
           )
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error(formatMessage({id: 'placeholder.max32'})));
     }
   };
   render() {
     const { getFieldDecorator } = this.props.form;
     const { groups, createAppByCodeLoading, rainbondInfo } = this.props;
     const data = this.props.data || {};
+    const { language } = this.state;
+    const is_language = language ? formItemLayout : en_formItemLayout;
     return (
       <Form layout="horizontal" hideRequiredMark>
-        <Form.Item {...formItemLayout} label="应用名称">
+        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
           {getFieldDecorator('group_id', {
             initialValue: data.groupd_id ? data.groupd_id : undefined,
-            rules: [{ required: true, message: '请选择' }]
+            rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
-              placeholder="请选择要所属应用"
-              style={{ display: 'inline-block', width: 292, marginRight: 15 }}
+              placeholder={formatMessage({id: 'placeholder.appName'})}
+              style={{ display: 'inline-block', width: language ? 275 : 289, marginRight: 10 }}
             >
               {(groups || []).map(group => (
                 <Option key={group.group_id} value={group.group_id}>
@@ -223,26 +237,25 @@ export default class Index extends PureComponent {
               ))}
             </Select>
           )}
-          <Button onClick={this.onAddGroup}>新建应用</Button>
+          <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamApply.createApp'})}</Button>
         </Form.Item>
-        <Form.Item {...formItemLayout} label="组件名称">
+        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
           {getFieldDecorator('service_cname', {
             initialValue: data.service_cname || '',
             rules: [
-              { required: true, message: '要创建的组件还没有名字' },
+              { required: true, message: formatMessage({id: 'placeholder.service_cname'}) },
               {
                 max: 24,
-                message: '最大长度24位'
+                message: formatMessage({id: 'placeholder.max24'})
               }
             ]
           })(
             <Input
-              style={{ width: 292 }}
-              placeholder="请为创建的组件起个名字吧"
+              placeholder={formatMessage({id: 'placeholder.service_cname'})}
             />
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="组件英文名称">
+        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
           {getFieldDecorator('k8s_component_name', {
             rules: [
               {
@@ -250,26 +263,26 @@ export default class Index extends PureComponent {
                 validator: this.handleValiateNameSpace
               }
             ]
-          })(<Input placeholder="组件的英文名称" style={{ width: 292 }} />)}
+          })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})}   />)}
         </Form.Item>
-        <Form.Item {...formItemLayout} label={<span>Demo</span>}>
+        <Form.Item {...is_language} label={<span>Demo</span>}>
           {getFieldDecorator('git_url', {
             initialValue:
               data.git_url || configureGlobal.documentAddressDefault,
-            rules: [{ required: true, message: '请选择' }]
+            rules: [{ required: true, message: formatMessage({id: 'placeholder.select'})  }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
-              style={{ display: 'inline-block', width: 292, marginRight: 15 }}
+              style={{ display: 'inline-block', width: 290, marginRight: 10 }}
               onChange={this.handleChangeDemo}
             >
               <Option value={`${configureGlobal.documentAddress}demo-2048.git`}>
-                2048小游戏
+                {formatMessage({id: 'teamAdd.create.code.demo2048'})}
               </Option>
               <Option
                 value={`${configureGlobal.documentAddress}static-demo.git`}
               >
-                静态Web：hello world !
+                {formatMessage({id: 'teamAdd.create.code.demoStatic'})}
               </Option>
               <Option value={`${configureGlobal.documentAddress}php-demo.git`}>
                 PHP Demo
@@ -317,7 +330,7 @@ export default class Index extends PureComponent {
           {this.state.demoHref &&
             rainbondUtil.documentPlatform_url(rainbondInfo) && (
               <a target="_blank" href={this.state.demoHref}>
-                查看源码
+                {formatMessage({id: 'teamAdd.create.code.href'})}
               </a>
             )}
         </Form.Item>
@@ -325,8 +338,8 @@ export default class Index extends PureComponent {
           wrapperCol={{
             xs: { span: 24, offset: 0 },
             sm: {
-              span: formItemLayout.wrapperCol.span,
-              offset: formItemLayout.labelCol.span
+              span: is_language.wrapperCol.span,
+              offset: is_language.labelCol.span
             }
           }}
           label=""
@@ -336,7 +349,7 @@ export default class Index extends PureComponent {
             type="primary"
             loading={createAppByCodeLoading}
           >
-            确认创建
+            {formatMessage({id: 'teamAdd.create.btn.create'})}
           </Button>
         </Form.Item>
         {this.state.addGroup && (

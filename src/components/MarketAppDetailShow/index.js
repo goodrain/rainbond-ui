@@ -3,6 +3,7 @@ import React, { PureComponent } from 'react';
 import { Modal, Button } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 export default class Index extends PureComponent {
   constructor(props) {
@@ -22,7 +23,7 @@ export default class Index extends PureComponent {
         visible
         onOk={onOk}
         onCancel={onCancel}
-        footer={<Button onClick={onOk}>确定</Button>}
+        footer={<Button onClick={onOk}><FormattedMessage id='componentOverview.body.MarketAppDetailShow.determine'/></Button>}
         title={title}
         width={700}
       >
@@ -34,7 +35,7 @@ export default class Index extends PureComponent {
         ) : details ? (
           <ReactMarkdown className={styles.markdown} source={details} />
         ) : (
-          <span>未编辑应用详情</span>
+          <span><FormattedMessage id='componentOverview.body.MarketAppDetailShow.app'/></span>
         )}
       </Modal>
     );

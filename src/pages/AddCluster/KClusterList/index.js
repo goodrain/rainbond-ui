@@ -5,6 +5,7 @@ import { Button, Card, Col, Form, Row, Steps, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ACKBuyConfig from '../../../components/Cluster/ACKBuyConfig';
 import CustomClusterAdd from '../../../components/Cluster/CustomClusterAdd';
 import KubernetesTableShow from '../../../components/Cluster/KubernetesTableShow';
@@ -223,16 +224,16 @@ export default class EnterpriseClusters extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: '选择供应商'
+        title: formatMessage({id:'enterpriseColony.addCluster.supplier'})
       },
       {
-        title: '选择(创建)平台集群'
+        title: formatMessage({id:'enterpriseColony.addCluster.cluster'})
       },
       {
-        title: '初始化平台集群'
+        title: formatMessage({id:'enterpriseColony.addCluster.Initialize'})
       },
       {
-        title: '完成对接'
+        title: formatMessage({id:'enterpriseColony.addCluster.docking'})
       }
     ];
     return steps;
@@ -371,22 +372,22 @@ export default class EnterpriseClusters extends PureComponent {
     } = this.state;
     const nextDisable = selectClusterID === '';
 
-    let title = '集群列表';
+    let title = `${formatMessage({id:'enterpriseColony.addCluster.host.Cluster_list'})}`;
     switch (provider) {
       case 'ack':
-        title += '(阿里云 ACK)';
+        title += `${formatMessage({id:'enterpriseColony.addCluster.host.al'})}`;
         break;
       case 'tke':
-        title += '(腾讯云 TKE)';
+        title += `${formatMessage({id:'enterpriseColony.addCluster.host.tx'})}`;
         break;
       case 'custom':
-        title += '(自定义)';
+        title += `${formatMessage({id:'enterpriseColony.addCluster.host.zdy'})}`;
         break;
       case 'rke':
-        title += '(基于主机自建)';
+        title += `${formatMessage({id:'enterpriseColony.addCluster.host.host_oneself'})}`;
         break;
       default:
-        title += `(不支持的驱动类型: ${provider})`;
+        title += `${formatMessage({id:'enterpriseColony.addCluster.host.provider'},{provider:provider})}`;
     }
     const nextStepBtn = (
       <Button
@@ -396,7 +397,7 @@ export default class EnterpriseClusters extends PureComponent {
         disabled={nextDisable}
         id="initializeBtn"
       >
-        下一步
+        <FormattedMessage id='button.next'/>
       </Button>
     );
     let next = false;
@@ -415,8 +416,8 @@ export default class EnterpriseClusters extends PureComponent {
     }
     return (
       <PageHeaderLayout
-        title="添加集群"
-        content="集群是资源的集合，以集群为基础，部署平台Region服务即可成为平台集群资源。"
+      title={<FormattedMessage id='enterpriseColony.button.text'/>}
+      content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={1}>
@@ -447,8 +448,8 @@ export default class EnterpriseClusters extends PureComponent {
           />
           {next && (guideStep === 3 || guideStep === 8)
             ? this.handleNewbieGuiding({
-                tit: '请选择Kubernetes集群',
-                desc: '可选择已经正常运行的集群',
+                tit: formatMessage({id:'enterpriseColony.addCluster.host.select_the_cluster'}),
+                desc: formatMessage({id:'enterpriseColony.addCluster.host.cluster'}),
                 send: false,
                 configName: 'kclustersInitializationCluster',
                 nextStep: 9,
@@ -463,16 +464,16 @@ export default class EnterpriseClusters extends PureComponent {
             : ''}
           {showBuyClusterConfig && this.renderCreateClusterShow()}
           <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
-            <Button onClick={this.preStep}>上一步</Button>
+            <Button onClick={this.preStep}><FormattedMessage id='button.previous'/></Button>
             {nextDisable ? (
-              <Tooltip title="请选择需要初始化的集群">{nextStepBtn}</Tooltip>
+              <Tooltip title={formatMessage({id:'enterpriseColony.addCluster.host.select_the_cluster'})}>{nextStepBtn}</Tooltip>
             ) : (
               nextStepBtn
             )}
             {next && guideStep === 9
               ? this.handleNewbieGuiding({
-                  tit: '开始Rainbond集群服务',
-                  desc: '初始化安装',
+                  tit: formatMessage({id:'enterpriseColony.addCluster.host.Rainbond'}),
+                  desc: formatMessage({id:'enterpriseColony.addCluster.host.install'}),
                   send: true,
                   configName: 'kclustersInitializationCluster',
                   nextStep: 10,

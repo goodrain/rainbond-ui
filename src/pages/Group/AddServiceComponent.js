@@ -5,6 +5,7 @@
 import { Alert, Button, Col, Drawer, Icon, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeGitRepostory from '../../components/GitRepostory';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
@@ -63,7 +64,7 @@ export default class AddServiceComponent extends PureComponent {
     const setName = typeMap[type] || '';
     const tabName = setName
       ? `${setName} ${name && `(${name})`}`
-      : `${name}项目`;
+      : `${name} ${formatMessage({id:'appOverview.list.btn.addComponent.project'})}`;
     return tabName;
   };
 
@@ -256,10 +257,10 @@ export default class AddServiceComponent extends PureComponent {
           }}
         >
           <Icon type="plus" />
-          添加组件
+          {formatMessage({id:'appOverview.btn.addComponent'})}
         </Button>
         <Drawer
-          title="添加组件"
+          title={formatMessage({id:'appOverview.btn.addComponent'})}
           placement="right"
           onClose={this.cancelAddService}
           visible={toAddService}
@@ -271,18 +272,34 @@ export default class AddServiceComponent extends PureComponent {
             <div style={{ marginTop: '-12px' }}>
               <div className={styles.ServiceBox}>
                 <Row>
-                  <p className={styles.ServiceTitle}>从源代码开始</p>
+                  <p className={styles.ServiceTitle}>
+                    {formatMessage({id:'menu.team.create.code'})}
+                  </p>
                 </Row>
-                <Row>
+                <Row type="flex">
                   <Col
-                    span={8}
+                    span={4}
                     className={styles.ServiceDiv}
                     onClick={() => {
                       this.handleServiceComponent(false, 'custom');
                     }}
                   >
                     {codeSvg}
-                    <p className={styles.ServiceSmallTitle}>自定义仓库</p>
+                    <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
+                    {formatMessage({id:'appOverview.list.btn.addComponent.custom'})}
+                    </p>
+                  </Col>
+                  <Col
+                    span={4}
+                    className={styles.ServiceDiv}
+                    onClick={() => {
+                      this.handleServiceComponent(false, 'jwar');
+                    }}
+                  >
+                    {uploadJarWar}
+                    <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
+                    {formatMessage({id:'appOverview.list.btn.addComponent.jwar'})}
+                    </p>
                   </Col>
                   {servers &&
                     servers.length > 0 &&
@@ -291,7 +308,7 @@ export default class AddServiceComponent extends PureComponent {
                       return (
                         <Col
                           key={id}
-                          span={8}
+                          span={4}
                           className={styles.ServiceDiv}
                           onClick={() => {
                             this.setState(
@@ -308,7 +325,7 @@ export default class AddServiceComponent extends PureComponent {
                             );
                           }}
                         >
-                          {oauthUtil.getIcon(item, '50px')}
+                          {oauthUtil.getIcon(item, '40px')}
                           <p className={styles.ServiceSmallTitle}>
                             {this.getGitServerName(item)}
                           </p>
@@ -316,12 +333,12 @@ export default class AddServiceComponent extends PureComponent {
                       );
                     })}
                 </Row>
-                <Row style={{ marginBottom: '2px' }}>
+                {/* <Row style={{ marginBottom: '2px' }}>
                   {rainbondUtil.documentPlatform_url(rainbondInfo) && (
                     <Alert
                       message={
                         <p className={styles.prompt}>
-                          注:支持
+                          {formatMessage({id:'appOverview.list.btn.addComponent.support'})}
                           {Object.keys(languageObj).map(key => {
                             return (
                               <a
@@ -334,7 +351,7 @@ export default class AddServiceComponent extends PureComponent {
                               </a>
                             );
                           })}
-                          等语言规范
+                          {formatMessage({id:'appOverview.list.btn.addComponent.standard'})}
                         </p>
                       }
                       type="info"
@@ -342,36 +359,7 @@ export default class AddServiceComponent extends PureComponent {
                       showIcon
                     />
                   )}
-                </Row>
-              </div>
-              <div className={styles.ServiceBox}>
-                <Row>
-                  <p className={styles.ServiceTitle}>从镜像开始</p>
-                </Row>
-                <Row style={{ marginTop: '-8px' }}>
-                  <Col
-                    span={8}
-                    className={styles.ServiceDiv}
-                    onClick={() => {
-                      this.handleServiceComponent(false, 'imageName');
-                    }}
-                  >
-                    {dockerSvg}
-                    <p className={styles.ServiceSmallTitle}>指定镜像</p>
-                  </Col>
-                  <Col
-                    span={8}
-                    className={styles.ServiceDiv}
-                    onClick={() => {
-                      this.handleServiceComponent(false, 'imageCmd');
-                    }}
-                  >
-                    {dockerSvg}
-                    <p className={styles.ServiceSmallTitle}>
-                      指定DockerRun命令
-                    </p>
-                  </Col>
-                </Row>
+                </Row> */}
               </div>
               <div className={styles.ServiceBox}>
                 <Row>
@@ -379,7 +367,7 @@ export default class AddServiceComponent extends PureComponent {
                     className={styles.ServiceTitle}
                     style={{ marginBottom: '20px' }}
                   >
-                    从应用市场开始
+                   {formatMessage({id:'menu.team.create.market'})}
                   </p>
                 </Row>
                 <Row>
@@ -400,23 +388,45 @@ export default class AddServiceComponent extends PureComponent {
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
-                <ThirdParty content={this.getValue.bind(this)} groupId={groupId} />
-              </div>
-              <div className={styles.ServiceBox} style={{marginBottom:'60px'}}>
                 <Row>
-                  <p className={styles.ServiceTitle}>从上传文件包开始</p>
+                  <p className={styles.ServiceTitle}>
+                  {formatMessage({id:'menu.team.create.image'})}
+                  </p>
                 </Row>
-                <Row>
+                <Row style={{ marginTop: '-8px' }}>
                   <Col
                     span={8}
                     className={styles.ServiceDiv}
                     onClick={() => {
-                      this.handleServiceComponent(false, 'jwar');
+                      this.handleServiceComponent(false, 'imageName');
                     }}
                   >
-                    {uploadJarWar}
-                    <p className={styles.ServiceSmallTitle}>Jar、War</p>
+                    {dockerSvg}
+                    <p className={styles.ServiceSmallTitle}>
+                    {formatMessage({id:'appOverview.list.btn.addComponent.image'})}
+                    </p>
                   </Col>
+                  <Col
+                    span={8}
+                    className={styles.ServiceDiv}
+                    onClick={() => {
+                      this.handleServiceComponent(false, 'imageCmd');
+                    }}
+                  >
+                    {dockerSvg}
+                    <p className={styles.ServiceSmallTitle} style={{whiteSpace:'nowrap'}}>
+                    {formatMessage({id:'appOverview.list.btn.addComponent.dockerRun'})}
+                    </p>
+                  </Col>
+                </Row>
+              </div>
+              <div className={styles.ServiceBox}>
+                <Row>
+                  <p className={styles.ServiceTitle}>
+                  {formatMessage({id:'menu.team.create.upload'})}
+                  </p>
+                </Row>
+                <Row>
                   <Col
                     span={8}
                     className={styles.ServiceDiv}
@@ -426,10 +436,13 @@ export default class AddServiceComponent extends PureComponent {
                   >
                     {uploadYaml}
                     <p className={styles.ServiceSmallTitle}>
-                      Yaml
+                      {formatMessage({id:'appOverview.list.btn.addComponent.yaml'})}
                     </p>
                   </Col>
                 </Row>
+              </div>
+              <div className={styles.ServiceBox} style={{marginBottom:'60px'}}>
+                <ThirdParty content={this.getValue.bind(this)} groupId={groupId} />
               </div>
             </div>
           )}
@@ -506,12 +519,12 @@ export default class AddServiceComponent extends PureComponent {
           >
             {!ServiceComponentOnePage && ServiceComponentThreePage !== 'check' && (
               <Button style={mr8} onClick={this.handleBackEvents}>
-                上一步
+                {formatMessage({id:'popover.back'})}
               </Button>
             )}
             {ButtonGroup && <span style={mr8}>{ButtonGroup}</span>}
             <Button style={mr8} onClick={this.cancelAddService}>
-              取消
+              {formatMessage({id:'popover.cancel'})}
             </Button>
           </div>
         </Drawer>

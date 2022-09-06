@@ -1,3 +1,4 @@
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 const guideutil = {
   getStatus(key, info) {
     let status = false;
@@ -11,37 +12,37 @@ const guideutil = {
   getStep(info) {
     return [
       {
-        title: '创建应用',
+        title: formatMessage({id:'utils.guide.app_create'}),
         status: this.getStatus('app_create', info),
         key: 'app_create'
       },
       {
-        title: '基于源码创建组件',
+        title: formatMessage({id:'utils.guide.source_code_service_create'}),
         status: this.getStatus('source_code_service_create', info),
         key: 'source_code_service_create'
       },
       {
-        title: '基于镜像安装数据库',
+        title: formatMessage({id:'utils.guide.image_service_create'}),
         status: this.getStatus('image_service_create', info),
         key: 'image_service_create'
       },
       {
-        title: '组件连接数据库',
+        title: formatMessage({id:'utils.guide.service_connect_db'}),
         status: this.getStatus('service_connect_db', info),
         key: 'service_connect_db'
       },
       {
-        title: '发布应用到应用市场',
+        title: formatMessage({id:'utils.guide.share_app'}),
         status: this.getStatus('share_app', info),
         key: 'share_app'
       },
       {
-        title: '配置应用访问策略',
+        title: formatMessage({id:'utils.guide.custom_gw_rule'}),
         status: this.getStatus('custom_gw_rule', info),
         key: 'custom_gw_rule'
       },
       {
-        title: '安装性能分析插件',
+        title: formatMessage({id:'utils.guide.install_plugin'}),
         status: this.getStatus('install_plugin', info),
         key: 'install_plugin'
       }

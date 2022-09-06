@@ -1,6 +1,7 @@
 import { List } from 'antd';
 import { connect } from 'dva';
 import React, { Component, Fragment } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import oauthUtil from '../../../utils/oauth';
 import rainbondUtil from '../../../utils/rainbond';
 
@@ -40,9 +41,9 @@ class BindingView extends Component {
             const authURL = oauthUtil.getAuthredictURL(item);
             let certificationText = '';
             if (isAuthenticated) {
-              certificationText = '已认证';
+              certificationText = `${formatMessage({id:'otherEnterprise.BindingView.Certified'})}`;
             } else if (isExpired) {
-              certificationText = '已过期重新认证';
+              certificationText = `${formatMessage({id:'otherEnterprise.BindingView.Expired'})}`;
             }
 
             return (
@@ -60,7 +61,7 @@ class BindingView extends Component {
                             href={`${authURL}&&type=certification`}
                             target="_blank"
                           >
-                            {certificationText || '去认证'}
+                            {certificationText || `${formatMessage({id:'otherEnterprise.BindingView.De_certification'})}`}
                           </a>
                         )}
                   </span>
@@ -71,8 +72,8 @@ class BindingView extends Component {
                   title={serviceName}
                   description={
                     <div>
-                      当前{certificationText || '未认证'}
-                      {oauthUserName || oauthType}账号
+                      {formatMessage({id:'otherEnterprise.BindingView.now'})}{certificationText || `${formatMessage({id:'otherEnterprise.BindingView.Not_certified'})}`}
+                      {oauthUserName || oauthType}{formatMessage({id:'otherEnterprise.BindingView.number'})}
                     </div>
                   }
                 />

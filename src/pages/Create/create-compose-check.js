@@ -5,6 +5,7 @@ import { Button, Card, Form, Icon, Modal } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeMirror from 'react-codemirror';
 import ConfirmModal from '../../components/ConfirmModal';
 import LogProcress from '../../components/LogProcress';
@@ -70,7 +71,7 @@ class ModifyCompose extends PureComponent {
     return (
       <Modal
         visible
-        title="修改compose内容"
+        title={formatMessage({id:'confirmModal.compose.update.title'})}
         onOk={this.handleSubmit}
         onCancel={this.props.onCancel}
       >
@@ -81,7 +82,7 @@ class ModifyCompose extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请输入内容'
+                  message: formatMessage({id:'placeholder.input_content'})
                 }
               ]
             })(<CodeMirror options={options} placeholder="" />)}
@@ -350,7 +351,7 @@ export default class CreateCheck extends PureComponent {
   renderChecking = () => {
     const actions = (
       <Button onClick={this.showDelete} type="default">
-        放弃创建
+        {formatMessage({id:'button.abandon_create'})}
       </Button>
     );
 
@@ -367,9 +368,9 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="ing"
-        title="组件构建源检测中..."
+        title={formatMessage({id:'confirmModal.component.check.title.loading'})}
         extra={extra}
-        description="此过程可能比较耗时，请耐心等待"
+        description={formatMessage({id:'confirmModal.component.check.appShare.desc'})}
         actions={actions}
         style={{
           marginTop: 48,
@@ -390,7 +391,7 @@ export default class CreateCheck extends PureComponent {
                 marginBottom: 16
               }}
             >
-              <p>组件名称：{item.service_cname}</p>
+              <p>{formatMessage({id:'componentCheck.modify_image_name.label.component_cname'})}{item.service_cname}</p>
               {(item.service_info || []).map(item => {
                 return (
                   <div
@@ -410,38 +411,37 @@ export default class CreateCheck extends PureComponent {
     const actions = [
       <Button onClick={this.handleBuild} type="primary">
         {' '}
-        构建组件{' '}
+       {formatMessage({id:'button.build_component'})}{' '}
       </Button>,
       <Button type="default" onClick={this.handleSetting}>
-        高级设置
+        {formatMessage({id:'button.advanced_setup'})}
       </Button>,
       <Button onClick={this.showDelete} type="default">
         {' '}
-        放弃创建{' '}
+        {formatMessage({id:'button.abandon_create'})}{' '}
       </Button>
     ];
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <Result
         type="success"
-        title="组件检测通过"
+        title={formatMessage({id:'confirmModal.component.check.title.success.component_check'})}
         description={
           <div>
-            <div>组件检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
-            90%以上的用户在检测通过后可部署成功，
+            <div>{formatMessage({id:'componentCheck.tooltip.title.p3'})}</div>
+            {formatMessage({id:'componentCheck.tooltip.title.p4'})}
             {(platform_url && (
               <span>
-                如遇部署失败，可参考
                 <a
                   href={`${platform_url}docs/user-manual/app-creation/language-support/`}
                   target="_blank"
                 >
-                  平台文档
+                  {formatMessage({id:'componentCheck.tooltip.title.p8'})}
                 </a>
               </span>
             )) ||
               ''}{' '}
-            对代码包进行调整。
+            {formatMessage({id:'componentCheck.tooltip.title.p6'})}
           </div>
         }
         extra={extra}
@@ -539,18 +539,18 @@ export default class CreateCheck extends PureComponent {
     );
     const actions = [
       <Button onClick={this.showDelete} type="default">
-        放弃创建
+        {formatMessage({id:'button.abandon_create'})}
       </Button>,
       <Button onClick={this.recheck} type="primary">
-        重新检测
+        {formatMessage({id:'button.retest_check'})}
       </Button>
     ];
 
     return (
       <Result
         type="error"
-        title="组件检测未通过"
-        description="请核对并修改以下信息后，再重新检测。"
+        title={formatMessage({id:'confirmModal.component.check.title.error.component_check'})}
+        description={formatMessage({id:'confirmModal.component.check.title.error.description'})}
         extra={extra}
         actions={actions}
         style={{
@@ -586,9 +586,9 @@ export default class CreateCheck extends PureComponent {
         {showDelete && (
           <ConfirmModal
             onOk={this.handleDelete}
-            title="放弃创建"
-            subDesc="此操作不可恢复"
-            desc="确定要放弃创建此组件吗？"
+            title={formatMessage({id:'confirmModal.abandon_create.create_check.title'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.create_check.desc'})}
             onCancel={() => {
               this.setState({ showDelete: false });
             }}

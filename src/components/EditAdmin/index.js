@@ -2,6 +2,7 @@ import dateUtil from '@/utils/date-util';
 import { Form, Input, Modal, Select, Skeleton } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import UserSelect from '../UserSelect';
@@ -132,44 +133,44 @@ class ConfirmModal extends PureComponent {
     return (
       <Modal
         confirmLoading={loading}
-        title={title || (data ? '修改镜像仓库授权信息' : '添加镜像仓库授权信息')}
+        title={title || (data ? formatMessage({id:'confirmModal.edit.image.title'}) : formatMessage({id:'confirmModal.add.image.title'}))}
         visible
         onOk={this.handleSubmit}
         onCancel={onCancel}
       >
         <Skeleton loading={roleLoading || currentRolesLoading}>
           <Form onSubmit={this.handleSubmit}>
-              <FormItem {...formItemLayout} label="用户名">
+              <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.image.lable.username'})}>
                 {getFieldDecorator('username', {
                   initialValue: data.username || '',
                   rules: [
                     {
                       required: true,
-                      message: '请输入用户名',
+                      message: formatMessage({id:'placeholder.userName'}),
                     },
                     {
                       max: 255,
-                      message: '最大长度为255个字符',
+                      message: formatMessage({id:'placeholder.max255'}),
                     }
 
                   ]
-                })(<Input placeholder="请输入用户名" />)}
+                })(<Input placeholder={formatMessage({id:'placeholder.userName'})} />)}
               </FormItem>
-              <FormItem {...formItemLayout} label="密码">
+              <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.image.lable.password'})}>
                 {getFieldDecorator('password', {
                   initialValue: data.password || '',
                   rules: [
                     {
                       required: true,
-                      message: '请输入密码',
+                      message: formatMessage({id:'placeholder.password_1'}),
                     },
                     {
                       max: 255,
-                      message: '最大长度为255个字符',
+                      message: formatMessage({id:'placeholder.max255'}),
                     }
 
                   ]
-                })(<Input placeholder="请输入密码" type="password"/>)}
+                })(<Input placeholder={formatMessage({id:'placeholder.password_1'})} type="password"/>)}
               </FormItem>
           </Form>
         </Skeleton>

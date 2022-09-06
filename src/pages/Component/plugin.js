@@ -26,6 +26,7 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import EditStorageConfig from '../../components/EditStorageConfig';
 import MemoryForm from '../../components/MemoryForm';
@@ -57,7 +58,7 @@ class UpdateMemory extends PureComponent {
     const { getFieldDecorator } = form;
 
     return (
-      <Modal title="资源配置" visible onOk={this.handleOk} onCancel={onCancel}>
+      <Modal  title={<FormattedMessage id='componentOverview.body.UpdateMemory.title'/>} visible onOk={this.handleOk} onCancel={onCancel}>
         <Form onSubmit={this.handleOk} layout="horizontal">
           <MemoryForm
             labelCol={{ span: 5 }}
@@ -78,11 +79,11 @@ class UpdateMemory extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请输入CPU'
+                  message: formatMessage({id:'componentOverview.body.UpdateMemory.cpu'}),
                 },
                 {
                   pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                  message: '只允许输入整数'
+                  message: formatMessage({id:'componentOverview.body.UpdateMemory.only'}),
                 }
               ]
             })(
@@ -90,11 +91,11 @@ class UpdateMemory extends PureComponent {
                 type="number"
                 min={0}
                 addonAfter="m"
-                placeholder="请输入CPU"
+                placeholder={formatMessage({id:'componentOverview.body.UpdateMemory.inpiut_cup'})}
               />
             )}
             <div style={{ color: '#999999', fontSize: '12px' }}>
-              CPU分配额0为不限制，1000m=1core。
+              <FormattedMessage id='componentOverview.body.UpdateMemory.unlimited'/>
             </div>
           </Form.Item>
         </Form>
@@ -325,7 +326,7 @@ class ConfigDownstreamPort extends PureComponent {
                 marginLeft: 16
               }}
             >
-              下游应用:{' '}
+              <FormattedMessage id='componentOverview.body.getApps.app'/>{' '}
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 onChange={this.handleAppChange}
@@ -346,7 +347,7 @@ class ConfigDownstreamPort extends PureComponent {
             </span>{' '}
             <span style={{ marginRight: 24 }}>
               {' '}
-              端口号 :{' '}
+               <FormattedMessage id='componentOverview.body.getApps.port'/>{' '}
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 onChange={this.handlePortChange}
@@ -358,7 +359,7 @@ class ConfigDownstreamPort extends PureComponent {
               </Select>{' '}
             </span>{' '}
             <span style={{ marginRight: 24 }}>
-              端口协议: {currData.protocol}
+               <FormattedMessage id='componentOverview.body.getApps.port_agreement'/>{currData.protocol}
             </span>{' '}
           </div>
         }
@@ -419,7 +420,7 @@ class ConfigUpstreamPort extends PureComponent {
                   marginLeft: 16
                 }}
               >
-                端口号:{' '}
+                <FormattedMessage id='componentOverview.body.ConfigUpstreamPort.port'/>{' '}
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   onChange={this.handlePortChange}
@@ -434,7 +435,7 @@ class ConfigUpstreamPort extends PureComponent {
               </span>{' '}
               <span style={{ marginRight: 24 }}>
                 {' '}
-                端口协议 : {currData.protocol}{' '}
+                <FormattedMessage id='componentOverview.body.ConfigUpstreamPort.port_agreement'/>{currData.protocol}{' '}
               </span>{' '}
             </div>
           }
@@ -461,7 +462,7 @@ class ConfigUnDefine extends PureComponent {
     const configName = this.props.data.config_group_name;
     return (
       <>
-        <h4>配置组</h4>
+        <h4><FormattedMessage id='componentOverview.body.ConfigUnDefine'/></h4>
         <Card
           style={{
             marginBottom: 24
@@ -531,7 +532,7 @@ class StorageManage extends PureComponent {
         data: newConfigs
       },
       callback: () => {
-        notification.success({ message: '修改成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
         this.openPlugin()
       }
     });
@@ -599,27 +600,27 @@ class StorageManage extends PureComponent {
 
     return (
       <>
-        <h4>配置文件和共享存储</h4>
+        <h4><FormattedMessage id='componentOverview.body.handleEdit.share'/></h4>
         <Table
           columns={[
             {
-              title: '名称',
+              title: formatMessage({id:'componentOverview.body.handleEdit.name'}),
               dataIndex: 'volume_name'
             },
             {
-              title: '挂载路径',
+              title: formatMessage({id:'componentOverview.body.handleEdit.path'}),
               dataIndex: 'volume_path'
             },
             {
-              title: '存储类型',
+              title: formatMessage({id:'componentOverview.body.handleEdit.type'}),
               dataIndex: 'attr_type',
               render(_, data) {
                 const { attr_type } = data;
-                return attr_type === 'config-file' ? '配置文件' : '共享存储';
+                return attr_type === 'config-file' ? <FormattedMessage id='componentOverview.body.handleEdit.file'/> : <FormattedMessage id='componentOverview.body.handleEdit.shared_storage'/>;
               }
             },
             {
-              title: '操作',
+              title: formatMessage({id:'componentOverview.body.handleEdit.operation'}),
               dataIndex: 'action',
               render: (_, data) => {
                 return (
@@ -628,7 +629,7 @@ class StorageManage extends PureComponent {
                       this.handleEdit(data);
                     }}
                   >
-                    修改
+                    <FormattedMessage id='componentOverview.body.handleEdit.edit'/>
                   </a>
                 );
               }
@@ -791,7 +792,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.getPlugins();
-        notification.success({ message: '启用成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.enable'})});
       }
     });
   };
@@ -807,7 +808,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.getPlugins();
-        notification.success({ message: '停用成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.deactivate'})});
       }
     });
   };
@@ -856,7 +857,7 @@ export default class Index extends PureComponent {
         data
       },
       callback: () => {
-        notification.success({ message: '修改成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.modified'})});
       }
     });
   };
@@ -887,7 +888,7 @@ export default class Index extends PureComponent {
                     }}
                     href="javascript:;"
                   >
-                    隐藏配置
+                    <FormattedMessage id='componentOverview.body.renderInstalled.configuration'/>
                   </a>
                 ) : (
                   <a
@@ -896,7 +897,7 @@ export default class Index extends PureComponent {
                     }}
                     href="javascript:;"
                   >
-                    查看配置
+                    <FormattedMessage id='componentOverview.body.renderInstalled.look'/>
                   </a>
                 ),
                 ,
@@ -907,7 +908,7 @@ export default class Index extends PureComponent {
                     }}
                     href="javascript:;"
                   >
-                    停用
+                    <FormattedMessage id='componentOverview.body.renderInstalled.deactivate'/>
                   </a>
                 ) : (
                   <a
@@ -916,7 +917,7 @@ export default class Index extends PureComponent {
                     }}
                     href="javascript:;"
                   >
-                    启用
+                    <FormattedMessage id='componentOverview.body.renderInstalled.enable'/>
                   </a>
                 ),
                 <a
@@ -925,7 +926,7 @@ export default class Index extends PureComponent {
                   }}
                   href="javascript:;"
                 >
-                  资源配置
+                  <FormattedMessage id='componentOverview.body.renderInstalled.allocation'/>
                 </a>,
                 ,
                 <a
@@ -935,7 +936,7 @@ export default class Index extends PureComponent {
                   href="javascript:;"
                 >
                   {' '}
-                  卸载{' '}
+                  <FormattedMessage id='componentOverview.body.renderInstalled.uninstall'/>{' '}
                 </a>
               ]}
             >
@@ -963,7 +964,7 @@ export default class Index extends PureComponent {
                           marginRight: 24
                         }}
                       >
-                        类别： {pluginUtil.getCategoryCN(item.category)}
+                         <FormattedMessage id='componentOverview.body.renderInstalled.category'/>{pluginUtil.getCategoryCN(item.category)}
                       </span>{' '}
                       <span
                         style={{
@@ -971,9 +972,9 @@ export default class Index extends PureComponent {
                         }}
                       >
                         {' '}
-                        版本： {item.build_version}{' '}
+                         <FormattedMessage id='componentOverview.body.renderInstalled.edition'/>{item.build_version}{' '}
                       </span>{' '}
-                      <span> 内存： {item.min_memory} MB </span>
+                      <span>  <FormattedMessage id='componentOverview.body.renderInstalled.memory'/>{item.min_memory} MB </span>
                     </p>{' '}
                   </div>
                 }
@@ -1006,7 +1007,7 @@ export default class Index extends PureComponent {
                     }}
                     type="primary"
                   >
-                    更新配置
+                    <FormattedMessage id='componentOverview.body.renderInstalled.updata'/>
                   </Button>
                   <Button
                     onClick={() => {
@@ -1014,7 +1015,7 @@ export default class Index extends PureComponent {
                     }}
                     type="default"
                   >
-                    隐藏配置
+                    <FormattedMessage id='componentOverview.body.renderInstalled.configuration'/>
                   </Button>
                 </div>
               </Fragment>
@@ -1030,12 +1031,13 @@ export default class Index extends PureComponent {
     if (!unInstalledList.length) {
       return (
         <center>
-          暂无可用插件{' '}
+          <FormattedMessage id='componentOverview.body.renderUnInstalled.not'/>{' '}
           <Link
             style={{ marginTop: 32 }}
             to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`}
           >
-            去安装
+            
+            <FormattedMessage id='componentOverview.body.renderUnInstalled.install'/>
           </Link>
         </center>
       );
@@ -1057,7 +1059,7 @@ export default class Index extends PureComponent {
                 href="javascript:;"
               >
                 {' '}
-                开通{' '}
+                <FormattedMessage id='componentOverview.body.renderUnInstalled.open'/>{' '}
               </a>
             ]}
           >
@@ -1085,9 +1087,9 @@ export default class Index extends PureComponent {
                         marginRight: 24
                       }}
                     >
-                      类别： {pluginUtil.getCategoryCN(item.category)}
+                       <FormattedMessage id='componentOverview.body.renderUnInstalled.type'/>{pluginUtil.getCategoryCN(item.category)}
                     </span>{' '}
-                    <span> 版本： {item.build_version} </span>
+                    <span>  <FormattedMessage id='componentOverview.body.renderUnInstalled.edition'/>{item.build_version} </span>
                   </p>{' '}
                 </div>
               }
@@ -1115,7 +1117,7 @@ export default class Index extends PureComponent {
         build_version: plugin.build_version
       },
       callback: () => {
-        notification.success({ message: '开通成功,需要更新才能生效' });
+        notification.success({ message:  formatMessage({id:'notification.success.openToUpdate'})});
         this.getPlugins();
         this.props.onshowRestartTips(true);
       }
@@ -1140,7 +1142,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         delete this.state.openedPlugin[plugin.plugin_id];
-        notification.success({ message: '卸载成功，需要更新才能生效' });
+        notification.success({ message: formatMessage({id:'notification.success.uninstallToUpdate'}) });
         this.cancelDeletePlugin();
         this.getPlugins();
         this.props.onshowRestartTips(true);
@@ -1163,7 +1165,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.getPlugins();
         this.cancelUpdateMemory();
-        notification.success({ message: '操作成功' });
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'})});
       }
     });
   };
@@ -1185,8 +1187,8 @@ export default class Index extends PureComponent {
               float: 'left'
             }}
           >
-            <RadioButton value="installed">已开通</RadioButton>
-            <RadioButton value="uninstalled">未开通</RadioButton>
+            <RadioButton value="installed"><FormattedMessage id='componentOverview.body.Plugin.installed'/></RadioButton>
+            <RadioButton value="uninstalled"><FormattedMessage id='componentOverview.body.Plugin.uninstalled'/></RadioButton>
           </RadioGroup>
           <RadioGroup
             onChange={this.handleCategoryChange}
@@ -1196,9 +1198,9 @@ export default class Index extends PureComponent {
               float: 'right'
             }}
           >
-            <RadioButton value="">全部</RadioButton>
-            <RadioButton value="analysis">性能分析类</RadioButton>
-            <RadioButton value="net_manage">网络治理类</RadioButton>
+            <RadioButton value=""><FormattedMessage id='componentOverview.body.Plugin.all'/></RadioButton>
+            <RadioButton value="analysis"><FormattedMessage id='componentOverview.body.Plugin.analysis'/></RadioButton>
+            <RadioButton value="net_manage"><FormattedMessage id='componentOverview.body.Plugin.net_manage'/></RadioButton>
           </RadioGroup>
         </p>
         {type === 'installed'
@@ -1208,8 +1210,8 @@ export default class Index extends PureComponent {
           <ConfirmModal
             onOk={this.hanldeUnInstallPlugin}
             onCancel={this.cancelDeletePlugin}
-            title="卸载插件"
-            desc="确定要卸载此插件吗？"
+            title={<FormattedMessage id='confirmModal.deldete.plugin.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.plugin.desc'/>}
           />
         )}
 

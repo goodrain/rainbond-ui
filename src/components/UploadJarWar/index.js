@@ -3,8 +3,10 @@
 import { Button, Form, Input, Select, Upload, Icon, notification, message } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global'
+import cookie from '../../utils/cookie';
 import styles from './index.less'
 const { Option } = Select;
 
@@ -16,7 +18,14 @@ const formItemLayout = {
     span: 19
   }
 };
-
+const en_formItemLayout = {
+  labelCol: {
+    span: 7
+  },
+  wrapperCol: {
+    span: 17
+  }
+};
 @connect(
   ({ global, loading }) => ({
     groups: global.groups,
@@ -42,6 +51,7 @@ export default class Index extends PureComponent {
       team_name: '',
       percents: false,
       existFileList: [],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentWillMount() {
@@ -139,7 +149,7 @@ export default class Index extends PureComponent {
               existFileList: data.bean.package_name
              });
             notification.success({
-              message:"上传文件成功"
+              message: formatMessage({id:'notification.success.upload_file'})
             })
             this.loop = false
           }
@@ -169,7 +179,7 @@ export default class Index extends PureComponent {
             existFileList: []
            });
           notification.success({
-            message: '删除文件成功'
+            message: formatMessage({id:'notification.success.delete_file'})
           })
           this.handleJarWarUpload()
         }
@@ -215,19 +225,19 @@ export default class Index extends PureComponent {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入组件英文名称'));
+      return callback(new Error(formatMessage({id:'otherApp.UploadYaml.name_en'})));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+          new Error(formatMessage({id:'otherApp.UploadYaml.only'}))
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error(formatMessage({id:'otherApp.UploadYaml.max'})));
     }
   };
   render() {
@@ -241,26 +251,27 @@ export default class Index extends PureComponent {
       showSubmitBtn = true,
       showCreateGroup = true
     } = this.props;
-    const {fileList, defaultRadio, isShowCom, addGroup, record, region_name, existFileList} = this.state
+    const {fileList, defaultRadio, isShowCom, addGroup, record, region_name, existFileList, language} = this.state
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
     const isService = handleType && handleType === 'Service';
+    const is_language = language ? formItemLayout : en_formItemLayout;
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Form.Item {...is_language} label={formatMessage({id:'otherApp.UploadYaml.name'})}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
               rules: [
                 {
                   required: true,
-                  message: '请选择'
+                  message: formatMessage({id:'otherApp.UploadYaml.app'})
                 }
               ]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择要所属应用"
+                placeholder={formatMessage({id:'otherApp.UploadYaml.app'})}
                 style={{
                   display: 'inline-block',
                   width: isService ? '' : 292,
@@ -274,46 +285,49 @@ export default class Index extends PureComponent {
               </Select>
             )}
             {isService ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>新建应用</Button>
+              <Button onClick={this.onAddGroup}>
+                {formatMessage({id:'popover.newApp.title'})}
+              </Button>
             ) : null}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="组件名称">
+          <Form.Item {...is_language} label={formatMessage({id:'otherApp.UploadJarWar.name'})}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
                 {
                   required: true,
-                  message: '要创建的组件还没有名字'
+                  message: formatMessage({id:'otherApp.UploadJarWar.input_name'})
                 },
                 {
                   max: 24,
-                  message: '最大长度24位'
+                  message: formatMessage({id:'otherApp.UploadJarWar.max'})
                 }
               ]
             })(
               <Input
                 disabled={disableds.indexOf('service_cname') > -1}
-                placeholder="请为创建的组件起个名字吧"
+                placeholder={formatMessage({id:'otherApp.UploadJarWar.placese'})}
               />
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="组件英文名称">
+          <Form.Item {...is_language} label={formatMessage({id:'otherApp.UploadJarWar.en_name'})}>
             {getFieldDecorator('k8s_component_name', {
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]
-            })(<Input placeholder="组件的英文名称" />)}
+            })(<Input placeholder= {formatMessage({id:'otherApp.UploadJarWar.input_en_name'})}/>)}
           </Form.Item>
           <Form.Item
-                label="上传文件"
-                extra="支持Jar、War格式上传文件"
-                {...formItemLayout}
+                label={formatMessage({id:'otherApp.UploadYaml.up'})}
+                extra={formatMessage({id:'otherApp.UploadJarWar.jar'})}
+
+                {...is_language}
             >
                 {getFieldDecorator('packageTarFile', {
                 rules: [
                     {
                     required: false,
-                    message: '请上传文件'
+                    message: formatMessage({id:'otherApp.UploadYaml.placese_up'})
                     }
                 ]
                 })(
@@ -326,13 +340,13 @@ export default class Index extends PureComponent {
                     action={record.upload_url}
                 >
                     <Button>
-                    <Icon type="upload" /> 上传文件
+                    <Icon type="upload" /> {formatMessage({id:'otherApp.UploadYaml.up'})}
                     </Button>
                 </Upload>
                 )}
             </Form.Item>
             <Form.Item
-                {...formItemLayout}
+                {...is_language}
             >
                 {existFileList.length > 0 &&existFileList.map((item) => {
                     return (
@@ -352,8 +366,8 @@ export default class Index extends PureComponent {
                   offset: 0
                 },
                 sm: {
-                  span: formItemLayout.wrapperCol.span,
-                  offset: formItemLayout.labelCol.span
+                  span: is_language.wrapperCol.span,
+                  offset: is_language.labelCol.span
                 }
               }}
               label=""
@@ -365,7 +379,7 @@ export default class Index extends PureComponent {
                       type="primary"
                       loading={createAppByDockerrunLoading}
                     >
-                      新建组件
+                      {formatMessage({id:'otherApp.UploadJarWar.new'})}
                     </Button>,
                     false
                   )
@@ -375,7 +389,7 @@ export default class Index extends PureComponent {
                       type="primary"
                       loading={createAppByDockerrunLoading}
                     >
-                      确认创建
+                      {formatMessage({id:'otherApp.UploadYaml.creat'})}
                     </Button>
                   )}
             </Form.Item>

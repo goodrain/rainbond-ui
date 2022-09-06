@@ -1,4 +1,5 @@
 import React, { PureComponent } from "react";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { Form, Radio, Input } from "antd";
 import { connect } from "dva";
 import JavaJDK from "../java-jdk";
@@ -42,14 +43,15 @@ class Index extends PureComponent {
 
         <Form.Item
           {...formItemLayout}
-          label="Web服务器版本"
-          help="仅适用于打包为War包的项目"
+          label={<FormattedMessage id="componentOverview.body.JavaMavenConfig.Web"/>}
+          help={<FormattedMessage id="componentOverview.body.JavaMavenConfig.War"/>}
+
         >
           {getFieldDecorator("BUILD_RUNTIMES_SERVER", {
             initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || "tomcat85"
           })(
             <RadioGroup>
-              <Radio value="tomcat85">tomcat85(默认)</Radio>
+              <Radio value="tomcat85">tomcat85<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
               <Radio value="tomcat7">tomcat7</Radio>
               <Radio value="tomcat8">tomcat8</Radio>
               <Radio value="tomcat9">tomcat9</Radio>
@@ -59,7 +61,7 @@ class Index extends PureComponent {
           )}
         </Form.Item>
 
-        <Form.Item {...formItemLayout} label="启动命令">
+        <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.JavaMavenConfig.start"/>}>
           {getFieldDecorator("BUILD_PROCFILE", {
             initialValue: (envs && envs.BUILD_PROCFILE) || ""
           })(

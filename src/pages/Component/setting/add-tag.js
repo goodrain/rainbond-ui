@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
 import { Modal, Tag, notification } from "antd";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const CheckableTag = Tag.CheckableTag;
 
@@ -14,7 +15,7 @@ export default class AddTag extends PureComponent {
   handleOk = () => {
     const keys = Object.keys(this.state.selected);
     if (!keys.length) {
-      notification.warning({ message: "请选择要添加的标签" });
+      notification.warning({ message: formatMessage({id:'notification.warn.label'}) });
       return;
     }
     this.props.onOk && this.props.onOk(keys);
@@ -32,14 +33,14 @@ export default class AddTag extends PureComponent {
     const tags = this.props.tags || [];
     const onCancel = this.props.onCancel;
     return (
-      <Modal title="点击标签进行选择" visible onOk={this.handleOk} onCancel={onCancel}>
+      <Modal  title= {<FormattedMessage id="componentOverview.body.AddTag.choice"/>}visible onOk={this.handleOk} onCancel={onCancel}>
         {!tags || !tags.length ? (
           <div
             style={{
               textAlign: "center",
             }}
           >
-            暂无可用标签
+            <FormattedMessage id="componentOverview.body.AddTag.Not_yet"/>
           </div>
         ) : (
           tags.map(tag => (

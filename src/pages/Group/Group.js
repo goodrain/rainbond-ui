@@ -20,10 +20,12 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AppState from '../../components/ApplicationState';
 import ConfirmModal from '../../components/ConfirmModal';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
+import CustomFooter from "../../layouts/CustomFooter";
 import { batchOperation } from '../../services/app';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
@@ -76,7 +78,8 @@ export default class Index extends PureComponent {
       common: true,
       compile: false,
       flagHeight: false,
-      iframeHeight: '500px'
+      iframeHeight: '500px',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
 
@@ -230,7 +233,7 @@ export default class Index extends PureComponent {
     }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
-        message: `请求错误`,
+        message: formatMessage({id:'notification.warn.error'}),
         description: err.data.msg_show
       });
     }
@@ -357,7 +360,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
           this.closeComponentTimer();
           this.cancelDelete(false);
           dispatch(
@@ -427,7 +430,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '修改成功' });
+          notification.success({ message: formatMessage({id:'notification.success.change'}) });
           dispatch({
             type: 'application/editGroups',
             payload: {
@@ -435,7 +438,7 @@ export default class Index extends PureComponent {
               group_id: this.getGroupId()
             },
             callback: res => {
-              notification.success({ message: '重启应用后生效' });
+              notification.success({ message: formatMessage({id:'notification.success.takeEffect'}) });
             }
           });
         }
@@ -491,7 +494,7 @@ export default class Index extends PureComponent {
       }).then(res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: '重启成功'
+            message: formatMessage({id:'notification.success.reboot_success'})
           });
           this.handlePromptModalClose();
         }
@@ -508,7 +511,7 @@ export default class Index extends PureComponent {
         callback: res => {
           if (res && res.status_code === 200) {
             notification.success({
-              message: res.msg_show || '构建成功',
+              message: res.msg_show || formatMessage({id:'notification.success.build_success'}),
               duration: '3'
             });
             this.handlePromptModalClose();
@@ -607,13 +610,14 @@ export default class Index extends PureComponent {
       common,
       compile,
       flagHeight,
-      iframeHeight
+      iframeHeight,
+      language
     } = this.state;
     const codeObj = {
-      start: '启动',
-      restart: '重启',
-      stop: '停用',
-      deploy: '构建'
+      start: formatMessage({id: 'appOverview.btn.start'}),
+      restart: formatMessage({id: 'appOverview.list.table.restart'}),
+      stop: formatMessage({id: 'appOverview.btn.stop'}),
+      deploy: formatMessage({id: 'appOverview.btn.build'}),
     };
     const BtnDisabled = !(jsonDataLength > 0);
     const MR = { marginRight: '10px' };
@@ -642,7 +646,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    更新
+                    {formatMessage({id: 'appOverview.btn.update'})}
                   </Button>
                 )}
                 {isConstruct && isComponentConstruct && (
@@ -653,7 +657,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('deploy');
                     }}
                   >
-                    构建
+                    {formatMessage({id: 'appOverview.btn.build'})}
                   </Button>
                 )}
                 {isCopy && (
@@ -662,7 +666,7 @@ export default class Index extends PureComponent {
                     disabled={BtnDisabled}
                     onClick={this.handleOpenRapidCopy}
                   >
-                    快速复制
+                    {formatMessage({id: 'appOverview.btn.copy'})}
                   </Button>
                 )}
                 {linkList.length > 0 && <VisterBtn linkList={linkList} />}
@@ -679,7 +683,7 @@ export default class Index extends PureComponent {
                   }}
                   disabled={BtnDisabled}
                 >
-                  启动
+                  {formatMessage({id: 'appOverview.btn.start'})}
                 </a>
                 <Divider type="vertical" />
               </span>
@@ -697,13 +701,15 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    重启
+                    {formatMessage({id: 'appOverview.list.table.restart'})}
                   </a>
                   <Divider type="vertical" />
                 </span>
               )}
             {isDelete && resources.status !== 'RUNNING' && (
-              <a onClick={this.toDelete}>删除</a>
+              <a onClick={this.toDelete}>
+                {formatMessage({id: 'appOverview.list.table.delete'})}
+              </a>
             )}
             {resources.status && resources.status !== 'CLOSED' && isStop && (
               <span>
@@ -713,7 +719,7 @@ export default class Index extends PureComponent {
                     this.handleTopology('stop');
                   }}
                 >
-                  停用
+                  {formatMessage({id: 'appOverview.btn.stop'})}
                 </a>
               </span>
             )}
@@ -721,21 +727,21 @@ export default class Index extends PureComponent {
           <div className={styles.connect_Bot}>
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
-                <div>使用内存</div>
+                <div>{formatMessage({id: 'appOverview.memory'})}</div>
                 <div>{`${sourceUtil.unit(resources.memory || 0, 'MB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
-                <div>使用CPU</div>
+                <div>{formatMessage({id: 'appOverview.cpu'})}</div>
                 <div>{(resources.cpu && resources.cpu / 1000) || 0}Core</div>
               </div>
             </div>
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
-                <div>使用磁盘</div>
+                <div>{formatMessage({id: 'appOverview.disk'})}</div>
                 <div>{`${sourceUtil.unit(resources.disk || 0, 'KB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
-                <div>组件数量</div>
+                <div>{formatMessage({id: 'appOverview.componentNum'})}</div>
                 <div>{currApp.service_num || 0}</div>
               </div>
             </div>
@@ -744,7 +750,7 @@ export default class Index extends PureComponent {
         <div className={styles.contentr}>
           <div className={styles.conrHeader}>
             <div>
-              <span>创建时间</span>
+              <span>{formatMessage({id: 'appOverview.createTime'})}</span>
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
@@ -754,7 +760,7 @@ export default class Index extends PureComponent {
               </span>
             </div>
             <div>
-              <span>更新时间</span>
+              <span>{formatMessage({id: 'appOverview.updateTime'})}</span>
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
@@ -765,31 +771,31 @@ export default class Index extends PureComponent {
             </div>
           </div>
           <div className={styles.conrHeader}>
-            <div>
-              <span>治理模式</span>
-              <span>
+            <div style={{display:'flex',alignItems:'center',}}>
+              <span>{formatMessage({id: 'appOverview.govern'})}</span>
+              <span style={language ? {}:{display:'inline-block'}}>
                 {currApp.governance_mode
                   ? globalUtil.fetchGovernanceMode(currApp.governance_mode)
                   : '-'}
               </span>
               {currApp.governance_mode && isEdit && (
                 <a style={{ marginLeft: '5px' }} onClick={this.handleSwitch}>
-                  切换
+                  {formatMessage({id: 'appOverview.btn.change'})}
                 </a>
               )}
             </div>
 
             <div>
-              <span>负责人</span>
+              <span>{formatMessage({id: 'appOverview.principal'})}</span>
               <span>
                 {currApp.principal ? (
                   <Tooltip
                     placement="top"
                     title={
                       <div>
-                        <div>账号:{currApp.username}</div>
-                        <div>姓名:{currApp.principal}</div>
-                        <div>邮箱:{currApp.email}</div>
+                        <div>{formatMessage({id: 'appOverview.principal.username'})}{currApp.username}</div>
+                          <div>{formatMessage({id: 'appOverview.principal.principal'})}{currApp.principal}</div>
+                          <div>{formatMessage({id: 'appOverview.principal.email'})}{currApp.email}</div>
                       </div>
                     }
                   >
@@ -813,9 +819,9 @@ export default class Index extends PureComponent {
               </span>
             </div>
           </div>
-          <div className={styles.conrBot}>
+          <div className={language ? styles.conrBot : styles.en_conrBot}>
             <div className={styles.conrBox}>
-              <div>备份</div>
+              <div>{formatMessage({id: 'appOverview.backups'})}</div>
               <div
                 onClick={() => {
                   isBackup && this.handleJump('backup');
@@ -826,7 +832,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>模型发布</div>
+              <div>{formatMessage({id: 'appOverview.modelRelease'})}</div>
               <div
                 onClick={() => {
                   isShare && this.handleJump('publish');
@@ -837,7 +843,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>网关策略</div>
+              <div>{formatMessage({id: 'appOverview.gateway'})}</div>
               <div
                 onClick={() => {
                   isControl && this.handleJump('gateway');
@@ -848,7 +854,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>待升级</div>
+              <div>{formatMessage({id: 'appOverview.upgrade'})}</div>
               <div
                 onClick={() => {
                   !upgradableNumLoading &&
@@ -861,7 +867,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>配置组</div>
+              <div>{formatMessage({id: 'appOverview.config'})}</div>
               <div
                 onClick={() => {
                   isConfigGroup && this.handleJump('configgroups');
@@ -899,7 +905,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    启动
+                    {formatMessage({id: 'appOverview.btn.start'})}
                   </a>
                   <Divider type="vertical" />
                 </span>
@@ -917,13 +923,15 @@ export default class Index extends PureComponent {
                       }}
                       disabled={BtnDisabled}
                     >
-                      重启
+                      {formatMessage({id: 'appOverview.list.table.restart'})}
                     </a>
                     <Divider type="vertical" />
                   </span>
                 )}
               {isDelete && resources.status !== 'RUNNING' && (
-                <a onClick={this.toDelete}>删除</a>
+                <a onClick={this.toDelete}>
+                  {formatMessage({id: 'appOverview.list.table.delete'})}
+                </a>
               )}
               {resources.status && resources.status !== 'CLOSED' && isStop && (
                 <span>
@@ -935,7 +943,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('stop');
                     }}
                   >
-                    停用
+                    {formatMessage({id: 'appOverview.btn.stop'})}
                   </a>
                 </span>
               )}
@@ -950,7 +958,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    更新
+                    {formatMessage({id: 'appOverview.btn.update'})}
                   </Button>
                 )}
                 {isConstruct && isComponentConstruct && (
@@ -961,7 +969,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('deploy');
                     }}
                   >
-                    构建
+                    {formatMessage({id: 'appOverview.btn.build'})}
                   </Button>
                 )}
                 {isCopy && (
@@ -970,7 +978,7 @@ export default class Index extends PureComponent {
                     disabled={BtnDisabled}
                     onClick={this.handleOpenRapidCopy}
                   >
-                    快速复制
+                    {formatMessage({id: 'appOverview.btn.copy'})}
                   </Button>
                 )}
                 {linkList.length > 0 && <VisterBtn linkList={linkList} />}
@@ -981,7 +989,7 @@ export default class Index extends PureComponent {
         <div className={styles.contentr}>
           <div className={styles.conrHeader}>
             <div>
-              <span>创建时间</span>
+              <span>{formatMessage({id: 'appOverview.createTime'})}</span>
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
@@ -991,7 +999,7 @@ export default class Index extends PureComponent {
               </span>
             </div>
             <div>
-              <span>更新时间</span>
+              <span>{formatMessage({id: 'appOverview.updateTime'})}</span>
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
@@ -1021,13 +1029,12 @@ export default class Index extends PureComponent {
         </Row>
         {guideStep === 1 &&
           this.handleNewbieGuiding({
-            tit: '应用信息',
+            tit: formatMessage({id:'teamOther.Group.tit'}),
             showSvg: false,
             showArrow: true,
             send: false,
             configName: 'applicationInfo',
-            desc:
-              '应用由一个或多个服务组成，可以管理一个完整业务系统，比如：OA、CRM、ERP等，也可以管理一个完整的微服务架构的系统，这里展示了应用的基本信息。',
+            desc: formatMessage({id:'teamOther.Group.desc'}),
             nextStep: 2,
             conPosition: { top: '336px', left: '42%' }
           })}
@@ -1080,7 +1087,7 @@ export default class Index extends PureComponent {
                   color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
                 }}
               >
-                拓扑图
+                {formatMessage({id: 'appOverview.topology'})}
               </a>
               {isComponentDescribe && (
                 <a
@@ -1092,7 +1099,7 @@ export default class Index extends PureComponent {
                     color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
                   }}
                 >
-                  列表
+                  {formatMessage({id: 'appOverview.list'})}
                 </a>
               )}
             </Col>
@@ -1106,8 +1113,8 @@ export default class Index extends PureComponent {
                   {common ? (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
+                       textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
                       color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
                       onClick={() => {
@@ -1120,13 +1127,13 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                      普通模式
+                      {formatMessage({id: 'appOverview.btn.ordinary'})}
                     </Radio.Button>
                   ) : (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
                       color:'#595959', borderColor: '#D9D9D9',
                     }}
 
@@ -1139,14 +1146,14 @@ export default class Index extends PureComponent {
                         });
                       }}
                     >
-                      普通模式
+                      {formatMessage({id: 'appOverview.btn.ordinary'})}
                     </Radio.Button>
                   )}
                   {aggregation ? (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
                       color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
                       onClick={() => {
@@ -1159,13 +1166,13 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                      聚合模式
+                      {formatMessage({id: 'appOverview.btn.aggregation'})}
                     </Radio.Button>
                   ) : (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
                       color:'#595959', borderColor: '#D9D9D9'
                     }}
                       onClick={() => {
@@ -1177,14 +1184,14 @@ export default class Index extends PureComponent {
                         });
                       }}
                     >
-                      聚合模式
+                      {formatMessage({id: 'appOverview.btn.aggregation'})}
                     </Radio.Button>
                   )}
                   {compile ? (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#4C73B0',
+                     textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
                       color:'#F6F7FA', borderColor: '#4C73B0'
                     }}
 
@@ -1198,13 +1205,13 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                      编排模式
+                     {formatMessage({id: 'appOverview.btn.arrange'})}
                     </Radio.Button>
                   ) : (
                     <Radio.Button
                     style={{ 
-                      width:'70px', textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px',background:'#fff',
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
                       color:'#595959', borderColor: '#D9D9D9'
                     }}
                       onClick={() => {
@@ -1216,7 +1223,7 @@ export default class Index extends PureComponent {
                         });
                       }}
                     >
-                      编排模式
+                      {formatMessage({id: 'appOverview.btn.arrange'})}
                     </Radio.Button>
                   )}
                 </Radio.Group>
@@ -1262,7 +1269,7 @@ export default class Index extends PureComponent {
               copyFlag={true}
               on={this.handleCloseRapidCopy}
               onCancel={this.handleCloseRapidCopy}
-              title="应用复制"
+              title={formatMessage({id:'confirmModal.app.title.copy'})}
             />
           )}
 
@@ -1302,14 +1309,13 @@ export default class Index extends PureComponent {
         </Row>
         {guideStep === 2 &&
           this.handleNewbieGuiding({
-            tit: '应用拓扑图',
-            btnText: '已知晓',
+            tit: formatMessage({id:'teamOther.Group.app'}),
+            btnText: formatMessage({id:'teamOther.Group.know'}),
             showSvg: false,
             showArrow: true,
             send: true,
             configName: 'applicationInfo',
-            desc:
-              '这是应用内部的服务拓扑图，通过拓扑图可以整体了解服务的运行状态和依赖关系，每个六边形就是一个服务，点击六边形可以进入服务的管理页面。',
+            desc:formatMessage({id:'teamOther.Group.Topological'}),
             nextStep: 3,
             conPosition: { bottom: '-16px', left: '45%' }
           })}
@@ -1317,9 +1323,9 @@ export default class Index extends PureComponent {
 
         {toDelete && (
           <ConfirmModal
-            title="删除应用"
-            desc="确定要此删除此应用吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({id:'confirmModal.app.title.delete'})}
+            desc={formatMessage({id:'confirmModal.app.delete.desc'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
             loading={deleteLoading}
             onOk={this.handleDelete}
             onCancel={this.cancelDelete}
@@ -1333,7 +1339,7 @@ export default class Index extends PureComponent {
             note={groupDetail.note}
             loading={editGroupLoading}
             k8s_app={groupDetail.k8s_app}
-            title="修改应用信息"
+            title={formatMessage({id:'confirmModal.app.title.edit'})}
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}
             isEditEnglishName={currApp.can_edit}
@@ -1354,15 +1360,16 @@ export default class Index extends PureComponent {
 
         {promptModal && (
           <Modal
-            title="友情提示"
+            title={formatMessage({id:'confirmModal.friendly_reminder.title'})}
             confirmLoading={buildShapeLoading}
             visible={promptModal}
             onOk={this.handlePromptModalOpen}
             onCancel={this.handlePromptModalClose}
           >
-            <p>{codeObj[code]}当前应用下的全部组件？</p>
+            <p>{formatMessage({id:'confirmModal.friendly_reminder.pages.desc'},{codeObj: codeObj[code]})}</p>
           </Modal>
         )}
+        <CustomFooter/>
       </Fragment>
     );
   }

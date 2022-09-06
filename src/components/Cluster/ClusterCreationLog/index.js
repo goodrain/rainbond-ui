@@ -3,6 +3,7 @@ import cloud from '@/utils/cloud';
 import { Modal, Spin } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from '../../CreateTeam/index.less';
 import istyles from './index.less';
 
@@ -54,7 +55,7 @@ export default class ClusterCreationLog extends PureComponent {
     const { createLog, showCreateLog } = this.state;
     return (
       <Modal
-        title={title || '集群创建日志'}
+        title={title || <FormattedMessage id='enterpriseColony.ClusterProgressQuery.creat_log'/>}
         visible
         className={styles.TelescopicModal}
         onCancel={onCancel}

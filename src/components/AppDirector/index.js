@@ -1,6 +1,7 @@
 import { Form, Modal, Select, Spin } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -71,7 +72,7 @@ export default class AppDirector extends PureComponent {
     };
     return (
       <Modal
-        title={title || '修改负责人'}
+        title={title || formatMessage({id:'teamOther.edit.editHead'})}
         visible
         confirmLoading={loading}
         className={styles.TelescopicModal}
@@ -79,13 +80,13 @@ export default class AppDirector extends PureComponent {
         onOk={this.onOk}
       >
         <Form onSubmit={this.onOk}>
-          <FormItem {...formItemLayout} label="负责人">
+          <FormItem {...formItemLayout} label={formatMessage({id:'teamOther.edit.head'})}>
             {getFieldDecorator('username', {
               initialValue: principal || '',
               rules: [
                 {
                   required: true,
-                  message: '请选择负责人'
+                  message: formatMessage({id:'teamOther.edit.choose'})
                 }
               ]
             })(

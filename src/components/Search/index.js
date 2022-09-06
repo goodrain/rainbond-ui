@@ -1,6 +1,7 @@
 import { Button, Form, Input } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 
@@ -25,8 +26,8 @@ class Search extends Component {
   render() {
     const { type, appID } = this.props;
     const appPlaceholder =
-      type === 'HTTP' ? '搜索域名/应用/组件' : '搜索端口/应用/组件';
-    const teamPlaceholder = type === 'HTTP' ? '搜索域名/组件' : '搜索端口/组件';
+      type === 'HTTP' ? formatMessage({id: 'teamGateway.strategy.placeholder.http'}) : formatMessage({id: 'teamGateway.strategy.placeholder.tcp'});
+    const teamPlaceholder = type === 'HTTP' ? formatMessage({id: 'appGateway.placeholder.domain'}) : formatMessage({id: 'appGateway.placeholder.port'});
     return (
       <Form layout="inline" style={{ display: 'inline-block' }}>
         <FormItem>
@@ -39,7 +40,7 @@ class Search extends Component {
         </FormItem>
         <FormItem>
           <Button type="primary" onClick={this.handleSearch} icon="search">
-            搜索
+            {formatMessage({id: 'teamGateway.strategy.btn.search'})}
           </Button>
         </FormItem>
       </Form>

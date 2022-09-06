@@ -1,6 +1,7 @@
 import { Col, Form, Input, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import cloud from '../../../utils/cloud';
 import CodeMirrorForm from '../../CodeMirrorForm';
 import styles from '../../CreateTeam/index.less';
@@ -54,7 +55,7 @@ class EditClusterInfo extends PureComponent {
     if (!isRightType) {
       if (isMessage) {
         notification.warning({
-          message: '请上传以.yaml、.yml结尾的 Region Config 文件'
+          message: formatMessage({id:'notification.warn.yaml_file'})
         });
       }
       return false;
@@ -99,7 +100,7 @@ class EditClusterInfo extends PureComponent {
     return (
       <Modal
         visible
-        title="对接Kubernetes集群"
+        title={<FormattedMessage id='enterpriseColony.CustomClusterAdd.title'/>}
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         width={800}
@@ -108,23 +109,23 @@ class EditClusterInfo extends PureComponent {
       >
         <Form labelAlign="left" onSubmit={this.handleSubmit}>
           <Col style={p16}>
-            <Form.Item label="集群名称">
+            <Form.Item  label={<FormattedMessage id='enterpriseColony.addCluster.host.name_Cluster'/>}>
               {getFieldDecorator('name', {
                 initialValue: '',
                 rules: [
-                  { required: true, message: '集群名称必填' },
+                  { required: true, message: formatMessage({id:'enterpriseColony.addCluster.host.required'}) },
                   {
                     pattern: /^[a-z0-9A-Z-]+$/,
-                    message: '只支持字母、数字和中划线组合'
+                    message: formatMessage({id:'enterpriseColony.addCluster.host.supported'})
                   },
-                  { max: 24, message: '最大长度24位' }
+                  { max: 24, message:  formatMessage({id:'enterpriseColony.addCluster.host.max'})}
                 ]
-              })(<Input placeholder="集群名称,请确保其保持唯一" />)}
+              })(<Input  placeholder={formatMessage({id:'enterpriseColony.addCluster.host.only'})}/>)}
             </Form.Item>
           </Col>
           <Col style={p16}>
             <CodeMirrorForm
-              titles="Kubeconfig配置文件, 需确保当前网络可以正常与 Kubernetes API 进行通信, 即server地址不能为[127.0.0.1 / 本地域名] 等形式, 应为当前控制台容器能访问到的内网 IP 或公网 IP。"
+              titles={<FormattedMessage id='enterpriseColony.CustomClusterAdd.titles'/>}
               setFieldsValue={setFieldsValue}
               formItemLayout={formItemLayout}
               Form={Form}
@@ -133,7 +134,7 @@ class EditClusterInfo extends PureComponent {
               mode="yaml"
               name="kubeconfig"
               label="KubeConfig"
-              message="KubeConfig 文件是必需的。"
+              message={<FormattedMessage id='enterpriseColony.CustomClusterAdd.msg'/>}
               width="720px"
             />
           </Col>

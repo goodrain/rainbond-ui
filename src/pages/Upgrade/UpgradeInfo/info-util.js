@@ -1,3 +1,4 @@
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 const statusMap = {
   1: '升级',
   2: '升级中',
@@ -41,7 +42,7 @@ const helmStatusMaps = {
   unknown: '未知',
   deployed: '已部署',
   superseded: '可升级',
-  failed: '失败',
+  failed: formatMessage({id:'notification.success.Failed'}),
   uninstalled: '已卸载',
   uninstalling: '卸载中',
   'pending-install': '安装中',

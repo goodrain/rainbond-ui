@@ -18,6 +18,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import cloud from '../../utils/cloud';
 
 const RadioGroup = Radio.Group;
@@ -113,14 +114,14 @@ export default class Index extends PureComponent {
       return callbacks();
     }
     if (name.length < 4) {
-      return callbacks('最小长度4位');
+      return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.min'})}`);
     }
     if (name.length > 32) {
-      return callbacks('最大长度32位');
+      return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.max'})}`);
     }
     const pattern = /^[a-z][a-z0-9]+$/;
     if (!name.match(pattern)) {
-      return callbacks('只支持小写字母开头、小写字母和数字组合');
+      return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.only'})}`);
     }
 
     dispatch({
@@ -131,7 +132,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          callbacks('仓库名称已存在');
+          callbacks(`${formatMessage({id:'applicationMarket.HelmForm.name'})}`);
         } else {
           callbacks();
         }
@@ -139,7 +140,7 @@ export default class Index extends PureComponent {
       handleError: res => {
         if (callbacks && res && res.data && res.data.code) {
           if (res.data.code === 8001) {
-            callbacks('仓库名称已存在');
+            callbacks(`${formatMessage({id:'applicationMarket.HelmForm.name'})}`);
           } else {
             callbacks();
           }
@@ -150,7 +151,7 @@ export default class Index extends PureComponent {
   handleError = res => {
     if (res && res.data && res.data.code) {
       notification.warning({
-        message: '仓库名称已存在'
+        message: formatMessage({id:'notification.warn.warehouse_exist'})
       });
     }
   };
@@ -168,14 +169,14 @@ export default class Index extends PureComponent {
     };
     return (
       <Form>
-        <Alert message="当前版本仅支持 Helm 仓库对接应用商店。" type="info" />
-        <Form.Item {...formItemLayout} label="商店名称">
+        <Alert message={<FormattedMessage id='applicationMarket.HelmForm.helm'/>} type="info" />
+        <Form.Item {...formItemLayout} label={<FormattedMessage id='applicationMarket.HelmForm.shop_name'/>}>
           {getFieldDecorator('name', {
             initialValue: (data && data.name) || '',
             rules: [
               {
                 required: true,
-                message: '请填写商店名称'
+                message:formatMessage({id:'applicationMarket.HelmForm.input_name'})
               },
               {
                 validator: (_, value, callback) => {
@@ -187,24 +188,24 @@ export default class Index extends PureComponent {
             <Input
               disabled={data && data.name}
               type="text"
-              placeholder="请填写商店名称"
+              placeholder={formatMessage({id:'applicationMarket.HelmForm.input_name'})}
             />
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="商店地址">
+        <Form.Item {...formItemLayout} label={<FormattedMessage id='applicationMarket.HelmForm.address'/>}>
           {getFieldDecorator('url', {
             initialValue: (data && data.url) || '',
             rules: [
               {
                 required: true,
-                message: '请填写商店地址'
+                message:formatMessage({id:'applicationMarket.HelmForm.input_address'})
               },
               {
                 pattern: /^[^\s]*$/,
-                message: '禁止输入空格'
+                message: formatMessage({id:'placeholder.no_spaces'})
               }
             ]
-          })(<Input type="text" placeholder="请填写商店地址" />)}
+          })(<Input type="text"  placeholder={formatMessage({id:'applicationMarket.HelmForm.input_address'})}/>)}
         </Form.Item>
         <div style={{ textAlign: 'right', marginTop: '-16px' }}>
           <Checkbox
@@ -215,34 +216,34 @@ export default class Index extends PureComponent {
               });
             }}
           >
-            私有商店
+            <FormattedMessage id='applicationMarket.HelmForm.private'/>
           </Checkbox>
         </div>
         {showUsernameAndPass && (
-          <Form.Item {...formItemLayout} label="商店用户名">
+          <Form.Item {...formItemLayout} label={<FormattedMessage id='applicationMarket.HelmForm.shop_name_user'/>}>
             {getFieldDecorator('username', {
               initialValue: (data && data.username) || '',
               rules: [
                 {
                   required: showUsernameAndPass,
-                  message: '请输入商店用户名'
+                  message:formatMessage({id:'applicationMarket.HelmForm.shop_name_input'})
                 }
               ]
-            })(<Input autoComplete="off" placeholder="请输入商店用户名" />)}
+            })(<Input autoComplete="off"  placeholder={formatMessage({id:'applicationMarket.HelmForm.shop_name_input'})}/>)}
           </Form.Item>
         )}
         {showUsernameAndPass && (
-          <Form.Item {...formItemLayout} label="商店密码">
+          <Form.Item {...formItemLayout} label={<FormattedMessage id='applicationMarket.HelmForm.password'/>}>
             {getFieldDecorator('password', {
               initialValue: (data && data.password) || '',
               rules: [
-                { required: showUsernameAndPass, message: '请输入商店密码' }
+                { required: showUsernameAndPass,  message:formatMessage({id:'applicationMarket.HelmForm.input_password'})}
               ]
             })(
               <Input
                 autoComplete="new-password"
                 type="password"
-                placeholder="请输入商店密码"
+                placeholder={formatMessage({id:'applicationMarket.HelmForm.input_password'})}
               />
             )}
           </Form.Item>
@@ -254,7 +255,7 @@ export default class Index extends PureComponent {
               loading={createLoading}
               type="primary"
             >
-              创建
+              <FormattedMessage id='button.create'/>
             </Button>
           )}
           {isEditor && (
@@ -265,12 +266,12 @@ export default class Index extends PureComponent {
               }}
               onClick={onCancel}
             >
-              取消
+              <FormattedMessage id='button.cancel'/>
             </Button>
           )}
           {isEditor && (
             <Button onClick={this.handleUpHelmAppStore} type="primary">
-              确认
+              <FormattedMessage id='button.confirm'/>
             </Button>
           )}
         </div>

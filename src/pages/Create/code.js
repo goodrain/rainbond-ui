@@ -2,6 +2,7 @@
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeGitRepostory from '../../components/GitRepostory';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -11,6 +12,7 @@ import rainbondUtil from '../../utils/rainbond';
 import roleUtil from '../../utils/role';
 import CodeCustom from './code-custom';
 import CodeDemo from './code-demo';
+import Jwar from './jwar';
 
 @connect(
   ({ teamControl, global, enterprise }) => ({
@@ -47,22 +49,28 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName
     } = this.props;
-
+    console.log(match.params,'match.params')
     const map = {
       custom: CodeCustom,
-      demo: CodeDemo
+      demo: CodeDemo,
+      jwar: Jwar
     };
 
     const tabList = [
       {
         key: 'custom',
-        tab: '自定义源码'
+        tab: formatMessage({id: 'teamAdd.create.code.customSource'})
+      },
+      {
+        key: 'jwar',
+        tab: formatMessage({id: 'teamAdd.create.code.package'})
       }
     ];
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
-      tabList.push({ key: 'demo', tab: '官方DEMO' });
+      tabList.push({ key: 'demo', tab: formatMessage({id:'teamAdd.create.code.demo'})});
     }
     const servers = oauthUtil.getEnableGitOauthServer(enterprise);
+    console.log(servers,'servers')
     if (servers && servers.length > 0) {
       servers.map(item => {
         const { name, service_id, oauth_type } = item;
@@ -85,6 +93,7 @@ export default class Main extends PureComponent {
         return tabList;
       });
     }
+    
     let { type } = match.params;
     if (!type) {
       type = 'custom';
@@ -100,9 +109,9 @@ export default class Main extends PureComponent {
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title="由源码创建组件"
+        title={formatMessage({id: 'teamAdd.create.code.title'})}
         onTabChange={this.handleTabChange}
-        content={<p> 从指定源码仓库中获取源码，基于源码信息创建新组件 </p>}
+        content={<p><FormattedMessage id="teamAdd.create.code.desc" /></p>}
         tabActiveKey={type}
         tabList={tabList}
       >
@@ -113,7 +122,9 @@ export default class Main extends PureComponent {
             tabList={tabList}
           />
         ) : (
-          '参数错误'
+          <>
+          {formatMessage({id: 'teamAdd.create.error'})}
+          </>
         )}
       </PageHeaderLayout>
     );

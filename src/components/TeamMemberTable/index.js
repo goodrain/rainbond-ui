@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Table } from 'antd';
 import teamUtil from '../../utils/team';
 import roleUtil from '../../utils/role';
@@ -17,15 +18,15 @@ class TeamMemberTable extends PureComponent {
 
     const columns = [
       {
-        title: '用户名',
+        title: formatMessage({id: 'teamManage.tabs.member.table.userName'}),
         dataIndex: 'nick_name',
       },
       {
-        title: '邮箱',
+        title: formatMessage({id: 'teamManage.tabs.member.table.email'}),
         dataIndex: 'email',
       },
       {
-        title: '角色',
+        title: formatMessage({id: 'teamManage.tabs.member.table.role'}),
         dataIndex: 'roles',
         render(val) {
           return (
@@ -45,7 +46,7 @@ class TeamMemberTable extends PureComponent {
         },
       },
       {
-        title: '操作',
+        title: formatMessage({id: 'teamManage.tabs.member.table.operate'}),
         dataIndex: 'action',
         render(_, data) {
           return (
@@ -57,7 +58,7 @@ class TeamMemberTable extends PureComponent {
                     onDelete(data);
                   }}
                 >
-                  删除
+                  {formatMessage({id: 'teamManage.tabs.member.table.delete'})}
                 </a>
               )}
               {isEdit && (
@@ -70,7 +71,7 @@ class TeamMemberTable extends PureComponent {
                   }}
                   href="javascript:;"
                 >
-                  修改角色
+                  {formatMessage({id: 'teamManage.tabs.member.table.editRole'})}
                 </a>
               )}
               {teamUtil.canChangeOwner(team) && (
@@ -83,7 +84,8 @@ class TeamMemberTable extends PureComponent {
                   }}
                   href="javascript:;"
                 >
-                  移交团队
+                  
+                  {formatMessage({id: 'teamManage.tabs.member.table.turnOver'})}
                 </a>
               )}
             </div>

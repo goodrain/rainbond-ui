@@ -22,6 +22,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import AddGroup from '../AddOrEditGroup';
@@ -228,7 +229,7 @@ export default class Index extends PureComponent {
       if (!err) {
         if (checkedList && checkedList.length > 20) {
           notification.warning({
-            message: '应用复制最多20个组件'
+            message: formatMessage({id:'notification.warn.app_copy_max20'})
           });
         } else {
           this.setState({ Loading: true });
@@ -271,7 +272,7 @@ export default class Index extends PureComponent {
       callback: res => {
         this.handleCloseLoading();
         if (res && res.status_code === 200) {
-          notification.success({ message: '复制成功' });
+          notification.success({ message: formatMessage({id:'notification.success.copy'}) });
           const { tar_team_name, tar_region_name, tar_group_id } = res.bean;
           dispatch(
             routerRedux.push(
@@ -375,7 +376,7 @@ export default class Index extends PureComponent {
         visible
         onCancel={onCancel}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}> {formatMessage({id:'popover.cancel'})} </Button>,
           <Button
             type="primary"
             style={{ marginTop: '20px' }}
@@ -383,7 +384,7 @@ export default class Index extends PureComponent {
             loading={Loading}
             onClick={this.handleSubmit}
           >
-            确定
+            {formatMessage({id:'popover.confirm'})}
           </Button>
         ]}
       >
@@ -407,7 +408,7 @@ export default class Index extends PureComponent {
               <Row>
                 {userTeams && (
                   <Col span={6}>
-                    <FormItem {...formItemLayout} label="复制到">
+                    <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.app.label.teamRegion'})}>
                       {getFieldDecorator('teamRegion', {
                         initialValue: defaultTeamRegion,
                         rules: [
@@ -422,7 +423,7 @@ export default class Index extends PureComponent {
                             triggerNode.parentNode
                           }
                           onChange={this.onSelectChange}
-                          placeholder="团队/集群"
+                          placeholder={formatMessage({id:'placeholder.copy.team_region'})}
                         >
                           {userTeams.map(item => {
                             return (
@@ -444,7 +445,7 @@ export default class Index extends PureComponent {
                       rules: [
                         {
                           required: true,
-                          message: '请选择应用'
+                          message: formatMessage({id:'placeholder.app'})
                         }
                       ]
                     })(
@@ -453,7 +454,7 @@ export default class Index extends PureComponent {
                           triggerNode.parentNode
                         }
                         style={{ width: '180px' }}
-                        placeholder="请选择应用"
+                        placeholder={formatMessage({id:'placeholder.app'})}
                       >
                         {appList &&
                           appList.map(item => (
@@ -468,7 +469,7 @@ export default class Index extends PureComponent {
                     style={{ margin: '0 0 24px 10px' }}
                     onClick={this.onAddGroup}
                   >
-                    新建应用
+                    {formatMessage({id:'popover.newApp.title'})}
                   </Button>
                 </Col>
               </Row>
@@ -480,11 +481,15 @@ export default class Index extends PureComponent {
                   onChange={this.onCheckAllChange}
                   checked={checkAll}
                 >
-                  组件名称
+                  {formatMessage({id:'popover.newComponent.componentName'})}
                 </Checkbox>
               </div>
-              <div className={`${styles.w500} ${styles.over}`}>构建源信息</div>
-              <div className={`${styles.w300} ${styles.over}`}>版本修改</div>
+              <div className={`${styles.w500} ${styles.over}`}>
+              {formatMessage({id:'confirmModal.app.label.build'})}
+              </div>
+              <div className={`${styles.w300} ${styles.over}`}>
+              {formatMessage({id:'confirmModal.app.label.editVersions'})}
+              </div>
             </div>
             <Checkbox.Group
               style={{ width: '100%' }}
@@ -532,8 +537,12 @@ export default class Index extends PureComponent {
                     style={{ width: 90 }}
                     defaultValue={isImageApp ? 'Tag' : 'branch'}
                   >
-                    {!isImageApp && <Option value="branch">分支</Option>}
-                    {isCodeApp && <Option value="Tag">Tag</Option>}
+                    {!isImageApp && <Option value="branch">
+                    {formatMessage({id:'confirmModal.app.label.branch'})}
+                      </Option>}
+                    {isCodeApp && <Option value="Tag">
+                    {formatMessage({id:'confirmModal.app.label.tag'})}
+                      </Option>}
                   </Select>
                 );
                 if (isImageApp || isCodeApp) {
@@ -544,7 +553,7 @@ export default class Index extends PureComponent {
                         rules: [
                           {
                             required: true,
-                            message: '不能为空'
+                            message: formatMessage({id:'placeholder.copy.not_null'})
                           }
                         ]
                       })(
@@ -564,7 +573,7 @@ export default class Index extends PureComponent {
                     </FormItem>
                   );
                 } else {
-                  versionConetent = isThirdParty ? '-' : '暂不支持变更版本';
+                  versionConetent = isThirdParty ? '-' : formatMessage({id:'confirmModal.app.label.not_change'});
                 }
 
                 return (
@@ -575,7 +584,7 @@ export default class Index extends PureComponent {
                       </div>
                     </Tooltip>
 
-                    <Tooltip title={isThirdParty ? '第三方组件' : tit}>
+                    <Tooltip title={isThirdParty ? formatMessage({id:'confirmModal.app.label.third_party'}) : tit}>
                       <div className={`${styles.w500} ${styles.over}`}>
                         <div
                           style={{
@@ -585,15 +594,15 @@ export default class Index extends PureComponent {
                           }}
                         >
                           {isImageApp
-                            ? '镜像:'
+                            ? formatMessage({id:'confirmModal.app.label.mirror_image'})
                             : isCodeApp
-                            ? '源码:'
+                            ? formatMessage({id:'confirmModal.app.label.sound_code'})
                             : isMarketApp
-                            ? '组件库:'
+                            ? formatMessage({id:'confirmModal.app.label.component_library'})
                             : isThirdParty
-                            ? '第三方组件:'
+                            ? formatMessage({id:'confirmModal.app.label.third_party'})
                             : isUploadFilesApp
-                            ? '本地文件:'
+                            ? formatMessage({id:'confirmModal.app.label.local'})
                             : ''}
                         </div>
                         <div className={`${styles.w380} ${styles.over}`}>

@@ -1,4 +1,5 @@
 import React, { PureComponent } from "react";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { Form, Modal } from "antd";
 import RolePermsSelect from "../../../components/RolePermsSelect";
 
@@ -22,7 +23,7 @@ export default class EditActions extends PureComponent {
     const { actions, value } = this.props;
 
     return (
-      <Modal title="编辑权限" visible onOk={this.handleSubmit} maskClosable={false} onCancel={this.onCancel}>
+      <Modal  title={<FormattedMessage id="componentOverview.body.EditActions.edit"/>}visible onOk={this.handleSubmit} maskClosable={false} onCancel={this.onCancel}>
         <Form onSubmit={this.handleSubmit}>
           <FormItem label="">
             {getFieldDecorator("perm_ids", {
@@ -30,10 +31,10 @@ export default class EditActions extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: "不能为空!",
+                  message: formatMessage({id:'componentOverview.body.EditActions.not_yet'})
                 },
               ],
-            })(<RolePermsSelect showGroupName={false} hides={["团队相关"]} datas={actions} />)}
+            })(<RolePermsSelect showGroupName={false} hides={[`${formatMessage({id:'componentOverview.body.EditActions.not_yet'})}`]} datas={actions} />)}
           </FormItem>
         </Form>
       </Modal>

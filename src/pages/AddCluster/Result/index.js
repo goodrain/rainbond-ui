@@ -7,6 +7,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import Result from '../../../components/Result';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
@@ -84,16 +85,16 @@ export default class ClusterLink extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: '基本配置'
+        title: formatMessage({id:'enterpriseColony.ACksterList.basic'})
       },
       {
-        title: '高级配置'
+        title: formatMessage({id:'enterpriseColony.ACksterList.senior'})
       },
       {
-        title: '执行安装'
+        title: formatMessage({id:'enterpriseColony.ACksterList.install'})
       },
       {
-        title: '对接集群'
+        title: formatMessage({id:'enterpriseColony.ACksterList.Docking'})
       }
     ];
     return steps;
@@ -140,8 +141,8 @@ export default class ClusterLink extends PureComponent {
     let actions = [];
     if (status === 'success') {
       type = 'success';
-      title = '集群对接成功';
-      desc = '点击返回集群管理按钮查看当前对接的集群';
+      title = `${formatMessage({id:'enterpriseColony.cloud.success'})}`
+      desc = `${formatMessage({id:'enterpriseColony.cloud.back'})}`
       actions = [
         <Button
           className={styles.antd_btn}
@@ -150,7 +151,7 @@ export default class ClusterLink extends PureComponent {
           }}
           type="primary"
         >
-          返回集群管理
+          <FormattedMessage id='enterpriseColony.cloud.return'/>
         </Button>,
         <Button
         className={styles.antd_btn}
@@ -159,15 +160,14 @@ export default class ClusterLink extends PureComponent {
         }}
         type="primary"
       >
-        导入已有应用
+        <FormattedMessage id='enterpriseColony.cloud.import'/>
       </Button>
       ];
     }
     if (status === 'failed') {
       type = 'error';
-      title = '当前集群对接失败';
-      desc =
-        '可能服务器命令还没有执行完毕，可以“刷新进度”或去服务器执行“ watch kubectl get po -n rbd-system ”命令，查看Pod状态。';
+      title = `${formatMessage({id:'enterpriseColony.cloud.fail'})}`;
+      desc =`${formatMessage({id:'enterpriseColony.cloud.Refresh'})}`;
       actions = [
         <Button
           className={styles.antd_btn}
@@ -176,7 +176,7 @@ export default class ClusterLink extends PureComponent {
           }}
           type="primary"
         >
-          上一步
+          <FormattedMessage id='button.previous'/>
         </Button>,
         <Button
           onClick={() => {
@@ -185,7 +185,7 @@ export default class ClusterLink extends PureComponent {
           className={styles.antd_btn}
           type="primary"
         >
-          刷新进度
+          <FormattedMessage id='enterpriseColony.cloud.speed'/>
         </Button>
       ];
     }
@@ -220,8 +220,8 @@ export default class ClusterLink extends PureComponent {
     };
     return (
       <PageHeaderLayout
-        title="添加集群"
-        content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
+      title={<FormattedMessage id='enterpriseColony.button.text'/>}
+      content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={3}>

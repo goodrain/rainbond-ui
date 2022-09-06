@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import DescriptionList from '../../../components/DescriptionList';
 import globalUtil from '../../../utils/global';
@@ -129,7 +130,7 @@ export default class AutoDeploy extends PureComponent {
           secret_key: secretKey
         },
         callback: () => {
-          notification.success({ message: '更新成功' });
+          notification.success({ message: formatMessage({id:'notification.success.to_update'}) });
         }
       });
     });
@@ -148,7 +149,7 @@ export default class AutoDeploy extends PureComponent {
         },
         callback: data => {
           if (data && data.status_code === 200) {
-            notification.success({ message: '更新成功' });
+            notification.success({ message: formatMessage({id:'notification.success.to_update'}) });
             this.setState({
               deploy_keyword: data.bean.deploy_keyword
             });
@@ -171,7 +172,7 @@ export default class AutoDeploy extends PureComponent {
         },
         callback: data => {
           if (data && data.status_code === 200) {
-            notification.success({ message: '更新成功' });
+            notification.success({ message: formatMessage({id:'notification.success.to_update'}) });
             this.setState({
               deploy_mirror: data.bean.trigger,
               url: data.bean.url
@@ -259,7 +260,7 @@ export default class AutoDeploy extends PureComponent {
         style={{
           marginBottom: 24
         }}
-        title="自动构建设置"
+        title={<FormattedMessage id='componentOverview.body.AutoDeploy.automatic'/>}
       >
         <Tabs
           onChange={activeKey => {
@@ -269,11 +270,11 @@ export default class AutoDeploy extends PureComponent {
             <div>
               {status[tabActiveKey] === false ? (
                 <Button type="primary" onClick={this.handleOpen}>
-                  开启自动构建
+                  <FormattedMessage id='componentOverview.body.AutoDeploy.open'/>
                 </Button>
               ) : (
                 <Button type="primary" onClick={this.handleCancel}>
-                  关闭自动构建
+                  <FormattedMessage id='componentOverview.body.AutoDeploy.close'/>
                 </Button>
               )}
             </div>
@@ -293,7 +294,7 @@ export default class AutoDeploy extends PureComponent {
                           target="_blank"
                           style={{ color: '#fff' }}
                         >
-                          点击阅读文档
+                          <FormattedMessage id='componentOverview.body.AutoDeploy.read'/>
                         </a>
                       )) ||
                       ''
@@ -314,7 +315,7 @@ export default class AutoDeploy extends PureComponent {
                     lineHeight: '80px'
                   }}
                 >
-                  暂未开启自动构建
+                  <FormattedMessage id='componentOverview.body.AutoDeploy.Not_open'/>
                 </div>
               ) : (
                 <div>
@@ -328,7 +329,7 @@ export default class AutoDeploy extends PureComponent {
                     title=""
                     col="1"
                   >
-                    <Description term="支持类型">
+                    <Description term={<FormattedMessage id='componentOverview.body.AutoDeploy.Support_type'/>}>
                       <div style={{ marginLeft: '38px' }}>
                         Gitlab,Github,Gitee,Gogs,Coding
                       </div>
@@ -339,15 +340,15 @@ export default class AutoDeploy extends PureComponent {
                         <CopyToClipboard
                           text={setUrl}
                           onCopy={() => {
-                            notification.success({ message: '复制成功' });
+                            notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                           }}
                         >
-                          <Button size="small">复制</Button>
+                          <Button size="small"><FormattedMessage id='componentOverview.body.AutoDeploy.copy'/></Button>
                         </CopyToClipboard>
                       </div>
                     </Description>
 
-                    <Description term="触发关键字&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;">
+                    <Description term={<FormattedMessage id='componentOverview.body.AutoDeploy.keyword'/>}>
                       <div style={{ display: 'flex' }}>
                         <div
                           style={{
@@ -358,8 +359,7 @@ export default class AutoDeploy extends PureComponent {
                           <Tooltip
                             title={
                               <div>
-                                当Commit信息包含“@{this.state.deploy_keyword}
-                                ”时将自动触发组件自动部署
+                                <FormattedMessage id='componentOverview.body.AutoDeploy.automatic' values={{deploy_keyword:this.state.deploy_keyword}}/>
                               </div>
                             }
                           >
@@ -376,7 +376,7 @@ export default class AutoDeploy extends PureComponent {
                               rules: [
                                 {
                                   required: true,
-                                  message: '关键字不能为空'
+                                  message: formatMessage({id:'componentOverview.body.AutoDeploy.keyword_null'}),
                                 }
                               ]
                             })(
@@ -391,11 +391,10 @@ export default class AutoDeploy extends PureComponent {
                               }}
                               size="small"
                             >
-                              更新
+                              <FormattedMessage id='componentOverview.body.AutoDeploy.to_update'/>
                             </Button>
                             <p>
-                              注意：当Commit信息包含@{this.state.deploy_keyword}
-                              ，则Webhook触发。
+                              <FormattedMessage id='componentOverview.body.AutoDeploy.Note' values={{deploy_keyword:this.state.deploy_keyword}}/>
                             </p>
                           </FormItem>
                         </Form>
@@ -411,7 +410,7 @@ export default class AutoDeploy extends PureComponent {
             tab={
               <span>
                 <Icon type="api" />
-                自定义API
+                <FormattedMessage id='componentOverview.body.AutoDeploy.custom'/>
                 <Tooltip
                   title={
                     (platform_url && (
@@ -420,7 +419,7 @@ export default class AutoDeploy extends PureComponent {
                         target="_blank"
                         style={{ color: '#fff' }}
                       >
-                        点击阅读文档
+                        <FormattedMessage id='componentOverview.body.AutoDeploy.read'/>
                       </a>
                     )) ||
                     ''
@@ -440,7 +439,7 @@ export default class AutoDeploy extends PureComponent {
                   lineHeight: '80px'
                 }}
               >
-                暂未开启自动构建
+                <FormattedMessage id='componentOverview.body.AutoDeploy.Not_open'/>
               </div>
             ) : (
               <div>
@@ -459,13 +458,13 @@ export default class AutoDeploy extends PureComponent {
                     <CopyToClipboard
                       text={setUrl}
                       onCopy={() => {
-                        notification.success({ message: '复制成功' });
+                        notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                       }}
                     >
-                      <Button size="small">复制</Button>
+                      <Button size="small"><FormattedMessage id='componentOverview.body.AutoDeploy.copy'/></Button>
                     </CopyToClipboard>
                   </Description>
-                  <Description term="秘钥">
+                  <Description term={<FormattedMessage id='componentOverview.body.AutoDeploy.Secret_key'/>}>
                     <Form onSubmit={this.handleScretSubmit}>
                       <FormItem style={{ marginTop: '-6px' }}>
                         {getFieldDecorator('secret_key', {
@@ -474,7 +473,7 @@ export default class AutoDeploy extends PureComponent {
                             {
                               required: true,
                               min: 8,
-                              message: '秘钥必须大于等于8位'
+                              message: formatMessage({id:'componentOverview.body.AutoDeploy.Secret_key_num'}),
                             }
                           ]
                         })(<Input style={{ width: 300 }} />)}
@@ -485,7 +484,7 @@ export default class AutoDeploy extends PureComponent {
                           }}
                           size="small"
                         >
-                          更新
+                          <FormattedMessage id='componentOverview.body.AutoDeploy.to_update'/>
                         </Button>
                       </FormItem>
                     </Form>
@@ -502,9 +501,9 @@ export default class AutoDeploy extends PureComponent {
                 <span>
                   {' '}
                   <Icon component={dockerSvg} />
-                  镜像仓库Webhook
+                  <FormattedMessage id='componentOverview.body.AutoDeploy.Webhook'/>
                   {platform_url && (
-                    <Tooltip title="点击阅读文档">
+                    <Tooltip  title={<FormattedMessage id='componentOverview.body.AutoDeploy.read'/>}>
                       <a
                         href={`${platform_url}docs/use-manual/component-manage/build-source/auto_build/#基于镜像仓库操作流程`}
                         target="_blank"
@@ -525,7 +524,7 @@ export default class AutoDeploy extends PureComponent {
                     lineHeight: '80px'
                   }}
                 >
-                  暂未开启自动构建
+                  <FormattedMessage id='componentOverview.body.AutoDeploy.Not_open'/>
                 </div>
               ) : (
                 <div>
@@ -544,13 +543,13 @@ export default class AutoDeploy extends PureComponent {
                       <CopyToClipboard
                         text={setUrl}
                         onCopy={() => {
-                          notification.success({ message: '复制成功' });
+                          notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                         }}
                       >
-                        <Button size="small">复制</Button>
+                        <Button size="small"><FormattedMessage id='componentOverview.body.AutoDeploy.copy'/></Button>
                       </CopyToClipboard>
                     </Description>
-                    <Description term="Tag触发&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;">
+                    <Description  term={<FormattedMessage id='componentOverview.body.AutoDeploy.tag'/>}>
                       <div style={{ display: 'flex' }}>
                         <div
                           style={{
@@ -567,13 +566,13 @@ export default class AutoDeploy extends PureComponent {
                               rules: [
                                 {
                                   required: true,
-                                  message: '关键字不能为空'
+                                  message: formatMessage({id:'componentOverview.body.AutoDeploy.keyword_null'}),
                                 }
                               ]
                             })(
                               <Input
                                 style={{ width: 300 }}
-                                placeholder="支持正则表达式,如:release-v.*"
+                                placeholder={formatMessage({id:'componentOverview.body.AutoDeploy.regular_expression'})}
                               />
                             )}
                             <Button
@@ -585,10 +584,10 @@ export default class AutoDeploy extends PureComponent {
                               }}
                               size="small"
                             >
-                              更新
+                              <FormattedMessage id='componentOverview.body.AutoDeploy.to_update'/>
                             </Button>
                             <p>
-                              注意：表达式为空时更新事件的tag与当前组件镜像tag一致时触发，不为空时表达式匹配正确触发
+                              <FormattedMessage id='componentOverview.body.AutoDeploy.note'/>
                             </p>
                           </FormItem>
                         </Form>

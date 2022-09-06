@@ -1,5 +1,7 @@
 import { Form, Input, Modal, notification, Select } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 const { TextArea } = Input;
@@ -19,7 +21,7 @@ export default class AddDomain extends PureComponent {
       (err, values) => {
         if (!err) {
           if (values.port == '请选择端口') {
-            notification.info({ message: '您还没有选择端口，请先选择端口！' });
+            notification.info({ message: formatMessage({id:'notification.hint.selectPort'}) });
             return;
           }
           this.props.onOk && this.props.onOk(values);
@@ -54,19 +56,19 @@ export default class AddDomain extends PureComponent {
     const initialVal = postList[0].lb_mpping_port;
     return (
       <Modal
-        title="绑定域名"
+        title={<FormattedMessage id='componentOverview.body.SubPort.title'/>}
         onOk={this.handleSubmit}
         visible={true}
         onCancel={this.props.onCancel}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="请选择端口">
+          <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.SubPort.port'/>} >
             {getFieldDecorator('port', {
-              initialValue: '请选择端口',
+              initialValue: `${formatMessage({id:'componentOverview.body.SubPort.port'})}`,
               rules: [
                 {
                   required: true,
-                  message: '请选择端口'
+                  message: formatMessage({id:'componentOverview.body.SubPort.port'})
                 }
               ]
             })(

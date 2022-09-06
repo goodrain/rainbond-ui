@@ -1,6 +1,8 @@
-import { Form, Input, Modal, Select } from 'antd';
+import { Form, Input, message, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import cookie from '../../utils/cookie';
 const FormItem = Form.Item;
 
 @Form.create()
@@ -10,6 +12,12 @@ const FormItem = Form.Item;
   };
 })
 export default class AddPort extends PureComponent {
+  constructor(props){
+    super(props)
+    this.state = {
+      language: cookie.get('language') === 'zh-CN' ? true : false
+    }
+  }
   componentWillMount() {}
   handleSubmit = e => {
     e.preventDefault();
@@ -23,7 +31,7 @@ export default class AddPort extends PureComponent {
     const { getFieldValue } = this.props.form;
     if (this.props.isImageApp || this.props.isDockerfile) {
       if (value < 1 || value > 65534) {
-        callback('端口范围为1-65534');
+        callback(<FormattedMessage id='componentOverview.body.AddPort.callback'/>);
         return;
       }
     }
@@ -31,6 +39,7 @@ export default class AddPort extends PureComponent {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
+    const { language } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -41,20 +50,30 @@ export default class AddPort extends PureComponent {
         sm: { span: 16 }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 6 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 16 }
+      }
+    };
     const protocols = this.props.protocols || [];
-
+    const is_language = language ? formItemLayout : en_formItemLayout
     return (
       <Modal
-        title="添加端口"
+        title={<FormattedMessage id='componentOverview.body.AddPort.title'/>}
         onOk={this.handleSubmit}
         onCancel={this.props.onCancel}
         visible={true}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="端口">
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.AddPort.label_port'/>}>
             {getFieldDecorator('port', {
               rules: [
-                { required: true, message: '请添写端口' },
+                { required: true, message: formatMessage({id:'componentOverview.body.AddPort.required'}) },
                 { validator: this.handleCheckPort }
               ]
             })(
@@ -62,16 +81,16 @@ export default class AddPort extends PureComponent {
                 type="number"
                 placeholder={
                   this.props.isImageApp || this.props.isDockerfile
-                    ? '请填写端口,范围1-65535'
-                    : '请填写端口,范围1025-65535'
+                    ?  formatMessage({id:'componentOverview.body.AddPort.min'})
+                    :  formatMessage({id:'componentOverview.body.AddPort.max'})
                 }
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="协议">
+          <FormItem {...is_language} label = {<FormattedMessage id='componentOverview.body.AddPort.label_agreement'/>}>
             {getFieldDecorator('protocol', {
               initialValue: 'http',
-              rules: [{ required: true, message: '请添加端口' }]
+              rules: [{ required: true,  message: formatMessage({id:'componentOverview.body.AddPort.add'})}]
             })(
               <Select getPopupContainer={triggerNode => triggerNode.parentNode}>
                 {protocols.map(item => {

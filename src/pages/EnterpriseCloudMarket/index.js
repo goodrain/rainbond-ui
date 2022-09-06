@@ -162,7 +162,7 @@ export default class EnterpriseShared extends PureComponent {
                 <span>内部市场</span>
                 <Search
                   className={BasicListStyles.extraContentSearch}
-                  placeholder="请输入名称进行搜索"
+                  placeholder={formatMessage({id:'applicationMarket.localMarket.placeholder'})}
                   onSearch={this.handleSearch}
                 />
               </div>
@@ -182,13 +182,16 @@ export default class EnterpriseShared extends PureComponent {
               locale={{
                 emptyText: (
                   <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-                    暂无应用模型， 你可以
+                    {formatMessage({id:'notification.market.hint.null_app1'})}
                     <br />
                     <br />
-                    发布应用模型
+                    {formatMessage({id:'notification.market.hint.null_app2'})}
                     {rainbondUtil.cloudMarketEnable(enterprise) && (
                       <span>
-                        或<span style={{ color: '#1890ff' }}>从云端同步</span>
+                    {formatMessage({id:'notification.market.hint.null_app3'})}
+                        <span style={{ color: '#1890ff' }}>
+                    {formatMessage({id:'notification.market.hint.null_app4'})}
+                        </span>
                       </span>
                     )}
                   </p>

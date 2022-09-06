@@ -12,7 +12,7 @@ export default ({
   top,
   ...restProps
 }) => (
-  <div style={{ margin: '-24px -24px 0' }} className={wrapperClassName}>
+  <div style={{ margin: '-20px' }} className={wrapperClassName}>
     {top}
     <PageHeader key="pageheader" {...restProps} linkElement={Link} />
     {children ? <div className={styles.content}>{children}</div> : null}

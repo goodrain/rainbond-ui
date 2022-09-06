@@ -17,6 +17,7 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
 import AddPort from '../../components/AddPort';
 import AddRelation from '../../components/AddRelation';
@@ -148,18 +149,18 @@ class BaseInfo extends PureComponent {
     };
     return (
       <Card
-        title="基本信息"
+        title={formatMessage({id:'componentCheck.advanced.setup.basic_info'})}
         style={{
           marginBottom: 16
         }}
       >
-        <Form.Item {...formItemLayout} label="组件类型">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.advanced.setup.basic_info.label.extend_method'})}>
           {getFieldDecorator('extend_method', {
             initialValue: extendMethod || 'stateless_multiple',
             rules: [
               {
                 required: true,
-                message: '请选择组件类型'
+                message: formatMessage({id:'placeholder.setting.extend_method'})
               }
             ]
           })(
@@ -182,12 +183,14 @@ class BaseInfo extends PureComponent {
             rules: [
               {
                 required: false,
-                message: '请选择运行规则'
+                message: formatMessage({id:'placeholder.setting.schedule'})
               }
             ]
           })(
             <Row className={styles.selectRow} type="flex" style={{margin:'14px 0px',marginTop:'-20px'}}>
-              <div style={{marginLeft:'160px',fontWeight:'bolder',marginTop:'-4px'}}>运行规则：</div>
+              <div style={{marginLeft:'160px',fontWeight:'bolder',marginTop:'-4px'}}>
+              {formatMessage({id:'componentCheck.advanced.setup.basic_info.label.schedule'})}
+              </div>
               <AutoComplete
                 defaultValue={'0 * * * *'}
               >
@@ -207,19 +210,19 @@ class BaseInfo extends PureComponent {
           </Form.Item>
         }
         
-        <Form.Item {...formItemLayout} label="内存">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.advanced.setup.basic_info.label.min_memory'})}>
           {getFieldDecorator('min_memory', {
             initialValue: minMemory || 0,
             rules: [
               {
                 required: true,
-                message: '请选择内存'
+                message: formatMessage({id:'placeholder.setting.min_memory'})
               }
             ]
           })(
             <RadioGroup>
               <RadioButton key={0} value={0}>
-                不限制
+                {formatMessage({id:'componentCheck.advanced.setup.basic_info.label.noLimit'})}
               </RadioButton>
               {minMemory < list[0].value && minMemory != 0 ? (
                 <RadioButton value={minMemory}>{minMemory}M</RadioButton>
@@ -234,17 +237,17 @@ class BaseInfo extends PureComponent {
             </RadioGroup>
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="CPU">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.advanced.setup.basic_info.label.min_cpu'})}>
           {getFieldDecorator('min_cpu', {
             initialValue: minCpu || 0,
             rules: [
               {
                 required: true,
-                message: '请输入CPU'
+                message: formatMessage({id:'placeholder.plugin.min_cpu'})
               },
               {
                 pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                message: '只允许输入整数'
+                message: formatMessage({id:'placeholder.plugin.min_cpuMsg'})
               }
             ]
           })(
@@ -253,18 +256,18 @@ class BaseInfo extends PureComponent {
               type="number"
               min={0}
               addonAfter="m"
-              placeholder="请输入CPU"
+              placeholder={formatMessage({id:'placeholder.plugin.min_cpu'})}
             />
           )}
           <div style={{ color: '#999999', fontSize: '12px' }}>
-            CPU分配额0为不限制，1000m=1core。
+            {formatMessage({id:'appPublish.shop.pages.form.quota1000.desc'})}
           </div>
         </Form.Item>
         <Row>
           <Col span="5" />
           <Col span="19">
             <Button onClick={this.handleSubmit} type="primary">
-              确认修改
+              {formatMessage({id:'button.confirm_update'})}
             </Button>
           </Col>
         </Row>
@@ -309,7 +312,7 @@ class RenderDeploy extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '修改成功' });
+          notification.success({ message: formatMessage({id:'notification.success.change'}) });
           this.getRuntimeInfo();
         }
       }
@@ -326,7 +329,7 @@ class RenderDeploy extends PureComponent {
       callback: data => {
         if (data) {
           this.props.updateDetail();
-          notification.success({ message: '更新成功' });
+          notification.success({ message: formatMessage({id:'notification.success.updates'}) });
         }
       }
     });
@@ -525,42 +528,42 @@ class Mnt extends PureComponent {
     const { volumes } = this.state;
     const columns = [
       {
-        title: '存储名称',
+        title: formatMessage({id:'componentCheck.advanced.setup.storage_setting.label.volume_name'}),
         dataIndex: 'volume_name'
       },
       {
-        title: '挂载路径',
+        title: formatMessage({id:'componentCheck.advanced.setup.storage_setting.label.volume_path'}),
         dataIndex: 'volume_path'
       },
       {
-        title: '存储类型',
+        title: formatMessage({id:'componentCheck.advanced.setup.storage_setting.label.volume_type'}),
         dataIndex: 'volume_type',
         render: (text, record) => {
           return <span>{this.getVolumeTypeShowName(text)}</span>;
         }
       },
       {
-        title: '存储容量',
+        title: formatMessage({id:'componentCheck.advanced.setup.storage_setting.label.volume_capacity'}),
         dataIndex: 'volume_capacity',
         render: (text, record) => {
           if (text == 0) {
-            return <span>不限制</span>;
+            return <span>{formatMessage({id:'appOverview.no_limit'})}</span>;
           }
           return <span>{text}GB</span>;
         }
       },
       {
-        title: '状态',
+        title: formatMessage({id:'componentCheck.advanced.setup.storage_setting.label.status'}),
         dataIndex: 'status',
         render: (text, record) => {
           if (text == 'not_bound') {
-            return <span style={{ color: 'red' }}>未挂载</span>;
+            return <span style={{ color: 'red' }}>{formatMessage({id:'status.not_mount'})}</span>;
           }
-          return <span style={{ color: 'green' }}>已挂载</span>;
+          return <span style={{ color: 'green' }}>{formatMessage({id:'status.mounted'})}</span>;
         }
       },
       {
-        title: '操作',
+        title: formatMessage({id:'componentCheck.advanced.setup.storage_setting.label.action'}),
         dataIndex: 'action',
         render: (val, data) => {
           return (
@@ -570,7 +573,7 @@ class Mnt extends PureComponent {
               }}
               href="javascript:;"
             >
-              删除
+              {formatMessage({id:'button.delete'})}
             </a>
           );
         }
@@ -582,11 +585,11 @@ class Mnt extends PureComponent {
           style={{
             marginBottom: 16
           }}
-          title="存储设置"
+          title={formatMessage({id:'componentCheck.advanced.setup.storage_setting.title'})}
           extra={
             <Button onClick={this.handleAddVar}>
               <Icon type="plus" />
-              添加存储
+              {formatMessage({id:'componentCheck.advanced.setup.storage_setting.btn.add'})}
             </Button>
           }
         >
@@ -602,11 +605,11 @@ class Mnt extends PureComponent {
           style={{
             marginBottom: 16
           }}
-          title="共享存储"
+          title={formatMessage({id:'componentCheck.advanced.setup.shared_storage.title'})}
           extra={
             <Button onClick={this.showAddRelation}>
               <Icon type="plus" />
-              挂载共享存储
+              {formatMessage({id:'componentCheck.advanced.setup.shared_storage.btn.add'})}
             </Button>
           }
         >
@@ -614,7 +617,7 @@ class Mnt extends PureComponent {
             pagination={false}
             columns={[
               {
-                title: '本地挂载路径',
+                title: formatMessage({id:'componentCheck.advanced.setup.shared_storage.label.local_vol_path'}),
                 dataIndex: 'local_vol_path',
                 key: '1',
                 width: '20%',
@@ -632,7 +635,7 @@ class Mnt extends PureComponent {
                 )
               },
               {
-                title: '目标存储名称',
+                title: formatMessage({id:'componentCheck.advanced.setup.shared_storage.label.dep_vol_name'}),
                 dataIndex: 'dep_vol_name',
                 key: '2',
                 width: '15%',
@@ -650,7 +653,7 @@ class Mnt extends PureComponent {
                 )
               },
               {
-                title: '目标挂载路径',
+                title: formatMessage({id:'componentCheck.advanced.setup.shared_storage.label.dep_vol_path'}),
                 dataIndex: 'dep_vol_path',
                 key: '3',
                 width: '15%',
@@ -668,7 +671,7 @@ class Mnt extends PureComponent {
                 )
               },
               {
-                title: '目标存储类型',
+                title: formatMessage({id:'componentCheck.advanced.setup.shared_storage.label.dep_vol_type'}),
                 dataIndex: 'dep_vol_type',
                 key: '4',
                 width: '10%',
@@ -677,7 +680,7 @@ class Mnt extends PureComponent {
                 }
               },
               {
-                title: '目标所属组件',
+                title: formatMessage({id:'componentCheck.advanced.setup.shared_storage.label.dep_app_name'}),
                 dataIndex: 'dep_app_name',
                 key: '5',
                 width: '10%',
@@ -694,7 +697,7 @@ class Mnt extends PureComponent {
                 }
               },
               {
-                title: '目标组件所属应用',
+                title: formatMessage({id:'componentCheck.advanced.setup.shared_storage.label.dep_app_group'}),
                 dataIndex: 'dep_app_group',
                 key: '6',
                 width: '15%',
@@ -711,7 +714,7 @@ class Mnt extends PureComponent {
                 }
               },
               {
-                title: '操作',
+                title: formatMessage({id:'componentCheck.advanced.setup.shared_storage.label.action'}),
                 dataIndex: 'action',
                 key: '7',
                 width: '15%',
@@ -723,7 +726,7 @@ class Mnt extends PureComponent {
                       }}
                       href="javascript:;"
                     >
-                      取消挂载
+                      {formatMessage({id:'button.umount'})}
                     </a>
                   );
                 }
@@ -749,16 +752,16 @@ class Mnt extends PureComponent {
         )}
         {this.state.toDeleteMnt && (
           <ConfirmModal
-            title="取消挂载"
-            desc="确定要取消此挂载目录吗?"
+            title={formatMessage({id:'confirmModal.umount.dalete.title'})}
+            desc={formatMessage({id:'confirmModal.delete.umount.desc'})}
             onCancel={this.cancelDeleteMnt}
             onOk={this.handleDeleteMnt}
           />
         )}
         {this.state.toDeleteVolume && (
           <ConfirmModal
-            title="删除存储目录"
-            desc="确定要删除此存储目录吗?"
+            title={formatMessage({id:'confirmModal.path.delete.title'})}
+            desc={formatMessage({id:'confirmModal.delete.path.desc'})}
             onCancel={this.onCancelDeleteVolume}
             onOk={this.handleDeleteVolume}
           />
@@ -807,7 +810,7 @@ class Relation extends PureComponent {
       dep_service_ids: ids
     }).then(data => {
       if (data) {
-        notification.info({ message: '需要更新才能生效' });
+        notification.info({ message: formatMessage({id:'notification.hint.needUpdate.msg'}) });
         this.loadRelationedApp();
         this.handleCancelAddRelation();
       }
@@ -833,12 +836,12 @@ class Relation extends PureComponent {
   render() {
     const { linkList, relationList } = this.state;
     return (
-      <Card title="组件依赖">
+      <Card title={formatMessage({id:'componentCheck.advanced.setup.component_dependency.title'})}>
         <Table
           pagination={false}
           columns={[
             {
-              title: '组件名称',
+              title: formatMessage({id:'componentCheck.advanced.setup.component_dependency.table.service_cname'}),
               dataIndex: 'service_cname',
               render: (val, data) => {
                 return (
@@ -853,11 +856,11 @@ class Relation extends PureComponent {
               }
             },
             {
-              title: '所属组',
+              title: formatMessage({id:'componentCheck.advanced.setup.component_dependency.table.group_name'}),
               dataIndex: 'group_name'
             },
             {
-              title: '操作',
+              title: formatMessage({id:'componentCheck.advanced.setup.component_dependency.table.var'}),
               dataIndex: 'var',
               render: (val, data) => {
                 return (
@@ -869,7 +872,7 @@ class Relation extends PureComponent {
                         marginRight: 8
                       }}
                     >
-                      查看链接信息
+                      {formatMessage({id:'componentCheck.advanced.setup.component_dependency.table.btn.href'})}
                     </a>
                     <a
                       onClick={() => {
@@ -877,7 +880,7 @@ class Relation extends PureComponent {
                       }}
                       href="javascript:;"
                     >
-                      取消依赖
+                      {formatMessage({id:'componentCheck.advanced.setup.component_dependency.table.btn.rely_on'})}
                     </a>
                   </Fragment>
                 );
@@ -894,7 +897,7 @@ class Relation extends PureComponent {
         >
           <Button onClick={this.showAddRelation}>
             <Icon type="plus" />
-            添加依赖
+            {formatMessage({id:'button.add_depend'})}
           </Button>
         </div>
         {this.state.showAddRelation && (
@@ -1084,7 +1087,7 @@ class Ports extends PureComponent {
     const isDockerfile = appUtil.isDockerfile(this.props.appDetail);
     return (
       <Card
-        title="端口管理"
+        title={formatMessage({id:'componentCheck.advanced.setup.port_manage.title'})}
         style={{
           marginBottom: 16
         }}
@@ -1113,7 +1116,7 @@ class Ports extends PureComponent {
                 textAlign: 'center'
               }}
             >
-              暂无端口
+              {formatMessage({id:'componentCheck.advanced.setup.port_manage.btn.null'})}
             </p>
           ) : (
             ''
@@ -1127,7 +1130,7 @@ class Ports extends PureComponent {
         >
           <Button type="default" onClick={this.showAddPort}>
             <Icon type="plus" />
-            添加端口
+            {formatMessage({id:'button.add_port'})}
           </Button>
         </div>
         {this.state.showEditAlias && (
@@ -1139,17 +1142,17 @@ class Ports extends PureComponent {
         )}
         {this.state.showDeletePort && (
           <ConfirmModal
-            title="端口删除"
-            desc="确定要删除此端口吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({id:'confirmModal.port.delete.title'})}
+            desc={formatMessage({id:'confirmModal.delete.port.desc'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
             onOk={this.handleSubmitDeletePort}
             onCancel={this.cancalDeletePort}
           />
         )}
         {this.state.showDeleteDomain && (
           <ConfirmModal
-            title="域名解绑"
-            desc="确定要解绑此域名吗？"
+            title={formatMessage({id:'confirmModal.domain.delete.title'})}
+            desc={formatMessage({id:'confirmModal.delete.domain.desc'})}
             subDesc={this.state.showDeleteDomain.domain}
             onOk={this.handleSubmitDeleteDomain}
             onCancel={this.cancalDeleteDomain}
@@ -1187,7 +1190,7 @@ class RenderProperty extends PureComponent {
         {isPort && <Ports appDetail={appDetail} />}
         {isEnv && (
           <EnvironmentVariable
-            title="环境变量"
+            title={formatMessage({id:'componentCheck.advanced.setup.environment_variable.title'})}
             type="Inner"
             appAlias={appDetail.service.service_alias}
           />
@@ -1254,7 +1257,7 @@ export default class Index extends PureComponent {
                     this.handleType('deploy');
                   }}
                 >
-                  部署属性
+                  {formatMessage({id:'componentCheck.advanced.setup.deploy_attr'})}
                   <Icon type="right" />
                 </span>
                 <span
@@ -1265,7 +1268,7 @@ export default class Index extends PureComponent {
                     this.handleType('property');
                   }}
                 >
-                  组件属性
+                  {formatMessage({id:'componentCheck.advanced.setup.component_attr'})}
                   <Icon type="right" />
                 </span>
               </div>

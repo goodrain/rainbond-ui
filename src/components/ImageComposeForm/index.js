@@ -1,7 +1,9 @@
 import { Button, Card, Form, Input } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
+import cookie from '../../utils/cookie';
 
 @connect(
   ({ global, loading }) => ({
@@ -17,7 +19,8 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      showUsernameAndPass: false
+      showUsernameAndPass: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   handleSubmit = e => {
@@ -32,19 +35,19 @@ export default class Index extends PureComponent {
   // 团队命名空间的检验
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入组件英文名称'));
+      return callback(new Error(formatMessage({id: 'placeholder.k8s_component_name'})));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+          formatMessage({id: 'placeholder.nameSpaceReg'})
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error(formatMessage({id: 'placeholder.max32'})));
     }
   };
   render() {
@@ -56,6 +59,14 @@ export default class Index extends PureComponent {
         span: 19
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        span: 8
+      },
+      wrapperCol: {
+        span: 16
+      }
+    };
     const {
       form,
       data = {},
@@ -63,6 +74,8 @@ export default class Index extends PureComponent {
       showSubmitBtn = true
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
+    const {language } = this.state;
+    const is_language = language ? formItemLayout : en_formItemLayout;
     return (
       <Fragment>
         <Card style={{ width: '800px', margin: '0 auto' }} bordered={false}>
@@ -72,81 +85,79 @@ export default class Index extends PureComponent {
             layout="horizontal"
             hideRequiredMark
           >
-            <Form.Item {...formItemLayout} label="应用名称">
+            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
               {getFieldDecorator('group_name', {
                 initialValue: data.group_name || '',
-                rules: [{ required: true, message: '应用名称' }]
+                rules: [{ required: true, message: formatMessage({id: 'placeholder.appName'}) }]
               })(
                 <Input
                   style={{ maxWidth: 300 }}
-                  placeholder="应用名称"
+                  placeholder={formatMessage({id: 'placeholder.group_name'})}
                   autocomplete="off"
                 />
               )}
             </Form.Item>
-            <Form.Item {...formItemLayout} label="应用英文名称">
+            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
               {getFieldDecorator('k8s_app', {
                 rules: [
                   { required: true, validator: this.handleValiateNameSpace }
                 ]
-              })(<Input placeholder="应用的英文名称" />)}
+              })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})} />)}
             </Form.Item>
             <CodeMirrorForm
               setFieldsValue={setFieldsValue}
-              formItemLayout={formItemLayout}
+              formItemLayout={is_language}
               Form={Form}
-              width="594px"
+              // width="594px"
               getFieldDecorator={getFieldDecorator}
               name="yaml_content"
-              label="DockerCompose配置"
-              message="请输入DockerCompose配置内容"
+              label={formatMessage({id: 'teamAdd.create.image.config'})}
+              message={formatMessage({id: 'placeholder.yaml_content'})}
               mode="yaml"
               data={data.yaml_content || ''}
             />
 
-            <Form.Item {...formItemLayout} label="注意">
-              将解析 DockerCompose
-              配置中的组件相关属性用来便捷创建组件，其中的动态变量不支持解析赋值,
-              其中使用了私有仓库的镜像?{' '}
+            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.image.notice'})}>
+              {formatMessage({id: 'teamAdd.create.image.configHint'})}{' '}
               <a
                 onClick={() => {
                   this.setState({ showUsernameAndPass: true });
                 }}
                 href="javascript:;"
               >
-                填写仓库账号密码
+                {formatMessage({id: 'teamAdd.create.image.hint2'})}
               </a>
             </Form.Item>
             <Form.Item
               style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-              {...formItemLayout}
-              label="仓库用户名"
+              {...is_language}
+              label={formatMessage({id: 'teamAdd.create.form.user'})}
             >
               {getFieldDecorator('user_name', {
                 initialValue: data.user_name || '',
-                rules: [{ required: false, message: '请输入仓库用户名' }]
+                rules: [{ required: false, message: formatMessage({id: 'placeholder.user_name'}) }]
               })(
                 <Input
                   style={{ maxWidth: 300 }}
                   autoComplete="off"
-                  placeholder="请输入仓库用户名"
+                  placeholder={formatMessage({id: 'placeholder.user_name'})}
                 />
               )}
             </Form.Item>
             <Form.Item
               style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-              {...formItemLayout}
-              label="仓库密码"
+              {...is_language}
+              label={formatMessage({id: 'teamAdd.create.form.password'})}
             >
               {getFieldDecorator('password', {
                 initialValue: data.password || '',
-                rules: [{ required: false, message: '请输入仓库密码' }]
+                rules: [{ required: false, message: formatMessage({id: 'placeholder.password'}) }]
               })(
                 <Input
                   autoComplete="new-password"
                   type="password"
                   style={{ maxWidth: 300 }}
-                  placeholder="请输入仓库密码"
+                  placeholder={formatMessage({id: 'placeholder.password'})}
                 />
               )}
             </Form.Item>
@@ -155,8 +166,8 @@ export default class Index extends PureComponent {
                 wrapperCol={{
                   xs: { span: 24, offset: 0 },
                   sm: {
-                    span: formItemLayout.wrapperCol.span,
-                    offset: formItemLayout.labelCol.span
+                    span: is_language.wrapperCol.span,
+                    offset: is_language.labelCol.span
                   }
                 }}
                 label=""
@@ -166,7 +177,7 @@ export default class Index extends PureComponent {
                   type="primary"
                   loading={createAppByCompose}
                 >
-                  确认创建
+                  {formatMessage({id: 'teamAdd.create.btn.create'})}
                 </Button>
               </Form.Item>
             ) : null}

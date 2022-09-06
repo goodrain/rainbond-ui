@@ -13,6 +13,7 @@ import {
     Input
 } from 'antd';
 import {connect} from 'dva';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import {routerRedux} from 'dva/router';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
@@ -152,7 +153,7 @@ export default class Index extends PureComponent {
             <div>
                 <h2 style={{
                     textAlign: 'center'
-                }}>高级设置</h2>
+                }}>{formatMessage({ id: 'componentCheck.advanced.setup' })}</h2>
                 <div style={{
                     overflow: 'hidden'
                 }}>
@@ -180,14 +181,18 @@ export default class Index extends PureComponent {
                             marginRight: 8
                         }}
                             onClick={this.handleBuild}
-                            type="primary">确认创建</Button>
-                        <Button onClick={this.showDelete} type="default">放弃创建</Button>
+                            type="primary">
+                                {formatMessage({ id: 'button.confirm_create' })}
+                            </Button>
+                        <Button onClick={this.showDelete} type="default">
+                        {formatMessage({ id: 'button.abandon_create' })}
+                        </Button>
                     </div>
                     {this.state.showDelete && <ConfirmModal
                         onOk={this.handleDelete}
-                        title="放弃创建"
-                        subDesc="此操作不可恢复"
-                        desc="确定要放弃创建此组件吗？"
+                        title={formatMessage({ id: 'confirmModal.abandon_create.create_check.title' })}
+                        subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+                        desc={formatMessage({ id: 'confirmModal.delete.create_check.desc' })}
                         onCancel={() => {
                         this.setState({showDelete: false})
                     }}/>}

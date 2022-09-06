@@ -1,11 +1,20 @@
 import { Form, Input, Modal } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 
 @Form.create()
 export default class ImageHubForm extends PureComponent {
+  constructor(props){
+    super(props);
+    this.state= {
+      language: cookie.get('language') === 'zh-CN' ? true : false
+    }
+    
+  }
   onOk = e => {
     e.preventDefault();
     const { onOk, form } = this.props;
@@ -18,6 +27,7 @@ export default class ImageHubForm extends PureComponent {
   render() {
     const { title, onCancel, data = {}, form, loading = false } = this.props;
     const { getFieldDecorator } = form;
+    const {language} = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -25,9 +35,20 @@ export default class ImageHubForm extends PureComponent {
       },
       wrapperCol: {
         xs: { span: 24 },
+        sm: { span: 15 }
+      }
+    };
+    const formItemLayouts = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 8 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
         sm: { span: 16 }
       }
     };
+    const is_language = language ? formItemLayout : formItemLayouts
     return (
       <Modal
         title={title}
@@ -38,59 +59,59 @@ export default class ImageHubForm extends PureComponent {
         onOk={this.onOk}
       >
         <Form onSubmit={this.onOk}>
-          <Form.Item {...formItemLayout} label="仓库地址">
+          <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_url'})}>
             <Input.Group compact>
               {getFieldDecorator('hub_url', {
                 initialValue: data.hub_url || '',
                 rules: [
                   {
                     required: true,
-                    message: '请输入仓库地址'
+                    message: formatMessage({id:'placeholder.git_url'})
                   },
                   {
                     max: 255,
-                    message: '最大长度255位'
+                    message: formatMessage({id:'placeholder.max255'})
                   }
                 ]
-              })(<Input placeholder="请输入仓库地址" />)}
+              })(<Input placeholder={formatMessage({id:'placeholder.git_url'})} />)}
             </Input.Group>
           </Form.Item>
-          <Form.Item {...formItemLayout} label="命名空间">
+          <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.namespace'})}>
             {getFieldDecorator('namespace', {
               initialValue: data.namespace || '',
               rules: [
                 {
                   max: 255,
-                  message: '最大长度255位'
+                  message: formatMessage({id:'placeholder.max255'})
                 },
                 {
                   pattern: /^[a-zA-Z][\da-zA-Z]*$/,
-                  message: '只能是数字和字母 并且字母开头'
+                  message: formatMessage({id:'placeholder.appShare.formatError'})
                 }
               ]
-            })(<Input placeholder="请输入命名空间" />)}
+            })(<Input placeholder={formatMessage({id:'placeholder.oauth.namespace'})} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="用户名">
+          <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_user'})}>
             {getFieldDecorator('hub_user', {
               initialValue: data.hub_user || '',
               rules: [
                 {
                   max: 64,
-                  message: '最大长度64位'
+                  message: formatMessage({id:'placeholder.appShare.max64'})
                 }
               ]
-            })(<Input placeholder="请输入用户名" />)}
+            })(<Input placeholder={formatMessage({id:'placeholder.userName'})} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="密码">
+          <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_password'})}>
             {getFieldDecorator('hub_password', {
               initialValue: data.hub_password || '',
               rules: [
                 {
                   max: 64,
-                  message: '最大长度64位'
+                  message: formatMessage({id:'placeholder.appShare.max64'})
                 }
               ]
-            })(<Input type="password" placeholder="请输入密码" />)}
+            })(<Input type="password" placeholder={formatMessage({id:'placeholder.oauth.password'})} />)}
           </Form.Item>
         </Form>
       </Modal>

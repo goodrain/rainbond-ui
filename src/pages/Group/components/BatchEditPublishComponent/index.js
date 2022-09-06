@@ -2,7 +2,7 @@
 /* eslint-disable react/sort-comp */
 import { Button, Checkbox, Divider, Form, message, Modal } from 'antd';
 import { PureComponent } from 'react';
-
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 @Form.create()
 class BatchEditPublishComponent extends PureComponent {
   constructor(arg) {
@@ -34,7 +34,7 @@ class BatchEditPublishComponent extends PureComponent {
   batchEdit = () => {
     const { checkedList } = this.state;
     if (checkedList.length < 1) {
-      message.info('请至少发布一个组件');
+      message.info(formatMessage({id:'placeholder.appShare.leastOne'}));
       return;
     }
     const { onOk } = this.props;
@@ -44,7 +44,7 @@ class BatchEditPublishComponent extends PureComponent {
   };
   onChange = checkedList => {
     if (checkedList.length < 1) {
-      message.info('请至少保留一个组件');
+      message.info(formatMessage({id:'placeholder.appShare.retain'}));
       return;
     }
     const { allOptions } = this.state;
@@ -69,20 +69,20 @@ class BatchEditPublishComponent extends PureComponent {
     const { allcomponents, onCancel } = this.props;
     return (
       <Modal
-        title="批量编辑待发布组件"
+        title={formatMessage({id:'appPublish.btn.record.list.title.bulk_editPublish'})}
         visible
         maskClosable={false}
         onOk={this.batchEdit}
         onCancel={onCancel}
-        okText="确定"
-        cancelText="取消"
+        okText={formatMessage({id:'popover.confirm'})}
+        cancelText={formatMessage({id:'popover.cancel'})}
       >
         <Checkbox
           indeterminate={indeterminate}
           onChange={this.onCheckAllChange}
           checked={checkAll}
         >
-          选择全部
+          {formatMessage({id:'appPublish.btn.record.list.pages.selectAll'})}
         </Checkbox>
         <Divider />
         <Checkbox.Group

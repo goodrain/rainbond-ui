@@ -25,6 +25,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import styles from './index.less';
 import globalUtil from "../../../utils/global"
@@ -197,10 +198,10 @@ export default class ImportMessage extends PureComponent {
         return (
             <div>
                 <Spin spinning={this.state.importLoading} size="large" tip="Loading...">
-                    <h2>团队名称：
-                        {namespace && namespace.length > 0 ? namespace : "暂无团队"}
+                    <h2>{formatMessage({id:'enterpriseColony.import.recognition.title'})}
+                        {namespace && namespace.length > 0 ? namespace : formatMessage({id:'enterpriseColony.import.recognition.null'})}
                     </h2>
-                    <h3 className={styles.applist}>应用列表:</h3>
+                    <h3 className={styles.applist}>{formatMessage({id:'enterpriseColony.import.recognition.app.title'})}</h3>
 
                     {(namespace && namespace.length > 0) ? (
                         <>
@@ -218,8 +219,8 @@ export default class ImportMessage extends PureComponent {
                                                                 this.handleType(item, index);
                                                             }}
                                                         >
-                                                            <Tooltip placement="right" title={item === "unclassified" ? "未分组" : item}>
-                                                                <span>{item === "unclassified" ? "未分组" : item}</span>
+                                                            <Tooltip placement="right" title={item === "unclassified" ? formatMessage({id:'enterpriseColony.import.app.title'}) : item}>
+                                                                <span>{item === "unclassified" ? formatMessage({id:'enterpriseColony.import.app.title'}) : item}</span>
                                                             </Tooltip>
                                                             <Icon type="right" />
                                                         </div>
@@ -290,7 +291,7 @@ export default class ImportMessage extends PureComponent {
                                                 </TabPane>
                                             })}
                                             {kubernetes && kubernetes.length > 0 &&
-                                                <TabPane tab="k8s资源" key="k8s">
+                                                <TabPane tab={formatMessage({id:'enterpriseColony.import.recognition.tabs'})} key="k8s">
                                                     <Kubernetes
                                                         value={kubernetes}
                                                     />
@@ -324,7 +325,7 @@ export default class ImportMessage extends PureComponent {
                             onClick={this.nextStep}
                             type="default"
                         >
-                            上一步
+                            {formatMessage({id:'button.last_step'})}
                         </Button>
                         <Button
                             style={{
@@ -333,7 +334,7 @@ export default class ImportMessage extends PureComponent {
                             onClick={this.handleBuild}
                             type="primary"
                         >
-                            确认导入
+                            {formatMessage({id:'button.import'})}
                         </Button>
                     </div>
                 </Spin>

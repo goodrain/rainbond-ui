@@ -14,6 +14,7 @@ import globalUtil from '../../utils/global';
 import HistoryLog from './component/Log/history';
 import History1000Log from './component/Log/history1000';
 import styles from './Log.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const { Option } = Select;
 
@@ -87,14 +88,16 @@ export default class Index extends PureComponent {
         }
         if (list && list.length > 0) {
           list.map(item => {
-            item.name = `实例：${item.pod_name}`;
+            // item.name = `实例：${item.pod_name}`;
+            item.name = `${formatMessage({id:'componentOverview.body.tab.log.exampleName'},{name:item.pod_name})}`;
             item.container.map(items => {
-              items.name = `容器：${items.container_name}`;
+              // items.name = `容器：${items.container_name}`;
+              items.name = `${formatMessage({id:'componentOverview.body.tab.log.containerName'},{name:items.container_name})}`;
             });
           });
         }
         list.push({
-          name: '全部日志'
+          name: formatMessage({id:'componentOverview.body.tab.log.allLogs'}),
         });
         this.setState({
           instances: list
@@ -305,41 +308,52 @@ export default class Index extends PureComponent {
         title={
           <Fragment>
             {started ? (
-              <Button onClick={this.handleStop}>暂停推送</Button>
+              <Button onClick={this.handleStop}>
+                {/* 暂停推送 */}
+                <FormattedMessage id='componentOverview.body.tab.log.push'/>
+              </Button>
             ) : (
-              <Button onClick={this.handleStart}>开始推送</Button>
+              <Button onClick={this.handleStart}>
+                {/* 开始推送 */}
+                <FormattedMessage id='componentOverview.body.tab.log.startPushing'/>
+              </Button>
             )}
           </Fragment>
         }
         extra={
           <Fragment>
             <a onClick={this.showDownHistoryLog} style={{ marginRight: 10 }}>
-              历史日志下载
+              {/* 历史日志下载 */}
+              <FormattedMessage id='componentOverview.body.tab.log.install'/>
             </a>
-            <a onClick={this.showDownHistory1000Log}>最近1000条日志</a>
+            <a onClick={this.showDownHistory1000Log}>
+              {/* 最近1000条日志 */}
+              <FormattedMessage id='componentOverview.body.tab.log.lately'/>
+            </a>
           </Fragment>
         }
       >
         <Form layout="inline" name="logFilter" style={{ marginBottom: '16px' }}>
           <Form.Item
             name="filter"
-            label="过滤文本"
+            label={<FormattedMessage id='componentOverview.body.tab.log.text'/>}
             style={{ marginRight: '10px' }}
           >
             <Input.Search
               style={{ width: '300px' }}
-              placeholder="请输入过滤文本"
+              // placeholder="请输入过滤文本"
+              placeholder={formatMessage({id:'componentOverview.body.tab.log.filtertext'})}
               onSearch={this.onFinish}
             />
           </Form.Item>
           <Form.Item
             name="container"
-            label="容器"
+            label={<FormattedMessage id='componentOverview.body.tab.log.container'/>}
             style={{ marginRight: '10px' }}
             className={styles.podCascader}
           >
             <Cascader
-              defaultValue={['全部日志']}
+              defaultValue={[`${formatMessage({id:'componentOverview.body.tab.log.allLogs'})}`]}
               fieldNames={{
                 label: 'name',
                 value: 'name',
@@ -347,14 +361,14 @@ export default class Index extends PureComponent {
               }}
               options={instances}
               onChange={this.onChangeCascader}
-              placeholder="请选择容器"
+              placeholder={formatMessage({id:'componentOverview.body.tab.log.select'})}
             />
           </Form.Item>
 
           {pod_name && (
             <Form.Item
               name="refresh"
-              label="自动刷新"
+              label={<FormattedMessage id='componentOverview.body.tab.log.refresh'/>}
               style={{ marginRight: '0' }}
             >
               <Select
@@ -362,10 +376,22 @@ export default class Index extends PureComponent {
                 onChange={this.handleChange}
                 style={{ width: 130 }}
               >
-                <Option value={5}>5秒</Option>
-                <Option value={10}>10秒</Option>
-                <Option value={30}>30秒</Option>
-                <Option value={0}>关闭</Option>
+                <Option value={5}>
+                  {/* 5秒 */}
+                  <FormattedMessage id='componentOverview.body.tab.log.five'/>
+                </Option>
+                <Option value={10}>
+                  {/* 10秒 */}
+                  <FormattedMessage id='componentOverview.body.tab.log.ten'/>
+                </Option>
+                <Option value={30}>
+                  {/* 30秒 */}
+                  <FormattedMessage id='componentOverview.body.tab.log.thirty'/>
+                </Option>
+                <Option value={0}>
+                  {/* 关闭 */}
+                  <FormattedMessage id='componentOverview.body.tab.log.close'/>
+                </Option>
               </Select>
             </Form.Item>
           )}

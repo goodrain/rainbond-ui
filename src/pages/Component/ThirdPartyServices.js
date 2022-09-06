@@ -15,6 +15,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
@@ -72,9 +73,9 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     const { team_name, region_name, app_alias } = this.fetchParameter();
     confirm({
-      title: '端口未开启',
-      content: '上线前必须开启端口对内或对外属性',
-      okText: '去配置',
+      title: formatMessage({id:'componentOverview.body.ThirdPartyServices.port'}),
+      content: formatMessage({id:'componentOverview.body.ThirdPartyServices.foreign'}),
+      okText: formatMessage({id:'componentOverview.body.ThirdPartyServices.configure'}),
       onOk() {
         dispatch(
           routerRedux.push(
@@ -125,7 +126,7 @@ export default class Index extends PureComponent {
           setTimeout(() => {
             this.handleGetList();
           }, 50000);
-          notification.info({ message: '需要更新才能生效' });
+          notification.info({ message:  formatMessage({id:'notification.hint.need_updata'})});
         }
       }
     });
@@ -170,7 +171,7 @@ export default class Index extends PureComponent {
           if (res && res.status_code === 200) {
             this.setState({ visible: false });
             this.handleGetList();
-            notification.info({ message: '需要更新才能生效' });
+            notification.info({ message: formatMessage({id:'notification.hint.need_updata'}) });
           }
         }
       });
@@ -181,12 +182,12 @@ export default class Index extends PureComponent {
   };
   validAttrName = (_, value, callback) => {
     if (!value || value === '') {
-      callback('请输入正确的IP地址');
+      callback(<FormattedMessage id='componentOverview.body.ThirdPartyServices.ip'/>);
       return;
     }
 
     if (value === '1.1.1.1') {
-      callback('不支持1.1.1.1地址');
+      callback(<FormattedMessage id='componentOverview.body.ThirdPartyServices.address'/>);
     }
 
     if (
@@ -194,7 +195,7 @@ export default class Index extends PureComponent {
       !rega.test(value || '') &&
       !rege.test(value || '')
     ) {
-      callback('请输入正确的地址');
+      callback(<FormattedMessage id='componentOverview.body.ThirdPartyServices.correct_address'/>);
       return;
     }
 
@@ -237,21 +238,21 @@ export default class Index extends PureComponent {
     };
     const columns = [
       {
-        title: '实例地址',
+        title: formatMessage({id:'componentOverview.body.ThirdPartyServices.instance_address'}),
         dataIndex: 'ip',
         key: '1'
       },
       {
-        title: '健康状态',
+        title: formatMessage({id:'componentOverview.body.ThirdPartyServices.health_state'}),
         dataIndex: 'status',
         align: 'center',
         key: '2',
         render: data => {
           const stateMap = {
-            healthy: '健康',
-            unhealthy: '不健康',
-            notready: '未就绪',
-            unknown: '未知'
+            healthy: formatMessage({id:'componentOverview.body.ThirdPartyServices.health'}),
+            unhealthy: formatMessage({id:'componentOverview.body.ThirdPartyServices.unhealth'}),
+            notready: formatMessage({id:'componentOverview.body.ThirdPartyServices.not_ready'}),
+            unknown: formatMessage({id:'componentOverview.body.ThirdPartyServices.unknown'})
           };
           return (
             <span
@@ -260,7 +261,7 @@ export default class Index extends PureComponent {
                   data == 'healthy' ? 'green' : data == 'unhealthy' ? 'red' : ''
               }}
             >
-              {stateMap[data] || '未上线'}
+              {stateMap[data] || <FormattedMessage id='componentOverview.body.ThirdPartyServices.not_online'/>}
             </span>
           );
         }
@@ -269,7 +270,7 @@ export default class Index extends PureComponent {
 
     if (!isHelm) {
       columns.push({
-        title: '操作',
+        title: formatMessage({id:'componentOverview.body.ThirdPartyServices.operation'}),
         dataIndex: 'ep_id',
         key: '3',
         render: ep_id => (
@@ -279,7 +280,7 @@ export default class Index extends PureComponent {
               this.openDeleteVar(ep_id);
             }}
           >
-            删除
+            <FormattedMessage id='button.delete'/>
           </a>
         )
       });
@@ -294,22 +295,22 @@ export default class Index extends PureComponent {
         <Row gutter={24}>
           {visible && (
             <Modal
-              title="新增实例"
+              title={<FormattedMessage id='componentOverview.body.ThirdPartyServices.add'/>}
               visible
               onOk={this.handleSubmit}
               onCancel={this.handleCancel}
             >
-              <FormItem {...formItemLayout} label="实例地址">
+              <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.ThirdPartyServices.instance_address'/>}>
                 {getFieldDecorator('ip', {
                   rules: [{ required: true, validator: this.validAttrName }],
                   initialValue: undefined
-                })(<Input placeholder="请输入实例地址" />)}
+                })(<Input  placeholder={formatMessage({id:'componentOverview.body.ThirdPartyServices.input_address'})}/>)}
               </FormItem>
             </Modal>
           )}
           {appDetail.service.service_source === 'third_party' && (
             <Card
-              title="服务实例"
+              title={<FormattedMessage id='componentOverview.body.ThirdPartyServices.service_instance'/>}
               extra={
                 isHelm ? null : (
                   <div>
@@ -320,7 +321,7 @@ export default class Index extends PureComponent {
                           this.addInstance();
                         }}
                       >
-                        新增
+                        <FormattedMessage id='button.added'/>
                       </Button>
                     )}
 
@@ -329,7 +330,7 @@ export default class Index extends PureComponent {
                         this.handleGetList();
                       }}
                     >
-                      刷新
+                      <FormattedMessage id='button.freshen'/>
                     </Button>
                   </div>
                 )
@@ -338,24 +339,24 @@ export default class Index extends PureComponent {
               <Row>
                 <Col span={12}>
                   <p>
-                    <b style={{ marginRight: 16 }}>注册方式:</b>
+                    <b style={{ marginRight: 16 }}><FormattedMessage id='componentOverview.body.ThirdPartyServices.type'/></b>
                     {appDetail.register_way ? appDetail.register_way : ''}
                   </p>
                   {appDetail.api_url && (
                     <p>
-                      <b style={{ marginRight: 16 }}>API地址:</b>
+                      <b style={{ marginRight: 16 }}><FormattedMessage id='componentOverview.body.ThirdPartyServices.api'/></b>
                       {appDetail.api_url ? appDetail.api_url : ''}
                       <div style={{ margin: '5px 0' }}>
                         <span>
-                          秘钥： <a>{secret_key}</a>
+                          <FormattedMessage id='componentOverview.body.ThirdPartyServices.key'/> <a>{secret_key}</a>
                           <CopyToClipboard
                             text={secret_key}
                             onCopy={() => {
-                              notification.success({ message: '复制成功' });
+                              notification.success({ message:  formatMessage({id:"notification.success.copy"})});
                             }}
                           >
                             <Button size="small" style={{ margin: '0 10px' }}>
-                              复制
+                              <FormattedMessage id='button.copy'/>
                             </Button>
                           </CopyToClipboard>
                         </span>
@@ -365,33 +366,34 @@ export default class Index extends PureComponent {
                             this.handleUpDatekey();
                           }}
                         >
-                          重置密钥
+                          
+                          <FormattedMessage id='componentOverview.body.ThirdPartyServices.re_key'/>
                         </Button>
                       </div>
                     </p>
                   )}
                   {endpoint_num && (
                     <p>
-                      <b style={{ marginRight: 16 }}>当前实例数:</b>
+                      <b style={{ marginRight: 16 }}><FormattedMessage id='componentOverview.body.ThirdPartyServices.number'/></b>
                       {endpoint_num > 0 ? endpoint_num : ''}
                     </p>
                   )}
                   {appDetail.endpoints_type === 'kubernetes' && (
                     <p>
-                      <b style={{ marginRight: 16 }}>Service:</b>
+                      <b style={{ marginRight: 16 }}></b>
                       {appDetail.kubernetes.namespace}/
                       {appDetail.kubernetes.serviceName}
                     </p>
                   )}
                   {appDetail.discovery_type && (
                     <p>
-                      <b style={{ marginRight: 16 }}>动态类型:</b>
+                      <b style={{ marginRight: 16 }}><FormattedMessage id='componentOverview.body.ThirdPartyServices.dynamic'/></b>
                       {appDetail.discovery_type}
                     </p>
                   )}
                   {appDetail.discovery_key && (
                     <p>
-                      <b style={{ marginRight: 16 }}>动态key:</b>
+                      <b style={{ marginRight: 16 }}><FormattedMessage id='componentOverview.body.ThirdPartyServices.dynamic_key'/></b>
                       {appDetail.discovery_key}
                     </p>
                   )}
@@ -400,7 +402,7 @@ export default class Index extends PureComponent {
                   <Col span={12}>
                     <span>
                       API
-                      调用参考（将其中的192.168.1.1修改为你的真实IP地址即可）：
+                      <FormattedMessage id='componentOverview.body.ThirdPartyServices.msg'/>
                     </span>
                     <div
                       style={{
@@ -428,9 +430,9 @@ export default class Index extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteVar}
             onCancel={this.cancelDeleteVar}
-            title="删除变量"
-            desc="确定要删除吗？"
-            subDesc="此操作不可恢复"
+            title={<FormattedMessage id='confirmModal.deldete.env.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.env.desc'/>}
+            subDesc={<FormattedMessage id='confirmModal.deldete.env.subDesc'/>}
           />
         )}
       </Fragment>

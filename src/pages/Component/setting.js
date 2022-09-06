@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import NoPermTip from '../../components/NoPermTip';
@@ -29,6 +30,7 @@ import ViewHealthCheck from './setting/health-check';
 import EditActions from './setting/perm';
 import ViewRunHealthCheck from './setting/run-health-check';
 import Strategy from './strategy';
+import cookie from '../../utils/cookie';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -76,7 +78,8 @@ export default class Index extends React.Component {
       page: 1,
       page_size: 5,
       env_name: '',
-      loading: false
+      loading: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -260,7 +263,7 @@ export default class Index extends React.Component {
       callback: () => {
         this.cancelDeleteVar();
         this.fetchInnerEnvs();
-        notification.success({ message: '操作成功' });
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -279,7 +282,7 @@ export default class Index extends React.Component {
       callback: () => {
         this.cancelTransfer();
         this.fetchInnerEnvs();
-        notification.success({ message: '操作成功' });
+        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
       }
     });
   };
@@ -322,9 +325,9 @@ export default class Index extends React.Component {
           if (res.status_code === 200) {
             this.fetchStartProbe();
             if (isUsed) {
-              notification.success({ message: '启用成功,请更新组件后生效' });
+              notification.success({ message:  formatMessage({id:'notification.success.assembly_start'})});
             } else {
-              notification.success({ message: '禁用成功,请更新组件后生效' });
+              notification.success({ message:  formatMessage({id:'notification.success.assembly_disable'})});
             }
           }
         }
@@ -364,7 +367,7 @@ export default class Index extends React.Component {
           if (res && res.status_code && res.status_code === 200) {
             this.onCancelEditStartProbe();
             this.fetchStartProbe();
-            notification.success({ message: '编辑成功,请更新组件后生效!' });
+            notification.success({ message: formatMessage({id:'notification.success.assembly_edit'}) });
           }
         }
       });
@@ -380,8 +383,8 @@ export default class Index extends React.Component {
           if (res && res.status_code && res.status_code === 200) {
             this.onCancelEditStartProbe();
             this.fetchStartProbe();
-            notification.success({ message: '添加成功' });
-            notification.info({ message: '需要更新后才能生效' });
+            notification.success({ message: formatMessage({id:'notification.success.add'}) });
+            notification.info({ message: formatMessage({id:'notification.hint.need_updata'}) });
           }
         }
       });
@@ -443,7 +446,7 @@ export default class Index extends React.Component {
         label_id: tag.label_id
       },
       callback: () => {
-        notification.success({ message: '删除成功' });
+        notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.fetchTags();
       }
     });
@@ -478,7 +481,7 @@ export default class Index extends React.Component {
       },
       callback: () => {
         this.cancelAddTag();
-        notification.success({ message: '添加成功需重启或更新才能生效' });
+        notification.success({ message:  formatMessage({id:'notification.success.assembly_add'})});
         this.fetchTags();
         this.setState({ tabData: [] });
       }
@@ -530,7 +533,7 @@ export default class Index extends React.Component {
   };
   setupAttribute = () => {
     if (appStatusUtil.canVisit(this.props.status)) {
-      notification.warning({ message: '请先关闭组件后再更改状态' });
+      notification.warning({ message:  formatMessage({id:'notification.warn.assembly_close'})});
       return;
     }
     this.setState({
@@ -551,7 +554,7 @@ export default class Index extends React.Component {
           },
           callback: data => {
             if (data) {
-              notification.success({ message: data.msg_show || '修改成功' });
+              notification.success({ message: data.msg_show ||  formatMessage({id:'notification.success.modified'})});
               this.setState(
                 {
                   visibleAppSetting: false,
@@ -596,11 +599,11 @@ export default class Index extends React.Component {
   handleState = data => {
     if (appProbeUtil.isStartProbeUsed(data)) {
       if (appProbeUtil.isStartProbeStart(data)) {
-        return '已启用';
+        return `${formatMessage({id:'componentOverview.body.setting.Enabled'})}`;
       }
-      return '已禁用';
+      return `${formatMessage({id:'componentOverview.body.setting.disabled'})}`;
     }
-    return '未设置';
+    return `${formatMessage({id:'componentOverview.body.setting.Not_set'})}`;
   };
 
   onPageChange = page => {
@@ -637,7 +640,7 @@ export default class Index extends React.Component {
       componentPermissions: { isDeploytype, isCharacteristic, isHealth },
       appDetail
     } = this.props;
-    const { viewStartHealth, tags, tabData, isShow, loading } = this.state;
+    const { viewStartHealth, tags, tabData, isShow, loading, language } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -657,6 +660,25 @@ export default class Index extends React.Component {
         }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 6
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 18
+        }
+      }
+    };
+    const is_language = language ? formItemLayout : en_formItemLayout
     const appsetting_formItemLayout = {
       wrapperCol: {
         span: 24
@@ -677,15 +699,15 @@ export default class Index extends React.Component {
           style={{
             marginBottom: 24
           }}
-          title="基础信息"
+          title={<FormattedMessage id='componentOverview.body.setting.information'/>}
         >
           <Form>
             <FormItem
               style={{
                 marginBottom: 0
               }}
-              {...formItemLayout}
-              label="创建时间"
+              {...is_language}
+              label={<FormattedMessage id='componentOverview.body.setting.time'/>}
             >
               {baseInfo.create_time || ''}
             </FormItem>
@@ -693,8 +715,8 @@ export default class Index extends React.Component {
               style={{
                 marginBottom: 0
               }}
-              {...formItemLayout}
-              label="组件部署类型"
+              {...is_language}
+              label={<FormattedMessage id='componentOverview.body.setting.type'/>}
             >
               {globalUtil.getComponentType(baseInfo.extend_method)}
               {isDeploytype && (
@@ -703,7 +725,7 @@ export default class Index extends React.Component {
                   size="small"
                   style={{ marginLeft: '10px' }}
                 >
-                  更改
+                  <FormattedMessage id='componentOverview.body.setting.change'/>
                 </Button>
               )}
             </FormItem>
@@ -736,8 +758,8 @@ export default class Index extends React.Component {
               style={{
                 marginBottom: 0
               }}
-              {...formItemLayout}
-              label="组件构建后自动升级"
+              {...is_language}
+              label={<FormattedMessage id='componentOverview.body.setting.upgrade'/>}
             >
               <Switch
                 defaultChecked={baseInfo.build_upgrade}
@@ -753,7 +775,7 @@ export default class Index extends React.Component {
             }}
             title={
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                健康检测
+                <FormattedMessage id='componentOverview.body.setting.health'/>
                 {startProbe && (
                   <div>
                     <a
@@ -766,7 +788,7 @@ export default class Index extends React.Component {
                         fontWeight: 400
                       }}
                     >
-                      {JSON.stringify(startProbe) != '{}' ? '编辑' : '设置'}
+                      {JSON.stringify(startProbe) != '{}' ? <FormattedMessage id='componentOverview.body.setting.edit'/> : <FormattedMessage id='componentOverview.body.setting.set'/>}
                     </a>
 
                     {JSON.stringify(startProbe) != '{}' &&
@@ -777,7 +799,7 @@ export default class Index extends React.Component {
                         }}
                         style={{ fontSize: '14px', fontWeight: 400 }}
                       >
-                        禁用
+                        <FormattedMessage id='componentOverview.body.setting.Disable'/>
                       </a>
                     ) : (
                       JSON.stringify(startProbe) != '{}' && (
@@ -787,7 +809,7 @@ export default class Index extends React.Component {
                           }}
                           style={{ fontSize: '14px', fontWeight: 400 }}
                         >
-                          启用
+                          <FormattedMessage id='componentOverview.body.setting.Enable'/>
                         </a>
                       )
                     )}
@@ -799,18 +821,18 @@ export default class Index extends React.Component {
             {startProbe && (
               <div style={{ display: 'flex' }}>
                 <div style={{ width: '33%', textAlign: 'center' }}>
-                  当前状态:{this.handleState(startProbe)}
+                  <FormattedMessage id='componentOverview.body.setting.state'/>{this.handleState(startProbe)}
                 </div>
                 <div style={{ width: '33%', textAlign: 'center' }}>
-                  检测方式:{startProbe.scheme ? startProbe.scheme : '未设置'}
+                  <FormattedMessage id='componentOverview.body.setting.method'/>{startProbe.scheme ? startProbe.scheme :  <FormattedMessage id='componentOverview.body.setting.Not_set'/>}
                 </div>
                 <div style={{ width: '33%', textAlign: 'center' }}>
-                  不健康处理方式:
+                  <FormattedMessage id='componentOverview.body.setting.unhealth'/>
                   {startProbe.mode === 'readiness'
-                    ? '下线'
+                    ? <FormattedMessage id='componentOverview.body.setting.OfflineOffline'/>
                     : startProbe.mode === 'liveness'
-                      ? '重启'
-                      : '未设置'}
+                      ? <FormattedMessage id='componentOverview.body.setting.restart'/>
+                      : <FormattedMessage id='componentOverview.body.setting.Not_set'/>}
                 </div>
               </div>
             )}
@@ -857,9 +879,9 @@ export default class Index extends React.Component {
           <ConfirmModal
             onOk={this.handleDeleteVar}
             onCancel={this.cancelDeleteVar}
-            title="删除变量"
-            desc="确定要删除此变量吗？"
-            subDesc="此操作不可恢复"
+            title={<FormattedMessage id='confirmModal.deldete.env.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.env.desc'/>}
+            subDesc={<FormattedMessage id='confirmModal.deldete.env.subDesc'/>}
           />
         )}
 
@@ -867,15 +889,15 @@ export default class Index extends React.Component {
           <ConfirmModal
             onOk={this.handleTransfer}
             onCancel={this.cancelTransfer}
-            title="转移环境变量"
-            desc="确定要转移此变量吗？"
+            title={<FormattedMessage id='confirmModal.deldete.transfer.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.transfer.determine'/>}
             subDesc=""
           />
         )}
 
         {viewStartHealth && (
           <ViewHealthCheck
-            title="健康检查查看"
+            title={<FormattedMessage id='componentOverview.body.setting.health_examination'/>}
             data={viewStartHealth}
             onCancel={() => {
               this.setState({ viewStartHealth: null });
@@ -886,7 +908,7 @@ export default class Index extends React.Component {
           <EditHealthCheck
             ports={ports}
             onOk={this.handleEditHealth}
-            title="健康检测"
+            title={<FormattedMessage id='componentOverview.body.setting.health'/>}
             data={this.state.editStartHealth}
             onCancel={this.onCancelEditStartProbe}
             loading={loading}
@@ -902,7 +924,7 @@ export default class Index extends React.Component {
         )}
         {this.state.viewRunHealth && (
           <ViewRunHealthCheck
-            title="运行时检查查看"
+            title={<FormattedMessage id='componentOverview.body.setting.see'/>}
             data={this.state.viewRunHealth}
             onCancel={() => {
               this.setState({ viewRunHealth: null });
@@ -913,7 +935,7 @@ export default class Index extends React.Component {
           <EditRunHealthCheck
             ports={ports}
             onOk={this.handleEditRunHealth}
-            title="设置运行时检查"
+            title={<FormattedMessage id='componentOverview.body.setting.inspect'/>}
             data={this.state.editRunHealth}
             onCancel={this.onCancelEditRunProbe}
           />
@@ -936,7 +958,7 @@ export default class Index extends React.Component {
         )}
         {this.state.visibleAppSetting && (
           <Modal
-            title="组件部署类型设置"
+            title={<FormattedMessage id='componentOverview.body.setting.deployment'/>}
             visible={this.state.visibleAppSetting}
             // onOk={this.handleOk_AppSetting}
             width={600}
@@ -945,22 +967,22 @@ export default class Index extends React.Component {
               isShow ? (
                 [
                   <Popconfirm
-                    title="修改部署类型，存储数据可能丢失或存储不可用,你确定要修改吗？"
+                    title={<FormattedMessage id='componentOverview.body.setting.Modify'/>}
                     onConfirm={this.handleOk_AppSetting}
                     onCancel={this.handleCancel_AppSetting}
                     okText="Yes"
                     cancelText="No"
                   >
-                    <Button type="primary">确定</Button>
+                    <Button type="primary"><FormattedMessage id='componentOverview.body.setting.determine'/></Button>
                   </Popconfirm>,
-                  <Button onClick={this.handleCancel_AppSetting}>取消</Button>
+                  <Button onClick={this.handleCancel_AppSetting}><FormattedMessage id='componentOverview.body.setting.cancel'/></Button>
                 ]
               ) : (
                 <div>
                   <Button type="primary" onClick={this.handleCancel_AppSetting}>
-                    确定
+                    <FormattedMessage id='componentOverview.body.setting.determine'/>
                   </Button>
-                  <Button onClick={this.handleCancel_AppSetting}>取消</Button>
+                  <Button onClick={this.handleCancel_AppSetting}><FormattedMessage id='componentOverview.body.setting.cancel'/></Button>
                 </div>
               )
             }
@@ -971,7 +993,7 @@ export default class Index extends React.Component {
                 rules: [
                   {
                     required: true,
-                    message: '请选择组件类型'
+                    message: formatMessage({id:'componentOverview.body.setting.select'}),
                   }
                 ]
               })(

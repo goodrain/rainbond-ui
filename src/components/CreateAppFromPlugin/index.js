@@ -2,6 +2,7 @@
 import { Button, Form, Modal, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddGroup from '../AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
@@ -9,10 +10,10 @@ import styles from '../CreateTeam/index.less';
 const { Option } = Select;
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 7
   },
   wrapperCol: {
-    span: 19
+    span: 17
   }
 };
 
@@ -111,10 +112,10 @@ export default class Index extends PureComponent {
         visible={showCreate}
         onCancel={onCancel}
         onOk={this.handleSubmit}
-        title="要安装到哪个应用?"
+        title={formatMessage({id:'teamOther.CreateAppFromMarketForm.title'})}
         footer={[
           <div style={{display:'flex',marginLeft:'120px'}}>
-          <Button onClick={onCancel}>取消</Button>
+          <Button onClick={onCancel}>{formatMessage({id:"button.cancel"})}</Button>
           <div>
             {
               btnStatus && btnStatus == 'Installable' ? (
@@ -124,7 +125,7 @@ export default class Index extends PureComponent {
                   style={{ marginRight: '5px' }}
                   loading={addAppLoading || disabled}
                 >
-                  安装
+                  {formatMessage({id:'button.install'})}
                 </Button>
               ) :
                 btnStatus == 'AlreadyInstalled' ? (
@@ -133,7 +134,7 @@ export default class Index extends PureComponent {
                     style={{ marginRight: '5px' }}
                     disabled
                   >
-                    已安装
+                    {formatMessage({id:'teamOther.CreateAppFromPlugin.been_installed'})}
                   </Button>
                 ) :
                   btnStatus == 'Upgradeable' ? (
@@ -143,7 +144,7 @@ export default class Index extends PureComponent {
                       style={{ marginRight: '5px' }}
                       loading={addAppLoading || disabled}
                     >
-                      升级
+                      {formatMessage({id:'teamOther.CreateAppFromPlugin.upgrade'})}
                     </Button>
                   ) : (
                     <Button
@@ -152,7 +153,7 @@ export default class Index extends PureComponent {
                       style={{ marginRight: '5px' }}
                       loading={addAppLoading || disabled}
                     >
-                      安装
+                      {formatMessage({id:'button.install'})}
                     </Button>
                   )
             }
@@ -161,7 +162,7 @@ export default class Index extends PureComponent {
         ]}
       >
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="安装版本">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromMarketForm.install'})}>
             {getFieldDecorator('group_version', {
               initialValue: versionsInfo
                 ? versionsInfo[0].version
@@ -171,7 +172,7 @@ export default class Index extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请选择版本'
+                  message: formatMessage({id:'teamOther.CreateAppFromMarketForm.setect'})
                 }
               ]
             })(

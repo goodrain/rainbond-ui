@@ -154,7 +154,97 @@
     }
   }
 }
+.uesrInfos {
+  width: 100px;
+  text-align: center;
+  background: #fff;
+  border-radius: 4px;
+  outline: none;
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  -webkit-transition: background .3s, width .2s;
+  transition: background .3s, width .2s;
+  zoom: 1;
 
+  :global {
+
+    .ant-menu-inline,
+    .ant-menu-vertical,
+    .ant-menu-vertical-left {
+      border: none !important;
+    }
+  }
+
+  li {
+    font-size: 12px !important;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: rgba(51, 51, 51, 1);
+    height: 17px !important;
+    line-height: 17px !important;
+
+    i {
+      font-size: 12px !important;
+    }
+  }
+
+  padding: 10px 0px;
+
+  .uesrInfoTitle {
+    width: 100px;
+    height: 17px;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: rgba(51, 51, 51, 1);
+    line-height: 17px;
+    margin-bottom: 6px;
+  }
+
+
+
+
+  .userInfoContent {
+    display: flex;
+    align-items: center;
+
+    &:hover span,
+    &:hover span i {
+      color: #1890ff !important;
+    }
+
+    span {
+      display: inline-block;
+      width: 63px;
+      height: 17px;
+      font-size: 12px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: rgba(51, 51, 51, 1) !important;
+
+      i {
+        color: rgba(51, 51, 51, 1) !important;
+        font-size: 10px;
+        margin-right: 5px;
+      }
+    }
+
+    .oneSpan {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      white-space: nowrap;
+      line-height: 16px;
+
+      i {
+        font-size: 12px;
+        margin-left: 5px;
+      }
+
+      margin-right: 8px;
+    }
+  }
+}
 
 .noticeIcon {
   i {

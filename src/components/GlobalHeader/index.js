@@ -16,6 +16,7 @@ import {
   Spin
 } from 'antd';
 import { connect } from 'dva';
+import { formatMessage, setLocale, getLocale, FormattedMessage } from 'umi/locale'
 import { routerRedux } from 'dva/router';
 import Debounce from 'lodash-decorators/debounce';
 import React, { PureComponent } from 'react';
@@ -23,7 +24,7 @@ import userIcon from '../../../public/images/user-icon-small.png';
 import { setNewbieGuide } from '../../services/api';
 import ChangePassword from '../ChangePassword';
 import styles from './index.less';
-
+import cookie from '../../utils/cookie';
 const { Header } = Layout;
 
 @connect(({ user, global, appControl }) => ({
@@ -39,9 +40,41 @@ export default class GlobalHeader extends PureComponent {
     const { enterprise } = this.props;
     this.state = {
       isNewbieGuide: false && rainbondUtil.isEnableNewbieGuide(enterprise),
-      showChangePassword: false
+      showChangePassword: false,
+      language: cookie.get('language') === 'zh-CN' ?  true : false ,
     };
   }
+  componentDidMount(){
+    let lan = navigator.systemLanguage || navigator.language;
+    const Language = cookie.get('language')
+    if(Language == null) {
+    if(lan.toLowerCase().indexOf('zh')!==-1){
+      const language = 'zh-CN'
+      cookie.set('language', language)
+      const lang = cookie.get('language')
+      setLocale('zh-CN')
+      this.setState({
+        language:true,
+      })
+    }else if(lan.toLowerCase().indexOf('en')!==-1){
+      const language = 'en-US'
+      cookie.set('language', language)
+      const lang = cookie.get('language')
+      setLocale('en-US')
+      this.setState({
+        language:false,
+      })
+    }else{
+      const language = 'zh-CN'
+      cookie.set('language', language)
+      const lang = cookie.get('language')
+      setLocale('zh-CN')
+      this.setState({
+        language:true,
+      })
+    }
+    }
+      }
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
     if (key === 'userCenter') {
@@ -54,6 +87,19 @@ export default class GlobalHeader extends PureComponent {
       dispatch({ type: 'user/logout' });
     }
   };
+  
+  handleMenuCN = (val) => {
+    cookie.set('language', val)
+    const lang = cookie.get('language')
+    if(val === 'zh-CN'){
+      setLocale('zh-CN')
+    }else if(val === 'en-US'){
+      setLocale('en-US')
+    }
+    this.setState({
+      language: !language
+    })
+  }
   showChangePass = () => {
     this.setState({ showChangePassword: true });
   };
@@ -67,7 +113,7 @@ export default class GlobalHeader extends PureComponent {
         ...vals
       },
       callback: () => {
-        notification.success({ message: '修改成功，请重新登录' });
+        notification.success({ message: formatMessage({id:'GlobalHeader.success'}) });
       }
     });
   };
@@ -90,7 +136,7 @@ export default class GlobalHeader extends PureComponent {
       }
     }).then(() => {
       notification.success({
-        message: '关闭成功'
+        message: formatMessage({id:'notification.success.close'})
       });
       dispatch({
         type: 'global/fetchEnterpriseInfo',
@@ -109,6 +155,7 @@ export default class GlobalHeader extends PureComponent {
   };
   render() {
     const { currentUser, customHeader, rainbondInfo, collapsed } = this.props;
+    const { language } = this.state
     if (!currentUser) {
       return null;
     }
@@ -132,6 +179,16 @@ export default class GlobalHeader extends PureComponent {
         <path d="M1024 445.44 828.414771 625.665331l0-116.73472L506.88 508.930611l0-126.98112 321.53472 0 0-116.73472L1024 445.44zM690.174771 41.985331 100.34944 41.985331l314.37056 133.12 0 630.78528 275.45472 0L690.17472 551.93472l46.08 0 0 296.96L414.72 848.89472 414.72 1024 0 848.894771 0 0l736.25472 0 0 339.97056-46.08 0L690.17472 41.98528 690.174771 41.985331zM690.174771 41.985331" />
       </svg>
     );
+    const en_language = (
+      <svg class="icon" width="25px" height="25px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#ffffff" d="M229.248 704V337.504h271.744v61.984h-197.76v81.28h184v61.76h-184v99.712h204.768V704h-278.72z m550.496 0h-70.24v-135.488c0-28.672-1.504-47.232-4.48-55.648a39.04 39.04 0 0 0-14.656-19.616 41.792 41.792 0 0 0-24.384-7.008c-12.16 0-23.04 3.328-32.736 10.016-9.664 6.656-16.32 15.488-19.872 26.496-3.584 11.008-5.376 31.36-5.376 60.992V704h-70.24v-265.504h65.248v39.008c23.168-30.016 52.32-44.992 87.488-44.992 15.52 0 29.664 2.784 42.496 8.352 12.832 5.6 22.56 12.704 29.12 21.376 6.592 8.672 11.2 18.496 13.76 29.504 2.56 11.008 3.872 26.752 3.872 47.264V704zM160 144a32 32 0 0 0-32 32V864a32 32 0 0 0 32 32h688a32 32 0 0 0 32-32V176a32 32 0 0 0-32-32H160z m0-64h688a96 96 0 0 1 96 96V864a96 96 0 0 1-96 96H160a96 96 0 0 1-96-96V176a96 96 0 0 1 96-96z" />
+      </svg>
+  )
+    const cn_language = (
+      <svg class="icon" width="25px" height="25px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#ffffff" d="M160 144a32 32 0 0 0-32 32V864a32 32 0 0 0 32 32h688a32 32 0 0 0 32-32V176a32 32 0 0 0-32-32H160z m0-64h688a96 96 0 0 1 96 96V864a96 96 0 0 1-96 96H160a96 96 0 0 1-96-96V176a96 96 0 0 1 96-96zM482.176 262.272h59.616v94.4h196v239.072h-196v184.416h-59.616v-184.416H286.72v-239.04h195.456V262.24z m-137.504 277.152h137.504v-126.4H344.64v126.4z m197.12 0h138.048v-126.4H541.76v126.4z" />
+        </svg>
+    )
     const MenuItems = (key, component, text) => {
       return (
         <Menu.Item key={key}>
@@ -141,21 +198,29 @@ export default class GlobalHeader extends PureComponent {
               marginRight: 8
             }}
           />
+          {text == 1 && <FormattedMessage id="GlobalHeader.core"/>}
+          {text == 2 && <FormattedMessage id="GlobalHeader.edit"/>}
+          {text == 3 && <FormattedMessage id="GlobalHeader.exit"/>}
+        </Menu.Item>
+      );
+    };
+    const menu = (
+      <div className={styles.uesrInfo}>
+        <Menu selectedKeys={[]} onClick={this.handleMenuClick}>
+          {MenuItems('userCenter', handleUserSvg, 1 )}
+          {MenuItems('cpw', handleEditSvg, 2 )}
+          {!rainbondUtil.logoutEnable(rainbondInfo) &&
+            MenuItems('logout', handleLogoutSvg, 3)}
+        </Menu>
+      </div>
+    );
+    const MenuCN = (key, text) => {
+      return (
+        <Menu.Item key={key}>
           {text}
         </Menu.Item>
       );
     };
-
-    const menu = (
-      <div className={styles.uesrInfo}>
-        <Menu selectedKeys={[]} onClick={this.handleMenuClick}>
-          {MenuItems('userCenter', handleUserSvg, '个人中心')}
-          {MenuItems('cpw', handleEditSvg, '修改密码')}
-          {!rainbondUtil.logoutEnable(rainbondInfo) &&
-            MenuItems('logout', handleLogoutSvg, '退出登录')}
-        </Menu>
-      </div>
-    );
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
@@ -169,7 +234,13 @@ export default class GlobalHeader extends PureComponent {
 
         {customHeader && customHeader()}
         <div className={styles.right}>
-          {enterpriseEdition ? (
+            {/* <Dropdown overlay={menuCN} trigger="hover">  
+              <span className={`${styles.action} ${styles.account}`} style={{ color: '#fff' }}>
+                <span style={{ marginRight:'4px', display:'inline-block' }}>{handleZhEn}</span>
+                <span className={styles.name}>{language}</span>
+              </span>
+            </Dropdown> */}
+          {/* {enterpriseEdition ? (
             <span className={styles.action} style={{ color: '#fff' }}>
               企业版
             </span>
@@ -183,13 +254,22 @@ export default class GlobalHeader extends PureComponent {
             >
               开源版
             </a>
-          )}
+          )} */}
+          <a 
+          className={styles.action}
+          style={{ color: '#fff' }}
+          href={ language ?  "https://www.rainbond.com/enterprise_server/" :'https://www.rainbond.com/en/enterprise_server/'}
+          target="_blank"
+          >
+              
+              <FormattedMessage id="GlobalHeader.serve"/>
+            </a>
           {isNewbieGuide && (
             <Popconfirm
-              title="是否要关闭新手引导功能、关闭后并无法开启此功能?"
+              title={formatMessage({id:'GlobalHeader.close'})}
               onConfirm={this.handlIsOpenNewbieGuide}
-              okText="关闭"
-              cancelText="取消"
+              okText={formatMessage({id:'button.close'})}
+              cancelText={formatMessage({id:'button.cancel'})}
             >
               <a
                 className={styles.action}
@@ -197,7 +277,7 @@ export default class GlobalHeader extends PureComponent {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                新手引导
+                <FormattedMessage id="GlobalHeader.new"/>
               </a>
             </Popconfirm>
           )}
@@ -205,13 +285,22 @@ export default class GlobalHeader extends PureComponent {
             <a
               className={styles.action}
               style={{ color: '#fff' }}
-              href={`${platformUrl}docs/`}
+              href={language ? 'https://www.rainbond.com/docs/' : 'https://www.rainbond.com/en/docs/'}
               target="_blank"
               rel="noopener noreferrer"
             >
-              平台使用手册
+              <FormattedMessage id="GlobalHeader.manual"/>
             </a>
           )}
+            <span
+            style={{  
+            verticalAlign: '-9px',
+            cursor: 'pointer',
+              }}
+            onClick = {language ? () => this.handleMenuCN("en-US") :  () => this.handleMenuCN("zh-CN")}
+            >
+              {language ? en_language : cn_language}
+            </span>
           {currentUser ? (
             <Dropdown overlay={menu}>
               <span className={`${styles.action} ${styles.account}`}>

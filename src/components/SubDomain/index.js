@@ -1,5 +1,6 @@
 import React, { PureComponent, Fragment } from "react";
-import { Row, Col, Card, Form, Button, Icon, Select, Modal, Input } from "antd";
+import { Row, Col, Card, Form, Button, Icon, Select, Modal, Input, message } from "antd";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -51,7 +52,7 @@ export default class SubDomain extends PureComponent {
 
     return (
       <Modal
-        title="新增二级域名"
+        title={ <FormattedMessage id="omponentOverview.body.SubDomain.title"/> }
         onOk={this.handleSubmit}
         visible
         onCancel={this.handleCancel}
@@ -59,19 +60,19 @@ export default class SubDomain extends PureComponent {
         <Row gutter={24}>
           <Col className="gutter-row" span={12}>
             <Form onSubmit={this.handleSubmit}>
-              <FormItem {...formItemLayout} label="域名">
+              <FormItem {...formItemLayout} l label={ <FormattedMessage id="omponentOverview.body.SubDomain.domain"/> }>
                 {getFieldDecorator("domain", {
                   rules: [
                     {
                       required: true,
-                      message: "请添加域名"
+                      message: formatMessage({id:'componentOverview.body.SubDomain.required'})
                     },
                     {
                       pattern: /^[0-9a-zA-Z.]*$/,
-                      message: "格式不正确，请输入数字或字母"
+                      message: formatMessage({id:'componentOverview.body.SubDomain.pattern'})
                     }
                   ]
-                })(<Input placeholder="请填写域名" />)}
+                })(<Input  placeholder={formatMessage({id:'componentOverview.body.SubDomain.placeholder'})}/>)}
               </FormItem>
             </Form>
           </Col>

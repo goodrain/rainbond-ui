@@ -2,7 +2,9 @@
 import { Button, Drawer, Form, Input, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Parameterinput from '../Parameterinput';
+import cookie from '../../utils/cookie';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -26,7 +28,8 @@ class ParameterForm extends PureComponent {
       webSockets: [
         { item_key: 'Connection', item_value: 'Upgrade' },
         { item_key: 'Upgrade', item_value: '$http_upgrade' }
-      ]
+      ],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onChangeWebSocket = () => {
@@ -91,11 +94,11 @@ class ParameterForm extends PureComponent {
     const num = Number(value);
     if (num) {
       if (num < 0) {
-        callback('最小输入值0');
+        callback(formatMessage({id:'placeholder.min0'}));
         return;
       }
       if (num > 65535) {
-        callback('最大输入值65535');
+        callback(formatMessage({id:'placeholder.max65535'}));
         return;
       }
     }
@@ -104,11 +107,11 @@ class ParameterForm extends PureComponent {
   checkBufferSize = (res, value, callback) => {
     const num = Number(value);
     if (num <= 0) {
-      callback('输入值过小，或不是合法数字，推荐至少设置4K');
+      callback(formatMessage({id:'placeholder.4k'}));
       return;
     }
     if (num > 65535) {
-      callback('最大输入值65535');
+      callback(formatMessage({id:'placeholder.max65535'}));
       return;
     }
     callback();
@@ -117,30 +120,41 @@ class ParameterForm extends PureComponent {
   render() {
     const { editInfo, form, onClose, visible } = this.props;
     const { getFieldDecorator } = form;
-    const { proxyBuffering, WebSocket } = this.state;
+    const { proxyBuffering, WebSocket, language } = this.state;
     const customRules = [
       {
         pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-        message: '请输入整数'
+        message: formatMessage({id:'placeholder.int'})
       },
       { validator: this.checkContent }
     ];
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 }
+        sm: { span: 8 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 }
+        sm: { span: 16 }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 10 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 14 }
+      }
+    };
+    const is_language = language ? formItemLayout : en_formItemLayout
     const setHeaders = editInfo && editInfo.set_headers;
     const defaultSetHeaders = this.handleSetWebSocket(setHeaders, true);
     return (
       <div>
         <Drawer
-          title="参数配置"
+          title={formatMessage({id:'popover.config.title'})}
           placement="right"
           width={550}
           closable={false}
@@ -153,63 +167,63 @@ class ParameterForm extends PureComponent {
         >
           <Form>
             <FormItem
-              {...formItemLayout}
-              label="连接超时时间"
+              {...is_language}
+              label={formatMessage({id:'popover.config.lable.proxy_connect_timeout'})}
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_connect_timeout', {
                 rules: [
                   {
                     required: true,
-                    message: '请输入超时时间'
+                    message: formatMessage({id:'placeholder.proxy_connect_timeout'})
                   }
                 ],
                 initialValue: editInfo ? editInfo.proxy_connect_timeout : '5'
-              })(<Input addonAfter="秒" />)}
+              })(<Input addonAfter={formatMessage({id:'popover.config.lable.second'})} />)}
             </FormItem>
 
             <FormItem
-              {...formItemLayout}
-              label="请求超时时间"
+              {...is_language}
+              label={formatMessage({id:'popover.config.lable.proxy_send_timeout'})}
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_send_timeout', {
                 rules: [
                   {
                     required: true,
-                    message: '请输入请求超时时间'
+                    message: formatMessage({id:'placeholder.proxy_send_timeout'})
                   }
                 ],
                 initialValue: editInfo ? editInfo.proxy_send_timeout : '60'
-              })(<Input addonAfter="秒" />)}
+              })(<Input addonAfter={formatMessage({id:'popover.config.lable.second'})} />)}
             </FormItem>
 
             <FormItem
-              {...formItemLayout}
-              label="响应超时时间"
+              {...is_language}
+              label={formatMessage({id:'popover.config.lable.proxy_read_timeout'})}
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_read_timeout', {
                 rules: [
                   {
                     required: true,
-                    message: '请输入响应超时时间'
+                    message: formatMessage({id:'placeholder.proxy_read_timeout'})
                   }
                 ],
                 initialValue: editInfo ? editInfo.proxy_read_timeout : '60'
-              })(<Input addonAfter="秒" />)}
+              })(<Input addonAfter={formatMessage({id:'popover.config.lable.second'})} />)}
             </FormItem>
 
             <FormItem
-              {...formItemLayout}
-              label="上传限制"
+              {...is_language}
+              label={formatMessage({id:'popover.config.lable.proxy_body_size'})}
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_body_size', {
                 rules: [
                   {
                     required: true,
-                    message: '请输入'
+                    message: formatMessage({id:'placeholder.proxy_body_size'})
                   },
                   ...customRules
                 ],
@@ -217,8 +231,8 @@ class ParameterForm extends PureComponent {
               })(<Input addonAfter="Mb" />)}
             </FormItem>
             <FormItem
-              {...formItemLayout}
-              label="缓冲区数量"
+              {...is_language}
+              label={formatMessage({id:'popover.config.lable.proxy_buffer_numbers'})}
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_buffer_numbers', {
@@ -227,26 +241,26 @@ class ParameterForm extends PureComponent {
               })(<Input />)}
             </FormItem>
             <FormItem
-              {...formItemLayout}
-              label="缓冲区大小"
+              {...is_language}
+              label={formatMessage({id:'popover.config.lable.proxy_buffer_size'})}
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_buffer_size', {
                 rules: [{ validator: this.checkBufferSize }],
                 initialValue: editInfo ? editInfo.proxy_buffer_size : '4'
-              })(<Input addonAfter="K" placeholder="请输入缓冲区大小" />)}
+              })(<Input addonAfter="K" placeholder={formatMessage({id:'placeholder.proxy_buffer_size'})} />)}
             </FormItem>
             <FormItem
-              {...formItemLayout}
-              label="WebSocket支持"
+              {...is_language}
+              label={formatMessage({id:'popover.config.lable.WebSocket'})}
               className={styles.antd_form}
             >
               {getFieldDecorator('WebSocket', {
                 initialValue: WebSocket
               })(
                 <Switch
-                  checkedChildren="开"
-                  unCheckedChildren="关"
+                  checkedChildren={formatMessage({id:'button.switch.open'})}
+                  unCheckedChildren={formatMessage({id:'button.switch.close'})}
                   checked={WebSocket}
                   onClick={() => {
                     this.onChangeWebSocket();
@@ -255,16 +269,16 @@ class ParameterForm extends PureComponent {
               )}
             </FormItem>
             <FormItem
-              {...formItemLayout}
-              label="开启ProxyBuffer"
+              {...is_language}
+              label={formatMessage({id:'popover.config.lable.proxy_buffering'})}
               className={styles.antd_form}
             >
               {getFieldDecorator('proxy_buffering', {
                 initialValue: proxyBuffering
               })(
                 <Switch
-                  checkedChildren="开"
-                  unCheckedChildren="关"
+                  checkedChildren={formatMessage({id:'button.switch.open'})}
+                  unCheckedChildren={formatMessage({id:'button.switch.close'})}
                   checked={proxyBuffering}
                   onClick={() => {
                     this.setState({ proxyBuffering: !proxyBuffering });
@@ -273,7 +287,7 @@ class ParameterForm extends PureComponent {
               )}
             </FormItem>
 
-            <FormItem {...formItemLayout} label="自定义请求头">
+            <FormItem {...is_language} label={formatMessage({id:'popover.config.lable.set_headers'})}>
               {getFieldDecorator('set_headers', {
                 initialValue: defaultSetHeaders
               })(<Parameterinput editInfo={defaultSetHeaders} />)}
@@ -299,10 +313,10 @@ class ParameterForm extends PureComponent {
               }}
               onClick={onClose}
             >
-              取消
+              {formatMessage({id:'popover.cancel'})}
             </Button>
             <Button type="primary" onClick={this.handleOk}>
-              确认
+              {formatMessage({id:'popover.confirm'})}
             </Button>
           </div>
         </Drawer>

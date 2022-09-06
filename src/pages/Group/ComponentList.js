@@ -18,6 +18,7 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import moment from 'moment';
 import React, { Component, Fragment } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
 import { batchOperation } from '../../services/app';
@@ -118,6 +119,7 @@ export default class ComponentList extends Component {
       },
       callback: data => {
         if (data && data.status_code === 200) {
+          console.log(data.list,'list')
           this.setState({
             apps: data.list || [],
             total: data.total || 0,
@@ -160,9 +162,9 @@ export default class ComponentList extends Component {
   handleOperation = (state, data) => {
     const { dispatch } = this.props;
     const operationMap = {
-      putReStart: '操作成功，重启中',
-      putStart: '操作成功，启动中',
-      putStop: '操作成功，关闭中'
+      putReStart: formatMessage({id:'notification.hint.component.putReStart'}),
+      putStart: formatMessage({id:'notification.hint.component.putStart'}),
+      putStop: formatMessage({id:'notification.hint.component.putStop'})
     };
     dispatch({
       type: `appControl/${state}`,
@@ -186,11 +188,11 @@ export default class ComponentList extends Component {
   handleBatchOperation = action => {
     const ids = this.getSelectedKeys();
     const map = {
-      stop: '批量关闭中',
-      start: '批量启动中',
-      restart: '批量重启中',
-      upgrade: '批量更新中',
-      deploy: '批量构建中'
+      stop: formatMessage({id:'notification.hint.component.putBatchStop'}),
+      start: formatMessage({id:'notification.hint.component.putBatchStart'}),
+      restart: formatMessage({id:'notification.hint.component.putBatchRestart'}),
+      upgrade: formatMessage({id:'notification.hint.component.putBatchUpgrade'}),
+      deploy: formatMessage({id:'notification.hint.component.putBatchDeploy'})
     };
     batchOperation({
       action,
@@ -244,7 +246,7 @@ export default class ComponentList extends Component {
       callback: data => {
         if (data) {
           notification.success({
-            message: '批量移动中'
+            message: formatMessage({id:'notification.hint.component.putBatchMove'})
           });
           this.hideBatchDelete();
         }
@@ -381,7 +383,7 @@ export default class ComponentList extends Component {
     };
     const columns = [
       {
-        title: '组件名称',
+        title: formatMessage({id:'appOverview.list.table.btn.name'}),
         dataIndex: 'service_cname',
         render: (val, data) => (
           <Link
@@ -392,7 +394,7 @@ export default class ComponentList extends Component {
             {' '}
             {data.service_source && data.service_source === 'third_party' ? (
               <span>
-                <Tooltip title="第三方组件">
+                <Tooltip title={formatMessage({id:'appOverview.list.table.btn.third_party'})}>
                   <span
                     style={{
                       borderRadius: '50%',
@@ -426,7 +428,7 @@ export default class ComponentList extends Component {
         )
       },
       {
-        title: '内存',
+        title: formatMessage({id:'appOverview.list.table.memory'}),
         dataIndex: 'min_memory',
         sorter: true,
         render: (val, data) => (
@@ -438,7 +440,7 @@ export default class ComponentList extends Component {
         )
       },
       {
-        title: '状态',
+        title: formatMessage({id:'appOverview.list.table.status'}),
         dataIndex: 'status_cn',
         sorter: true,
         render: (val, data) =>
@@ -447,11 +449,11 @@ export default class ComponentList extends Component {
               status={appUtil.appStatusToBadgeStatus(data.status)}
               text={
                 val === '运行中'
-                  ? '健康'
+                  ? formatMessage({id:'status.component.health'})
                   : val === '运行异常'
-                  ? '不健康'
+                  ? formatMessage({id:'status.component.not_health'})
                   : val === '已关闭'
-                  ? '下线'
+                  ? formatMessage({id:'status.component.off_line'})
                   : val
               }
             />
@@ -463,7 +465,7 @@ export default class ComponentList extends Component {
           )
       },
       {
-        title: '更新时间',
+        title: formatMessage({id:'appOverview.list.table.updateTime'}),
         dataIndex: 'update_time',
         sorter: true,
         render: val =>
@@ -472,7 +474,7 @@ export default class ComponentList extends Component {
             .format('YYYY-MM-DD HH:mm:ss')
       },
       {
-        title: '操作',
+        title: formatMessage({id:'appOverview.list.table.operate'}),
         dataIndex: 'action',
         render: (val, data) => (
           <Fragment>
@@ -480,32 +482,38 @@ export default class ComponentList extends Component {
               <Fragment>
                 {isRestart && (
                   <Popconfirm
-                    title="确认要重启该组件吗？"
+                    title={formatMessage({id:'confirmModal.component.restart.title'})}
                     onConfirm={() => {
                       this.handleOperation('putReStart', data);
                     }}
                   >
-                    <Button type="link">重启</Button>
+                    <Button type="link">
+                      {formatMessage({id:'appOverview.list.table.restart'})}
+                    </Button>
                   </Popconfirm>
                 )}
                 {isStart && (
                   <Popconfirm
-                    title="确认要启动该组件吗？"
+                    title={formatMessage({id:'confirmModal.component.start.title'})}
                     onConfirm={() => {
                       this.handleOperation('putStart', data);
                     }}
                   >
-                    <Button type="link">启动</Button>
+                    <Button type="link">
+                      {formatMessage({id:'appOverview.list.table.start'})}
+                    </Button>
                   </Popconfirm>
                 )}
                 {isStop && (
                   <Popconfirm
-                    title="确认要关闭该组件吗？"
+                    title={formatMessage({id:'confirmModal.component.stop.title'})}
                     onConfirm={() => {
                       this.handleOperation('putStop', data);
                     }}
                   >
-                    <Button type="link">关闭</Button>
+                    <Button type="link">
+                      {formatMessage({id:'appOverview.list.table.stop'})}
+                    </Button>
                   </Popconfirm>
                 )}
               </Fragment>
@@ -517,38 +525,38 @@ export default class ComponentList extends Component {
     const customBox = [
       {
         permissions: isConstruct,
-        name: '构建',
+        name: formatMessage({id:'appOverview.list.table.stop'}),
         action: 'deploy'
       },
       {
         permissions: isUpdate,
-        name: '更新',
+        name: formatMessage({id:'appOverview.btn.update'}),
         action: 'upgrade'
       },
       {
         permissions: isRestart,
-        name: '重启',
+        name: formatMessage({id:'appOverview.list.table.restart'}),
         action: 'restart'
       },
       {
         permissions: isStop,
-        name: '关闭',
+        name: formatMessage({id:'appOverview.list.table.stop'}),
         action: 'stop'
       },
       {
         permissions: isStart,
-        name: '启动',
+        name: formatMessage({id:'appOverview.list.table.start'}),
         action: 'start'
       },
       {
         permissions: isEdit,
-        name: '移动',
+        name: formatMessage({id:'appOverview.list.table.move'}),
         action: false,
         customMethods: this.showBatchMove
       },
       {
         permissions: isDelete,
-        name: '删除',
+        name: formatMessage({id:'appOverview.list.table.delete'}),
         action: false,
         customMethods: this.handleBatchDelete
       }
@@ -590,7 +598,7 @@ export default class ComponentList extends Component {
             disabled={!this.CanBatchOperation()}
           >
             <Button style={{ padding: '8px 16px'}}>
-              批量操作 <Icon type="down" />
+              {formatMessage({id:'appOverview.list.table.batchOperate'})} <Icon type="down" />
             </Button>
           </Dropdown>
         </div>
@@ -609,14 +617,14 @@ export default class ComponentList extends Component {
             <Form.Item>
               <Input
                 style={{ width: 250 }}
-                placeholder="请搜索组件"
+                placeholder={formatMessage({id:'appOverview.list.input.seach.hint'})}
                 onChange={this.handelChange}
                 onPressEnter={this.handleSearch}
               />
             </Form.Item>
             <Form.Item>
               <Button type="primary" onClick={this.handleSearch} icon="search">
-                搜索
+              {formatMessage({id:'appOverview.list.btn.seach'})}
               </Button>
             </Form.Item>
           </Form>

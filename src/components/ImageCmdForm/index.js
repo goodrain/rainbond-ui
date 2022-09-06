@@ -3,7 +3,9 @@
 import { Button, Form, Input, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
+import cookie from '../../utils/cookie';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -13,7 +15,15 @@ const formItemLayout = {
     span: 5
   },
   wrapperCol: {
-    span: 19
+    span: 14
+  }
+};
+const formItemLayouts = {
+  labelCol: {
+    span: 10
+  },
+  wrapperCol: {
+    span: 14
   }
 };
 
@@ -33,7 +43,8 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       showUsernameAndPass: false,
-      addGroup: false
+      addGroup: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onAddGroup = () => {
@@ -58,19 +69,19 @@ export default class Index extends PureComponent {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入组件英文名称'));
+      return callback(new Error(formatMessage({id: 'placeholder.k8s_component_name'})));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+          new Error(formatMessage({id: 'placeholder.nameSpaceReg'}))
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error(formatMessage({id: 'placeholder.max32'})));
     }
   };
   render() {
@@ -87,21 +98,27 @@ export default class Index extends PureComponent {
     const { getFieldDecorator } = form;
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
+    const {language} = this.state;
+    const is_language = language ? formItemLayout : formItemLayouts;
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
-              rules: [{ required: true, message: '请选择' }]
+              rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择要所属应用"
-                style={{
+                placeholder={formatMessage({id: 'placeholder.appName'})}
+                style={ language ? {
                   display: 'inline-block',
-                  width: isService ? '' : 292,
-                  marginRight: 15
+                  width: isService ? '' : 250,
+                  marginRight: 10
+                } : {
+                  display: 'inline-block',
+                  width: isService ? '' : 264,
+                  marginRight: 10
                 }}
                 disabled={!!isService}
               >
@@ -113,72 +130,72 @@ export default class Index extends PureComponent {
               </Select>
             )}
             {isService ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>新建应用</Button>
+              <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamApply.createApp'})}</Button>
             ) : null}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="组件名称">
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
-                { required: true, message: '要创建的组件还没有名字' },
+                { required: true, message: formatMessage({id: 'placeholder.service_cname'}) },
                 {
                   max: 24,
-                  message: '最大长度24位'
+                  message: formatMessage({id: 'placeholder.max24'})
                 }
               ]
-            })(<Input placeholder="请为创建的组件起个名字吧" />)}
+            })(<Input placeholder={formatMessage({id: 'placeholder.service_cname'})}style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
           </Form.Item>
 
-          <Form.Item {...formItemLayout} label="组件英文名称">
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
             {getFieldDecorator('k8s_component_name', {
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]
-            })(<Input placeholder="组件的英文名称" />)}
+            })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="命令">
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.image.docker_cmd'})}>
             {getFieldDecorator('docker_cmd', {
               initialValue: data.docker_cmd || '',
-              rules: [{ required: true, message: '请输入DockerRun命令' }]
+              rules: [{ required: true, message: formatMessage({id: 'placeholder.dockerRunMsg'}) }]
             })(
-              <TextArea placeholder="例如： docker run -d -p 8080:8080 -e PWD=1qa2ws --name=tomcat_demo tomcat" />
+              <TextArea placeholder={formatMessage({id: 'placeholder.dockerRun'})} />
             )}
           </Form.Item>
 
           <div style={{ textAlign: 'right', marginTop: '-16px' }}>
-            这是一个私有仓库?
+          {formatMessage({id: 'teamAdd.create.image.hint1'})}
             <a
               onClick={() => {
                 this.setState({ showUsernameAndPass: true });
               }}
               href="javascript:;"
             >
-              填写仓库账号密码
+             {formatMessage({id: 'teamAdd.create.image.hint2'})}
             </a>
           </div>
           <Form.Item
             style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-            {...formItemLayout}
-            label="仓库用户名"
+            {...is_language}
+            label={formatMessage({id: 'teamAdd.create.form.user'})}
           >
             {getFieldDecorator('user_name', {
               initialValue: data.user_name || '',
-              rules: [{ required: false, message: '请输入仓库用户名' }]
-            })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+              rules: [{ required: false, message: formatMessage({id: 'placeholder.username_1'}) }]
+            })(<Input autoComplete="off" placeholder={formatMessage({id: 'placeholder.username_1'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
           </Form.Item>
           <Form.Item
             style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-            {...formItemLayout}
-            label="仓库密码"
+            {...is_language}
+            label={formatMessage({id: 'teamAdd.create.form.password'})}
           >
             {getFieldDecorator('password', {
               initialValue: data.password || '',
-              rules: [{ required: false, message: '请输入仓库密码' }]
+              rules: [{ required: false, message: formatMessage({id: 'placeholder.password_1'}) }]
             })(
               <Input
                 autoComplete="new-password"
                 type="password"
-                placeholder="请输入仓库密码"
+                placeholder={formatMessage({id: 'placeholder.password_1'})}
               />
             )}
           </Form.Item>
@@ -200,7 +217,7 @@ export default class Index extends PureComponent {
                       type="primary"
                       loading={createAppByDockerrunLoading}
                     >
-                      新建组件
+                      {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
                     </Button>,
                     false
                   )
@@ -210,7 +227,7 @@ export default class Index extends PureComponent {
                       type="primary"
                       loading={createAppByDockerrunLoading}
                     >
-                      确认创建
+                     {formatMessage({id: 'teamAdd.create.btn.create'})}
                     </Button>
                   )}
             </Form.Item>

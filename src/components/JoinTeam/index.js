@@ -1,6 +1,7 @@
 import { Button, Form, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -62,26 +63,26 @@ export default class JoinTeam extends PureComponent {
 
     return (
       <Modal
-        title="加入团队"
+        title={<FormattedMessage id='popover.enterpriseOverview.joinTeam.title'/>}
         visible
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={onCancel}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}>  <FormattedMessage id='button.cancel'/></Button>,
           <Button type="primary" onClick={this.handleSubmit} loading={Loading}>
-            确定
+            <FormattedMessage id='button.confirm'/>
           </Button>
         ]}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <FormItem {...formItemLayout} label="团队名称" hasFeedback>
+          <FormItem {...formItemLayout}  hasFeedback label={<FormattedMessage id='popover.enterpriseOverview.joinTeam.label'/> }extra={!teamList && <FormattedMessage id='popover.enterpriseOverview.joinTeam.hint'/>}>
             {getFieldDecorator('team_name', {
               initialValue: (teamList && teamList[0].team_name) || '',
               rules: [
                 {
                   required: true,
-                  message: '请选择团队'
+                  message:formatMessage({id:'popover.enterpriseOverview.joinTeam.message'})
                 }
               ]
             })(
@@ -89,7 +90,7 @@ export default class JoinTeam extends PureComponent {
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 style={{ width: '100%' }}
                 onChange={this.handleTeamChange}
-                placeholder="请选择一个团队"
+                placeholder={formatMessage({id:'popover.enterpriseOverview.joinTeam.placeholder'})}
               >
                 {teamList &&
                   teamList.map(team => (
@@ -97,7 +98,7 @@ export default class JoinTeam extends PureComponent {
                   ))}
               </Select>
             )}
-            {!teamList && <div>暂无团队可以添加，可以先创建团队。</div>}
+            {}
           </FormItem>
         </Form>
       </Modal>

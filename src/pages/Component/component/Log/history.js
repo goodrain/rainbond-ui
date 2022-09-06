@@ -2,6 +2,7 @@ import { Button, Icon, Modal } from 'antd';
 import React, { PureComponent } from 'react';
 import { getHistoryLog } from '../../../../services/app';
 import globalUtil from '../../../../utils/global';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 export default class HistoryLog extends PureComponent {
   constructor(props) {
@@ -29,11 +30,11 @@ export default class HistoryLog extends PureComponent {
 
     return (
       <Modal
-        title="历史日志下载"
+        title={<FormattedMessage id='componentOverview.body.tab.log.HistoryLog.title'/>}
         visible
         width={700}
         onCancel={this.props.onCancel}
-        footer={[<Button onClick={this.props.onCancel}>关闭</Button>]}
+        footer={[<Button onClick={this.props.onCancel}><FormattedMessage id='componentOverview.body.tab.log.HistoryLog.close'/></Button>]}
       >
         {loading ? (
           <div style={{ textAlign: 'center' }}>
@@ -65,7 +66,10 @@ export default class HistoryLog extends PureComponent {
                 })}
               </div>
             ) : (
-              <p style={{ textAlign: 'center' }}>暂无历史日志</p>
+              <p style={{ textAlign: 'center' }}>
+                {/* 暂无历史日志 */}
+                <FormattedMessage id='componentOverview.body.tab.log.HistoryLog.null'/>
+              </p>
             )}
           </div>
         ) : (

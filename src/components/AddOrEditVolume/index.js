@@ -11,6 +11,9 @@ import {
 } from 'antd';
 import React, { PureComponent } from 'react';
 import pluginUtil from '../../utils/plugin';
+import cookie from '../../utils/cookie';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -19,7 +22,7 @@ const RadioGroup = Radio.Group;
 export default class AddVolumes extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { volumeCapacityValidation: {} };
+    this.state = { volumeCapacityValidation: {}, language: cookie.get('language') === 'zh-CN' ? true : false };
   }
   componentDidMount = () => {
     const { data } = this.props;
@@ -37,7 +40,7 @@ export default class AddVolumes extends PureComponent {
       if (!err && onSubmit) {
         const ismount = pluginUtil.isMountPath(values.volume_path);
         if (ismount) {
-          return notification.warning({ message: '挂载路径不可使用' });
+          return notification.warning({ message: <FormattedMessage id='notification.warn.mountPath'/> });
         }
         onSubmit(values);
       }
@@ -45,16 +48,16 @@ export default class AddVolumes extends PureComponent {
   };
   checkMountPath = (_, value, callback) => {
     if (value === '' || !value) {
-      callback('请输入挂载路径');
+      callback(<FormattedMessage id='componentOverview.body.AddVolumes.callback_null'/>);
       return;
     }
 
     if (pluginUtil.isMountPath(value)) {
-      callback('挂载路径为系统保留路径，请更换其他路径');
+      callback(<FormattedMessage id='componentOverview.body.AddVolumes.callback_path'/>);
       return;
     }
     if (value && value.length > 100) {
-      callback('最大长度100位');
+      callback(<FormattedMessage id='componentOverview.body.AddVolumes.callback_max'/>);
       return;
     }
 
@@ -86,11 +89,11 @@ export default class AddVolumes extends PureComponent {
   checkVolumeCapacity = (rules, value, callback) => {
     if (value) {
       if (value > 1000) {
-        callback(`限额最大值为1000GB`);
+        callback(`${formatMessage({id:'componentOverview.body.AddVolumes.Max'})}`);
         return;
       }
       if (value < 0) {
-        callback(`限额最小值为0，即不进行限制`);
+        callback(`${formatMessage({id:'componentOverview.body.AddVolumes.Min'})}`);
         return;
       }
     }
@@ -125,7 +128,7 @@ export default class AddVolumes extends PureComponent {
       fileArr[length - 1] == 'yml' ||
       fileArr[length - 1] == 'xml';
     if (!isRightType) {
-      message.error('请上传以.txt, .json, .yaml, .yaml, .xml结尾的文件', 5);
+      message.error(formatMessage({id:'notification.error.upload'}), 5);
       return false;
     }
     return true;
@@ -146,7 +149,7 @@ export default class AddVolumes extends PureComponent {
   render() {
     const { getFieldDecorator } = this.props.form;
     const { data = {}, volumeOpts } = this.props;
-    const { volumeCapacityValidation } = this.state;
+    const { volumeCapacityValidation, language } = this.state;
     let defaultVolumeCapacity = '';
     if (data.volume_capacity) {
       defaultVolumeCapacity = data.volume_capacity;
@@ -165,9 +168,20 @@ export default class AddVolumes extends PureComponent {
         sm: { span: 18 }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 17 }
+      }
+    };
+    const is_language = language ? formItemLayout : en_formItemLayout
     return (
       <Drawer
-        title={this.props.editor ? '编辑存储' : '添加存储'}
+        title={this.props.editor ? <FormattedMessage id='componentOverview.body.AddVolumes.edit'/> : <FormattedMessage id='componentOverview.body.AddVolumes.add'/>}
         placement="right"
         width={500}
         closable={false}
@@ -181,32 +195,32 @@ export default class AddVolumes extends PureComponent {
         }}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="名称">
+          <FormItem {...is_language} label= {<FormattedMessage id='componentOverview.body.AddVolumes.name'/>}>
             {getFieldDecorator('volume_name', {
               initialValue: data.volume_name || '',
               rules: [
                 {
                   required: true,
-                  message: '请输入存储名称'
+                  message: formatMessage({id:'componentOverview.body.AddVolumes.required'})
+
                 },
                 {
                   max: 40,
-                  message: '最大长度40位'
+                  message: formatMessage({id:'componentOverview.body.AddVolumes.max'})
                 },
                 {
                   pattern: /^[a-zA-Z0-9]([-a-zA-Z0-9_]*[a-zA-Z0-9])?$/,
-                  message:
-                    '只支持字母、数字和-_组合，并且必须以字母数字开始和结束'
+                  message: formatMessage({id:'componentOverview.body.AddVolumes.pattern'})
                 }
               ]
             })(
               <Input
-                placeholder="请输入存储名称"
+                placeholder= {formatMessage({id:'componentOverview.body.AddVolumes.required'})}
                 disabled={!!this.props.editor}
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="挂载路径">
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_path'/>}>
             {getFieldDecorator('volume_path', {
               initialValue: data.volume_path || '',
               rules: [
@@ -215,15 +229,16 @@ export default class AddVolumes extends PureComponent {
                   validator: this.checkMountPath
                 }
               ]
-            })(<Input placeholder="请输入挂载路径" />)}
+            })(<Input placeholder={formatMessage({id:'componentOverview.body.AddVolumes.volume_path_placeholder'})} />)}
           </FormItem>
-          <FormItem {...formItemLayout} label="存储配额(GB)">
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity'/>}>
             {getFieldDecorator('volume_capacity', {
               initialValue: defaultVolumeCapacity,
               rules: [
                 {
                   min: 0,
-                  message: '最小值为0，即不限制'
+                  message: formatMessage({id:'componentOverview.body.AddVolumes.min'})
+
                 },
                 {
                   validator: this.checkVolumeCapacity
@@ -234,21 +249,21 @@ export default class AddVolumes extends PureComponent {
                 type="number"
                 placeholder={
                   !!this.props.editor && data.volume_capacity === 0
-                    ? '不限制'
-                    : '请输入存储配额'
+                    ? formatMessage({id:'componentOverview.body.AddVolumes.unlimited'})
+                    : formatMessage({id:'componentOverview.body.AddVolumes.input'})
                 }
                 min={1}
                 disabled={!!this.props.editor}
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="类型">
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.type'/>}>
             {getFieldDecorator('volume_type', {
               initialValue: data.volume_type || 'share-file',
               rules: [
                 {
                   required: true,
-                  message: '请选择存储类型'
+                  message: formatMessage({id:'componentOverview.body.AddVolumes.select_type'})
                 }
               ]
             })(
@@ -289,10 +304,10 @@ export default class AddVolumes extends PureComponent {
             }}
             onClick={this.handleCancel}
           >
-            取消
+            <FormattedMessage id='componentOverview.body.AddVolumes.cancel'/>
           </Button>
           <Button onClick={this.handleSubmit} type="primary">
-            确认
+            <FormattedMessage id='componentOverview.body.AddVolumes.confirm'/>
           </Button>
         </div>
       </Drawer>

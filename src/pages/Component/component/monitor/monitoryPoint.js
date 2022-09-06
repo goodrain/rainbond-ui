@@ -6,6 +6,7 @@ import ScrollerX from '@/components/ScrollerX';
 import roleUtil from '@/utils/role';
 import { Alert, Button, Card, Col, notification, Row, Table } from 'antd';
 import { connect } from 'dva';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import React, { Fragment, PureComponent } from 'react';
 
 /* eslint react/no-array-index-key: 0 */
@@ -97,7 +98,7 @@ export default class customMonitor extends PureComponent {
       },
       callback: res => {
         if (res) {
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
           this.fetchServiceMonitor();
           this.cancelDeleteCustomMonitor();
         }
@@ -128,7 +129,7 @@ export default class customMonitor extends PureComponent {
       callback: res => {
         if (res) {
           notification.success({
-            message: editorData.name ? '保存成功' : '添加成功'
+            message: editorData.name ? formatMessage({id:'notification.success.save'}) : formatMessage({id:'notification.success.add'})
           });
           this.fetchServiceMonitor();
           this.cancelAddCustomMonitor();
@@ -164,7 +165,8 @@ export default class customMonitor extends PureComponent {
         <Row>
           <Col span={12}>
             <Alert
-              message="支持Prometheus的metric监控指标规范"
+              // message="支持Prometheus的metric监控指标规范"
+              message={<FormattedMessage id='componentOverview.body.tab.monitor.MonitoryPoint.standard'/>}
               type="info"
               showIcon
             />
@@ -176,14 +178,16 @@ export default class customMonitor extends PureComponent {
               style={{ float: 'right', marginBottom: '20px' }}
               onClick={this.onAddCustomMonitor}
             >
-              添加配置
+              {/* 添加配置 */}
+              <FormattedMessage id='componentOverview.body.tab.monitor.MonitoryPoint.add'/>
             </Button>
           )}
           <Button
             style={{ float: 'right', margin: '0 10px 20px 0' }}
             onClick={onCancel}
           >
-            返回监控图
+            {/* 返回监控图 */}
+            <FormattedMessage id='componentOverview.body.tab.monitor.MonitoryPoint.back'/>
           </Button>
         </Row>
         {addCustomMonitor && (
@@ -198,8 +202,8 @@ export default class customMonitor extends PureComponent {
         <Card loading={loading}>
           {dleCustomMonitor && (
             <ConfirmModal
-              title="删除配置"
-              desc="确定要删除配置?"
+              ttitle={<FormattedMessage id="confirmModal.deldete.configure.title"/>}
+              desc={<FormattedMessage id="confirmModal.deldete.configure.desc"/>}
               loading={deleteServiceMonitorLoading}
               onCancel={this.cancelDeleteCustomMonitor}
               onOk={this.handleDeleteCustomMonitor}
@@ -211,31 +215,37 @@ export default class customMonitor extends PureComponent {
               dataSource={monitors}
               columns={[
                 {
-                  title: '配置名称',
+                  // title: '配置名称',
+                  title: formatMessage({id:'componentOverview.body.tab.monitor.MonitoryPoint.name'}),
                   dataIndex: 'name'
                 },
                 {
-                  title: '收集任务名称',
+                  // title: '收集任务名称',
+                  title: formatMessage({id:'componentOverview.body.tab.monitor.MonitoryPoint.collect'}),
                   dataIndex: 'service_show_name',
                   align: 'center'
                 },
                 {
-                  title: '路径',
+                  // title: '路径',
+                  title: formatMessage({id:'componentOverview.body.tab.monitor.MonitoryPoint.path'}),
                   dataIndex: 'path',
                   align: 'center'
                 },
                 {
-                  title: '端口',
+                  // title: '端口',
+                  title: formatMessage({id:'componentOverview.body.tab.monitor.MonitoryPoint.port'}),
                   dataIndex: 'port',
                   align: 'center'
                 },
                 {
-                  title: '收集间隔时间',
+                  // title: '收集间隔时间',
+                  title: formatMessage({id:'componentOverview.body.tab.monitor.MonitoryPoint.time'}),
                   dataIndex: 'interval',
                   align: 'center'
                 },
                 {
-                  title: '操作',
+                  // title: '操作',
+                  title: formatMessage({id:'componentOverview.body.tab.monitor.MonitoryPoint.handle'}),
                   width: '200px',
                   dataIndex: 'backup_record_num',
                   align: 'center',
@@ -245,7 +255,8 @@ export default class customMonitor extends PureComponent {
                         onClick={() => this.handleDelete(data.name)}
                         style={{ margintRight: 10 }}
                       >
-                        删除
+                        {/* 删除 */}
+                        <FormattedMessage id='componentOverview.body.tab.monitor.MonitoryPoint.delete'/>
                       </a>
                       <a
                         onClick={() => {
@@ -253,7 +264,8 @@ export default class customMonitor extends PureComponent {
                         }}
                         style={{ margintRight: 10 }}
                       >
-                        编辑
+                        <FormattedMessage id='componentOverview.body.tab.monitor.MonitoryPoint.edit'/>
+                        {/* 编辑 */}
                       </a>
                     </Fragment>
                   )

@@ -16,8 +16,10 @@ import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
+import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
 import LogShow from '../LogShow';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 @connect()
 @Form.create()
@@ -27,6 +29,7 @@ class Index extends PureComponent {
     this.state = {
       logVisible: false,
       EventID: '',
+      language : cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
   componentDidMount() {}
@@ -66,13 +69,13 @@ class Index extends PureComponent {
   showStatus = status => {
     switch (status) {
       case '':
-        return '构建中';
+        return `${formatMessage({id:'componentOverview.body.tab.overview.buildHistory.under'})}`;
       case 'success':
-        return '构建成功';
+        return `${formatMessage({id:'componentOverview.body.tab.overview.buildHistory.success'})}`;
       case 'failure':
-        return '构建失败';
+        return `${formatMessage({id:'componentOverview.body.tab.overview.buildHistory.fail'})}`;
       default:
-        return '未知';
+        return `${formatMessage({id:'componentOverview.body.tab.overview.buildHistory.unknown'})}`;
     }
   };
 
@@ -87,12 +90,12 @@ class Index extends PureComponent {
       onPageChange,
       onShowSizeChange,
     } = this.props;
-    const { EventID, logVisible } = this.state;
+    const { EventID, logVisible, language } = this.state;
     return (
       <Row gutter={24}>
         {logVisible && (
           <LogShow
-            title="构建日志"
+            title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.buildLog'/>}
             EventID={EventID}
             onOk={this.handleOk}
             onCancel={this.handleCancel}
@@ -102,7 +105,7 @@ class Index extends PureComponent {
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
           <Card
             bordered={false}
-            title="构建版本历史"
+            title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.buildVersionHistory'/>}
             style={{ margin: '20px 0' }}
           >
             <div className={styles.buildHistoryBox}>
@@ -129,7 +132,7 @@ class Index extends PureComponent {
                     return (
                       <li
                         key={build_version}
-                        className={`${styles.rowLi} ${styles.prRow} ${
+                        className={`${styles.rowLi} ${language ? styles.prRow : styles.en_prRow } ${
                           status === 'success'
                             ? styles.passed
                             : status === 'failure'
@@ -137,7 +140,7 @@ class Index extends PureComponent {
                             : styles.canceled
                         } `}
                       >
-                        <div className={`${styles.lineone} ${styles.fadeOute}`}>
+                        <div className={`${language ? styles.lineone : styles.en_lineone} ${styles.fadeOute}`}>
                           <div
                             className={`${styles.rowRtem} ${styles.buildInfo}`}
                           >
@@ -170,24 +173,38 @@ class Index extends PureComponent {
                                   styles.passeda
                                 } `}
                               >
+                                <Tooltip
+                                title={
+                                  build_version &&
+                                  current_version &&
+                                  build_version === current_version ?
+                                  build_version + formatMessage({id:'componentOverview.body.tab.overview.buildHistory.currentVersion'}) :
+                                  build_version
+                                }
+                                >
                                 <font
                                   className={styles.nowarpCorolText}
                                   style={{
-                                    width: '100%',
+                                    width: 180,
                                     color:
                                       status === 'success'
                                         ? '#39aa56'
                                         : status === 'failure'
                                         ? '#db4545'
                                         : '#9d9d9d',
+                                        textOverflow: 'ellipsis',
+                                        overflow: 'hidden',
+                                        whiteSpace: 'nowrap'
                                   }}
                                 >
                                   {build_version}
                                   {build_version &&
                                     current_version &&
                                     build_version === current_version &&
-                                    '(当前版本)'}
+                                    // '(当前版本)'
+                                    <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.currentVersion'/>}
                                 </font>
+                                </Tooltip>
                               </a>
                             </div>
                             <div
@@ -199,10 +216,16 @@ class Index extends PureComponent {
                                 title={
                                   kind &&
                                   (kind === '源码构建'
-                                    ? '提交信息'
+                                    ? 
+                                    // '提交信息'
+                                    <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.submitInformation'/>
                                     : kind === '本地文件'
-                                    ? '文件名称'
-                                    : '源镜像仓库地址')
+                                    ? 
+                                    // '文件名称'
+                                    <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.fileName'/>
+                                    : 
+                                    // '源镜像仓库地址'
+                                    <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.address'/>)
                                 }
                               >
                                 {kind &&
@@ -278,10 +301,16 @@ class Index extends PureComponent {
                                   title={
                                     kind &&
                                     (kind === '源码构建'
-                                      ? '代码分支'
+                                      ? 
+                                      // '代码分支'
+                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.CodeBranch'/>
                                       : kind === '本地文件'
-                                      ? '上传时间'
-                                      : '源镜像名称')
+                                      ? 
+                                      // '上传时间'
+                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.uploadTime'/>
+                                      : 
+                                      // '源镜像名称'
+                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.imageName'/>)
                                   }
                                 >
                                   {kind &&
@@ -326,10 +355,16 @@ class Index extends PureComponent {
                                   title={
                                     kind &&
                                     (kind === '源码构建'
-                                      ? '代码版本'
+                                      ? 
+                                      // '代码版本'
+                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.codeVersion'/>
                                       : kind === '本地文件'
-                                      ? '文件MD5'
-                                      : '源镜像TAG')
+                                      ? 
+                                      // '文件MD5'
+                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.file'/>
+                                      : 
+                                      // '源镜像TAG'
+                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.tag'/>)
                                   }
                                 >
                                   <span
@@ -373,7 +408,7 @@ class Index extends PureComponent {
                             </div>
                           </div>
                         </div>
-                        <div className={`${styles.linetwo}`}>
+                        <div className={`${language ? styles.linetwo: styles.en_linetwo}`}>
                           <div className={`${styles.rowRtem} ${styles.alcen}`}>
                             <a
                               className={
@@ -405,14 +440,17 @@ class Index extends PureComponent {
                           </div>
                           <div className={`${styles.rowRtem} `} />
                         </div>
-                        <div className={`${styles.linestree}`}>
+                        <div className={`${language ? styles.linestree :  styles.en_linestree}`}>
                           <div
                             className={`${styles.rowRtem} ${
                               styles.rowDuration
                             }`}
                           >
                             <div className={styles.alcen}>
-                              <Tooltip title="运行时间">
+                              <Tooltip 
+                              // title="运行时间"
+                              title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.runTime'/>}
+                              >
                                 {globalUtil.fetchSvg('runTime')}
                               </Tooltip>
 
@@ -440,7 +478,10 @@ class Index extends PureComponent {
                             } ${styles.alcen}`}
                           >
                             <div className={styles.alcen}>
-                              <Tooltip title="创建时间">
+                              <Tooltip 
+                              // title="创建时间"
+                              title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.creationTime'/>}
+                              >
                                 {globalUtil.fetchSvg('createTime')}
                               </Tooltip>
 
@@ -460,7 +501,7 @@ class Index extends PureComponent {
                             </div>
                           </div>
                         </div>
-                        <div className={`${styles.linefour}`}>
+                        <div className={`${language ? styles.linefour : styles.en_linefour}`}>
                           <span>
                             <a
                               style={{ fontSize: '12px' }}
@@ -468,19 +509,23 @@ class Index extends PureComponent {
                                 this.showModal(event_id);
                               }}
                             >
-                              日志
+                              {/* 日志 */}
+                              <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.log'/>
                             </a>
                           </span>
                           {upgrade_or_rollback == 1 && isRollback ? (
                             <Popconfirm
-                              title="确定要升级到此版本吗?"
+                              title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.popUpgrade'/>}
                               onConfirm={() => {
                                 this.handleRolback(item);
                               }}
                             >
                               <span>
                                 <Divider type="vertical" />
-                                <a style={{ fontSize: '12px' }}>升级</a>
+                                <a style={{ fontSize: '12px' }}>
+                                  {/* 升级 */}
+                                  <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.upgrade'/>
+                                </a>
                               </span>
                             </Popconfirm>
                           ) : upgrade_or_rollback == -1 &&
@@ -489,14 +534,17 @@ class Index extends PureComponent {
                             isRollback &&
                             current_version ? (
                             <Popconfirm
-                              title="确定要回滚到此版本吗?"
+                              title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.poprollback'/>}
                               onConfirm={() => {
                                 this.handleRolback(item);
                               }}
                             >
                               <span>
                                 <Divider type="vertical" />
-                                <a style={{ fontSize: '12px' }}>回滚</a>
+                                <a style={{ fontSize: '12px' }}>
+                                  {/* 回滚 */}
+                                  <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.roolback'/>
+                                </a>
                               </span>
                             </Popconfirm>
                           ) : (
@@ -504,7 +552,8 @@ class Index extends PureComponent {
                           )}
 
                           <Popconfirm
-                            title="确定要删除此版本吗?"
+                            // title="确定要删除此版本吗?"
+                            title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.popDelete'/>}
                             onConfirm={() => {
                               this.handleDel(item);
                             }}
@@ -514,7 +563,10 @@ class Index extends PureComponent {
                               current_version && (
                                 <span>
                                   <Divider type="vertical" />
-                                  <a style={{ fontSize: '12px' }}>删除</a>
+                                  <a style={{ fontSize: '12px' }}>
+                                    {/* 删除 */}
+                                    <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.delete'/>
+                                  </a>
                                 </span>
                               )}
                           </Popconfirm>

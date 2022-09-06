@@ -1,5 +1,6 @@
 import { Table, Card, Empty, Row, Col, Switch } from 'antd';
 import React, { PureComponent, Fragment } from 'react'
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import styles from "./index.less"
 export default class FlexAttribute extends PureComponent {
     constructor(props){
@@ -9,15 +10,15 @@ export default class FlexAttribute extends PureComponent {
         const { value } = this.props
         return (
             <Card
-                title="自动伸缩"
+                title={formatMessage({id:'enterpriseColony.import.recognition.tabs.flex'})}
                 style={{
                     marginBottom: 16,
                 }}>
                 <>
                 <div className={styles.titlestyle}>
-                <span>功能开关</span>
-                <span>最小实例</span>
-                <span>最大实例</span>
+                <span>{formatMessage({id:'enterpriseColony.import.recognition.tabs.flex.switch'})}</span>
+                <span>{formatMessage({id:'enterpriseColony.import.recognition.tabs.flex.minSize'})}</span>
+                <span>{formatMessage({id:'enterpriseColony.import.recognition.tabs.flex.maxSize'})}</span>
                 {
                 value.enable && 
                 value.cpu_or_memory && 
@@ -27,11 +28,11 @@ export default class FlexAttribute extends PureComponent {
                     {
                     item.MetricTargetType === "utilization" ? (
                         <>
-                            {item.MetricsName === "cpu" ? ('cpu使用率') : ('内存使用率')}
+                            {item.MetricsName === "cpu" ? (formatMessage({id:'enterpriseColony.import.recognition.tabs.flex.cpuUsage'})) : (formatMessage({id:'enterpriseColony.import.recognition.tabs.flex.memoryUsage'}))}
                         </>
                     ):(
                         <>
-                            {item.MetricsName === "cpu" ? ('cpu使用量') : ('内存使用量')}
+                            {item.MetricsName === "cpu" ? (formatMessage({id:'enterpriseColony.import.recognition.tabs.flex.memoryAmount'})) : (formatMessage({id:'enterpriseColony.import.recognition.tabs.flex.memoryAmount'}))}
                         </>
                     )
                     }

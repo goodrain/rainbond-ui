@@ -60,7 +60,8 @@ import Relation from './relation';
 import Resource from './resource';
 import Setting from './setting';
 import ThirdPartyServices from './ThirdPartyServices';
-import { ResumeContext } from "./funContext"
+import { ResumeContext } from "./funContext";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -78,7 +79,7 @@ class MoveGroup extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       if (fieldsValue.group_id === currGroup) {
-        notification.warning({ message: '不能选择当前所在应用' });
+        notification.warning({ message: formatMessage({id:'notification.warn.cannot_select'}) });
         return;
       }
       this.props.onOk(fieldsValue);
@@ -91,7 +92,7 @@ class MoveGroup extends PureComponent {
     const initValue = currGroup.toString();
     return (
       <Modal
-        title="修改组件所属应用"
+        title={<FormattedMessage id="componentOverview.MoveGroup.edit"/>}
         visible
         className={styless.TelescopicModal}
         onOk={this.handleSubmit}
@@ -105,7 +106,7 @@ class MoveGroup extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '不能为空!'
+                  message:formatMessage({id:'componentOverview.MoveGroup.edit'})
                 }
               ]
             })(
@@ -148,21 +149,21 @@ class EditName extends PureComponent {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入组件英文名称'));
+      return callback(new Error(`${formatMessage({id:'componentOverview.EditName.input_en_name'})}` ));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
           new Error(
-            '只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾'
+            `${formatMessage({id:'componentOverview.EditName.only'})}`
           )
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error( `${formatMessage({id:'componentOverview.EditName.Cannot'})}` ));
     }
   };
   render() {
@@ -179,7 +180,7 @@ class EditName extends PureComponent {
     const { getFieldDecorator } = form;
     return (
       <Modal
-        title={title || '修改组件名称'}
+        title={title || <FormattedMessage id='componentOverview.EditName.edit'/>}
         visible
         className={styless.TelescopicModal}
         confirmLoading={loading}
@@ -187,31 +188,31 @@ class EditName extends PureComponent {
         onCancel={this.onCancel}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem label="组件名称">
+          <FormItem  label={<FormattedMessage id="componentOverview.EditName.name"/>}>
             {getFieldDecorator('service_cname', {
               initialValue: name || '',
               rules: [
                 {
                   required: true,
-                  message: '组件名称不能为空。'
+                  message:formatMessage({id:'componentOverview.EditName.not_null'})
                 },
                 {
                   max: 24,
-                  message: '最大长度24位'
+                  message:formatMessage({id:'componentOverview.EditName.max'})
                 }
               ]
             })(
               <Input
                 placeholder={
-                  title ? '请输入新的组件名称' : '请输入新的应用名称'
+                  title ?  formatMessage({id:'componentOverview.EditName.input_new_name'}) : formatMessage({id:'componentOverview.EditName.input_new_app_name'})
                 }
               />
             )}
           </FormItem>
           {/* 集群组件名称 */}
           <FormItem
-            label="组件英文名称"
-            extra="关闭当前组件方可修改组件英文名称"
+            label={<FormattedMessage id="componentOverview.EditName.en_name"/>}
+            extra={formatMessage({id:'componentOverview.EditName.close'})}
           >
             {getFieldDecorator('k8s_component_name', {
               initialValue: k8sComponentName || '',
@@ -221,7 +222,7 @@ class EditName extends PureComponent {
                   validator: this.handleValiateNameSpace
                 }
               ]
-            })(<Input placeholder="组件的英文名称" disabled={!isDisabled} />)}
+            })(<Input placeholder={formatMessage({id:'componentOverview.EditName.placeholder'})}disabled={!isDisabled} />)}
           </FormItem>
         </Form>
       </Modal>
@@ -413,7 +414,7 @@ class Main extends PureComponent {
       }
       if (err && err.data && err.data.msg_show) {
         notification.warning({
-          message: `请求错误`,
+          message: formatMessage({id:'notification.warn.error'}),
           description: err.data.msg_show
         });
       }
@@ -599,7 +600,7 @@ class Main extends PureComponent {
     });
     const { build_upgrade, dispatch, appDetail } = this.props;
     if (this.state.actionIng) {
-      notification.warning({ message: `正在执行操作，请稍后` });
+      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
       return;
     }
     const { team_name, app_alias } = this.fetchParameter();
@@ -616,7 +617,7 @@ class Main extends PureComponent {
         if (res) {
           this.handleCancelBuild();
           this.loadBuildState(appDetail);
-          notification.success({ message: `操作成功，部署中` });
+          notification.success({ message: formatMessage({id:'notification.success.deployment'}) });
           const child = this.getChildCom();
 
           if (child && child.onLogPush) {
@@ -632,7 +633,7 @@ class Main extends PureComponent {
   };
   handleRollback = datas => {
     if (this.state.actionIng) {
-      notification.warning({ message: `正在执行操作，请稍后` });
+      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
       return;
     }
     const { team_name, app_alias } = this.fetchParameter();
@@ -653,9 +654,9 @@ class Main extends PureComponent {
         notification.success({
           message: datas.upgrade_or_rollback
             ? datas.upgrade_or_rollback == 1
-              ? `操作成功，升级中`
-              : `操作成功，回滚中`
-            : `操作成功，回滚中`
+              ? formatMessage({id:'notification.success.upgrade'})
+              : formatMessage({id:'notification.success.rollback'})
+            : formatMessage({id:'notification.success.rollback'})
         });
         const child = this.getChildCom();
         if (child && child.onAction) {
@@ -766,7 +767,7 @@ class Main extends PureComponent {
             group_id
           },
           callback: res => {
-            notification.success({ message: '重启应用后生效' });
+            notification.success({ message: formatMessage({id:'notification.success.takeEffect'}) });
           }
         });
         this.handleUpDataHeader();
@@ -807,7 +808,7 @@ class Main extends PureComponent {
             team_name
           }
         });
-        notification.success({ message: '操作成功' });
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
       }
     });
   };
@@ -823,14 +824,14 @@ class Main extends PureComponent {
       this.setState({ showreStartTips: false });
     }
     if (actionIng) {
-      notification.warning({ message: `正在执行操作，请稍后` });
+      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
       return;
     }
     const operationMap = {
-      putReStart: '操作成功，重启中',
-      putStart: '操作成功，启动中',
-      putStop: '操作成功，关闭中',
-      putUpdateRolling: '操作成功，更新中'
+      putReStart: formatMessage({id:'notification.success.operationRestart'}),
+      putStart: formatMessage({id:'notification.success.operationStart'}),
+      putStop: formatMessage({id:'notification.success.operationClose'}),
+      putUpdateRolling: formatMessage({id:'notification.success.operationUpdata'})
     };
     const { team_name, app_alias } = this.fetchParameter();
 
@@ -867,7 +868,7 @@ class Main extends PureComponent {
       },
       callback: data => {
         if (data) {
-          notification.info({ message: '修改成功' });
+          notification.info({ message: formatMessage({id:'notification.success.modified'}) });
         }
       }
     });
@@ -1008,7 +1009,8 @@ class Main extends PureComponent {
                     }
                   }}
                 >
-                  重启
+                  {/* 重启 */}
+                  <FormattedMessage id='componentOverview.header.left.reset'/>
                 </a>
               ):isStop &&
               status &&
@@ -1019,7 +1021,8 @@ class Main extends PureComponent {
                     this.handleDropClick('restart');
                   }}
                 >
-                  重启
+                  {/* 重启 */}
+                  <FormattedMessage id='componentOverview.header.left.reset'/>
                 </a>
               ) : null}
               {!appDetail.is_third && isRestart && <Divider type="vertical" />}
@@ -1038,7 +1041,8 @@ class Main extends PureComponent {
                       }
                     }}
                   >
-                    关闭
+                    {/* 关闭 */}
+                    <FormattedMessage id='componentOverview.header.left.turnoff'/>
                   </a>
                   <Divider type="vertical" />
                 </span>
@@ -1053,7 +1057,8 @@ class Main extends PureComponent {
                       this.handleOpenHelpfulHints('stop');
                     }}
                   >
-                    关闭
+                    {/* 关闭 */}
+                    <FormattedMessage id='componentOverview.header.left.turnoff'/>
                   </a>
                   <Divider type="vertical" />
                 </span>
@@ -1068,7 +1073,8 @@ class Main extends PureComponent {
                     cursor: 'pointer'
                   }}
                 >
-                  修改所属应用
+                  {/* 修改所属应用 */}
+                  <FormattedMessage id='componentOverview.header.left.edit'/>
                 </a>
               )}
               {isEdit && !loadingDetail && !isHelm && (
@@ -1083,7 +1089,8 @@ class Main extends PureComponent {
                     cursor: 'pointer'
                   }}
                 >
-                  删除
+                  {/* 删除 */}
+                  <FormattedMessage id='componentOverview.header.left.delete'/>
                 </a>
               )}
             </div>
@@ -1142,12 +1149,12 @@ class Main extends PureComponent {
       groupDetail
     } = this.state;
     const { getFieldDecorator } = form;
-    const upDataText = isShowThirdParty ? '更新' : '更新(滚动）';
+    const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update'/> : <FormattedMessage id='componentOverview.header.right.update.roll'/>;
     const codeObj = {
-      start: '启动',
-      restart: '重启',
-      stop: '关闭',
-      deploy: '构建',
+      start:  formatMessage({id:'componentOverview.header.right.start'}),
+      restart: formatMessage({id:'componentOverview.header.rleft.reset'}),
+      stop: formatMessage({id:'componentOverview.header.left.turnoff'}),
+      deploy: formatMessage({id:'componentOverview.header.right.build'}),
       rolling: upDataText
     };
     if (!appDetail.service) {
@@ -1181,7 +1188,8 @@ class Main extends PureComponent {
               this.handleOpenHelpfulHints('start');
             }}
           >
-            启动
+            {/* 启动 */}
+            <FormattedMessage id='componentOverview.header.right.start'/>
           </Button>
         )}
 
@@ -1191,7 +1199,8 @@ class Main extends PureComponent {
               to={`${this.fetchPrefixUrl()}components/${serviceAlias}/webconsole`}
               target="_blank"
             >
-              Web终端
+              {/* Web终端 */}
+              <FormattedMessage id='componentOverview.header.right.web'/>
             </Link>
           </Button>
         )}
@@ -1199,7 +1208,7 @@ class Main extends PureComponent {
         {isShowThirdParty ? (
           ''
         ) : this.state.BuildState && isConstruct ? (
-          <Tooltip title="有新版本">
+          <Tooltip title={<FormattedMessage id='componentOverview.isShowThirdParty.New_version'/>}>
             <Button
               onClick={this.handleOpenBuild}
               loading={buildInformationLoading}
@@ -1208,10 +1217,11 @@ class Main extends PureComponent {
                 className={styles.badge}
                 status="success"
                 text=""
-                count="有更新版本"
-                title="有更新版本"
+                count={<FormattedMessage id='componentOverview.isShowThirdParty.updata'/>}
+                title={<FormattedMessage id='componentOverview.isShowThirdParty.updata'/>}
               />
-              构建
+              {/* 构建 */}
+              <FormattedMessage id='componentOverview.header.right.build'/>
             </Button>
           </Tooltip>
         ) : status && status.status === 'undeploy' && isConstruct ? (
@@ -1219,7 +1229,8 @@ class Main extends PureComponent {
             onClick={this.handleOpenBuild}
             loading={buildInformationLoading}
           >
-            构建
+            {/* 构建 */}
+            <FormattedMessage id='componentOverview.header.right.build'/>
           </Button>
         ) : (
           isConstruct && (
@@ -1227,7 +1238,8 @@ class Main extends PureComponent {
               onClick={this.handleOpenBuild}
               loading={buildInformationLoading}
             >
-              构建
+              {/* 构建 */}
+              <FormattedMessage id='componentOverview.header.right.build'/>
             </Button>
           )
         )}
@@ -1263,90 +1275,106 @@ class Main extends PureComponent {
     const tabs = [
       {
         key: 'overview',
-        tab: '总览'
+        // tab: '总览',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.overview'})
+
       },
       {
         key: 'monitor',
-        tab: '监控'
+        // tab: '监控',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.monitor'})
       },
       {
         key: 'log',
-        tab: '日志'
+        // tab: '日志',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.log'})
       }
     ];
 
     if (isTelescopic && appDetail.service.extend_method !== 'job' && appDetail.service.extend_method !== 'cronjob') {
       tabs.push({
         key: 'expansion',
-        tab: '伸缩'
+        // tab: '伸缩',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.expansion'})
       });
     }
 
     if (isEnv) {
       tabs.push({
         key: 'environmentConfiguration',
-        tab: '环境配置'
+        // tab: '环境配置',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.environmentConfiguration'})
       });
     }
 
     if (isRely) {
       tabs.push({
         key: 'relation',
-        tab: '依赖'
+        // tab: '依赖',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.relation'})
       });
     }
 
     if (isStorage) {
       tabs.push({
         key: 'mnt',
-        tab: '存储'
+        // tab: '存储',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.mnt'})
       });
     }
 
     if (isPort) {
       tabs.push({
         key: 'port',
-        tab: '端口'
+        // tab: '端口',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.port'})
       });
     }
 
     if (isPlugin) {
       tabs.push({
         key: 'plugin',
-        tab: '插件'
+        // tab: '插件',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.plugin'})
       });
     }
 
     if (isSource) {
       tabs.push({
         key: 'resource',
-        tab: '构建源'
+        // tab: '构建源',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.resource'})
       });
     }
 
     if (isDeploytype || isCharacteristic || isHealth) {
       tabs.push({
         key: 'setting',
-        tab: '其他设置'
+        // tab: '其他设置',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.setting'})
       });
     }
     const tabList = isShowThirdParty
       ? [
           {
             key: 'thirdPartyServices',
-            tab: '总览'
+            // tab: '总览',
+            tab: formatMessage({id:'componentOverview.body.tab.bar.overview'})
           },
           {
             key: 'port',
-            tab: '端口'
+            // tab: '端口',
+            tab: formatMessage({id:'componentOverview.body.tab.bar.port'})
           },
           {
             key: 'connectionInformation',
-            tab: '连接信息'
+            // tab: '连接信息',
+            tab: formatMessage({id:'componentOverview.body.tab.bar.connectionInformation'})
           },
           {
             key: 'members',
-            tab: '更多设置'
+            // tab: '更多设置',
+            tab: formatMessage({id:'componentOverview.body.tab.bar.members'})
           }
         ]
       : tabs;
@@ -1423,7 +1451,7 @@ class Main extends PureComponent {
 
         {promptModal && (
           <Modal
-            title="友情提示"
+            title={<FormattedMessage id="componentOverview.promptModal.tips"/>}
             visible={promptModal}
             className={styless.TelescopicModal}
             onOk={this.handleJumpAgain}
@@ -1443,12 +1471,12 @@ class Main extends PureComponent {
             }
           >
             <p style={{ textAlign: 'center' }}>
-              确定{codeObj[promptModal]}当前组件？
+            <FormattedMessage id="componentOverview.promptModal.determine"/>{codeObj[promptModal]}<FormattedMessage id="componentOverview.promptModal.Current"/>
             </p>
           </Modal>
         )}
         <Modal
-          title={[<span>从应用商店升级构建</span>]}
+          title={[<span><FormattedMessage id="componentOverview.promptModal.Upgrade"/></span>]}
           className={styless.TelescopicModal}
           visible={this.state.visibleBuild}
           onOk={this.handleOkBuild}
@@ -1464,7 +1492,7 @@ class Main extends PureComponent {
                       this.handleCancelBuild();
                     }}
                   >
-                    取消
+                    <FormattedMessage id="componentOverview.promptModal.cancel"/>
                   </Button>,
                   <Button
                     type="primary"
@@ -1473,7 +1501,7 @@ class Main extends PureComponent {
                       this.handleOkBuild();
                     }}
                   >
-                    构建
+                    <FormattedMessage id="componentOverview.promptModal.build"/>
                   </Button>
                 ]
               : isConstruct && [
@@ -1482,7 +1510,7 @@ class Main extends PureComponent {
                       this.handleCancelBuild();
                     }}
                   >
-                    取消
+                    <FormattedMessage id="componentOverview.promptModal.cancel"/>
                   </Button>,
                   <Button
                     type="primary"
@@ -1491,7 +1519,7 @@ class Main extends PureComponent {
                       this.handleOkBuild();
                     }}
                   >
-                    强制构建
+                    <FormattedMessage id="componentOverview.promptModal.Force_build"/>
                   </Button>
                 ]
           }
@@ -1501,7 +1529,7 @@ class Main extends PureComponent {
               <Form onSubmit={this.handleOkBuild}>
                 <Alert
                   message={[
-                    <span>从应用商店应用 </span>,
+                    <span> <FormattedMessage id="componentOverview.promptModal.app"/></span>,
                     <a
                       onClick={() => {
                         this.hideMarketOpenAppDetail();
@@ -1509,7 +1537,7 @@ class Main extends PureComponent {
                     >
                       {this.state.BuildText}
                     </a>,
-                    <span>构建而来,当前云市应用版本有更新!</span>
+                    <span><FormattedMessage id="componentOverview.promptModal.app_build"/></span>
                   ]}
                   type="success"
                   style={{ marginBottom: '5px' }}
@@ -1517,15 +1545,15 @@ class Main extends PureComponent {
                 <Form.Item {...formItemLayout} label="">
                   {getFieldDecorator('group_version', {
                     initialValue: BuildList[0],
-                    rules: [{ required: true, message: '选择版本' }]
+                    rules: [{ required: true,  message:formatMessage({id:'componentOverview.promptModal.choice'})}]
                   })(
                     <RadioGroup>
                       {BuildList.map((item, index) => {
                         return (
                           <div>
-                            版本:&nbsp;
+                            <FormattedMessage id="componentOverview.promptModal.version"/>&nbsp;
                             <Radio key={index} value={item}>
-                              <a>{item}</a>可更新
+                              <a>{item}</a><FormattedMessage id="componentOverview.promptModal.updata"/>
                             </Radio>
                           </div>
                         );
@@ -1536,7 +1564,7 @@ class Main extends PureComponent {
               </Form>
             ) : (
               <Alert
-                message="云市应用暂未有新版本更新，您无需构建。"
+                message={<FormattedMessage id="componentOverview.promptModal.cloud"/>}
                 type="success"
                 style={{ marginBottom: '5px' }}
               />
@@ -1564,7 +1592,7 @@ class Main extends PureComponent {
             onChecked={this.handleChecked}
           />
         ) : (
-          '参数错误'
+          <FormattedMessage id="componentOverview.promptModal.error"/>
         )}
 
         {showDeleteApp && (
@@ -1572,9 +1600,9 @@ class Main extends PureComponent {
             onOk={this.handleDeleteApp}
             onCancel={this.cancelDeleteApp}
             loading={deleteAppLoading}
-            title="删除组件"
-            desc="确定要删除此组件吗？"
-            subDesc="此操作不可恢复"
+            title={<FormattedMessage id='confirmModal.assembly.delete.title'/>}
+            desc={<FormattedMessage id='confirmModal.assembly.delete.desc'/>}
+            subDesc={<FormattedMessage id='confirmModal.assembly.delete.subDesc'/>}
           />
         )}
         {showEditName && (
@@ -1583,7 +1611,7 @@ class Main extends PureComponent {
             name={componentName}
             onOk={this.handleEditName}
             onCancel={this.hideEditName}
-            title="修改组件名称"
+            title={<FormattedMessage id="componentOverview.EditName.title"/>}
             k8sComponentName={k8sComponentName}
             isEditEnglishName={status.status}
           />

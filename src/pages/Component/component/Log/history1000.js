@@ -8,6 +8,7 @@ import React, { PureComponent } from 'react';
 import { getServiceLog } from '../../../../services/app';
 import globalUtil from '../../../../utils/global';
 import styles from '../../Log.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 export default class History1000Log extends PureComponent {
   constructor(props) {
@@ -36,7 +37,7 @@ export default class History1000Log extends PureComponent {
     const { loading, list, showHighlighted } = this.state;
     return (
       <Modal
-        title="最近1000条日志"
+        title={<FormattedMessage id='componentOverview.body.tab.log.History1000Log.title'/>}
         visible
         width={1000}
         bodyStyle={{ background: '#222222', color: '#fff' }}
@@ -172,7 +173,8 @@ export default class History1000Log extends PureComponent {
               <p
                 style={{ textAlign: 'center', marginBottom: 0, color: '#999' }}
               >
-                暂无日志
+                {/* 暂无日志 */}
+                <FormattedMessage id='componentOverview.body.tab.log.History1000Log.null'/>
               </p>
             )}
           </div>

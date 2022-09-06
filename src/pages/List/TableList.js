@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import StandardTable from '../../components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import styles from './TableList.less';
@@ -186,7 +187,7 @@ export default class TableList extends PureComponent {
       }
     });
 
-    message.success('添加成功');
+    message.success(formatMessage({id:'notification.success.add'}));
     this.setState({
       modalVisible: false
     });

@@ -25,10 +25,10 @@ const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 9
   },
   wrapperCol: {
-    span: 19
+    span: 15
   }
 };
 
@@ -119,7 +119,7 @@ export default class Index extends PureComponent {
             width:
               this.props.handleType && this.props.handleType === "Service"
                 ? "auto"
-                : "500px"
+                : "600px"
           }}
         >
           <ImageCmdForm

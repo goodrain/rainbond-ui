@@ -3,6 +3,7 @@
 */
 
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import { Input, Table, Modal, notification, Tooltip } from 'antd';
@@ -46,7 +47,7 @@ export default class Index extends PureComponent {
     const { onSubmit } = this.props;
     const { selectedRowKeys } = this.state;
     if (!selectedRowKeys.length) {
-      notification.warning({ message: '请选择要挂载的目录' });
+      notification.warning({ message:  formatMessage({id:'notification.warn.catalogue'})});
       return;
     }
 
@@ -61,18 +62,18 @@ export default class Index extends PureComponent {
     res = res.filter(item => !!item.path);
 
     if (!res.length) {
-      notification.warning({ message: '请检查本地存储目录是否填写' });
+      notification.warning({ message: formatMessage({id:'notification.warn.fillIn'}) });
       return;
     }
     let mag = '';
     const isMountList = res.filter(item => {
       const { path } = item;
       if (path === '') {
-        mag = '请输入本地挂载路径';
+        mag = `${formatMessage({id:'componentOverview.body.AddRelationMnt.mag'})}`;
       }
       const isMountPath = pluginUtil.isMountPath(path);
       if (isMountPath) {
-        mag = `${path}路径为系统保留路径，请更换其他路径`;
+        mag = `${formatMessage({id:'componentOverview.body.AddRelationMnt.mag'},{path:path})}`;
       }
       return path !== '' && !isMountPath;
     });
@@ -146,7 +147,7 @@ export default class Index extends PureComponent {
 
     return (
       <Modal
-        title="挂载共享目录"
+        title={<FormattedMessage id="componentOverview.body.AddRelationMnt.title"/>}
         width={1150}
         visible
         onOk={this.handleSubmit}
@@ -154,7 +155,7 @@ export default class Index extends PureComponent {
       >
         <Search
           style={{ width: '350px', marginBottom: '20px' }}
-          placeholder="请输入组件名称进行搜索"
+          placeholder={formatMessage({id:'componentOverview.body.AddRelationMnt.placeholder'})}
           onSearch={this.handleSearchTeamList}
         />
 
@@ -165,7 +166,7 @@ export default class Index extends PureComponent {
           style={{ width: '100%', overflowX: 'auto' }}
           columns={[
             {
-              title: '本地挂载路径',
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.localpath'}),
               dataIndex: 'localpath',
               key: '1',
               width: '20%',
@@ -179,7 +180,7 @@ export default class Index extends PureComponent {
               ),
             },
             {
-              title: '目标存储名称',
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_vol_name'}),
               dataIndex: 'dep_vol_name',
               key: '2',
               width: '15%',
@@ -197,7 +198,7 @@ export default class Index extends PureComponent {
               ),
             },
             {
-              title: '目标挂载路径',
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_vol_path'}),
               dataIndex: 'dep_vol_path',
               key: '3',
               width: '15%',
@@ -215,7 +216,7 @@ export default class Index extends PureComponent {
               ),
             },
             {
-              title: '目标存储类型',
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_vol_type'}),
               dataIndex: 'dep_vol_type',
               key: '4',
               width: '15%',
@@ -235,7 +236,7 @@ export default class Index extends PureComponent {
               },
             },
             {
-              title: '目标所属组件',
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_app_name'}),
               dataIndex: 'dep_app_name',
               key: '5',
               width: '15%',
@@ -261,7 +262,7 @@ export default class Index extends PureComponent {
               },
             },
             {
-              title: '目标组件所属应用',
+              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_app_group'}),
               dataIndex: 'dep_app_group',
               key: '6',
               width: '15%',

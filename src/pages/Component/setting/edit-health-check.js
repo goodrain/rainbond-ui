@@ -2,6 +2,8 @@ import { Form, Input, Modal, Radio, Select } from 'antd';
 import React, { PureComponent } from 'react';
 import KVinput from '../../../components/KVinput';
 import appProbeUtil from '../../../utils/appProbe-util';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import cookie from '../../../utils/cookie';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -18,7 +20,8 @@ export default class EditHealthCheck extends PureComponent {
       isRestart: this.handleUnhealthyTreatment(data && data.mode),
       list: HeavyList,
       prolist: HeavyList,
-      showHTTP: data.scheme === 'http'
+      showHTTP: data.scheme === 'http',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onChanges = e => {
@@ -64,11 +67,11 @@ export default class EditHealthCheck extends PureComponent {
       callback();
       return;
     }
-    callback('请填写路径!');
+    callback(`${formatMessage({id:'componentOverview.body.EditHealthCheck.input_path'})}`);
   };
   checkNums = (_, value, callback) => {
     if (value && value < 1) {
-      callback(`最小值为1`);
+      callback(`${formatMessage({id:'componentOverview.body.EditHealthCheck.min'})}`);
       return;
     }
     callback();
@@ -132,8 +135,27 @@ export default class EditHealthCheck extends PureComponent {
         }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 9
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 15
+        }
+      }
+    };
     const { getFieldDecorator, getFieldValue } = form;
-    const { list, prolist, isRestart, showHTTP } = this.state;
+    const { list, prolist, isRestart, showHTTP, language } = this.state;
+    const is_language = language ? formItemLayout : en_formItemLayout
     const scheme = getFieldValue('scheme') || 'tcp';
     const secondBox = (
       <span
@@ -141,7 +163,7 @@ export default class EditHealthCheck extends PureComponent {
           marginLeft: 8
         }}
       >
-        秒
+        <FormattedMessage id='componentOverview.body.ViewRunHealthCheck.second'/>
       </span>
     );
     const numberBox = (disabled = false) => (
@@ -170,12 +192,12 @@ export default class EditHealthCheck extends PureComponent {
         confirmLoading={loading}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="检测端口">
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.port'/>}>
             {getFieldDecorator('port', {
               initialValue:
                 appProbeUtil.getPort(data) ||
                 (list && list.length ? list[0] : ''),
-              rules: [{ required: true, message: '请输入' }]
+              rules: [{ required: true, message: formatMessage({id:'componentOverview.body.EditHealthCheck.input'}),}]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -193,7 +215,7 @@ export default class EditHealthCheck extends PureComponent {
               </Select>
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="探针协议">
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.agreement'/>}>
             {getFieldDecorator('scheme', {
               initialValue: data.scheme || 'tcp'
             })(
@@ -214,20 +236,20 @@ export default class EditHealthCheck extends PureComponent {
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="不健康处理方式:">
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.unhealth'/>}>
             {getFieldDecorator('mode', {
               initialValue: data.mode || 'readiness',
-              rules: [{ required: true, message: '请选择' }]
+              rules: [{ required: true, message: formatMessage({id:'componentOverview.body.EditHealthCheck.select'}),}]
             })(
               <RadioGroup onChange={this.onChanges}>
-                <Radio value="readiness">下线</Radio>
-                {!types && <Radio value="liveness">重启</Radio>}
+                <Radio value="readiness"><FormattedMessage id='componentOverview.body.EditHealthCheck.Offline'/></Radio>
+                {!types && <Radio value="liveness"><FormattedMessage id='componentOverview.body.EditHealthCheck.restart'/></Radio>}
               </RadioGroup>
             )}
           </FormItem>
           <FormItem
-            {...formItemLayout}
-            label="http请求头"
+            {...is_language}
+            label={<FormattedMessage id='componentOverview.body.EditHealthCheck.http'/>}
             style={{
               display: !showHTTP ? 'none' : ''
             }}
@@ -237,8 +259,8 @@ export default class EditHealthCheck extends PureComponent {
             })(<KVinput />)}
           </FormItem>
           <FormItem
-            {...formItemLayout}
-            label="路径"
+            {...is_language}
+            label={<FormattedMessage id='componentOverview.body.EditHealthCheck.path'/>}
             style={{
               display: !showHTTP ? 'none' : ''
             }}
@@ -250,54 +272,54 @@ export default class EditHealthCheck extends PureComponent {
                   validator: this.checkPath
                 }
               ]
-            })(<Input placeholder="响应码2xx、3xx为正常" />)}
+            })(<Input  placeholder={formatMessage({id:'componentOverview.body.EditHealthCheck.Response'})} />)}
           </FormItem>
-          <FormItem {...formItemLayout} label="初始化等候时间">
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.initialization'/>}>
             {getFieldDecorator('initial_delay_second', {
               initialValue: data.initial_delay_second || '2',
               rules: [
                 {
                   required: true,
-                  message: '请填写初始化等候时间'
+                  message: formatMessage({id:'componentOverview.body.EditHealthCheck.input_initialization'}),
                 },
                 ...checkNum
               ]
             })(numberBox())}
             {secondBox}
           </FormItem>
-          <FormItem {...formItemLayout} label="检测间隔时间">
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.time'/>}>
             {getFieldDecorator('period_second', {
               initialValue: data.period_second || '3',
               rules: [
                 {
                   required: true,
-                  message: '请填写检测间隔时间'
+                  message: formatMessage({id:'componentOverview.body.EditHealthCheck.input_time'}),
                 },
                 ...checkNum
               ]
             })(numberBox())}
             {secondBox}
           </FormItem>
-          <FormItem {...formItemLayout} label="检测超时时间">
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.over_time'/>}>
             {getFieldDecorator('timeout_second', {
               initialValue: data.timeout_second || '20',
               rules: [
                 {
                   required: true,
-                  message: '请填写检测超时时间'
+                  message: formatMessage({id:'componentOverview.body.EditHealthCheck.input_over_time'}),
                 },
                 ...checkNum
               ]
             })(numberBox())}
             {secondBox}
           </FormItem>
-          <FormItem {...formItemLayout} label="连续成功次数">
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.success'/>}>
             {getFieldDecorator('success_threshold', {
               initialValue: isRestart ? '1' : data.success_threshold || '1',
               rules: [
                 {
                   required: true,
-                  message: '请填写连续成功次数'
+                  message: formatMessage({id:'componentOverview.body.EditHealthCheck.success_frequency'}),
                 },
                 ...checkNum
               ]

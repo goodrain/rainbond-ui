@@ -1,7 +1,7 @@
 /* eslint-disable react/sort-comp */
 import { Col, Icon, Input, Row } from 'antd';
 import React, { Component } from 'react';
-
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 class DAinput extends Component {
   constructor(props) {
     super(props);
@@ -57,7 +57,7 @@ class DAinput extends Component {
     }
   }
   render() {
-    const namePlaceholder = '请输入节点名称  例：master1';
+    const namePlaceholder = `${formatMessage({id:'enterpriseColony.Advanced.master'})}`;
     const { values } = this.state;
     return (
       <div>

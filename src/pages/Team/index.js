@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import TeamImg from '../../../public/images/team-icon.png';
 import ConfirmModal from '../../components/ConfirmModal';
 import TeamDataCenterList from '../../components/Team/TeamDataCenterList';
@@ -212,7 +213,7 @@ export default class Index extends PureComponent {
             )}
           </div>
           <div>
-            创建于
+            {formatMessage({id: 'teamManage.create.time'})}
             {moment(currentTeam.create_time)
               .locale('zh-cn')
               .format('YYYY-MM-DD')}
@@ -226,7 +227,7 @@ export default class Index extends PureComponent {
         <div className={styles.extraBtns}>
           {!isEnterpriseAdmin && (
             <Button onClick={this.showExitTeam} type="dashed">
-              退出团队
+              {formatMessage({id: 'teamManage.tabs.exitTeam'})}
             </Button>
           )}
           <Button
@@ -234,7 +235,7 @@ export default class Index extends PureComponent {
             onClick={this.showDelTeam}
             type="dashed"
           >
-            删除团队
+            {formatMessage({id: 'teamManage.tabs.deleteTeam'})}
           </Button>
         </div>
       </div>
@@ -244,31 +245,31 @@ export default class Index extends PureComponent {
     if (eventPermissions) {
       tabList.push({
         key: 'event',
-        tab: '动态'
+        tab: formatMessage({id: 'teamManage.tabs.dynamic'})
       });
     }
     if (memberAccess) {
       tabList.push({
         key: 'member',
-        tab: '成员'
+        tab: formatMessage({id: 'teamManage.tabs.member'})
       });
     }
     if (datecenterAccess) {
       tabList.push({
         key: 'datecenter',
-        tab: '集群'
+        tab: formatMessage({id: 'teamManage.tabs.cluster'})
       });
     }
     if (roleAccess) {
       tabList.push({
         key: 'role',
-        tab: '角色'
+        tab: formatMessage({id: 'teamManage.tabs.role'})
       });
     }
     if (registryAccess) {
       tabList.push({
         key: 'image',
-        tab: '镜像仓库授权信息'
+        tab: formatMessage({id: 'teamManage.tabs.image'})
       });
     }
 
@@ -278,7 +279,7 @@ export default class Index extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: '团队设置' });
+    breadcrumbList.push({ title: formatMessage({id: 'teamManage.tabs.setting'}) });
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -311,18 +312,18 @@ export default class Index extends PureComponent {
         {showDelTeam && (
           <ConfirmModal
             onOk={this.handleDelTeam}
-            title="删除团队"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此团队和团队下的所有资源吗？"
+            title={formatMessage({id:'confirmModal.quit.team.title'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.return.team.desc'})}
             onCancel={this.hideDelTeam}
           />
         )}
         {showExitTeam && (
           <ConfirmModal
             onOk={this.handleExitTeam}
-            title="退出团队"
-            subDesc="此操作不可恢复"
-            desc="确定要退出此团队吗?"
+            title={formatMessage({id:'confirmModal.project_team_quit.delete.title'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.project_team_quit.desc'})}
             onCancel={this.hideExitTeam}
           />
         )}

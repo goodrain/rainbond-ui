@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { connect } from 'dva';
 import { Form, Modal } from 'antd';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
@@ -65,7 +66,7 @@ export default class CertificateForm extends PureComponent {
       <Modal
         visible
         confirmLoading={loading}
-        title={AutomaticCertificate ? '自动签发证书' : '开通自动签发证书'}
+        title={AutomaticCertificate ? formatMessage({id:'enterpriseSetting.basicsSetting.certificate.title'}) : formatMessage({id:'enterpriseSetting.basicsSetting.Modal.title'})}
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         width={800}
@@ -78,8 +79,8 @@ export default class CertificateForm extends PureComponent {
             Form={Form}
             getFieldDecorator={getFieldDecorator}
             name="auto_ssl_config"
-            label="扩展配置"
-            message="扩展配置是必须的"
+            label={formatMessage({id:'enterpriseSetting.basicsSetting.Modal.label'})}
+            message={formatMessage({id:'enterpriseSetting.basicsSetting.Modal.label.msg'})}
             width="752px"
             data={AutomaticCertificateValue || ''}
           />

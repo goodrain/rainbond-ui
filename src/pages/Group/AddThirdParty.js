@@ -1,6 +1,7 @@
 import { Button, Drawer, Icon, Row, Col } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Check from '../Create/create-check';
 import Market from '../Create/market';
 import globalUtil from '../../utils/global';
@@ -255,6 +256,7 @@ export default class AddThirdParty extends PureComponent {
       </svg>
     );
 
+
     const kuberSvg = () => (
       <svg width="60px" height="60px" viewBox="0 0 48 46" version="1.1">
         <g
@@ -286,7 +288,7 @@ export default class AddThirdParty extends PureComponent {
       <div>
         <div className={styles.ServiceBox}>
           <Row>
-            <p className={styles.ServiceTitle}>从第三方组件开始</p>
+            <p className={styles.ServiceTitle}>{formatMessage({id:'menu.team.create.third'})}</p>
           </Row>
           <Row style={{ marginBottom: '30px' }}>
             <Col
@@ -295,12 +297,12 @@ export default class AddThirdParty extends PureComponent {
               onClick={this.toAddService}
             >
               {third_party}
-              <p className={styles.ServiceSmallTitle}>第三方组件</p>
+              <p className={styles.ServiceSmallTitle}>{formatMessage({id:'teamOther.AddThirdParty.Third'})}</p>
             </Col>
           </Row>
         </div>
        <Drawer
-          title="添加第三方组件"
+          title={formatMessage({id:'teamOther.AddThirdParty.add'})}
           placement="right"
           onClose={this.cancelAddService}
           visible={this.state.toAddService}
@@ -414,7 +416,7 @@ export default class AddThirdParty extends PureComponent {
                   this.handleBackEvents(true, null);
                 }}
               >
-                上一步
+                {formatMessage({id:'button.last_step'})}
               </Button>
             }
             {ButtonGroup && (
@@ -426,7 +428,7 @@ export default class AddThirdParty extends PureComponent {
               }}
               onClick={this.cancelAddService}
             >
-              取消
+              {formatMessage({id:'button.cancel'})}
             </Button>
           </div>
         </Drawer>

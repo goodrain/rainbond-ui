@@ -2,6 +2,7 @@
 import { Button, Form, Modal, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
@@ -9,10 +10,10 @@ import styles from '../CreateTeam/index.less';
 const { Option } = Select;
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 7
   },
   wrapperCol: {
-    span: 19
+    span: 17
   }
 };
 
@@ -96,28 +97,28 @@ export default class Index extends PureComponent {
         visible={showCreate}
         onCancel={onCancel}
         onOk={this.handleSubmit}
-        title="要安装到哪个应用?"
+        title={formatMessage({id:'teamOther.CreateAppFromMarketForm.title'})}
         footer={[
-          <Button onClick={onCancel}>取消</Button>,
+          <Button onClick={onCancel}>{formatMessage({id:"button.cancel"})}</Button>,
           <Button
             onClick={this.handleSubmit}
             type="primary"
             style={{ marginRight: '5px' }}
             loading={addAppLoading || disabled}
           >
-            安装
+            {formatMessage({id:'button.install'})}
           </Button>,
           <Radio
             size="small"
             onClick={this.renderSuccessOnChange}
             checked={this.state.is_deploy}
           >
-            并构建启动
+            {formatMessage({id:'button.build_start'})}
           </Radio>
         ]}
       >
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="安装版本">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromMarketForm.install'})}>
             {getFieldDecorator('group_version', {
               initialValue: versionsInfo
                 ? versionsInfo[0].version
@@ -127,7 +128,7 @@ export default class Index extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请选择版本'
+                  message: formatMessage({id:'teamOther.CreateAppFromMarketForm.setect'})
                 }
               ]
             })(
@@ -156,19 +157,19 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
 
-          <Form.Item {...formItemLayout} label="选择应用">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromMarketForm.app'})}>
             {getFieldDecorator('group_id', {
               initialValue: data.groupd_id,
               rules: [
                 {
                   required: true,
-                  message: '请选择'
+                  message: formatMessage({id:'teamOther.CreateAppFromMarketForm.setect_app'})
                 }
               ]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择应用"
+                placeholder={formatMessage({id:'teamOther.CreateAppFromMarketForm.setect_app'})}
                 style={{
                   display: 'inline-block',
                   width: 220,
@@ -182,7 +183,9 @@ export default class Index extends PureComponent {
                 ))}
               </Select>
             )}
-            <Button onClick={this.onAddGroup}>新建应用</Button>
+            <Button onClick={this.onAddGroup}>
+            {formatMessage({id:'popover.newApp.title'})}
+            </Button>
           </Form.Item>
           {this.state.addGroup && (
             <AddGroup

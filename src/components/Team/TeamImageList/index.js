@@ -1,6 +1,7 @@
 import { Card, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import AddImage from '../../AddImage';
 import EditAdmin from '../../EditAdmin';
@@ -65,12 +66,12 @@ export default class MemberList extends PureComponent {
     }).then(res =>{
       if(res  && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message: '修改成功'
+          message: formatMessage({id:'notification.success.change'})
         })
         this.getInitializeVal()
       }else{
         notification.error({
-          message: '修改失败'
+          message: formatMessage({id:'notification.error.change'})
         })
       }
       this.setState({
@@ -93,12 +94,12 @@ export default class MemberList extends PureComponent {
     }).then(res =>{
       if(res  && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message: '添加成功'
+          message: formatMessage({id:'notification.success.add'})
         })
         this.getInitializeVal()
       }else{
         notification.error({
-          message: '添加失败'
+          message: formatMessage({id:'notification.error.add'})
         })
       }
       this.setState({
@@ -117,12 +118,12 @@ export default class MemberList extends PureComponent {
     }).then( res =>{
       if(res  && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message: '删除成功'
+          message: formatMessage({id:'notification.success.delete'})
         })
         this.getInitializeVal()
       }else{
         notification.error({
-          message: '删除失败'
+          message: formatMessage({id:'notification.error.delete'})
         })
       }
       this.setState({
@@ -159,11 +160,11 @@ export default class MemberList extends PureComponent {
             paddingTop: 12
           }}
           bordered={false}
-          title="镜像仓库授权信息"
+          title={formatMessage({id: 'teamManage.tabs.image'})}
           extra={
             isCreate && (
               <a href="javascript:;" onClick={this.showAddMember}>
-                添加
+                {formatMessage({id: 'teamManage.tabs.image.table.btn.add'})}
               </a>
             )
           }
@@ -197,9 +198,9 @@ export default class MemberList extends PureComponent {
         {toDeleteMember && (
           <ConfirmModal
             onOk={this.handleDelMember}
-            title="删除镜像仓库授权信息"
-            subDesc="此操作不可恢复"
-            desc="确定要删除镜像仓库授权信息吗？"
+            title={formatMessage({ id: 'confirmModal.image_warehouse.delete.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.image_warehouse.desc' })}
             onCancel={this.hideDelMember}
           />
         )}

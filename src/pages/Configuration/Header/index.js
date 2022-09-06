@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '@/layouts/PageHeaderLayout';
 /* eslint react/no-array-index-key: 0 */
 
@@ -9,8 +10,8 @@ export default class Configuration extends PureComponent {
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title="应用配置组管理"
-        content="配置组是通过环境变量注入到当前应用指定的组件运行环境中"
+        title={formatMessage({id: 'appConfiguration.title'})}
+        content={formatMessage({id: 'appConfiguration.desc'})}
       >
         {children}
       </PageHeaderLayout>

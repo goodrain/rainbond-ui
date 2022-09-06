@@ -7,6 +7,7 @@ import { Button, Card, Col, Form, Icon, Notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddOrEditConfig from '../../components/AddOrEditConfig';
 import BuildPluginVersion from '../../components/buildPluginVersion';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -236,7 +237,7 @@ export default class Index extends PureComponent {
         ...values
       },
       callback: () => {
-        Notification.success({ message: '修改成功' });
+        Notification.success({ message: formatMessage({id:'notification.success.change'}) });
       }
     });
   };
@@ -252,7 +253,7 @@ export default class Index extends PureComponent {
         config_name: configVisible.config_name
       },
       callback: () => {
-        Notification.success({ message: '删除成功' });
+        Notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.getPluginVersionConfig();
         this.handleCloseDelConfigVisible();
       }
@@ -345,7 +346,7 @@ export default class Index extends PureComponent {
         }
       },
       callback: () => {
-        Notification.success({ message: '删除成功' });
+        Notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.getPluginVersionConfig();
         this.handleCloseStorage();
       }
@@ -386,7 +387,7 @@ export default class Index extends PureComponent {
         plugin_id: this.getId()
       },
       callback: () => {
-        Notification.success({ message: '操作成功' });
+        Notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
         this.state.currVersion = '';
         this.getVersions();
       }
@@ -439,7 +440,7 @@ export default class Index extends PureComponent {
     });
     type &&
       Notification.success({
-        message: type === 'storageAdd' ? '新增成功' : '修改成功'
+        message: type === 'storageAdd' ? formatMessage({id:'notification.success.add_success'}) : formatMessage({id:'notification.success.change'})
       });
   };
   // 新增或编辑存储
@@ -572,12 +573,12 @@ export default class Index extends PureComponent {
         <ButtonGroup>
           {isCreate && (
             <Button type="primary" onClick={this.handleBuildPluginVersion}>
-              构建
+              {formatMessage({id:'teamOther.manage.structure'})}
             </Button>
           )}
           {currInfo.build_status !== 'unbuild' && (
             <Button type="default" onClick={this.showBuildLog}>
-              查看构建日志
+              {formatMessage({id:'teamOther.manage.log'})}
             </Button>
           )}
         </ButtonGroup>
@@ -596,7 +597,7 @@ export default class Index extends PureComponent {
           <div className={styles.heading} />
         </Col>
         <Col xs={24} sm={12}>
-          <div className={styles.textSecondary}>构建状态</div>
+          <div className={styles.textSecondary}>{formatMessage({id:'teamOther.manage.state'})}</div>
           <div className={styles.heading}>
             {pluginUtil.getBuildStatusCN(currInfo.build_status)}
           </div>
@@ -610,7 +611,7 @@ export default class Index extends PureComponent {
       currentRegionName
     );
     breadcrumbList.push({
-      title: '插件列表',
+      title: formatMessage({id:'teamOther.manage.list'}),
       href: `/team/${currentTeam.team_name}/region/${currentRegionName}/myplugns`
     });
     breadcrumbList.push({ title: currInfo.plugin_alias });
@@ -626,7 +627,7 @@ export default class Index extends PureComponent {
           style={{
             marginBottom: 16
           }}
-          title="版本基础信息"
+          title={formatMessage({id:'teamOther.manage.information'})}
         >
           <div
             style={{
@@ -640,7 +641,7 @@ export default class Index extends PureComponent {
               isEdit={isEdit}
               onSubmit={this.hanldeEditSubmit}
               data={currInfo}
-              submitText="确认修改"
+              submitText={formatMessage({id:'teamOther.manage.modification'})}
             />
           </div>
         </Card>
@@ -648,53 +649,53 @@ export default class Index extends PureComponent {
           style={{
             marginBottom: 16
           }}
-          title="配置组管理"
+          title={formatMessage({id:'teamOther.manage.management'})}
         >
           <ScrollerX sm={700}>
             <Table
               columns={[
                 {
-                  title: '配置项名',
+                  title: formatMessage({id:'teamOther.manage.config_name'}),
                   dataIndex: 'config_name'
                 },
                 {
-                  title: '依赖元数据类型',
+                  title: formatMessage({id:'teamOther.manage.service_meta_type'}),
                   dataIndex: 'service_meta_type',
                   render: v => {
                     return pluginUtil.getMetaTypeCN(v);
                   }
                 },
                 {
-                  title: '注入类型',
+                  title: formatMessage({id:'teamOther.manage.injection'}),
                   dataIndex: 'injection',
                   render: v => {
                     return pluginUtil.getInjectionCN(v);
                   }
                 },
                 {
-                  title: '配置项',
+                  title: formatMessage({id:'teamOther.manage.options'}),
                   dataIndex: 'options',
                   width: '40%',
                   render: v => {
                     return (v || []).map(item => {
                       return (
                         <p className={styles.configGroup}>
-                          <span>属性名: {item.attr_name}</span>
-                          <span>属性类型: {item.attr_type}</span>
+                          <span>{formatMessage({id:'teamOther.manage.attr_name'})} {item.attr_name}</span>
+                          <span>{formatMessage({id:'teamOther.manage.attr_type'})} {item.attr_type}</span>
                           {item.attr_type !== 'string' ? (
-                            <span>可选值: {item.attr_alt_value}</span>
+                            <span>{formatMessage({id:'teamOther.manage.attr_alt_value'})} {item.attr_alt_value}</span>
                           ) : null}
                           <span>
-                            可否修改: {item.is_change ? '可修改' : '不可修改'}
+                            {formatMessage({id:'teamOther.manage.is_change'})} {item.is_change ? formatMessage({id:'teamOther.manage.yes_change'}) : formatMessage({id:'teamOther.manage.no_change'})}
                           </span>
-                          <span>简短说明: {item.attr_info}</span>
+                          <span>{formatMessage({id:'teamOther.manage.attr_info'})} {item.attr_info}</span>
                         </p>
                       );
                     });
                   }
                 },
                 {
-                  title: '操作',
+                  title: formatMessage({id:'teamOther.manage.action'}),
                   dataIndex: 'action',
                   render: (_v, data) => {
                     return (
@@ -708,7 +709,7 @@ export default class Index extends PureComponent {
                               marginRight: 8
                             }}
                           >
-                            修改
+                            {formatMessage({id:'teamOther.manage.edit'})}
                           </a>
                         )}
                         {isDelete && (
@@ -717,7 +718,7 @@ export default class Index extends PureComponent {
                               this.handleOpenDelConfigVisible(data);
                             }}
                           >
-                            删除
+                            {formatMessage({id:'teamOther.manage.delete'})}
                           </a>
                         )}
                       </Fragment>
@@ -737,7 +738,7 @@ export default class Index extends PureComponent {
           >
             <Button onClick={this.showAddConfig}>
               <Icon type="plus" />
-              新增配置
+              {formatMessage({id:'teamOther.manage.add'})}
             </Button>
           </div>
         </Card>
@@ -746,26 +747,26 @@ export default class Index extends PureComponent {
           style={{
             marginBottom: 16
           }}
-          title="配置文件和共享存储"
+          title={formatMessage({id:'teamOther.manage.title'})}
         >
           <Table
             columns={[
               {
-                title: '名称',
+                title: formatMessage({id:'teamOther.manage.name'}),
                 dataIndex: 'config_name',
                 key: '1'
               },
-              { title: '挂载路径', dataIndex: 'volume_path', key: '2' },
+              { title: formatMessage({id:'teamOther.manage.path'}), dataIndex: 'volume_path', key: '2' },
               {
-                title: '存储类型',
+                title: formatMessage({id:'teamOther.manage.type'}),
                 dataIndex: 'attr_type',
                 key: '3',
                 render: val => {
-                  return val === 'storage' ? '共享存储' : '配置文件';
+                  return val === 'storage' ? formatMessage({id:'teamOther.manage.share'}) : formatMessage({id:'teamOther.manage.add_file'});
                 }
               },
               {
-                title: '操作',
+                title: formatMessage({id:'teamOther.manage.action'}),
                 dataIndex: 'action',
                 key: '4',
                 render: (_v, data) => {
@@ -780,7 +781,7 @@ export default class Index extends PureComponent {
                             marginRight: 8
                           }}
                         >
-                          修改
+                          {formatMessage({id:'teamOther.manage.edit'})}
                         </a>
                       )}
                       {isDelete && (
@@ -789,7 +790,7 @@ export default class Index extends PureComponent {
                             this.handleDeleteStorage(data);
                           }}
                         >
-                          删除
+                          {formatMessage({id:'teamOther.manage.delete'})}
                         </a>
                       )}
                     </Fragment>
@@ -809,15 +810,15 @@ export default class Index extends PureComponent {
           >
             <Button onClick={this.showAddStorgeConfig}>
               <Icon type="plus" />
-              新增存储
+              {formatMessage({id:'teamOther.manage.add_storage'})}
             </Button>
           </div>
         </Card>
-        <Card title="已安装当前插件的组件">
+        <Card title={formatMessage({id:'teamOther.manage.already_installed'})}>
           <Table
             columns={[
               {
-                title: '组件名称',
+                title: formatMessage({id:'teamOther.manage.Component_name'}),
                 dataIndex: 'service_cname',
                 render: (v, data) => {
                   return (
@@ -832,11 +833,11 @@ export default class Index extends PureComponent {
                 }
               },
               {
-                title: '安装版本',
+                title: formatMessage({id:'teamOther.manage.version'}),
                 dataIndex: 'build_version'
               },
               {
-                title: '操作',
+                title: formatMessage({id:'teamOther.manage.action'}),
                 dataIndex: 'action',
                 render: (v, data) => {
                   return (
@@ -845,7 +846,7 @@ export default class Index extends PureComponent {
                         data.service_alias
                       }/plugin`}
                     >
-                      查看已安装插件
+                      {formatMessage({id:'teamOther.manage.look'})}
                     </Link>
                   );
                 }
@@ -862,9 +863,9 @@ export default class Index extends PureComponent {
         </Card>
         {configVisible && (
           <ConfirmModal
-            title="删除配置项"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此配置项？"
+            title={formatMessage({id:'confirmModal.configuration_item.delete.title'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.drop_procedure.desc'})}
             loading={removeConfigLoading}
             onOk={this.handleDelConfig}
             onCancel={this.handleCloseDelConfigVisible}
@@ -873,9 +874,9 @@ export default class Index extends PureComponent {
         {/* 删除存储 */}
         {configStorageVisible && (
           <ConfirmModal
-            title="删除存储"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此存储？"
+            title={formatMessage({id:'confirmModal.drop_procedure.delete.title'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
             loading={removeStorageLoading}
             onOk={this.handleDelStorage}
             onCancel={this.handleCloseStorage}
@@ -891,7 +892,7 @@ export default class Index extends PureComponent {
         )}
         {showEditConfig && (
           <AddOrEditConfig
-            title="修改配置组"
+            title={formatMessage({id:'teamOther.manage.edit_config'})}
             loading={editConfigLoading}
             data={showEditConfig}
             onCancel={this.hideEditConfig}
@@ -902,9 +903,9 @@ export default class Index extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteVersion}
             onCancel={this.cancelDeleteVersion}
-            title="删除版本"
-            desc="确定要删除当前版本吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({id:'confirmModal.drop_versions.delete.title'})}
+            desc={formatMessage({id:'confirmModal.delete.drop_versions.desc'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
           />
         )}
         {showBuildLog && currVersion && (

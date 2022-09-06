@@ -17,6 +17,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from '../../components/CreateTeam/index.less';
 import OauthForm from '../../components/OauthForm';
@@ -88,7 +89,7 @@ export default class OauthTable extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
           this.handelOauthInfo();
         }
       }
@@ -157,12 +158,12 @@ export default class OauthTable extends PureComponent {
         if (data && data.status_code === 200) {
           notification.success({
             message: isOpen
-              ? '开启成功'
+              ? formatMessage({id:'notification.success.open'})
               : isclone
-              ? '关闭成功'
+              ? formatMessage({id:'notification.success.close'})
               : oauthInfo
-              ? '编辑成功'
-              : '添加成功'
+              ? formatMessage({id:'notification.success.edit'})
+              : formatMessage({id:'notification.success.add'})
           });
           this.handelOauthInfo();
         }
@@ -231,7 +232,7 @@ export default class OauthTable extends PureComponent {
     });
     return (
       <Modal
-        title="OAuth 第三方服务集成配置"
+        title={formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.title'})}
         loading={loading}
         className={styles.TelescopicModal}
         width={1150}
@@ -240,7 +241,7 @@ export default class OauthTable extends PureComponent {
         onCancel={onCancel}
         footer={[
           <Button style={{ marginTop: '20px' }} onClick={this.handleSubmit}>
-            关闭
+            {formatMessage({id:'button.close'})}
           </Button>
         ]}
       >
@@ -248,8 +249,8 @@ export default class OauthTable extends PureComponent {
           {showDeleteDomain && (
             <ConfirmModal
               loading={oauthLongin}
-              title="禁用"
-              desc="确定要禁用该Oauth服务吗？禁用后基于该服务构建的组件将不能进行构建"
+              title={formatMessage({id:'confirmModal.forbidden.delete.title'})}
+              desc={formatMessage({id:'confirmModal.delete.forbidden.desc'})}
               onOk={() => {
                 this.handelRequest(oauthInfo, 'clone');
               }}
@@ -269,7 +270,7 @@ export default class OauthTable extends PureComponent {
             <Col span={12}>
               {autoLoginOAuth && (
                 <Alert
-                  message={`${autoLoginOAuth.name} 服务已开启自动登录，登录流程将自动导航到该服务。`}
+                  message={`${autoLoginOAuth.name} ${formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.alert'})}`}
                   type="success"
                 />
               )}
@@ -282,7 +283,7 @@ export default class OauthTable extends PureComponent {
                 type="primary"
                 icon="plus"
               >
-                添加
+                {formatMessage({id:'button.add'})}
               </Button>
             </Col>
           </Row>
@@ -291,40 +292,40 @@ export default class OauthTable extends PureComponent {
             style={{ width: '100%', overflowX: 'auto' }}
             columns={[
               {
-                title: 'OAuth类型',
+                title: formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.table.oauth_type'}),
                 dataIndex: 'oauth_type',
                 key: '1',
                 width: '10%'
               },
               {
-                title: '名称',
+                title: formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.table.name'}),
                 dataIndex: 'name',
                 key: '2',
                 width: '15%'
               },
               {
-                title: '客户端ID',
+                title: formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.table.client_id'}),
                 dataIndex: 'client_id',
                 key: '3',
                 width: '15%',
                 render: data => this.handleDiv(data)
               },
               {
-                title: '客户端密钥',
+                title: formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.table.client_secret'}),
                 dataIndex: 'client_secret',
                 key: '4',
                 width: '15%',
                 render: data => this.handleDiv(data)
               },
               {
-                title: '服务地址',
+                title: formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.table.home_url'}),
                 dataIndex: 'home_url',
                 key: '5',
                 width: '15%',
                 render: data => this.handleDiv(data)
               },
               {
-                title: '操作',
+                title: formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.table.action'}),
                 dataIndex: 'action',
                 width: '15%',
                 key: 'action',
@@ -337,7 +338,7 @@ export default class OauthTable extends PureComponent {
                         this.handleDel(record);
                       }}
                     >
-                      删除
+                      {formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.table.del'})}
                     </a>
                     <a
                       style={{ marginRight: '10px' }}
@@ -345,7 +346,7 @@ export default class OauthTable extends PureComponent {
                         this.handleOpen(record);
                       }}
                     >
-                      编辑
+                      {formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.table.edit'})}
                     </a>
                     <a
                       onClick={() => {
@@ -354,7 +355,7 @@ export default class OauthTable extends PureComponent {
                           : this.handleOpen(record, true);
                       }}
                     >
-                      {record.enable ? '禁用' : '启用'}
+                      {record.enable ? formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.table.disable'}) : formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.table.enabled'})}
                     </a>
                   </div>
                 )

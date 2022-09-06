@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import CodeMirrorForm from '../CodeMirrorForm';
 import ConfirmModal from '../ConfirmModal';
 import styles from '../CreateTeam/index.less';
@@ -122,7 +123,7 @@ export default class AddAdmin extends PureComponent {
     if (!isRightType) {
       if (isMessage) {
         notification.warning({
-          message: '请上传以.xml结尾的文件'
+          message: formatMessage({id:'notification.warn.update_xml'})
         });
       }
       return false;
@@ -168,7 +169,7 @@ export default class AddAdmin extends PureComponent {
                 contentLoading: true
               });
               this.fetchMavensettings();
-              notification.success({ message: '添加成功' });
+              notification.success({ message: formatMessage({id:'notification.success.add'}) });
             }
           }
         });
@@ -197,7 +198,7 @@ export default class AddAdmin extends PureComponent {
             () => {
               this.onCancelDelete();
               this.fetchMavensettings(true);
-              notification.success({ message: '删除成功' });
+              notification.success({ message:  formatMessage({id:'notification.success.delete'})});
             }
           );
         }
@@ -226,7 +227,7 @@ export default class AddAdmin extends PureComponent {
                 contentLoading: true
               });
               this.fetchMavensettings();
-              notification.success({ message: '保存成功' });
+              notification.success({ message:  formatMessage({id:'notification.success.save'})});
             }
           }
         });
@@ -277,7 +278,7 @@ export default class AddAdmin extends PureComponent {
           onCancel(mavenInfo && mavenInfo.name);
         }}
       >
-        取消
+        <FormattedMessage id='button.cancel'/>
       </Button>
     ];
 
@@ -288,7 +289,7 @@ export default class AddAdmin extends PureComponent {
           loading={EditMavensettingsLoading}
           onClick={this.handleEditSubmit}
         >
-          保存
+          <FormattedMessage id='button.preservation'/>
         </Button>
       );
     } else {
@@ -298,7 +299,7 @@ export default class AddAdmin extends PureComponent {
           loading={AddMavensettingsLoading}
           onClick={this.handleAddSubmit}
         >
-          添加
+          <FormattedMessage id='button.add'/>
         </Button>
       );
     }
@@ -316,7 +317,7 @@ export default class AddAdmin extends PureComponent {
 
     return (
       <Modal
-        title="Maven配置文件管理"
+        title={<FormattedMessage id='componentOverview.body.AddAdmin.title'/>}
         visible
         width={800}
         className={styles.TelescopicModal}
@@ -328,13 +329,14 @@ export default class AddAdmin extends PureComponent {
         {toDelete && (
           <ConfirmModal
             loading={DeleteMavensettingsLoading}
-            title="删除此Maven配置"
             desc={
               isDefaultMaven
-                ? '该配置为集群下的默认Maven配置，若删除，整个集群使用该配置的组件均会受到影响，是否确认删除？'
-                : '确定要删除此Maven配置吗?'
+                ? <FormattedMessage id='confirmModal.deldete.Maven.desc'/>
+                : <FormattedMessage id='confirmModal.deldete.Maven.desc_delete'/>
             }
-            subDesc="此操作不可恢复"
+            title={<FormattedMessage id='confirmModal.deldete.Maven.title'/>}
+            subDesc={<FormattedMessage id='confirmModal.deldete.Maven.subDesc'/>}
+
             onCancel={this.onCancelDelete}
             onOk={this.handleDelete}
           />
@@ -350,7 +352,7 @@ export default class AddAdmin extends PureComponent {
                   padding: '0 16px 0 24px '
                 }}
               >
-                <Col span={22}>配置列表</Col>
+                <Col span={22}> <FormattedMessage id='componentOverview.body.AddAdmin.list'/></Col>
                 <Col span={2}>
                   <Icon
                     type="plus"
@@ -400,32 +402,31 @@ export default class AddAdmin extends PureComponent {
             </Sider>
             <Content>
               <Form onSubmit={this.handleSubmit} labelAlign="left">
-                <FormItem {...formItemLayout} label="配置名称">
+                <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.AddAdmin.name'/>}>
                   {getFieldDecorator('name', {
                     initialValue: mavenInfo.name || '',
                     rules: [
                       {
                         required: true,
-                        message: '请输入配置名称'
+                        message:formatMessage({id:'componentOverview.body.AddAdmin.input_name'})
                       },
                       {
                         min: 2,
-                        message: '最小长度2位'
+                        message:formatMessage({id:'componentOverview.body.AddAdmin.min'})
                       },
                       {
                         max: 64,
-                        message: '最大长度64位'
+                        message:formatMessage({id:'componentOverview.body.AddAdmin.max'})
                       },
                       {
                         pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/,
-                        message:
-                          '必须由小写的字母、数字和-组成，并且必须以字母数字开始和结束'
+                        message:formatMessage({id:'componentOverview.body.AddAdmin.only'})
                       }
                     ]
                   })(
                     <Input
                       disabled={mavenInfo.name}
-                      placeholder="请输入配置名称"
+                      placeholder={formatMessage({id:'componentOverview.body.AddAdmin.input_name'})}
                     />
                   )}
                 </FormItem>
@@ -436,8 +437,8 @@ export default class AddAdmin extends PureComponent {
                   <CodeMirrorForm
                     name="content"
                     mode="application/xml"
-                    label="配置文件内容"
-                    message="请编辑内容"
+                    label={<FormattedMessage id='componentOverview.body.AddAdmin.profile'/>}
+                    message={<FormattedMessage id='componentOverview.body.AddAdmin.content'/>}
                     width="529px"
                     Form={Form}
                     setFieldsValue={setFieldsValue}

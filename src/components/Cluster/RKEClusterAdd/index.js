@@ -30,6 +30,7 @@ import {
 import copy from 'copy-to-clipboard';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { rkeconfig } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from './index.less';
@@ -88,20 +89,20 @@ class EditableCell extends React.Component {
     const rules = [
       {
         required: true,
-        message: `${title} 是必需的`
+        message: formatMessage({id:'enterpriseColony.addCluster.host.Required'},{title:title})
       }
     ];
     const ips = dataIndex === 'ip' || dataIndex === 'internalIP';
     if (ips) {
       rules.push({
-        message: '请输入正确的IP地址',
+        message: formatMessage({id:'enterpriseColony.addCluster.host.correct_IP'}),
         pattern: new RegExp(ipRegs, 'g')
       });
     }
     const sshPort = dataIndex === 'sshPort';
     if (sshPort) {
       rules.push({
-        message: '请输入正确的端口号',
+        message: formatMessage({id:'enterpriseColony.addCluster.host.Correct_port'}),
         min: 1,
         max: 65536,
         pattern: new RegExp(portRegs, 'g')
@@ -125,9 +126,9 @@ class EditableCell extends React.Component {
               allowClear
               mode="multiple"
             >
-              <Select.Option value="controlplane">管理</Select.Option>
+              <Select.Option value="controlplane"><FormattedMessage id='enterpriseColony.addCluster.host.Administration'/></Select.Option>
               <Select.Option value="etcd">ETCD</Select.Option>
-              <Select.Option value="worker">计算</Select.Option>
+              <Select.Option value="worker"><FormattedMessage id='enterpriseColony.addCluster.host.calculation'/></Select.Option>
             </Select>
           ) : sshPort ? (
             <InputNumber
@@ -140,7 +141,7 @@ class EditableCell extends React.Component {
             />
           ) : (
             <Input
-              placeholder={`请输入${title}`}
+              placeholder={formatMessage({id:'enterpriseColony.addCluster.host.placese_input'},{title:title})} 
               ref={node => {
                 this.input = node;
                 if (
@@ -154,12 +155,15 @@ class EditableCell extends React.Component {
               }}
               onPressEnter={this.save}
               onBlur={this.save}
+              style={{textOverflow: 'ellipsis',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',width:'100%'}}
             />
           )
         )}
       </Form.Item>
     ) : (
-      <Tooltip title="点击修改">
+      <Tooltip title={<FormattedMessage id='enterpriseColony.addCluster.host.click_edit'/>}>
         <div
           className="editable-cell-value-wrap"
           style={{ cursor: 'pointer' }}
@@ -322,20 +326,20 @@ export default class RKEClusterConfig extends PureComponent {
                 item.key = Math.random();
                 if (isNext) {
                   if (!ipRegs.test(item.ip || '')) {
-                    helpError = '请输入正确的IP地址';
+                    helpError = `${formatMessage({id:'enterpriseColony.addCluster.host.input_ip'})}`;
                     helpType = 'ip';
                   } else if (!ipRegs.test(item.internalIP || '')) {
-                    helpError = '请输入正确的IP地址';
+                    helpError = `${formatMessage({id:'enterpriseColony.addCluster.host.input_ip'})}`;
                     helpType = 'internalIP';
                   } else if (!portRegs.test(item.sshPort || '')) {
-                    helpError = '请输入正确的端口号';
+                    helpError = `${formatMessage({id:'enterpriseColony.addCluster.host.input_port'})}`;
                     helpType = 'sshPort';
                   } else if (item.sshPort > 65536) {
                     helpType = 'sshPort';
-                    helpError = '端口号最大65536';
+                    helpError = `${formatMessage({id:'enterpriseColony.addCluster.host.port_max'})}`;
                   } else if (!item.roles) {
                     helpType = 'roles';
-                    helpError = '节点类型是必须的';
+                    helpError = `${formatMessage({id:'enterpriseColony.addCluster.host.mast'})}`;
                   }
                 }
               });
@@ -373,7 +377,7 @@ export default class RKEClusterConfig extends PureComponent {
             this.setState({
               isCheck: false,
               helpType: 'RKE',
-              helpError: 'RKE集群配置不合格、请重新配置'
+              helpError: formatMessage({id:'enterpriseColony.addCluster.host.rke'})
             });
             return null;
           }
@@ -516,7 +520,7 @@ export default class RKEClusterConfig extends PureComponent {
     if (!isRightType) {
       if (isMessage) {
         notification.warning({
-          message: '请上传以.yaml、.yml结尾的 Region Config 文件'
+          message: formatMessage({id:'notification.warn.yaml_file'})
         });
       }
       return false;
@@ -526,13 +530,13 @@ export default class RKEClusterConfig extends PureComponent {
   nodeRole = role => {
     switch (role) {
       case 'controlplane':
-        return '管理';
+        return `${formatMessage({id:'enterpriseColony.addCluster.host.Administration'})}`;
       case 'worker':
-        return '计算';
+        return `${formatMessage({id:'enterpriseColony.addCluster.host.calculation'})}`;
       case 'etcd':
         return 'ETCD';
       default:
-        return '未知';
+        return `${formatMessage({id:'enterpriseColony.addCluster.host.unkonw'})}`;
     }
   };
   handleStartCheck = isNext => {
@@ -561,10 +565,11 @@ export default class RKEClusterConfig extends PureComponent {
         this.setState({
           isCheck: false,
           helpType: 'RKE',
-          helpError: '填写RKE集群配置'
+          helpError: formatMessage({id:'enterpriseColony.addCluster.host.input_rke'})
         });
       }
       if (!err && next) {
+        console.log('2')
         this.handleCheck(next);
       }
     });
@@ -672,25 +677,25 @@ export default class RKEClusterConfig extends PureComponent {
     };
     const columns = [
       {
-        title: 'IP 地址',
+        title: formatMessage({id:'enterpriseColony.addCluster.host.ip'}),
         dataIndex: 'ip',
         width: 150,
         editable: true
       },
       {
-        title: '内网 IP 地址',
+        title: formatMessage({id:'enterpriseColony.addCluster.host.Intranet_ip'}),
         dataIndex: 'internalIP',
         width: 170,
         editable: true
       },
       {
-        title: 'SSH 端口',
+        title: formatMessage({id:'enterpriseColony.addCluster.host.ssh'}),
         dataIndex: 'sshPort',
         width: 140,
         editable: true
       },
       {
-        title: '节点类型',
+        title: formatMessage({id:'enterpriseColony.addCluster.host.Node_type'}),
         dataIndex: 'roles',
         width: 160,
         editable: true,
@@ -700,17 +705,17 @@ export default class RKEClusterConfig extends PureComponent {
           text.map(item => <Tag color="blue">{this.nodeRole(item)}</Tag>)
       },
       {
-        title: '操作',
+        title: formatMessage({id:'enterpriseColony.addCluster.host.operation'}),
         dataIndex: 'name',
         width: 80,
         align: 'center',
         render: (_, record) => {
           return dataSource && dataSource.length > 1 ? (
             <Popconfirm
-              title="确定要删除吗?"
+              title={<FormattedMessage id='enterpriseColony.addCluster.host.delete'/>}
               onConfirm={() => this.handleDelete(record.key)}
             >
-              <a>删除</a>
+              <a><FormattedMessage id='button.delete'/></a>
             </Popconfirm>
           ) : (
             '-'
@@ -749,7 +754,7 @@ export default class RKEClusterConfig extends PureComponent {
     return (
       <Modal
         visible
-        title={clusterID ? '配置集群' : '基于主机安装集群'}
+        title={clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.Configure_cluster'/> : <FormattedMessage id='enterpriseColony.addCluster.host.Host'/>}
         className={styles.TelescopicModal}
         width={900}
         destroyOnClose
@@ -762,17 +767,17 @@ export default class RKEClusterConfig extends PureComponent {
               }}
               loading={loading}
             >
-              {clusterID ? '更新集群' : '开始安装'}
+              {clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.updata'/> : <FormattedMessage id='enterpriseColony.addCluster.host.start_install'/>}
             </Button>
             {guideStep && guideStep === 6 && handleNewbieGuiding && clusters && clusters.length === 0  && (
               <Fragment>
                 {handleNewbieGuiding({
-                  tit: '6.开始安装',
+                  tit: formatMessage({id:'enterpriseColony.addCluster.host.start_install_six'}),
                   send: true,
                   configName: 'kclustersAttention',
-                  desc: '确认RKE集群配置信息填写正确并立即开始安装。',
+                  desc: formatMessage({id:'enterpriseColony.addCluster.host.Start_installation_now'}),
                   nextStep: 7,
-                  btnText: '安装',
+                  btnText: formatMessage({id:'button.install'}),
                   conPosition: { right: '110px', bottom: 0 },
                   svgPosition: { right: '50px', marginTop: '-11px' },
                   handleClick: () => {
@@ -789,9 +794,9 @@ export default class RKEClusterConfig extends PureComponent {
       >
         {isCheck && (
           <Modal
-            title={`确定已完成所有节点的初始化并开始
-            ${clusterID ? '配置' : '安装'}
-           集群吗?`}
+            title={`${formatMessage({id:'enterpriseColony.addCluster.host.Initialize_and_start'})}
+            ${clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.to_configure'/> :  <FormattedMessage id='enterpriseColony.addCluster.host.install'/>}
+            ${formatMessage({id:'enterpriseColony.addCluster.host.Cluster'})}`}
             confirmLoading={loading}
             className={styles.TelescopicModal}
             width={900}
@@ -803,7 +808,7 @@ export default class RKEClusterConfig extends PureComponent {
                   this.handleCheck(false);
                 }}
               >
-                取消
+                <FormattedMessage id='button.cancel'/>
               </Button>,
               <Button
                 key="link"
@@ -821,15 +826,15 @@ export default class RKEClusterConfig extends PureComponent {
                 disabled={forbiddenConfig}
               >
                 {(!countConfig &&
-                  `我已在所有节点执行上述命令,开始安装(${countContent})`) ||
-                  ' 我已在所有节点执行上述命令,开始安装'}
+                  <FormattedMessage id='enterpriseColony.addCluster.host.on_all_nodes' values={{countContent:countContent}}/>) ||
+                  <FormattedMessage id='enterpriseColony.addCluster.host.executed_the_above'/>}
               </Button>
             ]}
           >
             <Row style={{ padding: '0 16px' }}>
               <span style={{ fontWeight: 600, color: 'red' }}>
-                请在开始{clusterID ? '配置前在新加' : '安装前所有'}
-                节点先执行以下初始化命令（执行用户需要具有sudo权限）：
+                <FormattedMessage id='enterpriseColony.addCluster.host.start_at'/>{clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.before_configuration'/> : <FormattedMessage id='enterpriseColony.addCluster.host.All_before_installation'/>}
+               <FormattedMessage id='enterpriseColony.addCluster.host.soud'/>
               </span>
 
               <Col span={24} style={{ marginTop: '16px' }}>
@@ -839,13 +844,13 @@ export default class RKEClusterConfig extends PureComponent {
                     type="copy"
                     onClick={() => {
                       copy(initNodeCmd);
-                      notification.success({ message: '复制成功' });
+                      notification.success({ message: formatMessage({id:'notification.success.copy'}) });
                     }}
                   />
                   {guideStep &&
                     guideStep === 7 &&
                     handleNewbieGuiding({
-                      tit: '节点的初始化',
+                      tit: formatMessage({id:'enterpriseColony.addCluster.host.Initialization'}),
                       send: true,
                       configName: 'nodeInitialization',
                       handleClick: () => {
@@ -855,10 +860,9 @@ export default class RKEClusterConfig extends PureComponent {
                       handleClosed: () => {
                         this.handleCountDown();
                       },
-                      desc:
-                        '请复制上述命令完成所有节点的初始化,点击确定、请等待 RKE 集群安装完成。',
+                      desc: formatMessage({id:'enterpriseColony.addCluster.host.complete'}),
                       prevStep: false,
-                      btnText: '复制命令',
+                      btnText: formatMessage({id:'enterpriseColony.addCluster.host.copy'}),
                       nextStep: 8,
                       conPosition: { left: '0', bottom: '-156px' },
                       svgPosition: { right: '-20px', marginTop: '-11px' }
@@ -873,7 +877,7 @@ export default class RKEClusterConfig extends PureComponent {
         {clusterID && (
           <Alert
             type="warning"
-            message="集群节点配置特别是管理节点、ETCD节点配置具有一定风险，请选择合适的时间进行"
+            message={<FormattedMessage id='enterpriseColony.addCluster.host.suitable'/>}
           />
         )}
         <Form>
@@ -885,26 +889,26 @@ export default class RKEClusterConfig extends PureComponent {
               >
                 <ul>
                   <li>
-                    <span>基于提供的主机安装集群。</span>
+                    <span><FormattedMessage id='enterpriseColony.addCluster.host.provided_hosts'/></span>
                   </li>
                   <li>
                     <span>
-                      请确保提供的主机{!clusterID && '的 IP 地址的'}
-                      <b>SSH 端口</b>和<b>6443端口</b>
-                      都可以被当前网络直接访问。
+                      <FormattedMessage id='enterpriseColony.addCluster.host.provided_host'/>{!clusterID && <FormattedMessage id='enterpriseColony.addCluster.host.and_ip'/>}
+                      <b><FormattedMessage id='enterpriseColony.addCluster.host.and_ssh'/></b><FormattedMessage id='enterpriseColony.addCluster.host.and'/><b><FormattedMessage id='enterpriseColony.addCluster.host.port'/></b>
+                      <FormattedMessage id='enterpriseColony.addCluster.host.visit'/>
                     </span>
                   </li>
                   <li>
                     <span>
-                      节点初始化脚本会进行<b>系统检查</b>、<b>配置SSH免密</b>、
-                      <b>Docker安装</b>三项动作。
+                      <FormattedMessage id='enterpriseColony.addCluster.host.script'/><b><FormattedMessage id='enterpriseColony.addCluster.host.System_check'/></b>、<b><FormattedMessage id='enterpriseColony.addCluster.host.secret_free'/></b>、
+                      <b><FormattedMessage id='enterpriseColony.addCluster.host.docker'/></b><FormattedMessage id='enterpriseColony.addCluster.host.movements'/>
                     </span>
                   </li>
                   <li>
                     <span>
-                      如果你的主机已经安装 Docker，请确保不能大于
-                      <b>19.03.x</b> 和低于
-                      <b>1.13.x</b> 版本。
+                      <FormattedMessage id='enterpriseColony.addCluster.host.already_installed'/>
+                      <b> 19.03.x</b> <FormattedMessage id='enterpriseColony.addCluster.host.adn_lower_than'/>
+                      <b> 1.13.x</b> <FormattedMessage id='enterpriseColony.addCluster.host.edition'/>
                     </span>
                   </li>
                 </ul>
@@ -913,12 +917,12 @@ export default class RKEClusterConfig extends PureComponent {
               {guideStep && guideStep === 3 && handleNewbieGuiding && clusters && clusters.length === 0 && (
                 <Fragment>
                   {handleNewbieGuiding({
-                    tit: '注意事项',
+                    tit: formatMessage({id:'enterpriseColony.addCluster.host.matters_attention'}),
                     send: false,
                     configName: 'kclustersAttention',
                     showSvg: false,
                     showArrow: true,
-                    desc: '注意查看主机需要满足的前提条件和安装说明。',
+                    desc: formatMessage({id:'enterpriseColony.addCluster.host.explain'}),
                     nextStep: 4,
                     conPosition: { right: '15px', bottom: '-134px' }
                   })}
@@ -935,7 +939,7 @@ export default class RKEClusterConfig extends PureComponent {
                 }}
               >
                 <Form.Item
-                  label="集群名称"
+                  label={<FormattedMessage id='enterpriseColony.addCluster.host.name_Cluster'/>}
                   style={
                     (guideStep &&
                       guideStep === 4 &&
@@ -946,25 +950,27 @@ export default class RKEClusterConfig extends PureComponent {
                   {getFieldDecorator('name', {
                     initialValue: '',
                     rules: [
-                      { required: true, message: '集群名称必填' },
+                      { required: true, message: formatMessage({id:'enterpriseColony.addCluster.host.required'}) },
                       {
                         pattern: /^[a-z0-9A-Z-]+$/,
-                        message: '只支持字母、数字和中划线组合'
+                        message: formatMessage({id:'enterpriseColony.addCluster.host.supported'})
                       },
-                      { max: 24, message: '最大长度24位' }
+                      { max: 24, message: formatMessage({id:'enterpriseColony.addCluster.host.max'}) }
                     ]
-                  })(<Input placeholder="集群名称,请确保其保持唯一" />)}
+                  })(<Input placeholder={formatMessage({id:'enterpriseColony.addCluster.host.only'})}  
+                            style={{textOverflow: 'ellipsis',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap'}}/>)}
                 </Form.Item>
                 {guideStep && guideStep === 4 && handleNewbieGuiding && clusters && clusters.length === 0  && (
                   <Fragment>
                     {handleNewbieGuiding({
-                      tit: '填写集群名称',
+                      tit: formatMessage({id:'enterpriseColony.addCluster.host.input_name'}),
                       showSvg: false,
                       showArrow: true,
                       send: false,
                       configName: 'kclustersAttention',
-                      desc:
-                        '填写RKE集群的配置信息，初次体验单节点也可以进行安装哦。',
+                      desc:  formatMessage({id:'enterpriseColony.addCluster.host.configuration_information'}),
                       nextStep: 5,
                       conPosition: { marginTop: '-22px' }
                     })}
@@ -980,12 +986,12 @@ export default class RKEClusterConfig extends PureComponent {
               this.handleTabs(key);
             }}
           >
-            <TabPane tab="可视化配置" key="1">
+            <TabPane tab={<FormattedMessage id='enterpriseColony.addCluster.host.Visual_configuration'/>} key="1">
               <div>
                 <Row>
                   <Col span={24} style={{ padding: '0 16px' }}>
                     <Form.Item
-                      label="节点列表"
+                      label={<FormattedMessage id='enterpriseColony.addCluster.host.list'/>}
                       style={
                         (guideStep &&
                           guideStep === 5 &&
@@ -1014,23 +1020,23 @@ export default class RKEClusterConfig extends PureComponent {
                       onClick={this.handleAdd}
                       style={{ marginBottom: 16 }}
                     >
-                      增加节点
+                      <FormattedMessage id='enterpriseColony.addCluster.host.add_node'/>
                     </Button>
                   </Col>
                 </Row>
               </div>
             </TabPane>
-            <TabPane tab="自定义配置" key="2" />
+            <TabPane tab={<FormattedMessage id='enterpriseColony.addCluster.host.Custom_configuration'/>} key="2" />
           </Tabs>
           {guideStep && guideStep === 5 && handleNewbieGuiding && clusters && clusters.length === 0 && (
             <Fragment>
               {handleNewbieGuiding({
-                tit: '填写节点',
+                tit: formatMessage({id:'enterpriseColony.addCluster.host.Fill_in_node'}),
                 showSvg: false,
                 showArrow: true,
                 send: false,
                 configName: 'kclustersAttention',
-                desc: '填写RKE集群的配置信息，初次体验单节点也可以进行安装哦。',
+                desc: formatMessage({id:'enterpriseColony.addCluster.host.configuration_information'}),
                 nextStep: 6,
                 conPosition: { bottom: '-14px', left: '39px' }
               })}
@@ -1041,7 +1047,7 @@ export default class RKEClusterConfig extends PureComponent {
               <CodeMirrorForm
                 help={helpError}
                 data={yamlVal || ''}
-                label="RKE集群配置"
+                label={<FormattedMessage id='enterpriseColony.addCluster.host.RKE_cluste_configuration'/>}
                 bg="151718"
                 width="100%"
                 marginTop={120}
@@ -1052,7 +1058,7 @@ export default class RKEClusterConfig extends PureComponent {
                 beforeUpload={this.beforeUpload}
                 mode="yaml"
                 name="yamls"
-                message="填写RKE集群配置"
+                message={<FormattedMessage id='enterpriseColony.addCluster.host.input_rke'/>}
               />
             )}
           </div>

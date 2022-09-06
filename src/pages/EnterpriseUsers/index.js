@@ -9,6 +9,7 @@ import CurrentTeams from '../../components/CurrentTeams';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cloud from '../../utils/cloud';
 import userUtil from '../../utils/user';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 
@@ -76,11 +77,11 @@ export default class EnterpriseUsers extends PureComponent {
     const { userInfo } = this.state;
     let info = values;
     let setType = 'global/creatUser';
-    let setMessage = '新增成功';
+    let setMessage = formatMessage({id:'notification.success.add_success'});
     if (userInfo) {
       info = Object.assign({}, userInfo, info);
       setType = 'global/upEnterpriseUsers';
-      setMessage = '编辑成功';
+      setMessage = formatMessage({id:'notification.success.edit'});
     }
     dispatch({
       type: setType,
@@ -134,7 +135,7 @@ export default class EnterpriseUsers extends PureComponent {
         if (res && res._condition === 200) {
           this.loadUser();
           this.cancelDelUser();
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         }
       }
     });
@@ -168,7 +169,7 @@ export default class EnterpriseUsers extends PureComponent {
   addUser = () => {
     this.setState({
       userVisible: true,
-      text: '新增用户'
+      text: formatMessage({id:'enterpriseUser.button.adduser'})
     });
   };
 
@@ -185,7 +186,7 @@ export default class EnterpriseUsers extends PureComponent {
     this.setState({
       userInfo: item,
       userVisible: true,
-      text: '编辑用户'
+      text: formatMessage({id:'enterpriseUser.button.edituser'})
     });
   };
 
@@ -243,7 +244,8 @@ export default class EnterpriseUsers extends PureComponent {
 
     const columns = [
       {
-        title: '用户名称',
+        // title: '用户名称',
+        title: formatMessage({id:'enterpriseUser.table.userName'}),
         dataIndex: 'nick_name',
         rowKey: 'nick_name',
         align: 'center',
@@ -259,25 +261,29 @@ export default class EnterpriseUsers extends PureComponent {
         )
       },
       {
-        title: '姓名',
+        // title: '姓名',
+        title: formatMessage({id:'enterpriseUser.table.name'}),
         dataIndex: 'real_name',
         rowKey: 'real_name',
         align: 'center'
       },
       {
-        title: '电话',
+        // title: '电话',
+        title: formatMessage({id:'enterpriseUser.table.phone'}),
         dataIndex: 'phone',
         rowKey: 'phone',
         align: 'center'
       },
       {
-        title: '邮箱',
+        // title: '邮箱',
+        title: formatMessage({id:'enterpriseUser.table.email'}),
         dataIndex: 'email',
         rowKey: 'email',
         align: 'center'
       },
       {
-        title: '创建时间',
+        // title: '创建时间',
+        title: formatMessage({id:'enterpriseUser.table.time'}),
         dataIndex: 'create_time',
         rowKey: 'create_time',
         align: 'center',
@@ -292,7 +298,8 @@ export default class EnterpriseUsers extends PureComponent {
         }
       },
       {
-        title: '操作',
+        // title:'操作',
+        title: formatMessage({id:'enterpriseUser.table.handle'}),
         dataIndex: 'user_id',
         align: 'center',
         rowKey: 'user_id',
@@ -303,14 +310,16 @@ export default class EnterpriseUsers extends PureComponent {
                 this.delUser(item);
               }}
             >
-              删除
+              {/* 删除 */}
+              <FormattedMessage id='button.delete'/>
             </a>,
             <a
               onClick={() => {
                 this.handleEdit(item);
               }}
             >
-              编辑
+              {/* 编辑 */}
+              <FormattedMessage id='button.edit'/>
             </a>
           ];
         }
@@ -319,8 +328,8 @@ export default class EnterpriseUsers extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="用户管理 "
-        content="企业用户查询、添加和修改相关功能，用户需要操作应用或组件相关资源时需要将其分配到相应的团队"
+        title={<FormattedMessage id='enterpriseUser.PageHeaderLayout.title'/>}
+        content={<FormattedMessage id='enterpriseUser.PageHeaderLayout.content'/>}
       >
         <Row
           style={{
@@ -333,7 +342,7 @@ export default class EnterpriseUsers extends PureComponent {
             <Form layout="inline" style={{ display: 'inline-block' }}>
               <FormItem>
                 <Input
-                  placeholder="搜索用户"
+                  placeholder={formatMessage({id:'placeholder.searchUser.user'})}
                   onChange={e => this.handelChange(e.target.value)}
                   onPressEnter={this.handleSearch}
                   style={{ width: 250 }}
@@ -345,7 +354,8 @@ export default class EnterpriseUsers extends PureComponent {
                   onClick={this.handleSearch}
                   icon="search"
                 >
-                  搜索
+                  {/* 搜索 */}
+                  <FormattedMessage id='button.search'/>
                 </Button>
               </FormItem>
             </Form>
@@ -358,7 +368,9 @@ export default class EnterpriseUsers extends PureComponent {
                 style={{ float: 'right' }}
                 onClick={this.addUser}
               >
-                新增用户
+                {/* 新增用户 */}
+                <FormattedMessage id='enterpriseUser.button.adduser'/>
+
               </Button>
             )}
           </Col>
@@ -367,9 +379,9 @@ export default class EnterpriseUsers extends PureComponent {
           {delVisible && (
             <ConfirmModal
               onOk={this.handleDelete}
-              title="删除用户"
-              subDesc="此操作不可恢复"
-              desc="确定要删除此用户吗？"
+              title={formatMessage({ id: 'confirmModal.user.delete.title' })}
+              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+              desc={formatMessage({ id: 'confirmModal.delete.user.desc' })}
               onCancel={this.cancelDelUser}
             />
           )}

@@ -10,6 +10,7 @@ import { Button, Dropdown, Icon, Menu, notification, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import MonitoryPoint from './monitoryPoint';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 /* eslint react/no-array-index-key: 0 */
 
@@ -167,7 +168,7 @@ export default class customMonitor extends PureComponent {
         callback: res => {
           if (res && res.status_code === 200) {
             notification.success({
-              message: '保存成功'
+              message: formatMessage({id:'notification.success.save'})
             });
             this.fetchServiceMonitorFigure(false);
             this.onCancelCustomMonitoring();
@@ -184,7 +185,7 @@ export default class customMonitor extends PureComponent {
         callback: res => {
           if (res && res.status_code === 200) {
             notification.success({
-              message: '添加成功'
+              message: formatMessage({id:'notification.success.add'})
             });
             this.fetchServiceMonitorFigure();
             this.onCancelCustomMonitoring();
@@ -206,7 +207,7 @@ export default class customMonitor extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
           this.fetchServiceMonitorFigure();
           this.cancalDelete();
@@ -315,7 +316,8 @@ export default class customMonitor extends PureComponent {
                     style={{ marginLeft: '5px' }}
                     onClick={this.handleCustomMonitoring}
                   >
-                    添加图表
+                    {/* 添加图表 */}
+                    <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.add'/>
                   </Button>
                   {KeyImportList && KeyImportList.length > 0 && (
                     <Dropdown
@@ -341,7 +343,9 @@ export default class customMonitor extends PureComponent {
                       disabled={addKeyImportLoading}
                     >
                       <Button style={{ marginLeft: '5px' }}>
-                        一键导入 <Icon type="down" />
+                        {/* 一键导入 */}
+                        <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.import'/>
+                        <Icon type="down" />
                       </Button>
                     </Dropdown>
                   )}
@@ -351,7 +355,8 @@ export default class customMonitor extends PureComponent {
                       loading={delLoading}
                       onClick={this.handleBatchDelete}
                     >
-                      批量删除
+                      <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.delete'/>
+                      {/* 批量删除 */}
                     </Button>
                   )}
 
@@ -361,7 +366,8 @@ export default class customMonitor extends PureComponent {
                       this.handleMonitoryPoint(true);
                     }}
                   >
-                    管理监控点
+                    <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.point'/>
+                    {/* 管理监控点 */}
                   </Button>
                 </div>
               }
@@ -377,7 +383,8 @@ export default class customMonitor extends PureComponent {
               type="warning"
               description={
                 <div>
-                  暂无业务监控图、请先添加
+                  {/* 暂无业务监控图、请先添加 */}
+                  <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.noBusiness'/>
                   <a
                     onClick={() => {
                       if (isMonitors) {
@@ -387,7 +394,7 @@ export default class customMonitor extends PureComponent {
                       }
                     }}
                   >
-                    {isMonitors ? ' 添加图表' : '管理监控点'}
+                    {isMonitors ? <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.add'/> : <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.point'/>}
                   </a>
                 </div>
               }
@@ -397,9 +404,9 @@ export default class customMonitor extends PureComponent {
         {showDelete && (
           <ConfirmModal
             loading={delServiceMonitorFigureLoading}
-            title="删除监控视图"
-            desc="确定要删除此视图吗？"
-            subDesc="此操作不可恢复"
+            title={<FormattedMessage id="confirmModal.deldete.monitor.title"/>}
+            desc={<FormattedMessage id="confirmModal.deldete.monitor.desc"/>}
+            subDesc={<FormattedMessage id="confirmModal.deldete.monitor.subDesc"/>}
             onOk={this.handleSubmitDelete}
             onCancel={this.cancalDelete}
           />
@@ -407,7 +414,7 @@ export default class customMonitor extends PureComponent {
 
         {BatchDelete && (
           <BatchDeleteChart
-            title="批量删除监控视图"
+            title={<FormattedMessage id='componentOverview.body.tab.BatchDeleteChart.title'/>}
             loading={delLoading}
             data={monitorFigureList}
             {...this.handleParameter()}

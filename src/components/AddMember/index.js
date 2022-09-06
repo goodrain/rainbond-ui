@@ -1,6 +1,7 @@
 import { Form, Input, Modal, Select, Skeleton } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import UserSelect from '../UserSelect';
@@ -131,7 +132,7 @@ class ConfirmModal extends PureComponent {
     return (
       <Modal
         confirmLoading={loading}
-        title={title || (data ? '编辑成员' : '添加成员')}
+        title={title || (data ? formatMessage({id:'confirmModal.edit.member'}) : formatMessage({id:'confirmModal.add.member'}))}
         visible
         onOk={this.handleSubmit}
         onCancel={onCancel}
@@ -139,44 +140,44 @@ class ConfirmModal extends PureComponent {
         <Skeleton loading={roleLoading || currentRolesLoading}>
           <Form onSubmit={this.handleSubmit}>
             {data ? (
-              <FormItem {...formItemLayout} label="用户名">
+              <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.lable.member.user_name'})}>
                 {getFieldDecorator('user_name', {
                   initialValue: nickName || data.nick_name || '',
                   rules: [
                     {
                       required: false,
-                      message: '请输入用户名称'
+                      message: formatMessage({id:'placeholder.userName'})
                     }
                   ]
-                })(<Input disabled placeholder="请输入用户名称" />)}
+                })(<Input disabled placeholder={formatMessage({id:'placeholder.userName'})}/>)}
               </FormItem>
             ) : (
-              <FormItem {...formItemLayout} label="选择用户">
+              <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.lable.member.user_ids'})}>
                 {getFieldDecorator('user_ids', {
                   rules: [
                     {
                       required: true,
-                      message: '请选择要添加的用户'
+                      message: formatMessage({id:'placeholder.user_ids'})
                     }
                   ]
                 })(<UserSelect />)}
               </FormItem>
             )}
 
-            <FormItem {...formItemLayout} label="选择角色">
+            <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.lable.member.role_ids'})}>
               {getFieldDecorator('role_ids', {
                 initialValue: initialValueRoles,
                 rules: [
                   {
                     required: true,
-                    message: '请选择角色'
+                    message: formatMessage({id:'placeholder.role_ids'})
                   }
                 ]
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   mode="multiple"
-                  placeholder="请选择角色"
+                  placeholder={formatMessage({id:'placeholder.role_ids'})}
                   style={{ width: '100%' }}
                 >
                   {roles.map(item => {

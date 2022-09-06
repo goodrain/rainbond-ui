@@ -1,6 +1,7 @@
 import { Button, Drawer, Form, Input, message, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const FormItem = Form.Item;
@@ -54,11 +55,11 @@ class LicenseDrawer extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 5 }
+        sm: { span: 7 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 19 }
+        sm: { span: 17 }
       }
     };
 
@@ -72,16 +73,16 @@ class LicenseDrawer extends PureComponent {
       {
         value: editData.certificate,
         name: 'certificate',
-        label: '公钥证书',
-        messages: '请输入证书名称',
+        label: formatMessage({id:'popover.manage.certificate.label.public'}),
+        messages: formatMessage({id:'placeholder.certificate.name'}),
         uploadName: 'public_key_btn',
         mode: 'javascript'
       },
       {
         value: editData.private_key,
         name: 'private_key',
-        label: '私钥',
-        messages: '请输入私钥',
+        label: formatMessage({id:'popover.manage.certificate.label.private'}),
+        messages: formatMessage({id:'placeholder.certificate.private'}),
         uploadName: 'private_key_btn',
         mode: 'javascript'
       }
@@ -89,7 +90,7 @@ class LicenseDrawer extends PureComponent {
     return (
       <div>
         <Drawer
-          title={editData ? '编辑证书' : '添加证书'}
+          title={editData ? formatMessage({id:'popover.manage.certificate.title.edit'}) : formatMessage({id:'popover.manage.certificate.title.add'})}
           placement="right"
           width={500}
           closable={false}
@@ -101,24 +102,24 @@ class LicenseDrawer extends PureComponent {
           }}
         >
           <Form onSubmit={this.handleSubmit}>
-            <FormItem {...formItemLayout} label="证书名称">
+            <FormItem {...formItemLayout} label={formatMessage({id:'popover.manage.certificate.label.name'})}>
               {getFieldDecorator('alias', {
                 rules: [
-                  { required: true, message: '请输入证书名称!' },
+                  { required: true, message: formatMessage({id:'placeholder.certificate.name'}) },
                   {
                     max: 64,
-                    message: '最大长度64位'
+                    message: formatMessage({id:'placeholder.appShare.max64'})
                   }
                 ]
-              })(<Input placeholder="请输入证书名称" />)}
+              })(<Input placeholder={formatMessage({id:'placeholder.certificate.name'})} />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="证书类型">
+            <FormItem {...formItemLayout} label={formatMessage({id:'popover.manage.certificate.label.kind'})}>
               {getFieldDecorator('certificate_type', {
-                initialValue: '服务端证书',
+                initialValue: formatMessage({id:'popover.manage.certificate.label.server'}),
                 rules: [{ required: true }]
               })(
                 <RadioGroup>
-                  <Radio value="服务端证书">服务端证书</Radio>
+                  <Radio value={formatMessage({id:'popover.manage.certificate.label.server'})}>{formatMessage({id:'popover.manage.certificate.label.server'})}</Radio>
                 </RadioGroup>
               )}
             </FormItem>
@@ -159,14 +160,14 @@ class LicenseDrawer extends PureComponent {
                 }}
                 onClick={onClose}
               >
-                取消
+                {formatMessage({id:'button.cancel'})}
               </Button>
               <Button
                 htmlType="submit"
                 type="primary"
                 loading={editLicenseLoading || addLicenseLoading}
               >
-                确认
+                {formatMessage({id:'button.confirm'})}
               </Button>
             </div>
           </Form>

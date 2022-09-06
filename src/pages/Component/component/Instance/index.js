@@ -3,7 +3,9 @@ import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
+import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 @connect()
 @Form.create()
@@ -12,7 +14,8 @@ class Index extends PureComponent {
     super(props);
     this.state = {
       visible: false,
-      instanceInfo: null
+      instanceInfo: null,
+      language : cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
 
@@ -42,7 +45,7 @@ class Index extends PureComponent {
           });
           message.destroy();
           if (isVisible) {
-            message.warning('暂无实例详情');
+            message.warning(<FormattedMessage id='notification.warn.notYet'/>);
           }
         }
       }
@@ -66,7 +69,7 @@ class Index extends PureComponent {
           });
           message.destroy();
           if (isVisible) {
-            message.warning('暂无实例详情');
+            message.warning(<FormattedMessage id='notification.warn.notYet'/>);
           }
         }
       }
@@ -96,22 +99,22 @@ class Index extends PureComponent {
     if(podType == 'job' || podType == 'job'){
       switch (states) {
         case 'running':
-          return <span style={{ color: '#39aa56' }}>运行中</span>;
+          return <span style={{ color: '#39aa56' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.operation'/></span>;
         case 'waiting':
-          return <span style={{ color: '#39aa56' }}>等待中</span>;
+          return <span style={{ color: '#39aa56' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.waiting'/></span>;
         case 'terminated':
-          return <span style={{ color: '#70b7fa' }}>已完成</span>;
+          return <span style={{ color: '#70b7fa' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.completed'/></span>;
         default:
           return <span>{state}</span>;
       }
     }else{
       switch (states) {
         case 'running':
-          return <span style={{ color: '#39aa56' }}>运行中</span>;
+          return <span style={{ color: '#39aa56' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.operation'/></span>;
         case 'waiting':
-          return <span style={{ color: '#39aa56' }}>等待中</span>;
+          return <span style={{ color: '#39aa56' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.waiting'/></span>;
         case 'terminated':
-          return <span style={{ color: 'rgb(205, 2, 0)' }}>已终止</span>;
+          return <span style={{ color: 'rgb(205, 2, 0)' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.terminated'/></span>;
         default:
           return <span>{state}</span>;
       }
@@ -138,7 +141,7 @@ class Index extends PureComponent {
                   key={podName}
                   className={styles.boxImg}
                 >
-                  <Tooltip title="点击查看详情">
+                  <Tooltip title={<FormattedMessage id='componentOverview.body.tab.overview.instance.tooltip'/>}>
                     <div
                       className={styles.nodeBox}
                       onClick={() => {
@@ -160,7 +163,7 @@ class Index extends PureComponent {
   };
   render() {
     const { new_pods: newPods, old_pods: oldPods } = this.props;
-    const { instanceInfo, visible } = this.state;
+    const { instanceInfo, visible, language } = this.state;
     const isOldPods = oldPods && oldPods.length > 0;
     return (
       <div>
@@ -177,15 +180,15 @@ class Index extends PureComponent {
             {instanceInfo && JSON.stringify(instanceInfo) !== '{}' && (
               <div className={styles.instanceBox}>
                 <div>
-                  <ul className={styles.instanceInfo}>
+                  <ul className={language ? styles.instanceInfo : styles.en_instanceInfo }>
                     <li>
-                      <span>所在节点:</span>
+                      <span><FormattedMessage id='componentOverview.body.tab.overview.instance.node'/></span>
                       <Tooltip title={instanceInfo.node_ip}>
                         <span>{instanceInfo.node_ip || '-'}</span>
                       </Tooltip>
                     </li>
                     <li>
-                      <span>创建时间:</span>
+                      <span><FormattedMessage id='componentOverview.body.tab.overview.instance.time'/></span>
                       <span>
                         {moment(instanceInfo.start_time)
                           .locale('zh-cn')
@@ -194,18 +197,18 @@ class Index extends PureComponent {
                     </li>
 
                     <li>
-                      <span>实例IP地址:</span>
+                      <span><FormattedMessage id='componentOverview.body.tab.overview.instance.ip'/></span>
                       <Tooltip title={instanceInfo.ip}>
                         <span>{instanceInfo.ip || '-'}</span>
                       </Tooltip>
                     </li>
 
                     <li>
-                      <span>{instanceInfo.version ? '版本:' : ''}</span>
+                      <span>{instanceInfo.version ? <FormattedMessage id='componentOverview.body.tab.overview.instance.edition'/> : ''}</span>
                       <span>{instanceInfo.version || ''}</span>
                     </li>
                     <li>
-                      <span>实例状态:</span>
+                      <span><FormattedMessage id='componentOverview.body.tab.overview.instance.state'/></span>
                       <span
                         style={{
                           color: globalUtil.fetchStateColor(
@@ -219,12 +222,12 @@ class Index extends PureComponent {
                       </span>
                     </li>
                     <li>
-                      <span>命名空间:</span>
+                      <span><FormattedMessage id='componentOverview.body.tab.overview.instance.namespace'/></span>
                       <span>{instanceInfo.namespace || ''}</span>
                     </li>
                     {instanceInfo.status.reason && (
                       <li style={{ width: '100%' }}>
-                        <span>原因:</span>
+                        <span><FormattedMessage id='componentOverview.body.tab.overview.instance.reason'/></span>
                         <Tooltip title={instanceInfo.status.reason}>
                           <span>
                             {globalUtil.fetchInstanceReasons(
@@ -237,7 +240,7 @@ class Index extends PureComponent {
 
                     {instanceInfo.status.message && (
                       <li style={{ width: '100%' }}>
-                        <span>说明:</span>
+                        <span><FormattedMessage id='componentOverview.body.tab.overview.instance.explain'/></span>
                         <Tooltip title={instanceInfo.status.message}>
                           <span>{instanceInfo.status.message}</span>
                         </Tooltip>
@@ -245,7 +248,7 @@ class Index extends PureComponent {
                     )}
                     {instanceInfo.status.advice && (
                       <li style={{ width: '100%' }}>
-                        <span>建议:</span>
+                        <span><FormattedMessage id='componentOverview.body.tab.overview.instance.proposal'/></span>
                         <Tooltip title={instanceInfo.status.advice}>
                           <span>
                             {globalUtil.fetchInstanceAdvice(
@@ -267,7 +270,7 @@ class Index extends PureComponent {
                       fontSize: '14px'
                     }}
                   >
-                    实例中的容器
+                    <FormattedMessage id='componentOverview.body.tab.overview.instance.container'/>
                   </div>
 
                   <div style={{ height: '15px', background: '#fff' }} />
@@ -275,7 +278,7 @@ class Index extends PureComponent {
                     dataSource={instanceInfo.containers}
                     columns={[
                       {
-                        title: '镜像名',
+                        title:formatMessage({id:'componentOverview.body.tab.overview.instance.image'}),
                         dataIndex: 'image',
                         key: 'image',
                         width: '40%',
@@ -286,14 +289,14 @@ class Index extends PureComponent {
                         )
                       },
                       {
-                        title: '内存',
+                        title:formatMessage({id:'componentOverview.body.tab.overview.instance.memory'}),
                         dataIndex: 'request_memory',
                         key: 'request_memory',
                         width: '10%',
                         render: requestMemory => (
-                          <Tooltip title={requestMemory || '不限制'}>
+                          <Tooltip title={requestMemory || <FormattedMessage id='componentOverview.body.tab.overview.instance.Unlimited'/>}>
                             <span className={styles.wordText}>
-                              {requestMemory || '不限制'}
+                              {requestMemory || <FormattedMessage id='componentOverview.body.tab.overview.instance.Unlimited'/>}
                             </span>
                           </Tooltip>
                         )
@@ -305,12 +308,12 @@ class Index extends PureComponent {
                         width: '10%',
                         render: val => (
                           <span className={styles.wordText}>
-                            {val || '不限制'}
+                            {val || <FormattedMessage id='componentOverview.body.tab.overview.instance.Unlimited'/>}
                           </span>
                         )
                       },
                       {
-                        title: '创建时间',
+                        title:formatMessage({id:'componentOverview.body.tab.overview.instance.creation'}),
                         dataIndex: 'started',
                         key: 'started',
                         width: '20%',
@@ -320,7 +323,7 @@ class Index extends PureComponent {
                             .format('YYYY-MM-DD HH:mm:ss')
                       },
                       {
-                        title: '状态',
+                        title:formatMessage({id:'componentOverview.body.tab.overview.instance.Staue'}),
                         dataIndex: 'state',
                         key: 'state',
                         align: 'center',
@@ -333,7 +336,7 @@ class Index extends PureComponent {
                         )
                       },
                       {
-                        title: '说明',
+                        title:formatMessage({id:'componentOverview.body.tab.overview.instance.Explain'}),
                         dataIndex: 'reason',
                         key: 'reason',
                         width: '10%',
@@ -362,14 +365,14 @@ class Index extends PureComponent {
                       fontSize: '14px'
                     }}
                   >
-                    事件
+                    <FormattedMessage id='componentOverview.body.tab.overview.instance.event'/>
                   </div>
                   <div style={{ height: '15px', background: '#fff' }} />
                   <Table
                     dataSource={instanceInfo.events}
                     columns={[
                       {
-                        title: '类型',
+                        title:formatMessage({id:'componentOverview.body.tab.overview.instance.type'}),
                         dataIndex: 'type',
                         key: 'type',
                         width: '10%',
@@ -378,7 +381,7 @@ class Index extends PureComponent {
                         )
                       },
                       {
-                        title: '原因',
+                        title:formatMessage({id:'componentOverview.body.tab.overview.instance.Reason'}),
                         dataIndex: 'reason',
                         key: 'reason',
                         width: '15%',
@@ -389,7 +392,7 @@ class Index extends PureComponent {
                         )
                       },
                       {
-                        title: '时间',
+                        title:formatMessage({id:'componentOverview.body.tab.overview.instance.Time'}),
                         dataIndex: 'age',
                         key: 'age',
                         width: '25%',
@@ -398,7 +401,7 @@ class Index extends PureComponent {
                         )
                       },
                       {
-                        title: '说明',
+                        title:formatMessage({id:'componentOverview.body.tab.overview.instance.Explain'}),
                         dataIndex: 'message',
                         key: 'message',
                         width: '50%',
@@ -446,7 +449,7 @@ class Index extends PureComponent {
             <Col xs={4} xm={4} md={4} lg={4} xl={4}>
               <div>
                 <p style={{ marginTop: '40px', textAlign: 'center' }}>
-                  正在更新中&#8680;
+                  <FormattedMessage id='componentOverview.body.tab.overview.instance.Updating'/>&#8680;
                 </p>
               </div>
             </Col>
@@ -471,7 +474,7 @@ class Index extends PureComponent {
               textAlign: 'center'
             }}
           >
-            暂无运行实例
+            <FormattedMessage id='componentOverview.body.tab.overview.instance.noRun'/>
           </div>
         )}
       </div>

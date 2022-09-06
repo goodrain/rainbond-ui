@@ -1,16 +1,17 @@
 import { Button, Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
 
 const { Option } = Select;
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 7
   },
   wrapperCol: {
-    span: 19
+    span: 17
   }
 };
 const FormItem = Form.Item;
@@ -59,7 +60,7 @@ export default class Index extends PureComponent {
             });
           } else if (callbacks) {
             validatorValue =
-              name === (res.list && res.list.name) ? '' : '应用名称已存在';
+              name === (res.list && res.list.name) ? '' : `${formatMessage({id:'teamOther.CreateAppFromHelmForm.name'})}`;
             if (validatorValue) {
               callbacks(validatorValue);
             } else {
@@ -106,37 +107,37 @@ export default class Index extends PureComponent {
         visible={data}
         onCancel={onCancel}
         onOk={this.handleSubmit}
-        title="要安装到哪个应用?"
+        title={formatMessage({id:'teamOther.CreateAppFromMarketForm.title'})}
         footer={[
-          <Button onClick={onCancel}>取消</Button>,
+          <Button onClick={onCancel}>{formatMessage({id:"button.cancel"})}</Button>,
           <Button
             onClick={this.handleSubmit}
             type="primary"
             style={{ marginRight: '5px' }}
             loading={installLoading}
           >
-            安装
+            {formatMessage({id:'button.install'})}
           </Button>
         ]}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal">
-          <FormItem {...formItemLayout} label="应用名称">
+          <FormItem {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.name_app'})}>
             {getFieldDecorator('app_name', {
               initialValue: appName,
               validateTrigger: 'onBlur',
               rules: [
-                { required: true, message: '请填写应用名称' },
+                { required: true, message: formatMessage({id:'teamOther.CreateAppFromHelmForm.input_name'}) },
                 {
                   min: 4,
-                  message: '应用名称最小长度4位'
+                  message: formatMessage({id:'teamOther.CreateAppFromHelmForm.min'})
                 },
                 {
                   max: 53,
-                  message: '应用名称最大长度53位'
+                  message: formatMessage({id:'teamOther.CreateAppFromHelmForm.max'})
                 },
                 {
                   pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/,
-                  message: '只支持小写字母和数字开头结尾'
+                  message: formatMessage({id:'teamOther.CreateAppFromHelmForm.only'})
                 },
                 {
                   validator: (_, value, callback) => {
@@ -145,16 +146,16 @@ export default class Index extends PureComponent {
                 }
               ]
             })(
-              <Input placeholder="请填写应用名称" style={{ width: '284px' }} />
+              <Input placeholder={formatMessage({id:'teamOther.CreateAppFromHelmForm.input_name'})} style={{ width: '284px' }} />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="应用版本">
+          <FormItem {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.version_app'})}>
             {getFieldDecorator('version', {
               initialValue: versions ? versions[0].version : '',
               rules: [
                 {
                   required: true,
-                  message: '请选择版本'
+                  message: formatMessage({id:'teamOther.CreateAppFromMarketForm.setect'})
                 }
               ]
             })(
@@ -170,18 +171,18 @@ export default class Index extends PureComponent {
               </Select>
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label="应用备注">
+          <FormItem {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.note'})}>
             {getFieldDecorator('note', {
               initialValue: versions ? versions[0].description : '',
               rules: [
                 {
                   max: 255,
-                  message: '最大长度255位'
+                  message: formatMessage({id:'teamOther.CreateAppFromHelmForm.max_length'})
                 }
               ]
             })(
               <Input.TextArea
-                placeholder="请填写应用备注信息"
+                placeholder={formatMessage({id:'teamOther.CreateAppFromHelmForm.note_app'})}
                 style={{ width: '284px' }}
               />
             )}

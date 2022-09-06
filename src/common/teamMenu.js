@@ -62,6 +62,11 @@ function menuData(teamName, regionName, permissionsInfo) {
             authority: ['admin', 'user']
           },
           {
+            name: formatMessage({ id: 'menu.team.create.market' }),
+            path: `/market`,
+            authority: ['admin', 'user']
+          },
+          {
             name: formatMessage({ id: 'menu.team.create.image' }),
             path: `/image`,
             authority: ['admin', 'user']
@@ -70,11 +75,6 @@ function menuData(teamName, regionName, permissionsInfo) {
           {
             name: formatMessage({ id: 'menu.team.create.upload' }),
             path: `/yaml`,
-            authority: ['admin', 'user']
-          },
-          {
-            name: formatMessage({ id: 'menu.team.create.market' }),
-            path: `/market`,
             authority: ['admin', 'user']
           },
           {
@@ -131,14 +131,15 @@ function menuData(teamName, regionName, permissionsInfo) {
     }
     if (newbieGuide === 'false') {
       return menuArr;
-    } else if (newbieGuide !== undefined) {
-      addMenuArr({
-        name: '任务',
-        icon: 'exclamation-circle',
-        path: `team/${teamName}/region/${regionName}/guide`,
-        authority: ['admin', 'user']
-      });
-    }
+    } 
+    // else if (newbieGuide !== undefined) {
+    //   addMenuArr({
+    //     name: '任务',
+    //     icon: 'exclamation-circle',
+    //     path: `team/${teamName}/region/${regionName}/guide`,
+    //     authority: ['admin', 'user']
+    //   });
+    // }
   }
 
   return menuArr;

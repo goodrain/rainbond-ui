@@ -1,5 +1,5 @@
 // use localStorage to store the authority info, which might be sent from server in actual project.
-
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 export function getAuthority() {
   return localStorage.getItem('antd-pro-authority') || 'admin';
 }
@@ -9,9 +9,9 @@ export function setAuthority(data = {}) {
 }
 export function fetchMarketMap(data) {
   const map = {
-    OnlyRead: '只读',
-    ReadInstall: '安装',
-    Write: '推送',
+    OnlyRead: formatMessage({id:'button.read_only'}),
+    ReadInstall: formatMessage({id:'button.install'}),
+    Write: formatMessage({id:'button.push'}),
   };
   return map[data] || data;
 }

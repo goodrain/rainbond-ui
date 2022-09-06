@@ -20,6 +20,8 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import cookie from '../../utils/cookie';
 import AddGroup from '../../components/AddOrEditGroup';
 import rainbondUtil from '../../utils/rainbond';
 
@@ -33,6 +35,14 @@ const formItemLayout = {
   },
   wrapperCol: {
     span: 18
+  }
+};
+const formItemLayouts = {
+  labelCol: {
+    span: 11
+  },
+  wrapperCol: {
+    span: 13
   }
 };
 const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
@@ -57,7 +67,8 @@ export default class Index extends PureComponent {
       addGroup: false,
       endpointsType: 'static',
       visible: false,
-      staticList: ['']
+      staticList: [''],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onAddGroup = () => {
@@ -170,13 +181,13 @@ export default class Index extends PureComponent {
 
   validAttrName = (rule, value, callback) => {
     if (!value) {
-      callback('请输入组件地址');
+      callback(formatMessage({id: 'placeholder.componentAddress'}));
       return;
     }
     if (typeof value === 'object') {
       value.map(item => {
         if (item == '') {
-          callback('请输入组件地址');
+          callback(formatMessage({id: 'placeholder.componentAddress'}));
           return null;
         }
 
@@ -186,10 +197,10 @@ export default class Index extends PureComponent {
           !rega.test(item || '') &&
           !rege.test(item || '')
         ) {
-          callback('请输入正确的地址');
+          callback(formatMessage({id: 'placeholder.attrName'}));
         }
         if (this.handleIsRepeat(value)) {
-          callback('组件地址不能相同');
+          callback(formatMessage({id: 'placeholder.notAttrName'}));
         }
       });
     }
@@ -202,25 +213,25 @@ export default class Index extends PureComponent {
           value.search('1.1.1.1') !== -1 ||
           value.search('localhost') !== -1
     ) {
-      callback(`不支持${value}${value == '1.1.1.1' ? '地址' : '环回接口地址'}`);
+      callback(formatMessage({id: 'placeholder.nonsupport'},{ nonsupport: value })`${value == '1.1.1.1' ? formatMessage({id: 'placeholder.nonsupport.regAddress'}) : formatMessage({id: 'placeholder.nonsupport.regLoopBack'})}`);
     }
     callback();
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入组件英文名称'));
+      return callback(new Error(formatMessage({id: 'placeholder.k8s_component_name'})));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+          new Error(formatMessage({id: 'placeholder.nameSpaceReg'}))
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error(formatMessage({id: 'placeholder.max32'})));
     }
   };
   render() {
@@ -235,71 +246,101 @@ export default class Index extends PureComponent {
       showCreateGroup = true
     } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
-    const { endpointsType, staticList, addGroup } = this.state;
+    const { endpointsType, staticList, addGroup, language, } = this.state;
     const data = this.props.data || {};
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     const isService = handleType && handleType === 'Service';
+    const is_language = language ? formItemLayout : formItemLayouts
     const apiMessage = (
       <Alert
-        message="API地址在组件创建后获取"
+        message={formatMessage({id: 'teamAdd.create.third.Alert.warning'})}
         type="warning"
         showIcon
-        style={{ width: '350px', marginBottom: '20px' }}
+        style={language ? { width: '350px', marginBottom: '20px' } : { width: '250px', marginBottom: '20px' } }
       />
     );
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="组件名称">
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
-                { required: true, message: '请输入组件名称' },
+                { required: true, message: formatMessage({id: 'placeholder.component_cname'}) },
                 {
                   max: 24,
-                  message: '最大长度24位'
+                  message: formatMessage({id: 'placeholder.max24'})
                 }
               ]
             })(
               <Input
-                placeholder="请输入组件名称"
-                style={{
+                placeholder={formatMessage({id: 'placeholder.component_cname'})}
+                style={((language == false) && (isService==true)) ? {
                   display: 'inline-block',
-                  width: isService ? 350 : 277,
-                  marginRight: 15
+                  width: 200,
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
+                } : {
+                  display: 'inline-block',
+                  width: 350,
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
                 }}
               />
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="组件英文名称">
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
             {getFieldDecorator('k8s_component_name', {
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]
             })(
               <Input
-                style={{
+                style={((language == false) && (isService==true)) ? {
                   display: 'inline-block',
-                  width: isService ? 350 : 277,
-                  marginRight: 15
+                  width: 200,
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
+                }  : {
+                  display: 'inline-block',
+                  width: 350,
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
                 }}
-                placeholder="组件的英文名称"
+                placeholder={formatMessage({id: 'placeholder.k8s_component_name'})}
               />
             )}
           </Form.Item>
 
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
-              rules: [{ required: true, message: '请选择' }]
+              rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择要所属应用"
-                style={{
+                placeholder={formatMessage({id: 'placeholder.appName'})}
+                style={((language == false) && (isService==true)) ? {
                   display: 'inline-block',
-                  width: isService ? 350 : 277,
-                  marginRight: 15
+                  width: 200,
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  // overflow: 'hidden',
+                  whiteSpace: 'nowrap'
+                } : {
+                  display: 'inline-block',
+                  width: 350,
+                  marginRight: 15,
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
                 }}
                 disabled={!!isService}
               >
@@ -311,21 +352,21 @@ export default class Index extends PureComponent {
               </Select>
             )}
             {isService ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>创建新应用</Button>
+              <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamAdd.create.third.createNewApp'})}</Button>
             ) : null}
           </Form.Item>
 
-          <FormItem {...formItemLayout} label="组件注册方式">
+          <FormItem {...is_language} label={formatMessage({id: 'teamAdd.create.third.componentRegister'})}>
             {getFieldDecorator('endpoints_type', {
-              rules: [{ required: true, message: '请选择endpoints类型!' }],
+              rules: [{ required: true, message: formatMessage({id: 'placeholder.endpoints'}) }],
               initialValue: this.state.endpointsType
             })(
               <RadioGroup
                 onChange={this.handleChangeEndpointsType}
                 value={endpointsType}
               >
-                <Radio value="static">静态注册</Radio>
-                <Radio value="api">API注册</Radio>
+                <Radio value="static">{formatMessage({id: 'teamAdd.create.third.staticRegister'})}</Radio>
+                <Radio value="api">{formatMessage({id: 'teamAdd.create.third.apiRegister'})}</Radio>
                 <Radio value="kubernetes">
                   <Badge count="Beta">
                     <span style={{ width: 100, display: 'block' }}>
@@ -339,12 +380,12 @@ export default class Index extends PureComponent {
 
           {endpointsType == 'static' && (
             <FormItem
-              {...formItemLayout}
+              {...is_language}
               label={
                 <span>
-                  组件地址
+                  {formatMessage({id: 'teamAdd.create.third.componentAddress'})}
                   {platform_url && (
-                    <Tooltip title="点击阅读文档">
+                    <Tooltip title={formatMessage({id: "teamAdd.create.third.href"})}>
                       <a
                         target="_blank"
                         href={`${platform_url}docs/component-create/thirdparty-service/thirdparty-create`}
@@ -363,7 +404,7 @@ export default class Index extends PureComponent {
                 <div>
                   {staticList.map((item, index) => {
                     return (
-                      <Row style={{ width: 370 }} key={index}>
+                      <Row style={language&&isService ? { width: 370 } :  { width: 280 } } key={index}>
                         <Col span={18}>
                           <Input
                             onChange={this.onKeyChange.bind(
@@ -372,7 +413,7 @@ export default class Index extends PureComponent {
                               'static'
                             )}
                             value={item}
-                            placeholder="请输入组件地址"
+                            placeholder={formatMessage({id: "placeholder.componentAddress"})}
                           />
                         </Col>
                         <Col span={4} style={{ textAlign: 'center' }}>
@@ -402,33 +443,54 @@ export default class Index extends PureComponent {
 
           {endpointsType === 'kubernetes' && (
             <div>
-              <FormItem {...formItemLayout} label="Namespace">
+              <FormItem {...is_language} label="Namespace">
                 {getFieldDecorator('namespace', {
-                  rules: [{ required: false, message: '请输入Namesapce' }],
+                  rules: [{ required: false, message: formatMessage({id: "placeholder.nameSpaceMsg"}) }],
                   initialValue: ''
                 })(
                   <Input
-                    style={{
+                    style={((language == false) && (isService==true))? {
                       display: 'inline-block',
-                      width: isService ? 350 : 277,
-                      marginRight: 15
-                    }}
-                    placeholder="留空则默认为当前团队所在Namesapce"
+                      width: 200,
+                      marginRight: 15,
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
+                    } : {
+                      display: 'inline-block',
+                      width: 350,
+                      marginRight: 15,
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
+                    }
+                  }
+                    placeholder={formatMessage({id: "placeholder.nameSpace"})}
                   />
                 )}
               </FormItem>
-              <FormItem {...formItemLayout} label="Service">
+              <FormItem {...is_language} label="Service">
                 {getFieldDecorator('serviceName', {
-                  rules: [{ required: true, message: '请输入服务名' }],
+                  rules: [{ required: true, message: formatMessage({id: "placeholder.serviceName"}) }],
                   initialValue: ''
                 })(
                   <Input
-                    style={{
+                    style={((language == false) && (isService==true))? {
                       display: 'inline-block',
-                      width: isService ? 350 : 277,
-                      marginRight: 15
+                      width: 200,
+                      marginRight: 15,
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
+                    } : {
+                      display: 'inline-block',
+                      width: 350,
+                      marginRight: 15,
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
                     }}
-                    placeholder="请输入服务名"
+                    placeholder={formatMessage({id: "placeholder.serviceName"})}
                   />
                 )}
               </FormItem>
@@ -440,8 +502,8 @@ export default class Index extends PureComponent {
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
                 sm: {
-                  span: formItemLayout.wrapperCol.span,
-                  offset: formItemLayout.labelCol.span
+                  span: is_language.wrapperCol.span,
+                  offset: is_language.labelCol.span
                 }
               }}
               label=""
@@ -449,7 +511,7 @@ export default class Index extends PureComponent {
               {isService && ButtonGroupState
                 ? this.props.handleServiceBotton(
                     <Button onClick={this.handleSubmit} type="primary">
-                      新建组件
+                      {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
                     </Button>,
                     false
                   )
@@ -457,7 +519,7 @@ export default class Index extends PureComponent {
                     <div>
                       {endpointsType == 'api' && apiMessage}
                       <Button onClick={this.handleSubmit} type="primary">
-                        确认创建
+                      {formatMessage({id: 'teamAdd.create.btn.create'})}
                       </Button>
                     </div>
                   )}

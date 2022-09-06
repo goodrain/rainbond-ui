@@ -2,6 +2,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react/react-in-jsx-scope */
 import { notification, Tooltip } from 'antd';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const aliyunRegionNames = [
   {
@@ -118,147 +119,142 @@ const aliyunRegionNames = [
 
 const createKubernetesSteps = {
   Init: {
-    Title: '控制器初始化',
-    Description: '检测提供的参数是否正确',
+    Title: formatMessage({id:'utils.cloud.createKubernetesSteps.Init.Title'}),
+    Description: formatMessage({id:'utils.cloud.createKubernetesSteps.Init.Description'}),
     Status: ''
   },
   SelectZone: {
-    Title: '选择部署可用区',
-    Description: '选择合适的可用区用以购买VPC等资源',
+    Title: formatMessage({id:'utils.cloud.createKubernetesSteps.SelectZone.Title'}),
+    Description: formatMessage({id:'utils.cloud.createKubernetesSteps.SelectZone.Description'}),
     Status: ''
   },
   CreateVPC: {
-    Title: '创建VPC专有网络',
-    Description:
-      '由于集群购买的限制和资源独立化原则，我们将新创建VPC网络用户部署集群',
+    Title: formatMessage({id:'utils.cloud.createKubernetesSteps.CreateVPC.Title'}),
+    Description: formatMessage({id:'utils.cloud.createKubernetesSteps.CreateVPC.Description'}),
     Status: ''
   },
   CreateVSWitch: {
-    Title: '创建VSwitch交换机',
-    Description: '基于上一步创建的VPC创建交换机',
+    Title: formatMessage({id:'utils.cloud.createKubernetesSteps.CreateVSWitch.Title'}),
+    Description: formatMessage({id:'utils.cloud.createKubernetesSteps.CreateVSWitch.Description'}),
     Status: ''
   },
   AllocateResource: {
-    Title: '调配资源',
-    Description:
-      '确认用户提供的资源类型在指定区域是否可用，若不可用则重新选择同级别可用资源',
+    Title: formatMessage({id:'utils.cloud.createKubernetesSteps.AllocateResource.Title'}),
+    Description: formatMessage({id:'utils.cloud.createKubernetesSteps.AllocateResource.Description'}),
     Status: ''
   },
   CreateCluster: {
-    Title: '创建集群',
-    Description: '创建托管集群，创建成功后大概10分钟集群即可使用',
+    Title: formatMessage({id:'utils.cloud.createKubernetesSteps.CreateCluster.Title'}),
+    Description: formatMessage({id:'utils.cloud.createKubernetesSteps.CreateCluster.Description'}),
     Status: ''
   },
   InitClusterConfig: {
-    Title: '初始化集群配置',
-    Description: '初始化创建集群所需要的配置数据',
+    Title: formatMessage({id:'utils.cloud.createKubernetesSteps.InitClusterConfig.Title'}),
+    Description: formatMessage({id:'utils.cloud.createKubernetesSteps.InitClusterConfig.Description'}),
     Status: ''
   },
   UpdateKubernetes: {
-    Title: '配置集群',
-    Description: '连接所有节点完成节点的配置，耗时取决于网络状况。',
+    Title: formatMessage({id:'utils.cloud.createKubernetesSteps.UpdateKubernetes.Title'}),
+    Description: formatMessage({id:'utils.cloud.createKubernetesSteps.UpdateKubernetes.Description'}),
     Status: ''
   },
   InstallKubernetes: {
-    Title: '安装集群',
-    Description: '连接所有节点安装 Kubernetes 集群，耗时取决于网络状况。',
+    Title: formatMessage({id:'utils.cloud.createKubernetesSteps.InstallKubernetes.Title'}),
+    Description: formatMessage({id:'utils.cloud.createKubernetesSteps.InstallKubernetes.Description'}),
     Status: ''
   }
 };
 const updateKubernetesSteps = {
   Init: {
-    Title: '控制器初始化',
-    Description: '检测提供的参数是否正确',
+    Title: formatMessage({id:'utils.cloud.updateKubernetesSteps.Init.Title'}),
+    Description: formatMessage({id:'utils.cloud.updateKubernetesSteps.Init.Description'}),
     Status: ''
   },
   InitClusterConfig: {
-    Title: '初始化集群配置',
-    Description: '初始化配置集群所需要的配置数据',
+    Title: formatMessage({id:'utils.cloud.updateKubernetesSteps.InitClusterConfig.Title'}),
+    Description: formatMessage({id:'utils.cloud.updateKubernetesSteps.InitClusterConfig.Description'}),
     Status: ''
   },
   InstallKubernetes: {
-    Title: '安装集群',
-    Description: '连接所有节点安装 Kubernetes 集群，耗时取决于网络状况。',
+    Title: formatMessage({id:'utils.cloud.updateKubernetesSteps.InstallKubernetes.Title'}),
+    Description: formatMessage({id:'utils.cloud.updateKubernetesSteps.InstallKubernetes.Description'}),
     Status: ''
   },
   UpdateKubernetes: {
-    Title: '配置集群',
-    Description: '连接所有节点完成节点的配置，耗时取决于网络状况。',
+    Title: formatMessage({id:'utils.cloud.updateKubernetesSteps.UpdateKubernetes.Title'}),
+    Description: formatMessage({id:'utils.cloud.updateKubernetesSteps.UpdateKubernetes.Description'}),
     Status: ''
   }
 };
 const initRainbondSteps = {
   Init: {
-    Title: '控制器初始化',
-    Description: '检测提供的参数是否正确',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.Init.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.Init.Description'}),
     Status: ''
   },
   CheckCluster: {
-    Title: '检测Kubernetes集群',
-    Description: '对选择的Kubernetes集群进行适配性检测',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.CheckCluster.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.CheckCluster.Description'}),
     Status: ''
   },
   CreateRDS: {
-    Title: '创建RDS资源并初始化(预计2分钟)',
-    Description:
-      '用于平台Region数据库，默认创建按需付费的高可用,入门级,通用型2GB实例',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.CreateRDS.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.CreateRDS.Description'}),
     Status: ''
   },
   CreateNAS: {
-    Title: '创建NAS资源',
-    Description: '用于集群所有组件的持久化存储，默认使用单个NAS子目录模式',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.CreateNAS.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.CreateNAS.Description'}),
     Status: ''
   },
   CreateNASMount: {
-    Title: '创建NAS挂载点',
-    Description: '创建NAS挂载点后即可使用此NAS资源',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.CreateNASMount.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.CreateNASMount.Description'}),
     Status: ''
   },
   CreateLoadBalancer: {
-    Title: '创建负载均衡',
-    Description: '负载均衡用于集群控制端和应用网关的流量入口',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.CreateLoadBalancer.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.CreateLoadBalancer.Description'}),
     Status: ''
   },
   BoundLoadBalancer: {
-    Title: '创建负载均衡TCP监听',
-    Description: '将所需要的端口负载均衡到所有平台网关节点上',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.BoundLoadBalancer.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.BoundLoadBalancer.Description'}),
     Status: ''
   },
   SetSecurityGroup: {
-    Title: '设置安全组策略',
-    Description: '默认将打开平台网关节点需要对外暴露的端口安全策略',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.SetSecurityGroup.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.SetSecurityGroup.Description'}),
     Status: ''
   },
   AssignDefaultDomain: {
-    Title: '分配默认域名',
-    Description: '将为你分配一个泛解析默认域名作为应用访问的默认域名',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.AssignDefaultDomain.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.AssignDefaultDomain.Description'}),
     Status: ''
   },
   InitRainbondRegion: {
-    Title: '初始化平台集群',
-    Description: '等待平台集群初始化完成',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.InitRainbondRegion.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.InitRainbondRegion.Description'}),
     Status: ''
   },
   InitRainbondRegionOperator: {
-    Title: '启动集群初始化控制器',
-    Description: '集群控制器创建并启动',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.InitRainbondRegionOperator.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.InitRainbondRegionOperator.Description'}),
     Status: ''
   },
   InitRainbondRegionImageHub: {
-    Title: '启动集群本地镜像仓库(预计5分钟)',
-    Description:
-      '本地镜像仓库就绪意味着存储、网关等服务已就绪，本阶段预计5分钟，取决于网络状况',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.InitRainbondRegionImageHub.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.InitRainbondRegionImageHub.Description'}),
     Status: ''
   },
   InitRainbondRegionPackage: {
-    Title: '系统所需的非组件镜像本地化处理(预计5分钟)',
-    Description: '将平台需要的非组件镜像获取完成并推送到本地镜像仓库',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.InitRainbondRegionPackage.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.InitRainbondRegionPackage.Description'}),
     Status: ''
   },
   InitRainbondRegionRegionConfig: {
-    Title: '获取集群访问配置文件(预计5分钟)',
-    Description:
-      '等待集群服务启动完成，当API服务可以正常访问则集群访问配置文件已获取完成',
+    Title: formatMessage({id:'utils.cloud.initRainbondSteps.InitRainbondRegionRegionConfig.Title'}),
+    Description: formatMessage({id:'utils.cloud.initRainbondSteps.InitRainbondRegionRegionConfig.Description'}),
     Status: ''
   }
 };
@@ -426,10 +422,9 @@ const huaweiIcon = (
 const providers = [
   {
     id: 'ack',
-    name: '阿里云 ACK',
+    name: formatMessage({id:'utils.providers.name'}),
     icon: aliyunIcon,
-    describe:
-      '支持阿里云托管类型集群对接，集群可用性由阿里云负责，平台负责辅助集群创建、平台集群初始化以及后续的资源调度管理',
+    describe: formatMessage({id:'utils.providers.describe'}),
     disable: false
   }
   // {
@@ -466,13 +461,13 @@ const cloud = {
   getAliyunClusterName(n) {
     switch (n) {
       case 'ManagedKubernetes':
-        return '阿里云托管集群';
+        return `${formatMessage({id:'utils.cloud.getAliyunClusterName.ManagedKubernetes'})}`;
       case 'ServerlessKubernetes':
-        return '阿里云Serverless集群';
+        return `${formatMessage({id:'utils.cloud.getAliyunClusterName.ServerlessKubernetes'})}`;
       case 'rke':
-        return '主机自安装集群';
+        return `${formatMessage({id:'utils.cloud.getAliyunClusterName.rke'})}`;
       case 'custom':
-        return '自建对接集群';
+        return `${formatMessage({id:'utils.cloud.getAliyunClusterName.custom'})}`;
       default:
         return n;
     }
@@ -482,7 +477,7 @@ const cloud = {
       return notification.warning({ message });
     }
     if (!err) {
-      noticeWarning('API请求错误');
+      noticeWarning(`${formatMessage({id:'utils.noticeWarning.error'})}`);
       return;
     }
     let data = null;
@@ -495,130 +490,130 @@ const cloud = {
     const code = data && data.code;
     switch (code) {
       case 2003:
-        noticeWarning('用户手机号已注册');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.iPhone'})}`);
         break;
       case 3000:
-        noticeWarning('用户已存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.user_already'})}`);
         break;
       case 3001:
-        noticeWarning('用户不存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.user_notExist'})}`);
         break;
       case 3002:
-        noticeWarning('用户不存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.user_notExist'})}`);
         break;
       case 3003:
-        noticeWarning('邮箱已存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.Email_notExist'})}`);
         break;
       case 3004:
-        noticeWarning('电话已存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.iPhone_notExist'})}`);
         break;
       case 3005:
-        noticeWarning('不允许删除管理员');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.delete'})}`);
         break;
       case 4001:
-        noticeWarning('请求Token过期，请尝试重新登录');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.be_overdue'})}`);
         break;
       case 7002:
-        noticeWarning('AccessKey不存在，请确认是否输入正确');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.AccessKey_notExist'})}`);
         break;
       case 7004:
-        noticeWarning('AccessKey与Secret不匹配，请确认是否输入正确');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.Mismatch'})}`);
         break;
       case 7005:
-        noticeWarning('已存在同类型任务');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.type'})}`);
         break;
       case 7006:
-        noticeWarning('KubernetesAPI无法请求');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.api'})}`);
         break;
       case 7008:
-        noticeWarning('阿里云容器服务默认缺角未创建');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.ali'})}`);
         break;
       case 7007:
-        noticeWarning('阿里云API请求故障，请稍后重试');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.alApi'})}`);
         break;
       case 7010:
-        noticeWarning('节点角色缺失，请确保管理、计算、ETCD节点分别至少一个');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.defect'})}`);
         break;
       case 7011:
-        noticeWarning('ETCD节点数量必须为奇数');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.Odd_number'})}`);
         break;
       case 7012:
-        noticeWarning('集群节点配置校验不通过');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.Verification_failed'})}`);
         break;
       case 7013:
-        noticeWarning('节点端口配置不正确');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.port'})}`);
         break;
       case 7014:
-        noticeWarning('KubeConfig配置不能为空');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.notNull'})}`);
         break;
       case 7015:
-        noticeWarning('集群不能被删除');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.Cannot_be_deleted'})}`);
         break;
       case 7016:
-        noticeWarning('集群不支持重新安装');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.Reinstall'})}`);
         break;
       case 7017:
-        noticeWarning('该集群不支持节点配置动作');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.configuration——actions'})}`);
         break;
       case 7018:
-        noticeWarning('集群初始化配置配置不合法，请检查后重试');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.retry'})}`);
         break;
       case 7019:
-        noticeWarning('无法获取集群的初始化状态');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.state'})}`);
         break;
       case 7020:
-        noticeWarning('rke配置格式不正确');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.rek'})}`);
         break;
       case 7021:
-        noticeWarning('rke配置丢失');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.rek_lose'})}`);
         break;
       case 7022:
-        noticeWarning('初始化集群任务不存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.not_exist'})}`);
         break;
       case 7023:
-        noticeWarning('rke集群已存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.RKE_already'})}`);
         break;
       case 7024:
-        noticeWarning('上一个更新集群的任务未结束');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.not_finished'})}`);
         break;
       case 7025:
-        noticeWarning('请勿重复提交更新集群任务');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.updata'})}`);
         break;
       case 7026:
-        noticeWarning('更新集群任务不存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.Update_cluster'})}`);
         break;
       case 7027:
-        noticeWarning('集群不存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.Cluster_not_finished'})}`);
         break;
       case 7028:
-        noticeWarning('rbd-system命名空间已存在，无法再次初始化');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.namespace'})}`);
         break;
       case 7029:
-        noticeWarning('集群任务不存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.task'})}`);
         break;
       case 8000:
-        noticeWarning('Helm商店不存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.helm'})}`);
         break;
       case 8001:
-        noticeWarning('Helm商店名冲突');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.helm_name'})}`);
         break;
       case 8002:
-        noticeWarning('应用商店地址不是合法的Helm仓库地址或通信不畅，请确认');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.confirm'})}`);
         break;
       case 8003:
-        noticeWarning('Helm应用模版不存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.helm_Template'})}`);
         break;
       case 8004:
-        noticeWarning('Helm应用模版版本不存在');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.helm_edition'})}`);
         break;
       case 400:
-        noticeWarning(data.msg_show || '请求参数错误');
+        noticeWarning(data.msg_show || `${formatMessage({id:'utils.noticeWarning.Requesr_error'})}`);
         break;
       case undefined:
-        noticeWarning('API请求错误');
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.error'})}`);
         break;
       default:
-        noticeWarning(`未知的Cloud错误，错误码为${code}`);
+        noticeWarning(`${formatMessage({id:'utils.noticeWarning.cloud_error'},{code:code})}`);
         break;
     }
 
@@ -736,30 +731,30 @@ const cloud = {
     switch (status) {
       case 'running':
         if (linkedClusters.get(cluster.cluster_id)) {
-          return <span style={{ color: 'green' }}>运行中(已对接)</span>;
+          return <span style={{ color: 'green' }}>{formatMessage({id:'utils.getAliyunClusterStatus.operation_Docked'})}</span>;
         }
         if (cluster.rainbond_init === true) {
-          return <span style={{ color: 'green' }}>运行中(已初始化)</span>;
+          return <span style={{ color: 'green' }}>{formatMessage({id:'utils.getAliyunClusterStatus.operation_Initialized'})}</span>;
         }
         if (cluster.parameters && cluster.parameters.Message) {
           return (
             <Tooltip title={cluster.parameters.Message}>
               <span style={{ color: 'green' }}>
-                <span style={{ color: 'red', fontSize: '16px' }}>*</span>运行中
+                <span style={{ color: 'red', fontSize: '16px' }}>*</span>{formatMessage({id:'utils.getAliyunClusterStatus.operation'})}
               </span>
             </Tooltip>
           );
         }
-        return <span style={{ color: 'green' }}>运行中</span>;
+        return <span style={{ color: 'green' }}>{formatMessage({id:'utils.getAliyunClusterStatus.operation'})}</span>;
 
       case 'initial':
-        return <span style={{ color: '#1890ff' }}>初始化中</span>;
+        return <span style={{ color: '#1890ff' }}>{formatMessage({id:'utils.getAliyunClusterStatus.Initializing'})}</span>;
       case 'deleting':
-        return <span style={{ color: 'red' }}>删除中</span>;
+        return <span style={{ color: 'red' }}>{formatMessage({id:'utils.getAliyunClusterStatus.Deleting'})}</span>;
       case 'offline':
-        return <span style={{ color: 'red' }}>已离线</span>;
+        return <span style={{ color: 'red' }}>{formatMessage({id:'utils.getAliyunClusterStatus.Offline'})}</span>;
       case 'failed':
-        return <span style={{ color: 'red' }}>安装失败</span>;
+        return <span style={{ color: 'red' }}>{formatMessage({id:'utils.getAliyunClusterStatus.Installation_failed'})}</span>;
       default:
         return status;
     }
@@ -780,38 +775,38 @@ const cloud = {
   getTaskStatus(status) {
     switch (status) {
       case 'start':
-        return '进行中';
+        return `${formatMessage({id:'utils.getTaskStatus.start'})}`;
       case 'complete':
-        return '已完成';
+        return `${formatMessage({id:'utils.getTaskStatus.complete'})}`;
       case 'inited':
-        return '初始化完成';
+        return `${formatMessage({id:'utils.getTaskStatus.inited'})}`;
       default:
-        return '未开始';
+        return `${formatMessage({id:'utils.getTaskStatus.Not_started'})}`;
     }
   },
   getAliyunCountDescribe() {
     return [
       {
         key: 'default-role',
-        title: '创建容器服务默认角色',
+        title: formatMessage({id:'utils.getAliyunCountDescribe.default-role'}),
         href:
           'https://ram.console.aliyun.com/#/role/authorize?request=%7B%22ReturnUrl%22:%22https://cs.console.aliyun.com/%22,%22Service%22:%22CS%22,%22Requests%22:%7B%22request1%22:%7B%22RoleName%22:%22AliyunCSManagedLogRole%22,%22TemplateId%22:%22AliyunCSManagedLogRole%22%7D,%22request2%22:%7B%22RoleName%22:%22AliyunCSManagedCmsRole%22,%22TemplateId%22:%22AliyunCSManagedCmsRole%22%7D,%22request3%22:%7B%22RoleName%22:%22AliyunCSManagedCsiRole%22,%22TemplateId%22:%22AliyunCSManagedCsiRole%22%7D,%22request4%22:%7B%22RoleName%22:%22AliyunCSManagedVKRole%22,%22TemplateId%22:%22AliyunCSManagedVKRole%22%7D,%22request5%22:%7B%22RoleName%22:%22AliyunCSClusterRole%22,%22TemplateId%22:%22Cluster%22%7D,%22request6%22:%7B%22RoleName%22:%22AliyunCSServerlessKubernetesRole%22,%22TemplateId%22:%22ServerlessKubernetes%22%7D,%22request7%22:%7B%22RoleName%22:%22AliyunCSKubernetesAuditRole%22,%22TemplateId%22:%22KubernetesAudit%22%7D,%22request8%22:%7B%22RoleName%22:%22AliyunCSManagedNetworkRole%22,%22TemplateId%22:%22AliyunCSManagedNetworkRole%22%7D,%22request9%22:%7B%22RoleName%22:%22AliyunCSDefaultRole%22,%22TemplateId%22:%22Default%22%7D,%22request10%22:%7B%22RoleName%22:%22AliyunCSManagedKubernetesRole%22,%22TemplateId%22:%22ManagedKubernetes%22%7D,%22request11%22:%7B%22RoleName%22:%22AliyunCSManagedArmsRole%22,%22TemplateId%22:%22AliyunCSManagedArmsRole%22%7D%7D%7D'
       },
       {
         key: 'open-ess',
-        title: '开通ESS弹性伸缩服务',
+        title: formatMessage({id:'utils.getAliyunCountDescribe.open-ess'}),
         href:
           'https://ram.console.aliyun.com/#/role/authorize?request=%7B%22Requests%22:%20%7B%22request1%22:%20%7B%22RoleName%22:%20%22AliyunESSDefaultRole%22,%20%22TemplateId%22:%20%22DefaultRole%22%7D%7D,%20%22ReturnUrl%22:%20%22https:%2F%2Fessnew.console.aliyun.com%2F%22,%20%22Service%22:%20%22ESS%22%7D'
       },
       {
         key: 'perm-ess',
-        title: '授权ESS弹性伸缩服务',
+        title: formatMessage({id:'utils.getAliyunCountDescribe.perm-ess'}),
         href:
           'https://ram.console.aliyun.com/#/role/authorize?request=%7B%22Requests%22:%20%7B%22request1%22:%20%7B%22RoleName%22:%20%22AliyunESSDefaultRole%22,%20%22TemplateId%22:%20%22DefaultRole%22%7D%7D,%20%22ReturnUrl%22:%20%22https:%2F%2Fessnew.console.aliyun.com%2F%22,%20%22Service%22:%20%22ESS%22%7D'
       },
       {
         key: 'open-nas',
-        title: '开通NAS服务',
+        title: formatMessage({id:'utils.getAliyunCountDescribe.open-nas'}),
         href: 'https://common-buy.aliyun.com/?commodityCode=naspost'
       }
     ];

@@ -23,6 +23,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AuthCompany from '../../components/AuthCompany';
 import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
 import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
@@ -100,7 +101,7 @@ export default class Main extends PureComponent {
       localAppTab: [
         {
           key: 'localApplication',
-          tab: '本地组件库'
+          tab: formatMessage({id:'popover.applicationMarket.local'})
         }
       ],
       rainStoreTab: [],
@@ -705,7 +706,7 @@ export default class Main extends PureComponent {
     );
     const versionBox = (
       <div title={item.version} className={PluginStyles.cardVersionStyle}>
-        <span>版本:</span>
+        <span>{formatMessage({id:'otherApp.marketDrawer.edition'})}</span>
         <div className={PluginStyles.overScroll}>
           <div>
             {item.versions_info &&
@@ -741,7 +742,7 @@ export default class Main extends PureComponent {
       </div>
     );
     const fastactions = [
-      <Tooltip title={isInstall ? '点击安装' : '不可安装'}>
+      <Tooltip title={isInstall ? formatMessage({id:'otherApp.marketDrawer.click'}) : formatMessage({id:'otherApp.marketDrawer.not'})}>
         <div
           onClick={() => {
             if (isInstall) {
@@ -767,7 +768,7 @@ export default class Main extends PureComponent {
               }
             }}
           >
-            安装
+            {formatMessage({id:'button.install'})}
           </span>
         ]
       : [];
@@ -832,7 +833,7 @@ export default class Main extends PureComponent {
                     {versionBox}
                     {!cloud && (
                       <div className={PluginStyles.memoryStyle}>
-                        <span>内存: </span>
+                        <span> {formatMessage({id:'otherApp.marketDrawer.Memory'})}</span>
                         {sourceUtil.unit(item.min_memory || 128, 'MB')}
                       </div>
                     )}
@@ -875,13 +876,13 @@ export default class Main extends PureComponent {
         layout="horizontal"
         hideRequiredMark
       >
-        <Form.Item {...formItemLayout} label="选择版本">
+        <Form.Item {...formItemLayout} label={formatMessage({id:'otherApp.marketDrawer.Select_version'})}>
           {getFieldDecorator('group_version', {
             initialValue: versionList[0].version || versionList[0].app_version,
             rules: [
               {
                 required: true,
-                message: '请选择版本'
+                message: formatMessage({id:'otherApp.marketDrawer.input_version'})
               }
             ]
           })(
@@ -1012,7 +1013,7 @@ export default class Main extends PureComponent {
             zIndex: 99
           }}
         >
-          <a onClick={this.loadMore}>查看更多...</a>
+          <a onClick={this.loadMore}>{formatMessage({id:'otherApp.marketDrawer.more'})}</a>
         </div>
       );
     //本地组件库
@@ -1029,10 +1030,10 @@ export default class Main extends PureComponent {
         locale={{
           emptyText: !isSpinList && list && list.length <= 0 && (
             <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-              暂无应用模型， 你可以
+              {formatMessage({id:'notification.market.hint.null_app1'})}
               <br />
               <br />
-              发布应用模型
+              {formatMessage({id:'notification.market.hint.null_app2'})}
             </p>
           )
         }}
@@ -1103,8 +1104,8 @@ export default class Main extends PureComponent {
           <Input.Search
             // eslint-disable-next-line react/no-string-refs
             ref="searchs"
-            placeholder="请输入应用名称"
-            enterButton="搜索"
+            placeholder={formatMessage({id:'placeholder.group_name'})}
+            enterButton={formatMessage({id:'button.search'})}
             size="large"
             value={defaultValue}
             onChange={event => {
@@ -1126,17 +1127,17 @@ export default class Main extends PureComponent {
     const tabAllList = [
       {
         key: '',
-        tab: '全部'
+        tab: formatMessage({id:'popover.applicationMarket.all'})
       }
     ];
     const tabComponentList = [
       {
         key: 'enterprise',
-        tab: '公司发布'
+        tab: formatMessage({id:'popover.applicationMarket.company'})
       },
       {
         key: 'team',
-        tab: '团队发布'
+        tab: formatMessage({id:'popover.applicationMarket.team'})
       }
     ];
     const tabList = tabAllList.concat(tabComponentList);
@@ -1147,7 +1148,7 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: '创建组件' });
+    breadcrumbList.push({ title: formatMessage({id:'otherApp.marketDrawer.creat'}) });
 
     const SpinBox = (
       <div
@@ -1167,7 +1168,7 @@ export default class Main extends PureComponent {
           <AuthCompany
             eid={currentEnterprise.enterprise_id}
             marketName={authorizations}
-            title="获取云应用商店授权"
+            title={formatMessage({id:'otherApp.marketDrawer.store'})}
             onCancel={() => {
               this.setState({ authorizations: false });
             }}
@@ -1207,7 +1208,7 @@ export default class Main extends PureComponent {
         )}
         {handleType && installBounced && (
           <Modal
-            title="确认要安装此应用作为你的组件么？"
+            title={formatMessage({id:'confirmModal.install.app.desc'})}
             className={styles.TelescopicModal}
             visible={installBounced}
             onOk={this.handleInstallBounced}
@@ -1224,7 +1225,7 @@ export default class Main extends PureComponent {
                     });
                   }}
                 >
-                  取消
+                  {formatMessage({id:'button.cancel'})}
                 </Button>
                 <Button
                   onClick={this.handleInstallBounced}
@@ -1232,14 +1233,14 @@ export default class Main extends PureComponent {
                   style={{ marginRight: '5px' }}
                   loading={loading.effects['createApp/installApp']}
                 >
-                  安装
+                  {formatMessage({id:'button.install'})}
                 </Button>
                 <Radio
                   size="small"
                   onClick={this.renderSuccessOnChange}
                   checked={isDeploy}
                 >
-                  并构建启动
+                  {formatMessage({id:'button.build_start'})}
                 </Radio>
               </div>
             }
@@ -1274,13 +1275,13 @@ export default class Main extends PureComponent {
                 <Alert
                   message={
                     <div>
-                      当前市场没有安装权限，
+                      {formatMessage({id:'notification.market.hint.null_app5'})}
                       <a
                         onClick={() => {
                           this.handleCertification(scopeMax);
                         }}
                       >
-                        去授权
+                        {formatMessage({id:'notification.market.hint.null_app6'})}
                       </a>
                     </div>
                   }
@@ -1348,13 +1349,13 @@ export default class Main extends PureComponent {
                 <Alert
                   message={
                     <div>
-                      当前市场没有安装权限，
+                      {formatMessage({id:'notification.market.hint.null_app5'})}
                       <a
                         onClick={() => {
                           this.handleCertification(scopeMax);
                         }}
                       >
-                        去授权
+                        {formatMessage({id:'notification.market.hint.null_app6'})}
                       </a>
                     </div>
                   }

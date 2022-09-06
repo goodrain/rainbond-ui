@@ -28,6 +28,7 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import NoComponent from '../../../public/images/noComponent.png';
 import AuthCompany from '../../components/AuthCompany';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -47,6 +48,7 @@ import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
 import ExportOperation from './ExportOperation';
 import styles from './index.less';
+import cookie from '../../utils/cookie';
 import TagList from './TagList';
 
 const { TabPane } = Tabs;
@@ -136,7 +138,8 @@ export default class EnterpriseShared extends PureComponent {
       isAuthorize: false,
       installType: '1',
       isStoreCluster: false,
-      clusters: []
+      clusters: [],
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -530,15 +533,14 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200 && res.bean.remind) {
           Modal.confirm({
-            title: '配置提醒',
-            cancelText: '已了解',
-            okText: '去配置',
+            title: formatMessage({id:'applicationMarket.confirm.remind'}),
+            cancelText: formatMessage({id:'applicationMarket.confirm.understand'}),
+            okText: formatMessage({id:'applicationMarket.confirm.Deconfiguration'}),
             onCancel: () => {},
             onOk: () => {
               dispatch(routerRedux.push(`/enterprise/${eid}/setting`));
             },
-            content:
-              '该平台已对接多个集群，但本地组件库暂未配置多集群可用的镜像仓库，将导致应用无法跨集群安装。'
+            content:formatMessage({id:'applicationMarket.confirm.Docking'})
           });
         }
       }
@@ -632,7 +634,7 @@ export default class EnterpriseShared extends PureComponent {
     this.setState({
       appInfo,
       deleteApp: true,
-      bouncedText: '删除应用模版',
+      bouncedText: formatMessage({id:'applicationMarket.confirm.delete'}),
       bouncedType: 'delete'
     });
   };
@@ -691,7 +693,7 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
           this.handleCancelDelete();
           this.getApps();
@@ -724,7 +726,7 @@ export default class EnterpriseShared extends PureComponent {
             deleteAppMarketLoading: false
           });
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
         }
       }
@@ -755,7 +757,7 @@ export default class EnterpriseShared extends PureComponent {
             deleteHelmAppMarketLoading: false
           });
           notification.success({
-            message: '删除成功'
+            message: formatMessage({id:'notification.success.delete'})
           });
         }
       }
@@ -817,7 +819,7 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.handleCancelDelete();
-          notification.success({ message: '更新成功' });
+          notification.success({ message: formatMessage({id:'notification.success.updates'}) });
           this.getApps();
         }
       }
@@ -825,19 +827,19 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   handleCreateAppModel = () => {
-    notification.success({ message: '创建成功' });
+    notification.success({ message: formatMessage({id:'notification.success.setUp'}) });
     this.getApps();
     this.handleCancelAppModel();
   };
 
   handleCreateAppMarket = ID => {
     const { upAppMarket } = this.state;
-    notification.success({ message: upAppMarket ? '编辑成功' : '创建成功' });
+    notification.success({ message: upAppMarket ? formatMessage({id:'notification.success.edit'}) : formatMessage({id:'notification.success.setUp'}) });
     this.getMarketsTab(ID);
     this.handleCancelAppMarket();
   };
   handleUpHelmAppMarket = ID => {
-    notification.success({ message: '编辑成功' });
+    notification.success({ message: formatMessage({id:'notification.success.edit'}) });
     this.getHelmMarketsTab(ID);
     this.handleCancelHelmAppMarket();
   };
@@ -882,7 +884,7 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
   handleupDataAppModel = () => {
-    notification.success({ message: '编辑成功' });
+    notification.success({ message: formatMessage({id:'notification.success.edit'}) });
     this.getApps();
     this.handleCancelupDataAppModel();
   };
@@ -964,11 +966,10 @@ export default class EnterpriseShared extends PureComponent {
           guideStep === 1 &&
           indexs === 0 &&
           this.handleNewbieGuiding({
-            tit: '安装应用',
+            tit: formatMessage({id:'applicationMarket.localMarket.have.title'}),
             send: true,
             configName: 'installApp',
-            desc:
-              '从应用商店安装应用是最简单的应用部署方式，后面你也可以很方便的将您的企业应用发布到应用商店中',
+            desc: formatMessage({id:'applicationMarket.localMarket.have.desc'}),
             nextStep: 2,
             conPosition: { right: 0, marginTop: '60px' },
             svgPosition: { right: 0, marginTop: '27px' },
@@ -997,7 +998,9 @@ export default class EnterpriseShared extends PureComponent {
                       e.stopPropagation();
                     }}
                   >
-                    <Tooltip title="安装量">
+                    <Tooltip 
+                    title={<FormattedMessage id='applicationMarket.localMarket.have.installNumber'/>}
+                    >
                       <div title={installNumber}>
                         {globalUtil.nFormatter(installNumber)}
                       </div>
@@ -1043,7 +1046,9 @@ export default class EnterpriseShared extends PureComponent {
                         : versions[0].app_version}
                     </p>
                   ) : (
-                    <p className={styles.dev_version}>无版本</p>
+                    <p className={styles.dev_version}>
+                      <FormattedMessage id='applicationMarket.localMarket.have.versions'/>
+                    </p>
                   )}
                 </div>
               </Col>
@@ -1074,7 +1079,7 @@ export default class EnterpriseShared extends PureComponent {
                       this.handleOpenMoreTags(customTags);
                     }}
                   >
-                    更多
+                    <FormattedMessage id='enterpriseOverview.team.more'/>
                   </a>
                 )}
               </Col>
@@ -1102,7 +1107,9 @@ export default class EnterpriseShared extends PureComponent {
                   }}
                 >
                   {globalUtil.fetchSvg('InstallApp')}
-                  <div style={{ background: '#fff' }}>安装</div>
+                  <div style={{ background: '#fff' }}>
+                    <FormattedMessage id='applicationMarket.localMarket.have.install'/>
+                  </div>
                 </div>
               </Col>
             </div>
@@ -1263,7 +1270,7 @@ export default class EnterpriseShared extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: '请先创建团队！'
+              message: formatMessage({id:'notification.warn.create_team'})
             });
           }
         }
@@ -1298,7 +1305,7 @@ export default class EnterpriseShared extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: '请先创建应用！'
+              message: formatMessage({id:'notification.warn.app'})
             });
           }
         }
@@ -1389,7 +1396,8 @@ export default class EnterpriseShared extends PureComponent {
       isNewbieGuide,
       isInStallShow,
       showMarketCloudAuth,
-      isAuthorize
+      isAuthorize,
+      language
     } = this.state;
     const tagLists = tagList && tagList.length > 0 && tagList;
     const accessActions =
@@ -1407,7 +1415,8 @@ export default class EnterpriseShared extends PureComponent {
               this.showOfflineApp(info);
             }}
           >
-            删除应用模版
+            {/* 删除应用模版 */}
+            <FormattedMessage id='applicationMarket.localMarket.delete.template'/>
           </a>
         </Menu.Item>
       );
@@ -1418,7 +1427,8 @@ export default class EnterpriseShared extends PureComponent {
               this.handleOpenUpDataAppModel(info);
             }}
           >
-            编辑应用模版
+            {/* 编辑应用模版 */}
+            <FormattedMessage id='applicationMarket.localMarket.edit.template'/>
           </a>
         </Menu.Item>
       );
@@ -1458,15 +1468,17 @@ export default class EnterpriseShared extends PureComponent {
     };
 
     const operation = (
-      <Col span={5} style={rightStyle} className={styles.btns}>
+      <Col span={language ? 5 : 7 } style={rightStyle} className={styles.btns}>
         {isImportApp && (
           <Button style={{ margin: '0 14px 0 10px' }}>
-            <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
+            <Link to={`/enterprise/${eid}/shared/import`}>
+              <FormattedMessage id='applicationMarket.localMarket.import'/>
+            </Link>
           </Button>
         )}
         {isCreateApp && (
           <Button type="primary" onClick={this.handleOpenCreateAppModel}>
-            创建应用模版
+            <FormattedMessage id='applicationMarket.localMarket.setup'/>
           </Button>
         )}
       </Col>
@@ -1479,12 +1491,12 @@ export default class EnterpriseShared extends PureComponent {
             onClick={this.handleOpenDeleteAppMarket}
             style={{ marginRight: '22px' }}
           >
-            删除
+            <FormattedMessage id='button.delete'/>
           </Button>
         )}
         {isEditAppStore && (
           <Button type="primary" onClick={this.handleOpenUpAppMarket}>
-            编辑
+          <FormattedMessage id='button.edit'/>
           </Button>
         )}
       </div>
@@ -1495,14 +1507,16 @@ export default class EnterpriseShared extends PureComponent {
           onClick={this.handleOpenDeleteHelmAppMarket}
           style={{ marginRight: '22px' }}
         >
-          删除
+          {/* 删除 */}
+          <FormattedMessage id='button.delete'/>
         </Button>
         <Button
           style={{ marginRight: '22px' }}
           type="primary"
           onClick={this.handleOpenUpHelmAppMarket}
         >
-          编辑
+          {/* 编辑 */}
+          <FormattedMessage id='button.edit'/>
         </Button>
         <Button
           onClick={() => {
@@ -1517,16 +1531,24 @@ export default class EnterpriseShared extends PureComponent {
     const noLocalMarket = (
       <div className={styles.noShared}>
         <img src={NoComponent} />
-        <p>当前无应用模版，请选择方式添加</p>
+        <p>
+          {/* 当前无应用模版，请选择方式添加 */}
+          <FormattedMessage id='applicationMarket.localMarket.nothing.msg'/>
+        </p>
         <div className={styles.btns}>
           {isCreateApp && (
             <Button type="primary" onClick={this.handleOpenCreateAppModel}>
-              创建应用模版
+
+              {/* 创建应用模版 */}
+              <FormattedMessage id='applicationMarket.localMarket.setup'/>
             </Button>
           )}
           {isImportApp && (
             <Button type="primary">
-              <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
+              <Link to={`/enterprise/${eid}/shared/import`}>
+                {/* 导入应用模版 */}
+              <FormattedMessage id='applicationMarket.localMarket.import.template'/>
+              </Link>
             </Button>
           )}
         </div>
@@ -1542,7 +1564,7 @@ export default class EnterpriseShared extends PureComponent {
         }}
         description={
           <span>
-            {!isHelm && !isMarket ? '市场未连接、暂无数据' : '暂无数据'}
+            {!isHelm && !isMarket ? <FormattedMessage id='applicationMarket.confirm.connected'/> : <FormattedMessage id='applicationMarket.confirm.null'/>}
           </span>
         }
       >
@@ -1553,10 +1575,10 @@ export default class EnterpriseShared extends PureComponent {
     const localsContent = (
       <div>
         <Row style={contentStyle}>
-          <Col span={19} style={contentLeftStyle}>
+          <Col span={language ? 19 : 17} style={contentLeftStyle}>
             <Search
-              style={{ width: '250px' }}
-              placeholder="请输入名称进行搜索"
+              style={{ width: '250px'}}
+              placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
               onSearch={this.handleSearchLocal}
             />
             <div className={styles.serBox}>
@@ -1565,8 +1587,14 @@ export default class EnterpriseShared extends PureComponent {
                 value={this.state.scope}
                 onChange={this.onChangeRadio}
               >
-                <Radio.Button value="enterprise">企业</Radio.Button>
-                <Radio.Button value="team">团队</Radio.Button>
+                <Radio.Button value="enterprise">
+                  {/* 企业 */}
+                  <FormattedMessage id="applicationMarket.localMarket.radioValue.enterprise"/>
+                </Radio.Button>
+                <Radio.Button value="team">
+                  {/* 团队 */}
+                  <FormattedMessage id="applicationMarket.localMarket.radioValue.team"/>
+                </Radio.Button>
               </Radio.Group>
               {tagLists && <Divider type="vertical" />}
               {tagLists && (
@@ -1587,7 +1615,8 @@ export default class EnterpriseShared extends PureComponent {
                     );
                   })}
                   <a onClick={this.handleOpenEditorMoreTags} style={rightStyle}>
-                    更多标签
+                  <FormattedMessage id="applicationMarket.localMarket.checkboxValue.more"/>
+                    {/* 更多标签 */}
                   </a>
                 </Checkbox.Group>
               )}
@@ -1632,7 +1661,9 @@ export default class EnterpriseShared extends PureComponent {
           <Row style={contentStyle}>
             <Col span={19} style={contentLeftStyle}>
               <div>
-                市场已经正常连接，该平台具有&nbsp;
+                <FormattedMessage id='applicationMarket.cloudMarket.msg'/>
+                {/* 市场已经正常连接，该平台具有 */}
+                &nbsp;
                 {accessActions &&
                   accessActions.map((item, index) => {
                     return (
@@ -1647,11 +1678,13 @@ export default class EnterpriseShared extends PureComponent {
                       </a>
                     );
                   })}
-                &nbsp;应用权限
+                &nbsp;
+                {/* 应用权限 */}
+                <FormattedMessage id='applicationMarket.cloudMarket.msgs'/>
               </div>
               <Search
                 style={{ width: '400px', marginLeft: '100px' }}
-                placeholder="请输入名称进行搜索"
+                placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
                 onSearch={this.handleSearchMarket}
               />
             </Col>
@@ -1697,7 +1730,7 @@ export default class EnterpriseShared extends PureComponent {
           <Col span={19} style={contentLeftStyle}>
             <Search
               style={{ width: '400px' }}
-              placeholder="请输入名称进行搜索"
+              placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
               onSearch={this.handleSearchHelmMarket}
             />
           </Col>
@@ -1739,8 +1772,10 @@ export default class EnterpriseShared extends PureComponent {
     );
     return (
       <PageHeaderLayout
-        title="应用市场管理"
-        content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
+        // title="应用市场管理"
+        // content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
+        title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title"/>}
+        content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content"/>}
       >
         {/* {initShow && isNewbieGuide && (
           <PlatformIntroduced onCancel={this.hideInitShow} />
@@ -1760,7 +1795,7 @@ export default class EnterpriseShared extends PureComponent {
           <AuthCompany
             eid={eid}
             marketName={marketInfo.name}
-            title="欢迎使用该平台，请先完成连接云应用商店授权"
+            title={<FormattedMessage id='applicationMarket.AuthCompany.title'/>}
             onCancel={() => {
               this.setState({ showMarketCloudAuth: false });
             }}
@@ -1778,7 +1813,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {moreTags && (
           <TagList
-            title="查看标签"
+            title={<FormattedMessage id='applicationMarket.TagList.label'/>}
             onOk={this.handleCloseMoreTags}
             onChangeCheckbox={this.onChangeCheckbox}
             onCancel={this.handleCloseMoreTags}
@@ -1792,16 +1827,16 @@ export default class EnterpriseShared extends PureComponent {
         {deleteApp && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
-            desc="确定要删除此应用模型吗?"
-            subDesc="删除后其他人将无法安装此应用模型"
-            title="删除应用模版"
+            desc={formatMessage({id:'confirmModal.delete.app_template.desc'})}
+            subDesc={formatMessage({id:'confirmModal.delete.app_template.subDesc'})}
+            title={formatMessage({id:'confirmModal.app_template.delete.title'})}
             onCancel={this.handleCancelDelete}
           />
         )}
 
         {installHelmApp && (
           <CreateHelmAppModels
-            title="安装应用"
+            title={<FormattedMessage id='applicationMarket.CreateHelmAppModels.install'/>}
             eid={eid}
             appTypes={appTypes}
             appInfo={appInfo}
@@ -1814,9 +1849,9 @@ export default class EnterpriseShared extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteAppMarket}
             loading={deleteAppMarketLoading}
-            subDesc="此操作不可恢复"
-            desc="确定要删除此商店吗?"
-            title="删除应用商店"
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.app_store.desc'})}
+            title={formatMessage({id:'confirmModal.app_store.delete.title'})}
             onCancel={this.handleCloseDeleteAppMarket}
           />
         )}
@@ -1824,16 +1859,16 @@ export default class EnterpriseShared extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteHelmAppMarket}
             loading={deleteHelmAppMarketLoading}
-            subDesc="此操作不可恢复"
-            desc="确定要删除此商店吗?"
-            title="删除Helm应用商店"
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.delete.app_store.desc'})}
+            title={formatMessage({id:'confirmModal.helm_store.delete.title'})}
             onCancel={this.handleCloseDeleteHelmAppMarket}
           />
         )}
 
         {createAppModel && (
           <CreateAppModels
-            title="创建应用模版"
+            title={<FormattedMessage id='applicationMarket.localMarket.setup'/>}
             eid={eid}
             onOk={this.handleCreateAppModel}
             onCancel={this.handleCancelAppModel}
@@ -1844,7 +1879,7 @@ export default class EnterpriseShared extends PureComponent {
           <AuthCompany
             isHelm
             eid={eid}
-            title="添加应用商店"
+            title={<FormattedMessage id='applicationMarket.localMarket.add_app'/>}
             onOk={this.getHelmMarketsTab}
             onCancel={this.handleCancelAppMarket}
             currStep={1}
@@ -1861,7 +1896,7 @@ export default class EnterpriseShared extends PureComponent {
         )} */}
         {upAppMarket && (
           <CreateAppMarket
-            title="编辑应用商店连接信息"
+            title={<FormattedMessage id="applicationMarket.CreateAppMarket.title"/>}
             eid={eid}
             loading={upAppMarketLoading}
             marketInfo={marketInfo}
@@ -1871,7 +1906,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {upHelmAppMarket && (
           <HelmAppMarket
-            title={`编辑${helmInfo.name}商店`}
+            title={<FormattedMessage id='applicationMarket.HelmForm.title' values={{name:helmInfo.name}}/>}
             eid={eid}
             data={helmInfo}
             onOk={this.handleUpHelmAppMarket}
@@ -1881,7 +1916,7 @@ export default class EnterpriseShared extends PureComponent {
 
         {upDataAppModel && (
           <CreateAppModels
-            title="编辑应用模版"
+            title={<FormattedMessage id='applicationMarket.localMarket.edit_app'/>}
             eid={eid}
             appInfo={appInfo}
             onOk={this.handleupDataAppModel}
@@ -1902,7 +1937,7 @@ export default class EnterpriseShared extends PureComponent {
           <AuthCompany
             eid={eid}
             marketName={marketInfo.name}
-            title="您在该云应用商店无安装权限，请登录获取授权"
+            title={<FormattedMessage id='applicationMarket.AuthCompany.title_one'/>}
             onCancel={() => {
               this.setState({ showCloudMarketAuth: false });
             }}
@@ -1918,7 +1953,8 @@ export default class EnterpriseShared extends PureComponent {
             tab={
               <span className={styles.verticalCen}>
                 {globalUtil.fetchSvg('localMarket')}
-                本地组件库
+                {/* 本地组件库 */}
+                <FormattedMessage id="applicationMarket.localMarket.title"/>
               </span>
             }
             key="local"
@@ -1969,7 +2005,11 @@ export default class EnterpriseShared extends PureComponent {
           {isCreateAppStore && (
             <TabPane
               tab={
-                <Tooltip placement="top" title="添加应用市场">
+                <Tooltip 
+                placement="top" 
+                // title="添加应用市场"
+                title={<FormattedMessage id='applicationMarket.addMarket.tooltip.title'/>}
+                >
                   <Icon type="plus" className={styles.addSvg} />
                 </Tooltip>
               }

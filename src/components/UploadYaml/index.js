@@ -3,6 +3,7 @@
 import { Button, Form, Input, Select, Upload, Icon, notification, message } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global'
 import styles from './index.less'
@@ -44,6 +45,7 @@ export default class Index extends PureComponent {
       existFileList: [],
     };
   }
+
   componentWillMount() {
     this.loop = false;
   }
@@ -139,7 +141,7 @@ export default class Index extends PureComponent {
               existFileList: data.bean.package_name
              });
             notification.success({
-              message:"上传文件成功"
+              message:formatMessage({id:'notification.success.upload_file'})
             })
             this.loop = false
           }
@@ -169,7 +171,7 @@ export default class Index extends PureComponent {
             existFileList: []
            });
           notification.success({
-            message: '删除文件成功'
+            message: formatMessage({id:'notification.success.delete_file'})
           })
           this.handleJarWarUpload()
         }
@@ -215,19 +217,19 @@ export default class Index extends PureComponent {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error('请输入组件英文名称'));
+      return callback(new Error(formatMessage({id:'otherApp.UploadYaml.input_en_name'})));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾')
+          new Error(formatMessage({id:'otherApp.UploadYaml.only'}))
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error('不能大于32个字符'));
+      return callback(new Error(formatMessage({id:'otherApp.UploadYaml.max'})));
     }
   };
   render() {
@@ -248,19 +250,19 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'otherApp.UploadYaml.name'})}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
               rules: [
                 {
                   required: true,
-                  message: '请选择'
+                  message: formatMessage({id:'otherApp.UploadYaml.app'})
                 }
               ]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder="请选择要所属应用"
+                placeholder={formatMessage({id:'otherApp.UploadYaml.app'})}
                 style={{
                   display: 'inline-block',
                   width: isService ? '' : 292,
@@ -274,19 +276,21 @@ export default class Index extends PureComponent {
               </Select>
             )}
             {isService ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>新建应用</Button>
+              <Button onClick={this.onAddGroup}>
+                {formatMessage({id:'popover.newApp.title'})}
+              </Button>
             ) : null}
           </Form.Item>
           <Form.Item
-                label="上传文件"
-                extra="支持yaml、yml格式上传文件"
+                label={formatMessage({id:'otherApp.UploadYaml.up'})}
+                extra={formatMessage({id:'otherApp.UploadYaml.yaml'})}
                 {...formItemLayout}
             >
                 {getFieldDecorator('packageTarFile', {
                 rules: [
                     {
                     required: false,
-                    message: '请上传文件'
+                    message: formatMessage({id:'otherApp.UploadYaml.placese_up'})
                     }
                 ]
                 })(
@@ -337,7 +341,7 @@ export default class Index extends PureComponent {
                     type="primary"
                     loading={createAppByDockerrunLoading}
                 >
-                    确认创建
+                    {formatMessage({id:'otherApp.UploadYaml.creat'})}
                 </Button>
             </Form.Item>
         </Form>

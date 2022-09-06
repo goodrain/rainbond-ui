@@ -1,6 +1,8 @@
 import { Alert, Form, Input, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import cookie from '../../../utils/cookie';
 import styles from '../../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -11,7 +13,8 @@ class EditClusterInfo extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      healthStatus: true
+      healthStatus: true,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   handleSubmit = () => {
@@ -37,7 +40,7 @@ class EditClusterInfo extends PureComponent {
           if (res.bean && res.bean.health_status === 'failure') {
             this.setState({ healthStatus: false });
           } else {
-            notification.success({ message: '编辑成功' });
+            notification.success({ message: formatMessage({id:'notification.success.edit'}) });
             onOk && onOk();
           }
         }
@@ -47,7 +50,7 @@ class EditClusterInfo extends PureComponent {
 
   render() {
     const { form, onCancel, title, regionInfo } = this.props;
-    const { healthStatus } = this.state;
+    const { healthStatus, language } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -59,13 +62,24 @@ class EditClusterInfo extends PureComponent {
         sm: { span: 13 }
       }
     };
+      const formItemLayouts = {
+        labelCol: {
+          xs: { span: 24 },
+          sm: { span: 14 }
+        },
+        wrapperCol: {
+          xs: { span: 24 },
+          sm: { span: 10 }
+        }
+      }
     const rulesApiUrl = /(http|https):\/\/+([\w]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
     const rulesWebSocketUrl = /(ws|wss):\/\/+([\w]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
+    const is_language = language ? formItemLayout : formItemLayouts
 
     return (
       <Modal
         visible
-        title={title || '集群'}
+        title={title || formatMessage({id:'enterpriseColony.title'}) }
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         width={1000}
@@ -74,33 +88,33 @@ class EditClusterInfo extends PureComponent {
         {!healthStatus && (
           <Alert
             style={{ textAlign: 'center', marginBottom: '8px' }}
-            message="集群连接失败，请确认配置是否正确"
+            message={formatMessage({id:'enterpriseColony.edit.alert'})}
             type="error"
           />
         )}
         <Form onSubmit={this.handleSubmit}>
           <div style={{ display: 'flex' }}>
             <FormItem
-              {...formItemLayout}
-              label="集群ID"
+              {...is_language}
+              label={formatMessage({id:'enterpriseColony.edit.form.label.region_name'})}
               style={{
                 width: '50%'
               }}
             >
               {getFieldDecorator('region_name', {
                 initialValue: regionInfo ? regionInfo.region_name : '',
-                rules: [{ required: true, message: '集群ID不可修改' }]
+                rules: [{ required: true, message: formatMessage({id:'placeholder.cluster.edit.region_name'}) }]
               })(
                 <Input
-                  placeholder="请填写集群ID"
+                  placeholder={formatMessage({id:'placeholder.cluster.edit.region_name.content'})}
                   disabled={regionInfo !== undefined}
                 />
               )}
             </FormItem>
 
             <FormItem
-              {...formItemLayout}
-              label="集群名称"
+              {...is_language}
+              label={formatMessage({id:'enterpriseColony.edit.form.label.region_alias'})}
               style={{
                 width: '50%'
               }}
@@ -108,16 +122,16 @@ class EditClusterInfo extends PureComponent {
               {getFieldDecorator('region_alias', {
                 initialValue: regionInfo ? regionInfo.region_alias : '',
                 rules: [
-                  { required: true, message: '请填写集群名称!' },
-                  { max: 24, message: '最大长度24位' }
+                  { required: true, message: formatMessage({id:'placeholder.cluster.edit.region_alias'}) },
+                  { max: 24, message: formatMessage({id:'placeholder.max24'}) }
                 ]
-              })(<Input placeholder="请填写集群名称" />)}
+              })(<Input placeholder={formatMessage({id:'placeholder.cluster.edit.region_alias'})} />)}
             </FormItem>
           </div>
           <div style={{ display: 'flex' }}>
             <FormItem
-              label="API地址"
-              {...formItemLayout}
+              label={formatMessage({id:'enterpriseColony.edit.form.label.url'})}
+              {...is_language}
               style={{
                 width: '50%'
               }}
@@ -125,122 +139,122 @@ class EditClusterInfo extends PureComponent {
               {getFieldDecorator('url', {
                 initialValue: regionInfo.url,
                 rules: [
-                  { required: true, message: 'API通信地址是必填项' },
+                  { required: true, message: formatMessage({id:'placeholder.cluster.edit.url'}) },
                   {
                     pattern: rulesApiUrl,
-                    message: '只支持https或http协议头'
+                    message: formatMessage({id:'placeholder.cluster.edit.urlhttp'})
                   }
                 ]
-              })(<Input placeholder="请输入API通信地址" />)}
+              })(<Input placeholder={formatMessage({id:'placeholder.cluster.edit.url.content'})} />)}
             </FormItem>
 
             <FormItem
-              label="WebSocket通信地址"
-              {...formItemLayout}
+              label={formatMessage({id:'enterpriseColony.edit.form.label.wsurl'})}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('wsurl', {
                 initialValue: regionInfo.wsurl,
                 rules: [
-                  { required: true, message: 'WebSocket通信地址是必填项' },
+                  { required: true, message: formatMessage({id:'placeholder.cluster.edit.wsurl'}) },
                   {
                     pattern: rulesWebSocketUrl,
-                    message: '只支持ws或wss协议头'
+                    message: formatMessage({id:'placeholder.cluster.edit.wss'})
                   }
                 ]
-              })(<Input placeholder="请输入WebSocket通信地址" />)}
+              })(<Input placeholder={formatMessage({id:'placeholder.cluster.edit.wsurl.content'})} />)}
             </FormItem>
           </div>
           <div style={{ display: 'flex' }}>
             <FormItem
-              label="HTTP应用默认域名后缀"
-              {...formItemLayout}
+              label={formatMessage({id:'enterpriseColony.edit.form.label.httpdomain'})}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('httpdomain', {
                 initialValue: regionInfo.httpdomain,
                 rules: [
-                  { required: true, message: 'HTTP应用默认域名后缀是必填项' },
+                  { required: true, message: formatMessage({id:'placeholder.cluster.edit.httpdomain'}) },
                   {
                     pattern: /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                    message: '格式不正确'
+                    message: formatMessage({id:'placeholder.appShare.formatError'})
                   }
                 ]
-              })(<Input placeholder="请输入HTTP应用默认域名后缀" />)}
+              })(<Input placeholder={formatMessage({id:'placeholder.cluster.edit.httpdomain.content'})} />)}
             </FormItem>
 
             <FormItem
-              label="TCP应用默认访问IP"
-              {...formItemLayout}
+              label={formatMessage({id:'enterpriseColony.edit.form.label.tcpdomain'})}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('tcpdomain', {
                 initialValue: regionInfo.tcpdomain,
                 rules: [
-                  { required: true, message: 'TCP应用默认访问IP是必填项' },
+                  { required: true, message: formatMessage({id:'placeholder.cluster.edit.tcpdomain'}) },
                   {
                     pattern: /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                    message: '格式不正确'
+                    message: formatMessage({id:'placeholder.appShare.formatError'})
                   }
                 ]
-              })(<Input placeholder="请输入TCP应用默认访问IP" />)}
+              })(<Input placeholder={formatMessage({id:'placeholder.cluster.edit.tcpdomain.content'})} />)}
             </FormItem>
           </div>
           <div style={{ display: 'flex' }}>
             <FormItem
-              label="API-CA证书"
-              {...formItemLayout}
+              label={formatMessage({id:'enterpriseColony.edit.form.label.ssl_ca_cert'})}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('ssl_ca_cert', {
                 initialValue: regionInfo.ssl_ca_cert,
-                rules: [{ required: true, message: 'API-CA证书' }]
+                rules: [{ required: true, message: formatMessage({id:'placeholder.cluster.edit.ssl_ca_cert'}) }]
               })(
                 <TextArea
                   autosize={{ minRows: 3, maxRows: 6 }}
-                  placeholder="API-CA证书内容"
+                  placeholder={formatMessage({id:'placeholder.cluster.edit.ssl_ca_cert.content'})}
                 />
               )}
             </FormItem>
             <FormItem
-              label="API-Client证书"
-              {...formItemLayout}
+              label={formatMessage({id:'enterpriseColony.edit.form.label.cert_file'})}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('cert_file', {
                 initialValue: regionInfo.cert_file,
-                rules: [{ required: true, message: 'API-Client证书必填' }]
+                rules: [{ required: true, message: formatMessage({id:'placeholder.cluster.edit.cert_file'}) }]
               })(
                 <TextArea
                   autosize={{ minRows: 3, maxRows: 6 }}
-                  placeholder="API-Client证书内容"
+                  placeholder={formatMessage({id:'placeholder.cluster.edit.cert_file.content'})}
                 />
               )}
             </FormItem>
           </div>
           <div style={{ display: 'flex' }}>
             <FormItem
-              label="API-Client证书密钥"
-              {...formItemLayout}
+              label={formatMessage({id:'enterpriseColony.edit.form.label.key_file'})}
+              {...is_language}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('key_file', {
                 initialValue: regionInfo.key_file,
-                rules: [{ required: true, message: 'API-Client证书密钥必填' }]
+                rules: [{ required: true, message: formatMessage({id:'placeholder.cluster.edit.key_file'}) }]
               })(
                 <TextArea
                   autosize={{ minRows: 3, maxRows: 6 }}
-                  placeholder="API-Client证书密钥内容"
+                  placeholder={formatMessage({id:'placeholder.cluster.edit.key_file.content'})}
                 />
               )}
             </FormItem>
-            <FormItem label="备注" {...formItemLayout} style={{ width: '50%' }}>
+            <FormItem label={formatMessage({id:'enterpriseColony.edit.form.label.desc'})} {...is_language} style={{ width: '50%' }}>
               {getFieldDecorator('desc', {
                 initialValue: regionInfo.desc
               })(
                 <TextArea
                   autosize={{ minRows: 3, maxRows: 6 }}
-                  placeholder="集群备注信息"
+                  placeholder={formatMessage({id:'placeholder.cluster.edit.desc'})}
                 />
               )}
             </FormItem>

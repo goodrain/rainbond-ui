@@ -17,6 +17,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import BaseAddCluster from '../../components/Cluster/BaseAddCluster';
 import CustomClusterAdd from '../../components/Cluster/CustomClusterAdd';
 import ShowInitRainbondDetail from '../../components/Cluster/ShowInitRainbondDetail';
@@ -214,16 +215,16 @@ export default class EnterpriseClusters extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: '选择供应商'
+        title: formatMessage({id:'enterpriseColony.addCluster.supplier'})
       },
       {
-        title: '选择(创建)平台集群'
+        title: formatMessage({id:'enterpriseColony.addCluster.cluster'})
       },
       {
-        title: '初始化平台集群'
+        title: formatMessage({id:'enterpriseColony.addCluster.Initialize'})
       },
       {
-        title: '完成对接'
+        title: formatMessage({id:'enterpriseColony.addCluster.docking'})
       }
     ];
     return steps;
@@ -259,16 +260,16 @@ export default class EnterpriseClusters extends PureComponent {
       <Form {...formItemLayout}>
         <Col span={24}>
           <Paragraph className={styles.describe}>
-            <h5>账号说明：</h5>
+            <h5><FormattedMessage id='enterpriseColony.addCluster.description'/></h5>
             <ul>
               <li>
                 <span>
-                  开始此流程之前你必须确定你的阿里云账户是否支持按需购买资源，比如账户余额大于100元并通过实名认证
+                  <FormattedMessage id='enterpriseColony.addCluster.starting'/>
                 </span>
               </li>
               <li>
                 <span>
-                  确保以下服务已开通或授权已授予：
+                  <FormattedMessage id='enterpriseColony.addCluster.authorized'/>
                   {cloud.getAliyunCountDescribe().map(item => {
                     return (
                       <a
@@ -285,32 +286,32 @@ export default class EnterpriseClusters extends PureComponent {
               </li>
               <li>
                 <span>
-                  推荐在阿里云控制台企业RAM访问控制页面中创建独立的RAM用户，并创建用户AccessKey
+                  <FormattedMessage id='enterpriseColony.addCluster.recommended'/>
                 </span>
               </li>
               <li>
                 <span>
-                  请为RAM用户赋予:<b>AliyunCSFullAccess</b>、
+                  <FormattedMessage id='enterpriseColony.addCluster.user'/><b>AliyunCSFullAccess</b>、
                   <b>AliyunECSFullAccess</b>、<b>AliyunVPCFullAccess</b>、
                   <b>AliyunRDSFullAccess</b>、<b>AliyunNASFullAccess</b>、
-                  <b>AliyunSLBFullAccess</b>权限
+                  <b>AliyunSLBFullAccess</b><FormattedMessage id='enterpriseColony.addCluster.mode'/>
                 </span>
               </li>
               <li>
                 <span>
-                  我们将严格保护AccessKey安全，若你有安全顾虑，可以在集群对接完成后删除账号收回权限
+                  <FormattedMessage id='enterpriseColony.addCluster.strictly'/>
                 </span>
               </li>
               <li>
                 <span>
-                  如果对接已存在的Kubernetes集群，对集群已有业务不影响，另外会按需购买RDS(1个)，NAS(1个)，SLB(1个)，预计每小时费用
-                  <b>0.5</b>元
+                  <FormattedMessage id='enterpriseColony.addCluster.kubernetes'/>
+                  <b>0.5</b><FormattedMessage id='enterpriseColony.addCluster.element'/>
                 </span>
               </li>
               <li>
                 <span>
-                  如果新购买Kubernetes集群，我们会按需创建购买Kubernetes托管集群(1个)，RDS(1个)，NAS(1个)，SLB(1个)，预计每小时费用
-                  <b>2.5</b>元
+                  <FormattedMessage id='enterpriseColony.addCluster.purchased'/>
+                  <b>2.5</b><FormattedMessage id='enterpriseColony.addCluster.element'/>
                 </span>
               </li>
             </ul>
@@ -323,7 +324,7 @@ export default class EnterpriseClusters extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请提供具有足够权限的Access Key'
+                  message: formatMessage({id:'enterpriseColony.addCluster.access'})
                 }
               ]
             })(<Input placeholder="Access Key" />)}
@@ -336,7 +337,7 @@ export default class EnterpriseClusters extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '请提供具有足够权限的Secret Key'
+                  message: formatMessage({id:'enterpriseColony.addCluster.access'})
                 }
               ]
             })(
@@ -608,7 +609,7 @@ export default class EnterpriseClusters extends PureComponent {
               this.toClusterList('custom');
             }}
           >
-            通过 Kubeconfig 安装平台
+            <FormattedMessage id='enterpriseColony.addCluster.adopt'/>
           </a>
         </Menu.Item>
         <Menu.Item>
@@ -618,7 +619,7 @@ export default class EnterpriseClusters extends PureComponent {
               this.addClusterShow();
             }}
           >
-            接入已安装平台集群
+            <FormattedMessage id='enterpriseColony.addCluster.cluster'/>
           </a>
         </Menu.Item>
       </Menu>
@@ -632,13 +633,13 @@ export default class EnterpriseClusters extends PureComponent {
     );
     return (
       <PageHeaderLayout
-        title="添加集群"
-        content="集群是资源的集合，以Kubernetes集群为基础，部署平台Region服务即可成为平台集群资源。"
+        title={<FormattedMessage id='enterpriseColony.button.text'/>}
+        content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
         extraContent={extraContent}
       >
         <Card style={{ marginBottom: '16px' }}>
           <Row>
-            <h3>自建基础设施</h3>
+            <h3><FormattedMessage id='enterpriseColony.addCluster.infrastructure'/></h3>
             <Divider />
           </Row>
           <Row>
@@ -649,17 +650,17 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 <div className={styles.importicon}>{hostIcon}</div>
                 <div className={styles.importDesc}>
-                  <h3>从主机开始安装</h3>
-                  <p>提供至少一台主机，自动完成集群的安装和接入。</p>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.host'/></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.automatically'/></p>
                 </div>
               </div>
               {guideStep === 2 &&
                 clusters &&
                 clusters.length === 0 &&
                 this.handleNewbieGuiding({
-                  tit: '主机安装',
+                  tit: formatMessage({id:'enterpriseColony.addCluster.install'}),
                   configName: 'hostInstall',
-                  desc: '从主机开始是最常用的途径，你也可以选择其他几种方式。',
+                  desc: formatMessage({id:'enterpriseColony.addCluster.common'}),
                   nextStep: 3,
                   svgPosition: { marginLeft: '58px' }
                 })}
@@ -673,8 +674,8 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 <div className={styles.importicon}>{kubernetesIcon}</div>
                 <div className={styles.importDesc}>
-                  <h3>接入Kubernetes集群</h3>
-                  <p>对接和管理自建的 Kubernetes 集群。</p>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.colony'/></h3>
+                  <p> <FormattedMessage id='enterpriseColony.addCluster.management'/></p>
                 </div>
               </div>
             </Col>
@@ -682,7 +683,7 @@ export default class EnterpriseClusters extends PureComponent {
         </Card>
         <Card>
           <Row>
-            <h3>云服务商基础设施</h3>
+            <h3><FormattedMessage id='enterpriseColony.addCluster.service'/></h3>
             <Divider />
           </Row>
           <Row style={{ display: 'flex', justifyContent: 'space-around' }}>
@@ -695,8 +696,8 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 <div className={styles.importicon}>{aliIcon}</div>
                 <div className={styles.importDesc}>
-                  <h3>阿里云</h3>
-                  <p>对接和管理ACK集群。</p>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.ali'/></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.manage'/></p>
                 </div>
               </div>
             </Col>
@@ -709,8 +710,8 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 <div className={styles.importicon}>{huaweiIcon}</div>
                 <div className={styles.importDesc}>
-                  <h3>华为云</h3>
-                  <p>对接和管理CCE集群。</p>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.huawei'/></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.Docking'/></p>
                 </div>
               </div>
             </Col>
@@ -723,8 +724,8 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 <div className={styles.importicon}>{tencentIcon}</div>
                 <div className={styles.importDesc}>
-                  <h3>腾讯云</h3>
-                  <p>对接和管理TKE集群。</p>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.tenxun'/></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.clusters'/></p>
                 </div>
               </div>
             </Col>

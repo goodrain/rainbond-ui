@@ -4,6 +4,7 @@ import { List } from 'antd';
 import React, { PureComponent } from 'react';
 import WaterWave from '../Charts/WaterWave';
 import style from './index.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 class InstanceList extends PureComponent {
   constructor(arg) {
@@ -23,7 +24,8 @@ class InstanceList extends PureComponent {
   showName = podName => {
     const arr =podName && podName.split('-')
     const num = arr[arr.length -1];
-    return `实例${num}`;
+    return <FormattedMessage id='componentOverview.body.Expansion.InstanceList.example' values={{num:num}}/>;
+
   };
   getContainerMem = containers => {
     let memRate = 0;
@@ -45,11 +47,11 @@ class InstanceList extends PureComponent {
   };
   render() {
     const statusObj = {
-      Running: '正常运行',
-      Pending: '启动中',
-      Succeeded: '运行成功',
-      Failed: '运行失败',
-      Unknown: '未知'
+      Running: formatMessage({id:'componentOverview.body.Expansion.InstanceList.normal'}),
+      Pending: formatMessage({id:'componentOverview.body.Expansion.InstanceList.starting'}),
+      Succeeded: formatMessage({id:'componentOverview.body.Expansion.InstanceList.successfully'}),
+      Failed: formatMessage({id:'componentOverview.body.Expansion.InstanceList.failed'}),
+      Unknown: formatMessage({id:'componentOverview.body.Expansion.InstanceList.unknown'})
     };
     return (
       <List
@@ -60,7 +62,7 @@ class InstanceList extends PureComponent {
             <WaterWave
               className={style.instance}
               height={120}
-              title="运行内存"
+              title={<FormattedMessage id='componentOverview.body.Expansion.InstanceList.memory'/>}
               percent={this.getContainerMem(item.container)}
               memorySum={this.getMemorySum(item.container)}
             />

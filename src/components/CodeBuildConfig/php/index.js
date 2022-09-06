@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { Form, Radio, Switch } from 'antd';
 import { connect } from 'dva';
 const RadioGroup = Radio.Group;
@@ -30,8 +31,8 @@ class Index extends PureComponent {
       <div>
         <Form.Item
           {...formItemLayout}
-          label="禁用缓存"
-          help="开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库"
+          label={<FormattedMessage id="componentOverview.body.GoConfig.Disable"/>}
+          help={<FormattedMessage id="componentOverview.body.GoConfig.remove"/>}
         >
           {getFieldDecorator('BUILD_NO_CACHE', {
             initialValue: envs && envs.BUILD_NO_CACHE ? true : false
@@ -41,12 +42,12 @@ class Index extends PureComponent {
             />
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="Web服务器支持">
+        <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.PHPConfig.web"/>}>
           {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
             initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || 'apache'
           })(
             <RadioGroup>
-              <Radio value="apache">apache(默认)</Radio>
+              <Radio value="apache">apache<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
               <Radio value="nginx">nginx</Radio>
             </RadioGroup>
           )}
@@ -54,15 +55,15 @@ class Index extends PureComponent {
 
         <Form.Item
           {...formItemLayout}
-          label="PHP版本"
-          help="源码主目录composer.json文件中必须定义php版本"
+          label={<FormattedMessage id="componentOverview.body.PHPConfig.php"/>}
+          help={<FormattedMessage id="componentOverview.body.PHPConfig.definition"/>}
         >
           {getFieldDecorator('BUILD_RUNTIMES', {
             initialValue: (envs && envs.BUILD_RUNTIMES) || ''
           })(
             <RadioGroup>
               <Radio value="5.6.35" selected="selected">
-                5.6.35(默认)
+                5.6.35<FormattedMessage id='componentOverview.body.GoConfig.default'/>
               </Radio>
               <Radio value="5.5.38">5.5.38</Radio>
               <Radio value="7.0.29">7.0.29</Radio>

@@ -1,11 +1,12 @@
 import cookie from './cookie';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const actionMap = {
-  admin: '管理员',
-  developer: '开发者',
-  viewer: '观察者',
-  access: '访问者',
-  owner: '拥有者',
+  admin: formatMessage({id:'utils.role.admin'}),
+  developer: formatMessage({id:'utils.role.developer'}),
+  viewer: formatMessage({id:'utils.role.viewer'}),
+  access: formatMessage({id:'utils.role.access'}),
+  owner: formatMessage({id:'utils.role.owner'}),
 };
 
 const teamUtil = {

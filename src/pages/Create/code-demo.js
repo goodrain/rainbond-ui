@@ -55,7 +55,7 @@ export default class Index extends PureComponent {
             width:
               this.props.handleType && this.props.handleType === 'Service'
                 ? 'auto'
-                : '500px',
+                : '600px',
           }}
         >
           <CodeDemoForm

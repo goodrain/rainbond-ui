@@ -2,6 +2,7 @@ import { Alert, Button, notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Component, Fragment } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AccesstokenForm from '../../../components/AccesstokenForm';
 import ConfirmModal from '../../../components/ConfirmModal';
 
@@ -53,7 +54,7 @@ class BindingView extends Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: '删除成功' });
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
           this.loadAccessTokenList();
           this.onCanceAccessToken();
         }
@@ -123,13 +124,13 @@ class BindingView extends Component {
     const { dataSource, openDeleteAccessToken, visible, ID } = this.state;
     const columns = [
       {
-        title: '用途',
+        title: formatMessage({id:'otherEnterprise.AccesstokenView.note'}),
         dataIndex: 'note',
         key: 'note',
         width: '30%'
       },
       {
-        title: '过期时间',
+        title: formatMessage({id:'otherEnterprise.AccesstokenView.expire_time'}),
         dataIndex: 'expire_time',
         key: 'expire_time',
         width: '25%',
@@ -140,11 +141,11 @@ class BindingView extends Component {
               .locale('zh-cn')
               .format('YYYY-MM-DD HH:mm:ss');
           }
-          return '不限制';
+          return `${formatMessage({id:'otherEnterprise.AccesstokenView.Unlimited'})}`;
         }
       },
       {
-        title: '状态',
+        title: formatMessage({id:'otherEnterprise.AccesstokenView.user_id'}),
         dataIndex: 'user_id',
         key: 'user_id',
         width: '20%',
@@ -159,14 +160,14 @@ class BindingView extends Component {
                   color: isOverdue ? '#f81d22' : ' #0b8235'
                 }}
               >
-                {isOverdue ? '过期' : '正常'}
+                {isOverdue ? <FormattedMessage id="otherEnterprise.AccesstokenView.overdue"/> : <FormattedMessage id="otherEnterprise.AccesstokenView.normal"/>}
               </div>
             </Fragment>
           );
         }
       },
       {
-        title: '操作',
+        title:formatMessage({id:'otherEnterprise.AccesstokenView.var'}),
         dataIndex: 'var',
         width: '20%',
 
@@ -176,7 +177,7 @@ class BindingView extends Component {
               onClick={() => this.openDeleteAccessToken(data.ID)}
               style={{ margintRight: 10 }}
             >
-              删除
+              {formatMessage({id:'otherEnterprise.AccesstokenView.delete'})}
             </a>
             <a
               onClick={() => {
@@ -184,7 +185,7 @@ class BindingView extends Component {
               }}
               style={{ margintRight: 10 }}
             >
-              重新生成
+              {formatMessage({id:'otherEnterprise.AccesstokenView.Regenerate'})}
             </a>
           </Fragment>
         )
@@ -194,7 +195,7 @@ class BindingView extends Component {
     return (
       <Fragment>
         <Alert
-          message="访问令牌用于访问平台API, 访问令牌的权限与你的账号权限一致"
+          message={formatMessage({id:'otherEnterprise.AccesstokenView.api'})}
           type="info"
           showIcon
           style={{ margin: '20px' }}
@@ -205,7 +206,7 @@ class BindingView extends Component {
             type="primary"
             onClick={this.addAccessToken}
           >
-            新增
+            {formatMessage({id:'otherEnterprise.AccesstokenView.add'})}
           </Button>
         </Row>
         <Table dataSource={dataSource} columns={columns} pagination={false} />
@@ -218,8 +219,8 @@ class BindingView extends Component {
         )}
         {openDeleteAccessToken && (
           <ConfirmModal
-            title="删除令牌"
-            desc="确定要删除访问令牌?"
+            title={formatMessage({ id: 'confirmModal.token.delete.title' })}
+            desc={formatMessage({ id: 'confirmModal.delete.token.desc' })}
             loading={deleteAccessLoading}
             onCancel={this.onCanceAccessToken}
             onOk={this.handleDeleteAccessToken}

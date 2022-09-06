@@ -1,6 +1,9 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Form, Modal, Input, Checkbox } from 'antd';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import cookie from '../../utils/cookie';
+
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -11,7 +14,8 @@ export default class EditAppVersion extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      Checkboxvalue: !!(props.appInfo && props.appInfo.dev_status)
+      Checkboxvalue: !!(props.appInfo && props.appInfo.dev_status),
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onChangeCheckbox = () => {
@@ -33,7 +37,7 @@ export default class EditAppVersion extends PureComponent {
 
   render() {
     const { onCancel, form, appInfo, loading } = this.props;
-    const { Checkboxvalue } = this.state;
+    const { Checkboxvalue,language } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -45,29 +49,40 @@ export default class EditAppVersion extends PureComponent {
         sm: { span: 16 }
       }
     };
+    const formItemLayouts = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 8 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 14 }
+      }
+    };
+    const is_language = language ? formItemLayout : formItemLayouts
     return (
       <Modal
-        title="编辑版本"
+        title={formatMessage({id:'applicationMarket.EditAppVersion.edit'})}
         visible
         onOk={this.handleSubmit}
         onCancel={onCancel}
         confirmLoading={loading}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="版本别名">
+          <FormItem {...is_language} label={formatMessage({id:'applicationMarket.EditAppVersion.name'})}>
             {getFieldDecorator('version_alias', {
               initialValue: (appInfo && appInfo.version_alias) || '',
               rules: [
-                { required: true, message: '请填写版本别名' },
+                { required: true, message: formatMessage({id:'applicationMarket.EditAppVersion.input_name'}) },
                 {
                   max: 64,
-                  message: '最大长度64位'
+                  message: formatMessage({id:'applicationMarket.EditAppVersion.max'})
                 }
               ]
-            })(<Input placeholder="请填写版本别名" />)}
+            })(<Input placeholder={formatMessage({id:'applicationMarket.EditAppVersion.input_name'})} />)}
           </FormItem>
 
-          <FormItem {...formItemLayout} label="状态">
+          <FormItem {...is_language} label={formatMessage({id:'applicationMarket.EditAppVersion.state'})}>
             {getFieldDecorator('dev_status', {
               initialValue: appInfo && appInfo.dev_status ? true : ''
             })(
@@ -79,23 +94,23 @@ export default class EditAppVersion extends PureComponent {
               </Checkbox>
             )}
             <div className={styles.conformDesc}>
-              release代表版本测试完成，可以进行交付。
+              {formatMessage({id:'applicationMarket.EditAppVersion.release'})}
             </div>
           </FormItem>
-          <FormItem {...formItemLayout} label="版本简介">
+          <FormItem {...is_language} label={formatMessage({id:'applicationMarket.EditAppVersion.introduction'})}>
             {getFieldDecorator('app_version_info', {
               initialValue: (appInfo && appInfo.app_version_info) || '',
               rules: [
                 {
                   required: false,
-                  message: '请输入版本简介'
+                  message: formatMessage({id:'applicationMarket.EditAppVersion.input_introduction'})
                 },
                 {
                   max: 255,
-                  message: '最大长度255位'
+                  message: formatMessage({id:'applicationMarket.EditAppVersion.max_length'})
                 }
               ]
-            })(<TextArea placeholder="请输入版本简介" />)}
+            })(<TextArea placeholder={formatMessage({id:'applicationMarket.EditAppVersion.input_introduction'})} />)}
           </FormItem>
         </Form>
       </Modal>

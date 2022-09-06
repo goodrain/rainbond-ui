@@ -28,6 +28,36 @@
     }
   }
 }
+// 每行
+.en_antd_row {
+  display: flex;
+  border-bottom: 1px dashed #e4e4e4;
+  // margin-bottom: 30px;
+  // align-items: center;
+  padding: 36px 12px;
+  // 标题
+  & > div {
+    width: 240px;
+    text-align: left;
+    & > span {
+      display: inline-block;
+      // border: 1px solid #c1c4c5;
+      padding: 6px 0px;
+    }
+  }
+  // 表单
+  .antd_form {
+    flex: 1;
+  }
+  :global {
+    .ant-form-item {
+      margin-bottom: 0px !important;
+    }
+    .ant-form-extra {
+      width: 720px;
+    }
+  }
+}
 // .antd_row:hover {
 //   border: 1px solid #5672ac;
 // }
@@ -36,7 +66,8 @@
   text-align: center;
   margin-top: 20px;
   .antd_btn {
-    width: 88px;
+    // width: 88px
+    padding: 0 5px;
     margin-left: 10px;
   }
 }
@@ -62,6 +93,14 @@
       text-align: left;
       // line-height: 56px;
     }
+    .en_titleSpan {
+      font-weight: bold;
+      font-size: 16px;
+      display: block;
+      width: 240px;
+      text-align: left;
+      // line-height: 56px;
+    }
   }
   // // 配置项
   .config {
@@ -70,6 +109,26 @@
     flex: 1;
     // padding-top: 24px;
   }
+  .enconfig {
+    margin-left: 170px;
+    margin-top: 40px;
+    flex: 1;
+    // padding-top: 24px;
+  }
+  .config_en {
+    margin-left: 105px;
+    margin-top: 40px;
+    flex: 1;
+    // padding-top: 24px;
+  }
+  
+  .en_config {
+    margin-left: 205px;
+    margin-top: 40px;
+    flex: 1;
+    // padding-top: 24px;
+  }
+
 }
 
 .desc {

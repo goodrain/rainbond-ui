@@ -13,6 +13,7 @@ import MonitoringForm from '../../components/MonitoringForm';
 import PlatformBasicInformationForm from '../../components/PlatformBasicInformationForm';
 import rainbondUtil from '../../utils/rainbond';
 import styles from './index.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import OauthTable from './oauthTable';
 
 @connect(({ user, list, loading, global, index }) => ({
@@ -98,7 +99,7 @@ class Infrastructure extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: enable ? '开启Oauth2.0认证' : '关闭成功'
+            message: enable ? formatMessage({id:'notification.success.Oauth2'}) : formatMessage({id:'notification.success.close'})
           });
           this.fetchEnterpriseInfo();
         }
@@ -130,10 +131,10 @@ class Infrastructure extends PureComponent {
         if (res && res.status_code === 200) {
           notification.success({
             message: !isEnableAppstoreImageHub
-              ? '开通成功'
+              ? formatMessage({id:'notification.success.opened_successfully'})
               : enable && value
-              ? '修改成功'
-              : '关闭成功'
+              ? formatMessage({id:'notification.success.change'})
+              : formatMessage({id:'notification.success.close'})
           });
           this.fetchEnterpriseInfo();
           this.handelCloseImageHub();
@@ -163,10 +164,10 @@ class Infrastructure extends PureComponent {
         if (res && res.status_code === 200) {
           notification.success({
             message: !isEnableMonitoring
-              ? '开通成功'
+              ? formatMessage({id:'notification.success.opened_successfully'})
               : enable && value
-              ? '修改成功'
-              : '关闭成功'
+              ? formatMessage({id:'notification.success.change'})
+              : formatMessage({id:'notification.success.close'})
           });
           this.fetchEnterpriseInfo();
           this.handelCloseMonitoring();
@@ -200,10 +201,10 @@ class Infrastructure extends PureComponent {
         if (res && res.status_code === 200) {
           notification.success({
             message: !isEnableObjectStorage
-              ? '开通成功'
+              ? formatMessage({id:'notification.success.opened_successfully'})
               : enable && value
-              ? '修改成功'
-              : '关闭成功'
+              ? formatMessage({id:'notification.success.change'})
+              : formatMessage({id:'notification.success.close'})
           });
           this.fetchEnterpriseInfo();
           this.handelCloseCloudBackup();
@@ -367,10 +368,10 @@ class Infrastructure extends PureComponent {
         if (res && res._condition === 200) {
           notification.success({
             message: !values
-              ? '关闭成功'
+              ? formatMessage({id:'notification.success.close'})
               : !AutomaticCertificate
-              ? '开通成功'
-              : '编辑成功'
+              ? formatMessage({id:'notification.success.opened_successfully'})
+              : formatMessage({id:'notification.success.edit'})
           });
           this.fetchEnterpriseInfo();
         }
@@ -381,7 +382,7 @@ class Infrastructure extends PureComponent {
   isJSON = str => {
     const clues = () => {
       notification.warning({
-        message: '格式错误、请输入正确的JSON格式'
+        message: formatMessage({id:'notification.error.json_format_failed'})
       });
     };
     if (typeof str === 'string') {
@@ -469,10 +470,14 @@ class Infrastructure extends PureComponent {
         style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' }}
       >
         <Row type="flex" align="middle">
-          <Col span={3}>用户注册</Col>
+          <Col span={3}>
+            {/* 用户注册 */}
+            <FormattedMessage id='enterpriseSetting.basicsSetting.login.title'/>
+          </Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              控制用户是否可以注册功能。
+              {/* 控制用户是否可以注册功能。 */}
+              <FormattedMessage id='enterpriseSetting.basicsSetting.login.content'/>
             </span>
           </Col>
 
@@ -494,10 +499,14 @@ class Infrastructure extends PureComponent {
           bordered={false}
         >
           <Row type="flex" align="middle">
-            <Col span={3}>Oauth 第三方服务集成</Col>
+            <Col span={3}>
+              {/* Oauth 第三方服务集成 */}
+              <FormattedMessage id='enterpriseSetting.basicsSetting.serve.title'/>
+            </Col>
             <Col span={17}>
               <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-                支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目。支持钉钉、Aliyun等服务进行第三方登录认证。
+                {/* 支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目。支持钉钉、Aliyun等服务进行第三方登录认证。 */}
+              <FormattedMessage id='enterpriseSetting.basicsSetting.serve.content'/>
               </span>
             </Col>
             <Col span={4} style={{ textAlign: 'right' }}>
@@ -508,7 +517,8 @@ class Infrastructure extends PureComponent {
                   }}
                   style={{ marginRight: '10px' }}
                 >
-                  查看配置
+                  {/* 查看配置 */}
+                  <FormattedMessage id='enterpriseSetting.basicsSetting.checkTheConfiguration'/>
                 </a>
               )}
               <Switch
@@ -527,10 +537,14 @@ class Infrastructure extends PureComponent {
     const AutomaticIssueCertificate = (
       <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
         <Row type="flex" align="middle">
-          <Col span={3}>自动签发证书</Col>
+          <Col span={3}>
+            {/* 自动签发证书 */}
+            <FormattedMessage id='enterpriseSetting.basicsSetting.certificate.title'/>
+          </Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              这是一个外部扩充功能，实现网关策略所需证书的自动签发。
+              {/* 这是一个外部扩充功能，实现网关策略所需证书的自动签发。 */}
+              <FormattedMessage id='enterpriseSetting.basicsSetting.certificate.content'/>
             </span>
           </Col>
           <Col span={4} style={{ textAlign: 'right' }}>
@@ -539,7 +553,8 @@ class Infrastructure extends PureComponent {
                 onClick={this.handelOpenCertificate}
                 style={{ marginRight: '10px' }}
               >
-                查看配置
+                {/* 查看配置 */}
+                <FormattedMessage id='enterpriseSetting.basicsSetting.checkTheConfiguration'/>
               </a>
             )}
 
@@ -560,10 +575,14 @@ class Infrastructure extends PureComponent {
     const MirrorWarehouseInformation = (
       <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
         <Row type="flex" align="middle">
-          <Col span={3}>内部组件库镜像仓库</Col>
+          <Col span={3}>
+            {/* 内部组件库镜像仓库 */}
+            <FormattedMessage id='enterpriseSetting.basicsSetting.mirroring.title'/>
+          </Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              用于存储发布到组件库的应用模型镜像，其需要能被所有集群访问。
+              {/* 用于存储发布到组件库的应用模型镜像，其需要能被所有集群访问。 */}
+              <FormattedMessage id='enterpriseSetting.basicsSetting.mirroring.content'/>
             </span>
           </Col>
           <Col span={4} style={{ textAlign: 'right' }}>
@@ -572,7 +591,8 @@ class Infrastructure extends PureComponent {
                 onClick={this.handelOpenImageHub}
                 style={{ marginRight: '10px' }}
               >
-                查看配置
+                {/* 查看配置 */}
+                <FormattedMessage id='enterpriseSetting.basicsSetting.checkTheConfiguration'/>
               </a>
             )}
 
@@ -592,10 +612,14 @@ class Infrastructure extends PureComponent {
     const CloudBackup = (
       <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
         <Row type="flex" align="middle">
-          <Col span={3}>对象存储</Col>
+          <Col span={3}>
+            {/* 对象存储 */}
+            <FormattedMessage id='enterpriseSetting.basicsSetting.storage.title'/>
+          </Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              对象存储用于云端备份功能，存储应用的备份文件。
+              {/* 对象存储用于云端备份功能，存储应用的备份文件。 */}
+            <FormattedMessage id='enterpriseSetting.basicsSetting.storage.content'/>
             </span>
           </Col>
           <Col span={4} style={{ textAlign: 'right' }}>
@@ -604,7 +628,8 @@ class Infrastructure extends PureComponent {
                 onClick={this.handelOpenCloudBackup}
                 style={{ marginRight: '10px' }}
               >
-                查看配置
+                {/* 查看配置 */}
+                <FormattedMessage id='enterpriseSetting.basicsSetting.checkTheConfiguration'/>
               </a>
             )}
 
@@ -624,10 +649,14 @@ class Infrastructure extends PureComponent {
     const Monitoring = (
       <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
         <Row type="flex" align="middle">
-          <Col span={3}>监控</Col>
+          <Col span={3}>
+            {/* 监控 */}
+            <FormattedMessage id='enterpriseSetting.basicsSetting.monitoring.title'/>
+          </Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              用于监控：集群、节点、组件、服务数据。
+              {/* 用于监控：集群、节点、组件、服务数据。 */}
+              <FormattedMessage id='enterpriseSetting.basicsSetting.monitoring.content'/>
             </span>
           </Col>
           <Col span={4} style={{ textAlign: 'right' }}>
@@ -636,7 +665,8 @@ class Infrastructure extends PureComponent {
                 onClick={this.handelOpenisEnableMonitoring}
                 style={{ marginRight: '10px' }}
               >
-                查看配置
+                {/* 查看配置 */}
+                <FormattedMessage id='enterpriseSetting.basicsSetting.checkTheConfiguration'/>
               </a>
             )}
 
@@ -656,10 +686,14 @@ class Infrastructure extends PureComponent {
     const BasicInformation = (
       <Card style={{ marginTop: '10px' }} hoverable bordered={false}>
         <Row type="flex" align="middle">
-          <Col span={3}>基础信息</Col>
+          <Col span={3}>
+            {/* 基础信息 */}
+            <FormattedMessage id='enterpriseSetting.basicsSetting.basicInformation.title'/>
+          </Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              可以修改网站的标题、企业名称、LOGO、网页图标。
+              {/* 可以修改网站的标题、企业名称、LOGO、网页图标。 */}
+              <FormattedMessage id='enterpriseSetting.basicsSetting.basicInformation.content'/>
             </span>
           </Col>
           <Col span={4} style={{ textAlign: 'right' }}>
@@ -667,7 +701,8 @@ class Infrastructure extends PureComponent {
               onClick={this.handelOpenBasicInformation}
               style={{ marginRight: '10px' }}
             >
-              查看配置
+              {/* 查看配置 */}
+              <FormattedMessage id='enterpriseSetting.basicsSetting.checkTheConfiguration'/>
             </a>
           </Col>
         </Row>
@@ -692,8 +727,8 @@ class Infrastructure extends PureComponent {
             eid={eid}
             title={
               !isEnableAppstoreImageHub
-                ? '开通组件库镜像仓库'
-                : '组件库镜像仓库'
+                ? formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.modal.title'})
+                : formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.modal.comp_title'})
             }
             loading={imageHubLongin}
             onCancel={this.handelCloseImageHub}
@@ -706,7 +741,7 @@ class Infrastructure extends PureComponent {
         {openEnableMonitoring && (
           <MonitoringForm
             eid={eid}
-            title="监控配置"
+            title={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.modal.title'})}
             loading={monitoringLongin}
             onCancel={this.handelCloseMonitoring}
             data={MonitoringValue}
@@ -718,7 +753,7 @@ class Infrastructure extends PureComponent {
         {openCloudBackup && (
           <CloudBackupForm
             eid={eid}
-            title={!isEnableObjectStorage ? '配置云端备份对象存储' : '对象存储'}
+            title={!isEnableObjectStorage ? formatMessage({id:'enterpriseSetting.basicsSetting.storage.modal.title'}) : formatMessage({id:'enterpriseSetting.basicsSetting.storage.title'})}
             loading={objectStorageLongin}
             onCancel={this.handelCloseCloudBackup}
             data={ObjectStorageValue}
@@ -730,7 +765,7 @@ class Infrastructure extends PureComponent {
         )}
         {openBasicInformation && (
           <PlatformBasicInformationForm
-            title="基础信息"
+            title={formatMessage({id:'enterpriseSetting.basicsSetting.basicInformation.title'})}
             eid={eid}
             loading={objectStorageLongin}
             data={infos}
@@ -758,18 +793,18 @@ class Infrastructure extends PureComponent {
                 ? objectStorageLongin
                 : false
             }
-            title="关闭"
+            title={formatMessage({ id: 'confirmModal.close.delete.title' })}
             desc={
               closeMonitoring
-                ? '确定要关闭监控？'
+                ? formatMessage({ id: 'confirmModal.delete.monitor.desc' })
                 : closeImageHub
-                ? '确定要关闭组件库镜像仓库？'
+                ? formatMessage({ id: 'confirmModal.delete.component_ibrary_mirror.desc' })
                 : closeCertificate
-                ? '确定要关闭自动签发证书？'
+                ? formatMessage({ id: 'confirmModal.delete.automatic_issued.desc' })
                 : showDeleteDomain
-                ? '确定要关闭Oauth2.0认证？'
+                ? formatMessage({ id: 'confirmModal.delete.Oauth.desc' })
                 : closeCloudBackup
-                ? '确定要关闭对象存储？'
+                ? formatMessage({ id: 'confirmModal.delete.object_storage.desc' })
                 : ''
             }
             onOk={() => {

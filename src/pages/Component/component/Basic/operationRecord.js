@@ -6,6 +6,8 @@ import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
 import LogShow from '../LogShow';
 import styles from './operation.less';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+
 
 @connect()
 @Form.create()
@@ -48,7 +50,7 @@ class Index extends PureComponent {
 
   showUserName = UserName => {
     if (UserName === 'system') {
-      return '@系统';
+      return <FormattedMessage id='componentOverview.body.tab.overview.handle.system'/>;
     }
     if (UserName) {
       return `@${UserName}`;
@@ -67,7 +69,10 @@ class Index extends PureComponent {
       failure: 'logfailed'
     };
     return (
-      <Card bordered={false} title="操作记录" loading={recordLoading}>
+      <Card 
+      bordered={false} 
+      title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord'/>} 
+      loading={recordLoading}>
         <Row gutter={24}>
           <Col xs={24} xm={24} md={24} lg={24} xl={24}>
             {logList &&
@@ -163,7 +168,8 @@ class Index extends PureComponent {
                           placement="top"
                           arrowPointAtCenter
                           autoAdjustOverflow={false}
-                          title="查看日志"
+                          // title="查看日志"
+                          title={<FormattedMessage id='componentOverview.body.tab.overview.handle.lookLog'/>} 
                           getPopupContainer={() =>
                             document.querySelector('.table-wrap')
                           }
@@ -194,7 +200,8 @@ class Index extends PureComponent {
                     textAlign: 'center'
                   }}
                 >
-                  暂无操作记录
+                  {/* 暂无操作记录 */}
+                  <FormattedMessage id='componentOverview.body.tab.overview.handle.handler'/>
                 </div>
               ))}
             {has_next && (
@@ -217,7 +224,8 @@ class Index extends PureComponent {
         </Row>
         {logVisible && (
           <LogShow
-            title="日志"
+            // title="日志"
+            title={<FormattedMessage id='componentOverview.body.tab.overview.handle.log'/>} 
             width="1000px"
             onOk={this.handleCancel}
             onCancel={this.handleCancel}

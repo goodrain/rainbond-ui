@@ -1,38 +1,39 @@
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 const categoryMap = {
-  'net-plugin:up': '入口网络',
-  'net-plugin:in-and-out': '出口入口共治网络',
-  'net-plugin:down': '出口网络',
-  'analyst-plugin:perf': '性能分析',
-  'init-plugin': '初始化类型',
-  'general-plugin': '一般类型',
-  'exporter-plugin': '监控',
-  downstream_net_plugin: '网络治理',
-  perf_analyze_plugin: '性能分析',
-  inandout_net_plugin: '出口入口共治网络',
+  'net-plugin:up': formatMessage({id:'utils.plugin.up'}),
+  'net-plugin:in-and-out': formatMessage({id:'utils.plugin.in-and-out'}),
+  'net-plugin:down': formatMessage({id:'utils.plugin.down'}),
+  'analyst-plugin:perf': formatMessage({id:'utils.plugin.perf'}),
+  'init-plugin': formatMessage({id:'utils.plugin.init'}),
+  'general-plugin': formatMessage({id:'utils.plugin.general-plugin'}),
+  'exporter-plugin': formatMessage({id:'utils.plugin.exporter-plugin'}),
+  downstream_net_plugin: formatMessage({id:'utils.plugin.downstream_net_plugin'}),
+  perf_analyze_plugin: formatMessage({id:'utils.plugin.perf'}),
+  inandout_net_plugin: formatMessage({id:'utils.plugin.in-and-out'}),
 };
 
 const inType = {
-  env: '环境变量',
-  auto: '主动发现',
+  env: formatMessage({id:'utils.plugin.env'}),
+  auto: formatMessage({id:'utils.plugin.auto'}),
 };
 
 const metaType = {
-  un_define: '不依赖',
-  upstream_port: '应用端口',
-  downstream_port: '下游应用端口',
+  un_define: formatMessage({id:'utils.plugin.un_define'}),
+  upstream_port: formatMessage({id:'utils.plugin.upstream_port'}),
+  downstream_port: formatMessage({id:'utils.plugin.downstream_port'}),
 };
 
 const buildStatusMap = {
-  unbuild: '未构建',
-  building: '构建中',
-  build_success: '构建成功',
-  build_fail: '构建失败',
-  time_out: '构建超时',
+  unbuild: formatMessage({id:'utils.plugin.unbuild'}),
+  building: formatMessage({id:'utils.plugin.building'}),
+  build_success: formatMessage({id:'notification.success.build_success'}),
+  build_fail: formatMessage({id:'utils.plugin.build_fail'}),
+  time_out: formatMessage({id:'utils.plugin.time_out'}),
 };
 
 const versionStatusMap = {
-  fixed: '固定',
-  unfixed: '未固定',
+  fixed: formatMessage({id:'utils.plugin.fixed'}),
+  unfixed: formatMessage({id:'utils.plugin.unfixed'}),
 };
 
 const mountMap = [
@@ -59,13 +60,13 @@ const mountMap = [
 ];
 export default {
   getCategoryCN(category) {
-    return categoryMap[category] || '未知类型';
+    return categoryMap[category] || `${formatMessage({id:'utils.plugin.type'})}`;
   },
   getMetaTypeCN(v) {
-    return metaType[v] || '未知';
+    return metaType[v] || `${formatMessage({id:'utils.plugin.unknown'})}`;
   },
   getInjectionCN(v) {
-    return inType[v] || '未知';
+    return inType[v] || `${formatMessage({id:'utils.plugin.unknown'})}`;
   },
   // 是否从云市安装的插件
   isMarketPlugin(bean) {
@@ -73,11 +74,11 @@ export default {
   },
   // 获取插件版本构建状态的中文描述
   getBuildStatusCN(status) {
-    return buildStatusMap[status] || '未知';
+    return buildStatusMap[status] || `${formatMessage({id:'utils.plugin.unknown'})}`;
   },
   // 获取插件版本构建状态的中文描述
   getVersionStatusCN(status) {
-    return versionStatusMap[status] || '未知';
+    return versionStatusMap[status] || `${formatMessage({id:'utils.plugin.unknown'})}`;
   },
   // 是否可以修改基本信息和配置组信息, 已经版本固定的不能进行修改
   canEditInfoAndConfig(bean) {

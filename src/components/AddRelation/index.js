@@ -14,6 +14,8 @@ import {
 import React, { PureComponent } from 'react';
 import { getUnRelationedApp } from '../../services/app';
 import globalUtil from '../../utils/global';
+import cookie from '../../utils/cookie';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -29,7 +31,8 @@ export default class AddRelation extends PureComponent {
       page_size: 6,
       total: 0,
       search_key: '',
-      condition: ''
+      condition: '',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -38,7 +41,7 @@ export default class AddRelation extends PureComponent {
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
       notification.warning({
-        message: '请选择要依赖的应用'
+        message: formatMessage({id:'notification.warn.relyOn'})
       });
       return;
     }
@@ -94,7 +97,8 @@ export default class AddRelation extends PureComponent {
     };
     return (
       <Modal
-        title="添加依赖"
+        // title="添加依赖"
+        title={<FormattedMessage id='componentOverview.body.addRelation.title'/>}
         width={1000}
         visible
         onOk={this.handleSubmit}
@@ -111,26 +115,26 @@ export default class AddRelation extends PureComponent {
               type="text"
               onChange={this.handleKeyChange}
               value={this.state.search_key}
-              placeholder="请输入关键字"
+              placeholder={formatMessage({id:'componentOverview.body.addRelation.placeholder'})}
             />
           </FormItem>
           <FormItem>
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               size="small"
-              style={{ width: 100 }}
+              style={this.state.language ? { width: 100 } : { width: 200 }}
               value={this.state.condition}
               onChange={this.handleConditionChange}
             >
-              <Option value="">全部</Option>
-              <Option value="group_name">应用名称</Option>
-              <Option value="service_name">组件名称</Option>
+              <Option value=""><FormattedMessage id='componentOverview.body.addRelation.option'/></Option>
+              <Option value="group_name"><FormattedMessage id='componentOverview.body.addRelation.group_name'/></Option>
+              <Option value="service_name"><FormattedMessage id='componentOverview.body.addRelation.service_name'/></Option>
             </Select>
           </FormItem>
           <FormItem>
             <Button size="small" htmlType="submit">
               <Icon type="search" />
-              搜索
+              <FormattedMessage id='componentOverview.body.addRelation.search'/>
             </Button>
           </FormItem>
         </Form>
@@ -146,11 +150,11 @@ export default class AddRelation extends PureComponent {
           rowSelection={rowSelection}
           columns={[
             {
-              title: '应用名称',
+              title: formatMessage({id:'componentOverview.body.addRelation.table_service_name'}),
               dataIndex: 'group_name'
             },
             {
-              title: '组件名称',
+              title: formatMessage({id:'componentOverview.body.addRelation.table_group_name'}),
               dataIndex: 'service_cname'
             }
           ]}

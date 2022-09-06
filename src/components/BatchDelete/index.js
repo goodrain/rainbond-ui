@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { connect } from 'dva';
 import { Button, Modal, Table, Row, Col } from 'antd';
 import { reDelete } from '../../services/app';
@@ -66,7 +67,7 @@ export default class MoveGroup extends PureComponent {
         this.state.apps.map((item) => {
           if (item.service_id == id) {
             item.status = 200;
-            item.msg = '删除成功';
+            item.msg = formatMessage({id:'notification.success.delete'});
           }
           newapps.push(item);
         });
@@ -97,7 +98,7 @@ export default class MoveGroup extends PureComponent {
                 title: '反馈信息',
                 dataIndex: 'msg',
                 render: (val) => {
-                  const map = { success: '删除成功' };
+                  const map = { success: formatMessage({id:'notification.success.delete'}) };
                   return <span>{map[val] || val}</span>;
                 }
               },

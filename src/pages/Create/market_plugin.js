@@ -24,6 +24,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import AuthCompany from '../../components/AuthCompany';
 import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
 import CreateAppFromPlugin from '../../components/CreateAppFromPlugin';
@@ -102,7 +103,7 @@ export default class Main extends PureComponent {
       localAppTab: [
         {
           key: 'localApplication',
-          tab: '本地组件库'
+          tab: formatMessage({id:'popover.applicationMarket.local'})
         }
       ],
       rainStoreTab: [],
@@ -666,7 +667,7 @@ export default class Main extends PureComponent {
           },
           callback: () => {
             // 关闭弹框
-            notification.success({ message: `安装成功` });
+            notification.success({ message: formatMessage({id:'notification.success.install_success'}) });
             this.onCancelCreate();
             this.setState({ is_deploy: true });
             this.props.dispatch(
@@ -823,7 +824,7 @@ export default class Main extends PureComponent {
               }
             }}
           >
-            安装
+            {formatMessage({id:'button.install'})}
           </span>
         ]
       : [];
@@ -1086,10 +1087,10 @@ export default class Main extends PureComponent {
         locale={{
           emptyText: !isSpinList && list && list.length <= 0 && (
             <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-              暂无应用模型， 你可以
+              {formatMessage({id:'notification.market.hint.null_app1'})}
               <br />
               <br />
-              发布应用模型
+              {formatMessage({id:'notification.market.hint.null_app2'})}
             </p>
           )
         }}
@@ -1160,8 +1161,8 @@ export default class Main extends PureComponent {
           <Input.Search
             // eslint-disable-next-line react/no-string-refs
             ref="searchs"
-            placeholder="请输入应用名称"
-            enterButton="搜索"
+            placeholder={formatMessage({id:'placeholder.group_name'})}
+            enterButton={formatMessage({id:'button.search'})}
             size="large"
             value={defaultValue}
             onChange={event => {
@@ -1183,17 +1184,17 @@ export default class Main extends PureComponent {
     const tabAllList = [
       {
         key: '',
-        tab: '全部'
+        tab: formatMessage({id:'popover.applicationMarket.all'})
       }
     ];
     const tabComponentList = [
       {
         key: 'enterprise',
-        tab: '公司发布'
+        tab: formatMessage({id:'popover.applicationMarket.company'})
       },
       {
         key: 'team',
-        tab: '团队发布'
+        tab: formatMessage({id:'popover.applicationMarket.team'})
       }
     ];
     const tabList = tabAllList.concat(tabComponentList);
@@ -1272,7 +1273,7 @@ export default class Main extends PureComponent {
         )}
         {handleType && installBounced && (
           <Modal
-            title="确认要安装此应用作为你的组件么？"
+            title={formatMessage({id:'confirmModal.install.app.desc'})}
             className={styles.TelescopicModal}
             visible={installBounced}
             onOk={this.handleInstallBounced}
@@ -1289,7 +1290,7 @@ export default class Main extends PureComponent {
                     });
                   }}
                 >
-                  取消
+                  {formatMessage({id:'button.cancel'})}
                 </Button>
                 <Button
                   onClick={this.handleInstallBounced}
@@ -1297,14 +1298,14 @@ export default class Main extends PureComponent {
                   style={{ marginRight: '5px' }}
                   loading={loading.effects['createApp/installAppPlugin']}
                 >
-                  安装
+                  {formatMessage({id:'button.install'})}
                 </Button>
                 <Radio
                   size="small"
                   onClick={this.renderSuccessOnChange}
                   checked={isDeploy}
                 >
-                  并构建启动
+                  {formatMessage({id:'button.build_start'})}
                 </Radio>
               </div>
             }
@@ -1339,13 +1340,13 @@ export default class Main extends PureComponent {
                 <Alert
                   message={
                     <div>
-                      当前市场没有安装权限，
+                      {formatMessage({id:'notification.market.hint.null_app5'})}
                       <a
                         onClick={() => {
                           this.handleCertification(scopeMax);
                         }}
                       >
-                        去授权
+                        {formatMessage({id:'notification.market.hint.null_app6'})}
                       </a>
                     </div>
                   }
@@ -1413,13 +1414,13 @@ export default class Main extends PureComponent {
                 <Alert
                   message={
                     <div>
-                      当前市场没有安装权限，
+                      {formatMessage({id:'notification.market.hint.null_app5'})}
                       <a
                         onClick={() => {
                           this.handleCertification(scopeMax);
                         }}
                       >
-                        去授权
+                        {formatMessage({id:'notification.market.hint.null_app6'})}
                       </a>
                     </div>
                   }

@@ -18,6 +18,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import {
   default as AddGroup,
   default as EditGroupName
@@ -118,7 +119,7 @@ export default class Index extends PureComponent {
 
   handleOkApplication = groupId => {
     const { dispatch } = this.props;
-    notification.success({ message: '添加成功' });
+    notification.success({ message: formatMessage({id:'notification.success.add'}) });
     this.handleCancelApplication();
     dispatch(
       routerRedux.push(
@@ -1079,7 +1080,7 @@ export default class Index extends PureComponent {
 
             {addApplication && (
               <EditGroupName
-                title="新建应用"
+                title={formatMessage({id:'popover.newApp.title'})}
                 onCancel={this.handleCancelApplication}
                 onOk={this.handleOkApplication}
               />

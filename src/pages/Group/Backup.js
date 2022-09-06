@@ -17,6 +17,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import apiconfig from '../../../config/api.config';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from '../../components/CreateTeam/index.less';
@@ -34,6 +35,7 @@ import globalUtil from '../../utils/global';
 import logSocket from '../../utils/logSocket';
 import roleUtil from '../../utils/role';
 import sourceUtil from '../../utils/source-unit';
+import cookie from '../../utils/cookie';
 import userUtil from '../../utils/user';
 
 const { TextArea } = Input;
@@ -46,9 +48,9 @@ class BackupStatus extends PureComponent {
     super(props);
     this.state = {
       map: {
-        starting: '备份中',
-        success: '备份成功',
-        failed: '备份失败'
+        starting: formatMessage({id:'status.app.backups.backuping'}),
+        success: formatMessage({id:'status.app.backups.error'}),
+        failed: formatMessage({id:'status.app.backups.success'})
       }
     };
     this.timer = null;
@@ -158,47 +160,49 @@ class Backup extends PureComponent {
       }
     };
     const cloudBackupTip = is_configed
-      ? '备份到云端存储上，可实现跨集群迁移'
-      : '需要企业管理员在企业设置中配置 OSS 云对象存储';
+      ? formatMessage({id:'appBackups.table.pages.is_configed'})
+      : formatMessage({id:'appBackups.table.pages.no_configed'});
     return (
       <Modal
-        title="新增备份"
+        title={formatMessage({id:'appBackups.btn.addBackups'})}
         visible
         className={styles.TelescopicModal}
         onOk={this.onOk}
         onCancel={onCancel}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={onCancel}> {formatMessage({id:'popover.cancel'})} </Button>,
           <Button type="primary" onClick={this.onOk} loading={loading}>
-            {warningText ? '强制备份' : '确定'}
+            {warningText ? formatMessage({id:'button.forced_backup'}) : formatMessage({id:'popover.confirm'})}
           </Button>
         ]}
       >
         <Form layout="horizontal">
-          <Form.Item {...formItemLayout} label={<span>备份方式</span>}>
+          <Form.Item {...formItemLayout} label={<span>{formatMessage({id:'appBackups.table.pages.label.mode'})}</span>}>
             {getFieldDecorator('mode', {
               initialValue: is_configed
                 ? data.mode || 'full-online'
                 : 'full-offline',
-              rules: [{ required: true, message: '要创建的应用还没有名字' }]
+              rules: [{ required: true, message: formatMessage({id:'placeholder.app_not_name'}) }]
             })(
               <RadioGroup>
                 <Tooltip title={cloudBackupTip}>
                   <RadioButton disabled={!is_configed} value="full-online">
-                    云端备份
+                  {formatMessage({id:'appBackups.table.pages.label.full-online'})}
                   </RadioButton>
                 </Tooltip>
-                <Tooltip title="备份到当前集群本地，不能跨集群迁移">
-                  <RadioButton value="full-offline">本地备份</RadioButton>
+                <Tooltip title={formatMessage({id:'appBackups.table.pages.label.tooltip.title'})}>
+                  <RadioButton value="full-offline">
+                  {formatMessage({id:'appBackups.table.pages.label.full-offline'})}
+                  </RadioButton>
                 </Tooltip>
               </RadioGroup>
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="备份说明">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'appBackups.table.pages.label.note'})}>
             {getFieldDecorator('note', {
               initialValue: data.note || '',
-              rules: [{ required: true, message: '请写入备份说明' }]
-            })(<TextArea placeholder="请写入备份说明" />)}
+              rules: [{ required: true, message: formatMessage({id:'placeholder.backup.note'}) }]
+            })(<TextArea placeholder={formatMessage({id:'placeholder.backup.note'})} />)}
           </Form.Item>
 
           {warningText && (
@@ -209,7 +213,7 @@ class Backup extends PureComponent {
                 style={{ margin: '10px 0' }}
                 header={
                   <h6 style={{ marginBottom: '0', fontSize: '15px' }}>
-                    组件名称
+                    {formatMessage({id:'appDynamic.table.componentName'})}
                   </h6>
                 }
                 // footer={<div>Footer</div>}
@@ -255,7 +259,8 @@ export default class AppList extends PureComponent {
       componentList: [],
       operationPermissions: this.handlePermissions('queryAppInfo'),
       loading: false,
-      deleteLoading: false
+      deleteLoading: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
 
@@ -343,8 +348,8 @@ export default class AppList extends PureComponent {
             this.setState({
               warningText:
                 code === 4122
-                  ? '备份有异常 ：组件使用了自定义存储，是否强制备份'
-                  : '备份有异常 ：有状态组件未停止，是否强制备份',
+                  ? formatMessage({id: 'appBackups.table.pages.abnormal.custom'})
+                  : formatMessage({id: 'appBackups.table.pages.abnormal.not_stop'}),
               componentList: res.data.data.list || []
             });
           } else if (res.data.msg_show) {
@@ -392,7 +397,7 @@ export default class AppList extends PureComponent {
   };
   handleImportBackup = () => {
     notification.success({
-      message: '备份已导入',
+      message: formatMessage({id: 'status.app.backups.imported'}),
       duration: 2
     });
     this.setState({ showImport: false });
@@ -443,7 +448,7 @@ export default class AppList extends PureComponent {
     }`;
     window.open(exportURl);
     notification.success({
-      message: '备份导出中',
+      message: formatMessage({id: 'status.app.backups.yolkStroke'}),
       duration: 2
     });
   };
@@ -465,7 +470,7 @@ export default class AppList extends PureComponent {
       callback: data => {
         if (data) {
           notification.success({
-            message: '删除成功',
+            message: formatMessage({id: 'notification.success.delete'}),
             duration: 2
           });
           this.cancelDelete();
@@ -499,37 +504,38 @@ export default class AppList extends PureComponent {
       list = [],
       operationPermissions: { isMigrate, isImport, isExport },
       loading,
-      deleteLoading
+      deleteLoading,
+      language
     } = this.state;
     const columns = [
       {
-        title: '备份时间',
+        title: formatMessage({id: 'appBackups.table.backupsTime'}),
         dataIndex: 'create_time'
       },
       {
-        title: '备份人',
+        title: formatMessage({id: 'appBackups.table.backupsPerson'}),
         dataIndex: 'user'
       },
       {
-        title: '备份模式',
+        title: formatMessage({id: 'appBackups.table.backupsPattern'}),
         dataIndex: 'mode',
         render: val => {
           const map = {
-            'full-online': '云端备份',
-            'full-offline': '本地备份'
+            'full-online': formatMessage({id: 'appBackups.table.backupsPattern.cloud'}),
+            'full-offline': formatMessage({id: 'appBackups.table.backupsPattern.local'})
           };
           return map[val] || '';
         }
       },
       {
-        title: '包大小',
+        title: formatMessage({id: 'appBackups.table.packetSize'}),
         dataIndex: 'backup_size',
         render: val => {
           return sourceUtil.unit(val, 'Byte');
         }
       },
       {
-        title: '状态',
+        title: formatMessage({id: 'appBackups.table.status'}),
         dataIndex: 'status',
         render: (val, data) => {
           return (
@@ -542,11 +548,11 @@ export default class AppList extends PureComponent {
         }
       },
       {
-        title: '备注',
+        title: formatMessage({id: 'appBackups.table.comment'}),
         dataIndex: 'note'
       },
       {
-        title: '操作',
+        title: formatMessage({id: 'appBackups.table.operate'}),
         dataIndex: 'action',
         render: (_, data) => {
           const isSuccess = data.status === 'success';
@@ -569,12 +575,12 @@ export default class AppList extends PureComponent {
             <div>
               {migrateSuccess && (
                 <Fragment>
-                  {box('恢复', 'handleRecovery')}
-                  {box('迁移', 'handleMove')}
+                  {box(formatMessage({id: 'appBackups.table.btn.recover'}), 'handleRecovery')}
+                  {box(formatMessage({id: 'appBackups.table.btn.removal'}), 'handleMove')}
                 </Fragment>
               )}
-              {exportSuccess && box('导出', 'handleExport')}
-              {box('删除', 'handleDel')}
+              {exportSuccess && box(formatMessage({id: 'appBackups.table.btn.export'}), 'handleExport')}
+              {box(formatMessage({id: 'appBackups.table.btn.delete'}), 'handleDel')}
             </div>
           );
         }
@@ -597,27 +603,29 @@ export default class AppList extends PureComponent {
       <PageHeaderLayout
         loading={loadingDetail}
         breadcrumbList={breadcrumbList}
-        title="备份管理"
+        title={formatMessage({id: 'appBackups.title'})}
         content={
           <p>
-            应用备份是指将当前应用元数据、持久化数据、版本数据完整备份，备份记录可用于应用迁移和回滚，云端备份记录可用于跨集群应用迁移操作
+            {formatMessage({id: 'appBackups.desc'})}
           </p>
         }
         extraContent={
-          <div>
+          <div style={language?{}:{display:'flex'}}>
             <Button
-              style={{ marginRight: 8 }}
+              style={language?{marginRight: 8 }:{ marginRight: 8 ,padding: 6}}
               type="primary"
               onClick={this.onBackup}
             >
-              新增备份
+              {formatMessage({id: 'appBackups.btn.addBackups'})}
             </Button>
             {isImport && (
-              <Button style={{ marginRight: 8 }} onClick={this.toAdd}>
-                导入备份
+              <Button style={language?{marginRight: 8 }:{ marginRight: 8 ,padding: 6}} onClick={this.toAdd}>
+                {formatMessage({id: 'appBackups.btn.importBackups'})}
               </Button>
             )}
-            <Button onClick={this.jumpToAllbackup}>团队全部备份</Button>
+            <Button onClick={this.jumpToAllbackup} style={language?{}:{padding: 6}}>
+              {formatMessage({id: 'appBackups.btn.allBackups'})}
+            </Button>
           </div>
         }
       >
@@ -688,9 +696,9 @@ export default class AppList extends PureComponent {
             backupId={this.state.backup_id}
             onOk={this.handleDelete}
             onCancel={this.cancelDelete}
-            title="删除备份"
-            desc="确定要删除此备份吗？"
-            subDesc="此操作不可恢复"
+            title={formatMessage({id: 'confirmModal.backup.title.delete'})}
+            desc={formatMessage({id: 'confirmModal.backup.delete.desc'})}
+            subDesc={formatMessage({id: 'confirmModal.delete.strategy.subDesc'})}
             deleteLoading={deleteLoading}
           />
         )}

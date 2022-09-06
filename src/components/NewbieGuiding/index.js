@@ -2,6 +2,7 @@
 import { Icon } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import styles from './index.less';
@@ -112,7 +113,7 @@ class Index extends PureComponent {
                 </p>
               </div>
             )}
-            {isSkip && <button className={styles.driverCloseBtn}>跳过</button>}
+            {isSkip && <button className={styles.driverCloseBtn}><FormattedMessage id='applicationMarket.NewbieGuiding.skip'/></button>}
             <span className={styles.driverBtnGroup}>
               {prevStep && (
                 <button
@@ -123,7 +124,7 @@ class Index extends PureComponent {
                   }}
                   className={styles.driverPrevBtn}
                 >
-                  上一步
+                  <FormattedMessage id='applicationMarket.NewbieGuiding.previous_step'/>
                 </button>
               )}
               <button
@@ -137,7 +138,7 @@ class Index extends PureComponent {
                 }}
                 className={styles.driverNextBtn}
               >
-                {btnText || (isSuccess ? '完成' : '下一步')}
+                {btnText || (isSuccess ? <FormattedMessage id='applicationMarket.NewbieGuiding.complete'/> : <FormattedMessage id='applicationMarket.NewbieGuiding.next_step'/>)}
               </button>
             </span>
           </div>

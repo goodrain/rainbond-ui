@@ -1,5 +1,6 @@
 import React from 'react';
 import { Input, Icon } from 'antd';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from './index.less';
 
 const map = {
@@ -11,7 +12,7 @@ const map = {
       placeholder: 'admin',
     },
     rules: [{
-      required: true, message: '请输入账户名！',
+      required: true, message: formatMessage({id:'login.name'}),
     }],
   },
   Password: {
@@ -23,7 +24,7 @@ const map = {
       placeholder: '888888',
     },
     rules: [{
-      required: true, message: '请输入密码！',
+      required: true, message: formatMessage({id:'login.pass'}),
     }],
   },
   Mobile: {
@@ -31,12 +32,12 @@ const map = {
     props: {
       size: 'large',
       prefix: <Icon type="mobile" className={styles.prefixIcon} />,
-      placeholder: '手机号',
+      placeholder: formatMessage({id:'login.iphone'}),
     },
     rules: [{
-      required: true, message: '请输入手机号！',
+      required: true, message: formatMessage({id:'login.input_iphone'}),
     }, {
-      pattern: /^1\d{10}$/, message: '手机号格式错误！',
+      pattern: /^1\d{10}$/, message: formatMessage({id:'login.error'}),
     }],
   },
   Captcha: {
@@ -44,10 +45,10 @@ const map = {
     props: {
       size: 'large',
       prefix: <Icon type="mail" className={styles.prefixIcon} />,
-      placeholder: '验证码',
+      placeholder: formatMessage({id:'login.Verification'}),
     },
     rules: [{
-      required: true, message: '请输入验证码！',
+      required: true, message: formatMessage({id:'login.input_Verification'}),
     }],
   },
 };

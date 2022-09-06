@@ -1,10 +1,12 @@
 import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty, message, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { addKubernetes, getKubernetes, deleteKubernetes, editKubernetes } from '../../services/app';
 import DApvcinput from '../../components/DApvcinput';
 import globalUtil from '../../utils/global';
 import ConfirmModal from "../../components/ConfirmModal"
 import styles from "./kubernets.less"
+import cookie from '../../utils/cookie';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const { Option, OptGroup } = Select;
@@ -16,7 +18,7 @@ class Index extends PureComponent {
       allData: [],
       minArr: {},
       visible: false,
-      drawerTitle: "新增属性",
+      drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.add'}),
       selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged",'env'],
       selectVal: undefined,
       havevalArr: [],
@@ -26,13 +28,14 @@ class Index extends PureComponent {
       strValue: '',
       showDeletePort: false,
       TooltipValueArr: {
-        affinity:'#示例\n#nodeAffinity:\n#      preferredDuringSchedulingIgnoredDuringExecution:\n#      - weight: 1\n#        preference:\n#          matchExpressions:\n#          - key: disktype\n#            operator: In\n#            values:\n#           - ssd\n',
-        tolerations:'#示例\n#- key: "test"\n#  operator: "Equal"\n#  value: "yk"\n#  effect: "NoSchedule"\n',
-        env:'#示例\n#- name: NGINX_USERNAEM\n#  valueFrom:\n#    secretKeyRef:\n#      key: username\n#      name: test-secret\n#      optional: false\n#- name: NGINX_PASSWORD\n#  valueFrom:\n#    secretKeyRef:\n#      key: password\n#      name: test-secret\n#      optional: false\n#- name: MY_POD_IP\n#  valueFrom:\n#   fieldRef:\n#     fieldPath: status.podIP\n',
-        volumes:'#示例\n#- hostPath:\n#    path: /test\n#  name: data\n#- name: mydata\n#  persistentVolumeClaim:\n#    claimName: test-pvc\n#- configMap:\n#    name: test\n#  name: config\n',
-        volumeMounts:'#示例\n#- mountPath: /opt\n#  name: data\n#- mountPath: /etc/test/conf/aa\n#  name: mydata\n#  subPath: aa\n#- mountPath: /etc/test/conf/nginx.conf\n#  name: config\n#  subPath: test.conf\n'
+        affinity:'#sample\n#nodeAffinity:\n#      preferredDuringSchedulingIgnoredDuringExecution:\n#      - weight: 1\n#        preference:\n#          matchExpressions:\n#          - key: disktype\n#            operator: In\n#            values:\n#           - ssd\n',
+        tolerations:'#sample\n#- key: "test"\n#  operator: "Equal"\n#  value: "yk"\n#  effect: "NoSchedule"\n',
+        env:'#sample\n#- name: NGINX_USERNAEM\n#  valueFrom:\n#    secretKeyRef:\n#      key: username\n#      name: test-secret\n#      optional: false\n#- name: NGINX_PASSWORD\n#  valueFrom:\n#    secretKeyRef:\n#      key: password\n#      name: test-secret\n#      optional: false\n#- name: MY_POD_IP\n#  valueFrom:\n#   fieldRef:\n#     fieldPath: status.podIP\n',
+        volumes:'#sample\n#- hostPath:\n#    path: /test\n#  name: data\n#- name: mydata\n#  persistentVolumeClaim:\n#    claimName: test-pvc\n#- configMap:\n#    name: test\n#  name: config\n',
+        volumeMounts:'#sample\n#- mountPath: /opt\n#  name: data\n#- mountPath: /etc/test/conf/aa\n#  name: mydata\n#  subPath: aa\n#- mountPath: /etc/test/conf/nginx.conf\n#  name: config\n#  subPath: test.conf\n'
       },
-      TooltipValue:''
+      TooltipValue:'',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     }
   }
 
@@ -79,7 +82,7 @@ class Index extends PureComponent {
     const { selectArr, havevalArr } = this.state
     this.setState({
       visible: true,
-      drawerTitle: "新增属性",
+      drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.add'}),
       drawerSwitch: val,
       selectVal: undefined,
       jsonValue: '',
@@ -105,7 +108,7 @@ class Index extends PureComponent {
     this.setState({
       minArr: allData[index],
       visible: true,
-      drawerTitle: '修改属性',
+      drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.edit_attribute'}),
       drawerSwitch: str,
       selectVal: val.name,
       TooltipValue: TooltipValueArr.[val.name]
@@ -128,7 +131,7 @@ class Index extends PureComponent {
           showDeletePort:!this.state.showDeletePort,
         })
         notification.success({
-          message:'属性删除成功'
+          message: formatMessage({id:'notification.success.attribute_delete'})
         })
         this.handleGetKubernetes()
       }
@@ -238,7 +241,7 @@ class Index extends PureComponent {
         this.handelAddOrEdit(label)
       }else{
         notification.error({
-          message:'文件内容不能为空'
+          message: formatMessage({id:'componentOverview.body.Kubernetes.null'}),
         })
       }
     })
@@ -265,7 +268,7 @@ class Index extends PureComponent {
       }).then(res => {
         if(res && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message:'属性添加成功,重启后生效'
+          message:  formatMessage({id:'notification.success.attribute_add'})
         })
         this.handleGetKubernetes()
       }
@@ -282,7 +285,7 @@ class Index extends PureComponent {
       }).then(res => {
         if(res && res.response_data  &&  res.response_data.code == 200){
         notification.success({
-          message:'属性修改成功,重启后生效'
+          message:  formatMessage({id:'notification.success.attribute_edit'})
         })
         this.handleGetKubernetes()
       }
@@ -315,7 +318,7 @@ class Index extends PureComponent {
           </path>
       </svg>
   )
-    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, jsonValue, yamlValue, strValue, boolvalue, TooltipValue } = this.state;
+    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, jsonValue, yamlValue, strValue, boolvalue, TooltipValue, language } = this.state;
     const { getFieldDecorator, setFieldsValue } = form;
     const isBool = (drawerSwitch == "add") ? true : false
     const addible = [];
@@ -364,9 +367,9 @@ class Index extends PureComponent {
     return (
       <div>
         <Card
-          title="Kubernetes属性"
+          title={<FormattedMessage id='componentOverview.body.Kubernetes.attribute'/>}
           style={{ marginBottom: '24px' }}
-          extra={<Button onClick={() => this.addAttribute("add")}><Icon type="plus" />新增属性</Button>}
+          extra={<Button onClick={() => this.addAttribute("add")}><Icon type="plus" /><FormattedMessage id='componentOverview.body.Kubernetes.add'/></Button>}
         >
           <Drawer
             title={drawerTitle}
@@ -378,16 +381,16 @@ class Index extends PureComponent {
           >
             <div className={styles.selectstyle}>
             <Row>
-              <Col span={4} >属性名称</Col>
-              <Col span={20}>
+              <Col span={language ? 4 : 6} ><p style={language ? {} : {whiteSpace:'nowrap',fontWeight: 600, marginTop: 5}}><FormattedMessage id='componentOverview.body.Kubernetes.name'/></p></Col>
+              <Col span={language ? 20 : 18}>
                 <Select
                   style={{ width: 220 }}
                   onChange={this.handleChange}
-                  placeholder="请选择属性"
+                  placeholder={formatMessage({id:'componentOverview.body.Kubernetes.choice'})}
                   disabled={drawerSwitch === "change"}
                   value={selectVal}
                 >
-                  <OptGroup label="可添加">
+                  <OptGroup  label={<FormattedMessage id='componentOverview.body.Kubernetes.added'/>}>
                     {notAddible.map((item, index) => {
                       return <Option
                                 key={index}
@@ -397,7 +400,7 @@ class Index extends PureComponent {
                               </Option>
                     })}
                   </OptGroup>
-                  <OptGroup label="不可添加">
+                  <OptGroup label={<FormattedMessage id='componentOverview.body.Kubernetes.Cannot'/>}>
                     {addible.map((item, index) => {
                       return <Option
                                 key={index}
@@ -415,12 +418,14 @@ class Index extends PureComponent {
               {selectVal &&
                 ((selectVal == "nodeSelector") || (selectVal == "labels")) &&
                 <Form.Item {...formItemLayouts}>
-                  <p>请输入对应的key,value</p>
+                  <div style={ language ? {} :{marginLeft: 38} }>
+                  <p style={{whiteSpace:'nowrap'}}><FormattedMessage id='componentOverview.body.Kubernetes.key'/></p>
                   <div className={styles.nodeSelector_sytle}>
                   {getFieldDecorator(`${selectVal}`, {
                     initialValue: jsonValue || [],
-                    rules: [{ required: false, message: `请输入${selectVal}` }]
+                    rules: [{ required: false, message: formatMessage({id:'componentOverview.body.Kubernetes.msg'},{selectVal:selectVal}),}]
                   })(<DApvcinput />)}
+                  </div>
                   </div>
                 </Form.Item>
               }
@@ -436,7 +441,7 @@ class Index extends PureComponent {
                     style={{ marginBottom: '20px' }}
                     getFieldDecorator={getFieldDecorator}
                     name={selectVal}
-                    message="请编辑内容"
+                    message={<FormattedMessage id='componentOverview.body.Kubernetes.content'/>}
                     data={yamlValue || ''}
                     mode={'yaml'}
                     bool = { isBool }
@@ -448,12 +453,14 @@ class Index extends PureComponent {
                 selectVal &&
                 selectVal == "serviceAccountName" &&
                 <Form.Item  {...formItemLayouts}>
-                  <p>请输入serviceAccountName属性</p>
-                  <div className={styles.accountName_style}>
+                  <div style={ language ? {} :{marginLeft: 38} }>
+                  <p style={{whiteSpace:'nowrap'}}><FormattedMessage id='componentOverview.body.Kubernetes.input'/></p>
+                  <div className={language ? styles.accountName_style : styles.en_accountName_style }>
                   {getFieldDecorator(`${selectVal}`, {
                     initialValue: strValue || '',
-                    rules: [{ required: false, message: '请输入ServiceAccountName' }]
-                  })(<Input placeholder='请输入ServiceAccountName' />)}
+                    rules: [{ required: false, message: formatMessage({id:'componentOverview.body.Kubernetes.input'}),}]
+                  })(<Input  placeholder={formatMessage({id:'componentOverview.body.Kubernetes.input'})}/>)}
+                  </div>
                   </div>
                 </Form.Item>
               }
@@ -461,11 +468,13 @@ class Index extends PureComponent {
                 selectVal &&
                 selectVal == "privileged" &&
                 <Form.Item  {...formItemLayouts}>
-                  <p>是否开启privileged属性</p>
+                  <div style={ language ? {} :{marginLeft: 38} }>
+                  <p style={{whiteSpace:'nowrap'}}><FormattedMessage id='componentOverview.body.Kubernetes.privileged'/></p>
                   {getFieldDecorator(`${selectVal}`, {
                     initialValue: boolvalue || false,
                     rules: [{ required: false }]
                   })(<Switch style={{margin:"20px 0  0 50px"}}/>)}
+                  </div>
                 </Form.Item>
               }
             </Form>
@@ -475,13 +484,13 @@ class Index extends PureComponent {
                 style={{marginRight:"10px"}}
                 onClick={this.handleCancel}
               >
-                取 消
+                <FormattedMessage id='componentOverview.body.Kubernetes.Cancel'/>
               </Button>
               <Button
                 type="primary"
                 onClick={this.handleSubmit}
               >
-                确 认
+                <FormattedMessage id='componentOverview.body.Kubernetes.Confirm'/>
               </Button>
             </div>
           </Drawer>
@@ -513,7 +522,7 @@ class Index extends PureComponent {
                                 (item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env")  &&
                                 item.attribute_value.length > 0 &&
                                 <div className={styles.yamlValue_style}>
-                                  {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;该配置以yaml文件形式存储,请点击右侧编辑按钮进行查看或修改。
+                                  {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml'/>
                                 </div>
                                 }
                                 {item.name &&
@@ -528,10 +537,10 @@ class Index extends PureComponent {
                                 {item.name &&
                                 (item.name == "privileged")  &&
                                 item.attribute_value.length > 0 &&
-                                <span style={{paddingTop:"6px"}}>当前状态：{item.attribute_value == "true" ? "已开启 ": "已关闭"}</span>
+                                <span style={{paddingTop:"6px"}}><FormattedMessage id='componentOverview.body.Kubernetes.current'/>{item.attribute_value == "true" ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened'/>: <FormattedMessage id='componentOverview.body.Kubernetes.Closed'/>}</span>
                                 }
                               </Col>
-                              <Col span={2}><span onClick={() => this.changeBtn(item, "change", index)}>编辑</span>&nbsp;&nbsp;&nbsp;&nbsp;<span onClick={()=>this.cancalDeletePort(item)}>删除</span></Col>
+                              <Col span={2}><span onClick={() => this.changeBtn(item, "change", index)}><FormattedMessage id='componentOverview.body.Kubernetes.edit'/></span>&nbsp;&nbsp;&nbsp;&nbsp;<span onClick={()=>this.cancalDeletePort(item)}><FormattedMessage id='componentOverview.body.Kubernetes.deldete'/></span></Col>
                          </Row>
                 })
               ) : (
@@ -541,9 +550,9 @@ class Index extends PureComponent {
           </div>
           {this.state.showDeletePort && (
           <ConfirmModal
-            title="属性删除"
-            desc="确定要删除此属性吗？"
-            subDesc="此操作不可恢复"
+            title={<FormattedMessage id='confirmModal.attribute.port.title'/>}
+            desc={<FormattedMessage id='confirmModal.attribute.port.desc'/>}
+            subDesc={<FormattedMessage id='confirmModal.attribute.port.subDesc'/>}
             onOk={this.deleteBtn}
             onCancel={this.cancalDeletePort}
           />
