@@ -198,12 +198,12 @@ const utils ={
 'utils.message.warn':'Remind',
 
 // plugin
-'utils.plugin.up':'Portal network',
-'utils.plugin.in-and-out':'Common governance network of exit and entrance',
+'utils.plugin.up':'Entrance network',
+'utils.plugin.in-and-out':'Entrance and export network',
 'utils.plugin.down':'Export network',
 'utils.plugin.perf':'performance analysis ',
-'utils.plugin.init':'Initialization type',
-'utils.plugin.general-plugin':'General type',
+'utils.plugin.init':'Initialization',
+'utils.plugin.general-plugin':'General',
 'utils.plugin.exporter-plugin':'Monitor',
 'utils.plugin.downstream_net_plugin':'Network Governance',
 'utils.plugin.env':'Environment variable',

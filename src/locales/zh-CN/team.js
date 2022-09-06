@@ -93,12 +93,12 @@ const teamAdd = {
   'teamAdd.create.image.configHint':'注意将解析 DockerCompose 配置中的组件相关属性用来便捷创建组件，其中的动态变量不支持解析赋值, 其中使用了私有仓库的镜像?',
 
   //upload
-  'teamAdd.create.upload.title':'上传文件创建',
-  'teamAdd.create.upload.desc':'第三方组件，即运行于平台集群外的组件，在平台中创建组件即可以将其与 平台网关无缝对接，同时也可以被平台内服务访问。满足用户通过平台可以对各类组件进行统一的监控和管理需要。',
+  'teamAdd.create.upload.title':'Kubernetes YAML/导入',
+  'teamAdd.create.upload.desc':'支持从 Kubernetes YAML创建组件和 Kubernetes 已有资源导入',
   'teamAdd.create.upload.format':'上传格式',
   'teamAdd.create.upload.uploadFiles':'上传文件',
   'teamAdd.create.upload.uploadFiles.yaml':'YAML文件上传',
-  'teamAdd.create.upload.uploadFiles.k8s':'已有Kubernetes集群导入',
+  'teamAdd.create.upload.uploadFiles.k8s':'导入Kubernetes已有资源',
   'teamAdd.create.upload.uploadJWar':'支持Jar、War格式上传文件',
   'teamAdd.create.upload.uploadYaml':'只支持yaml格式上传多文件',
 
@@ -183,7 +183,7 @@ const teamPlugin = {
   'teamPlugin.create.lable.password':'仓库密码',
   'teamPlugin.create.lable.code_version':'代码版本',
   'teamPlugin.create.lable.min_cpu':'CPU',
-  'teamPlugin.create.lable.min_cpu':'启动命令',
+  'teamPlugin.create.lable.build_cmd':'启动命令',
   'teamPlugin.create.lable.update_info':'更新说明',
   'teamPlugin.create.lable.desc':'一句话说明',
   'teamPlugin.create.pages.key':'配置授权Key',

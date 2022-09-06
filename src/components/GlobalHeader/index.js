@@ -41,7 +41,7 @@ export default class GlobalHeader extends PureComponent {
     this.state = {
       isNewbieGuide: false && rainbondUtil.isEnableNewbieGuide(enterprise),
       showChangePassword: false,
-      language: cookie.get('language') === 'zh-CN' ? '中文语言' : '英文语言'
+      language: cookie.get('language') === 'zh-CN' ? '简体中文' : 'English'
     };
   }
   handleMenuClick = ({ key }) => {
@@ -187,8 +187,8 @@ export default class GlobalHeader extends PureComponent {
     const menuCN = (
       <div className={styles.uesrInfos}>
         <Menu selectedKeys={[]} onClick={this.handleMenuCN}>
-          {MenuCN('zh-CN', '中文语言')}
-          {MenuCN('en-US', '英文语言')}
+          {MenuCN('zh-CN', '简体中文')}
+          {MenuCN('en-US', 'English')}
         </Menu>
       </div>
     );
