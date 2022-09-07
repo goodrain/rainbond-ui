@@ -200,6 +200,11 @@ const teamPlugin = {
   'teamPlugin.create.pages.ordinary':'General',
   'teamPlugin.create.pages.monitor':'Monitor',
   'teamPlugin.create.pages.cpu':'CPU allocation 0 is unlimited. 1000m = 1core.',
+    // 补充
+    'teamPlugin.create.pages.null':'No spaces allowed',
+    'teamPlugin.create.pages.input_add':'Enter the image address (name :tag) such as nginx:1.11',
+    'teamPlugin.create.pages.input_git':'Enter source Git address (must include Dockerfile file)',
+    'teamPlugin.create.pages.input':'Enter the code version',
 }
 
 const teamManage = {

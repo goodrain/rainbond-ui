@@ -172,7 +172,7 @@ export default class GlobalRouter extends PureComponent {
         }
       >
         {icon}
-        <span>{name}</span>
+        <span style={{padding:'0 5px', textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}>{name}</span>
       </Link>
     );
   };

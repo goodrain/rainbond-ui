@@ -58,11 +58,11 @@ export default class Index extends PureComponent {
     const { getFieldValue } = this.props.form;
     const buildSource = getFieldValue('build_source');
     if (/\s/g.test(value)) {
-      return callback('不能存在空格');
+      return callback( formatMessage({id:'teamPlugin.create.pages.null'}));
     }
     if (buildSource === 'image') {
       if (!value) {
-        callback('请输入镜像地址（名称:tag）如nginx:1.11');
+        callback(formatMessage({id:'teamPlugin.create.pages.input_add'}));
       } else {
         callback();
       }
@@ -75,7 +75,7 @@ export default class Index extends PureComponent {
     const buildSource = getFieldValue('build_source');
     if (buildSource === 'dockerfile') {
       if (!value) {
-        callback('请输入源码Git地址（必须包含Dockerfile文件)');
+        callback(formatMessage({id:'teamPlugin.create.pages.input_git'}));
         return;
       }
     }
@@ -86,7 +86,7 @@ export default class Index extends PureComponent {
     const buildSource = getFieldValue('build_source');
     if (buildSource === 'dockerfile') {
       if (!value) {
-        callback('请输入代码版本');
+        callback(formatMessage({id:'teamPlugin.create.pages.input'}));
         return;
       }
     }

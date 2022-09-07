@@ -23,6 +23,7 @@ import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
 import { batchOperation } from '../../services/app';
 import appUtil from '../../utils/app';
+import cookie from '@/utils/cookie';
 import globalUtil from '../../utils/global';
 import styles from './ComponentList.less';
 
@@ -57,7 +58,8 @@ export default class ComponentList extends Component {
       changeQuery: '',
       tableDataLoading: true,
       sortValue: 1,
-      orderValue: 'descend'
+      orderValue: 'descend',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -346,7 +348,8 @@ export default class ComponentList extends Component {
       batchDeleteApps,
       moveGroupShow,
       operationState,
-      tableDataLoading
+      tableDataLoading,
+      language
     } = this.state;
     const rowSelection = {
       selectedRowKeys,
@@ -441,7 +444,7 @@ export default class ComponentList extends Component {
       },
       {
         title: formatMessage({id:'appOverview.list.table.status'}),
-        dataIndex: 'status_cn',
+        dataIndex: language ?'status_cn' : 'status',
         sorter: true,
         render: (val, data) =>
           data.service_source && data.service_source === 'third_party' ? (

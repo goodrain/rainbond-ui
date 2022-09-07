@@ -653,6 +653,25 @@ export default class EnterpriseTeams extends PureComponent {
         )}
       </Col>
     );
+    const en_operation = (
+      <Col span={language ? 7 : 6} style={{ textAlign: 'right' }} className={styles.btns}>
+        {adminer ? (
+          <Button
+            type="primary"
+            onClick={this.onAddTeam}
+            style={{ marginRight: '5px' }}
+          >
+            {/* 创建 项目/团队 */}
+            <FormattedMessage id='enterpriseTeamManagement.allProject.button.setup'/>
+          </Button>
+        ) : (
+          <Button type="primary" onClick={this.onJoinTeam}>
+            {/* 加入 项目/团队 */}
+            <FormattedMessage id='enterpriseTeamManagement.allProject.button.join'/>
+          </Button>
+        )}
+      </Col>
+    );
 
     const managementTemas = (
       <div>
@@ -789,7 +808,6 @@ export default class EnterpriseTeams extends PureComponent {
             {/* {haveNewJoinTeam && '最新加入项目/团队'} */}
             {haveNewJoinTeam && <FormattedMessage id='enterpriseTeamManagement.other.haveNewJoinTeam'/>}
           </Col>
-          {operation}
         </Row>
         {haveNewJoinTeam && (
           <Row className={styles.teamMinTits} type="flex" align="middle">
@@ -880,7 +898,7 @@ export default class EnterpriseTeams extends PureComponent {
           }}
         >
           <Col
-            span={4}
+            span={ language ? 2 : 3}
             className={styles.teamsTit}
             style={{ marginBottom: '0' }}
           >
@@ -888,13 +906,14 @@ export default class EnterpriseTeams extends PureComponent {
             <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title'/>
           </Col>
 
-          <Col span={20} style={{ textAlign: 'right' }}>
+          <Col span={15} style={{ textAlign: 'left' }}>
             <Search
               style={{ width: '500px' }}
-              placeholder="请输入项目/团队名称进行搜索"
+              placeholder={formatMessage({id:'enterpriseTeamManagement.allProject.search'})}
               onSearch={this.handleSearchUserTeam}
             />
           </Col>
+          {en_operation}
         </Row>
         {userTeam && (
           <Row style={{ width:'100%' }} className={styles.rowTitle}>

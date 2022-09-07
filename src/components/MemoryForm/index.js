@@ -1,6 +1,7 @@
 /* eslint-disable no-nested-ternary */
 import { Select } from 'antd';
 import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const { Option } = Select;
 
@@ -41,7 +42,7 @@ class Index extends PureComponent {
               this.handleOnchange(setkey, values);
             }}
           >
-            <Option value={0}>不限制</Option>
+            <Option value={0}>{formatMessage({id:'appOverview.no_limit'})}</Option>
             <Option value={32}>32M</Option>
             <Option value={64}>64M</Option>
             <Option value={128}>128M</Option>

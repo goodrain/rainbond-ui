@@ -198,6 +198,11 @@ const teamPlugin = {
   'teamPlugin.create.pages.ordinary':'一般类型',
   'teamPlugin.create.pages.monitor':'监控',
   'teamPlugin.create.pages.cpu':'CPU分配额0为不限制，1000m=1core。',
+  // 补充
+  'teamPlugin.create.pages.null':'不能存在空格',
+  'teamPlugin.create.pages.input_add':'请输入镜像地址（名称:tag）如nginx:1.11',
+  'teamPlugin.create.pages.input_git':'请输入源码Git地址（必须包含Dockerfile文件)',
+  'teamPlugin.create.pages.input':'请输入代码版本',
 }
 
 const teamManage = {

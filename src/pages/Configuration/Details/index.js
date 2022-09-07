@@ -360,14 +360,15 @@ export default class ConfigurationDetails extends PureComponent {
         {helpfulVisable && (
           <Modal
             visible
-            title="友情提示"
+            title={formatMessage({id:"appConfiguration.table.title"})}
             confirmLoading={AddConfigurationLoading || EditConfigurationLoading}
             onOk={() => {
               this.handleConfiguration(helpfulVisable);
             }}
             onCancel={this.handleClose}
           >
-            <p>是否保存已修改的配置组</p>
+            <p>{formatMessage({is:'appConfiguration.table.save'})}</p>
+
           </Modal>
         )}
         <Card

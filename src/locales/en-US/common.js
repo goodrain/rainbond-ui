@@ -627,6 +627,7 @@
         'placeholder.service_cname':'enter component name',
         'placeholder.k8s_component_name':'enter component english name',
         'placeholder.git_url':'enter git repo address',
+        'placeholder.git_url_domain':'enter image-registry domain',
         'placeholder.code_version':'enter the code version',
         'placeholder.notGit_url':'the git repo address is invalid',
         'placeholder.subdirectories':'enter subdirectory path',

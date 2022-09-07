@@ -65,11 +65,11 @@ class EditClusterInfo extends PureComponent {
       const formItemLayouts = {
         labelCol: {
           xs: { span: 24 },
-          sm: { span: 14 }
+          sm: { span: 10 }
         },
         wrapperCol: {
           xs: { span: 24 },
-          sm: { span: 10 }
+          sm: { span: 14 }
         }
       }
     const rulesApiUrl = /(http|https):\/\/+([\w]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
