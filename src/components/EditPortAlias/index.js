@@ -1,4 +1,5 @@
 import React, { PureComponent, Fragment } from "react";
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { connect } from "dva";
 import {
   Row,
@@ -46,18 +47,18 @@ export default class EditAlias extends PureComponent {
     const port = this.props.port || {};
     return (
       <Modal
-        title="编辑别名"
+        title={formatMessage({id:'componentOverview.body.EditPortAlias.edit'})}
         onOk={this.handleSubmit}
         visible={true}
         onCancel={this.handleCancel}
         maskClosable={false}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="别名">
+          <FormItem {...formItemLayout} label={formatMessage({id:'componentOverview.body.EditPortAlias.name'})}>
             {getFieldDecorator("alias", {
               initialValue: port.port_alias,
-              rules: [{ required: true, message: "请填写端口别名" }]
-            })(<Input placeholder="请填写端口别名" />)}
+              rules: [{ required: true, message: formatMessage({id:'componentOverview.body.EditPortAlias.input_name'}) }]
+            })(<Input placeholder={formatMessage({id:'componentOverview.body.EditPortAlias.input_name'})} />)}
           </FormItem>
         </Form>
       </Modal>

@@ -171,7 +171,7 @@ class ConfirmModal extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({id:'placeholder.git_url'}),
+                    message: formatMessage({id:'placeholder.git_url_domain'}),
                   },
                   {
                     message: formatMessage({id:'placeholder.not_Chinese'}),
@@ -183,7 +183,7 @@ class ConfirmModal extends PureComponent {
                   }
                 ],
                 getValueFromEvent: event => {return event.target.value.replace(/(^\s*)|(\s*$)/g, '');},
-              })(<Input placeholder={formatMessage({id:'placeholder.git_url'})} />)}
+              })(<Input placeholder={formatMessage({id:'placeholder.git_url_domain'})} />)}
             </FormItem>
             <FormItem {...is_language} label={formatMessage({id:'confirmModal.image.lable.username'})}>
               {getFieldDecorator('username', {

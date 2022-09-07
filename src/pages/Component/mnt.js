@@ -347,8 +347,7 @@ export default class Index extends PureComponent {
                   }
                 },
                 {
-                  title: '状态',
-                  title: formatMessage({id:'componentOverview.body.mnt.volume_name'}),
+                  title: formatMessage({id:'componentOverview.body.mnt.status'}),
                   dataIndex: 'status',
                   render: text => {
                     if (text == 'not_bound') {

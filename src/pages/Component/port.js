@@ -23,6 +23,7 @@ import SubDomain from '../../components/SubDomain';
 import SubPort from '../../components/SubPort';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
+import cookie from '@/utils/cookie';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
@@ -32,7 +33,9 @@ const { TextArea } = Input;
 class EditAlias extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      language: cookie.get('language') === 'zh-CN' ? true : false
+    };
   }
   handleSubmit = e => {
     e.preventDefault();
@@ -74,7 +77,27 @@ class EditAlias extends PureComponent {
         }
       }
     };
+    const en_formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 8
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 16
+        }
+      }
+    };
     const port = this.props.port || {};
+    const { language } = this.state;
+    const is_language = language ? formItemLayout : en_formItemLayout
     return (
       <Modal
         title={<FormattedMessage id='componentOverview.body.EditAlias.title'/>}
@@ -84,7 +107,7 @@ class EditAlias extends PureComponent {
         onCancel={this.handleCancel}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.EditAlias.label_alias'/>}>
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditAlias.label_alias'/>}>
             {getFieldDecorator('alias', {
               initialValue: port.port_alias,
               rules: [
@@ -96,7 +119,7 @@ class EditAlias extends PureComponent {
               ]
             })(<Input  placeholder={formatMessage({id:'componentOverview.body.EditAlias.label_alias.message'})}/>)}
           </FormItem>
-          <FormItem {...formItemLayout}  lable={<FormattedMessage id='componentOverview.body.EditAlias.label_k8s_service_name'/>}>
+          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditAlias.label_k8s_service_name'/>}>
             {getFieldDecorator('k8s_service_name', {
               initialValue: port.k8s_service_name,
               rules: [

@@ -25,6 +25,14 @@ class Index extends PureComponent {
       handleMore(state);
     }
   };
+   titleCase = (str) => {
+    str = str.toLowerCase();
+    var attr = str.split(" ");
+    for(var i =0;i<attr.length;i++){
+       attr[i]=attr[i].substring(0,1).toUpperCase() + attr[i].substring(1);
+    }
+    return attr.join(" ");
+  }
   render() {
     const { language } = this.state; 
     const {
@@ -55,7 +63,7 @@ class Index extends PureComponent {
                     color: globalUtil.fetchStateColor(status && status.status)
                   }}
                 >
-                  {(status && language  ?  status.status_cn : status.status) || ''}
+                  {(status && language  ?  this.titleCase(status.status_cn) :  this.titleCase(status.status)) || ''}
                 </h2>
                 <div className={styles.buildCommitInfo}>
                   <ul className={styles.buildInfo}>

@@ -419,5 +419,8 @@ const otherAppAssembly = {
  'otherApp.UploadJarWar.up':'Upload file',
  'otherApp.UploadJarWar.jar':'Support uploading files in jar and war formats',
  'otherApp.UploadJarWar.new':'New component',
+
+ 'otherApp.AppMoveGroup.title':'Modify the application to which the component belongs',
+ 'otherApp.AppMoveGroup.message':'Cannot be empty!',
 }
 export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly);

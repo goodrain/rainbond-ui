@@ -1070,8 +1070,12 @@ const componentOverview = {
     'componentOverview.body.Members.offline':'下线',
     'componentOverview.body.Members.restart':'重启',
 
+    'componentOverview.body.EditPortAlias.edit':'编辑别名',
+    'componentOverview.body.EditPortAlias.name':'别名',
+    'componentOverview.body.EditPortAlias.input_name':'请填写端口别名',
 
-
+    'componentOverview.MemoryForm.title':'内存',
+    'componentOverview.MemoryForm.message':'请选择内存',
 
 
 }

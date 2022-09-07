@@ -75,6 +75,7 @@ export default class AddVolumes extends PureComponent {
   };
   setVolumeCapacityValidation = volume_type => {
     const { volumeOpts } = this.props;
+    console.log(volumeOpts,"volumeOpts");
     for (let i = 0; i < volumeOpts.length; i++) {
       if (
         volumeOpts[i].volume_type === volume_type &&
@@ -276,7 +277,7 @@ export default class AddVolumes extends PureComponent {
                       disabled={!!this.props.editor}
                     >
                       <Tooltip title={item.description}>
-                        {item.name_show}
+                        {language ? item.name_show : item.volume_type} 
                       </Tooltip>
                     </Radio>
                   );
