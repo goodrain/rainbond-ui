@@ -1056,6 +1056,15 @@ const componentOverview = {
     'componentOverview.body.Members.offline':'Offline',
     'componentOverview.body.Members.restart':'Restart',
 
+    
+    'componentOverview.body.EditPortAlias.edit':'Edit alias',
+    'componentOverview.body.EditPortAlias.name':'alias',
+    'componentOverview.body.EditPortAlias.input_name':'Please fill in the port alias',
+
+
+    'componentOverview.MemoryForm.title':'Memory',
+    'componentOverview.MemoryForm.message':'Please select memory',
+
 }
     
   

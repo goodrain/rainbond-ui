@@ -425,5 +425,9 @@ const otherAppAssembly = {
   'otherApp.UploadJarWar.up':'上传文件',
   'otherApp.UploadJarWar.jar':'支持Jar、War格式上传文件',
   'otherApp.UploadJarWar.new':'新建组件',
+
+  'otherApp.AppMoveGroup.title':'修改组件所属应用',
+  'otherApp.AppMoveGroup.message':'不能为空!',
+
 }
 export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly);

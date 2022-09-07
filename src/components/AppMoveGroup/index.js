@@ -28,7 +28,7 @@ export default class MoveGroup extends PureComponent {
 
     return (
       <Modal
-        title="修改组件所属应用"
+        title={formatMessage({id:'otherApp.AppMoveGroup.title'})}
         visible
         confirmLoading={loading}
         onOk={this.handleSubmit}
@@ -41,7 +41,7 @@ export default class MoveGroup extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '不能为空!'
+                  message: formatMessage({id:'otherApp.AppMoveGroup.message'})
                 }
               ]
             })(

@@ -19,9 +19,9 @@ class Index extends PureComponent {
       FormItem,
       setkey,
       getFieldDecorator,
-      labelName = '内存',
+      labelName = `${formatMessage({id:'componentOverview.MemoryForm.title'})}`,
       initialValue,
-      message = '请选择内存'
+      message = `${formatMessage({id:'componentOverview.MemoryForm.message'})}`
     } = this.props;
 
     return (
