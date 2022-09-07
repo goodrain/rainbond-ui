@@ -59,6 +59,7 @@ export default class ImageHubForm extends PureComponent {
         onOk={this.onOk}
       >
         <Form onSubmit={this.onOk}>
+
           <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_url'})}>
             <Input.Group compact>
               {getFieldDecorator('hub_url', {
@@ -73,7 +74,7 @@ export default class ImageHubForm extends PureComponent {
                     message: formatMessage({id:'placeholder.max255'})
                   }
                 ]
-              })(<Input placeholder={formatMessage({id:'placeholder.git_url'})} />)}
+              })(<Input placeholder={formatMessage({id:'placeholder.git_url_domain'})} />)}
             </Input.Group>
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.namespace'})}>

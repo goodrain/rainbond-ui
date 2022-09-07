@@ -38,6 +38,7 @@ import {
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import cookie from '@/utils/cookie';
 import { getVolumeTypeShowName } from '../../utils/utils';
 import CodeBuildConfig from '../CodeBuildConfig';
 import styles from './setting.less';
@@ -1217,7 +1218,8 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       componentPermissions: this.handlePermissions('queryComponentInfo'),
-      type: 'deploy'
+      type: 'deploy',
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   getAppAlias() {
@@ -1237,7 +1239,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const { appDetail } = this.props;
-    const { type, componentPermissions } = this.state;
+    const { type, componentPermissions, language } = this.state;
 
     return (
       <div>
@@ -1246,31 +1248,35 @@ export default class Index extends PureComponent {
             overflow: 'hidden'
           }}
         >
-          <div className={styles.typeBtnWrap}>
+          <div className={language ? styles.typeBtnWrap : styles.en_typeBtnWrap}>
             <Affix offsetTop={0}>
               <div>
+              <Tooltip placement="right" title={formatMessage({id:'componentCheck.advanced.setup.deploy_attr'})}>
                 <span
-                  className={`${styles.typeBtn} ${
+                  className={`${language ? styles.typeBtn : styles.en_typeBtn} ${
                     type === 'deploy' ? styles.active : ''
                   }`}
                   onClick={() => {
                     this.handleType('deploy');
                   }}
                 >
-                  {formatMessage({id:'componentCheck.advanced.setup.deploy_attr'})}
+                  <span>{formatMessage({id:'componentCheck.advanced.setup.deploy_attr'})}</span>
                   <Icon type="right" />
                 </span>
+                </Tooltip>
+                <Tooltip placement="right" title={formatMessage({id:'componentCheck.advanced.setup.component_attr'})}>
                 <span
-                  className={`${styles.typeBtn} ${
+                  className={`${language ? styles.typeBtn : styles.en_typeBtn} ${
                     type === 'property' ? styles.active : ''
                   }`}
                   onClick={() => {
                     this.handleType('property');
                   }}
                 >
-                  {formatMessage({id:'componentCheck.advanced.setup.component_attr'})}
+                  <span>{formatMessage({id:'componentCheck.advanced.setup.component_attr'})}</span>
                   <Icon type="right" />
                 </span>
+                </Tooltip>
               </div>
             </Affix>
           </div>

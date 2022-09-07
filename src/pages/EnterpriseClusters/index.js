@@ -917,7 +917,7 @@ export default class EnterpriseClusters extends PureComponent {
               <div>
                 <Alert
                   style={{ marginBottom: '16px' }}
-                  message={formatMessage({id:'enterpriseColony.table.handle.quota.alert'},{limitTeamName:limitTeamName},{regionAlias:regionAlias})}
+                  message={formatMessage({id:'enterpriseColony.table.handle.quota.alert'},{name:limitTeamName}) + formatMessage({id:'enterpriseColony.table.handle.quota.alert1'},{region:regionAlias})}
                 />
                 <Form onSubmit={this.submitLimit}>
                   <Form.Item

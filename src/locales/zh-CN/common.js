@@ -634,6 +634,7 @@
         'placeholder.k8s_component_name':'请输入组件的英文名称',
         'placeholder.appEngName':'请输入应用的英文名称',
         'placeholder.git_url':'请输入仓库地址',
+        'placeholder.git_url_domain':'请输入仓库地址',
         'placeholder.code_version':'请输入代码版本',
         'placeholder.notGit_url':'仓库地址不合法',
         'placeholder.subdirectories':'请输入子目录路径',

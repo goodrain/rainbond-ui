@@ -282,6 +282,8 @@ const appConfiguration = {
   'appConfiguration.table.config_items':'配置项',
   'appConfiguration.table.btn.all':'全选',
   'appConfiguration.table.service_ids':'生效组件',
+  'appConfiguration.table.title':'友情提示',
+  'appConfiguration.table.save':'是否保存已修改的配置组',
 }
 
 //k8s资源

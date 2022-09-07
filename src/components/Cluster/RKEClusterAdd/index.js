@@ -794,9 +794,7 @@ export default class RKEClusterConfig extends PureComponent {
       >
         {isCheck && (
           <Modal
-            title={`${formatMessage({id:'enterpriseColony.addCluster.host.Initialize_and_start'})}
-            ${clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.to_configure'/> :  <FormattedMessage id='enterpriseColony.addCluster.host.install'/>}
-            ${formatMessage({id:'enterpriseColony.addCluster.host.Cluster'})}`}
+            title = { formatMessage({id:'enterpriseColony.addCluster.host.Initialize_and_start'}) + `${clusterID ? formatMessage({id:'enterpriseColony.addCluster.host.to_configure'}) : formatMessage({id:'enterpriseColony.addCluster.host.install'})}` + formatMessage({id:'enterpriseColony.addCluster.host.Cluster'})}
             confirmLoading={loading}
             className={styles.TelescopicModal}
             width={900}

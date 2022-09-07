@@ -467,6 +467,7 @@ export default class CreateCheck extends React.Component {
       errorInfo,
       appPermissions: { isDelete }
     } = this.state;
+    console.log(errorInfo,"errorInfo");
     const extra = (
       <div>
         {errorInfo.map((item, index) => (

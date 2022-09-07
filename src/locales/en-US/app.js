@@ -40,7 +40,7 @@ const appOverview = {
   'appOverview.list.table.batchOperate': 'Batch operation',
   'appOverview.list.input.seach.hint': 'Please search for components',
   'appOverview.list.btn.seach': 'Search',
-  'appOverview.no_limit': 'Do not limit',
+  'appOverview.no_limit': "Don't limit",
   'appOverview.serviceNum': 'Service number',
   'appOverview.principal.username': 'Account:',
   'appOverview.principal.principal': 'Name:',
@@ -276,6 +276,8 @@ const appConfiguration = {
   'appConfiguration.table.config_items':'Configuration items',
   'appConfiguration.table.btn.all':'Select all',
   'appConfiguration.table.service_ids':'Effective component',
+  'appConfiguration.table.title':'Friendly tips',
+  'appConfiguration.table.save':'Save the modified configuration group',
 }
 
 //k8s资源
@@ -335,8 +337,8 @@ const componentCheck = {
   'componentCheck.modify_image_name.key.pages.desc':'Please copy the following Key to your private Git repository for authorization so that Cloud help platform can access your private Git repository',
   'componentCheck.advanced.setup':'Advanced Settings',
   'componentCheck.advanced.setup.basic_info':'Basic information',
-  'componentCheck.advanced.setup.deploy_attr':'Deployment properties',
-  'componentCheck.advanced.setup.component_attr':'Component attributes',
+  'componentCheck.advanced.setup.deploy_attr':'Deploy properties',
+  'componentCheck.advanced.setup.component_attr':'Config',
   'componentCheck.advanced.setup.basic_info.label.extend_method':'Component type',
   'componentCheck.advanced.setup.basic_info.label.noLimit':'No limit',
   'componentCheck.advanced.setup.basic_info.label.schedule':'Operating rules：',

@@ -257,6 +257,7 @@ class CreateOAuthForm extends PureComponent {
                 {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login'})}
               </div>
             }
+            extra={formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login.desc'})}
           >
             {getFieldDecorator('is_auto_login', {
               initialValue: oauthInfo ? oauthInfo.is_auto_login : false,
@@ -268,9 +269,6 @@ class CreateOAuthForm extends PureComponent {
                 defaultChecked={oauthInfo ? oauthInfo.is_auto_login : false}
               />
             )}
-            <div className={styles.conformDesc}>
-            {formatMessage({id:'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login.desc'})}
-            </div>
           </Form.Item>
         </Form>
       </Modal>
