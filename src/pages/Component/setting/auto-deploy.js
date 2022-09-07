@@ -40,7 +40,7 @@ export default class AutoDeploy extends PureComponent {
       tabActiveKey: 0,
       setTabActiveKey: false,
       deployment_way:
-        this.props.service_source === '镜像' ? 'api_webhooks' : 'code_webhooks',
+        this.props.service_source === `${formatMessage({id:'componentOverview.body.ChangeBuildSource.image'})}` ? 'api_webhooks' : 'code_webhooks',
       tabLoading: [false, false, false],
       service_source: this.props.service_source,
       deploy_keyword: 'deploy',
@@ -217,6 +217,7 @@ export default class AutoDeploy extends PureComponent {
       url,
       service_source
     } = this.state;
+    console.log(service_source,"service_source");
     const setUrl = url.replace(
       'http://127.0.0.1:5000',
       `${window.location.protocol}//${window.location.host}`
@@ -280,7 +281,7 @@ export default class AutoDeploy extends PureComponent {
             </div>
           }
         >
-          {support_type === 1 && service_source == '源码' && (
+          {support_type === 1 && service_source == `${formatMessage({id:'componentOverview.body.ChangeBuildSource.Source_code'})}` && (
             <TabPane
               tab={
                 <span>
@@ -348,7 +349,7 @@ export default class AutoDeploy extends PureComponent {
                       </div>
                     </Description>
 
-                    <Description term={<FormattedMessage id='componentOverview.body.AutoDeploy.keyword'/>}>
+                    <Description term={<><FormattedMessage id='componentOverview.body.AutoDeploy.keyword'/> <span style={{display:'inline-block',paddingRight:'20px'}}></span></>} >
                       <div style={{ display: 'flex' }}>
                         <div
                           style={{
@@ -493,7 +494,7 @@ export default class AutoDeploy extends PureComponent {
               </div>
             )}
           </TabPane>
-          {(service_source == '镜像' ||
+          {(service_source == `${formatMessage({id:'componentOverview.body.ChangeBuildSource.image'})}` ||
             service_source == 'DockerCompose' ||
             service_source == 'DockerRun') && (
             <TabPane
@@ -549,7 +550,7 @@ export default class AutoDeploy extends PureComponent {
                         <Button size="small"><FormattedMessage id='componentOverview.body.AutoDeploy.copy'/></Button>
                       </CopyToClipboard>
                     </Description>
-                    <Description  term={<FormattedMessage id='componentOverview.body.AutoDeploy.tag'/>}>
+                    <Description  term={<FormattedMessage id='componentOverview.body.AutoDeploy.tag' />} >
                       <div style={{ display: 'flex' }}>
                         <div
                           style={{

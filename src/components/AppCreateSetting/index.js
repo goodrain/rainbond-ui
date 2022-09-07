@@ -580,7 +580,6 @@ class Mnt extends PureComponent {
         }
       }
     ];
-    console.log(this.state.volumeOpts,"volumeOpts");
     return (
       <Fragment>
         <Card

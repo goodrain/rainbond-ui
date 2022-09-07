@@ -49,7 +49,6 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName
     } = this.props;
-    console.log(match.params,'match.params')
     const map = {
       custom: CodeCustom,
       demo: CodeDemo,
