@@ -111,6 +111,7 @@ const appPublish = {
   'appPublish.table.btn.confirm':'确认',
   'appPublish.table.btn.cancel':'取消',
   'appPublish.table.btn.continue':'继续发布',
+  'appPublish.table.btn.release_cancel':'取消',
   'appPublish.shop.pages.title.joinMsg':'连接信息',
   'appPublish.shop.pages.title.random':'生成随机值',
   'appPublish.shop.pages.title.environment_variable':'环境变量',

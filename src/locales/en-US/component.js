@@ -735,7 +735,7 @@ const componentOverview = {
     'componentOverview.body.AutoDeploy.Not_open':'Auto build is not enabled yet',
     'componentOverview.body.AutoDeploy.Support_type':'Support type',
     'componentOverview.body.AutoDeploy.copy':'Copy',
-    'componentOverview.body.AutoDeploy.keyword':'Trigger keyword',
+    'componentOverview.body.AutoDeploy.keyword':'Trigger Key     ',
     'componentOverview.body.AutoDeploy.Commit':'When the commit information contains "@{deploy_keyword}", automatic deployment of components will be triggered automatically',
     'componentOverview.body.AutoDeploy.keyword_null':'Keyword cannot be empty',
     'componentOverview.body.AutoDeploy.to_update':'To update',
