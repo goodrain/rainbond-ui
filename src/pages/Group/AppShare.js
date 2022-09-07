@@ -1304,7 +1304,7 @@ export default class Main extends PureComponent {
                       marginBottom: 0
                     }}
                   >
-                    {formatMessage({id:'appPublish.btn.record.list.title.edit_publish_componentMsg'})}}
+                    {formatMessage({id:'appPublish.btn.record.list.title.edit_publish_componentMsg'})}
                   </h4>
                   <Button
                     style={{ float: 'right' }}
