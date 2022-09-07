@@ -533,7 +533,6 @@ export default class Index extends PureComponent {
       searchVisible,
       language
     } = this.state;
-    console.log(language,"language");
     const {
       index,
       dispatch,
