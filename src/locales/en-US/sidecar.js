@@ -1,6 +1,6 @@
 const sidecar =  {
   'sidecar.title': 'The view switches',
-  'sidecar.collection': 'Collection',
+  'sidecar.collection': 'Favorites',
   'sidecar.collection.add': 'Add Favorites view',
   'sidecar.enterprise': 'Enterprise View',
   'sidecar.team': 'Team View',
