@@ -182,7 +182,7 @@ const componentOverview = {
     'componentOverview.body.tab.monitor.now.throughput':'Throughput (DPS)',
     'componentOverview.body.tab.monitor.now.NumberOfRequests':'Average number of requests per 5S in the past minute',
     'componentOverview.body.tab.monitor.now.onlineNumber':'Online number',
-    'componentOverview.body.tab.monitor.now.independent':'过去5分钟的独立IP数量',
+    'componentOverview.body.tab.monitor.now.independent':'Number of independent IPS in the past 5 minutes',
     'componentOverview.body.tab.monitor.now.ranking':'Number of independent IPS in the past 5 minutes',
     'componentOverview.body.tab.monitor.now.cumulativeTime':'Cumulative time(ms)',
     'componentOverview.body.tab.monitor.now.AverageTime':'Average time(ms)',

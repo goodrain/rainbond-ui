@@ -24,8 +24,8 @@ class InstanceList extends PureComponent {
   showName = podName => {
     const arr =podName && podName.split('-')
     const num = arr[arr.length -1];
-    return <FormattedMessage id='componentOverview.body.Expansion.InstanceList.example' values={{num:num}}/>;
-
+    return `${formatMessage({id:'componentOverview.body.Expansion.InstanceList.example'},{num:num})}` ;
+            
   };
   getContainerMem = containers => {
     let memRate = 0;
