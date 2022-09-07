@@ -976,7 +976,7 @@ export default class Index extends PureComponent {
                     <FormattedMessage id='componentOverview.body.Expansion.setUp'/>
                   </Button>
                 </Form.Item>
-                {descBox(`${formatMessage({id:'componentOverview.body.Expansion.algorithm'})}`)}
+                {descBox(`${formatMessage({id:'componentOverview.body.Expansion.dispatch'})}`)}
               </Col>
             </Row>
             <Row gutter={16}>

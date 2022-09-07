@@ -10,7 +10,7 @@
         'popover.newComponent.componentName':'Component Name',
         'popover.newComponent.gitHub':'Github project',
         'popover.newComponent.gitLab':'Gitlab project',
-        'popover.newComponent.versions':'versions',
+        'popover.newComponent.versions':'Versions',
         'popover.newComponent.newProject':'New project',
         'popover.newComponent.codeBranch':'Code branch',
 
@@ -28,8 +28,8 @@
         'popover.newApp.appEngName.placeholder':'Please fill in the English name of the application',
 
         //添加/编辑http访问策略
-        'popover.access_strategy.title.add':'Example Add an HTTP access policy',
-        'popover.access_strategy.title.edit':'Example Edit an HTTP access policy',
+        'popover.access_strategy.title.add':'Add an HTTP access policy',
+        'popover.access_strategy.title.edit':'Edit an HTTP access policy',
         'popover.access_strategy.lable.routingRule':'Routing rules',
         'popover.access_strategy.lable.domain_name':'Domain',
         'popover.access_strategy.lable.domain_heander':'Request header',
@@ -39,9 +39,9 @@
         'popover.access_strategy.lable.exist_certificate_select':'Existing Certificate Selection',
         'popover.access_strategy.lable.auto_ssl_config':'Authentication configuration',
         'popover.access_strategy.lable.rule_extensions_http':'Expand Feature',
-        'popover.access_strategy.lable.port':'Port number',
+        'popover.access_strategy.lable.port':'Port',
         'popover.access_strategy.lable.component':'Component',
-        'popover.access_strategy.modal.domain':'Domain Name Resolution',
+        'popover.access_strategy.modal.domain':'Domain Resolution',
         'popover.access_strategy.lable.analysis':'resolve domain name to: ',
         'popover.access_strategy.lable.more':'More advanced route parameters',
         'popover.access_strategy.lable.automatic_issued':'Automatic certificate issuance (certificate issuance and matching is done automatically by the controller)',
@@ -71,7 +71,7 @@
         'popover.manage.certificate.label.name':'Name certificate',
         'popover.manage.certificate.label.kind':'Certificate type',
         'popover.manage.certificate.label.public':'Public Cert',
-        'popover.manage.certificate.label.private':'Private Cert',
+        'popover.manage.certificate.label.private':'Private Key',
         'popover.manage.certificate.label.server':'Server Certificate',
 
         // 添加/编辑tcp/udp访问策略
@@ -84,7 +84,7 @@
         'popover.tcp.config.title':'Connection information',
         'popover.tcp.config.table.attr_name':'Variable name',
         'popover.tcp.config.table.attr_value':'Variable value',
-        'popover.tcp.config.table.name':'Instructions',
+        'popover.tcp.config.table.name':'Notes',
 
 
         // 弹框确定取消
@@ -93,7 +93,7 @@
         'popover.cancel':'Cancel',
 
         // 位置：企业视图>总览>加入团队
-        'popover.enterpriseOverview.joinTeam.title':'Add team',
+        'popover.enterpriseOverview.joinTeam.title':'Join team',
         'popover.enterpriseOverview.joinTeam.label':'Team name',
         'popover.enterpriseOverview.joinTeam.message':'Please select team',
         'popover.enterpriseOverview.joinTeam.placeholder':'Please select a team',
@@ -103,7 +103,7 @@
         'popover.enterpriseOverview.setUpTeam.title':'Create team',
         // label
         'popover.enterpriseOverview.setUpTeam.label.name':'Team name',
-        'popover.enterpriseOverview.setUpTeam.label.englishName':'English team name',
+        'popover.enterpriseOverview.setUpTeam.label.englishName':'English name',
         'popover.enterpriseOverview.setUpTeam.label.colony':'Cluster',
         'popover.enterpriseOverview.setUpTeam.label.creat_name':'Click to create a team.',
         'popover.enterpriseOverview.setUpTeam.label.creat_colony':'Lack of cluster, to create',
@@ -122,7 +122,7 @@
         'popover.enterpriseOverview.setUpTeam.message.colony':'Please select a cluster',
 
         //位置：企业视图>应用市场>添加应用商店
-        'popover.applicationMarket.addMarket.title':'Add an App Store',
+        'popover.applicationMarket.addMarket.title':'Add an Market',
         'popover.applicationMarket.local':'Local Market',
         'popover.applicationMarket.all':'All',
         'popover.applicationMarket.company':'Company release',
@@ -161,14 +161,14 @@
         'button.service_build':'Enter multi-service build',
         'button.build_start':'Build Run',
         'button.be_authorized':'Be granted',
-        'button.umount':'Umount',
+        'button.umount':'Unmount',
         'button.build_component':'Build component',
         'button.add_depend':'Add dependent',
         'button.add_port':'Add port',
         'button.add':'Add',
         'button.next_step':'Next',
         'button.last_step':'Previous',
-        'button.import':'Confirm import',
+        'button.import':'Confirm',
         'button.apply':'Apply',
         'button.previous':'Previous',
         'button.next':'Next',
@@ -213,8 +213,8 @@
         'confirmModal.compose.update.title':'Modify Compose content',
         'confirmModal.umount.dalete.title':'Cancel mount',
         'confirmModal.path.delete.title':'Deleting Storage Directory',
-        'confirmModal.port.delete.title':'Port delete',
-        'confirmModal.domain.delete.title':'Domain unbundling',
+        'confirmModal.port.delete.title':'Delete Port',
+        'confirmModal.domain.delete.title':'Unbind Domain',
         'confirmModal.collect_view.delete.title':'Deleting favorite views',
         'confirmModal.image_warehouse.delete.title':'Delete the image repository authorization information',
         'confirmModal.role.delete.title':'Delete the role',
@@ -227,14 +227,14 @@
         'confirmModal.forbidden.delete.title':'Forbidden',
         'confirmModal.app_versions.delete.title':'Deleting app versions',
         'confirmModal.app_template.delete.title':'Delete app template',
-        'confirmModal.app_store.delete.title':'Delete App Store',
+        'confirmModal.app_store.delete.title':'Delete App Market',
         'confirmModal.helm_store.delete.title':'Delete Helm app store',
         'confirmModal.project_team_close.delete.title':'Close all components under the project/team',
         'confirmModal.project_team_quit.delete.title':'Quit project/team',
         'confirmModal.revocation.delete.title':'withdraw claim',
         'confirmModal.project_team_delete.delete.title':'Delete projects/teams',
         'confirmModal.user.delete.title':'Delete user',
-        'confirmModal.plugin.delete.title':'Remove plug-in',
+        'confirmModal.plugin.delete.title':'Remove plugin',
         'confirmModal.configuration_item.delete.title':'Removing configuration items',
         'confirmModal.drop_procedure.delete.title':'Delete memory',
         'confirmModal.drop_versions.delete.title':'Delete version',
@@ -429,11 +429,11 @@
         'confirmModal.deldete.port.subDesc':'This operation is not recoverable?',
 
         // 域名解绑
-        'confirmModal.deldete.unbound.title':'Domain name unbound',
+        'confirmModal.deldete.unbound.title':'Unbound Domain',
         'confirmModal.deldete.unbound.desc':'Are you sure you want to unbind this domain name?',
 
         // 卸载插件
-        'confirmModal.deldete.plugin.title':'Uninstall plug-ins',
+        'confirmModal.deldete.plugin.title':'Uninstall plugins',
         'confirmModal.deldete.plugin.desc':'Are you sure you want to uninstall this plug-in?',
 
         //删除此Maven配置

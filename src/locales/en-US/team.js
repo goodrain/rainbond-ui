@@ -280,12 +280,12 @@ const teamManage = {
   'teamManage.tabs.role.list.permissions.teamMember':'Team member management',
   'teamManage.tabs.role.list.permissions.teamRole':'Team Role Management',
   'teamManage.tabs.role.list.permissions.app_config_group':'Application configuration group management',
-  'teamManage.tabs.role.list.permissions.teamRegistryAuth':'Image warehouse authorization information management',
+  'teamManage.tabs.role.list.permissions.teamRegistryAuth':'ImageRepoAuthInfo',
   'teamManage.tabs.role.list.permissions.certificate':'Certificate management',
   'teamManage.tabs.role.list.permissions.gatewayRule':'Gateway access policy management',
   'teamManage.tabs.role.list.permissions.app':'Application management',
   'teamManage.tabs.role.list.permissions.component':'Component management',
-  'teamManage.tabs.role.list.permissions.plugin':'Plug-in management',
+  'teamManage.tabs.role.list.permissions.plugin':'Plugin management',
 
   //镜像仓库授权信息 image
   'teamManage.tabs.image':'ImageRepoAuthInfo',
