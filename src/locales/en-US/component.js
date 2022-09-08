@@ -10,7 +10,7 @@ const componentOverview = {
     // 右侧按钮
     'componentOverview.header.right.web':'Terminal',
     'componentOverview.header.right.build':'Build',
-    'componentOverview.header.right.update':'Update',
+    'componentOverview.header.right.update':'Upgrade',
     'componentOverview.header.right.update.roll':'Upgrade',
     'componentOverview.header.right.visit':'Access',
     'componentOverview.header.right.start':'Start',
@@ -82,6 +82,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.codeVersion':'Code version',
     'componentOverview.body.tab.overview.file':'MD5',
     'componentOverview.body.tab.overview.repo.address':'Domain',
+    'componentOverview.body.tab.overview.warehouse.address':'Repo Address',
     'componentOverview.body.tab.overview.submit':'Submit information',
     'componentOverview.body.tab.overview.fileName':'File Name',
     'componentOverview.body.tab.overview.imageName':'Image',

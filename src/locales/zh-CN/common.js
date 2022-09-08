@@ -181,7 +181,7 @@
         'button.to_export':'重新导出',
         'button.download':'下载',
         'button.export':'导出',
-
+        'button.freshen':'刷新',
     }
     const status = {
         'status.component.running':'运行中',

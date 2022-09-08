@@ -182,6 +182,7 @@
         'button.to_export':'To export',
         'button.download':'Download',
         'button.export':'Export',
+        'button.freshen':'Refresh',
     }
     const status = {
         'status.component.running':'Running',
