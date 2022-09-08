@@ -28,6 +28,7 @@ import EnvironmentVariable from '../../components/EnvironmentVariable';
 import NoPermTip from '../../components/NoPermTip';
 import Port from '../../components/Port';
 import ViewRelationInfo from '../../components/ViewRelationInfo';
+import CustomFooter from "../../layouts/CustomFooter";
 import {
   addMnt,
   batchAddRelationedApp,
@@ -1302,6 +1303,7 @@ export default class Index extends PureComponent {
             />
           </div>
         </div>
+      <CustomFooter />
       </div>
     );
   }

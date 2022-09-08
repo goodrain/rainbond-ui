@@ -37,6 +37,7 @@ import DeployAttribute from "../../../components/DeployAttribute"
 import FlexAttribute from '../../../components/FlexAttribute'
 import SpecialAttribute from '../../../components/SpecialAttribute'
 import Kubernetes from "../../../components/KubernetesAttribute"
+import CustomFooter from "../../../layouts/CustomFooter";
 import { object } from 'prop-types';
 import { log } from 'lodash-decorators/utils';
 import { TimelineChart } from '@/components/Charts';
@@ -338,6 +339,7 @@ export default class ImportMessage extends PureComponent {
                         </Button>
                     </div>
                 </Spin>
+                <CustomFooter/>
             </div >
         );
     }
