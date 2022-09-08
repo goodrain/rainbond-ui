@@ -388,7 +388,7 @@ const componentCheck = {
 
 }
 const otherAppAssembly = {
-  'otherApp.marketDrawer.edition':'Edition:',
+  'otherApp.marketDrawer.edition':'Version:',
   'otherApp.marketDrawer.click':'Click Install',
   'otherApp.marketDrawer.not':'Not Installable',
   'otherApp.marketDrawer.Memory':'Memory:',
