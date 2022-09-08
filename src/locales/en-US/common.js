@@ -12,7 +12,7 @@
         'popover.newComponent.gitLab':'Gitlab project',
         'popover.newComponent.versions':'Versions',
         'popover.newComponent.newProject':'New project',
-        'popover.newComponent.codeBranch':'Code branch',
+        'popover.newComponent.codeBranch':'Code Branch',
 
         // 弹窗新建/修改应用
         'popover.newApp.title':'Create',
@@ -200,7 +200,7 @@
         'status.not_mount':'Not mount',
         'status.mounted':'Mounted',
         'status.not_export':'Not exported',
-        'status.underway':'Underway',
+        'status.underway':'Exporting',
     }
     const confirmModal = {
         //修改应用信息 删除应用

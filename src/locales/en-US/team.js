@@ -72,7 +72,7 @@ const teamAdd = {
   'teamAdd.create.code.package':'Package upload',
   'teamAdd.create.code.demo':'Official DEMO',
   'teamAdd.create.code.address':'Repo Address',
-  'teamAdd.create.code.versions':'Code version',
+  'teamAdd.create.code.versions':'Code Version',
   'teamAdd.create.code.branch':'Branch',
   'teamAdd.create.code.fillInUser':'Account password',
   'teamAdd.create.code.fillInPath':'Subdirectory path',
