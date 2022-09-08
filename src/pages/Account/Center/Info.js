@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import router from 'umi/router';
 import { FormattedMessage } from 'umi-plugin-locale';
 import rainbondUtil from '../../../utils/rainbond';
-
+import CustomFooter from "../../../layouts/CustomFooter";
 import { Menu } from 'antd';
 import styles from './Info.less';
 
@@ -87,6 +87,7 @@ class Info extends Component {
 
     const { mode, selectKey } = this.state;
     return (
+      <>
       <div className={styles.main}>
         <div className={styles.leftmenu}>
           <Menu mode={mode} selectedKeys={[selectKey]} onClick={this.selectKey}>
@@ -98,6 +99,8 @@ class Info extends Component {
           {children}
         </div>
       </div>
+      <CustomFooter/>
+      </>
     );
   }
 }

@@ -45,6 +45,7 @@ import VisterBtn from '../../components/visitBtnForAlllink';
 import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import sourceUtil from '../../utils/source-unit';
+import CustomFooter from "../../layouts/CustomFooter";
 import Instance from '../Component/component/Instance/index';
 import infoUtil from '../Upgrade/UpgradeInfo/info-util';
 import styles from './Index.less';
@@ -1513,6 +1514,7 @@ export default class Index extends PureComponent {
             <p>{formatMessage({id:'confirmModal.friendly_reminder.pages.desc'},{codeObj: codeObj[code]})}</p>
           </Modal>
         )}
+        <CustomFooter />
       </Fragment>
     );
   }
