@@ -125,8 +125,8 @@
         'popover.applicationMarket.addMarket.title':'Add an Market',
         'popover.applicationMarket.local':'Local Market',
         'popover.applicationMarket.all':'All',
-        'popover.applicationMarket.company':'Company release',
-        'popover.applicationMarket.team':'Team release',
+        'popover.applicationMarket.company':'Enterprise Scope',
+        'popover.applicationMarket.team':'Team Scope',
         
     }
     const button = {
@@ -182,6 +182,7 @@
         'button.to_export':'To export',
         'button.download':'Download',
         'button.export':'Export',
+        'button.freshen':'Refresh',
     }
     const status = {
         'status.component.running':'Running',

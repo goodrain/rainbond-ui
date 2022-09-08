@@ -319,6 +319,14 @@ export default class ComponentList extends Component {
       })
     }
   }
+  titleCase = (str) => {
+    str = str.toLowerCase();
+    var attr = str.split(" ");
+    for(var i =0;i<attr.length;i++){
+       attr[i]=attr[i].substring(0,1).toUpperCase() + attr[i].substring(1);
+    }
+    return attr.join(" ");
+  }
   render() {
     const {
       componentPermissions: {
@@ -451,18 +459,18 @@ export default class ComponentList extends Component {
               status={appUtil.appStatusToBadgeStatus(data.status)}
               text={
                 val === '运行中'
-                  ? formatMessage({id:'status.component.health'})
+                  ? this.titleCase(formatMessage({id:'status.component.health'}))
                   : val === '运行异常'
-                  ? formatMessage({id:'status.component.not_health'})
+                  ? this.titleCase(formatMessage({id:'status.component.not_health'}))
                   : val === '已关闭'
-                  ? formatMessage({id:'status.component.off_line'})
-                  : val
+                  ? this.titleCase(formatMessage({id:'status.component.off_line'}))
+                  : this.titleCase(val)
               }
             />
           ) : (
             <Badge
               status={appUtil.appStatusToBadgeStatus(data.status)}
-              text={val}
+              text={this.titleCase(val)}
             />
           )
       },
