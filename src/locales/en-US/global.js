@@ -54,7 +54,7 @@ const global = {
     'global.fetchInstanceAdvice.Initiating':'Waiting for startup, please check whether the components that this component depends on have been started normally',
 
     // fetchOperation
-    'global.fetchOperation.doing':'Underway',
+    'global.fetchOperation.doing':'In progress',
     'global.fetchOperation.timeOut':'Timeout',
     'global.fetchOperation.success':'Success',
     'global.fetchOperation.lose':'Fail',
