@@ -286,7 +286,6 @@ export default class AppExporter extends PureComponent {
         }
       },
       callback: data => {
-        console.log(data,'data')
         if (data) {
           if (
             (data.list &&

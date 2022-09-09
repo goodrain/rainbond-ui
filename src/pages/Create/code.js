@@ -69,7 +69,6 @@ export default class Main extends PureComponent {
       tabList.push({ key: 'demo', tab: formatMessage({id:'teamAdd.create.code.demo'})});
     }
     const servers = oauthUtil.getEnableGitOauthServer(enterprise);
-    console.log(servers,'servers')
     if (servers && servers.length > 0) {
       servers.map(item => {
         const { name, service_id, oauth_type } = item;

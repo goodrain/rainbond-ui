@@ -228,7 +228,6 @@ class Index extends PureComponent {
                               : beanData.image_repo && beanData.image_repo)
                           }
                         >
-                          {console.log(beanData,"beanData")}
                           <span className={styles.buildText}>
                             {beanData
                               ? beanData.kind && beanData.kind === '源码构建'

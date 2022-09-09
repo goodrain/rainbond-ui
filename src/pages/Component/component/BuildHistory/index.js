@@ -560,7 +560,9 @@ class Index extends PureComponent {
                           >
                             {build_version !== current_version &&
                               isDelete &&
-                              current_version && (
+                              current_version && 
+                              (status.length > 0 ? true : false)&&
+                              (
                                 <span>
                                   <Divider type="vertical" />
                                   <a style={{ fontSize: '12px' }}>
