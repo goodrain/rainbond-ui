@@ -272,7 +272,7 @@
         'applicationMarket.offline_installer.form.label.docker_compose':'DockerCompose App',
         'applicationMarket.offline_installer.form.label.docker_compose.desc':'(The DockerCompose environment is available)',
         'applicationMarket.offline_installer.confirm.label.release':'The current export version is not in release state.',
-        'applicationMarket.offlne_installer.confirm.label.release.desc':'Continue exporting or not ?',
+        'applicationMarket.offline_installer.confirm.label.release.desc':'Continue exporting or not ?',
         // EditAppVersion
         'applicationMarket.EditAppVersion.edit':'Edit version',
         'applicationMarket.EditAppVersion.name':'Alias',

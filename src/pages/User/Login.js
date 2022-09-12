@@ -126,7 +126,6 @@ export default class LoginPage extends Component {
     }
     const inlineBlock = { display: 'inline-block' };
     const { language } = this.state;
-    console.log(language,"language");
     return (
       <div className={styles.main} style={{ marginTop: '100px' }}>
         <h3><FormattedMessage id="login.Login.title"/></h3>
