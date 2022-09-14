@@ -1152,7 +1152,7 @@ class Main extends PureComponent {
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update'/> : <FormattedMessage id='componentOverview.header.right.update.roll'/>;
     const codeObj = {
       start:  formatMessage({id:'componentOverview.header.right.start'}),
-      restart: formatMessage({id:'componentOverview.header.rleft.reset'}),
+      restart: formatMessage({id:'componentOverview.header.left.reset'}),
       stop: formatMessage({id:'componentOverview.header.left.turnoff'}),
       deploy: formatMessage({id:'componentOverview.header.right.build'}),
       rolling: upDataText
