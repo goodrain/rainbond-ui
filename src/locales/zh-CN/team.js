@@ -305,7 +305,7 @@ const teamOther = {
   'teamOther.Group.desc':'应用由一个或多个服务组成，可以管理一个完整业务系统，比如：OA、CRM、ERP等，也可以管理一个完整的微服务架构的系统，这里展示了应用的基本信息。',
   'teamOther.Group.app':'应用拓扑图',
   'teamOther.Group.know':'已知晓',
-  'teamOther.Group.Topological':'这是应用内部的服务拓扑图，通过拓扑图可以整体了解服务的运行状态和依赖关系，每个六边形就是一个服务，点击六边形可以进入服务的管理页面。',
+  'teamOther.Group.Topological':'这是应用内部的服务拓扑图，通过拓扑图可以整体了解服务(组件)的运行状态和依赖关系，每新增一个服务(组件)，此处都会展示出一个六边形，点击六边形可以进入服务(组件)的管理页面。',
   // AllBackup
   'teamOther.AllBackup.Backup':'备份中',
   'teamOther.AllBackup.success':'备份成功',
