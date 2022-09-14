@@ -64,7 +64,7 @@ const appOverview = {
   'appOverview.list.btn.addComponent.project': '项目',
 
   //helm 应用
-  'appOverview.helm.title': '服务实例',
+  'appOverview.helm.title': '拓扑图',
   'appOverview.helm.componentDetail': '组件详情',
   'appOverview.helm.pages.desc.service': '当前应用未定义 Service, 无法查询实例列表',
   'appOverview.helm.pages.result.init': '初始化中...',

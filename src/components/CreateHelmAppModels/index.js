@@ -190,7 +190,8 @@ class CreateHelmAppModels extends PureComponent {
   jump = (teaName, regionName, ID) => {
     const { dispatch } = this.props;
     dispatch(
-      routerRedux.push(`/team/${teaName}/region/${regionName}/apps/${ID}`)
+      // routerRedux.push(`/team/${teaName}/region/${regionName}/apps/${ID}`)
+      routerRedux.push(`/team/${teaName}/region/${regionName}/apps/${ID}/HelmDetection`)
     );
   };
 

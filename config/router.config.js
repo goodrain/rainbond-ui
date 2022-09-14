@@ -437,7 +437,13 @@ export default [
             name: 'check',
             authority: ['admin', 'user']
           },
-
+          {
+            path:'/team/:teamName/region/:regionName/apps/:appID/HelmDetection',
+            component: './HelmDetection/index',
+            name: 'HelmDetection',
+            authority: ['admin', 'user']
+          },
+          
           {
             path:
               '/team/:teamName/region/:regionName/create/create-compose-check/:appID/:composeId',
