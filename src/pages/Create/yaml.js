@@ -12,6 +12,7 @@ import oauthUtil from '../../utils/oauth';
 import rainbondUtil from '../../utils/rainbond';
 import roleUtil from '../../utils/role';
 import Yaml from './yaml-yaml';
+import Helm from './helm-cmd';
 
 
 @connect(
@@ -51,7 +52,8 @@ export default class Main extends PureComponent {
     } = this.props;
     const map = {
       yaml: Yaml,
-      importCluster: ImportCluster
+      importCluster: ImportCluster,
+      helm: Helm
     };
 
     const tabList = [
@@ -62,6 +64,10 @@ export default class Main extends PureComponent {
       {
         key: 'importCluster',
         tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.k8s'})
+      },
+      {
+        key: 'helm',
+        tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.helm'})
       }
     ];
     
