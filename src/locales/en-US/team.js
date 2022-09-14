@@ -306,7 +306,7 @@ const teamOther = {
   'teamOther.Group.desc':'An application is composed of one or more services, which can manage a complete business system, such as OA, CRM, ERP, etc., and can also manage a complete microservice architecture system. Here is the basic information of the application.',
   'teamOther.Group.app':'Application topology',
   'teamOther.Group.know':'Known',
-  'teamOther.Group.Topological':'This is the internal service topology diagram of the application. Through the topology diagram, you can understand the running status and dependency of the service as a whole. Each hexagon is a service. Click the hexagon to enter the service management page.',
+  'teamOther.Group.Topological':'This is the service topology diagram inside the application, through which the overall running state and dependencies of services (components) can be understood. Each new service (component) will show a hexagon here, and click the hexagon to enter the service (component) management page.',
   // AllBackup
   'teamOther.AllBackup.Backup':'Backup in progress',
   'teamOther.AllBackup.success':'Backup succeeded',
