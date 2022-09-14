@@ -40,7 +40,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Markdown from 'react-markdown';
 import { Link } from 'umi';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -112,7 +112,7 @@ export default class Index extends PureComponent {
         },
         {
           key: 'installing',
-          value: formatMessage({id:'button.install'})
+          value: formatMessage({ id: 'button.install' })
         }
       ],
       appType: {
@@ -340,7 +340,7 @@ export default class Index extends PureComponent {
       }
     });
   }
-      
+
   onChangeSteps = currentSteps => {
     this.setState({ currentSteps });
   };
@@ -362,7 +362,7 @@ export default class Index extends PureComponent {
     }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
-        message: formatMessage({id:'notification.warn.error'}),
+        message: formatMessage({ id: 'notification.warn.error' }),
         description: err.data.msg_show
       });
     }
@@ -566,7 +566,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
           this.closeComponentTimer();
           this.cancelDelete(false);
           dispatch(routerRedux.push(`${this.fetchPrefixUrl()}apps`));
@@ -627,7 +627,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.change'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.change' }) });
         }
         this.handleUpDataHeader();
         this.cancelEdit();
@@ -663,7 +663,7 @@ export default class Index extends PureComponent {
       }).then(res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: formatMessage({id:'notification.success.reboot_success'})
+            message: formatMessage({ id: 'notification.success.reboot_success' })
           });
           this.handlePromptModalClose();
         }
@@ -680,7 +680,7 @@ export default class Index extends PureComponent {
         callback: res => {
           if (res && res.status_code === 200) {
             notification.success({
-              message: res.msg_show || formatMessage({id:'notification.success.build_success'}),
+              message: res.msg_show || formatMessage({ id: 'notification.success.build_success' }),
               duration: '3'
             });
             this.handlePromptModalClose();
@@ -718,7 +718,7 @@ export default class Index extends PureComponent {
     if (!isRightType) {
       if (isMessage) {
         notification.warning({
-          message: formatMessage({id:'notification.warn.yaml_file'})
+          message: formatMessage({ id: 'notification.warn.yaml_file' })
         });
       }
       return false;
@@ -904,7 +904,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.fetchAppDetailState();
-          notification.success({ message: formatMessage({id:'notification.success.wait_patiently'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.wait_patiently' }) });
         }
         this.setState({
           submitLoading: false
@@ -931,7 +931,7 @@ export default class Index extends PureComponent {
           loading={submitLoading}
           type="primary"
         >
-          {type === 'Create' ? formatMessage({id:'button.install'}) : '更新'}
+          {type === 'Create' ? formatMessage({ id: 'button.install' }) : '更新'}
         </Button>
       </div>
     );
@@ -1101,174 +1101,174 @@ export default class Index extends PureComponent {
     return (
       <Form labelAlign="left">
         <Collapse bordered={false} defaultActiveKey={['2']}>
-        {currentSteps > 3 ? false : true &&
-        <Panel
-            header={
-              <div className={styles.customPanelHeader}>
-                <h6>{formatMessage({id: 'appOverview.helm.pages.option'})}</h6>
-                <p>{formatMessage({id: 'appOverview.helm.pages.standard'})}</p>
-              </div>
-            }
-            key="2"
-            className={styles.customPanel}
-          >
-            <Skeleton loading={versionInfoLoading}>
-              <div style={{ padding: '15px 30px' }}>
-                {formData && formData.length > 0 && (
-                  <PublicForm
-                    Form={Form}
-                    data={formData}
-                    upDateQuestions={data => {
-                      this.setState({
-                        formData: data
-                      });
-                    }}
-                    setFieldsValue={setFieldsValue}
-                    formItemLayout={formItemLayout}
-                    getFieldValue={getFieldValue}
-                    getFieldDecorator={getFieldDecorator}
-                  />
-                )}
-                <div className={PublicFormStyles.over_hr}>
-                  <span>{formatMessage({id: 'appOverview.helm.pages.over_hr'})}</span>
+          {currentSteps > 3 ? false : true &&
+            <Panel
+              header={
+                <div className={styles.customPanelHeader}>
+                  <h6>{formatMessage({ id: 'appOverview.helm.pages.option' })}</h6>
+                  <p>{formatMessage({ id: 'appOverview.helm.pages.standard' })}</p>
                 </div>
-                <FormItem {...formItemLayout} label={formatMessage({id: 'appOverview.helm.pages.overrides'})}>
-                  {getFieldDecorator('overrides', {
-                    initialValue: overrides || [],
-                    rules: [{ required: false, message: formatMessage({id: 'placeholder.helm.overrides'}) }]
-                  })(
-                    <Parameterinput
-                      disableds={upDataVersion || errPrompt || noVersion}
-                      isHalf
-                      editInfo={overrides || ''}
+              }
+              key="2"
+              className={styles.customPanel}
+            >
+              <Skeleton loading={versionInfoLoading}>
+                <div style={{ padding: '15px 30px' }}>
+                  {formData && formData.length > 0 && (
+                    <PublicForm
+                      Form={Form}
+                      data={formData}
+                      upDateQuestions={data => {
+                        this.setState({
+                          formData: data
+                        });
+                      }}
+                      setFieldsValue={setFieldsValue}
+                      formItemLayout={formItemLayout}
+                      getFieldValue={getFieldValue}
+                      getFieldDecorator={getFieldDecorator}
                     />
                   )}
-                </FormItem>
-                <Row>
-                  {currentSteps > 3 && (
-                    <Col span={12}>
-                      <FormItem {...formItemLayout} label={formatMessage({id: 'appOverview.helm.pages.version'})}>
-                        {getFieldDecorator('version', {
-                          initialValue: resources.version || undefined,
-                          rules: [
-                            {
-                              required: true,
-                              message: formatMessage({id: 'placeholder.helm.version'})
-                            }
-                          ]
-                        })(
-                          <Select
-                            placeholder={formatMessage({id: 'placeholder.helm.version'})}
-                            style={{ width: '95%' }}
-                            disabled={upDataVersion || errPrompt}
-                            onChange={val => {
-                              this.handleAppVersion(val, true, true);
-                            }}
-                          >
-                            {versions.map(item => {
-                              const { version } = item;
-                              return (
-                                <Option key={version} value={version}>
-                                  {resources.version === version
-                                    ? formatMessage({id: 'appOverview.helm.pages.current_version'},{version: version})
-                                    : version}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Col>
-                  )}
-                  <Col span={12}>
-                    {(upDataVersion || noVersion) && (
-                      <Alert
-                        style={{ marginTop: '40px' }}
-                        message={
-                          noVersion
-                            ? formatMessage({id: 'appOverview.helm.pages.alert.message'})
-                            : upDataVersion
-                        }
-                        type="warning"
+                  <div className={PublicFormStyles.over_hr}>
+                    <span>{formatMessage({ id: 'appOverview.helm.pages.over_hr' })}</span>
+                  </div>
+                  <FormItem {...formItemLayout} label={formatMessage({ id: 'appOverview.helm.pages.overrides' })}>
+                    {getFieldDecorator('overrides', {
+                      initialValue: overrides || [],
+                      rules: [{ required: false, message: formatMessage({ id: 'placeholder.helm.overrides' }) }]
+                    })(
+                      <Parameterinput
+                        disableds={upDataVersion || errPrompt || noVersion}
+                        isHalf
+                        editInfo={overrides || ''}
                       />
                     )}
-                  </Col>
-                </Row>
-                <Col span={24} style={{ position: 'relative', zIndex: 1 }}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({id: 'appOverview.helm.pages.yaml.templateFile'})}
-                    className={styles.clearStar}
-                  >
-                    {getFieldDecorator('templateFile', {
-                      initialValue: valueFiles.length > 0 && valueFiles[0],
-                      rules: [{ required: true, message: formatMessage({id: 'placeholder.templateFile'}) }]
-                    })(
-                      <Select
-                        placeholder={formatMessage({id: 'placeholder.templateFile'})}
-                        style={{ width: '100%' }}
-                        onChange={this.handleTemplateFile}
-                        disabled={upDataVersion || errPrompt || noVersion}
-                      >
-                        {valueFiles.map(key => {
-                          return (
-                            <Option key={key} value={key}>
-                              {key}
-                            </Option>
-                          );
-                        })}
-                      </Select>
-                    )}
                   </FormItem>
-                </Col>
-                <CodeMirrorForm
-                  disabled
-                  data=""
-                  bg="151718"
-                  width="100%"
-                  isUpload={false}
-                  saveRef={ref => {
-                    this.CodeMirrorRef = ref;
-                  }}
-                  marginTop={120}
-                  setFieldsValue={setFieldsValue}
-                  formItemLayout={formItemLayout}
-                  Form={Form}
-                  getFieldDecorator={getFieldDecorator}
-                  beforeUpload={this.beforeUpload}
-                  mode="yaml"
-                  name="yamls"
-                  message={formatMessage({id: 'appOverview.helm.pages.yaml.yamlMsg'})}
-                />
-                {currentSteps > 3 && this.handleOperationBtn('UpDate')}
-              </div>
-            </Skeleton>
-          </Panel>
+                  <Row>
+                    {currentSteps > 3 && (
+                      <Col span={12}>
+                        <FormItem {...formItemLayout} label={formatMessage({ id: 'appOverview.helm.pages.version' })}>
+                          {getFieldDecorator('version', {
+                            initialValue: resources.version || undefined,
+                            rules: [
+                              {
+                                required: true,
+                                message: formatMessage({ id: 'placeholder.helm.version' })
+                              }
+                            ]
+                          })(
+                            <Select
+                              placeholder={formatMessage({ id: 'placeholder.helm.version' })}
+                              style={{ width: '95%' }}
+                              disabled={upDataVersion || errPrompt}
+                              onChange={val => {
+                                this.handleAppVersion(val, true, true);
+                              }}
+                            >
+                              {versions.map(item => {
+                                const { version } = item;
+                                return (
+                                  <Option key={version} value={version}>
+                                    {resources.version === version
+                                      ? formatMessage({ id: 'appOverview.helm.pages.current_version' }, { version: version })
+                                      : version}
+                                  </Option>
+                                );
+                              })}
+                            </Select>
+                          )}
+                        </FormItem>
+                      </Col>
+                    )}
+                    <Col span={12}>
+                      {(upDataVersion || noVersion) && (
+                        <Alert
+                          style={{ marginTop: '40px' }}
+                          message={
+                            noVersion
+                              ? formatMessage({ id: 'appOverview.helm.pages.alert.message' })
+                              : upDataVersion
+                          }
+                          type="warning"
+                        />
+                      )}
+                    </Col>
+                  </Row>
+                  <Col span={24} style={{ position: 'relative', zIndex: 1 }}>
+                    <FormItem
+                      {...formItemLayout}
+                      label={formatMessage({ id: 'appOverview.helm.pages.yaml.templateFile' })}
+                      className={styles.clearStar}
+                    >
+                      {getFieldDecorator('templateFile', {
+                        initialValue: valueFiles.length > 0 && valueFiles[0],
+                        rules: [{ required: true, message: formatMessage({ id: 'placeholder.templateFile' }) }]
+                      })(
+                        <Select
+                          placeholder={formatMessage({ id: 'placeholder.templateFile' })}
+                          style={{ width: '100%' }}
+                          onChange={this.handleTemplateFile}
+                          disabled={upDataVersion || errPrompt || noVersion}
+                        >
+                          {valueFiles.map(key => {
+                            return (
+                              <Option key={key} value={key}>
+                                {key}
+                              </Option>
+                            );
+                          })}
+                        </Select>
+                      )}
+                    </FormItem>
+                  </Col>
+                  <CodeMirrorForm
+                    disabled
+                    data=""
+                    bg="151718"
+                    width="100%"
+                    isUpload={false}
+                    saveRef={ref => {
+                      this.CodeMirrorRef = ref;
+                    }}
+                    marginTop={120}
+                    setFieldsValue={setFieldsValue}
+                    formItemLayout={formItemLayout}
+                    Form={Form}
+                    getFieldDecorator={getFieldDecorator}
+                    beforeUpload={this.beforeUpload}
+                    mode="yaml"
+                    name="yamls"
+                    message={formatMessage({ id: 'appOverview.helm.pages.yaml.yamlMsg' })}
+                  />
+                  {currentSteps > 3 && this.handleOperationBtn('UpDate')}
+                </div>
+              </Skeleton>
+            </Panel>
           }
           {currentSteps > 3 ? false : true &&
-          <Panel
-            header={
-              <div className={styles.customPanelHeader}>
-                <h6>{formatMessage({id: 'appOverview.helm.pages.appIntroduce'})}</h6>
-                <p>{formatMessage({id: 'appOverview.helm.pages.explain'})}</p>
+            <Panel
+              header={
+                <div className={styles.customPanelHeader}>
+                  <h6>{formatMessage({ id: 'appOverview.helm.pages.appIntroduce' })}</h6>
+                  <p>{formatMessage({ id: 'appOverview.helm.pages.explain' })}</p>
+                </div>
+              }
+              key="1"
+              className={styles.customPanel}
+            >
+              <div style={{ padding: '15px 30px' }}>
+                <Skeleton loading={versionInfoLoading}>
+                  <Markdown
+                    className={styles.customMD}
+                    source={
+                      (versionInfo.readme &&
+                        this.decodeBase64Content(versionInfo.readme)) ||
+                      ''
+                    }
+                  />
+                </Skeleton>
               </div>
-            }
-            key="1"
-            className={styles.customPanel}
-          >
-            <div style={{ padding: '15px 30px' }}>
-              <Skeleton loading={versionInfoLoading}>
-                <Markdown
-                  className={styles.customMD}
-                  source={
-                    (versionInfo.readme &&
-                      this.decodeBase64Content(versionInfo.readme)) ||
-                    ''
-                  }
-                />
-              </Skeleton>
-            </div>
-          </Panel>
+            </Panel>
           }
         </Collapse>
         {currentSteps <= 2 && this.handleOperationBtn('Create')}
@@ -1336,10 +1336,10 @@ export default class Index extends PureComponent {
       jsonDataLength
     } = this.state;
     const codeObj = {
-      start: formatMessage({id: 'appOverview.btn.start'}),
-      restart: formatMessage({id: 'appOverview.list.table.restart'}),
-      stop: formatMessage({id: 'appOverview.btn.stop'}),
-      deploy: formatMessage({id: 'appOverview.btn.build'}),
+      start: formatMessage({ id: 'appOverview.btn.start' }),
+      restart: formatMessage({ id: 'appOverview.list.table.restart' }),
+      stop: formatMessage({ id: 'appOverview.btn.stop' }),
+      deploy: formatMessage({ id: 'appOverview.btn.build' }),
     };
     const appStateColor = {
       deployed: 'success',
@@ -1374,7 +1374,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    {formatMessage({id: 'appOverview.btn.start'})}
+                    {formatMessage({ id: 'appOverview.btn.start' })}
                   </a>
                   <Divider type="vertical" />
                 </span>
@@ -1392,14 +1392,14 @@ export default class Index extends PureComponent {
                       }}
                       disabled={BtnDisabled}
                     >
-                      {formatMessage({id: 'appOverview.list.table.restart'})}
+                      {formatMessage({ id: 'appOverview.list.table.restart' })}
                     </a>
                     <Divider type="vertical" />
                   </span>
                 )}
               {isDelete && resources.status !== 'RUNNING' && (
                 <a onClick={this.toDelete}>
-                  {formatMessage({id: 'appOverview.list.table.delete'})}
+                  {formatMessage({ id: 'appOverview.list.table.delete' })}
                 </a>
               )}
               {resources.status && resources.status !== 'CLOSED' && isStop && (
@@ -1412,7 +1412,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('stop');
                     }}
                   >
-                    {formatMessage({id: 'appOverview.btn.stop'})}
+                    {formatMessage({ id: 'appOverview.btn.stop' })}
                   </a>
                 </span>
               )}
@@ -1427,7 +1427,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    {formatMessage({id: 'appOverview.btn.update'})}
+                    {formatMessage({ id: 'appOverview.btn.update' })}
                   </Button>
                 )}
                 {isConstruct && isComponentConstruct && (
@@ -1438,7 +1438,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('deploy');
                     }}
                   >
-                    {formatMessage({id: 'appOverview.btn.build'})}
+                    {formatMessage({ id: 'appOverview.btn.build' })}
                   </Button>
                 )}
                 {isCopy && (
@@ -1447,7 +1447,7 @@ export default class Index extends PureComponent {
                     disabled={BtnDisabled}
                     onClick={this.handleOpenRapidCopy}
                   >
-                    {formatMessage({id: 'appOverview.btn.copy'})}
+                    {formatMessage({ id: 'appOverview.btn.copy' })}
                   </Button>
                 )}
                 {linkList.length > 0 && <VisterBtn linkList={linkList} />}
@@ -1458,22 +1458,22 @@ export default class Index extends PureComponent {
         <div className={styles.contentr}>
           <div className={styles.conrHeader}>
             <div>
-              <span>{formatMessage({id: 'appOverview.createTime'})}</span>
+              <span>{formatMessage({ id: 'appOverview.createTime' })}</span>
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
             <div>
-              <span>{formatMessage({id: 'appOverview.updateTime'})}</span>
+              <span>{formatMessage({ id: 'appOverview.updateTime' })}</span>
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -1537,7 +1537,7 @@ export default class Index extends PureComponent {
                 )}
                 {isDelete && (
                   <a className={styles.operationState} onClick={this.toDelete}>
-                   {formatMessage({id: 'appOverview.list.table.delete'})}
+                    {formatMessage({ id: 'appOverview.list.table.delete' })}
                   </a>
                 )}
                 {linkList.length > 0 && (
@@ -1551,21 +1551,21 @@ export default class Index extends PureComponent {
                 style={{ width: '100%', marginRight: '0' }}
               >
                 <div className={styles.connect_Boxs}>
-                  <div>{formatMessage({id: 'appOverview.memory'})}</div>
+                  <div>{formatMessage({ id: 'appOverview.memory' })}</div>
                   <div>
                     {resources.memory
                       ? `${sourceUtil.unit(resources.memory || 0, 'MB')}`
-                      : formatMessage({id: 'appOverview.no_limit'})}
+                      : formatMessage({ id: 'appOverview.no_limit' })}
                   </div>
                 </div>
                 <div className={styles.connect_Boxs}>
-                  <div>{formatMessage({id: 'appOverview.cpu'})}</div>
+                  <div>{formatMessage({ id: 'appOverview.cpu' })}</div>
                   <div>
-                    {resources.cpu ? `${resources.cpu / 1000}Core` : formatMessage({id: 'appOverview.no_limit'})}
+                    {resources.cpu ? `${resources.cpu / 1000}Core` : formatMessage({ id: 'appOverview.no_limit' })}
                   </div>
                 </div>
                 <div className={styles.connect_Boxs}>
-                  <div>{formatMessage({id: 'appOverview.serviceNum'})}</div>
+                  <div>{formatMessage({ id: 'appOverview.serviceNum' })}</div>
                   <div>{(components && components.length) || 0}</div>
                 </div>
               </div>
@@ -1580,7 +1580,7 @@ export default class Index extends PureComponent {
           <div className={styles.contentr}>
             <div className={styles.conrHeader}>
               <div>
-                <span>{formatMessage({id: 'appOverview.createTime'})}</span>
+                <span>{formatMessage({ id: 'appOverview.createTime' })}</span>
                 <span>
                   {currApp.create_time
                     ? moment(currApp.create_time)
@@ -1590,7 +1590,7 @@ export default class Index extends PureComponent {
                 </span>
               </div>
               <div>
-                <span>{formatMessage({id: 'appOverview.updateTime'})}</span>
+                <span>{formatMessage({ id: 'appOverview.updateTime' })}</span>
                 <span>
                   {currApp.update_time
                     ? moment(currApp.update_time)
@@ -1602,16 +1602,16 @@ export default class Index extends PureComponent {
             </div>
             <div className={styles.conrHeader}>
               <div>
-                <span>{formatMessage({id: 'appOverview.principal'})}</span>
+                <span>{formatMessage({ id: 'appOverview.principal' })}</span>
                 <span>
                   {currApp.principal ? (
                     <Tooltip
                       placement="top"
                       title={
                         <div>
-                          <div>{formatMessage({id: 'appOverview.principal.username'})}{currApp.username}</div>
-                          <div>{formatMessage({id: 'appOverview.principal.principal'})}{currApp.principal}</div>
-                          <div>{formatMessage({id: 'appOverview.principal.email'})}{currApp.email}</div>
+                          <div>{formatMessage({ id: 'appOverview.principal.username' })}{currApp.username}</div>
+                          <div>{formatMessage({ id: 'appOverview.principal.principal' })}{currApp.principal}</div>
+                          <div>{formatMessage({ id: 'appOverview.principal.email' })}{currApp.email}</div>
                         </div>
                       }
                     >
@@ -1636,14 +1636,14 @@ export default class Index extends PureComponent {
               </div>
               {resources.version && (
                 <div>
-                  <span>{formatMessage({id: 'appOverview.versions'})}</span>
+                  <span>{formatMessage({ id: 'appOverview.versions' })}</span>
                   <span>{resources.version}</span>
                 </div>
               )}
             </div>
             <div className={styles.conrBot}>
               <div className={styles.conrBox} style={{ width: '33.3%' }}>
-                <div>{formatMessage({id: 'appOverview.gateway'})}</div>
+                <div>{formatMessage({ id: 'appOverview.gateway' })}</div>
                 <div
                   onClick={() => {
                     isControl && this.handleJump('gateway');
@@ -1653,7 +1653,7 @@ export default class Index extends PureComponent {
                 </div>
               </div>
               <div className={styles.conrBox} style={{ width: '33.3%' }}>
-                <div>{formatMessage({id: 'appOverview.upgrade'})}</div>
+                <div>{formatMessage({ id: 'appOverview.upgrade' })}</div>
                 <div
                   onClick={() => {
                     isUpgrade && this.handleJump('upgrade');
@@ -1666,7 +1666,7 @@ export default class Index extends PureComponent {
                 </div>
               </div>
               <div className={styles.conrBox} style={{ width: '33.3%' }}>
-                <div>{formatMessage({id: 'appOverview.shop'})}</div>
+                <div>{formatMessage({ id: 'appOverview.shop' })}</div>
                 <div
                   onClick={() => {
                     !errPrompt &&
@@ -1679,7 +1679,7 @@ export default class Index extends PureComponent {
                       color: errPrompt ? 'rgba(0, 0, 0, 0.45)' : '#4d73b1'
                     }}
                   >
-                    {currApp.app_store_name || formatMessage({id: 'appOverview.shopDelete'})}
+                    {currApp.app_store_name || formatMessage({ id: 'appOverview.shopDelete' })}
                   </a>
                 </div>
               </div>
@@ -1699,7 +1699,9 @@ export default class Index extends PureComponent {
     const MR = { marginRight: '10px' };
     return (
       <Fragment>
-        {/* <Row>{pageHeaderContent}</Row> */}
+        <Row style={isScrollDiv && guideStep === 1 ? highlighted : {}}>
+          {flagHeight ? pageHeaderContents : pageHeaderContent}
+        </Row>
 
         {errPrompt && (
           <Alert
@@ -1714,105 +1716,59 @@ export default class Index extends PureComponent {
             type="inner"
             loading={appStateLoading}
             // title={formatMessage({id: 'appOverview.helm.title'})}
-            bodyStyle={{ padding: '0', background: '#F0F2F5' }}
-            // extra = {
-            //  <div className={styles.extraStyle}>{extra}</div> 
-            // }
+            bodyStyle={{ padding: '0', background: '#F0F2F5', border: '0' }}
+          // extra = {
+          //  <div className={styles.extraStyle}>{extra}</div> 
+          // }
           >
-      <Fragment>
-        <Row style={isScrollDiv && guideStep === 1 ? highlighted : {}}>
-          {flagHeight ? pageHeaderContents : pageHeaderContent}
-        </Row>
-        {guideStep === 1 &&
-          this.handleNewbieGuiding({
-            tit: formatMessage({id:'teamOther.Group.tit'}),
-            showSvg: false,
-            showArrow: true,
-            send: false,
-            configName: 'applicationInfo',
-            desc: formatMessage({id:'teamOther.Group.desc'}),
-            nextStep: 2,
-            conPosition: { top: '336px', left: '42%' }
-          })}
-        {customSwitch && (
-          <ApplicationGovernance
-            mode={currApp && currApp.governance_mode}
-            appID={globalUtil.getAppID()}
-            onCancel={this.onCancel}
-            onOk={this.fetchAppDetail}
-          />
-        )}
-        <Row className={styles.rowArrow} style={ guideStep === 2 ? highlighted : {} }>
-          <div
-            className={styles.iconBox}
-            onClick={() => {
-              this.heightOnchage(flagHeight);
-            }}
-          >
-            {flagHeight ? (
-              <div className={styles.showOrhide}>
-                <DownOutlined />
-              </div>
-            ) : (
-              <div className={styles.showOrhide}>
-                <UpOutlined />
-              </div>
-            )}
-          </div>
-          <Row
-            style={{
-              display: 'flex',
-              background: '#FFFFFF',
-              height: '60px',
-              alignItems: 'center',
-              borderBottom: '1px solid #e8e8e8'
-            }}
-          >
-            <Col span={5} style={{ paddingleft: '12px' }}>
-              <a
-                onClick={() => {
-                  this.changeType('shape');
-                  this.setState({
-                    aggregation: false,
-                    common: true,
-                    compile: false
-                  });
-                }}
-                style={{
-                  marginLeft: '30px',
-                  color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
-                }}
-              >
-                {formatMessage({id: 'appOverview.topology'})}
-              </a>
-              {isComponentDescribe && (
-                <a
+            <Fragment>
+              {guideStep === 1 &&
+                this.handleNewbieGuiding({
+                  tit: formatMessage({ id: 'teamOther.Group.tit' }),
+                  showSvg: false,
+                  showArrow: true,
+                  send: false,
+                  configName: 'applicationInfo',
+                  desc: formatMessage({ id: 'teamOther.Group.desc' }),
+                  nextStep: 2,
+                  conPosition: { top: '336px', left: '42%' }
+                })}
+              {customSwitch && (
+                <ApplicationGovernance
+                  mode={currApp && currApp.governance_mode}
+                  appID={globalUtil.getAppID()}
+                  onCancel={this.onCancel}
+                  onOk={this.fetchAppDetail}
+                />
+              )}
+              <Row className={styles.rowArrow} style={guideStep === 2 ? highlighted : {}}>
+                <div
+                  className={styles.iconBox}
                   onClick={() => {
-                    this.changeType('list');
-                  }}
-                  style={{
-                    marginLeft: '30px',
-                    color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
+                    this.heightOnchage(flagHeight);
                   }}
                 >
-                  {formatMessage({id: 'appOverview.list'})}
-                </a>
-              )}
-            </Col>
-            <Col
-              className={styles.topoBtn}
-              span={11}
-              style={{ paddingleft: '12px' }}
-            >
-              {type !== 'list' && isComponentCreate && (
-                <Radio.Group>
-                  {common ? (
-                    <Radio.Button
-                    style={{ 
-                       textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
-                      color:'#F6F7FA', borderColor: '#4C73B0'
-                    }}
+                  {flagHeight ? (
+                    <div className={styles.showOrhide}>
+                      <DownOutlined />
+                    </div>
+                  ) : (
+                    <div className={styles.showOrhide}>
+                      <UpOutlined />
+                    </div>
+                  )}
+                </div>
+                <Row
+                  style={{
+                    display: 'flex',
+                    background: '#FFFFFF',
+                    height: '60px',
+                    alignItems: 'center',
+                    borderBottom: '1px solid #e8e8e8'
+                  }}
+                >
+                  <Col span={5} style={{ paddingleft: '12px' }}>
+                    <a
                       onClick={() => {
                         this.changeType('shape');
                         this.setState({
@@ -1821,112 +1777,155 @@ export default class Index extends PureComponent {
                           compile: false
                         });
                       }}
-                      disabled
+                      style={{
+                        marginLeft: '30px',
+                        color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
+                      }}
                     >
-                      {formatMessage({id: 'appOverview.btn.ordinary'})}
-                    </Radio.Button>
-                  ) : (
-                    <Radio.Button
-                    style={{ 
-                      textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
-                      color:'#595959', borderColor: '#D9D9D9',
-                    }}
+                      {formatMessage({ id: 'appOverview.topology' })}
+                    </a>
+                    {isComponentDescribe && (
+                      <a
+                        onClick={() => {
+                          this.changeType('list');
+                        }}
+                        style={{
+                          marginLeft: '30px',
+                          color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
+                        }}
+                      >
+                        {formatMessage({ id: 'appOverview.list' })}
+                      </a>
+                    )}
+                  </Col>
+                  <Col
+                    className={styles.topoBtn}
+                    span={11}
+                    style={{ paddingleft: '12px' }}
+                  >
+                    {type !== 'list' && isComponentCreate && (
+                      <Radio.Group>
+                        {common ? (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                              color: '#F6F7FA', borderColor: '#4C73B0'
+                            }}
+                            onClick={() => {
+                              this.changeType('shape');
+                              this.setState({
+                                aggregation: false,
+                                common: true,
+                                compile: false
+                              });
+                            }}
+                            disabled
+                          >
+                            {formatMessage({ id: 'appOverview.btn.ordinary' })}
+                          </Radio.Button>
+                        ) : (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                              color: '#595959', borderColor: '#D9D9D9',
+                            }}
 
-                      onClick={() => {
-                        this.changeType('shape');
-                        this.setState({
-                          aggregation: false,
-                          common: true,
-                          compile: false
-                        });
-                      }}
-                    >
-                      {formatMessage({id: 'appOverview.btn.ordinary'})}
-                    </Radio.Button>
-                  )}
-                  {aggregation ? (
-                    <Radio.Button
-                    style={{ 
-                      textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
-                      color:'#F6F7FA', borderColor: '#4C73B0'
-                    }}
-                      onClick={() => {
-                        this.changeType('aggregation');
-                        this.setState({
-                          aggregation: true,
-                          common: false,
-                          compile: false
-                        });
-                      }}
-                      disabled
-                    >
-                      {formatMessage({id: 'appOverview.btn.aggregation'})}
-                    </Radio.Button>
-                  ) : (
-                    <Radio.Button
-                    style={{ 
-                      textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
-                      color:'#595959', borderColor: '#D9D9D9'
-                    }}
-                      onClick={() => {
-                        this.changeType('aggregation');
-                        this.setState({
-                          aggregation: true,
-                          common: false,
-                          compile: false
-                        });
-                      }}
-                    >
-                      {formatMessage({id: 'appOverview.btn.aggregation'})}
-                    </Radio.Button>
-                  )}
-                  {compile ? (
-                    <Radio.Button
-                    style={{ 
-                     textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
-                      color:'#F6F7FA', borderColor: '#4C73B0'
-                    }}
+                            onClick={() => {
+                              this.changeType('shape');
+                              this.setState({
+                                aggregation: false,
+                                common: true,
+                                compile: false
+                              });
+                            }}
+                          >
+                            {formatMessage({ id: 'appOverview.btn.ordinary' })}
+                          </Radio.Button>
+                        )}
+                        {aggregation ? (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                              color: '#F6F7FA', borderColor: '#4C73B0'
+                            }}
+                            onClick={() => {
+                              this.changeType('aggregation');
+                              this.setState({
+                                aggregation: true,
+                                common: false,
+                                compile: false
+                              });
+                            }}
+                            disabled
+                          >
+                            {formatMessage({ id: 'appOverview.btn.aggregation' })}
+                          </Radio.Button>
+                        ) : (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                              color: '#595959', borderColor: '#D9D9D9'
+                            }}
+                            onClick={() => {
+                              this.changeType('aggregation');
+                              this.setState({
+                                aggregation: true,
+                                common: false,
+                                compile: false
+                              });
+                            }}
+                          >
+                            {formatMessage({ id: 'appOverview.btn.aggregation' })}
+                          </Radio.Button>
+                        )}
+                        {compile ? (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                              color: '#F6F7FA', borderColor: '#4C73B0'
+                            }}
 
-                      onClick={() => {
-                        this.changeType('shapes');
-                        this.setState({
-                          aggregation: false,
-                          common: false,
-                          compile: true
-                        });
-                      }}
-                      disabled
-                    >
-                     {formatMessage({id: 'appOverview.btn.arrange'})}
-                    </Radio.Button>
-                  ) : (
-                    <Radio.Button
-                    style={{ 
-                      textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
-                      color:'#595959', borderColor: '#D9D9D9'
-                    }}
-                      onClick={() => {
-                        this.changeType('shapes');
-                        this.setState({
-                          aggregation: false,
-                          common: false,
-                          compile: true
-                        });
-                      }}
-                    >
-                      {formatMessage({id: 'appOverview.btn.arrange'})}
-                    </Radio.Button>
-                  )}
-                </Radio.Group>
-              )}
-            </Col>
-            <Col span={4} style={{ textAlign: 'right' }}>
-              {/* {isComponentCreate && isComponentConstruct && (
+                            onClick={() => {
+                              this.changeType('shapes');
+                              this.setState({
+                                aggregation: false,
+                                common: false,
+                                compile: true
+                              });
+                            }}
+                            disabled
+                          >
+                            {formatMessage({ id: 'appOverview.btn.arrange' })}
+                          </Radio.Button>
+                        ) : (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                              color: '#595959', borderColor: '#D9D9D9'
+                            }}
+                            onClick={() => {
+                              this.changeType('shapes');
+                              this.setState({
+                                aggregation: false,
+                                common: false,
+                                compile: true
+                              });
+                            }}
+                          >
+                            {formatMessage({ id: 'appOverview.btn.arrange' })}
+                          </Radio.Button>
+                        )}
+                      </Radio.Group>
+                    )}
+                  </Col>
+                  <Col span={4} style={{ textAlign: 'right' }}>
+                    {/* {isComponentCreate && isComponentConstruct && (
                 <AddThirdParty
                   groupId={globalUtil.getAppID()}
                   refreshCurrent={() => {
@@ -1941,132 +1940,132 @@ export default class Index extends PureComponent {
                   }}
                 />
               )} */}
-            </Col>
-            <Col span={4} style={{ textAlign: 'center' }}>
-              {isComponentCreate && isComponentConstruct && (
-                <AddServiceComponent
-                  groupId={globalUtil.getAppID()}
-                  refreshCurrent={() => {
-                    this.loading();
-                  }}
-                  onload={() => {
-                    this.setState({ type: 'spin' }, () => {
-                      this.setState({
-                        type: this.state.size == 'large' ? 'shape' : 'list'
-                      });
-                    });
-                  }}
+                  </Col>
+                  <Col span={4} style={{ textAlign: 'center' }}>
+                    {isComponentCreate && isComponentConstruct && (
+                      <AddServiceComponent
+                        groupId={globalUtil.getAppID()}
+                        refreshCurrent={() => {
+                          this.loading();
+                        }}
+                        onload={() => {
+                          this.setState({ type: 'spin' }, () => {
+                            this.setState({
+                              type: this.state.size == 'large' ? 'shape' : 'list'
+                            });
+                          });
+                        }}
+                      />
+                    )}
+                  </Col>
+                </Row>
+                {rapidCopy && (
+                  <RapidCopy
+                    copyFlag={true}
+                    on={this.handleCloseRapidCopy}
+                    onCancel={this.handleCloseRapidCopy}
+                    title={formatMessage({ id: 'confirmModal.app.title.copy' })}
+                  />
+                )}
+
+                {type === 'list' && (
+                  <ComponentList
+                    componentPermissions={componentPermissions}
+                    groupId={globalUtil.getAppID()}
+                  />
+                )}
+                {type === 'shape' && (
+                  <AppShape
+                    style={{ height: iframeHeight }}
+                    group_id={globalUtil.getAppID()}
+                    flagHeight={flagHeight}
+                    iframeHeight={iframeHeight}
+                  />
+                )}
+                {type === 'aggregation' && (
+                  <AppJoinMode
+                    group_id={globalUtil.getAppID()}
+                    flagHeight={flagHeight}
+                    iframeHeight={iframeHeight}
+                  />
+                )}
+                {type === 'spin' && <Spin />}
+                {type === 'shapes' && (
+                  <EditorTopology
+                    changeType={types => {
+                      this.changeType(types);
+                    }}
+                    key={iframeHeight}
+                    iframeHeight={iframeHeight}
+                    group_id={globalUtil.getAppID()}
+                    flagHeight={flagHeight}
+                  />
+                )}
+              </Row>
+              {guideStep === 2 &&
+                this.handleNewbieGuiding({
+                  tit: formatMessage({ id: 'teamOther.Group.app' }),
+                  btnText: formatMessage({ id: 'teamOther.Group.know' }),
+                  showSvg: false,
+                  showArrow: true,
+                  send: true,
+                  configName: 'applicationInfo',
+                  desc: formatMessage({ id: 'teamOther.Group.Topological' }),
+                  nextStep: 3,
+                  conPosition: { bottom: '-16px', left: '45%' }
+                })}
+              {isScrollDiv && <div id="scroll_div" style={{ marginTop: '180px' }} />}
+
+              {toDelete && (
+                <ConfirmModal
+                  title={formatMessage({ id: 'confirmModal.app.title.delete' })}
+                  desc={formatMessage({ id: 'confirmModal.app.delete.desc' })}
+                  subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+                  loading={deleteLoading}
+                  onOk={this.handleDelete}
+                  onCancel={this.cancelDelete}
                 />
               )}
-            </Col>
-          </Row>
-          {rapidCopy && (
-            <RapidCopy
-              copyFlag={true}
-              on={this.handleCloseRapidCopy}
-              onCancel={this.handleCloseRapidCopy}
-              title={formatMessage({id:'confirmModal.app.title.copy'})}
-            />
-          )}
+              {toEdit && (
+                <EditGroupName
+                  isAddGroup={false}
+                  group_name={groupDetail.group_name}
+                  logo={groupDetail.logo}
+                  note={groupDetail.note}
+                  loading={editGroupLoading}
+                  k8s_app={groupDetail.k8s_app}
+                  title={formatMessage({ id: 'confirmModal.app.title.edit' })}
+                  onCancel={this.cancelEdit}
+                  onOk={this.handleEdit}
+                  isEditEnglishName={currApp.can_edit}
+                />
+              )}
+              {toEditAppDirector && (
+                <AppDirector
+                  teamName={teamName}
+                  regionName={regionName}
+                  group_name={groupDetail.group_name}
+                  note={groupDetail.note}
+                  loading={editGroupLoading}
+                  principal={currApp.username}
+                  onCancel={this.cancelEditAppDirector}
+                  onOk={this.handleEdit}
+                />
+              )}
 
-          {type === 'list' && (
-            <ComponentList
-              componentPermissions={componentPermissions}
-              groupId={globalUtil.getAppID()}
-            />
-          )}
-          {type === 'shape' && (
-            <AppShape
-              style={{ height: iframeHeight }}
-              group_id={globalUtil.getAppID()}
-              flagHeight={flagHeight}
-              iframeHeight={iframeHeight}
-            />
-          )}
-          {type === 'aggregation' && (
-            <AppJoinMode
-              group_id={globalUtil.getAppID()}
-              flagHeight={flagHeight}
-              iframeHeight={iframeHeight}
-            />
-          )}
-          {type === 'spin' && <Spin />}
-          {type === 'shapes' && (
-            <EditorTopology
-              changeType={types => {
-                this.changeType(types);
-              }}
-              key={iframeHeight}
-              iframeHeight={iframeHeight}
-              group_id={globalUtil.getAppID()}
-              flagHeight={flagHeight}
-            />
-          )}
-        </Row>
-        {guideStep === 2 &&
-          this.handleNewbieGuiding({
-            tit: formatMessage({id:'teamOther.Group.app'}),
-            btnText: formatMessage({id:'teamOther.Group.know'}),
-            showSvg: false,
-            showArrow: true,
-            send: true,
-            configName: 'applicationInfo',
-            desc:formatMessage({id:'teamOther.Group.Topological'}),
-            nextStep: 3,
-            conPosition: { bottom: '-16px', left: '45%' }
-          })}
-        {isScrollDiv && <div id="scroll_div" style={{ marginTop: '180px' }} />}
-
-        {toDelete && (
-          <ConfirmModal
-            title={formatMessage({id:'confirmModal.app.title.delete'})}
-            desc={formatMessage({id:'confirmModal.app.delete.desc'})}
-            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            loading={deleteLoading}
-            onOk={this.handleDelete}
-            onCancel={this.cancelDelete}
-          />
-        )}
-        {toEdit && (
-          <EditGroupName
-            isAddGroup={false}
-            group_name={groupDetail.group_name}
-            logo={groupDetail.logo}
-            note={groupDetail.note}
-            loading={editGroupLoading}
-            k8s_app={groupDetail.k8s_app}
-            title={formatMessage({id:'confirmModal.app.title.edit'})}
-            onCancel={this.cancelEdit}
-            onOk={this.handleEdit}
-            isEditEnglishName={currApp.can_edit}
-          />
-        )}
-        {toEditAppDirector && (
-          <AppDirector
-            teamName={teamName}
-            regionName={regionName}
-            group_name={groupDetail.group_name}
-            note={groupDetail.note}
-            loading={editGroupLoading}
-            principal={currApp.username}
-            onCancel={this.cancelEditAppDirector}
-            onOk={this.handleEdit}
-          />
-        )}
-
-        {promptModal && (
-          <Modal
-            title={formatMessage({id:'confirmModal.friendly_reminder.title'})}
-            confirmLoading={buildShapeLoading}
-            visible={promptModal}
-            onOk={this.handlePromptModalOpen}
-            onCancel={this.handlePromptModalClose}
-          >
-            <p>{formatMessage({id:'confirmModal.friendly_reminder.pages.desc'},{codeObj: codeObj[code]})}</p>
-          </Modal>
-        )}
-        {/* <CustomFooter/> */}
-      </Fragment>
+              {promptModal && (
+                <Modal
+                  title={formatMessage({ id: 'confirmModal.friendly_reminder.title' })}
+                  confirmLoading={buildShapeLoading}
+                  visible={promptModal}
+                  onOk={this.handlePromptModalOpen}
+                  onCancel={this.handlePromptModalClose}
+                >
+                  <p>{formatMessage({ id: 'confirmModal.friendly_reminder.pages.desc' }, { codeObj: codeObj[code] })}</p>
+                </Modal>
+              )}
+              {/* <CustomFooter/> */}
+            </Fragment>
           </Card>
         )}
         {currentSteps > 3 && !errPrompt && (
@@ -2099,8 +2098,8 @@ export default class Index extends PureComponent {
               <div className={styles.process}>
                 <Result
                   type="ing"
-                  title={currentSteps < 1 ? formatMessage({id: 'appOverview.helm.pages.result.init'}) : formatMessage({id: 'appOverview.helm.pages.result.install'})}
-                  description={formatMessage({id: 'appOverview.helm.pages.result.loading'})}
+                  title={currentSteps < 1 ? formatMessage({ id: 'appOverview.helm.pages.result.init' }) : formatMessage({ id: 'appOverview.helm.pages.result.install' })}
+                  description={formatMessage({ id: 'appOverview.helm.pages.result.loading' })}
                   style={{
                     marginTop: 48,
                     marginBottom: 16
@@ -2142,9 +2141,9 @@ export default class Index extends PureComponent {
         )}
         {toDelete && (
           <ConfirmModal
-            title={formatMessage({id:'confirmModal.app.title.delete'})}
-            desc={formatMessage({id:'confirmModal.app.delete.desc'})}
-            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            title={formatMessage({ id: 'confirmModal.app.title.delete' })}
+            desc={formatMessage({ id: 'confirmModal.app.delete.desc' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
             loading={deleteLoading}
             onOk={this.handleDelete}
             onCancel={this.cancelDelete}
@@ -2157,7 +2156,7 @@ export default class Index extends PureComponent {
             group_name={groupDetail.group_name}
             note={groupDetail.note}
             loading={editGroupLoading}
-            title={formatMessage({id:'confirmModal.app.title.edit'})}
+            title={formatMessage({ id: 'confirmModal.app.title.edit' })}
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}
           />
@@ -2177,13 +2176,13 @@ export default class Index extends PureComponent {
 
         {promptModal && (
           <Modal
-            title={formatMessage({id:'confirmModal.friendly_reminder.title'})}
+            title={formatMessage({ id: 'confirmModal.friendly_reminder.title' })}
             confirmLoading={buildShapeLoading}
             visible={promptModal}
             onOk={this.handlePromptModalOpen}
             onCancel={this.handlePromptModalClose}
           >
-            <p>{formatMessage({id:'confirmModal.friendly_reminder.pages.desc'},{codeObj: codeObj[code]})}</p>
+            <p>{formatMessage({ id: 'confirmModal.friendly_reminder.pages.desc' }, { codeObj: codeObj[code] })}</p>
           </Modal>
         )}
         <CustomFooter />

@@ -203,7 +203,6 @@ class HelmDetection extends PureComponent {
 render() {
     const { num } =  this.state 
     const { currentSteps, resources, bool } = this.state
-    console.log(currentSteps,"currentSteps");
 
     return (
         <Fragment>
