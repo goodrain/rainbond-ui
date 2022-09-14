@@ -95,12 +95,13 @@ const teamAdd = {
   'teamAdd.create.image.configHint':'Note that parsing component related properties in the DockerCompose configuration is used to facilitate component creation, the dynamic variables in the DockerCompose configuration do not support parsing assignment, and a mirror of a private repository is used?',
 
   //upload
-  'teamAdd.create.upload.title':'Kubernetes YAML/import',
+  'teamAdd.create.upload.title':'Kubernetes YAML Helm',
   'teamAdd.create.upload.desc':'Supports creating components from Kubernetes YAML and importing existing Kubernetes resources',
   'teamAdd.create.upload.format':'Upload format',
   'teamAdd.create.upload.uploadFiles':'Upload file',
   'teamAdd.create.upload.uploadFiles.yaml':'Upload YAML File',
   'teamAdd.create.upload.uploadFiles.k8s':'Import Kubernetes Resources',
+  'teamAdd.create.upload.uploadFiles.helm':'Helm Command',
   'teamAdd.create.upload.uploadJWar':'You can upload files in Jar and War formats',
   'teamAdd.create.upload.uploadYaml':'Only YAML files can be uploaded',
 
