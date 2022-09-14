@@ -13,6 +13,7 @@ import Parameterinput from '@/components/Parameterinput';
 import PublicForm from '@/components/PublicForm';
 import PublicFormStyles from '@/components/PublicForm/index.less';
 import { LoadingOutlined } from '@ant-design/icons';
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import {
   Alert,
   Badge,
@@ -30,7 +31,10 @@ import {
   Skeleton,
   Steps,
   Tabs,
-  Tooltip
+  Tooltip,
+  Radio,
+  Spin,
+  Divider
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -42,11 +46,18 @@ import { Link } from 'umi';
 import ConfirmModal from '../../components/ConfirmModal';
 import Result from '../../components/Result';
 import VisterBtn from '../../components/visitBtnForAlllink';
+import NewbieGuiding from '@/components/NewbieGuiding';
 import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import sourceUtil from '../../utils/source-unit';
+import rainbondUtil from '../../utils/rainbond';
 import CustomFooter from "../../layouts/CustomFooter";
 import Instance from '../Component/component/Instance/index';
+import AppShape from '../Group/AppShape';
+import AppJoinMode from '../Group/AppJoinMode';
+import EditorTopology from '../Group/EditorTopology';
+import AddServiceComponent from '../Group/AddServiceComponent';
+import ComponentList from '../Group/ComponentList';
 import infoUtil from '../Upgrade/UpgradeInfo/info-util';
 import styles from './Index.less';
 
@@ -67,7 +78,8 @@ const FormItem = Form.Item;
   groupDetail: application.groupDetail || {},
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
-  currentEnterprise: enterprise.currentEnterprise
+  currentEnterprise: enterprise.currentEnterprise,
+  novices: global.novices
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -131,7 +143,17 @@ export default class Index extends PureComponent {
       versionInfo: {},
       appInfo: {},
       isScrollToBottom: true,
-      upDataVersion: false
+      type: 'shape',
+      upDataVersion: false,
+      aggregation: false,
+      common: true,
+      compile: false,
+      flagHeight: false,
+      iframeHeight: '500px',
+      guideStep: 1,
+      customSwitch: false,
+      rapidCopy: false,
+      appStatusConfig: false,
     };
     this.CodeMirrorRef = '';
   }
@@ -145,10 +167,186 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     dispatch({ type: 'application/clearGroupDetail' });
   }
+
+
+  handleGuideStep = guideStep => {
+    this.setState({
+      guideStep
+    });
+  };
+
+  handleNewbieGuiding = info => {
+    const { nextStep } = info;
+    return (
+      <NewbieGuiding
+        {...info}
+        totals={2}
+        handleClose={() => {
+          this.handleGuideStep('close');
+        }}
+        handleNext={() => {
+          if (nextStep) {
+            document.getElementById('scroll_div').scrollIntoView();
+            this.handleGuideStep(nextStep);
+          }
+        }}
+      />
+    );
+  };
+
+  onCancel = () => {
+    this.setState({
+      customSwitch: false
+    });
+  };
+  handleSwitch = () => {
+    this.setState({
+      customSwitch: true
+    });
+  };
+
+  handleOpenRapidCopy = () => {
+    this.setState({
+      rapidCopy: true
+    });
+  };
+
+  handleCloseRapidCopy = () => {
+    this.setState({
+      rapidCopy: false
+    });
+  };
+
+  heightOnchage = e => {
+    if (e) {
+      this.setState({
+        flagHeight: false,
+        iframeHeight: '500px'
+      });
+    } else {
+      this.setState({
+        flagHeight: true,
+        iframeHeight: '70vh'
+      });
+    }
+  };
+
+  fetchAppDetailState = () => {
+    const { dispatch } = this.props;
+    const { teamName, appID } = this.props.match.params;
+    dispatch({
+      type: 'application/fetchAppDetailState',
+      payload: {
+        team_name: teamName,
+        group_id: appID
+      },
+      callback: res => {
+        this.setState({
+          resources: res.list,
+          appStatusConfig: true
+        });
+      }
+    });
+  };
+
+  loadTopology(isCycle) {
+    const { dispatch } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    cookie.set('team_name', teamName);
+    cookie.set('region_name', regionName);
+
+    dispatch({
+      type: 'global/fetAllTopology',
+      payload: {
+        region_name: regionName,
+        team_name: teamName,
+        groupId: this.getGroupId()
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          const data = res.bean;
+          if (JSON.stringify(data) === '{}') {
+            return;
+          }
+          const serviceIds = [];
+          const service_alias = [];
+          const { json_data } = data;
+          Object.keys(json_data).map(key => {
+            serviceIds.push(key);
+            if (
+              json_data[key].cur_status == 'running' &&
+              json_data[key].is_internet == true
+            ) {
+              service_alias.push(json_data[key].service_alias);
+            }
+          });
+
+          this.setState(
+            {
+              jsonDataLength: Object.keys(json_data).length,
+              service_alias,
+              serviceIds
+            },
+            () => {
+              this.loadLinks(service_alias.join('-'), isCycle);
+            }
+          );
+        }
+      }
+    });
+  }
+  loadLinks(serviceAlias, isCycle) {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/queryLinks',
+      payload: {
+        service_alias: serviceAlias,
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState(
+            {
+              linkList: res.list || []
+            },
+            () => {
+              if (isCycle) {
+                this.handleTimers(
+                  'timer',
+                  () => {
+                    this.fetchAppDetailState();
+                    this.fetchAppDetail();
+                    this.loadTopology(true);
+                  },
+                  10000
+                );
+              }
+            }
+          );
+        }
+      },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'timer',
+          () => {
+            this.fetchAppDetailState();
+            this.fetchAppDetail();
+            this.loadTopology(true);
+          },
+          20000
+        );
+      }
+    });
+  }
+      
   onChangeSteps = currentSteps => {
     this.setState({ currentSteps });
   };
-
+  changeType = type => {
+    this.setState({ type });
+  };
   closeTimer = () => {
     if (this.timer) {
       clearInterval(this.timer);
@@ -903,30 +1101,8 @@ export default class Index extends PureComponent {
     return (
       <Form labelAlign="left">
         <Collapse bordered={false} defaultActiveKey={['2']}>
-          <Panel
-            header={
-              <div className={styles.customPanelHeader}>
-                <h6>{formatMessage({id: 'appOverview.helm.pages.appIntroduce'})}</h6>
-                <p>{formatMessage({id: 'appOverview.helm.pages.explain'})}</p>
-              </div>
-            }
-            key="1"
-            className={styles.customPanel}
-          >
-            <div style={{ padding: '15px 30px' }}>
-              <Skeleton loading={versionInfoLoading}>
-                <Markdown
-                  className={styles.customMD}
-                  source={
-                    (versionInfo.readme &&
-                      this.decodeBase64Content(versionInfo.readme)) ||
-                    ''
-                  }
-                />
-              </Skeleton>
-            </div>
-          </Panel>
-          <Panel
+        {currentSteps > 3 ? false : true &&
+        <Panel
             header={
               <div className={styles.customPanelHeader}>
                 <h6>{formatMessage({id: 'appOverview.helm.pages.option'})}</h6>
@@ -1068,6 +1244,32 @@ export default class Index extends PureComponent {
               </div>
             </Skeleton>
           </Panel>
+          }
+          {currentSteps > 3 ? false : true &&
+          <Panel
+            header={
+              <div className={styles.customPanelHeader}>
+                <h6>{formatMessage({id: 'appOverview.helm.pages.appIntroduce'})}</h6>
+                <p>{formatMessage({id: 'appOverview.helm.pages.explain'})}</p>
+              </div>
+            }
+            key="1"
+            className={styles.customPanel}
+          >
+            <div style={{ padding: '15px 30px' }}>
+              <Skeleton loading={versionInfoLoading}>
+                <Markdown
+                  className={styles.customMD}
+                  source={
+                    (versionInfo.readme &&
+                      this.decodeBase64Content(versionInfo.readme)) ||
+                    ''
+                  }
+                />
+              </Skeleton>
+            </div>
+          </Panel>
+          }
         </Collapse>
         {currentSteps <= 2 && this.handleOperationBtn('Create')}
       </Form>
@@ -1076,12 +1278,32 @@ export default class Index extends PureComponent {
 
   render() {
     const {
-      appPermissions: { isUpgrade, isEdit, isDelete },
+      // appPermissions: { isUpgrade, isEdit, isDelete },
       groupDetail,
       buildShapeLoading,
       editGroupLoading,
       deleteLoading,
-      operationPermissions: { isAccess: isControl }
+      operationPermissions: { isAccess: isControl },
+      novices,
+      componentPermissions,
+      componentPermissions: {
+        isAccess: isComponentDescribe,
+        isCreate: isComponentCreate,
+        isConstruct: isComponentConstruct,
+        isRestart
+      },
+      appPermissions: {
+        isShare,
+        isBackup,
+        isUpgrade,
+        isEdit,
+        isDelete,
+        isStart,
+        isStop,
+        isUpdate,
+        isConstruct,
+        isCopy
+      },
     } = this.props;
     const {
       versions,
@@ -1100,7 +1322,18 @@ export default class Index extends PureComponent {
       components,
       linkList,
       appInfo,
-      appInfoLoading
+      appInfoLoading,
+      type,
+      aggregation,
+      common,
+      compile,
+      flagHeight,
+      iframeHeight,
+      guideStep,
+      customSwitch,
+      rapidCopy,
+      appStatusConfig,
+      jsonDataLength
     } = this.state;
     const codeObj = {
       start: formatMessage({id: 'appOverview.btn.start'}),
@@ -1116,6 +1349,138 @@ export default class Index extends PureComponent {
       superseded: 'success',
       failed: 'error'
     };
+    const pageHeaderContents = (
+      <div className={styles.pageHeaderContents}>
+        <div className={styles.contentl}>
+          <div className={styles.conBoxt}>
+            <div className={styles.contentTitle}>
+              <span>{currApp.group_name || '-'}</span>
+              <Icon
+                style={{
+                  cursor: 'pointer',
+                  marginLeft: '5px'
+                }}
+                onClick={this.toEdit}
+                type="edit"
+              />
+            </div>
+            <div className={styles.content_Box}>
+              {appStatusConfig && <AppState AppStatus={resources.status} />}
+              {resources.status && isStart && (
+                <span>
+                  <a
+                    onClick={() => {
+                      this.handleTopology('start');
+                    }}
+                    disabled={BtnDisabled}
+                  >
+                    {formatMessage({id: 'appOverview.btn.start'})}
+                  </a>
+                  <Divider type="vertical" />
+                </span>
+              )}
+              {resources.status &&
+                (resources.status === 'ABNORMAL' ||
+                  resources.status === 'PARTIAL_ABNORMAL') &&
+                serviceIds &&
+                serviceIds.length > 0 &&
+                isRestart && (
+                  <span>
+                    <a
+                      onClick={() => {
+                        this.handleTopology('restart');
+                      }}
+                      disabled={BtnDisabled}
+                    >
+                      {formatMessage({id: 'appOverview.list.table.restart'})}
+                    </a>
+                    <Divider type="vertical" />
+                  </span>
+                )}
+              {isDelete && resources.status !== 'RUNNING' && (
+                <a onClick={this.toDelete}>
+                  {formatMessage({id: 'appOverview.list.table.delete'})}
+                </a>
+              )}
+              {resources.status && resources.status !== 'CLOSED' && isStop && (
+                <span>
+                  {resources.status !== 'RUNNING' && (
+                    <Divider type="vertical" />
+                  )}
+                  <a
+                    onClick={() => {
+                      this.handleTopology('stop');
+                    }}
+                  >
+                    {formatMessage({id: 'appOverview.btn.stop'})}
+                  </a>
+                </span>
+              )}
+            </div>
+            {resources.status && (
+              <div className={styles.extraContent}>
+                {resources.status !== 'CLOSED' && isUpdate && (
+                  <Button
+                    style={MR}
+                    onClick={() => {
+                      this.handleTopology('upgrade');
+                    }}
+                    disabled={BtnDisabled}
+                  >
+                    {formatMessage({id: 'appOverview.btn.update'})}
+                  </Button>
+                )}
+                {isConstruct && isComponentConstruct && (
+                  <Button
+                    style={MR}
+                    disabled={BtnDisabled}
+                    onClick={() => {
+                      this.handleTopology('deploy');
+                    }}
+                  >
+                    {formatMessage({id: 'appOverview.btn.build'})}
+                  </Button>
+                )}
+                {isCopy && (
+                  <Button
+                    style={MR}
+                    disabled={BtnDisabled}
+                    onClick={this.handleOpenRapidCopy}
+                  >
+                    {formatMessage({id: 'appOverview.btn.copy'})}
+                  </Button>
+                )}
+                {linkList.length > 0 && <VisterBtn linkList={linkList} />}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className={styles.contentr}>
+          <div className={styles.conrHeader}>
+            <div>
+              <span>{formatMessage({id: 'appOverview.createTime'})}</span>
+              <span>
+                {currApp.create_time
+                  ? moment(currApp.create_time)
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD HH:mm:ss')
+                  : '-'}
+              </span>
+            </div>
+            <div>
+              <span>{formatMessage({id: 'appOverview.updateTime'})}</span>
+              <span>
+                {currApp.update_time
+                  ? moment(currApp.update_time)
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD HH:mm:ss')
+                  : '-'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <Card
@@ -1329,9 +1694,12 @@ export default class Index extends PureComponent {
       region_name: regionName,
       group_id: groupId
     } = this.fetchParameter();
+    const isScrollDiv = rainbondUtil.handleNewbie(novices, 'applicationInfo');
+    const BtnDisabled = !(jsonDataLength > 0);
+    const MR = { marginRight: '10px' };
     return (
       <Fragment>
-        <Row>{pageHeaderContent}</Row>
+        {/* <Row>{pageHeaderContent}</Row> */}
 
         {errPrompt && (
           <Alert
@@ -1345,57 +1713,360 @@ export default class Index extends PureComponent {
           <Card
             type="inner"
             loading={appStateLoading}
-            title={formatMessage({id: 'appOverview.helm.title'})}
+            // title={formatMessage({id: 'appOverview.helm.title'})}
             bodyStyle={{ padding: '0', background: '#F0F2F5' }}
+            // extra = {
+            //  <div className={styles.extraStyle}>{extra}</div> 
+            // }
           >
-            <div style={{ background: '#fff' }}>
-              {components && components.length > 0 ? (
-                <Tabs
-                  style={{ padding: '0 24px 24px' }}
-                  defaultActiveKey={components[0].service_id}
+      <Fragment>
+        <Row style={isScrollDiv && guideStep === 1 ? highlighted : {}}>
+          {flagHeight ? pageHeaderContents : pageHeaderContent}
+        </Row>
+        {guideStep === 1 &&
+          this.handleNewbieGuiding({
+            tit: formatMessage({id:'teamOther.Group.tit'}),
+            showSvg: false,
+            showArrow: true,
+            send: false,
+            configName: 'applicationInfo',
+            desc: formatMessage({id:'teamOther.Group.desc'}),
+            nextStep: 2,
+            conPosition: { top: '336px', left: '42%' }
+          })}
+        {customSwitch && (
+          <ApplicationGovernance
+            mode={currApp && currApp.governance_mode}
+            appID={globalUtil.getAppID()}
+            onCancel={this.onCancel}
+            onOk={this.fetchAppDetail}
+          />
+        )}
+        <Row className={styles.rowArrow} style={ guideStep === 2 ? highlighted : {} }>
+          <div
+            className={styles.iconBox}
+            onClick={() => {
+              this.heightOnchage(flagHeight);
+            }}
+          >
+            {flagHeight ? (
+              <div className={styles.showOrhide}>
+                <DownOutlined />
+              </div>
+            ) : (
+              <div className={styles.showOrhide}>
+                <UpOutlined />
+              </div>
+            )}
+          </div>
+          <Row
+            style={{
+              display: 'flex',
+              background: '#FFFFFF',
+              height: '60px',
+              alignItems: 'center',
+              borderBottom: '1px solid #e8e8e8'
+            }}
+          >
+            <Col span={5} style={{ paddingleft: '12px' }}>
+              <a
+                onClick={() => {
+                  this.changeType('shape');
+                  this.setState({
+                    aggregation: false,
+                    common: true,
+                    compile: false
+                  });
+                }}
+                style={{
+                  marginLeft: '30px',
+                  color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
+                }}
+              >
+                {formatMessage({id: 'appOverview.topology'})}
+              </a>
+              {isComponentDescribe && (
+                <a
+                  onClick={() => {
+                    this.changeType('list');
+                  }}
+                  style={{
+                    marginLeft: '30px',
+                    color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
+                  }}
                 >
-                  {components.map(item => {
-                    if (item.service) {
-                      const { service_alias, service_region } = item;
-                      const {
-                        service_name: serviceName,
-                        pods,
-                        oldPods
-                      } = item.service;
-                      const { service_id } = item;
-                      const content = (
-                        <Link
-                          to={`/team/${teamName}/region/${service_region}/components/${service_alias}/thirdPartyServices`}
-                        >
-                          {formatMessage({id: 'appOverview.helm.componentDetail'})}
-                        </Link>
-                      );
-                      return (
-                        <TabPane
-                          tab={
-                            <Popover content={content}>{serviceName}</Popover>
-                          }
-                          key={service_id}
-                        >
-                          <Instance
-                            isHelm
-                            key={service_id}
-                            runLoading={false}
-                            new_pods={pods}
-                            old_pods={oldPods}
-                            appAlias={groupId}
-                          />
-                        </TabPane>
-                      );
-                    }
-                  })}
-                </Tabs>
-              ) : (
-                <div style={{ padding: '24px' }}>
-                  {formatMessage({id: 'appOverview.helm.pages.desc.service'})}
-                </div>
+                  {formatMessage({id: 'appOverview.list'})}
+                </a>
               )}
-            </div>
+            </Col>
+            <Col
+              className={styles.topoBtn}
+              span={11}
+              style={{ paddingleft: '12px' }}
+            >
+              {type !== 'list' && isComponentCreate && (
+                <Radio.Group>
+                  {common ? (
+                    <Radio.Button
+                    style={{ 
+                       textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
+                      color:'#F6F7FA', borderColor: '#4C73B0'
+                    }}
+                      onClick={() => {
+                        this.changeType('shape');
+                        this.setState({
+                          aggregation: false,
+                          common: true,
+                          compile: false
+                        });
+                      }}
+                      disabled
+                    >
+                      {formatMessage({id: 'appOverview.btn.ordinary'})}
+                    </Radio.Button>
+                  ) : (
+                    <Radio.Button
+                    style={{ 
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
+                      color:'#595959', borderColor: '#D9D9D9',
+                    }}
+
+                      onClick={() => {
+                        this.changeType('shape');
+                        this.setState({
+                          aggregation: false,
+                          common: true,
+                          compile: false
+                        });
+                      }}
+                    >
+                      {formatMessage({id: 'appOverview.btn.ordinary'})}
+                    </Radio.Button>
+                  )}
+                  {aggregation ? (
+                    <Radio.Button
+                    style={{ 
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
+                      color:'#F6F7FA', borderColor: '#4C73B0'
+                    }}
+                      onClick={() => {
+                        this.changeType('aggregation');
+                        this.setState({
+                          aggregation: true,
+                          common: false,
+                          compile: false
+                        });
+                      }}
+                      disabled
+                    >
+                      {formatMessage({id: 'appOverview.btn.aggregation'})}
+                    </Radio.Button>
+                  ) : (
+                    <Radio.Button
+                    style={{ 
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
+                      color:'#595959', borderColor: '#D9D9D9'
+                    }}
+                      onClick={() => {
+                        this.changeType('aggregation');
+                        this.setState({
+                          aggregation: true,
+                          common: false,
+                          compile: false
+                        });
+                      }}
+                    >
+                      {formatMessage({id: 'appOverview.btn.aggregation'})}
+                    </Radio.Button>
+                  )}
+                  {compile ? (
+                    <Radio.Button
+                    style={{ 
+                     textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
+                      color:'#F6F7FA', borderColor: '#4C73B0'
+                    }}
+
+                      onClick={() => {
+                        this.changeType('shapes');
+                        this.setState({
+                          aggregation: false,
+                          common: false,
+                          compile: true
+                        });
+                      }}
+                      disabled
+                    >
+                     {formatMessage({id: 'appOverview.btn.arrange'})}
+                    </Radio.Button>
+                  ) : (
+                    <Radio.Button
+                    style={{ 
+                      textAlign:'center', height:'32px', 
+                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
+                      color:'#595959', borderColor: '#D9D9D9'
+                    }}
+                      onClick={() => {
+                        this.changeType('shapes');
+                        this.setState({
+                          aggregation: false,
+                          common: false,
+                          compile: true
+                        });
+                      }}
+                    >
+                      {formatMessage({id: 'appOverview.btn.arrange'})}
+                    </Radio.Button>
+                  )}
+                </Radio.Group>
+              )}
+            </Col>
+            <Col span={4} style={{ textAlign: 'right' }}>
+              {/* {isComponentCreate && isComponentConstruct && (
+                <AddThirdParty
+                  groupId={globalUtil.getAppID()}
+                  refreshCurrent={() => {
+                    this.loading();
+                  }}
+                  onload={() => {
+                    this.setState({ type: 'spin' }, () => {
+                      this.setState({
+                        type: this.state.size == 'large' ? 'shape' : 'list'
+                      });
+                    });
+                  }}
+                />
+              )} */}
+            </Col>
+            <Col span={4} style={{ textAlign: 'center' }}>
+              {isComponentCreate && isComponentConstruct && (
+                <AddServiceComponent
+                  groupId={globalUtil.getAppID()}
+                  refreshCurrent={() => {
+                    this.loading();
+                  }}
+                  onload={() => {
+                    this.setState({ type: 'spin' }, () => {
+                      this.setState({
+                        type: this.state.size == 'large' ? 'shape' : 'list'
+                      });
+                    });
+                  }}
+                />
+              )}
+            </Col>
+          </Row>
+          {rapidCopy && (
+            <RapidCopy
+              copyFlag={true}
+              on={this.handleCloseRapidCopy}
+              onCancel={this.handleCloseRapidCopy}
+              title={formatMessage({id:'confirmModal.app.title.copy'})}
+            />
+          )}
+
+          {type === 'list' && (
+            <ComponentList
+              componentPermissions={componentPermissions}
+              groupId={globalUtil.getAppID()}
+            />
+          )}
+          {type === 'shape' && (
+            <AppShape
+              style={{ height: iframeHeight }}
+              group_id={globalUtil.getAppID()}
+              flagHeight={flagHeight}
+              iframeHeight={iframeHeight}
+            />
+          )}
+          {type === 'aggregation' && (
+            <AppJoinMode
+              group_id={globalUtil.getAppID()}
+              flagHeight={flagHeight}
+              iframeHeight={iframeHeight}
+            />
+          )}
+          {type === 'spin' && <Spin />}
+          {type === 'shapes' && (
+            <EditorTopology
+              changeType={types => {
+                this.changeType(types);
+              }}
+              key={iframeHeight}
+              iframeHeight={iframeHeight}
+              group_id={globalUtil.getAppID()}
+              flagHeight={flagHeight}
+            />
+          )}
+        </Row>
+        {guideStep === 2 &&
+          this.handleNewbieGuiding({
+            tit: formatMessage({id:'teamOther.Group.app'}),
+            btnText: formatMessage({id:'teamOther.Group.know'}),
+            showSvg: false,
+            showArrow: true,
+            send: true,
+            configName: 'applicationInfo',
+            desc:formatMessage({id:'teamOther.Group.Topological'}),
+            nextStep: 3,
+            conPosition: { bottom: '-16px', left: '45%' }
+          })}
+        {isScrollDiv && <div id="scroll_div" style={{ marginTop: '180px' }} />}
+
+        {toDelete && (
+          <ConfirmModal
+            title={formatMessage({id:'confirmModal.app.title.delete'})}
+            desc={formatMessage({id:'confirmModal.app.delete.desc'})}
+            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            loading={deleteLoading}
+            onOk={this.handleDelete}
+            onCancel={this.cancelDelete}
+          />
+        )}
+        {toEdit && (
+          <EditGroupName
+            isAddGroup={false}
+            group_name={groupDetail.group_name}
+            logo={groupDetail.logo}
+            note={groupDetail.note}
+            loading={editGroupLoading}
+            k8s_app={groupDetail.k8s_app}
+            title={formatMessage({id:'confirmModal.app.title.edit'})}
+            onCancel={this.cancelEdit}
+            onOk={this.handleEdit}
+            isEditEnglishName={currApp.can_edit}
+          />
+        )}
+        {toEditAppDirector && (
+          <AppDirector
+            teamName={teamName}
+            regionName={regionName}
+            group_name={groupDetail.group_name}
+            note={groupDetail.note}
+            loading={editGroupLoading}
+            principal={currApp.username}
+            onCancel={this.cancelEditAppDirector}
+            onOk={this.handleEdit}
+          />
+        )}
+
+        {promptModal && (
+          <Modal
+            title={formatMessage({id:'confirmModal.friendly_reminder.title'})}
+            confirmLoading={buildShapeLoading}
+            visible={promptModal}
+            onOk={this.handlePromptModalOpen}
+            onCancel={this.handlePromptModalClose}
+          >
+            <p>{formatMessage({id:'confirmModal.friendly_reminder.pages.desc'},{codeObj: codeObj[code]})}</p>
+          </Modal>
+        )}
+        {/* <CustomFooter/> */}
+      </Fragment>
           </Card>
         )}
         {currentSteps > 3 && !errPrompt && (
@@ -1403,7 +2074,7 @@ export default class Index extends PureComponent {
         )}
         {currentSteps < 4 && (
           <Card style={{ marginTop: 16 }} loading={appStateLoading}>
-            {currentSteps < 4 && (
+            {/* {currentSteps < 4 && (
               <Steps
                 type="navigation"
                 current={currentSteps}
@@ -1422,7 +2093,8 @@ export default class Index extends PureComponent {
                   );
                 })}
               </Steps>
-            )}
+            )} */}
+
             {(currentSteps < 1 || currentSteps === 3) && (
               <div className={styles.process}>
                 <Result
