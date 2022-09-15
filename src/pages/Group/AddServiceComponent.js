@@ -348,7 +348,7 @@ export default class AddServiceComponent extends PureComponent {
                 <Row>
                   <MarketDrawer
                     {...MarketParameter}
-                    isHelm={false}
+                    isHelm={true}
                     handleServiceComponent={scopeMax => {
                       this.handleServiceComponent(
                         false,

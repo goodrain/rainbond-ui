@@ -741,7 +741,7 @@ import {
         </div>
       );
       const fastactions = [
-        <Tooltip title={isInstall ? '点击安装11' : '不可安装'}>
+        <Tooltip title={isInstall ? '点击安装' : '不可安装'}>
           <div
             onClick={() => {
               if (isInstall) {

@@ -226,9 +226,7 @@ export default class PageHeader extends PureComponent {
                   globalUtil.fetchSvg(
                     key === 'localApplication'
                       ? 'appComponent'
-                      : key.indexOf('Helm-') > -1
-                        ? 'HelmSvg'
-                        : 'appmarket'
+                      : key.indexOf('Helm-') > -1 ? 'HelmSvg': 'appmarket'
                   )}
                 <p className={styles.ServiceSmallTitle}>{tab}</p>
               </Col>
