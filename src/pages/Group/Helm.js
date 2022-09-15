@@ -13,7 +13,6 @@ import Parameterinput from '@/components/Parameterinput';
 import PublicForm from '@/components/PublicForm';
 import PublicFormStyles from '@/components/PublicForm/index.less';
 import { LoadingOutlined } from '@ant-design/icons';
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import {
   Alert,
   Badge,
@@ -1255,17 +1254,6 @@ export default class Index extends PureComponent {
       linkList,
       appInfo,
       appInfoLoading,
-      type,
-      aggregation,
-      common,
-      compile,
-      flagHeight,
-      iframeHeight,
-      guideStep,
-      customSwitch,
-      rapidCopy,
-      appStatusConfig,
-      jsonDataLength
     } = this.state;
     const codeObj = {
       start: formatMessage({ id: 'appOverview.btn.start' }),
