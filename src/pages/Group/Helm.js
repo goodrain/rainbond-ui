@@ -34,7 +34,8 @@ import {
   Tooltip,
   Radio,
   Spin,
-  Divider
+  Divider,
+  Tag
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -175,61 +176,13 @@ export default class Index extends PureComponent {
     });
   };
 
-  handleNewbieGuiding = info => {
-    const { nextStep } = info;
-    return (
-      <NewbieGuiding
-        {...info}
-        totals={2}
-        handleClose={() => {
-          this.handleGuideStep('close');
-        }}
-        handleNext={() => {
-          if (nextStep) {
-            document.getElementById('scroll_div').scrollIntoView();
-            this.handleGuideStep(nextStep);
-          }
-        }}
-      />
-    );
-  };
 
   onCancel = () => {
     this.setState({
       customSwitch: false
     });
   };
-  handleSwitch = () => {
-    this.setState({
-      customSwitch: true
-    });
-  };
 
-  handleOpenRapidCopy = () => {
-    this.setState({
-      rapidCopy: true
-    });
-  };
-
-  handleCloseRapidCopy = () => {
-    this.setState({
-      rapidCopy: false
-    });
-  };
-
-  heightOnchage = e => {
-    if (e) {
-      this.setState({
-        flagHeight: false,
-        iframeHeight: '500px'
-      });
-    } else {
-      this.setState({
-        flagHeight: true,
-        iframeHeight: '70vh'
-      });
-    }
-  };
 
   fetchAppDetailState = () => {
     const { dispatch } = this.props;
@@ -533,10 +486,10 @@ export default class Index extends PureComponent {
     e.preventDefault();
     this.loadApps();
   };
-  toDelete = () => {
-    this.closeComponentTimer();
-    this.setState({ toDelete: true });
-  };
+  // toDelete = () => {
+  //   this.closeComponentTimer();
+  //   this.setState({ toDelete: true });
+  // };
   cancelDelete = (isOpen = true) => {
     this.setState({ toDelete: false });
     if (isOpen) {
@@ -1275,35 +1228,14 @@ export default class Index extends PureComponent {
       </Form>
     );
   };
-
   render() {
     const {
-      // appPermissions: { isUpgrade, isEdit, isDelete },
+      appPermissions: { isUpgrade, isEdit, isDelete },
       groupDetail,
       buildShapeLoading,
       editGroupLoading,
       deleteLoading,
       operationPermissions: { isAccess: isControl },
-      novices,
-      componentPermissions,
-      componentPermissions: {
-        isAccess: isComponentDescribe,
-        isCreate: isComponentCreate,
-        isConstruct: isComponentConstruct,
-        isRestart
-      },
-      appPermissions: {
-        isShare,
-        isBackup,
-        isUpgrade,
-        isEdit,
-        isDelete,
-        isStart,
-        isStop,
-        isUpdate,
-        isConstruct,
-        isCopy
-      },
     } = this.props;
     const {
       versions,
@@ -1349,259 +1281,51 @@ export default class Index extends PureComponent {
       superseded: 'success',
       failed: 'error'
     };
-    const pageHeaderContents = (
-      <div className={styles.pageHeaderContents}>
-        <div className={styles.contentl}>
-          <div className={styles.conBoxt}>
-            <div className={styles.contentTitle}>
-              <span>{currApp.group_name || '-'}</span>
-              <Icon
-                style={{
-                  cursor: 'pointer',
-                  marginLeft: '5px'
-                }}
-                onClick={this.toEdit}
-                type="edit"
-              />
-            </div>
-            <div className={styles.content_Box}>
-              {appStatusConfig && <AppState AppStatus={resources.status} />}
-              {resources.status && isStart && (
-                <span>
-                  <a
-                    onClick={() => {
-                      this.handleTopology('start');
-                    }}
-                    disabled={BtnDisabled}
-                  >
-                    {formatMessage({ id: 'appOverview.btn.start' })}
-                  </a>
-                  <Divider type="vertical" />
-                </span>
-              )}
-              {resources.status &&
-                (resources.status === 'ABNORMAL' ||
-                  resources.status === 'PARTIAL_ABNORMAL') &&
-                serviceIds &&
-                serviceIds.length > 0 &&
-                isRestart && (
-                  <span>
-                    <a
-                      onClick={() => {
-                        this.handleTopology('restart');
-                      }}
-                      disabled={BtnDisabled}
-                    >
-                      {formatMessage({ id: 'appOverview.list.table.restart' })}
-                    </a>
-                    <Divider type="vertical" />
-                  </span>
-                )}
-              {isDelete && resources.status !== 'RUNNING' && (
-                <a onClick={this.toDelete}>
-                  {formatMessage({ id: 'appOverview.list.table.delete' })}
-                </a>
-              )}
-              {resources.status && resources.status !== 'CLOSED' && isStop && (
-                <span>
-                  {resources.status !== 'RUNNING' && (
-                    <Divider type="vertical" />
-                  )}
-                  <a
-                    onClick={() => {
-                      this.handleTopology('stop');
-                    }}
-                  >
-                    {formatMessage({ id: 'appOverview.btn.stop' })}
-                  </a>
-                </span>
-              )}
-            </div>
-            {resources.status && (
-              <div className={styles.extraContent}>
-                {resources.status !== 'CLOSED' && isUpdate && (
-                  <Button
-                    style={MR}
-                    onClick={() => {
-                      this.handleTopology('upgrade');
-                    }}
-                    disabled={BtnDisabled}
-                  >
-                    {formatMessage({ id: 'appOverview.btn.update' })}
-                  </Button>
-                )}
-                {isConstruct && isComponentConstruct && (
-                  <Button
-                    style={MR}
-                    disabled={BtnDisabled}
-                    onClick={() => {
-                      this.handleTopology('deploy');
-                    }}
-                  >
-                    {formatMessage({ id: 'appOverview.btn.build' })}
-                  </Button>
-                )}
-                {isCopy && (
-                  <Button
-                    style={MR}
-                    disabled={BtnDisabled}
-                    onClick={this.handleOpenRapidCopy}
-                  >
-                    {formatMessage({ id: 'appOverview.btn.copy' })}
-                  </Button>
-                )}
-                {linkList.length > 0 && <VisterBtn linkList={linkList} />}
-              </div>
-            )}
-          </div>
-        </div>
-        <div className={styles.contentr}>
-          <div className={styles.conrHeader}>
-            <div>
-              <span>{formatMessage({ id: 'appOverview.createTime' })}</span>
-              <span>
-                {currApp.create_time
-                  ? moment(currApp.create_time)
-                    .locale('zh-cn')
-                    .format('YYYY-MM-DD HH:mm:ss')
-                  : '-'}
-              </span>
-            </div>
-            <div>
-              <span>{formatMessage({ id: 'appOverview.updateTime' })}</span>
-              <span>
-                {currApp.update_time
-                  ? moment(currApp.update_time)
-                    .locale('zh-cn')
-                    .format('YYYY-MM-DD HH:mm:ss')
-                  : '-'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    const arr = [1, 2, 3, 4, 5, 6, 7]
     const pageHeaderContent = (
-      <div className={styles.pageHeaderContent}>
-        <Card
-          style={{ padding: 0 }}
-          loading={appStateLoading || appInfoLoading}
-          className={styles.contentl}
-        >
-          <div>
-            <div
-              className={styles.conBoxt}
+      <>
+        <Card>
+          <Row
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}>
+            <Col span={12}
               style={{
-                justifyContent: 'end',
-                alignItems: 'end',
-                marginBottom: '42px'
-              }}
-            >
-              <img
-                style={{ width: '60px', marginRight: '10px' }}
-                alt=""
-                src={
-                  appInfo.icon ||
-                  'https://gw.alipayobjects.com/zos/rmsportal/MjEImQtenlyueSmVEfUD.svg'
-                }
-              />
-              <div style={{ width: '70%' }}>
-                <div className={styles.contentTitle} style={{ width: '100%' }}>
-                  <span>{currApp.group_name || '-'}</span>
-                  {isEdit && (
-                    <Icon
-                      style={{
-                        cursor: 'pointer',
-                        marginLeft: '5px'
-                      }}
-                      onClick={this.toEdit}
-                      type="edit"
-                    />
-                  )}
-                </div>
-                <div title={appInfo.description || currApp.note} className={styles.contentNote}>
-                  {appInfo.description || currApp.note}
-                </div>
-              </div>
-
-              <div className={styles.helmState}>
-                {resources.status && (
-                  <Badge
-                    className={styles.states}
-                    status={appStateColor[resources.status] || 'default'}
-                    text={
-                      infoUtil.getHelmStatus &&
-                      infoUtil.getHelmStatus([resources.status] || '-')
-                    }
-                  />
-                )}
-                {isDelete && (
-                  <a className={styles.operationState} onClick={this.toDelete}>
-                    {formatMessage({ id: 'appOverview.list.table.delete' })}
-                  </a>
-                )}
-                {linkList.length > 0 && (
-                  <VisterBtn type="link" linkList={linkList} />
-                )}
-              </div>
-            </div>
-            <div className={styles.connect_Bot}>
-              <div
-                className={styles.connect_Box}
-                style={{ width: '100%', marginRight: '0' }}
-              >
-                <div className={styles.connect_Boxs}>
-                  <div>{formatMessage({ id: 'appOverview.memory' })}</div>
-                  <div>
-                    {resources.memory
-                      ? `${sourceUtil.unit(resources.memory || 0, 'MB')}`
-                      : formatMessage({ id: 'appOverview.no_limit' })}
-                  </div>
-                </div>
-                <div className={styles.connect_Boxs}>
-                  <div>{formatMessage({ id: 'appOverview.cpu' })}</div>
-                  <div>
-                    {resources.cpu ? `${resources.cpu / 1000}Core` : formatMessage({ id: 'appOverview.no_limit' })}
-                  </div>
-                </div>
-                <div className={styles.connect_Boxs}>
-                  <div>{formatMessage({ id: 'appOverview.serviceNum' })}</div>
-                  <div>{(components && components.length) || 0}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-        <Card
-          style={{ padding: 0, marginRight: 0 }}
-          loading={appStateLoading}
-          className={styles.contentl}
-        >
-          <div className={styles.contentr}>
-            <div className={styles.conrHeader}>
+                display: 'flex',
+                width: '50%'
+              }}>
               <div>
-                <span>{formatMessage({ id: 'appOverview.createTime' })}</span>
-                <span>
-                  {currApp.create_time
-                    ? moment(currApp.create_time)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')
-                    : '-'}
-                </span>
+                <img
+                  style={{ width: '60px', marginRight: '10px' }}
+                  alt=""
+                  src={
+                    appInfo.icon ||
+                    'https://gw.alipayobjects.com/zos/rmsportal/MjEImQtenlyueSmVEfUD.svg'
+                  }
+                />
               </div>
-              <div>
-                <span>{formatMessage({ id: 'appOverview.updateTime' })}</span>
-                <span>
-                  {currApp.update_time
-                    ? moment(currApp.update_time)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')
-                    : '-'}
-                </span>
+              <div className={styles.name_div}>
+                <p className={styles.name_span}>{currApp.group_name || '-'}</p>
+                {/* <p>{appInfo.description || currApp.note}</p> */}
+                <Tooltip
+                  placement="top"
+                  title={appInfo.description || currApp.note}
+                >
+                  <p style={{ color: 'rgba(0, 0, 0, 0.85)' }}>
+                    {appInfo.description || currApp.note}
+                  </p>
+                </Tooltip>
               </div>
-            </div>
-            <div className={styles.conrHeader}>
-              <div>
+            </Col>
+            <Col span={3}>
+              <div className={styles.lable_style}>
+                <span>{formatMessage({ id: 'appOverview.versions' })}</span>
+                <span>{resources.version ? resources.version : '-'}</span>
+              </div>
+            </Col>
+            <Col span={3}>
+              <div className={styles.lable_style}>
                 <span>{formatMessage({ id: 'appOverview.principal' })}</span>
                 <span>
                   {currApp.principal ? (
@@ -1622,87 +1346,58 @@ export default class Index extends PureComponent {
                   ) : (
                     '-'
                   )}
-                  {isEdit && (
-                    <Icon
-                      style={{
-                        cursor: 'pointer',
-                        marginLeft: '5px'
-                      }}
-                      onClick={this.handleToEditAppDirector}
-                      type="edit"
-                    />
-                  )}
                 </span>
               </div>
-              {resources.version && (
-                <div>
-                  <span>{formatMessage({ id: 'appOverview.versions' })}</span>
-                  <span>{resources.version}</span>
-                </div>
-              )}
-            </div>
-            <div className={styles.conrBot}>
-              <div className={styles.conrBox} style={{ width: '33.3%' }}>
-                <div>{formatMessage({ id: 'appOverview.gateway' })}</div>
-                <div
-                  onClick={() => {
-                    isControl && this.handleJump('gateway');
-                  }}
-                >
-                  <a>{currApp.ingress_num || 0}</a>
-                </div>
-              </div>
-              <div className={styles.conrBox} style={{ width: '33.3%' }}>
-                <div>{formatMessage({ id: 'appOverview.upgrade' })}</div>
-                <div
-                  onClick={() => {
-                    isUpgrade && this.handleJump('upgrade');
-                  }}
-                >
-                  <a>
-                    {(versions && versions.length > 0 && versions.length - 1) ||
-                      0}
-                  </a>
-                </div>
-              </div>
-              <div className={styles.conrBox} style={{ width: '33.3%' }}>
-                <div>{formatMessage({ id: 'appOverview.shop' })}</div>
-                <div
-                  onClick={() => {
-                    !errPrompt &&
-                      currApp.app_store_name &&
-                      this.handleJumpStore(currApp.app_store_name);
-                  }}
-                >
-                  <a
-                    style={{
-                      color: errPrompt ? 'rgba(0, 0, 0, 0.45)' : '#4d73b1'
-                    }}
-                  >
-                    {currApp.app_store_name || formatMessage({ id: 'appOverview.shopDelete' })}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-    );
+            </Col>
+            <Col span={6}>
+              <div className={styles.lable_style}>
+                <span>关键字</span>
+                <span className={styles.tag_style}>
+                  {
+                    arr.length > 3 ? (
+                      <>
 
+                        <Tooltip
+                          placement="top"
+                          title={
+                            arr.map(item => {
+                              return <Tag>
+                                {item}
+                              </Tag>
+                            })
+                          }>
+                          {arr.slice(0, 4).map(item => {
+                            return <Tag>
+                              {item}
+                            </Tag>
+                          })}
+                          <span>...</span>
+                        </Tooltip>
+                      </>
+                    ) : (
+                      arr.map(item => {
+                        return <Tag>
+                          {item}
+                        </Tag>
+                      })
+                    )
+                  }
+                </span>
+
+              </div>
+            </Col>
+          </Row>
+        </Card>
+      </>
+    )
     const {
       team_name: teamName,
       region_name: regionName,
       group_id: groupId
     } = this.fetchParameter();
-    const isScrollDiv = rainbondUtil.handleNewbie(novices, 'applicationInfo');
-    const BtnDisabled = !(jsonDataLength > 0);
-    const MR = { marginRight: '10px' };
     return (
       <Fragment>
-        <Row style={isScrollDiv && guideStep === 1 ? highlighted : {}}>
-          {flagHeight ? pageHeaderContents : pageHeaderContent}
-        </Row>
-
+        <Row>{pageHeaderContent}</Row>
         {errPrompt && (
           <Alert
             message={errPrompt}
@@ -1710,390 +1405,11 @@ export default class Index extends PureComponent {
             style={{ marginBottom: '20px' }}
           />
         )}
-
-        {currentSteps > 3 && (
-          <Card
-            type="inner"
-            loading={appStateLoading}
-            // title={formatMessage({id: 'appOverview.helm.title'})}
-            bodyStyle={{ padding: '0', background: '#F0F2F5', border: '0' }}
-          // extra = {
-          //  <div className={styles.extraStyle}>{extra}</div> 
-          // }
-          >
-            <Fragment>
-              {guideStep === 1 &&
-                this.handleNewbieGuiding({
-                  tit: formatMessage({ id: 'teamOther.Group.tit' }),
-                  showSvg: false,
-                  showArrow: true,
-                  send: false,
-                  configName: 'applicationInfo',
-                  desc: formatMessage({ id: 'teamOther.Group.desc' }),
-                  nextStep: 2,
-                  conPosition: { top: '336px', left: '42%' }
-                })}
-              {customSwitch && (
-                <ApplicationGovernance
-                  mode={currApp && currApp.governance_mode}
-                  appID={globalUtil.getAppID()}
-                  onCancel={this.onCancel}
-                  onOk={this.fetchAppDetail}
-                />
-              )}
-              <Row className={styles.rowArrow} style={guideStep === 2 ? highlighted : {}}>
-                <div
-                  className={styles.iconBox}
-                  onClick={() => {
-                    this.heightOnchage(flagHeight);
-                  }}
-                >
-                  {flagHeight ? (
-                    <div className={styles.showOrhide}>
-                      <DownOutlined />
-                    </div>
-                  ) : (
-                    <div className={styles.showOrhide}>
-                      <UpOutlined />
-                    </div>
-                  )}
-                </div>
-                <Row
-                  style={{
-                    display: 'flex',
-                    background: '#FFFFFF',
-                    height: '60px',
-                    alignItems: 'center',
-                    borderBottom: '1px solid #e8e8e8'
-                  }}
-                >
-                  <Col span={5} style={{ paddingleft: '12px' }}>
-                    <a
-                      onClick={() => {
-                        this.changeType('shape');
-                        this.setState({
-                          aggregation: false,
-                          common: true,
-                          compile: false
-                        });
-                      }}
-                      style={{
-                        marginLeft: '30px',
-                        color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
-                      }}
-                    >
-                      {formatMessage({ id: 'appOverview.topology' })}
-                    </a>
-                    {isComponentDescribe && (
-                      <a
-                        onClick={() => {
-                          this.changeType('list');
-                        }}
-                        style={{
-                          marginLeft: '30px',
-                          color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
-                        }}
-                      >
-                        {formatMessage({ id: 'appOverview.list' })}
-                      </a>
-                    )}
-                  </Col>
-                  <Col
-                    className={styles.topoBtn}
-                    span={11}
-                    style={{ paddingleft: '12px' }}
-                  >
-                    {type !== 'list' && isComponentCreate && (
-                      <Radio.Group>
-                        {common ? (
-                          <Radio.Button
-                            style={{
-                              textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
-                              color: '#F6F7FA', borderColor: '#4C73B0'
-                            }}
-                            onClick={() => {
-                              this.changeType('shape');
-                              this.setState({
-                                aggregation: false,
-                                common: true,
-                                compile: false
-                              });
-                            }}
-                            disabled
-                          >
-                            {formatMessage({ id: 'appOverview.btn.ordinary' })}
-                          </Radio.Button>
-                        ) : (
-                          <Radio.Button
-                            style={{
-                              textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
-                              color: '#595959', borderColor: '#D9D9D9',
-                            }}
-
-                            onClick={() => {
-                              this.changeType('shape');
-                              this.setState({
-                                aggregation: false,
-                                common: true,
-                                compile: false
-                              });
-                            }}
-                          >
-                            {formatMessage({ id: 'appOverview.btn.ordinary' })}
-                          </Radio.Button>
-                        )}
-                        {aggregation ? (
-                          <Radio.Button
-                            style={{
-                              textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
-                              color: '#F6F7FA', borderColor: '#4C73B0'
-                            }}
-                            onClick={() => {
-                              this.changeType('aggregation');
-                              this.setState({
-                                aggregation: true,
-                                common: false,
-                                compile: false
-                              });
-                            }}
-                            disabled
-                          >
-                            {formatMessage({ id: 'appOverview.btn.aggregation' })}
-                          </Radio.Button>
-                        ) : (
-                          <Radio.Button
-                            style={{
-                              textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
-                              color: '#595959', borderColor: '#D9D9D9'
-                            }}
-                            onClick={() => {
-                              this.changeType('aggregation');
-                              this.setState({
-                                aggregation: true,
-                                common: false,
-                                compile: false
-                              });
-                            }}
-                          >
-                            {formatMessage({ id: 'appOverview.btn.aggregation' })}
-                          </Radio.Button>
-                        )}
-                        {compile ? (
-                          <Radio.Button
-                            style={{
-                              textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
-                              color: '#F6F7FA', borderColor: '#4C73B0'
-                            }}
-
-                            onClick={() => {
-                              this.changeType('shapes');
-                              this.setState({
-                                aggregation: false,
-                                common: false,
-                                compile: true
-                              });
-                            }}
-                            disabled
-                          >
-                            {formatMessage({ id: 'appOverview.btn.arrange' })}
-                          </Radio.Button>
-                        ) : (
-                          <Radio.Button
-                            style={{
-                              textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
-                              color: '#595959', borderColor: '#D9D9D9'
-                            }}
-                            onClick={() => {
-                              this.changeType('shapes');
-                              this.setState({
-                                aggregation: false,
-                                common: false,
-                                compile: true
-                              });
-                            }}
-                          >
-                            {formatMessage({ id: 'appOverview.btn.arrange' })}
-                          </Radio.Button>
-                        )}
-                      </Radio.Group>
-                    )}
-                  </Col>
-                  <Col span={4} style={{ textAlign: 'right' }}>
-                    {/* {isComponentCreate && isComponentConstruct && (
-                <AddThirdParty
-                  groupId={globalUtil.getAppID()}
-                  refreshCurrent={() => {
-                    this.loading();
-                  }}
-                  onload={() => {
-                    this.setState({ type: 'spin' }, () => {
-                      this.setState({
-                        type: this.state.size == 'large' ? 'shape' : 'list'
-                      });
-                    });
-                  }}
-                />
-              )} */}
-                  </Col>
-                  <Col span={4} style={{ textAlign: 'center' }}>
-                    {isComponentCreate && isComponentConstruct && (
-                      <AddServiceComponent
-                        groupId={globalUtil.getAppID()}
-                        refreshCurrent={() => {
-                          this.loading();
-                        }}
-                        onload={() => {
-                          this.setState({ type: 'spin' }, () => {
-                            this.setState({
-                              type: this.state.size == 'large' ? 'shape' : 'list'
-                            });
-                          });
-                        }}
-                      />
-                    )}
-                  </Col>
-                </Row>
-                {rapidCopy && (
-                  <RapidCopy
-                    copyFlag={true}
-                    on={this.handleCloseRapidCopy}
-                    onCancel={this.handleCloseRapidCopy}
-                    title={formatMessage({ id: 'confirmModal.app.title.copy' })}
-                  />
-                )}
-
-                {type === 'list' && (
-                  <ComponentList
-                    componentPermissions={componentPermissions}
-                    groupId={globalUtil.getAppID()}
-                  />
-                )}
-                {type === 'shape' && (
-                  <AppShape
-                    style={{ height: iframeHeight }}
-                    group_id={globalUtil.getAppID()}
-                    flagHeight={flagHeight}
-                    iframeHeight={iframeHeight}
-                  />
-                )}
-                {type === 'aggregation' && (
-                  <AppJoinMode
-                    group_id={globalUtil.getAppID()}
-                    flagHeight={flagHeight}
-                    iframeHeight={iframeHeight}
-                  />
-                )}
-                {type === 'spin' && <Spin />}
-                {type === 'shapes' && (
-                  <EditorTopology
-                    changeType={types => {
-                      this.changeType(types);
-                    }}
-                    key={iframeHeight}
-                    iframeHeight={iframeHeight}
-                    group_id={globalUtil.getAppID()}
-                    flagHeight={flagHeight}
-                  />
-                )}
-              </Row>
-              {guideStep === 2 &&
-                this.handleNewbieGuiding({
-                  tit: formatMessage({ id: 'teamOther.Group.app' }),
-                  btnText: formatMessage({ id: 'teamOther.Group.know' }),
-                  showSvg: false,
-                  showArrow: true,
-                  send: true,
-                  configName: 'applicationInfo',
-                  desc: formatMessage({ id: 'teamOther.Group.Topological' }),
-                  nextStep: 3,
-                  conPosition: { bottom: '-16px', left: '45%' }
-                })}
-              {isScrollDiv && <div id="scroll_div" style={{ marginTop: '180px' }} />}
-
-              {toDelete && (
-                <ConfirmModal
-                  title={formatMessage({ id: 'confirmModal.app.title.delete' })}
-                  desc={formatMessage({ id: 'confirmModal.app.delete.desc' })}
-                  subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-                  loading={deleteLoading}
-                  onOk={this.handleDelete}
-                  onCancel={this.cancelDelete}
-                />
-              )}
-              {toEdit && (
-                <EditGroupName
-                  isAddGroup={false}
-                  group_name={groupDetail.group_name}
-                  logo={groupDetail.logo}
-                  note={groupDetail.note}
-                  loading={editGroupLoading}
-                  k8s_app={groupDetail.k8s_app}
-                  title={formatMessage({ id: 'confirmModal.app.title.edit' })}
-                  onCancel={this.cancelEdit}
-                  onOk={this.handleEdit}
-                  isEditEnglishName={currApp.can_edit}
-                />
-              )}
-              {toEditAppDirector && (
-                <AppDirector
-                  teamName={teamName}
-                  regionName={regionName}
-                  group_name={groupDetail.group_name}
-                  note={groupDetail.note}
-                  loading={editGroupLoading}
-                  principal={currApp.username}
-                  onCancel={this.cancelEditAppDirector}
-                  onOk={this.handleEdit}
-                />
-              )}
-
-              {promptModal && (
-                <Modal
-                  title={formatMessage({ id: 'confirmModal.friendly_reminder.title' })}
-                  confirmLoading={buildShapeLoading}
-                  visible={promptModal}
-                  onOk={this.handlePromptModalOpen}
-                  onCancel={this.handlePromptModalClose}
-                >
-                  <p>{formatMessage({ id: 'confirmModal.friendly_reminder.pages.desc' }, { codeObj: codeObj[code] })}</p>
-                </Modal>
-              )}
-              {/* <CustomFooter/> */}
-            </Fragment>
-          </Card>
-        )}
         {currentSteps > 3 && !errPrompt && (
           <div className={styles.customCollapseBox}>{this.handleConfing()}</div>
         )}
         {currentSteps < 4 && (
           <Card style={{ marginTop: 16 }} loading={appStateLoading}>
-            {/* {currentSteps < 4 && (
-              <Steps
-                type="navigation"
-                current={currentSteps}
-                className="site-navigation-steps"
-              >
-                {appStates.map((item, index) => {
-                  const { value, key } = item;
-                  return (
-                    <Step
-                      title={value}
-                      icon={
-                        key !== 'configuring' &&
-                        index === currentSteps && <LoadingOutlined />
-                      }
-                    />
-                  );
-                })}
-              </Steps>
-            )} */}
-
             {(currentSteps < 1 || currentSteps === 3) && (
               <div className={styles.process}>
                 <Result
@@ -2107,31 +1423,6 @@ export default class Index extends PureComponent {
                 />
               </div>
             )}
-
-            {currentSteps < 2 &&
-              resources.conditions &&
-              resources.conditions.length > 0 && (
-                <div className={styles.process}>
-                  <Steps direction="vertical" style={{ paddingLeft: '20%' }}>
-                    {resources.conditions.map(item => {
-                      const { status, message, type } = item;
-                      if (appType[type]) {
-                        return (
-                          <Step
-                            title={appType[type]}
-                            status={
-                              status ? 'finish' : message ? 'error' : 'wait'
-                            }
-                            description={
-                              <div style={{ color: '#ff4d4f' }}>{message}</div>
-                            }
-                          />
-                        );
-                      }
-                    })}
-                  </Steps>
-                </div>
-              )}
             {currentSteps === 2 && !errPrompt && (
               <div className={styles.customCollapse}>
                 {this.handleConfing()}

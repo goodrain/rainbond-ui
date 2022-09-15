@@ -73,7 +73,7 @@
   .contentr {
     background: #fff;
     & > div:nth-of-type(2) {
-      margin: 31px 0;
+      margin: 29px 0;
     }
     .conrHeader {
       display: flex;
@@ -629,5 +629,35 @@
       display: flex;
       width: 300px;
     }
+  }
+}
+.name_div{
+  p{
+    margin-bottom: 0 
+  }
+  .name_span{
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.85);
+    font-family: 'PingFangSC-Medium';
+    font-size: 24px;
+    letter-spacing: 0;
+    width: calc(100% - 70px);
+  }
+  p:nth-of-type(2){
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
+.lable_style{
+  // padding-top: 30px;
+  span:nth-of-type(1){
+    margin-right: 14px;
+    color: rgba(0, 0, 0, 0.45);
+  }
+  span:nth-of-type(2){
+    margin-right: 14px;
+    color: rgba(0, 0, 0, 0.85);
   }
 }
