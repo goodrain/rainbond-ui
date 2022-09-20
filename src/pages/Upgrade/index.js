@@ -460,6 +460,14 @@ export default class AppList extends PureComponent {
       recordLoading: false
     });
   };
+  jump = () =>{
+    const { dispatch } = this.props
+    dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/helminstall`
+      )
+    )
+  }
 
   render() {
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
@@ -489,6 +497,69 @@ export default class AppList extends PureComponent {
       rollbackRecordDetails,
       backUpgradeLoading
     } = this.state;
+    const arr = [
+      {app_model_id
+        : 
+        "1ac42e3339de41728c50349eeef0deb8",
+        app_model_name
+        : 
+        "默认应用",
+        can_upgrade
+        : 
+        false,
+        current_version
+        : 
+        "1.0",
+        describe
+        : 
+        "This is a default description.",
+        details
+        : 
+        null,
+        enterprise_id
+        : 
+        "6de24baf8e6fea762fec90148559e6c3",
+        group_key
+        : 
+        "1ac42e3339de41728c50349eeef0deb8",
+        group_name
+        : 
+        "core",
+        is_official
+        : 
+        false,
+        market_name
+        : 
+        null,
+        not_upgrade_record_id
+        : 
+        null,
+        not_upgrade_record_status
+        : 
+        1,
+        pic
+        : 
+        "/data/media/uploads/d444ca6e0bc0444ab8d1c250c446f84a.png",
+        share_team
+        : 
+        null,
+        share_user
+        : 
+        null,
+        source
+        : 
+        null,
+        tenant_service_group_id
+        : 
+        "1ac42e3339de41728c50349eeef0deb8",
+        upgrade_group_id
+        : 
+        "1",
+        upgrade_versions
+        : 
+        []},
+    ]
+
     const paginationProps = {
       onChange: this.handleTableChange,
       pageSize,
@@ -666,36 +737,37 @@ export default class AppList extends PureComponent {
             <Spin />
           ) : (
             <Tabs
-              activeKey={activeKey}
+              // activeKey={activeKey}
+              defaultActiveKey="1"
               onChange={this.handleTabs}
               className={styles.tabss}
             >
-              {!isHelm && (
+              {isHelm ?   (
                 <TabPane tab={formatMessage({id: 'appUpgrade.tabs.list'})} key="1">
                   <div className={styles.cardList}>
                     <List
                       rowKey="id"
                       size="large"
                       loading={loadingList}
-                      dataSource={[...dataList]}
+                      dataSource={[...arr]}
                       renderItem={item => (
                         <List.Item
                           actions={[
                             <a
                               onClick={e => {
                                 e.preventDefault();
-                                this.fetchAppLastRollbackRecord(item);
+                                this.jump();
                               }}
                             >
                               {formatMessage({id: 'appUpgrade.btn.upgrade'})}
                             </a>,
                             <a
-                              onClick={() => {
-                                this.showComponentVersion(item);
-                              }}
-                            >
-                              {formatMessage({id: 'appUpgrade.btn.addon'})}
-                            </a>
+                            onClick={() => {
+                              this.jump();
+                            }}
+                          >
+                            重新安装
+                          </a>,
                           ]}
                         >
                           <List.Item.Meta
@@ -726,6 +798,62 @@ export default class AppList extends PureComponent {
                     />
                   </div>
                 </TabPane>
+              ) : (
+                <TabPane tab={formatMessage({id: 'appUpgrade.tabs.list'})} key="1">
+                <div className={styles.cardList}>
+                  <List
+                    rowKey="id"
+                    size="large"
+                    loading={loadingList}
+                    dataSource={[...dataList]}
+                    renderItem={item => (
+                      <List.Item
+                        actions={[
+                          <a
+                            onClick={e => {
+                              e.preventDefault();
+                              this.fetchAppLastRollbackRecord(item);
+                            }}
+                          >
+                            {formatMessage({id: 'appUpgrade.btn.upgrade'})}
+                          </a>,
+                          <a
+                            onClick={() => {
+                              this.showComponentVersion(item);
+                            }}
+                          >
+                            {formatMessage({id: 'appUpgrade.btn.addon'})}
+                          </a>,
+                        ]}
+                      >
+                        <List.Item.Meta
+                          avatar={
+                            <Avatar
+                              src={
+                                item.pic ||
+                                require('../../../public/images/app_icon.jpg')
+                              }
+                              shape="square"
+                              size="large"
+                            />
+                          }
+                          title={
+                            <a
+                              onClick={() => {
+                                this.showMarketAppDetail(item);
+                              }}
+                            >
+                              {item.group_name}
+                            </a>
+                          }
+                          description={item.describe}
+                        />
+                        <ListContent data={item} />
+                      </List.Item>
+                    )}
+                  />
+                </div>
+              </TabPane>
               )}
               <TabPane tab={formatMessage({id: 'appUpgrade.tabs.record'})} key="2">
                 <Table

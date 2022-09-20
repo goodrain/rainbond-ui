@@ -190,8 +190,8 @@ class CreateHelmAppModels extends PureComponent {
   jump = (teaName, regionName, ID) => {
     const { dispatch } = this.props;
     dispatch(
-      // routerRedux.push(`/team/${teaName}/region/${regionName}/apps/${ID}`)
-      routerRedux.push(`/team/${teaName}/region/${regionName}/apps/${ID}/HelmDetection`)
+      routerRedux.push(`/team/${teaName}/region/${regionName}/apps/${ID}`)
+      // routerRedux.push(`/team/${teaName}/region/${regionName}/apps/${ID}/HelmDetection`)
     );
   };
 
@@ -206,7 +206,10 @@ class CreateHelmAppModels extends PureComponent {
       callback: res => {
         if (res.bean.ID && onCancel) {
           onCancel();
-          this.jump(vals.team_name, vals.region_name, res.bean.ID);
+          dispatch(
+            routerRedux.push(`/team/${vals.team_name}/region/${vals.region_name}/apps/${res.bean.ID}/helminstall`)
+          );
+          // this.jump(vals.team_name, vals.region_name, res.bean.ID);
         }
         this.handleInstallLoading();
       }

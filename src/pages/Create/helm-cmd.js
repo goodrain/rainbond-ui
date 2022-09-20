@@ -83,6 +83,12 @@ export default class Index extends PureComponent {
   };
   handleSubmit = value => {
     const teamName = globalUtil.getCurrTeamName();
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push(
+        `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}/helminstall`
+      )
+    );
     // this.props.dispatch({
     //   type: "createApp/createAppByDockerrun",
     //   payload: {

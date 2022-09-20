@@ -35,9 +35,15 @@ class HelmDetection extends PureComponent {
         };
     }
     componentDidMount(){
-        this.setState({
-            bool:true
-        })
+
+          // setTimeout(function name(params) {
+          //   var bool = false
+          // },5000)
+          // this.setState({
+          //   bool: bool
+          // })
+
+
         const { dispatch  } = this.props;
         const {
           appStateMap,
@@ -92,7 +98,7 @@ class HelmDetection extends PureComponent {
         const { dispatch } =  this.props;
         dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/helminstall`
             )
         )
     }
@@ -206,9 +212,12 @@ render() {
 
     return (
         <Fragment>
-            {bool && this.operationInstall()}
+            {/* {bool && this.operationInstall()}
             {bool == false && currentSteps == 2 && this.operationSuccess()}
-            {bool == false && currentSteps < 2 && this.operationError()}
+            {bool == false && currentSteps < 2 && this.operationError()} */}
+            {this.operationSuccess()}
+            {/* {bool==false && this.operationInstall()} */}
+
         </Fragment>
     );
 }
