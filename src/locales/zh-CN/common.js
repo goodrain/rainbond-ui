@@ -305,7 +305,7 @@
         'confirmModal.app.label.branch':'分支',
         'confirmModal.app.label.tag':'Tag',
         'confirmModal.app.label.not_change':'暂不支持变更版本',
-        'confirmModal.app.label.third_party':'第三方组件',
+        'confirmModal.app.label.third_party':'第三方组件:',
         'confirmModal.app.label.mirror_image':'镜像:',
         'confirmModal.app.label.sound_code':'源码:',
         'confirmModal.app.label.component_library':'组件库:',

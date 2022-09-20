@@ -589,7 +589,7 @@ export default class Index extends PureComponent {
                         <div
                           style={{
                             paddingRight: '5px',
-                            width: '80px',
+                            width: '100px',
                             color: 'rgba(0, 0, 0, 0.85)'
                           }}
                         >
