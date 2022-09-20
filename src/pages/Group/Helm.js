@@ -830,11 +830,29 @@ export default class Index extends PureComponent {
           this.setState({
             currentSteps: 3,
             submitLoading: false
+          }, () => {
+            this.jump()
           });
+
         }
       }
     });
   };
+
+  jump() {
+    const time = setInterval(() => {
+      const { currentSteps } = this.state;
+      const { dispatch } = this.props;
+      if (currentSteps != 3) {
+        clearInterval(time)
+        dispatch(
+          routerRedux.push(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}`
+          )
+        )
+      }
+    }, 100)
+  }
 
   handleEditHelmApp = values => {
     const { dispatch } = this.props;
@@ -857,6 +875,7 @@ export default class Index extends PureComponent {
         if (res && res.status_code === 200) {
           this.fetchAppDetailState();
           notification.success({ message: formatMessage({ id: 'notification.success.wait_patiently' }) });
+          this.jump();
         }
         this.setState({
           submitLoading: false
@@ -883,7 +902,7 @@ export default class Index extends PureComponent {
           loading={submitLoading}
           type="primary"
         >
-          {type === 'Create' ? formatMessage({ id: 'button.install' }) : '更新'}
+          {type === 'Create' ? formatMessage({ id: 'button.install' }) : formatMessage({ id: 'button.install' })}
         </Button>
       </div>
     );
@@ -928,7 +947,7 @@ export default class Index extends PureComponent {
       enterprise_id: currentEnterprise.enterprise_id,
       team_name: globalUtil.getCurrTeamName(),
       region_name: globalUtil.getCurrRegionName(),
-      group_id: appID
+      group_id: globalUtil.getAppID(),
     };
   };
   fetchPrefixUrl = () => {
@@ -1053,175 +1072,171 @@ export default class Index extends PureComponent {
     return (
       <Form labelAlign="left">
         <Collapse bordered={false} defaultActiveKey={['2']}>
-          {currentSteps > 3 ? false : true &&
-            <Panel
-              header={
-                <div className={styles.customPanelHeader}>
-                  <h6>{formatMessage({ id: 'appOverview.helm.pages.option' })}</h6>
-                  <p>{formatMessage({ id: 'appOverview.helm.pages.standard' })}</p>
-                </div>
-              }
-              key="2"
-              className={styles.customPanel}
-            >
-              <Skeleton loading={versionInfoLoading}>
-                <div style={{ padding: '15px 30px' }}>
-                  {formData && formData.length > 0 && (
-                    <PublicForm
-                      Form={Form}
-                      data={formData}
-                      upDateQuestions={data => {
-                        this.setState({
-                          formData: data
-                        });
-                      }}
-                      setFieldsValue={setFieldsValue}
-                      formItemLayout={formItemLayout}
-                      getFieldValue={getFieldValue}
-                      getFieldDecorator={getFieldDecorator}
-                    />
-                  )}
-                  <div className={PublicFormStyles.over_hr}>
-                    <span>{formatMessage({ id: 'appOverview.helm.pages.over_hr' })}</span>
-                  </div>
-                  <FormItem {...formItemLayout} label={formatMessage({ id: 'appOverview.helm.pages.overrides' })}>
-                    {getFieldDecorator('overrides', {
-                      initialValue: overrides || [],
-                      rules: [{ required: false, message: formatMessage({ id: 'placeholder.helm.overrides' }) }]
-                    })(
-                      <Parameterinput
-                        disableds={upDataVersion || errPrompt || noVersion}
-                        isHalf
-                        editInfo={overrides || ''}
-                      />
-                    )}
-                  </FormItem>
-                  <Row>
-                    {currentSteps > 3 && (
-                      <Col span={12}>
-                        <FormItem {...formItemLayout} label={formatMessage({ id: 'appOverview.helm.pages.version' })}>
-                          {getFieldDecorator('version', {
-                            initialValue: resources.version || undefined,
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'placeholder.helm.version' })
-                              }
-                            ]
-                          })(
-                            <Select
-                              placeholder={formatMessage({ id: 'placeholder.helm.version' })}
-                              style={{ width: '95%' }}
-                              disabled={upDataVersion || errPrompt}
-                              onChange={val => {
-                                this.handleAppVersion(val, true, true);
-                              }}
-                            >
-                              {versions.map(item => {
-                                const { version } = item;
-                                return (
-                                  <Option key={version} value={version}>
-                                    {resources.version === version
-                                      ? formatMessage({ id: 'appOverview.helm.pages.current_version' }, { version: version })
-                                      : version}
-                                  </Option>
-                                );
-                              })}
-                            </Select>
-                          )}
-                        </FormItem>
-                      </Col>
-                    )}
-                    <Col span={12}>
-                      {(upDataVersion || noVersion) && (
-                        <Alert
-                          style={{ marginTop: '40px' }}
-                          message={
-                            noVersion
-                              ? formatMessage({ id: 'appOverview.helm.pages.alert.message' })
-                              : upDataVersion
-                          }
-                          type="warning"
-                        />
-                      )}
-                    </Col>
-                  </Row>
-                  <Col span={24} style={{ position: 'relative', zIndex: 1 }}>
-                    <FormItem
-                      {...formItemLayout}
-                      label={formatMessage({ id: 'appOverview.helm.pages.yaml.templateFile' })}
-                      className={styles.clearStar}
-                    >
-                      {getFieldDecorator('templateFile', {
-                        initialValue: valueFiles.length > 0 && valueFiles[0],
-                        rules: [{ required: true, message: formatMessage({ id: 'placeholder.templateFile' }) }]
-                      })(
-                        <Select
-                          placeholder={formatMessage({ id: 'placeholder.templateFile' })}
-                          style={{ width: '100%' }}
-                          onChange={this.handleTemplateFile}
-                          disabled={upDataVersion || errPrompt || noVersion}
-                        >
-                          {valueFiles.map(key => {
-                            return (
-                              <Option key={key} value={key}>
-                                {key}
-                              </Option>
-                            );
-                          })}
-                        </Select>
-                      )}
-                    </FormItem>
-                  </Col>
-                  <CodeMirrorForm
-                    disabled
-                    data=""
-                    bg="151718"
-                    width="100%"
-                    isUpload={false}
-                    saveRef={ref => {
-                      this.CodeMirrorRef = ref;
+          <Panel
+            header={
+              <div className={styles.customPanelHeader}>
+                <h6>{formatMessage({ id: 'appOverview.helm.pages.option' })}</h6>
+                <p>{formatMessage({ id: 'appOverview.helm.pages.standard' })}</p>
+              </div>
+            }
+            key="2"
+            className={styles.customPanel}
+          >
+            <Skeleton loading={versionInfoLoading}>
+              <div style={{ padding: '15px 30px' }}>
+                {formData && formData.length > 0 && (
+                  <PublicForm
+                    Form={Form}
+                    data={formData}
+                    upDateQuestions={data => {
+                      this.setState({
+                        formData: data
+                      });
                     }}
-                    marginTop={120}
                     setFieldsValue={setFieldsValue}
                     formItemLayout={formItemLayout}
-                    Form={Form}
+                    getFieldValue={getFieldValue}
                     getFieldDecorator={getFieldDecorator}
-                    beforeUpload={this.beforeUpload}
-                    mode="yaml"
-                    name="yamls"
-                    message={formatMessage({ id: 'appOverview.helm.pages.yaml.yamlMsg' })}
                   />
-                  {currentSteps > 3 && this.handleOperationBtn('UpDate')}
+                )}
+                <div className={PublicFormStyles.over_hr}>
+                  <span>{formatMessage({ id: 'appOverview.helm.pages.over_hr' })}</span>
                 </div>
-              </Skeleton>
-            </Panel>
-          }
-          {currentSteps > 3 ? false : true &&
-            <Panel
-              header={
-                <div className={styles.customPanelHeader}>
-                  <h6>{formatMessage({ id: 'appOverview.helm.pages.appIntroduce' })}</h6>
-                  <p>{formatMessage({ id: 'appOverview.helm.pages.explain' })}</p>
-                </div>
-              }
-              key="1"
-              className={styles.customPanel}
-            >
-              <div style={{ padding: '15px 30px' }}>
-                <Skeleton loading={versionInfoLoading}>
-                  <Markdown
-                    className={styles.customMD}
-                    source={
-                      (versionInfo.readme &&
-                        this.decodeBase64Content(versionInfo.readme)) ||
-                      ''
-                    }
-                  />
-                </Skeleton>
+                <FormItem {...formItemLayout} label={formatMessage({ id: 'appOverview.helm.pages.overrides' })}>
+                  {getFieldDecorator('overrides', {
+                    initialValue: overrides || [],
+                    rules: [{ required: false, message: formatMessage({ id: 'placeholder.helm.overrides' }) }]
+                  })(
+                    <Parameterinput
+                      disableds={upDataVersion || errPrompt || noVersion}
+                      isHalf
+                      editInfo={overrides || ''}
+                    />
+                  )}
+                </FormItem>
+                <Row>
+                  {currentSteps > 3 && (
+                    <Col span={12}>
+                      <FormItem {...formItemLayout} label={formatMessage({ id: 'appOverview.helm.pages.version' })}>
+                        {getFieldDecorator('version', {
+                          initialValue: resources.version || undefined,
+                          rules: [
+                            {
+                              required: true,
+                              message: formatMessage({ id: 'placeholder.helm.version' })
+                            }
+                          ]
+                        })(
+                          <Select
+                            placeholder={formatMessage({ id: 'placeholder.helm.version' })}
+                            style={{ width: '95%' }}
+                            disabled={upDataVersion || errPrompt}
+                            onChange={val => {
+                              this.handleAppVersion(val, true, true);
+                            }}
+                          >
+                            {versions.map(item => {
+                              const { version } = item;
+                              return (
+                                <Option key={version} value={version}>
+                                  {resources.version === version
+                                    ? formatMessage({ id: 'appOverview.helm.pages.current_version' }, { version: version })
+                                    : version}
+                                </Option>
+                              );
+                            })}
+                          </Select>
+                        )}
+                      </FormItem>
+                    </Col>
+                  )}
+                  <Col span={12}>
+                    {(upDataVersion || noVersion) && (
+                      <Alert
+                        style={{ marginTop: '40px' }}
+                        message={
+                          noVersion
+                            ? formatMessage({ id: 'appOverview.helm.pages.alert.message' })
+                            : upDataVersion
+                        }
+                        type="warning"
+                      />
+                    )}
+                  </Col>
+                </Row>
+                <Col span={24} style={{ position: 'relative', zIndex: 1 }}>
+                  <FormItem
+                    {...formItemLayout}
+                    label={formatMessage({ id: 'appOverview.helm.pages.yaml.templateFile' })}
+                    className={styles.clearStar}
+                  >
+                    {getFieldDecorator('templateFile', {
+                      initialValue: valueFiles.length > 0 && valueFiles[0],
+                      rules: [{ required: true, message: formatMessage({ id: 'placeholder.templateFile' }) }]
+                    })(
+                      <Select
+                        placeholder={formatMessage({ id: 'placeholder.templateFile' })}
+                        style={{ width: '100%' }}
+                        onChange={this.handleTemplateFile}
+                        disabled={upDataVersion || errPrompt || noVersion}
+                      >
+                        {valueFiles.map(key => {
+                          return (
+                            <Option key={key} value={key}>
+                              {key}
+                            </Option>
+                          );
+                        })}
+                      </Select>
+                    )}
+                  </FormItem>
+                </Col>
+                <CodeMirrorForm
+                  disabled
+                  data=""
+                  bg="151718"
+                  width="100%"
+                  isUpload={false}
+                  saveRef={ref => {
+                    this.CodeMirrorRef = ref;
+                  }}
+                  marginTop={120}
+                  setFieldsValue={setFieldsValue}
+                  formItemLayout={formItemLayout}
+                  Form={Form}
+                  getFieldDecorator={getFieldDecorator}
+                  beforeUpload={this.beforeUpload}
+                  mode="yaml"
+                  name="yamls"
+                  message={formatMessage({ id: 'appOverview.helm.pages.yaml.yamlMsg' })}
+                />
+                {currentSteps > 3 && this.handleOperationBtn('UpDate')}
               </div>
-            </Panel>
-          }
+            </Skeleton>
+          </Panel>
+          <Panel
+            header={
+              <div className={styles.customPanelHeader}>
+                <h6>{formatMessage({ id: 'appOverview.helm.pages.appIntroduce' })}</h6>
+                <p>{formatMessage({ id: 'appOverview.helm.pages.explain' })}</p>
+              </div>
+            }
+            key="1"
+            className={styles.customPanel}
+          >
+            <div style={{ padding: '15px 30px' }}>
+              <Skeleton loading={versionInfoLoading}>
+                <Markdown
+                  className={styles.customMD}
+                  source={
+                    (versionInfo.readme &&
+                      this.decodeBase64Content(versionInfo.readme)) ||
+                    ''
+                  }
+                />
+              </Skeleton>
+            </div>
+          </Panel>
         </Collapse>
         {currentSteps <= 2 && this.handleOperationBtn('Create')}
       </Form>
@@ -1229,12 +1244,12 @@ export default class Index extends PureComponent {
   };
   render() {
     const {
-      appPermissions: { isUpgrade, isEdit, isDelete },
+      // appPermissions: { isUpgrade, isEdit, isDelete },
       groupDetail,
       buildShapeLoading,
       editGroupLoading,
       deleteLoading,
-      operationPermissions: { isAccess: isControl },
+      // operationPermissions: { isAccess: isControl },
     } = this.props;
     const {
       versions,
@@ -1269,7 +1284,7 @@ export default class Index extends PureComponent {
       superseded: 'success',
       failed: 'error'
     };
-    const arr = [1, 2, 3, 4, 5, 6, 7]
+    const arr = ['amd64', "monitor", 'istio', 'Kubernetes', 'prometheus']
     const pageHeaderContent = (
       <>
         <Card>
@@ -1349,12 +1364,12 @@ export default class Index extends PureComponent {
                           placement="top"
                           title={
                             arr.map(item => {
-                              return <Tag>
+                              return <Tag style={{ marginTop: 10 }}>
                                 {item}
                               </Tag>
                             })
                           }>
-                          {arr.slice(0, 4).map(item => {
+                          {arr.slice(0, 3).map(item => {
                             return <Tag>
                               {item}
                             </Tag>
@@ -1385,7 +1400,9 @@ export default class Index extends PureComponent {
     } = this.fetchParameter();
     return (
       <Fragment>
+        {/* 应用信息头部 */}
         <Row>{pageHeaderContent}</Row>
+        {/* 错误信息 */}
         {errPrompt && (
           <Alert
             message={errPrompt}
@@ -1393,11 +1410,14 @@ export default class Index extends PureComponent {
             style={{ marginBottom: '20px' }}
           />
         )}
+        {/* 第一次安装信息 */}
         {currentSteps > 3 && !errPrompt && (
           <div className={styles.customCollapseBox}>{this.handleConfing()}</div>
         )}
+        {/* 安装中状态显示 */}
         {currentSteps < 4 && (
           <Card style={{ marginTop: 16 }} loading={appStateLoading}>
+
             {(currentSteps < 1 || currentSteps === 3) && (
               <div className={styles.process}>
                 <Result
@@ -1416,8 +1436,34 @@ export default class Index extends PureComponent {
                 {this.handleConfing()}
               </div>
             )}
+            {currentSteps < 2 &&
+              resources.conditions &&
+              resources.conditions.length > 0 && (
+                <div className={styles.process}>
+                  <Steps direction="vertical" style={{ paddingLeft: '20%' }}>
+                    {resources.conditions.map(item => {
+                      const { status, message, type } = item;
+                      if (appType[type]) {
+                        return (
+                          <Step
+                            title={appType[type]}
+                            status={
+                              status ? 'finish' : message ? 'error' : 'wait'
+                            }
+                            description={
+                              <div style={{ color: '#ff4d4f' }}>{message}</div>
+                            }
+                          />
+                        );
+                      }
+                    })}
+                  </Steps>
+                </div>
+              )}
           </Card>
         )}
+        {/* 错误信息 */}
+
         {toDelete && (
           <ConfirmModal
             title={formatMessage({ id: 'confirmModal.app.title.delete' })}

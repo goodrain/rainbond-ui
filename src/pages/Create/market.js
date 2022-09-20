@@ -467,6 +467,14 @@ export default class Main extends PureComponent {
     const teamName = globalUtil.getCurrTeamName();
 
     form.validateFields((err, Value) => {
+      // if (scopeMax.indexOf('Helm-') > -1) {
+      //   dispatch(
+      //     routerRedux.push(
+      //       `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+      //         0}/helminstall`
+      //     )
+      //   );
+      // } return;
       if (err) return;
       dispatch({
         type: 'createApp/installApp',
@@ -494,12 +502,22 @@ export default class Main extends PureComponent {
           if (handleType && refreshCurrent) {
             refreshCurrent();
           }
-          dispatch(
-            routerRedux.push(
-              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                0}`
-            )
-          );
+          if (scopeMax.indexOf('Helm-') > -1) {
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+                  0}/helminstall`
+              )
+            );
+          }else{
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+                  0}`
+              )
+            );
+          }
+          
         }
       });
     });
@@ -567,9 +585,7 @@ export default class Main extends PureComponent {
               this.onCancelCreate();
               dispatch(
                 routerRedux.push(
-                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
-                    res.bean.ID
-                  }`
+                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${res.bean.ID}/HelmDetection`
                 )
               );
             }
