@@ -550,9 +550,9 @@ class Index extends PureComponent {
           </div>
           {this.state.showDeletePort && (
           <ConfirmModal
-            title={<FormattedMessage id='confirmModal.attribute.port.title'/>}
-            desc={<FormattedMessage id='confirmModal.attribute.port.desc'/>}
-            subDesc={<FormattedMessage id='confirmModal.attribute.port.subDesc'/>}
+            title={<FormattedMessage id='confirmModal.deldete.attribute.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.attribute.desc'/>}
+            subDesc={<FormattedMessage id='confirmModal.deldete.attribute.subDesc'/>}
             onOk={this.deleteBtn}
             onCancel={this.cancalDeletePort}
           />
