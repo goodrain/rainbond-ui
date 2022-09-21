@@ -98,7 +98,7 @@ class EditorData extends PureComponent {
           size: '60*60',
           shape: 'The Internet',
           color: '#030303',
-          label: '网关',
+          label: formatMessage({id:'topology.Topological.label'}),
           stack: true,
           stackNum: 1,
           linkable: true,
@@ -436,12 +436,12 @@ class EditorData extends PureComponent {
       edgeData: data,
       edgeTitle: data.source.model.service_alias ? (
         <div>
-          是否取消<a>{data.source.model.label}</a>依赖
+          {formatMessage({id:'topology.Topological.yes_or_no'})}<a>{data.source.model.label}</a>{formatMessage({id:'topology.Topological.Rely_on'})}
           <a>{data.target.model.label}</a>
         </div>
       ) : (
         <div>
-          是否关闭<a>{data.target.model.label}</a>组件的所有对外端口
+        {formatMessage({id:'topology.Topological.Shut_down'})}<a>{data.target.model.label}</a>{formatMessage({id:'topology.Topological.all_port'})}
         </div>
       ),
     });
@@ -460,8 +460,8 @@ class EditorData extends PureComponent {
     Modal.confirm({
       title,
       content: '',
-      okText: '更新',
-      cancelText: '取消',
+      okText: formatMessage({id:'button.update'}),
+      cancelText: formatMessage({id:'button.cancel'}),
       onOk() {
         updateRolling({
           team_name: globalUtil.getCurrTeamName(),
@@ -495,12 +495,12 @@ class EditorData extends PureComponent {
             title={
               foreignType === 1 ? (
                 <div>
-                  <a>{foreignTypeName}</a>组件未开启对外端口
+                  <a>{foreignTypeName}</a>{formatMessage({id:'topology.Topological.Did_not_open_port'})}
                 </div>
               ) : (
                 <div>
-                  要关联的<a>{foreignTypeName}</a>
-                  组件暂未开启对内端口，是否打开?
+                  {formatMessage({id:'topology.Topological.associated'})}<a>{foreignTypeName}</a>
+                  {formatMessage({id:'topology.Topological.opne'})}
                 </div>
               )
             }
@@ -509,13 +509,13 @@ class EditorData extends PureComponent {
             onCancel={this.handleCancel}
           >
             <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
-              <Form.Item {...formItemLayout} label="选择端口">
+              <Form.Item {...formItemLayout} label={formatMessage({id:'topology.Topological.port'})}>
                 {getFieldDecorator('container_port', {
                   initialValue: list[0],
                   rules: [
                     {
                       required: true,
-                      message: '请选择端口',
+                      message: formatMessage({id:'topology.Topological.input_port'}),
                     },
                   ],
                 })(

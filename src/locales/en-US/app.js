@@ -423,4 +423,23 @@ const otherAppAssembly = {
  'otherApp.AppMoveGroup.title':'Modify the application to which the component belongs',
  'otherApp.AppMoveGroup.message':'Cannot be empty!',
 }
-export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly);
+const topology = {
+  'topology.Topological.start':'Start',
+  'topology.Topological.stop':'Stop',
+  'topology.Topological.rolling':'Rolling',
+  'topology.Topological.build':'Build',
+  'topology.Topological.title':'Helpful hints',
+  'topology.Topological.determine':'Determine',
+  'topology.Topological.now':'Current component?',
+  'topology.Topological.label':'Gateway',
+  'topology.Topological.yes_or_no':'Whether to cancel',
+  'topology.Topological.Rely_on':'Rely on',
+  'topology.Topological.Shut_down':'Whether to shut down',
+  'topology.Topological.all_port':'All external ports of a component',
+  'topology.Topological.Did_not_open_port':'External ports are not enabled for components',
+  'topology.Topological.associated':'To associate the',
+  'topology.Topological.opne':'Internal ports are not enabled for components. Determine whether to enable them?',
+  'topology.Topological.port':'Port',
+  'topology.Topological.input_port':'Enter the port',
+}
+export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, topology);

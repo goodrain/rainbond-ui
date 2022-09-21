@@ -431,4 +431,25 @@ const otherAppAssembly = {
   'otherApp.AppMoveGroup.message':'不能为空!',
 
 }
-export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly);
+
+const topology = {
+  'topology.Topological.start':'启动',
+  'topology.Topological.stop':'关闭',
+  'topology.Topological.rolling':'更新',
+  'topology.Topological.build':'构建',
+  'topology.Topological.title':'友情提示',
+  'topology.Topological.determine':'确定',
+  'topology.Topological.now':'当前组件？',
+  'topology.Topological.label':'网关',
+  'topology.Topological.yes_or_no':'是否取消',
+  'topology.Topological.Rely_on':'依赖',
+  'topology.Topological.Shut_down':'是否关闭',
+  'topology.Topological.all_port':'组件的所有对外端口',
+  'topology.Topological.Did_not_open_port':'组件未开启对外端口',
+  'topology.Topological.associated':'要关联的',
+  'topology.Topological.opne':'组件暂未开启对内端口，是否打开?',
+  'topology.Topological.port':'选择端口',
+  'topology.Topological.input_port':'请选择端口',
+}
+
+export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, topology);

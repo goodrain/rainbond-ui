@@ -355,10 +355,10 @@ import {
       const { deleteAppLoading, reStartLoading, stopLoading, startLoading, updateRollingLoading , flagHeight, iframeHeight} = this.props
       const { flag, promptModal, closes, start, updated, keyes, srcUrl, teamName, regionName, appAlias, build } = this.state
       const codeObj = {
-        start: '启动',
-        stop: '关闭',
-        rolling: '更新',
-        build:'构建'
+        start:  formatMessage({id:'topology.Topological.start'}),
+        stop: formatMessage({id:'topology.Topological.stop'}),
+        rolling: formatMessage({id:'topology.Topological.rolling'}),
+        build: formatMessage({id:'topology.Topological.build'})
       };
       return (
         // eslint-disable-next-line jsx-a11y/iframe-has-title
@@ -391,7 +391,7 @@ import {
               }
             >
               <p style={{ textAlign: 'center' }}>
-                确定{codeObj[promptModal]}当前组件？
+                {formatMessage({id:'topology.Topological.determine'})}{codeObj[promptModal]}{formatMessage({id:'topology.Topological.now'})}
               </p>
             </Modal>
           )}
