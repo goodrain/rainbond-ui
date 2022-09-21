@@ -9,7 +9,8 @@ import {
   message,
   Modal,
   notification,
-  Row
+  Row,
+  Radio
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
@@ -27,6 +28,7 @@ import cookie from '@/utils/cookie';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
+const RadioGroup = Radio.Group;
 const { TextArea } = Input;
 
 @Form.create()
@@ -219,6 +221,16 @@ class AddKey extends PureComponent {
                 }
               ]
             })(<Input  placeholder={formatMessage({id:'componentOverview.body.AddKey.required'})}/>)}
+          </FormItem>
+          <FormItem {...formItemLayout} label={formatMessage({id:'popover.manage.certificate.label.kind'})}>
+              {getFieldDecorator('certificate_type', {
+                initialValue: formatMessage({id:'popover.manage.certificate.label.server'}),
+                rules: [{ required: true }]
+              })(
+                <RadioGroup>
+                  <Radio value={formatMessage({id:'popover.manage.certificate.label.server'})}>{formatMessage({id:'popover.manage.certificate.label.server'})}</Radio>
+                </RadioGroup>
+              )}
           </FormItem>
           <FormItem {...formItemLayout} label="key" >
             {getFieldDecorator('private_key', {
@@ -551,7 +563,8 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         alias: vals.alias,
         private_key: vals.private_key,
-        certificate: vals.certificate
+        certificate: vals.certificate,
+        certificate_type: vals.certificate_type
       },
       callback: () => {
         this.cancelCreateKey();

@@ -419,7 +419,8 @@ export async function addCertificate(
       data: {
         alias: body.alias,
         private_key: body.private_key,
-        certificate: body.certificate
+        certificate: body.certificate,
+        certificate_type: body.certificate_type
       }
     }
   );
