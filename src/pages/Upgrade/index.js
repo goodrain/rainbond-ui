@@ -460,11 +460,11 @@ export default class AppList extends PureComponent {
       recordLoading: false
     });
   };
-  jump = () =>{
+  jump = (val) =>{
     const { dispatch } = this.props
     dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/helminstall`
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/helminstall?type=${val}`
       )
     )
   }
@@ -724,6 +724,8 @@ export default class AppList extends PureComponent {
     );
     const isHelm =
       appDetail && appDetail.app_type && appDetail.app_type === 'helm';
+      const upgrade = "upgrade";
+      const install = "install";
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -756,14 +758,14 @@ export default class AppList extends PureComponent {
                             <a
                               onClick={e => {
                                 e.preventDefault();
-                                this.jump();
+                                this.jump(upgrade);
                               }}
                             >
                               {formatMessage({id: 'appUpgrade.btn.upgrade'})}
                             </a>,
                             <a
                             onClick={() => {
-                              this.jump();
+                              this.jump(install);
                             }}
                           >
                             重新安装

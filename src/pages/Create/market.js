@@ -50,7 +50,8 @@ const { TabPane } = Tabs;
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    groups: global.groups
   }),
   null,
   null,
@@ -467,14 +468,14 @@ export default class Main extends PureComponent {
     const teamName = globalUtil.getCurrTeamName();
 
     form.validateFields((err, Value) => {
-      // if (scopeMax.indexOf('Helm-') > -1) {
-      //   dispatch(
-      //     routerRedux.push(
-      //       `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-      //         0}/helminstall`
-      //     )
-      //   );
-      // } return;
+      if (scopeMax.indexOf('Helm-') > -1) {
+        dispatch(
+          routerRedux.push(
+            `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+              0}/helminstall`
+          )
+        );
+      } return;
       if (err) return;
       dispatch({
         type: 'createApp/installApp',
@@ -585,7 +586,7 @@ export default class Main extends PureComponent {
               this.onCancelCreate();
               dispatch(
                 routerRedux.push(
-                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${res.bean.ID}/HelmDetection`
+                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${res.bean.ID}/helminstall`
                 )
               );
             }
@@ -798,8 +799,8 @@ export default class Main extends PureComponent {
         <Card
           className={
             handleType
-              ? `${PluginStyles.cards} ${PluginStyles.clearAvatar}`
-              : PluginStyles.cards
+              ? `${type === 'helm' ? PluginStyles.cards_helm_drawer : PluginStyles.cards} ${PluginStyles.clearAvatar}`
+              : type === 'helm' ? PluginStyles.cards_helm : PluginStyles.cards
           }
           actions={handleType ? fastactions : defaultActions}
         >
@@ -882,17 +883,46 @@ export default class Main extends PureComponent {
         span: 19
       }
     };
-    const { form } = this.props;
+    const { form, groups, groupId } = this.props;
     const { getFieldDecorator } = form;
-    const { installBounced } = this.state;
+    const { installBounced, app_name: appName, } = this.state;
     const versionList = installBounced.versions_info || installBounced.versions;
-
+    for (let index = 0; index < groups.length; index++) {
+      if(groups[index].group_id == groupId){
+        var selectAppName = groups[index].group_name
+        break;
+      }
+    }
+    
     return (
       <Form
         onSubmit={this.handleInstallBounced}
         layout="horizontal"
         hideRequiredMark
       >
+      <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
+            {getFieldDecorator('group_id', {
+              initialValue: selectAppName ||'',
+              rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
+            })(
+              <Select
+                // getPopupContainer={triggerNode => triggerNode.parentNode}
+                placeholder={formatMessage({id: 'placeholder.appName'})}
+                style={{
+                  display: 'inline-block',
+                  width: 284,
+                  marginRight: 10
+                }}
+                disabled={true}
+              >
+                {(groups || []).map(group => {
+                  return (
+                    <Option value={group.group_id}>{group.group_name}</Option>
+                  );
+                })}
+              </Select>
+            )}
+          </Form.Item>
         <Form.Item {...formItemLayout} label={formatMessage({id:'otherApp.marketDrawer.Select_version'})}>
           {getFieldDecorator('group_version', {
             initialValue: versionList[0].version || versionList[0].app_version,
@@ -905,7 +935,7 @@ export default class Main extends PureComponent {
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
-              style={{ width: '220px' }}
+              style={{ width: '284px' }}
             >
               {versionList.map(item => {
                 return (
@@ -920,6 +950,22 @@ export default class Main extends PureComponent {
             </Select>
           )}
         </Form.Item>
+        <Form.Item {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.note'})}>
+            {getFieldDecorator('note', {
+              initialValue: (versionList[0] && versionList[0].description) ? versionList[0].description : '',
+              rules: [
+                {
+                  max: 255,
+                  message: formatMessage({id:'teamOther.CreateAppFromHelmForm.max_length'})
+                }
+              ]
+            })(
+              <Input.TextArea
+                placeholder={formatMessage({id:'teamOther.CreateAppFromHelmForm.note_app'})}
+                style={{ width: '284px' }}
+              />
+            )}
+          </Form.Item>
       </Form>
     );
   };

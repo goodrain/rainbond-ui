@@ -73,7 +73,7 @@ const appOverview = {
   'appOverview.helm.pages.yaml.yamlMsg': '填写配置',
   'appOverview.helm.pages.yaml.templateFile': 'Values文件',
   'appOverview.helm.pages.alert.message': '应用版本不存在、请重新选择版本',
-  'appOverview.helm.pages.current_version': '{ version } 当前版本',
+  'appOverview.helm.pages.current_version': '当前版本',
   'appOverview.helm.pages.version': '版本',
   'appOverview.helm.pages.overrides': 'Values配置',
   'appOverview.helm.pages.over_hr': '通用配置',

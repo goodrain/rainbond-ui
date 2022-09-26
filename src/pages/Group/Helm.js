@@ -154,13 +154,33 @@ export default class Index extends PureComponent {
       customSwitch: false,
       rapidCopy: false,
       appStatusConfig: false,
+      newVersion: 0,
+      buttonType: -1,
     };
     this.CodeMirrorRef = '';
   }
 
   componentDidMount() {
     this.loading();
+
+
+    if (!this.props.location.query) {
+      this.setState({
+        buttonType: -1
+      })
+    } else {
+      if (this.props.location.query.type == 'upgrade') {
+        this.setState({
+          buttonType: 1
+        })
+      } else if (this.props.location.query.type == 'install') {
+        this.setState({
+          buttonType: 0
+        })
+      }
+    }
   }
+  
 
   componentWillUnmount() {
     this.closeTimer();
@@ -181,6 +201,39 @@ export default class Index extends PureComponent {
       customSwitch: false
     });
   };
+  compareVersion = (v1, v2) => {
+    v1 = v1.split('.')
+    v2 = v2.split('.')
+    const len = Math.max(v1.length, v2.length)
+
+    while (v1.length < len) {
+      v1.push('0')
+    }
+    while (v2.length < len) {
+      v2.push('0')
+    }
+
+    for (let i = 0; i < len; i++) {
+      const num1 = parseInt(v1[i])
+      const num2 = parseInt(v2[i])
+
+      if (num1 > num2) {
+        this.setState({
+          buttonType: 1
+        })
+        return;
+      } else if (num1 < num2) {
+        this.setState({
+          buttonType: -1
+        })
+        return;
+      }
+    }
+
+    this.setState({
+      buttonType: 0
+    })
+  }
 
 
   fetchAppDetailState = () => {
@@ -874,8 +927,13 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.fetchAppDetailState();
-          notification.success({ message: formatMessage({ id: 'notification.success.wait_patiently' }) });
-          this.jump();
+          // notification.success({ message: formatMessage({ id: 'notification.success.wait_patiently' }) });
+          this.setState({
+            currentSteps: 3,
+            submitLoading: false
+          }, () => {
+            this.jump()
+          });
         }
         this.setState({
           submitLoading: false
@@ -891,7 +949,7 @@ export default class Index extends PureComponent {
     }
   };
   handleOperationBtn = type => {
-    const { submitLoading, errPrompt, noVersion, upDataVersion } = this.state;
+    const { submitLoading, errPrompt, noVersion, upDataVersion, buttonType } = this.state;
     return (
       <div style={{ textAlign: 'center' }} id="messagesEndRef">
         <Button
@@ -902,7 +960,7 @@ export default class Index extends PureComponent {
           loading={submitLoading}
           type="primary"
         >
-          {type === 'Create' ? formatMessage({ id: 'button.install' }) : formatMessage({ id: 'button.install' })}
+          {buttonType === 0 ? '重新安装' : buttonType === 1 ? "升级" : "安装"}
         </Button>
       </div>
     );
@@ -925,7 +983,8 @@ export default class Index extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState(
             {
-              versions: res.versions || []
+              versions: res.versions || [],
+              newVersion: res.versions[0].version
             },
             () => {
               this.handleAppVersion(currApp.version, init, false);
@@ -973,7 +1032,7 @@ export default class Index extends PureComponent {
     this.handleUpDataVersionLoading();
   };
   handleAppVersion = (value, isParse, isVersion) => {
-    const { versions } = this.state;
+    const { versions, newVersion, resources } = this.state;
     let info = {};
     versions.map(item => {
       if (item.version === value) {
@@ -1033,6 +1092,7 @@ export default class Index extends PureComponent {
 
   handleConfing = () => {
     const { form } = this.props;
+    const type = this.props.location && this.props.location.query && this.props.location.query.type
     const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
     const {
       versionInfo,
@@ -1043,7 +1103,8 @@ export default class Index extends PureComponent {
       errPrompt,
       noVersion,
       upDataVersion,
-      formData
+      formData,
+      newVersion
     } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -1117,37 +1178,43 @@ export default class Index extends PureComponent {
                 <Row>
                   {currentSteps > 3 && (
                     <Col span={12}>
-                      <FormItem {...formItemLayout} label={formatMessage({ id: 'appOverview.helm.pages.version' })}>
-                        {getFieldDecorator('version', {
-                          initialValue: resources.version || undefined,
-                          rules: [
-                            {
-                              required: true,
-                              message: formatMessage({ id: 'placeholder.helm.version' })
-                            }
-                          ]
-                        })(
-                          <Select
-                            placeholder={formatMessage({ id: 'placeholder.helm.version' })}
-                            style={{ width: '95%' }}
-                            disabled={upDataVersion || errPrompt}
-                            onChange={val => {
-                              this.handleAppVersion(val, true, true);
-                            }}
-                          >
-                            {versions.map(item => {
-                              const { version } = item;
-                              return (
-                                <Option key={version} value={version}>
-                                  {resources.version === version
-                                    ? formatMessage({ id: 'appOverview.helm.pages.current_version' }, { version: version })
-                                    : version}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        )}
-                      </FormItem>
+                        <FormItem {...formItemLayout} label={formatMessage({ id: 'appOverview.helm.pages.version' })} extra={type == 'upgrade' ? `当前版本为 ${resources.version}` : ''}>
+                          {getFieldDecorator('version', {
+                            initialValue: (type == 'upgrade' ? newVersion || undefined : resources.version || undefined),
+                            rules: [
+                              {
+                                required: true,
+                                message: formatMessage({ id: 'placeholder.helm.version' })
+                              }
+                            ]
+                          })(
+                            <Select
+                              placeholder={formatMessage({ id: 'placeholder.helm.version' })}
+                              style={{ width: '95%' }}
+                              disabled={upDataVersion || errPrompt}
+                              onChange={val => {
+                                this.handleAppVersion(val, true, true);
+                              }}
+                            >
+                              {versions.map(item => {
+                                const { version } = item;
+                                return (
+                                  <Option key={version} value={version} onClick={() => { this.compareVersion(version, resources.version) }}>
+                                    {resources.version === version
+                                      ? <><span>{version}</span>
+                                        <span style={{background:'#fae2c2',marginLeft:10,padding:3, borderRadius:3}}>{formatMessage({ id: 'appOverview.helm.pages.current_version' })}</span></>
+                                      : version === versions[0].version
+                                        ? <><span>{version}</span>
+                                        <span style={{background:'#b7edb1',marginLeft:10,padding:3, borderRadius:3}}>最新版本</span></>
+                                        
+                                        : version
+                                    }
+                                  </Option>
+                                );
+                              })}
+                            </Select>
+                          )}
+                        </FormItem>
                     </Col>
                   )}
                   <Col span={12}>
@@ -1239,7 +1306,7 @@ export default class Index extends PureComponent {
           </Panel>
         </Collapse>
         {currentSteps <= 2 && this.handleOperationBtn('Create')}
-      </Form>
+      </Form >
     );
   };
   render() {
@@ -1269,6 +1336,7 @@ export default class Index extends PureComponent {
       linkList,
       appInfo,
       appInfoLoading,
+      buttonType
     } = this.state;
     const codeObj = {
       start: formatMessage({ id: 'appOverview.btn.start' }),
@@ -1329,7 +1397,7 @@ export default class Index extends PureComponent {
             </Col>
             <Col span={3}>
               <div className={styles.lable_style}>
-                <span>{formatMessage({ id: 'appOverview.principal' })}</span>
+                <span>维护者</span>
                 <span>
                   {currApp.principal ? (
                     <Tooltip
@@ -1422,7 +1490,7 @@ export default class Index extends PureComponent {
               <div className={styles.process}>
                 <Result
                   type="ing"
-                  title={currentSteps < 1 ? formatMessage({ id: 'appOverview.helm.pages.result.init' }) : formatMessage({ id: 'appOverview.helm.pages.result.install' })}
+                  title={currentSteps < 1 ? formatMessage({ id: 'appOverview.helm.pages.result.init' }) : buttonType === 0 ? '重新安装中...' : buttonType === 1 ? "升级中..." : "安装中..."}
                   description={formatMessage({ id: 'appOverview.helm.pages.result.loading' })}
                   style={{
                     marginTop: 48,
@@ -1448,8 +1516,9 @@ export default class Index extends PureComponent {
                           <Step
                             title={appType[type]}
                             status={
-                              status ? 'finish' : message ? 'error' : 'wait'
+                              type=='ChartReady' ? 'finish' : status ? 'finish' : message ? 'error' : 'wait'
                             }
+                            icon={ (type=='PreInstalled' && !message) && <LoadingOutlined />}
                             description={
                               <div style={{ color: '#ff4d4f' }}>{message}</div>
                             }

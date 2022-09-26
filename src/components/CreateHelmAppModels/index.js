@@ -237,6 +237,7 @@ class CreateHelmAppModels extends PureComponent {
         const appName = getFieldValue('app_name') || (appInfo && appInfo.name);
         if (appTypes === 'helmContent') {
           this.handleCheckAppName(teamName, regionName, appName);
+          this.fetchGroup(teamName, regionName);
         } else {
           this.fetchGroup(teamName, regionName);
         }
@@ -438,7 +439,7 @@ class CreateHelmAppModels extends PureComponent {
               <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app_colony'/></div>
             </FormItem>
 
-            {appTypes === 'helmContent' ? (
+            {appTypes === 'helmContent' && (
               <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.app_name'/>}>
                 {getFieldDecorator('app_name', {
                   initialValue: appName,
@@ -479,7 +480,8 @@ class CreateHelmAppModels extends PureComponent {
                   <FormattedMessage id='applicationMarket.CreateHelmAppModels.input_number'/>
                 </div>
               </FormItem>
-            ) : (
+            )}
+
               <Form.Item {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app'/>}>
                 {getFieldDecorator('group_id', {
                   rules: [
@@ -509,8 +511,7 @@ class CreateHelmAppModels extends PureComponent {
                 </Button>
                 <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.input_install'/></div>
               </Form.Item>
-            )}
-
+             
             <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.version'/>}>
               {getFieldDecorator('version', {
                 initialValue:
