@@ -752,8 +752,8 @@ export default class EnterpriseTeams extends PureComponent {
             memory_request,
             set_limit_memory
           } = item;
-          const memory = (memory_request / 1024).toFixed(2)
-          const set_limit = (set_limit_memory / 1024).toFixed(2)
+          const memory = (memory_request == 0) ?  formatMessage({id:'componentOverview.body.tab.overview.unlimited'}) : memory_request % 1024 == 0 ? (memory_request / 1024) : (memory_request / 1024).toFixed(1) 
+          const set_limit = (set_limit_memory == 0) ?  formatMessage({id:'componentOverview.body.tab.overview.unlimited'}) : set_limit_memory % 1024 == 0 ? (set_limit_memory / 1024) : (set_limit_memory / 1024).toFixed(1) 
           return (
             <Card
               key={team_id}
@@ -778,7 +778,7 @@ export default class EnterpriseTeams extends PureComponent {
                 <Col style={{width:'30%',display:'flex',justifyContent:'center'}} >
                   {this.showRegions(team_name, region_list, true)}
                 </Col>
-                <Col style={{width:'9%',textAlign:'center'}}>{memory}</Col>
+                <Col style={{width:'9%',textAlign:'center'}}>{memory} </Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{cpu_request}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{set_limit}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{running_apps}</Col>
