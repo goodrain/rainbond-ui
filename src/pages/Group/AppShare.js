@@ -1147,24 +1147,6 @@ export default class Main extends PureComponent {
                         style={{ width: 280 }}
                         onChange={this.changeCurrentModel}
                         placeholder={formatMessage({id:'placeholder.appShare.selectAppTemplate'})}
-                        dropdownRender={menu => (
-                          <div>
-                            {menu}
-                            <Divider style={{ margin: '4px 0' }} />
-                            <div
-                              style={{
-                                padding: '4px 8px',
-                                cursor: 'pointer',
-                                textAlign: 'center'
-                              }}
-                              onMouseDown={e => e.preventDefault()}
-                              onClick={this.showCreateAppModel}
-                            >
-                              <Icon type="plus" /> 
-                              {formatMessage({id:'appPublish.btn.record.list.label.newAppTemplate'})}
-                            </div>
-                          </div>
-                        )}
                       >
                         {models.map(item => (
                           <Option key={item.app_id}>{item.app_name}</Option>
@@ -1172,15 +1154,24 @@ export default class Main extends PureComponent {
                       </Select>
                     )}
                     {Application && models && models.length > 0 && !marketId && (
-                      <a
+                      <Button
                         style={{ marginLeft: '10px' }}
                         onClick={() => {
                           this.showEditorAppModel(Application);
                         }}
                       >
-                       {formatMessage({id:'appPublish.btn.record.list.label.deitAppTemplate'})}
-                      </a>
+                        {formatMessage({ id: 'appPublish.btn.record.list.label.deitAppTemplate' })}
+                      </Button>
                     )}
+                    <Button
+                      style={{
+                        textAlign: 'center',
+                        marginLeft: 10
+                      }}
+                      onClick={this.showCreateAppModel}
+                    >
+                      {formatMessage({ id: 'appPublish.btn.record.list.label.newAppTemplate' })}
+                    </Button>
                   </Form.Item>
                 </Col>
                 <Col span="12">
