@@ -584,6 +584,7 @@
         'notification.warn.malfunction':'Operation encountered a fault. Please try again later',
         'notification.warn.port_null':'No terminal port is currently available',
         'notification.warn.parameter_error':'Parameters of the abnormal',
+        'notification.warn.proxy':' network anomalies',
 
         //提示
         'notification.hint.component.change':'The switch is successful and the component is updated',

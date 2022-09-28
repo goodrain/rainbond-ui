@@ -588,6 +588,7 @@
         'notification.warn.malfunction':'操作遇到故障，请稍后重试',
         'notification.warn.port_null':'暂无端口可用',
         'notification.warn.parameter_error':'参数异常',
+        'notification.warn.proxy':'网络异常',
 
         //提示
         'notification.hint.component.change':'切换成功、更新组件后生效',
