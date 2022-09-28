@@ -148,6 +148,13 @@ export default class EnterpriseClusters extends PureComponent {
           const clusters = [];
           res.list.map((item, index) => {
             item.key = `cluster${index}`;
+            if (!item.resource_proxy_status) {
+              notification.warning({
+                message: formatMessage({id:'utils.request.warning'}),
+                description:
+                  `${item.region_alias}${formatMessage({id:'notification.warn.proxy'})}`,
+              });
+            }
             clusters.push(item);
             return item;
           });
