@@ -89,8 +89,8 @@ export default class GlobalHeader extends PureComponent {
   };
   
   handleMenuCN = (val) => {
+    const {language} = this.state
     cookie.set('language', val)
-    const lang = cookie.get('language')
     if(val === 'zh-CN'){
       setLocale('zh-CN')
     }else if(val === 'en-US'){
