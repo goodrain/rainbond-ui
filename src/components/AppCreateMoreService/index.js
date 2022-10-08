@@ -22,6 +22,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { routerRedux } from "dva/router";
 import globalUtil from "../../utils/global";
 import httpResponseUtil from "../../utils/httpResponse";
+import cookie from "@/utils/cookie";
 import styles from "./setting.less";
 
 const RadioButton = Radio.Button;
@@ -48,7 +49,8 @@ class BaseInfo extends PureComponent {
       buildValue: "",
       startValue: "",
       activeselectedRows: [],
-      activeselectedRowKeys: ""
+      activeselectedRowKeys: "",
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
 
@@ -121,25 +123,25 @@ class BaseInfo extends PureComponent {
   render() {
     const columns = [
       {
-        title: "模块名称",
+        title: formatMessage({id:'JavaMaven.name'}),
         dataIndex: "name",
         rowKey: "name",
         width: "15%"
       },
       {
-        title: "组件名称",
+        title: formatMessage({id:'JavaMaven.cname'}),
         dataIndex: "cname",
         rowKey: "cname",
         width: "15%"
       },
       {
-        title: "包类型",
+        title: formatMessage({id:'JavaMaven.packaging'}),
         dataIndex: "packaging",
         rowKey: "packaging",
         width: "8%"
       },
       {
-        title: "端口",
+        title: formatMessage({id:'JavaMaven.index'}),
         dataIndex: "index",
         rowKey: "index",
         width: "10%",
@@ -156,7 +158,7 @@ class BaseInfo extends PureComponent {
       },
 
       {
-        title: "构建变量信息",
+        title: formatMessage({id:'JavaMaven.envs'}),
         dataIndex: "envs",
         rowKey: "envs",
         width: "45%",
@@ -180,15 +182,15 @@ class BaseInfo extends PureComponent {
           return (
             <div key={index}>
               <div style={{ display: "flex" }}>
-                <p style={{ width: "30%" }}>Maven构建参数:</p>
+                <p style={{ width: "30%" }}>{formatMessage({id:'JavaMaven.OPTS'})}:</p>
                 <div style={{ width: "70%" }}>{CUSTOM_OPTS}</div>
               </div>
               <div style={{ display: "flex" }}>
-                <p style={{ width: "30%" }}>Maven构建命令:</p>
+                <p style={{ width: "30%" }}>{formatMessage({id:'JavaMaven.GOALS'})}:</p>
                 <div style={{ width: "70%" }}>{CUSTOM_GOALS}</div>
               </div>
               <div style={{ display: "flex" }}>
-                <p style={{ width: "30%" }}>启动命令:</p>
+                <p style={{ width: "30%" }}>{formatMessage({id:'JavaMaven.startValue'})}:</p>
                 <div style={{ width: "70%" }}>{startValue}</div>
               </div>
             </div>
@@ -196,7 +198,7 @@ class BaseInfo extends PureComponent {
         }
       },
       {
-        title: "操作",
+        title: formatMessage({id:'JavaMaven.id'}),
         dataIndex: "id",
         rowKey: "id",
         width: "7%",
@@ -208,7 +210,7 @@ class BaseInfo extends PureComponent {
                 this.handleEdit(index);
               }}
             >
-              修改
+              {formatMessage({id:'teamOther.manage.edit'})}
             </Button>
           );
         }
@@ -253,45 +255,64 @@ class BaseInfo extends PureComponent {
         }
       }
     };
-    const { memoryList, isEdit, editData, buildValue, startValue } = this.state;
+    const en_formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 10
+        },
+        sm: {
+          span: 10
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 14
+        },
+        sm: {
+          span: 14
+        }
+      }
+    };
+    const { memoryList, isEdit, editData, buildValue, startValue, language } = this.state;
+    const isLanguage = language ? formItemLayout : en_formItemLayout
     return (
       <div>
         {isEdit && (
           <Modal
-            title="修改"
+            title={formatMessage({id:'teamOther.manage.edit'})}
             visible={isEdit}
             onOk={this.handleOk}
             onCancel={this.handleCancel}
           >
-            <Form.Item {...formItemLayout} label="组件名称">
+            <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.cname'})}>
               {getFieldDecorator("cname", {
                 initialValue: editData && editData.cname,
                 rules: [
                   {
                     required: true,
-                    message: "请输入组件命令"
+                    message: formatMessage({id:'JavaMaven.cname_input'})
                   }
                 ]
               })(<Input placeholder="" />)}
             </Form.Item>
-            <Form.Item {...formItemLayout} label="构建命令">
+            <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.bulid'})}>
               {getFieldDecorator("BUILD_MAVEN_CUSTOM_OPTS", {
                 initialValue: buildValue && buildValue,
                 rules: [
                   {
                     required: true,
-                    message: "请输入构建命令"
+                    message: formatMessage({id:'JavaMaven.bulid_input'})
                   }
                 ]
               })(<TextArea placeholder="" />)}
             </Form.Item>
-            <Form.Item {...formItemLayout} label="启动命令">
+            <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.start'})}>
               {getFieldDecorator("PROCFILE", {
                 initialValue: startValue && startValue,
                 rules: [
                   {
                     required: true,
-                    message: "请输入启动命令"
+                    message: formatMessage({id:'JavaMaven.start_input'})
                   }
                 ]
               })(<TextArea placeholder="" />)}
@@ -338,7 +359,7 @@ export default class Index extends PureComponent {
             }}
           >
             <Alert
-              message="以下为检测出的Maven多模块项目的模块信息, 请选择需要构建的模块, 并确认构建信息"
+              message={formatMessage({id:'JavaMaven.Alert'})}
               type="success"
             />
             <BaseInfo data={data} onSubmit={this.props.onSubmit} />

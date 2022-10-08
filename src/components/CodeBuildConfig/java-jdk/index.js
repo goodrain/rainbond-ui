@@ -76,7 +76,7 @@ class Index extends PureComponent {
         </Form.Item>
 
         {JDKType === 'OpenJDK' && (
-          <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.GoConfig.edition"/>}>
+          <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.JavaJDKConfig.edition"/>}>
             {getFieldDecorator('BUILD_RUNTIMES', {
               initialValue: (envs && envs.BUILD_RUNTIMES) || '1.8',
             })(
@@ -95,7 +95,7 @@ class Index extends PureComponent {
         )}
 
         {JDKType === 'Jdk' && (
-          <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.GoConfig.path"/>}>
+          <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.JavaJDKConfig.path"/>}>
             {getFieldDecorator('BUILD_ORACLEJDK_URL', {
               initialValue: envs && envs.BUILD_ORACLEJDK_URL,
               rules: [{ validator: this.validCustomJDK }],
