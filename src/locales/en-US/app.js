@@ -276,6 +276,8 @@ const appConfiguration = {
   'appConfiguration.table.config_items':'Config Items',
   'appConfiguration.table.btn.all':'Select All',
   'appConfiguration.table.service_ids':'Effective Components',
+  'appConfiguration.table.title':'Helpful hints',
+  'appConfiguration.table.save':'Whether to save the modified configuration group',
 }
 
 //k8s资源
