@@ -367,7 +367,7 @@ export default class ConfigurationDetails extends PureComponent {
             }}
             onCancel={this.handleClose}
           >
-            <p>{formatMessage({is:'appConfiguration.table.save'})}</p>
+            <p>{formatMessage({id:'appConfiguration.table.save'})}</p>
 
           </Modal>
         )}
