@@ -452,4 +452,24 @@ const topology = {
   'topology.Topological.input_port':'请选择端口',
 }
 
-export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, topology);
+const JavaMaven = {
+  'JavaMaven.Alert':'以下为检测出的Maven多模块项目的模块信息, 请选择需要构建的模块, 并确认构建信息',
+  'JavaMaven.name':'模块名称',
+  'JavaMaven.cname':'组件名称',
+  'JavaMaven.packaging':'包类型',
+  'JavaMaven.envs':'构建变量信息',
+  'JavaMaven.OPTS':'Maven构建参数',
+  'JavaMaven.GOALS':'Maven构建命令',
+  'JavaMaven.startValue':'启动命令',
+  'JavaMaven.index':'端口',
+  'JavaMaven.id':'操作',
+  'JavaMaven.cname_input':'请输入组件命令',
+  'JavaMaven.bulid':'构建命令',
+  'JavaMaven.bulid_input':'请输入构建命令',
+  'JavaMaven.start':'启动命令',
+  'JavaMaven.start_input':'请输入启动命令',
+  'JavaMaven.title':'JavaMaven多模块设置',
+  'JavaMaven.Tooltip':'取消本选项,不构建启动。',
+}
+
+export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, topology, JavaMaven);

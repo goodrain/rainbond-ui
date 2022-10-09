@@ -321,7 +321,7 @@ export default class Index extends PureComponent {
                           this.addInstance();
                         }}
                       >
-                        <FormattedMessage id='button.added'/>
+                        <FormattedMessage id='menu.team.create'/>
                       </Button>
                     )}
 

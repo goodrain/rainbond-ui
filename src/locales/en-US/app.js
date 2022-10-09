@@ -442,4 +442,23 @@ const topology = {
   'topology.Topological.port':'Port',
   'topology.Topological.input_port':'Enter the port',
 }
-export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, topology);
+const JavaMaven = {
+  'JavaMaven.Alert':'The following is the detected module information of the Maven multi-module project. Please select the module to be built and confirm the construction information',
+  'JavaMaven.name':'Module name',
+  'JavaMaven.cname':'Component name',
+  'JavaMaven.packaging':'Package type',
+  'JavaMaven.envs':'Build env info',
+  'JavaMaven.OPTS':'Maven build Parameters',
+  'JavaMaven.GOALS':'Maven build commands',
+  'JavaMaven.startValue':'Start the command',
+  'JavaMaven.index':'Port',
+  'JavaMaven.id':'Operation',
+  'JavaMaven.cname_input':'Enter the component command',
+  'JavaMaven.bulid':'Build commands',
+  'JavaMaven.bulid_input':'Enter the build command',
+  'JavaMaven.start':'Start the command',
+  'JavaMaven.start_input':'Enter the startup command',
+  'JavaMaven.title':'JavaMaven Multi-module Settings',
+  'JavaMaven.Tooltip':'Deselect this option to start without the build.',
+}
+export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, topology, JavaMaven);
