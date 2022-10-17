@@ -30,7 +30,7 @@ class App extends PureComponent {
         if (this.state.bool == 1) {
           setTimeout(() => {
             this.EstablishConnection();
-          }, 1000)
+          }, 2000)
 
         }
       })
