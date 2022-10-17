@@ -1359,7 +1359,7 @@ export async function createShellPod(params) {
     {
       method: 'post',
       data: {
-        region_name :  JSON.stringify(params.region_name)
+        region_name :  params.region_name
       }
     }
   );
@@ -1371,7 +1371,7 @@ export async function deleteShellPod(params) {
     {
       method: 'DELETE',
       data: {
-        region_name :  JSON.stringify(params.region_name),
+        region_name : params.region_name,
         pod_name : params.pod_name
       }
     }

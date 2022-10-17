@@ -39,6 +39,7 @@ export default class WebConsole extends PureComponent {
       namespace: '',
       tcpUrl: '',
       region_name: '',
+      arr:[]
     };
   }
   componentDidMount() {
@@ -52,7 +53,7 @@ export default class WebConsole extends PureComponent {
       dispatch({
         type: 'global/deleteShellPod',
         payload: {
-          region_name: Number(region_name),
+          region_name: region_name,
           pod_name: tabs[index].podName
         },
         callback: res => {
@@ -83,43 +84,53 @@ export default class WebConsole extends PureComponent {
   };
 
   clusterInfo = (val, url) => {
-    const { dispatch } = this.props
+    const { dispatch } = this.props;
     dispatch({
       type: 'global/createShellPod',
       payload: {
-        region_name: Number(val)
+        region_name: val
       },
       callback: res => {
         const info = res.bean.bean
         const { metadata, spec } = info
         const { name, namespace, } = metadata
         const { containers } = spec
-        setTimeout(()=>{
+        const { arr }  = this.state 
+        arr.push({ containers: containers[0].name,
+          name: name,
+          namespace: namespace,
+          tcpUrl: url})
           this.setState({
             containers: containers[0].name,
             name: name,
             namespace: namespace,
-            tcpUrl: url,
+            tcpUrl: url
           })
-        },100)
         this.openConsole(name, containers[0].name)
       }
     })
   }
+  remove = key => {
+    const { tabs } = this.state;
+    const tab = tabs.filter(item => item.key !== key);
+    const activeKey = tab.length > 0 ? tab[0].key : '';
+    this.setState({ tabs: tab, activeKey });
+  };
   onEdit = (targetKey, action) => {
+    this[action](targetKey);
     const { name, region_name } = this.state
     const { dispatch } = this.props
     dispatch({
       type: 'global/deleteShellPod',
       payload: {
-        region_name: Number(region_name),
+        region_name: region_name,
         pod_name: name
       },
       callback: res => {
       }
     })
 
-    this[action](targetKey);
+
   };
   onChange = key => {
     this.setState({ activeKey: key });
@@ -139,8 +150,9 @@ export default class WebConsole extends PureComponent {
       podName,
       containerName,
       title: containerName,
-      key: activeKey
+      key: activeKey,
     };
+
     const { tabs } = this.state;
     tabs.push(tab);
     this.setState({ tabs, activeKey });
@@ -173,13 +185,6 @@ export default class WebConsole extends PureComponent {
     this.setState({ loading: false });
   };
 
-  remove = key => {
-    const { tabs } = this.state;
-    const tab = tabs.filter(item => item.key !== key);
-    const activeKey = tab.length > 0 ? tab[0].key : '';
-    this.setState({ tabs: tab, activeKey });
-  };
-
   leftRender = service => {
     const { pods, loading, ClustersList } = this.state;
     const { height } = this.props
@@ -206,21 +211,22 @@ export default class WebConsole extends PureComponent {
     );
   };
 
-  tabContent = (podName, containerName, key) => {
-    const { appDetail, containers, name, namespace, tcpUrl } = this.state;
+  tabContent = (title,index, key) => {
+    const { arr } = this.state;
     const { height } = this.props
     const newHeight = height - 30
-    const str = `${tcpUrl}/event_log`
+    const xx = arr[index]
+    const tcpUrl = `${xx.tcpUrl}/event_log`
     return (
       <XTerm
-        key={name + containers}
+        key={arr[index].name + arr[index].containers}
         tenantID={''}
         serviceID={''}
-        WebsocketURL={str}
+        WebsocketURL={tcpUrl}
         updateTitle={title => this.updateTitle(key, title)}
-        podName={name}
-        containerName={containers}
-        namespace={namespace}
+        podName={arr[index].name}
+        containerName={arr[index].containers}
+        namespace={arr[index].namespace}
         height={newHeight}
       />
     );
@@ -276,7 +282,7 @@ export default class WebConsole extends PureComponent {
             )}
           </span>
           <div className={styles.tabs}>
-            {tabs.length > 0 && containers && (
+            {tabs.length > 0 && (
               <Tabs
                 defaultActiveKey={`${tabs[tabs.length - 1].key}`}
                 onChange={this.onChange}
@@ -285,7 +291,7 @@ export default class WebConsole extends PureComponent {
                 onEdit={this.onEdit}
                 hideAdd
               >
-                {tabs.map(item => {
+                {tabs.map((item, index) => {
                   const { title, podName, key, containerName } = item;
                   return (
                     <TabPane
@@ -299,7 +305,7 @@ export default class WebConsole extends PureComponent {
                       className={styles.consoleBox}
                       key={key}
                     >
-                        {this.tabContent(podName, containerName, key)}
+                        {this.tabContent(title, index,key)}
                     </TabPane>
                   );
                 })}

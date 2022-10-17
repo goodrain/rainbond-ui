@@ -84,9 +84,9 @@ export default class Index extends PureComponent {
       type: 'region/fetchConsoleLogs',
       callback: res => {
         if (res) {
-          if (this.refs.box) {
-            this.refs.box.scrollTop = this.refs.box.scrollHeight;
-          }
+          // if (this.refs.box) {
+          //   this.refs.box.scrollTop = this.refs.box.scrollHeight;
+          // }
           this.setState({ logs: res.bean || [] }, () => {
             this.hanleConsoTimer()
           });
@@ -110,13 +110,19 @@ export default class Index extends PureComponent {
 
   }
   onFinish = value => {
+    const { type ,ss} = this.props
     this.setState({ filter: value }, () => {
       const { logs, pod_name: podName } = this.state;
       if (value === '') {
-        if (podName) {
-          this.fetchContainerLog();
-        } else {
-          this.fetchClusterLogInfoSingle();
+        if ( type ){
+          this.fetchConsoleLogs(),
+          clearInterval(ss)
+        }else{
+          if (podName) {
+            this.fetchContainerLog();
+          } else {
+            this.fetchClusterLogInfoSingle();
+          }
         }
       } else {
         this.setLogs(logs);
