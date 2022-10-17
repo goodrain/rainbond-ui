@@ -13,7 +13,12 @@ import {
   fetchImportMessage,
   fetchNameSpaceResource,
   fetchNameSpaceAdvancedResource,
-  backNameSpaceAdvancedResource
+  backNameSpaceAdvancedResource,
+  fetchClusterLogInfo,
+  fetchClusterLogInfoSingle,
+  fetchNodeInfo,
+  fetchConsoleLogs,
+  fetchHistoryLogs
 } from '../services/region';
 
 export default {
@@ -138,7 +143,37 @@ export default {
       if (response && callback) {
         callback(response);
       }
-    }
+    },
+    *fetchClusterLogInfo({ payload, callback }, { call }) {
+      const response = yield call(fetchClusterLogInfo, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchClusterLogInfoSingle({ payload, callback }, { call }) {
+      const response = yield call(fetchClusterLogInfoSingle, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchNodeInfo({ payload, callback }, { call }) {
+      const response = yield call(fetchNodeInfo, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchConsoleLogs({ payload, callback }, { call }) {
+      const response = yield call(fetchConsoleLogs, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchHistoryLogs({ payload, callback }, { call }) {
+      const response = yield call(fetchHistoryLogs, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
   },
   reducers: {
     saveProtocols(state, action) {

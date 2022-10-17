@@ -106,7 +106,12 @@ export default [
             name: 'EnterpriseSetting',
             authority: ['admin', 'user']
           },
-
+          {
+            path: '/enterprise/:eid/logs',
+            component: './LogManagement',
+            name: 'LogManagement',
+            authority: ['admin', 'user']
+          },
           {
             path: '/enterprise/:eid/shared/app/:appId',
             component: './EnterpriseShared/Details',

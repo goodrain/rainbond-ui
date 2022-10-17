@@ -21,7 +21,6 @@ import AuthCompany from '../components/AuthCompany';
 import GlobalHeader from '../components/GlobalHeader';
 import headerStype from '../components/GlobalHeader/index.less';
 import GlobalRouter from '../components/GlobalRouter';
-import Loading from '../components/Loading';
 import PageLoading from '../components/PageLoading';
 import ServiceOrder from '../components/ServiceOrder';
 import SiderMenu from '../components/SiderMenu';
@@ -506,7 +505,6 @@ class EnterpriseLayout extends PureComponent {
           </ContainerQuery>
         </DocumentTitle>
 
-        <Loading />
 
         {/* 企业尚未认证 */}
         {showAuthCompany && (
