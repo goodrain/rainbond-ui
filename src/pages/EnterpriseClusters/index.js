@@ -496,6 +496,14 @@ export default class EnterpriseClusters extends PureComponent {
       }
     });
   };
+  // 添加shell
+  terminalCallout = ()=>{
+    const { dispatch } =this.props;
+    dispatch({
+      type: 'region/terminalCallout',
+      payload: true,
+    });
+  }
   render() {
     const {
       delclusterLongin,
@@ -851,6 +859,10 @@ export default class EnterpriseClusters extends PureComponent {
               <FormattedMessage id='enterpriseColony.button.text'/>
               </Button>
             </Link>
+            <Button onClick={this.terminalCallout} style={{marginLeft:15}}>
+               {formatMessage({id:'otherEnterprise.shell.line'})}
+            </Button>
+            
             <Button
               style={{ marginLeft: '16px' }}
               onClick={() => {
