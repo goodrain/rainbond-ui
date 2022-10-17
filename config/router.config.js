@@ -53,6 +53,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/shell',
+            component: './Shell',
+            name: 'enterpriseOverview',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/teams',
             component: './EnterpriseTeams',
             name: 'EnterpriseTeams',

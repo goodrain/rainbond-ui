@@ -1003,6 +1003,15 @@ const otherEnterprise= {
     'otherEnterprise.AccesstokenForm.time':'过期时间',
     'otherEnterprise.AccesstokenForm.import_time':'请输入时间',
 
+    'otherEnterprise.shell.show':'展开',
+    'otherEnterprise.shell.Pack_up':'收起',
+    'otherEnterprise.shell.new':'新开页',
+    'otherEnterprise.shell.down':'关闭',
+    'otherEnterprise.shell.list':'集群列表',
+    'otherEnterprise.shell.connection':'正在连接',
+    'otherEnterprise.shell.line':'命令行',
+
+
 
 }
 //日志

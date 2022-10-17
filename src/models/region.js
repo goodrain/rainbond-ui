@@ -31,7 +31,10 @@ export default {
       JSON.parse(window.sessionStorage.getItem('base_configuration')) || {},
     // 集群高级配置数据
     advance_configuration:
-      JSON.parse(window.sessionStorage.getItem('advance_config')) || {}
+      JSON.parse(window.sessionStorage.getItem('advance_config')) || {},
+    //shell终端状态 
+    terminal_status:
+    JSON.parse(window.sessionStorage.getItem('terminal_status')) || false,
   },
   effects: {
     *fetchProtocols({ payload }, { call, put }) {
@@ -209,6 +212,33 @@ export default {
         ...state,
         advance_configuration: payload
       };
-    }
+    },
+    // shell终端启动
+    terminalCallout(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.setItem(
+          'terminal_status',
+          JSON.stringify(payload) || {}
+        );
+      }
+      return {
+        ...state,
+        terminal_status: payload
+      };
+    },
+    // shell终端退出
+    terminalRepeal(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.removeItem(
+          'terminal_status',
+        );
+      }
+      return {
+        ...state,
+        terminal_status: !payload
+      };
+    },
   }
 };

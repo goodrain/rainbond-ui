@@ -100,7 +100,9 @@ import {
   toSearchTenant,
   upDataEnterpriseAdminTeams,
   upEnterpriseUsers,
-  getRainbondAlert
+  getRainbondAlert,
+  createShellPod,
+  deleteShellPod
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -863,7 +865,20 @@ export default {
       if (callback) {
         callback(response);
       }
-    }
+    },
+    *createShellPod({ payload, callback }, { call }) {
+      const response = yield call(createShellPod, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *deleteShellPod({ payload, callback }, { call }) {
+      const response = yield call(deleteShellPod, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+
   },
   reducers: {
     isUpDataHeader(state, action) {

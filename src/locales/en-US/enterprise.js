@@ -1000,6 +1000,15 @@
         'otherEnterprise.AccesstokenForm.max':'Maximum length: 32 bits',
         'otherEnterprise.AccesstokenForm.time':'Expiration time',
         'otherEnterprise.AccesstokenForm.import_time':'Enter the time',
+
+        'otherEnterprise.shell.show':'Unfold',
+        'otherEnterprise.shell.Pack_up':'Pack up',
+        'otherEnterprise.shell.new':'New page',
+        'otherEnterprise.shell.down':'Close',
+        'otherEnterprise.shell.list':'Cluster list',
+        'otherEnterprise.shell.connection':'Are connected',
+        'otherEnterprise.shell.line':'Command line',
+
     }
     //日志
 const LogEnterprise = {
