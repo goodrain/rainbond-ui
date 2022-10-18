@@ -44,7 +44,29 @@ export default class WebConsole extends PureComponent {
   }
   componentDidMount() {
     this.handleLoadEnterpriseClusters()
-
+    const urlParams = new URL(window.location.href);
+    if(urlParams){
+      const bool = urlParams.href.includes("/shell")
+      if(bool){
+        window.addEventListener('beforeunload', (event) => {
+          event.preventDefault();
+          event.returnValue = '';
+          const { tabs, region_name } = this.state;
+          for (let index = 0; index < tabs.length; index++) {
+            const { dispatch } = this.props
+            dispatch({
+              type: 'global/deleteShellPod',
+              payload: {
+                region_name: region_name,
+                pod_name: tabs[index].podName
+              },
+              callback: res => {
+              }
+            })
+          }
+        });
+      }
+    }
   }
   componentWillUnmount() {
     const { tabs, region_name } = this.state;
@@ -59,8 +81,24 @@ export default class WebConsole extends PureComponent {
         callback: res => {
         }
       })
-
     }
+    window.removeEventListener('beforeunload', (event) => {
+      event.preventDefault();
+      event.returnValue = '';
+      const { tabs, region_name } = this.state;
+      for (let index = 0; index < tabs.length; index++) {
+        const { dispatch } = this.props
+        dispatch({
+          type: 'global/deleteShellPod',
+          payload: {
+            region_name: region_name,
+            pod_name: tabs[index].podName
+          },
+          callback: res => {
+          }
+        })
+      }
+    })
   }
   // 获取企业的集群信息
   handleLoadEnterpriseClusters = () => {

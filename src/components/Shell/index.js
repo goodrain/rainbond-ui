@@ -46,7 +46,14 @@ class Shell extends Component {
             payload: true,
         });
     }
-
+    // 新开页
+    newPage = () =>{
+       const { dispatch } = this.props
+        dispatch({
+            type: 'region/terminalRepeal',
+            payload: true,
+        });
+    }
     render() {
         const { bool, height } = this.state
         const eid = globalUtil.getCurrEnterpriseId();
@@ -76,7 +83,7 @@ class Shell extends Component {
                         target="_blank"
                     >
                         <Tooltip placement="top" title={formatMessage({ id: 'otherEnterprise.shell.new' })} >
-                            <Button type="primary" style={{ margin: '0 20px 0 0' }} icon="arrows-alt">
+                            <Button type="primary" style={{ margin: '0 20px 0 0' }} icon="arrows-alt" onClick={this.newPage}>
                             </Button>
                         </Tooltip>
                     </Link>

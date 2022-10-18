@@ -330,7 +330,7 @@ export default class Index extends PureComponent {
     }
   };
   downloadLogs = () => {
-    download("/console/enterprise/download/goodrain_log", 'Consolog.log')
+    download("/console/enterprise/download/goodrain_log", 'goodrain.log')
   }
 
   render() {
@@ -446,8 +446,6 @@ export default class Index extends PureComponent {
               </Select>
             </Form.Item>
           )}
-          {/* {type &&
-            } */}
         </Form>
         <div className={styles.logsss} ref="box">
           {(containerLog &&
