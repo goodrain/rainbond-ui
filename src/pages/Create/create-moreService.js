@@ -194,7 +194,7 @@ export default class Index extends PureComponent {
             textAlign: 'center'
           }}
         >
-          JavaMaven多模块设置
+          {formatMessage({id:'JavaMaven.title'})}
         </h2>
         <div
           style={{
@@ -244,7 +244,7 @@ export default class Index extends PureComponent {
               <div>
                 <Tooltip
                   placement="topLeft"
-                  title={<p>取消本选项,不构建启动。</p>}
+                  title={formatMessage({id:'JavaMaven.Tooltip'})}
                 >
                   <Radio
                     size="small"

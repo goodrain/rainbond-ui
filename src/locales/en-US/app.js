@@ -276,6 +276,8 @@ const appConfiguration = {
   'appConfiguration.table.config_items':'Config Items',
   'appConfiguration.table.btn.all':'Select All',
   'appConfiguration.table.service_ids':'Effective Components',
+  'appConfiguration.table.title':'Helpful hints',
+  'appConfiguration.table.save':'Whether to save the modified configuration group',
 }
 
 //k8s资源
@@ -423,6 +425,44 @@ const otherAppAssembly = {
  'otherApp.AppMoveGroup.title':'Modify the application to which the component belongs',
  'otherApp.AppMoveGroup.message':'Cannot be empty!',
 }
+const topology = {
+  'topology.Topological.start':'Start',
+  'topology.Topological.stop':'Stop',
+  'topology.Topological.rolling':'Rolling',
+  'topology.Topological.build':'Build',
+  'topology.Topological.title':'Helpful hints',
+  'topology.Topological.determine':'Determine',
+  'topology.Topological.now':'Current component?',
+  'topology.Topological.label':'Gateway',
+  'topology.Topological.yes_or_no':'Whether to cancel',
+  'topology.Topological.Rely_on':'Rely on',
+  'topology.Topological.Shut_down':'Whether to shut down',
+  'topology.Topological.all_port':'All external ports of a component',
+  'topology.Topological.Did_not_open_port':'External ports are not enabled for components',
+  'topology.Topological.associated':'To associate the',
+  'topology.Topological.opne':'Internal ports are not enabled for components. Determine whether to enable them?',
+  'topology.Topological.port':'Port',
+  'topology.Topological.input_port':'Enter the port',
+}
+const JavaMaven = {
+  'JavaMaven.Alert':'The following is the detected module information of the Maven multi-module project. Please select the module to be built and confirm the construction information',
+  'JavaMaven.name':'Module name',
+  'JavaMaven.cname':'Component name',
+  'JavaMaven.packaging':'Package type',
+  'JavaMaven.envs':'Build env info',
+  'JavaMaven.OPTS':'Maven build Parameters',
+  'JavaMaven.GOALS':'Maven build commands',
+  'JavaMaven.startValue':'Start the command',
+  'JavaMaven.index':'Port',
+  'JavaMaven.id':'Operation',
+  'JavaMaven.cname_input':'Enter the component command',
+  'JavaMaven.bulid':'Build commands',
+  'JavaMaven.bulid_input':'Enter the build command',
+  'JavaMaven.start':'Start the command',
+  'JavaMaven.start_input':'Enter the startup command',
+  'JavaMaven.title':'JavaMaven Multi-module Settings',
+  'JavaMaven.Tooltip':'Deselect this option to start without the build.',
+}
 const helmAppInstall = {
   //安装检测主页
   'helmAppInstall.index.delete':'The store has been deleted and cannot be updated.',
@@ -525,4 +565,4 @@ const helmAppInstall = {
   'helmAppInstall.UpgradeInfo.retry':'重试',
   'helmAppInstall.UpgradeInfo.version':'版本',
 }
-export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, helmAppInstall);
+export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, topology, JavaMaven, helmAppInstall);

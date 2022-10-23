@@ -131,8 +131,8 @@ const appPublish = {
   'appPublish.btn.record.list.label.version_alias':'版本别名',
   'appPublish.btn.record.list.label.is_plugin':'作为插件',
   'appPublish.btn.record.list.label.describe':'版本说明',
-  'appPublish.btn.record.list.label.newAppTemplate':'新建应用模版',
-  'appPublish.btn.record.list.label.deitAppTemplate':'编辑应用模版',
+  'appPublish.btn.record.list.label.newAppTemplate':'新建',
+  'appPublish.btn.record.list.label.deitAppTemplate':'编辑',
   'appPublish.btn.record.list.title.publish_component_config':'发布组件模型配置',
   'appPublish.btn.record.list.title.publish_pluginMsg':'发布插件模型信息',
   'appPublish.btn.record.list.title.edit_publish_componentMsg':'编辑发布组件信息',
@@ -431,6 +431,45 @@ const otherAppAssembly = {
   'otherApp.AppMoveGroup.message':'不能为空!',
 
 }
+const topology = {
+  'topology.Topological.start':'启动',
+  'topology.Topological.stop':'关闭',
+  'topology.Topological.rolling':'更新',
+  'topology.Topological.build':'构建',
+  'topology.Topological.title':'友情提示',
+  'topology.Topological.determine':'确定',
+  'topology.Topological.now':'当前组件？',
+  'topology.Topological.label':'网关',
+  'topology.Topological.yes_or_no':'是否取消',
+  'topology.Topological.Rely_on':'依赖',
+  'topology.Topological.Shut_down':'是否关闭',
+  'topology.Topological.all_port':'组件的所有对外端口',
+  'topology.Topological.Did_not_open_port':'组件未开启对外端口',
+  'topology.Topological.associated':'要关联的',
+  'topology.Topological.opne':'组件暂未开启对内端口，是否打开?',
+  'topology.Topological.port':'选择端口',
+  'topology.Topological.input_port':'请选择端口',
+}
+
+const JavaMaven = {
+  'JavaMaven.Alert':'以下为检测出的Maven多模块项目的模块信息, 请选择需要构建的模块, 并确认构建信息',
+  'JavaMaven.name':'模块名称',
+  'JavaMaven.cname':'组件名称',
+  'JavaMaven.packaging':'包类型',
+  'JavaMaven.envs':'构建变量信息',
+  'JavaMaven.OPTS':'Maven构建参数',
+  'JavaMaven.GOALS':'Maven构建命令',
+  'JavaMaven.startValue':'启动命令',
+  'JavaMaven.index':'端口',
+  'JavaMaven.id':'操作',
+  'JavaMaven.cname_input':'请输入组件命令',
+  'JavaMaven.bulid':'构建命令',
+  'JavaMaven.bulid_input':'请输入构建命令',
+  'JavaMaven.start':'启动命令',
+  'JavaMaven.start_input':'请输入启动命令',
+  'JavaMaven.title':'JavaMaven多模块设置',
+  'JavaMaven.Tooltip':'取消本选项,不构建启动。',
+}
 const helmAppInstall = {
   //安装检测主页
   'helmAppInstall.index.delete':'商店已被删除、无法更新。',
@@ -533,4 +572,4 @@ const helmAppInstall = {
   'helmAppInstall.UpgradeInfo.retry':'重试',
   'helmAppInstall.UpgradeInfo.version':'版本',
 }
-export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, helmAppInstall);
+export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, topology, JavaMaven, helmAppInstall);

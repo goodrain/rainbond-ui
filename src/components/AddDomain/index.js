@@ -140,7 +140,7 @@ export default class AddDomain extends PureComponent {
           {protocol == 'http' ? (
             ''
           ) : (
-            <FormItem {...is_language} title={<FormattedMessage id='componentOverview.body.AddDomain.lable_certificate_id'/>}>
+            <FormItem {...is_language} label={formatMessage({id:'componentOverview.body.AddDomain.lable_certificate_id'})} title={<FormattedMessage id='componentOverview.body.AddDomain.lable_certificate_id'/>}>
               {getFieldDecorator('certificate_id', {
                 initialValue: '',
                 rules: [

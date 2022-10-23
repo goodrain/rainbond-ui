@@ -174,6 +174,7 @@ class TeamLayout extends PureComponent {
   };
 
   getTeamOverview = () => {
+    this.load();
     const { dispatch } = this.props;
     const { enterpriseList } = this.state;
     const { teamName, regionName } = this.props.match.params;
@@ -190,9 +191,6 @@ class TeamLayout extends PureComponent {
           this.setState(
             {
               eid: res.bean.eid
-            },
-            () => {
-              this.load();
             }
           );
         }
@@ -250,6 +248,7 @@ class TeamLayout extends PureComponent {
     const { currentUser, dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
+    const enterpriseId = this.props.enterprise && this.props.enterprise.enterprise_id;
     dispatch({
       type: 'teamControl/fetchFeatures',
       payload: { team_name: teamName, region_name: regionName }
@@ -268,17 +267,13 @@ class TeamLayout extends PureComponent {
       payload: { team_name: teamName, region_name: regionName }
     });
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
-    enterpriseList.map(item => {
-      if (eid === item.enterprise_id) {
-        dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: item });
+        dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
         this.setState({
-          currentEnterprise: item,
+          currentEnterprise: enterpriseList[0],
           currentTeam: team,
           currentRegion: region,
           ready: true
         });
-      }
-    });
     this.fetchEnterpriseInfo(eid);
     this.fetchTeamApps();
     enquireScreen(mobile => {

@@ -43,7 +43,7 @@ const { confirm } = Modal;
   delclusterLongin: loading.effects['region/deleteEnterpriseCluster'],
   overviewInfo: index.overviewInfo,
   novices: global.novices
-}))
+})) 
 @Form.create()
 export default class EnterpriseClusters extends PureComponent {
   constructor(props) {
@@ -148,6 +148,13 @@ export default class EnterpriseClusters extends PureComponent {
           const clusters = [];
           res.list.map((item, index) => {
             item.key = `cluster${index}`;
+            if (!item.resource_proxy_status) {
+              notification.warning({
+                message: formatMessage({id:'utils.request.warning'}),
+                description:
+                  `${item.region_alias}${formatMessage({id:'notification.warn.proxy'})}`,
+              });
+            }
             clusters.push(item);
             return item;
           });
@@ -916,7 +923,7 @@ export default class EnterpriseClusters extends PureComponent {
             {setTenantLimitShow && (
               <div>
                 <Alert
-                  style={{ marginBottom: '16px' }}
+                  style={{ margin: '20px 0 16px 0' }}
                   message={formatMessage({id:'enterpriseColony.table.handle.quota.alert'},{name:limitTeamName}) + formatMessage({id:'enterpriseColony.table.handle.quota.alert1'},{region:regionAlias})}
                 />
                 <Form onSubmit={this.submitLimit}>
@@ -968,7 +975,7 @@ export default class EnterpriseClusters extends PureComponent {
             {!setTenantLimitShow && (
               <div>
                 <Alert
-                  style={{ marginBottom: '16px' }}
+                  style={{ margin: '20px 0 16px 0' }}
                   message={formatMessage({id:'enterpriseColony.table.handle.quota.form.label.alert'})}
                 />
                 <Table

@@ -299,15 +299,15 @@
         //应用复制
         'confirmModal.app.title.copy':'Application replication',
         'confirmModal.app.label.teamRegion':'Copy to',
-        'confirmModal.app.label.build':'Building Source Information',
+        'confirmModal.app.label.build':'Building Source',
         'confirmModal.app.label.editVersions':'Version modification',
         'confirmModal.app.label.branch':'Branch',
         'confirmModal.app.label.tag':'Tag',
         'confirmModal.app.label.not_change':'The version change is not supported',
-        'confirmModal.app.label.third_party':'Third-party Components',
+        'confirmModal.app.label.third_party':'Third-party',
         'confirmModal.app.label.mirror_image':'Image:',
-        'confirmModal.app.label.sound_code':'Sound code:',
-        'confirmModal.app.label.component_library':'Component gallery:',
+        'confirmModal.app.label.sound_code':'Source code:',
+        'confirmModal.app.label.component_library':'Market:',
         'confirmModal.app.label.local':'Local file:',
         'confirmModal.app.label.editVersions':'Version modification',
 
@@ -584,6 +584,7 @@
         'notification.warn.malfunction':'Operation encountered a fault. Please try again later',
         'notification.warn.port_null':'No terminal port is currently available',
         'notification.warn.parameter_error':'Parameters of the abnormal',
+        'notification.warn.proxy':' network anomalies',
 
         //提示
         'notification.hint.component.change':'The switch is successful and the component is updated',
