@@ -55,7 +55,9 @@ import {
   startPluginShareEventInShareApp,
   startShareEvent,
   submitShare,
-  Toupgrade
+  Toupgrade,
+  addHelmModule,
+  generateHelmModule,
 } from '../services/application';
 
 export default {
@@ -442,7 +444,20 @@ export default {
       if (response && callback) {
         callback(response);
       }
-    }
+    },
+    *addHelmModule({ payload, callback, handleError }, { call }) {
+      const data = yield call(addHelmModule, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *generateHelmModule({ payload, callback, handleError }, { call }) {
+      const data = yield call(generateHelmModule, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+
   },
   reducers: {
     clearApps(state) {

@@ -83,13 +83,29 @@ class TeamLayout extends PureComponent {
       currentComponent: null,
       eid: '',
       appID: globalUtil.getAppID(),
-      teamView: true
+      teamView: true,
+      showMenu:true
     };
   }
 
   componentWillMount() {
     this.getNewbieGuideConfig();
     this.getEnterpriseList();
+  }
+  componentWillUpdate(){
+    const urlParams = new URL(window.location.href);
+    if(urlParams){
+      const bool = urlParams.href.includes("/helminstall")
+      if(bool){
+        this.setState({
+          showMenu: false
+        })
+      }else{
+        this.setState({
+          showMenu: true
+        })
+      }
+    }
   }
   componentWillReceiveProps() {
     const appID = globalUtil.getAppID();
@@ -432,6 +448,7 @@ class TeamLayout extends PureComponent {
       currentComponent,
       teamView,
       currentApp,
+      showMenu
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -648,7 +665,7 @@ class TeamLayout extends PureComponent {
                   onCollapse={this.handleMenuCollapse}
                   menuData={menuData}
                   pathname={pathname}
-                  showMenu={!componentID}
+                  showMenu={showMenu ? !componentID : false}
                 />
               )}
               <Content

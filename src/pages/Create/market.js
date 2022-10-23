@@ -466,13 +466,19 @@ export default class Main extends PureComponent {
       currentKey
     } = this.state;
     const teamName = globalUtil.getCurrTeamName();
-
     form.validateFields((err, Value) => {
       if (scopeMax.indexOf('Helm-') > -1) {
+        const obj = {
+          app_store_name: currentKey.substr(currentKey.indexOf("-")+1),
+          app_template_name: installBounced.name,
+          is_deploy: is_deploy,
+          version: Value.group_version
+        }
+        window.sessionStorage.setItem("appinfo",JSON.stringify(obj))
         dispatch(
           routerRedux.push(
             `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-              0}/helminstall`
+              0}/helminstall?installPath=market`
           )
         );
       } return;
@@ -503,22 +509,12 @@ export default class Main extends PureComponent {
           if (handleType && refreshCurrent) {
             refreshCurrent();
           }
-          if (scopeMax.indexOf('Helm-') > -1) {
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                  0}/helminstall`
-              )
-            );
-          }else{
             dispatch(
               routerRedux.push(
                 `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
                   0}`
               )
             );
-          }
-          
         }
       });
     });
@@ -567,37 +563,13 @@ export default class Main extends PureComponent {
     const { dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     this.setState({ helmInstallLoading: true });
-    dispatch({
-      type: 'createApp/installHelmApp',
-      payload: {
-        team_name: teamName,
-        ...vals,
-        is_deploy
-      },
-      callback: res => {
-        // 刷新左侧按钮
-        dispatch({
-          type: 'global/fetchGroups',
-          payload: {
-            team_name: teamName
-          },
-          callback: () => {
-            if (res && res.status_code === 200 && res.bean && res.bean.ID) {
-              this.onCancelCreate();
-              dispatch(
-                routerRedux.push(
-                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${res.bean.ID}/helminstall`
-                )
-              );
-            }
-            this.setState({ helmInstallLoading: false });
-          },
-          renderError: () => {
-            this.setState({ helmInstallLoading: false });
-          }
-        });
-      }
-    });
+    vals.is_deploy = is_deploy;
+    window.sessionStorage.setItem("appinfo",JSON.stringify(vals))
+    dispatch(
+    routerRedux.push(
+      `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${vals.group_id}/helminstall?installPath=market`
+    )
+  );
   };
   handleCloudCreate = (vals, is_deploy) => {
     this.setState({

@@ -481,7 +481,7 @@ export async function getUpdatedVersion(body = {}) {
 
 /* 查询某云市应用下服务的更新信息 */
 
-export async function getUpdatedInfo(body = {}) {
+export async function getUpdatedInfo(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-info`,
     {
@@ -491,7 +491,8 @@ export async function getUpdatedInfo(body = {}) {
         version: body.version,
         market_name: body.marketName,
         upgrade_group_id: body.upgradeGroupID
-      }
+      },
+      handleError
     }
   );
 }

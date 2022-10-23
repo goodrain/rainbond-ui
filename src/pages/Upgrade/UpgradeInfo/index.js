@@ -58,7 +58,7 @@ export default class AppList extends PureComponent {
       upgradeInfo: [],
       upgrade_info: '',
       upgradeRecords: [],
-      upgradeText: '升级',
+      upgradeText: formatMessage({id:'helmAppInstall.index.up'}),
       textState: 1,
       service_id: [],
       upgradeLoading: false,
@@ -243,18 +243,18 @@ export default class AppList extends PureComponent {
       }
     ];
     if (show_component && show_component.service.type == 'add') {
-      return Box('新增组件');
+      return Box(formatMessage({id:'helmAppInstall.UpgradeInfo.add_com'}));
     }
     if (show_component) {
       const { service, upgrade_info } = show_component;
       if (service && service.type == 'add') {
-        return Box('新增组件');
+        return Box(formatMessage({id:'helmAppInstall.UpgradeInfo.add_com'}));
       } else if (upgrade_info && service.have_change) {
         return this.setData(upgrade_info);
       }
-      return Box('组件无变更');
+      return Box(formatMessage({id:'helmAppInstall.UpgradeInfo.change'}));
     }
-    return Box(isUpgrade ? '请选择要升级的版本' : '暂无可升级的版本');
+    return Box(isUpgrade ? formatMessage({id:'helmAppInstall.UpgradeInfo.select'}) : formatMessage({id:'helmAppInstall.UpgradeInfo.no_updatae'}));
   };
   handleAdd = obj => {
     return obj && obj.add && obj.add.length > 0;
@@ -284,9 +284,9 @@ export default class AppList extends PureComponent {
       list.push('delete');
     }
     const operationMap = {
-      add: '新增',
-      upd: '更新',
-      delete: '移除'
+      add: formatMessage({id:'helmAppInstall.UpgradeInfo.add'}),
+      upd: formatMessage({id:'helmAppInstall.UpgradeInfo.updata'}),
+      delete: formatMessage({id:'helmAppInstall.UpgradeInfo.remove'})
     };
 
     return (
@@ -371,65 +371,65 @@ export default class AppList extends PureComponent {
     }
     if (isProbes) {
       const filterMap = {
-        liveness: '存活探针',
-        readiness: '就绪探针'
+        liveness: formatMessage({id:'helmAppInstall.UpgradeInfo.survival'}),
+        readiness: formatMessage({id:'helmAppInstall.UpgradeInfo.ready'})
       };
-      addArr('健康检测', this.handleBox(null, probes, 'mode', null, filterMap));
+      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.healthy'})}`, this.handleBox(null, probes, 'mode', null, filterMap));
     }
 
     if (deployVersionChange) {
       addArr(
-        '源组件构建版本',
+        `${formatMessage({id:'helmAppInstall.UpgradeInfo.edition'})}`,
         <div className={styles.textzt}>
-          从 <span>{deploy_version.old}</span> 变更为
+          {formatMessage({id:'helmAppInstall.UpgradeInfo.from'})} <span>{deploy_version.old}</span> {formatMessage({id:'helmAppInstall.UpgradeInfo.to'})}
           <span>{deploy_version.new}</span>
         </div>
       );
     }
 
     if (isConnectInfos) {
-      addArr('连接信息', this.handleBox(null, connect_infos, 'attr_name'));
+      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.info'})}`, this.handleBox(null, connect_infos, 'attr_name'));
     }
 
     if (isPluginDeps) {
       addArr(
-        '插件',
+        `${formatMessage({id:'helmAppInstall.UpgradeInfo.unit'})}`,
         this.handleBox(null, plugin_deps, 'plugin', 'plugin_alias')
       );
     }
 
     if (isEnvs) {
-      addArr('环境变量', this.handleBox(null, envs, 'attr_name'));
+      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.variable'})}`, this.handleBox(null, envs, 'attr_name'));
     }
 
     if (isPorts) {
-      addArr('端口', this.handleBox(null, ports, 'container_port'));
+      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.port'})}`, this.handleBox(null, ports, 'container_port'));
     }
 
     if (isVolumes) {
-      addArr('存储', this.handleBox('存储挂载', volumes, 'volume_name'));
+      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.storage'})}`, this.handleBox(`${formatMessage({id:'helmAppInstall.UpgradeInfo.mount'})}`, volumes, 'volume_name'));
     }
 
     if (isDepServices) {
       addArr(
-        '依赖组件',
+        `${formatMessage({id:'helmAppInstall.UpgradeInfo.comm'})}`,
         <div>
           {dep_services.add && dep_services.add.length > 0 && (
             <div className={styles.textzt}>
-              新增对
+              {formatMessage({id:'helmAppInstall.UpgradeInfo.add_from'})}
               {dep_services.add.map(item => {
                 return <span key={item.service_id}>{item.service_cname}</span>;
               })}
-              组件的依赖
+              {formatMessage({id:'helmAppInstall.UpgradeInfo.rely_on'})}
             </div>
           )}
           {dep_services.del && dep_services.del.length > 0 && (
             <div className={styles.textzt}>
-              移除对
+              {formatMessage({id:'helmAppInstall.UpgradeInfo.remove_on'})}
               {dep_services.del.map(item => {
                 return <span key={item.service_id}>{item.service_cname}</span>;
               })}
-              组件的依赖
+              {formatMessage({id:'helmAppInstall.UpgradeInfo.rely_on'})}
             </div>
           )}
         </div>
@@ -437,19 +437,19 @@ export default class AppList extends PureComponent {
     }
 
     if (isDepVolumess) {
-      addArr('依赖的存储', this.handleBox('存储挂载', dep_volumes, 'mnt_name'));
+      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.dependent'})}`, this.handleBox('存储挂载'`${formatMessage({id:'helmAppInstall.UpgradeInfo.add_com'})}`, dep_volumes, 'mnt_name'));
     }
 
     if (isPlugins) {
-      addArr('插件', this.handleBox(null, plugins, 'plugin_alias'));
+      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.unit'})}`, this.handleBox(null, plugins, 'plugin_alias'));
     }
 
     if (isAppConfigGroups) {
       addArr(
-        '应用配置组',
+        `${formatMessage({id:'helmAppInstall.UpgradeInfo.comm_group'})}`,
         <div className={styles.textzt}>
-          {addAppConfigGroups ? '新增' : '更新'}
-          应用配置组：
+          {addAppConfigGroups ? '新增'`${formatMessage({id:'helmAppInstall.UpgradeInfo.add_com'})}` : '更新'`${formatMessage({id:'helmAppInstall.UpgradeInfo.add_com'})}`}
+          {formatMessage({id:'helmAppInstall.UpgradeInfo.app_group'})}
           {app_config_groups[addAppConfigGroups ? 'add' : 'upd'].map(item => {
             return (
               <Tooltip
@@ -471,21 +471,21 @@ export default class AppList extends PureComponent {
 
     if (isComponentMonitors) {
       addArr(
-        '监控点',
+        `${formatMessage({id:'helmAppInstall.UpgradeInfo.point'})}`,
         this.handleBox(null, component_monitors, 'service_show_name')
       );
     }
 
     if (isComponentGraphs) {
-      addArr('监控图表', this.handleBox(null, component_graphs, 'title'));
+      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.point_Chart'})}`, this.handleBox(null, component_graphs, 'title'));
     }
 
     if(isComponent_k8s_attributes){
-      addArr('K8S 属性', this.handleBox(null, component_k8s_attributes, 'name'));
+      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.k8s'})}`, this.handleBox(null, component_k8s_attributes, 'name'));
     }
 
     if(isK8s_resources){
-      addArr('K8S 属性', this.handleBox(null, k8s_resources, 'name'));
+      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.k8s'})}`, this.handleBox(null, k8s_resources, 'name'));
     }
     return arr;
   };
@@ -497,40 +497,40 @@ export default class AppList extends PureComponent {
         return <Icon type="sync" style={{ color: '#1890ff' }} spin />;
       case 8:
         return (
-          <Tooltip title="滚动更新操作失败，请前往组件页面手动操作">
+          <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.hand'})}>
             <Icon type="close" style={{ color: 'red' }} />
           </Tooltip>
         );
       case 3:
         return (
-          <Tooltip title="成功">
+          <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.success'})}>
             <Icon type="check" style={{ color: '#239B24' }} />
           </Tooltip>
         );
       default:
         if (isUpgrade && item.service.have_change) {
           return (
-            <Tooltip title="可升级">
+            <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.can_updata'})}>
               <Icon type="up" style={{ color: '#239B24' }} />
             </Tooltip>
           );
         }
         if (isUpgrade && !item.service.can_upgrade) {
           return (
-            <Tooltip title="新版本无该组件，不可升级">
+            <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.Not_upgradeable'})}>
               <Icon type="info-circle" />
             </Tooltip>
           );
         }
         if (isUpgrade) {
           return (
-            <Tooltip title="组件无变更，升级只改变版本号">
+            <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.comm_no_updata'})}>
               <Icon type="up" style={{ color: '#239B24' }} />
             </Tooltip>
           );
         }
         return (
-          <Tooltip title="新增组件">
+          <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.add_comm'})}>
             <Icon type="plus" style={{ color: '#239B24' }} />
           </Tooltip>
         );
@@ -544,11 +544,11 @@ export default class AppList extends PureComponent {
     }
     const { status } = record;
     const statusMap = {
-      1: '升级任务未开始',
-      2: '的升级任务执行中',
-      3: '的升级任务执行成功',
-      8: '的升级任务执行失败',
-      10: '的升级任务执行部署失败'
+      1: formatMessage({id:'helmAppInstall.UpgradeInfo.not_started'}),
+      2: formatMessage({id:'helmAppInstall.UpgradeInfo.implementation'}),
+      3: formatMessage({id:'helmAppInstall.UpgradeInfo.succeeded'}),
+      8: formatMessage({id:'helmAppInstall.UpgradeInfo.failed'}),
+      10: formatMessage({id:'helmAppInstall.UpgradeInfo.Deployment_failed'})
     };
     const types = {
       1: 'info',
@@ -563,7 +563,7 @@ export default class AppList extends PureComponent {
           showIcon
           type={types[status]}
           message={`${record.group_name} 
-          ${status === 1 ? '当前版本' : '从版本'} 
+          ${status === 1 ? formatMessage({id:'helmAppInstall.UpgradeInfo.now_version'}) : formatMessage({id:'helmAppInstall.UpgradeInfo.form_version'})} 
           ${record.old_version} 
           ${statusMap[status]}`}
         />
@@ -859,8 +859,8 @@ export default class AppList extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         loading={loadingDetail}
-        title="应用升级管理"
-        content="当前应用内具有从组件库或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作。"
+        title={formatMessage({id:'helmAppInstall.UpgradeInfo.Administration'})}
+        content={formatMessage({id:'helmAppInstall.UpgradeInfo.application'})}
         extraContent={null}
       >
         <Spin spinning={loadingUpgradeDetail}>
@@ -883,12 +883,12 @@ export default class AppList extends PureComponent {
                     <div className={styles.zsldis}>
                       <Form.Item
                         {...formItemLayout}
-                        label="升级到"
+                        label={formatMessage({id:'helmAppInstall.UpgradeInfo.updata_to'})}
                         style={{ width: '100%' }}
                       >
                         {getFieldDecorator('upgradeVersions', {
                           initialValue: upgrade_versions && upgrade_versions[0],
-                          rules: [{ required: false, message: '请选择' }]
+                          rules: [{ required: false, message: formatMessage({id:'helmAppInstall.UpgradeInfo.select'}) }]
                         })(
                           <Select
                             getPopupContainer={triggerNode =>
@@ -908,7 +908,7 @@ export default class AppList extends PureComponent {
                             })}
                           </Select>
                         )}
-                        <span>&nbsp;&nbsp;版本</span>
+                        <span>&nbsp;&nbsp;{formatMessage({id:'helmAppInstall.UpgradeInfo.version'})}</span>
                       </Form.Item>
                     </div>
                     <div className={styles.zslcheck}>
@@ -919,7 +919,7 @@ export default class AppList extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: '请选择需要升级的组件'
+                              message: formatMessage({id:'helmAppInstall.UpgradeInfo.select_comm'})
                             }
                           ]
                         })(
@@ -993,7 +993,7 @@ export default class AppList extends PureComponent {
               >
                 <div className={styles.zslbor}>
                   {isUpgrade && (
-                    <div className={styles.zslcen}>{isAppOrComponent ? '应用属性变更详情' : '组件属性变更详情'}</div>
+                    <div className={styles.zslcen}>{isAppOrComponent ? formatMessage({id:'helmAppInstall.UpgradeInfo.app_Details'}) : formatMessage({id:'helmAppInstall.UpgradeInfo.comm_Details'})}</div>
                   )}
                   <Row
                     gutter={24}
@@ -1038,7 +1038,7 @@ export default class AppList extends PureComponent {
                   this.returnListPage();
                 }}
               >
-                返回
+                {formatMessage({id:'helmAppInstall.UpgradeInfo.back'})}
               </Button>
               <Button
                 type="primary"
@@ -1065,7 +1065,7 @@ export default class AppList extends PureComponent {
                   loading={upgradeLoading}
                   style={{ marginLeft: '16px' }}
                 >
-                  重试
+                  {formatMessage({id:'helmAppInstall.UpgradeInfo.retry'})}
                 </Button>
               )}
             </Row>

@@ -197,23 +197,11 @@ class CreateHelmAppModels extends PureComponent {
 
   handleCreateHelm = vals => {
     const { dispatch, onCancel } = this.props;
-    dispatch({
-      type: 'createApp/installHelmApp',
-      payload: {
-        ...vals,
-        is_deploy: true
-      },
-      callback: res => {
-        if (res.bean.ID && onCancel) {
-          onCancel();
+    window.sessionStorage.setItem("appinfo",JSON.stringify(vals))
           dispatch(
-            routerRedux.push(`/team/${vals.team_name}/region/${vals.region_name}/apps/${res.bean.ID}/helminstall`)
+            routerRedux.push(`/team/${vals.team_name}/region/${vals.region_name}/apps/${vals.group_id}/helminstall?installPath=market`)
           );
-          // this.jump(vals.team_name, vals.region_name, res.bean.ID);
-        }
         this.handleInstallLoading();
-      }
-    });
   };
   handleInstallLoading = () => {
     this.setState({ helmInstallLoading: false });
@@ -439,7 +427,7 @@ class CreateHelmAppModels extends PureComponent {
               <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app_colony'/></div>
             </FormItem>
 
-            {appTypes === 'helmContent' && (
+            {/* {appTypes === 'helmContent' && (
               <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.app_name'/>}>
                 {getFieldDecorator('app_name', {
                   initialValue: appName,
@@ -480,7 +468,7 @@ class CreateHelmAppModels extends PureComponent {
                   <FormattedMessage id='applicationMarket.CreateHelmAppModels.input_number'/>
                 </div>
               </FormItem>
-            )}
+            )} */}
 
               <Form.Item {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app'/>}>
                 {getFieldDecorator('group_id', {

@@ -83,7 +83,8 @@ export default class AppList extends PureComponent {
       showLastUpgradeRecord: false,
       showLastRollbackRecord: false,
       rollbackRecords: false,
-      rollbackRecordDetails: false
+      rollbackRecordDetails: false,
+      arr: [],
     };
   }
 
@@ -102,8 +103,57 @@ export default class AppList extends PureComponent {
     this.fetchAppDetail();
     this.getApplication();
     this.fetchAppLastUpgradeRecord();
-  }
 
+  }
+  getHelmvs = (vals) => {
+    const { dispatch } = this.props;
+    const repo_name = vals.source.substr(vals.source.indexOf(':') + 1)
+    dispatch({
+      type: 'createApp/getHelmVersion',
+      payload: {
+        repo_name: repo_name,
+        chart_name: vals.app_model_name || 1,
+        highest: true,
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        if (res && res.bean) {
+          const arrVersion = { ...JSON.parse(res.bean).chart_information };
+          const xx = [];
+          xx.push(arrVersion.Version)
+          this.setState({
+            arr: [...this.state.arr, ...xx]
+          })
+        }
+      }
+    });
+  }
+  // 版本比较
+  compareVersion = (v1, v2) => {
+    if (v1 && v2) {
+      v1 = v1.split('.')
+      v2 = v2.split('.')
+      const len = Math.max(v1.length, v2.length)
+      while (v1.length < len) {
+        v1.push('0')
+      }
+      while (v2.length < len) {
+        v2.push('0')
+      }
+      for (let i = 0; i < len; i++) {
+        const num1 = parseInt(v1[i])
+        const num2 = parseInt(v2[i])
+        if (num1 > num2) {
+          return true;
+        } else if (num1 < num2) {
+          return false;
+        }
+      }
+    } else {
+      return false
+    }
+
+  }
   onUpgrade = item => {
     const { team_name, group_id } = this.getParameter();
     getAppModelLastRecord({
@@ -147,6 +197,19 @@ export default class AppList extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({
             dataList: res.list || []
+          }, () => {
+            const { dataList, arr } = this.state;
+            arr && arr.length == 0 && dataList.map(item => {
+              if (item.source.includes('helm')) {
+                this.getHelmvs(item)
+              } else {
+                const xx = [];
+                xx.push('')
+                this.setState({
+                  arr: [...this.state.arr, ...xx]
+                })
+              }
+            })
           });
         }
         this.handleCancelLoading();
@@ -197,17 +260,17 @@ export default class AppList extends PureComponent {
     if (record.market_name) {
       return (
         <div>
-          通过应用商店（{record.market_name}）从版本
+          {formatMessage({ id: 'helmAppInstall.Upgrade.store' })}{record.market_name}{formatMessage({ id: 'helmAppInstall.Upgrade.from' })}
           <span className={styles.versions}>{record.old_version}</span>
-          升级到
+          {formatMessage({ id: 'helmAppInstall.Upgrade.to' })}
           <span className={styles.versions}>{record.version}</span>
         </div>
       );
     }
     return (
       <div>
-        从版本<span className={styles.versions}>{record.old_version}</span>
-        升级到
+        {formatMessage({ id: 'helmAppInstall.Upgrade.form_version' })}<span className={styles.versions}>{record.old_version}</span>
+        {formatMessage({ id: 'helmAppInstall.Upgrade.to' })}
         <span className={styles.versions}>{record.version}</span>
       </div>
     );
@@ -352,8 +415,7 @@ export default class AppList extends PureComponent {
     const { dispatch } = this.props;
     dispatch(
       routerRedux.push(
-        `/team/${team_name}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}/upgrade/${
-          item.upgrade_group_id
+        `/team/${team_name}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}/upgrade/${item.upgrade_group_id
         }/record/${item.ID}?app_id=${item.group_key}`
       )
     );
@@ -460,11 +522,20 @@ export default class AppList extends PureComponent {
       recordLoading: false
     });
   };
-  jump = (val) =>{
+  jump = (val, item, vs) => {
     const { dispatch } = this.props
+    const repo_name = item.source.substr(item.source.indexOf(':') + 1)
+    const obj = {
+      app_store_name: repo_name,
+      app_model_id: item.app_model_id,
+      app_template_name: item.app_model_name,
+      version: item.current_version,
+    }
+    window.sessionStorage.setItem('appinfo', JSON.stringify(obj))
+    window.sessionStorage.setItem('updataInfo', JSON.stringify(item))
     dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/helminstall?type=${val}`
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/helminstall?type=${val}&upgrade=${vs}`
       )
     )
   }
@@ -495,71 +566,9 @@ export default class AppList extends PureComponent {
       showRollbackConfirm,
       rollbackRecords,
       rollbackRecordDetails,
-      backUpgradeLoading
+      backUpgradeLoading,
+      arr
     } = this.state;
-    const arr = [
-      {app_model_id
-        : 
-        "1ac42e3339de41728c50349eeef0deb8",
-        app_model_name
-        : 
-        "默认应用",
-        can_upgrade
-        : 
-        false,
-        current_version
-        : 
-        "1.0",
-        describe
-        : 
-        "This is a default description.",
-        details
-        : 
-        null,
-        enterprise_id
-        : 
-        "6de24baf8e6fea762fec90148559e6c3",
-        group_key
-        : 
-        "1ac42e3339de41728c50349eeef0deb8",
-        group_name
-        : 
-        "core",
-        is_official
-        : 
-        false,
-        market_name
-        : 
-        null,
-        not_upgrade_record_id
-        : 
-        null,
-        not_upgrade_record_status
-        : 
-        1,
-        pic
-        : 
-        "/data/media/uploads/d444ca6e0bc0444ab8d1c250c446f84a.png",
-        share_team
-        : 
-        null,
-        share_user
-        : 
-        null,
-        source
-        : 
-        null,
-        tenant_service_group_id
-        : 
-        "1ac42e3339de41728c50349eeef0deb8",
-        upgrade_group_id
-        : 
-        "1",
-        upgrade_versions
-        : 
-        []},
-    ]
-
     const paginationProps = {
       onChange: this.handleTableChange,
       pageSize,
@@ -569,8 +578,8 @@ export default class AppList extends PureComponent {
     const ListContent = ({ data: { upgrade_versions, current_version } }) => (
       <div className={styles.listContent}>
         <div className={styles.listContentItem}>
-          <Tooltip title={formatMessage({id: 'appUpgrade.current_version.tooltip'})}>
-            <span>{formatMessage({id: 'appUpgrade.current_version'})}</span>
+          <Tooltip title={formatMessage({ id: 'appUpgrade.current_version.tooltip' })}>
+            <span>{formatMessage({ id: 'appUpgrade.current_version' })}</span>
           </Tooltip>
           <p>
             <Tag
@@ -587,36 +596,84 @@ export default class AppList extends PureComponent {
           </p>
         </div>
         <div className={styles.listContentItem}>
-          <Tooltip title={formatMessage({id: 'appUpgrade.Upgradable_version.tooltip'})}>
-            <span>{formatMessage({id: 'appUpgrade.Upgradable_version'})}</span>
+          <Tooltip title={formatMessage({ id: 'appUpgrade.Upgradable_version.tooltip' })}>
+            <span>{formatMessage({ id: 'appUpgrade.Upgradable_version' })}</span>
           </Tooltip>
           <p>
             {upgrade_versions && upgrade_versions.length > 0
               ? upgrade_versions.map(item => {
-                  return (
-                    <Tag
-                      style={{
-                        height: '17px',
-                        lineHeight: '16px',
-                        marginBottom: '3px'
-                      }}
-                      color="green"
-                      size="small"
-                      key={item}
-                    >
-                      {item}
-                    </Tag>
-                  );
-                })
-              : '暂无'}
+                return (
+                  <Tag
+                    style={{
+                      height: '17px',
+                      lineHeight: '16px',
+                      marginBottom: '3px'
+                    }}
+                    color="green"
+                    size="small"
+                    key={item}
+                  >
+                    {item}
+                  </Tag>
+                );
+              })
+              : formatMessage({ id: 'helmAppInstall.Upgrade.no' })}
           </p>
         </div>
       </div>
     );
-
+    const ListContentHelm = ({ data, index }) => (
+      <div className={styles.listContent}>
+        <div className={styles.listContentItem}>
+          <Tooltip title={formatMessage({ id: 'appUpgrade.current_version.tooltip' })}>
+            <span>{formatMessage({ id: 'appUpgrade.current_version' })}</span>
+          </Tooltip>
+          <p>
+            <Tag
+              style={{
+                height: '17px',
+                lineHeight: '16px',
+                marginBottom: '3px'
+              }}
+              color="green"
+              size="small"
+            >
+              {data.current_version}
+            </Tag>
+          </p>
+        </div>
+        <div className={styles.listContentItem}>
+          <Tooltip title={formatMessage({ id: 'appUpgrade.Upgradable_version.tooltip' })}>
+            <span>{formatMessage({ id: 'appUpgrade.Upgradable_version' })}</span>
+          </Tooltip>
+          <p>
+            {this.state.arr &&
+              this.state.arr.length > 0 &&
+              data.current_version &&
+              this.compareVersion(this.state.arr[index], data.current_version)
+              ?
+              (
+                <Tag
+                  style={{
+                    height: '17px',
+                    lineHeight: '16px',
+                    marginBottom: '3px'
+                  }}
+                  color="green"
+                  size="small"
+                >
+                  {this.state.arr[index]}
+                </Tag>
+              ) : (
+                formatMessage({ id: 'helmAppInstall.Upgrade.no' })
+              )}
+          </p>
+        </div>
+      </div>
+    );
     const columns = [
       {
-        title: formatMessage({id: 'appUpgrade.table.createTime'}),
+        title: formatMessage({ id: 'appUpgrade.table.createTime' }),
         dataIndex: 'create_time',
         key: '1',
         width: '20%',
@@ -629,28 +686,28 @@ export default class AppList extends PureComponent {
         )
       },
       {
-        title: formatMessage({id: 'appUpgrade.table.app'}),
+        title: formatMessage({ id: 'appUpgrade.table.app' }),
         dataIndex: 'group_name',
         key: '2',
         width: '20%',
         render: text => <span>{text}</span>
       },
       {
-        title: formatMessage({id: 'appUpgrade.table.versions'}),
+        title: formatMessage({ id: 'appUpgrade.table.versions' }),
         dataIndex: 'version',
         key: '3',
         width: '30%',
         render: (_, data) => this.getVersionChangeShow(data)
       },
       {
-        title: formatMessage({id: 'appUpgrade.table.status'}),
+        title: formatMessage({ id: 'appUpgrade.table.status' }),
         dataIndex: 'status',
         key: '4',
         width: '15%',
         render: status => <span>{infoUtil.getStatusText(status)}</span>
       },
       {
-        title: formatMessage({id: 'appUpgrade.table.operate'}),
+        title: formatMessage({ id: 'appUpgrade.table.operate' }),
         dataIndex: 'tenant_id',
         key: '5',
         width: '15%',
@@ -663,7 +720,7 @@ export default class AppList extends PureComponent {
                   this.showRollback(item);
                 }}
               >
-                {formatMessage({id: 'appUpgrade.table.operate.roll_back'})}
+                {formatMessage({ id: 'appUpgrade.table.operate.roll_back' })}
               </a>
 
               <a
@@ -672,7 +729,7 @@ export default class AppList extends PureComponent {
                   this.showRollbackList(item);
                 }}
               >
-                {formatMessage({id: 'appUpgrade.table.operate.roll_back_record'})}
+                {formatMessage({ id: 'appUpgrade.table.operate.roll_back_record' })}
               </a>
             </div>
           )
@@ -680,7 +737,7 @@ export default class AppList extends PureComponent {
     ];
     const helmColumns = [
       {
-        title: formatMessage({id: 'appUpgrade.table.createTime'}),
+        title: formatMessage({ id: 'appUpgrade.table.createTime' }),
         dataIndex: 'updated',
         key: '1',
         render: text => (
@@ -692,19 +749,19 @@ export default class AppList extends PureComponent {
         )
       },
       {
-        title: formatMessage({id: 'appUpgrade.table.chart'}),
+        title: formatMessage({ id: 'appUpgrade.table.chart' }),
         dataIndex: 'chart',
         key: '2',
         render: text => <span>{text}</span>
       },
       {
-        title: formatMessage({id: 'appUpgrade.table.versions'}),
+        title: formatMessage({ id: 'appUpgrade.table.versions' }),
         dataIndex: 'app_version',
         key: '3',
         render: text => <span>{text}</span>
       },
       {
-        title: formatMessage({id: 'appUpgrade.table.status'}),
+        title: formatMessage({ id: 'appUpgrade.table.status' }),
         dataIndex: 'status',
         key: '4',
         render: status => <span>{infoUtil.getHelmStatus(status)}</span>
@@ -724,14 +781,14 @@ export default class AppList extends PureComponent {
     );
     const isHelm =
       appDetail && appDetail.app_type && appDetail.app_type === 'helm';
-      const upgrade = "upgrade";
-      const install = "install";
+    const upgrade = "upgrade";
+    const install = "install";
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         loading={loadingDetail}
-        title={formatMessage({id: 'appUpgrade.title'})}
-        content={formatMessage({id: 'appUpgrade.desc'})}
+        title={formatMessage({ id: 'appUpgrade.title' })}
+        content={formatMessage({ id: 'appUpgrade.desc' })}
         extraContent={null}
       >
         <div>
@@ -744,93 +801,64 @@ export default class AppList extends PureComponent {
               onChange={this.handleTabs}
               className={styles.tabss}
             >
-              {isHelm ?   (
-                <TabPane tab={formatMessage({id: 'appUpgrade.tabs.list'})} key="1">
-                  <div className={styles.cardList}>
-                    <List
-                      rowKey="id"
-                      size="large"
-                      loading={loadingList}
-                      dataSource={[...arr]}
-                      renderItem={item => (
-                        <List.Item
-                          actions={[
-                            <a
-                              onClick={e => {
-                                e.preventDefault();
-                                this.jump(upgrade);
-                              }}
-                            >
-                              {formatMessage({id: 'appUpgrade.btn.upgrade'})}
-                            </a>,
-                            <a
-                            onClick={() => {
-                              this.jump(install);
-                            }}
-                          >
-                            重新安装
-                          </a>,
-                          ]}
-                        >
-                          <List.Item.Meta
-                            avatar={
-                              <Avatar
-                                src={
-                                  item.pic ||
-                                  require('../../../public/images/app_icon.jpg')
-                                }
-                                shape="square"
-                                size="large"
-                              />
-                            }
-                            title={
-                              <a
-                                onClick={() => {
-                                  this.showMarketAppDetail(item);
-                                }}
-                              >
-                                {item.group_name}
-                              </a>
-                            }
-                            description={item.describe}
-                          />
-                          <ListContent data={item} />
-                        </List.Item>
-                      )}
-                    />
-                  </div>
-                </TabPane>
-              ) : (
-                <TabPane tab={formatMessage({id: 'appUpgrade.tabs.list'})} key="1">
+              <TabPane tab={formatMessage({ id: 'appUpgrade.tabs.list' })} key="1">
                 <div className={styles.cardList}>
                   <List
                     rowKey="id"
                     size="large"
                     loading={loadingList}
                     dataSource={[...dataList]}
-                    renderItem={item => (
+                    renderItem={(item, index) => (
                       <List.Item
-                        actions={[
+                        actions={(item.source.indexOf('helm') != -1) ? ([
                           <a
+                            style={{
+                              display:
+                                this.state.arr &&
+                                  this.state.arr.length > 0 &&
+                                  item.current_version &&
+                                  this.compareVersion(this.state.arr[index], item.current_version)
+                                  ? "block"
+                                  : "none"
+                            }}
                             onClick={e => {
                               e.preventDefault();
-                              this.fetchAppLastRollbackRecord(item);
+                              this.jump(upgrade, item, this.state.arr[index]);
                             }}
                           >
-                            {formatMessage({id: 'appUpgrade.btn.upgrade'})}
+                            {formatMessage({ id: 'appUpgrade.btn.upgrade' })}
                           </a>,
                           <a
                             onClick={() => {
-                              this.showComponentVersion(item);
+                              this.jump(install, item);
                             }}
                           >
-                            {formatMessage({id: 'appUpgrade.btn.addon'})}
-                          </a>,
-                        ]}
+                            {formatMessage({ id: 'helmAppInstall.Upgrade.reinstall' })}
+                          </a>
+                        ]
+                        ) : (
+                          [
+                            <a
+                              onClick={e => {
+                                e.preventDefault();
+                                this.fetchAppLastRollbackRecord(item);
+                              }}
+                            >
+                              {formatMessage({ id: 'appUpgrade.btn.upgrade' })}
+                            </a>,
+                            <a
+                              onClick={() => {
+                                this.showComponentVersion(item);
+                              }}
+                            >
+                              {formatMessage({ id: 'appUpgrade.btn.addon' })}
+                            </a>
+                          ]
+                        )}
                       >
                         <List.Item.Meta
                           avatar={
-                            <Avatar
+                            <getApplication
                               src={
                                 item.pic ||
                                 require('../../../public/images/app_icon.jpg')
@@ -850,14 +878,15 @@ export default class AppList extends PureComponent {
                           }
                           description={item.describe}
                         />
-                        <ListContent data={item} />
+                        {item.source.includes('helm') ? <ListContentHelm data={item} index={index} /> : <ListContent data={item} />}
+                        {/* <ListContent data={item} /> */}
                       </List.Item>
                     )}
                   />
                 </div>
               </TabPane>
-              )}
-              <TabPane tab={formatMessage({id: 'appUpgrade.tabs.record'})} key="2">
+
+              <TabPane tab={formatMessage({ id: 'appUpgrade.tabs.record' })} key="2">
                 <Table
                   style={{ padding: '24px' }}
                   loading={recordLoading || upgradeLoading}
@@ -887,37 +916,37 @@ export default class AppList extends PureComponent {
         {showLastUpgradeRecord && (lastRecord || upgradeItem) && (
           <Modal
             visible
-            title="升级提示"
+            title={formatMessage({ id: 'helmAppInstall.Upgrade.updat_info' })}
             onCancel={() => {
               this.setState({ showLastUpgradeRecord: false });
               if (upgradeItem) {
                 this.createNewRecord(upgradeItem);
               }
             }}
-            okText="继续"
-            cancelText={upgradeItem ? '新升级' : '取消'}
+            okText={formatMessage({ id: 'helmAppInstall.Upgrade.Continue' })}
+            cancelText={upgradeItem ? formatMessage({ id: 'helmAppInstall.Upgrade.new' }) : formatMessage({ id: 'helmAppInstall.Upgrade.cancel' })}
             onOk={() => {
               this.openInfoPage(lastRecord || upgradeItem);
             }}
           >
             <span>
-              应用模型
+              {formatMessage({ id: 'helmAppInstall.Upgrade.model' })}
               <span style={{ color: '4d73b1' }}>
                 {(lastRecord && lastRecord.group_name) ||
                   (upgradeItem && upgradeItem.group_name)}
               </span>
               {isPartiallyCompleted
-                ? '上次升级任务部分组件更新成功，是否继续重试？'
+                ? formatMessage({ id: 'helmAppInstall.Upgrade.again' })
                 : isDeploymentFailure
-                ? '上次升级任务部署失败，是否继续重试？'
-                : '存在未完成的升级任务，是否继续完成上次任务？'}
+                  ? formatMessage({ id: 'helmAppInstall.Upgrade.failure' })
+                  : formatMessage({ id: 'helmAppInstall.Upgrade.unfinished' })}
             </span>
           </Modal>
         )}
         {showLastRollbackRecord && (
           <Modal
             visible
-            title="回滚提示"
+            title={formatMessage({ id: 'helmAppInstall.Upgrade.back_info' })}
             onCancel={() => {
               this.setState({ showLastRollbackRecord: false });
             }}
@@ -928,16 +957,16 @@ export default class AppList extends PureComponent {
                   this.setState({ showLastRollbackRecord: false });
                 }}
               >
-                关闭
+                {formatMessage({ id: 'helmAppInstall.Upgrade.down' })}
               </Button>
             ]}
           >
             <span>
-              应用模型
+              {formatMessage({ id: 'helmAppInstall.Upgrade.model' })}
               <span style={{ color: '4d73b1' }}>
                 {lastRecord && lastRecord.group_name}
               </span>
-              存在未完成的回滚任务，无法继续升级
+              {formatMessage({ id: 'helmAppInstall.Upgrade.unfinished' })}
             </span>
           </Modal>
         )}
@@ -967,7 +996,7 @@ export default class AppList extends PureComponent {
           <Modal
             visible
             confirmLoading={backUpgradeLoading}
-            title="回滚确认"
+            title={formatMessage({ id: 'helmAppInstall.Upgrade.Rollback_confirm' })}
             onCancel={() => {
               this.showRollback(false);
             }}
@@ -975,9 +1004,9 @@ export default class AppList extends PureComponent {
               this.rollbackUpgrade();
             }}
           >
-            <span style={{ color: 'red' }}>确认要回滚吗？</span>
+            <span style={{ color: 'red' }}>{formatMessage({ id: 'helmAppInstall.Upgrade.rollback_confirm' })}</span>
             <span style={{ display: 'block', marginTop: '16px' }}>
-              回滚过程不会删除新增组件。
+              {formatMessage({ id: 'helmAppInstall.Upgrade.not_add' })}
             </span>
           </Modal>
         )}

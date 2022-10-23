@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Form, Input, Select, Alert } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -93,13 +93,16 @@ export default class Index extends PureComponent {
       handleType,
       ButtonGroupState,
       showSubmitBtn = true,
-      showCreateGroup = true
+      showCreateGroup = true,
+      BtnLoading,
+      errorShow,
+      description
     } = this.props;
     const { getFieldDecorator } = form;
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
     const {language} = this.state;
-    const is_language = language ? formItemLayout : formItemLayouts;
+    const is_language = language ? formItemLayout : formItemLayout;
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
@@ -141,6 +144,15 @@ export default class Index extends PureComponent {
               <TextArea style={{minHeight:'200px'}} placeholder={formatMessage({id: 'placeholder.dockerRun'})} />
             )}
           </Form.Item>
+          {errorShow &&
+            <Alert
+              message="错误信息"
+              description={description}
+              type="error"
+              closable
+              style={{width:350, margin:'auto',marginBottom:20}}
+            />
+          }
           {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{
@@ -153,21 +165,21 @@ export default class Index extends PureComponent {
               label=""
             >
               {isService && ButtonGroupState
-                ? this.props.handleServiceBotton(
+                ? 
                     <Button
                       onClick={this.handleSubmit}
                       type="primary"
-                      loading={createAppByDockerrunLoading}
+                      loading={BtnLoading}
                     >
                       {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
-                    </Button>,
-                    false
-                  )
+                    </Button>
+                    
+                  
                 : !handleType && (
                     <Button
                       onClick={this.handleSubmit}
                       type="primary"
-                      loading={createAppByDockerrunLoading}
+                      loading={BtnLoading}
                     >
                      {formatMessage({id: 'teamAdd.create.btn.create'})}
                     </Button>

@@ -762,6 +762,14 @@ export default class EnterpriseShared extends PureComponent {
         }
       }
     });
+    dispatch({
+      type: 'market/HelmwaRehouseDelete',
+      payload: {
+        repo_name: helmInfo.name
+      },
+      callback: res => {
+      }
+    });
   };
   handleCancelDelete = () => {
     this.setState({
