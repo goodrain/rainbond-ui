@@ -1351,3 +1351,29 @@ export async function toSearchTenant(params) {
     }
   );
 }
+
+// 创建shell-pod
+export async function createShellPod(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/shell-pod`,
+    {
+      method: 'post',
+      data: {
+        region_name :  params.region_name
+      }
+    }
+  );
+}
+// 删除shell-pod
+export async function deleteShellPod(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/shell-pod`,
+    {
+      method: 'DELETE',
+      data: {
+        region_name : params.region_name,
+        pod_name : params.pod_name
+      }
+    }
+  );
+}
