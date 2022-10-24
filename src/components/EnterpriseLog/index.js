@@ -447,7 +447,7 @@ export default class Index extends PureComponent {
             </Form.Item>
           )}
         </Form>
-        <div className={styles.logsss} ref="box">
+        <div className={styles.logStyle} ref="box">
           {(containerLog &&
             containerLog.length > 0 &&
             containerLog.map((item, index) => {

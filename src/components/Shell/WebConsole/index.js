@@ -4,7 +4,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import styles from './index.less';
-import XTerm from './xTerm';
+import XTerm from '../../../pages/Component/WebConsole/xTerm';
 
 const { TreeNode } = Tree;
 const { TabPane } = Tabs;
@@ -266,6 +266,7 @@ export default class WebConsole extends PureComponent {
         containerName={arr[index].containers}
         namespace={arr[index].namespace}
         height={newHeight}
+        type={true}
       />
     );
   };
