@@ -1000,8 +1000,31 @@
         'otherEnterprise.AccesstokenForm.max':'Maximum length: 32 bits',
         'otherEnterprise.AccesstokenForm.time':'Expiration time',
         'otherEnterprise.AccesstokenForm.import_time':'Enter the time',
+
+        'otherEnterprise.shell.show':'Unfold',
+        'otherEnterprise.shell.Pack_up':'Pack up',
+        'otherEnterprise.shell.new':'New page',
+        'otherEnterprise.shell.down':'Close',
+        'otherEnterprise.shell.list':'Cluster list',
+        'otherEnterprise.shell.connection':'Are connected',
+        'otherEnterprise.shell.line':'Command line',
+
     }
+    //日志
+const LogEnterprise = {
+    'LogEnterprise.title':'Log',
+    'LogEnterprise.desc':'Displays logs of key platform components. Used for platform operation and troubleshooting.',
+    'LogEnterprise.console':'Console Log',
+    'LogEnterprise.getway':'Gateway Log',
+    'LogEnterprise.api':'API Log',
+    'LogEnterprise.chaos':'Builder Log',
+    'LogEnterprise.worker':'Worker Log',
+    'LogEnterprise.download':'Log File Download',
+    'LogEnterprise.find':'Select a node to search for logs',
+    'LogEnterprise.all':'All log',
+    'LogEnterprise.node':'Node',
+}
 
   
 
-export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise);
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise);

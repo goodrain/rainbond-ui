@@ -53,6 +53,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/shell',
+            component: './Shell',
+            name: 'enterpriseOverview',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/teams',
             component: './EnterpriseTeams',
             name: 'EnterpriseTeams',
@@ -106,7 +112,12 @@ export default [
             name: 'EnterpriseSetting',
             authority: ['admin', 'user']
           },
-
+          {
+            path: '/enterprise/:eid/logs',
+            component: './LogManagement',
+            name: 'LogManagement',
+            authority: ['admin', 'user']
+          },
           {
             path: '/enterprise/:eid/shared/app/:appId',
             component: './EnterpriseShared/Details',

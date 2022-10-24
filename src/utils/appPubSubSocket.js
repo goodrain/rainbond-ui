@@ -135,7 +135,9 @@ AppPubSubSocket.prototype = {
             channel: `l-${this.serviceId}`
           }
         };
-        this.webSocket.send(JSON.stringify(message));
+        if (this.webSocket.readyState === 1) {
+            this.webSocket.send(JSON.stringify(message));
+        }
       }
       callbackAll(this.serviceLogQueue.brushout());
       this.onLogMessage = onLogMessage;
