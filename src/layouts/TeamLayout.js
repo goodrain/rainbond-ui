@@ -93,6 +93,11 @@ class TeamLayout extends PureComponent {
     this.getEnterpriseList();
   }
   componentWillUpdate(){
+    const updata = JSON.parse(window.sessionStorage.getItem('updata'))
+    if(updata){
+      window.location.reload()
+      window.sessionStorage.removeItem('updata')
+    }
     const urlParams = new URL(window.location.href);
     if(urlParams){
       const bool = urlParams.href.includes("/helminstall")

@@ -84,7 +84,7 @@ export default class AppList extends PureComponent {
       showLastRollbackRecord: false,
       rollbackRecords: false,
       rollbackRecordDetails: false,
-      arr: [],
+      versionArr: {},
     };
   }
 
@@ -100,12 +100,13 @@ export default class AppList extends PureComponent {
   }
 
   componentDidMount() {
+    
     this.fetchAppDetail();
     this.getApplication();
     this.fetchAppLastUpgradeRecord();
 
   }
-  getHelmvs = (vals) => {
+  getHelmvs = (vals,index) => {
     const { dispatch } = this.props;
     const repo_name = vals.source.substr(vals.source.indexOf(':') + 1)
     dispatch({
@@ -119,10 +120,10 @@ export default class AppList extends PureComponent {
       callback: res => {
         if (res && res.bean) {
           const arrVersion = { ...JSON.parse(res.bean).chart_information };
-          const xx = [];
-          xx.push(arrVersion.Version)
+          const obj = {}
+          obj[index]=arrVersion.Version
           this.setState({
-            arr: [...this.state.arr, ...xx]
+            versionArr: {...this.state.versionArr, ...obj}
           })
         }
       }
@@ -197,20 +198,24 @@ export default class AppList extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({
             dataList: res.list || []
-          }, () => {
-            const { dataList, arr } = this.state;
-            arr && arr.length == 0 && dataList.map(item => {
+          }, 
+          () => {
+            const { dataList, versionArr } = this.state;
+            // versionArr && versionArr.length == 0 && 
+            dataList.map((item,index) => {
               if (item.source.includes('helm')) {
-                this.getHelmvs(item)
-              } else {
-                const xx = [];
-                xx.push('')
+                this.getHelmvs(item,index)
+              } 
+              else {
+                const xx = {};
+                xx[index]='';
                 this.setState({
-                  arr: [...this.state.arr, ...xx]
+                  versionArr: {...this.state.versionArr, ...xx}
                 })
               }
             })
-          });
+          }
+          );
         }
         this.handleCancelLoading();
       }
@@ -567,7 +572,6 @@ export default class AppList extends PureComponent {
       rollbackRecords,
       rollbackRecordDetails,
       backUpgradeLoading,
-      arr
     } = this.state;
     const paginationProps = {
       onChange: this.handleTableChange,
@@ -647,10 +651,10 @@ export default class AppList extends PureComponent {
             <span>{formatMessage({ id: 'appUpgrade.Upgradable_version' })}</span>
           </Tooltip>
           <p>
-            {this.state.arr &&
-              this.state.arr.length > 0 &&
+            {this.state.versionArr &&
+              Object.keys(this.state.versionArr).length> 0 &&
               data.current_version &&
-              this.compareVersion(this.state.arr[index], data.current_version)
+              this.compareVersion(this.state.versionArr[index], data.current_version)
               ?
               (
                 <Tag
@@ -662,7 +666,7 @@ export default class AppList extends PureComponent {
                   color="green"
                   size="small"
                 >
-                  {this.state.arr[index]}
+                  {this.state.versionArr[index]}
                 </Tag>
               ) : (
                 formatMessage({ id: 'helmAppInstall.Upgrade.no' })
@@ -814,16 +818,16 @@ export default class AppList extends PureComponent {
                           <a
                             style={{
                               display:
-                                this.state.arr &&
-                                  this.state.arr.length > 0 &&
+                                this.state.versionArr &&
+                                  Object.keys(this.state.versionArr).length> 0 &&
                                   item.current_version &&
-                                  this.compareVersion(this.state.arr[index], item.current_version)
+                                  this.compareVersion(this.state.versionArr[index], item.current_version)
                                   ? "block"
                                   : "none"
                             }}
                             onClick={e => {
                               e.preventDefault();
-                              this.jump(upgrade, item, this.state.arr[index]);
+                              this.jump(upgrade, item, this.state.versionArr[index]);
                             }}
                           >
                             {formatMessage({ id: 'appUpgrade.btn.upgrade' })}

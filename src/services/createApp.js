@@ -476,7 +476,8 @@ export async function getHelmVersion(params, handleError) {
       params: {
         repo_name: params.repo_name,
         chart_name: params.chart_name || 1,
-        highest: params.highest || ''
+        highest: params.highest || '',
+        version: params.version
       },
       handleError
     }
