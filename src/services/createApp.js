@@ -348,7 +348,7 @@ export function getMarketApp(body = {}) {
 /*
   从云市安装应用
 */
-export async function installApp(body = {}) {
+export async function installApp(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/market_create`,
     {
@@ -366,7 +366,8 @@ export async function installApp(body = {}) {
       },
       params: {
         region_name: body.region_name
-      }
+      },
+      handleError
     }
   );
 }
@@ -447,6 +448,52 @@ export async function getComposeByComposeId(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/content`,
     {
       method: 'get'
+    }
+  );
+}
+// 安装helm应用
+export async function helmAppInstall(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/helm_app`,
+    {
+      method: 'get',
+      params: {
+        name:body.name,
+        version:body.version,
+        repo_name:body.repo_name,
+        chart_name:body.chart_name,
+      },
+      handleError
+    }
+  );
+}
+// 获取helm应用版本信息
+export async function getHelmVersion(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/chart/version`,
+    {
+      method: 'get',
+      params: {
+        repo_name: params.repo_name,
+        chart_name: params.chart_name || 1,
+        highest: params.highest || '',
+        version: params.version
+      },
+      handleError
+    }
+  );
+}
+// helm命令行安装
+export async function installHelmAppCmd(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/helm_command`,
+    {
+      method: 'post',
+      data: {
+        app_id: body.app_id,
+        command: body.command
+      },
+      handleError
     }
   );
 }

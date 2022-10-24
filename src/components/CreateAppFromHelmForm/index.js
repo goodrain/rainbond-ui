@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
+import AddGroup from '../../components/AddOrEditGroup';
 import styles from '../CreateTeam/index.less';
 
 const { Option } = Select;
@@ -24,7 +25,9 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      appName: ''
+      appName: '',
+      groups:'',
+      addGroup: false
     };
   }
   componentDidMount() {
@@ -76,6 +79,26 @@ export default class Index extends PureComponent {
       }
     });
   };
+  onAddGroup = () => {
+    const { form } = this.props;
+    const { validateFields } = form;
+    validateFields(['team_name', 'region_name'], err => {
+      if (!err) {
+        this.setState({ addGroup: true });
+      }
+    });
+  };
+  cancelAddGroup = () => {
+    this.setState({ addGroup: false });
+  };
+  handleAddGroup = (groupId, groups) => {
+    const { form } = this.props;
+    const { setFieldsValue } = form;
+    this.setState({ groups: groups || [] });
+    setFieldsValue({ group_id: groupId });
+    this.cancelAddGroup();
+  };
+  
 
   handleSubmit = e => {
     e.preventDefault();
@@ -96,11 +119,13 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { onCancel, data, form, installLoading = false } = this.props;
-    const { getFieldDecorator } = form;
-    const { appName } = this.state;
+    const { onCancel, data, form, installLoading = false, groups } = this.props;
+    const { getFieldDecorator, getFieldValue } = form;
+    const { appName, addGroup } = this.state;
     const versions =
       data && data.versions && data.versions.length > 0 && data.versions;
+      const teaName = getFieldValue('team_name');
+      const regionName = getFieldValue('region_name');
     return (
       <Modal
         className={styles.TelescopicModal}
@@ -149,6 +174,35 @@ export default class Index extends PureComponent {
               <Input placeholder={formatMessage({id:'teamOther.CreateAppFromHelmForm.input_name'})} style={{ width: '284px' }} />
             )}
           </FormItem>
+              <Form.Item {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app'/>}>
+                {getFieldDecorator('group_id', {
+                  rules: [
+                    {
+                      required: true,
+                      message:formatMessage({id:'applicationMarket.CreateHelmAppModels.input_app'})
+                    }
+                  ]
+                })(
+                  <Select
+                    placeholder={formatMessage({id:'applicationMarket.CreateHelmAppModels.input_name'})}
+                    style={{
+                      display: 'inline-block',
+                      width: 180,
+                      marginRight: 15
+                    }}
+                  >
+                    {(groups || []).map(group => (
+                      <Option key={group.group_id} value={group.group_id}>
+                        {group.group_name}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+                <Button onClick={this.onAddGroup}>
+                {formatMessage({id:'popover.newApp.title'})}
+                </Button>
+                <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.input_install'/></div>
+              </Form.Item>
           <FormItem {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.version_app'})}>
             {getFieldDecorator('version', {
               initialValue: versions ? versions[0].version : '',
@@ -188,6 +242,14 @@ export default class Index extends PureComponent {
             )}
           </FormItem>
         </Form>
+        {addGroup && (
+          <AddGroup
+            teamName={teaName}
+            regionName={regionName}
+            onCancel={this.cancelAddGroup}
+            onOk={this.handleAddGroup}
+          />
+        )}
       </Modal>
     );
   }

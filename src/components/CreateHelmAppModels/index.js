@@ -191,25 +191,17 @@ class CreateHelmAppModels extends PureComponent {
     const { dispatch } = this.props;
     dispatch(
       routerRedux.push(`/team/${teaName}/region/${regionName}/apps/${ID}`)
+      // routerRedux.push(`/team/${teaName}/region/${regionName}/apps/${ID}/HelmDetection`)
     );
   };
 
   handleCreateHelm = vals => {
     const { dispatch, onCancel } = this.props;
-    dispatch({
-      type: 'createApp/installHelmApp',
-      payload: {
-        ...vals,
-        is_deploy: true
-      },
-      callback: res => {
-        if (res.bean.ID && onCancel) {
-          onCancel();
-          this.jump(vals.team_name, vals.region_name, res.bean.ID);
-        }
+    window.sessionStorage.setItem("appinfo",JSON.stringify(vals))
+          dispatch(
+            routerRedux.push(`/team/${vals.team_name}/region/${vals.region_name}/apps/${vals.group_id}/helminstall?installPath=market`)
+          );
         this.handleInstallLoading();
-      }
-    });
   };
   handleInstallLoading = () => {
     this.setState({ helmInstallLoading: false });
@@ -233,6 +225,7 @@ class CreateHelmAppModels extends PureComponent {
         const appName = getFieldValue('app_name') || (appInfo && appInfo.name);
         if (appTypes === 'helmContent') {
           this.handleCheckAppName(teamName, regionName, appName);
+          this.fetchGroup(teamName, regionName);
         } else {
           this.fetchGroup(teamName, regionName);
         }
@@ -434,7 +427,7 @@ class CreateHelmAppModels extends PureComponent {
               <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app_colony'/></div>
             </FormItem>
 
-            {appTypes === 'helmContent' ? (
+            {/* {appTypes === 'helmContent' && (
               <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.app_name'/>}>
                 {getFieldDecorator('app_name', {
                   initialValue: appName,
@@ -475,7 +468,8 @@ class CreateHelmAppModels extends PureComponent {
                   <FormattedMessage id='applicationMarket.CreateHelmAppModels.input_number'/>
                 </div>
               </FormItem>
-            ) : (
+            )} */}
+
               <Form.Item {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app'/>}>
                 {getFieldDecorator('group_id', {
                   rules: [
@@ -505,8 +499,7 @@ class CreateHelmAppModels extends PureComponent {
                 </Button>
                 <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.input_install'/></div>
               </Form.Item>
-            )}
-
+             
             <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.version'/>}>
               {getFieldDecorator('version', {
                 initialValue:

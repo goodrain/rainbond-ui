@@ -333,7 +333,13 @@ export default [
             name: 'Groups',
             authority: ['admin', 'user']
           },
-
+          
+          {
+            path: '/team/:teamName/region/:regionName/apps/:appID/helminstall',
+            component: './Group/Helm',
+            name: 'helminstall',
+            authority: ['admin', 'user']
+          },
           {
             path:
               '/team/:teamName/region/:regionName/apps/:appID/share/:shareId/one',
@@ -448,7 +454,7 @@ export default [
             name: 'check',
             authority: ['admin', 'user']
           },
-
+          
           {
             path:
               '/team/:teamName/region/:regionName/create/create-compose-check/:appID/:composeId',

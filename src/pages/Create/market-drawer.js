@@ -566,9 +566,7 @@ import {
                 this.onCancelCreate();
                 dispatch(
                   routerRedux.push(
-                    `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
-                      res.bean.ID
-                    }`
+                    `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${res.bean.ID}/helminstall`
                   )
                 );
               }
@@ -741,7 +739,7 @@ import {
         </div>
       );
       const fastactions = [
-        <Tooltip title={isInstall ? '点击安装11' : '不可安装'}>
+        <Tooltip title={isInstall ? '点击安装' : '不可安装'}>
           <div
             onClick={() => {
               if (isInstall) {

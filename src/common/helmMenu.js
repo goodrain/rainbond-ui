@@ -71,25 +71,24 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
     menuArr.push(obj);
   }
 
-  if (control) {
-    addMenuArr({
-      name: formatMessage({ id: 'menu.app.gateway' }),
-      icon: 'gateway',
-      path: `team/${teamName}/region/${regionName}/apps/${appID}/gateway`,
-      authority: ['admin', 'user']
-    });
-  }
-  if (isUpgrade) {
-    addMenuArr({
-      name: formatMessage({ id: 'menu.app.upgrade' }),
-      icon: upgradeIcon,
-      path: `team/${teamName}/region/${regionName}/apps/${appID}/upgrade`,
-      authority: ['admin', 'user']
-    });
-  }
+  // if (control) {
+  //   addMenuArr({
+  //     name: formatMessage({ id: 'menu.app.gateway' }),
+  //     icon: 'gateway',
+  //     path: `team/${teamName}/region/${regionName}/apps/${appID}/gateway`,
+  //     authority: ['admin', 'user']
+  //   });
+  // }
+  // if (isUpgrade) {
+  //   addMenuArr({
+  //     name: formatMessage({ id: 'menu.app.upgrade' }),
+  //     icon: upgradeIcon,
+  //     path: `team/${teamName}/region/${regionName}/apps/${appID}/upgrade`,
+  //     authority: ['admin', 'user']
+  //   });
+  // }
   return menuArr;
 }
-
 function formatter(data, parentPath = '', parentAuthority) {
   return data.map(item => {
     let { path } = item;
