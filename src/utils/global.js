@@ -1554,6 +1554,29 @@ const global = {
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
   },
+  fetchMessageLange(message, Status, OptType){
+    const language = cookie.get('language') === 'zh-CN' ? true : false
+    if(Status !== 'success' && this.fetchAbnormalcolor(OptType) === 'rgba(0,0,0,0.65)' && message ){
+      const obj = {
+        "升级服务失败,请检查服务信息或查看日志":"upgrade service error",
+        "升级服务超时, 建议观察服务实例运行状态":"upgrade service timeout",
+        "建议查看日志定位代码错误":"Check for log location code errors",
+        "建议查看日志定位镜像源错误":"Check for log location imgae source errors",
+      }
+      if(language){
+        return message
+      } else {
+        const keyObj = Object.keys(obj)
+        if(keyObj.indexOf(message) > -1){
+          return obj[message]
+        }else{
+          return message
+        }
+      }
+    }else{
+      return ''
+    }
+  },
   fetchGovernanceMode(state) {
     const GovernanceMode = {
       KUBERNETES_NATIVE_SERVICE: formatMessage({ id: 'global.fetchGovernanceMode.KUBERNETES_NATIVE_SERVICE' }),
