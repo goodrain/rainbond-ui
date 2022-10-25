@@ -183,14 +183,14 @@ export default class RangeChart extends PureComponent {
         return { 
           title: formatMessage({id:'componentOverview.body.tab.monitor.history.responseTime.title'}),
           label: formatMessage({id:'componentOverview.body.tab.monitor.history.responseTime.label'}),
-          uunit: ' ms'
+          unit: ' ms'
       }
       case 'throughput':
         // return { title: '吞吐率', label: '吞吐率（dps）', unit: ' dps' };
         return { 
           title: formatMessage({id:'componentOverview.body.tab.monitor.history.throughput.title'}),
           label: formatMessage({id:'componentOverview.body.tab.monitor.history.throughput.label'}),
-          uunit: ' dps'
+          unit: ' dps'
       }
       case 'numberOnline':
         // return { title: '在线人数', label: '在线人数', unit: '' };
