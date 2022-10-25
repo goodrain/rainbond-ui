@@ -49,8 +49,8 @@ class BackupStatus extends PureComponent {
     this.state = {
       map: {
         starting: formatMessage({id:'status.app.backups.backuping'}),
-        success: formatMessage({id:'status.app.backups.error'}),
-        failed: formatMessage({id:'status.app.backups.success'})
+        success: formatMessage({id:'status.app.backups.success'}),
+        failed: formatMessage({id:'status.app.backups.error'})
       }
     };
     this.timer = null;
