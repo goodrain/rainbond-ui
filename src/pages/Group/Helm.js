@@ -62,6 +62,7 @@ import cookie from '@/utils/cookie';
 import ComponentList from '../Group/ComponentList';
 import infoUtil from '../Upgrade/UpgradeInfo/info-util';
 import styles from './Index.less';
+import { loadRegionConfig } from '@/services/cloud';
 
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
@@ -117,7 +118,8 @@ export default class Index extends PureComponent {
       updataInfo: {},
       upgrade_Info: [],
       helminfoLoding: true,
-      infoType: false
+      infoType: false,
+      overrides: []
     };
     this.CodeMirrorRef = '';
   }
@@ -129,9 +131,16 @@ export default class Index extends PureComponent {
         currApp: JSON.parse(window.sessionStorage.getItem('appinfo'))
       }, () => {
         this.getHelmvs();
-        // const { version } = this.state.currApp;
-        // this.fethelmAppIinfo();
-        // this.fetchHelmAppStoresVersions(version);
+      })
+    }
+    // 从cmd命令行安装
+    if (this.props.location.query && this.props.location.query.installPath == 'cmd') {
+      const obj = JSON.parse(window.sessionStorage.getItem('appinfo'));
+      this.setState({
+        currApp: obj,
+        overrides: obj.overrides
+      }, () => {
+        this.getHelmvs(true);
       })
     }
     // 升级重新安装
@@ -151,7 +160,6 @@ export default class Index extends PureComponent {
           updataInfo: updataInfo
         }, () => {
           this.getHelmvs()
-          // this.fethelmAppIinfo();
         })
         // 重新安装
       } else {
@@ -163,8 +171,6 @@ export default class Index extends PureComponent {
           updataInfo: updataInfo
         }, () => {
           this.getHelmvs();
-          // const { version } = this.state.currApp
-          // this.fethelmAppIinfo();
         })
       }
     }
@@ -242,6 +248,7 @@ export default class Index extends PureComponent {
         version: currApp.version,
         overrides: values.overrides,
         app_model_id: id,
+        app_id: group_id
       },
       callback: res => {
         if (res && res.status_code && res.status_code == 200) {
@@ -343,50 +350,61 @@ export default class Index extends PureComponent {
         record_id: id
       },
       callback: (res) => {
-        if(res && res.bean && res.bean.is_finished){
-        setTimeout(() => {
-          this.jump()
-          this.setState({
-            showConfig: true
-          })
-        }, 2000);
-        }else{
+        if (res && res.bean && res.bean.is_finished) {
+          setTimeout(() => {
+            this.jump()
+            this.setState({
+              showConfig: true
+            })
+          }, 2000);
+        } else {
           this.getUpgradeRecordsInfo(id);
         }
       }
     })
   }
   // 获取应用列表与当前helm应用信息版本信息
-  getHelmvs = () => {
+  getHelmvs = (bool) => {
     const { dispatch } = this.props;
     const { currApp } = this.state;
+    const { team_name, group_id } = this.fetchParameter();
     dispatch({
       type: 'createApp/getHelmVersion',
       payload: {
         repo_name: currApp.app_store_name,
         chart_name: currApp.app_template_name,
         highest: '',
-        team_name: globalUtil.getCurrTeamName(),
-        version: currApp.version,
+        team_name: team_name,
+        app_id: group_id,
       },
       callback: res => {
-        const info = JSON.parse(res.bean);
-        const arr = info.chart_information;
-        if(info.repo_exist){
-        this.fethelmAppIinfo();
-          this.setState({
-            versions: arr,
-            helminfoLoding: false
-          })
-        }else{
-          this.setState({
-            infoType: true,
-            versions: arr,
-            helminfoLoding: false,
-            status: 2
-          })
+        if (res && res.bean) {
+          const info = res.bean;
+          const arr = info.chart_information;
+          if (info.repo_exist) {
+            this.fethelmAppIinfo();
+            this.setState({
+              versions: arr,
+              helminfoLoding: false
+            })
+            !bool && this.setState({
+              overrides: info.overrides,
+            })
+          } else {
+            this.setState({
+              infoType: true,
+              versions: arr,
+              helminfoLoding: false,
+              status: 2
+            })
+          }
         }
       },
+      handleError: res => {
+        this.setState({
+          status: 2
+        })
+      }
     });
   }
   // 获取检测结果
@@ -403,7 +421,7 @@ export default class Index extends PureComponent {
         repo_name: currApp.app_store_name,
         chart_name: currApp.app_template_name,
         version: currApp.version,
-        team_name: team_name
+        team_name: team_name,
       },
       callback: res => {
         if (res && res.bean) {
@@ -595,7 +613,7 @@ export default class Index extends PureComponent {
         if (type === 'Create') {
           this.handleInstallHelmApp(info);
         } else {
-          this.getUpdatedModelId( info );
+          this.getUpdatedModelId(info);
         }
       }
     });
@@ -648,6 +666,7 @@ export default class Index extends PureComponent {
         version: currApp.version,
         overrides: values.overrides,
         app_model_id: id,
+        app_id: group_id
       },
       callback: res => {
         if (res && res.status_code && res.status_code == 200) {
@@ -825,7 +844,7 @@ export default class Index extends PureComponent {
   };
   // 检验失败
   operationError = () => {
-    const {infoType} = this.state
+    const { infoType } = this.state
     return <Card style={{ marginTop: 20 }}>
       <Result
         type="error"
@@ -925,7 +944,8 @@ export default class Index extends PureComponent {
       newVersion,
       currApp,
       heightVs,
-      lowVs
+      lowVs,
+      overrides
     } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -935,7 +955,7 @@ export default class Index extends PureComponent {
         xs: { span: 24 }
       }
     };
-    let overrides = resources.overrides || '';
+    let overridess = overrides || ''
     if (overrides && overrides.length > 0) {
       const arr = [];
       overrides.map(item => {
@@ -946,7 +966,7 @@ export default class Index extends PureComponent {
           });
         });
       });
-      overrides = arr;
+      overridess = arr;
     }
     const valueFiles = versionInfo.values
       ? Object.keys(versionInfo.values).reverse()
@@ -986,13 +1006,13 @@ export default class Index extends PureComponent {
                 </div>
                 <FormItem {...formItemLayout} label={formatMessage({ id: 'appOverview.helm.pages.overrides' })}>
                   {getFieldDecorator('overrides', {
-                    initialValue: overrides || [],
+                    initialValue: overridess || [],
                     rules: [{ required: false, message: formatMessage({ id: 'placeholder.helm.overrides' }) }]
                   })(
                     <Parameterinput
                       disableds={upDataVersion || errPrompt || noVersion}
                       isHalf
-                      editInfo={overrides || ''}
+                      editInfo={overridess || ''}
                     />
                   )}
                 </FormItem>

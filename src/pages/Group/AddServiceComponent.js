@@ -212,11 +212,6 @@ export default class AddServiceComponent extends PureComponent {
       event_id
     } = this.state;
     const codeSvg = globalUtil.fetchSvg('codeSvg');
-    // const dockerSvg = globalUtil.fetchSvg('dockerSvg');
-    // const uploadYaml = globalUtil.fetchSvg('uploadYaml');
-    // const helmSvg = globalUtil.fetchSvg('helmCmd');
-    // const uploadJarWar = globalUtil.fetchSvg('uploadJarWar');
-    // const third_party = globalUtil.fetchSvg('third_party');
     const docker_svg = globalUtil.fetchSvg('docker_svg');
     const JarWar_svg = globalUtil.fetchSvg('JarWar_svg');
     const yaml_svg = globalUtil.fetchSvg('yaml_svg');
@@ -303,7 +298,6 @@ export default class AddServiceComponent extends PureComponent {
                       this.handleServiceComponent(false, 'jwar');
                     }}
                   >
-                    {/* {uploadJarWar} */}
                     {JarWar_svg}
                     <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
                     {formatMessage({id:'appOverview.list.btn.addComponent.jwar'})}
@@ -382,7 +376,6 @@ export default class AddServiceComponent extends PureComponent {
                       this.handleServiceComponent(false, 'imageName');
                     }}
                   >
-                    {/* {dockerSvg} */}
                     {docker_svg}
                     <p className={styles.ServiceSmallTitle}>
                     {formatMessage({id:'appOverview.list.btn.addComponent.image'})}
@@ -395,7 +388,6 @@ export default class AddServiceComponent extends PureComponent {
                       this.handleServiceComponent(false, 'imageCmd');
                     }}
                   >
-                    {/* {dockerSvg} */}
                     {docker_svg}
                     <p className={styles.ServiceSmallTitle} style={{whiteSpace:'nowrap'}}>
                     {formatMessage({id:'appOverview.list.btn.addComponent.dockerRun'})}
@@ -417,7 +409,6 @@ export default class AddServiceComponent extends PureComponent {
                       this.handleServiceComponent(false, 'yaml');
                     }}
                   >
-                    {/* {uploadYaml} */}
                     {yaml_svg}
                     <p className={styles.ServiceSmallTitle}>
                       {formatMessage({id:'appOverview.list.btn.addComponent.yaml'})}
@@ -430,7 +421,6 @@ export default class AddServiceComponent extends PureComponent {
                       this.handleServiceComponent(false, 'helm');
                     }}
                   >
-                    {/* {helmSvg} */}
                     {helm_svg}
                     <p className={styles.ServiceSmallTitle}>
                       {formatMessage({id:'teamAdd.create.upload.uploadFiles.helm'})}
@@ -494,7 +484,7 @@ export default class AddServiceComponent extends PureComponent {
           {ServiceComponentTwoPage === 'market' && (
             <Market
               {...MarketParameter}
-              isHelm={false}
+              isHelm={true}
               isAddMarket={true}
               scopeMax={scopeProMax || 'localApplication'}
               handleServiceComponent={() => {

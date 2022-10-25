@@ -39,7 +39,8 @@ import {
   upDataTag,
   upHelmAppStore,
   HelmwaRehouseAdd,
-  HelmwaRehouseDelete
+  HelmwaRehouseDelete,
+  HelmwaRehouseEdit
 } from '../services/market';
 
 export default {
@@ -289,6 +290,12 @@ export default {
     },
     *HelmwaRehouseDelete({ payload, callback, handleError }, { call }) {
       const data = yield call(HelmwaRehouseDelete, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *HelmwaRehouseEdit({ payload, callback, handleError }, { call }) {
+      const data = yield call(HelmwaRehouseEdit, payload, handleError);
       if (data && callback) {
         callback(data);
       }

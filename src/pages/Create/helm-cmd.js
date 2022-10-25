@@ -1,6 +1,7 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
 import { routerRedux } from "dva/router";
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import {
   Row,
   Col,
@@ -99,7 +100,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res) {
-          const info = JSON.parse(res.bean)
+          const info = res.bean
           if (info.tgz) {
             dispatch(
               routerRedux.push(
@@ -109,11 +110,23 @@ export default class Index extends PureComponent {
           }else{
           if (info && info.status) {
             const { chart } = info;
+            const obj = {
+              app_store_name: chart.repo_name,
+              app_template_name: chart.chart_name,
+              version: chart.version,
+              overrides: chart.overrides,
+            }
+            window.sessionStorage.setItem('appinfo', JSON.stringify(obj))
             this.handleCreateAppStore(chart)
-            this.installHelmCmd(chart, value)
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}/helminstall?installPath=cmd`
+              )
+            );
           } else {
             this.setState({
               errorShow: true,
+              BtnLoading: false,
               errorInfo: info.information
             })
           }
@@ -124,41 +137,11 @@ export default class Index extends PureComponent {
         this.setState({
           BtnLoading: false,
           errorShow: true,
-          errorInfo: '安装失败！请检查命令行语句是否有误！'
+          errorInfo: formatMessage({id:'teamOther.HelmCmdForm.error'})
         })
       }
     });
   };
-  installHelmCmd = (chart, value) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'createApp/installApp',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_id: chart.app_model_id,
-        is_deploy: true,
-        app_version: chart.version,
-        install_from_cloud: false,
-        marketName: 'localApplication',
-        group_id: value.group_id
-      },
-      callback: (res) => {
-        if (res && res.status_code && res.status_code == 200) {
-          this.setState({
-            BtnLoading: false
-          })
-          notification.success({
-            message: '安装成功',
-          });
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}`
-            )
-          )
-        }
-      },
-    })
-  }
   handleCreateAppStore = (info) => {
     const { dispatch } = this.props;
         dispatch({
@@ -170,9 +153,6 @@ export default class Index extends PureComponent {
             username: info.username,
             password: info.password,
           },
-          callback: res => {
-          },
-   
         });
         dispatch({
           type: 'market/HelmwaRehouseAdd',
@@ -182,8 +162,6 @@ export default class Index extends PureComponent {
             username: info.username,
             password: info.password
           },
-          callback: res => {
-          }
         });
       }
   render() {

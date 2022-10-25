@@ -424,6 +424,10 @@ const teamOther = {
   'teamOther.AddOrEditConfig.env':'环境变量',
   'teamOther.AddOrEditConfig.find':'主动发现',
   'teamOther.AddOrEditConfig.config':'配置项',
+  'teamOther.HelmCmdForm.msg':'错误信息',
+  'teamOther.HelmCmdForm.error':'安装失败！请检查命令行语句是否有误！',
+  'teamOther.HelmCmdForm.success':'安装成功',
+
 
 }
 

@@ -146,7 +146,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           {errorShow &&
             <Alert
-              message="错误信息"
+              message={formatMessage({id:'teamOther.HelmCmdForm.msg'})}
               description={description}
               type="error"
               closable

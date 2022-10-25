@@ -462,6 +462,7 @@ export async function helmAppInstall(body = {}, handleError) {
         version:body.version,
         repo_name:body.repo_name,
         chart_name:body.chart_name,
+        app_id: body.app_id
       },
       handleError
     }
@@ -477,7 +478,7 @@ export async function getHelmVersion(params, handleError) {
         repo_name: params.repo_name,
         chart_name: params.chart_name || 1,
         highest: params.highest || '',
-        version: params.version
+        app_id: params.app_id
       },
       handleError
     }
