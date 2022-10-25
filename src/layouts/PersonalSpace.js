@@ -16,6 +16,7 @@ import { Link, routerRedux } from 'dva/router';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import moment from 'moment';
 import GlobalHeader from '../components/GlobalHeader';
+import cookie from '../utils/cookie';
 import globalUtil from '../utils/global'
 import teamLogo from '../../public/images/team_logo.png'
 import headerStype from '../components/GlobalHeader/index.less';
@@ -34,13 +35,13 @@ export default class Space extends Component {
     this.state = {
       userTeamList: [],
       dynamicList: [],
-      dynami: [],
       regionName: '',
       enterpriseInfo: false,
       dynamicLoding: true,
       teamListLoding: true,
       page: 1,
       pageSize: 200,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     }
 
   }
@@ -209,7 +210,6 @@ export default class Space extends Component {
       teamListLoding: false
     })
   }
-
 render() {
   const { userTeamList, dynamicList, enterpriseInfo, dynamicLoding, teamListLoding, } = this.state
   const {
@@ -302,7 +302,7 @@ render() {
               <Spin></Spin>
             </div>
           )}
-          {!teamListLoding && userTeamList.length < 0 && (
+          {!teamListLoding && userTeamList.length == 0 && (
             <div className={styles.no_teamList}>
               <Empty />
             </div>
@@ -335,12 +335,9 @@ render() {
                   region_name,
                   service_alias
                 } = item
-                const UserNames = this.showUserName(UserName);
-                const Messages =
-                  Status !== 'success' &&
-                  globalUtil.fetchAbnormalcolor(OptType) === 'rgba(0,0,0,0.65)' && Message;
+                const UserNames = this.showUserName(UserName);       
+                const Messages = globalUtil.fetchMessageLange(Message,Status,OptType)
                 return (
-
                   <div className={styles.list}>
                     <div className={styles.list_left}>
                       <div
@@ -375,7 +372,7 @@ render() {
                           </div>
                           <div>{globalUtil.fetchOperation(FinalStatus, Status)}</div>
                           <div>{Status === 'failure' && globalUtil.fetchReason(Reason)}</div>
-                          <div>{Status === 'failure' ? <div style={{ color: '#CD0200' }}>{Message}</div> : Messages}</div>
+                          <div>{Status === 'failure' ? <div style={{ color: '#CD0200' }}>{Messages}</div> : Messages}</div>
                         </div>
                       </div>
                       {code_commit_msg &&
@@ -429,7 +426,7 @@ render() {
               <Spin></Spin>
             </div>
           )}
-          {!dynamicLoding && dynamicList.length < 0 && (
+          {!dynamicLoding && dynamicList.length == 0 && (
             <div className={styles.no_dynamicList}>
               <Empty />
             </div>
