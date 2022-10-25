@@ -115,11 +115,12 @@ export default class AppList extends PureComponent {
         repo_name: repo_name,
         chart_name: vals.app_model_name || 1,
         highest: true,
-        team_name: globalUtil.getCurrTeamName()
+        team_name: globalUtil.getCurrTeamName(),
+        app_id: globalUtil.getAppID()
       },
       callback: res => {
         if (res && res.bean) {
-          const arrVersion = { ...JSON.parse(res.bean).chart_information };
+          const arrVersion = { ...res.bean.chart_information };
           const obj = {}
           obj[index]=arrVersion.Version
           this.setState({

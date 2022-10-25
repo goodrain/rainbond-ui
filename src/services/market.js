@@ -571,3 +571,17 @@ export function HelmwaRehouseDelete(body = {}, handleError) {
     }
   );
 }
+//修改helm仓库 console层处理
+export function HelmwaRehouseEdit(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/helm/repos`,
+    {
+      method: 'put',
+      data: {
+        repo_name: body.repo_name,
+        repo_url: body.repo_url,
+      },
+      handleError
+    }
+  );
+}

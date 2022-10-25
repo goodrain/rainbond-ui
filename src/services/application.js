@@ -962,6 +962,7 @@ export function generateHelmModule(body = {}, handleError) {
         version: body.version,
         overrides: body.overrides,
         app_model_id: body.app_model_id,
+        app_id: body.app_id
       },
       handleError
     }

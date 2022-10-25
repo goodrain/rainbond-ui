@@ -26,7 +26,6 @@ export default class PageHeader extends PureComponent {
     super(arg)
     this.state = {
       back: '',
-      helm: helm,
     }
   }
   static contextTypes = {
@@ -227,10 +226,6 @@ export default class PageHeader extends PureComponent {
                 {isSvg &&
                   globalUtil.fetchSvg(
                     key === 'localApplication'
-                      // ? 'appComponent'
-                      // : key.indexOf('Helm-') > -1 ? 
-                      // 'HelmSvgs': 
-                      // 'appmarket'
                       ? 'location_drawer_store'
                       : key.indexOf('Helm-') > -1 ?
                       'helm_drawer_store'

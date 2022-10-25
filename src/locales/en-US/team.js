@@ -425,6 +425,9 @@ const teamOther = {
   'teamOther.AddOrEditConfig.env':'environment variable',
   'teamOther.AddOrEditConfig.find':'Active discovery',
   'teamOther.AddOrEditConfig.config':'Configuration item',
+  'teamOther.HelmCmdForm.msg':'Error message',
+  'teamOther.HelmCmdForm.error':'Installation failed! Please check the command line statement for errors!',
+  'teamOther.HelmCmdForm.success':'Successful installation',
 }
 
 
