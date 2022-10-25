@@ -99,11 +99,7 @@ class Index extends PureComponent {
                   showLogEvent = EventID;
                 }
                 const UserNames = this.showUserName(UserName);
-                const Messages =
-                  Status !== 'success' &&
-                  globalUtil.fetchAbnormalcolor(OptType) ===
-                    'rgba(0,0,0,0.65)' &&
-                  Message;
+                const Messages = globalUtil.fetchMessageLange(Message,Status,OptType)
                 return (
                   <div
                     key={EventID}

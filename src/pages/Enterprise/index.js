@@ -98,7 +98,7 @@ export default class Enterprise extends PureComponent {
       guideStep: 1,
       clusters: [],
       appAlertList: [],
-      appAlertLoding: false,
+      appAlertLoding: true,
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
@@ -517,7 +517,7 @@ export default class Enterprise extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            appAlertList: res.bean,
+            appAlertList: res.list,
             appAlertLoding: false
           });
         } else {
@@ -606,6 +606,12 @@ export default class Enterprise extends PureComponent {
   }
   // 集群展示图标
   clusterIcon = (provider, region_type) => {
+    const styleK8s = {
+      marginRight: '8px', 
+      display:'inline-block', 
+      marginTop: '20px'
+    }
+    const stylesCustom = (region_type == 'custom') ? styleK8s : ''
     switch (provider) {
       case 'ack':
         return (
@@ -644,7 +650,7 @@ export default class Enterprise extends PureComponent {
         );
       case 'helm':
         return (
-          <span style={{ marginRight: '8px' }} key={provider}>
+          <span style={stylesCustom} key={provider}>
             <div className={enterpriseStyles.icons}>
               {globalUtil.fetchSvg(
                 region_type == 'aliyun'
@@ -672,7 +678,7 @@ export default class Enterprise extends PureComponent {
         );
       default:
         return (
-          <span style={{ marginRight: '8px' }} key={provider}>
+          <span style={{ marginRight: '8px', display:'inline-block', marginTop: '20px' }} key={provider}>
             {/* 直接对接 */}
             {globalUtil.fetchSvg('K8s')}
           </span>
@@ -1026,7 +1032,7 @@ export default class Enterprise extends PureComponent {
                 <Spin></Spin>
               </div>
             )}
-            {!appAlertLoding && appAlertList.length < 0 && (
+            {!appAlertLoding && appAlertList.length == 0 && (
               <div className={enterpriseStyles.clusterInfo_Empty}>
                 <Empty description={formatMessage({ id: 'enterpriseOverview.overview.no_errorInfo' })} />
               </div>
