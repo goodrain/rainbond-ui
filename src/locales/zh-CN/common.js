@@ -105,6 +105,8 @@
         'popover.enterpriseOverview.setUpTeam.label.name':'团队名称',
         'popover.enterpriseOverview.setUpTeam.label.englishName':'团队英文名称',
         'popover.enterpriseOverview.setUpTeam.label.colony':'集群',
+        'popover.enterpriseOverview.setUpTeam.label.logo':'团队 logo',
+        'popover.enterpriseOverview.setUpTeam.input_logo':'请上传图标',
         'popover.enterpriseOverview.setUpTeam.label.creat_name':'点击可以创建团队。',
         'popover.enterpriseOverview.setUpTeam.label.creat_colony':'缺少集群、去创建',
         // placeholder

@@ -1352,7 +1352,7 @@ export default class Main extends PureComponent {
                           marginBottom: !moreState ? '40px' : '0px'
                         }}
                       >
-                        {isSpincloudList !== -1 && cloudCardList}
+                        {isSpincloudList !== -1 && helmCardList}
                         {networkText && (
                           <Alert
                             style={{ textAlign: 'center', marginBottom: 16 }}

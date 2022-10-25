@@ -283,7 +283,7 @@ class EnterpriseLayout extends PureComponent {
       this.fetchEnterpriseInfo(selectE.enterprise_id);
       this.setState({ enterpriseInfo: selectE });
       dispatch(
-        routerRedux.replace(`/enterprise/${selectE.enterprise_id}/index`)
+        routerRedux.replace(`/enterprise/${selectE.enterprise_id}/personal`)
       );
     } else {
       enterpriseList.map(item => {
@@ -399,17 +399,6 @@ class EnterpriseLayout extends PureComponent {
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
-          {/* {BillingFunction && (
-            <Tooltip
-              title={
-                enterpriseServiceInfo.type === "vip"
-                  ? "尊贵的付费企业用户"
-                  : "免费用户"
-              }
-            >
-              {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
-            </Tooltip>
-          )} */}
           {(enterprise && enterprise.enterprise_alias) ||
             (enterpriseInfo && enterpriseInfo.enterprise_alias)}
         </div>

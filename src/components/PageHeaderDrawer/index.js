@@ -232,6 +232,7 @@ export default class PageHeader extends PureComponent {
                       :
                       'openSource_drawer_store'
                   )}
+                  {/* {!(key === 'localApplication') && key.indexOf('Helm-') > -1 && <img src={helm} alt="" />} */}
                 <p className={styles.ServiceSmallTitle}>{tab}</p>
               </Col>
             );

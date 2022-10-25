@@ -22,6 +22,8 @@ import {
   fetchEnterpriseTeams,
   fetchEnterpriseUsers,
   fetchMyTeams,
+  fetchMyTeamsDynamic,
+  fetchAppAlertInfo,
   fetchNewbieGuideConfig,
   fetchOverview,
   fetchOverviewApp,
@@ -680,6 +682,18 @@ export default {
     },
     *fetchMyTeams({ payload, callback }, { call }) {
       const response = yield call(fetchMyTeams, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchMyTeamsDynamic({ payload, callback }, { call }) {
+      const response = yield call(fetchMyTeamsDynamic, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchAppAlertInfo({ payload, callback }, { call }) {
+      const response = yield call(fetchAppAlertInfo, payload);
       if (response && callback) {
         callback(response);
       }
