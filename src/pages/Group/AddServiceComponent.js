@@ -15,6 +15,7 @@ import ThirdParty from './AddThirdParty'
 import Custom from '../Create/code-custom';
 import Check from '../Create/create-check';
 import ImageCmd from '../Create/image-cmd';
+import HelmCmd from '../Create/helm-cmd';
 import ImageName from '../Create/image-name';
 import Jwar from '../Create/upload-jarwar'
 import Yaml from '../Create/upload-yaml'
@@ -211,10 +212,16 @@ export default class AddServiceComponent extends PureComponent {
       event_id
     } = this.state;
     const codeSvg = globalUtil.fetchSvg('codeSvg');
-    const dockerSvg = globalUtil.fetchSvg('dockerSvg');
-    const uploadYaml = globalUtil.fetchSvg('uploadYaml');
-    const uploadJarWar = globalUtil.fetchSvg('uploadJarWar');
-    const third_party = globalUtil.fetchSvg('third_party');
+    // const dockerSvg = globalUtil.fetchSvg('dockerSvg');
+    // const uploadYaml = globalUtil.fetchSvg('uploadYaml');
+    // const helmSvg = globalUtil.fetchSvg('helmCmd');
+    // const uploadJarWar = globalUtil.fetchSvg('uploadJarWar');
+    // const third_party = globalUtil.fetchSvg('third_party');
+    const docker_svg = globalUtil.fetchSvg('docker_svg');
+    const JarWar_svg = globalUtil.fetchSvg('JarWar_svg');
+    const yaml_svg = globalUtil.fetchSvg('yaml_svg');
+    const helm_svg = globalUtil.fetchSvg('helm_svg');
+
     const servers = oauthUtil.getEnableGitOauthServer(enterprise);
     const BasisParameter = {
       handleType: 'Service',
@@ -296,7 +303,8 @@ export default class AddServiceComponent extends PureComponent {
                       this.handleServiceComponent(false, 'jwar');
                     }}
                   >
-                    {uploadJarWar}
+                    {/* {uploadJarWar} */}
+                    {JarWar_svg}
                     <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
                     {formatMessage({id:'appOverview.list.btn.addComponent.jwar'})}
                     </p>
@@ -333,33 +341,6 @@ export default class AddServiceComponent extends PureComponent {
                       );
                     })}
                 </Row>
-                {/* <Row style={{ marginBottom: '2px' }}>
-                  {rainbondUtil.documentPlatform_url(rainbondInfo) && (
-                    <Alert
-                      message={
-                        <p className={styles.prompt}>
-                          {formatMessage({id:'appOverview.list.btn.addComponent.support'})}
-                          {Object.keys(languageObj).map(key => {
-                            return (
-                              <a
-                                key={key}
-                                href={languageObj[key]}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {key}
-                              </a>
-                            );
-                          })}
-                          {formatMessage({id:'appOverview.list.btn.addComponent.standard'})}
-                        </p>
-                      }
-                      type="info"
-                      style={{ height: '50px' }}
-                      showIcon
-                    />
-                  )}
-                </Row> */}
               </div>
               <div className={styles.ServiceBox}>
                 <Row>
@@ -373,7 +354,7 @@ export default class AddServiceComponent extends PureComponent {
                 <Row>
                   <MarketDrawer
                     {...MarketParameter}
-                    isHelm={false}
+                    isHelm={true}
                     handleServiceComponent={scopeMax => {
                       this.handleServiceComponent(
                         false,
@@ -401,7 +382,8 @@ export default class AddServiceComponent extends PureComponent {
                       this.handleServiceComponent(false, 'imageName');
                     }}
                   >
-                    {dockerSvg}
+                    {/* {dockerSvg} */}
+                    {docker_svg}
                     <p className={styles.ServiceSmallTitle}>
                     {formatMessage({id:'appOverview.list.btn.addComponent.image'})}
                     </p>
@@ -413,7 +395,8 @@ export default class AddServiceComponent extends PureComponent {
                       this.handleServiceComponent(false, 'imageCmd');
                     }}
                   >
-                    {dockerSvg}
+                    {/* {dockerSvg} */}
+                    {docker_svg}
                     <p className={styles.ServiceSmallTitle} style={{whiteSpace:'nowrap'}}>
                     {formatMessage({id:'appOverview.list.btn.addComponent.dockerRun'})}
                     </p>
@@ -434,9 +417,23 @@ export default class AddServiceComponent extends PureComponent {
                       this.handleServiceComponent(false, 'yaml');
                     }}
                   >
-                    {uploadYaml}
+                    {/* {uploadYaml} */}
+                    {yaml_svg}
                     <p className={styles.ServiceSmallTitle}>
                       {formatMessage({id:'appOverview.list.btn.addComponent.yaml'})}
+                    </p>
+                  </Col>
+                  <Col
+                    span={8}
+                    className={styles.ServiceDiv}
+                    onClick={() => {
+                      this.handleServiceComponent(false, 'helm');
+                    }}
+                  >
+                    {/* {helmSvg} */}
+                    {helm_svg}
+                    <p className={styles.ServiceSmallTitle}>
+                      {formatMessage({id:'teamAdd.create.upload.uploadFiles.helm'})}
                     </p>
                   </Col>
                 </Row>
@@ -490,6 +487,9 @@ export default class AddServiceComponent extends PureComponent {
           )}
           {ServiceComponentTwoPage === 'yaml' && (
             <Yaml {...PublicParameter} setPare={this.setYaml} />
+          )}
+          {ServiceComponentTwoPage === 'helm' && (
+            <HelmCmd {...PublicParameter} />
           )}
           {ServiceComponentTwoPage === 'market' && (
             <Market

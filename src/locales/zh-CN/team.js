@@ -93,12 +93,13 @@ const teamAdd = {
   'teamAdd.create.image.configHint':'注意将解析 DockerCompose 配置中的组件相关属性用来便捷创建组件，其中的动态变量不支持解析赋值, 其中使用了私有仓库的镜像?',
 
   //upload
-  'teamAdd.create.upload.title':'Kubernetes YAML/导入',
+  'teamAdd.create.upload.title':'Kubernetes YAML Helm',
   'teamAdd.create.upload.desc':'支持从 Kubernetes YAML创建组件和 Kubernetes 已有资源导入',
   'teamAdd.create.upload.format':'上传格式',
   'teamAdd.create.upload.uploadFiles':'上传文件',
   'teamAdd.create.upload.uploadFiles.yaml':'YAML文件上传',
   'teamAdd.create.upload.uploadFiles.k8s':'导入Kubernetes已有资源',
+  'teamAdd.create.upload.uploadFiles.helm':'Helm 命令',
   'teamAdd.create.upload.uploadJWar':'支持Jar、War格式上传文件',
   'teamAdd.create.upload.uploadYaml':'只支持yaml格式上传多文件',
 

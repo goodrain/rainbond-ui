@@ -932,3 +932,38 @@ export async function editSingleKubernetesVal(body = {}) {
     }
   );
 }
+// 安装helm应用-添加helm应用模版
+export function addHelmModule(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/helm_center_app`,
+    {
+      method: 'post',
+      data: {
+        repo_name: body.repo_name,
+        chart_name: body.chart_name,
+        pic: body.pic || '',
+        describe: body.describe || '',
+        details: body.details || ''
+      },
+      handleError
+    }
+  );
+}
+// 安装helm应用-生成helm应用模版
+export function generateHelmModule(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/helm_app`,
+    {
+      method: 'post',
+      data: {
+        name:body.name,
+        repo_name: body.repo_name,
+        chart_name: body.chart_name,
+        version: body.version,
+        overrides: body.overrides,
+        app_model_id: body.app_model_id,
+      },
+      handleError
+    }
+  );
+}

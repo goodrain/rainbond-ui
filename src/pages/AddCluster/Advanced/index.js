@@ -366,7 +366,7 @@ export default class ClusterLink extends PureComponent {
         if (item.ip || item.name){
           isPass = true;
           const patt = /^[^\s]*$/;
-          if(item.ip.match(patt) && item.name.match(patt)){
+          if(item.ip.match(patt)){
             callback();
           }else{
             callback(new Error(`${formatMessage({id:'placeholder.no_spaces'})}`));
@@ -377,8 +377,13 @@ export default class ClusterLink extends PureComponent {
           return true;
         }
       });
-      if (isPass) callback();
-      else callback('请填写完整的节点名称');
+      if (isPass) {
+        callback();
+      }
+      else {
+        
+        callback('请填写完整的节点名称');
+      }
     } else {
       callback();
     }
@@ -539,7 +544,6 @@ export default class ClusterLink extends PureComponent {
                           required: true,
                           message: formatMessage({id:'enterpriseColony.Advanced.input_node'})
                         },
-                        
                         {
                           validator: this.handleValidatorsNodes
                         }

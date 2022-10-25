@@ -1024,8 +1024,31 @@ const otherEnterprise= {
     'otherEnterprise.AccesstokenForm.time':'过期时间',
     'otherEnterprise.AccesstokenForm.import_time':'请输入时间',
 
+    'otherEnterprise.shell.show':'展开',
+    'otherEnterprise.shell.Pack_up':'收起',
+    'otherEnterprise.shell.new':'新开页',
+    'otherEnterprise.shell.down':'关闭',
+    'otherEnterprise.shell.list':'集群列表',
+    'otherEnterprise.shell.connection':'正在连接',
+    'otherEnterprise.shell.line':'命令行',
 
+
+
+}
+//日志
+const LogEnterprise = {
+    'LogEnterprise.title':'日志',
+    'LogEnterprise.desc':'展示平台关键组件的日志。用于平台运维和问题排查。',
+    'LogEnterprise.console':'控制台日志',
+    'LogEnterprise.getway':'网关日志',
+    'LogEnterprise.api':'API日志',
+    'LogEnterprise.chaos':'构建日志',
+    'LogEnterprise.worker':'运行时日志',
+    'LogEnterprise.download':'日志文件下载',
+    'LogEnterprise.find':'选择节点查找日志',
+    'LogEnterprise.all':'所有日志',
+    'LogEnterprise.node':'节点',
 }
 
 
-export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise);
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise);

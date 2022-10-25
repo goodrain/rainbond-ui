@@ -59,6 +59,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/shell',
+            component: './Shell',
+            name: 'enterpriseOverview',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/teams',
             component: './EnterpriseTeams',
             name: 'EnterpriseTeams',
@@ -112,7 +118,12 @@ export default [
             name: 'EnterpriseSetting',
             authority: ['admin', 'user']
           },
-
+          {
+            path: '/enterprise/:eid/logs',
+            component: './LogManagement',
+            name: 'LogManagement',
+            authority: ['admin', 'user']
+          },
           {
             path: '/enterprise/:eid/shared/app/:appId',
             component: './EnterpriseShared/Details',
@@ -328,7 +339,13 @@ export default [
             name: 'Groups',
             authority: ['admin', 'user']
           },
-
+          
+          {
+            path: '/team/:teamName/region/:regionName/apps/:appID/helminstall',
+            component: './Group/Helm',
+            name: 'helminstall',
+            authority: ['admin', 'user']
+          },
           {
             path:
               '/team/:teamName/region/:regionName/apps/:appID/share/:shareId/one',
@@ -443,7 +460,7 @@ export default [
             name: 'check',
             authority: ['admin', 'user']
           },
-
+          
           {
             path:
               '/team/:teamName/region/:regionName/create/create-compose-check/:appID/:composeId',

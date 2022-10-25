@@ -481,7 +481,7 @@ export async function getUpdatedVersion(body = {}) {
 
 /* 查询某云市应用下服务的更新信息 */
 
-export async function getUpdatedInfo(body = {}) {
+export async function getUpdatedInfo(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-info`,
     {
@@ -491,7 +491,8 @@ export async function getUpdatedInfo(body = {}) {
         version: body.version,
         market_name: body.marketName,
         upgrade_group_id: body.upgradeGroupID
-      }
+      },
+      handleError
     }
   );
 }
@@ -1372,6 +1373,32 @@ export async function fetchAppAlertInfo(params) {
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/service_alarm`,
     {
       method: 'get',
+    }
+  );
+}
+
+// 创建shell-pod
+export async function createShellPod(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/shell-pod`,
+    {
+      method: 'post',
+      data: {
+        region_name :  params.region_name
+      }
+    }
+  );
+}
+// 删除shell-pod
+export async function deleteShellPod(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/shell-pod`,
+    {
+      method: 'DELETE',
+      data: {
+        region_name : params.region_name,
+        pod_name : params.pod_name
+      }
     }
   );
 }

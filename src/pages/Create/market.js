@@ -50,7 +50,8 @@ const { TabPane } = Tabs;
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    groups: global.groups
   }),
   null,
   null,
@@ -319,6 +320,7 @@ export default class Main extends PureComponent {
           }
           this.setState({
             helmLoading: false,
+            isSpincloudList:false,
             helmList,
             helmPag: setHelmPag
           });
@@ -464,8 +466,22 @@ export default class Main extends PureComponent {
       currentKey
     } = this.state;
     const teamName = globalUtil.getCurrTeamName();
-
     form.validateFields((err, Value) => {
+      if (scopeMax.indexOf('Helm-') > -1) {
+        const obj = {
+          app_store_name: currentKey.substr(currentKey.indexOf("-")+1),
+          app_template_name: installBounced.name,
+          is_deploy: is_deploy,
+          version: Value.group_version
+        }
+        window.sessionStorage.setItem("appinfo",JSON.stringify(obj))
+        dispatch(
+          routerRedux.push(
+            `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+              0}/helminstall?installPath=market`
+          )
+        );
+      } return;
       if (err) return;
       dispatch({
         type: 'createApp/installApp',
@@ -493,12 +509,12 @@ export default class Main extends PureComponent {
           if (handleType && refreshCurrent) {
             refreshCurrent();
           }
-          dispatch(
-            routerRedux.push(
-              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                0}`
-            )
-          );
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+                  0}`
+              )
+            );
         }
       });
     });
@@ -547,39 +563,13 @@ export default class Main extends PureComponent {
     const { dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     this.setState({ helmInstallLoading: true });
-    dispatch({
-      type: 'createApp/installHelmApp',
-      payload: {
-        team_name: teamName,
-        ...vals,
-        is_deploy
-      },
-      callback: res => {
-        // 刷新左侧按钮
-        dispatch({
-          type: 'global/fetchGroups',
-          payload: {
-            team_name: teamName
-          },
-          callback: () => {
-            if (res && res.status_code === 200 && res.bean && res.bean.ID) {
-              this.onCancelCreate();
-              dispatch(
-                routerRedux.push(
-                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
-                    res.bean.ID
-                  }`
-                )
-              );
-            }
-            this.setState({ helmInstallLoading: false });
-          },
-          renderError: () => {
-            this.setState({ helmInstallLoading: false });
-          }
-        });
-      }
-    });
+    vals.is_deploy = is_deploy;
+    window.sessionStorage.setItem("appinfo",JSON.stringify(vals))
+    dispatch(
+    routerRedux.push(
+      `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${vals.group_id}/helminstall?installPath=market`
+    )
+  );
   };
   handleCloudCreate = (vals, is_deploy) => {
     this.setState({
@@ -781,8 +771,8 @@ export default class Main extends PureComponent {
         <Card
           className={
             handleType
-              ? `${PluginStyles.cards} ${PluginStyles.clearAvatar}`
-              : PluginStyles.cards
+              ? `${type === 'helm' ? PluginStyles.cards_helm_drawer : PluginStyles.cards} ${PluginStyles.clearAvatar}`
+              : type === 'helm' ? PluginStyles.cards_helm : PluginStyles.cards
           }
           actions={handleType ? fastactions : defaultActions}
         >
@@ -865,17 +855,46 @@ export default class Main extends PureComponent {
         span: 19
       }
     };
-    const { form } = this.props;
+    const { form, groups, groupId } = this.props;
     const { getFieldDecorator } = form;
-    const { installBounced } = this.state;
+    const { installBounced, app_name: appName, } = this.state;
     const versionList = installBounced.versions_info || installBounced.versions;
-
+    for (let index = 0; index < groups.length; index++) {
+      if(groups[index].group_id == groupId){
+        var selectAppName = groups[index].group_name
+        break;
+      }
+    }
+    
     return (
       <Form
         onSubmit={this.handleInstallBounced}
         layout="horizontal"
         hideRequiredMark
       >
+      <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
+            {getFieldDecorator('group_id', {
+              initialValue: selectAppName ||'',
+              rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
+            })(
+              <Select
+                // getPopupContainer={triggerNode => triggerNode.parentNode}
+                placeholder={formatMessage({id: 'placeholder.appName'})}
+                style={{
+                  display: 'inline-block',
+                  width: 284,
+                  marginRight: 10
+                }}
+                disabled={true}
+              >
+                {(groups || []).map(group => {
+                  return (
+                    <Option value={group.group_id}>{group.group_name}</Option>
+                  );
+                })}
+              </Select>
+            )}
+          </Form.Item>
         <Form.Item {...formItemLayout} label={formatMessage({id:'otherApp.marketDrawer.Select_version'})}>
           {getFieldDecorator('group_version', {
             initialValue: versionList[0].version || versionList[0].app_version,
@@ -888,7 +907,7 @@ export default class Main extends PureComponent {
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
-              style={{ width: '220px' }}
+              style={{ width: '284px' }}
             >
               {versionList.map(item => {
                 return (
@@ -903,6 +922,22 @@ export default class Main extends PureComponent {
             </Select>
           )}
         </Form.Item>
+        <Form.Item {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.note'})}>
+            {getFieldDecorator('note', {
+              initialValue: (versionList[0] && versionList[0].description) ? versionList[0].description : '',
+              rules: [
+                {
+                  max: 255,
+                  message: formatMessage({id:'teamOther.CreateAppFromHelmForm.max_length'})
+                }
+              ]
+            })(
+              <Input.TextArea
+                placeholder={formatMessage({id:'teamOther.CreateAppFromHelmForm.note_app'})}
+                style={{ width: '284px' }}
+              />
+            )}
+          </Form.Item>
       </Form>
     );
   };
@@ -1317,7 +1352,7 @@ export default class Main extends PureComponent {
                           marginBottom: !moreState ? '40px' : '0px'
                         }}
                       >
-                        {isSpincloudList !== -1 && cloudCardList}
+                        {isSpincloudList !== -1 && helmCardList}
                         {networkText && (
                           <Alert
                             style={{ textAlign: 'center', marginBottom: 16 }}

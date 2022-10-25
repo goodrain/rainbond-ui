@@ -4,6 +4,7 @@ import md5 from 'js-md5';
 import React, { PureComponent } from 'react';
 import 'xterm/css/xterm.css';
 import { ConnectionFactory } from '../../../../utils/webconsole/websocket';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { protocols, WebTTY } from '../../../../utils/webconsole/webtty';
 import { Xterm as XTermCustom } from '../../../../utils/webconsole/xterm';
 import XTerm from '../ReactXTerm/react-xterm';
@@ -13,12 +14,34 @@ class App extends PureComponent {
     super(args);
     this.inputRef = React.createRef();
     this.state = {
-      message: '正在连接',
+      message: formatMessage({ id: 'otherEnterprise.shell.connection' }),
+      bool: 0
     };
   }
 
   componentDidMount() {
-    this.EstablishConnection();
+    const { WebsocketURL } = this.props;
+    var xx = new WebSocket(WebsocketURL)
+    const { bool } = this.state;
+    const { type = false } = this.props;
+    if (type) {
+      const time = setInterval(() => {
+        this.setState({
+          bool: xx.readyState
+        }, () => {
+          if (this.state.bool == 1) {
+            setTimeout(() => {
+              this.EstablishConnection();
+            }, 2000)
+          }
+        })
+        if (xx.readyState == 1) {
+          clearInterval(time)
+        }
+      }, 1000)
+    } else {
+      this.EstablishConnection();
+    }
   }
 
   EstablishConnection = () => {
@@ -78,10 +101,11 @@ class App extends PureComponent {
 
   render() {
     const { message } = this.state;
+    const { height } = this.props;
     return (
       <div
         style={{
-          height: 'calc(100vh - 104px)',
+          height: height ? height : 'calc(100vh - 104px)',
           backgroundColor: 'rgb(0, 0, 0)',
         }}
       >

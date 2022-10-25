@@ -161,7 +161,7 @@ export default class AddThirdParty extends PureComponent {
       handleType,
       canceThirdParty,
     } = this.state;
-    const third_party = globalUtil.fetchSvg('third_party');
+    const third_party = globalUtil.fetchSvg('third_party_svg');
     const apiSvg = () => (
       <svg width="60px" height="60px" viewBox="0 0 41 27" version="1.1">
         <g

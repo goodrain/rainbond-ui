@@ -37,7 +37,9 @@ import {
   upAppModel,
   upDataAppVersionInfo,
   upDataTag,
-  upHelmAppStore
+  upHelmAppStore,
+  HelmwaRehouseAdd,
+  HelmwaRehouseDelete
 } from '../services/market';
 
 export default {
@@ -278,7 +280,19 @@ export default {
       if (data && callback) {
         callback(data);
       }
-    }
+    },
+    *HelmwaRehouseAdd({ payload, callback, handleError }, { call }) {
+      const data = yield call(HelmwaRehouseAdd, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *HelmwaRehouseDelete({ payload, callback, handleError }, { call }) {
+      const data = yield call(HelmwaRehouseDelete, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
   },
 
   reducers: {}

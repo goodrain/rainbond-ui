@@ -14,7 +14,6 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import ReactPullLoad, { STATS } from "react-pullload";
 import moment from 'moment';
 import GlobalHeader from '../components/GlobalHeader';
 import globalUtil from '../utils/global'
@@ -387,7 +386,7 @@ render() {
                       }
                     </div>
                     <div className={styles.list_center}>
-                      <div><Tooltip title={UserNames}>@adminer</Tooltip></div>
+                      <div><Tooltip title={UserNames}>{UserNames}</Tooltip></div>
                       <div
                         className={styles.time}
                         key={EventID}

@@ -77,6 +77,17 @@ export default class Index extends PureComponent {
             this.handleClose();
           }
         });
+        dispatch({
+          type: 'market/HelmwaRehouseAdd',
+          payload: {
+            repo_name: values.name,
+            repo_url: values.url,
+            username: values.username,
+            password: values.password
+          },
+          callback: res => {
+          }
+        });
       }
     });
   };
