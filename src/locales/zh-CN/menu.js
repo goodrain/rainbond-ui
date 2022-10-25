@@ -44,10 +44,12 @@ const CustomFooter = {
   'GlobalHeader.success':'修改成功，请重新登录',
   'GlobalHeader.core':'个人中心',
   'GlobalHeader.edit':'修改密码',
+  'GlobalHeader.language':'语言切换',
   'GlobalHeader.exit':'退出登录',
   'GlobalHeader.serve':'企业服务',
+  'GlobalHeader.platform':'平台管理',
   'GlobalHeader.close':'是否要关闭新手引导功能、关闭后并无法开启此功能?',
-  'GlobalHeader.manual':'平台使用手册',
+  'GlobalHeader.manual':'使用手册',
   'GlobalHeader.new':'新手引导',
 }
 

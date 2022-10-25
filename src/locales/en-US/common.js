@@ -105,6 +105,8 @@
         'popover.enterpriseOverview.setUpTeam.label.name':'Team name',
         'popover.enterpriseOverview.setUpTeam.label.englishName':'English name',
         'popover.enterpriseOverview.setUpTeam.label.colony':'Cluster',
+        'popover.enterpriseOverview.setUpTeam.label.logo':'Team logo',
+        'popover.enterpriseOverview.setUpTeam.input_logo':'Please upload icon',
         'popover.enterpriseOverview.setUpTeam.label.creat_name':'Click to create a team.',
         'popover.enterpriseOverview.setUpTeam.label.creat_colony':'Lack of cluster, to create',
         // placeholder

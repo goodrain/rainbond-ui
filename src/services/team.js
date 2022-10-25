@@ -157,7 +157,8 @@ export async function createTeam(
     data: {
       team_alias: body.team_name,
       useable_regions: body.useable_regions.join(','),
-      namespace: body.namespace
+      namespace: body.namespace,
+      logo: body.logo
     }
   });
 }

@@ -961,6 +961,20 @@ export async function fetchMyTeams(param) {
     }
   );
 }
+/* 获取当前用户团队列表下所有动态 */
+export async function fetchMyTeamsDynamic(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/my_events`,
+    {
+      method: 'get',
+      params: {
+        page: param.page,
+        page_size: param.page_size,
+        region_names: param.region_names
+      }
+    }
+  );
+}
 
 export async function fetchUserTeams(param) {
   return request(
@@ -1348,6 +1362,16 @@ export async function toSearchTenant(params) {
         page_num: params.page_num || 1,
         page_size: params.page_size || 1000
       }
+    }
+  );
+}
+
+/** 应用报警信息 */
+export async function fetchAppAlertInfo(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/service_alarm`,
+    {
+      method: 'get',
     }
   );
 }
