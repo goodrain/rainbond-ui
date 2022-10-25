@@ -212,7 +212,7 @@ class TeamLayout extends PureComponent {
             notification.warning({ message: errtext });
             dispatch(
               routerRedux.push(
-                `/enterprise/${enterpriseList[0].enterprise_id}/index`
+                `/enterprise/${enterpriseList[0].enterprise_id}/personal`
               )
             );
           } else {

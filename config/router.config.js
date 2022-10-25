@@ -41,6 +41,12 @@ export default [
         redirect: '/enterprise/auto'
       },
       {
+        path: '/enterprise/:eid/personal',
+        component: '../layouts/PersonalSpace',
+        name: 'PersonalSpace',
+        authority: ['admin', 'user'],
+      },
+      {
         path: '/enterprise/:eid',
         component: '../layouts/EnterpriseLayout',
         name: 'EnterprisePage',

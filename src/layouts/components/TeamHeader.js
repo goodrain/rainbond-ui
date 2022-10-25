@@ -24,7 +24,7 @@ export default function TeamHeader(props) {
           {nobleIcon}
             <Link
               className={headerStype.itemlink}
-              to={`/enterprise/${currentEnterprise.enterprise_id}/index`}
+              to={`/enterprise/${currentEnterprise.enterprise_id}/personal`}
             >
               {currentEnterprise && currentEnterprise.enterprise_alias}
             </Link>
