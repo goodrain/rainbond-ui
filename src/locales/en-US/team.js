@@ -287,6 +287,8 @@ const teamManage = {
   'teamManage.tabs.role.list.permissions.app':'Application management',
   'teamManage.tabs.role.list.permissions.component':'Component management',
   'teamManage.tabs.role.list.permissions.plugin':'Plugin management',
+  'teamManage.tabs.role.list.permissions.edit':'Save changes',
+  'teamManage.tabs.role.list.permissions.add':'Add',
 
   //镜像仓库授权信息 image
   'teamManage.tabs.image':'ImageRepoAuthInfo',
