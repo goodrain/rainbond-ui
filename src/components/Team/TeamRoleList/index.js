@@ -103,7 +103,6 @@ export default class RoleList extends PureComponent {
   };
 
   selectKey = ({ key }) => {
-    console.log(key,"key");
     this.setState({
       rolesID: key
     });
