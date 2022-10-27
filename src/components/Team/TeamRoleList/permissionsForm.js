@@ -5,6 +5,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import roleUtil from '../../../utils/role';
+import cookie from '@/utils/cookie';
 import styles from './index.less';
 
 const { TreeNode } = Tree;
@@ -25,7 +26,8 @@ export default class RoleList extends PureComponent {
       autoExpandParent: true,
       checkedKeys: [],
       selectedKeys: [],
-      loading: false
+      loading: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -199,6 +201,7 @@ export default class RoleList extends PureComponent {
   };
 
   handleRoleName = (ID, roleList) => {
+    const { language } = this.state
     if (roleList && roleList.length > 0) {
       const roles = roleList.filter(item => {
         return `${item.ID}` === `${ID}`;
@@ -206,8 +209,7 @@ export default class RoleList extends PureComponent {
 
       if (roles && roles.length > 0) {
         const { setFieldsValue } = this.props.form;
-
-        setFieldsValue({ name: roles[0].name });
+        setFieldsValue({ name: roleUtil.actionMap(roles[0].name, language) });
       }
     }
   };
@@ -284,16 +286,16 @@ export default class RoleList extends PureComponent {
     });
   };
 
-  renderTreeNodes = data =>
+  renderTreeNodes = (data, language) =>
     data.map(item => {
       const keys = Object.keys(item)[0];
       if (item[keys].sub_models && item[keys].sub_models.length > 0) {
         return this.renderTreeNodes(item[keys].sub_models);
       }
       return (
-        <TreeNode key={keys} title={roleUtil.fetchAccessText(keys)}>
+        <TreeNode key={keys} title={roleUtil.fetchAccessText(keys, language)}>
           {item[keys].perms.map(item2 => {
-            return <TreeNode key={item2.code} title={item2.desc} />;
+            return <TreeNode key={item2.code} title={language ? item2.desc : item2.name} />;
           })}
         </TreeNode>
       );
@@ -301,7 +303,7 @@ export default class RoleList extends PureComponent {
   handleSubmitButton = (loading, isAddRole) => {
     return (
       <Button loading={loading} type="primary" onClick={this.handleSubmit}>
-        {isAddRole ? '新增' : '保存修改'}
+        {isAddRole ? formatMessage({id:'teamManage.tabs.role.list.permissions.add'}) : formatMessage({id:'teamManage.tabs.role.list.permissions.edit'})}
       </Button>
     );
   };
@@ -320,7 +322,8 @@ export default class RoleList extends PureComponent {
       autoExpandParent,
       checkedKeys,
       selectedKeys,
-      loading
+      loading,
+      language
     } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
@@ -382,10 +385,10 @@ export default class RoleList extends PureComponent {
                     selectedKeys={selectedKeys}
                   >
                     {permissions.team.perms.map(item => {
-                      const { code, desc } = item;
-                      return <TreeNode key={code} title={desc} />;
+                      const { code, desc, name } = item;
+                      return <TreeNode key={code} title={language ? desc : name } />;
                     })}
-                    {this.renderTreeNodes(permissions.team.sub_models)}
+                    {this.renderTreeNodes(permissions.team.sub_models,language)}
                   </Tree>
                 )}
               </FormItem>

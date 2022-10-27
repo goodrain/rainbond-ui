@@ -64,14 +64,14 @@ const global = {
     'global.fetchReason.cluster_lack_of_memory':'集群资源不足',
 
     // fetchAccessText
-    'global.fetchReason.component':'组件管理',
-    'global.fetchReason.app':'应用管理',
-    'global.fetchReason.gatewayRule':'网关访问策略',
-    'global.fetchReason.certificate':'证书管理',
-    'global.fetchReason.plugin':'插件管理',
-    'global.fetchReason.teamMember':'团队成员管理',
-    'global.fetchReason.teamRole':'团队角色管理',
-    'global.fetchReason.teamRegion':'团队集群管理',
+    'global.fetchAccessText.component':'组件管理',
+    'global.fetchAccessText.app':'应用管理',
+    'global.fetchAccessText.gatewayRule':'网关访问策略',
+    'global.fetchAccessText.certificate':'证书管理',
+    'global.fetchAccessText.plugin':'插件管理',
+    'global.fetchAccessText.teamMember':'团队成员管理',
+    'global.fetchAccessText.teamRole':'团队角色管理',
+    'global.fetchAccessText.teamRegion':'团队集群管理',
 
     // getComponentType
     'global.getComponentType.stateless_multiple':'无状态服务(Deployment类型)',
