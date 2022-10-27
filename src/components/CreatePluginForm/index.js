@@ -319,7 +319,6 @@ export default class Index extends PureComponent {
           </div>
         </Form.Item>
         <Form.Item
-          style={{ display: type === 'image' ? 'none' : '' }}
           {...formItemLayout}
           label={formatMessage({id:'teamPlugin.create.lable.build_cmd'})}
         >
