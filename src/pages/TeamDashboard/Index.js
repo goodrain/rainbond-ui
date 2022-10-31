@@ -378,13 +378,13 @@ export default class Index extends PureComponent {
             }
           );
           // 每隔10s获取最新的团队下的资源
-          this.handleTimers(
-            'loadTeamTimer',
-            () => {
-              this.loadOverview();
-            },
-            10000
-          );
+          // this.handleTimers(
+          //   'loadTeamTimer',
+          //   () => {
+          //     this.loadOverview();
+          //   },
+          //   10000
+          // );
         } else {
           this.handleCloseLoading();
         }
@@ -417,13 +417,13 @@ export default class Index extends PureComponent {
             searchVisible: false
           });
           // 每隔10s获取最新的列表数据
-          this.handleTimers(
-            'loadHotAppTimer',
-            () => {
-              this.loadHotApp();
-            },
-            10000
-          );
+          // this.handleTimers(
+          //   'loadHotAppTimer',
+          //   () => {
+          //     this.loadHotApp();
+          //   },
+          //   10000
+          // );
         }
         if (res && res.list && res.list.length === 0 && query) {
           this.setState({
