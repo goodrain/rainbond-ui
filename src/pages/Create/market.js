@@ -467,6 +467,7 @@ export default class Main extends PureComponent {
     } = this.state;
     const teamName = globalUtil.getCurrTeamName();
     form.validateFields((err, Value) => {
+      if (err) return;
       if (scopeMax.indexOf('Helm-') > -1) {
         const obj = {
           app_store_name: currentKey.substr(currentKey.indexOf("-")+1),
@@ -481,8 +482,7 @@ export default class Main extends PureComponent {
               0}/helminstall?installPath=market`
           )
         );
-      } return;
-      if (err) return;
+      } else{
       dispatch({
         type: 'createApp/installApp',
         payload: {
@@ -509,14 +509,15 @@ export default class Main extends PureComponent {
           if (handleType && refreshCurrent) {
             refreshCurrent();
           }
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                  0}`
-              )
-            );
+          dispatch(
+            routerRedux.push(
+              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+                0}`
+            )
+          );
         }
       });
+    }
     });
   };
   handleCreate = (vals, is_deploy) => {
@@ -741,7 +742,7 @@ export default class Main extends PureComponent {
           }}
         >
           <div className={PluginStyles.cardTitle}>
-            <span title={item.app_name}>{item.app_name}</span>
+            <span title={item.app_name || item.name}>{item.app_name || item.name}</span>
           </div>
           {versionBox}
         </div>
