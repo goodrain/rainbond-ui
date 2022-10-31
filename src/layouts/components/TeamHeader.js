@@ -13,20 +13,21 @@ export default function TeamHeader(props) {
     nobleIcon,
     upDataHeader
   } = props;
-
+  console.log(currentEnterprise,'currentEnterprise')
   return (
     <div className={headerStype.itemBox}>
       {upDataHeader ? (
         <Spin size="large" />
       ) : (
-        <div>
+        <div className={headerStype.breadCrumb}>
           <div className={headerStype.item}>
           {nobleIcon}
             <Link
               className={headerStype.itemlink}
               to={`/enterprise/${currentEnterprise.enterprise_id}/personal`}
             >
-              {currentEnterprise && currentEnterprise.enterprise_alias}
+              {/* {currentEnterprise && currentEnterprise.enterprise_alias} */}
+              工作空间
             </Link>
             <span className={headerStype.itemseparator}>></span>
           </div>

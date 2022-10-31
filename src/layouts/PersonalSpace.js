@@ -20,6 +20,7 @@ import cookie from '../utils/cookie';
 import globalUtil from '../utils/global'
 import teamLogo from '../../public/images/team_logo.png'
 import headerStype from '../components/GlobalHeader/index.less';
+import Logo from '../../public/logo.png'
 import styles from './PersonalSpace.less'
 
 @connect(({ user, global }) => ({
@@ -210,231 +211,245 @@ export default class Space extends Component {
       teamListLoding: false
     })
   }
-render() {
-  const { userTeamList, dynamicList, enterpriseInfo, dynamicLoding, teamListLoding, } = this.state
-  const {
-    match: {
-      params: { eid }
-    },
-    enterprise,
-    user,
-    collapsed,
-    currentUser
-  } = this.props
-  const customHeader = () => {
-    return (
-      <div className={headerStype.enterprise}>
-        {(enterprise && enterprise.enterprise_alias) ||
-          (enterpriseInfo && enterpriseInfo.enterprise_alias)}
-      </div>
-    );
-  }
-  return (
-    <div>
-      <GlobalHeader
-        eid={eid}
-        is_admin={user.is_enterprise_admin}
-        onCollapse={this.handleMenuCollapse}
-        collapsed={collapsed}
-        currentUser={currentUser}
-        customHeader={customHeader}
-      />
-      <div className={styles.teamBox}>
-        <div className={styles.teamBox_left} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-          <div className={styles.title}>
-            <h3>
-              {formatMessage({ id: 'enterpriseOverview.information.team' })}
-            </h3>
-          </div>
-          {userTeamList.length > 0 &&
-            <div className={styles.teamList}>
-              {userTeamList.map((item) => {
-                const {
-                  team_alias,
-                  app_count,
-                  service_count,
-                  logo,
-                  region_list,
-                  team_name
-                } = item
-                return (
-                  <div className={styles.list} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-                    <div className={styles.list_img}>
-                      <img src={logo || teamLogo} alt="" />
-                    </div>
-                    <div className={styles.list_detail}>
-                      <Tooltip title={team_alias}>
-                        <div
-                          className={styles.team_name}
-                          onClick={() => {
-                            this.onJumpTeam(team_name, region_list[0].region_name)
-                          }}
-                        >
-                          {team_alias}
-                        </div>
-                      </Tooltip>
-                      <div className={styles.num}>
-                        <div>
-                          <span className={styles.team_logo}>
-                            <Tooltip title={formatMessage({ id: 'enterpriseOverview.overview.app' })}>
-                              {globalUtil.fetchSvg('teamApp')}
-                            </Tooltip>
-                          </span>
-                          <span>{app_count || 0}</span>
-                        </div>
-                        <div>
-                          <span className={styles.team_logo} style={{ marginTop: '2px' }}>
-                            <Tooltip title={formatMessage({ id: 'enterpriseOverview.overview.component' })}>
-                              {globalUtil.fetchSvg('teamComponent')}
-                            </Tooltip>
-                          </span>
-                          <span>{service_count || 0}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          }
-          {teamListLoding && (
-            <div className={styles.no_teamList}>
-              <Spin></Spin>
-            </div>
-          )}
-          {!teamListLoding && userTeamList.length == 0 && (
-            <div className={styles.no_teamList}>
-              <Empty />
-            </div>
-          )}
+  render() {
+    const { userTeamList, dynamicList, enterpriseInfo, dynamicLoding, teamListLoding, } = this.state
+    const {
+      match: {
+        params: { eid }
+      },
+      enterprise,
+      user,
+      collapsed,
+      currentUser
+    } = this.props
+    console.log(enterpriseInfo, 'enterpriseInfo')
+    const customHeader = () => {
+      return (
+        <div className={headerStype.enterprise}>
+          <img src={Logo} alt="" />
         </div>
-        <div className={styles.teamBox_right} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-          <div className={styles.title}>
-            <h3>{formatMessage({ id: 'enterpriseOverview.information.dynamic' })}</h3>
-          </div>
-          {dynamicList.length > 0 &&
-          <div className={styles.dynamicList}>
-              {dynamicList.map(item => {
-                const {
-                  group_name,
-                  team_name,
-                  service_name,
-                  StartTime,
-                  create_time,
-                  EndTime,
-                  UserName,
-                  code_commit_msg,
-                  EventID,
-                  OptType,
-                  Status,
-                  Reason,
-                  FinalStatus,
-                  Message,
-                  group_id,
-                  team_alias,
-                  region_name,
-                  service_alias
-                } = item
-                const UserNames = this.showUserName(UserName);       
-                const Messages = globalUtil.fetchMessageLange(Message,Status,OptType)
-                return (
-                  <div className={styles.list}>
-                    <div className={styles.list_left}>
-                      <div
-                        className={styles.cname}
-                        onClick={() => {
-                          this.onJumpDynamic('app', team_name, region_name, group_id, service_alias)
-                        }}
-                      >
-                        <Tooltip title={group_name}>
-                          {group_name}
-                        </Tooltip>
+      );
+    }
+    return (
+      <div>
+        <GlobalHeader
+          eid={eid}
+          is_admin={user.is_enterprise_admin}
+          onCollapse={this.handleMenuCollapse}
+          collapsed={collapsed}
+          currentUser={currentUser}
+          customHeader={customHeader}
+        />
+        <div className={styles.teamBox}>
+          <div className={styles.teamBox_left}>
+            <div className={styles.title}>
+              <h3>
+                {formatMessage({ id: 'enterpriseOverview.information.team' })}
+              </h3>
+            </div>
+            {userTeamList.length > 0 &&
+              <div className={styles.teamList}>
+                {userTeamList.map((item) => {
+                  const {
+                    team_alias,
+                    app_count,
+                    service_count,
+                    logo,
+                    region_list,
+                    team_name
+                  } = item
+                  return (
+                    <div className={styles.list} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+                      <div className={styles.list_img}>
+                        <img src={logo || teamLogo} alt="" />
                       </div>
-                      <span style={{ margin: '0px 4px' }}>/</span>
-                      <div
-                        className={styles.cname}
-                        onClick={() => {
-                          this.onJumpDynamic('component', team_name, region_name, group_id, service_alias)
-                        }}
-                      >
-                        <Tooltip title={service_name}>
-                          {service_name}
-                        </Tooltip>
-                      </div>
-                      <div className={styles.content}>
-                        <div className={styles.contentInfo}>
+                      <div className={styles.list_detail}>
+                        <Tooltip title={team_alias}>
                           <div
-                            style={{
-                              color: Status == 'failure' ? '#CD0200' : globalUtil.fetchAbnormalcolor(OptType)
+                            className={styles.team_name}
+                            onClick={() => {
+                              this.onJumpTeam(team_name, region_list[0].region_name)
                             }}
                           >
-                            {globalUtil.fetchStateOptTypeText(OptType)}
-                          </div>
-                          <div>{globalUtil.fetchOperation(FinalStatus, Status)}</div>
-                          <div>{Status === 'failure' && globalUtil.fetchReason(Reason)}</div>
-                          <div>{Status === 'failure' ? <div style={{ color: '#CD0200' }}>{Messages}</div> : Messages}</div>
-                        </div>
-                      </div>
-                      {code_commit_msg &&
-                        <div className={styles.commit}>
-                          <div>{globalUtil.fetchSvg('commit')}</div>
-                          <div><Tooltip title={code_commit_msg}>{code_commit_msg}</Tooltip></div>
-                        </div>
-                      }
-                    </div>
-                    <div className={styles.list_center}>
-                      <div><Tooltip title={UserNames}>{UserNames}</Tooltip></div>
-                      <div
-                        className={styles.time}
-                        key={EventID}
-                      >
-                        <Tooltip
-                          title={moment(StartTime)
-                            .locale('zh-cn')
-                            .format('YYYY-MM-DD HH:mm:ss')}
-                        >
-                          <div
-                            style={{ wordBreak: 'break-word', lineHeight: '17px' }}
-                          >
-                            {globalUtil.fetchdayTime(StartTime)}
+                            {team_alias}
                           </div>
                         </Tooltip>
+                        <div className={styles.num}>
+                          <div>
+                            <span className={styles.team_logo}>
+                              <Tooltip title={formatMessage({ id: 'enterpriseOverview.overview.app' })}>
+                                {globalUtil.fetchSvg('teamApp')}
+                              </Tooltip>
+                            </span>
+                            <span>{app_count || 0}</span>
+                          </div>
+                          <div>
+                            <span className={styles.team_logo} style={{ marginTop: '2px' }}>
+                              <Tooltip title={formatMessage({ id: 'enterpriseOverview.overview.component' })}>
+                                {globalUtil.fetchSvg('teamComponent')}
+                              </Tooltip>
+                            </span>
+                            <span>{service_count || 0}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-
-                    <div className={styles.list_right}>
-                      <div
-                        className={styles.teamName}
-                        onClick={() => {
-                          this.onJumpDynamic('team', team_name, region_name, group_id, service_alias)
-                        }}
-                      >
-                        <Tooltip title={team_alias}>
-                          {team_alias}
-                        </Tooltip>
-                      </div>
-                    </div>
-                  </div>
-
-                )
-              })}
+                  )
+                })}
+              </div>
+            }
+            {teamListLoding && (
+              <div className={styles.no_teamList}>
+                <Spin></Spin>
+              </div>
+            )}
+            {!teamListLoding && userTeamList.length == 0 && (
+              <div className={styles.no_teamList}>
+                <Empty />
+              </div>
+            )}
           </div>
-          }
-
-          {dynamicLoding && (
-            <div className={styles.no_dynamicList}>
-              <Spin></Spin>
+          <div className={styles.teamBox_right} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+            <div className={styles.title}>
+              <h3>{formatMessage({ id: 'enterpriseOverview.information.dynamic' })}</h3>
             </div>
-          )}
-          {!dynamicLoding && dynamicList.length == 0 && (
-            <div className={styles.no_dynamicList}>
-              <Empty />
-            </div>
-          )}
+            <div className={styles.titleTh}>
+                  <div className={styles.left}>
+                    <span className={styles.spanAppName}>应用/组件名称</span>
+                    <span className={styles.spanEvent}>动态事件</span>
+                  </div>
+                  <div className={styles.center}>
+                    <span>操作人</span>
+                    <span>操作日期</span>
+                  </div>
+                  <div className={styles.right}>
+                    <span >团队名称</span>
+                  </div>
+                </div>
+            {dynamicList.length > 0 &&
+              <div className={styles.dynamicList}>
+                
+                {dynamicList.map(item => {
+                  const {
+                    group_name,
+                    team_name,
+                    service_name,
+                    StartTime,
+                    create_time,
+                    EndTime,
+                    UserName,
+                    code_commit_msg,
+                    EventID,
+                    OptType,
+                    Status,
+                    Reason,
+                    FinalStatus,
+                    Message,
+                    group_id,
+                    team_alias,
+                    region_name,
+                    service_alias
+                  } = item
+                  const UserNames = this.showUserName(UserName);
+                  const Messages = globalUtil.fetchMessageLange(Message, Status, OptType)
+                  return (
+                    <div className={styles.list}>
+                      <div className={styles.list_left}>
+                        <div
+                          className={styles.cname}
+                          onClick={() => {
+                            this.onJumpDynamic('app', team_name, region_name, group_id, service_alias)
+                          }}
+                        >
+                          <Tooltip title={group_name}>
+                            {group_name}
+                          </Tooltip>
+                        </div>
+                        <span>/</span>
+                        <div
+                          className={styles.cname}
+                          onClick={() => {
+                            this.onJumpDynamic('component', team_name, region_name, group_id, service_alias)
+                          }}
+                        >
+                          <Tooltip title={service_name}>
+                            {service_name}
+                          </Tooltip>
+                        </div>
+                        <div className={styles.content}>
+                          <div className={styles.contentInfo}>
+                            <div
+                              style={{
+                                color: Status == 'failure' ? '#CD0200' : globalUtil.fetchAbnormalcolor(OptType)
+                              }}
+                            >
+                              {globalUtil.fetchStateOptTypeText(OptType)}
+                            </div>
+                            <div>{globalUtil.fetchOperation(FinalStatus, Status)}</div>
+                            <div>{Status === 'failure' && globalUtil.fetchReason(Reason)}</div>
+                            <div>{Status === 'failure' ? <div style={{ color: '#CD0200' }}>{Messages}</div> : Messages}</div>
+                          </div>
+                        </div>
+                        {code_commit_msg &&
+                          <div className={styles.commit}>
+                            <div>{globalUtil.fetchSvg('commit')}</div>
+                            <div><Tooltip title={code_commit_msg}>{code_commit_msg}</Tooltip></div>
+                          </div>
+                        }
+                      </div>
+                      <div className={styles.list_center}>
+                        <div><Tooltip title={UserNames}>{UserNames}</Tooltip></div>
+                        <div
+                          className={styles.time}
+                          key={EventID}
+                        >
+                          <Tooltip
+                            title={moment(StartTime)
+                              .locale('zh-cn')
+                              .format('YYYY-MM-DD HH:mm:ss')}
+                          >
+                            <div
+                              style={{ wordBreak: 'break-word', lineHeight: '17px' }}
+                            >
+                              {globalUtil.fetchdayTime(StartTime)}
+                            </div>
+                          </Tooltip>
+                        </div>
+                      </div>
 
+                      <div className={styles.list_right}>
+                        <div
+                          className={styles.teamName}
+                          onClick={() => {
+                            this.onJumpDynamic('team', team_name, region_name, group_id, service_alias)
+                          }}
+                        >
+                          <Tooltip title={team_alias}>
+                            {team_alias}
+                          </Tooltip>
+                        </div>
+                      </div>
+                    </div>
+
+                  )
+                })}
+              </div>
+            }
+
+            {dynamicLoding && (
+              <div className={styles.no_dynamicList}>
+                <Spin></Spin>
+              </div>
+            )}
+            {!dynamicLoding && dynamicList.length == 0 && (
+              <div className={styles.no_dynamicList}>
+                <Empty />
+              </div>
+            )}
+
+          </div>
         </div>
-      </div>
-    </div >
-  )
-}
+      </div >
+    )
+  }
 }

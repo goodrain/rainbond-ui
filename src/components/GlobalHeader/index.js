@@ -86,9 +86,9 @@ export default class GlobalHeader extends PureComponent {
       this.showChangePass();
     }
     if (key === 'zh_en') {
-      if(language){
+      if (language) {
         this.handleMenuCN("en-US")
-      }else{
+      } else {
         this.handleMenuCN("zh-CN");
       }
     }
@@ -198,12 +198,12 @@ export default class GlobalHeader extends PureComponent {
         <path d="M511.174192 746.339166c-9.912767 0-18.419512-8.018627-18.419512-17.907858L492.75468 298.639634c0-9.889231 8.506744-17.907858 18.419512-17.907858s18.419512 8.018627 18.419512 17.907858l0 429.791673C529.593703 738.321562 521.086959 746.339166 511.174192 746.339166z" p-id="9660" fill="#ffffff"></path>
       </svg>
     )
-    const en_language =()=> (
+    const en_language = () => (
       <svg class="icon" width="15" height="15" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
         <path d="M229.248 704V337.504h271.744v61.984h-197.76v81.28h184v61.76h-184v99.712h204.768V704h-278.72z m550.496 0h-70.24v-135.488c0-28.672-1.504-47.232-4.48-55.648a39.04 39.04 0 0 0-14.656-19.616 41.792 41.792 0 0 0-24.384-7.008c-12.16 0-23.04 3.328-32.736 10.016-9.664 6.656-16.32 15.488-19.872 26.496-3.584 11.008-5.376 31.36-5.376 60.992V704h-70.24v-265.504h65.248v39.008c23.168-30.016 52.32-44.992 87.488-44.992 15.52 0 29.664 2.784 42.496 8.352 12.832 5.6 22.56 12.704 29.12 21.376 6.592 8.672 11.2 18.496 13.76 29.504 2.56 11.008 3.872 26.752 3.872 47.264V704zM160 144a32 32 0 0 0-32 32V864a32 32 0 0 0 32 32h688a32 32 0 0 0 32-32V176a32 32 0 0 0-32-32H160z m0-64h688a96 96 0 0 1 96 96V864a96 96 0 0 1-96 96H160a96 96 0 0 1-96-96V176a96 96 0 0 1 96-96z" />
       </svg>
     )
-    const cn_language =()=> (
+    const cn_language = () => (
       <svg class="icon" width="15" height="15" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
         <path d="M160 144a32 32 0 0 0-32 32V864a32 32 0 0 0 32 32h688a32 32 0 0 0 32-32V176a32 32 0 0 0-32-32H160z m0-64h688a96 96 0 0 1 96 96V864a96 96 0 0 1-96 96H160a96 96 0 0 1-96-96V176a96 96 0 0 1 96-96zM482.176 262.272h59.616v94.4h196v239.072h-196v184.416h-59.616v-184.416H286.72v-239.04h195.456V262.24z m-137.504 277.152h137.504v-126.4H344.64v126.4z m197.12 0h138.048v-126.4H541.76v126.4z" />
       </svg>
@@ -246,23 +246,30 @@ export default class GlobalHeader extends PureComponent {
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <Header className={styles.header}>
-          <Icon
+        <div>
+          {/* <Icon
             className={styles.trigger}
             type={!collapsed ? 'menu-unfold' : 'menu-fold'}
             style={{ color: '#ffffff', float: 'left' }}
             onClick={this.toggle}
-          />
-        <div>
-          <Link style={{ color: '#fff' }} to={`/enterprise/${eid}/personal`}>
+          /> */}
+
+          {/* <Link style={{ color: '#fff' }} to={`/enterprise/${eid}/personal`}> */}
             {customHeader && customHeader()}
+          {/* </Link> */}
+          <Link style={{ color: '#fff', marginRight: '20px', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/personal`}>
+            {/* {customHeader && customHeader()} */}
+            工作空间
           </Link>
-        </div>
-        <div className={styles.right}>
-          {is_admin && (
-            <Link style={{ color: '#fff' }} to={`/enterprise/${eid}/index`}>
+          {/* 平台管理 */}
+          {/* {is_admin && ( */}
+            <Link style={{ color: '#fff', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/index`}>
               <FormattedMessage id="GlobalHeader.platform" />
             </Link>
-          )}
+          {/* )} */}
+        </div>
+        <div className={styles.right}>
+
           {/* <a 
           className={styles.action}
           style={{ color: '#fff' }}
