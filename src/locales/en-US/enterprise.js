@@ -343,6 +343,7 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.other.examine': 'Applying to join the project/team for approval',
     'enterpriseTeamManagement.other.haveNewJoinTeam': 'Newly joined project/team',
     'enterpriseTeamManagement.other.description': 'There is no project/team, please create or join',
+    'enterpriseTeamManagement.other.personal':'Workspace',
 }
 // 集群
 const enterpriseColony = {

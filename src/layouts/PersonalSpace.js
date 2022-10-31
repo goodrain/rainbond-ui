@@ -9,7 +9,8 @@ import {
   Row,
   Layout,
   Spin,
-  Tooltip
+  Tooltip,
+  Avatar
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -222,7 +223,7 @@ export default class Space extends Component {
       collapsed,
       currentUser
     } = this.props
-    console.log(enterpriseInfo, 'enterpriseInfo')
+    const colorList = ['#6d60e7', '#55b563', '#ebaa44', '#e86f2c', '#00a2ae' ];
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
@@ -231,7 +232,7 @@ export default class Space extends Component {
       );
     }
     return (
-      <div>
+      <div style={{ height: "100%" }}>
         <GlobalHeader
           eid={eid}
           is_admin={user.is_enterprise_admin}
@@ -249,7 +250,7 @@ export default class Space extends Component {
             </div>
             {userTeamList.length > 0 &&
               <div className={styles.teamList}>
-                {userTeamList.map((item) => {
+                {userTeamList.map((item,index) => {
                   const {
                     team_alias,
                     app_count,
@@ -258,18 +259,45 @@ export default class Space extends Component {
                     region_list,
                     team_name
                   } = item
+                  const colorIndex = userTeamList && userTeamList.length >0 && userTeamList.length - index - 1
                   return (
-                    <div className={styles.list} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+                    <div className={styles.list}
+                      style={{
+                        boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 5px 0px',
+                      }}
+                      onClick={() => {
+                        this.onJumpTeam(team_name, region_list[0].region_name)
+                      }}
+                    >
                       <div className={styles.list_img}>
-                        <img src={logo || teamLogo} alt="" />
+                        {logo  ? 
+                        <img src={ logo } alt="" /> 
+                        :                         
+                        <Avatar 
+                          style=
+                          {{ 
+                            backgroundColor: colorIndex>= 5 ? colorList[ colorIndex % 5 ] : colorList[colorIndex], 
+                            verticalAlign: 'middle' 
+                          }} 
+                          size={60} 
+                          shape="square">
+                          <span 
+                            style=
+                              {{
+                                color:'#fff',
+                                fontSize:35,
+                                textTransform:'uppercase'
+                              }}
+                          >
+                          {team_alias.substr(0,1)}
+                          </span>
+                        </Avatar>
+                        }
                       </div>
                       <div className={styles.list_detail}>
                         <Tooltip title={team_alias}>
                           <div
                             className={styles.team_name}
-                            onClick={() => {
-                              this.onJumpTeam(team_name, region_list[0].region_name)
-                            }}
                           >
                             {team_alias}
                           </div>
@@ -314,21 +342,21 @@ export default class Space extends Component {
               <h3>{formatMessage({ id: 'enterpriseOverview.information.dynamic' })}</h3>
             </div>
             <div className={styles.titleTh}>
-                  <div className={styles.left}>
-                    <span className={styles.spanAppName}>应用/组件名称</span>
-                    <span className={styles.spanEvent}>动态事件</span>
-                  </div>
-                  <div className={styles.center}>
-                    <span>操作人</span>
-                    <span>操作日期</span>
-                  </div>
-                  <div className={styles.right}>
-                    <span >团队名称</span>
-                  </div>
-                </div>
+              <div className={styles.left}>
+                <span className={styles.spanAppName}>应用/组件名称</span>
+                <span className={styles.spanEvent}>动态事件</span>
+              </div>
+              <div className={styles.center}>
+                <span>操作人</span>
+                <span>操作日期</span>
+              </div>
+              <div className={styles.right}>
+                <span >团队名称</span>
+              </div>
+            </div>
             {dynamicList.length > 0 &&
               <div className={styles.dynamicList}>
-                
+
                 {dynamicList.map(item => {
                   const {
                     group_name,

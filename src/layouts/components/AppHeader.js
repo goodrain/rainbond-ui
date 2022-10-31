@@ -2,6 +2,7 @@ import { Spin } from 'antd';
 import { Link } from 'dva/router';
 import React from 'react';
 import headerStype from '../../components/GlobalHeader/index.less';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import SelectApp from '../../components/SelectApp';
 import SelectComponent from '../../components/SelectComponent';
 import SelectTeam from '../../components/SelectTeam';
@@ -31,7 +32,7 @@ export default function AppHeader(props) {
               to={`/enterprise/${currentEnterprise.enterprise_id}/personal`}
             >
               {/* {currentEnterprise && currentEnterprise.enterprise_alias} */}
-              工作空间
+            {formatMessage({id:'enterpriseTeamManagement.other.personal'})}
             </Link>
             <span className={headerStype.itemseparator}>></span>
           </div>

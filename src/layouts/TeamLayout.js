@@ -512,11 +512,12 @@ class TeamLayout extends PureComponent {
         </div>
       );
     };
+  const svgPersonal = globalUtil.fetchSvg('svgPersonal')
     const breadCrumb = () => {
       if (mode == 'team') {
         return (
           <TeamHeader
-            nobleIcon={BillingFunction}
+            nobleIcon={svgPersonal}
             teamName={teamName}
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
@@ -534,7 +535,7 @@ class TeamLayout extends PureComponent {
           currentRegion={currentRegion}
           regionName={regionName}
           appID={appID}
-          nobleIcon={BillingFunction}
+          nobleIcon={svgPersonal}
           currentComponent={currentComponent}
           componentID={componentID}
           upDataHeader={upDataHeader}

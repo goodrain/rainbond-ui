@@ -16,7 +16,8 @@ import {
   Spin
 } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, setLocale, getLocale, FormattedMessage } from 'umi/locale'
+import { setLocale, getLocale, } from 'umi/locale'
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { routerRedux } from 'dva/router';
 import Debounce from 'lodash-decorators/debounce';
 import React, { PureComponent } from 'react';
@@ -259,7 +260,7 @@ export default class GlobalHeader extends PureComponent {
           {/* </Link> */}
           <Link style={{ color: '#fff', marginRight: '20px', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/personal`}>
             {/* {customHeader && customHeader()} */}
-            工作空间
+            {formatMessage({id:'enterpriseTeamManagement.other.personal'})}
           </Link>
           {/* 平台管理 */}
           {/* {is_admin && ( */}
