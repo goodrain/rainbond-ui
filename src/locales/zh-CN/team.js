@@ -285,6 +285,8 @@ const teamManage = {
   'teamManage.tabs.role.list.permissions.app':'应用管理',
   'teamManage.tabs.role.list.permissions.component':'组件管理',
   'teamManage.tabs.role.list.permissions.plugin':'插件管理',
+  'teamManage.tabs.role.list.permissions.edit':'保存修改',
+  'teamManage.tabs.role.list.permissions.add':'新增',
 
   //镜像仓库授权信息 image
   'teamManage.tabs.image':'镜像仓库授权信息',

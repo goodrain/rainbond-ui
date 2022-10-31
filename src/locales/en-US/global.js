@@ -64,14 +64,14 @@ const global = {
     'global.fetchReason.cluster_lack_of_memory':'Insufficient cluster resources',
 
     // fetchAccessText
-    'global.fetchReason.component':'Component management',
-    'global.fetchReason.app':'Application management',
-    'global.fetchReason.gatewayRule':'Gateway access policy',
-    'global.fetchReason.certificate':'Certificate management',
-    'global.fetchReason.plugin':'Plugin management',
-    'global.fetchReason.teamMember':'Team member management',
-    'global.fetchReason.teamRole':'Team role management',
-    'global.fetchReason.teamRegion':'Team cluster management',
+    'global.fetchAccessText.component':'Component management',
+    'global.fetchAccessText.app':'Application management',
+    'global.fetchAccessText.gatewayRule':'Gateway access policy',
+    'global.fetchAccessText.certificate':'Certificate management',
+    'global.fetchAccessText.plugin':'Plugin management',
+    'global.fetchAccessText.teamMember':'Team member management',
+    'global.fetchAccessText.teamRole':'Team role management',
+    'global.fetchAccessText.teamRegion':'Team cluster management',
 
     // getComponentType
     'global.getComponentType.stateless_multiple':'Stateless service(Deployment)',

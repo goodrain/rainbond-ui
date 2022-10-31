@@ -5,6 +5,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../../utils/global';
 import roleUtil from '../../../utils/role';
 import ConfirmModal from '../../ConfirmModal';
+import cookie from '@/utils/cookie';
 import styles from './index.less';
 import PermissionsForm from './permissionsForm';
 
@@ -24,7 +25,8 @@ export default class RoleList extends PureComponent {
       rolesID: null,
       rolesLoading: true,
       permissions: null,
-      permissionsLoading: true
+      permissionsLoading: true,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   componentDidMount() {
@@ -117,7 +119,8 @@ export default class RoleList extends PureComponent {
       permissionsLoading,
       showAddRole,
       rolesID,
-      deleteRole
+      deleteRole,
+      language
     } = this.state;
     const roles = roleList && roleList.length > 0;
     return (
@@ -139,7 +142,7 @@ export default class RoleList extends PureComponent {
                       const { ID, name } = item;
                       return (
                         <Item key={ID} className={styles.roleName}>
-                          <div> {roleUtil.actionMap(name)}</div>
+                          <div> {roleUtil.actionMap(name, language)}</div>
                           {isDelete && (
                             <Icon
                               type="delete"
