@@ -19,7 +19,7 @@ export default function AppHeader(props) {
   } = props;
 
   return (
-    <div className={headerStype.itemBox}>
+    <div className={headerStype.itemBoxs}>
       {upDataHeader ? (
         <Spin size="large" />
       ) : (
@@ -30,7 +30,8 @@ export default function AppHeader(props) {
               className={headerStype.itemlink}
               to={`/enterprise/${currentEnterprise.enterprise_id}/personal`}
             >
-              {currentEnterprise && currentEnterprise.enterprise_alias}
+              {/* {currentEnterprise && currentEnterprise.enterprise_alias} */}
+              工作空间
             </Link>
             <span className={headerStype.itemseparator}>></span>
           </div>

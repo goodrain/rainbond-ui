@@ -31,6 +31,7 @@ import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
+import Logo from '../../public/logo.png'
 import Shell from "../components/Shell"
 import styles from './EnterpriseLayout.less'
 import { loadRegionConfig } from '@/services/cloud';
@@ -399,8 +400,7 @@ class EnterpriseLayout extends PureComponent {
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
-          {(enterprise && enterprise.enterprise_alias) ||
-            (enterpriseInfo && enterpriseInfo.enterprise_alias)}
+           <img src={Logo} alt="" />
         </div>
       );
     };

@@ -1,19 +1,19 @@
 
 .teamBox{
     width: 100%;
-    height: 670px;
+    height: 710px;
     padding: 24px;
     display: flex;
     justify-content: space-between;
     .teamBox_left{
         width: 20%;
-        height: 670px;
+        height: 710px;
         border-radius: 5px;
-        background-color: #fff;
         .title{
             width: 100%;
             height: 40px;
             padding: 12px;
+            background: #fff;
             border-bottom: 1px solid #e3e3e3;
         }
         .teamList{
@@ -21,13 +21,13 @@
             height: 630px;
             overflow-x: hidden;
             overflow-y: scroll;
-            padding: 2px 18px;
             font-family: PingFangSC-Medium;
             .list{
                 width: 100%;
                 height: 100px;
                 border-radius: 5px;
                 margin-bottom: 12px;
+                background: #fff;
                 display: flex;
                 align-items: center;
                 .list_img{
@@ -88,7 +88,7 @@
     }
     .teamBox_right{
         width: 78%;
-        height: 670px;
+        height: 710px;
         background-color: #fff;
         border-radius: 5px;
         
@@ -98,11 +98,55 @@
             padding: 12px;
             border-bottom: 1px solid #e3e3e3;
         }
+        .titleTh{
+            background: #FAFAFA;
+            width: 100%;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #e3e3e3;
+            justify-content: space-between;
+            font-weight: 500;
+            .left{
+                width: 76%;
+                display: flex;
+                align-items: center;
+                .spanAppName{
+                    width: 17%;
+                    margin-left: 30px;
+                    text-align: left;
+                    display: inline-block;
+                }
+                .spanEvent{
+                    width: 80%;
+                    text-align: center;
+                    display: inline-block;
+                }
+            }
+            .center{
+                width: 16%;
+                display: flex;
+                align-items: center;
+                span{
+                    text-align: center;
+                    width: 50%;
+                }
+            }
+            .right{
+                width: 10%;
+                span{
+                    width: 100%;
+                    text-align: center;
+                    display: inline-block;
+                }
+            }
+        }
         .dynamicList{
             width: 100%;
             height: 630px;
-            padding: 4px 12px;
+            padding: 0px 12px;
             overflow: auto;
+            
             .list{
                 width: 100%;
                 height: 56px;
@@ -184,6 +228,7 @@
                     align-items: center;
                     .teamName{
                         width: 100%;
+                        cursor: pointer;
                         text-align: center;
                         overflow: hidden;
                         white-space: nowrap;

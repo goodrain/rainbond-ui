@@ -34,7 +34,9 @@ import AppHeader from './components/AppHeader';
 import TeamHeader from './components/TeamHeader';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
+import Logo from '../../public/logo.png'
 import styles from './EnterpriseLayout.less'
+import headerStype from '../components/GlobalHeader/index.less';
 const { Content } = Layout;
 
 const query = {
@@ -84,7 +86,7 @@ class TeamLayout extends PureComponent {
       eid: '',
       appID: globalUtil.getAppID(),
       teamView: true,
-      showMenu:true
+      showMenu: true
     };
   }
 
@@ -92,20 +94,20 @@ class TeamLayout extends PureComponent {
     this.getNewbieGuideConfig();
     this.getEnterpriseList();
   }
-  componentWillUpdate(){
+  componentWillUpdate() {
     const updata = JSON.parse(window.sessionStorage.getItem('updata'))
-    if(updata){
+    if (updata) {
       window.location.reload()
       window.sessionStorage.removeItem('updata')
     }
     const urlParams = new URL(window.location.href);
-    if(urlParams){
+    if (urlParams) {
       const bool = urlParams.href.includes("/helminstall")
-      if(bool){
+      if (bool) {
         this.setState({
           showMenu: false
         })
-      }else{
+      } else {
         this.setState({
           showMenu: true
         })
@@ -147,11 +149,11 @@ class TeamLayout extends PureComponent {
             () => {
               if (currentUser) {
                 return this.getTeamOverview(currentUser.user_id);
-                
+
               }
               // 获取最新的用户信息
               this.fetchUserInfo();
-              
+
             }
           );
         }
@@ -206,8 +208,8 @@ class TeamLayout extends PureComponent {
             err.data.code === 10411
               ? '当前集群不可用'
               : err.data.code === 10412
-              ? '当前集群不存在'
-              : false;
+                ? '当前集群不存在'
+                : false;
           if (errtext && enterpriseList.length > 0) {
             notification.warning({ message: errtext });
             dispatch(
@@ -216,7 +218,7 @@ class TeamLayout extends PureComponent {
               )
             );
           } else {
-            notification.warning({ message: formatMessage({id:'notification.warn.error'}) });
+            notification.warning({ message: formatMessage({ id: 'notification.warn.error' }) });
           }
         }
       }
@@ -272,13 +274,13 @@ class TeamLayout extends PureComponent {
       payload: { team_name: teamName, region_name: regionName }
     });
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
-        dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
-        this.setState({
-          currentEnterprise: enterpriseList[0],
-          currentTeam: team,
-          currentRegion: region,
-          ready: true
-        });
+    dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
+    this.setState({
+      currentEnterprise: enterpriseList[0],
+      currentTeam: team,
+      currentRegion: region,
+      ready: true
+    });
     this.fetchEnterpriseInfo(eid);
     this.fetchTeamApps();
     enquireScreen(mobile => {
@@ -420,7 +422,7 @@ class TeamLayout extends PureComponent {
       }
     });
   };
-  
+
   render() {
     const {
       memoryTip,
@@ -504,6 +506,13 @@ class TeamLayout extends PureComponent {
         : this.getMode(appID || componentID);
 
     const customHeader = () => {
+      return (
+        <div className={headerStype.enterprise}>
+          <img src={Logo} alt="" />
+        </div>
+      );
+    };
+    const breadCrumb = () => {
       if (mode == 'team') {
         return (
           <TeamHeader
@@ -531,7 +540,7 @@ class TeamLayout extends PureComponent {
           upDataHeader={upDataHeader}
         />
       );
-    };
+    }
     let menuData = getMenuData(
       teamName,
       regionName,
@@ -675,10 +684,10 @@ class TeamLayout extends PureComponent {
                   width: autoWidth
                 }}
               >
-                
+                {teamView && breadCrumb()}
                 <div
                   style={{
-                    margin: '24px 24px 0'
+                    margin: '12px 24px 0'
                   }}
                 >
                   {renderContent()}
