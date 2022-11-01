@@ -650,7 +650,7 @@
         'placeholder.docker_cmdMsg':'请输入镜像名称',
         'placeholder.docker_cmd':'请输入镜像名称, 如 nginx : 1.11',
         'placeholder.dockerRunMsg':'请输入DockerRun命令',
-        'placeholder.dockerRun':'例如： docker run -d -p 8080:8080 -e PWD=1qa2ws --name=tomcat_demo tomcat',
+        'placeholder.dockerRun':'例如： helm install --repo https://example.com/charts/ mynginx nginx',
         'placeholder.yaml_content':'请输入DockerCompose配置内容',
         'placeholder.user_name':'请输入仓库用户名',
         'placeholder.password':'请输入仓库密码',
