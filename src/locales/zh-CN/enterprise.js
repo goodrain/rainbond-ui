@@ -13,6 +13,12 @@ const enterpriseOverview = {
     'enterpriseOverview.information.unite': '联合云ID',
     'enterpriseOverview.information.versions': '平台版本',
     'enterpriseOverview.information.time': '创建时间',
+    // 个人空间表格
+    'enterpriseOverview.PersonalSpace.name': '应用/组件名称',
+    'enterpriseOverview.PersonalSpace.event': '动态事件',
+    'enterpriseOverview.PersonalSpace.edit': '操作人',
+    'enterpriseOverview.PersonalSpace.time': '操作日期',
+    'enterpriseOverview.PersonalSpace.team': '团队名称',
     // 应用数量
     'enterpriseOverview.app.number': '应用数量',
     'enterpriseOverview.app.overview': '共{number}个应用数量',

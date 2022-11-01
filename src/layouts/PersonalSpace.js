@@ -343,15 +343,15 @@ export default class Space extends Component {
             </div>
             <div className={styles.titleTh}>
               <div className={styles.left}>
-                <span className={styles.spanAppName}>应用/组件名称</span>
-                <span className={styles.spanEvent}>动态事件</span>
+                <span className={styles.spanAppName}>{formatMessage({id:'enterpriseOverview.PersonalSpace.name'})}</span>
+                <span className={styles.spanEvent}>{formatMessage({id:'enterpriseOverview.PersonalSpace.event'})}</span>
               </div>
               <div className={styles.center}>
-                <span>操作人</span>
-                <span>操作日期</span>
+                <span>{formatMessage({id:'enterpriseOverview.PersonalSpace.edit'})}</span>
+                <span>{formatMessage({id:'enterpriseOverview.PersonalSpace.time'})}</span>
               </div>
               <div className={styles.right}>
-                <span >团队名称</span>
+                <span >{formatMessage({id:'enterpriseOverview.PersonalSpace.team'})}</span>
               </div>
             </div>
             {dynamicList.length > 0 &&

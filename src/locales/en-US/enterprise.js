@@ -13,6 +13,12 @@ const enterpriseOverview = {
     'enterpriseOverview.information.unite': 'ID',
     'enterpriseOverview.information.versions': 'Version',
     'enterpriseOverview.information.time': 'Creation Time',
+    // 个人空间表格
+    'enterpriseOverview.PersonalSpace.name': 'App/Component name',
+    'enterpriseOverview.PersonalSpace.event': 'Dynamic events',
+    'enterpriseOverview.PersonalSpace.edit': 'Operation',
+    'enterpriseOverview.PersonalSpace.time': 'Date',
+    'enterpriseOverview.PersonalSpace.team': 'Team name',
     // 应用数量
     'enterpriseOverview.app.number': 'Applications',
     'enterpriseOverview.app.overview': 'Total: {number}',
