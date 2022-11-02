@@ -105,6 +105,8 @@
         'popover.enterpriseOverview.setUpTeam.label.name':'Team name',
         'popover.enterpriseOverview.setUpTeam.label.englishName':'English name',
         'popover.enterpriseOverview.setUpTeam.label.colony':'Cluster',
+        'popover.enterpriseOverview.setUpTeam.label.logo':'Team logo',
+        'popover.enterpriseOverview.setUpTeam.input_logo':'Please upload icon',
         'popover.enterpriseOverview.setUpTeam.label.creat_name':'Click to create a team.',
         'popover.enterpriseOverview.setUpTeam.label.creat_colony':'Lack of cluster, to create',
         // placeholder
@@ -642,7 +644,7 @@
         'placeholder.docker_cmdMsg':'Please enter the image name',
         'placeholder.docker_cmd':'enter the image name, eg: nginx: 1.11',
         'placeholder.dockerRunMsg':'Enter the DockerRun command',
-        'placeholder.dockerRun':'eg: docker run -d -p 8080:8080 -e PWD=1qa2ws tomcat',
+        'placeholder.dockerRun':'eg: helm install --repo https://example.com/charts/ mynginx nginx',
         'placeholder.yaml_content':'Enter the DockerCompose configuration content',
         'placeholder.user_name':'Please enter a warehouse user name',
         'placeholder.password':'Please enter the image repo password',

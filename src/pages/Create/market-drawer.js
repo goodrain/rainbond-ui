@@ -566,9 +566,7 @@ import {
                 this.onCancelCreate();
                 dispatch(
                   routerRedux.push(
-                    `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
-                      res.bean.ID
-                    }`
+                    `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${res.bean.ID}/helminstall`
                   )
                 );
               }
@@ -705,7 +703,7 @@ import {
       );
       const versionBox = (
         <div title={item.version} className={PluginStyles.cardVersionStyle}>
-          <span>版本:</span>
+          <span>{formatMessage({id:'otherApp.marketDrawer.edition'})}</span>
           <div className={PluginStyles.overScroll}>
             <div>
               {item.versions_info &&
@@ -741,7 +739,7 @@ import {
         </div>
       );
       const fastactions = [
-        <Tooltip title={isInstall ? '点击安装11' : '不可安装'}>
+        <Tooltip title={isInstall ? formatMessage({id:'otherApp.marketDrawer.click'}) : formatMessage({id:'otherApp.marketDrawer.not'})}>
           <div
             onClick={() => {
               if (isInstall) {
@@ -832,7 +830,7 @@ import {
                       {versionBox}
                       {!cloud && (
                         <div className={PluginStyles.memoryStyle}>
-                          <span>内存: </span>
+                          <span>{formatMessage({id:'otherApp.marketDrawer.Memory'})}</span>
                           {sourceUtil.unit(item.min_memory || 128, 'MB')}
                         </div>
                       )}
@@ -875,13 +873,13 @@ import {
           layout="horizontal"
           hideRequiredMark
         >
-          <Form.Item {...formItemLayout} label="选择版本">
+          <Form.Item {...formItemLayout} label={formatMessage({id:'otherApp.marketDrawer.Select_version'})}>
             {getFieldDecorator('group_version', {
               initialValue: versionList[0].version || versionList[0].app_version,
               rules: [
                 {
                   required: true,
-                  message: '请选择版本'
+                  message: formatMessage({id:'otherApp.marketDrawer.input_version'})
                 }
               ]
             })(
@@ -1011,7 +1009,7 @@ import {
               zIndex: 99
             }}
           >
-            <a onClick={this.loadMore}>查看更多...</a>
+            <a onClick={this.loadMore}>{formatMessage({id:'otherApp.marketDrawer.more'})}</a>
           </div>
         );
       //本地组件库
@@ -1146,7 +1144,7 @@ import {
         currentTeam,
         currentRegionName
       );
-      breadcrumbList.push({ title: '创建组件' });
+      breadcrumbList.push({ title: formatMessage({id:'otherApp.marketDrawer.creat'}) });
   
       const SpinBox = (
         <div
@@ -1166,7 +1164,7 @@ import {
             <AuthCompany
               eid={currentEnterprise.enterprise_id}
               marketName={authorizations}
-              title="获取云应用商店授权"
+              title={formatMessage({id:'otherApp.marketDrawer.store'})}
               onCancel={() => {
                 this.setState({ authorizations: false });
               }}

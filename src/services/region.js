@@ -191,5 +191,43 @@ export async function backNameSpaceAdvancedResource(param) {
     }
   });
 }
-
-
+// 获取某个集群的所有日志信息
+export async function fetchClusterLogInfo(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/region_name/${param.region_name}/rbd-pods`, {
+    method: 'get',
+  });
+}
+// 获取某个集群的单个日志信息
+export async function fetchClusterLogInfoSingle(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/region_name/${param.region_name}/rbd-component-logs`, {
+    method: 'get',
+    params: {
+      lines: param.lines,
+      rbd_name : param.rbd_name
+    }
+  });
+}
+// 获取某个集群的单个日志的节点信息
+export async function fetchNodeInfo(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/region_name/${param.region_name}/rbd-logs`, {
+    method: 'get',
+    params: {
+      pod_name : param.pod_name
+    }
+  });
+}
+// 获取控制台日志
+export async function fetchConsoleLogs(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/goodrain_log`, {
+    method: 'get',
+  });
+}
+// 历史日志列表请求
+export async function fetchHistoryLogs(param) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/region_name/${param.region_name}/rbd-log-files`, {
+    method: 'get',
+    params: {
+      rbd_name : param.rbd_name
+    }
+  });
+}

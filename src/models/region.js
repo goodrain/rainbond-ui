@@ -13,7 +13,12 @@ import {
   fetchImportMessage,
   fetchNameSpaceResource,
   fetchNameSpaceAdvancedResource,
-  backNameSpaceAdvancedResource
+  backNameSpaceAdvancedResource,
+  fetchClusterLogInfo,
+  fetchClusterLogInfoSingle,
+  fetchNodeInfo,
+  fetchConsoleLogs,
+  fetchHistoryLogs
 } from '../services/region';
 
 export default {
@@ -26,7 +31,10 @@ export default {
       JSON.parse(window.sessionStorage.getItem('base_configuration')) || {},
     // 集群高级配置数据
     advance_configuration:
-      JSON.parse(window.sessionStorage.getItem('advance_config')) || {}
+      JSON.parse(window.sessionStorage.getItem('advance_config')) || {},
+    //shell终端状态 
+    terminal_status:
+    JSON.parse(window.sessionStorage.getItem('terminal_status')) || false,
   },
   effects: {
     *fetchProtocols({ payload }, { call, put }) {
@@ -138,7 +146,37 @@ export default {
       if (response && callback) {
         callback(response);
       }
-    }
+    },
+    *fetchClusterLogInfo({ payload, callback }, { call }) {
+      const response = yield call(fetchClusterLogInfo, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchClusterLogInfoSingle({ payload, callback }, { call }) {
+      const response = yield call(fetchClusterLogInfoSingle, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchNodeInfo({ payload, callback }, { call }) {
+      const response = yield call(fetchNodeInfo, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchConsoleLogs({ payload, callback }, { call }) {
+      const response = yield call(fetchConsoleLogs, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchHistoryLogs({ payload, callback }, { call }) {
+      const response = yield call(fetchHistoryLogs, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
   },
   reducers: {
     saveProtocols(state, action) {
@@ -174,6 +212,33 @@ export default {
         ...state,
         advance_configuration: payload
       };
-    }
+    },
+    // shell终端启动
+    terminalCallout(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.setItem(
+          'terminal_status',
+          JSON.stringify(payload) || {}
+        );
+      }
+      return {
+        ...state,
+        terminal_status: payload
+      };
+    },
+    // shell终端退出
+    terminalRepeal(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.removeItem(
+          'terminal_status',
+        );
+      }
+      return {
+        ...state,
+        terminal_status: !payload
+      };
+    },
   }
 };

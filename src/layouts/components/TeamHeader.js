@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import SelectTeam from '../../components/SelectTeam';
 import headerStype from '../../components/GlobalHeader/index.less';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Spin } from 'antd';
 import { Link } from 'dva/router';
 
@@ -13,20 +14,20 @@ export default function TeamHeader(props) {
     nobleIcon,
     upDataHeader
   } = props;
-
   return (
     <div className={headerStype.itemBox}>
       {upDataHeader ? (
         <Spin size="large" />
       ) : (
-        <div>
+        <div className={headerStype.breadCrumb}>
           <div className={headerStype.item}>
           {nobleIcon}
             <Link
               className={headerStype.itemlink}
-              to={`/enterprise/${currentEnterprise.enterprise_id}/index`}
+              to={`/enterprise/${currentEnterprise.enterprise_id}/personal`}
             >
-              {currentEnterprise && currentEnterprise.enterprise_alias}
+              {/* {currentEnterprise && currentEnterprise.enterprise_alias} */}
+            {formatMessage({id:'enterpriseTeamManagement.other.personal'})}
             </Link>
             <span className={headerStype.itemseparator}>></span>
           </div>

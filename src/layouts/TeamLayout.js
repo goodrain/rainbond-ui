@@ -34,7 +34,9 @@ import AppHeader from './components/AppHeader';
 import TeamHeader from './components/TeamHeader';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
+import Logo from '../../public/logo.png'
 import styles from './EnterpriseLayout.less'
+import headerStype from '../components/GlobalHeader/index.less';
 const { Content } = Layout;
 
 const query = {
@@ -83,13 +85,34 @@ class TeamLayout extends PureComponent {
       currentComponent: null,
       eid: '',
       appID: globalUtil.getAppID(),
-      teamView: true
+      teamView: true,
+      showMenu: true
     };
   }
 
   componentWillMount() {
     this.getNewbieGuideConfig();
     this.getEnterpriseList();
+  }
+  componentWillUpdate() {
+    const updata = JSON.parse(window.sessionStorage.getItem('updata'))
+    if (updata) {
+      window.location.reload()
+      window.sessionStorage.removeItem('updata')
+    }
+    const urlParams = new URL(window.location.href);
+    if (urlParams) {
+      const bool = urlParams.href.includes("/helminstall")
+      if (bool) {
+        this.setState({
+          showMenu: false
+        })
+      } else {
+        this.setState({
+          showMenu: true
+        })
+      }
+    }
   }
   componentWillReceiveProps() {
     const appID = globalUtil.getAppID();
@@ -126,11 +149,11 @@ class TeamLayout extends PureComponent {
             () => {
               if (currentUser) {
                 return this.getTeamOverview(currentUser.user_id);
-                
+
               }
               // 获取最新的用户信息
               this.fetchUserInfo();
-              
+
             }
           );
         }
@@ -185,17 +208,17 @@ class TeamLayout extends PureComponent {
             err.data.code === 10411
               ? '当前集群不可用'
               : err.data.code === 10412
-              ? '当前集群不存在'
-              : false;
+                ? '当前集群不存在'
+                : false;
           if (errtext && enterpriseList.length > 0) {
             notification.warning({ message: errtext });
             dispatch(
               routerRedux.push(
-                `/enterprise/${enterpriseList[0].enterprise_id}/index`
+                `/enterprise/${enterpriseList[0].enterprise_id}/personal`
               )
             );
           } else {
-            notification.warning({ message: formatMessage({id:'notification.warn.error'}) });
+            notification.warning({ message: formatMessage({ id: 'notification.warn.error' }) });
           }
         }
       }
@@ -251,13 +274,13 @@ class TeamLayout extends PureComponent {
       payload: { team_name: teamName, region_name: regionName }
     });
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
-        dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
-        this.setState({
-          currentEnterprise: enterpriseList[0],
-          currentTeam: team,
-          currentRegion: region,
-          ready: true
-        });
+    dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
+    this.setState({
+      currentEnterprise: enterpriseList[0],
+      currentTeam: team,
+      currentRegion: region,
+      ready: true
+    });
     this.fetchEnterpriseInfo(eid);
     this.fetchTeamApps();
     enquireScreen(mobile => {
@@ -399,7 +422,7 @@ class TeamLayout extends PureComponent {
       }
     });
   };
-  
+
   render() {
     const {
       memoryTip,
@@ -427,6 +450,7 @@ class TeamLayout extends PureComponent {
       currentComponent,
       teamView,
       currentApp,
+      showMenu
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -482,10 +506,18 @@ class TeamLayout extends PureComponent {
         : this.getMode(appID || componentID);
 
     const customHeader = () => {
+      return (
+        <div className={headerStype.enterprise}>
+          <img src={Logo} alt="" />
+        </div>
+      );
+    };
+  const svgPersonal = globalUtil.fetchSvg('svgPersonal')
+    const breadCrumb = () => {
       if (mode == 'team') {
         return (
           <TeamHeader
-            nobleIcon={BillingFunction}
+            nobleIcon={svgPersonal}
             teamName={teamName}
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
@@ -503,13 +535,13 @@ class TeamLayout extends PureComponent {
           currentRegion={currentRegion}
           regionName={regionName}
           appID={appID}
-          nobleIcon={BillingFunction}
+          nobleIcon={svgPersonal}
           currentComponent={currentComponent}
           componentID={componentID}
           upDataHeader={upDataHeader}
         />
       );
-    };
+    }
     let menuData = getMenuData(
       teamName,
       regionName,
@@ -523,7 +555,7 @@ class TeamLayout extends PureComponent {
         currentTeam.tenant_actions
       );
     } else if (mode === 'helm') {
-      menuData = getHelmMenuData(
+      menuData = getAppMenuData(
         teamName,
         regionName,
         appID,
@@ -643,7 +675,7 @@ class TeamLayout extends PureComponent {
                   onCollapse={this.handleMenuCollapse}
                   menuData={menuData}
                   pathname={pathname}
-                  showMenu={!componentID}
+                  showMenu={showMenu ? !componentID : false}
                 />
               )}
               <Content
@@ -653,10 +685,10 @@ class TeamLayout extends PureComponent {
                   width: autoWidth
                 }}
               >
-                
+                {teamView && breadCrumb()}
                 <div
                   style={{
-                    margin: '24px 24px 0'
+                    margin: '12px 24px 0'
                   }}
                 >
                   {renderContent()}

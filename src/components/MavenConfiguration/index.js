@@ -289,7 +289,7 @@ export default class AddAdmin extends PureComponent {
           loading={EditMavensettingsLoading}
           onClick={this.handleEditSubmit}
         >
-          <FormattedMessage id='button.preservation'/>
+          <FormattedMessage id='button.save'/>
         </Button>
       );
     } else {

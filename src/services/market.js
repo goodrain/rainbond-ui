@@ -541,3 +541,47 @@ export async function storehubCheck(body) {
     }
   );
 }
+
+//添加helm仓库 console层处理
+export function HelmwaRehouseAdd(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/helm/repos`,
+    {
+      method: 'post',
+      data: {
+        repo_name: body.repo_name,
+        repo_url: body.repo_url,
+        username: body.username || '',
+        password: body.password || ''
+      },
+      handleError
+    }
+  );
+}
+//删除helm仓库 console层处理
+export function HelmwaRehouseDelete(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/helm/repos`,
+    {
+      method: 'delete',
+      data: {
+        repo_name: body.repo_name,
+      },
+      handleError
+    }
+  );
+}
+//修改helm仓库 console层处理
+export function HelmwaRehouseEdit(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/helm/repos`,
+    {
+      method: 'put',
+      data: {
+        repo_name: body.repo_name,
+        repo_url: body.repo_url,
+      },
+      handleError
+    }
+  );
+}

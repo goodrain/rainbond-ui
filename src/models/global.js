@@ -22,6 +22,8 @@ import {
   fetchEnterpriseTeams,
   fetchEnterpriseUsers,
   fetchMyTeams,
+  fetchMyTeamsDynamic,
+  fetchAppAlertInfo,
   fetchNewbieGuideConfig,
   fetchOverview,
   fetchOverviewApp,
@@ -100,7 +102,9 @@ import {
   toSearchTenant,
   upDataEnterpriseAdminTeams,
   upEnterpriseUsers,
-  getRainbondAlert
+  getRainbondAlert,
+  createShellPod,
+  deleteShellPod
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -497,8 +501,8 @@ export default {
         });
       }
     },
-    *CloudAppUpdatedInfo({ payload, callback }, { call }) {
-      const response = yield call(getUpdatedInfo, payload);
+    *CloudAppUpdatedInfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(getUpdatedInfo, payload, handleError);
       if (response && callback) {
         setTimeout(() => {
           callback(response);
@@ -678,6 +682,18 @@ export default {
     },
     *fetchMyTeams({ payload, callback }, { call }) {
       const response = yield call(fetchMyTeams, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchMyTeamsDynamic({ payload, callback }, { call }) {
+      const response = yield call(fetchMyTeamsDynamic, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchAppAlertInfo({ payload, callback }, { call }) {
+      const response = yield call(fetchAppAlertInfo, payload);
       if (response && callback) {
         callback(response);
       }
@@ -863,7 +879,20 @@ export default {
       if (callback) {
         callback(response);
       }
-    }
+    },
+    *createShellPod({ payload, callback }, { call }) {
+      const response = yield call(createShellPod, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *deleteShellPod({ payload, callback }, { call }) {
+      const response = yield call(deleteShellPod, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+
   },
   reducers: {
     isUpDataHeader(state, action) {

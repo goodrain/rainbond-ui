@@ -2,27 +2,46 @@ import globalUtil from '../utils/global';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const actionMaps = {
-  admin: formatMessage({id:'utils.role.admin'}),
-  developer: formatMessage({id:'utils.role.developer'}),
-  viewer: formatMessage({id:'utils.role.viewer'}),
-  access: formatMessage({id:'utils.role.access'}),
-  owner: formatMessage({id:'utils.role.owner'})
+  admin: '管理员',
+  developer: '开发者',
+  viewer: '观察者',
+  access: '访问者',
+  owner: '拥有者'
+};
+const En_actionMaps = {
+  admin: 'Administrators',
+  developer: 'Developer',
+  viewer: 'Observer',
+  access: 'Visitor',
+  owner: 'Owner'
 };
 const roleMaps = {
   admin: formatMessage({id:'utils.role.roleMaps_admin'}),
   app_store: formatMessage({id:'utils.role.roleMaps_app_store'})
 };
 const AccessText = {
-  component: formatMessage({id:'utils.role.component'}),
-  app: formatMessage({id:'utils.role.app'}),
-  gatewayRule: formatMessage({id:'utils.role.gatewayRule'}),
-  certificate: formatMessage({id:'utils.role.certificate'}),
-  plugin: formatMessage({id:'utils.role.plugin'}),
-  teamMember: formatMessage({id:'utils.role.teamMember'}),
-  teamRole: formatMessage({id:'utils.role.teamRole'}),
-  teamRegion: formatMessage({id:'utils.role.teamRegion'}),
-  app_config_group: formatMessage({id:'utils.role.app_config_group'}),
-  teamRegistryAuth: formatMessage({id:'utils.role.teamRegistryAuth'})
+  component: '组件管理',
+  app: '应用管理',
+  gatewayRule: '网关访问策略管理',
+  certificate: '证书管理',
+  plugin: '插件管理',
+  teamMember: '团队成员管理',
+  teamRole: '团队角色管理',
+  teamRegion: '团队集群管理',
+  app_config_group: '应用配置组管理',
+  teamRegistryAuth: '镜像仓库授权信息管理'
+};
+const En_AccessText = {
+  component: 'Component management',
+  app: 'Application management',
+  gatewayRule: 'Gateway access policy management',
+  certificate: 'Certificate management',
+  plugin: 'Plugin management',
+  teamMember: 'Team member management',
+  teamRole: 'Team role management',
+  teamRegion: 'Team cluster management',
+  app_config_group: 'Application config group management',
+  teamRegistryAuth: 'ImageRepo Auth Info management'
 };
 
 let arr = [
@@ -64,14 +83,28 @@ export default {
   canCreateApp(currentTeamPermissionsInfo) {
     return this.queryAppInfo(currentTeamPermissionsInfo, 'create');
   },
-  actionMap(name) {
-    return actionMaps[name] || name;
+  actionMap(name, bool) {
+    var keys = ''
+    Object.keys(actionMaps).map(item=>{
+      if(actionMaps[item] == name){
+        return keys = item 
+      }
+    })
+    if( bool ){
+      return actionMaps[keys] || name;
+    }else{
+    return En_actionMaps[keys] || name;
+    }
   },
   roleMap(name) {
     return roleMaps[name] || name;
   },
-  fetchAccessText(text) {
-    return AccessText[text] || text;
+  fetchAccessText(text, bool) {
+    if(bool){
+      return AccessText[text] || text;
+    }else{
+      return En_AccessText[text] || text;
+    }
   },
   querySpecifiedPermissionsInfo(data, type) {
     if (type === 'queryAppInfo') {

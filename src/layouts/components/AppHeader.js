@@ -2,6 +2,7 @@ import { Spin } from 'antd';
 import { Link } from 'dva/router';
 import React from 'react';
 import headerStype from '../../components/GlobalHeader/index.less';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import SelectApp from '../../components/SelectApp';
 import SelectComponent from '../../components/SelectComponent';
 import SelectTeam from '../../components/SelectTeam';
@@ -19,7 +20,7 @@ export default function AppHeader(props) {
   } = props;
 
   return (
-    <div className={headerStype.itemBox}>
+    <div className={headerStype.itemBoxs}>
       {upDataHeader ? (
         <Spin size="large" />
       ) : (
@@ -28,9 +29,10 @@ export default function AppHeader(props) {
             {nobleIcon}
             <Link
               className={headerStype.itemlink}
-              to={`/enterprise/${currentEnterprise.enterprise_id}/index`}
+              to={`/enterprise/${currentEnterprise.enterprise_id}/personal`}
             >
-              {currentEnterprise && currentEnterprise.enterprise_alias}
+              {/* {currentEnterprise && currentEnterprise.enterprise_alias} */}
+            {formatMessage({id:'enterpriseTeamManagement.other.personal'})}
             </Link>
             <span className={headerStype.itemseparator}>></span>
           </div>

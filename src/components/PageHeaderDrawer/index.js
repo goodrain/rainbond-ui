@@ -7,6 +7,7 @@ import pathToRegexp from 'path-to-regexp';
 import PropTypes from 'prop-types';
 import React, { createElement, PureComponent } from 'react';
 import styles from './index.less';
+import helm from '../../../public/images/store.svg'
 
 const { TabPane } = Tabs;
 
@@ -24,7 +25,7 @@ export default class PageHeader extends PureComponent {
   constructor(arg) {
     super(arg)
     this.state = {
-      back: ''
+      back: '',
     }
   }
   static contextTypes = {
@@ -225,11 +226,13 @@ export default class PageHeader extends PureComponent {
                 {isSvg &&
                   globalUtil.fetchSvg(
                     key === 'localApplication'
-                      ? 'appComponent'
-                      : key.indexOf('Helm-') > -1
-                        ? 'HelmSvg'
-                        : 'appmarket'
+                      ? 'location_drawer_store'
+                      : key.indexOf('Helm-') > -1 ?
+                      'helm_drawer_store'
+                      :
+                      'openSource_drawer_store'
                   )}
+                  {/* {!(key === 'localApplication') && key.indexOf('Helm-') > -1 && <img src={helm} alt="" />} */}
                 <p className={styles.ServiceSmallTitle}>{tab}</p>
               </Col>
             );

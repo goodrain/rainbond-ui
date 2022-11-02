@@ -3,11 +3,22 @@
 const enterpriseOverview = {
     // 企业信息
     'enterpriseOverview.information.message': '企业信息',
+    'enterpriseOverview.information.team': '我的团队/项目',
+    'enterpriseOverview.information.dynamic': '动态',
+    'enterpriseOverview.information.dataScreen': '数据总览',
+    'enterpriseOverview.information.colonyInfo': '集群信息',
+    'enterpriseOverview.information.appAlert': '应用报警',
     'enterpriseOverview.information.name': '企业名称:',
     'enterpriseOverview.information.serve': '了解企业服务',
     'enterpriseOverview.information.unite': '联合云ID',
     'enterpriseOverview.information.versions': '平台版本',
     'enterpriseOverview.information.time': '创建时间',
+    // 个人空间表格
+    'enterpriseOverview.PersonalSpace.name': '应用/组件名称',
+    'enterpriseOverview.PersonalSpace.event': '动态事件',
+    'enterpriseOverview.PersonalSpace.edit': '操作人',
+    'enterpriseOverview.PersonalSpace.time': '操作日期',
+    'enterpriseOverview.PersonalSpace.team': '团队名称',
     // 应用数量
     'enterpriseOverview.app.number': '应用数量',
     'enterpriseOverview.app.overview': '共{number}个应用数量',
@@ -26,17 +37,33 @@ const enterpriseOverview = {
     'enterpriseOverview.team.new': '新加入团队：',
     'enterpriseOverview.team.join': '加入团队',
     'enterpriseOverview.team.setup': '创建团队',
-    // 右下角总览
-    'enterpriseOverview.overview.template': '应用模板数量',
-    'enterpriseOverview.overview.team': '团队数量',
-    'enterpriseOverview.overview.user': '用户数量',
-    'enterpriseOverview.overview.colony': '集群数量',
+    // 右上角总览
+    'enterpriseOverview.overview.template': '应用模板',
+    'enterpriseOverview.overview.team': '团队',
+    'enterpriseOverview.overview.user': '用户',
+    'enterpriseOverview.overview.colony': '集群',
     'enterpriseOverview.overview.memory': '内存使用量/总量',
     'enterpriseOverview.overview.cpu': 'CPU使用量/总量',
     'enterpriseOverview.overview.tooltip': '{num}{unit} 包含各团队内存使用量、系统使用量和平台组件使用量',
     'enterpriseOverview.overview.entrance': '便捷入口',
     'enterpriseOverview.overview.edit': '编辑',
     'enterpriseOverview.overview.add': '新增',
+    // 集群信息
+    'enterpriseOverview.overview.colonyVersion': '集群版本',
+    'enterpriseOverview.overview.KubernetesVersion': 'Kubernetes版本',
+    'enterpriseOverview.overview.createTime': '创建时间',
+    'enterpriseOverview.overview.cpu_total': 'CPU总量',
+    'enterpriseOverview.overview.memory_total': '内存总量',
+    'enterpriseOverview.overview.memory': '内存',
+    'enterpriseOverview.overview.node_total': '正常/节点总数',
+    'enterpriseOverview.overview.pod_total': '运行组件数（Pod）',
+    'enterpriseOverview.overview.Abnormal': '集群通信异常',
+    'enterpriseOverview.overview.no_cluster': '暂无集群',
+    'enterpriseOverview.overview.no_errorInfo': '暂无报警信息',
+    'enterpriseOverview.overview.app': '应用',
+    'enterpriseOverview.overview.inside': '下的',
+    'enterpriseOverview.overview.component': '组件',
+    'enterpriseOverview.overview.error': '异常',
     // Convenient
     'enterpriseOverview.Convenient.title': '添加快捷入口',
     'enterpriseOverview.Convenient.not': '暂无团队可以添加',
@@ -322,6 +349,7 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.other.examine': '申请加入项目/团队审批中',
     'enterpriseTeamManagement.other.haveNewJoinTeam': '最新加入项目/团队',
     'enterpriseTeamManagement.other.description': '暂无项目/团队，请点击创建项目/团队进行创建',
+    'enterpriseTeamManagement.other.personal':'工作空间',
 
 }
 // 集群
@@ -1003,8 +1031,31 @@ const otherEnterprise= {
     'otherEnterprise.AccesstokenForm.time':'过期时间',
     'otherEnterprise.AccesstokenForm.import_time':'请输入时间',
 
+    'otherEnterprise.shell.show':'展开',
+    'otherEnterprise.shell.Pack_up':'收起',
+    'otherEnterprise.shell.new':'新开页',
+    'otherEnterprise.shell.down':'关闭',
+    'otherEnterprise.shell.list':'集群列表',
+    'otherEnterprise.shell.connection':'正在连接',
+    'otherEnterprise.shell.line':'命令行',
 
+
+
+}
+//日志
+const LogEnterprise = {
+    'LogEnterprise.title':'日志',
+    'LogEnterprise.desc':'展示平台关键组件的日志。用于平台运维和问题排查。',
+    'LogEnterprise.console':'控制台日志',
+    'LogEnterprise.getway':'网关日志',
+    'LogEnterprise.api':'API日志',
+    'LogEnterprise.chaos':'构建日志',
+    'LogEnterprise.worker':'运行时日志',
+    'LogEnterprise.download':'日志文件下载',
+    'LogEnterprise.find':'选择节点查找日志',
+    'LogEnterprise.all':'所有日志',
+    'LogEnterprise.node':'节点',
 }
 
 
-export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise);
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise);

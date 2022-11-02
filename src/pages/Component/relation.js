@@ -165,7 +165,7 @@ export default class Index extends PureComponent {
           title={[
             <span><FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.information'/></span>,
             <span style={{ color: 'red' }}>
-              {showText && `${<FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.conflict'/>}`}
+              {showText && formatMessage({id:'componentOverview.body.Relation.EnvironmentVariable.conflict'})}
             </span>
           ]}
           extra={

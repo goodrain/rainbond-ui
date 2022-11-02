@@ -481,7 +481,7 @@ export async function getUpdatedVersion(body = {}) {
 
 /* 查询某云市应用下服务的更新信息 */
 
-export async function getUpdatedInfo(body = {}) {
+export async function getUpdatedInfo(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-info`,
     {
@@ -491,7 +491,8 @@ export async function getUpdatedInfo(body = {}) {
         version: body.version,
         market_name: body.marketName,
         upgrade_group_id: body.upgradeGroupID
-      }
+      },
+      handleError
     }
   );
 }
@@ -961,6 +962,20 @@ export async function fetchMyTeams(param) {
     }
   );
 }
+/* 获取当前用户团队列表下所有动态 */
+export async function fetchMyTeamsDynamic(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/my_events`,
+    {
+      method: 'get',
+      params: {
+        page: param.page,
+        page_size: param.page_size,
+        region_names: param.region_names
+      }
+    }
+  );
+}
 
 export async function fetchUserTeams(param) {
   return request(
@@ -1347,6 +1362,42 @@ export async function toSearchTenant(params) {
         name: params.tenant,
         page_num: params.page_num || 1,
         page_size: params.page_size || 1000
+      }
+    }
+  );
+}
+
+/** 应用报警信息 */
+export async function fetchAppAlertInfo(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/service_alarm`,
+    {
+      method: 'get',
+    }
+  );
+}
+
+// 创建shell-pod
+export async function createShellPod(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/shell-pod`,
+    {
+      method: 'post',
+      data: {
+        region_name :  params.region_name
+      }
+    }
+  );
+}
+// 删除shell-pod
+export async function deleteShellPod(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/shell-pod`,
+    {
+      method: 'DELETE',
+      data: {
+        region_name : params.region_name,
+        pod_name : params.pod_name
       }
     }
   );

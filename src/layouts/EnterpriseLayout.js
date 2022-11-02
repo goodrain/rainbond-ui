@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
 import { ContainerQuery } from 'react-container-query';
+import ReactDOM from "react-dom"
 import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';
 import { getMenuData } from '../common/enterpriseMenu';
@@ -21,7 +22,6 @@ import AuthCompany from '../components/AuthCompany';
 import GlobalHeader from '../components/GlobalHeader';
 import headerStype from '../components/GlobalHeader/index.less';
 import GlobalRouter from '../components/GlobalRouter';
-import Loading from '../components/Loading';
 import PageLoading from '../components/PageLoading';
 import ServiceOrder from '../components/ServiceOrder';
 import SiderMenu from '../components/SiderMenu';
@@ -31,7 +31,10 @@ import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
+import Logo from '../../public/logo.png'
+import Shell from "../components/Shell"
 import styles from './EnterpriseLayout.less'
+import { loadRegionConfig } from '@/services/cloud';
 const { Content } = Layout;
 
 const getBreadcrumbNameMap = memoizeOne(meun => {
@@ -101,12 +104,22 @@ class EnterpriseLayout extends PureComponent {
         },
         { key: 'applicationInfo', value: true },
         { key: 'installApp', value: true }
-      ]
+      ],
+      showMenu:true
     };
   }
 
   componentDidMount() {
     this.getEnterpriseList();
+    const urlParams = new URL(window.location.href);
+    if(urlParams){
+      const bool = urlParams.href.includes("/shell")
+      if(bool){
+        this.setState({
+          showMenu: false
+        })
+      }
+    }
   }
   // 获取执行的步骤
 
@@ -271,7 +284,7 @@ class EnterpriseLayout extends PureComponent {
       this.fetchEnterpriseInfo(selectE.enterprise_id);
       this.setState({ enterpriseInfo: selectE });
       dispatch(
-        routerRedux.replace(`/enterprise/${selectE.enterprise_id}/index`)
+        routerRedux.replace(`/enterprise/${selectE.enterprise_id}/personal`)
       );
     } else {
       enterpriseList.map(item => {
@@ -368,7 +381,8 @@ class EnterpriseLayout extends PureComponent {
       children,
       rainbondInfo,
       enterprise,
-      showAuthCompany
+      showAuthCompany,
+      terminalStatus
     } = this.props;
     const { enterpriseList, enterpriseInfo, ready, alertInfo } = this.state;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
@@ -386,23 +400,12 @@ class EnterpriseLayout extends PureComponent {
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
-          {/* {BillingFunction && (
-            <Tooltip
-              title={
-                enterpriseServiceInfo.type === "vip"
-                  ? "尊贵的付费企业用户"
-                  : "免费用户"
-              }
-            >
-              {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
-            </Tooltip>
-          )} */}
-          {(enterprise && enterprise.enterprise_alias) ||
-            (enterpriseInfo && enterpriseInfo.enterprise_alias)}
+           <img src={Logo} alt="" />
         </div>
       );
     };
     const layout = () => {
+      const { showMenu } = this.state
       return (
         <Layout>
           <SiderMenu
@@ -444,7 +447,7 @@ class EnterpriseLayout extends PureComponent {
                 currentUser={currentUser}
                 Authorized={Authorized}
                 menuData={getMenuData(eid, currentUser, enterprise)}
-                showMenu
+                showMenu= {showMenu}
                 pathname={pathname}
                 location={location}
                 isMobile={this.state.isMobile}
@@ -506,7 +509,6 @@ class EnterpriseLayout extends PureComponent {
           </ContainerQuery>
         </DocumentTitle>
 
-        <Loading />
 
         {/* 企业尚未认证 */}
         {showAuthCompany && (
@@ -521,11 +523,12 @@ class EnterpriseLayout extends PureComponent {
             orders={orders}
           />
         )}
+        {terminalStatus && ReactDOM.createPortal(<Shell/>,document.getElementById("root"))}
       </Fragment>
     );
   }
 }
-export default connect(({ user, global, index, loading }) => ({
+export default connect(({ user, global, index, loading, region }) => ({
   currentUser: user.currentUser,
   notifyCount: user.notifyCount,
   collapsed: global.collapsed,
@@ -542,6 +545,7 @@ export default connect(({ user, global, index, loading }) => ({
   orders: global.orders,
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
-  enterprise: global.enterprise
+  enterprise: global.enterprise,
+  terminalStatus: region.terminal_status
   // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))(EnterpriseLayout);

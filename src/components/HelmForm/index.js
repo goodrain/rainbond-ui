@@ -77,6 +77,17 @@ export default class Index extends PureComponent {
             this.handleClose();
           }
         });
+        dispatch({
+          type: 'market/HelmwaRehouseAdd',
+          payload: {
+            repo_name: values.name,
+            repo_url: values.url,
+            username: values.username,
+            password: values.password
+          },
+          callback: res => {
+          }
+        });
       }
     });
   };
@@ -95,6 +106,19 @@ export default class Index extends PureComponent {
             if (res && res.status_code === 200) {
               this.handleClose();
               onOk();
+              dispatch({
+                type: 'market/HelmwaRehouseEdit',
+                payload: {
+                  repo_name: values.name,
+                  repo_url: values.url,
+                },
+                callback: res =>{
+                  setTimeout(()=>{
+                    window.history.go(0)
+                  },1000)
+                }
+              });
+             
             }
           },
           handleError: res => {
@@ -178,11 +202,11 @@ export default class Index extends PureComponent {
                 required: true,
                 message:formatMessage({id:'applicationMarket.HelmForm.input_name'})
               },
-              {
-                validator: (_, value, callback) => {
-                  this.handleCheckAppName(value, callback);
-                }
-              }
+              // {
+              //   validator: (_, value, callback) => {
+              //     this.handleCheckAppName(value, callback);
+              //   }
+              // }
             ]
           })(
             <Input

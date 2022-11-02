@@ -16,7 +16,10 @@ import {
   installApp,
   installAppPlugin,
   changeAppVersions,
-  installHelmApp
+  installHelmApp,
+  helmAppInstall,
+  getHelmVersion,
+  installHelmAppCmd
 } from '../services/createApp';
 
 export default {
@@ -36,8 +39,8 @@ export default {
         callback(data);
       }
     },
-    *installApp({ payload, callback }, { call }) {
-      const data = yield call(installApp, payload);
+    *installApp({ payload, callback,handleError }, { call }) {
+      const data = yield call(installApp, payload, handleError);
       if (data && callback) {
         callback(data);
       }
@@ -163,7 +166,25 @@ export default {
       if (data && callback) {
         callback(data);
       }
-    }
+    },
+    *helmAppInstall({ payload, callback, handleError }, { call }) {
+      const data = yield call(helmAppInstall, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *getHelmVersion({ payload, callback, handleError }, { call }) {
+      const data = yield call(getHelmVersion, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *installHelmAppCmd({ payload, callback, handleError }, { call }) {
+      const data = yield call(installHelmAppCmd, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
   },
 
   reducers: {

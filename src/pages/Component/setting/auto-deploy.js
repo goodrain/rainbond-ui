@@ -217,7 +217,6 @@ export default class AutoDeploy extends PureComponent {
       url,
       service_source
     } = this.state;
-    console.log(service_source,"service_source");
     const setUrl = url.replace(
       'http://127.0.0.1:5000',
       `${window.location.protocol}//${window.location.host}`
