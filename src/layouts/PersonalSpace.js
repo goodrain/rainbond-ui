@@ -300,6 +300,9 @@ export default class Space extends Component {
                             className={styles.team_name}
                           >
                             {team_alias}
+                            <span className={styles.team_index}>
+                              #{userTeamList.length - index}
+                            </span>
                           </div>
                         </Tooltip>
                         <div className={styles.num}>
