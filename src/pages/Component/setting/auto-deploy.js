@@ -38,8 +38,10 @@ export default class AutoDeploy extends PureComponent {
       secret_key: '',
       tabActiveKey: 0,
       setTabActiveKey: false,
-      deployment_way:
-        this.props.service_source === '镜像' ? 'api_webhooks' : 'code_webhooks',
+      deployment_way: (this.props.service_source === '镜像' || 
+        this.props.service_source === 'DockerRun' || 
+        this.props.service_source === 'DockerCompose') ?
+       'api_webhooks' : 'code_webhooks',
       tabLoading: [false, false, false],
       service_source: this.props.service_source,
       deploy_keyword: 'deploy',
@@ -465,7 +467,7 @@ export default class AutoDeploy extends PureComponent {
                       <Button size="small">复制</Button>
                     </CopyToClipboard>
                   </Description>
-                  <Description term="秘钥">
+                  <Description term="秘钥" style={{display:'flex'}}>
                     <Form onSubmit={this.handleScretSubmit}>
                       <FormItem style={{ marginTop: '-6px' }}>
                         {getFieldDecorator('secret_key', {
