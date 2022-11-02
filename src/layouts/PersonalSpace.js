@@ -223,7 +223,7 @@ export default class Space extends Component {
       collapsed,
       currentUser
     } = this.props
-    const colorList = ['#6d60e7', '#55b563', '#ebaa44', '#e86f2c', '#00a2ae' ];
+    const colorList = ['#6d60e7', '#55b563', '#ebaa44', '#e86f2c', '#00a2ae'];
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
@@ -250,7 +250,7 @@ export default class Space extends Component {
             </div>
             {userTeamList.length > 0 &&
               <div className={styles.teamList}>
-                {userTeamList.map((item,index) => {
+                {userTeamList.map((item, index) => {
                   const {
                     team_alias,
                     app_count,
@@ -259,7 +259,7 @@ export default class Space extends Component {
                     region_list,
                     team_name
                   } = item
-                  const colorIndex = userTeamList && userTeamList.length >0 && userTeamList.length - index - 1
+                  const colorIndex = userTeamList && userTeamList.length > 0 && userTeamList.length - index - 1
                   return (
                     <div className={styles.list}
                       style={{
@@ -270,39 +270,41 @@ export default class Space extends Component {
                       }}
                     >
                       <div className={styles.list_img}>
-                        {logo  ? 
-                        <img src={ logo } alt="" /> 
-                        :                         
-                        <Avatar 
-                          style=
-                          {{ 
-                            backgroundColor: colorIndex>= 5 ? colorList[ colorIndex % 5 ] : colorList[colorIndex], 
-                            verticalAlign: 'middle' 
-                          }} 
-                          size={60} 
-                          shape="square">
-                          <span 
+                        {logo ?
+                          <img src={logo} alt="" />
+                          :
+                          <Avatar
                             style=
+                            {{
+                              backgroundColor: colorIndex >= 5 ? colorList[colorIndex % 5] : colorList[colorIndex],
+                              verticalAlign: 'middle'
+                            }}
+                            size={60}
+                            shape="square">
+                            <span
+                              style=
                               {{
-                                color:'#fff',
-                                fontSize:35,
-                                textTransform:'uppercase'
+                                color: '#fff',
+                                fontSize: 35,
+                                textTransform: 'uppercase'
                               }}
-                          >
-                          {team_alias.substr(0,1)}
-                          </span>
-                        </Avatar>
+                            >
+                              {team_alias.substr(0, 1)}
+                            </span>
+                          </Avatar>
                         }
                       </div>
                       <div className={styles.list_detail}>
                         <Tooltip title={team_alias}>
                           <div
-                            className={styles.team_name}
+                            className={styles.team_name_top}
                           >
-                            {team_alias}
-                            <span className={styles.team_index}>
+                            <div className={styles.team_name}>
+                              {team_alias}
+                            </div>
+                            <div className={styles.team_index}>
                               #{userTeamList.length - index}
-                            </span>
+                            </div>
                           </div>
                         </Tooltip>
                         <div className={styles.num}>
@@ -346,15 +348,15 @@ export default class Space extends Component {
             </div>
             <div className={styles.titleTh}>
               <div className={styles.left}>
-                <span className={styles.spanAppName}>{formatMessage({id:'enterpriseOverview.PersonalSpace.name'})}</span>
-                <span className={styles.spanEvent}>{formatMessage({id:'enterpriseOverview.PersonalSpace.event'})}</span>
+                <span className={styles.spanAppName}>{formatMessage({ id: 'enterpriseOverview.PersonalSpace.name' })}</span>
+                <span className={styles.spanEvent}>{formatMessage({ id: 'enterpriseOverview.PersonalSpace.event' })}</span>
               </div>
               <div className={styles.center}>
-                <span>{formatMessage({id:'enterpriseOverview.PersonalSpace.edit'})}</span>
-                <span>{formatMessage({id:'enterpriseOverview.PersonalSpace.time'})}</span>
+                <span>{formatMessage({ id: 'enterpriseOverview.PersonalSpace.edit' })}</span>
+                <span>{formatMessage({ id: 'enterpriseOverview.PersonalSpace.time' })}</span>
               </div>
               <div className={styles.right}>
-                <span >{formatMessage({id:'enterpriseOverview.PersonalSpace.team'})}</span>
+                <span >{formatMessage({ id: 'enterpriseOverview.PersonalSpace.team' })}</span>
               </div>
             </div>
             {dynamicList.length > 0 &&
