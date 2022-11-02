@@ -428,6 +428,7 @@ class EnterpriseLayout extends PureComponent {
                 rainbondInfo.is_public &&
                 rainbondInfo.is_public.enable
               }
+              is_enterprise={true}
               currentUser={currentUser}
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}

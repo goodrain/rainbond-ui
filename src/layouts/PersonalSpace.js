@@ -235,7 +235,7 @@ export default class Space extends Component {
       <div style={{ height: "100%" }}>
         <GlobalHeader
           eid={eid}
-          is_admin={user.is_enterprise_admin}
+          is_space={true}
           onCollapse={this.handleMenuCollapse}
           collapsed={collapsed}
           currentUser={currentUser}
