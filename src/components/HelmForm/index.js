@@ -134,15 +134,15 @@ export default class Index extends PureComponent {
     if (!callbacks) {
       return null;
     }
-    if (!name) {
-      return callbacks();
-    }
-    if (name.length < 4) {
-      return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.min'})}`);
-    }
-    if (name.length > 32) {
-      return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.max'})}`);
-    }
+    // if (!name) {
+    //   return callbacks();
+    // }
+    // if (name.length < 4) {
+    //   return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.min'})}`);
+    // }
+    // if (name.length > 32) {
+    //   return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.max'})}`);
+    // }
     const pattern = /^[a-z][a-z0-9]+$/;
     if (!name.match(pattern)) {
       return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.only'})}`);
@@ -202,11 +202,11 @@ export default class Index extends PureComponent {
                 required: true,
                 message:formatMessage({id:'applicationMarket.HelmForm.input_name'})
               },
-              // {
-              //   validator: (_, value, callback) => {
-              //     this.handleCheckAppName(value, callback);
-              //   }
-              // }
+              {
+                validator: (_, value, callback) => {
+                  this.handleCheckAppName(value, callback);
+                }
+              }
             ]
           })(
             <Input
