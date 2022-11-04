@@ -869,7 +869,7 @@ export default class Enterprise extends PureComponent {
             bordered={false}
           >
             {clusters.length > 0 ?
-              (clusters.map((item) => {
+              (clusters.map((item,index) => {
                 const {
                   region_alias,
                   rbd_version,
@@ -930,11 +930,11 @@ export default class Enterprise extends PureComponent {
                         <div className={enterpriseStyles.content_right}>
                           <div className={enterpriseStyles.content_data}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.cpu_total' })}: <span>{cpuTotal || 0}</span>Core</p>
-                            <Charts keys="upcpu" svalue={cpuUsed || 0} cname="CPU" swidth='200px' sheight='120px' />
+                            <Charts keys={'upcpu' + `${index}`} svalue={cpuUsed || 0} cname="CPU" swidth='200px' sheight='120px' />
                           </div>
                           <div className={enterpriseStyles.content_data}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.memory_total' })}: <span>{memoryTotal || 0}</span>{memoryTotalUnit}</p>
-                            <Charts keys="upmemory" svalue={memoryUsed || 0} cname={formatMessage({ id: 'enterpriseOverview.overview.memory' })} swidth='200px' sheight='120px' />
+                            <Charts keys={'memory' + `${index}` } svalue={memoryUsed || 0} cname={formatMessage({ id: 'enterpriseOverview.overview.memory' })} swidth='200px' sheight='120px' />
                           </div>
                           <div className={enterpriseStyles.node}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.node_total' })}</p>
