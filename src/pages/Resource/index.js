@@ -27,7 +27,6 @@ class Index extends PureComponent {
       editId: 0,
       isSubmit: true,
       loadingSwitch: true,
-      TooltipValue: formatMessage({id:'addKubenetesResource.localContent.yaml'})
     };
   }
   componentDidMount() {
@@ -43,7 +42,7 @@ class Index extends PureComponent {
       if (res && res.response_data && res.response_data.code == 200) {
         this.setState({
           content: res.list,
-          localContent: '',
+          localContent: ' ',
           loadingSwitch:false
         })
       }
@@ -62,7 +61,7 @@ class Index extends PureComponent {
       visible: true,
       title: formatMessage({id:'addKubenetesResource.btn.add'}),
       type: "add",
-      localContent: formatMessage({id:'addKubenetesResource.localContent.yaml'}),
+      localContent: false,
     });
   };
   handleSubmit = () => {
@@ -351,8 +350,6 @@ class Index extends PureComponent {
               message={formatMessage({id:'notification.hint.confiuration.editContent'})}
               data={localContent || "" }
               mode={'yaml'}
-              TooltipValue={TooltipValue}
-              bool={ isBool }
             />
           </Form>
           <div
