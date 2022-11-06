@@ -183,9 +183,7 @@ class Index extends React.Component {
               }
             >
               {getFieldDecorator('group_id', {
-                initialValue:
-                  +groupId ||
-                  (groups && groups.length > 0 && groups[0].group_id),
+                initialValue:'',
                 rules: [{ required: true, message: '请选择' }]
               })(
                 <Select

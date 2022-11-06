@@ -8,10 +8,15 @@ const enterpriseMenu = {
   'menu.enterprise.monitoring': '监控',
   'menu.enterprise.audit': '审计',
   'menu.enterprise.setting': '设置',
+  'menu.enterprise.long.dashboard': '平台总览',
+  'menu.enterprise.long.cluster': '集群管理',
+  'menu.enterprise.long.user': '用户管理',
+  'menu.enterprise.long.log': '日志查询',
+  'menu.enterprise.long.setting': '平台设置',
 }
 const teamMenu = {
   'menu.team.dashboard': '总览',
-  'menu.team.create': '新增',
+  'menu.team.create': '新建',
   'menu.team.create.code': '从源码构建',
   'menu.team.create.image': '从镜像构建',
   'menu.team.create.upload': 'Kubernetes YAML Helm',
@@ -23,6 +28,10 @@ const teamMenu = {
   'menu.team.gateway.control': '访问策略管理',
   'menu.team.plugin': '插件',
   'menu.team.setting': '团队管理',
+  'menu.team.long.dashboard':'团队总览',
+  'menu.team.long.create':'新建组件',
+  'menu.team.long.gateway':'网关配置',
+  'menu.team.long.plugin':'插件管理',
 }
 const appMenu = {
   'menu.app.dashboard': '总览',
@@ -32,6 +41,12 @@ const appMenu = {
   'menu.app.configgroups': '配置',
   'menu.app.k8s': 'k8s资源',
   'menu.app.upgrade': '升级',
+  'menu.app.long.dashboard':'应用总览',
+  'menu.app.long.publish':'应用发布',
+  'menu.app.long.backup':'应用备份',
+  'menu.app.long.gateway':'应用网关',
+  'menu.app.long.upgrade':'应用升级',
+  'menu.app.long.configgroups':'应用配置',
 };
 
 
