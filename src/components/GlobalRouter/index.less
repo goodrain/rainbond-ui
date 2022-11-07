@@ -1,6 +1,4 @@
 @import "~antd/lib/style/themes/default.less";
-// #acb2c4
-// #3f3e4d
 i.trigger {
   background    : #374551;
   font-size     : 20px;
@@ -23,47 +21,24 @@ i.trigger {
 }
 
 .items {
-  // margin-bottom: 28px;
   i {
     font-size: 20px !important;
   }
 }
-.items:hover{
-  .item{
-    color: #1890ff;
-    span{
-      color: #1890ff;
-      i {
-        display: block !important;
-        color: #1890ff !important;
-        svg{
-          path{
-            fill:#1890ff !important;
-          }
-          g>g{
-            stroke:#1890ff !important;
-          }
-        }
-      }
-      }
-  }
-}
 .item {
   text-align: center;
-  color     : #9CA2A8;
+  color     : #fff;
 
   span {
-    // color         : #9CA2A8;
     line-height   : 20px;
     height        : 20px;
-    // width         : 64px;
     text-align    : center;
     opacity       : 1 !important;
     display       : block !important;
     max-width     : 64px !important;
     font-family   : PingFangSC-Regular;
     font-size     : 14px;
-    color         : #3f3e4d;
+    color         : #fff;
     letter-spacing: 0;
     font-weight:bolder;
   }
@@ -105,9 +80,6 @@ i.trigger {
   .ant-menu.ant-menu-dark .ant-menu-item-selected,
   .ant-menu-submenu-popup.ant-menu-dark .ant-menu-item-selected {
     background: #e1e7eb47 !important;
-    span{
-      color: #1890ff !important;
-    }
   }
 
   .ant-menu-inline-collapsed>.ant-menu-item .anticon,
@@ -121,7 +93,7 @@ i.trigger {
 
   .ant-menu-dark,
   .ant-menu-dark .ant-menu-sub {
-    background    : #ffffff !important;
+    background    : #546371 !important;
     font-family   : PingFangSC-Regular;
     font-size     : 12px;
     letter-spacing: 0;
@@ -138,7 +110,7 @@ i.trigger {
   .ant-menu-submenu-title .anticon+span {
     font-family   : PingFangSC-Regular;
     font-size     : 14px;
-    color         : #3f3e4d !important;
+    color         : #9CA2A8 !important;
     letter-spacing: 0;
   }
 
@@ -152,7 +124,6 @@ i.trigger {
   .ant-menu-inline-collapsed>.ant-menu-item-group>.ant-menu-item-group-list>.ant-menu-item,
   .ant-menu-inline-collapsed>.ant-menu-item-group>.ant-menu-item-group-list>.ant-menu-submenu>.ant-menu-submenu-title,
   .ant-menu-inline-collapsed>.ant-menu-submenu>.ant-menu-submenu-title {
-    // padding   : 0 0px !important;
     text-align: center;
   }
 
@@ -160,25 +131,24 @@ i.trigger {
   .ant-menu-submenu-title .anticon:hover,
   .ant-menu-item>a:hover {
     font-family: PingFangSC-Regular;
-    color: #1890ff !important;
+    color: #fff !important;
   }
 }
 .globalSider {
-  // padding-top: 30px;
   :global {
     .ant-menu-submenu-selected{
       background-color: #e1e7eb47;
       span{
-        color: #1890ff !important;
+        color: #fff !important;
         i {
           display: block !important;
-          color: #1890ff !important;
+          color: #fff !important;
           svg{
             path{
-              fill:#1890ff !important;
+              fill:#fff !important;
             }
             g>g{
-              stroke:#1890ff !important;
+              stroke:#fff !important;
             }
           }
         }
@@ -187,36 +157,34 @@ i.trigger {
     .ant-menu-submenu-active{
           i {
             display: block !important;
-            color: #1890ff !important;
+            color: #fff !important;
             svg{
               path{
-                fill:#1890ff !important;
+                fill:#fff !important;
               }
               g>g{
-                stroke:#1890ff !important;
+                stroke:#fff !important;
               }
             }
           }
           span {
-            color: #1890ff !important;
+            color: #fff !important;
           }
     }
     .ant-menu-item-active{
-      // margin-left: 4px;
-
       span{
-        color: #1890ff !important;
+        color: #fff !important;
       }
       a {
         i {
           display: block !important;
-          color: #1890ff !important;
+          color: #fff !important;
           svg{
             path{
-              fill:#1890ff !important;
+              fill:#fff !important;
             }
             g>g{
-              stroke:#1890ff !important;
+              stroke:#fff !important;
             }
           }
         }
@@ -229,7 +197,7 @@ i.trigger {
           max-width     : 64px !important;
           font-family   : PingFangSC-Regular;
           font-size     : 14px;
-          color: #1890ff !important;
+          color: #fff !important;
           letter-spacing: 0;
           font-weight:bolder;
         }
@@ -237,19 +205,17 @@ i.trigger {
     
     }
     .ant-menu-item.ant-menu-item-selected {
-      // margin-left: 4px;
       a {
-        // margin-left: -4px;
-        color: #1890ff !important;
+        color: #fff !important;
         i {
           display: block !important;
-          color: #1890ff !important;
+          color: #fff !important;
           svg{
             path{
-              fill:#1890ff !important;
+              fill:#fff !important;
             }
             g>g{
-              stroke:#1890ff !important;
+              stroke:#fff !important;
             }
           }
         }
@@ -263,7 +229,7 @@ i.trigger {
           max-width     : 64px !important;
           font-family   : PingFangSC-Regular;
           font-size     : 14px;
-          color: #1890ff !important;
+          color: #fff !important;
           letter-spacing: 0;
           font-weight:bolder;
         }
@@ -271,7 +237,7 @@ i.trigger {
     }
 
     .ant-menu-item {
-      // margin-bottom: 28px !important;
+      margin-top: 0 !important;
     }
 
     .ant-menu-item>a {

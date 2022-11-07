@@ -7,11 +7,11 @@ const enterpriseMenu = {
   'menu.enterprise.monitoring': 'Monitoring',
   'menu.enterprise.audit': 'Audit',
   'menu.enterprise.setting': 'Setting',
-  'menu.enterprise.long.dashboard': '平台总览',
-  'menu.enterprise.long.cluster': '集群管理',
-  'menu.enterprise.long.user': '用户管理',
-  'menu.enterprise.long.log': '日志查询',
-  'menu.enterprise.long.setting': '平台设置',
+  'menu.enterprise.long.dashboard': 'Overview',
+  'menu.enterprise.long.cluster': 'Cluster',
+  'menu.enterprise.long.user': 'User',
+  'menu.enterprise.long.log': 'Log',
+  'menu.enterprise.long.setting': 'Setting',
 };
 
 const teamMenu = {
@@ -28,10 +28,10 @@ const teamMenu = {
   'menu.team.gateway.control': 'Access Policy Manage',
   'menu.team.plugin': 'Plugin',
   'menu.team.setting': 'Manage',
-  'menu.team.long.dashboard':'团队总览',
-  'menu.team.long.create':'新建组件',
-  'menu.team.long.gateway':'网关配置',
-  'menu.team.long.plugin':'插件管理',
+  'menu.team.long.dashboard':'Overview',
+  'menu.team.long.create':'Add',
+  'menu.team.long.gateway':'Gateway',
+  'menu.team.long.plugin':'Plugin',
 }
 
 const appMenu = {
@@ -42,12 +42,12 @@ const appMenu = {
   'menu.app.configgroups': 'Config Group',
   'menu.app.k8s': 'K8S Resources',
   'menu.app.upgrade': 'Upgrade',
-  'menu.app.long.dashboard':'应用总览',
-  'menu.app.long.publish':'应用发布',
-  'menu.app.long.backup':'应用备份',
-  'menu.app.long.gateway':'应用网关',
-  'menu.app.long.upgrade':'应用升级',
-  'menu.app.long.configgroups':'应用配置',
+  'menu.app.long.dashboard':'Overview',
+  'menu.app.long.publish':'Publish',
+  'menu.app.long.backup':'Backups',
+  'menu.app.long.gateway':'Gateway',
+  'menu.app.long.upgrade':'Upgrade',
+  'menu.app.long.configgroups':'Config Group',
 }
 
 
