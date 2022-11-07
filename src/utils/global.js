@@ -1968,6 +1968,47 @@ const global = {
       return true;
     }
     return false;
+  },
+  appStatusColor(AppStatus) {
+    // 应用状态的标识颜色
+    const appStateColor = {
+      RUNNING: '#52c41a',
+      STARTING: '#52c41a',
+      CLOSED: '#000',
+      STOPPING: '#000',
+      ABNORMAL: '#f5222d',
+      PARTIAL_ABNORMAL: '#f5222d',
+      unknown: '#f5222d',
+      deployed: '#52c41a',
+      superseded: '#52c41a',
+      failed: '#f5222d',
+      'pending-install': '#52c41a',
+      'pending-upgrade': '#52c41a',
+      'pending-rollback': '#52c41a'
+    }
+    return appStateColor[AppStatus] || '#d9d9d9'
+  },
+  appStatusText(AppStatus) {
+    //   应用状态
+    const appState = {
+      RUNNING: formatMessage({ id: 'ApplicationState.RUNNING' }),
+      STARTING: formatMessage({ id: 'ApplicationState.STARTING' }),
+      CLOSED: formatMessage({ id: 'ApplicationState.CLOSED' }),
+      STOPPING: formatMessage({ id: 'ApplicationState.STOPPING' }),
+      ABNORMAL: formatMessage({ id: 'ApplicationState.ABNORMAL' }),
+      PARTIAL_ABNORMAL: formatMessage({ id: 'ApplicationState.PARTIAL_ABNORMAL' }),
+      'not-configured': formatMessage({ id: 'ApplicationState.not-configured' }),
+      unknown: formatMessage({ id: 'ApplicationState.unknown' }),
+      deployed: formatMessage({ id: 'ApplicationState.deployed' }),
+      superseded: formatMessage({ id: 'ApplicationState.superseded' }),
+      failed: formatMessage({ id: 'ApplicationState.failed' }),
+      uninstalled: formatMessage({ id: 'ApplicationState.uninstalled' }),
+      uninstalling: formatMessage({ id: 'ApplicationState.uninstalling' }),
+      'pending-install': formatMessage({ id: 'ApplicationState.pending-install' }),
+      'pending-upgrade': formatMessage({ id: 'ApplicationState.pending-upgrade' }),
+      'pending-rollback': formatMessage({ id: 'ApplicationState.pending-rollback' })
+    }
+    return appState[AppStatus] || formatMessage({id:'ApplicationState.leave_unused'})
   }
 };
 
