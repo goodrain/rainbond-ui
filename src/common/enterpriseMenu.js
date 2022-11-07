@@ -2,9 +2,10 @@
 import { formatMessage } from 'umi-plugin-locale';
 import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
+import getMenuSvg from '@/utils/menuSvg';
 import { isUrl } from '../utils/utils';
 
-function menuData(eid, currentUser, enterprise) {
+function menuData(eid, currentUser, enterprise, bool) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
   const clusterSvg = (
     <i className="anticon">
@@ -92,17 +93,16 @@ function menuData(eid, currentUser, enterprise) {
       </svg>
     </i>
   );
-
   const menuArr = [
     {
-      name: formatMessage({ id: 'menu.enterprise.dashboard' }),
-      icon: 'dashboard',
+      name: bool ? formatMessage({ id: 'menu.enterprise.dashboard' }) :  formatMessage({id:'menu.enterprise.long.dashboard'}),
+      icon: getMenuSvg.fetchSvg('overview'),
       path: `/enterprise/${eid}/index`,
       authority: ['admin', 'user']
     },
     {
       name: formatMessage({ id: 'menu.enterprise.share' }),
-      icon: 'share-alt',
+      icon: getMenuSvg.fetchSvg('market'),
       path: `/enterprise/${eid}/shared/local`,
       authority: ['admin', 'user']
     }
@@ -117,21 +117,21 @@ function menuData(eid, currentUser, enterprise) {
   }
   menuArr.push({
     name: formatMessage({ id: 'menu.enterprise.team' }),
-    icon: 'team',
+    icon: getMenuSvg.fetchSvg('team'),
     path: `/enterprise/${eid}/teams`,
     authority: ['admin', 'user']
   });
   if (adminer) {
     menuArr.push(
       {
-        name: formatMessage({ id: 'menu.enterprise.cluster' }),
-        icon: clusterSvg,
+        name: bool ? formatMessage({ id: 'menu.enterprise.cluster' }) : formatMessage({id:'menu.enterprise.long.cluster'}),
+        icon: getMenuSvg.fetchSvg('cluster'),
         path: `/enterprise/${eid}/clusters`,
         authority: ['admin', 'user']
       },
       {
-        name: formatMessage({ id: 'menu.enterprise.user' }),
-        icon: 'user',
+        name: bool ? formatMessage({ id: 'menu.enterprise.user' }) : formatMessage({id:'menu.enterprise.long.user'}),
+        icon: getMenuSvg.fetchSvg('user'),
         path: `/enterprise/${eid}/users`,
         authority: ['admin', 'user']
       }
@@ -168,14 +168,14 @@ function menuData(eid, currentUser, enterprise) {
       });
     }
     menuArr.push({
-      name: formatMessage({id:'LogEnterprise.title'}),
-      icon: logSvg,
+      name: bool ? formatMessage({id:'LogEnterprise.title'}) : formatMessage({id:'menu.enterprise.long.log'}),
+      icon: getMenuSvg.fetchSvg('log'),
       path: `/enterprise/${eid}/logs`,
       authority: ['admin', 'user']
     });
     menuArr.push({
-      name: formatMessage({ id: 'menu.enterprise.setting' }),
-      icon: 'setting',
+      name: bool ? formatMessage({ id: 'menu.enterprise.setting' }) : formatMessage({id:'menu.enterprise.long.setting'}),
+      icon: getMenuSvg.fetchSvg('setting'),
       path: `/enterprise/${eid}/setting`,
       authority: ['admin', 'user']
     });
@@ -206,7 +206,7 @@ function formatter(data, parentPath = '', parentAuthority) {
   });
 }
 
-export const getMenuData = (eid, currentUser, enterprise) => {
-  const menus = formatter(menuData(eid, currentUser, enterprise));
+export const getMenuData = (eid, currentUser, enterprise, bool) => {
+  const menus = formatter(menuData(eid, currentUser, enterprise, bool));
   return menus;
 };

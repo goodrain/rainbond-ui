@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Table } from 'antd';
 import teamUtil from '../../utils/team';
+import cookie from '@/utils/cookie';
 import roleUtil from '../../utils/role';
 
 class TeamMemberTable extends PureComponent {
@@ -37,7 +38,7 @@ class TeamMemberTable extends PureComponent {
                     style={{ marginRight: '8px' }}
                     key={`role${item.role_id}`}
                   >
-                    {roleUtil.actionMap(item.role_name)}
+                    {roleUtil.actionMap(item.role_name, cookie.get('language') === 'zh-CN' ? true : false)}
                   </span>
                 );
               })}

@@ -164,7 +164,7 @@ export default class GlobalHeader extends PureComponent {
     });
   };
   render() {
-    const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_admin } = this.props;
+    const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space=false, is_enterprise=false } = this.props;
     const { language } = this.state
     if (!currentUser) {
       return null;
@@ -254,20 +254,17 @@ export default class GlobalHeader extends PureComponent {
             style={{ color: '#ffffff', float: 'left' }}
             onClick={this.toggle}
           /> */}
-
-          {/* <Link style={{ color: '#fff' }} to={`/enterprise/${eid}/personal`}> */}
-            {customHeader && customHeader()}
-          {/* </Link> */}
-          <Link style={{ color: '#fff', marginRight: '20px', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/personal`}>
+          {customHeader && customHeader()}
+          <Link style={{ color: !is_space ? '#8f8f8f' : '#fff', margin: '0 40px', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/personal`}>
             {/* {customHeader && customHeader()} */}
             {formatMessage({id:'enterpriseTeamManagement.other.personal'})}
           </Link>
           {/* 平台管理 */}
-          {/* {is_admin && ( */}
-            <Link style={{ color: '#fff', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/index`}>
+          {currentUser.is_enterprise_admin && (
+            <Link style={{ color: !is_enterprise ? '#8f8f8f' : '#fff', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/index`}>
               <FormattedMessage id="GlobalHeader.platform" />
             </Link>
-          {/* )} */}
+          )}
         </div>
         <div className={styles.right}>
 

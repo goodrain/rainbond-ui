@@ -10,6 +10,7 @@
     }
     .teamBox_left{
         padding: 12px 30px;
+        padding-bottom: 65px;
         width: 20%;
         height: 100%;
         background-color:#e9edf1;
@@ -20,7 +21,7 @@
         }
         .teamList{
             width: 100%;
-            height: 770px;
+            height: calc(100% - 64px);
             overflow-x: hidden;
             overflow-y: scroll;
             font-family: PingFangSC-Medium;
@@ -56,15 +57,27 @@
                     width: calc(100%-60px);
                     height: 60px;
                     margin-left: 12px;
-                    .team_name{
-                        width: 120px;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                        cursor: pointer;
-                        font-size: 16px;
-                        font-weight: 700;
-                        color:  #9297a3;
+                    .team_name_top{
+                        width: 140px;
+                        display: flex;
+                        align-items: center;
+                        .team_name{
+                            width: 100px;
+                            overflow: hidden;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            cursor: pointer;
+                            font-size: 16px;
+                            font-weight: 700;
+                            color:  #9297a3;
+                        }
+                        .team_index{
+                            width: 40px;
+                            color:  #9297a3;
+                            text-align: center;
+                            font-size: 16px;
+                            font-weight: bolder;
+                        }
                     }
                     .num{
                         display: flex;
@@ -128,13 +141,13 @@
                 display: flex;
                 align-items: center;
                 .spanAppName{
-                    width: 17%;
+                    width: 19%;
                     margin-left: 30px;
                     text-align: left;
                     display: inline-block;
                 }
                 .spanEvent{
-                    width: 80%;
+                    width: 78%;
                     text-align: center;
                     display: inline-block;
                 }
@@ -159,8 +172,8 @@
         }
         .dynamicList{
             width: 100%;
-            height: 700px;
-            // padding: 0px 12px;
+            height: calc( 100% - 80px);
+            padding-bottom: 24px;
             overflow: auto;
             
             .list{

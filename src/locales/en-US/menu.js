@@ -7,6 +7,11 @@ const enterpriseMenu = {
   'menu.enterprise.monitoring': 'Monitoring',
   'menu.enterprise.audit': 'Audit',
   'menu.enterprise.setting': 'Setting',
+  'menu.enterprise.long.dashboard': 'Overview',
+  'menu.enterprise.long.cluster': 'Cluster',
+  'menu.enterprise.long.user': 'User',
+  'menu.enterprise.long.log': 'Log',
+  'menu.enterprise.long.setting': 'Setting',
 };
 
 const teamMenu = {
@@ -23,6 +28,10 @@ const teamMenu = {
   'menu.team.gateway.control': 'Access Policy Manage',
   'menu.team.plugin': 'Plugin',
   'menu.team.setting': 'Manage',
+  'menu.team.long.dashboard':'Overview',
+  'menu.team.long.create':'Add',
+  'menu.team.long.gateway':'Gateway',
+  'menu.team.long.plugin':'Plugin',
 }
 
 const appMenu = {
@@ -32,7 +41,13 @@ const appMenu = {
   'menu.app.gateway': 'Gateway',
   'menu.app.configgroups': 'Config Group',
   'menu.app.k8s': 'K8S Resources',
-  'menu.app.upgrade': 'Upgrade'
+  'menu.app.upgrade': 'Upgrade',
+  'menu.app.long.dashboard':'Overview',
+  'menu.app.long.publish':'Publish',
+  'menu.app.long.backup':'Backups',
+  'menu.app.long.gateway':'Gateway',
+  'menu.app.long.upgrade':'Upgrade',
+  'menu.app.long.configgroups':'Config Group',
 }
 
 

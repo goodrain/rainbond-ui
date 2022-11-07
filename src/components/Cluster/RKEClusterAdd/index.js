@@ -569,7 +569,6 @@ export default class RKEClusterConfig extends PureComponent {
         });
       }
       if (!err && next) {
-        console.log('2')
         this.handleCheck(next);
       }
     });

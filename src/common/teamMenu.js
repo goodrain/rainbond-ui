@@ -1,15 +1,16 @@
 import { formatMessage } from 'umi-plugin-locale';
 import cookie from '../utils/cookie';
 import roleUtil from '../utils/role';
+import getMenuSvg from '../utils/menuSvg';
 import { isUrl } from '../utils/utils';
 
 const newbieGuide = cookie.get('newbie_guide');
 
-function menuData(teamName, regionName, permissionsInfo) {
+function menuData(teamName, regionName, permissionsInfo, bool) {
   const menuArr = [
     {
-      name: formatMessage({ id: 'menu.team.dashboard' }),
-      icon: 'dashboard',
+      name: bool ? formatMessage({ id: 'menu.team.dashboard' }) : formatMessage({id:'menu.team.long.dashboard'}),
+      icon: getMenuSvg.fetchSvg('overview'),
       path: `team/${teamName}/region/${regionName}/index`,
       authority: ['admin', 'user']
     }
@@ -41,45 +42,45 @@ function menuData(teamName, regionName, permissionsInfo) {
     // 角色
     const roles = results('teamRole', 'describe');
 
-    if (appView) {
-      addMenuArr({
-        name: formatMessage({ id: 'menu.team.app' }),
-        icon: 'appstore-o',
-        path: `team/${teamName}/region/${regionName}/apps`,
-        authority: ['admin', 'user']
-      });
-    }
+    // if (appView) {
+    //   addMenuArr({
+    //     name: bool ? formatMessage({ id: 'menu.team.app' }) : '应用管理',
+    //     icon: getMenuSvg.fetchSvg('app'),
+    //     path: `team/${teamName}/region/${regionName}/apps`,
+    //     authority: ['admin', 'user']
+    //   });
+    // }
     if (appCreateView && componentCreateView && componentConstructView) {
       addMenuArr({
-        name: formatMessage({ id: 'menu.team.create' }),
-        icon: 'plus',
+        name: bool ? formatMessage({ id: 'menu.team.create' }) : formatMessage({id:'menu.team.long.create'}),
+        icon: getMenuSvg.fetchSvg('add'),
         path: `team/${teamName}/region/${regionName}/create`,
         authority: ['admin', 'user'],
         children: [
           {
             name: formatMessage({ id: 'menu.team.create.code' }),
-            path: `/code`,
+            path: `code`,
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.market' }),
-            path: `/market`,
+            path: `market`,
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.image' }),
-            path: `/image`,
+            path: `image`,
             authority: ['admin', 'user']
           },
           // 基于软件包/yaml创建
           {
             name: formatMessage({ id: 'menu.team.create.upload' }),
-            path: `/yaml`,
+            path: `yaml`,
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.third' }),
-            path: `/outer`,
+            path: `outer`,
             authority: ['admin', 'user']
           }
         ]
@@ -104,8 +105,8 @@ function menuData(teamName, regionName, permissionsInfo) {
         });
       }
       addMenuArr({
-        name: formatMessage({ id: 'menu.team.gateway' }),
-        icon: 'gateway',
+        name: bool ? formatMessage({ id: 'menu.team.gateway' }) : formatMessage({id:'menu.team.long.gateway'}),
+        icon: getMenuSvg.fetchSvg('getway'),
         path: `team/${teamName}/region/${regionName}/gateway`,
         authority: ['admin', 'user'],
         children
@@ -114,8 +115,8 @@ function menuData(teamName, regionName, permissionsInfo) {
 
     if (pluginView) {
       addMenuArr({
-        name: formatMessage({ id: 'menu.team.plugin' }),
-        icon: 'api',
+        name: bool ? formatMessage({ id: 'menu.team.plugin' }) : formatMessage({id:'menu.team.long.plugin'}),
+        icon: getMenuSvg.fetchSvg('plugin'),
         path: `team/${teamName}/region/${regionName}/myplugns`,
         authority: ['admin', 'user']
       });
@@ -124,7 +125,7 @@ function menuData(teamName, regionName, permissionsInfo) {
     if (dynamic || members || clusters || roles) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.setting' }),
-        icon: 'setting',
+        icon: getMenuSvg.fetchSvg('setting'),
         path: `team/${teamName}/region/${regionName}/team`,
         authority: ['admin', 'user']
       });
@@ -166,7 +167,7 @@ function formatter(data, parentPath = '', parentAuthority) {
     return result;
   });
 }
-export const getMenuData = (teamName, regionName, permissionsInfo) => {
-  const menus = formatter(menuData(teamName, regionName, permissionsInfo));
+export const getMenuData = (teamName, regionName, permissionsInfo, bool) => {
+  const menus = formatter(menuData(teamName, regionName, permissionsInfo, bool));
   return menus;
 };
