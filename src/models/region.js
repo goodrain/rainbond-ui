@@ -35,6 +35,9 @@ export default {
     //shell终端状态 
     terminal_status:
     JSON.parse(window.sessionStorage.getItem('terminal_status')) || false,
+    // 导航条状态
+    navigation_status:
+    JSON.parse(window.sessionStorage.getItem('navigation_status')) || false,
   },
   effects: {
     *fetchProtocols({ payload }, { call, put }) {
@@ -238,6 +241,32 @@ export default {
       return {
         ...state,
         terminal_status: !payload
+      };
+    },
+    logNavigation(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.setItem(
+          'navigation_status',
+          JSON.stringify(payload)
+        );
+      }
+      return {
+        ...state,
+        navigation_status: payload
+      };
+    },
+    shortNavigation(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.setItem(
+          'navigation_status',
+          JSON.stringify(!payload)
+        );
+      }
+      return {
+        ...state,
+        navigation_status:!payload
       };
     },
   }

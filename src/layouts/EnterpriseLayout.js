@@ -406,6 +406,7 @@ class EnterpriseLayout extends PureComponent {
     };
     const layout = () => {
       const { showMenu } = this.state
+      const { navigation_status } = this.props
       return (
         <Layout>
           <SiderMenu
@@ -447,13 +448,14 @@ class EnterpriseLayout extends PureComponent {
                 }
                 currentUser={currentUser}
                 Authorized={Authorized}
-                menuData={getMenuData(eid, currentUser, enterprise)}
+                menuData={getMenuData(eid, currentUser, enterprise, navigation_status)}
                 showMenu= {showMenu}
                 pathname={pathname}
                 location={location}
                 isMobile={this.state.isMobile}
                 collapsed={collapsed}
                 onCollapse={this.handleMenuCollapse}
+                tabBarStatus={true}
               />
               <Content
                 key={eid}
@@ -547,6 +549,7 @@ export default connect(({ user, global, index, loading, region }) => ({
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
   enterprise: global.enterprise,
-  terminalStatus: region.terminal_status
+  terminalStatus: region.terminal_status,
+  navigation_status: region.navigation_status
   // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))(EnterpriseLayout);

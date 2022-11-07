@@ -439,7 +439,8 @@ class TeamLayout extends PureComponent {
       upDataHeader,
       showAuthCompany,
       currentTeamPermissionsInfo,
-      groupDetail
+      groupDetail,
+      navigation_status
     } = this.props;
     const {
       enterpriseList,
@@ -545,21 +546,24 @@ class TeamLayout extends PureComponent {
     let menuData = getMenuData(
       teamName,
       regionName,
-      currentTeam.tenant_actions
+      currentTeam.tenant_actions,
+      navigation_status
     );
     if (mode === 'app') {
       menuData = getAppMenuData(
         teamName,
         regionName,
         appID,
-        currentTeam.tenant_actions
+        currentTeam.tenant_actions,
+        navigation_status
       );
     } else if (mode === 'helm') {
       menuData = getAppMenuData(
         teamName,
         regionName,
         appID,
-        currentTeam.tenant_actions
+        currentTeam.tenant_actions,
+        navigation_status
       );
     }
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
@@ -734,7 +738,7 @@ class TeamLayout extends PureComponent {
 }
 
 export default connect(
-  ({ user, global, index, loading, teamControl, application }) => ({
+  ({ user, global, index, loading, teamControl, application, region }) => ({
     currentUser: user.currentUser,
     notifyCount: user.notifyCount,
     collapsed: global.collapsed,
@@ -753,6 +757,7 @@ export default connect(
     groupDetail: application.groupDetail,
     // enterpriseServiceInfo: order.enterpriseServiceInfo,
     upDataHeader: global.upDataHeader,
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    navigation_status: region.navigation_status
   })
 )(TeamLayout);

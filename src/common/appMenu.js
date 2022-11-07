@@ -1,6 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { formatMessage } from 'umi-plugin-locale';
 import roleUtil from '../utils/role';
+import getMenuSvg from '@/utils/menuSvg';
 import { isUrl } from '../utils/utils';
 
 const publishIcon = (
@@ -149,7 +150,7 @@ const ziyuan = (
     </svg>
   </i>
 );
-function menuData(teamName, regionName, appID, permissionsInfo) {
+function menuData(teamName, regionName, appID, permissionsInfo, bool) {
   const appPermissions = roleUtil.querySpecifiedPermissionsInfo(
     permissionsInfo,
     'queryAppInfo'
@@ -163,8 +164,8 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
   const { isShare, isBackup, isUpgrade } = appPermissions;
   const menuArr = [
     {
-      name: formatMessage({ id: 'menu.app.dashboard' }),
-      icon: 'dashboard',
+      name: bool ? formatMessage({ id: 'menu.app.dashboard' }) : formatMessage({id:'menu.app.long.dashboard'}),
+      icon: getMenuSvg.fetchSvg('overview'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}`,
       authority: ['admin', 'user']
     }
@@ -176,8 +177,8 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
 
   if (isShare) {
     addMenuArr({
-      name: formatMessage({ id: 'menu.app.publish' }),
-      icon: publishIcon,
+      name: bool ? formatMessage({ id: 'menu.app.publish' }) : formatMessage({id:'menu.app.long.publish'}),
+      icon: getMenuSvg.fetchSvg('publish'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/publish`,
       authority: ['admin', 'user']
     });
@@ -185,39 +186,39 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
 
   if (isBackup) {
     addMenuArr({
-      name: formatMessage({ id: 'menu.app.backup' }),
-      icon: backupIcon,
+      name: bool ? formatMessage({ id: 'menu.app.backup' }) : formatMessage({id:'menu.app.long.backup'}),
+      icon: getMenuSvg.fetchSvg('breakup'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/backup`,
       authority: ['admin', 'user']
     });
   }
   if (control) {
     addMenuArr({
-      name: formatMessage({ id: 'menu.app.gateway' }),
-      icon: 'gateway',
+      name: bool ? formatMessage({ id: 'menu.app.gateway' }) : formatMessage({id:'menu.app.long.gateway'}),
+      icon: getMenuSvg.fetchSvg('getway'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/gateway`,
       authority: ['admin', 'user']
     });
   }
   if (isUpgrade) {
     addMenuArr({
-      name: formatMessage({ id: 'menu.app.upgrade' }),
-      icon: upgradeIcon,
+      name: bool ? formatMessage({ id: 'menu.app.upgrade' }) : formatMessage({id:'menu.app.long.upgrade'}),
+      icon: getMenuSvg.fetchSvg('upgrade'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/upgrade`,
       authority: ['admin', 'user']
     });
   }
   if (isAppConfigGroup) {
     addMenuArr({
-      name: formatMessage({ id: 'menu.app.configgroups' }),
-      icon: 'setting',
+      name: bool ? formatMessage({ id: 'menu.app.configgroups' }) : formatMessage({id:'menu.app.long.configgroups'}),
+      icon: getMenuSvg.fetchSvg('setting'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/configgroups`,
       authority: ['admin', 'user']
     });
   }
   addMenuArr({
     name: formatMessage({ id: 'menu.app.k8s' }),
-    icon: ziyuan,
+    icon: getMenuSvg.fetchSvg('k8s'),
     path: `team/${teamName}/region/${regionName}/apps/${appID}/resource`,
     authority: ['admin', 'user']
   });
@@ -250,10 +251,11 @@ export const getAppMenuData = (
   teamName,
   regionName,
   appID,
-  permissionsInfo
+  permissionsInfo,
+  bool
 ) => {
   const menus = formatter(
-    menuData(teamName, regionName, appID, permissionsInfo)
+    menuData(teamName, regionName, appID, permissionsInfo, bool)
   );
   return menus;
 };

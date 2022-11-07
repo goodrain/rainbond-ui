@@ -1,5 +1,4 @@
 @import "~antd/lib/style/themes/default.less";
-
 i.trigger {
   background    : #374551;
   font-size     : 20px;
@@ -22,30 +21,26 @@ i.trigger {
 }
 
 .items {
-  margin-bottom: 28px;
-
   i {
     font-size: 20px !important;
   }
 }
-
 .item {
   text-align: center;
-  color     : #9CA2A8;
+  color     : #fff;
 
   span {
-    color         : #9CA2A8;
     line-height   : 20px;
     height        : 20px;
-    width         : 64px;
     text-align    : center;
     opacity       : 1 !important;
     display       : block !important;
     max-width     : 64px !important;
     font-family   : PingFangSC-Regular;
-    font-size     : 12px;
-    color         : #9CA2A8;
+    font-size     : 14px;
+    color         : #fff;
     letter-spacing: 0;
+    font-weight:bolder;
   }
 
   i {
@@ -71,18 +66,20 @@ i.trigger {
 }
 
 
-
-
 :global {
-
-  .ant-menu-dark.ant-menu-vertical .ant-menu-item,
-  .ant-menu-dark .ant-menu-item-selected {
-    border-color: transparent !important;
+  .ant-menu-dark.ant-menu-vertical{
+    .ant-menu-submenu-title{
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60px;
+    }
   }
 
   .ant-menu.ant-menu-dark .ant-menu-item-selected,
   .ant-menu-submenu-popup.ant-menu-dark .ant-menu-item-selected {
-    background: none !important;
+    background: #e1e7eb47 !important;
   }
 
   .ant-menu-inline-collapsed>.ant-menu-item .anticon,
@@ -96,10 +93,12 @@ i.trigger {
 
   .ant-menu-dark,
   .ant-menu-dark .ant-menu-sub {
-    background    : #ffffff !important;
+    background    : #546371 !important;
     font-family   : PingFangSC-Regular;
     font-size     : 12px;
     letter-spacing: 0;
+    box-shadow: 0 1px 4px rgba(0,21,41,.12);
+    font-weight:bolder;
   }
 
   .ant-menu-item .anticon,
@@ -110,7 +109,7 @@ i.trigger {
   .ant-menu-item .anticon+span,
   .ant-menu-submenu-title .anticon+span {
     font-family   : PingFangSC-Regular;
-    font-size     : 12px;
+    font-size     : 14px;
     color         : #9CA2A8 !important;
     letter-spacing: 0;
   }
@@ -125,7 +124,6 @@ i.trigger {
   .ant-menu-inline-collapsed>.ant-menu-item-group>.ant-menu-item-group-list>.ant-menu-item,
   .ant-menu-inline-collapsed>.ant-menu-item-group>.ant-menu-item-group-list>.ant-menu-submenu>.ant-menu-submenu-title,
   .ant-menu-inline-collapsed>.ant-menu-submenu>.ant-menu-submenu-title {
-    padding   : 0 0px !important;
     text-align: center;
   }
 
@@ -133,57 +131,60 @@ i.trigger {
   .ant-menu-submenu-title .anticon:hover,
   .ant-menu-item>a:hover {
     font-family: PingFangSC-Regular;
-    color: #1890ff !important;
+    color: #fff !important;
   }
 }
 .globalSider {
-  padding-top: 30px;
   :global {
-    .ant-menu-submenu-active{
-      background : #ffffff;
-      // border-left: 4px solid transparent;
-      a {
-        margin-left: -4px;
+    .ant-menu-submenu-selected{
+      background-color: #e1e7eb47;
+      span{
+        color: #fff !important;
         i {
           display: block !important;
-          color: #1890ff !important;
+          color: #fff !important;
           svg{
             path{
-              fill:#1890ff !important;
+              fill:#fff !important;
             }
             g>g{
-              stroke:#1890ff !important;
+              stroke:#fff !important;
             }
           }
         }
-        span {
-          line-height   : 20px;
-          height        : 20px;
-          text-align    : center;
-          opacity       : 1 !important;
-          display       : block !important;
-          max-width     : 64px !important;
-          font-family   : PingFangSC-Regular;
-          font-size     : 12px;
-          color: #1890ff !important;
-          letter-spacing: 0;
-        }
       }
+    }
+    .ant-menu-submenu-active{
+          i {
+            display: block !important;
+            color: #fff !important;
+            svg{
+              path{
+                fill:#fff !important;
+              }
+              g>g{
+                stroke:#fff !important;
+              }
+            }
+          }
+          span {
+            color: #fff !important;
+          }
     }
     .ant-menu-item-active{
-      background : #ffffff;
-      border-left: 4px solid transparent;
+      span{
+        color: #fff !important;
+      }
       a {
-        margin-left: -4px;
         i {
           display: block !important;
-          color: #1890ff !important;
+          color: #fff !important;
           svg{
             path{
-              fill:#1890ff !important;
+              fill:#fff !important;
             }
             g>g{
-              stroke:#1890ff !important;
+              stroke:#fff !important;
             }
           }
         }
@@ -195,26 +196,26 @@ i.trigger {
           display       : block !important;
           max-width     : 64px !important;
           font-family   : PingFangSC-Regular;
-          font-size     : 12px;
-          color: #1890ff !important;
+          font-size     : 14px;
+          color: #fff !important;
           letter-spacing: 0;
+          font-weight:bolder;
         }
       }
+    
     }
     .ant-menu-item.ant-menu-item-selected {
-      background : #ffffff;
-      border-left: 4px solid transparent;
       a {
-        margin-left: -4px;
+        color: #fff !important;
         i {
           display: block !important;
-          color: #1890ff !important;
+          color: #fff !important;
           svg{
             path{
-              fill:#1890ff !important;
+              fill:#fff !important;
             }
             g>g{
-              stroke:#1890ff !important;
+              stroke:#fff !important;
             }
           }
         }
@@ -227,15 +228,16 @@ i.trigger {
           display       : block !important;
           max-width     : 64px !important;
           font-family   : PingFangSC-Regular;
-          font-size     : 12px;
-          color: #1890ff !important;
+          font-size     : 14px;
+          color: #fff !important;
           letter-spacing: 0;
+          font-weight:bolder;
         }
       }
     }
 
     .ant-menu-item {
-      margin-bottom: 28px !important;
+      margin-top: 0 !important;
     }
 
     .ant-menu-item>a {
@@ -252,8 +254,9 @@ i.trigger {
         display       : block !important;
         max-width     : 64px !important;
         font-family   : PingFangSC-Regular;
-        font-size     : 12px;
+        font-size     : 14px;
         letter-spacing: 0;
+        font-weight:bolder;
       }
     }
   }

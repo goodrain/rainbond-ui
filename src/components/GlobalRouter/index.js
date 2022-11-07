@@ -22,8 +22,9 @@ const getIcon = icon => {
   return icon;
 };
 
-@connect(({ loading }) => ({
-  viewLoading: loading.effects['user/addCollectionView']
+@connect(({ loading, region }) => ({
+  viewLoading: loading.effects['user/addCollectionView'],
+  navigation_status: region.navigation_status
 }))
 export default class GlobalRouter extends PureComponent {
   constructor(props) {
@@ -145,7 +146,8 @@ export default class GlobalRouter extends PureComponent {
    * Judge whether it is http link.return a or Link
    * @memberof SiderMenu
    */
-  getMenuItemPath = item => {
+  getMenuItemPath = (item ,bool = false) => {
+    const { navigation_status } = this.props;
     const itemPath = this.conversionPath(item.path);
     const icon = getIcon(item.icon);
     const { target, name } = item;
@@ -153,13 +155,31 @@ export default class GlobalRouter extends PureComponent {
     if (/^https?:\/\//.test(itemPath)) {
       return (
         <a href={itemPath} target={target}>
-          {icon}
+          <span>{icon}</span>
           <span>{name}</span>
         </a>
       );
     }
     return (
       <Link
+        style=
+        {navigation_status ? 
+          {} 
+          : 
+          bool ? 
+          {            
+          display:'flex', 
+          alignItems:'start', 
+          justifyContent:'start',
+        }
+          :
+          {
+            display:'flex', 
+            alignItems:'center', 
+            justifyContent:'flex-start',
+            width:"100%"
+          }
+        }
         to={itemPath}
         target={target}
         replace={itemPath === this.props.location.pathname}
@@ -172,37 +192,50 @@ export default class GlobalRouter extends PureComponent {
         }
       >
         {icon}
-        <span style={{padding:'0 5px', textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}>{name}</span>
+        <span style={navigation_status? {padding:'0 5px', textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap',fontSize:12} : {paddingLeft:12}}>{name}</span>
       </Link>
     );
   };
   /**
    * get SubMenu or Item
    */
-  getSubMenuOrItem = item => {
+  getSubMenuOrItem = (item, bool) => {
+    const {  navigation_status } = this.props
     if (item.children && item.children.some(child => child.name)) {
       return (
         <SubMenu
           className={styles.items}
           title={
-            <a className={styles.item}>
+            <span
+            className={styles.item}
+            style=
+            {navigation_status ? 
+              {} : 
+              {
+                display:'flex', 
+                alignItems:'center', 
+                justifyContent:'flex-start',
+                width:"100%"
+              }
+            }
+            >
               {item.icon && getIcon(item.icon)}
-              <span>{item.name}</span>
-            </a>
+              <span style={navigation_status ? {fontSize:12} :{marginLeft:16}}>{item.name}</span>
+            </span>
           }
           key={item.path}
         >
-          {this.getNavMenuItems(item.children)}
+          {this.getNavMenuItems(item.children,true)}
         </SubMenu>
       );
     }
-    return <Menu.Item key={item.path}>{this.getMenuItemPath(item)}</Menu.Item>;
+    return <Menu.Item key={item.path} style={!bool && {display: 'flex',alignItems: 'center',justifyContent: "center",height:60}}>{this.getMenuItemPath(item, bool)}</Menu.Item>;
   };
   /**
    * 获得菜单子节点
    * @memberof SiderMenu
    */
-  getNavMenuItems = menusData => {
+  getNavMenuItems = (menusData, bool) => {
     if (!menusData) {
       return [];
     }
@@ -210,7 +243,7 @@ export default class GlobalRouter extends PureComponent {
     return menusData
       .filter(item => item.name && !item.hideInMenu)
       .map(item => {
-        const ItemDom = this.getSubMenuOrItem(item);
+        const ItemDom = this.getSubMenuOrItem(item, bool);
         return this.checkPermissionItem(item.authority, ItemDom);
       })
       .filter(item => !!item);
@@ -255,9 +288,18 @@ export default class GlobalRouter extends PureComponent {
     });
   };
   handleOpenCollectionVisible = () => {
-    this.setState({
-      collectionVisible: true
-    });
+    const { dispatch, navigation_status } = this.props;
+    if( navigation_status ){
+      dispatch({
+        type:'region/shortNavigation',
+        payload: true,
+      })
+    }else{
+      dispatch({
+        type:'region/logNavigation',
+        payload: true,
+      })
+    }
   };
   handleCloseCollectionVisible = () => {
     this.setState({
@@ -296,9 +338,8 @@ export default class GlobalRouter extends PureComponent {
       }
     });
   };
-
   render() {
-    const { showMenu, viewLoading, pathname, menuData } = this.props;
+    const { showMenu, viewLoading, pathname, menuData, navigation_status, tabBarStatus=false } = this.props;
     const { openKeys, collectionVisible } = this.state;
     // if pathname can't match, use the nearest parent's key
     let selectedKeys = this.getSelectedMenuKeys(pathname);
@@ -309,8 +350,9 @@ export default class GlobalRouter extends PureComponent {
       <div
         style={{
           background: '#fff',
-          width: '68px',
-          display: showMenu ? 'block' : 'none'
+          width: navigation_status ? '68px' : '220px',
+          display: showMenu ? 'block' : 'none',
+          transition: ".5s ease"
         }}
       >
         {collectionVisible && (
@@ -329,30 +371,39 @@ export default class GlobalRouter extends PureComponent {
           mode="inline"
           onOpenChange={this.handleOpenChange}
           selectedKeys={selectedKeys}
+          onSelect = {this.onSelect}
           inlineCollapsed="menu-fold"
           defaultOpenKeys={[
             `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`
           ]}
           style={{
-            width: '68px',
-            height: 'calc(100vh - 64px)',
-            position: 'relative'
+            width: '100%',
+            height: 'calc(100vh - 60px)',
+            position: 'relative',
+            // paddingTop: tabBarStatus ? 18 : 46
           }}
         >
           {this.getNavMenuItems(menuData || [])}
           <Menu.Item
             key="collection"
-            title={formatMessage({id:'otherEnterprise.SiderMenu.title'})}
+            title={navigation_status ? '展开' : '收起'}
             onClick={this.handleOpenCollectionVisible}
             style={{
               width: '100%',
               position: 'absolute',
-              bottom: '0px'
+              bottom: '-9px',
+              borderTop: "1px solid #dfdfdfa6"
             }}
           >
-            <a>
-              <Icon type="star" />
-              <span><FormattedMessage id="sidecar.collection" /></span>
+            <a 
+            style={{
+            display:'flex', 
+            alignItems:'end', 
+            justifyContent:'center',
+            marginTop:'7px'
+            }}
+            >
+              {navigation_status ? <Icon type="double-right" /> : <Icon type="double-left" />}
             </a>
           </Menu.Item>
         </Menu>
