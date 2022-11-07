@@ -1144,7 +1144,7 @@ export default class Main extends PureComponent {
                         getPopupContainer={triggerNode =>
                           triggerNode.parentNode
                         }
-                        style={{ width: 280 }}
+                        style={{ width: '60%' }}
                         onChange={this.changeCurrentModel}
                         placeholder={formatMessage({id:'placeholder.appShare.selectAppTemplate'})}
                       >
@@ -1186,7 +1186,7 @@ export default class Main extends PureComponent {
                       ]
                     })(
                       <AutoComplete
-                        style={{ width: 280 }}
+                        style={{ width: '60%' }}
                         onChange={this.changeCurrentVersion}
                         placeholder={formatMessage({id:'placeholder.appShare.version'})}
                       >
@@ -1220,7 +1220,7 @@ export default class Main extends PureComponent {
                       ]
                     })(
                       <Input
-                        style={{ width: 280 }}
+                        style={{ width: '60%' }}
                         placeholder={formatMessage({id:'placeholder.appShare.version_alias'})}
                       />
                     )}
