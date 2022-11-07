@@ -173,11 +173,23 @@ export default class WebConsole extends PureComponent {
   onChange = key => {
     this.setState({ activeKey: key });
   };
-  onSelect = (region_name, tcpUrl) => {
+  onSelect = (region_name, region_id) => {
+    const eid = globalUtil.getCurrEnterpriseId();
     this.setState({
       region_name: region_name
     })
-    this.clusterInfo(region_name, tcpUrl)
+    this.props.dispatch({
+      type: 'region/fetchEnterpriseCluster',
+      payload: {
+        enterprise_id: eid,
+        region_id: region_id
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.clusterInfo(region_name, res.bean.wsurl)
+        }
+      }
+    });
   };
 
   openConsole = (podName, containerName) => {
@@ -236,10 +248,8 @@ export default class WebConsole extends PureComponent {
           {ClustersList && ClustersList.length > 0 && (
             <div>
               {ClustersList.map((item) => {
-                const { region_alias, region_name, url } = item
-                const str = url.substring(url.indexOf(':'), url.lastIndexOf(":"))
-                const tcpUrl = `ws${str}:6060`
-                return <p onClick={() => this.onSelect(region_name, tcpUrl)} className={styles.region_alias}>{region_alias}</p>
+                const { region_alias, region_name, region_id } = item
+                return <p onClick={() => this.onSelect(region_name, region_id)} className={styles.region_alias}>{region_alias}</p>
               })}
             </div>
           )
