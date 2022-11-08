@@ -811,6 +811,7 @@ export default class Index extends PureComponent {
         {/* 热门应用标题 */}
         <div className={styles.teamHotAppTitle}>
           <div className={styles.teamHotAppTitleLeft}>
+            <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
             <h2><FormattedMessage id="teamOverview.appList" /></h2>
           </div>
         </div>
@@ -911,7 +912,8 @@ export default class Index extends PureComponent {
             </div>
           )}
           {/* 分页 */}
-          {teamHotAppList.length > page_size &&
+          {console.log(teamHotAppList.length,'teamHotAppList')}
+          {(teamHotAppList.length > 0 && teamHotAppList.length >= page_size) &&
             <div className={styles.pagination}>
               <Pagination
                 showSizeChanger
