@@ -850,7 +850,7 @@ export default class Index extends PureComponent {
           </div>
           {!loadingOfApp && appListLoading && teamHotAppList.length > 0 &&( 
             <div className={styles.no_teamHotAppList}>
-              <Empty />
+              <Spin tip="Loading..." size="large" />
             </div>
           )}
           {!loadingOfApp && !emptyConfig && teamHotAppList.length > 0 && (

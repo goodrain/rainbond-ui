@@ -255,13 +255,13 @@ export default class GlobalHeader extends PureComponent {
             onClick={this.toggle}
           /> */}
           {customHeader && customHeader()}
-          <Link style={{ color: is_space ? '#338bff' : '#fff', marginRight: '20px', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/personal`}>
+          <Link style={{ color: is_space ? '#fff' : '#8f8f8f', margin: '0 40px', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/personal`}>
             {/* {customHeader && customHeader()} */}
             {formatMessage({id:'enterpriseTeamManagement.other.personal'})}
           </Link>
           {/* 平台管理 */}
           {currentUser.is_enterprise_admin && (
-            <Link style={{ color: is_enterprise ? '#338bff' : '#fff', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/index`}>
+            <Link style={{ color: is_enterprise ? '#fff' : '#8f8f8f', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/index`}>
               <FormattedMessage id="GlobalHeader.platform" />
             </Link>
           )}

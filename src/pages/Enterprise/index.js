@@ -57,10 +57,11 @@ import styles from '../List/BasicList.less';
 import enterpriseStyles from './index.less'
 import styleSvg from './svg.less'
 
-@connect(({ user, global, index }) => ({
+@connect(({ user, global, index, region }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
-  overviewInfo: index.overviewInfo
+  overviewInfo: index.overviewInfo,
+  navigation_status: region.navigation_status
 }))
 export default class Enterprise extends PureComponent {
   constructor(props) {
@@ -686,7 +687,7 @@ export default class Enterprise extends PureComponent {
     }
   }
   renderContent = () => {
-    const { rainbondInfo } = this.props;
+    const { rainbondInfo, navigation_status } = this.props;
     const {
       enterpriseInfo,
       overviewInfo,
@@ -944,7 +945,7 @@ export default class Enterprise extends PureComponent {
                             </div>
                           </div>
                           <div className={enterpriseStyles.node}>
-                            <p>{formatMessage({ id: 'enterpriseOverview.overview.pod_total' })}</p>
+                            <p >{formatMessage({ id: 'enterpriseOverview.overview.pod_total' })}</p>
                             <div className={enterpriseStyles.nodeData}>
                               <span className={enterpriseStyles.running}>{services_status && services_status.running || 0}</span>
                             </div>
@@ -996,7 +997,10 @@ export default class Enterprise extends PureComponent {
                           }}
                         >
                           {tenant_alias}
-                        </span>{formatMessage({ id: 'enterpriseOverview.team.group' })}
+                        </span>
+                        {/* {formatMessage({ id: 'enterpriseOverview.team.group' })} */}
+                        {/* > */}
+                        &nbsp;/&nbsp;
                         <span
                           className={enterpriseStyles.spanStyle}
                           onClick={() => {
@@ -1004,8 +1008,11 @@ export default class Enterprise extends PureComponent {
                           }}
                         >
                           {group_name}
-                        </span>{formatMessage({ id: 'enterpriseOverview.overview.app' })}
-                        <span>{formatMessage({ id: 'enterpriseOverview.overview.inside' })}</span>
+                        </span>
+                        {/* {formatMessage({ id: 'enterpriseOverview.overview.app' })}
+                        <span>{formatMessage({ id: 'enterpriseOverview.overview.inside' })}</span> */}
+                        {/* > */}
+                         &nbsp;/&nbsp;
                         <span
                           className={enterpriseStyles.spanStyle}
                           onClick={() => {
@@ -1013,7 +1020,10 @@ export default class Enterprise extends PureComponent {
                           }}
                         >
                           {service_cname}
-                        </span>{formatMessage({ id: 'enterpriseOverview.overview.component' })}
+                        </span>
+                        {/* {formatMessage({ id: 'enterpriseOverview.overview.component' })} */}
+                        {/* > */}
+                        &nbsp; /&nbsp;
                         <span style={{ color: 'red' }}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
                       </div>
                       <div>
