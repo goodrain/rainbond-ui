@@ -19,7 +19,7 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.add'}),
-      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged",'env',"shareProcessNamespace","dnsPolicy",'HostIPC','Resources','lifecycle','dnsConfig'],
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged",'env',"shareProcessNamespace","dnsPolicy",'hostIPC','resources','lifecycle','dnsConfig'],
       selectVal: undefined,
       havevalArr: [],
       drawerSwitch: "add",
@@ -34,7 +34,7 @@ class Index extends PureComponent {
         volumes:'#sample\n#- hostPath:\n#    path: /test\n#  name: data\n#- name: mydata\n#  persistentVolumeClaim:\n#    claimName: test-pvc\n#- configMap:\n#    name: test\n#  name: config\n',
         volumeMounts:'#sample\n#- mountPath: /opt\n#  name: data\n#- mountPath: /etc/test/conf/aa\n#  name: mydata\n#  subPath: aa\n#- mountPath: /etc/test/conf/nginx.conf\n#  name: config\n#  subPath: test.conf\n',
         dnsConfig:'#sample\n #nameservers:\n #searches:\n #options:\n #  - name:\n #    value: ',
-        Resources:'#sample\n#  limits:\n#    hugepages-2Mi:\n#    memory: \n#  requests:\n#    memory: ',
+        resources:'#sample\n#  limits:\n#    hugepages-2Mi:\n#    memory: \n#  requests:\n#    memory: ',
         lifecycle:'#sample\n#postStart:\n#  exec:\n#    command:\n #preStop:\n#  exec:\n#    command: '
       },
       TooltipValue:'',
@@ -339,12 +339,12 @@ class Index extends PureComponent {
             }
           break;
 
-          case 'HostIPC' :
-            if(value.HostIPC != null){
+          case 'hostIPC' :
+            if(value.hostIPC != null){
                 const label = {
                   name: selectVal,
                   save_type: "string",
-                  attribute_value: `${value.HostIPC}` || 'false'
+                  attribute_value: `${value.hostIPC}` || 'false'
                 }
                 this.handelAddOrEdit(label)
             }else{
@@ -352,12 +352,12 @@ class Index extends PureComponent {
             }
           break;
 
-          case 'Resources' :
-            if(value.Resources != null && value.Resources.length > 0 && value.Resources!= TooltipValue){
+          case 'resources' :
+            if(value.resources != null && value.resources.length > 0 && value.resources!= TooltipValue){
                 const label = {
                   name: selectVal,
                   save_type: "yaml",
-                  attribute_value: `${value.Resources}` || [],
+                  attribute_value: `${value.resources}` || [],
                 }
                 this.handelAddOrEdit(label)
             }else{
@@ -593,7 +593,7 @@ class Index extends PureComponent {
               }
               {
                 selectVal &&
-                ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || selectVal == "dnsConfig" || selectVal =='Resources' || selectVal == 'lifecycle') &&
+                ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || selectVal == "dnsConfig" || selectVal =='resources' || selectVal == 'lifecycle') &&
                 <>
                   <p style={{padding: '10px 0'}}> {selectVal == "dnsConfig" ? formatMessage({id:'componentOverview.body.Kubernetes.onlyDnsPolicy'}) : ' '}</p>
                   <CodeMirrorForm
@@ -628,7 +628,7 @@ class Index extends PureComponent {
               }
               {
                 selectVal &&
-                (selectVal == "privileged" || selectVal =='shareProcessNamespace'||  selectVal == 'HostIPC')&&
+                (selectVal == "privileged" || selectVal =='shareProcessNamespace'||  selectVal == 'hostIPC')&&
                 <Form.Item  {...formItemLayouts}>
                   <div style={ language ? {} :{marginLeft: 38} }>
                   <p style={{whiteSpace:'nowrap'}}><FormattedMessage id='componentOverview.body.Kubernetes.privileged' values={{type:selectVal}}/></p>
@@ -663,7 +663,7 @@ class Index extends PureComponent {
                 allData.length > 0 ? (
                 allData.map((item, index) => {
                   return <Row key={index}>
-                            {(item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env" || item.name =="dnsConfig" || item.name =='Resources' || item.name == 'lifecycle') ? (
+                            {(item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env" || item.name =="dnsConfig" || item.name =='resources' || item.name == 'lifecycle') ? (
                               <Col span={4} className={styles.yamlTitle_style}>{item.name}:</Col>
                             ):(
                               <Col span={4}>{item.name}:</Col>
@@ -682,7 +682,7 @@ class Index extends PureComponent {
                                   })
                                 }
                                 {item.name &&
-                                (item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env" || item.name == 'dnsConfig'|| item.name =='Resources' || item.name == 'lifecycle')  &&
+                                (item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env" || item.name == 'dnsConfig'|| item.name =='resources' || item.name == 'lifecycle')  &&
                                 item.attribute_value.length > 0 &&
                                 <div className={styles.yamlValue_style}>
                                   {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml'/>
@@ -698,7 +698,7 @@ class Index extends PureComponent {
                                 </div>
                                 }
                                 {item.name &&
-                                (item.name == "privileged" || item.name =='shareProcessNamespace' || item.name == 'HostIPC')  &&
+                                (item.name == "privileged" || item.name =='shareProcessNamespace' || item.name == 'hostIPC')  &&
                                 item.attribute_value.length > 0 &&
                                 <span style={{paddingTop:"6px"}}><FormattedMessage id='componentOverview.body.Kubernetes.current'/>{item.attribute_value == "true" ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened'/>: <FormattedMessage id='componentOverview.body.Kubernetes.Closed'/>}</span>
                                 }
