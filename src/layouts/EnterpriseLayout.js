@@ -408,6 +408,10 @@ class EnterpriseLayout extends PureComponent {
     };
     const layout = () => {
       const { showMenu } = this.state
+      const urlParams = new URL(window.location.href)
+      const includesAdd = urlParams.href.includes('/addCluster')
+      const includesPro = urlParams.href.includes('/provider')
+      const showTransition = includesAdd || includesPro
       return (
         <Layout>
           <SiderMenu
@@ -464,14 +468,14 @@ class EnterpriseLayout extends PureComponent {
                   width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
                 }}>
                 <CSSTransition
-                  timeout={500}
+                  timeout={300}
                   classNames=
                   {{                        
                   enter: 'animate__animated',
                   enterActive: 'animate__fadeIn',
                   }}
                   unmountOnExit
-                  key={this.props.location.pathname}
+                  key={showTransition ? "" : this.props.location.pathname}
                 >
                   <Content
                     key={eid}
