@@ -117,7 +117,7 @@ export default class ImportMessage extends PureComponent {
                     <Card style={{ padding: '24px 12px' }}>
                         {
                             Object.keys(errorArr).map((item, index) => {
-                                const errorItem = errorArr.[item]
+                                const errorItem = errorArr[item]
                                 return <>
                                     {errorItem.status.length < 0 ? (
                                         <></>
