@@ -68,22 +68,22 @@ export default class ImportMessage extends PureComponent {
             kubernetes: [],
             moduleArr: [],
         })
-        if (module.[item].convert_resource != null && module.[item].kubernetes_resources != null) {
+        if (module[item].convert_resource != null && module[item].kubernetes_resources != null) {
             this.setState({
-                moduleArr: module.[item].convert_resource,
-                kubernetes: module.[item].kubernetes_resources,
+                moduleArr: module[item].convert_resource,
+                kubernetes: module[item].kubernetes_resources,
                 tabKey: '0',
             })
-        } else if (module.[item].convert_resource != null && module.[item].kubernetes_resources == null) {
+        } else if (module[item].convert_resource != null && module[item].kubernetes_resources == null) {
             this.setState({
-                moduleArr: module.[item].convert_resource,
-                k8sArr: module.[item].kubernetes_resources,
+                moduleArr: module[item].convert_resource,
+                k8sArr: module[item].kubernetes_resources,
                 tabKey: '0',
             })
         }
-        else if (module.[item].kubernetes_resources != null && module.[item].convert_resource == null) {
+        else if (module[item].kubernetes_resources != null && module[item].convert_resource == null) {
             this.setState({
-                kubernetes: module.[item].kubernetes_resources,
+                kubernetes: module[item].kubernetes_resources,
                 tabKey: 'k8s',
             })
         }
@@ -129,8 +129,8 @@ export default class ImportMessage extends PureComponent {
                     this.setState({
                         appnameArr: appname,
                         module: res.bean,
-                        moduleArr: res.bean.[appname[0]].convert_resource,
-                        kubernetes: res.bean.[appname[0]].kubernetes_resources,
+                        moduleArr: res.bean[appname[0]].convert_resource,
+                        kubernetes: res.bean[appname[0]].kubernetes_resources,
                         loadingSwitch: false
                     })
                     const { moduleArr } = this.state
@@ -213,7 +213,7 @@ export default class ImportMessage extends PureComponent {
                                         {
                                             appnameArr.map((item, index) => {
                                                 return <>
-                                                    {(module.[item].convert_resource === null && module.[item].kubernetes_resources === null) ? (<></>) : (
+                                                    {(module[item].convert_resource === null && module[item].kubernetes_resources === null) ? (<></>) : (
                                                         <div key={index}
                                                             className={`${styles.typeBtn}  ${type === index ? styles.active : ""}`}
                                                             onClick={() => {

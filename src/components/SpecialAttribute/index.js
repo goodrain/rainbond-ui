@@ -71,10 +71,10 @@ export default class SpecialAttribute extends PureComponent {
                                         {item.attribute_value && 
                                         item.attribute_value.length > 0 && 
                                         Object.keys(JSON.parse(item.attribute_value)).map((val, numindex) => {
-                                            return <Tooltip placement="top" title={<><p>Key: {val}</p><p>Value:  {JSON.parse(item.attribute_value).[val]}</p></>} key={numindex}>
+                                            return <Tooltip placement="top" title={<><p>Key: {val}</p><p>Value:  {JSON.parse(item.attribute_value)[val]}</p></>} key={numindex}>
                                             <div className={styles.tooltip_style}>
                                                 <span>{val}</span>
-                                                <span>{JSON.parse(item.attribute_value).[val]}</span>
+                                                <span>{JSON.parse(item.attribute_value)[val]}</span>
                                             </div>
                                             </Tooltip>
                                         })}
