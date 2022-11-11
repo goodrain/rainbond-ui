@@ -373,7 +373,7 @@ export default class Index extends PureComponent {
               this.loadTeamAppEcharts();
               // // 加载热门应用模块
               // if (!this.loadHotAppTimer) {
-              //   this.loadHotApp();
+                this.loadHotApp();
               // }
             }
           );
