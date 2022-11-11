@@ -929,7 +929,7 @@ const componentOverview = {
     'componentOverview.body.Kubernetes.key':'请输入对应的key,value',
     'componentOverview.body.Kubernetes.content':'请编辑内容',
     'componentOverview.body.Kubernetes.input':'请输入serviceAccountName属性',
-    'componentOverview.body.Kubernetes.privileged':'是否开启privileged属性',
+    'componentOverview.body.Kubernetes.privileged':'是否开启 {type} 属性',
     'componentOverview.body.Kubernetes.Cancel':'取 消',
     'componentOverview.body.Kubernetes.Confirm':'确 认',
     'componentOverview.body.Kubernetes.yaml':'该配置以yaml文件形式存储,请点击右侧编辑按钮进行查看或修改。',
@@ -938,6 +938,9 @@ const componentOverview = {
     'componentOverview.body.Kubernetes.Closed':'已关闭',
     'componentOverview.body.Kubernetes.edit':'编辑',
     'componentOverview.body.Kubernetes.deldete':'删除',
+    "componentOverview.body.Kubernetes.dnsPolicy":'请选择dnsPolicy属性',
+    "componentOverview.body.Kubernetes.onlyDnsPolicy":'此配置只有在desPolicy属性值为None时才会生效',
+    "componentOverview.body.Kubernetes.is":'当前属性为：',
 
     // tabs栏>setting>AddTag
     'componentOverview.body.AddTag.choice':'点击标签进行选择',

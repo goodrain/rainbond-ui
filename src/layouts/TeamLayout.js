@@ -12,6 +12,7 @@ import { enquireScreen } from 'enquire-js';
 import PropTypes from 'prop-types';
 import { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';
@@ -37,6 +38,7 @@ import Context from './MenuContext';
 import Logo from '../../public/logo.png'
 import styles from './EnterpriseLayout.less'
 import headerStype from '../components/GlobalHeader/index.less';
+import "animate.css"
 const { Content } = Layout;
 
 const query = {
@@ -86,7 +88,8 @@ class TeamLayout extends PureComponent {
       eid: '',
       appID: globalUtil.getAppID(),
       teamView: true,
-      showMenu: true
+      showMenu: true,
+      GroupShow: true
     };
   }
 
@@ -279,7 +282,8 @@ class TeamLayout extends PureComponent {
       currentEnterprise: enterpriseList[0],
       currentTeam: team,
       currentRegion: region,
-      ready: true
+      ready: true,
+      GroupShow: true
     });
     this.fetchEnterpriseInfo(eid);
     this.fetchTeamApps();
@@ -310,7 +314,7 @@ class TeamLayout extends PureComponent {
           app_alias: componentID
         },
         callback: appDetail => {
-          this.setState({ currentComponent: appDetail.service });
+          this.setState({ currentComponent: appDetail.service, GroupShow: false });
         },
         handleError: data => {
           if (data.status) {
@@ -404,7 +408,8 @@ class TeamLayout extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            currentApp: res.bean
+            currentApp: res.bean,
+            GroupShow: true
           });
         }
       },
@@ -512,7 +517,7 @@ class TeamLayout extends PureComponent {
         </div>
       );
     };
-  const svgPersonal = globalUtil.fetchSvg('svgPersonal')
+    const svgPersonal = globalUtil.fetchSvg('svgPersonal')
     const breadCrumb = () => {
       if (mode == 'team') {
         return (
@@ -678,22 +683,59 @@ class TeamLayout extends PureComponent {
                   showMenu={showMenu ? !componentID : false}
                 />
               )}
-              <Content
-                style={{
-                  height: 'calc(100vh - 64px)',
-                  overflow: 'auto',
-                  width: autoWidth
-                }}
-              >
-                {teamView && breadCrumb()}
-                <div
+                <TransitionGroup
                   style={{
-                    margin: '12px 24px 0'
+                    height: 'calc(100vh - 64px)',
+                    overflow: 'auto',
+                    width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
+                  }}>
+                 {this.state.GroupShow ? 
+                 <CSSTransition
+                    timeout={300}
+                    classNames=
+                    {{
+                      enter: 'animate__animated',
+                      enterActive: 'animate__fadeIn',
+                    }}
+                    unmountOnExit
+                    key={this.props.location.pathname}
+                  >
+                    <Content
+                      style={{
+                        height: 'calc(100vh - 64px)',
+                        overflow: 'auto',
+                        width: '100%'
+                      }}
+                    >
+                      {teamView && breadCrumb()}
+                      <div
+                        style={{
+                          margin: '12px 24px 0'
+                        }}
+                      >
+                        {renderContent()}
+                      </div>
+                    </Content>
+                  </CSSTransition>
+                  :
+                  <Content
+                  style={{
+                    height: 'calc(100vh - 64px)',
+                    overflow: 'auto',
+                    width: '100%'
                   }}
                 >
-                  {renderContent()}
-                </div>
-              </Content>
+                  {teamView && breadCrumb()}
+                  <div
+                    style={{
+                      margin: '12px 24px 0'
+                    }}
+                  >
+                    {renderContent()}
+                  </div>
+                </Content>
+                  }
+                </TransitionGroup> 
             </Layout>
           </Layout>
         </Layout>

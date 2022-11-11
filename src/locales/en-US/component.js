@@ -916,7 +916,7 @@ const componentOverview = {
     'componentOverview.body.Kubernetes.key':'Enter the corresponding key and value',
     'componentOverview.body.Kubernetes.content':'Please edit the content',
     'componentOverview.body.Kubernetes.input':'Enter the serviceAccountName attribute',
-    'componentOverview.body.Kubernetes.privileged':'Whether to turn on the privileged attribute',
+    'componentOverview.body.Kubernetes.privileged':'Whether to turn on the {type} attribute',
     'componentOverview.body.Kubernetes.Cancel':'Cancel',
     'componentOverview.body.Kubernetes.Confirm':'Confirm',
     'componentOverview.body.Kubernetes.yaml':'The configuration is stored as a YAML file. Click the edit button on the right to view or modify it.',
@@ -925,6 +925,9 @@ const componentOverview = {
     'componentOverview.body.Kubernetes.Closed':'Closed',
     'componentOverview.body.Kubernetes.edit':'Edit',
     'componentOverview.body.Kubernetes.deldete':'Delete',
+    "componentOverview.body.Kubernetes.dnsPolicy":'Select dnsPolicy attribute',
+    "componentOverview.body.Kubernetes.onlyDnsPolicy":'This configuration takes effect only when the desPolicy attribute is None',
+    "componentOverview.body.Kubernetes.is":'The current properties are:',
 
     // tabs栏>setting>AddTag
     'componentOverview.body.AddTag.choice':'Click the tab to select',
