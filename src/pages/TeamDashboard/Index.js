@@ -350,404 +350,26 @@ export default class Index extends PureComponent {
             )}
           </h2>
         </div>
-        {/* 页面loading */}
-        {loadingOverview && index.overviewInfo.region_health && (
-          <Spin size="large" tip="Loading..." style={{ textAlign: 'center', }}>
-            {/* page top */}
-            {index.overviewInfo.region_health && (
-              <div className={styles.topContainer}>
-                {/* 应用 */}
-                <div>
-                  <div className={styles.teamApp}>
-                    <h3 className={styles.teamAppTitle}><FormattedMessage id="teamOverview.app.name" /></h3>
-                    <div className={styles.teamAppContent}>
-                      {/* 图表 */}
-                      <div id="appEcharts" className={styles.appEcharts} />
-                      {/* 描述 */}
-                      <div className={styles.desc}>
-                        <div className={styles.activeApp}>
-                          <span>
-                            {globalUtil.fetchSvg('teamAppActive', '#4f75af', '24')}
-                          </span>
-                          <Tooltip title={formatMessage({ id: 'teamOverview.runAppNum' }, { number: (index.overviewInfo && index.overviewInfo.running_app_num) || 0 })}>
-                            <span
-                              className={styles.ellipsis}
-                              style={{ width: '100%' }}
-                            >
-                              <FormattedMessage
-                                id="teamOverview.runAppNum"
-                                values={{ number: 0 }}
-                              />
-                            </span>
-                          </Tooltip>
-                        </div>
-                        <div className={styles.defaultApp}>
-                          <span>
-                            {globalUtil.fetchSvg(
-                              'teamDefaultActive',
-                              '#cccccc',
-                              '24'
-                            )}
-                          </span>
-                          <Tooltip title={formatMessage({ id: 'teamOverview.notRunAppNum' }, { number: (index.overviewInfo.team_app_num - index.overviewInfo.running_app_num) || 0 })}>
-                            <span
-                              className={styles.ellipsis}
-                              style={{ width: '100%' }}
-                            >
-                              <FormattedMessage
-                                id="teamOverview.notRunAppNum"
-                                values={{ number: 0 }}
-                              />
-                            </span>
-                          </Tooltip>
-                        </div>
-                        <div className={language ? styles.totalApps : styles.totalApp}>
-                          <FormattedMessage
-                            id="teamOverview.appSum"
-                            values={{ number: 0 }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* 组件 */}
-                <div>
-                  <div className={styles.teamApp}>
-                    <h3 className={styles.teamAppTitle}> <FormattedMessage id="teamOverview.component.name" /></h3>
-                    <div className={styles.teamAppContent}>
-                      {/* 图表 */}
-                      <div id="componmentEcharts" className={styles.appEcharts} />
-                      {/* 描述 */}
-                      <div className={styles.desc}>
-                        <div className={styles.activeApp}>
-                          <span>
-                            {globalUtil.fetchSvg('teamAppActive', '#4f75af', '24')}
-                          </span>
-
-                          <Tooltip title={formatMessage({ id: 'teamOverview.runComponentNum' }, { number: (index.overviewInfo && index.overviewInfo.running_component_num) || 0 })}>
-                            <span
-                              className={styles.ellipsis}
-                              style={{ width: '100%' }}
-                            >
-                              <FormattedMessage
-                                id="teamOverview.runComponentNum"
-                                values={{ number: 0 }}
-                              />
-                            </span>
-                          </Tooltip>
-                        </div>
-                        <div className={styles.defaultApp}>
-                          <span>
-                            {globalUtil.fetchSvg(
-                              'teamDefaultActive',
-                              '#cccccc',
-                              '24'
-                            )}
-                          </span>
-                          <Tooltip title={formatMessage({ id: 'teamOverview.notRunComponentNum' }, { number: (index.overviewInfo.team_service_num - index.overviewInfo.running_component_num) || 0 })}>
-                            <span
-                              className={styles.ellipsis}
-                              style={{ width: '100%' }}
-                            >
-                              <FormattedMessage
-                                id="teamOverview.notRunComponentNum"
-                                values={{ number: 0 }}
-                              />
-                            </span>
-                          </Tooltip>
-                        </div>
-                        <div className={language ? styles.totalApps : styles.totalApp}>
-                          <FormattedMessage
-                            id="teamOverview.componentSum"
-                            values={{ number: 0 }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* 使用资源 */}
-                <div>
-                  <div className={styles.teamDisk}>
-                    <h3 className={styles.teamDiskTitle}>
-                      <FormattedMessage id="teamOverview.useResource" />
-                    </h3>
-                    <div className={styles.teamDiskContent}>
-                      <div>
-                        <div className={styles.save}>
-                          <div>
-                            <p style={{ marginBottom: '0px' }}>
-                              {this.handlUnit(
-                                0
-                              )}
-                            </p>
-                            <span>
-                              {this.handlUnit(
-                                0,
-                                'MB'
-                              )}
-                            </span>
-                          </div>
-                          <p style={{ marginBottom: '0px' }}>
-                            <FormattedMessage id="teamOverview.memoryUsage" />
-                          </p>
-                        </div>
-                        <span className={styles.useLine} />
-                        <div className={styles.disk}>
-                          <div>
-                            <p style={{ marginBottom: '0px' }}>
-                              {this.handlUnit(
-                                0
-                              )}
-                            </p>
-                            <span>
-                              {this.handlUnit(
-                                0,
-                                'MB'
-                              )}
-                            </span>
-                          </div>
-                          <p style={{ marginBottom: '0px' }}>
-                            <FormattedMessage id="teamOverview.diskUsage" />
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* 用户数量 */}
-                <div>
-                  <div
-                    className={`${styles.teamDisk} ${styles.hoverPointer}`}
-                    onClick={() => {
-                      dispatch(
-                        routerRedux.push({
-                          pathname: `/team/${teamName}/region/${regionName}/team`,
-                          state: { config: 'member' }
-                        })
-                      );
-                    }}
-                  >
-                    <h3 className={styles.teamDiskTitle}>
-                      <FormattedMessage id="teamOverview.UserNum" />
-                    </h3>
-                    <div className={styles.teamDiskContent}>
-                      <div className={styles.userNum}>
-                        <p>
-                          {0}
-                        </p>
-
-                        <span><FormattedMessage id="unit.entries" /></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </Spin>
-        )}
         {loadingOverview && !index.overviewInfo.region_health && (
           <Spin size="large" tip="Loading..." style={{ textAlign: 'center', }}>
             {/* page top */}
             {!index.overviewInfo.region_health && (
-              <div className={styles.topContainer} >
-                {/* 应用 */}
-                <div>
-                  <div className={styles.teamApp}>
-                    <h3 className={styles.teamAppTitle}><FormattedMessage id="teamOverview.app.name" /></h3>
-                    <div className={styles.teamAppContent}>
-                      {/* 图表 */}
-                      <div className={styles.appEcharts} />
-                      {/* 描述 */}
-                      <div className={styles.desc}>
-                        <div className={styles.activeApp}>
-                          <span>
-                            {globalUtil.fetchSvg('teamAppActive', '#4f75af', '24')}
-                          </span>
-                          <Tooltip title={formatMessage({ id: 'teamOverview.runAppNum' }, { number: (index.overviewInfo && index.overviewInfo.running_app_num) || 0 })}>
-                            <span
-                              className={styles.ellipsis}
-                              style={{ width: '100%' }}
-                            >
-                              <FormattedMessage
-                                id="teamOverview.runAppNum"
-                                values={{ number: 0 }}
-                              />
-                            </span>
-                          </Tooltip>
-                        </div>
-                        <div className={styles.defaultApp}>
-                          <span>
-                            {globalUtil.fetchSvg(
-                              'teamDefaultActive',
-                              '#cccccc',
-                              '24'
-                            )}
-                          </span>
-                          <Tooltip title={formatMessage({ id: 'teamOverview.notRunAppNum' }, { number: (index.overviewInfo.team_app_num - index.overviewInfo.running_app_num) || 0 })}>
-                            <span
-                              className={styles.ellipsis}
-                              style={{ width: '100%' }}
-                            >
-                              <FormattedMessage
-                                id="teamOverview.notRunAppNum"
-                                values={{ number: 0 }}
-                              />
-                            </span>
-                          </Tooltip>
-                        </div>
-                        <div className={language ? styles.totalApps : styles.totalApp}>
-                          <FormattedMessage
-                            id="teamOverview.appSum"
-                            values={{ number: 0 }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* 组件 */}
-                <div>
-                  <div className={styles.teamApp}>
-                    <h3 className={styles.teamAppTitle}> <FormattedMessage id="teamOverview.component.name" /></h3>
-                    <div className={styles.teamAppContent}>
-                      {/* 图表 */}
-                      <div className={styles.appEcharts} />
-                      {/* 描述 */}
-                      <div className={styles.desc}>
-                        <div className={styles.activeApp}>
-                          <span>
-                            {globalUtil.fetchSvg('teamAppActive', '#4f75af', '24')}
-                          </span>
-
-                          <Tooltip title={formatMessage({ id: 'teamOverview.runComponentNum' }, { number: (index.overviewInfo && index.overviewInfo.running_component_num) || 0 })}>
-                            <span
-                              className={styles.ellipsis}
-                              style={{ width: '100%' }}
-                            >
-                              <FormattedMessage
-                                id="teamOverview.runComponentNum"
-                                values={{ number: 0 }}
-                              />
-                            </span>
-                          </Tooltip>
-                        </div>
-                        <div className={styles.defaultApp}>
-                          <span>
-                            {globalUtil.fetchSvg(
-                              'teamDefaultActive',
-                              '#cccccc',
-                              '24'
-                            )}
-                          </span>
-                          <Tooltip title={formatMessage({ id: 'teamOverview.notRunComponentNum' }, { number: (index.overviewInfo.team_service_num - index.overviewInfo.running_component_num) || 0 })}>
-                            <span
-                              className={styles.ellipsis}
-                              style={{ width: '100%' }}
-                            >
-                              <FormattedMessage
-                                id="teamOverview.notRunComponentNum"
-                                values={{ number: 0 }}
-                              />
-                            </span>
-                          </Tooltip>
-                        </div>
-                        <div className={language ? styles.totalApps : styles.totalApp}>
-                          <FormattedMessage
-                            id="teamOverview.componentSum"
-                            values={{ number: 0 }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* 使用资源 */}
-                <div>
-                  <div className={styles.teamDisk}>
-                    <h3 className={styles.teamDiskTitle}>
-                      <FormattedMessage id="teamOverview.useResource" />
-                    </h3>
-                    <div className={styles.teamDiskContent}>
-                      <div>
-                        <div className={styles.save}>
-                          <div>
-                            <p style={{ marginBottom: '0px' }}>
-                              {this.handlUnit(
-                                0
-                              )}
-                            </p>
-                            <span>
-                              {this.handlUnit(
-                                0,
-                                'MB'
-                              )}
-                            </span>
-                          </div>
-                          <p style={{ marginBottom: '0px' }}>
-                            <FormattedMessage id="teamOverview.memoryUsage" />
-                          </p>
-                        </div>
-                        <span className={styles.useLine} />
-                        <div className={styles.disk}>
-                          <div>
-                            <p style={{ marginBottom: '0px' }}>
-                              {this.handlUnit(
-                                0
-                              )}
-                            </p>
-                            <span>
-                              {this.handlUnit(
-                                0,
-                                'MB'
-                              )}
-                            </span>
-                          </div>
-                          <p style={{ marginBottom: '0px' }}>
-                            <FormattedMessage id="teamOverview.diskUsage" />
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* 用户数量 */}
-                <div>
-                  <div
-                    className={`${styles.teamDisk} ${styles.hoverPointer}`}
-                    onClick={() => {
-                      dispatch(
-                        routerRedux.push({
-                          pathname: `/team/${teamName}/region/${regionName}/team`,
-                          state: { config: 'member' }
-                        })
-                      );
-                    }}
-                  >
-                    <h3 className={styles.teamDiskTitle}>
-                      <FormattedMessage id="teamOverview.UserNum" />
-                    </h3>
-                    <div className={styles.teamDiskContent}>
-                      <div className={styles.userNum}>
-                        <p>
-                          {0}
-                        </p>
-
-                        <span><FormattedMessage id="unit.entries" /></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className={styles.topContainer} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
               </div>
             )}
           </Spin>
         )}
+         {loadingOverview && index.overviewInfo.region_health && (
+          <Spin size="large" tip="Loading..." style={{ textAlign: 'center', }}>
+            <div className={styles.topContainer} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+            </div>
+          </Spin>
+         )}
         {index.overviewInfo.region_health && !loadingOverview && (
           <div className={styles.topContainer} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
             <div>
               <div className={styles.resourceTitle}>
-                运行应用数(个)
+                <FormattedMessage id="teamOverview.runAppNum" />      
               </div>
               <div className={styles.resourceValue}>
                 {index.overviewInfo && index.overviewInfo.running_app_num || 0}
@@ -755,7 +377,7 @@ export default class Index extends PureComponent {
             </div>
             <div>
               <div className={styles.resourceTitle}>
-                运行组件数(个)
+              <FormattedMessage id="teamOverview.runComponentNum" />    
               </div>
               <div className={styles.resourceValue}>
                 {index.overviewInfo && index.overviewInfo.running_component_num || 0}
@@ -763,7 +385,8 @@ export default class Index extends PureComponent {
             </div>
             <div>
               <div className={styles.resourceTitle}>
-                内存使用量({this.handlUnit(
+              <FormattedMessage id="teamOverview.memoryUsage" />
+                ({this.handlUnit(
                   index.overviewInfo.team_service_memory_count || 0,
                   'MB'
                 )})
@@ -776,7 +399,8 @@ export default class Index extends PureComponent {
             </div>
             <div>
               <div className={styles.resourceTitle}>
-                磁盘使用量({this.handlUnit(
+              <FormattedMessage id="teamOverview.diskUsage" />
+              ({this.handlUnit(
                   index.overviewInfo.team_service_total_disk || 0,
                   'MB'
                 )})
@@ -799,15 +423,14 @@ export default class Index extends PureComponent {
               }}
             >
               <div className={styles.resourceTitle}>
-                <FormattedMessage id="teamOverview.UserNum" />(<FormattedMessage id="unit.entries" />)
+                <FormattedMessage id="teamOverview.UserNum" />
               </div>
               <div className={styles.resourceValue}>
                 {(index.overviewInfo && index.overviewInfo.user_nums) || 0}
               </div>
             </div>
           </div>
-        )
-        }
+        )}
         {/* 热门应用标题 */}
         <div className={styles.teamHotAppTitle}>
           <div className={styles.teamHotAppTitleLeft}>
@@ -816,11 +439,6 @@ export default class Index extends PureComponent {
           </div>
         </div>
         {/* app list Loading */}
-        {/* {appListLoading && loadingOfApp && index.overviewInfo.region_health && (
-          <div style={{ textAlign: 'center', marginTop: '100px' }}>
-            <Spin tip="Loading..." size="large" />
-          </div>
-        )} */}
         {/* appList */}
         {<div className={styles.appListBox} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
           <div className={styles.teamHotAppTitleSearch}>
@@ -849,13 +467,13 @@ export default class Index extends PureComponent {
               {formatMessage({ id: 'teamOverview.createApp' })}
             </Button>
           </div>
-          {!loadingOfApp && appListLoading && teamHotAppList.length > 0 &&( 
+          {appListLoading && teamHotAppList.length == 0 &&( 
             <div className={styles.no_teamHotAppList}>
               <Spin tip="Loading..." size="large" />
             </div>
           )}
           {!loadingOfApp && !emptyConfig && teamHotAppList.length > 0 && (
-            <div className={styles.teamHotAppList} >
+            <div className={styles.teamHotAppList} style={{height: teamHotAppList.length < 11 ? '300px' : ''}}>
               {/* 1 */}
               {teamHotAppList.map((item, index) => {
                 return (
@@ -912,7 +530,6 @@ export default class Index extends PureComponent {
             </div>
           )}
           {/* 分页 */}
-          {console.log(teamHotAppList.length,'teamHotAppList')}
           {(teamHotAppList.length > 0 && teamHotAppList.length >= page_size) &&
             <div className={styles.pagination}>
               <Pagination
