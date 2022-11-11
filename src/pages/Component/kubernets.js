@@ -115,7 +115,7 @@ class Index extends PureComponent {
       drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.edit_attribute'}),
       drawerSwitch: str,
       selectVal: val.name,
-      TooltipValue: TooltipValueArr.[val.name]
+      TooltipValue: TooltipValueArra[val.name]
     })
   }
 
@@ -161,8 +161,8 @@ class Index extends PureComponent {
       const { selectVal, TooltipValueArr } = this.state
     this.setState({
       selectVal: val,
-      yamlValue: TooltipValueArr.[val],
-      TooltipValue: TooltipValueArr.[val]
+      yamlValue: TooltipValueArr[val],
+      TooltipValue: TooltipValueArr[val]
     })
   }
   notificationFun = () =>{

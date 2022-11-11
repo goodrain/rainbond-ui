@@ -491,7 +491,7 @@ class EnterpriseLayout extends PureComponent {
                         <div className={styles.alerts}>
                           <Alert
                             style={{ textAlign: 'left', marginTop: '4px', marginBottom: '4px', color: '#c40000', background: '#fff1f0', border: ' 1px solid red' }}
-                            message={item.annotations.description}
+                            message={item.annotations.description || item.annotations.summary}
                             type="warning"
                             showIcon
                           />
