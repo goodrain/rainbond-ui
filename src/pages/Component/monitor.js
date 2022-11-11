@@ -122,7 +122,12 @@ export default class Index extends PureComponent {
       );
     }
     return (
-      <Card>
+      <Card
+      style={{
+        boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+        borderRadius:5 
+      }}
+      >
         <div
           style={{
             textAlign: 'center',
@@ -169,7 +174,7 @@ export default class Index extends PureComponent {
             <Menu
               onSelect={this.changeMenu}
               defaultSelectedKeys={defaultShow}
-              style={{ height: '590px' }}
+              style={{ height: '590px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', borderRadius:5 }}
             >
               <Menu.Item key="pm">
                 {/* 性能分析 */}

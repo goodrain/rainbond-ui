@@ -71,6 +71,7 @@ class Index extends PureComponent {
     return (
       <Card 
       bordered={false} 
+      style={{boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',borderRadius:5 }}
       title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord'/>} 
       loading={recordLoading}>
         <Row gutter={24}>

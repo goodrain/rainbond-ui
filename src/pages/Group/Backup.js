@@ -629,7 +629,12 @@ export default class AppList extends PureComponent {
           </div>
         }
       >
-        <Card>
+        <Card 
+          style={{ 
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            borderRadius: 5,
+          }}
+        >
           <ScrollerX sm={800}>
             <Table
               rowKey={data => {

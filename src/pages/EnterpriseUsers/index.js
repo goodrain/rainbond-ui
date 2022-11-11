@@ -375,7 +375,11 @@ export default class EnterpriseUsers extends PureComponent {
             )}
           </Col>
         </Row>
-        <Card>
+        <Card 
+        style={{
+          boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px',
+          borderRadius: 5,
+        }}>
           {delVisible && (
             <ConfirmModal
               onOk={this.handleDelete}
@@ -406,12 +410,12 @@ export default class EnterpriseUsers extends PureComponent {
             />
           )}
           <Table
-            pagination={{
+            pagination={adminList.length > 10 ? {
               current: page,
               pageSize,
               total,
               onChange: this.onPageChange
-            }}
+            } : false}
             dataSource={adminList}
             columns={columns}
           />

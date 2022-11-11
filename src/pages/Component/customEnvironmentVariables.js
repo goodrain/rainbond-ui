@@ -479,7 +479,9 @@ export default class Index extends React.Component {
         </Row>
         <Card
           style={{
-            marginBottom: 24
+            marginBottom: 24,
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+            borderRadius:5,
           }}
           title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title'/> </span>}
           extra={
@@ -535,6 +537,10 @@ export default class Index extends React.Component {
           </ScrollerX>
         </Card>
         <Card
+        style={{
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+          borderRadius:5,
+        }}
           title={<span> <FormattedMessage id='componentOverview.body.tab.env.file.share'/> </span>}
           extra={
             <Button onClick={this.showAddRelation}>

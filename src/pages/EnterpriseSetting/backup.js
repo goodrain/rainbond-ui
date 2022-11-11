@@ -218,7 +218,7 @@ export default class BackupManage extends PureComponent {
     return (
       <Fragment>
         <div>
-          <Row style={{ marginBottom: '16px' }}>
+          <Row style={{ marginBottom: '16px' ,margin: '0 10px'}}>
             <Col span={16}>
               <Alert
                 type="info"
@@ -226,7 +226,7 @@ export default class BackupManage extends PureComponent {
                 message={<FormattedMessage id='enterpriseSetting.BackupManage.alert.message'/>}
               />
             </Col>
-            <Col span={8} style={{ textAlign: 'right' }}>
+            <Col span={8} style={{ textAlign: 'right',}}>
               <Upload
                 showUploadList={false}
                 name="file"
@@ -252,7 +252,14 @@ export default class BackupManage extends PureComponent {
               </Button>
             </Col>
           </Row>
-          <Row style={{ background: '#fff' }}>
+          <Row 
+          style={{
+            boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px',
+            borderRadius: 5, 
+            margin:10,
+            background: '#fff'
+          }}
+          >
             <Col>
               <Table
                 loading={backupLoading}

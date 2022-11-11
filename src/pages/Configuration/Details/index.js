@@ -373,7 +373,11 @@ export default class ConfigurationDetails extends PureComponent {
         )}
         <Card
           loading={loading}
-          style={{ minHeight: '600px' }}
+          style={{ 
+            minHeight: '600px' ,          
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            borderRadius: 5,
+          }}
           title={isCreate ? formatMessage({id:'appConfiguration.btn.add'}) : formatMessage({id:'appConfiguration.btn.edit'})}
           extra={[
             <Button onClick={this.onCancel} style={{ marginRight: '20px' }}>

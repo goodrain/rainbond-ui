@@ -305,6 +305,10 @@ export default class Index extends PureComponent {
     } = this.state;
     return (
       <Card
+        style={{
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+          borderRadius:5
+        }}
         title={
           <Fragment>
             {started ? (

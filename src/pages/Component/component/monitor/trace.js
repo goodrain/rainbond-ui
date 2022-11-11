@@ -76,7 +76,11 @@ export default class TraceShow extends PureComponent {
           // message="当前基于Java类源代码构建的组件默认支持Pinpoint链路追踪数据采集"
           message={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.message"/>}
         />
-        <Card>
+        <Card
+        style={{
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+          borderRadius:5 
+        }}>
           {trace.collector_host && !trace.enable_apm && (
             <Result
               type="success"

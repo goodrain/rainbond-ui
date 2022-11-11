@@ -81,7 +81,11 @@ export default class Index extends PureComponent {
   render() {
           const image = decodeURIComponent( this.props.handleType && this.props.handleType === "Service" ? "" : (this.props.match.params.image || ""));
     return (
-      <Card>
+      <Card
+      style={{ 
+        boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+      }}
+      >
         <TopUpHints /> 
         <div className={styles.formWrap} style={{width:this.props.handleType && this.props.handleType === "Service" ? "auto" : "500px"}}>
           <UploadJarWarForm data={{ docker_cmd: image || "" }} onSubmit={this.handleSubmit} {...this.props}/>

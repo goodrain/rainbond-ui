@@ -289,7 +289,9 @@ export default class Index extends PureComponent {
         </Row>
         <Card
           style={{
-            marginBottom: 24
+            marginBottom: 24,
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+            borderRadius:5,
           }}
           title={<span>  <FormattedMessage id='componentOverview.body.mnt.save_setting'/></span>}
           extra={
@@ -386,6 +388,10 @@ export default class Index extends PureComponent {
           </ScrollerX>
         </Card>
         <Card
+          style={{           
+             boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+             borderRadius:5
+            }} 
           title={<span> <FormattedMessage id='componentOverview.body.mnt.share'/> </span>}
           extra={
             <Button onClick={this.showAddRelation}>

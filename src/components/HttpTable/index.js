@@ -737,7 +737,7 @@ export default class HttpTable extends PureComponent {
             </Button>
           )}
         </Row>
-        <Card bodyStyle={{ padding: '0' }}>
+        <Card bodyStyle={{ padding: '0' ,boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
           <Table
             dataSource={dataList}
             columns={columns}

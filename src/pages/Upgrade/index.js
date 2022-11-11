@@ -805,6 +805,10 @@ export default class AppList extends PureComponent {
               defaultActiveKey="1"
               onChange={this.handleTabs}
               className={styles.tabss}
+              style={{ 
+                boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                borderRadius: 5,
+              }}
             >
               <TabPane tab={formatMessage({ id: 'appUpgrade.tabs.list' })} key="1">
                 <div className={styles.cardList}>

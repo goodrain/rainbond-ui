@@ -61,7 +61,13 @@ class Index extends PureComponent {
         const { ClusterArr, instances, enClusterArr} = this.state;
         return (
             <>
-                <Card>
+                <Card 
+                    style={{
+                    boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px',
+                    borderRadius: 5,
+                    margin:10
+                    }}
+                >
                     <Tabs defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane>
                         {ClusterArr && ClusterArr.length > 0 && ClusterArr.map((item, index) => {
                             return <TabPane tab={item} key={index} >

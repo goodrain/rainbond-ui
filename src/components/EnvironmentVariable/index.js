@@ -712,7 +712,9 @@ class EnvironmentVariable extends React.Component {
 
         <Card
           style={{
-            marginBottom: 24
+            marginBottom: 24,
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+            borderRadius:5,
           }}
           loading={loading}
           title={title}

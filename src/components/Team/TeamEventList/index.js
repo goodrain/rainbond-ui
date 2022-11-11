@@ -247,6 +247,10 @@ export default class EventList extends PureComponent {
               bodyStyle={{
                 paddingTop: 12
               }}
+              style={{
+                boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                borderRadius: 5
+              }}
               bordered={false}
               title={formatMessage({id: 'teamManage.tabs.dynamic'})}
               loading={activitiesLoading}
@@ -266,6 +270,10 @@ export default class EventList extends PureComponent {
             <Card
               bodyStyle={{
                 paddingTop: 12
+              }}
+              style={{
+                boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                borderRadius: 5
               }}
               bordered={false}
               title={formatMessage({id: 'teamManage.tabs.dynamic.title.addTeam'})}

@@ -699,6 +699,7 @@ export default class EnterpriseTeams extends PureComponent {
           </Col>
           {operation}
         </Row>
+        <div >
         <Row style={{ width:'100%' }} className={styles.rowTitle}>
         <Row className={styles.teamMinTit} type="flex" align="middle">
           <Col span={4} style={{width:'16%',textAlign:'center'}}>
@@ -757,7 +758,10 @@ export default class EnterpriseTeams extends PureComponent {
           return (
             <Card
               key={team_id}
-              style={{ marginTop: '10px' }}
+              style={{ 
+                marginBottom: '10px' , 
+                borderRadius: 5,
+              }}
               hoverable
               bodyStyle={{ padding: 0 }}
             >
@@ -772,7 +776,7 @@ export default class EnterpriseTeams extends PureComponent {
                   className={styles.pl23}
                   onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
                 >
-                <Col style={{color:'#4D73B1', fontWeight:'600',width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
+                <Col style={{color:'#1e90ff', fontWeight:'600',width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{owner_name}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{user_number}</Col>
                 <Col style={{width:'30%',display:'flex',justifyContent:'center'}} >
@@ -795,9 +799,13 @@ export default class EnterpriseTeams extends PureComponent {
             </Card>
           );
         })}
-        <div style={{ textAlign: 'right', margin: '15px' }}>
-          {this.handlePaginations()}
+          
         </div>
+        {(teamList.length > this.state.page_size) && 
+          <div style={{ textAlign: 'right', margin: '15px' }}>
+            {this.handlePaginations()}
+          </div>
+        }
       </div>
     );
 
@@ -960,7 +968,10 @@ export default class EnterpriseTeams extends PureComponent {
             return (
               <Card
                 key={team_id}
-                style={{ marginBottom: '10px' }}
+                style={{ 
+                marginBottom: '10px' , 
+                borderRadius: 5,
+              }}
                 hoverable
                 bodyStyle={{ padding: 0 }}
               >
@@ -975,7 +986,7 @@ export default class EnterpriseTeams extends PureComponent {
                     className={styles.pl23}
                     onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
                   >
-                  <Col span={6} style={{color:'#4D73B1', fontWeight:'600', width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
+                  <Col span={6} style={{color:'#338bff ', fontWeight:'600', width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
                   <Col span={3} style={{width:'10%',textAlign:'center'}}>{owner_name}</Col>
                   <Col span={3} style={{width:'26%',textAlign:'center'}}>
                     {roles &&

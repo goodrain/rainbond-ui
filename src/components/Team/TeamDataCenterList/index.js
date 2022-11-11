@@ -89,7 +89,9 @@ export default class DatacenterList extends PureComponent {
         <Card
           className={styles.projectList}
           style={{
-            marginBottom: 24
+            marginBottom: 24,
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            borderRadius: 5
           }}
           title={formatMessage({id: 'teamManage.tabs.cluster.openCluster'})}
           bordered={false}

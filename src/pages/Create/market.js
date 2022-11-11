@@ -653,7 +653,10 @@ export default class Main extends PureComponent {
         onChange={this.handleTabChange}
         style={{
           background: '#fff',
-          padding: handleType ? '0 20px 20px' : '20px '
+          padding: handleType ? '0 20px 20px' : '20px ',
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+          borderRadius:5
+
         }}
       >
         {tabList.map(item => {
@@ -776,6 +779,7 @@ export default class Main extends PureComponent {
               : type === 'helm' ? PluginStyles.cards_helm : PluginStyles.cards
           }
           actions={handleType ? fastactions : defaultActions}
+          style={{borderRadius:5}}
         >
           <Card.Meta
             className={PluginStyles.cardsMetas}
@@ -1076,7 +1080,7 @@ export default class Main extends PureComponent {
         pagination={paginationProps}
         dataSource={list}
         renderItem={item => (
-          <List.Item style={{ border: 'none' }}>
+          <List.Item style={{ border: 'none' , boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',borderRadius:5 }}>
             {this.renderApp(item, true)}
           </List.Item>
         )}
@@ -1096,7 +1100,7 @@ export default class Main extends PureComponent {
         pagination={cloudPaginationProps}
         dataSource={cloudList}
         renderItem={item => (
-          <List.Item style={{ border: 'none' }}>
+          <List.Item style={{ border: 'none' , boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', borderRadius:5}}>
             {this.renderApp(item, isInstall)}
           </List.Item>
         )}
@@ -1120,7 +1124,7 @@ export default class Main extends PureComponent {
             info = Object.assign({}, item, item.versions[0]);
           }
           return (
-            <List.Item style={{ border: 'none' }}>
+            <List.Item style={{ border: 'none' ,boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',borderRadius:5 }}>
               {this.renderApp(info, true, 'helm')}
             </List.Item>
           );
@@ -1334,7 +1338,9 @@ export default class Main extends PureComponent {
                       !moreState &&
                       handleType &&
                       handleType === 'Service' &&
-                      '40px'
+                      '40px',
+                      boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+                      borderRadius:5
                   }}
                 >
                   
@@ -1350,7 +1356,7 @@ export default class Main extends PureComponent {
                         className={PluginStyles.cardList}
                         style={{
                           paddingBottom: '20px',
-                          marginBottom: !moreState ? '40px' : '0px'
+                          marginBottom: !moreState ? '40px' : '0px',
                         }}
                       >
                         {isSpincloudList !== -1 && cloudCardList}

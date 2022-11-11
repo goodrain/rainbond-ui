@@ -723,7 +723,12 @@ export default class Index extends PureComponent {
             </p>
           </Card>
         ) : (
-          <Card>
+          <Card
+            style={{
+              boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+              borderRadius: 5
+            }}
+          >
             <ScrollerX sm={700}>
               {ports.map(port => (
                 <Port

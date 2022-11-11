@@ -349,6 +349,11 @@ export default class Index extends PureComponent {
     const { instances, type, RbdName, region } = this.props;
     return (
       <Card
+      style={type && {
+        boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px',
+        borderRadius: 5,
+        margin:10
+      }}
         title={
           <Fragment>
             {type ? (

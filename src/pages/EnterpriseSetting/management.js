@@ -249,7 +249,9 @@ export default class Management extends PureComponent {
             className={styles.teamMinTit}
             type="flex"
             align="middle"
-            style={{ padding: ' 0 0 10px 24px' }}
+            style={{ 
+              padding: ' 0 0 10px 24px',
+            }}
           >
             <Col span={5}>
               {/* 名称 */}
@@ -281,7 +283,11 @@ export default class Management extends PureComponent {
             return (
               <Card
                 key={id}
-                style={{ marginBottom: '10px' }}
+                style={{ 
+                  marginBottom: '10px',
+                  boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px',
+                  borderRadius: 5, 
+               }}
                 bodyStyle={{ padding: 0 }}
                 hoverable
               >

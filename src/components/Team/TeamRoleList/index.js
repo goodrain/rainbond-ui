@@ -126,7 +126,13 @@ export default class RoleList extends PureComponent {
     return (
       <Fragment>
         <div className={styles.systemRoleWrapper}>
-          <div className={styles.systemRole}>
+          <div 
+            className={styles.systemRole}           
+            style={{
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            borderRadius: 5
+            }}
+            >
             <div className={styles.systemRoleTitle}>
               {formatMessage({id: 'teamManage.tabs.role.title'})}
             </div>
@@ -166,7 +172,13 @@ export default class RoleList extends PureComponent {
               )}
             </div>
           </div>
-          <div className={styles.authSettingBody}>
+          <div 
+            className={styles.authSettingBody}          
+            style={{
+              boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+              borderRadius: 5
+            }}
+          >
             <Tabs defaultActiveKey="1">
               <TabPane tab={formatMessage({id: 'teamManage.tabs.role.list.permissions'})} key="1">
                 {!roles && !permissionsLoading && !showAddRole ? (

@@ -796,6 +796,10 @@ export default class Index extends PureComponent {
     return (
       <div>
         <Card
+          style={{
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+            borderRadius:5
+          }}
           className={styles.InstancesCard}
           title={<FormattedMessage id='componentOverview.body.Expansion.instance'/>}
           extra={
@@ -879,7 +883,15 @@ export default class Index extends PureComponent {
             type="warning"
           />
         )}
-        <Card className={styles.clerBorder} border={false}  title={<FormattedMessage id='componentOverview.body.Expansion.telescopic'/>}>
+        <Card 
+        className={styles.clerBorder} 
+        border={false}  
+        title={<FormattedMessage id='componentOverview.body.Expansion.telescopic'/>}
+        style={{
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+          borderRadius:5
+        }}
+        >
           {!enableGPU && (
             <Alert
               style={{ marginBottom: '16px' }}
@@ -1022,7 +1034,12 @@ export default class Index extends PureComponent {
         </Card>
 
         <Card
-          style={{ marginTop: 16, border: 'none' }}
+          style={{
+            marginTop: 16, 
+            border: 'none',
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+            borderRadius:5
+          }}
           className={styles.clearCard}
           title={<FormattedMessage id='componentOverview.body.Expansion.flex'/>}
         >
@@ -1266,7 +1283,11 @@ export default class Index extends PureComponent {
 
         <Card
           className={styles.clearCard}
-          style={{ marginTop: 16 }}
+          style={{
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+            borderRadius:5,
+            marginTop: 16 
+          }}
           title={<FormattedMessage id='componentOverview.body.Expansion.horizontal'/>}
         >
           <Table

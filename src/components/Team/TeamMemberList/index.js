@@ -175,7 +175,9 @@ export default class MemberList extends PureComponent {
       <div>
         <Card
           style={{
-            marginBottom: 24
+            marginBottom: 24,
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            borderRadius: 5
           }}
           bodyStyle={{
             paddingTop: 12

@@ -153,7 +153,9 @@ class BaseInfo extends PureComponent {
       <Card
         title={formatMessage({id:'componentCheck.advanced.setup.basic_info'})}
         style={{
-          marginBottom: 16
+          marginBottom: 16,
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+          borderRadius: 5
         }}
       >
         <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.advanced.setup.basic_info.label.extend_method'})}>
@@ -585,7 +587,9 @@ class Mnt extends PureComponent {
       <Fragment>
         <Card
           style={{
-            marginBottom: 16
+            marginBottom: 16,
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            borderRadius: 5
           }}
           title={formatMessage({id:'componentCheck.advanced.setup.storage_setting.title'})}
           extra={
@@ -605,7 +609,9 @@ class Mnt extends PureComponent {
         </Card>
         <Card
           style={{
-            marginBottom: 16
+            marginBottom: 16,
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            borderRadius: 5
           }}
           title={formatMessage({id:'componentCheck.advanced.setup.shared_storage.title'})}
           extra={
@@ -838,7 +844,10 @@ class Relation extends PureComponent {
   render() {
     const { linkList, relationList } = this.state;
     return (
-      <Card title={formatMessage({id:'componentCheck.advanced.setup.component_dependency.title'})}>
+      <Card 
+        title={formatMessage({id:'componentCheck.advanced.setup.component_dependency.title'})} 
+        style={{boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',borderRadius: 5}}
+        >
         <Table
           pagination={false}
           columns={[
@@ -1091,7 +1100,9 @@ class Ports extends PureComponent {
       <Card
         title={formatMessage({id:'componentCheck.advanced.setup.port_manage.title'})}
         style={{
-          marginBottom: 16
+          marginBottom: 16,
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+          borderRadius: 5
         }}
       >
         <div className={styles.ports}>

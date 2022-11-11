@@ -338,7 +338,7 @@ class Control extends Component {
             </Button>
           )}
         </Row>
-        <Card bodyStyle={{ padding: '0' }}>
+        <Card bodyStyle={{ padding: '0' ,boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', background:'transparent'}}>
           <Table
             pagination={{
               total,

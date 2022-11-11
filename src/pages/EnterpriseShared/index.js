@@ -987,7 +987,12 @@ export default class EnterpriseShared extends PureComponent {
           })}
         <Lists
           key={appId}
-          stylePro={{ marginBottom: '10px' }}
+          stylePro={{ 
+          marginBottom: '10px',
+          boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px',
+          borderRadius: 5,
+          overflow: 'hidden' 
+        }}
           Cols={
             <div
               className={styles.h70}

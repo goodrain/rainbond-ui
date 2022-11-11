@@ -502,7 +502,7 @@ class Index extends PureComponent {
       <div>
         <Card
           title={<FormattedMessage id='componentOverview.body.Kubernetes.attribute'/>}
-          style={{ marginBottom: '24px' }}
+          style={{ marginBottom: '24px' ,boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',borderRadius: 5}}
           extra={<Button onClick={() => this.addAttribute("add")}><Icon type="plus" /><FormattedMessage id='componentOverview.body.Kubernetes.add'/></Button>}
         >
           <Drawer

@@ -742,7 +742,9 @@ export default class Index extends PureComponent {
           <Card
             title={<FormattedMessage id='componentOverview.body.Resource.Jianyuan'/>}
             style={{
-              marginBottom: 24
+              marginBottom: 24,
+              boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+              borderRadius: 5
             }}
             extra={[
               appUtil.isOauthByBuildSource(buildSource) ? (

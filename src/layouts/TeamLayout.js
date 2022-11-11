@@ -691,7 +691,7 @@ class TeamLayout extends PureComponent {
                   }}>
                  {this.state.GroupShow ? 
                  <CSSTransition
-                    timeout={300}
+                    timeout={500}
                     classNames=
                     {{
                       enter: 'animate__animated',

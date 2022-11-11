@@ -533,6 +533,7 @@ export default class EnterpriseClusters extends PureComponent {
       isNewbieGuide,
       showClusterIntroduced
     } = this.state;
+    const paginationSwitch = clusters && clusters.length>10 ? true : false
     const { getFieldDecorator } = form;
     const pagination = {
       onChange: this.handleTenantPageChange,
@@ -889,7 +890,11 @@ export default class EnterpriseClusters extends PureComponent {
               })}
           </Col>
         </Row>
-        <Card>
+        <Card 
+        style={{
+          boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px',
+          borderRadius: 5,
+        }}>
           {delVisible && (
             <ConfirmModal
               loading={delclusterLongin}
@@ -917,6 +922,7 @@ export default class EnterpriseClusters extends PureComponent {
           />
           <Table
             // scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
+            pagination={ paginationSwitch }
             loading={clusterLoading}
             dataSource={clusters}
             columns={columns}

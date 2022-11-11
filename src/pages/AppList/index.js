@@ -154,7 +154,7 @@ export default class AppList extends PureComponent {
         title={<FormattedMessage id="teamApply.title" />}
         content={<FormattedMessage id="teamApply.desc" />}
       >
-        <Row>
+        <Row >
           <Form layout="inline" style={{ display: 'inline-block' }}>
             <FormItem>
               <Input
@@ -182,7 +182,8 @@ export default class AppList extends PureComponent {
           )}
         </Row>
 
-        <Card>
+        <Card 
+        style={{boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px'}}>
           {addGroup && (
             <AddGroup
               teamName={teamName}

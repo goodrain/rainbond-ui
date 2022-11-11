@@ -162,6 +162,10 @@ export default class Index extends PureComponent {
           appAlias={appAlias}
         />
         <Card
+          style={{
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', 
+            borderRadius:5,
+          }}
           title={[
             <span><FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.information'/></span>,
             <span style={{ color: 'red' }}>

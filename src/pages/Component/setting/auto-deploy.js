@@ -258,7 +258,9 @@ export default class AutoDeploy extends PureComponent {
     return (
       <Card
         style={{
-          marginBottom: 24
+          marginBottom: 24,
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+          borderRadius: 5
         }}
         title={<FormattedMessage id='componentOverview.body.AutoDeploy.automatic'/>}
       >

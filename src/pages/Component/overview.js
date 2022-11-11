@@ -797,7 +797,7 @@ export default class Index extends PureComponent {
             bordered={0}
             loading={runLoading}
             title={<FormattedMessage id='componentOverview.body.tab.overview.instance.title'/>}
-            style={{ margin: '20px 0', minHeight: '170px' }}
+            style={{ margin: '20px 0', minHeight: '170px',boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',borderRadius:5 }}
             bodyStyle={{ padding: '0', background: '#F0F2F5' }}
           >
             <Instance

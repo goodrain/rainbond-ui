@@ -468,7 +468,7 @@ class EnterpriseLayout extends PureComponent {
                   width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
                 }}>
                 <CSSTransition
-                  timeout={300}
+                  timeout={500}
                   classNames=
                   {{                        
                   enter: 'animate__animated',

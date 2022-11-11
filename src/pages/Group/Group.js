@@ -622,8 +622,8 @@ export default class Index extends PureComponent {
     const BtnDisabled = !(jsonDataLength > 0);
     const MR = { marginRight: '10px' };
     const pageHeaderContent = (
-      <div className={styles.pageHeaderContent}>
-        <div className={styles.contentl}>
+      <div className={styles.pageHeaderContent}  >
+        <div className={styles.contentl} style={{boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px', borderRadius: 5}}>
           <div className={styles.conBoxt}>
             <div className={styles.contentTitle}>
               <span>{currApp.group_name || '-'}</span>
@@ -747,7 +747,7 @@ export default class Index extends PureComponent {
             </div>
           </div>
         </div>
-        <div className={styles.contentr}>
+        <div className={styles.contentr} style={{boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px', borderRadius: 5}}>
           <div className={styles.conrHeader}>
             <div>
               <span>{formatMessage({id: 'appOverview.createTime'})}</span>
@@ -881,8 +881,8 @@ export default class Index extends PureComponent {
       </div>
     );
     const pageHeaderContents = (
-      <div className={styles.pageHeaderContents}>
-        <div className={styles.contentl}>
+      <div className={styles.pageHeaderContents} >
+        <div className={styles.contentl} style={{boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', borderTopLeftRadius: 5, borderBottomLeftRadius:5}}>
           <div className={styles.conBoxt}>
             <div className={styles.contentTitle}>
               <span>{currApp.group_name || '-'}</span>
@@ -986,7 +986,7 @@ export default class Index extends PureComponent {
             )}
           </div>
         </div>
-        <div className={styles.contentr}>
+        <div className={styles.contentr} style={{boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px', borderTopRightRadius: 5, borderBottomRightRadius:5}}>
           <div className={styles.conrHeader}>
             <div>
               <span>{formatMessage({id: 'appOverview.createTime'})}</span>
@@ -1069,7 +1069,10 @@ export default class Index extends PureComponent {
               background: '#FFFFFF',
               height: '60px',
               alignItems: 'center',
-              borderBottom: '1px solid #e8e8e8'
+              borderBottom: '1px solid #e8e8e8',
+              boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+              borderTopRightRadius:5,
+              borderTopLeftRadius:5,
             }}
           >
             <Col span={5} style={{ paddingleft: '12px' }}>

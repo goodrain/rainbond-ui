@@ -138,7 +138,7 @@ export default class ImportMessage extends PureComponent {
     render() {
         const { nameSpaceArr, resourceData, loadingSwitch, resourceDataIndex, namespace } = this.state
         return (
-            <Card style={{ padding: '24px 12px' }}>
+            <Card style={{ padding: '24px 12px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                 <Row type="flex" style={{ alignItems: 'center', padding: '24px 0px' }}>
                     <div style={{ width: '120px', textAlign: 'right' }}><h3 style={{ marginBottom: '0em' }}>NameSpace：</h3></div>
                     <Select placeholder={nameSpaceArr[0]} style={{ width: 200 }} onChange={this.handleChange}>

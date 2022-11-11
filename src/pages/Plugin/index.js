@@ -475,6 +475,10 @@ class PluginList extends PureComponent {
               item ? (
                 <List.Item key={item.id}>
                   <Card
+                    style={{
+                      boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                      borderRadius: 5
+                    }}
                     className={styles.card}
                     actions={this.getAction(item, operationPermissions)}
                   >
@@ -515,6 +519,10 @@ class PluginList extends PureComponent {
                     className={styles.newButton}
                     onMouseEnter={this.appOver}
                     onMouseLeave={this.appOut}
+                    style={{
+                      boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                      borderRadius: 5
+                    }}
                   >
                     {
                       !appOutPlugin && (
