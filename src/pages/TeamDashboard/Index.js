@@ -474,7 +474,7 @@ export default class Index extends PureComponent {
             </div>
           )}
           {!loadingOfApp && !emptyConfig && teamHotAppList.length > 0 && (
-            <div className={styles.teamHotAppList} style={{height: teamHotAppList.length < 11 ? '300px' : ''}}>
+            <div className={styles.teamHotAppList} style={{height: teamHotAppList.length < 8 ? '300px' : ''}}>
               {/* 1 */}
               {teamHotAppList.map((item, index) => {
                 return (
