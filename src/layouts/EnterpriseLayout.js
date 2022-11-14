@@ -5,7 +5,7 @@
 import { Layout, Alert } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
-import { Redirect, routerRedux } from 'dva/router';
+import { Redirect, routerRedux, Link } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
 import deepEqual from 'lodash.isequal';
 import memoizeOne from 'memoize-one';
@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { ContainerQuery } from 'react-container-query';
 import ReactDOM from "react-dom"
 import DocumentTitle from 'react-document-title';
@@ -369,6 +370,15 @@ class EnterpriseLayout extends PureComponent {
       }
     });
   }
+  onJumpPersonal = () => {
+    const { 
+      match: {
+        params: {eid}
+      }, 
+      dispatch, 
+    } = this.props
+    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+  }
   render() {
     const {
       memoryTip,
@@ -399,13 +409,23 @@ class EnterpriseLayout extends PureComponent {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
-    const customHeader = () => {
+    const customHeaderImg = () => {
       return (
-        <div className={headerStype.enterprise}>
-           <img src={Logo} alt="" />
+        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
+           <img src={enterprise && enterprise.logo && enterprise.logo.value || Logo} alt="" />
         </div>
       );
     };
+    const customHeader = () => {
+      return (
+        <Link
+          style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }}
+          to={`/enterprise/${eid}/personal`}
+        >
+          {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
+        </Link>
+      )
+    }
     const layout = () => {
       const { showMenu } = this.state
       const urlParams = new URL(window.location.href)
@@ -440,6 +460,7 @@ class EnterpriseLayout extends PureComponent {
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
               customHeader={customHeader}
+              customHeaderImg={customHeaderImg}
             />
             <Layout style={{ flexDirection: 'row' }}>
               <GlobalRouter

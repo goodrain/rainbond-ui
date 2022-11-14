@@ -144,7 +144,8 @@ export default class Index extends PureComponent {
     this.setState(
       {
         page,
-        loadingOfApp: true
+        loadingOfApp: true,
+        appListLoading: true,
       },
       () => {
         this.loadHotApp();
@@ -467,7 +468,7 @@ export default class Index extends PureComponent {
               {formatMessage({ id: 'teamOverview.createApp' })}
             </Button>
           </div>
-          {appListLoading && teamHotAppList.length == 0 &&( 
+          {appListLoading &&( 
             <div className={styles.no_teamHotAppList}>
               <Spin tip="Loading..." size="large" />
             </div>
@@ -530,7 +531,7 @@ export default class Index extends PureComponent {
             </div>
           )}
           {/* 分页 */}
-          {(teamHotAppList.length > 0 && teamHotAppList.length >= page_size) &&
+          {(teamHotAppList.length > 0 && (teamHotAppList.length >= page_size || page > 1)) &&
             <div className={styles.pagination}>
               <Pagination
                 showSizeChanger

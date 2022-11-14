@@ -20,7 +20,7 @@ export default function AppHeader(props) {
   } = props;
 
   return (
-    <div className={headerStype.itemBoxs}>
+    <div className={headerStype.itemBox}>
       {upDataHeader ? (
         <Spin size="large" />
       ) : (

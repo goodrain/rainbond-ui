@@ -212,6 +212,15 @@ export default class Space extends Component {
       teamListLoding: false
     })
   }
+  onJumpPersonal = () => {
+    const { 
+      match: {
+        params: {eid}
+      }, 
+      dispatch, 
+    } = this.props
+    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+  }
   render() {
     const { userTeamList, dynamicList, enterpriseInfo, dynamicLoding, teamListLoding, } = this.state
     const {
@@ -224,12 +233,22 @@ export default class Space extends Component {
       currentUser
     } = this.props
     const colorList = ['#6d60e7', '#55b563', '#ebaa44', '#e86f2c', '#00a2ae'];
-    const customHeader = () => {
+    const customHeaderImg = () => {
       return (
-        <div className={headerStype.enterprise}>
-          <img src={Logo} alt="" />
+        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
+          <img src={enterprise && enterprise.logo && enterprise.logo.value || Logo} alt="" />
         </div>
       );
+    }
+    const customHeader = () => {
+      return (
+        <Link
+          style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }}
+          to={`/enterprise/${eid}/personal`}
+        >
+          {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
+        </Link>
+      )
     }
     return (
       <div style={{ height: "100%" }}>
@@ -240,6 +259,7 @@ export default class Space extends Component {
           collapsed={collapsed}
           currentUser={currentUser}
           customHeader={customHeader}
+          customHeaderImg={customHeaderImg}
         />
         <div className={styles.teamBox}>
           <div className={styles.teamBox_left}>

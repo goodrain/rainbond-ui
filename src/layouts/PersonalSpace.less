@@ -1,8 +1,8 @@
 
 .teamBox{
     width: 100%;
-    height: 100%;
-    padding-bottom: 24px;
+    height: calc(100% - 60px);
+    // padding-bottom: 24px;
     display: flex;
     justify-content: space-between;
     h3{
@@ -10,7 +10,6 @@
     }
     .teamBox_left{
         padding: 12px 30px;
-        padding-bottom: 65px;
         width: 20%;
         height: 100%;
         background-color:#e9edf1;
@@ -21,7 +20,7 @@
         }
         .teamList{
             width: 100%;
-            height: calc(100% - 64px);
+            height: calc(100% - 46px);
             overflow-x: hidden;
             overflow-y: scroll;
             font-family: PingFangSC-Medium;
@@ -172,9 +171,11 @@
         }
         .dynamicList{
             width: 100%;
-            height: calc( 100% - 80px);
+            height: calc( 100% - 104px);
             padding-bottom: 24px;
-            overflow: auto;
+            // overflow: auto;
+            overflow-x: hidden;
+            overflow-y: scroll;
             
             .list{
                 width: 100%;

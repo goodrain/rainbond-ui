@@ -427,6 +427,11 @@ class TeamLayout extends PureComponent {
       }
     });
   };
+  onJumpPersonal = () => {
+    const { eid } = this.state
+    const { dispatch } = this.props
+    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+  }
 
   render() {
     const {
@@ -509,20 +514,19 @@ class TeamLayout extends PureComponent {
       groupDetail && groupDetail.app_type === 'helm'
         ? 'helm'
         : this.getMode(appID || componentID);
-
-    const customHeader = () => {
+    const customHeaderImg = () => {
       return (
-        <div className={headerStype.enterprise}>
-          <img src={Logo} alt="" />
+        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
+          <img src={enterprise && enterprise.logo && enterprise.logo.value || Logo} alt="" />
         </div>
       );
     };
-    const svgPersonal = globalUtil.fetchSvg('svgPersonal')
-    const breadCrumb = () => {
+
+    const customHeader = () => {
       if (mode == 'team') {
         return (
           <TeamHeader
-            nobleIcon={svgPersonal}
+            nobleIcon={BillingFunction && nobleIcon}
             teamName={teamName}
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
@@ -540,7 +544,7 @@ class TeamLayout extends PureComponent {
           currentRegion={currentRegion}
           regionName={regionName}
           appID={appID}
-          nobleIcon={svgPersonal}
+          nobleIcon={BillingFunction && nobleIcon}
           currentComponent={currentComponent}
           componentID={componentID}
           upDataHeader={upDataHeader}
@@ -659,6 +663,7 @@ class TeamLayout extends PureComponent {
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
               customHeader={teamView && customHeader}
+              customHeaderImg={teamView && customHeaderImg}
             />
 
             <Layout style={{ flexDirection: 'row' }}>
@@ -683,14 +688,14 @@ class TeamLayout extends PureComponent {
                   showMenu={showMenu ? !componentID : false}
                 />
               )}
-                <TransitionGroup
-                  style={{
-                    height: 'calc(100vh - 64px)',
-                    overflow: 'auto',
-                    width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
-                  }}>
-                 {this.state.GroupShow ? 
-                 <CSSTransition
+              <TransitionGroup
+                style={{
+                  height: 'calc(100vh - 64px)',
+                  overflow: 'auto',
+                  width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
+                }}>
+                {this.state.GroupShow ?
+                  <CSSTransition
                     timeout={300}
                     classNames=
                     {{
@@ -707,10 +712,9 @@ class TeamLayout extends PureComponent {
                         width: '100%'
                       }}
                     >
-                      {teamView && breadCrumb()}
                       <div
                         style={{
-                          margin: '12px 24px 0'
+                          margin: '24px 24px 0'
                         }}
                       >
                         {renderContent()}
@@ -719,23 +723,22 @@ class TeamLayout extends PureComponent {
                   </CSSTransition>
                   :
                   <Content
-                  style={{
-                    height: 'calc(100vh - 64px)',
-                    overflow: 'auto',
-                    width: '100%'
-                  }}
-                >
-                  {teamView && breadCrumb()}
-                  <div
                     style={{
-                      margin: '12px 24px 0'
+                      height: 'calc(100vh - 64px)',
+                      overflow: 'auto',
+                      width: '100%'
                     }}
                   >
-                    {renderContent()}
-                  </div>
-                </Content>
-                  }
-                </TransitionGroup> 
+                    <div
+                      style={{
+                        margin: '24px 24px 0'
+                      }}
+                    >
+                      {renderContent()}
+                    </div>
+                  </Content>
+                }
+              </TransitionGroup>
             </Layout>
           </Layout>
         </Layout>
