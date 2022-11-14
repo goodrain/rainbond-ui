@@ -20,7 +20,7 @@ import Jwar from './jwar';
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
-    enterprise: global.enterprise,
+    enterprises: global.enterprise,
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
@@ -28,10 +28,23 @@ import Jwar from './jwar';
   { pure: false }
 )
 export default class Main extends PureComponent {
+  constructor(props){
+    super(props)
+    this.state= {
+      serversList: null
+    }
+  }
+
   componentWillMount() {
     const { currentTeamPermissionsInfo, dispatch } = this.props;
     roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
+
+  componentDidMount(){
+    const enterprise_id = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id
+    this.fetchEnterpriseInfo(enterprise_id)
+  }
+
   handleTabChange = key => {
     const { dispatch } = this.props;
     dispatch(
@@ -40,15 +53,36 @@ export default class Main extends PureComponent {
       )
     );
   };
+  fetchEnterpriseInfo = eid => {
+    if (!eid) {
+      return null;
+    }
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchEnterpriseInfo',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            serversList: res.bean
+          })
+        }
+      }
+    });
+  };
+
   render() {
     const {
       rainbondInfo,
-      enterprise,
+      enterprises,
       match,
       currentEnterprise,
       currentTeam,
       currentRegionName
     } = this.props;
+    const { serversList } = this.state
     const map = {
       custom: CodeCustom,
       demo: CodeDemo,
@@ -68,7 +102,7 @@ export default class Main extends PureComponent {
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
       tabList.push({ key: 'demo', tab: formatMessage({id:'teamAdd.create.code.demo'})});
     }
-    const servers = oauthUtil.getEnableGitOauthServer(enterprise);
+    const servers = oauthUtil.getEnableGitOauthServer(serversList);
     if (servers && servers.length > 0) {
       servers.map(item => {
         const { name, service_id, oauth_type } = item;

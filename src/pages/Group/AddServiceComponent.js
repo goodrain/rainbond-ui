@@ -51,8 +51,14 @@ export default class AddServiceComponent extends PureComponent {
       errState: true,
       isDrawer:true,
       scopeProMax: '',
-      event_id:''
+      event_id:'',
+      serversList: null,
     };
+  }
+
+  componentDidMount(){
+    const enterprise_id = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id
+    this.fetchEnterpriseInfo(enterprise_id)
   }
 
   getGitServerName = item => {
@@ -68,6 +74,27 @@ export default class AddServiceComponent extends PureComponent {
       : `${name} ${formatMessage({id:'appOverview.list.btn.addComponent.project'})}`;
     return tabName;
   };
+
+  fetchEnterpriseInfo = eid => {
+    if (!eid) {
+      return null;
+    }
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchEnterpriseInfo',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            serversList: res.bean
+          })
+        }
+      }
+    });
+  };
+
 
   toAddService = () => {
     this.setState({ toAddService: true, isDrawer:true });
@@ -209,7 +236,8 @@ export default class AddServiceComponent extends PureComponent {
       rainStoreTab,
       helmStoreTab,
       isDrawer,
-      event_id
+      event_id,
+      serversList,
     } = this.state;
     const codeSvg = globalUtil.fetchSvg('codeSvg');
     const docker_svg = globalUtil.fetchSvg('docker_svg');
@@ -217,7 +245,7 @@ export default class AddServiceComponent extends PureComponent {
     const yaml_svg = globalUtil.fetchSvg('yaml_svg');
     const helm_svg = globalUtil.fetchSvg('helm_svg');
 
-    const servers = oauthUtil.getEnableGitOauthServer(enterprise);
+    const servers = oauthUtil.getEnableGitOauthServer(serversList);
     const BasisParameter = {
       handleType: 'Service',
       ButtonGroupState,

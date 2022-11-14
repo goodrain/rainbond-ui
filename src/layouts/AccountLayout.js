@@ -1,10 +1,11 @@
 import { Layout } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
-import { Link, Redirect } from 'dva/router';
+import { Link, Redirect, routerRedux } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';
@@ -92,7 +93,14 @@ class AccountLayout extends PureComponent {
       }
     });
   };
-
+  onJumpPersonal = () => {
+    const { 
+      enterprise,
+      dispatch,
+    } = this.props
+    const eid = enterprise && enterprise.enterprise_id;
+    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+  }
   render() {
     const {
       children,
@@ -104,6 +112,7 @@ class AccountLayout extends PureComponent {
     } = this.props;
 
     const { enterpriseList, isMobiles, ready } = this.state;
+    const eid = enterprise && enterprise.enterprise_id;
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     if (!ready || !enterprise) {
       return <PageLoading />;
@@ -136,16 +145,23 @@ class AccountLayout extends PureComponent {
       }
     };
     const autoWidth = 'calc(100% -48px)';
-    const customHeader = () => {
+    const customHeaderImg = () => {
       return (
-        <div className={headerStype.enterprise}>
-          <Link to={`/enterprise/${currentUser.enterprise_id}/index`}>
-            {enterprise && enterprise.enterprise_alias}
-          </Link>
+        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
+           <img src={enterprise && enterprise.logo && enterprise.logo.value || logo} alt="" />
         </div>
       );
     };
-
+    const customHeader = () => {
+      return (
+        <Link
+          style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }}
+          to={`/enterprise/${eid}/personal`}
+        >
+          {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
+        </Link>
+      )
+    }
     const layout = () => {
       return (
         <Layout>
@@ -173,6 +189,7 @@ class AccountLayout extends PureComponent {
               onCollapse={this.handleMenuCollapse}
               isMobile={isMobiles}
               customHeader={customHeader}
+              customHeaderImg={customHeaderImg}
             />
             <Content
               key="sdfds"

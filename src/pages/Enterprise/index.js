@@ -1074,9 +1074,7 @@ export default class Enterprise extends PureComponent {
                         >
                           {tenant_alias}
                         </span>
-                        {/* {formatMessage({ id: 'enterpriseOverview.team.group' })} */}
-                        {/* > */}
-                        &nbsp;/&nbsp;
+                        {formatMessage({ id: 'enterpriseOverview.team.group' })}
                         <span
                           className={enterpriseStyles.spanStyle}
                           onClick={() => {
@@ -1085,10 +1083,9 @@ export default class Enterprise extends PureComponent {
                         >
                           {group_name}
                         </span>
-                        {/* {formatMessage({ id: 'enterpriseOverview.overview.app' })}
-                        <span>{formatMessage({ id: 'enterpriseOverview.overview.inside' })}</span> */}
-                        {/* > */}
-                        &nbsp;/&nbsp;
+                        {formatMessage({ id: 'enterpriseOverview.overview.app' })}
+                        {formatMessage({ id: 'enterpriseOverview.overview.inside' })}
+                        {formatMessage({ id: 'enterpriseOverview.overview.component' })}
                         <span
                           className={enterpriseStyles.spanStyle}
                           onClick={() => {
@@ -1097,9 +1094,6 @@ export default class Enterprise extends PureComponent {
                         >
                           {service_cname}
                         </span>
-                        {/* {formatMessage({ id: 'enterpriseOverview.overview.component' })} */}
-                        {/* > */}
-                        &nbsp; /&nbsp;
                         <span style={{ color: 'red' }}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
                       </div>
                       <div>
