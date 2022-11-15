@@ -3,6 +3,7 @@ import { Card, Col, Form, Icon, Row, Tooltip } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
+import { routerRedux } from 'dva/router';
 import globalUtil from '../../../../utils/global';
 import LogShow from '../LogShow';
 import styles from './operation.less';
@@ -29,12 +30,19 @@ class Index extends PureComponent {
     }
   };
 
-  showLogModal = (EventID, showSocket) => {
-    const { isopenLog, onLogPush } = this.props;
-    if (isopenLog && onLogPush) {
-      onLogPush(false);
+  showLogModal = (EventID, showSocket, OptType = '') => {
+    const { isopenLog, onLogPush, dispatch } = this.props;
+    if(OptType == 'AbnormalExited' || OptType == 'EventTypeAbnormalExited'){
+      this.props.dispatch(
+        routerRedux.push(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/log`
+        )
+      )
+    }else{
+      if (isopenLog && onLogPush) {
+        onLogPush(false);
+      }
     }
-
     this.setState({
       logVisible: true,
       selectEventID: EventID,
@@ -175,7 +183,7 @@ class Index extends PureComponent {
                               width: '16px'
                             }}
                             onClick={() => {
-                              this.showLogModal(EventID, FinalStatus === '');
+                              this.showLogModal(EventID, FinalStatus === '', OptType);
                             }}
                           >
                             {logsvg}
