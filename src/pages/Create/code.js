@@ -13,6 +13,7 @@ import roleUtil from '../../utils/role';
 import CodeCustom from './code-custom';
 import CodeDemo from './code-demo';
 import Jwar from './jwar';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 
 @connect(
   ({ teamControl, global, enterprise }) => ({
@@ -138,6 +139,7 @@ export default class Main extends PureComponent {
       currentRegionName
     );
     breadcrumbList.push({ title: '创建组件' });
+
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -146,6 +148,7 @@ export default class Main extends PureComponent {
         content={<p><FormattedMessage id="teamAdd.create.code.desc" /></p>}
         tabActiveKey={type}
         tabList={tabList}
+        titleSvg={pageheaderSvg.getSvg('addSvg',18)}
       >
         {Com ? (
           <Com

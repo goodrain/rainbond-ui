@@ -29,9 +29,48 @@
   line-height: 98px;
   text-align: center;
 }
+.tabsStyle{
+  margin: 10px 0px 0;
+  padding: 10px 32px 0;
+  background: #f1f2f5;
+  height: 51px;
+  border-bottom: 1px solid #4d73b1;
+  .tabs {
+    margin: 0 0 -17px -8px;
+
+    overflow: visible !important;
+    :global{
+      .ant-tabs-tab{
+        background-color: #F1F2F5 !important;
+        margin-right: 0px !important;
+        border: 1px solid  transparent !important;
+      }
+      .ant-tabs-bar{
+        border-bottom: 1px solid #4d73b1 !important;
+        margin: 0;
+        padding-bottom: 1px !important;
+      }
+      .ant-tabs-nav-container{
+        overflow: visible !important;
+      }
+      .ant-tabs-tab-active{
+        height: 41px !important ;
+        border: 1px solid #4d73b1 !important;
+        border-bottom: 1px solid #fff !important;
+        background-color: #fff !important;
+      }
+      .ant-tabs-nav-scroll{
+        overflow: visible !important;
+      }
+      .ant-tabs-nav-container-scrolling{
+        overflow: visible !important;
+      }
+    }
+  }
+}
 
 .pageHeader {
-  background: @component-background;
+  // background: @component-background;
   padding: 16px 32px 0;
 
   .detail {
@@ -51,7 +90,7 @@
 
     :global {
       .ant-tabs-bar {
-        border-bottom: @border-width-base @border-style-base @border-color-split;
+        // border-bottom: @border-width-base @border-style-base @border-color-split;
       }
     }
   }
@@ -70,12 +109,16 @@
   }
 
   .title {
-    font-family: PingFangSC-Regular;
-    font-size: 20px;
-    color: #2b3844;
+    font-family: PingFangSC-Medium;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.65);
     letter-spacing: 0;
   }
-
+  .title_svg{
+    padding-top: 4px;
+    margin-right: 4px;
+  }
   .action {
     margin-left: 56px;
     min-width: 266px;
@@ -108,13 +151,16 @@
     flex: auto;
   }
 
-  .title,
   .action {
     margin-bottom: 10px;
   }
-
+  .content{
+    margin-bottom: 0;
+    p{
+      margin-bottom: 0;
+    }
+  }
   .logo,
-  .content,
   .extraContent {
     margin-bottom: 10px;
   }
@@ -127,6 +173,7 @@
   .extraContent {
     min-width: 242px;
   }
+  
 }
 
 @media screen and (max-width: @screen-xl) {

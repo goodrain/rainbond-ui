@@ -58,28 +58,28 @@ function menuData(teamName, regionName, permissionsInfo) {
         children: [
           {
             name: formatMessage({ id: 'menu.team.create.code' }),
-            path: `/code`,
+            path: `code`,
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.market' }),
-            path: `/market`,
+            path: `market`,
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.image' }),
-            path: `/image`,
+            path: `image`,
             authority: ['admin', 'user']
           },
           // 基于软件包/yaml创建
           {
             name: formatMessage({ id: 'menu.team.create.upload' }),
-            path: `/yaml`,
+            path: `yaml`,
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.third' }),
-            path: `/outer`,
+            path: `outer`,
             authority: ['admin', 'user']
           }
         ]

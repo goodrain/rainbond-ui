@@ -4,10 +4,13 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import userUtil from '../../utils/user';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import BackupManage from './backup';
 import Infrastructure from './infrastructure';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Management from './management';
+import styles from "./index.less"
+
 
 const { TabPane } = Tabs;
 
@@ -51,8 +54,14 @@ export default class EnterpriseSetting extends PureComponent {
         title={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.title'/>}
         // content="支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供"
         content={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.content'/>}
+        titleSvg={pageheaderSvg.getSvg("settingSvg",18)}
       >
-        <Tabs onChange={this.onChange} activeKey={activeKey}>
+        <Tabs 
+          onChange={this.onChange} 
+          activeKey={activeKey}
+          type="card"
+          className={styles.tabBarStyle}
+          >
           <TabPane 
           tab={
                <div>

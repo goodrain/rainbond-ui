@@ -8,6 +8,7 @@ import { routerRedux } from 'dva/router';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import router from 'umi/router';
 import Result from '../../../components/Result';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
@@ -222,6 +223,7 @@ export default class ClusterLink extends PureComponent {
       <PageHeaderLayout
       title={<FormattedMessage id='enterpriseColony.button.text'/>}
       content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
+      titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={3}>

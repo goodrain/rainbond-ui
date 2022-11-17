@@ -56,7 +56,7 @@ export default class Chart extends Component {
             [1, "rgb(199, 222, 239)"],
           ];
         const option = {
-            backgroundColor:"#F7FAFE",
+            backgroundColor:"#fff",
             title: {
               //分配率文字配置
               show: true,

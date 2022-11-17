@@ -29,6 +29,7 @@ import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 
 const { confirm } = Modal;
 
@@ -834,6 +835,7 @@ export default class EnterpriseClusters extends PureComponent {
       <PageHeaderLayout
         title={<FormattedMessage id='enterpriseColony.PageHeaderLayout.title'/>}
         content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
+        titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
       >
         {isNewbieGuide &&
         showClusterIntroduced &&
@@ -851,7 +853,7 @@ export default class EnterpriseClusters extends PureComponent {
         ) : (
           ''
         )}
-        <Row style={{ marginBottom: '20px' }}>
+        <Row style={{ marginBottom: '20px',background:'#fafbfc',borderRadius:5,boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px',padding: '10px 10px 5px '}}>
           <Col span={24} style={{ textAlign: 'right' }}>
             <Link to={`/enterprise/${eid}/addCluster`}>
               <Button type="primary">
@@ -889,7 +891,9 @@ export default class EnterpriseClusters extends PureComponent {
               })}
           </Col>
         </Row>
-        <Card>
+        <Card 
+          style={{borderRadius:5,boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px'}}
+        >
           {delVisible && (
             <ConfirmModal
               loading={delclusterLongin}
@@ -985,7 +989,7 @@ export default class EnterpriseClusters extends PureComponent {
               </div>
             )}
             {!setTenantLimitShow && (
-              <div>
+              <div >
                 <Alert
                   style={{ margin: '20px 0 16px 0' }}
                   message={formatMessage({id:'enterpriseColony.table.handle.quota.form.label.alert'})}

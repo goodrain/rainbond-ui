@@ -1265,6 +1265,7 @@ import {
                 tabActiveKey={scopeMax}
                 onTabChange={this.handleTabMaxChange}
                 isFooter={!!handleType}
+                isDrawer={true}
               >
                 {scopeMax !== 'localApplication' && !isInstall && (
                   <Alert

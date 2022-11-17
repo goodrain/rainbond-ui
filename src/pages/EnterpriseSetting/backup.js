@@ -218,7 +218,11 @@ export default class BackupManage extends PureComponent {
     return (
       <Fragment>
         <div>
-          <Row style={{ marginBottom: '16px' }}>
+          <Row 
+            style={{ 
+              padding: '10px 0',
+              marginBottom:20,
+              }}>
             <Col span={16}>
               <Alert
                 type="info"

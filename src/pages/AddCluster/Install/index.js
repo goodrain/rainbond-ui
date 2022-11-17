@@ -24,6 +24,7 @@ import { cloneDeep } from 'lodash';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
@@ -229,6 +230,7 @@ export default class ClusterLink extends PureComponent {
       <PageHeaderLayout
       title={<FormattedMessage id='enterpriseColony.button.text'/>}
       content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
+      titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={2}>

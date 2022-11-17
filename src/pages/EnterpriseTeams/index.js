@@ -31,6 +31,7 @@ import OpenRegion from '../../components/OpenRegion';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import roleUtil from '../../utils/role';
 import userUtil from '../../utils/user';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cookie from '../../utils/cookie';
 import styles from './index.less';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
@@ -679,7 +680,11 @@ export default class EnterpriseTeams extends PureComponent {
           style={{
             display: 'flex',
             alignItems: 'center',
-            marginBottom: '20px'
+            marginBottom: '20px',
+            backgroundColor: "#fafbfc",
+            padding:' 10px 20px',
+            borderRadius:5,
+            boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px'
           }}
         >
           <Col
@@ -699,6 +704,13 @@ export default class EnterpriseTeams extends PureComponent {
           </Col>
           {operation}
         </Row>
+        <div style={{
+          background:'#fff',
+          borderRadius: 5,
+          boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+          fontSize:14,
+          fontWeight: 600
+        }}>
         <Row style={{ width:'100%' }} className={styles.rowTitle}>
         <Row className={styles.teamMinTit} type="flex" align="middle">
           <Col span={4} style={{width:'16%',textAlign:'center'}}>
@@ -757,7 +769,7 @@ export default class EnterpriseTeams extends PureComponent {
           return (
             <Card
               key={team_id}
-              style={{ marginTop: '10px' }}
+              style={{ border:0, borderBottom: '1px solid #f4f4f4'}}
               hoverable
               bodyStyle={{ padding: 0 }}
             >
@@ -795,6 +807,7 @@ export default class EnterpriseTeams extends PureComponent {
             </Card>
           );
         })}
+        </div>
         <div style={{ textAlign: 'right', margin: '15px' }}>
           {this.handlePaginations()}
         </div>
@@ -844,8 +857,9 @@ export default class EnterpriseTeams extends PureComponent {
               <Card
                 key={team_id}
                 style={{
-                  marginTop: '10px',
-                  borderLeft: is_pass === 0 && '6px solid #4D73B1'
+                  // marginTop: '10px',
+                  borderLeft: is_pass === 0 && '6px solid #4D73B1',
+                  border:0
                 }}
                 bodyStyle={{ padding: 0 }}
                 hoverable
@@ -1016,7 +1030,7 @@ export default class EnterpriseTeams extends PureComponent {
       title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title.admin'/>;
     }
     return (
-      <PageHeaderLayout title={title} content={content}>
+      <PageHeaderLayout title={title} content={content} titleSvg={pageheaderSvg.getSvg('temaSvg',20)}>
         {showCloseAllComponent && (
           <ConfirmModal
             onOk={this.handleCloseAllComponentInTeam}

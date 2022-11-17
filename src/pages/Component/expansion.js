@@ -1022,7 +1022,7 @@ export default class Index extends PureComponent {
         </Card>
 
         <Card
-          style={{ marginTop: 16, border: 'none' }}
+          style={{ marginTop: 16 }}
           className={styles.clearCard}
           title={<FormattedMessage id='componentOverview.body.Expansion.flex'/>}
         >

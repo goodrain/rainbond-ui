@@ -5,7 +5,8 @@ import {
   Popconfirm,
   Popover,
   Table,
-  Tooltip
+  Tooltip,
+  Row
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -22,6 +23,7 @@ import {
 } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cookie from '../../utils/cookie';
 import style from './publish.less';
 
@@ -258,8 +260,12 @@ export default class AppPublishList extends PureComponent {
         loading={loadingDetail}
         title={formatMessage({ id: 'appPublish.title' })}
         content={formatMessage({ id: 'appPublish.desc' })}
-        extraContent={
-          <div style={language ? {}:{display:'flex'}}>
+        titleSvg={pageheaderSvg.getSvg('publishSvg',18)}
+      >
+        <Card 
+          loading={loading} 
+          extra={
+            <div style={language ? {}:{display:'flex'}}>
             <Button
               style={language ? {marginRight: 8}:{ marginRight: 8 ,padding:5,}}
               type="primary"
@@ -271,9 +277,13 @@ export default class AppPublishList extends PureComponent {
               {formatMessage({ id: 'appPublish.btn.market' })}
             </Button>
           </div>
-        }
-      >
-        <Card loading={loading}>
+          }
+          style={{
+                  borderRadius: 5,
+                  boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                  overflow:'hidden'
+          }}
+        >
           <ScrollerX sm={800}>
             <Table
               pagination={{

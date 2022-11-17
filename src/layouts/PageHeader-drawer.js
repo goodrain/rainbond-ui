@@ -15,7 +15,7 @@ export default ({
   <div style={{ margin: '-20px' }} className={wrapperClassName}>
     {top}
     <PageHeader key="pageheader" {...restProps} linkElement={Link} />
-    {children ? <div className={styles.content}>{children}</div> : null}
+    {children ? <div className={styles.content} style={{background: restProps.isDrawer && "#fff"}}>{children}</div> : null}
     {!isFooter && cookie.get('enterprise_edition') === 'false' && (
       <CustomFooter />
     )}

@@ -15,6 +15,9 @@ render() {
       className={styles.cardstyle}
       style={{
           marginBottom: 16,
+          borderRadius: 5,
+          boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+          overflow:'hidden'
       }}>
             {(value && value.length > 0) ? (
                 <>

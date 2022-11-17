@@ -7,6 +7,7 @@ import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import React, { PureComponent } from 'react';
 import RainbondClusterInit from '../../../components/Cluster/RainbondClusterInit';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import userUtil from '../../../utils/user';
 
 const { Step } = Steps;
@@ -101,6 +102,7 @@ export default class RainbondInit extends PureComponent {
       <PageHeaderLayout
       title={<FormattedMessage id='enterpriseColony.button.text'/>}
       content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
+      titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={2}>
