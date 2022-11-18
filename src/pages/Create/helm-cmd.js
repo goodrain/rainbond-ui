@@ -102,11 +102,7 @@ export default class Index extends PureComponent {
         if (res) {
           const info = res.bean
           if (info.tgz) {
-            dispatch(
-              routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}`
-              )
-            )
+            this.props.onClose();
           }else{
           if (info && info.status) {
             const { chart } = info;

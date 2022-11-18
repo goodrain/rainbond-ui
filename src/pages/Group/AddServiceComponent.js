@@ -507,7 +507,7 @@ export default class AddServiceComponent extends PureComponent {
             <Yaml {...PublicParameter} setPare={this.setYaml} />
           )}
           {ServiceComponentTwoPage === 'helm' && (
-            <HelmCmd {...PublicParameter} />
+            <HelmCmd {...PublicParameter} onClose={this.cancelAddService} />
           )}
           {ServiceComponentTwoPage === 'market' && (
             <Market

@@ -341,16 +341,18 @@ export default class Index extends PureComponent {
     // 团队应用
     return (
       <Fragment>
-        <div className={styles.teamAppTitle}>
-          <span>{globalUtil.fetchSvg('teamViewTitle')}</span>
-          <h2 className={styles.topContainerTitle}>
-            {loadingOverview ? (
-              <Spin size="small"></Spin>
-            ) : (
-              index.overviewInfo.team_alias
-            )}
-          </h2>
-        </div>
+        {(index.overviewInfo.region_health || loadingOverview) && 
+                <div className={styles.teamAppTitle}>
+                <span>{globalUtil.fetchSvg('teamViewTitle')}</span>
+                <h2 className={styles.topContainerTitle}>
+                  {loadingOverview ? (
+                    <Spin size="small"></Spin>
+                  ) : (
+                    index.overviewInfo.team_alias
+                  )}
+                </h2>
+              </div>
+        }
         {loadingOverview && !index.overviewInfo.region_health && (
           <Spin size="large" tip="Loading..." style={{ textAlign: 'center', }}>
             {/* page top */}
@@ -432,8 +434,11 @@ export default class Index extends PureComponent {
             </div>
           </div>
         )}
-        {/* 热门应用标题 */}
-        <div className={styles.teamHotAppTitle}>
+        
+      {(index.overviewInfo.region_health || loadingOverview) && 
+        <>
+              {/* 热门应用标题 */}
+              <div className={styles.teamHotAppTitle}>
           <div className={styles.teamHotAppTitleLeft}>
             <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
             <h2><FormattedMessage id="teamOverview.appList" /></h2>
@@ -557,6 +562,9 @@ export default class Index extends PureComponent {
             handleAppLoading={this.handleAppLoading}
           />
         )}
+      </>
+      }
+        
         {/* 集群不健康的情况 */}
         {loadedOverview &&
           index.overviewInfo &&
