@@ -757,7 +757,7 @@ const componentOverview = {
     'componentOverview.body.AutoDeploy.Webhook':'镜像仓库Webhook',
     'componentOverview.body.AutoDeploy.tag':'Tag触发',
 
-    'componentOverview.body.AutoDeploy.regular_expression ':'支持正则表达式,如:release-v.*',
+    'componentOverview.body.AutoDeploy.regular_expression':'支持正则表达式,如:release-v.*',
     'componentOverview.body.AutoDeploy.note':' 注意：表达式为空时更新事件的tag与当前组件镜像tag一致时触发，不为空时表达式匹配正确触发',
     // tabs栏>Resource>CodeBuildConfig
     'componentOverview.body.CodeBuildConfig.title':'确认修改吗?',

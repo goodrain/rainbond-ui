@@ -378,6 +378,12 @@
         'confirmModal.check.appShare.title.loading':'应用同步中',
         'confirmModal.check.appShare.title.success':'应用同步成功',
         'confirmModal.check.appShare.title.error':'请查看以下日志确认问题后重试',
+        'confirmModal.check.appShare.title.codeLang':'代码语言',
+        'confirmModal.check.appShare.title.server':'后端',
+        'confirmModal.check.appShare.title.npmOryarn':'包管理器',
+        'confirmModal.check.appShare.title.port':'端口信息',
+        'confirmModal.check.appShare.title.sourceCode':'源码信息',
+        'confirmModal.check.appShare.title.null':'暂无',
         
         // 删除组件
         'confirmModal.assembly.delete.title':'删除组件',
@@ -650,7 +656,9 @@
         'placeholder.docker_cmdMsg':'请输入镜像名称',
         'placeholder.docker_cmd':'请输入镜像名称, 如 nginx : 1.11',
         'placeholder.dockerRunMsg':'请输入DockerRun命令',
-        'placeholder.dockerRun':'例如： helm install --repo https://example.com/charts/ mynginx nginx',
+        'placeholder.helmCmdMsg':'请输入 Helm 命令',
+        'placeholder.dockerRun':'例如： docker run -d -p 8080:8080 -e PWD=1qa2ws --name=tomcat_demo tomcat',
+        'placeholder.helm_cmd':'例如： helm install --repo https://example.com/charts/ mynginx nginx',
         'placeholder.yaml_content':'请输入DockerCompose配置内容',
         'placeholder.user_name':'请输入仓库用户名',
         'placeholder.password':'请输入仓库密码',

@@ -139,9 +139,9 @@ export default class Index extends PureComponent {
           <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.image.docker_cmd'})}>
             {getFieldDecorator('docker_cmd', {
               initialValue: data.docker_cmd || '',
-              rules: [{ required: true, message: formatMessage({id: 'placeholder.dockerRunMsg'}) }]
+              rules: [{ required: true, message: formatMessage({id: 'placeholder.helmCmdMsg'}) }]
             })(
-              <TextArea style={{minHeight:'200px'}} placeholder={formatMessage({id: 'placeholder.dockerRun'})} />
+              <TextArea style={{minHeight:'200px'}} placeholder={formatMessage({id: 'placeholder.helm_cmd'})} />
             )}
           </Form.Item>
           {errorShow &&

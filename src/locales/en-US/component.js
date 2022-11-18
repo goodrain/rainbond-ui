@@ -747,7 +747,7 @@ const componentOverview = {
     'componentOverview.body.AutoDeploy.Webhook':'Mirror repository Webhook',
     'componentOverview.body.AutoDeploy.tag':'The Tag is triggered',
 
-    'componentOverview.body.AutoDeploy.regular_expression ':'Support regular expressions, such as release-v*',
+    'componentOverview.body.AutoDeploy.regular_expression':'Support regular expressions, such as release-v*',
     'componentOverview.body.AutoDeploy.note':' Note: When the expression is null, the tag for the update event fires when it is consistent with the current component mirror tag. When it is not null, the expression match fires correctly',
     // tabs栏>Resource>CodeBuildConfig
     'componentOverview.body.CodeBuildConfig.title':'Are you sure to modify it?',

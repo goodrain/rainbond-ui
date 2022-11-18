@@ -27,14 +27,12 @@ export default {
     // 成员
     protocols: [],
     // 集群基本设置数据
-    base_configuration:
-      JSON.parse(window.sessionStorage.getItem('base_configuration')) || {},
+    base_configuration: JSON.parse(window.sessionStorage.getItem('base_configuration')) || {},
     // 集群高级配置数据
-    advance_configuration:
-      JSON.parse(window.sessionStorage.getItem('advance_config')) || {},
+    advance_configuration: JSON.parse(window.sessionStorage.getItem('advance_config')) || {},
     //shell终端状态 
-    terminal_status:
-    JSON.parse(window.sessionStorage.getItem('terminal_status')) || false,
+    terminal_status: JSON.parse(window.sessionStorage.getItem('terminal_status')) || false,
+
   },
   effects: {
     *fetchProtocols({ payload }, { call, put }) {
