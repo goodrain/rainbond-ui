@@ -680,10 +680,10 @@ export default class CreateCheck extends React.Component {
                   fontWeight: 'bold'
                 }}
               >
-                代码语言：
+                {formatMessage({id:'confirmModal.check.appShare.title.codeLang'})}：
               </span>
               <Radio.Group onChange={this.onChangeLange} value={codeLanguage}>
-                <Radio value='Node.js'>Node.js（后端）</Radio>
+                <Radio value='Node.js'>Node.js（{formatMessage({id:'confirmModal.check.appShare.title.server'})}）</Radio>
                 <Radio value='NodeJSStatic'>NodeJSStatic（Vue、React、Angular）</Radio>
               </Radio.Group>
             </div>
@@ -695,7 +695,7 @@ export default class CreateCheck extends React.Component {
                   fontWeight: 'bold'
                 }}
               >
-                包管理器：
+                {formatMessage({id:'confirmModal.check.appShare.title.npmOryarn'})}：
               </span>
               <Radio.Group onChange={this.onChange} value={packageLange}>
                 <Radio value='npm'>npm</Radio>
@@ -711,9 +711,9 @@ export default class CreateCheck extends React.Component {
                     fontWeight: 'bold'
                   }}
                 >
-                  端口信息：
+                  {formatMessage({id:'confirmModal.check.appShare.title.port'})}：
                 </span>
-                {ports || '暂无'}
+                {ports || formatMessage({id:'confirmModal.check.appShare.title.null'})}
               </div>
             )}
             <div style={{ marginBottom: 16 }}>
@@ -724,7 +724,7 @@ export default class CreateCheck extends React.Component {
                   fontWeight: 'bold'
                 }}
               >
-                源码信息：
+                {formatMessage({id:'confirmModal.check.appShare.title.sourceCode'})}：
               </span>
               {source_from}
             </div>
