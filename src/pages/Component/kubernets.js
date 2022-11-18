@@ -115,7 +115,7 @@ class Index extends PureComponent {
       drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.edit_attribute'}),
       drawerSwitch: str,
       selectVal: val.name,
-      TooltipValue: TooltipValueArra[val.name]
+      TooltipValue: TooltipValueArr[val.name]
     })
   }
 
