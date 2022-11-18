@@ -5,7 +5,10 @@ import React, { PureComponent } from 'react';
 
 const RadioGroup = Radio.Group;
 
-@connect(null, null, null, { withRef: true })
+@connect(
+  ({ loading, teamControl }) => ({
+  soundCodeLanguage: teamControl.codeLanguage,
+}), null, null, { withRef: true })
 class Index extends PureComponent {
   constructor(props) {
     super(props);
@@ -52,9 +55,11 @@ class Index extends PureComponent {
         }
       }
     };
-    const { envs, languageType } = this.props;
+    const { envs, languageType, soundCodeLanguage } = this.props;
     const { webType, nodeType, nodeBuildType } = this.state;
     const { getFieldDecorator } = this.props.form;
+    // 从高级设置进入
+    const advanced_setup = JSON.parse(window.sessionStorage.getItem('advanced_setup')) || false;
     return (
       <div>
         <Form.Item
@@ -117,7 +122,7 @@ class Index extends PureComponent {
           })(<Input placeholder="https://registry.npm.taobao.org" />)}
         </Form.Item>
 
-        {(languageType === 'nodejsstatic' || languageType === 'NodeJSStatic')&& (
+        {(((languageType === 'nodejsstatic' && advanced_setup != 'advanced') || (languageType === 'NodeJSStatic' && advanced_setup != 'advanced')) || (soundCodeLanguage == 'NodeJSStatic' && advanced_setup == 'advanced')) && (
           <Form.Item
             {...formItemLayout}
             label={<FormattedMessage id="componentOverview.body.NodeJSConfig.build"/>}
@@ -128,8 +133,8 @@ class Index extends PureComponent {
             })(<Input />)}
           </Form.Item>
         )}
-
-        {languageType !== 'nodejsstatic' && languageType !== 'NodeJSStatic' && (
+        
+        {(((languageType === 'nodejs' && advanced_setup != 'advanced') || (languageType === 'Node.js' && advanced_setup != 'advanced')) || (soundCodeLanguage == 'Node.js' && advanced_setup == 'advanced')) && (
           <Form.Item
             {...formItemLayout}
             label={<FormattedMessage id="componentOverview.body.NodeJSConfig.start"/>}

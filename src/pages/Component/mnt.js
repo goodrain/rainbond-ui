@@ -193,9 +193,10 @@ export default class Index extends PureComponent {
       notification.warning({
         message: (
           <div>
-            <FormattedMessage id='notification.warn.state'/>
+            {formatMessage({id:'notification.warn.state'})}
             <br />
-            <FormattedMessage id='notification.warn.restart'/>
+            {formatMessage({id:'notification.warn.restart'})}
+
           </div>
         )
       });
@@ -278,8 +279,7 @@ export default class Index extends PureComponent {
           <Col span={12}>
             <Alert
               showIcon
-              // message="存储配置发生变化后需要更新组件才能生效"
-              message={<FormattedMessage id='componentOverview.body.mnt.Alert.message'/>}
+              message={formatMessage({id:'componentOverview.body.mnt.Alert.message'})}
               type="info"
               style={{
                 marginBottom: 24
@@ -291,12 +291,12 @@ export default class Index extends PureComponent {
           style={{
             marginBottom: 24
           }}
-          title={<span>  <FormattedMessage id='componentOverview.body.mnt.save_setting'/></span>}
+          title={<span>  {formatMessage({id:'componentOverview.body.mnt.save_setting'})}</span>}
           extra={
             <Button onClick={this.handleAddVar}>
               <Icon type="plus" />
               {/* 添加存储 */}
-              <FormattedMessage id='componentOverview.body.mnt.add_storage'/>
+              {formatMessage({id:'componentOverview.body.mnt.add_storage'})}
             </Button>
           }
         >
@@ -341,7 +341,7 @@ export default class Index extends PureComponent {
                   dataIndex: 'volume_capacity',
                   render: text => {
                     if (text == 0) {
-                      return <span><FormattedMessage id='componentOverview.body.mnt.unlimited'/></span>;
+                      return <span>{formatMessage({id:'componentOverview.body.mnt.unlimited'})}</span>;
                     }
                     return <span>{text}GB</span>;
                   }
@@ -351,9 +351,9 @@ export default class Index extends PureComponent {
                   dataIndex: 'status',
                   render: text => {
                     if (text == 'not_bound') {
-                      return <span style={{ color: 'red' }}><FormattedMessage id='componentOverview.body.mnt.unmounted'/></span>;
+                      return <span style={{ color: 'red' }}>{formatMessage({id:'componentOverview.body.mnt.unmounted'})}</span>;
                     }
-                    return <span style={{ color: 'green' }}><FormattedMessage id='componentOverview.body.mnt.mounted'/></span>;
+                    return <span style={{ color: 'green' }}>{formatMessage({id:'componentOverview.body.mnt.mounted'})}</span>;
                   }
                 },
                 {
@@ -367,7 +367,7 @@ export default class Index extends PureComponent {
                         }}
                         href="javascript:;"
                       >
-                        <FormattedMessage id='componentOverview.body.mnt.deldete'/>
+                        {formatMessage({id:'componentOverview.body.mnt.deldete'})}
                       </a>
                       <a
                         onClick={() => {
@@ -375,7 +375,7 @@ export default class Index extends PureComponent {
                         }}
                         href="javascript:;"
                       >
-                        <FormattedMessage id='componentOverview.body.mnt.edit'/>
+                        {formatMessage({id:'componentOverview.body.mnt.edit'})}
                       </a>
                     </div>
                   )
@@ -386,11 +386,11 @@ export default class Index extends PureComponent {
           </ScrollerX>
         </Card>
         <Card
-          title={<span> <FormattedMessage id='componentOverview.body.mnt.share'/> </span>}
+          title={<span> {formatMessage({id:'componentOverview.body.mnt.share'})} </span>}
           extra={
             <Button onClick={this.showAddRelation}>
               <Icon type="plus" />
-              <FormattedMessage id='componentOverview.body.mnt.mount'/>
+              {formatMessage({id:'componentOverview.body.mnt.mount'})}
             </Button>
           }
         >
@@ -503,7 +503,7 @@ export default class Index extends PureComponent {
                       }}
                       href="javascript:;"
                     >
-                      <FormattedMessage id='componentOverview.body.mnt.unmount'/>
+                      {formatMessage({id:'componentOverview.body.mnt.unmount'})}
                     </a>
                   )
                 }
