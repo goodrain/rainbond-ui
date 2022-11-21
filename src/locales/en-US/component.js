@@ -848,7 +848,7 @@ const componentOverview = {
     'componentOverview.body.AddAdmin.list':'Configuration list',
 // tabs栏>setting
     'componentOverview.body.setting.Enabled':'Enabled',
-    'componentOverview.body.setting.disabled ':'Disabled ',
+    'componentOverview.body.setting.disabled':'Disabled ',
     'componentOverview.body.setting.Not_set':'Not set',
     'componentOverview.body.setting.information':'Basic information',
     'componentOverview.body.setting.time':'Create Time',
