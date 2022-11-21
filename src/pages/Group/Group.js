@@ -1072,8 +1072,6 @@ export default class Index extends PureComponent {
               borderBottom: '1px solid #e8e8e8',
               borderTopRightRadius:5,
               borderTopLeftRadius: 5,
-              boxShadow: '#242e4229 2px 4px 10px 0px '
-
             }}
           >
             <Col span={5} style={{ paddingleft: '12px' }}>

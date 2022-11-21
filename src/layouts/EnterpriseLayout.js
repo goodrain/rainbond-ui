@@ -412,7 +412,7 @@ class EnterpriseLayout extends PureComponent {
     const customHeaderImg = () => {
       return (
         <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
-           <img src={enterprise && enterprise.logo && enterprise.logo.value || Logo} alt="" />
+           <img src={fetchLogo} alt="" />
         </div>
       );
     };

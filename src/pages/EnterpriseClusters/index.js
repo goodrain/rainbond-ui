@@ -853,7 +853,10 @@ export default class EnterpriseClusters extends PureComponent {
         ) : (
           ''
         )}
-        <Row style={{ marginBottom: '20px',background:'#fafbfc',borderRadius:5,boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px',padding: '10px 10px 5px '}}>
+        
+        <Card 
+          style={{ boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px'}}
+          extra={<Row>
           <Col span={24} style={{ textAlign: 'right' }}>
             <Link to={`/enterprise/${eid}/addCluster`}>
               <Button type="primary">
@@ -890,9 +893,7 @@ export default class EnterpriseClusters extends PureComponent {
                 svgPosition: { right: '50px', marginTop: '-11px' }
               })}
           </Col>
-        </Row>
-        <Card 
-          style={{borderRadius:5,boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px'}}
+        </Row>}
         >
           {delVisible && (
             <ConfirmModal

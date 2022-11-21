@@ -351,21 +351,6 @@ export default class GlobalRouter extends PureComponent {
           }}
         >
           {this.getNavMenuItems(menuData || [])}
-          <Menu.Item
-            key="collection"
-            title={formatMessage({id:'otherEnterprise.SiderMenu.title'})}
-            onClick={this.handleOpenCollectionVisible}
-            style={{
-              width: '100%',
-              position: 'absolute',
-              bottom: '0px'
-            }}
-          >
-            <a>
-              <Icon type="star" />
-              <span><FormattedMessage id="sidecar.collection" /></span>
-            </a>
-          </Menu.Item>
         </Menu>
       </div>
     );

@@ -1066,6 +1066,11 @@ export default class Enterprise extends PureComponent {
           >
             {appAlertList.length > 0 && (
               <div className={enterpriseStyles.appAlert} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
+                <div style={{
+                  height:170,
+                  overflowX:"hidden",
+                  overflowY:'scroll'
+                }}>
                 {appAlertList.map(item => {
                   const { group_id, group_name, region_name, service_alias, service_cname, tenant_name, tenant_alias } = item
                   return (
@@ -1110,6 +1115,7 @@ export default class Enterprise extends PureComponent {
                     </div>
                   )
                 })}
+              </div>
               </div>
             )}
             {appAlertLoding && (

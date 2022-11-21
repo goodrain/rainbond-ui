@@ -57,6 +57,7 @@ export default class Index extends PureComponent {
   }
 
   componentDidMount() {
+    this.routeSwitch()
     this.handleGetList();
   }
 
@@ -68,6 +69,11 @@ export default class Index extends PureComponent {
       app_alias: appAlias
     };
   };
+  routeSwitch = () => {
+    const { dispatch } = this.props
+    const { team_name, region_name, app_alias } = this.fetchParameter();
+    dispatch(routerRedux.replace(`/team/${team_name}/region/${region_name}/components/${app_alias}/thirdPartyServices`))
+  }
 
   showConfirm = () => {
     const { dispatch } = this.props;
