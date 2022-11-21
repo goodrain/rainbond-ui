@@ -861,7 +861,7 @@ const componentOverview = {
 
 // tabs栏>setting
     'componentOverview.body.setting.Enabled':'已启用',
-    'componentOverview.body.setting.disabled ':'已禁用',
+    'componentOverview.body.setting.disabled':'已禁用',
     'componentOverview.body.setting.Not_set':'未设置',
     'componentOverview.body.setting.information':'基础信息',
     'componentOverview.body.setting.time':'创建时间',
