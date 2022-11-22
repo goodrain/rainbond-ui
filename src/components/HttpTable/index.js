@@ -721,7 +721,10 @@ export default class HttpTable extends PureComponent {
             display: 'flex',
             alignItems: 'center',
             width: '100%',
-            marginBottom: '20px'
+            marginBottom: '20px',
+            padding:'10px 0',
+            borderRadius:3,
+
           }}
         >
           <Search onSearch={this.handleSearch} type="HTTP" appID={appID} />
@@ -729,7 +732,7 @@ export default class HttpTable extends PureComponent {
             <Button
               type="primary"
               icon="plus"
-              style={{ position: 'absolute', right: '0' }}
+              style={{ position: 'absolute', right: '10px' }}
               onClick={this.handleClick}
               loading={addHttpLoading}
             >

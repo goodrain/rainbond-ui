@@ -12,6 +12,7 @@ import KubernetesTableShow from '../../../components/Cluster/KubernetesTableShow
 import RKEClusterConfig from '../../../components/Cluster/RKEClusterAdd';
 import ShowKubernetesCreateDetail from '../../../components/Cluster/ShowKubernetesCreateDetail';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
 import userUtil from '../../../utils/user';
@@ -418,6 +419,7 @@ export default class EnterpriseClusters extends PureComponent {
       <PageHeaderLayout
       title={<FormattedMessage id='enterpriseColony.button.text'/>}
       content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
+      titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={1}>

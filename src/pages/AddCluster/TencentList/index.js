@@ -8,6 +8,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import userUtil from '../../../utils/user';
 import DAinput from '../component/node';
 import cookie from '../../../utils/cookie';
@@ -289,6 +290,7 @@ export default class ClusterLink extends PureComponent {
       <PageHeaderLayout
       title={<FormattedMessage id='enterpriseColony.button.text'/>}
       content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
+      titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
       >
         {/* 步骤 */}
         <Row style={{ marginBottom: '16px' }}>

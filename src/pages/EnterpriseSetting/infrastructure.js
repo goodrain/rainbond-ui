@@ -467,7 +467,7 @@ class Infrastructure extends PureComponent {
       <Card
         hoverable
         bordered={false}
-        style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' }}
+        style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' , borderBottom:'1px solid  #ccc', borderRadius:0}}
       >
         <Row type="flex" align="middle">
           <Col span={3}>
@@ -535,7 +535,11 @@ class Infrastructure extends PureComponent {
       enterprise
     );
     const AutomaticIssueCertificate = (
-      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
+      <Card
+        hoverable
+        bordered={false}
+        style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' ,borderRadius:0}}
+      >
         <Row type="flex" align="middle">
           <Col span={3}>
             {/* 自动签发证书 */}
@@ -573,7 +577,7 @@ class Infrastructure extends PureComponent {
     );
 
     const MirrorWarehouseInformation = (
-      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
+      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' ,borderRadius:0}}>
         <Row type="flex" align="middle">
           <Col span={3}>
             {/* 内部组件库镜像仓库 */}
@@ -610,7 +614,7 @@ class Infrastructure extends PureComponent {
       </Card>
     );
     const CloudBackup = (
-      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
+      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc',borderRadius:0 }}>
         <Row type="flex" align="middle">
           <Col span={3}>
             {/* 对象存储 */}
@@ -647,7 +651,7 @@ class Infrastructure extends PureComponent {
       </Card>
     );
     const Monitoring = (
-      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
+      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' , borderRadius:0}}>
         <Row type="flex" align="middle">
           <Col span={3}>
             {/* 监控 */}
@@ -684,7 +688,7 @@ class Infrastructure extends PureComponent {
       </Card>
     );
     const BasicInformation = (
-      <Card style={{ marginTop: '10px' }} hoverable bordered={false}>
+      <Card style={{ marginTop: '10px' ,borderRadius:0}} hoverable bordered={false}>
         <Row type="flex" align="middle">
           <Col span={3}>
             {/* 基础信息 */}
@@ -851,7 +855,7 @@ class Infrastructure extends PureComponent {
             <Spin />
           </div>
         ) : (
-          <div>
+          <div style={{borderTop:'1px solid #ccc',borderBottom:'1px solid #ccc'}}>
             {enterpriseEdition && BasicInformation}
             {UserRegistered}
             {AutomaticIssueCertificate}

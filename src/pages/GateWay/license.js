@@ -14,6 +14,7 @@ import LicenseDrawer from '../../components/LicenseDrawer';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import roleUtil from '../../utils/role';
 
 const { Paragraph } = Typography;
@@ -325,20 +326,28 @@ class Control extends Component {
         title={formatMessage({id: 'teamGateway.certificate.title'})}
         breadcrumbList={breadcrumbList}
         content={formatMessage({id: 'teamGateway.certificate.desc'})}
+        titleSvg={pageheaderSvg.getSvg('certificateSvg',18)}
       >
-        <Row>
-          {isCreate && (
+        <Card 
+        extra={
+          isCreate && (
             <Button
               type="primary"
               icon="plus"
-              style={{ float: 'right', marginBottom: '10px' }}
+              style={{ float: 'right' }}
               onClick={this.handleCick}
             >
               {formatMessage({id: 'teamGateway.certificate.btn.add'})}
             </Button>
-          )}
-        </Row>
-        <Card bodyStyle={{ padding: '0' }}>
+          )
+        }
+        style={{
+          borderRadius:5,
+          boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
+          overflow:'hidden'
+        }}
+        bodyStyle={{ padding: '0' }}
+        >
           <Table
             pagination={{
               total,

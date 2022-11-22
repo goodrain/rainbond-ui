@@ -148,7 +148,7 @@ class AccountLayout extends PureComponent {
     const customHeaderImg = () => {
       return (
         <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
-           <img src={enterprise && enterprise.logo && enterprise.logo.value || logo} alt="" />
+           <img src={fetchLogo} alt="" />
         </div>
       );
     };

@@ -349,6 +349,7 @@ export default class Index extends PureComponent {
     const { instances, type, RbdName, region } = this.props;
     return (
       <Card
+      style={{border:0,borderBottomLeftRadius:5,borderBottomRightRadius:5}}
         title={
           <Fragment>
             {type ? (
@@ -386,6 +387,7 @@ export default class Index extends PureComponent {
             </>}
           </Fragment>
         }
+        bodyStyle={{borderBottomLeftRadius:5,borderBottomRightRadius:5}}
       >
         <Form layout="inline" name="logFilter" style={{ marginBottom: '16px',display:type ?'flex':"block",justifyContent:"space-between" }}>
           <Form.Item

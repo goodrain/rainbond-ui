@@ -78,7 +78,7 @@ class Index extends PureComponent {
     };
     return (
       <Card 
-      bordered={false} 
+      // bordered={false} 
       title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord'/>} 
       loading={recordLoading}>
         <Row gutter={24}>

@@ -22,14 +22,19 @@ i.trigger {
 }
 
 .items {
-  margin-bottom: 28px;
-
+  // margin-bottom: 28px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0;
   i {
     font-size: 20px !important;
   }
 }
 
 .item {
+
   text-align: center;
   color     : #9CA2A8;
 
@@ -74,16 +79,21 @@ i.trigger {
 
 
 :global {
+  .ant-menu-dark.ant-menu-vertical{
+    .ant-menu-submenu-title{
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60px;
+    }
+  }
 
   .ant-menu-dark.ant-menu-vertical .ant-menu-item,
   .ant-menu-dark .ant-menu-item-selected {
     border-color: transparent !important;
   }
 
-  .ant-menu.ant-menu-dark .ant-menu-item-selected,
-  .ant-menu-submenu-popup.ant-menu-dark .ant-menu-item-selected {
-    background: none !important;
-  }
 
   .ant-menu-inline-collapsed>.ant-menu-item .anticon,
   .ant-menu-inline-collapsed>.ant-menu-item-group>.ant-menu-item-group-list>.ant-menu-item .anticon,
@@ -119,6 +129,12 @@ i.trigger {
   .ant-menu-dark .ant-menu-item-group-title,
   .ant-menu-dark .ant-menu-item>a {
     color: #9CA2A8 !important;
+    height: 60px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 
   .ant-menu-inline-collapsed>.ant-menu-item,
@@ -132,18 +148,43 @@ i.trigger {
   .ant-menu-item .anticon:hover,
   .ant-menu-submenu-title .anticon:hover,
   .ant-menu-item>a:hover {
-    font-family: PingFangSC-Regular;
+    // font-family: PingFangSC-Regular;
     color: #1890ff !important;
   }
 }
 .globalSider {
   padding-top: 30px;
   :global {
+    .ant-menu-submenu-selected{
+      background-color: #e2e9ef;
+
+      .ant-menu-submenu-title{
+        background-color: #e2e9ef;
+        a{
+          span{
+            color: #1890ff !important;
+          }
+          i {
+            display: block !important;
+            color: #1890ff !important;
+            svg{
+              path{
+                fill:#1890ff !important;
+              }
+              g>g{
+                stroke:#1890ff !important;
+              }
+            }
+        }
+        }
+      }
+    }
+    
     .ant-menu-submenu-active{
-      background : #ffffff;
+      background : #e2e9ef;
       // border-left: 4px solid transparent;
       a {
-        margin-left: -4px;
+        // margin-left: -4px;
         i {
           display: block !important;
           color: #1890ff !important;
@@ -171,10 +212,12 @@ i.trigger {
       }
     }
     .ant-menu-item-active{
-      background : #ffffff;
-      border-left: 4px solid transparent;
+      background : #e2e9ef;
+      border: 0;
+      // border-left: 4px solid transparent;
       a {
-        margin-left: -4px;
+        // margin-left: -4px;
+        // background : #dbd9d9;
         i {
           display: block !important;
           color: #1890ff !important;
@@ -202,10 +245,10 @@ i.trigger {
       }
     }
     .ant-menu-item.ant-menu-item-selected {
-      background : #ffffff;
-      border-left: 4px solid transparent;
+      background : #e2e9ef;
+      // border-left: 4px solid transparent;
       a {
-        margin-left: -4px;
+        // margin-left: -4px;
         i {
           display: block !important;
           color: #1890ff !important;
@@ -235,7 +278,8 @@ i.trigger {
     }
 
     .ant-menu-item {
-      margin-bottom: 28px !important;
+      // margin-bottom: 28px !important;
+      margin-bottom: 0px;
     }
 
     .ant-menu-item>a {

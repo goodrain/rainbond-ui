@@ -139,7 +139,7 @@ export default class Index extends PureComponent {
     const { handleType, ButtonGroupState, handleServiceBotton } = this.props;
     const type = this.setType();
     return (
-      <Card bordered={false} className={styles.ClearCard}>
+      <Card className={styles.ClearCard}>
         <div>
           {!isAuth ? (
             <div

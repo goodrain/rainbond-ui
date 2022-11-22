@@ -105,7 +105,7 @@ class TeamLayout extends PureComponent {
     }
     const urlParams = new URL(window.location.href);
     if (urlParams) {
-      const bool = urlParams.href.includes("/helminstall")
+      const bool = urlParams.href.includes("/helminstall");
       if (bool) {
         this.setState({
           showMenu: false
@@ -113,6 +113,17 @@ class TeamLayout extends PureComponent {
       } else {
         this.setState({
           showMenu: true
+        })
+      }
+    }
+    if(urlParams) {
+      const code = urlParams.href.includes("/create/code");
+      const image = urlParams.href.includes("/create/image");
+      const yaml = urlParams.href.includes("/create/yaml");
+      const outer = urlParams.href.includes("/create/outer");
+      if(code || image || yaml || outer){
+        this.setState({
+          GroupShow:false
         })
       }
     }
@@ -517,7 +528,7 @@ class TeamLayout extends PureComponent {
     const customHeaderImg = () => {
       return (
         <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
-          <img src={enterprise && enterprise.logo && enterprise.logo.value || Logo} alt="" />
+          <img src={fetchLogo} alt="" />
         </div>
       );
     };

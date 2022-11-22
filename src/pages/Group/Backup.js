@@ -37,6 +37,7 @@ import roleUtil from '../../utils/role';
 import sourceUtil from '../../utils/source-unit';
 import cookie from '../../utils/cookie';
 import userUtil from '../../utils/user';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 
 const { TextArea } = Input;
 const RadioButton = Radio.Button;
@@ -604,32 +605,39 @@ export default class AppList extends PureComponent {
         loading={loadingDetail}
         breadcrumbList={breadcrumbList}
         title={formatMessage({id: 'appBackups.title'})}
+        titleSvg={pageheaderSvg.getSvg('backupSvg',18)}
         content={
           <p>
             {formatMessage({id: 'appBackups.desc'})}
           </p>
         }
-        extraContent={
-          <div style={language?{}:{display:'flex'}}>
-            <Button
-              style={language?{marginRight: 8 }:{ marginRight: 8 ,padding: 6}}
-              type="primary"
-              onClick={this.onBackup}
-            >
-              {formatMessage({id: 'appBackups.btn.addBackups'})}
-            </Button>
-            {isImport && (
-              <Button style={language?{marginRight: 8 }:{ marginRight: 8 ,padding: 6}} onClick={this.toAdd}>
-                {formatMessage({id: 'appBackups.btn.importBackups'})}
-              </Button>
-            )}
-            <Button onClick={this.jumpToAllbackup} style={language?{}:{padding: 6}}>
-              {formatMessage({id: 'appBackups.btn.allBackups'})}
-            </Button>
-          </div>
-        }
       >
-        <Card>
+        <Card 
+          style={{
+            borderRadius: 5,
+            boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            overflow:'hidden'
+          }}
+          extra={
+            <div style={language?{}:{display:'flex'}}>
+              <Button
+                style={language?{marginRight: 8 }:{ marginRight: 8 ,padding: 6}}
+                type="primary"
+                onClick={this.onBackup}
+              >
+                {formatMessage({id: 'appBackups.btn.addBackups'})}
+              </Button>
+              {isImport && (
+                <Button style={language?{marginRight: 8 }:{ marginRight: 8 ,padding: 6}} onClick={this.toAdd}>
+                  {formatMessage({id: 'appBackups.btn.importBackups'})}
+                </Button>
+              )}
+              <Button onClick={this.jumpToAllbackup} style={language?{}:{padding: 6}}>
+                {formatMessage({id: 'appBackups.btn.allBackups'})}
+              </Button>
+            </div>
+          }
+        >
           <ScrollerX sm={800}>
             <Table
               rowKey={data => {

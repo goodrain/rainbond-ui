@@ -830,9 +830,10 @@ export default class Enterprise extends PureComponent {
               <h2>{formatMessage({ id: 'enterpriseOverview.information.dataScreen' })}</h2></div>
           </div>
           <Card
-            style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+            style={{ marginBottom: '20px', background:'transparent'}}
             loading={enterpriseInfoLoading}
             bordered={false}
+            bodyStyle={{padding:0}}
           >
             <Fragment>
               <div className={enterpriseStyles.enterpriseBox}>
@@ -893,36 +894,36 @@ export default class Enterprise extends PureComponent {
                 </div>
                 <div className={enterpriseStyles.enterpriseData} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                   <div className={enterpriseStyles.piece}>
+                  <p>{formatMessage({ id: 'enterpriseOverview.overview.colony' })}</p>
                     <p>
                       <Link style={colors} to={`/enterprise/${eid}/clusters`} >
                         {overviewMonitorInfo && overviewMonitorInfo.total_regions || 0}
                       </Link>
                     </p>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.colony' })}</p>
                   </div>
                   <div className={enterpriseStyles.piece}>
+                  <p>{formatMessage({ id: 'enterpriseOverview.overview.team' })}</p>
                     <p>
                       <Link to={`/enterprise/${eid}/teams`} style={colors}>
                         {overviewInfo && overviewInfo.total_teams}
                       </Link>
                     </p>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.team' })}</p>
                   </div>
                   <div className={enterpriseStyles.piece}>
+                  <p>{formatMessage({ id: 'enterpriseOverview.overview.user' })}</p>
                     <p>
                       <Link to={`/enterprise/${eid}/users`} style={colors}>
                         {overviewInfo && overviewInfo.total_users}
                       </Link>
                     </p>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.user' })}</p>
                   </div>
                   <div className={enterpriseStyles.piece}>
+                  <p>{formatMessage({ id: 'enterpriseOverview.overview.template' })}</p>
                     <p>
                       <Link to={`/enterprise/${eid}/shared/local`} style={colors} >
                         {overviewInfo && overviewInfo.shared_apps}
                       </Link>
                     </p>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.template' })}</p>
                   </div>
                 </div>
               </div>
@@ -938,9 +939,11 @@ export default class Enterprise extends PureComponent {
             </div>
           </div>
           <Card
-            style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+            // style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+            style={{ marginBottom: '20px', background:'transparent'}}
             loading={overviewAppInfoLoading}
             bordered={false}
+            bodyStyle={{padding:0}}
           >
             {clusters.length > 0 ?
               (clusters.map((item, index) => {
@@ -1055,12 +1058,19 @@ export default class Enterprise extends PureComponent {
             </div>
           </div>
           <Card
-            style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+            // style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+            style={{ marginBottom: '20px', background:'transparent',}}
             loading={overviewAppInfoLoading}
             bordered={false}
+            bodyStyle={{padding:0, }}
           >
             {appAlertList.length > 0 && (
-              <div className={enterpriseStyles.appAlert}>
+              <div className={enterpriseStyles.appAlert} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
+                <div style={{
+                  height:170,
+                  overflowX:"hidden",
+                  overflowY:'scroll'
+                }}>
                 {appAlertList.map(item => {
                   const { group_id, group_name, region_name, service_alias, service_cname, tenant_name, tenant_alias } = item
                   return (
@@ -1105,6 +1115,7 @@ export default class Enterprise extends PureComponent {
                     </div>
                   )
                 })}
+              </div>
               </div>
             )}
             {appAlertLoding && (

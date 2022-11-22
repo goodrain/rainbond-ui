@@ -794,7 +794,7 @@ export default class Index extends PureComponent {
         )}
         {!more && (
           <Card
-            bordered={0}
+            // bordered={0}
             loading={runLoading}
             title={<FormattedMessage id='componentOverview.body.tab.overview.instance.title'/>}
             style={{ margin: '20px 0', minHeight: '170px' }}

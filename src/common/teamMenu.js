@@ -41,14 +41,14 @@ function menuData(teamName, regionName, permissionsInfo) {
     // 角色
     const roles = results('teamRole', 'describe');
 
-    if (appView) {
-      addMenuArr({
-        name: formatMessage({ id: 'menu.team.app' }),
-        icon: 'appstore-o',
-        path: `team/${teamName}/region/${regionName}/apps`,
-        authority: ['admin', 'user']
-      });
-    }
+    // if (appView) {
+    //   addMenuArr({
+    //     name: formatMessage({ id: 'menu.team.app' }),
+    //     icon: 'appstore-o',
+    //     path: `team/${teamName}/region/${regionName}/apps`,
+    //     authority: ['admin', 'user']
+    //   });
+    // }
     if (appCreateView && componentCreateView && componentConstructView) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.create' }),
@@ -58,28 +58,28 @@ function menuData(teamName, regionName, permissionsInfo) {
         children: [
           {
             name: formatMessage({ id: 'menu.team.create.code' }),
-            path: `/code`,
+            path: `code`,
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.market' }),
-            path: `/market`,
+            path: `market`,
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.image' }),
-            path: `/image`,
+            path: `image`,
             authority: ['admin', 'user']
           },
           // 基于软件包/yaml创建
           {
             name: formatMessage({ id: 'menu.team.create.upload' }),
-            path: `/yaml`,
+            path: `yaml`,
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.third' }),
-            path: `/outer`,
+            path: `outer`,
             authority: ['admin', 'user']
           }
         ]

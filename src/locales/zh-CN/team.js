@@ -64,8 +64,8 @@ const teamAdd = {
   'teamAdd.create.null_data':'暂无数据',
   
   // code
-  'teamAdd.create.code.title':'由源码创建组件',
-  'teamAdd.create.code.desc':'从指定源码仓库中获取源码，基于源码信息创建新组件',
+  'teamAdd.create.code.title':'从源码创建组件',
+  'teamAdd.create.code.desc':'从指定源码仓库中获取源码，基于源码信息创建新组件。',
   'teamAdd.create.code.customSource':'自定义源码',
   'teamAdd.create.code.package':'软件包上传',
   'teamAdd.create.code.demo':'官方DEMO',
@@ -81,7 +81,7 @@ const teamAdd = {
   'teamAdd.create.code.demoStatic':'静态Web：hello world !',
   // image
   'teamAdd.create.image.title':'从Docker镜像创建组件',
-  'teamAdd.create.image.desc':'支持从单一镜像、Docker命令、DockerCompose配置创建应用',
+  'teamAdd.create.image.desc':'支持从单一镜像、Docker命令、DockerCompose配置创建应用。',
   'teamAdd.create.image.tabImage':'指定镜像',
   'teamAdd.create.image.DockerRun':'DockerRun命令',
   'teamAdd.create.image.docker_cmd':'命令',
@@ -94,7 +94,7 @@ const teamAdd = {
 
   //upload
   'teamAdd.create.upload.title':'Kubernetes YAML Helm',
-  'teamAdd.create.upload.desc':'支持从 Kubernetes YAML创建组件和 Kubernetes 已有资源导入',
+  'teamAdd.create.upload.desc':'支持从 Kubernetes YAML创建组件和 Kubernetes 已有资源导入。',
   'teamAdd.create.upload.format':'上传格式',
   'teamAdd.create.upload.uploadFiles':'上传文件',
   'teamAdd.create.upload.uploadFiles.yaml':'YAML文件上传',
@@ -104,10 +104,10 @@ const teamAdd = {
   'teamAdd.create.upload.uploadYaml':'只支持yaml格式上传多文件',
 
   //market
-  
+
   //third
   'teamAdd.create.third.title':'添加第三方组件',
-  'teamAdd.create.third.desc':'第三方组件，即运行于平台集群外的组件，在平台中创建组件即可以将其与平台网关无缝对接，同时也可以被平台内服务访问。满足用户通过平台可以对 各类组件进行统一的监控和管理的需要。',
+  'teamAdd.create.third.desc':'第三方组件，即运行于平台集群外的组件，在平台中创建组件即可以将其与平台网关无缝对接。同时也可以被平台内服务访问，满足用户通过平台对各类组件进行统一的监控和管理的需要。',
   'teamAdd.create.third.componentRegister':'组件注册方式',
   'teamAdd.create.third.staticRegister':'静态注册',
   'teamAdd.create.third.apiRegister':'API注册',
@@ -150,7 +150,7 @@ const teamGateway = {
 
   // certificate
   'teamGateway.certificate.title':'证书管理',
-  'teamGateway.certificate.desc':'TLS证书管理，支持服务端证书，支持展示证书过期时间',
+  'teamGateway.certificate.desc':'TLS证书管理，支持服务端证书，支持展示证书过期时间。',
   'teamGateway.certificate.btn.add':'添加证书',
   'teamGateway.certificate.table.name':'证书名称',
   'teamGateway.certificate.table.address':'证书地址',
@@ -166,7 +166,7 @@ const teamGateway = {
 const teamPlugin = {
   'teamPlugin.title':'我的插件',
   'teamPlugin.list':'我的插件',
-  'teamPlugin.desc':'应用插件是标准化的为应用提供功能扩展，与应用共同运行的程序',
+  'teamPlugin.desc':'应用插件是标准化的为应用提供功能扩展，与应用共同运行的程序。',
   'teamPlugin.hint':'从应用市场安装/新建插件',
   'teamPlugin.btn.marketAdd':'从应用市场安装',
   'teamPlugin.btn.add':'新建插件',

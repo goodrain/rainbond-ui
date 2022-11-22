@@ -608,7 +608,8 @@ export default class TcpTable extends PureComponent {
             display: 'flex',
             alignItems: 'center',
             width: '100%',
-            marginBottom: '20px'
+            marginBottom: '20px',
+            padding:'10px 0',
           }}
         >
           <Search onSearch={this.handleSearch} appID={appID} />
@@ -616,7 +617,7 @@ export default class TcpTable extends PureComponent {
             <Button
               type="primary"
               icon="plus"
-              style={{ position: 'absolute', right: '0' }}
+              style={{ position: 'absolute', right: '10px' }}
               onClick={this.handleClick}
               loading={this.props.addTcpLoading}
             >

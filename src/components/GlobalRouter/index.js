@@ -145,7 +145,8 @@ export default class GlobalRouter extends PureComponent {
    * Judge whether it is http link.return a or Link
    * @memberof SiderMenu
    */
-  getMenuItemPath = item => {
+  getMenuItemPath = (item, bool) => {
+    const { enterprise } = this.props;
     const itemPath = this.conversionPath(item.path);
     const icon = getIcon(item.icon);
     const { target, name } = item;
@@ -170,6 +171,13 @@ export default class GlobalRouter extends PureComponent {
               }
             : undefined
         }
+        style={bool &&
+          {            
+          display:'flex', 
+          alignItems:'center', 
+          justifyContent:'start',
+          height:60
+        }}
       >
         {icon}
         <span style={{padding:'0 5px', textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}>{name}</span>
@@ -179,7 +187,7 @@ export default class GlobalRouter extends PureComponent {
   /**
    * get SubMenu or Item
    */
-  getSubMenuOrItem = item => {
+  getSubMenuOrItem = (item, bool) => {
     if (item.children && item.children.some(child => child.name)) {
       return (
         <SubMenu
@@ -192,17 +200,17 @@ export default class GlobalRouter extends PureComponent {
           }
           key={item.path}
         >
-          {this.getNavMenuItems(item.children)}
+          {this.getNavMenuItems(item.children, true)}
         </SubMenu>
       );
     }
-    return <Menu.Item key={item.path}>{this.getMenuItemPath(item)}</Menu.Item>;
+    return <Menu.Item key={item.path} style={bool ? {height:40} : {display:'flex', alignItems:'center', justifyContent:'center',height:60}}>{this.getMenuItemPath(item)}</Menu.Item>;
   };
   /**
    * 获得菜单子节点
    * @memberof SiderMenu
    */
-  getNavMenuItems = menusData => {
+  getNavMenuItems = (menusData, bool) => {
     if (!menusData) {
       return [];
     }
@@ -210,7 +218,7 @@ export default class GlobalRouter extends PureComponent {
     return menusData
       .filter(item => item.name && !item.hideInMenu)
       .map(item => {
-        const ItemDom = this.getSubMenuOrItem(item);
+        const ItemDom = this.getSubMenuOrItem(item, bool);
         return this.checkPermissionItem(item.authority, ItemDom);
       })
       .filter(item => !!item);
@@ -310,7 +318,10 @@ export default class GlobalRouter extends PureComponent {
         style={{
           background: '#fff',
           width: '68px',
-          display: showMenu ? 'block' : 'none'
+          display: showMenu ? 'block' : 'none',
+          transition: ".5s ease",
+          boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
+          zIndex:999
         }}
       >
         {collectionVisible && (
@@ -325,7 +336,7 @@ export default class GlobalRouter extends PureComponent {
         <Menu
           className={styles.globalSider}
           key="Menu"
-          theme="dark"
+          // theme="light"
           mode="inline"
           onOpenChange={this.handleOpenChange}
           selectedKeys={selectedKeys}
@@ -340,21 +351,6 @@ export default class GlobalRouter extends PureComponent {
           }}
         >
           {this.getNavMenuItems(menuData || [])}
-          <Menu.Item
-            key="collection"
-            title={formatMessage({id:'otherEnterprise.SiderMenu.title'})}
-            onClick={this.handleOpenCollectionVisible}
-            style={{
-              width: '100%',
-              position: 'absolute',
-              bottom: '0px'
-            }}
-          >
-            <a>
-              <Icon type="star" />
-              <span><FormattedMessage id="sidecar.collection" /></span>
-            </a>
-          </Menu.Item>
         </Menu>
       </div>
     );

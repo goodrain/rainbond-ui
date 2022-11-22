@@ -1069,7 +1069,9 @@ export default class Index extends PureComponent {
               background: '#FFFFFF',
               height: '60px',
               alignItems: 'center',
-              borderBottom: '1px solid #e8e8e8'
+              borderBottom: '1px solid #e8e8e8',
+              borderTopRightRadius:5,
+              borderTopLeftRadius: 5,
             }}
           >
             <Col span={5} style={{ paddingleft: '12px' }}>

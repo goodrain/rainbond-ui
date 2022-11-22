@@ -30,6 +30,7 @@ import EditAppVersion from '../../components/EditAppVersion';
 import detailstyles from '../../components/MarketAppDetailShow/index.less';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cookie from '../../utils/cookie';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import styless from './index.less';
@@ -544,11 +545,15 @@ export default class Main extends PureComponent {
         <PageHeaderLayout
           title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title"/>}
           content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content"/>}
+          titleSvg={pageheaderSvg.getSvg('storeSvg',18)}
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
             <Card
               style={{
-                marginBottom: 24
+                marginBottom: 24,
+                borderRadius: 5,
+                boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                overflow:'hidden'
               }}
               bordered={false}
               bodyStyle={{
@@ -836,7 +841,10 @@ export default class Main extends PureComponent {
             </Card>
             <Card
               style={{
-                marginBottom: 24
+                marginBottom: 24,
+                borderRadius: 5,
+                boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                overflow:'hidden'
               }}
               title={<FormattedMessage id='applicationMarket.appsetting.edition'/>}
               bordered={false}
@@ -981,7 +989,10 @@ export default class Main extends PureComponent {
             </Card>
             <Card
               style={{
-                marginBottom: 24
+                marginBottom: 24,
+                borderRadius: 5,
+                boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                overflow:'hidden'
               }}
               title={<FormattedMessage id='applicationMarket.appsetting.details'/>}
               bordered={false}

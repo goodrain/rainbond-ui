@@ -230,7 +230,7 @@ export default class Management extends PureComponent {
       );
     };
     const operation = (
-      <Col span={4} offset={20} style={{ textAlign: 'right' }}>
+      <Col span={4} offset={20} style={{ textAlign: 'right' ,marginRight:10,}}>
         <Button
           type="primary"
           onClick={this.onAddAdmin}
@@ -242,14 +242,21 @@ export default class Management extends PureComponent {
       </Col>
     );
     const managementAdmin = (
-      <div style={{ marginTop: '20px' }}>
-        <Row>{adminer && operation}</Row>
+      <div style={{ marginTop: '10px' }}>
+        <Row 
+        style={{
+              padding: '10px 0',
+              marginBottom:10,
+        }}
+        >
+          {adminer && operation}
+        </Row>
         {adminLists && (
           <Row
             className={styles.teamMinTit}
             type="flex"
             align="middle"
-            style={{ padding: ' 0 0 10px 24px' }}
+            style={{ padding: 10 ,background:'#f5f6f8'}}
           >
             <Col span={5}>
               {/* 名称 */}
@@ -283,6 +290,7 @@ export default class Management extends PureComponent {
                 key={id}
                 style={{ marginBottom: '10px' }}
                 bodyStyle={{ padding: 0 }}
+                style={{border:0, borderBottom:'1px solid #F1F0F3'}}
                 hoverable
               >
                 <Row

@@ -38,6 +38,7 @@ import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import sourceUtil from '../../utils/source-unit';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import PluginStyles from '../Plugin/Index.less';
 
 const { Option } = Select;
@@ -653,7 +654,9 @@ export default class Main extends PureComponent {
         onChange={this.handleTabChange}
         style={{
           background: '#fff',
-          padding: handleType ? '0 20px 20px' : '20px '
+          padding: handleType ? '0 20px 20px' : '20px ',
+          border: '1px solid #e8e8e8',
+          borderRadius:5
         }}
       >
         {tabList.map(item => {
@@ -1334,7 +1337,7 @@ export default class Main extends PureComponent {
                       !moreState &&
                       handleType &&
                       handleType === 'Service' &&
-                      '40px'
+                      '40px',
                   }}
                 >
                   
@@ -1372,6 +1375,8 @@ export default class Main extends PureComponent {
         ):(
           <div>
             <PageHeaderMarket
+              title={formatMessage({id:'teamPlugin.btn.marketAdd'})}
+              titleSvg={pageheaderSvg.getSvg('appStoreSvg',18)}
               isAddMarket={this.props.isAddMarket}
               isSvg
               breadcrumbList={breadcrumbList}

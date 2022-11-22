@@ -20,6 +20,7 @@ import userUtil from '../../../utils/user';
 import Build from '../component/build';
 import Etcd from '../component/etcd';
 import cookie from '../../../utils/cookie';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -475,6 +476,7 @@ export default class ClusterLink extends PureComponent {
       <PageHeaderLayout
       title={<FormattedMessage id='enterpriseColony.button.text'/>}
       content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
+      titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={1}>

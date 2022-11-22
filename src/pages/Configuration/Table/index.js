@@ -197,7 +197,15 @@ export default class ConfigurationTable extends PureComponent {
     const { apps, loading, page, pageSize, total, deleteVar } = this.state;
     return (
       <div>
-        <Row>
+        <Row 
+        style={{
+          borderRadius: 5,
+          boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+          overflow:'hidden',
+          background:'#f5f6f8',
+          padding:10,
+          marginBottom:20
+        }}>
           <Form layout="inline" style={{ display: 'inline-block' }}>
             <FormItem>
               <Input
@@ -217,7 +225,7 @@ export default class ConfigurationTable extends PureComponent {
             <Button
               type="primary"
               icon="plus"
-              style={{ float: 'right', marginBottom: '20px' }}
+              style={{ float: 'right', margin: '4px 0 0' }}
               onClick={() => {
                 this.handleConfigurationOperation();
               }}
@@ -236,7 +244,14 @@ export default class ConfigurationTable extends PureComponent {
             subDesc={formatMessage({id: 'confirmModal.delete.strategy.subDesc'})}
           />
         )}
-        <Card loading={loading}>
+        <Card 
+        loading={loading} 
+          style={{
+              borderRadius: 5,
+              boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+              overflow:'hidden',
+          }}
+        >
           <Table
             size="default"
             pagination={{

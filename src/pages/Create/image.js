@@ -7,6 +7,7 @@ import ImageName from './image-name';
 import ImageCmd from './image-cmd';
 import ImageCompose from './image-compose';
 import roleUtil from '../../utils/role';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
 
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -83,6 +84,7 @@ export default class Main extends PureComponent {
         content={formatMessage({id: 'teamAdd.create.image.desc'})}
         tabActiveKey={type}
         tabList={tabList}
+        titleSvg={pageheaderSvg.getSvg('dockerSvg',18)}
       >
         {Com ? <Com {...this.props} /> : <FormattedMessage id="teamAdd.create.error" />}
       </PageHeaderLayout>

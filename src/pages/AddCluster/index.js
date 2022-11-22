@@ -25,6 +25,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cloud from '../../utils/cloud';
 import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
 
 const { Step } = Steps;
@@ -636,8 +637,13 @@ export default class EnterpriseClusters extends PureComponent {
         title={<FormattedMessage id='enterpriseColony.button.text'/>}
         content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
         extraContent={extraContent}
+        titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
       >
-        <Card style={{ marginBottom: '16px' }}>
+        <Card style={{ 
+            marginBottom: '16px',            
+            borderRadius: 5,
+            boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            overflow:'hidden' }}>
           <Row>
             <h3><FormattedMessage id='enterpriseColony.addCluster.infrastructure'/></h3>
             <Divider />
@@ -681,7 +687,11 @@ export default class EnterpriseClusters extends PureComponent {
             </Col>
           </Row>
         </Card>
-        <Card>
+        <Card style={{
+                      borderRadius: 5,
+                      boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                      overflow:'hidden' 
+        }}>
           <Row>
             <h3><FormattedMessage id='enterpriseColony.addCluster.service'/></h3>
             <Divider />

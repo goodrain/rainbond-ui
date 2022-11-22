@@ -46,6 +46,7 @@ import { fetchMarketMap } from '../../utils/authority';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import ExportOperation from './ExportOperation';
 import styles from './index.less';
 import cookie from '../../utils/cookie';
@@ -987,7 +988,7 @@ export default class EnterpriseShared extends PureComponent {
           })}
         <Lists
           key={appId}
-          stylePro={{ marginBottom: '10px' }}
+          stylePro={{ margin: '10px' }}
           Cols={
             <div
               className={styles.h70}
@@ -1463,8 +1464,8 @@ export default class EnterpriseShared extends PureComponent {
     const contentStyle = {
       display: 'flex',
       alignItems: 'center',
-      marginBottom: '20px',
-      marginTop: '4px'
+      padding: '10px 0',
+      margin: 10,
     };
     const contentLeftStyle = {
       textAlign: 'left',
@@ -1473,6 +1474,10 @@ export default class EnterpriseShared extends PureComponent {
     };
     const rightStyle = {
       textAlign: 'right'
+    };
+    const paginationStyle = {
+      textAlign: 'right',
+      margin: '0 10px 10px'
     };
 
     const operation = (
@@ -1652,7 +1657,7 @@ export default class EnterpriseShared extends PureComponent {
           noLocalMarket
         )}
 
-        <div style={rightStyle}>
+        <div style={paginationStyle}>
           <Pagination
             showQuickJumper
             current={this.state.page}
@@ -1721,7 +1726,7 @@ export default class EnterpriseShared extends PureComponent {
           noCloudMarket(false)
         )}
 
-        <div style={rightStyle}>
+        <div style={paginationStyle}>
           <Pagination
             showQuickJumper
             current={marketPag.page}
@@ -1767,7 +1772,7 @@ export default class EnterpriseShared extends PureComponent {
           noCloudMarket(true)
         )}
 
-        <div style={rightStyle}>
+        <div style={paginationStyle}>
           <Pagination
             showQuickJumper
             current={helmPag.page}
@@ -1784,6 +1789,7 @@ export default class EnterpriseShared extends PureComponent {
         // content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
         title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title"/>}
         content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content"/>}
+        titleSvg={pageheaderSvg.getSvg('storeSvg',20)} 
       >
         {/* {initShow && isNewbieGuide && (
           <PlatformIntroduced onCancel={this.hideInitShow} />
@@ -1956,6 +1962,7 @@ export default class EnterpriseShared extends PureComponent {
           activeKey={activeTabKey}
           className={styles.setTabs}
           onChange={this.onTabChange}
+          type="card"
         >
           <TabPane
             tab={
@@ -2008,8 +2015,7 @@ export default class EnterpriseShared extends PureComponent {
                 {helmContent}
               </TabPane>
             );
-          })}
-
+          })} 
           {isCreateAppStore && (
             <TabPane
               tab={
