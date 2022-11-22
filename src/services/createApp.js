@@ -285,12 +285,29 @@ export function buildApp(body = {}) {
     {
       method: 'post',
       data: {
-        is_deploy: body.is_deploy
+        is_deploy: body.is_deploy,
+        nodejs_type: body.nodejs_type,
+        nodejs_dependency: body.nodejs_dependency,
       }
     }
   );
 }
 
+/*
+  Node项目设置语言和依赖
+*/ 
+export async function setNodeLanguage(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/package_tool`,
+    {
+      method: 'post',
+      data:{
+        lang: body.lang,
+        package_tool: body.package_tool
+      }
+    }
+  );
+}
 /*
   获取分支
 */

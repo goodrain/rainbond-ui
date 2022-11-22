@@ -150,11 +150,11 @@ export default class AddRelation extends PureComponent {
           rowSelection={rowSelection}
           columns={[
             {
-              title: formatMessage({id:'componentOverview.body.addRelation.table_service_name'}),
+              title: formatMessage({id:'componentOverview.body.addRelation.table_group_name'}),
               dataIndex: 'group_name'
             },
             {
-              title: formatMessage({id:'componentOverview.body.addRelation.table_group_name'}),
+              title: formatMessage({id:'componentOverview.body.addRelation.table_service_name'}),
               dataIndex: 'service_cname'
             }
           ]}

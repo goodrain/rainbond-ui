@@ -46,7 +46,11 @@ export default {
     currentRegionName: '',
     // team Permissions info
     currentTeamPermissionsInfo: null,
-    features: []
+    features: [],
+    // 源码构建语言
+    codeLanguage: JSON.parse(window.sessionStorage.getItem('codeLanguage')) || '',
+    // 包管理器
+    packageNpmOrYarn: JSON.parse(window.sessionStorage.getItem('packageNpmOrYarn')) || 'npm',
   },
   effects: {
     *fetchTeamUserPermissions(
@@ -309,6 +313,34 @@ export default {
         ...state,
         features: action.payload
       };
-    }
+    },
+    // 源码构建选择语言
+    ChoosingLanguage(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.setItem(
+          'codeLanguage',
+          JSON.stringify(payload) || ''
+        );
+      }
+      return {
+        ...state,
+        codeLanguage: payload
+      };
+    },
+    // 选择包管理器
+    ChoosingPackage(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.setItem(
+          'packageNpmOrYarn',
+          JSON.stringify(payload) || 'npm'
+        );
+      }
+      return {
+        ...state,
+        packageNpmOrYarn: payload
+      };
+    },
   }
 };

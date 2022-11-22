@@ -39,8 +39,10 @@ export default class AutoDeploy extends PureComponent {
       secret_key: '',
       tabActiveKey: 0,
       setTabActiveKey: false,
-      deployment_way:
-        this.props.service_source === `${formatMessage({id:'componentOverview.body.ChangeBuildSource.image'})}` ? 'api_webhooks' : 'code_webhooks',
+      deployment_way: (this.props.service_source === `${formatMessage({id:'componentOverview.body.ChangeBuildSource.image'})}` || 
+        this.props.service_source === 'DockerRun' || 
+        this.props.service_source === 'DockerCompose') ?
+       'api_webhooks' : 'code_webhooks',
       tabLoading: [false, false, false],
       service_source: this.props.service_source,
       deploy_keyword: 'deploy',
@@ -464,7 +466,7 @@ export default class AutoDeploy extends PureComponent {
                       <Button size="small"><FormattedMessage id='componentOverview.body.AutoDeploy.copy'/></Button>
                     </CopyToClipboard>
                   </Description>
-                  <Description term={<FormattedMessage id='componentOverview.body.AutoDeploy.Secret_key'/>}>
+                  <Description style={{display:'flex'}} term={<FormattedMessage id='componentOverview.body.AutoDeploy.Secret_key'/>}>
                     <Form onSubmit={this.handleScretSubmit}>
                       <FormItem style={{ marginTop: '-6px' }}>
                         {getFieldDecorator('secret_key', {
@@ -549,16 +551,8 @@ export default class AutoDeploy extends PureComponent {
                         <Button size="small"><FormattedMessage id='componentOverview.body.AutoDeploy.copy'/></Button>
                       </CopyToClipboard>
                     </Description>
-                    <Description  term={<FormattedMessage id='componentOverview.body.AutoDeploy.tag' />} >
+                    <Description style={{display:'flex'}}  term={<FormattedMessage id='componentOverview.body.AutoDeploy.tag' />} >
                       <div style={{ display: 'flex' }}>
-                        <div
-                          style={{
-                            paddingTop: '10px',
-                            margin: '0 15px 0 -30px'
-                          }}
-                        >
-                          <Icon type="question-circle-o" />
-                        </div>
                         <Form onSubmit={this.handleMirrorSubmit}>
                           <FormItem>
                             {getFieldDecorator('deploy_mirror', {

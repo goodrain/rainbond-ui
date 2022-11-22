@@ -113,6 +113,9 @@ export default class AddServiceComponent extends PureComponent {
         scopeProMax: false
       });
     });
+    window.sessionStorage.removeItem('codeLanguage');
+    window.sessionStorage.removeItem('packageNpmOrYarn');
+    window.sessionStorage.removeItem('advanced_setup');
   };
 
   // 组件展示

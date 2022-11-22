@@ -5,6 +5,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { setNodeLanguage } from '../../services/createApp';
 import AppCreateSetting from '../../components/AppCreateSetting';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
@@ -15,7 +16,9 @@ import roleUtil from '../../utils/role';
   ({ loading, teamControl }) => ({
     buildAppsLoading: loading.effects['createApp/buildApps'],
     deleteAppLoading: loading.effects['appControl/deleteApp'],
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    soundCodeLanguage: teamControl.codeLanguage,
+    packageNpmOrYarn: teamControl.packageNpmOrYarn,
   }),
   null,
   null,
@@ -68,13 +71,20 @@ export default class Index extends PureComponent {
   }
 
   handleBuild = () => {
-    const { dispatch } = this.props;
+    const { dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
+    const { appDetail } = this.state
     const { team_name, app_alias } = this.fetchParameter();
+    setNodeLanguage({
+      team_name: team_name,
+      app_alias: app_alias,
+      lang: soundCodeLanguage,
+      package_tool: packageNpmOrYarn,
+    })
     dispatch({
       type: 'createApp/buildApps',
       payload: {
         team_name,
-        app_alias
+        app_alias,
       },
       callback: data => {
         if (data) {
@@ -84,6 +94,9 @@ export default class Index extends PureComponent {
               team_name
             }
           });
+          window.sessionStorage.removeItem('codeLanguage');
+          window.sessionStorage.removeItem('packageNpmOrYarn');
+          window.sessionStorage.removeItem('advanced_setup');
           this.handleJump(`components/${app_alias}/overview`);
         }
       }
@@ -106,6 +119,9 @@ export default class Index extends PureComponent {
             team_name
           }
         });
+        window.sessionStorage.removeItem('codeLanguage');
+        window.sessionStorage.removeItem('packageNpmOrYarn');
+        window.sessionStorage.removeItem('advanced_setup');
         this.handleJump('index');
       }
     });
