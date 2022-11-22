@@ -467,7 +467,7 @@ class Infrastructure extends PureComponent {
       <Card
         hoverable
         bordered={false}
-        style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' ,borderRadius:0}}
+        style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' , borderBottom:'1px solid  #ccc', borderRadius:0}}
       >
         <Row type="flex" align="middle">
           <Col span={3}>

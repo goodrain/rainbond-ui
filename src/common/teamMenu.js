@@ -41,14 +41,14 @@ function menuData(teamName, regionName, permissionsInfo) {
     // 角色
     const roles = results('teamRole', 'describe');
 
-    if (appView) {
-      addMenuArr({
-        name: formatMessage({ id: 'menu.team.app' }),
-        icon: 'appstore-o',
-        path: `team/${teamName}/region/${regionName}/apps`,
-        authority: ['admin', 'user']
-      });
-    }
+    // if (appView) {
+    //   addMenuArr({
+    //     name: formatMessage({ id: 'menu.team.app' }),
+    //     icon: 'appstore-o',
+    //     path: `team/${teamName}/region/${regionName}/apps`,
+    //     authority: ['admin', 'user']
+    //   });
+    // }
     if (appCreateView && componentCreateView && componentConstructView) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.create' }),
