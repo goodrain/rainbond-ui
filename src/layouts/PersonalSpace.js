@@ -277,7 +277,7 @@ export default class Space extends Component {
     const colorList = ['#6d60e7', '#55b563', '#ebaa44', '#e86f2c', '#00a2ae'];
     const fetchLogo = rainbondInfo.disable_logo
     ? rainbondInfo.logo.value
-    : rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
+    : rainbondUtil.fetchLogo(rainbondInfo, enterprise) || Logo;
     const customHeaderImg = () => {
       return (
         <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
@@ -532,7 +532,6 @@ export default class Space extends Component {
 
                   )
                 })}
-                {console.log(loadingSwitch,"loadingSwitch")}
                 {
                 loadingSwitch && 
                 <div style={{width:'100%'}}>
