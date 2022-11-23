@@ -1329,7 +1329,7 @@ export default class Main extends PureComponent {
                 />
               )}
               {scopeMax.indexOf('Helm-') > -1 && isHelm ? (
-                <div>{helmLoading ? SpinBox : helmCardList}</div>
+                <div style={{paddingBottom:15}}>{helmLoading ? SpinBox : helmCardList}</div>
               ) : scopeMax === 'localApplication' ? (
                 <div
                   style={{

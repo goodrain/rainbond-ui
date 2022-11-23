@@ -213,7 +213,7 @@ export default class PageHeader extends PureComponent {
             </div>
           </div>
         </div>
-        <div style={{display:'flex'}}>
+        <div style={{display:'flex',flexWrap:'wrap'}}>
           {tabList.map(item => {
             const { key, tab } = item;
             return (
