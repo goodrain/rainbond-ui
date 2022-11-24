@@ -169,7 +169,7 @@ export default class Index extends PureComponent {
               const { index } = this.props;
               // // 加载热门应用模块
               // if (!this.loadHotAppTimer) {
-              //   this.loadHotApp();
+                this.loadHotApp();
               // }
             }
           );
