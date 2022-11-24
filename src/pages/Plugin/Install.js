@@ -7,6 +7,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import styles from './Index.less';
 import CreatePluginForm from '../../components/CreatePluginForm';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import Market from '../Create/market_plugin'
 
 @connect()
@@ -37,6 +38,7 @@ export default class Index extends PureComponent {
       <PageHeaderLayout
         title={formatMessage({id:'teamPlugin.install.title'})}
         isFooter={true}
+        titleSvg={pageheaderSvg.getSvg('apiSvg',18)}
         // content={content}
         // extraContent={extraContent}
       >

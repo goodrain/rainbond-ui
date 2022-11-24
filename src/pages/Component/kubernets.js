@@ -19,7 +19,7 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.add'}),
-      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged",'env'],
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged",'env',"shareProcessNamespace","dnsPolicy",'hostIPC','resources','lifecycle','dnsConfig'],
       selectVal: undefined,
       havevalArr: [],
       drawerSwitch: "add",
@@ -32,10 +32,14 @@ class Index extends PureComponent {
         tolerations:'#sample\n#- key: "test"\n#  operator: "Equal"\n#  value: "yk"\n#  effect: "NoSchedule"\n',
         env:'#sample\n#- name: NGINX_USERNAEM\n#  valueFrom:\n#    secretKeyRef:\n#      key: username\n#      name: test-secret\n#      optional: false\n#- name: NGINX_PASSWORD\n#  valueFrom:\n#    secretKeyRef:\n#      key: password\n#      name: test-secret\n#      optional: false\n#- name: MY_POD_IP\n#  valueFrom:\n#   fieldRef:\n#     fieldPath: status.podIP\n',
         volumes:'#sample\n#- hostPath:\n#    path: /test\n#  name: data\n#- name: mydata\n#  persistentVolumeClaim:\n#    claimName: test-pvc\n#- configMap:\n#    name: test\n#  name: config\n',
-        volumeMounts:'#sample\n#- mountPath: /opt\n#  name: data\n#- mountPath: /etc/test/conf/aa\n#  name: mydata\n#  subPath: aa\n#- mountPath: /etc/test/conf/nginx.conf\n#  name: config\n#  subPath: test.conf\n'
+        volumeMounts:'#sample\n#- mountPath: /opt\n#  name: data\n#- mountPath: /etc/test/conf/aa\n#  name: mydata\n#  subPath: aa\n#- mountPath: /etc/test/conf/nginx.conf\n#  name: config\n#  subPath: test.conf\n',
+        dnsConfig:'#sample\n #nameservers:\n #searches:\n #options:\n #  - name:\n #    value: ',
+        resources:'#sample\n#  limits:\n#    hugepages-2Mi:\n#    memory: \n#  requests:\n#    memory: ',
+        lifecycle:'#sample\n#postStart:\n#  exec:\n#    command:\n #preStop:\n#  exec:\n#    command: '
       },
       TooltipValue:'',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      yamlShow:false
     }
   }
 
@@ -111,7 +115,7 @@ class Index extends PureComponent {
       drawerTitle: formatMessage({id:'componentOverview.body.Kubernetes.edit_attribute'}),
       drawerSwitch: str,
       selectVal: val.name,
-      TooltipValue: (TooltipValueArr[val.name])
+      TooltipValue: TooltipValueArr[val.name]
     })
   }
 
@@ -161,88 +165,218 @@ class Index extends PureComponent {
       TooltipValue: TooltipValueArr[val]
     })
   }
+  notificationFun = () =>{
+    notification.error({
+      message: formatMessage({id:'componentOverview.body.Kubernetes.null'}),
+    })
+  }
 
   // 提交
   handleSubmit = (e) => {
     e.preventDefault()
-    const { selectVal, drawerSwitch, minArr } = this.state
+    const { selectVal, drawerSwitch, minArr, TooltipValue } = this.state
     const { form, dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const service_alias = this.props.service_alias || ''
     var list = []
     form.validateFields((err, value) => {
-      if (selectVal == "nodeSelector" && value.nodeSelector[0].key && value.nodeSelector[0].value) {
-        const label = {
-          name: selectVal,
-          save_type: "json",
-          attribute_value: value.nodeSelector || []
-        }
-        this.handelAddOrEdit(label)
-      } else if (selectVal == "labels" && value.labels[0].key && value.labels[0].value) {
-        const label = {
-          name: selectVal,
-          save_type: "json",
-          attribute_value: value.labels || []
-        }
-        this.handelAddOrEdit(label)
+      if(!err)
+      switch (selectVal) {
 
-      } else if (selectVal == "volumeMounts"&& value.volumeMounts != null && value.volumeMounts.length > 0) {
-        const label = {
-          name: selectVal,
-          save_type: "yaml",
-          attribute_value: value.volumeMounts || []
-        }
-        this.handelAddOrEdit(label)
+        case "nodeSelector":
+          if(value.nodeSelector[0].key && value.nodeSelector[0].value){
+            const label = {
+              name: selectVal,
+              save_type: "json",
+              attribute_value: value.nodeSelector || []
+            }
+            this.handelAddOrEdit(label)
+          }else{
+            this.notificationFun()
+          }
+          break;
 
-      } else if (selectVal == "volumes" && value.volumes != null && value.volumes.length > 0) {
-        const label = {
-          name: selectVal,
-          save_type: "yaml",
-          attribute_value: value.volumes || []
-        }
-        this.handelAddOrEdit(label)
+        case  'labels':
+            if(value.labels[0].key && value.labels[0].value){
+            const label = {
+              name: selectVal,
+              save_type: "json",
+              attribute_value: value.labels || []
+            }
+            this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
 
-      } else if (selectVal == "affinity" && value.affinity != null && value.affinity.length > 0) {
-        const label = {
-          name: selectVal,
-          save_type: "yaml",
-          attribute_value: value.affinity || []
-        }
-        this.handelAddOrEdit(label)
+        case "volumeMounts" :
+            if(value.volumeMounts != null && value.volumeMounts.length > 0 && value.volumeMounts != TooltipValue){
+                const label = {
+                  name: selectVal,
+                  save_type: "yaml",
+                  attribute_value: value.volumeMounts || []
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
 
-      } else if (selectVal == "tolerations" && value.tolerations != null && value.tolerations.length > 0) {
-        const label = {
-          name: selectVal,
-          save_type: "yaml",
-          attribute_value: value.tolerations || []
-        }
-        this.handelAddOrEdit(label)
-      }  else if (selectVal == "env" && value.env != null && value.env.length > 0) {
-        const label = {
-          name: selectVal,
-          save_type: "yaml",
-          attribute_value: value.env || []
-        }
-        this.handelAddOrEdit(label)
-      }else if (selectVal == "serviceAccountName" && value.serviceAccountName != null && value.serviceAccountName.length > 0) {
-        const label = {
-          name: selectVal,
-          save_type: "string",
-          attribute_value: value.serviceAccountName || []
-        }
-        this.handelAddOrEdit(label)
+        case "volumes" :
+            if(value.volumes != null && value.volumes.length > 0 && value.volumes!= TooltipValue){
+                const label = {
+                  name: selectVal,
+                  save_type: "yaml",
+                  attribute_value: value.volumes || []
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
 
-      } else if (selectVal == "privileged" && value.privileged != null) {
-        const label = {
-          name: selectVal,
-          save_type: "string",
-          attribute_value: `${value.privileged}` || 'false'
-        }
-        this.handelAddOrEdit(label)
-      }else{
-        notification.error({
-          message: formatMessage({id:'componentOverview.body.Kubernetes.null'}),
-        })
+        case 'affinity' :
+            if(value.affinity != null && value.affinity.length > 0){
+                const label = {
+                  name: selectVal,
+                  save_type: "yaml",
+                  attribute_value: value.affinity || []
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
+
+        case 'tolerations' :
+            if(value.tolerations != null && value.tolerations.length > 0 && value.tolerations!= TooltipValue){
+                const label = {
+                  name: selectVal,
+                  save_type: "yaml",
+                  attribute_value: value.tolerations || []
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
+
+        case 'env' :
+            if(value.env != null && value.env.length > 0 && value.env!= TooltipValue){
+                const label = {
+                  name: selectVal,
+                  save_type: "yaml",
+                  attribute_value: value.env || []
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
+
+        case 'serviceAccountName' :
+            if(value.serviceAccountName != null && value.serviceAccountName.length > 0){
+                const label = {
+                  name: selectVal,
+                  save_type: "string",
+                  attribute_value: value.serviceAccountName || []
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
+
+        case 'privileged' :
+            if(value.privileged != null){
+                const label = {
+                  name: selectVal,
+                  save_type: "string",
+                  attribute_value: `${value.privileged}` || 'false'
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
+
+          case 'shareProcessNamespace' :
+            if(value.shareProcessNamespace != null){
+                const label = {
+                  name: selectVal,
+                  save_type: "string",
+                  attribute_value: `${value.shareProcessNamespace}` || 'false'
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
+      
+          case 'dnsPolicy' :
+            if(value.dnsPolicy != null){
+                const label = {
+                  name: selectVal,
+                  save_type: "string",
+                  attribute_value: `${value.dnsPolicy}` || 'false',
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
+
+          case 'dnsConfig' :
+            if(value.dnsConfig != null && value.dnsConfig.length > 0 && value.dnsConfig!= TooltipValue){
+                const label = {
+                  name: selectVal,
+                  save_type: "yaml",
+                  attribute_value: `${value.dnsConfig}` || [],
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
+
+          case 'hostIPC' :
+            if(value.hostIPC != null){
+                const label = {
+                  name: selectVal,
+                  save_type: "string",
+                  attribute_value: `${value.hostIPC}` || 'false'
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
+
+          case 'resources' :
+            if(value.resources != null && value.resources.length > 0 && value.resources!= TooltipValue){
+                const label = {
+                  name: selectVal,
+                  save_type: "yaml",
+                  attribute_value: `${value.resources}` || [],
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
+
+          case 'lifecycle' :
+            if(value.lifecycle != null && value.lifecycle.length > 0 && value.lifecycle!= TooltipValue){
+                const label = {
+                  name: selectVal,
+                  save_type: "yaml",
+                  attribute_value: `${value.lifecycle}` || [],
+                }
+                this.handelAddOrEdit(label)
+            }else{
+              this.notificationFun()
+            }
+          break;
       }
     })
   }
@@ -318,7 +452,7 @@ class Index extends PureComponent {
           </path>
       </svg>
   )
-    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, jsonValue, yamlValue, strValue, boolvalue, TooltipValue, language } = this.state;
+    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, jsonValue, yamlValue, strValue, boolvalue, TooltipValue, language, } = this.state;
     const { getFieldDecorator, setFieldsValue } = form;
     const isBool = (drawerSwitch == "add") ? true : false
     const addible = [];
@@ -335,7 +469,7 @@ class Index extends PureComponent {
       }
       return notAddible
     })
-
+    const dnsPolicyArr =  ['Default', 'ClusterFirst', 'ClusterFirstWithHostNet', 'None']
     const formItemLayoutss = {
       labelCol: {
         xs: { span: 24 },
@@ -431,9 +565,37 @@ class Index extends PureComponent {
               }
               {
                 selectVal &&
-                ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env")) &&
+                selectVal == "dnsPolicy" &&
+                <Form.Item  {...formItemLayouts}>
+                  <div style={ language ? {} :{marginLeft: 38} }>
+                  <p style={{whiteSpace:'nowrap', paddingBottom:5}}>{formatMessage({id:'componentOverview.body.Kubernetes.dnsPolicy'})}</p>
+                  {getFieldDecorator(`${selectVal}`, {
+                    initialValue: strValue || false,
+                    rules: [{ required: false }]
+                  })(                     
+                  <Select 
+                    placeholder= {formatMessage({id:'componentOverview.body.Kubernetes.dnsPolicy'})}
+                    style={{ width: 220, marginLeft:56 }} 
+                    onSelect={this.dnsPolicyYamlShow} 
+                  >
+                    {dnsPolicyArr.map( (item, index) => {
+                      return <Option
+                              key={index}
+                              value={item}
+                            >
+                              {item}
+                            </Option>
+                    })}
+                  </Select> 
+                  )}
+                  </div>
+                </Form.Item>
+              }
+              {
+                selectVal &&
+                ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || selectVal == "dnsConfig" || selectVal =='resources' || selectVal == 'lifecycle') &&
                 <>
-                  <p>&nbsp;</p>
+                  <p style={{padding: '10px 0'}}> {selectVal == "dnsConfig" ? formatMessage({id:'componentOverview.body.Kubernetes.onlyDnsPolicy'}) : ' '}</p>
                   <CodeMirrorForm
                     setFieldsValue={setFieldsValue}
                     formItemLayout={formItemLayoutss}
@@ -466,10 +628,10 @@ class Index extends PureComponent {
               }
               {
                 selectVal &&
-                selectVal == "privileged" &&
+                (selectVal == "privileged" || selectVal =='shareProcessNamespace'||  selectVal == 'hostIPC')&&
                 <Form.Item  {...formItemLayouts}>
                   <div style={ language ? {} :{marginLeft: 38} }>
-                  <p style={{whiteSpace:'nowrap'}}><FormattedMessage id='componentOverview.body.Kubernetes.privileged'/></p>
+                  <p style={{whiteSpace:'nowrap'}}><FormattedMessage id='componentOverview.body.Kubernetes.privileged' values={{type:selectVal}}/></p>
                   {getFieldDecorator(`${selectVal}`, {
                     initialValue: boolvalue || false,
                     rules: [{ required: false }]
@@ -477,6 +639,7 @@ class Index extends PureComponent {
                   </div>
                 </Form.Item>
               }
+              
             </Form>
             </div>
             <div className={styles.handleBtn_style}>
@@ -500,10 +663,10 @@ class Index extends PureComponent {
                 allData.length > 0 ? (
                 allData.map((item, index) => {
                   return <Row key={index}>
-                            {(item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env") ? (
-                              <Col span={3} className={styles.yamlTitle_style}>{item.name}:</Col>
+                            {(item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env" || item.name =="dnsConfig" || item.name =='resources' || item.name == 'lifecycle') ? (
+                              <Col span={4} className={styles.yamlTitle_style}>{item.name}:</Col>
                             ):(
-                              <Col span={3}>{item.name}:</Col>
+                              <Col span={4}>{item.name}:</Col>
                             )}
                               <Col span={18}>{
                                   item.name &&
@@ -519,7 +682,7 @@ class Index extends PureComponent {
                                   })
                                 }
                                 {item.name &&
-                                (item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env")  &&
+                                (item.name == "volumes" || item.name =="volumeMounts" ||  item.name =="affinity" || item.name =="tolerations" || item.name =="env" || item.name == 'dnsConfig'|| item.name =='resources' || item.name == 'lifecycle')  &&
                                 item.attribute_value.length > 0 &&
                                 <div className={styles.yamlValue_style}>
                                   {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml'/>
@@ -535,9 +698,14 @@ class Index extends PureComponent {
                                 </div>
                                 }
                                 {item.name &&
-                                (item.name == "privileged")  &&
+                                (item.name == "privileged" || item.name =='shareProcessNamespace' || item.name == 'hostIPC')  &&
                                 item.attribute_value.length > 0 &&
                                 <span style={{paddingTop:"6px"}}><FormattedMessage id='componentOverview.body.Kubernetes.current'/>{item.attribute_value == "true" ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened'/>: <FormattedMessage id='componentOverview.body.Kubernetes.Closed'/>}</span>
+                                }
+                               {item.name &&
+                                (item.name == "dnsPolicy")  &&
+                                item.attribute_value.length > 0 &&
+                                <span style={{paddingTop:"6px"}}> {formatMessage({id:'componentOverview.body.Kubernetes.is'})} {item.attribute_value} </span>
                                 }
                               </Col>
                               <Col span={2}><span onClick={() => this.changeBtn(item, "change", index)}><FormattedMessage id='componentOverview.body.Kubernetes.edit'/></span>&nbsp;&nbsp;&nbsp;&nbsp;<span onClick={()=>this.cancalDeletePort(item)}><FormattedMessage id='componentOverview.body.Kubernetes.deldete'/></span></Col>

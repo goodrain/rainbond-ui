@@ -130,48 +130,52 @@ export default class Index extends PureComponent {
     });
   };
   handleCheckAppName = (name, callbacks) => {
-    const { dispatch, eid } = this.props;
+    const { dispatch, eid, isEditor } = this.props;
     if (!callbacks) {
       return null;
     }
-    // if (!name) {
-    //   return callbacks();
-    // }
-    // if (name.length < 4) {
-    //   return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.min'})}`);
-    // }
-    // if (name.length > 32) {
-    //   return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.max'})}`);
-    // }
+    if (!name) {
+      return callbacks();
+    }
+    if (name.length < 4) {
+      return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.min'})}`);
+    }
+    if (name.length > 32) {
+      return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.max'})}`);
+    }
     const pattern = /^[a-z][a-z0-9]+$/;
     if (!name.match(pattern)) {
       return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.only'})}`);
     }
-
-    dispatch({
-      type: 'market/checkWarehouseAppName',
-      payload: {
-        name,
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          callbacks(`${formatMessage({id:'applicationMarket.HelmForm.name'})}`);
-        } else {
-          callbacks();
-        }
-      },
-      handleError: res => {
-        if (callbacks && res && res.data && res.data.code) {
-          if (res.data.code === 8001) {
+    if(!isEditor){
+      dispatch({
+        type: 'market/checkWarehouseAppName',
+        payload: {
+          name,
+          enterprise_id: eid
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
             callbacks(`${formatMessage({id:'applicationMarket.HelmForm.name'})}`);
           } else {
             callbacks();
           }
+        },
+        handleError: res => {
+          if (callbacks && res && res.data && res.data.code) {
+            if (res.data.code === 8001) {
+              callbacks(`${formatMessage({id:'applicationMarket.HelmForm.name'})}`);
+            } else {
+              callbacks();
+            }
+          }
         }
-      }
-    });
+      });
+    }else{
+      return callbacks()
+    }
   };
+
   handleError = res => {
     if (res && res.data && res.data.code) {
       notification.warning({

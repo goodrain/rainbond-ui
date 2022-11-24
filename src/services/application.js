@@ -890,6 +890,10 @@ export async function getSingleKubernetesVal(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/${body.list_name}`,
     {
       method: 'get',
+      params: {
+        list_name: body.list_name,
+        id:body.id
+      },
     }
   );
 }

@@ -137,6 +137,9 @@ export default class RoleList extends PureComponent {
                     mode="inline"
                     selectedKeys={[`${rolesID}`]}
                     onClick={this.selectKey}
+                    style={{
+                      borderTop:'1px solid #e8e8e8'
+                    }}
                   >
                     {roleList.map(item => {
                       const { ID, name } = item;

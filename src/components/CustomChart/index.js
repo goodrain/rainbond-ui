@@ -213,9 +213,9 @@ export default class ChartTitle extends PureComponent {
 
         {moduleName === 'ResourceMonitoring' ? (
           <Row style={{ padding: '-8px' }}>
-            {RangeData.map(item => {
+            {RangeData.map((item, index) => {
               return (
-                <Col span={12} key={item} style={{ padding: '8px' }}>
+                <Col span={12} key={item} style={{ padding: ((index+ 1) % 2) == 0 ? '8px 0px 8px 8px':'8px 8px 8px 0 ' }}>
                   <RangeChart {...parameter} type={item} />
                 </Col>
               );

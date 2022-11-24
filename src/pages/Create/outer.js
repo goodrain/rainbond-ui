@@ -5,6 +5,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import roleUtil from '../../utils/role';
 import OuterCustom from './outer-custom';
 
@@ -67,6 +68,7 @@ export default class Main extends PureComponent {
             {formatMessage({id: 'teamAdd.create.third.desc'})}
           </p>
         }
+        titleSvg={pageheaderSvg.getSvg("thirdSvg",18)}
       >
         {Com ? <Com {...this.props} /> : <>{formatMessage({id: 'teamAdd.create.error'})}</>}
       </PageHeaderLayout>

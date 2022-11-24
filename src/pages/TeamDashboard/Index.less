@@ -1,7 +1,6 @@
 @import '~antd/lib/style/themes/default.less';
 @import '../../utils/utils.less';
 .teamAppTitle {
-  padding: 12px 15px;
   display: flex;
   align-items: center;
   span {
@@ -9,18 +8,48 @@
   }
   h2 {
     margin-bottom: 5px;
+    color: rgba(0,0,0,.65);
+    font-size: 16px;
+    font-weight: bolder;
+    font-family: PingFangSC-Medium;
   }
 }
 //  top module
 .topContainer {
-  display: flex;
   width: 100%;
-  height: 170px;
-  > div {
-    width: 25%;
-    height: 100%;
-    padding: 0px 10px;
-  }
+  background: #fff;
+  border-radius: 5px;
+  padding: 24px;
+  height: 148px;
+  display: flex;
+    > div {
+      width: 20%;
+      height: 100%;
+      padding: 0px 10px;
+      margin-left: 2px;
+      .resourceTitle{
+        width: 100%;
+        text-align: center;
+        font-size: 16px;
+        color: #8d9bad;
+        font-family: PingFangSC-Medium;
+      }
+      .resourceValue{
+        color: #3d54c4;
+        font-size: 40px;
+        font-weight: 700;
+        width: 100%;
+        height: 90px;
+        line-height: 90px;
+        text-align: center;
+        span{
+          font-size: 20px;
+          color: #8d9bad;
+        }
+      }
+    }
+  
+  
 }
 // 团队应用和团队组件
 .teamApp {
@@ -79,6 +108,9 @@
 }
 .hoverPointer {
   cursor: pointer;
+}
+.appItemDetail:hover {
+  background: #fff;
 }
 // 使用磁盘 内存 用户
 .teamDisk {
@@ -161,7 +193,8 @@
 }
 // 热门应用列表标题
 .teamHotAppTitle {
-  padding: 24px 10px;
+  margin-top: 24px;
+  padding: 0px 6px;
   display: flex;
   justify-content: space-between;
   .teamHotAppTitleLeft {
@@ -174,16 +207,13 @@
     }
     h2 {
       margin-bottom: 5px;
+      font-size: 16px;
+      color: rgba(0,0,0,.65);
+      font-weight: bolder;
+      font-family: PingFangSC-Medium;
     }
   }
-  .teamHotAppTitleSearch {
-    display: flex;
-    align-items: center;
-    span {
-      margin-left: 10px;
-      color: #4f75af;
-    }
-  }
+  
 }
 
 .ellipsis {
@@ -192,119 +222,91 @@
   overflow: hidden;
 }
 // 团队热门应用列表
-.teamHotAppList {
-  display: flex;
-  flex-wrap: wrap;
-  > div {
-    width: 25%;
-    padding: 0px 10px;
-    margin-bottom: 20px;
-
-    .teamHotAppItem {
-      background-color: #fff;
-      position: relative;
-      padding: 24px;
-
-      .hotAppItemDetails {
+.appListBox{
+  background:#fff;
+  padding: 24px 0px;
+  border-radius: 5px;
+  .teamHotAppTitleSearch {
+    margin-right: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: right;
+  }
+  .teamHotAppList {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    padding: 12px 24px;
+    > div {
+      width: 22%;
+      height: 100px;
+      margin-top: 30px;
+      .teamHotAppItem {
+        background: rgba(42, 130, 228, 4%);
+        width: 100%;
+        height: 100px;
+        border-radius: 5px;
         display: flex;
-        align-items: center;
-        margin-bottom: 12px;
-        position: relative;
-        > span {
-          max-width: 48px;
-          max-height: 48px;
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          left: 0px;
-          img {
-            width: 100%;
-            height: 100%;
-          }
-        }
-        .hotAppItemUse {
-          width: 100%;
-          padding-left: 80px;
-          .hotAppItemTitle {
-            width: 100%;
-            // font-weight: bold;
-            font-size: 20px;
-            margin-bottom: 5px;
-          }
-          .useDeatil {
-            position: relative;
-            // 内存
-            .hotAppUseSave {
-              display: flex;
-              align-items: center;
-              > p {
-                color: #aeaeae;
-              }
-              > div {
-                display: flex;
-                align-items: center;
-                margin-left: 7px;
-                p {
-                  font-size: 16px;
-                  margin-right: 3px;
-                }
-                span {
-                  font-size: 12px;
-                  color: #aeaeae;
-                  padding-top: 5px;
-                }
-              }
-            }
-            // 数量
-            .hotAppComNum {
-              margin-top: 5px;
-              & > span:nth-child(1) {
-                margin-right: 3px;
-                color: #aeaeae;
-              }
-              & > span:nth-child(2) {
-                font-size: 16px;
-                margin-right: 3px;
-              }
-              & > span:nth-child(3) {
-                font-size: 12px;
-                padding-top: 5px;
-                color: #aeaeae;
-              }
-            }
-          }
-        }
-      }
-      .hotAppItemBackup {
-        display: flex;
-        justify-content: space-between;
-        .comMsg {
-          .versions {
-            margin-bottom: 5px;
-          }
-          .update {
-            color: #aeaeae;
-          }
-        }
-        .visit {
+        .appStatus {
+          width: 10%;
+          height: 100px;
+          color: #fff;
+          border-top-left-radius: 5px;
+          border-bottom-left-radius: 5px;
           display: flex;
-          align-items: flex-end;
-          color: #4f75af;
+          align-items: center;
+          justify-content: center;
+          > div{
+            width: 20px;
+            text-align: center;
+          }
         }
-      }
-      .running {
-        display: flex;
-        position: absolute;
-        right: 0px;
-        top: 10px;
-        color: #aeb7c3;
+        .appItemDetail{
+            width: 90%;
+            color: #aeaeae;
+            padding: 0px 12px;
+            .appTitle {
+              font-size: 18px;
+              margin-top: 10px;
+              font-weight: bolder;
+              color: rgba(0, 0, 0, 0.6);
+            }
+            .value{
+                display: flex;
+                font-size: 12px;
+                margin-top: 10px;
+                > div{
+                  width: 100%;
+                }
+            }
+            .updateTime {
+                font-size: 12px;
+                margin-top: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
       }
     }
   }
+}
+
+.no_teamHotAppList{
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 300px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  border-radius: 5px;
 }
 // 分页
 .pagination {
   margin: 24px 0px;
   display: flex;
   justify-content: flex-end;
+  margin-bottom: 20px;
 }

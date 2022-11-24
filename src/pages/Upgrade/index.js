@@ -43,6 +43,7 @@ import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import styles from './index.less';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import RollsBackRecordDetails from './RollbackInfo/details';
 import RollsBackRecordList from './RollbackInfo/index';
 import infoUtil from './UpgradeInfo/info-util';
@@ -794,9 +795,16 @@ export default class AppList extends PureComponent {
         loading={loadingDetail}
         title={formatMessage({ id: 'appUpgrade.title' })}
         content={formatMessage({ id: 'appUpgrade.desc' })}
+        titleSvg={pageheaderSvg.getSvg('upgradeSvg',18)}
         extraContent={null}
       >
-        <div>
+        <div 
+          style={loadingDetail ? {} : {
+            borderRadius: 5,
+            boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            overflow:'hidden'
+        }}
+        >
           {loadingDetail ? (
             <Spin />
           ) : (

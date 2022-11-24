@@ -7,6 +7,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import styles from './Index.less';
 import CreatePluginForm from '../../components/CreatePluginForm';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 
 @connect()
 export default class Index extends PureComponent {
@@ -37,6 +38,7 @@ export default class Index extends PureComponent {
         title={formatMessage({id:'teamPlugin.create.title'})}
         content={content}
         extraContent={extraContent}
+        titleSvg={pageheaderSvg.getSvg('apiSvg',18)}
       >
         <Card>
           <div

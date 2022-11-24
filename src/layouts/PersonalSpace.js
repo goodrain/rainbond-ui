@@ -19,6 +19,7 @@ import moment from 'moment';
 import GlobalHeader from '../components/GlobalHeader';
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global'
+import rainbondUtil from '../utils/rainbond';
 import teamLogo from '../../public/images/team_logo.png'
 import headerStype from '../components/GlobalHeader/index.less';
 import Logo from '../../public/logo.png'
@@ -28,7 +29,8 @@ import styles from './PersonalSpace.less'
   user: user.currentUser,
   collapsed: global.collapsed,
   currentUser: user.currentUser,
-  enterprise: global.enterprise
+  enterprise: global.enterprise,
+  rainbondInfo: global.rainbondInfo,
 }))
 export default class Space extends Component {
 
@@ -42,8 +44,11 @@ export default class Space extends Component {
       dynamicLoding: true,
       teamListLoding: true,
       page: 1,
-      pageSize: 200,
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      pageSize: 15,
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      throttle:true,
+      loadingSwitch: false,
+      isNotData: false,
     }
 
   }
@@ -134,7 +139,7 @@ export default class Space extends Component {
     });
   };
   // 获取团队动态
-  getUserTeamsDynamic = (region_names) => {
+  getUserTeamsDynamic = (region_names,number) => {
     const {
       dispatch,
       match: {
@@ -142,32 +147,69 @@ export default class Space extends Component {
       }
     } = this.props;
     const { teamId, page, pageSize } = this.state
-    dispatch({
-      type: 'global/fetchMyTeamsDynamic',
-      payload: {
-        enterprise_id: eid,
-        page: page,
-        page_size: pageSize,
-        region_names
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            dynamicList: res.list,
-            dynamicLoding: false,
-          });
-        } else {
-          this.handleCloseLoading()
+    if(number){
+      dispatch({
+        type: 'global/fetchMyTeamsDynamic',
+        payload: {
+          enterprise_id: eid,
+          page: page+1,
+          page_size: pageSize,
+          region_names
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            if(res.list.length > 0){
+              this.setState({
+                dynamicList: [...this.state.dynamicList,...res.list],
+                dynamicLoding: false,
+                throttle:!this.state.throttle,
+                page: page+1,
+                loadingSwitch:false,
+                isNotData: false,
+              });
+            }else{
+              this.setState({
+                throttle: false,
+                loadingSwitch: false,
+                isNotData: true,
+              })
+            }
+          } else {
+            this.handleCloseLoading()
+          }
         }
-
-      }
-    });
+      });
+    }else{
+      dispatch({
+        type: 'global/fetchMyTeamsDynamic',
+        payload: {
+          enterprise_id: eid,
+          page: page,
+          page_size: pageSize,
+          region_names
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            this.setState({
+              dynamicList: res.list,
+              dynamicLoding: false,
+            });
+          } else {
+            this.handleCloseLoading()
+          }
+        }
+      });
+    }
   };
   // 动态跳转
   onJumpDynamic = (key, team, region, group, component) => {
     const { dispatch } = this.props;
     if (key == 'component') {
-      dispatch(routerRedux.push(`/team/${team}/region/${region}/components/${component}/overview`));
+      if(component){
+        dispatch(routerRedux.push(`/team/${team}/region/${region}/components/${component}/overview`));
+      }else{
+        notification.warning({ message: formatMessage({id:'notification.warn.not_component'}) });
+      }
     } else if (key == 'team') {
       dispatch(routerRedux.push(`/team/${team}/region/${region}/index`));
     } else {
@@ -212,8 +254,30 @@ export default class Space extends Component {
       teamListLoding: false
     })
   }
+  onJumpPersonal = () => {
+    const { 
+      match: {
+        params: {eid}
+      }, 
+      dispatch, 
+    } = this.props
+    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+  }
+  scroll=(event)=>{
+    const {regionName, pageSize, throttle} = this.state
+    if(event.target.scrollTop+event.target.clientHeight+20>event.target.scrollHeight){
+        if(throttle){
+          this.setState({
+            throttle:!this.state.throttle,
+            loadingSwitch: true,
+          },()=>{
+          this.getUserTeamsDynamic(regionName,15)
+          })
+        }
+    }
+  }
   render() {
-    const { userTeamList, dynamicList, enterpriseInfo, dynamicLoding, teamListLoding, } = this.state
+    const { userTeamList, dynamicList, enterpriseInfo, dynamicLoding, teamListLoding, loadingSwitch} = this.state
     const {
       match: {
         params: { eid }
@@ -221,16 +285,31 @@ export default class Space extends Component {
       enterprise,
       user,
       collapsed,
-      currentUser
+      currentUser,
+      rainbondInfo,
     } = this.props
     const colorList = ['#6d60e7', '#55b563', '#ebaa44', '#e86f2c', '#00a2ae'];
-    const customHeader = () => {
+    const fetchLogo = rainbondInfo.disable_logo
+    ? rainbondInfo.logo.value
+    : rainbondUtil.fetchLogo(rainbondInfo, enterprise) || Logo;
+    const customHeaderImg = () => {
       return (
-        <div className={headerStype.enterprise}>
-          <img src={Logo} alt="" />
+        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
+          <img src={fetchLogo} alt="" />
         </div>
       );
     }
+    const customHeader = () => {
+      return (
+        <Link
+          style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }}
+          to={`/enterprise/${eid}/personal`}
+        >
+          {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
+        </Link>
+      )
+    }
+    console.log();
     return (
       <div style={{ height: "100%" }}>
         <GlobalHeader
@@ -240,6 +319,7 @@ export default class Space extends Component {
           collapsed={collapsed}
           currentUser={currentUser}
           customHeader={customHeader}
+          customHeaderImg={customHeaderImg}
         />
         <div className={styles.teamBox}>
           <div className={styles.teamBox_left}>
@@ -360,7 +440,7 @@ export default class Space extends Component {
               </div>
             </div>
             {dynamicList.length > 0 &&
-              <div className={styles.dynamicList}>
+              <div className={styles.dynamicList}  onScroll={this.scroll}>
 
                 {dynamicList.map(item => {
                   const {
@@ -466,6 +546,18 @@ export default class Space extends Component {
 
                   )
                 })}
+                {
+                loadingSwitch && 
+                <div style={{width:'100%'}}>
+                    <Spin style={{width:'100%',margin:'auto'}}/>
+                </div>
+                }
+                {
+                  isNotData && !loadingSwitch &&
+                  <div style={{ width:'100%', textAlign: 'center' }}>
+                    {formatMessage({id:'unit.base'})}
+                  </div>
+                }
               </div>
             }
 

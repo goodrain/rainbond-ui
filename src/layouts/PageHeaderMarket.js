@@ -15,7 +15,7 @@ export default ({
   <div style={{ margin: '-24px -24px 0' }} className={wrapperClassName}>
     {top}
     <PageHeader key="pageheader" {...restProps} linkElement={Link} />
-    {children ? <div className={styles.content}>{children}</div> : null}
+    {children ? <div className={styles.content} style={{backgroundImage: (restProps.tabList && restProps.tabList.length > 0) ? 'linear-gradient(#fff 10%, #f1f2f5 30%)' : null}}>{children}</div> : null}
     {!isFooter && cookie.get('enterprise_edition') === 'false' && (
       <CustomFooter />
     )}

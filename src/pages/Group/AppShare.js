@@ -414,7 +414,8 @@ export default class Main extends PureComponent {
       currentPage: 1,
       showDrawerSwitchVal: false,
       k8sContent: '',
-      k8sName:""
+      k8sName:"",
+      recoders:[],
     };
     this.com = [];
     this.share_group_info = null;
@@ -509,6 +510,7 @@ export default class Main extends PureComponent {
         if (data && data.bean && data.status_code === 200) {
           this.setState({ record: data.bean, loading: false }, () => {
             this.fetchModels();
+            this.fetchPublishRecoder()
           });
         }
       }
@@ -582,6 +584,28 @@ export default class Main extends PureComponent {
               }
             }
           );
+        }
+      }
+    });
+  };
+
+  fetchPublishRecoder = () => {
+    const { teamName, appID } = this.props.match.params;
+    const { dispatch } = this.props;
+    const { page, pageSize } = this.state;
+    dispatch({
+      type: 'application/fetchShareRecords',
+      payload: {
+        team_name: teamName,
+        app_id: appID,
+        page,
+        page_size: pageSize
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            recoders: data.list,
+          });
         }
       }
     });
@@ -1073,7 +1097,8 @@ export default class Main extends PureComponent {
       versions,
       submitLoading,
       appModelInfo,
-      batchEditShow
+      batchEditShow,
+      recoders,
     } = this.state;
     const Application = getFieldValue('app_id');
     let breadcrumbList = [];
@@ -1132,7 +1157,7 @@ export default class Main extends PureComponent {
                 <Col span="12">
                   <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.title.appMode'})}>
                     {getFieldDecorator('app_id', {
-                      initialValue: model.app_id,
+                      initialValue: recoders.length > 1 ? model.app_id : '',
                       rules: [
                         {
                           required: true,
@@ -1153,7 +1178,7 @@ export default class Main extends PureComponent {
                         ))}
                       </Select>
                     )}
-                    {Application && models && models.length > 0 && !marketId && (
+                    {Application && recoders.length > 1 && (
                       <Button
                         style={{ marginLeft: '10px' }}
                         onClick={() => {

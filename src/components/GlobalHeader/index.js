@@ -164,7 +164,7 @@ export default class GlobalHeader extends PureComponent {
     });
   };
   render() {
-    const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space=false, is_enterprise=false } = this.props;
+    const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space=false, is_enterprise=false, customHeaderImg } = this.props;
     const { language } = this.state
     if (!currentUser) {
       return null;
@@ -248,35 +248,16 @@ export default class GlobalHeader extends PureComponent {
     return (
       <Header className={styles.header}>
         <div>
-          {/* <Icon
-            className={styles.trigger}
-            type={!collapsed ? 'menu-unfold' : 'menu-fold'}
-            style={{ color: '#ffffff', float: 'left' }}
-            onClick={this.toggle}
-          /> */}
+          {customHeaderImg && customHeaderImg()}
           {customHeader && customHeader()}
-          <Link style={{ color: is_space ? '#338bff' : '#fff', marginRight: '20px', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/personal`}>
-            {/* {customHeader && customHeader()} */}
-            {formatMessage({id:'enterpriseTeamManagement.other.personal'})}
-          </Link>
+        </div>
+        <div className={styles.right}>
           {/* 平台管理 */}
           {currentUser.is_enterprise_admin && (
-            <Link style={{ color: is_enterprise ? '#338bff' : '#fff', fontSize:'16px', fontWeight:'bolder' }} to={`/enterprise/${eid}/index`}>
+            <Link style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder',marginRight:'14px' }} to={`/enterprise/${eid}/index`}>
               <FormattedMessage id="GlobalHeader.platform" />
             </Link>
           )}
-        </div>
-        <div className={styles.right}>
-
-          {/* <a 
-          className={styles.action}
-          style={{ color: '#fff' }}
-          href={ language ?  "https://www.rainbond.com/enterprise_server/" :'https://www.rainbond.com/en/enterprise_server/'}
-          target="_blank"
-          >
-              
-              <FormattedMessage id="GlobalHeader.serve"/>
-          </a> */}
           {isNewbieGuide && (
             <Popconfirm
               title={formatMessage({ id: 'GlobalHeader.close' })}

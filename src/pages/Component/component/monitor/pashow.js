@@ -224,7 +224,7 @@ export default class MonitorNow extends PureComponent {
         <Row gutter={24}>
           <Col {...topColResponsiveProps}>
             <ChartCard
-              bordered={false}
+              // bordered={false}
               // title="平均响应时间（ms）"
               title={<FormattedMessage id="componentOverview.body.tab.monitor.now.time"/>}
               action={
@@ -252,7 +252,7 @@ export default class MonitorNow extends PureComponent {
           </Col>
           <Col {...topColResponsiveProps}>
             <ChartCard
-              bordered={false}
+              // bordered={false}
               // title="吞吐率（dps）"
               title={<FormattedMessage id="componentOverview.body.tab.monitor.now.throughput"/>}
               action={
@@ -280,7 +280,7 @@ export default class MonitorNow extends PureComponent {
           </Col>
           <Col {...topColResponsiveProps}>
             <ChartCard
-              bordered={false}
+              // bordered={false}
               // title="在线人数"
               title={<FormattedMessage id="componentOverview.body.tab.monitor.now.onlineNumber"/>}
               action={

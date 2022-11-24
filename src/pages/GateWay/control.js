@@ -6,6 +6,7 @@ import HttpTable from '../../components/HttpTable';
 import TcpTable from '../../components/TcpTable';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import roleUtil from '../../utils/role';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
 
 @connect(({ user, teamControl, enterprise }) => ({
@@ -79,6 +80,7 @@ class Control extends Component {
     return (
       <PageHeaderLayout
         title={formatMessage({id: 'teamGateway.strategy.title'})}
+        titleSvg={pageheaderSvg.getSvg('gatewaySvg',18)}
         tabActiveKey={this.state.tabKey}
         breadcrumbList={breadcrumbList}
         tabList={[

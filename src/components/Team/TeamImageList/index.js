@@ -159,7 +159,6 @@ export default class MemberList extends PureComponent {
           bodyStyle={{
             paddingTop: 12
           }}
-          bordered={false}
           title={formatMessage({id: 'teamManage.tabs.image'})}
           extra={
             isCreate && (

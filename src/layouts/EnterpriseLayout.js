@@ -5,7 +5,7 @@
 import { Layout, Alert } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
-import { Redirect, routerRedux } from 'dva/router';
+import { Redirect, routerRedux, Link } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
 import deepEqual from 'lodash.isequal';
 import memoizeOne from 'memoize-one';
@@ -13,6 +13,8 @@ import pathToRegexp from 'path-to-regexp';
 import PropTypes from 'prop-types';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { ContainerQuery } from 'react-container-query';
 import ReactDOM from "react-dom"
 import DocumentTitle from 'react-document-title';
@@ -35,6 +37,7 @@ import Logo from '../../public/logo.png'
 import Shell from "../components/Shell"
 import styles from './EnterpriseLayout.less'
 import { loadRegionConfig } from '@/services/cloud';
+import "animate.css"
 const { Content } = Layout;
 
 const getBreadcrumbNameMap = memoizeOne(meun => {
@@ -367,6 +370,15 @@ class EnterpriseLayout extends PureComponent {
       }
     });
   }
+  onJumpPersonal = () => {
+    const { 
+      match: {
+        params: {eid}
+      }, 
+      dispatch, 
+    } = this.props
+    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+  }
   render() {
     const {
       memoryTip,
@@ -397,15 +409,29 @@ class EnterpriseLayout extends PureComponent {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
-    const customHeader = () => {
+    const customHeaderImg = () => {
       return (
-        <div className={headerStype.enterprise}>
-           <img src={Logo} alt="" />
+        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
+           <img src={fetchLogo} alt="" />
         </div>
       );
     };
+    const customHeader = () => {
+      return (
+        <Link
+          style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }}
+          to={`/enterprise/${eid}/personal`}
+        >
+          {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
+        </Link>
+      )
+    }
     const layout = () => {
       const { showMenu } = this.state
+      const urlParams = new URL(window.location.href)
+      const includesAdd = urlParams.href.includes('/addCluster')
+      const includesPro = urlParams.href.includes('/provider')
+      const showTransition = includesAdd || includesPro
       return (
         <Layout>
           <SiderMenu
@@ -434,6 +460,7 @@ class EnterpriseLayout extends PureComponent {
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
               customHeader={customHeader}
+              customHeaderImg={customHeaderImg}
             />
             <Layout style={{ flexDirection: 'row' }}>
               <GlobalRouter
@@ -455,42 +482,60 @@ class EnterpriseLayout extends PureComponent {
                 collapsed={collapsed}
                 onCollapse={this.handleMenuCollapse}
               />
-              <Content
-                key={eid}
+              <TransitionGroup
                 style={{
                   height: 'calc(100vh - 64px)',
                   overflow: 'auto',
-                  width: autoWidth
-                }}
-              >
-                {/* 报警信息 */}
-                {alertInfo.length > 0 && alertInfo.map((item)=>{
-                  return (
-                    <div className={styles.alerts}>
-                      <Alert
-                        style={{ textAlign: 'left', marginTop: '4px', marginBottom:'4px',color:'#c40000',background:'#fff1f0',border:' 1px solid red' }}
-                        message={item.annotations.description}
-                        type="warning"
-                        showIcon
-                      />
-                    </div>
-                 )
-                })}
-                <div
-                  style={{
-                    margin: '24px 24px 0'
+                  width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
+                }}>
+                <CSSTransition
+                  timeout={300}
+                  classNames=
+                  {{                        
+                  enter: 'animate__animated',
+                  enterActive: 'animate__fadeIn',
                   }}
+                  unmountOnExit
+                  key={showTransition ? "" : this.props.location.pathname}
                 >
-                  <Authorized
-                    logined
-                    // authority={children.props.route.authority}
-                    authority={['admin', 'user']}
-                    noMatch={<Redirect to="/user/login" />}
+                  <Content
+                    key={eid}
+                    style={{
+                      height: 'calc(100vh - 64px)',
+                      overflow: 'auto',
+                      width: '100%'
+                    }}
                   >
-                    {children}
-                  </Authorized>
-                </div>
-              </Content>
+                    {/* 报警信息 */}
+                    {alertInfo.length > 0 && alertInfo.map((item) => {
+                      return (
+                        <div className={styles.alerts}>
+                          <Alert
+                            style={{ textAlign: 'left', marginTop: '4px', marginBottom: '4px', color: '#c40000', background: '#fff1f0', border: ' 1px solid red' }}
+                            message={item.annotations.description || item.annotations.summary}
+                            type="warning"
+                            showIcon
+                          />
+                        </div>
+                      )
+                    })}
+                    <div
+                      style={{
+                        margin: '24px 24px 0'
+                      }}
+                    >
+                      <Authorized
+                        logined
+                        // authority={children.props.route.authority}
+                        authority={['admin', 'user']}
+                        noMatch={<Redirect to="/user/login" />}
+                      >
+                        {children}
+                      </Authorized>
+                    </div>
+                  </Content>
+              </CSSTransition>
+             </TransitionGroup>
             </Layout>
           </Layout>
         </Layout>

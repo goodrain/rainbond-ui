@@ -86,6 +86,12 @@ export default class Index extends PureComponent {
     if (showPerformance) {
       return (
         <Fragment>
+        <div 
+        style={{
+            padding: '10px',
+            border: '1px solid #e8e8e8',
+            borderRadius: '5px',
+        }}>
           <div
             style={{
               textAlign: 'left',
@@ -118,6 +124,7 @@ export default class Index extends PureComponent {
           ) : (
             <MonitorHistory {...this.props} />
           )}
+        </div>
         </Fragment>
       );
     }
@@ -169,7 +176,7 @@ export default class Index extends PureComponent {
             <Menu
               onSelect={this.changeMenu}
               defaultSelectedKeys={defaultShow}
-              style={{ height: '590px' }}
+              style={{ height: '590px' ,border:'1px solid #e8e8e8',borderRadius:5}}
             >
               <Menu.Item key="pm">
                 {/* 性能分析 */}

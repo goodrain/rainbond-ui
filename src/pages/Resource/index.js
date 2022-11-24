@@ -9,6 +9,7 @@ import globalUtil from "../../utils/global"
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 import { getKubernetesVal, getSingleKubernetesVal, addSingleKubernetesVal, delSingleKubernetesVal, editSingleKubernetesVal } from "../../services/application";
 import ConfirmModal from "../../components/ConfirmModal";
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
 
 @Form.create()
@@ -81,13 +82,33 @@ class Index extends PureComponent {
   };
   // 编辑
   editButton = (val, row) => {
-    this.setState({
-      type: val,
-      visible: true,
-      editName: row.name,
-      localContent: row.content,
-      editId: row.ID,
-      title: formatMessage({id:'addKubenetesResource.table.btn.edit'})
+    const teamName = globalUtil.getCurrTeamName();
+    const app_id = globalUtil.getAppID();
+    getSingleKubernetesVal({
+      team_name: teamName,
+      app_id: app_id,
+      list_name:row.name,
+      id:row.ID
+    }).then(res =>{
+      if (res && res.response_data && res.response_data.code == 200) {
+        this.setState({
+          type: val,
+          visible: true,
+          editName: row.name,
+          localContent: res.list.content,
+          editId: row.ID,
+          title: formatMessage({id:'addKubenetesResource.table.btn.edit'})
+        })
+      }else{
+        this.setState({
+          type: val,
+          visible: true,
+          editName: row.name,
+          localContent: row.content,
+          editId: row.ID,
+          title: formatMessage({id:'addKubenetesResource.table.btn.edit'})
+        })
+      }
     })
   }
   editErrButton = (val, row) => {
@@ -303,14 +324,15 @@ class Index extends PureComponent {
       <PageHeaderLayout
         title={formatMessage({id: 'addKubenetesResource.title'})}
         content={formatMessage({id: 'addKubenetesResource.desc'})}
+        titleSvg={pageheaderSvg.getSvg('k8sSvg',18)}
       >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginBottom: '24px'
-          }}
-        >
+        <Card 
+        style={{
+          borderRadius: 5,
+          boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+          overflow:'hidden',
+        }}
+        extra={
           <Button
             type="primary"
             icon="plus"
@@ -320,8 +342,8 @@ class Index extends PureComponent {
           >
             {formatMessage({id: 'addKubenetesResource.btn.add'})}
           </Button>
-        </div>
-        <Card>
+        }
+        >
           {loadingSwitch ? (
             <div className={styles.loadingStyle}>
               <Spin size="large" />

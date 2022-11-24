@@ -747,7 +747,7 @@ const componentOverview = {
     'componentOverview.body.AutoDeploy.Webhook':'Mirror repository Webhook',
     'componentOverview.body.AutoDeploy.tag':'The Tag is triggered',
 
-    'componentOverview.body.AutoDeploy.regular_expression ':'Support regular expressions, such as release-v*',
+    'componentOverview.body.AutoDeploy.regular_expression':'Support regular expressions, such as release-v*',
     'componentOverview.body.AutoDeploy.note':' Note: When the expression is null, the tag for the update event fires when it is consistent with the current component mirror tag. When it is not null, the expression match fires correctly',
     // tabs栏>Resource>CodeBuildConfig
     'componentOverview.body.CodeBuildConfig.title':'Are you sure to modify it?',
@@ -848,7 +848,7 @@ const componentOverview = {
     'componentOverview.body.AddAdmin.list':'Configuration list',
 // tabs栏>setting
     'componentOverview.body.setting.Enabled':'Enabled',
-    'componentOverview.body.setting.disabled ':'Disabled ',
+    'componentOverview.body.setting.disabled':'Disabled ',
     'componentOverview.body.setting.Not_set':'Not set',
     'componentOverview.body.setting.information':'Basic information',
     'componentOverview.body.setting.time':'Create Time',
@@ -916,7 +916,7 @@ const componentOverview = {
     'componentOverview.body.Kubernetes.key':'Enter the corresponding key and value',
     'componentOverview.body.Kubernetes.content':'Please edit the content',
     'componentOverview.body.Kubernetes.input':'Enter the serviceAccountName attribute',
-    'componentOverview.body.Kubernetes.privileged':'Whether to turn on the privileged attribute',
+    'componentOverview.body.Kubernetes.privileged':'Whether to turn on the {type} attribute',
     'componentOverview.body.Kubernetes.Cancel':'Cancel',
     'componentOverview.body.Kubernetes.Confirm':'Confirm',
     'componentOverview.body.Kubernetes.yaml':'The configuration is stored as a YAML file. Click the edit button on the right to view or modify it.',
@@ -925,6 +925,9 @@ const componentOverview = {
     'componentOverview.body.Kubernetes.Closed':'Closed',
     'componentOverview.body.Kubernetes.edit':'Edit',
     'componentOverview.body.Kubernetes.deldete':'Delete',
+    "componentOverview.body.Kubernetes.dnsPolicy":'Select dnsPolicy attribute',
+    "componentOverview.body.Kubernetes.onlyDnsPolicy":'This configuration takes effect only when the desPolicy attribute is None',
+    "componentOverview.body.Kubernetes.is":'The current properties are:',
 
     // tabs栏>setting>AddTag
     'componentOverview.body.AddTag.choice':'Click the tab to select',

@@ -1,7 +1,8 @@
 //共同的信息
     //单位
     const unit = {
-        'unit.entries':' '
+        'unit.entries':' ',
+        'unit.base':'To the bottom!',
     }
     //弹框
     const popover = {
@@ -376,6 +377,12 @@
         'confirmModal.check.appShare.title.loading':'Application in sync',
         'confirmModal.check.appShare.title.success':'Application synchronization successful',
         'confirmModal.check.appShare.title.error':'Please check the following log to confirm the problem and try again',
+        'confirmModal.check.appShare.title.codeLang':'Code language',
+        'confirmModal.check.appShare.title.server':'Server',
+        'confirmModal.check.appShare.title.npmOryarn':'Package manager',
+        'confirmModal.check.appShare.title.port':'Port info',
+        'confirmModal.check.appShare.title.sourceCode':'Source Info',
+        'confirmModal.check.appShare.title.null':'No data',
         
         // 删除组件
         'confirmModal.assembly.delete.title':'Remove component',
@@ -587,6 +594,7 @@
         'notification.warn.port_null':'No terminal port is currently available',
         'notification.warn.parameter_error':'Parameters of the abnormal',
         'notification.warn.proxy':' network anomalies',
+        'notification.warn.not_component':'The current component does not exist!',
 
         //提示
         'notification.hint.component.change':'The switch is successful and the component is updated',

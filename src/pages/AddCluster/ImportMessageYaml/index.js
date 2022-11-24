@@ -114,7 +114,15 @@ export default class ImportMessage extends PureComponent {
                         <Spin size="large" />
                     </div>
                 ) : (
-                    <Card style={{ padding: '24px 12px' }}>
+                    <Card 
+                        style=
+                            {{ 
+                            padding: '24px 12px' ,
+                            borderRadius: 5,
+                            boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                            overflow:'hidden'
+                            }}
+                    >
                         {
                             Object.keys(errorArr).map((item, index) => {
                                 const errorItem = errorArr[item]

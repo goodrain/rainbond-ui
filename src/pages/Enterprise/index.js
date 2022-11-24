@@ -57,10 +57,11 @@ import styles from '../List/BasicList.less';
 import enterpriseStyles from './index.less'
 import styleSvg from './svg.less'
 
-@connect(({ user, global, index }) => ({
+@connect(({ user, global, index, region }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
-  overviewInfo: index.overviewInfo
+  overviewInfo: index.overviewInfo,
+  navigation_status: region.navigation_status
 }))
 export default class Enterprise extends PureComponent {
   constructor(props) {
@@ -607,8 +608,8 @@ export default class Enterprise extends PureComponent {
   // 集群展示图标
   clusterIcon = (provider, region_type) => {
     const styleK8s = {
-      marginRight: '8px', 
-      display:'inline-block', 
+      marginRight: '8px',
+      display: 'inline-block',
       marginTop: '20px'
     }
     const stylesCustom = (region_type == 'custom') ? styleK8s : ''
@@ -678,7 +679,7 @@ export default class Enterprise extends PureComponent {
         );
       default:
         return (
-          <span style={{ marginRight: '8px', display:'inline-block', marginTop: '20px' }} key={provider}>
+          <span style={{ marginRight: '8px', display: 'inline-block', marginTop: '20px' }} key={provider}>
             {/* 直接对接 */}
             {globalUtil.fetchSvg('K8s')}
           </span>
@@ -686,7 +687,7 @@ export default class Enterprise extends PureComponent {
     }
   }
   renderContent = () => {
-    const { rainbondInfo } = this.props;
+    const { rainbondInfo, navigation_status } = this.props;
     const {
       enterpriseInfo,
       overviewInfo,
@@ -732,6 +733,72 @@ export default class Enterprise extends PureComponent {
         </path>
       </svg>
     )
+    const enterpriseInfoSvg = (
+      <svg
+        t="1667907351951"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="5557"
+        width="20"
+        height="20">
+        <path d="M832 896V212.8c0-8.8-7.2-16-16-16H640V80c0-8.8-7.2-16-16-16H208c-8.8 0-16 7.2-16 16v816h-64v64h768v-64h-64z m-64-635.2V864H640V768h64v-64h-64v-64h64v-64h-64v-64h64v-64h-64v-64h64v-64h-64v-59.2h128zM256 128h320v736H256V128z m64 64h64v64h-64v-64z m128 0h64v64h-64v-64zM320 320h64v64h-64v-64z m128 0h64v64h-64v-64zM320 448h64v64h-64v-64z m128 0h64v64h-64v-64zM320 576h64v64h-64v-64z m128 0h64v64h-64v-64zM320 704h64v64h-64v-64z m128 0h64v64h-64v-64z"
+          p-id="5558"
+          fill="#4e74ae">
+        </path>
+      </svg>
+    )
+    const enterpriseDataSvg = (
+      <svg
+        t="1667908843097"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="9646"
+        width="20"
+        height="20"
+      >
+        <path d="M651.324 798.725c0-10.753-7.756-19.458-17.308-19.458H391.775c-9.55 0-17.303 8.705-17.303 19.458v77.824H201.436v58.363h622.906v-58.363H651.324v-77.824zM902.027 89.647H123.769c-32.243 0-58.366 26.104-58.366 58.348V692.77c0 32.221 26.123 58.368 58.366 58.368h778.259c32.243 0 58.368-26.146 58.368-58.368V147.995c0-32.245-26.125-58.348-58.369-58.348z m0 583.63c0 10.734-8.723 19.452-19.457 19.452H143.227c-10.753 0-19.453-8.718-19.453-19.452V167.433c0-10.757 8.7-19.457 19.453-19.457h739.344c10.733 0 19.457 8.7 19.457 19.457v505.844h-0.001z m-199.315-37.223h105.26V329.596h-105.26v306.458z m-168.417 0h105.26V235.301h-105.26v400.753z m-315.782 0h105.26V518.187h-105.26v117.867z m147.364 0h105.261V423.87H365.877v212.185z m0 0"
+          fill="#4e74ae"
+          p-id="9647">
+        </path>
+      </svg>
+    )
+    const clustersInfoSvg = (
+      <svg
+        t="1667910445619"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="16493"
+        width="20"
+        height="20"
+      >
+        <path d="M512 880.94c-203.44 0-368.94-165.5-368.94-368.94S308.56 143.06 512 143.06 880.94 308.56 880.94 512 715.44 880.94 512 880.94z m0-685.18c-174.37 0-316.23 141.86-316.23 316.24S337.63 828.24 512 828.24 828.24 686.38 828.24 512 686.37 195.76 512 195.76z" fill="#4e74ae" p-id="16494">
+        </path>
+        <path d="M512 643.76c-72.66 0-131.76-59.11-131.76-131.76S439.34 380.24 512 380.24 643.77 439.34 643.77 512 584.65 643.76 512 643.76z m0-210.82c-43.6 0-79.06 35.46-79.06 79.06s35.46 79.06 79.06 79.06 79.06-35.46 79.06-79.06-35.47-79.06-79.06-79.06z" fill="#4e74ae" p-id="16495"></path>
+        <path d="M512 960c-14.55 0-26.35-11.8-26.35-26.35V617.41c0-14.55 11.8-26.35 26.35-26.35s26.35 11.8 26.35 26.35v316.24c0 14.55-11.8 26.35-26.35 26.35zM512 432.94c-14.55 0-26.35-11.8-26.35-26.35V90.35C485.64 75.8 497.44 64 512 64c14.55 0 26.35 11.8 26.35 26.35v316.24c0 14.55-11.8 26.35-26.35 26.35zM810.14 836.5c-6.74 0-13.49-2.57-18.63-7.72L567.89 605.17c-10.29-10.29-10.29-26.98 0-37.26 10.28-10.29 26.96-10.29 37.27 0l223.61 223.61c10.29 10.29 10.29 26.98 0 37.26-5.14 5.15-11.88 7.72-18.63 7.72zM437.47 463.83c-6.74 0-13.49-2.57-18.63-7.72L195.22 232.49c-10.29-10.29-10.29-26.98 0-37.26 10.28-10.29 26.98-10.29 37.26 0L456.1 418.84c10.29 10.29 10.29 26.98 0 37.26-5.14 5.16-11.89 7.73-18.63 7.73zM933.65 538.35H617.41c-14.55 0-26.35-11.8-26.35-26.35s11.8-26.35 26.35-26.35h316.23c14.55 0 26.35 11.8 26.35 26.35 0.01 14.55-11.79 26.35-26.34 26.35zM406.59 538.35H90.35C75.8 538.35 64 526.55 64 512s11.8-26.35 26.35-26.35h316.23c14.55 0 26.35 11.8 26.35 26.35 0.01 14.55-11.79 26.35-26.34 26.35zM586.53 463.82c-6.74 0-13.49-2.57-18.63-7.72-10.29-10.29-10.29-26.98 0-37.26l223.61-223.61c10.29-10.29 26.97-10.29 37.26 0s10.29 26.98 0 37.26L605.16 456.1a26.284 26.284 0 0 1-18.63 7.72zM213.85 836.5c-6.74 0-13.49-2.57-18.63-7.72-10.29-10.29-10.29-26.98 0-37.26l223.63-223.63c10.28-10.29 26.97-10.29 37.26 0s10.29 26.98 0 37.26L232.48 828.78c-5.14 5.15-11.89 7.72-18.63 7.72z" fill="#4e74ae" p-id="16496"></path>
+      </svg>
+    )
+    const appErrorSvg = (
+      <svg
+        t="1667909488849"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="15021"
+        width="20"
+        height="20">
+        <path d="M764.5696 353.28l4.4544 4.5056 93.8496-94.6176c8.96-9.0112 8.96-18.0224 8.96-27.0336a64.6656 64.6656 0 0 0-8.96-27.0336 40.3968 40.3968 0 0 0-49.152 4.5056l-93.7984 94.4128 8.9088 4.5056c8.96 18.0224 22.3232 27.0336 35.7376 40.7552zM188.16 519.7824H58.5728a35.84 35.84 0 0 0 0 72.0896h129.5872z m361.9328-419.0208a35.3792 35.3792 0 0 0-35.84-35.84 38.6048 38.6048 0 0 0-35.84 35.84V240.64h71.68zM264.1408 357.5808l4.4544-4.5056A171.4176 171.4176 0 0 1 308.8384 312.32l8.9088-4.5056-98.304-98.9184c-17.8688-13.5168-40.192-13.5168-53.6064 0a64.6656 64.6656 0 0 0-8.96 27.0336 64.6656 64.6656 0 0 0 8.96 27.0336z m705.9968 162.2016h-129.5872v72.0896h129.5872a35.84 35.84 0 0 0 0-72.0896zM599.04 600.8832h-80.2304l44.6976-45.056c8.96-9.0112 8.96-18.0224 8.96-27.0336a64.6656 64.6656 0 0 0-8.96-27.0336 34.8672 34.8672 0 0 0-49.152 0l-107.2128 103.6288a35.5328 35.5328 0 0 0 0 49.5616q13.3632 13.5168 40.192 13.5168h75.9808L460.8 740.5568c-8.96 9.0112-8.96 18.0224-8.96 27.0336A64.6656 64.6656 0 0 0 460.8 794.624c8.8576 9.216 17.8176 9.216 26.7264 9.216a63.232 63.232 0 0 0 26.8288-9.0112l107.52-108.1344a58.5216 58.5216 0 0 0 17.8688-45.056c-0.256-22.7328-13.6704-40.7552-40.704-40.7552z m259.1744 292.864h-57.9072v-328.9088C800.3072 407.1424 670.72 276.48 514.3552 276.48s-285.952 130.6624-285.952 288.3584v328.9088H170.2912a35.84 35.84 0 0 0 0 72.0896h688.128a35.84 35.84 0 0 0 0-72.0896z m-129.5872 0H299.8784v-306.3808c0-58.5728 22.3232-112.64 62.5664-157.696a204.544 204.544 0 0 1 303.8208 0c40.2432 40.5504 62.5664 99.1232 62.5664 157.696z"
+          fill="#4e74ae"
+          p-id="15022">
+        </path>
+      </svg>
+    )
     return (
       <div>
         {convenientVisible && (
@@ -755,13 +822,18 @@ export default class Enterprise extends PureComponent {
         {/* 企业信息、数据总览板块 */}
         <div>
           <div className={enterpriseStyles.title}>
-            <div>{formatMessage({ id: 'enterpriseOverview.information.message' })}</div>
-            <div>{formatMessage({ id: 'enterpriseOverview.information.dataScreen' })}</div>
+            <div>
+              <span>{enterpriseInfoSvg}</span>
+              <h2>{formatMessage({ id: 'enterpriseOverview.information.message' })}</h2></div>
+            <div>
+              <span>{enterpriseDataSvg}</span>
+              <h2>{formatMessage({ id: 'enterpriseOverview.information.dataScreen' })}</h2></div>
           </div>
           <Card
-            style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+            style={{ marginBottom: '20px', background:'transparent'}}
             loading={enterpriseInfoLoading}
             bordered={false}
+            bodyStyle={{padding:0}}
           >
             <Fragment>
               <div className={enterpriseStyles.enterpriseBox}>
@@ -822,36 +894,36 @@ export default class Enterprise extends PureComponent {
                 </div>
                 <div className={enterpriseStyles.enterpriseData} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                   <div className={enterpriseStyles.piece}>
+                  <p>{formatMessage({ id: 'enterpriseOverview.overview.colony' })}</p>
                     <p>
                       <Link style={colors} to={`/enterprise/${eid}/clusters`} >
                         {overviewMonitorInfo && overviewMonitorInfo.total_regions || 0}
                       </Link>
                     </p>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.colony' })}</p>
                   </div>
                   <div className={enterpriseStyles.piece}>
+                  <p>{formatMessage({ id: 'enterpriseOverview.overview.team' })}</p>
                     <p>
                       <Link to={`/enterprise/${eid}/teams`} style={colors}>
                         {overviewInfo && overviewInfo.total_teams}
                       </Link>
                     </p>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.team' })}</p>
                   </div>
                   <div className={enterpriseStyles.piece}>
+                  <p>{formatMessage({ id: 'enterpriseOverview.overview.user' })}</p>
                     <p>
                       <Link to={`/enterprise/${eid}/users`} style={colors}>
                         {overviewInfo && overviewInfo.total_users}
                       </Link>
                     </p>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.user' })}</p>
                   </div>
                   <div className={enterpriseStyles.piece}>
+                  <p>{formatMessage({ id: 'enterpriseOverview.overview.template' })}</p>
                     <p>
                       <Link to={`/enterprise/${eid}/shared/local`} style={colors} >
                         {overviewInfo && overviewInfo.shared_apps}
                       </Link>
                     </p>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.template' })}</p>
                   </div>
                 </div>
               </div>
@@ -861,15 +933,20 @@ export default class Enterprise extends PureComponent {
         {/* 集群信息 */}
         <div>
           <div className={enterpriseStyles.title}>
-            <div>{formatMessage({ id: 'enterpriseOverview.information.colonyInfo' })}</div>
+            <div>
+              <span>{clustersInfoSvg}</span>
+              <h2>{formatMessage({ id: 'enterpriseOverview.information.colonyInfo' })}</h2>
+            </div>
           </div>
           <Card
-            style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+            // style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+            style={{ marginBottom: '20px', background:'transparent'}}
             loading={overviewAppInfoLoading}
             bordered={false}
+            bodyStyle={{padding:0}}
           >
             {clusters.length > 0 ?
-              (clusters.map((item,index) => {
+              (clusters.map((item, index) => {
                 const {
                   region_alias,
                   rbd_version,
@@ -934,7 +1011,7 @@ export default class Enterprise extends PureComponent {
                           </div>
                           <div className={enterpriseStyles.content_data}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.memory_total' })}: <span>{memoryTotal || 0}</span>{memoryTotalUnit}</p>
-                            <Charts keys={'memory' + `${index}` } svalue={memoryUsed || 0} cname={formatMessage({ id: 'enterpriseOverview.overview.memory' })} swidth='200px' sheight='120px' />
+                            <Charts keys={'memory' + `${index}`} svalue={memoryUsed || 0} cname={formatMessage({ id: 'enterpriseOverview.overview.memory' })} swidth='200px' sheight='120px' />
                           </div>
                           <div className={enterpriseStyles.node}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.node_total' })}</p>
@@ -944,7 +1021,7 @@ export default class Enterprise extends PureComponent {
                             </div>
                           </div>
                           <div className={enterpriseStyles.node}>
-                            <p>{formatMessage({ id: 'enterpriseOverview.overview.pod_total' })}</p>
+                            <p >{formatMessage({ id: 'enterpriseOverview.overview.pod_total' })}</p>
                             <div className={enterpriseStyles.nodeData}>
                               <span className={enterpriseStyles.running}>{services_status && services_status.running || 0}</span>
                             </div>
@@ -975,15 +1052,25 @@ export default class Enterprise extends PureComponent {
         {/* 应用报警 */}
         <div>
           <div className={enterpriseStyles.title}>
-            <div>{formatMessage({ id: 'enterpriseOverview.information.appAlert' })}</div>
+            <div>
+              <span>{appErrorSvg}</span>
+              <h2>{formatMessage({ id: 'enterpriseOverview.information.appAlert' })}</h2>
+            </div>
           </div>
           <Card
-            style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+            // style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+            style={{ marginBottom: '20px', background:'transparent',}}
             loading={overviewAppInfoLoading}
             bordered={false}
+            bodyStyle={{padding:0, }}
           >
             {appAlertList.length > 0 && (
-              <div className={enterpriseStyles.appAlert}>
+              <div className={enterpriseStyles.appAlert} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
+                <div style={{
+                  height:170,
+                  overflowX:"hidden",
+                  overflowY:'scroll'
+                }}>
                 {appAlertList.map(item => {
                   const { group_id, group_name, region_name, service_alias, service_cname, tenant_name, tenant_alias } = item
                   return (
@@ -996,7 +1083,8 @@ export default class Enterprise extends PureComponent {
                           }}
                         >
                           {tenant_alias}
-                        </span>{formatMessage({ id: 'enterpriseOverview.team.group' })}
+                        </span>
+                        {formatMessage({ id: 'enterpriseOverview.team.group' })}
                         <span
                           className={enterpriseStyles.spanStyle}
                           onClick={() => {
@@ -1004,8 +1092,10 @@ export default class Enterprise extends PureComponent {
                           }}
                         >
                           {group_name}
-                        </span>{formatMessage({ id: 'enterpriseOverview.overview.app' })}
-                        <span>{formatMessage({ id: 'enterpriseOverview.overview.inside' })}</span>
+                        </span>
+                        {formatMessage({ id: 'enterpriseOverview.overview.app' })}
+                        {formatMessage({ id: 'enterpriseOverview.overview.inside' })}
+                        {formatMessage({ id: 'enterpriseOverview.overview.component' })}
                         <span
                           className={enterpriseStyles.spanStyle}
                           onClick={() => {
@@ -1013,18 +1103,19 @@ export default class Enterprise extends PureComponent {
                           }}
                         >
                           {service_cname}
-                        </span>{formatMessage({ id: 'enterpriseOverview.overview.component' })}
+                        </span>
                         <span style={{ color: 'red' }}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
                       </div>
                       <div>
-                        <span style={{marginTop:'2px'}}>
-                        {globalUtil.fetchSvg('runTime')}
+                        <span style={{ marginTop: '2px' }}>
+                          {globalUtil.fetchSvg('runTime')}
                         </span>
                         {moment(timestamp).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}
                       </div>
                     </div>
                   )
                 })}
+              </div>
               </div>
             )}
             {appAlertLoding && (

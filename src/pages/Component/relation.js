@@ -173,6 +173,9 @@ export default class Index extends PureComponent {
               <Icon type="plus" /> <FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.add'/>
             </Button>
           }
+          style={{
+            borderRadius:5,
+          }}
         >
           <ScrollerX sm={650}>
             <Table

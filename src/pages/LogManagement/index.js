@@ -10,6 +10,7 @@ import ClusterLog from './secondaryLogs'
 import userUtil from '../../utils/user';
 import dateUtil from '../../utils/date-util';
 import global from '../../utils/global';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import LogInfo from '../../components/EnterpriseLog'
 import styles from './index.less'
 const { TabPane } = Tabs;
@@ -69,8 +70,9 @@ export default class EnterpriseSetting extends PureComponent {
             <PageHeaderLayout
                 title={formatMessage({id:'LogEnterprise.title'})}
                 content={formatMessage({ id: 'LogEnterprise.desc' })}
+                titleSvg={pageheaderSvg.getSvg('logSvg',18)}
             >
-                <Tabs onChange={this.onChange} activeKey={activeKey} destroyInactiveTabPane>
+                <Tabs onChange={this.onChange} activeKey={activeKey} destroyInactiveTabPane className={styles.setTabs} type="card">
                     <TabPane tab={formatMessage({id:'LogEnterprise.console'})} key="consoleLog">
                         <LogInfo  type={true}/>
                     </TabPane>

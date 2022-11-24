@@ -535,7 +535,7 @@ export default class ComponentList extends Component {
     const customBox = [
       {
         permissions: isConstruct,
-        name: formatMessage({id:'appOverview.list.table.start'}),
+        name: formatMessage({id:'appOverview.btn.build'}),
         action: 'deploy'
       },
       {

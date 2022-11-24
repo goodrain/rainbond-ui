@@ -59,7 +59,7 @@ export default class SpecialAttribute extends PureComponent {
         const { getFieldDecorator, setFieldsValue } = form;
         
         return (
-            <Card title={formatMessage({id:'enterpriseColony.import.recognition.tabs.specialAttr'})} style={{ marginBottom: '10px' }}>
+            <Card title={formatMessage({id:'enterpriseColony.import.recognition.tabs.specialAttr'})} style={{ marginBottom: '10px' ,  borderRadius: 5, boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',overflow:'hidden'}}>
 
                 {value && value.length > 0 ? (
                     value.map((item, index) => {

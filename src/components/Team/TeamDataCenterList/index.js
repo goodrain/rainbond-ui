@@ -92,7 +92,6 @@ export default class DatacenterList extends PureComponent {
             marginBottom: 24
           }}
           title={formatMessage({id: 'teamManage.tabs.cluster.openCluster'})}
-          bordered={false}
           extra={isInstall && <a onClick={this.onOpenRegion}>
             {formatMessage({id: 'teamManage.tabs.cluster.open'})}
           </a>}

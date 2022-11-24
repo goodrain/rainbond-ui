@@ -114,7 +114,7 @@ const enterpriseOverview = {
 const applicationMarket = {
     // PageHeaderLayout
     'applicationMarket.pageHeaderLayout.title': '应用市场管理',
-    'applicationMarket.PageHeaderLayout.content': '应用市场支持Rainstore应用商店和Helm应用商店的对接和管理',
+    'applicationMarket.PageHeaderLayout.content': '应用市场支持Rainstore应用商店和Helm应用商店的对接和管理。',
     // 本地组件库tabs
     'applicationMarket.localMarket.title':'本地组件库',
     'applicationMarket.localMarket.placeholder':'请输入名称进行搜索',
@@ -864,7 +864,7 @@ const enterpriseColony = {
 const enterpriseUser = {
     // PageHeaderLayout
     'enterpriseUser.PageHeaderLayout.title': '用户管理',
-    'enterpriseUser.PageHeaderLayout.content': '企业用户查询、添加和修改相关功能，用户需要操作应用或组件相关资源时需要将其分配到相应的团队',
+    'enterpriseUser.PageHeaderLayout.content': '企业用户添加、查询、修改等相关功能，用户需要操作应用或组件相关资源时需要将其分配到相应的团队。',
     // 新增用户
     'enterpriseUser.button.adduser': '新增用户',
     'enterpriseUser.button.edituser': '编辑用户',
@@ -890,7 +890,7 @@ const enterpriseUser = {
 const enterpriseSetting = {
     // PageHeaderLayout
     'enterpriseSetting.PageHeaderLayout.title': '企业设置',
-    'enterpriseSetting.PageHeaderLayout.content': '支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供',
+    'enterpriseSetting.PageHeaderLayout.content': '支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供。',
     // tabs>TabPane
     'enterpriseSetting.TabPane.basicsSetting': '基础设置',
     'enterpriseSetting.TabPane.enterpriseAdmin': '企业管理员管理',
@@ -1045,7 +1045,7 @@ const otherEnterprise= {
 //日志
 const LogEnterprise = {
     'LogEnterprise.title':'日志',
-    'LogEnterprise.desc':'展示平台关键组件的日志。用于平台运维和问题排查。',
+    'LogEnterprise.desc':'展示平台关键组件的日志，用于平台运维和问题排查。',
     'LogEnterprise.console':'控制台日志',
     'LogEnterprise.getway':'网关日志',
     'LogEnterprise.api':'API日志',

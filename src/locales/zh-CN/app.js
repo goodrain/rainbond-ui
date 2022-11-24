@@ -88,7 +88,7 @@ const appOverview = {
 //应用发布
 const appPublish = {
   'appPublish.title': '发布记录管理',
-  'appPublish.desc': '应用发布是指将当前运行的应用进行模型化，形成应用模版发布到企业应用市场或云端应用商店中，从而支持应用的标准化交付或共享',
+  'appPublish.desc': '应用发布是指将当前运行的应用进行模型化，形成应用模版发布到企业应用市场或云端应用商店中，从而支持应用的标准化交付或共享。',
   'appPublish.btn.local':'发布到组件库',
   'appPublish.btn.market':'发布到云应用商店',
   'appPublish.table.publishName':'发布模版名称',
@@ -184,7 +184,7 @@ const appPublish = {
 //备份
 const appBackups = {
   'appBackups.title':'备份管理',
-  'appBackups.desc':'应用备份是指将当前应用元数据、持久化数据、版本数据完整备份，备份记录可用于应用迁移和回滚，云端备份记录可用于跨集群应用迁移操作',
+  'appBackups.desc':'应用备份是指将当前应用元数据、持久化数据、版本数据完整备份。备份记录可用于应用迁移与回滚，云端备份记录可用于跨集群应用迁移操作。',
   'appBackups.btn.addBackups':'新增备份',
   'appBackups.btn.importBackups':'导入备份',
   'appBackups.btn.allBackups':'团队全部备份',
@@ -222,7 +222,7 @@ const appBackups = {
 //网关
 const appGateway = {
   'appGateway.title':'网关访问策略管理',
-  'appGateway.desc':'访问策略是指从集群外访问组件的方式，包括使用HTTP域名访问或IP+Port(TCP/UDP)访问，这里仅管理当前应用下的所有组件的访问策略',
+  'appGateway.desc':'访问策略是指从集群外访问组件的方式，包括使用HTTP域名访问或IP+Port(TCP/UDP)访问，这里仅管理当前应用下的所有组件的访问策略。',
   'appGateway.placeholder.domain':'搜索域名/组件',
   'appGateway.placeholder.port':'搜索端口/组件',
   'appGateway.btn.search':'搜索',
@@ -242,7 +242,7 @@ const appGateway = {
 //升级
 const appUpgrade = {
   'appUpgrade.title':'升级管理',
-  'appUpgrade.desc':'当前应用内具有从应用市场或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作',
+  'appUpgrade.desc':'当前应用内具有从应用市场或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作。',
   'appUpgrade.tabs.list':'应用模型列表',
   'appUpgrade.current_version':'当前版本',
   'appUpgrade.Upgradable_version':'可升级版本',
@@ -264,7 +264,7 @@ const appUpgrade = {
 //配置
 const appConfiguration = {
   'appConfiguration.title':'应用配置组管理',
-  'appConfiguration.desc':'配置组是通过环境变量注入到当前应用指定的组件运行环境中',
+  'appConfiguration.desc':'配置组是通过环境变量注入到当前应用指定的组件运行环境中。',
   'appConfiguration.placeholder':'搜索配置组名称',
   'appConfiguration.btn.search':'搜索',
   'appConfiguration.btn.add':'添加配置组',

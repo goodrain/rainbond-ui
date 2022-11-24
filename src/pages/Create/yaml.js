@@ -9,6 +9,7 @@ import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import ImportCluster from '../AddCluster/ImportMessage/message';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import rainbondUtil from '../../utils/rainbond';
 import roleUtil from '../../utils/role';
 import Yaml from './yaml-yaml';
@@ -91,6 +92,7 @@ export default class Main extends PureComponent {
         content={<p>{formatMessage({id: 'teamAdd.create.upload.desc'})}</p>}
         tabActiveKey={type}
         tabList={tabList}
+        titleSvg={pageheaderSvg.getSvg('yamlSvg',18)}
       >
         {Com ? (
           <Com

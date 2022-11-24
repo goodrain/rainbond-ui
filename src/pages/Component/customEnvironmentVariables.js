@@ -479,7 +479,8 @@ export default class Index extends React.Component {
         </Row>
         <Card
           style={{
-            marginBottom: 24
+            marginBottom: 24,
+            borderRadius:5,
           }}
           title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title'/> </span>}
           extra={
@@ -542,6 +543,9 @@ export default class Index extends React.Component {
               <FormattedMessage id='componentOverview.body.tab.env.file.mount'/>
             </Button>
           }
+          style={{
+            borderRadius:5,
+          }}
         >
           <ScrollerX sm={850}>
             <Table

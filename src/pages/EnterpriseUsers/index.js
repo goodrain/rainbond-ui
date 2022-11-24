@@ -9,6 +9,7 @@ import CurrentTeams from '../../components/CurrentTeams';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cloud from '../../utils/cloud';
 import userUtil from '../../utils/user';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
@@ -330,12 +331,17 @@ export default class EnterpriseUsers extends PureComponent {
       <PageHeaderLayout
         title={<FormattedMessage id='enterpriseUser.PageHeaderLayout.title'/>}
         content={<FormattedMessage id='enterpriseUser.PageHeaderLayout.content'/>}
+        titleSvg={pageheaderSvg.getSvg('userSvg',18)}
       >
         <Row
           style={{
-            marginBottom: '20px',
+            marginBottom: '10px',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            background:'#fafbfc',
+            borderRadius:5,
+            boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
+            padding:10
           }}
         >
           <Col span={12}>
@@ -375,7 +381,7 @@ export default class EnterpriseUsers extends PureComponent {
             )}
           </Col>
         </Row>
-        <Card>
+        <Card style={{borderRadius:5,boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px',}}> 
           {delVisible && (
             <ConfirmModal
               onOk={this.handleDelete}

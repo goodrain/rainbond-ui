@@ -54,12 +54,12 @@ export default class PageHeader extends PureComponent {
             )}
             {item.href
               ? createElement(
-                  linkElement,
-                  {
-                    [linkElement === 'a' ? 'href' : 'to']: item.href
-                  },
-                  item.title
-                )
+                linkElement,
+                {
+                  [linkElement === 'a' ? 'href' : 'to']: item.href
+                },
+                item.title
+              )
               : item.title}
           </Breadcrumb.Item>
         ))}
@@ -157,7 +157,8 @@ export default class PageHeader extends PureComponent {
       tabList,
       className,
       tabActiveKey,
-      isSvg
+      isSvg,
+      titleSvg
     } = this.props;
     const clsString = classNames(styles.pageHeader, className);
     // const { teamName, regionName } = this.props.match.params;
@@ -174,54 +175,60 @@ export default class PageHeader extends PureComponent {
     }
 
     return (
-      <div className={clsString}>
-        {/* disable breadcrumb */}
-        {/* {breadcrumb} */}
-        <div className={styles.detail}>
-          {logo && <div className={styles.logo}>{logo}</div>}
-          <div className={styles.main}>
-            <div className={styles.row}>
-              {title && <h1 className={styles.title}>{title}</h1>}
-              {action && <div className={styles.action}>{action}</div>}
-            </div>
-            <div className={styles.row}>
-              {content && <div className={styles.content}>{content}</div>}
-              {extraContent && (
-                <div className={styles.extraContent}>{extraContent}</div>
-              )}
+      <>
+        <div className={clsString}>
+          {/* disable breadcrumb */}
+          {/* {breadcrumb} */}
+          <div className={styles.detail}>
+            {logo && <div className={styles.logo}>{logo}</div>}
+            <div className={styles.main}>
+              <div className={styles.row}>
+                {titleSvg && <i className={styles.title_svg}>{titleSvg}</i>}
+                {title && <h1 className={styles.title}>{title}</h1>}
+                {action && <div className={styles.action}>{action}</div>}
+              </div>
+              <div className={styles.row}>
+                {content && <div className={styles.content}>{content}</div>}
+                {extraContent && (
+                  <div className={styles.extraContent}>{extraContent}</div>
+                )}
+              </div>
             </div>
           </div>
         </div>
         {tabList && tabList.length && (
-          <Tabs
-            className={styles.tabs}
-            {...activeKeyProps}
-            onChange={this.onChange}
-          >
-            {tabList.map(item => {
-              const { key, tab } = item;
-              return (
-                <TabPane
-                  tab={
-                    <span className={styles.verticalCen}>
-                      {isSvg &&
-                        globalUtil.fetchSvg(
-                          key === 'localApplication'
-                            ? 'localMarket'
-                            : key.indexOf('Helm-') > -1
-                            ? 'HelmSvg'
-                            : 'cloudMarket'
-                        )}
-                      {tab}
-                    </span>
-                  }
-                  key={key}
-                />
-              );
-            })}
-          </Tabs>
+        <div className={styles.tabsStyle}>
+            <Tabs
+              className={styles.tabs}
+              {...activeKeyProps}
+              onChange={this.onChange}
+              type='card'
+            >
+              {tabList.map(item => {
+                const { key, tab } = item;
+                return (
+                  <TabPane
+                    tab={
+                      <span className={styles.verticalCen}>
+                        {isSvg &&
+                          globalUtil.fetchSvg(
+                            key === 'localApplication'
+                              ? 'localMarket'
+                              : key.indexOf('Helm-') > -1
+                                ? 'HelmSvg'
+                                : 'cloudMarket'
+                          )}
+                        {tab}
+                      </span>
+                    }
+                    key={key}
+                  />
+                );
+              })}
+            </Tabs>
+        </div>
         )}
-      </div>
+      </>
     );
   }
 }

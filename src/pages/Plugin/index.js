@@ -11,6 +11,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import roleUtil from '../../utils/role';
 import styles from './Index.less';
 import Manage from './manage';
@@ -458,6 +459,7 @@ class PluginList extends PureComponent {
         title={formatMessage({id: 'teamPlugin.title'})}
         content={content}
         extraContent={extraContent}
+        titleSvg={pageheaderSvg.getSvg('apiSvg',18)}
       >
         <div className={styles.cardList}>
           <List

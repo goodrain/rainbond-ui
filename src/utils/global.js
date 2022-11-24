@@ -474,7 +474,7 @@ const global = {
         </svg>
       ),
       defaulAppImg: (
-        <svg t="1666955709192" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="52809" width="200" height="200">
+        <svg t="1666955709192" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="52809" width="44" height="44">
           <path d="M243.2 364.8l-2.133333 300.8 260.266666 153.6 264.533334-147.2 2.133333-300.8-262.4-153.6-262.4 147.2z m241.066667 401.066667L277.333333 646.4l2.133334-243.2 206.933333 108.8-2.133333 253.866667z m243.2-115.2l-206.933334 115.2 2.133334-256 206.933333-104.533334-2.133333 245.333334z m-221.866667-170.666667l-198.4-104.533333 200.533333-115.2 198.4 117.333333-200.533333 102.4z"
             fill="#4d73b1" p-id="52810">
           </path>
@@ -1125,8 +1125,8 @@ const global = {
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           p-id="12568"
-          width="36"
-          height="36"
+          width="24"
+          height="24"
         >
           <path
             d="M488.727273 553.890909c65.163636-41.890909 111.709091-111.709091 111.709091-190.836364 0-125.672727-102.4-223.418182-228.072728-223.418181s-232.727273 97.745455-232.727272 223.418181c0 83.781818 46.545455 153.6 111.709091 190.836364-121.018182 46.545455-204.8 158.254545-204.8 293.236364 0 23.272727 18.618182 37.236364 37.236363 37.236363s37.236364-18.618182 37.236364-37.236363c0-134.981818 111.709091-242.036364 246.690909-242.036364s246.690909 107.054545 246.690909 242.036364c0 23.272727 18.618182 37.236364 37.236364 37.236363s37.236364-18.618182 37.236363-37.236363c4.654545-130.327273-83.781818-246.690909-200.145454-293.236364z m-121.018182-41.890909c-83.781818 0-148.945455-65.163636-148.945455-148.945455s69.818182-148.945455 148.945455-148.945454c83.781818 0 148.945455 65.163636 148.945454 148.945454s-65.163636 148.945455-148.945454 148.945455zM828.509091 614.4c46.545455-37.236364 74.472727-93.090909 74.472727-148.945455 0-102.4-83.781818-186.181818-186.181818-186.181818-18.618182 0-37.236364 4.654545-60.509091 13.963637h-4.654545s-4.654545 4.654545-9.309091 4.654545c-13.963636 9.309091-23.272727 23.272727-23.272728 37.236364 0 23.272727 18.618182 41.890909 41.89091 41.890909 4.654545 0 9.309091-4.654545 13.963636-4.654546 9.309091-4.654545 23.272727-4.654545 32.581818-4.654545 60.509091 0 107.054545 46.545455 107.054546 102.4 0 60.509091-46.545455 107.054545-102.4 107.054545-27.927273 0-46.545455 18.618182-46.545455 46.545455 0 23.272727 23.272727 46.545455 46.545455 46.545454h4.654545c97.745455 0 176.872727 79.127273 176.872727 176.872728 0 23.272727 18.618182 41.890909 41.890909 41.890909s41.890909-18.618182 41.890909-41.890909c0-102.4-55.854545-195.490909-148.945454-232.727273z"
@@ -1144,8 +1144,8 @@ const global = {
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           p-id="14265"
-          width="36"
-          height="36"
+          width="24"
+          height="24"
         >
           <path
             d="M747.178667 378.069333a34.133333 34.133333 0 0 0-25.941334 3.84l-194.645333 112.170667a26.453333 26.453333 0 0 1-26.197333 0L303.445333 381.568a34.133333 34.133333 0 0 0-46.677333 13.056 35.029333 35.029333 0 0 0 12.586667 47.488l196.266666 113.365333a26.368 26.368 0 0 1 13.184 22.784v216.021334a9.856 9.856 0 0 0 0 1.621333 34.346667 34.346667 0 0 0 34.133334 33.621333h0.725333a34.986667 34.986667 0 0 0 34.944-34.944v-216.490666a26.410667 26.410667 0 0 1 12.8-22.741334l194.730667-113.365333a35.157333 35.157333 0 0 0 12.032-48.298667 33.834667 33.834667 0 0 0-20.992-15.616z"
@@ -1968,6 +1968,47 @@ const global = {
       return true;
     }
     return false;
+  },
+  appStatusColor(AppStatus) {
+    // 应用状态的标识颜色
+    const appStateColor = {
+      RUNNING: '#52c41a',
+      STARTING: '#52c41a',
+      CLOSED: '#000000b3',
+      STOPPING: '#000',
+      ABNORMAL: '#f5222d',
+      PARTIAL_ABNORMAL: '#f5222d',
+      unknown: '#f5222d',
+      deployed: '#52c41a',
+      superseded: '#52c41a',
+      failed: '#f5222d',
+      'pending-install': '#52c41a',
+      'pending-upgrade': '#52c41a',
+      'pending-rollback': '#52c41a'
+    }
+    return appStateColor[AppStatus] || '#d9d9d9'
+  },
+  appStatusText(AppStatus) {
+    //   应用状态
+    const appState = {
+      RUNNING: formatMessage({ id: 'ApplicationState.RUNNING' }),
+      STARTING: formatMessage({ id: 'ApplicationState.STARTING' }),
+      CLOSED: formatMessage({ id: 'ApplicationState.CLOSED' }),
+      STOPPING: formatMessage({ id: 'ApplicationState.STOPPING' }),
+      ABNORMAL: formatMessage({ id: 'ApplicationState.ABNORMAL' }),
+      PARTIAL_ABNORMAL: formatMessage({ id: 'ApplicationState.PARTIAL_ABNORMAL' }),
+      'not-configured': formatMessage({ id: 'ApplicationState.not-configured' }),
+      unknown: formatMessage({ id: 'ApplicationState.unknown' }),
+      deployed: formatMessage({ id: 'ApplicationState.deployed' }),
+      superseded: formatMessage({ id: 'ApplicationState.superseded' }),
+      failed: formatMessage({ id: 'ApplicationState.failed' }),
+      uninstalled: formatMessage({ id: 'ApplicationState.uninstalled' }),
+      uninstalling: formatMessage({ id: 'ApplicationState.uninstalling' }),
+      'pending-install': formatMessage({ id: 'ApplicationState.pending-install' }),
+      'pending-upgrade': formatMessage({ id: 'ApplicationState.pending-upgrade' }),
+      'pending-rollback': formatMessage({ id: 'ApplicationState.pending-rollback' })
+    }
+    return appState[AppStatus] || formatMessage({id:'ApplicationState.leave_unused'})
   }
 };
 

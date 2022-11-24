@@ -5,6 +5,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import HttpTable from '../../components/HttpTable';
 import TcpTable from '../../components/TcpTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import {
   createApp,
   createEnterprise,
@@ -137,6 +138,7 @@ export default class AppGatewayList extends PureComponent {
         breadcrumbList={breadcrumbList}
         title={formatMessage({id: 'appGateway.title'})}
         content={formatMessage({id: 'appGateway.desc'})}
+        titleSvg={pageheaderSvg.getSvg('gatewaySvg',18)}
         tabList={[
           {
             key: 'http',

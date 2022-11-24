@@ -12,6 +12,7 @@ import { enquireScreen } from 'enquire-js';
 import PropTypes from 'prop-types';
 import { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';
@@ -37,6 +38,7 @@ import Context from './MenuContext';
 import Logo from '../../public/logo.png'
 import styles from './EnterpriseLayout.less'
 import headerStype from '../components/GlobalHeader/index.less';
+import "animate.css"
 const { Content } = Layout;
 
 const query = {
@@ -86,7 +88,8 @@ class TeamLayout extends PureComponent {
       eid: '',
       appID: globalUtil.getAppID(),
       teamView: true,
-      showMenu: true
+      showMenu: true,
+      GroupShow: true
     };
   }
 
@@ -102,7 +105,7 @@ class TeamLayout extends PureComponent {
     }
     const urlParams = new URL(window.location.href);
     if (urlParams) {
-      const bool = urlParams.href.includes("/helminstall")
+      const bool = urlParams.href.includes("/helminstall");
       if (bool) {
         this.setState({
           showMenu: false
@@ -110,6 +113,17 @@ class TeamLayout extends PureComponent {
       } else {
         this.setState({
           showMenu: true
+        })
+      }
+    }
+    if(urlParams) {
+      const code = urlParams.href.includes("/create/code");
+      const image = urlParams.href.includes("/create/image");
+      const yaml = urlParams.href.includes("/create/yaml");
+      const outer = urlParams.href.includes("/create/outer");
+      if(code || image || yaml || outer){
+        this.setState({
+          GroupShow:false
         })
       }
     }
@@ -279,7 +293,8 @@ class TeamLayout extends PureComponent {
       currentEnterprise: enterpriseList[0],
       currentTeam: team,
       currentRegion: region,
-      ready: true
+      ready: true,
+      GroupShow: true
     });
     this.fetchEnterpriseInfo(eid);
     this.fetchTeamApps();
@@ -310,7 +325,7 @@ class TeamLayout extends PureComponent {
           app_alias: componentID
         },
         callback: appDetail => {
-          this.setState({ currentComponent: appDetail.service });
+          this.setState({ currentComponent: appDetail.service, GroupShow: false });
         },
         handleError: data => {
           if (data.status) {
@@ -404,7 +419,8 @@ class TeamLayout extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            currentApp: res.bean
+            currentApp: res.bean,
+            GroupShow: true
           });
         }
       },
@@ -422,6 +438,11 @@ class TeamLayout extends PureComponent {
       }
     });
   };
+  onJumpPersonal = () => {
+    const { eid } = this.state
+    const { dispatch } = this.props
+    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+  }
 
   render() {
     const {
@@ -504,20 +525,19 @@ class TeamLayout extends PureComponent {
       groupDetail && groupDetail.app_type === 'helm'
         ? 'helm'
         : this.getMode(appID || componentID);
-
-    const customHeader = () => {
+    const customHeaderImg = () => {
       return (
-        <div className={headerStype.enterprise}>
-          <img src={Logo} alt="" />
+        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
+          <img src={fetchLogo} alt="" />
         </div>
       );
     };
-  const svgPersonal = globalUtil.fetchSvg('svgPersonal')
-    const breadCrumb = () => {
+
+    const customHeader = () => {
       if (mode == 'team') {
         return (
           <TeamHeader
-            nobleIcon={svgPersonal}
+            nobleIcon={BillingFunction && nobleIcon}
             teamName={teamName}
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
@@ -535,7 +555,7 @@ class TeamLayout extends PureComponent {
           currentRegion={currentRegion}
           regionName={regionName}
           appID={appID}
-          nobleIcon={svgPersonal}
+          nobleIcon={BillingFunction && nobleIcon}
           currentComponent={currentComponent}
           componentID={componentID}
           upDataHeader={upDataHeader}
@@ -654,6 +674,7 @@ class TeamLayout extends PureComponent {
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
               customHeader={teamView && customHeader}
+              customHeaderImg={teamView && customHeaderImg}
             />
 
             <Layout style={{ flexDirection: 'row' }}>
@@ -678,22 +699,57 @@ class TeamLayout extends PureComponent {
                   showMenu={showMenu ? !componentID : false}
                 />
               )}
-              <Content
+              <TransitionGroup
                 style={{
                   height: 'calc(100vh - 64px)',
                   overflow: 'auto',
-                  width: autoWidth
-                }}
-              >
-                {teamView && breadCrumb()}
-                <div
-                  style={{
-                    margin: '12px 24px 0'
-                  }}
-                >
-                  {renderContent()}
-                </div>
-              </Content>
+                  width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
+                }}>
+                {this.state.GroupShow ?
+                  <CSSTransition
+                    timeout={300}
+                    classNames=
+                    {{
+                      enter: 'animate__animated',
+                      enterActive: 'animate__fadeIn',
+                    }}
+                    unmountOnExit
+                    key={this.props.location.pathname}
+                  >
+                    <Content
+                      style={{
+                        height: 'calc(100vh - 64px)',
+                        overflow: 'auto',
+                        width: '100%'
+                      }}
+                    >
+                      <div
+                        style={{
+                          margin: '24px 24px 0'
+                        }}
+                      >
+                        {renderContent()}
+                      </div>
+                    </Content>
+                  </CSSTransition>
+                  :
+                  <Content
+                    style={{
+                      height: 'calc(100vh - 64px)',
+                      overflow: 'auto',
+                      width: '100%'
+                    }}
+                  >
+                    <div
+                      style={{
+                        margin: '24px 24px 0'
+                      }}
+                    >
+                      {renderContent()}
+                    </div>
+                  </Content>
+                }
+              </TransitionGroup>
             </Layout>
           </Layout>
         </Layout>
