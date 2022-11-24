@@ -44,10 +44,11 @@ export default class Space extends Component {
       dynamicLoding: true,
       teamListLoding: true,
       page: 1,
-      pageSize: 30,
+      pageSize: 15,
       language: cookie.get('language') === 'zh-CN' ? true : false,
       throttle:true,
       loadingSwitch: false,
+      isNotData: false,
     }
 
   }
@@ -157,13 +158,22 @@ export default class Space extends Component {
         },
         callback: res => {
           if (res && res.status_code === 200) {
-            this.setState({
-              dynamicList: [...this.state.dynamicList,...res.list],
-              dynamicLoding: false,
-              throttle:!this.state.throttle,
-              page: page+1,
-              loadingSwitch:false
-            });
+            if(res.list.length > 0){
+              this.setState({
+                dynamicList: [...this.state.dynamicList,...res.list],
+                dynamicLoding: false,
+                throttle:!this.state.throttle,
+                page: page+1,
+                loadingSwitch:false,
+                isNotData: false,
+              });
+            }else{
+              this.setState({
+                throttle: false,
+                loadingSwitch: false,
+                isNotData: true,
+              })
+            }
           } else {
             this.handleCloseLoading()
           }
@@ -195,7 +205,11 @@ export default class Space extends Component {
   onJumpDynamic = (key, team, region, group, component) => {
     const { dispatch } = this.props;
     if (key == 'component') {
-      dispatch(routerRedux.push(`/team/${team}/region/${region}/components/${component}/overview`));
+      if(component){
+        dispatch(routerRedux.push(`/team/${team}/region/${region}/components/${component}/overview`));
+      }else{
+        notification.warning({ message: formatMessage({id:'notification.warn.not_component'}) });
+      }
     } else if (key == 'team') {
       dispatch(routerRedux.push(`/team/${team}/region/${region}/index`));
     } else {
@@ -257,7 +271,7 @@ export default class Space extends Component {
             throttle:!this.state.throttle,
             loadingSwitch: true,
           },()=>{
-          this.getUserTeamsDynamic(regionName,50)
+          this.getUserTeamsDynamic(regionName,15)
           })
         }
     }
@@ -537,6 +551,12 @@ export default class Space extends Component {
                 <div style={{width:'100%'}}>
                     <Spin style={{width:'100%',margin:'auto'}}/>
                 </div>
+                }
+                {
+                  isNotData && !loadingSwitch &&
+                  <div style={{ width:'100%', textAlign: 'center' }}>
+                    {formatMessage({id:'unit.base'})}
+                  </div>
                 }
               </div>
             }

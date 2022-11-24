@@ -1,8 +1,8 @@
 //共同的信息
     //单位
     const unit = {
-        'unit.entries':'个'
-        
+        'unit.entries':'个',
+        'unit.base':'已经到底了!',
     }
     //弹框
     const popover = {
@@ -597,6 +597,7 @@
         'notification.warn.port_null':'暂无端口可用',
         'notification.warn.parameter_error':'参数异常',
         'notification.warn.proxy':'网络异常',
+        'notification.warn.not_component':'当前组件不存在!',
 
         //提示
         'notification.hint.component.change':'切换成功、更新组件后生效',

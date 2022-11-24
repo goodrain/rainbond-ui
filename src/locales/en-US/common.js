@@ -1,7 +1,8 @@
 //共同的信息
     //单位
     const unit = {
-        'unit.entries':' '
+        'unit.entries':' ',
+        'unit.base':'To the bottom!',
     }
     //弹框
     const popover = {
@@ -593,6 +594,7 @@
         'notification.warn.port_null':'No terminal port is currently available',
         'notification.warn.parameter_error':'Parameters of the abnormal',
         'notification.warn.proxy':' network anomalies',
+        'notification.warn.not_component':'The current component does not exist!',
 
         //提示
         'notification.hint.component.change':'The switch is successful and the component is updated',
