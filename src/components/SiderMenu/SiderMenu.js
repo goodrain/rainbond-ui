@@ -33,7 +33,6 @@ export default class SiderMenu extends PureComponent {
   }
 
   componentDidMount() {
-    this.fetchCollectionViewInfo();
     this.getUserTeams();
   }
 
