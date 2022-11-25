@@ -598,6 +598,9 @@
         'notification.warn.parameter_error':'参数异常',
         'notification.warn.proxy':'网络异常',
         'notification.warn.not_component':'当前组件不存在!',
+        'notification.warn.not_app': '当前应用不存在!',
+        'notification.warn.not_team': '当前团队不存在!',
+
 
         //提示
         'notification.hint.component.change':'切换成功、更新组件后生效',

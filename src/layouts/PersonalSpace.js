@@ -211,9 +211,17 @@ export default class Space extends Component {
         notification.warning({ message: formatMessage({id:'notification.warn.not_component'}) });
       }
     } else if (key == 'team') {
-      dispatch(routerRedux.push(`/team/${team}/region/${region}/index`));
+      if(group != '-1'){
+        dispatch(routerRedux.push(`/team/${team}/region/${region}/index`));
+      }else{
+        notification.warning({ message: formatMessage({id:'notification.warn.not_team'}) });
+      }
     } else {
-      dispatch(routerRedux.push(`/team/${team}/region/${region}/apps/${group}`));
+      if(group != '-1'){
+        dispatch(routerRedux.push(`/team/${team}/region/${region}/apps/${group}`));
+      }else{
+        notification.warning({ message: formatMessage({id:'notification.warn.not_app'}) });
+      }
     }
   }
   // 跳转团队

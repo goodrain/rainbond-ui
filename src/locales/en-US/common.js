@@ -595,7 +595,8 @@
         'notification.warn.parameter_error':'Parameters of the abnormal',
         'notification.warn.proxy':' network anomalies',
         'notification.warn.not_component':'The current component does not exist!',
-
+        'notification.warn.not_app': 'The current application does not exist!',
+        'notification.warn.not_team': 'The current team does not exist!',
         //提示
         'notification.hint.component.change':'The switch is successful and the component is updated',
         'notification.hint.component.putBatchMove':'Batch moving',
