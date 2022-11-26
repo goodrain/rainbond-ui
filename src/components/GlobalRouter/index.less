@@ -149,17 +149,38 @@ i.trigger {
   .ant-menu-submenu-title .anticon:hover,
   .ant-menu-item>a:hover {
     // font-family: PingFangSC-Regular;
-    color: #1890ff !important;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  .ant-menu-item-active:hover {
+    background-color: #E6ECF8;
+    border-radius: 10px;
+  }
+  
+  .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+    background-color: #E6ECF8;
+    border-radius: 10px;
+      a {
+        color: #1890ff;
+      }
+  }
+
+  .ant-menu-submenu, .ant-menu-submenu-inline {
+    transition: 0.5s;
+  }
+
+  .ant-menu-item, .ant-menu-submenu-title {
+    transition: 0.5s;
   }
 }
 .globalSider {
   padding-top: 30px;
   :global {
     .ant-menu-submenu-selected{
-      background-color: #e2e9ef;
-
+      background-color: #E6ECF8;
+      border-radius: 10px;
       .ant-menu-submenu-title{
-        background-color: #e2e9ef;
+        background-color: #E6ECF8;
         a{
           span{
             color: #1890ff !important;
@@ -181,22 +202,9 @@ i.trigger {
     }
     
     .ant-menu-submenu-active{
-      background : #e2e9ef;
-      // border-left: 4px solid transparent;
+      background : #E6ECF8;
+      border-radius: 10px;
       a {
-        // margin-left: -4px;
-        i {
-          display: block !important;
-          color: #1890ff !important;
-          svg{
-            path{
-              fill:#1890ff !important;
-            }
-            g>g{
-              stroke:#1890ff !important;
-            }
-          }
-        }
         span {
           line-height   : 20px;
           height        : 20px;
@@ -206,13 +214,14 @@ i.trigger {
           max-width     : 64px !important;
           font-family   : PingFangSC-Regular;
           font-size     : 12px;
-          color: #1890ff !important;
+          // color: #1890ff !important;
           letter-spacing: 0;
         }
       }
     }
     .ant-menu-item-active{
-      background : #e2e9ef;
+      background : #E6ECF8;
+      border-radius: 10px;      
       border: 0;
       // border-left: 4px solid transparent;
       a {
@@ -220,15 +229,6 @@ i.trigger {
         // background : #dbd9d9;
         i {
           display: block !important;
-          color: #1890ff !important;
-          svg{
-            path{
-              fill:#1890ff !important;
-            }
-            g>g{
-              stroke:#1890ff !important;
-            }
-          }
         }
         span {
           line-height   : 20px;
@@ -239,14 +239,14 @@ i.trigger {
           max-width     : 64px !important;
           font-family   : PingFangSC-Regular;
           font-size     : 12px;
-          color: #1890ff !important;
+          // color: #1890ff !important;
           letter-spacing: 0;
         }
       }
     }
     .ant-menu-item.ant-menu-item-selected {
-      background : #e2e9ef;
-      // border-left: 4px solid transparent;
+      background : #E6ECF8;
+      border-radius: 10px;
       a {
         // margin-left: -4px;
         i {
@@ -280,6 +280,7 @@ i.trigger {
     .ant-menu-item {
       // margin-bottom: 28px !important;
       margin-bottom: 0px;
+      border-radius: 10px;
     }
 
     .ant-menu-item>a {
