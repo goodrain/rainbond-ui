@@ -458,9 +458,7 @@ export default class KubernetesClusterShow extends PureComponent {
       isComponents,
       isInstallRemind
     } = this.state;
-    const delK8sConfigurationFile = `docker rm -vf $(docker ps -a | grep 'rke-tools\\|hyperkube\\|coreos-etcd\\|k8s' | awk '{print $1}')`;
-    const removek8sAssociatedContainer = `rm -rf /var/lib/etcd /etc/kubernetes /etc/cni /opt/cni /var/lib/cni /var/run/calico /opt/rke`;
-
+    const cleanRKEClusterScript = `curl -sfL https://get.rainbond.com/clean-rke | bash`;
     return (
       <div>
         <Row style={{ marginBottom: '20px' }}>
@@ -566,8 +564,7 @@ export default class KubernetesClusterShow extends PureComponent {
                 <br />
                 <FormattedMessage id='enterpriseColony.addCluster.host.permission'/>
               </span>
-              {this.handleCommandBox(delK8sConfigurationFile)}
-              {this.handleCommandBox(removek8sAssociatedContainer)}
+              {this.handleCommandBox(cleanRKEClusterScript)}
               {this.handleCommandBox(initCmd)}
             </Row>
           </Modal>
