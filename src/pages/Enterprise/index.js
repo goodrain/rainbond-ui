@@ -960,7 +960,7 @@ export default class Enterprise extends PureComponent {
                   region_type,
                   k8s_version,
                   create_time,
-                  all_node,
+                  all_nodes,
                   services_status
                 } = item
                 // CPU使用率
@@ -1016,8 +1016,8 @@ export default class Enterprise extends PureComponent {
                           <div className={enterpriseStyles.node}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.node_total' })}</p>
                             <div className={enterpriseStyles.nodeData}>
-                              <span className={enterpriseStyles.running}>{all_node || 0}</span>
-                              <span className={enterpriseStyles.sum}>/{all_node || 0}</span>
+                              <span className={enterpriseStyles.running}>{all_nodes || 0}</span>
+                              <span className={enterpriseStyles.sum}>/{all_nodes || 0}</span>
                             </div>
                           </div>
                           <div className={enterpriseStyles.node}>
