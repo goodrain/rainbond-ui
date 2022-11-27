@@ -961,7 +961,8 @@ export default class Enterprise extends PureComponent {
                   k8s_version,
                   create_time,
                   all_nodes,
-                  services_status
+                  services_status,
+                  node_ready 
                 } = item
                 // CPU使用率
                 const cpuUsed = ((used_cpu / total_cpu) * 100).toFixed(2) || 0;
@@ -1016,7 +1017,7 @@ export default class Enterprise extends PureComponent {
                           <div className={enterpriseStyles.node}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.node_total' })}</p>
                             <div className={enterpriseStyles.nodeData}>
-                              <span className={enterpriseStyles.running}>{all_nodes || 0}</span>
+                              <span className={enterpriseStyles.running}>{node_ready  || 0}</span>
                               <span className={enterpriseStyles.sum}>/{all_nodes || 0}</span>
                             </div>
                           </div>
