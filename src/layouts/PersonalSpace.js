@@ -217,13 +217,9 @@ export default class Space extends Component {
         notification.warning({ message: formatMessage({id:'notification.warn.not_team'}) });
       }
     } else {
-      if(group != '-1'){
-        dispatch(routerRedux.push(`/team/${team}/region/${region}/apps/${group}`));
-      }else{
-        notification.warning({ message: formatMessage({id:'notification.warn.not_app'}) });
-      }
-    }
+        this.fetchAppDetail(group,team,region)
   }
+}
   // 跳转团队
   onJumpTeam = (team_name, region) => {
     const { dispatch } = this.props;
@@ -284,8 +280,29 @@ export default class Space extends Component {
         }
     }
   }
+  // 获取应用信息
+  fetchAppDetail = (appID, team, region) => {
+    const { dispatch } = this.props;
+    if (!appID) {
+      return false;
+    }
+    dispatch({
+      type: 'application/fetchGroupDetail',
+      payload: {
+        team_name: team,
+        region_name: region,
+        group_id: appID
+      },
+      callback: res => {
+         dispatch(routerRedux.push(`/team/${team}/region/${region}/apps/${appID}`));
+      },
+      handleError: res => {
+        notification.warning({ message: formatMessage({id:'notification.warn.not_app'}) });
+      }
+    });
+  }
   render() {
-    const { userTeamList, dynamicList, enterpriseInfo, dynamicLoding, teamListLoding, loadingSwitch} = this.state
+    const { userTeamList, dynamicList, enterpriseInfo, dynamicLoding, teamListLoding, loadingSwitch, isNotData} = this.state
     const {
       match: {
         params: { eid }
@@ -317,7 +334,6 @@ export default class Space extends Component {
         </Link>
       )
     }
-    console.log();
     return (
       <div style={{ height: "100%" }}>
         <GlobalHeader
