@@ -643,7 +643,7 @@ export default class EnterpriseClusters extends PureComponent {
             marginBottom: '16px',            
             borderRadius: 5,
             boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
-            overflow:'hidden' }}>
+             }}>
           <Row>
             <h3><FormattedMessage id='enterpriseColony.addCluster.infrastructure'/></h3>
             <Divider />
@@ -690,7 +690,6 @@ export default class EnterpriseClusters extends PureComponent {
         <Card style={{
                       borderRadius: 5,
                       boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
-                      overflow:'hidden' 
         }}>
           <Row>
             <h3><FormattedMessage id='enterpriseColony.addCluster.service'/></h3>
