@@ -247,7 +247,6 @@ export default class EventList extends PureComponent {
               bodyStyle={{
                 paddingTop: 12
               }}
-              bordered={false}
               title={formatMessage({id: 'teamManage.tabs.dynamic'})}
               loading={activitiesLoading}
             >
@@ -267,7 +266,6 @@ export default class EventList extends PureComponent {
               bodyStyle={{
                 paddingTop: 12
               }}
-              bordered={false}
               title={formatMessage({id: 'teamManage.tabs.dynamic.title.addTeam'})}
             >
               <Table

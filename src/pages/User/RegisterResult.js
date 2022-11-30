@@ -92,7 +92,7 @@ export default class Register extends Component {
         }
         description=""
         actions={actions}
-        style={{ marginTop: 172 }}
+        style={{ margin: '50px 0' }}
       />
     )
   }

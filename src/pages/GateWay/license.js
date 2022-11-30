@@ -344,7 +344,6 @@ class Control extends Component {
         style={{
           borderRadius:5,
           boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
-          overflow:'hidden'
         }}
         bodyStyle={{ padding: '0' }}
         >

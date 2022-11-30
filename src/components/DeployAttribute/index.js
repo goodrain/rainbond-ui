@@ -17,7 +17,6 @@ export default class DeployAttribute extends Component {
             marginBottom: 16,
             borderRadius: 5,
             boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
-            overflow:'hidden'
         }}>
 
         {value && Object.keys(value).length > 0  ? (

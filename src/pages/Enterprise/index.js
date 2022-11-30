@@ -1043,7 +1043,7 @@ export default class Enterprise extends PureComponent {
                   </div>
                 )
               })) : (
-                <div className={enterpriseStyles.clusterInfo_Empty}>
+                <div className={enterpriseStyles.clusterInfo_Empty}  style={{boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
                   <Empty description={formatMessage({ id: 'enterpriseOverview.overview.no_cluster' })} />
                 </div>
               )}
@@ -1120,12 +1120,12 @@ export default class Enterprise extends PureComponent {
               </div>
             )}
             {appAlertLoding && (
-              <div className={enterpriseStyles.clusterInfo_Empty}>
+              <div className={enterpriseStyles.clusterInfo_Empty} style={{boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
                 <Spin></Spin>
               </div>
             )}
             {!appAlertLoding && appAlertList.length == 0 && (
-              <div className={enterpriseStyles.clusterInfo_Empty}>
+              <div className={enterpriseStyles.clusterInfo_Empty} style={{boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
                 <Empty description={formatMessage({ id: 'enterpriseOverview.overview.no_errorInfo' })} />
               </div>
             )}

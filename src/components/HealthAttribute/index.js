@@ -13,7 +13,6 @@ class HealthAttribute extends PureComponent {
                     marginBottom: 24,
                     borderRadius: 5,
                     boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
-                    overflow:'hidden'
                 }}
                 title={formatMessage({id:'enterpriseColony.import.recognition.tabs.health'})}
             >
