@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import { Col, Form, Row, Tooltip } from 'antd';
+import { Col, Form, Row, Tooltip,Card ,Skeleton} from 'antd';
 // eslint-disable-next-line import/first
 import numeral from 'numeral';
 import React, { Fragment, PureComponent } from 'react';
@@ -43,11 +43,13 @@ class Index extends PureComponent {
       memory,
       disk,
       dataList,
-      buildSource
+      buildSource,
+      isThird
     } = this.props;
     const setMemory = memory === 0 ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
     return (
       <Row gutter={24}>
+        {!isThird && status && Object.keys(status).length >0 ? (
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
           <div
             className={styles.buildBox}
@@ -310,6 +312,13 @@ class Index extends PureComponent {
             </div>
           </div>
         </Col>
+                ):(
+                  !isThird && 
+                  <Card style={{ margin: '0px 12px' ,height:170}} bodyStyle={{padding:'5px 20px 5px'}}>
+                  <Skeleton active />
+                  </Card>
+                )
+          }
       </Row>
     );
   }

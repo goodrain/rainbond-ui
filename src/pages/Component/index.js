@@ -974,6 +974,7 @@ class Main extends PureComponent {
       appPermissions: { isEdit: isAppEdit }
     } = this.props;
     const { status, groupDetail, loadingDetail } = this.state;
+    const comName = JSON.parse(window.sessionStorage.getItem('name')) || '-';
     const isHelm =
       groupDetail && groupDetail.app_type && groupDetail.app_type === 'helm';
     return (
@@ -984,7 +985,7 @@ class Main extends PureComponent {
           </div>
           <div style={{ marginLeft: '14px' }}>
             <div className={styles.contentTitle}>
-              {name || '-'}
+              {comName || '-'}
               {isEdit && (
                 <Icon
                   style={{
@@ -996,7 +997,7 @@ class Main extends PureComponent {
               )}
             </div>
             <div className={styles.content_Box}>
-              {!appDetail.is_third && isRestart && !appStatusUtil.canStart(status) ? (
+              {status && status.status && !appDetail.is_third && isRestart && !appStatusUtil.canStart(status) ? (
                 <a
                   style={{
                     cursor: !appStatusUtil.canRestart(status)
@@ -1025,9 +1026,9 @@ class Main extends PureComponent {
                   <FormattedMessage id='componentOverview.header.left.reset'/>
                 </a>
               ) : null}
-              {!appDetail.is_third && isRestart && <Divider type="vertical" />}
+              {status && status.status && !appDetail.is_third && isRestart && <Divider type="vertical" />}
                   
-              {isStop && !appStatusUtil.canStart(status) ? (
+              {status && status.status && isStop && !appStatusUtil.canStart(status) ? (
                 <span>
                   <a
                     style={{
@@ -1064,7 +1065,7 @@ class Main extends PureComponent {
                 </span>
               ) : null}
 
-              {isAppEdit && !loadingDetail && !isHelm && (
+              {status && status.status && isAppEdit && !loadingDetail && !isHelm && (
                 <a
                   onClick={() => {
                     this.handleDropClick('moveGroup');
@@ -1077,10 +1078,10 @@ class Main extends PureComponent {
                   <FormattedMessage id='componentOverview.header.left.edit'/>
                 </a>
               )}
-              {isEdit && !loadingDetail && !isHelm && (
+              {status && status.status && isEdit && !loadingDetail && !isHelm && (
                 <Divider type="vertical" />
               )}
-              {isDelete && (
+              {status && status.status && isDelete && (
                 <a
                   onClick={() => {
                     this.handleDropClick('deleteApp');
@@ -1157,8 +1158,8 @@ class Main extends PureComponent {
       deploy: formatMessage({id:'componentOverview.header.right.build'}),
       rolling: upDataText
     };
-    if (!appDetail.service) {
-      return null;
+    if(appDetail && appDetail.service && appDetail.service.service_cname){
+      window.sessionStorage.setItem("name",JSON.stringify(appDetail.service.service_cname))
     }
     const {
       serviceAlias,
@@ -1176,10 +1177,8 @@ class Main extends PureComponent {
       />
     );
 
-    if (!status.status) {
-      return null;
-    }
     const action = (
+      status && status.status &&
       <div>
         {isStart && !appStatusUtil.canStop(status) && (
           <Button
@@ -1259,12 +1258,12 @@ class Main extends PureComponent {
               </Button>
             )}
 
-        {appDetail.service.service_source === 'market' &&
+        {appDetail && appDetail.service && appDetail.service.service_source === 'market' &&
           appStatusUtil.canVisit(status) &&
           !isShowThirdParty &&
           isAccess &&
           visitBtns}
-        {appDetail.service.service_source !== 'market' &&
+        {appDetail && appDetail.service && appDetail.service.service_source !== 'market' &&
           appStatusUtil.canVisit(status) &&
           !isShowThirdParty &&
           isAccess &&
@@ -1291,7 +1290,7 @@ class Main extends PureComponent {
       }
     ];
 
-    if (isTelescopic && appDetail.service.extend_method !== 'job' && appDetail.service.extend_method !== 'cronjob') {
+    if (isTelescopic && appDetail && appDetail.service && appDetail.service.extend_method !== 'job' && appDetail.service.extend_method !== 'cronjob') {
       tabs.push({
         key: 'expansion',
         // tab: '伸缩',

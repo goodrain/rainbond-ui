@@ -168,14 +168,14 @@ export default {
         callback(response);
       }
     },
-    *fetchMarketsTab({ payload, callback }, { call }) {
-      const response = yield call(fetchMarketsTab, payload);
+    *fetchMarketsTab({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchMarketsTab, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
-    *fetchHelmMarketsTab({ payload, callback }, { call }) {
-      const response = yield call(fetchHelmMarketsTab, payload);
+    *fetchHelmMarketsTab({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchHelmMarketsTab, payload, handleError);
       if (response && callback) {
         callback(response);
       }
