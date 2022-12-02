@@ -140,7 +140,10 @@ export default class EnterpriseShared extends PureComponent {
       installType: '1',
       isStoreCluster: false,
       clusters: [],
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      tabsList: [],
+      helmInfoSwitch: false,
+      marketInfoSwitch: false,
     };
   }
   componentDidMount() {
@@ -352,6 +355,16 @@ export default class EnterpriseShared extends PureComponent {
               marketTab: list
             },
             () => {
+              const arr = []
+              this.state.marketTab.map(item => {
+                item.type = "marketTab",
+                  arr.push(item)
+              })
+              
+              this.setState({
+                tabsList: [...this.state.tabsList, ...arr,],
+                marketInfoSwitch:true
+              })
               if (ID || init || (first && activeTabKey)) {
                 const marketID = init && list && list.length && list[0].ID;
                 const activeID = first && activeTabKey;
@@ -360,6 +373,13 @@ export default class EnterpriseShared extends PureComponent {
               }
             }
           );
+        }
+      },
+      handleError:res=>{
+        if(res){
+          this.setState({
+            marketInfoSwitch:true
+          })
         }
       }
     });
@@ -385,11 +405,28 @@ export default class EnterpriseShared extends PureComponent {
               helmTab: Array.isArray(res) ? res : []
             },
             () => {
+              const arr = [];
+              this.state.helmTab.map(item => {
+                item.type = 'helmTab';
+                arr.push(item)
+              })
+
+              this.setState({
+                tabsList: [...this.state.tabsList, ...arr],
+                helmInfoSwitch:true
+              })
               if (ID || (first && activeTabKey)) {
                 this.onTabChange(ID || activeTabKey);
               }
             }
           );
+        }
+      },
+      handleError:res=>{
+        if(res){
+          this.setState({
+            marketInfoSwitch:true
+          })
         }
       }
     });
@@ -1406,8 +1443,13 @@ export default class EnterpriseShared extends PureComponent {
       isInStallShow,
       showMarketCloudAuth,
       isAuthorize,
-      language
+      language,
+      tabsList,
+      helmInfoSwitch,
+      marketInfoSwitch,
     } = this.state;
+    const local = [{ type: 'local' }]
+    const storeTabs = [...tabsList,...local].reverse()
     const tagLists = tagList && tagList.length > 0 && tagList;
     const accessActions =
       marketInfo &&
@@ -1656,16 +1698,15 @@ export default class EnterpriseShared extends PureComponent {
         ) : (
           noLocalMarket
         )}
-
         <div style={paginationStyle}>
-          <Pagination
-            showQuickJumper
-            current={this.state.page}
-            pageSize={this.state.pageSize}
-            total={Number(this.state.total)}
-            onChange={this.onPageChangeApp}
-          />
-        </div>
+        <Pagination
+          showQuickJumper
+          current={this.state.page}
+          pageSize={this.state.pageSize}
+          total={Number(this.state.total)}
+          onChange={this.onPageChangeApp}
+        />
+      </div>
       </div>
     );
     const marketContent = (
@@ -1725,7 +1766,6 @@ export default class EnterpriseShared extends PureComponent {
         ) : (
           noCloudMarket(false)
         )}
-
         <div style={paginationStyle}>
           <Pagination
             showQuickJumper
@@ -1735,6 +1775,7 @@ export default class EnterpriseShared extends PureComponent {
             onChange={this.onPageChangeAppMarket}
           />
         </div>
+
       </div>
     );
     const helmContent = (
@@ -1958,71 +1999,77 @@ export default class EnterpriseShared extends PureComponent {
             currStep={2}
           />
         )}
-        <Tabs
-          activeKey={activeTabKey}
+        {helmInfoSwitch && marketInfoSwitch  ?
+       <Tabs
+          // activeKey={activeTabKey}
           className={styles.setTabs}
           onChange={this.onTabChange}
           type="card"
         >
-          <TabPane
-            tab={
-              <span className={styles.verticalCen}>
-                {globalUtil.fetchSvg('localMarket')}
-                {/* 本地组件库 */}
-                <FormattedMessage id="applicationMarket.localMarket.title"/>
-              </span>
-            }
-            key="local"
-          >
-            <div
-              style={{
-                display: 'block',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-            >
-              {localsContent}
-            </div>
-          </TabPane>
-          {marketTab.map(item => {
-            const { ID, alias, name } = item;
-            return (
-              <TabPane
-                tab={
-                  <span className={styles.verticalCen}>
-                    {globalUtil.fetchSvg('cloudMarket')}
-                    {alias || name}
-                  </span>
-                }
-                key={ID}
-              >
-                {marketContent}
-              </TabPane>
+          {storeTabs && storeTabs.length > 0 &&
+            storeTabs.map(item => {
+              const { type } = item;
+              if (type == "local") {
+                return <TabPane
+                  tab={
+                    <span className={styles.verticalCen}>
+                      {globalUtil.fetchSvg('localMarket')}
+                      {/* 本地组件库 */}
+                      <FormattedMessage id="applicationMarket.localMarket.title" />
+                    </span>
+                  }
+                  key="local"
+                >
+                  <div
+                    style={{
+                      display: 'block',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {localsContent}
+                  </div>
+                </TabPane>
+              }else if(type == "marketTab"){
+                const { ID, alias, name } = item;
+                return (
+                  <TabPane
+                    tab={
+                      <span className={styles.verticalCen}>
+                        {globalUtil.fetchSvg('cloudMarket')}
+                        {alias || name}
+                      </span>
+                    }
+                    key={ID}
+                  >
+                    {marketContent}
+                  </TabPane>
+                );
+              }else{
+                const { name } = item;
+                return (
+                  <TabPane
+                    tab={
+                      <span className={styles.verticalCen}>
+                        {globalUtil.fetchSvg('HelmSvg')}
+                        {name}
+                      </span>
+                    }
+                    key={name}
+                  >
+                    {helmContent}
+                  </TabPane>
             );
-          })}
-          {helmTab.map(item => {
-            const { name } = item;
-            return (
-              <TabPane
-                tab={
-                  <span className={styles.verticalCen}>
-                    {globalUtil.fetchSvg('HelmSvg')}
-                    {name}
-                  </span>
-                }
-                key={name}
-              >
-                {helmContent}
-              </TabPane>
-            );
-          })} 
+              }
+            })
+          }
           {isCreateAppStore && (
             <TabPane
               tab={
-                <Tooltip 
-                placement="top" 
-                // title="添加应用市场"
-                title={<FormattedMessage id='applicationMarket.addMarket.tooltip.title'/>}
+                <Tooltip
+                  placement="top"
+                  // title="添加应用市场"
+                  title={<FormattedMessage id='applicationMarket.addMarket.tooltip.title' />}
                 >
                   <Icon type="plus" className={styles.addSvg} />
                 </Tooltip>
@@ -2030,7 +2077,10 @@ export default class EnterpriseShared extends PureComponent {
               key="add"
             />
           )}
-        </Tabs>
+        </Tabs> : 
+            <Spin style={{height: 500,width: '100%',padding: '200px'}}/>
+        
+  }
       </PageHeaderLayout>
     );
   }

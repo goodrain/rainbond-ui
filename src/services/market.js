@@ -58,22 +58,24 @@ export async function fetchMarkets(params = {}) {
   );
 }
 
-export async function fetchMarketsTab(param) {
+export async function fetchMarketsTab(param, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/cloud/markets`,
     {
       method: 'get',
       params: {
         extend: true
-      }
+      },
+      handleError
     }
   );
 }
-export async function fetchHelmMarketsTab(param) {
+export async function fetchHelmMarketsTab(param, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${param.enterprise_id}/appstores`,
     {
-      method: 'get'
+      method: 'get',
+      handleError
     }
   );
 }

@@ -764,6 +764,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Basic
+          isThird={appDetail && appDetail.is_third}
           buildSource={buildSource}
           beanData={beanData}
           resourcesLoading={resourcesLoading}
@@ -807,7 +808,7 @@ export default class Index extends PureComponent {
               old_pods={old_pods}
               appAlias={this.props.appAlias}
               socket={socket && socket}
-              podType={appDetail.service.extend_method}
+              podType={appDetail && appDetail.service && appDetail.service.extend_method}
             />
           </Card>
         )}
