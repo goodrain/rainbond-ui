@@ -26,6 +26,7 @@ import PageLoading from '../components/PageLoading';
 import ServiceOrder from '../components/ServiceOrder';
 import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
+import Exception from '../pages/Exception/403';
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
 import rainbondUtil from '../utils/rainbond';
@@ -94,8 +95,8 @@ class TeamLayout extends PureComponent {
   }
 
   componentWillMount() {
-    this.getNewbieGuideConfig();
     this.getEnterpriseList();
+    this.getNewbieGuideConfig();
   }
   componentWillUpdate() {
     const updata = JSON.parse(window.sessionStorage.getItem('updata'))
@@ -188,6 +189,11 @@ class TeamLayout extends PureComponent {
           if (res && res.status_code === 200) {
             this.getTeamOverview(res.bean && res.bean.user_id);
           }
+        },
+        handleError: () => {
+          this.setState({
+            teamView: false
+          });
         }
       });
     }
@@ -270,6 +276,7 @@ class TeamLayout extends PureComponent {
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
     const enterpriseId = this.props.enterprise && this.props.enterprise.enterprise_id;
+    dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
     dispatch({
       type: 'teamControl/fetchFeatures',
       payload: { team_name: teamName, region_name: regionName }
@@ -288,7 +295,6 @@ class TeamLayout extends PureComponent {
       payload: { team_name: teamName, region_name: regionName }
     });
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
-    dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
     this.setState({
       currentEnterprise: enterpriseList[0],
       currentTeam: team,
@@ -481,6 +487,9 @@ class TeamLayout extends PureComponent {
       return <Redirect to="/" />;
     }
     // The necessary data is loaded
+    if (!teamView) {
+      return <Exception />;
+    }
     if (
       !ready ||
       !currentEnterprise ||
@@ -506,7 +515,7 @@ class TeamLayout extends PureComponent {
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     if (appID && (!currentApp || !groupDetail.ID)) {
       this.fetchAppDetail(appID);
-      return <PageLoading />;
+      // return <PageLoading />;
     }
     // currentComponent is exit and id is current componentID
     else if (
@@ -517,7 +526,7 @@ class TeamLayout extends PureComponent {
       // Refresh the component information
     } else if (componentID) {
       this.queryComponentDeatil();
-      return <PageLoading />;
+      // return <PageLoading />;
     } else {
       this.setState({ currentComponent: null });
     }
