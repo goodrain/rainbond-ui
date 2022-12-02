@@ -85,7 +85,7 @@ export default class Index extends PureComponent {
   hideShowKey = () => {
     this.setState({ showKey: false });
   };
-  handleSubmit = value => {
+  handleSubmit = (value, isService) => {
     const teamName = globalUtil.getCurrTeamName();
     const { dispatch } = this.props;
     this.setState({
@@ -102,30 +102,38 @@ export default class Index extends PureComponent {
         if (res) {
           const info = res.bean
           if (info.tgz) {
-            this.props.onClose();
-          }else{
-          if (info && info.status) {
-            const { chart } = info;
-            const obj = {
-              app_store_name: chart.repo_name,
-              app_template_name: chart.chart_name,
-              version: chart.version,
-              overrides: chart.overrides,
+            if (isService == 'team') {
+              dispatch(
+                routerRedux.push(
+                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}`
+                )
+              );
+            } else {
+              this.props.onClose();
             }
-            window.sessionStorage.setItem('appinfo', JSON.stringify(obj))
-            this.handleCreateAppStore(chart)
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}/helminstall?installPath=cmd`
-              )
-            );
           } else {
-            this.setState({
-              errorShow: true,
-              BtnLoading: false,
-              errorInfo: info.information
-            })
-          }
+            if (info && info.status) {
+              const { chart } = info;
+              const obj = {
+                app_store_name: chart.repo_name,
+                app_template_name: chart.chart_name,
+                version: chart.version,
+                overrides: chart.overrides,
+              }
+              window.sessionStorage.setItem('appinfo', JSON.stringify(obj))
+              this.handleCreateAppStore(chart)
+              dispatch(
+                routerRedux.push(
+                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}/helminstall?installPath=cmd`
+                )
+              );
+            } else {
+              this.setState({
+                errorShow: true,
+                BtnLoading: false,
+                errorInfo: info.information
+              })
+            }
           }
         }
       },
@@ -133,33 +141,33 @@ export default class Index extends PureComponent {
         this.setState({
           BtnLoading: false,
           errorShow: true,
-          errorInfo: formatMessage({id:'teamOther.HelmCmdForm.error'})
+          errorInfo: formatMessage({ id: 'teamOther.HelmCmdForm.error' })
         })
       }
     });
   };
   handleCreateAppStore = (info) => {
     const { dispatch } = this.props;
-        dispatch({
-          type: 'market/addHelmAppStore',
-          payload: { 
-            enterprise_id: info.eid ,
-            name : info.repo_name,
-            url : info.repo_url,
-            username: info.username,
-            password: info.password,
-          },
-        });
-        dispatch({
-          type: 'market/HelmwaRehouseAdd',
-          payload: {
-            repo_name: info.repo_name,
-            repo_url: info.repo_url,
-            username: info.username,
-            password: info.password
-          },
-        });
-      }
+    dispatch({
+      type: 'market/addHelmAppStore',
+      payload: {
+        enterprise_id: info.eid,
+        name: info.repo_name,
+        url: info.repo_url,
+        username: info.username,
+        password: info.password,
+      },
+    });
+    dispatch({
+      type: 'market/HelmwaRehouseAdd',
+      payload: {
+        repo_name: info.repo_name,
+        repo_url: info.repo_url,
+        username: info.username,
+        password: info.password
+      },
+    });
+  }
   render() {
     const helm = decodeURIComponent(
       this.props.handleType && this.props.handleType === "Service"
@@ -183,9 +191,9 @@ export default class Index extends PureComponent {
             data={{ docker_cmd: helm || "" }}
             onSubmit={this.handleSubmit}
             {...this.props}
-            BtnLoading = { BtnLoading }
-            errorShow = { errorShow }
-            description = { errorInfo }
+            BtnLoading={BtnLoading}
+            errorShow={errorShow}
+            description={errorInfo}
           />
         </div>
       </Card>

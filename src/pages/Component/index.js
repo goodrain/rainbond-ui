@@ -457,13 +457,14 @@ class Main extends PureComponent {
     if (
       appDetail &&
       appDetail.service &&
-      appDetail.service.service_source === 'market'
+      appDetail.service.service_source === 'market' &&
+      appDetail.service.service_alias
     ) {
         dispatch({
           type: 'appControl/getBuildInformation',
           payload: {
             team_name,
-            app_alias: serviceAlias
+            app_alias: appDetail.service.service_alias
           },
           callback: res => {
             if (res && res.status_code === 200) {
@@ -551,6 +552,7 @@ class Main extends PureComponent {
   fetchParameter = () => {
     const { appDetail, match } = this.props;
     const service = appDetail && appDetail.service;
+    console.log(service,'service')
     return {
       app_alias: match && match.params && match.params.appAlias,
       team_name: globalUtil.getCurrTeamName(),
@@ -564,15 +566,15 @@ class Main extends PureComponent {
   };
   // 应用详情
   fetchAppDetail = () => {
-    const { dispatch } = this.props;
-    const { team_name, region_name, group_id } = this.fetchParameter();
-
+    const { dispatch, appDetail } = this.props;
+    const { team_name, region_name } = this.fetchParameter();
+    const group_id = appDetail && appDetail.service && appDetail.service.group_id;
     dispatch({
       type: 'application/fetchGroupDetail',
       payload: {
         team_name,
         region_name,
-        group_id
+        group_id: group_id
       },
       callback: res => {
         if (res && res.status_code === 200) {
