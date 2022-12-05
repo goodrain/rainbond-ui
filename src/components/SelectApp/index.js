@@ -74,7 +74,9 @@ export default class SelectApp extends PureComponent {
   handleOut = () => {
     this.setState({ visible: false });
   };
-
+  handleClickApp = () =>{
+    this.props.handleClick();
+  }
   render() {
     const {
       className,
@@ -83,7 +85,7 @@ export default class SelectApp extends PureComponent {
       currentAppID,
       currentComponent,
       active,
-      currentTeamPermissionsInfo
+      currentTeamPermissionsInfo,
     } = this.props;
     const {
       teamApps,
@@ -121,7 +123,7 @@ export default class SelectApp extends PureComponent {
               {teamApps.map(item => {
                 const link = `/team/${teamName}/region/${regionName}/apps/${item.group_id}`;
                 return (
-                  <li key={item.group_id}>
+                  <li key={item.group_id} onClick={this.handleClickApp}>
                     <Link to={link} title={item.group_name}>
                       <span>{item.group_name}</span>
                     </Link>

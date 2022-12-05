@@ -117,14 +117,14 @@ class TeamLayout extends PureComponent {
         })
       }
     }
-    if(urlParams) {
+    if (urlParams) {
       const code = urlParams.href.includes("/create/code");
       const image = urlParams.href.includes("/create/image");
       const yaml = urlParams.href.includes("/create/yaml");
       const outer = urlParams.href.includes("/create/outer");
-      if(code || image || yaml || outer){
+      if (code || image || yaml || outer) {
         this.setState({
-          GroupShow:false
+          GroupShow: false
         })
       }
     }
@@ -143,6 +143,11 @@ class TeamLayout extends PureComponent {
         }
       );
     }
+  }
+  GroupShow = () => {
+    this.setState({
+      GroupShow: true
+    })
   }
   getNewbieGuideConfig = () => {
     const { dispatch } = this.props;
@@ -558,6 +563,7 @@ class TeamLayout extends PureComponent {
       }
       return (
         <AppHeader
+          handleClick={this.GroupShow}
           teamName={teamName}
           currentEnterprise={currentEnterprise}
           currentTeam={currentTeam}
@@ -708,13 +714,14 @@ class TeamLayout extends PureComponent {
                   showMenu={showMenu ? !componentID : false}
                 />
               )}
-              <TransitionGroup
-                style={{
-                  height: 'calc(100vh - 64px)',
-                  overflow: 'auto',
-                  width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
-                }}>
-                {this.state.GroupShow ?
+              {this.state.GroupShow ?
+                <TransitionGroup
+                  style={{
+                    height: 'calc(100vh - 64px)',
+                    overflow: 'auto',
+                    width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
+                  }}>
+
                   <CSSTransition
                     timeout={300}
                     classNames=
@@ -741,7 +748,8 @@ class TeamLayout extends PureComponent {
                       </div>
                     </Content>
                   </CSSTransition>
-                  :
+                </TransitionGroup> :
+                (
                   <Content
                     style={{
                       height: 'calc(100vh - 64px)',
@@ -757,8 +765,8 @@ class TeamLayout extends PureComponent {
                       {renderContent()}
                     </div>
                   </Content>
-                }
-              </TransitionGroup>
+                )
+              }
             </Layout>
           </Layout>
         </Layout>

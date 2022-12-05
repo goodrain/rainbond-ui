@@ -274,7 +274,7 @@ export default class Index extends PureComponent {
         if (res && res.code === 404) {
           dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
             )
           );
         }
@@ -365,7 +365,7 @@ export default class Index extends PureComponent {
           this.cancelDelete(false);
           dispatch(
             routerRedux.replace(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
             )
           );
         }
