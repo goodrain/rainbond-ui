@@ -552,7 +552,6 @@ class Main extends PureComponent {
   fetchParameter = () => {
     const { appDetail, match } = this.props;
     const service = appDetail && appDetail.service;
-    console.log(service,'service')
     return {
       app_alias: match && match.params && match.params.appAlias,
       team_name: globalUtil.getCurrTeamName(),
