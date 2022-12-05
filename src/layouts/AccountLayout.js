@@ -113,6 +113,7 @@ class AccountLayout extends PureComponent {
 
     const { enterpriseList, isMobiles, ready } = this.state;
     const eid = enterprise && enterprise.enterprise_id;
+    console.log(eid,'eid')
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     if (!ready || !enterprise) {
       return <PageLoading />;
@@ -184,6 +185,7 @@ class AccountLayout extends PureComponent {
                 rainbondInfo.is_public &&
                 rainbondInfo.is_public.enable
               }
+              eid={eid}
               currentUser={currentUser}
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}
