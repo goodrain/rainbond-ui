@@ -23,7 +23,6 @@ class TeamMemberTable extends PureComponent {
       memberPermissions: { isEdit, isDelete, isAccess },
       team,
     } = this.props;
-    console.log(list,"list");
     const columns = [
       {
         title: formatMessage({id: 'teamManage.tabs.image.table.imageAddress'}),

@@ -547,7 +547,6 @@ export default class HttpTable extends PureComponent {
       appStatusVisable,
       parameterInfo
     } = this.state;
-    console.log(total,"total");
 
     const columns = [
       {
