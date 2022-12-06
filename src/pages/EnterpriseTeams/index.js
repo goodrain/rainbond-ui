@@ -809,7 +809,7 @@ export default class EnterpriseTeams extends PureComponent {
         })}
         </div>
         <div style={{ textAlign: 'right', margin: '15px' }}>
-          {this.handlePaginations()}
+          {Number(this.state.total) > 10  &&  this.handlePaginations()}
         </div>
       </div>
     );

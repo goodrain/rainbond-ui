@@ -642,7 +642,7 @@ export default class AppList extends PureComponent {
               rowKey={data => {
                 return data.backup_id;
               }}
-              pagination={{
+              pagination={this.state.total > this.state.pageSize ? {
                 current: this.state.page,
                 total: this.state.total,
                 pageSize: this.state.pageSize,
@@ -651,7 +651,7 @@ export default class AppList extends PureComponent {
                     this.fetchBackup();
                   });
                 }
-              }}
+              }:false}
               columns={columns}
               dataSource={list}
             />

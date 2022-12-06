@@ -179,12 +179,12 @@ export default class Index extends PureComponent {
         >
           <ScrollerX sm={650}>
             <Table
-              pagination={{
+              pagination={this.state.total > this.state.pageSize ? {
                 current: this.state.page,
                 pageSize: this.state.pageSize,
                 total: this.state.total,
                 onChange: this.onPageChange
-              }}
+              }: false}
               columns={[
                 {
                   // title: '组件名',

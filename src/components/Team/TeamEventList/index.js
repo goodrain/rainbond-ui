@@ -219,7 +219,7 @@ export default class EventList extends PureComponent {
       memberPermissions: { isCreate },
       form
     } = this.props;
-    const { joinSettingShow, roles } = this.state;
+    const { joinSettingShow, roles, total } = this.state;
     const { getFieldDecorator } = form;
     const pagination = {
       current: this.state.page,
@@ -251,7 +251,7 @@ export default class EventList extends PureComponent {
               loading={activitiesLoading}
             >
               <List
-                pagination={pagination}
+                pagination={total > 8 ? pagination:false}
                 loading={activitiesLoading}
                 size="large"
               >

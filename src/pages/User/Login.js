@@ -127,7 +127,7 @@ export default class LoginPage extends Component {
     const inlineBlock = { display: 'inline-block' };
     const { language } = this.state;
     return (
-      <div className={styles.main} style={{ marginTop: '30px', marginBottom: 15 }}>
+      <div className={styles.main} style={{ marginTop: '20px', marginBottom: 15 }}>
         <h3><FormattedMessage id="login.Login.title"/></h3>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
         {rainbondUtil.OauthbEnable(rainbondInfo) &&

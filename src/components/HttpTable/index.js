@@ -547,6 +547,7 @@ export default class HttpTable extends PureComponent {
       appStatusVisable,
       parameterInfo
     } = this.state;
+    console.log(total,"total");
 
     const columns = [
       {
@@ -747,13 +748,13 @@ export default class HttpTable extends PureComponent {
             loading={loading}
             size="default"
             rowKey={this.rowKey}
-            pagination={{
+            pagination={total > 10 ? {
               total,
               page_num,
               pageSize: page_size,
               onChange: this.onPageChange,
               current: page_num
-            }}
+            }:false}
           />
         </Card>
         {drawerVisible && (

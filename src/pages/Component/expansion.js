@@ -109,13 +109,15 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     if (!this.canView()) return;
-    this.getScalingRules();
-    this.getScalingRecord();
-    this.fetchInstanceInfo();
-    this.fetchExtendInfo();
-    this.timeClick = setInterval(() => {
+    if(this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias){
+      this.getScalingRules();
+      this.getScalingRecord();
       this.fetchInstanceInfo();
-    }, 60000);
+      this.fetchExtendInfo();
+      this.timeClick = setInterval(() => {
+        this.fetchInstanceInfo();
+      }, 60000);
+    }
   }
   componentWillUnmount() {
     const { dispatch } = this.props;
@@ -738,7 +740,7 @@ export default class Index extends PureComponent {
     const { extendInfo, appAlias, form, appDetail } = this.props;
     let notAllowScaling = false;
     if (appDetail) {
-      if (globalUtil.isSingletonComponent(appDetail.service.extend_method)) {
+      if (globalUtil.isSingletonComponent(appDetail && appDetail.service && appDetail.service.extend_method)) {
         notAllowScaling = true;
       }
     }
@@ -1272,12 +1274,12 @@ export default class Index extends PureComponent {
           <Table
             className={styles.horizontalExpansionRecordTable}
             dataSource={sclaingRecord}
-            pagination={{
+            pagination={total > page_size ? {
               current: page_num,
               pageSize: page_size,
               total,
               onChange: this.onPageChange
-            }}
+            }:false}
             columns={[
               {
                 title: formatMessage({id:'componentOverview.body.Expansion.time'}),

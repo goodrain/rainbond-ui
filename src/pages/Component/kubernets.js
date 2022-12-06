@@ -24,7 +24,7 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.add' }),
-      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate'],
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate','envFromSource'],
       selectVal: undefined,
       havevalArr: [],
       drawerSwitch: "add",
@@ -41,7 +41,9 @@ class Index extends PureComponent {
         dnsConfig: '#sample\n #nameservers:\n #searches:\n #options:\n #  - name:\n #    value: ',
         resources: '#sample\n#  limits:\n#    hugepages-2Mi:\n#    memory: \n#  requests:\n#    memory: ',
         lifecycle: '#sample\n#postStart:\n#  exec:\n#    command:\n #preStop:\n#  exec:\n#    command: ',
-        volumeClaimTemplate: '#- metadata: \n# name: database-data \n# spec:\n# accessModes:  \n# - ReadWriteOnce: \n# resources: \n# requests: \n# storage: "1Gi"'
+        volumeClaimTemplate: '#sample\n#- metadata: \n# name: database-data \n# spec:\n# accessModes:  \n# - ReadWriteOnce: \n# resources: \n# requests: \n# storage: ',
+        envFromSource: '#sample\n#- configMapRef:\n#    name: \n#- secretRef:\n#    name: '
+
       },
       TooltipValue: '',
       language: cookie.get('language') === 'zh-CN' ? true : false,
@@ -234,6 +236,19 @@ class Index extends PureComponent {
                 name: selectVal,
                 save_type: "yaml",
                 attribute_value: value.volumeClaimTemplate || []
+              }
+              this.handelAddOrEdit(label)
+            } else {
+              this.notificationFun()
+            }
+            break;
+
+          case "envFromSource":
+            if (value.envFromSource != null && value.envFromSource.length > 0 && value.envFromSource != TooltipValue) {
+              const label = {
+                name: selectVal,
+                save_type: "yaml",
+                attribute_value: value.envFromSource || []
               }
               this.handelAddOrEdit(label)
             } else {
@@ -612,7 +627,7 @@ class Index extends PureComponent {
                 }
                 {
                   selectVal &&
-                  ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || (selectVal == "volumeClaimTemplate") || selectVal == "dnsConfig" || selectVal == 'resources' || selectVal == 'lifecycle') &&
+                  ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || (selectVal == "volumeClaimTemplate") || selectVal == "dnsConfig" || selectVal == 'resources' || selectVal == 'lifecycle'|| selectVal == 'envFromSource') &&
                   <>
                     <p style={{ padding: '10px 0' }}> {selectVal == "dnsConfig" ? formatMessage({ id: 'componentOverview.body.Kubernetes.onlyDnsPolicy' }) : ' '}</p>
                     <CodeMirrorForm
@@ -682,7 +697,7 @@ class Index extends PureComponent {
                 allData.length > 0 ? (
                 allData.map((item, index) => {
                   return <Row key={index}>
-                    {(item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == "dnsConfig" || item.name == 'resources' || item.name == 'lifecycle') ? (
+                    {(item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == "dnsConfig" || item.name == 'resources' || item.name == 'lifecycle' || item.name =='envFromSource') ? (
                       <Col span={4} className={styles.yamlTitle_style}>{item.name}:</Col>
                     ) : (
                       <Col span={4}>{item.name}:</Col>
@@ -701,7 +716,7 @@ class Index extends PureComponent {
                       })
                     }
                       {item.name &&
-                        (item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == 'dnsConfig' || item.name == 'resources' || item.name == 'lifecycle') &&
+                        (item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == 'dnsConfig' || item.name == 'resources' || item.name == 'lifecycle' || item.name =='envFromSource') &&
                         item.attribute_value.length > 0 &&
                         <div className={styles.yamlValue_style}>
                           {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml' />
