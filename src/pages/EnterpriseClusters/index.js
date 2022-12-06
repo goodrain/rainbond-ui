@@ -925,6 +925,7 @@ export default class EnterpriseClusters extends PureComponent {
             loading={clusterLoading}
             dataSource={clusters}
             columns={columns}
+            pagination={false}
           />
         </Card>
         {showTenantList && (

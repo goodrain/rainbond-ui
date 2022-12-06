@@ -1699,13 +1699,15 @@ export default class EnterpriseShared extends PureComponent {
           noLocalMarket
         )}
         <div style={paginationStyle}>
-        <Pagination
+         {Number(this.state.total) > 10 && 
+          <Pagination
           showQuickJumper
           current={this.state.page}
           pageSize={this.state.pageSize}
           total={Number(this.state.total)}
           onChange={this.onPageChangeApp}
-        />
+          />
+          }
       </div>
       </div>
     );
@@ -1767,6 +1769,7 @@ export default class EnterpriseShared extends PureComponent {
           noCloudMarket(false)
         )}
         <div style={paginationStyle}>
+        {Number(marketPag.total) > 10 && 
           <Pagination
             showQuickJumper
             current={marketPag.page}
@@ -1774,6 +1777,7 @@ export default class EnterpriseShared extends PureComponent {
             total={Number(marketPag.total)}
             onChange={this.onPageChangeAppMarket}
           />
+        }
         </div>
 
       </div>
@@ -1814,6 +1818,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
 
         <div style={paginationStyle}>
+        {Number(helmPag.total) > 10 && 
           <Pagination
             showQuickJumper
             current={helmPag.page}
@@ -1821,6 +1826,7 @@ export default class EnterpriseShared extends PureComponent {
             total={Number(helmPag.total)}
             onChange={this.onPageChangeAppHelm}
           />
+        }
         </div>
       </div>
     );

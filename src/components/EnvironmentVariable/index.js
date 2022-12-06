@@ -745,6 +745,7 @@ class EnvironmentVariable extends React.Component {
                 pagination={false}
               />
               <div style={{ textAlign: 'right', marginTop: '8px' }}>
+              {Number(total) >page_size &&
                 <Pagination
                   current={page}
                   pageSize={page_size}
@@ -755,6 +756,7 @@ class EnvironmentVariable extends React.Component {
                   pageSizeOptions={['5', '10', '20', '50']}
                   onShowSizeChange={this.onShowSizeChange}
                 />
+              }
               </div>
             </EditableContext.Provider>
           </ScrollerX>
