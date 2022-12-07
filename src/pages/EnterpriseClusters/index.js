@@ -16,7 +16,9 @@ import {
   notification,
   Row,
   Table,
-  Tooltip
+  Tooltip,
+  Menu,
+  Dropdown
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -534,6 +536,7 @@ export default class EnterpriseClusters extends PureComponent {
       isNewbieGuide,
       showClusterIntroduced
     } = this.state;
+    console.log(clusters,"clusters");
     const { getFieldDecorator } = form;
     const pagination = {
       onChange: this.handleTenantPageChange,
@@ -541,7 +544,33 @@ export default class EnterpriseClusters extends PureComponent {
       pageSize: tenantPageSize,
       current: tenantPage
     };
-
+    const moreSvg = () => (
+      <svg
+        t="1581212425061"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="1314"
+        width="32"
+        height="32"
+      >
+        <path
+          d="M512 192m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
+          p-id="1315"
+          fill="#999999"
+        />
+        <path
+          d="M512 512m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
+          p-id="1316"
+          fill="#999999"
+        />
+        <path
+          d="M512 832m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
+          p-id="1317"
+          fill="#999999"
+        />
+      </svg>
+    );
     const colorbj = (color, bg) => {
       return {
         // width: '100px',
@@ -639,11 +668,30 @@ export default class EnterpriseClusters extends PureComponent {
         }
       },
       {
+        // title: '内存(GB)',
+        title: 'CPU(m)',
+        dataIndex: 'total_cpu',
+        align: 'center',
+        width: 80,
+        render: (_, item) => {
+          return (
+            <span style={{color:'#4d73b1'}}>{item.used_cpu}/{item.total_cpu}</span>
+          );
+        }
+      },
+      {
         // title: '版本',
         title: formatMessage({ id: 'table.tr.versions' }),
         dataIndex: 'rbd_version',
         align: 'center',
-        width: 180
+        width: 180,
+        render: val =>{
+          if(val.length == 0){
+            return "-"
+          }else{
+            return val
+          }
+        }
       },
       {
         // title: '状态',
@@ -716,7 +764,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'table.tr.handle' }),
         dataIndex: 'method',
         align: 'center',
-        width: 150,
+        width: 50,
         render: (_, item) => {
           const mlist = [
             <a
@@ -748,6 +796,9 @@ export default class EnterpriseClusters extends PureComponent {
             >
               <FormattedMessage id='enterpriseColony.table.handle.import'/>
               {/* 导入 */}
+            </Link>,
+            <Link to={`/enterprise/${eid}/clusters/${item.region_id}/dashboard`}>
+            {formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix'})}
             </Link> 
           ];
           if (item.provider === 'rke') {
@@ -760,7 +811,22 @@ export default class EnterpriseClusters extends PureComponent {
               </Link>
             );
           }
-          return mlist;
+          const MenuList = (
+            <Menu>
+              {mlist.map(item =>{
+                console.log(item,"item");
+                return <Menu.Item>
+                        {item}
+                       </Menu.Item>
+              })}
+            </Menu>
+          )
+          return<Dropdown
+                  overlay={MenuList}
+                  placement="bottomLeft"
+                >
+                  <Icon component={moreSvg} style={{ width: '100%' }} />
+                </Dropdown>;
         }
       }
     ];
