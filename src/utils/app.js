@@ -187,7 +187,7 @@ const appUtil = {
   },
   // 应用安装来源 source_code 源码 market 云市 docker_compose、docker_run、docker_image 镜像
   getInstallSource(appDetail) {
-    return appDetail.service.service_source;
+    return appDetail && appDetail.service && appDetail.service.service_source;
   },
   // 是否是云市安装的应用
   isMarketApp(appDetail) {
@@ -237,7 +237,7 @@ const appUtil = {
   // 是否是dockerfile类型的应用
   // 获取源码创建应用的语言类型
   getLanguage(appDetail) {
-    let language = appDetail.service.language || '';
+    let language = appDetail && appDetail.service && appDetail.service.language || '';
     if (language) {
       language = language.replace(/\./, '').toLowerCase();
     }
