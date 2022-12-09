@@ -253,13 +253,13 @@ export default class ConfigurationTable extends PureComponent {
         >
           <Table
             size="default"
-            pagination={{
+            pagination={total >pageSize ?{
               size: 'default',
               current: page,
               pageSize,
               total,
               onChange: this.onPageChange
-            }}
+            }:false}
             dataSource={apps || []}
             columns={[
               {

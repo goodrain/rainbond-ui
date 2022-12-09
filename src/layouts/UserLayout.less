@@ -1,12 +1,22 @@
 @import '~antd/lib/style/themes/default.less';
 
 .headers {
-  padding-top: 30px;
+  width: 90%;
   .logo {
-    height: 64px;
+    width: 30%;
+    height: 100%;
     line-height: 64px;
-    width: 236px;
+    padding: 20px 0;
     margin: auto;
+    // background-image: linear-gradient(to top,#6292f4,rgb(77, 115, 177));
+    background-color:#374551 ;
+    display: flex;
+    justify-content: center;
+    box-shadow: #00000080 2px 4px 10px 0px;
+    // border-top-left-radius: 10px;
+    // border-top-right-radius: 10px;
+    min-width: 388px;
+    // margin-bottom: 20px;
     img {
       height: 55%;
       width: 100%;
@@ -16,29 +26,24 @@
 .content {
   display: flex;
   align-items: center;
-  margin-top: 30px;
+  flex-direction: column;
+  height: calc( 100% - 150px);
+  justify-content: center;
   .contentBox {
-    width: 1200px;
-    display: flex;
-    align-items: center;
+    width: 90%;
     margin: 0 auto;
     // height: 549px;
-    .contentBoxLeft {
-      width: 61%;
-      img {
-        width: 100%;
-        height: 100%;
-      }
-    }
     .contentBoxRight {
       background: #ffffff;
       margin: 0 auto;
-      width: 34%;
-      // height: 549px;
+      width: 30%;
+      min-width: 388px;
       display: flex;
       overflow: auto;
-      border-radius: 5px;
-      box-shadow: #242e4222 2px 4px 10px 0px;
+      box-shadow: #00000080 2px 4px 10px 0px;
+      // border-bottom-left-radius: 10px;
+      // border-bottom-right-radius: 10px;
+      // border-radius: 10px;
     }
   }
 }
@@ -48,4 +53,17 @@
   background-image: url(../../public/login.png);
   background-repeat: no-repeat;
   background-size: 100% 100%;
+  // background-image: linear-gradient(to top right,#496EE8,#7E9DF4);
 }
+// .CustomFooterStyle{
+//   :global{
+//     .ant-pro-global-footer{
+//       .ant-pro-global-footer-links a{
+//         color: #fff;
+//       }
+//       .ant-pro-global-footer-copyright{
+//         color: #fff;
+//       }
+//     }
+//   }
+// }

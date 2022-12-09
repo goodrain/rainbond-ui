@@ -17,8 +17,8 @@ export default function AppHeader(props) {
     currentComponent,
     nobleIcon,
     upDataHeader,
+    handleClick
   } = props;
-
   return (
     <div className={headerStype.itemBox}>
       {upDataHeader ? (
@@ -48,6 +48,7 @@ export default function AppHeader(props) {
             <span className={headerStype.itemseparator}>></span>
           </div>
           <SelectApp
+            handleClick={handleClick}
             active={currentComponent == undefined}
             className={headerStype.select}
             teamName={teamName}

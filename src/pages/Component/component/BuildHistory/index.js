@@ -579,6 +579,7 @@ class Index extends PureComponent {
               </ul>
             </div>
             <div style={{ textAlign: 'right', marginTop: '24px' }}>
+              {Number(total) >pageSize &&               
               <Pagination
                 current={pages}
                 pageSize={pageSize}
@@ -588,7 +589,7 @@ class Index extends PureComponent {
                 onChange={onPageChange}
                 pageSizeOptions={['5', '10', '20', '50']}
                 onShowSizeChange={onShowSizeChange}
-              />
+              />}
             </div>
           </Card>
         </Col>

@@ -628,13 +628,13 @@ export default class TcpTable extends PureComponent {
         <Card bodyStyle={{ padding: '0' }}>
           <Table
             rowKey={this.rowKey}
-            pagination={{
+            pagination={total > 10 ?{
               total,
               page_num,
               pageSize: page_size,
               onChange: this.onPageChange,
               current: page_num
-            }}
+            }: false}
             dataSource={dataList}
             columns={columns}
             loading={this.state.tcpLoading}

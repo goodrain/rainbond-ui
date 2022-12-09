@@ -905,7 +905,7 @@ export default class AppList extends PureComponent {
                   loading={recordLoading || upgradeLoading}
                   columns={isHelm ? helmColumns : columns}
                   dataSource={list}
-                  pagination={paginationProps}
+                  pagination={total >pageSize ? paginationProps : false}
                 />
               </TabPane>
             </Tabs>

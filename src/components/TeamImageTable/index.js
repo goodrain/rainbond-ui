@@ -89,7 +89,7 @@ class TeamMemberTable extends PureComponent {
     ];
 
     return (
-      <Table pagination={pagination} dataSource={list} columns={columns} />
+      <Table pagination={list.length > 8 ? pagination : false} dataSource={list} columns={columns} />
     );
   }
 }

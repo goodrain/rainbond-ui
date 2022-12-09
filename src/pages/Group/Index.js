@@ -61,7 +61,13 @@ export default class Index extends PureComponent {
     const { groupDetail } = this.props;
     return (
       <Fragment>
-        {groupDetail && <Group {...this.props} {...this.state} /> }   
+        {JSON.stringify(groupDetail) === '{}' ? (
+          <Group {...this.props} {...this.state} />
+        ) : groupDetail.app_type === 'helm' ? (
+          <Group {...this.props} {...this.state} />
+        ) : (
+          <Group {...this.props} {...this.state} />
+        )}
       </Fragment>
     );
   }

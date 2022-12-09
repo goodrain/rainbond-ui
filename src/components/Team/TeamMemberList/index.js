@@ -192,7 +192,7 @@ export default class MemberList extends PureComponent {
           <ScrollerX sm={600}>
             <TeamMemberTable
               memberPermissions={memberPermissions}
-              pagination={pagination}
+              pagination={total >8 ? pagination : false}
               team={currentTeam}
               onMoveTeam={this.onMoveTeam}
               onDelete={this.onDelMember}

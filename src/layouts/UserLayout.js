@@ -78,22 +78,21 @@ class UserLayout extends React.PureComponent {
     }
     return (
       <div className={styles.container}>
-        <div className={styles.headers}>
-          <div className={styles.logo}>
-            <Link to="/">
-              <img src={fetchLogo} alt="LOGO" />
-            </Link>
-          </div>
-        </div>
         <div className={styles.content}>
+          <div className={styles.headers}>
+            <div className={styles.logo} >
+              <Link to="/">
+                <img src={fetchLogo} alt="LOGO" />
+              </Link>
+            </div>
+          </div>
           <div className={styles.contentBox}>
-            {/* <div className={styles.contentBoxLeft}>
-              <img src={cloud} alt="Rainbond | 云原生多云应用管理平台" />
-            </div> */}
             <div className={styles.contentBoxRight}>{children}</div>
           </div>
+          </div>
+        < div style={{ bottom: 0, width: '100%', position: 'fixed' }} className={styles.CustomFooterStyle}>
+          {!isEnterpriseEdition && <CustomFooter />}
         </div>
-        {!isEnterpriseEdition && <CustomFooter />}
       </div>
     );
   }

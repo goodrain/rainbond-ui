@@ -236,7 +236,6 @@ export default class EnterpriseUsers extends PureComponent {
       Loading,
       currentUserInfo
     } = this.state;
-
     const {
       match: {
         params: { eid }
@@ -412,12 +411,12 @@ export default class EnterpriseUsers extends PureComponent {
             />
           )}
           <Table
-            pagination={{
+            pagination={total > 10 ? {
               current: page,
               pageSize,
               total,
               onChange: this.onPageChange
-            }}
+            } : false}
             dataSource={adminList}
             columns={columns}
           />
