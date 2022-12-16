@@ -153,7 +153,8 @@ class Index extends React.Component {
       groupId,
       form,
       showSubmitBtn = true,
-      showCreateGroup = true
+      showCreateGroup = true,
+      handleType,
     } = this.props;
     const { getFieldDecorator } = form;
     const {
@@ -183,7 +184,7 @@ class Index extends React.Component {
               }
             >
               {getFieldDecorator('group_id', {
-                initialValue: Number(groupId),
+                initialValue: ServiceComponent ? Number(groupId) : '',
                 rules: [{ required: true, message: '请选择' }]
               })(
                 <Select
