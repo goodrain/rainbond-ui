@@ -524,6 +524,12 @@ export default class Enterprise extends PureComponent {
         } else {
           this.handleCloseLoading()
         }
+      },
+      handleError:(log)=>{
+        this.setState({
+          appAlertList: [],
+          appAlertLoding: false
+        });
       }
     });
   };
