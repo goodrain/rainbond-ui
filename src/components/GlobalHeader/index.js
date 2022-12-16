@@ -252,6 +252,11 @@ export default class GlobalHeader extends PureComponent {
           {customHeader && customHeader()}
         </div>
         <div className={styles.right}>
+          {currentUser.is_enterprise_admin && (
+            <Link style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder',marginRight:'14px' }} to={`/enterprise/${eid}/menu`}>
+              菜单管理
+            </Link>
+          )}
           {/* 平台管理 */}
           {currentUser.is_enterprise_admin && (
             <Link style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder',marginRight:'14px' }} to={`/enterprise/${eid}/index`}>

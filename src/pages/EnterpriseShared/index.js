@@ -1628,7 +1628,7 @@ export default class EnterpriseShared extends PureComponent {
     );
 
     const localsContent = (
-      <div>
+      <div style={{padding:'0px 24px'}}>
         <Row style={contentStyle}>
           <Col span={language ? 19 : 17} style={contentLeftStyle}>
             <Search
@@ -1712,7 +1712,7 @@ export default class EnterpriseShared extends PureComponent {
       </div>
     );
     const marketContent = (
-      <div>
+      <div style={{padding:'0px 24px'}}>
         {isMarket && (
           <Row style={contentStyle}>
             <Col span={19} style={contentLeftStyle}>
@@ -1783,7 +1783,7 @@ export default class EnterpriseShared extends PureComponent {
       </div>
     );
     const helmContent = (
-      <div>
+      <div style={{padding:'0px 24px'}}>
         <Row style={contentStyle}>
           <Col span={19} style={contentLeftStyle}>
             <Search
@@ -2011,6 +2011,7 @@ export default class EnterpriseShared extends PureComponent {
           className={styles.setTabs}
           onChange={this.onTabChange}
           type="card"
+          
         >
           {storeTabs && storeTabs.length > 0 &&
             storeTabs.map(item => {

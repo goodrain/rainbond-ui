@@ -853,81 +853,82 @@ export default class EnterpriseClusters extends PureComponent {
         ) : (
           ''
         )}
-        
-        <Card 
-          style={{ boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px'}}
-          extra={<Row>
-          <Col span={24} style={{ textAlign: 'right' }}>
-            <Link to={`/enterprise/${eid}/addCluster`}>
-              <Button type="primary">
-                {/* 添加集群 */}
-              <FormattedMessage id='enterpriseColony.button.text'/>
+        <div style={{padding:'0px 24px'}}>
+          <Card 
+            style={{ boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px'}}
+            extra={<Row>
+            <Col span={24} style={{ textAlign: 'right' }}>
+              <Link to={`/enterprise/${eid}/addCluster`}>
+                <Button type="primary">
+                  {/* 添加集群 */}
+                <FormattedMessage id='enterpriseColony.button.text'/>
+                </Button>
+              </Link>
+              <Button onClick={this.terminalCallout} style={{marginLeft:15}}>
+                {formatMessage({id:'otherEnterprise.shell.line'})}
               </Button>
-            </Link>
-            <Button onClick={this.terminalCallout} style={{marginLeft:15}}>
-               {formatMessage({id:'otherEnterprise.shell.line'})}
-            </Button>
-            
-            <Button
-              style={{ marginLeft: '16px' }}
-              onClick={() => {
-                this.loadClusters();
-              }}
-            >
-              <Icon type="reload" />
-            </Button>
-            {guideStep === 1 &&
-              this.props.novices &&
-              rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
-              clusters &&
-              clusters.length === 0 &&
-              this.handleNewbieGuiding({
-                // tit: '去添加集群',
-                tit: formatMessage({id:'enterpriseColony.guideStep.title'}),
-                // desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
-                desc: formatMessage({id:'enterpriseColony.guideStep.desc'}),
-                nextStep: 2,
-                configName: 'addCluster',
-                isSuccess: false,
-                conPosition: { right: 0, bottom: '-180px' },
-                svgPosition: { right: '50px', marginTop: '-11px' }
-              })}
-          </Col>
-        </Row>}
-        >
-          {delVisible && (
-            <ConfirmModal
-              loading={delclusterLongin}
-              title={formatMessage({ id: 'confirmModal.cluster.delete.title' })}
-              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-              desc={formatMessage({ id: 'confirmModal.delete.cluster.desc' })}
-              onOk={() => this.handleDelete(false)}
-              onCancel={this.cancelClusters}
-            />
-          )}
+              
+              <Button
+                style={{ marginLeft: '16px' }}
+                onClick={() => {
+                  this.loadClusters();
+                }}
+              >
+                <Icon type="reload" />
+              </Button>
+              {guideStep === 1 &&
+                this.props.novices &&
+                rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
+                clusters &&
+                clusters.length === 0 &&
+                this.handleNewbieGuiding({
+                  // tit: '去添加集群',
+                  tit: formatMessage({id:'enterpriseColony.guideStep.title'}),
+                  // desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
+                  desc: formatMessage({id:'enterpriseColony.guideStep.desc'}),
+                  nextStep: 2,
+                  configName: 'addCluster',
+                  isSuccess: false,
+                  conPosition: { right: 0, bottom: '-180px' },
+                  svgPosition: { right: '50px', marginTop: '-11px' }
+                })}
+            </Col>
+          </Row>}
+          >
+            {delVisible && (
+              <ConfirmModal
+                loading={delclusterLongin}
+                title={formatMessage({ id: 'confirmModal.cluster.delete.title' })}
+                subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+                desc={formatMessage({ id: 'confirmModal.delete.cluster.desc' })}
+                onOk={() => this.handleDelete(false)}
+                onCancel={this.cancelClusters}
+              />
+            )}
 
-          {this.state.editClusterShow && (
-            <EditClusterInfo
-              regionInfo={regionInfo}
-              title={text}
-              eid={eid}
-              onOk={this.cancelEditClusters}
-              onCancel={this.cancelEditClusters}
+            {this.state.editClusterShow && (
+              <EditClusterInfo
+                regionInfo={regionInfo}
+                title={text}
+                eid={eid}
+                onOk={this.cancelEditClusters}
+                onCancel={this.cancelEditClusters}
+              />
+            )}
+            <Alert
+              style={{ marginBottom: '16px' }}
+              // message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
+              message={<FormattedMessage id='enterpriseColony.alert.message'/>}
             />
-          )}
-          <Alert
-            style={{ marginBottom: '16px' }}
-            // message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
-            message={<FormattedMessage id='enterpriseColony.alert.message'/>}
-          />
-          <Table
-            // scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
-            loading={clusterLoading}
-            dataSource={clusters}
-            columns={columns}
-            pagination={false}
-          />
-        </Card>
+            <Table
+              // scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
+              loading={clusterLoading}
+              dataSource={clusters}
+              columns={columns}
+              pagination={false}
+            />
+          </Card>
+        </div>
         {showTenantList && (
           <Modal
             maskClosable={false}
@@ -991,7 +992,7 @@ export default class EnterpriseClusters extends PureComponent {
               </div>
             )}
             {!setTenantLimitShow && (
-              <div >
+              <div style={{padding:'0px 24px'}}>
                 <Alert
                   style={{ margin: '20px 0 16px 0' }}
                   message={formatMessage({id:'enterpriseColony.table.handle.quota.form.label.alert'})}

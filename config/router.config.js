@@ -47,6 +47,12 @@ export default [
         authority: ['admin', 'user'],
       },
       {
+        path: '/enterprise/:eid/menu',
+        component: '../layouts/PluginMenu',
+        name: 'PluginMenu',
+        authority: ['admin', 'user'],
+      },
+      {
         path: '/enterprise/:eid',
         component: '../layouts/EnterpriseLayout',
         name: 'EnterprisePage',
@@ -122,6 +128,12 @@ export default [
             path: '/enterprise/:eid/logs',
             component: './LogManagement',
             name: 'LogManagement',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/extension',
+            component: './Extension',
+            name: 'Extension',
             authority: ['admin', 'user']
           },
           {

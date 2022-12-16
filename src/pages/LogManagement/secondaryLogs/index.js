@@ -62,8 +62,8 @@ class Index extends PureComponent {
         const { ClusterArr, instances, enClusterArr} = this.state;
         return (
             <>
-                <Card>
-                    <Tabs defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
+                <Card style={{ padding:'24px 0px'}}>
+                    <Tabs tabPosition='left' defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
                         {ClusterArr && ClusterArr.length > 0 && ClusterArr.map((item, index) => {
                             return <TabPane tab={item} key={index} >
                                         <ColonyLog region={region} instances={instances} RbdName={enClusterArr[index]} tcpUrl={tcpUrl}/>

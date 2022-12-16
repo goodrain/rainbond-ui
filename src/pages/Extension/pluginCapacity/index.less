@@ -1,0 +1,124 @@
+.boxs{
+    margin: 10px 0px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    border: 1px solid #e3e3e3;
+    background-color: #fff;
+    p{
+        margin-bottom: 0em;
+    }
+    :global{
+        .ant-card-body{
+          padding: 16px;
+          display: flex;
+          align-items: center;
+        }
+        
+    }
+    .pluginName{
+        color: #4d73b1;
+        text-decoration: none;
+        background-color: transparent;
+        outline: none;
+        cursor: pointer;
+        transition: color 0.3s;
+        font-size: 14px;
+        font-family: PingFangSC-Medium;
+        letter-spacing: 0;
+    }
+    .pluginDesc{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: PingFangSC-Regular;
+        font-size: 12px;
+        color: #999999;
+        letter-spacing: 0;
+    }
+    .btnBox{
+        font-size: 14px;
+        color: #4d73b1;
+        display: flex;
+        justify-content: space-around;
+        cursor: pointer;
+    }
+    .statusBox{
+        display: flex;
+        align-items: center;
+        .status{
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgb(11, 192, 11);
+        }
+        .statusText{
+            font-size: 12px;
+            color: rgb(26, 201, 26);
+            margin-left: 6px;
+        }
+        .error{
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: red;
+        }
+        .status_error{
+            font-size: 12px;
+            color: red;
+            margin-left: 6px;
+        }
+    }
+    .versions, .author{
+        font-size: 12px;
+        color: #999999; 
+    }
+}
+
+.pluginCard{
+  :global{
+    .ant-card-body{
+      // padding: 6px 0px;
+    }
+  }
+    .tabsStyle{
+      :global{
+        .ant-tabs-tab{
+          background-color: #fff !important;
+          height: 41px !important ;
+          border: 0 !important;
+        }
+        .ant-tabs-bar{
+          border: 1px solid #fff !important;
+          border-bottom: 1px solid transparent !important;
+        }
+        .ant-tabs-tab-active{
+          height: 41px !important ;
+          border: 0px solid #4d73b1 !important;
+          border-bottom: 0px solid #fff !important;
+          background-color: #fff !important;
+        }
+        .ant-tabs-top-content{
+          border-radius: 5px;
+        }
+        .ant-tabs-card-content{
+          background-color: #fff;
+          box-shadow: #242e4229 2px 4px 10px 0px !important;
+        }
+        .ant-tabs-nav-scroll{
+          overflow: hidden !important;
+        }
+        .ant-tabs-nav-container-scrolling{
+          overflow: hidden !important;
+        }
+        .ant-tabs-nav-container{
+          overflow: visible !important;
+          margin-left: 0px !important;
+        }
+        .ant-tabs-nav-wrap{
+          margin-right: 0 !important;
+        }
+      }
+    }
+}

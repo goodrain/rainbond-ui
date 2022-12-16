@@ -10,7 +10,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cloud from '../../utils/cloud';
 import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 
@@ -78,11 +78,11 @@ export default class EnterpriseUsers extends PureComponent {
     const { userInfo } = this.state;
     let info = values;
     let setType = 'global/creatUser';
-    let setMessage = formatMessage({id:'notification.success.add_success'});
+    let setMessage = formatMessage({ id: 'notification.success.add_success' });
     if (userInfo) {
       info = Object.assign({}, userInfo, info);
       setType = 'global/upEnterpriseUsers';
-      setMessage = formatMessage({id:'notification.success.edit'});
+      setMessage = formatMessage({ id: 'notification.success.edit' });
     }
     dispatch({
       type: setType,
@@ -136,7 +136,7 @@ export default class EnterpriseUsers extends PureComponent {
         if (res && res._condition === 200) {
           this.loadUser();
           this.cancelDelUser();
-          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
         }
       }
     });
@@ -170,7 +170,7 @@ export default class EnterpriseUsers extends PureComponent {
   addUser = () => {
     this.setState({
       userVisible: true,
-      text: formatMessage({id:'enterpriseUser.button.adduser'})
+      text: formatMessage({ id: 'enterpriseUser.button.adduser' })
     });
   };
 
@@ -187,7 +187,7 @@ export default class EnterpriseUsers extends PureComponent {
     this.setState({
       userInfo: item,
       userVisible: true,
-      text: formatMessage({id:'enterpriseUser.button.edituser'})
+      text: formatMessage({ id: 'enterpriseUser.button.edituser' })
     });
   };
 
@@ -245,7 +245,7 @@ export default class EnterpriseUsers extends PureComponent {
     const columns = [
       {
         // title: '用户名称',
-        title: formatMessage({id:'enterpriseUser.table.userName'}),
+        title: formatMessage({ id: 'enterpriseUser.table.userName' }),
         dataIndex: 'nick_name',
         rowKey: 'nick_name',
         align: 'center',
@@ -262,28 +262,28 @@ export default class EnterpriseUsers extends PureComponent {
       },
       {
         // title: '姓名',
-        title: formatMessage({id:'enterpriseUser.table.name'}),
+        title: formatMessage({ id: 'enterpriseUser.table.name' }),
         dataIndex: 'real_name',
         rowKey: 'real_name',
         align: 'center'
       },
       {
         // title: '电话',
-        title: formatMessage({id:'enterpriseUser.table.phone'}),
+        title: formatMessage({ id: 'enterpriseUser.table.phone' }),
         dataIndex: 'phone',
         rowKey: 'phone',
         align: 'center'
       },
       {
         // title: '邮箱',
-        title: formatMessage({id:'enterpriseUser.table.email'}),
+        title: formatMessage({ id: 'enterpriseUser.table.email' }),
         dataIndex: 'email',
         rowKey: 'email',
         align: 'center'
       },
       {
         // title: '创建时间',
-        title: formatMessage({id:'enterpriseUser.table.time'}),
+        title: formatMessage({ id: 'enterpriseUser.table.time' }),
         dataIndex: 'create_time',
         rowKey: 'create_time',
         align: 'center',
@@ -299,7 +299,7 @@ export default class EnterpriseUsers extends PureComponent {
       },
       {
         // title:'操作',
-        title: formatMessage({id:'enterpriseUser.table.handle'}),
+        title: formatMessage({ id: 'enterpriseUser.table.handle' }),
         dataIndex: 'user_id',
         align: 'center',
         rowKey: 'user_id',
@@ -311,7 +311,7 @@ export default class EnterpriseUsers extends PureComponent {
               }}
             >
               {/* 删除 */}
-              <FormattedMessage id='button.delete'/>
+              <FormattedMessage id='button.delete' />
             </a>,
             <a
               onClick={() => {
@@ -319,7 +319,7 @@ export default class EnterpriseUsers extends PureComponent {
               }}
             >
               {/* 编辑 */}
-              <FormattedMessage id='button.edit'/>
+              <FormattedMessage id='button.edit' />
             </a>
           ];
         }
@@ -328,99 +328,101 @@ export default class EnterpriseUsers extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title={<FormattedMessage id='enterpriseUser.PageHeaderLayout.title'/>}
-        content={<FormattedMessage id='enterpriseUser.PageHeaderLayout.content'/>}
-        titleSvg={pageheaderSvg.getSvg('userSvg',18)}
+        title={<FormattedMessage id='enterpriseUser.PageHeaderLayout.title' />}
+        content={<FormattedMessage id='enterpriseUser.PageHeaderLayout.content' />}
+        titleSvg={pageheaderSvg.getSvg('userSvg', 18)}
       >
-        <Row
-          style={{
-            marginBottom: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            background:'#fafbfc',
-            borderRadius:5,
-            boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
-            padding:10
-          }}
-        >
-          <Col span={12}>
-            <Form layout="inline" style={{ display: 'inline-block' }}>
-              <FormItem>
-                <Input
-                  placeholder={formatMessage({id:'placeholder.searchUser.user'})}
-                  onChange={e => this.handelChange(e.target.value)}
-                  onPressEnter={this.handleSearch}
-                  style={{ width: 250 }}
-                />
-              </FormItem>
-              <FormItem>
+        <div style={{ padding: '0px 24px' }}>
+          <Row
+            style={{
+              marginBottom: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              background: '#fafbfc',
+              borderRadius: 5,
+              boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
+              padding: 10
+            }}
+          >
+            <Col span={12}>
+              <Form layout="inline" style={{ display: 'inline-block' }}>
+                <FormItem>
+                  <Input
+                    placeholder={formatMessage({ id: 'placeholder.searchUser.user' })}
+                    onChange={e => this.handelChange(e.target.value)}
+                    onPressEnter={this.handleSearch}
+                    style={{ width: 250 }}
+                  />
+                </FormItem>
+                <FormItem>
+                  <Button
+                    type="primary"
+                    onClick={this.handleSearch}
+                    icon="search"
+                  >
+                    {/* 搜索 */}
+                    <FormattedMessage id='button.search' />
+                  </Button>
+                </FormItem>
+              </Form>
+            </Col>
+            <Col span={12} style={{ textAlign: 'right' }}>
+              {adminer && (
                 <Button
                   type="primary"
-                  onClick={this.handleSearch}
-                  icon="search"
+                  icon="plus"
+                  style={{ float: 'right' }}
+                  onClick={this.addUser}
                 >
-                  {/* 搜索 */}
-                  <FormattedMessage id='button.search'/>
+                  {/* 新增用户 */}
+                  <FormattedMessage id='enterpriseUser.button.adduser' />
+
                 </Button>
-              </FormItem>
-            </Form>
-          </Col>
-          <Col span={12} style={{ textAlign: 'right' }}>
-            {adminer && (
-              <Button
-                type="primary"
-                icon="plus"
-                style={{ float: 'right' }}
-                onClick={this.addUser}
-              >
-                {/* 新增用户 */}
-                <FormattedMessage id='enterpriseUser.button.adduser'/>
-
-              </Button>
+              )}
+            </Col>
+          </Row>
+          <Card style={{ borderRadius: 5, boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px', }}>
+            {delVisible && (
+              <ConfirmModal
+                onOk={this.handleDelete}
+                title={formatMessage({ id: 'confirmModal.user.delete.title' })}
+                subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+                desc={formatMessage({ id: 'confirmModal.delete.user.desc' })}
+                onCancel={this.cancelDelUser}
+              />
             )}
-          </Col>
-        </Row>
-        <Card style={{borderRadius:5,boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px',}}> 
-          {delVisible && (
-            <ConfirmModal
-              onOk={this.handleDelete}
-              title={formatMessage({ id: 'confirmModal.user.delete.title' })}
-              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-              desc={formatMessage({ id: 'confirmModal.delete.user.desc' })}
-              onCancel={this.cancelDelUser}
-            />
-          )}
 
-          {userVisible && (
-            <CreatUser
-              eid={eid}
-              loading={Loading}
-              userInfo={userInfo}
-              title={text}
-              onOk={this.handleUser}
-              onCancel={this.canceUser}
+            {userVisible && (
+              <CreatUser
+                eid={eid}
+                loading={Loading}
+                userInfo={userInfo}
+                title={text}
+                onOk={this.handleUser}
+                onCancel={this.canceUser}
+              />
+            )}
+            {currentUserInfo && (
+              <CurrentTeams
+                eid={eid}
+                userInfo={currentUserInfo}
+                onCancel={() => {
+                  this.handleCurrentUserId(false);
+                }}
+              />
+            )}
+            <Table
+              pagination={total > 10 ? {
+                current: page,
+                pageSize,
+                total,
+                onChange: this.onPageChange
+              } : false}
+              dataSource={adminList}
+              columns={columns}
             />
-          )}
-          {currentUserInfo && (
-            <CurrentTeams
-              eid={eid}
-              userInfo={currentUserInfo}
-              onCancel={() => {
-                this.handleCurrentUserId(false);
-              }}
-            />
-          )}
-          <Table
-            pagination={total > 10 ? {
-              current: page,
-              pageSize,
-              total,
-              onChange: this.onPageChange
-            } : false}
-            dataSource={adminList}
-            columns={columns}
-          />
-        </Card>
+          </Card>
+        </div>
       </PageHeaderLayout>
     );
   }
