@@ -2,6 +2,7 @@
 /* eslint-disable consistent-return */
 import { Alert, Button, Modal, notification, Select } from 'antd';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from '../../components/CreateTeam/index.less';
@@ -27,7 +28,11 @@ export default class AppExporter extends PureComponent {
           app.versions_info.length > 0 && [
             app.versions_info[app.versions_info.length - 1].version
           ]) ||
-        ''
+        '',
+      teamName: '',
+      page: 1,
+      page_size: 1,
+      region_name: ''
     };
   }
   componentDidMount() {
@@ -36,11 +41,18 @@ export default class AppExporter extends PureComponent {
       this.handleVersionInfo();
     }
     this.queryExport();
+    this.getEnterpriseTeams()
+  }
+  handleHelm = () => {
+    const {
+      dispatch,
+      eid
+    } = this.props;
+    dispatch(routerRedux.push(`/enterprise/${eid}/shared/helmSetting`))
   }
   getDockerComposeAppShow = () => {
     const { app_exporte_status } = this.state;
     if (!app_exporte_status || !app_exporte_status.docker_compose) {
-      // console.log(!app_exporte_status.docker_compose,'进来了')
       return;
     }
     const compose_app_status = app_exporte_status.docker_compose;
@@ -60,10 +72,31 @@ export default class AppExporter extends PureComponent {
       </DescriptionList>
     );
   };
+  getHelmAppShow = () => {
+    const { app_exporte_status } = this.state;
+    if (!app_exporte_status || !app_exporte_status.helm_chart) {
+      return;
+    }
+    const compose_app_status = app_exporte_status.helm_chart;
+    return (
+      <DescriptionList
+        size="large"
+        title={<div>
+            <span>{formatMessage({id:'applicationMarket.offline_installer.form.label.helm_chart'})}</span>
+            <span style={{color:'rgb(148 146 146)', fontSize:'14px', marginLeft:'6px'}}>{formatMessage({id:'applicationMarket.offline_installer.form.label.helm_chart.desc'})}</span>
+          </div>}
+        style={{ marginBottom: 32 }}
+      >
+        <Description style={{width:'40%'}} term={formatMessage({id:'applicationMarket.offline_installer.form.label.status'})}>
+          {this.getStatus(compose_app_status)}
+        </Description>
+        {this.getAction(compose_app_status, 'helm-chart')}
+      </DescriptionList>
+    );
+  };
   getRainbondAppShow = () => {
     const { app_exporte_status } = this.state;
     if (!app_exporte_status || !app_exporte_status.rainbond_app) {
-      // console.log(!app_exporte_status.rainbond_app,'进来了')
       return;
     }
     const rainbond_app_status = app_exporte_status.rainbond_app;
@@ -86,7 +119,6 @@ export default class AppExporter extends PureComponent {
   getRainbondNotContainerBag = () => {
     const { app_exporte_status } = this.state;
     if (!app_exporte_status || !app_exporte_status.slug) {
-      // console.log(!app_exporte_status.slug,'进来了')
       return;
     }
     const slug_status = app_exporte_status.slug;
@@ -252,24 +284,81 @@ export default class AppExporter extends PureComponent {
       onCancel();
     }
   };
-  handleExporter = format => {
-    const { app, eid, dispatch } = this.props;
-    const { exportVersion } = this.state;
+  getEnterpriseTeams = () => {
+    const { dispatch, eid } = this.props;
+    const { page, page_size } = this.state;
     dispatch({
-      type: 'market/appExport',
+      type: 'global/fetchEnterpriseTeams',
       payload: {
-        app_id: app.app_id,
-        enterprise_id: eid,
-        app_versions: exportVersion,
-        format
+        page,
+        page_size,
+        enterprise_id: eid
       },
-      callback: data => {
-        if (data && data.bean) {
-          notification.success({ message: formatMessage({id:'notification.success.operate_successfully'}) });
-          this.queryExport();
+      callback: res => {
+        if (res && res.status_code === 200) {
+          if (res.bean && res.bean.list) {
+            this.setState({
+              teamName: res.bean.list[0].team_name,
+              region_name: res.bean.list[0].region_list[0].region_name
+            });
+          }
         }
       }
     });
+  };
+  handleExporter = format => {
+    const { app, eid, dispatch } = this.props;
+    const { exportVersion, teamName, region_name } = this.state;
+    if(format == 'helm-chart'){
+      dispatch({
+        type: 'createApp/installApp',
+        payload: {
+          team_name: teamName,
+          app_id: app.app_id,
+          app_version: exportVersion[0],
+          dry_run: true,
+          install_from_cloud: false,
+          marketName: 'localApplication',
+          region_name
+        },
+        callback: data => {
+          if (data && data.bean) {
+            dispatch({
+              type: 'market/appExport',
+              payload: {
+                app_id: app.app_id,
+                enterprise_id: eid,
+                app_versions: exportVersion,
+                format,
+                image_handle: 'image_save'
+              },
+              callback: data => {
+                if (data && data.bean) {
+                  notification.success({ message: formatMessage({id:'notification.success.operate_successfully'}) });
+                  this.queryExport();
+                }
+              }
+            });
+          }
+        }
+      });
+    }else{
+      dispatch({
+        type: 'market/appExport',
+        payload: {
+          app_id: app.app_id,
+          enterprise_id: eid,
+          app_versions: exportVersion,
+          format
+        },
+        callback: data => {
+          if (data && data.bean) {
+            notification.success({ message: formatMessage({id:'notification.success.operate_successfully'}) });
+            this.queryExport();
+          }
+        }
+      });
+    }
   };
   queryExport = () => {
     const { app, eid, dispatch, setIsExporting } = this.props;
@@ -299,7 +388,11 @@ export default class AppExporter extends PureComponent {
             (data.list &&
               data.list.length > 0 &&
               data.list[0].slug &&
-              data.list[0].slug.status == 'exporting')
+              data.list[0].slug.status == 'exporting') ||
+            (data.list &&
+              data.list.length > 0 &&
+              data.list[0].helm_chart &&
+              data.list[0].helm_chart.status == 'exporting')
           ) {
             setIsExporting(true);
             setTimeout(() => {
@@ -319,7 +412,11 @@ export default class AppExporter extends PureComponent {
             (data.list &&
               data.list.length > 0 &&
               data.list[0].slug &&
-              data.list[0].slug.status != 'exporting')
+              data.list[0].slug.status != 'exporting') || 
+            (data.list &&
+              data.list.length > 0 &&
+              data.list[0].helm_chart &&
+              data.list[0].helm_chart.status != 'exporting')
           ) {
             setIsExporting(false);
           }
@@ -351,7 +448,7 @@ export default class AppExporter extends PureComponent {
   handleChange = value => {
     this.setState(
       {
-        exportVersion: [value]
+        exportVersion: [value],
       },
       () => {
         this.handleVersionInfo();
@@ -404,6 +501,7 @@ export default class AppExporter extends PureComponent {
         {this.getRainbondAppShow()}
         {this.getRainbondNotContainerBag()}
         {!(this.props.app.source == 'market') && this.getDockerComposeAppShow()}
+        {this.getHelmAppShow()}
       </Modal>
     );
   }
