@@ -692,8 +692,8 @@ export default {
         callback(response);
       }
     },
-    *fetchAppAlertInfo({ payload, callback }, { call }) {
-      const response = yield call(fetchAppAlertInfo, payload);
+    *fetchAppAlertInfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchAppAlertInfo, payload, handleError);
       if (response && callback) {
         callback(response);
       }
