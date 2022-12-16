@@ -280,7 +280,8 @@ class Main extends PureComponent {
       isShowThirdParty: false,
       promptModal: null,
       websocketURL: '',
-      componentTimer: true
+      componentTimer: true,
+      tabsShow:false
     };
     this.socket = null;
     this.destroy = false;
@@ -505,7 +506,8 @@ class Main extends PureComponent {
         }
         if (appDetail.service.service_source) {
           this.setState({
-            isShowThirdParty: appDetail.is_third ? appDetail.is_third : false
+            isShowThirdParty: appDetail.is_third ? appDetail.is_third : false,
+            tabsShow: true
           });
         }
         if (
@@ -1148,7 +1150,8 @@ class Main extends PureComponent {
       showDeleteApp,
       showEditName,
       showMoveGroup,
-      groupDetail
+      groupDetail,
+      tabsShow
     } = this.state;
     const { getFieldDecorator } = form;
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update'/> : <FormattedMessage id='componentOverview.header.right.update.roll'/>;
@@ -1378,6 +1381,28 @@ class Main extends PureComponent {
           }
         ]
       : tabs;
+    const  overviewTabs=[
+      {
+      key: 'overview',
+      // tab: '总览',
+      tab: formatMessage({id:'componentOverview.body.tab.bar.overview'})
+      },
+      {
+        key: 'port',
+        // tab: '端口',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.port'})
+      },
+      {
+        key: 'connectionInformation',
+        // tab: '连接信息',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.connectionInformation'})
+      },
+      {
+        key: 'members',
+        // tab: '更多设置',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.members'})
+      }
+  ]
     // const { service_source, language } = this.state;
     const map = {
       thirdPartyServices: ThirdPartyServices,
@@ -1439,7 +1464,7 @@ class Main extends PureComponent {
         title={this.renderTitle(componentName)}
         onTabChange={this.handleTabChange}
         tabActiveKey={type}
-        tabList={tabList}
+        tabList={tabsShow ? tabList : overviewTabs}
       >
         {this.state.showMarketAppDetail && (
           <MarketAppDetailShow
