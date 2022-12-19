@@ -667,9 +667,12 @@ class Index extends PureComponent {
                     <div style={language ? {} : { marginLeft: 38 }}>
                       <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.privileged' values={{ type: selectVal }} /></p>
                       {getFieldDecorator(`${selectVal}`, {
-                        initialValue: boolvalue || false,
+                        initialValue: strValue || false,
                         rules: [{ required: false }]
-                      })(<Switch style={{ margin: "20px 0  0 50px" }} />)}
+                      })(<Switch 
+                        defaultChecked={strValue || false}
+                        style={{ margin: "20px 0  0 50px" }} 
+                      />)}
                     </div>
                   </Form.Item>
                 }
