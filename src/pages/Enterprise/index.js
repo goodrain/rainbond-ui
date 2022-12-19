@@ -104,6 +104,13 @@ export default class Enterprise extends PureComponent {
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
+  componentWillMount() {
+    const { adminer } = this.state;
+    const { dispatch } = this.props;
+    if (!adminer) {
+        dispatch(routerRedux.push(`/`));
+    }
+  }
   componentDidMount() {
     this.loading();
     this.interval = setInterval(() => this.handleAppAlertInfo(), 15000);
@@ -525,6 +532,12 @@ export default class Enterprise extends PureComponent {
         } else {
           this.handleCloseLoading()
         }
+      },
+      handleError:(log)=>{
+        this.setState({
+          appAlertList: [],
+          appAlertLoding: false
+        });
       }
     });
   };

@@ -314,7 +314,7 @@ export default class Index extends PureComponent {
               </FormItem>
             </Modal>
           )}
-          {appDetail.service.service_source === 'third_party' && (
+          {appDetail && appDetail.service && appDetail.service.service_source === 'third_party' && (
             <Card
               title={<FormattedMessage id='componentOverview.body.ThirdPartyServices.service_instance'/>}
               extra={

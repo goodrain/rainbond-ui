@@ -1368,11 +1368,12 @@ export async function toSearchTenant(params) {
 }
 
 /** 应用报警信息 */
-export async function fetchAppAlertInfo(params) {
+export async function fetchAppAlertInfo(params,handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/service_alarm`,
     {
       method: 'get',
+      handleError
     }
   );
 }
