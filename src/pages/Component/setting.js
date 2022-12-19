@@ -544,7 +544,6 @@ export default class Index extends React.Component {
     const { dispatch } = this.props;
 
     this.props.form.validateFields((err, values) => {
-      console.log(values,'valuess')
       if (!err) {
         dispatch({
           type: 'appControl/updateComponentDeployType',
@@ -642,7 +641,6 @@ export default class Index extends React.Component {
       appDetail
     } = this.props;
     const extend_methods = this.props && this.props.baseInfo && this.props.baseInfo.extend_method || 'stateless_multiple'
-    console.log(extend_methods,'extend_methods')
     const { viewStartHealth, tags, tabData, isShow, loading, language } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
