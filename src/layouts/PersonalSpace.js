@@ -119,7 +119,6 @@ export default class Space extends Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          console.log(res.list,'list')
           const arr = [];
           const myTeam = []
           res.list.map((item, index) => {
