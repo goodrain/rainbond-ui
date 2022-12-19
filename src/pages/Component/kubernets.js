@@ -586,13 +586,13 @@ class Index extends PureComponent {
                 {selectVal &&
                   ((selectVal == "nodeSelector") || (selectVal == "labels")) &&
                   <Form.Item {...formItemLayouts}>
-                    <div style={language ? {} : { marginLeft: 38 }}>
+                    <div style={language ? {width:'100%'} : { marginLeft: 38,width:'100%' }}>
                       <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.key' /></p>
                       <div className={styles.nodeSelector_sytle}>
                         {getFieldDecorator(`${selectVal}`, {
                           initialValue: jsonValue || [],
                           rules: [{ required: false, message: formatMessage({ id: 'componentOverview.body.Kubernetes.msg' }, { selectVal: selectVal }), }]
-                        })(<DApvcinput />)}
+                        })(<DApvcinput setspan={12}/>)}
                       </div>
                     </div>
                   </Form.Item>

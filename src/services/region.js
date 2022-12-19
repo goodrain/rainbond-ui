@@ -231,3 +231,81 @@ export async function fetchHistoryLogs(param) {
     }
   });
 }
+// 获取集群下的节点列表
+export async function fetClusterNodeList(param, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes`, {
+    method: 'get',
+    handleError
+  });
+}
+// 节点操作
+// /console/enterprise/{enterprise_id}/regions/{region_id}/nodes/action
+export async function editClusterNodeActive(param, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/action`, {
+    method: 'post',
+    data: {
+      node_name: param.node_id,
+      action: param.action
+    }
+  });
+}
+// 获取节点详情
+export async function fetClusterNodeDetail(param, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/detail`, {
+    method: 'get',
+    params: {
+      node_name : param.node_id
+    },
+    handleError
+  });
+}
+// 获取节点标签
+export async function fetClusterNodeLabels(param, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/labels`, {
+    method: 'get',
+    params: {
+      node_name : param.node_name
+    },
+    handleError
+  });
+}
+// 更新节点标签
+export async function updataClusterNodeLabels(param, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/labels`, {
+    method: 'PUT',
+    data: {
+      node_name : param.node_name,
+      labels: param.labels
+    },
+    handleError
+  });
+}
+
+// 获取污点
+export async function fetClusterNodeTaint(param, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/taints`, {
+    method: 'get',
+    params: {
+      node_name : param.node_name
+    },
+    handleError
+  });
+}
+// 更新污点
+export async function updataClusterNodeTaint(param, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/taints`, {
+    method: 'put',
+    data: {
+      node_name : param.node_name,
+      taints : param.taints
+    },
+    handleError
+  });
+}
+// 获取dashboard信息
+export async function fetDashboardList(param, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/rbd-components`, {
+    method: 'get',
+    handleError
+  });
+}

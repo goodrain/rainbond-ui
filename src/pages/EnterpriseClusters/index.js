@@ -32,6 +32,7 @@ import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import styles from "./index.less"
 
 const { confirm } = Modal;
 
@@ -73,7 +74,8 @@ export default class EnterpriseClusters extends PureComponent {
         'successInstallClusters'
       ),
       setTenantLimitShow: false,
-      guideStep: 1
+      guideStep: 1,
+      jumpSwitch:true
     };
   }
   componentWillMount() {
@@ -507,6 +509,33 @@ export default class EnterpriseClusters extends PureComponent {
       payload: true,
     });
   }
+  // 行点击事件
+  onClickRow = (record) => {
+    return {
+      onClick: () => {
+        const { jumpSwitch } = this.state;
+        const {
+          dispatch,
+          match: {
+            params: { eid }
+          }
+        } = this.props;
+        if(jumpSwitch){
+         dispatch(routerRedux.push(`/enterprise/${eid}/clusters/ClustersMGT/${record.region_id}`));
+        }
+      },
+    };
+  }
+  menuMouseEnter=()=>{
+    this.setState({
+      jumpSwitch:false
+    })
+  }
+  menuMouseLeave=()=>{
+    this.setState({
+      jumpSwitch:true
+    })
+  }
   render() {
     const {
       delclusterLongin,
@@ -536,7 +565,6 @@ export default class EnterpriseClusters extends PureComponent {
       isNewbieGuide,
       showClusterIntroduced
     } = this.state;
-    console.log(clusters,"clusters");
     const { getFieldDecorator } = form;
     const pagination = {
       onChange: this.handleTenantPageChange,
@@ -583,13 +611,13 @@ export default class EnterpriseClusters extends PureComponent {
     const columns = [
       {
         // title: '名称',
-        title: formatMessage({ id: 'table.tr.name' }),
+        title:  <span>{formatMessage({ id: 'table.tr.name' })}{<Tooltip placement="top" title={'点击集群名称进入当前集群管理页面'}><span className={styles.nameStyle}>{pageheaderSvg.getSvg('helpSvg',18)}</span></Tooltip>}</span>,
         dataIndex: 'region_alias',
         align: 'center',
         width: 120,
         render: (val, row) => {
           return (
-            <Link to={`/enterprise/${eid}/clusters/${row.region_id}/dashboard`}>
+            <Link to={`/enterprise/${eid}/clusters/ClustersMGT/${row.region_id}`} className={styles.linkStyle}>
               {val}
             </Link>
           );
@@ -656,14 +684,11 @@ export default class EnterpriseClusters extends PureComponent {
         width: 80,
         render: (_, item) => {
           return (
-            <a
-              onClick={() => {
-                this.showRegions(item);
-              }}
+            <span
             >
               {this.handlUnit(item.used_memory)}/
               {this.handlUnit(item.total_memory)}
-            </a>
+            </span>
           );
         }
       },
@@ -675,7 +700,7 @@ export default class EnterpriseClusters extends PureComponent {
         width: 80,
         render: (_, item) => {
           return (
-            <span style={{color:'#4d73b1'}}>{item.used_cpu}/{item.total_cpu}</span>
+            <span>{item.used_cpu}/{item.total_cpu}</span>
           );
         }
       },
@@ -812,9 +837,11 @@ export default class EnterpriseClusters extends PureComponent {
             );
           }
           const MenuList = (
-            <Menu>
+            <Menu 
+            onMouseEnter={this.menuMouseEnter}
+            onMouseLeave={this.menuMouseLeave}
+            >
               {mlist.map(item =>{
-                console.log(item,"item");
                 return <Menu.Item>
                         {item}
                        </Menu.Item>
@@ -992,6 +1019,8 @@ export default class EnterpriseClusters extends PureComponent {
             dataSource={clusters}
             columns={columns}
             pagination={false}
+            onRow={this.onClickRow}
+            rowClassName={styles.rowStyle}
           />
         </Card>
         {showTenantList && (
