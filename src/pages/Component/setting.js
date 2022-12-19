@@ -544,6 +544,7 @@ export default class Index extends React.Component {
     const { dispatch } = this.props;
 
     this.props.form.validateFields((err, values) => {
+      console.log(values,'valuess')
       if (!err) {
         dispatch({
           type: 'appControl/updateComponentDeployType',
@@ -590,7 +591,7 @@ export default class Index extends React.Component {
   onChange1 = e => {
     const show =
       e.target.value !=
-      (this.props.baseInfo.extend_method || 'stateless_multiple');
+      (this.props.baseInfo && this.props.baseInfo.extend_method || 'stateless_multiple');
     this.setState({
       isShow: show
     });
@@ -640,6 +641,8 @@ export default class Index extends React.Component {
       componentPermissions: { isDeploytype, isCharacteristic, isHealth },
       appDetail
     } = this.props;
+    const extend_methods = this.props && this.props.baseInfo && this.props.baseInfo.extend_method || 'stateless_multiple'
+    console.log(extend_methods,'extend_methods')
     const { viewStartHealth, tags, tabData, isShow, loading, language } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
@@ -718,7 +721,7 @@ export default class Index extends React.Component {
               {...is_language}
               label={<FormattedMessage id='componentOverview.body.setting.type'/>}
             >
-              {globalUtil.getComponentType(baseInfo.extend_method)}
+              {extend_methods && globalUtil.getComponentType(extend_methods)}
               {isDeploytype && (
                 <Button
                   onClick={this.setupAttribute}
@@ -989,7 +992,7 @@ export default class Index extends React.Component {
           >
             <Form.Item {...appsetting_formItemLayout}>
               {getFieldDecorator('extend_method', {
-                initialValue: baseInfo.extend_method || 'stateless_multiple',
+                initialValue: extend_methods || 'stateless_multiple',
                 rules: [
                   {
                     required: true,
