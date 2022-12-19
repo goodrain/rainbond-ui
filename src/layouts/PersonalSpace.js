@@ -119,8 +119,13 @@ export default class Space extends Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          console.log(res.list,'list')
           const arr = [];
+          const myTeam = []
           res.list.map((item, index) => {
+            if(item.region_list.length > 0){
+              myTeam.push(item)
+            }
             item.region_list.map(v => {
               arr.push(v.region_name)
             })
@@ -128,7 +133,7 @@ export default class Space extends Component {
           const region_names = JSON.stringify(this.unique(arr))
           this.getUserTeamsDynamic(region_names)
           this.setState({
-            userTeamList: res.list,
+            userTeamList: myTeam,
             teamListLoding: false,
             regionName: region_names
           });
