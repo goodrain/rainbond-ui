@@ -117,6 +117,18 @@ export default class Index extends PureComponent {
       this.timeClick = setInterval(() => {
         this.fetchInstanceInfo();
       }, 60000);
+    }else{
+      setTimeout(()=>{
+        if(this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias){
+        this.getScalingRules();
+        this.getScalingRecord();
+        this.fetchInstanceInfo();
+        this.fetchExtendInfo();
+        this.timeClick = setInterval(() => {
+          this.fetchInstanceInfo();
+        }, 60000);
+      }
+      },2000)
     }
   }
   componentWillUnmount() {
@@ -454,7 +466,7 @@ export default class Index extends PureComponent {
       type: 'appControl/getScalingRules',
       payload: {
         tenant_name: globalUtil.getCurrTeamName(),
-        service_alias: appDetail.service.service_alias
+        service_alias: appDetail && appDetail.service && appDetail.service.service_alias
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -491,7 +503,7 @@ export default class Index extends PureComponent {
       type: 'appControl/getScalingRecord',
       payload: {
         tenant_name: globalUtil.getCurrTeamName(),
-        service_alias: appDetail.service.service_alias,
+        service_alias: appDetail && appDetail.service && appDetail.service.service_alias,
         page: page_num,
         page_size
       },
@@ -565,7 +577,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         rule_id: id,
-        service_alias: appDetail.service.service_alias
+        service_alias: appDetail && appDetail.service && appDetail.service.service_alias
       },
       callback: res => {
         if (res) {
@@ -827,7 +839,7 @@ export default class Index extends PureComponent {
               <InstanceList
                 handlePodClick={this.handlePodClick}
                 list={this.state.instances}
-                serviceID={this.props.appDetail.service.service_id}
+                serviceID={this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_id}
                 k8s_component_name={
                   this.props.appDetail.service.k8s_component_name
                 }

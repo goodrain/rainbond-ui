@@ -86,15 +86,27 @@ export default class Index extends PureComponent {
   static contextType = ResumeContext;
 
   componentDidMount() {
-    this.setOauthService();
-    this.getRuntimeInfo();
-    this.loadBuildSourceInfo();
+    if(this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias){
+      this.setOauthService();
+      this.getRuntimeInfo();
+      this.loadBuildSourceInfo();
+    }else{
+      this.time()
+    }
   }
   componentWillUnmount() {
     this.loop = false;
     this.statusloop = false;
   }
-
+  time = () =>{
+    const time = setTimeout(()=>{
+      if(this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias){
+        this.setOauthService();
+        this.getRuntimeInfo();
+        this.loadBuildSourceInfo();
+      }
+    },2000)
+  }
   // 上传文件取消
   handleUploadCancel = () => {
     this.setState({ uploadFile: false })
@@ -319,7 +331,7 @@ export default class Index extends PureComponent {
       type: 'appControl/getRuntimeBuildInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias
+        app_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias
       },
       callback: data => {
         if (data) {
@@ -333,7 +345,7 @@ export default class Index extends PureComponent {
       type: 'appControl/editRuntimeBuildInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
+        app_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
         build_env_dict
       },
       callback: res => {
@@ -349,7 +361,7 @@ export default class Index extends PureComponent {
       type: 'appControl/editAppCreateInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
+        app_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
         ...val
       },
       callback: data => {
@@ -381,7 +393,7 @@ export default class Index extends PureComponent {
       type: 'appControl/getAppBuidSource',
       payload: {
         team_name,
-        service_alias: this.props.appDetail.service.service_alias
+        service_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias
       },
       callback: data => {
         if (data) {
@@ -447,7 +459,7 @@ export default class Index extends PureComponent {
       type: 'appControl/getLanguage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail.service.service_alias,
+        service_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
         check_uuid: this.state.check_uuid
       },
       callback: res => {
@@ -482,7 +494,7 @@ export default class Index extends PureComponent {
       type: 'appControl/putLanguage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail.service.service_alias,
+        service_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
         eventId: event_id
       },
       callback: res => {
