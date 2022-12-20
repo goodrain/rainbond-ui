@@ -35,6 +35,9 @@ import { languageObj } from '../../utils/utils';
 import styles from './resource.less';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
+import ModifyUrl from '../Create/modify-url';
+import ModifyImageCmd from '../Create/modify-image-cmd';
+import ModifyImageName from '../Create/modify-image-name';
 import { ResumeContext } from './funContext'
 
 const { TabPane } = Tabs;
@@ -81,6 +84,11 @@ export default class Index extends PureComponent {
       event_id: '',
       percents: false,
       existFileList: [],
+      modifyUrl: false,
+      modifyUserpass: false,
+      showKey: false,
+      modifyImageName: false,
+      modifyImageCmd: false,
     };
   }
   static contextType = ResumeContext;
@@ -89,12 +97,42 @@ export default class Index extends PureComponent {
     this.setOauthService();
     this.getRuntimeInfo();
     this.loadBuildSourceInfo();
+    this.bindEvent()
   }
   componentWillUnmount() {
     this.loop = false;
     this.statusloop = false;
+    this.unbindEvent()
   }
 
+  bindEvent = () => {
+    document.addEventListener('click', this.handleClick, false);
+  };
+  unbindEvent = () => {
+    document.removeEventListener('click', this.handleClick);
+  };
+
+  handleClick = e => {
+    let parent = e.target;
+    const appDetail = this.props && this.props.appDetail && this.props.appDetail.service;
+    while (parent) {
+      if (parent === document.body) {
+        return;
+      }
+      const actionType = parent.getAttribute('action_type');
+      if (actionType === 'modify_url' || actionType === 'modify_repo') {
+        this.setState({ modifyUrl: actionType });
+        return;
+      }
+
+      if (actionType === 'modify_userpass') {
+        this.setState({ modifyUserpass: true });
+        return;
+      }
+
+      parent = parent.parentNode;
+    }
+  };
   // 上传文件取消
   handleUploadCancel = () => {
     this.setState({ uploadFile: false })
@@ -672,6 +710,35 @@ export default class Index extends PureComponent {
     } = this.props;
     return isSource;
   }
+
+  cancelModifyUrl = () => {
+    this.setState({ modifyUserpass: false });
+  };
+  handleCancelEdit = () => {
+    this.setState({ modifyUserpass: false });
+  };
+  //源码
+  handleModifyUrl = values => {
+    const appDetail = this.props && this.props.appDetail && this.props.appDetail.service;
+    const teamName = globalUtil.getCurrTeamName()
+    this.props.dispatch({
+      type: 'appControl/editAppCreateInfo',
+      payload: {
+        service_cname: values.service_cname ? values.service_cname : '',
+        git_url: values.git_url ? values.git_url : '',
+        team_name: teamName,
+        app_alias: appDetail.service_alias,
+        user_name: values.user_name,
+        password: values.password
+      },
+      callback: data => {
+        if (data) {
+          this.handleDetectPutLanguage()
+          this.handleCancelEdit();
+        }
+      }
+    });
+  };
   render() {
     if (!this.canView()) return <NoPermTip />;
 
@@ -689,6 +756,11 @@ export default class Index extends PureComponent {
       fileList,
       record,
       existFileList,
+      modifyUrl,
+      modifyUserpass,
+      modifyImageName,
+      modifyImageCmd,
+      showKey,
     } = this.state;
     const myheaders = {};
     const language = appUtil.getLanguage(appDetail);
@@ -1332,6 +1404,16 @@ export default class Index extends PureComponent {
             </Spin>{' '}
           </Modal>
         )}
+        {modifyUserpass &&  
+          <ModifyUrl
+            showUsernameAndPass
+            isServiceCname={true}
+            data={buildSource}
+            service_cname={appDetail && appDetail.service && appDetail.service.service_cname}
+            onSubmit={this.handleModifyUrl}
+            onCancel={this.cancelModifyUrl}
+          />
+        }
         {this.state.showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
