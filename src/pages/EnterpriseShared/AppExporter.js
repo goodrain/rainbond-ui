@@ -416,7 +416,7 @@ export default class AppExporter extends PureComponent {
             (data.list &&
               data.list.length > 0 &&
               data.list[0].helm_chart &&
-              data.list[0].helm_chart.status == 'exporting')
+              data.list[0].helm_chart.status != 'exporting')
           ) {
             setIsExporting(false);
           }
