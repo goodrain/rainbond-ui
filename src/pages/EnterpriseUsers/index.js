@@ -332,7 +332,7 @@ export default class EnterpriseUsers extends PureComponent {
         content={<FormattedMessage id='enterpriseUser.PageHeaderLayout.content' />}
         titleSvg={pageheaderSvg.getSvg('userSvg', 18)}
       >
-        <div style={{ padding: '0px 24px' }}>
+        <div>
           <Row
             style={{
               marginBottom: '10px',

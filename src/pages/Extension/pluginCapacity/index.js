@@ -18,21 +18,20 @@ class Index extends PureComponent {
 
     //对应日志的select 选择框数组获取
     callback = (key) => {
-        const { list , enClusterArr} = this.state;
         this.setState({
             instances: key,
         })
 
     }
     render() {
-        const { region, tcpUrl } = this.props;
-        const { ClusterArr, instances, enClusterArr} = this.state;
+        const { region } = this.props;
+        const { } = this.state;
         return (
             <>
                 <Card style={{ border:'none', padding:'0px'}} className={styles.pluginCard}>
                     <Tabs defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
                         <TabPane tab='插件' key='0' >
-                            <Plugin />
+                            <Plugin {...this.props}/>
                         </TabPane>
                         <TabPane tab='能力' key='1' >
                             <Capacity />

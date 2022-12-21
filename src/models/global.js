@@ -104,7 +104,8 @@ import {
   upEnterpriseUsers,
   getRainbondAlert,
   createShellPod,
-  deleteShellPod
+  deleteShellPod,
+  getPluginList,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -888,6 +889,12 @@ export default {
     },
     *deleteShellPod({ payload, callback }, { call }) {
       const response = yield call(deleteShellPod, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *getPluginList({ payload, callback }, { call }) {
+      const response = yield call(getPluginList, payload);
       if (callback) {
         callback(response);
       }

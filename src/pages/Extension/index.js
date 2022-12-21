@@ -1,4 +1,4 @@
-import { Tabs, Card } from 'antd';
+import { Tabs, Card, Spin } from 'antd';
 import AppPubSubSocket from '../../utils/appPubSubSocket';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -29,7 +29,7 @@ export default class index extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            activeKey: 'consoleLog',
+            activeKey: '0',
             ClustersList: []
         };
         this.socket = null;
@@ -39,6 +39,7 @@ export default class index extends PureComponent {
     }
 
     onChange = key => {
+        console.log(key)
         this.setState({ activeKey: key });
     };
     callback = (key) => {
@@ -70,12 +71,23 @@ export default class index extends PureComponent {
                 title={formatMessage({id:'LogEnterprise.title'})}
                 content={formatMessage({ id: 'LogEnterprise.desc' })}
                 titleSvg={pageheaderSvg.getSvg('logSvg',18)}
-            >
-                <Tabs onChange={this.onChange} activeKey={activeKey} destroyInactiveTabPane className={styles.setTabs} type="card">
-                    <TabPane tab='阿里云-上海' key="consoleLog">
-                        <PluginCapacity  type={true}/>
-                    </TabPane>
-                </Tabs>
+                isContent={true} 
+            >   
+                {ClustersList.length > 0 ? (
+                    <Tabs onChange={this.onChange} activeKey={activeKey} destroyInactiveTabPane className={styles.setTabs} type="card">
+                        {ClustersList.map((item, index) => {
+                            const { region_alias, region_name, url } = item
+                            return <TabPane tab={region_alias} key={index}>
+                                        <PluginCapacity type={true} regionName={region_name} regionAlias={region_alias}/>
+                                    </TabPane>
+                        })}
+                    </Tabs>
+                ):(
+                    <div style={{width:'100%',height:'300px',display:'flex',justifyContent:'center',alignItems:'center'}}>
+                        <Spin />
+                    </div>
+                    
+                )}
             </PageHeaderLayout>
         );
     }

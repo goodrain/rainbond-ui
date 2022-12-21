@@ -1108,7 +1108,7 @@ export default class EnterpriseTeams extends PureComponent {
             <Spin />
           </div>
         ) : (
-          <div style={{padding:'0px 24px'}}>{adminer ? managementTemas : teamInfo}</div>
+          <div>{adminer ? managementTemas : teamInfo}</div>
         )}
       </PageHeaderLayout>
     );

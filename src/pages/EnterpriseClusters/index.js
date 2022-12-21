@@ -853,7 +853,7 @@ export default class EnterpriseClusters extends PureComponent {
         ) : (
           ''
         )}
-        <div style={{padding:'0px 24px'}}>
+        <div>
           <Card 
             style={{ boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px'}}
             extra={<Row>

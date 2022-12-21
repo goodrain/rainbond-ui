@@ -1837,6 +1837,7 @@ export default class EnterpriseShared extends PureComponent {
         title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title"/>}
         content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content"/>}
         titleSvg={pageheaderSvg.getSvg('storeSvg',20)} 
+        isContent={true}
       >
         {/* {initShow && isNewbieGuide && (
           <PlatformIntroduced onCancel={this.hideInitShow} />
