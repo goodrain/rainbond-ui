@@ -300,6 +300,8 @@ const applicationMarket = {
     'applicationMarket.offline_installer.form.label.docker_compose.desc': '(DockerCompose环境可用)',
     'applicationMarket.offline_installer.confirm.label.release': '当前导出版本非Release状态',
     'applicationMarket.offline_installer.confirm.label.release.desc': '是否继续导出',
+    'applicationMarket.offline_installer.form.label.helm_chart': '导出Helm Chart包',
+    'applicationMarket.offline_installer.form.label.helm_chart.desc': '(原生K8S环境可用)',
     // EditAppVersion
     'applicationMarket.EditAppVersion.edit':'编辑版本',
     'applicationMarket.EditAppVersion.name':'版本别名',
