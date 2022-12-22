@@ -300,6 +300,8 @@ const applicationMarket = {
     'applicationMarket.offline_installer.form.label.docker_compose.desc': '(The DockerCompose environment is available)',
     'applicationMarket.offline_installer.confirm.label.release': 'The current export version is not in release state.',
     'applicationMarket.offline_installer.confirm.label.release.desc': 'Continue exporting or not ?',
+    'applicationMarket.offline_installer.form.label.helm_chart': 'Export the Helm Chart package',
+    'applicationMarket.offline_installer.form.label.helm_chart.desc': '(Native K8S environments are available)',
     // EditAppVersion
     'applicationMarket.EditAppVersion.edit': 'Edit version',
     'applicationMarket.EditAppVersion.name': 'Alias',
