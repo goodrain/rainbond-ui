@@ -839,15 +839,15 @@ export default class Index extends React.Component {
             )}
           </Card>
         )}
-        {(appDetail.service.extend_method === 'job' || 
-        appDetail.service.extend_method === 'cronjob') &&(
+        {((appDetail && appDetail.service && appDetail.service.extend_method) === 'job' || 
+        (appDetail && appDetail.service && appDetail.service.extend_method) === 'cronjob') &&(
           <Strategy 
             extend_method={appDetail.service.extend_method} 
-            service_alias={appDetail.service.service_alias} 
+            service_alias={appDetail && appDetail.service && appDetail.service.service_alias} 
           />
         )}
         <Kubernetes  
-          service_alias={appDetail.service.service_alias} 
+          service_alias={appDetail && appDetail.service && appDetail.service.service_alias} 
         />
         {this.state.addTag && (
           <AddTag

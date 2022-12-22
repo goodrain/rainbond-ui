@@ -13,12 +13,6 @@ class DAinputs extends Component {
     this.initFromProps();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if ('value' in nextProps) {
-      const { value } = nextProps;
-      this.initFromProps(value);
-    }
-  }
   onkeyChange = (value, index) => {
     const { values } = this.state;
     values[index].key = value;
