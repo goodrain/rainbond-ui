@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { 
-    Card, 
-    Row, 
-    Col, 
-    Button, 
-    Skeleton 
+import {
+Card,
+Row,
+Col,
+Button,
+Skeleton
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { connect } from 'dva';
@@ -22,6 +22,7 @@ class Index extends Component {
         }
     }
     render() {
+        const string = formatMessage({id:'enterpriseColony.mgt.cluster.assigned'})
         const { nodeDetail, showInfo } = this.props;
         const
             {
@@ -51,62 +52,64 @@ class Index extends Component {
         const rootTotal = (cap_root_partition && parseInt(cap_root_partition)) || 0;
         // docker总量
         const dockerTotal = (cap_docker_partition && parseInt(cap_docker_partition)) || 0;
-
+        
         return (
             <>
                 <Card
                     style={
-                        { boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px' ,
-                          position:'relative'
+                        {
+                            boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px',
+                            position: 'relative'
                         }
                     }
                     bodyStyle={
-                        { padding: '12px 0px 12px'
+                        {
+                            padding: !showInfo ? 24 : '12px 0px 12px'
                         }
                     }
                 >
                     {nodeDetail && Object.keys(nodeDetail).length > 0 && showInfo ?
                         <>
                             <Row className={styles.titleStyle}>
-                                <Col span={6}>内存</Col>
+                                <Col span={6}>{formatMessage({id:'enterpriseColony.mgt.node.memory'})}</Col>
                                 <Col span={6}>CPU</Col>
-                                <Col span={6}>根分区</Col>
-                                <Col span={6}>容器分区</Col>
+                                <Col span={6}>{formatMessage({id:'enterpriseColony.mgt.node.root'})}</Col>
+                                <Col span={6}>{formatMessage({id:'enterpriseColony.mgt.node.vessel'})}</Col>
                             </Row>
 
                             <Row className={styles.EchartsStyle}>
                                 <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${1}`} cname={"已分配"} svalue={memoryUsed} uvalue={`${String(parseInt(memoryUsed))}%`} swidth='250px' sheight='200px' />
+                                    <Echarts keys={'upcpu' + `${0}`} cname={string} svalue={memoryUsed} uvalue={`${String(parseInt(memoryUsed))}%`} swidth='250px' sheight='200px' />
                                 </Col>
                                 <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${0}`} cname={"已分配"} svalue={cpuUsed} uvalue={`${String(parseInt(cpuUsed))}%`} swidth='250px' sheight='200px' />
+                                    <Echarts keys={'upcpu' + `${1}`} cname={string} svalue={cpuUsed} uvalue={`${String(parseInt(cpuUsed))}%`} swidth='250px' sheight='200px' />
                                 </Col>
                                 <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${2}`} cname={"已分配"} svalue={rootUsed} uvalue={`${String(parseInt(rootUsed))}%`} swidth='250px' sheight='200px' />
+                                    <Echarts keys={'upcpu' + `${2}`} cname={string} svalue={rootUsed} uvalue={`${String(parseInt(rootUsed))}%`} swidth='250px' sheight='200px' />
 
                                 </Col>
                                 <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${3}`} cname={"已分配"} svalue={dockerUsed} uvalue={`${String(parseInt(dockerUsed))}%`} swidth='250px' sheight='200px' />
+                                    <Echarts keys={'upcpu' + `${3}`} cname={string} svalue={dockerUsed} uvalue={`${String(parseInt(dockerUsed))}%`} swidth='250px' sheight='200px' />
                                 </Col>
                             </Row>
 
                             <Row className={styles.bottomStyle}>
                                 <Col span={6}>
-                                    <p>已分配：<span>{req_memory.toFixed(2)}</span>Core</p>
-                                    <p>CPU总量:<span>{cap_memory.toFixed(2)}</span>Core</p>
+                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.allocated'})}<span>{req_memory.toFixed(2)}</span>Core</p>
+                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.assigned'})}<span>{cap_memory.toFixed(2)}</span>Core</p>
                                 </Col>
                                 <Col span={6}>
-                                    <p>已分配：<span>{req_cpu.toFixed(2)}</span>GB</p>
-                                    <p>内存总量：<span>{cap_cpu.toFixed(2)}</span>GB</p>
+                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.allocated'})}<span>{req_cpu.toFixed(2)}</span>GB</p>
+                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.totalMemory'})}<span>{cap_cpu.toFixed(2)}</span>GB</p>
 
                                 </Col>
                                 <Col span={6}>
-                                    <p>已分配：<span>{req_root_partition.toFixed(2)}</span>GB</p>
-                                    <p>根分区总量：<span>{cap_root_partition.toFixed(2)}</span>GB</p>
+                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.allocated'})}<span>{req_root_partition.toFixed(2)}</span>GB</p>
+                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.totalRoot'})}<span>{cap_root_partition.toFixed(2)}</span>GB</p>
                                 </Col>
                                 <Col span={6}>
-                                    <p>已分配：<span>{req_docker_partition.toFixed(2)}</span>GB</p>
-                                    <p>容器分区总量：<span>{cap_docker_partition.toFixed(2)}</span>GB</p>
+                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.allocated'})}<span>{req_docker_partition.toFixed(2)}</span>GB</p>
+                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.totalvessel'})}<span>{cap_docker_partition.toFixed(2)}</span>GB</p>
                                 </Col>
                             </Row>
                         </>

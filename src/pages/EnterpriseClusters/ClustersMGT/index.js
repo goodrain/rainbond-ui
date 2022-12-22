@@ -1,18 +1,14 @@
 import React, { Component } from 'react';
-import { 
-  Row, 
-  Col, 
-  notification 
+import {
+  Row,
+  Col,
+  notification
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import {
-  getKubeConfig,
-  getUpdateKubernetesTask,
-  uninstallRegion,
-  getRainbondComponents
-} from '../../../services/cloud';
+import { getUpdateKubernetesTask } from '../../../services/cloud';
 import ClusterDetection from '../../../components/ClusterMgtDetection';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ClusterList from '../../../components/ClusterMgtList';
 import DetectionInfo from '../../../components/ClusterMgtInfo';
 import DetectionResources from '../../../components/ClusterMgtResources';
@@ -37,7 +33,7 @@ class Index extends Component {
       installLoading: false,
       isComponents: false,
       showUpdateKubernetes: false,
-      dashboardShow:false
+      dashboardShow: false
     }
   }
   componentDidMount() {
@@ -152,7 +148,7 @@ class Index extends Component {
           showListInfo: true
         }, () => {
           notification.error({
-            message: "获取节点列表失败"
+            message: formatMessage({id:'enterpriseColony.mgt.cluster.errorList'})
           });
         })
       }
@@ -179,23 +175,23 @@ class Index extends Component {
       callback: res => {
         if (res && res.status_code == 200) {
           notification.success({
-            message: "操作成功"
+            message: formatMessage({id:'enterpriseColony.mgt.cluster.editSuccess'})
           });
           this.fetClusterNodeList(rowCluster)
         }
       },
       handleError: () => {
         notification.error({
-          message: "操作失败"
+          message: formatMessage({id:'enterpriseColony.mgt.cluster.editDefeated'})
         });
         this.fetClusterNodeList(rowCluster)
       }
     });
   }
   // 添加
-  editNode =()=>{
+  editNode = () => {
     this.setState({
-      showUpdateKubernetes:true
+      showUpdateKubernetes: true
     })
   }
   cancelShowUpdateKubernetes = () => {
@@ -203,7 +199,7 @@ class Index extends Component {
     this.setState({
       showUpdateKubernetesTasks: false,
       updateTask: null
-    },()=>{
+    }, () => {
       this.fetClusterNodeList(rowCluster)
     });
   };
@@ -219,58 +215,58 @@ class Index extends Component {
     const clusterID = val.provider_cluster_id;
     const providerName = val.provider;
 
-      dispatch({
-        type: 'region/fetDashboardList',
-        payload: {
-          enterprise_id: eid,
-          region_name: val.region_name,
-        },
-        callback: res => {
-          this.setState({
-            dashboardList : res.list,
-            dashboardShow : true
-          })
-        },
-        handleError: () => {
-          this.setState({
-            dashboardList: [],
-            dashboardShow: true
-          }, () => {
-            notification.error({
-              message: "获取dashboard列表失败"
-            });
-          })
-        }
-      });
+    dispatch({
+      type: 'region/fetDashboardList',
+      payload: {
+        enterprise_id: eid,
+        region_name: val.region_name,
+      },
+      callback: res => {
+        this.setState({
+          dashboardList: res.list,
+          dashboardShow: true
+        })
+      },
+      handleError: () => {
+        this.setState({
+          dashboardList: [],
+          dashboardShow: true
+        }, () => {
+          notification.error({
+            message: formatMessage({id:'enterpriseColony.mgt.cluster.getRainbondList'})
+          });
+        })
+      }
+    });
 
   };
   render() {
     const eid = global.getCurrEnterpriseId()
-    const { 
-      rowCluster, 
-      showInfo, 
-      nodeList, 
+    const {
+      rowCluster,
+      showInfo,
+      nodeList,
       showListInfo,
       showUpdateKubernetes,
       nodeListArr,
-      rkeConfig ,
+      rkeConfig,
       updateClusterID,
       showUpdateKubernetesTasks,
       updateTask,
       clusterID,
       dashboardList,
       dashboardShow
-     } = this.state
+    } = this.state
     return (
       <>
         <Row className={styles.breadStyle}>
           <span>{SVG.getSvg("ClusterSvg", 18)}</span>
-          <span><Link to={`/enterprise/${eid}/clusters`}>集群管理 / </Link></span>
+          <span><Link to={`/enterprise/${eid}/clusters`}>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterMgt'})} / </Link></span>
           <span>{rowCluster && rowCluster.region_alias}</span>
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("infoSvg", 20)}</span>
-          <span>集群信息</span>
+          <span>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterInfo'})}</span>
         </Row>
         <Row>
           <DetectionInfo
@@ -281,7 +277,7 @@ class Index extends Component {
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("listSvg", 20)}</span>
-          <span>节点列表</span>
+          <span>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterList'})}</span>
         </Row>
         <Row>
           <ClusterList
@@ -294,7 +290,7 @@ class Index extends Component {
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("userSvg", 20)}</span>
-          <span>资源用量</span>
+          <span>{formatMessage({id:'enterpriseColony.mgt.cluster.user'})}</span>
         </Row>
         <Row>
           <DetectionResources
@@ -304,12 +300,12 @@ class Index extends Component {
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("examineSvg", 20)}</span>
-          <span>Rainbond组件列表</span>
+          <span>{formatMessage({id:'enterpriseColony.mgt.cluster.rainbondList'})}</span>
         </Row>
         <Row>
-          <ClusterDetection 
-          dashboardList={dashboardList}
-          dashboardShow={dashboardShow}
+          <ClusterDetection
+            dashboardList={dashboardList}
+            dashboardShow={dashboardShow}
           />
         </Row>
         {showUpdateKubernetes && (

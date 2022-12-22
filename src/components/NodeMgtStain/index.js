@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { 
-    Card, 
-    Row, 
-    Col, 
-    Button, 
-    Tooltip, 
-    Drawer, 
-    Form, 
-    Skeleton, 
-    notification 
+import {
+Card,
+Row,
+Col,
+Button,
+Tooltip,
+Drawer,
+Form,
+Skeleton,
+notification
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { connect } from 'dva';
@@ -25,7 +25,7 @@ class Index extends Component {
         this.state = {
             editState: true,
             showSubmit: false,
-            value:false
+            value: false
         }
     }
     editStain = () => {
@@ -48,26 +48,26 @@ class Index extends Component {
         const { form, dispatch, updataTaints } = this.props;
         var bool = true
         form.validateFields((err, value) => {
-            if (value.taints.length == 1 && value.taints[0].key == "" && value.taints[0].value == "" && value.taints[0].effect == "" ) {
-                value.taints=[]
+            if (value.taints.length == 1 && value.taints[0].key == "" && value.taints[0].value == "" && value.taints[0].effect == "") {
+                value.taints = []
                 updataTaints(value)
-            } else if (value.taints.length == 1 && (value.taints[0].key == "" || value.taints[0].value == "" || value.taints[0].effect == "") ){
+            } else if (value.taints.length == 1 && (value.taints[0].key == "" || value.taints[0].value == "" || value.taints[0].effect == "")) {
                 bool = false
-                        return notification.warning({
-                            message: "请填写完整值"
-                          });
+                return notification.warning({
+                    message: formatMessage({id:'enterpriseColony.mgt.node.full'})
+                });
             }
-            if(value.taints.length > 1) {
-                value.taints.map( item =>{
-                    if(item.key == "" || item.vlaue == "" || item.effect == ""){
+            if (value.taints.length > 1) {
+                value.taints.map(item => {
+                    if (item.key == "" || item.vlaue == "" || item.effect == "") {
                         bool = false
                         return notification.warning({
-                            message: "请填写完整值"
-                          });
+                            message: formatMessage({id:'enterpriseColony.mgt.node.full'})
+                        });
                     }
-                } )
+                })
             }
-            if(bool){
+            if (bool) {
                 updataTaints(value)
             }
             this.setState({
@@ -76,8 +76,8 @@ class Index extends Component {
             })
         })
     }
-    removeValue = () =>{
-        const { remove }= this.props
+    removeValue = () => {
+        const { remove } = this.props
         remove()
     }
     render() {
@@ -88,12 +88,12 @@ class Index extends Component {
         const exportButton = (
             <>
                 {showSubmit &&
-                    <Button type="primary" icon="diff" onClick={this.handleSubmit} style={{ marginRight: 15 }}>提交编辑</Button>
+                    <Button type="primary" icon="diff" onClick={this.handleSubmit} style={{ marginRight: 15 }}>{formatMessage({id:'enterpriseColony.mgt.node.submit'})}</Button>
                 }
                 {editState ?
-                    <Button icon="form" onClick={this.editStain}>编辑污点</Button>
+                    <Button icon="form" onClick={this.editStain}>{formatMessage({id:'enterpriseColony.mgt.node.editStain'})}</Button>
                     :
-                    <Button icon="close-circle" onClick={this.cancelStain}>取消编辑</Button>}
+                    <Button icon="close-circle" onClick={this.cancelStain}>{formatMessage({id:'enterpriseColony.mgt.node.editCancel'})}</Button>}
 
             </>
         )
@@ -110,17 +110,17 @@ class Index extends Component {
                         <Form onSubmit={this.handleSubmit}>
                             <Form.Item >
                                 {getFieldDecorator(`taints`, {
-                                    initialValue: taintsList.length > 0  ? taintsList : [],
-                                    rules: [{ required: false, message: "请填写key,value", }]
+                                    initialValue: taintsList.length > 0 ? taintsList : [],
+                                    rules: [{ required: false, message: formatMessage({id:'enterpriseColony.mgt.node.key'}), }]
                                 })(
-                                <DApvcinputSelect 
-                                editState={editState} 
-                                removeShow={bool }
-                                setspan={8} 
-                                removeValue={this.removeValue}
-                                />)}
+                                    <DApvcinputSelect
+                                        editState={editState}
+                                        removeShow={bool}
+                                        setspan={8}
+                                        removeValue={this.removeValue}
+                                    />)}
                             </Form.Item>
-                        </Form> 
+                        </Form>
                         :
                         <Skeleton active />
                     }

@@ -1,21 +1,89 @@
-.svgStyle{
+.svgStyle {
     display: flex;
     align-items: center;
-    span{
+    padding-left: 3%;
+    span {
         margin-left: 6px;
     }
 }
-.dsahboard{
+
+.dsahboard {
     color: #52c41a;
-    span{
+
+    span {
         color: #b7b7b7;
     }
 }
-.headerStyle{
+
+.headerStyle {
     width: 100%;
     display: flex;
-    div{
-        width: 30%;
+   
+    div {
+        width: 25%;
         text-align: center;
     }
+
+    div:nth-of-type(2) {
+        // background-color: #52c41a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+}
+
+.thStyle {
+    height: 50px;
+    background-color: #FAFBFE;
+    padding: 12px;
+    border-bottom: 1px solid #d9d9d9;
+
+    :global {
+        .ant-col-6 {
+            height: 100%;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+}
+
+.collapseStyle {
+    width: 100%;
+    :global{
+        .ant-col-6{
+            height: 40px;
+            background-color: rgb(245, 246, 248);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ant-table-body{
+            max-height: 500px;
+            overflow: auto;
+            .ant-table-thead{
+                display: none;
+            }
+        }
+    }
+    
+}
+
+.spanStyle{
+    color: rgb(141, 155, 173);
+    font-size: 12px;
+    font-weight: 500;
+    span{
+        color: #2CC66A;
+        font-size: 14px;
+        font-weight: 600;
+
+    }
+}
+th.columnMoney,
+td.columnMoney {
+  text-align: center !important;
 }

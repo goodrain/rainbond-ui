@@ -91,10 +91,10 @@ export default class EnterpriseClusters extends PureComponent {
   handleMandatoryDelete = () => {
     const th = this;
     confirm({
-      title: '当前集群中还存在组件、是否强制删除',
-      content: '删除后可通过相同的集群ID重新添加恢复已有租户和应用的管理',
-      okText: '确认',
-      cancelText: '取消',
+      title: formatMessage({id:'enterpriseColony.mgt.cluster.delect'}),
+      content: formatMessage({id:'enterpriseColony.mgt.cluster.restore'}),
+      okText: formatMessage({id:'button.determine'}),
+      cancelText: formatMessage({id:'button.cancel'}),
       onOk() {
         th.handleDelete(true);
         return new Promise((resolve, reject) => {
@@ -608,10 +608,11 @@ export default class EnterpriseClusters extends PureComponent {
         padding: '2px 0'
       };
     };
+
     const columns = [
       {
         // title: '名称',
-        title:  <span>{formatMessage({ id: 'table.tr.name' })}{<Tooltip placement="top" title={'点击集群名称进入当前集群管理页面'}><span className={styles.nameStyle}>{pageheaderSvg.getSvg('helpSvg',18)}</span></Tooltip>}</span>,
+        title:  <span>{formatMessage({ id: 'table.tr.name' })}{<Tooltip placement="top" title={formatMessage({id:'enterpriseColony.mgt.cluster.intomgt'})}><span className={styles.nameStyle}>{pageheaderSvg.getSvg('helpSvg',18)}</span></Tooltip>}</span>,
         dataIndex: 'region_alias',
         align: 'center',
         width: 120,

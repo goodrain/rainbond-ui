@@ -112,7 +112,7 @@ class DAinputs extends Component {
                             <Col
                                 span={setspan || 4}
                             >
-                                <span style={spanStyle}>key:</span>
+                                <span style={spanStyle}>Key:</span>
                                 <Input
                                     style={{ width: "80%" }}
                                     name="key"
@@ -128,7 +128,7 @@ class DAinputs extends Component {
                                 span={setspan || 4}
                             >
 
-                                <span style={spanStyle}>value:</span>
+                                <span style={spanStyle}>Value:</span>
                                 <Input
                                     style={{ width: "80%" }}
                                     name="value"
@@ -141,7 +141,7 @@ class DAinputs extends Component {
                                 />
                             </Col>
                             <Col span={7}>
-                                <span style={spanStyle}>策略:</span>
+                                <span style={spanStyle}>{formatMessage({id:'enterpriseColony.mgt.node.Policy'})}</span>
                                 <Select
                                     name="select"
                                     allowClear

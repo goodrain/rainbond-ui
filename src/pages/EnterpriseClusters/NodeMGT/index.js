@@ -104,7 +104,7 @@ class Index extends Component {
           showInfo: false
         }, () => {
           notification.error({
-            message: "获取节点详情失败"
+            message: formatMessage({id:'enterpriseColony.mgt.node.infoError'})
           });
         })
       }
@@ -143,7 +143,7 @@ class Index extends Component {
           showLable: false
         }, () => {
           notification.error({
-            message: "获取标签列表失败"
+            message: formatMessage({id:'enterpriseColony.mgt.node.listError'})
           });
         })
       }
@@ -177,14 +177,14 @@ class Index extends Component {
             showLable: true
           }, () => {
             notification.success({
-              message: "操作成功"
+              message: formatMessage({id:'enterpriseColony.mgt.node.editSuccess'})
             });
           })
         }
       },
       handleError: () => {
         notification.error({
-          message: "操作失败"
+          message: formatMessage({id:'enterpriseColony.mgt.node.editDefeated'})
         });
         this.fetClusterNodeLabels(clusterInfo);
       }
@@ -226,7 +226,7 @@ class Index extends Component {
           showTaints: false,
         }, () => {
           notification.error({
-            message: "获取污点列表失败"
+            message: formatMessage({id:'enterpriseColony.mgt.node.stainList'})
           });
         })
       }
@@ -261,14 +261,14 @@ class Index extends Component {
           showTaints: true
         }, () => {
           notification.success({
-            message: "操作成功"
+            message: formatMessage({id:'enterpriseColony.mgt.node.editSuccess'})
           });
         })
       }
       },
       handleError: () => {
         notification.error({
-          message: "操作失败"
+          message: formatMessage({id:'enterpriseColony.mgt.node.editDefeated'})
         });
         this.fetClusterNodeTaint(clusterInfo)
       }
@@ -303,7 +303,7 @@ class Index extends Component {
       callback: res => {
         if (res && res.status_code == 200) {
           notification.success({
-            message: "操作成功"
+            message: formatMessage({id:'enterpriseColony.mgt.node.editSuccess'})
           });
           this.fetClusterNodeDetail(clusterInfo)
           this.fetClusterNodeTaint(clusterInfo)
@@ -312,7 +312,7 @@ class Index extends Component {
       },
       handleError: () => {
         notification.error({
-          message: "操作失败"
+          message: formatMessage({id:'enterpriseColony.mgt.node.editDefeated'})
         });
         this.fetClusterNodeDetail(clusterInfo)
         this.fetClusterNodeTaint(clusterInfo)
@@ -327,13 +327,13 @@ class Index extends Component {
       <>
         <Row className={styles.breadStyle}>
           <span>{SVG.getSvg("ClusterSvg", 18)}</span>
-          <span><Link to={`/enterprise/${eid}/clusters`}>集群管理 / </Link></span>
+          <span><Link to={`/enterprise/${eid}/clusters`}>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterMgt'})} / </Link></span>
           <span><Link to={`/enterprise/${eid}/clusters/clustersmgt/${clusterInfo.region_id}`}>{clusterInfo.region_alias} / </Link></span>
           <span>{nodeDetail && nodeDetail.name}</span>
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("infoSvg", 20)}</span>
-          <span>节点详情</span>
+          <span>{formatMessage({id:'enterpriseColony.mgt.node.nodeDetails'})}</span>
         </Row>
         <Row>
           <NodeInfo
@@ -344,7 +344,7 @@ class Index extends Component {
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("userSvg", 20)}</span>
-          <span>资源用量</span>
+          <span>{formatMessage({id:'enterpriseColony.mgt.cluster.user'})}</span>
         </Row>
         <Row >
           <NodeUse
@@ -354,7 +354,7 @@ class Index extends Component {
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("labelSvg", 20)}</span>
-          <span>标签</span>
+          <span>{formatMessage({id:'enterpriseColony.mgt.node.lable'})}</span>
         </Row>
         <Row>
           <NodeLable
@@ -366,7 +366,7 @@ class Index extends Component {
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("stainSvg", 20)}</span>
-          <span>污点</span>
+          <span>{formatMessage({id:'enterpriseColony.mgt.node.stain'})}</span>
         </Row>
         <Row>
           <NodeStain

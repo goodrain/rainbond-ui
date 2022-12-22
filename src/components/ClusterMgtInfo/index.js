@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
-import { 
-  Card, 
-  Row, 
-  Col, 
-  Button, 
-  Badge, 
-  Descriptions, 
-  Tooltip, 
-  Icon, 
-  Form, 
-  InputNumber, 
-  Modal, 
-  notification, 
-  Table, 
-  Dropdown, 
-  Alert, 
-  Skeleton 
+import {
+  Card,
+  Row,
+  Col,
+  Button,
+  Badge,
+  Descriptions,
+  Tooltip,
+  Icon,
+  Form,
+  InputNumber,
+  Modal,
+  notification,
+  Table,
+  Dropdown,
+  Alert,
+  Skeleton
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { connect } from 'dva';
@@ -283,10 +283,10 @@ class Index extends Component {
   handleMandatoryDelete = () => {
     const th = this;
     confirm({
-      title: '当前集群中还存在组件、是否强制删除',
-      content: '删除后可通过相同的集群ID重新添加恢复已有租户和应用的管理',
-      okText: '确认',
-      cancelText: '取消',
+      title: formatMessage({id:'enterpriseColony.mgt.cluster.delect'}),
+      content: formatMessage({id:'enterpriseColony.mgt.cluster.restore'}),
+      okText: formatMessage({id:'button.determine'}),
+      cancelText: formatMessage({id:'button.cancel'}),
       onOk() {
         th.handleDelete(true);
         return new Promise((resolve, reject) => {
@@ -604,12 +604,12 @@ class Index extends Component {
                 {/* 名称 */}
                 <Col span={3}>
                   <p>{region_alias}</p>
-                  <p>集群名称</p>
+                  <p>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterName'})}</p>
                 </Col>
                 {/* 状态 */}
                 <Col span={3}>
                   <p>{this.clusterStatus(status, health_status)}</p>
-                  <p>运行状态</p>
+                  <p>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterStatus'})}</p>
                 </Col>
                 {/* 按钮 */}
                 <Col span={15}>
@@ -629,7 +629,7 @@ class Index extends Component {
                     <FormattedMessage id='enterpriseColony.table.handle.delete' />
                   </Button>
                   {!buttonSwitch &&
-                    <Tooltip title="点击查看更多操作">
+                    <Tooltip title={formatMessage({id:'enterpriseColony.mgt.cluster.click'})}>
                       <Icon type="ellipsis" onClick={this.buttonShow} style={{ fontSize: 30 }} />
                     </Tooltip>
                   }
@@ -669,11 +669,11 @@ class Index extends Component {
               {/* 基本信息 */}
               <Row className={styles.ClusterInfo}>
                 <Descriptions >
-                  <Descriptions.Item label="集群版本" span={2}>{rbd_version || "-"}</Descriptions.Item>
-                  <Descriptions.Item label="节点数量">{all_nodes || '-'}</Descriptions.Item>
-                  <Descriptions.Item label="安装方式">{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
-                  <Descriptions.Item label="Kubernetes版本" span={2}>{k8s_version == {} ? "-"  : k8s_version || "-"}</Descriptions.Item>
-                  <Descriptions.Item label="创建时间">{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })} span={2}>{rbd_version || "-"}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>{all_nodes || '-'}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
                 </Descriptions>
               </Row>
             </>

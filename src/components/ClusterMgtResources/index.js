@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { 
-    Card, 
-    Button, 
-    Table, 
-    Row, 
-    Col, 
-    Skeleton 
+import {
+Card,
+Button,
+Table,
+Row,
+Col,
+Skeleton
 } from 'antd';
+import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { connect } from 'dva';
 import Charts from './chart'
 import styles from './index.less'
@@ -70,33 +71,33 @@ class Index extends Component {
                             <div className={styles.titleStyle}>
                                 <div>
                                     <p>
-                                        CPU总量：
+                                        {formatMessage({id:'enterpriseColony.mgt.cluster.totalCpu'})}
                                         <span>{cpuTotal}</span>
                                         Core
                                     </p>
                                 </div>
                                 <div>
                                     <p>
-                                        内存总量：
+                                        {formatMessage({id:'enterpriseColony.mgt.cluster.totalMemory'})}
                                         <span>{memoryTotal}</span>
                                         GB
                                     </p>
                                 </div>
                                 <div>
                                     <p>
-                                        存储总量：
+                                        {formatMessage({id:'enterpriseColony.mgt.cluster.totalStore'})}
                                         <span>{diskTotal}</span>
                                         GB
                                     </p>
                                 </div>
                                 <div>
                                     <p>
-                                        正常/节点总数
+                                        {formatMessage({id:'enterpriseColony.mgt.cluster.node'})}
                                     </p>
                                 </div>
                                 <div>
                                     <p>
-                                        组件运行数（Pod）
+                                        {formatMessage({id:'enterpriseColony.mgt.cluster.pod'})}
                                     </p>
                                 </div>
                             </div>
@@ -107,14 +108,14 @@ class Index extends Component {
                                     <Charts keys={'upcpu' + `${1}`} svalue={cpuUsed} cname="CPU" swidth='200px' sheight='120px' />
                                 </div>
                                 <div>
-                                    <Charts keys={'upcpu' + `${2}`} svalue={Number(memoryUsed) == 0 ? 0 : Number(memoryUsed)} cname="内存" swidth='200px' sheight='120px' />
+                                    <Charts keys={'upcpu' + `${2}`} svalue={Number(memoryUsed) == 0 ? 0 : Number(memoryUsed)} cname={formatMessage({id:'enterpriseColony.mgt.cluster.memory'})} swidth='200px' sheight='120px' />
                                 </div>
                                 <div>
-                                    <Charts keys={'upcpu' + `${3}`} svalue={Number(diskUsed) == 0 ? 0 : Number(diskUsed)} cname="存储" swidth='200px' sheight='120px' />
+                                    <Charts keys={'upcpu' + `${3}`} svalue={Number(diskUsed) == 0 ? 0 : Number(diskUsed)} cname={formatMessage({id:'enterpriseColony.mgt.cluster.store'})} swidth='200px' sheight='120px' />
                                 </div>
                                 <div>
                                     <p>
-                                        {node_ready == {} ? 0 : node_ready  || 0}
+                                        {node_ready == {} ? 0 : node_ready || 0}
                                         <span>
                                             /{all_nodes || 0}
                                         </span>

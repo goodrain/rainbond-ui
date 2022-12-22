@@ -979,7 +979,6 @@ export default class Enterprise extends PureComponent {
                   node_ready,
                   region_id
                 } = item
-                console.log(item, "item");
                 // CPU使用率
                 const cpuUsed = ((used_cpu / total_cpu) * 100).toFixed(2) || 0;
                 // 内存使用率

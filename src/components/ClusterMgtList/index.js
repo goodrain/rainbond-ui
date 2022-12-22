@@ -1,23 +1,23 @@
 import React, { Component } from 'react';
-import { 
-  Card, 
-  Button, 
-  Table, 
-  Badge, 
-  Tooltip, 
-  Menu, 
-  Dropdown, 
-  Icon, 
-  Tag, 
-  Skeleton, 
-  Modal, 
-  Form, 
-  Input, 
-  InputNumber, 
-  Select, 
-  Row, 
+import {
+  Card,
+  Button,
+  Table,
+  Badge,
+  Tooltip,
+  Menu,
+  Dropdown,
+  Icon,
+  Tag,
+  Skeleton,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Row,
   Col,
-  notification 
+  notification
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import copy from 'copy-to-clipboard';
@@ -50,10 +50,6 @@ class Index extends Component {
       showUpdateKubernetesTasks: false
     }
   }
-  componentDidMount() {
-    // this.loadInitNodeCmd()
-  }
-
   //节点状态
   clusterStatus = (status) => {
     switch (status) {
@@ -66,15 +62,22 @@ class Index extends Component {
         );
       case 'NotReady':
         return (
-          <span style={{ color: 'red',  }}>
+          <span style={{ color: 'red', }}>
             <Badge color="red" />
             {status}
           </span>
         );
+        case 'Ready,SchedulingDisabled':
+          return (
+            <span style={{ color: '#52c41a', marginLeft: 20 }}>
+              <Badge color="#52c41a" />
+              {status}
+            </span>
+          );
       default:
         return (
-          <span style={{ color: '#fff',  }}>
-            <Badge color="#fff" />
+          <span style={{ color: 'black', }}>
+            <Badge color="black" />
             {/* 未知 */}
             <FormattedMessage id='enterpriseColony.table.state.unknown' />
           </span>
@@ -113,15 +116,15 @@ class Index extends Component {
   }
   editNodeStatus = (active, name, row) => {
     const { rowClusterInfo } = this.props
-    if(active == 'evict'){
-      if(row.unschedulable == true){
+    if (active == 'evict') {
+      if (row.unschedulable == true) {
         this.props.active(active, name, rowClusterInfo.region_name)
-      }else{
+      } else {
         notification.warning({
-          message: "请先禁止调度！"
+          message: formatMessage({id:'enterpriseColony.mgt.cluster.placeseDispatch'})
         });
       }
-    }else{
+    } else {
       this.props.active(active, name, rowClusterInfo.region_name)
     }
 
@@ -160,7 +163,7 @@ class Index extends Component {
     );
     const columns = [
       {
-        title: <span>名称{<Tooltip placement="top" title={'点击节点行进入节点管理页面'}><span className={styles.nameStyle}>{SVG.getSvg('helpSvg', 18)}</span></Tooltip>}</span>,
+        title: <span>{formatMessage({id:'enterpriseColony.mgt.cluster.name'})}{<Tooltip placement="top" title={formatMessage({id:'enterpriseColony.mgt.cluster.clickRow'})}><span className={styles.nameStyle}>{SVG.getSvg('helpSvg', 18)}</span></Tooltip>}</span>,
         dataIndex: 'name',
         key: 'name',
         render: text => {
@@ -168,7 +171,7 @@ class Index extends Component {
         }
       },
       {
-        title: '状态',
+        title: formatMessage({id:'enterpriseColony.mgt.cluster.statues'}),
         dataIndex: 'status',
         key: 'status',
         render: val => {
@@ -176,7 +179,7 @@ class Index extends Component {
         }
       },
       {
-        title: '角色',
+        title: formatMessage({id:'enterpriseColony.mgt.cluster.role'}),
         dataIndex: 'role',
         key: 'role',
         render: text =>
@@ -185,45 +188,45 @@ class Index extends Component {
           text.map(item => <Tag color="blue">{item}</Tag>)
       },
       {
-        title: '已分配CPU(Core)',
+        title: formatMessage({id:'enterpriseColony.mgt.cluster.assignedCpu'}),
         dataIndex: 'cpu',
         key: 'cpu',
         render: (val, row) => {
           const { req_cpu, cap_cpu } = row
           const cpuUsed = ((req_cpu / cap_cpu) * 100).toFixed(1);
           return <>
-            <p className={styles.tdStyle}>已分配{cpuUsed}%</p>
+            <p className={styles.tdStyle}>{formatMessage({id:'enterpriseColony.mgt.cluster.assigned'})}{cpuUsed}%</p>
             <p>{req_cpu.toFixed(1)} / {cap_cpu.toFixed(1)} Core</p>
           </>
         }
       },
       {
-        title: '已分配内存(GB)',
+        title: formatMessage({id:'enterpriseColony.mgt.cluster.assignedMemory'}),
         dataIndex: 'mey',
         key: 'mey',
         render: (val, row) => {
           const { cap_memory, req_memory } = row
           const cpuUsed = ((req_memory / cap_memory) * 100).toFixed(1);
           return <>
-            <p className={styles.tdStyle}>已分配{cpuUsed}%</p>
+            <p className={styles.tdStyle}>{formatMessage({id:'enterpriseColony.mgt.cluster.assigned'})}{cpuUsed}%</p>
             <p>{req_memory.toFixed(1)} / {cap_memory.toFixed(1)} GB</p>
           </>
 
         }
       },
       {
-        title: '操作',
+        title: formatMessage({id:'enterpriseColony.mgt.cluster.edit'}),
         key: 'edit',
         render: (val, roed) => {
           const startList = [
-            <span onClick={() => this.editNodeStatus('reschedulable', roed.name, roed)}>调度</span>,
+            <span onClick={() => this.editNodeStatus('reschedulable', roed.name, roed)}>{formatMessage({id:'enterpriseColony.mgt.cluster.dispatch'})}</span>,
           ]
           const endList = [
-            <span onClick={() => this.editNodeStatus('unschedulable', roed.name, roed)}>禁止调度</span>,
+            <span onClick={() => this.editNodeStatus('unschedulable', roed.name, roed)}>{formatMessage({id:'enterpriseColony.mgt.cluster.banDispatch'})}</span>,
           ]
-          const list = [<span onClick={() => this.editNodeStatus('evict', roed.name, roed)}>排空</span>]
+          const list = [<span onClick={() => this.editNodeStatus('evict', roed.name, roed)}>{formatMessage({id:'enterpriseColony.mgt.cluster.evacuation'})}</span>]
           const arr = []
-          if (roed.unschedulable == false ) {
+          if (roed.unschedulable == false) {
             arr.push(...endList)
             arr.push(...list)
           } else {
@@ -272,8 +275,7 @@ class Index extends Component {
     return (
       <>
         <Card
-          // extra={rowClusterInfo.provider == "rke" && <Button icon="form" onClick={this.clusterNodeAdd}>添加节点</Button>}
-          extra={rowClusterInfo && rowClusterInfo.provider == "rke" && <Button icon="form" onClick={this.clusterNodeAdd}>编辑节点</Button>}
+          extra={rowClusterInfo && rowClusterInfo.provider == "rke" && <Button icon="form" onClick={this.clusterNodeAdd}>{formatMessage({id:'enterpriseColony.mgt.cluster.editNode'})}</Button>}
           style={
             { boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px' }
           }

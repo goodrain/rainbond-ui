@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import { 
-  Card, 
-  Row, 
-  Col, 
-  Button, 
-  Badge, 
-  Descriptions, 
-  Tag, 
-  Skeleton, 
+import {
+  Card,
+  Row,
+  Col,
+  Button,
+  Badge,
+  Descriptions,
+  Tag,
+  Skeleton,
   notification
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -40,10 +40,17 @@ class Index extends Component {
             {status}
           </span>
         );
+        case 'Ready,SchedulingDisabled':
+          return (
+            <span style={{ color: '#52c41a', marginLeft: 20 }}>
+              <Badge color="#52c41a" />
+              {status}
+            </span>
+          );
       default:
         return (
-          <span style={{ color: '#fff', marginLeft: 20 }}>
-            <Badge color="#fff" />
+          <span style={{ color: 'black', marginLeft: 20 }}>
+            <Badge color="black" />
             {/* 未知 */}
             <FormattedMessage id='enterpriseColony.table.state.unknown' />
           </span>
@@ -52,15 +59,15 @@ class Index extends Component {
   }
   handelActive = (active, name) => {
     const { nodeDetail } = this.props;
-    if(active == 'evict'){
-      if(nodeDetail.unschedulable == true){
+    if (active == 'evict') {
+      if (nodeDetail.unschedulable == true) {
         this.props.active(active, name)
-      }else{
+      } else {
         notification.warning({
-          message: "请先禁止调度！"
+          message: formatMessage({id:"enterpriseColony.mgt.cluster.placeseDispatch"})
         });
       }
-    }else{
+    } else {
       this.props.active(active, name)
     }
   }
@@ -79,18 +86,18 @@ class Index extends Component {
             onClick={() => {
               this.handelActive('unschedulable', nodeDetail.name)
             }}
-            style={{marginRight:20}}
+            style={{ marginRight: 20 }}
           >
-            禁止调度
+            {formatMessage({id:"enterpriseColony.mgt.cluster.banDispatch"})}
           </Button>
           :
           <Button
             onClick={() => {
               this.handelActive('reschedulable', nodeDetail.name)
             }}
-            style={{marginRight:20}}
+            style={{ marginRight: 20 }}
           >
-            调度
+            {formatMessage({id:"enterpriseColony.mgt.cluster.dispatch"})}
           </Button>
         }
 
@@ -99,7 +106,7 @@ class Index extends Component {
             this.handelActive('evict', nodeDetail.name)
           }}
         >
-          排空
+          {formatMessage({id:"enterpriseColony.mgt.cluster.evacuation"})}
         </Button>
       </>
     )
@@ -118,16 +125,16 @@ class Index extends Component {
         >
           {showInfo ?
             <Descriptions >
-              <Descriptions.Item label="IP地址">
+              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.ip"})}>
                 {nodeDetail && nodeDetail.ip || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="容器运行时">
+              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.container"})}>
                 {nodeDetail && nodeDetail.container_runtime || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="系统架构">
+              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.framework"})}>
                 {nodeDetail && nodeDetail.architecture || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="节点类型">
+              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.type"})}>
                 {nodeDetail && nodeDetail.roles && nodeDetail.roles.length > 0 ?
                   nodeDetail.roles.map((item, index) => {
                     return <Tag key={index}>
@@ -136,16 +143,16 @@ class Index extends Component {
                   }) : '-'
                 }
               </Descriptions.Item>
-              <Descriptions.Item label="操作系统版本">
+              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.operatingVs"})}>
                 {nodeDetail && nodeDetail.os_version || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="创建时间">
+              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.time"})}>
                 {nodeDetail && nodeDetail.create_time || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="操作系统类型">
+              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.operatingType"})}>
                 {nodeDetail && nodeDetail.os_type || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="内核版本">
+              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.coreVs"})}>
                 {nodeDetail && nodeDetail.kernel || '-'}
               </Descriptions.Item>
             </Descriptions>

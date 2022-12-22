@@ -80,7 +80,7 @@ class Index extends Component {
         return (
             <>
                 <Card
-                    extra={showLable && <Button icon="form" onClick={this.handleClick}>编辑标签</Button>}
+                    extra={showLable && <Button icon="form" onClick={this.handleClick}>{formatMessage({id:'enterpriseColony.mgt.node.editLable'})}</Button>}
                     style={
                         { boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px' }
                     }
@@ -101,7 +101,7 @@ class Index extends Component {
                     }
                 </Card>
                 <Drawer
-                    title="编辑标签"
+                    title={formatMessage({id:'enterpriseColony.mgt.node.editLable'})}
                     placement="right"
                     closable={false}
                     onClose={this.onClose}
@@ -113,13 +113,13 @@ class Index extends Component {
                         <Form.Item >
                             {getFieldDecorator(`keyandval`, {
                                 initialValue: labelListArr || [],
-                                rules: [{ required: false, message: "请填写key,value", }]
+                                rules: [{ required: false, message: formatMessage({id:'enterpriseColony.mgt.node.key'}) }]
                             })(<DApvcinput setspan={10} />)}
                         </Form.Item>
                     </Form>
                     <div className={styles.submitStyle}>
-                        <Button onClick={this.onClose}>取消</Button>
-                        <Button type="primary" onClick={this.handleSubmit}>确定</Button>
+                        <Button onClick={this.onClose}>{formatMessage({id:'button.cancel'})}</Button>
+                        <Button type="primary" onClick={this.handleSubmit}>{formatMessage({id:'button.confirm'})}</Button>
                     </div>
                 </Drawer>
 
