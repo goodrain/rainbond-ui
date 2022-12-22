@@ -16,7 +16,9 @@ import {
   notification,
   Row,
   Table,
-  Tooltip
+  Tooltip,
+  Menu,
+  Dropdown
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -30,6 +32,7 @@ import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import styles from "./index.less"
 
 const { confirm } = Modal;
 
@@ -71,7 +74,8 @@ export default class EnterpriseClusters extends PureComponent {
         'successInstallClusters'
       ),
       setTenantLimitShow: false,
-      guideStep: 1
+      guideStep: 1,
+      jumpSwitch:true
     };
   }
   componentWillMount() {
@@ -87,10 +91,10 @@ export default class EnterpriseClusters extends PureComponent {
   handleMandatoryDelete = () => {
     const th = this;
     confirm({
-      title: '当前集群中还存在组件、是否强制删除',
-      content: '删除后可通过相同的集群ID重新添加恢复已有租户和应用的管理',
-      okText: '确认',
-      cancelText: '取消',
+      title: formatMessage({id:'enterpriseColony.mgt.cluster.delect'}),
+      content: formatMessage({id:'enterpriseColony.mgt.cluster.restore'}),
+      okText: formatMessage({id:'button.determine'}),
+      cancelText: formatMessage({id:'button.cancel'}),
       onOk() {
         th.handleDelete(true);
         return new Promise((resolve, reject) => {
@@ -505,6 +509,33 @@ export default class EnterpriseClusters extends PureComponent {
       payload: true,
     });
   }
+  // 行点击事件
+  onClickRow = (record) => {
+    return {
+      onClick: () => {
+        const { jumpSwitch } = this.state;
+        const {
+          dispatch,
+          match: {
+            params: { eid }
+          }
+        } = this.props;
+        if(jumpSwitch){
+         dispatch(routerRedux.push(`/enterprise/${eid}/clusters/ClustersMGT/${record.region_id}`));
+        }
+      },
+    };
+  }
+  menuMouseEnter=()=>{
+    this.setState({
+      jumpSwitch:false
+    })
+  }
+  menuMouseLeave=()=>{
+    this.setState({
+      jumpSwitch:true
+    })
+  }
   render() {
     const {
       delclusterLongin,
@@ -541,7 +572,33 @@ export default class EnterpriseClusters extends PureComponent {
       pageSize: tenantPageSize,
       current: tenantPage
     };
-
+    const moreSvg = () => (
+      <svg
+        t="1581212425061"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="1314"
+        width="32"
+        height="32"
+      >
+        <path
+          d="M512 192m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
+          p-id="1315"
+          fill="#999999"
+        />
+        <path
+          d="M512 512m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
+          p-id="1316"
+          fill="#999999"
+        />
+        <path
+          d="M512 832m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
+          p-id="1317"
+          fill="#999999"
+        />
+      </svg>
+    );
     const colorbj = (color, bg) => {
       return {
         // width: '100px',
@@ -551,16 +608,17 @@ export default class EnterpriseClusters extends PureComponent {
         padding: '2px 0'
       };
     };
+
     const columns = [
       {
         // title: '名称',
-        title: formatMessage({ id: 'table.tr.name' }),
+        title:  <span>{formatMessage({ id: 'table.tr.name' })}{<Tooltip placement="top" title={formatMessage({id:'enterpriseColony.mgt.cluster.intomgt'})}><span className={styles.nameStyle}>{pageheaderSvg.getSvg('helpSvg',18)}</span></Tooltip>}</span>,
         dataIndex: 'region_alias',
         align: 'center',
         width: 120,
         render: (val, row) => {
           return (
-            <Link to={`/enterprise/${eid}/clusters/${row.region_id}/dashboard`}>
+            <Link to={`/enterprise/${eid}/clusters/ClustersMGT/${row.region_id}`} className={styles.linkStyle}>
               {val}
             </Link>
           );
@@ -627,14 +685,23 @@ export default class EnterpriseClusters extends PureComponent {
         width: 80,
         render: (_, item) => {
           return (
-            <a
-              onClick={() => {
-                this.showRegions(item);
-              }}
+            <span
             >
               {this.handlUnit(item.used_memory)}/
               {this.handlUnit(item.total_memory)}
-            </a>
+            </span>
+          );
+        }
+      },
+      {
+        // title: '内存(GB)',
+        title: 'CPU(m)',
+        dataIndex: 'total_cpu',
+        align: 'center',
+        width: 80,
+        render: (_, item) => {
+          return (
+            <span>{item.used_cpu}/{item.total_cpu}</span>
           );
         }
       },
@@ -643,7 +710,14 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'table.tr.versions' }),
         dataIndex: 'rbd_version',
         align: 'center',
-        width: 180
+        width: 180,
+        render: val =>{
+          if(val.length == 0){
+            return "-"
+          }else{
+            return val
+          }
+        }
       },
       {
         // title: '状态',
@@ -716,7 +790,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'table.tr.handle' }),
         dataIndex: 'method',
         align: 'center',
-        width: 150,
+        width: 50,
         render: (_, item) => {
           const mlist = [
             <a
@@ -748,6 +822,9 @@ export default class EnterpriseClusters extends PureComponent {
             >
               <FormattedMessage id='enterpriseColony.table.handle.import'/>
               {/* 导入 */}
+            </Link>,
+            <Link to={`/enterprise/${eid}/clusters/${item.region_id}/dashboard`}>
+            {formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix'})}
             </Link> 
           ];
           if (item.provider === 'rke') {
@@ -760,7 +837,24 @@ export default class EnterpriseClusters extends PureComponent {
               </Link>
             );
           }
-          return mlist;
+          const MenuList = (
+            <Menu 
+            onMouseEnter={this.menuMouseEnter}
+            onMouseLeave={this.menuMouseLeave}
+            >
+              {mlist.map(item =>{
+                return <Menu.Item>
+                        {item}
+                       </Menu.Item>
+              })}
+            </Menu>
+          )
+          return<Dropdown
+                  overlay={MenuList}
+                  placement="bottomLeft"
+                >
+                  <Icon component={moreSvg} style={{ width: '100%' }} />
+                </Dropdown>;
         }
       }
     ];
@@ -926,6 +1020,8 @@ export default class EnterpriseClusters extends PureComponent {
             dataSource={clusters}
             columns={columns}
             pagination={false}
+            onRow={this.onClickRow}
+            rowClassName={styles.rowStyle}
           />
         </Card>
         {showTenantList && (

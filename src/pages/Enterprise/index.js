@@ -48,6 +48,7 @@ import JoinTeam from '../../components/JoinTeam';
 import Meiqia from '../../layouts/Meiqia';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
+import SVG from '../../utils/pageHeaderSvg'
 import userUtil from '../../utils/user';
 import cookie from '../../utils/cookie';
 import Rke from '../../../public/images/rke.svg'
@@ -843,10 +844,10 @@ export default class Enterprise extends PureComponent {
               <h2>{formatMessage({ id: 'enterpriseOverview.information.dataScreen' })}</h2></div>
           </div>
           <Card
-            style={{ marginBottom: '20px', background:'transparent'}}
+            style={{ marginBottom: '20px', background: 'transparent' }}
             loading={enterpriseInfoLoading}
             bordered={false}
-            bodyStyle={{padding:0}}
+            bodyStyle={{ padding: 0 }}
           >
             <Fragment>
               <div className={enterpriseStyles.enterpriseBox}>
@@ -907,7 +908,7 @@ export default class Enterprise extends PureComponent {
                 </div>
                 <div className={enterpriseStyles.enterpriseData} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                   <div className={enterpriseStyles.piece}>
-                  <p>{formatMessage({ id: 'enterpriseOverview.overview.colony' })}</p>
+                    <p>{formatMessage({ id: 'enterpriseOverview.overview.colony' })}</p>
                     <p>
                       <Link style={colors} to={`/enterprise/${eid}/clusters`} >
                         {overviewMonitorInfo && overviewMonitorInfo.total_regions || 0}
@@ -915,7 +916,7 @@ export default class Enterprise extends PureComponent {
                     </p>
                   </div>
                   <div className={enterpriseStyles.piece}>
-                  <p>{formatMessage({ id: 'enterpriseOverview.overview.team' })}</p>
+                    <p>{formatMessage({ id: 'enterpriseOverview.overview.team' })}</p>
                     <p>
                       <Link to={`/enterprise/${eid}/teams`} style={colors}>
                         {overviewInfo && overviewInfo.total_teams}
@@ -923,7 +924,7 @@ export default class Enterprise extends PureComponent {
                     </p>
                   </div>
                   <div className={enterpriseStyles.piece}>
-                  <p>{formatMessage({ id: 'enterpriseOverview.overview.user' })}</p>
+                    <p>{formatMessage({ id: 'enterpriseOverview.overview.user' })}</p>
                     <p>
                       <Link to={`/enterprise/${eid}/users`} style={colors}>
                         {overviewInfo && overviewInfo.total_users}
@@ -931,7 +932,7 @@ export default class Enterprise extends PureComponent {
                     </p>
                   </div>
                   <div className={enterpriseStyles.piece}>
-                  <p>{formatMessage({ id: 'enterpriseOverview.overview.template' })}</p>
+                    <p>{formatMessage({ id: 'enterpriseOverview.overview.template' })}</p>
                     <p>
                       <Link to={`/enterprise/${eid}/shared/local`} style={colors} >
                         {overviewInfo && overviewInfo.shared_apps}
@@ -953,10 +954,10 @@ export default class Enterprise extends PureComponent {
           </div>
           <Card
             // style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
-            style={{ marginBottom: '20px', background:'transparent'}}
+            style={{ marginBottom: '20px', background: 'transparent' }}
             loading={overviewAppInfoLoading}
             bordered={false}
-            bodyStyle={{padding:0}}
+            bodyStyle={{ padding: 0 }}
           >
             {clusters.length > 0 ?
               (clusters.map((item, index) => {
@@ -975,7 +976,8 @@ export default class Enterprise extends PureComponent {
                   create_time,
                   all_nodes,
                   services_status,
-                  node_ready 
+                  node_ready,
+                  region_id
                 } = item
                 // CPU使用率
                 const cpuUsed = ((used_cpu / total_cpu) * 100).toFixed(2) || 0;
@@ -990,9 +992,16 @@ export default class Enterprise extends PureComponent {
                 return (
                   <div className={enterpriseStyles.clusterInfo} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                     <div className={enterpriseStyles.clusterInfo_title}>
-                      <div className={enterpriseStyles.clusterName}>{region_alias}</div>
-                      <div className={enterpriseStyles.status}>
-                        {this.clusterStatus(status, health_status)}
+                      <div className={enterpriseStyles.clusterName}>
+                        {region_alias}
+                        <div className={enterpriseStyles.status}>
+                          {this.clusterStatus(status, health_status)}
+                        </div>
+                      </div>
+                      <div className={enterpriseStyles.setting}>
+                        <Link to={`/enterprise/${eid}/clusters/ClustersMGT/${region_id}`} >
+                        {SVG.getSvg("settingSvg",18)}
+                        </Link>
                       </div>
                     </div>
                     <div className={enterpriseStyles.clusterInfo_content}>
@@ -1007,7 +1016,7 @@ export default class Enterprise extends PureComponent {
                           </p>
                           <p>
                             <span className={language ? enterpriseStyles.k8sName : enterpriseStyles.k8sName_en}>{formatMessage({ id: 'enterpriseOverview.overview.KubernetesVersion' })}:</span>
-                            <span className={language ? enterpriseStyles.k8sVersion : enterpriseStyles.k8sVersion_en}>{k8s_version}</span>
+                            <span className={language ? enterpriseStyles.k8sVersion : enterpriseStyles.k8sVersion_en}>{k8s_version == {} ? "-" : k8s_version || "-"} </span>
                           </p>
                           <p>
                             <span className={language ? enterpriseStyles.versionName : enterpriseStyles.createTime_en}>{formatMessage({ id: 'enterpriseOverview.overview.createTime' })}:</span>
@@ -1030,7 +1039,7 @@ export default class Enterprise extends PureComponent {
                           <div className={enterpriseStyles.node}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.node_total' })}</p>
                             <div className={enterpriseStyles.nodeData}>
-                              <span className={enterpriseStyles.running}>{node_ready  || 0}</span>
+                              <span className={enterpriseStyles.running}>{node_ready == {} ? 0 : node_ready || 0}</span>
                               <span className={enterpriseStyles.sum}>/{all_nodes || 0}</span>
                             </div>
                           </div>
@@ -1056,7 +1065,7 @@ export default class Enterprise extends PureComponent {
                   </div>
                 )
               })) : (
-                <div className={enterpriseStyles.clusterInfo_Empty}  style={{boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
+                <div className={enterpriseStyles.clusterInfo_Empty} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                   <Empty description={formatMessage({ id: 'enterpriseOverview.overview.no_cluster' })} />
                 </div>
               )}
@@ -1073,72 +1082,72 @@ export default class Enterprise extends PureComponent {
           </div>
           <Card
             // style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
-            style={{ marginBottom: '20px', background:'transparent',}}
+            style={{ marginBottom: '20px', background: 'transparent', }}
             loading={overviewAppInfoLoading}
             bordered={false}
-            bodyStyle={{padding:0, }}
+            bodyStyle={{ padding: 0, }}
           >
             {appAlertList.length > 0 && (
-              <div className={enterpriseStyles.appAlert} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
+              <div className={enterpriseStyles.appAlert} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                 <div style={{
-                  height:170,
-                  overflowX:"hidden",
-                  overflowY:'scroll'
+                  height: 170,
+                  overflowX: "hidden",
+                  overflowY: 'scroll'
                 }}>
-                {appAlertList.map(item => {
-                  const { group_id, group_name, region_name, service_alias, service_cname, tenant_name, tenant_alias } = item
-                  return (
-                    <div className={enterpriseStyles.contentAlert}>
-                      <div>
-                        <span
-                          className={enterpriseStyles.spanStyle}
-                          onClick={() => {
-                            this.onJumpAlert('team', tenant_name, region_name, group_id, service_alias)
-                          }}
-                        >
-                          {tenant_alias}
-                        </span>
-                        {formatMessage({ id: 'enterpriseOverview.team.group' })}
-                        <span
-                          className={enterpriseStyles.spanStyle}
-                          onClick={() => {
-                            this.onJumpAlert('app', tenant_name, region_name, group_id, service_alias)
-                          }}
-                        >
-                          {group_name}
-                        </span>
-                        {formatMessage({ id: 'enterpriseOverview.overview.app' })}
-                        {formatMessage({ id: 'enterpriseOverview.overview.inside' })}
-                        {formatMessage({ id: 'enterpriseOverview.overview.component' })}
-                        <span
-                          className={enterpriseStyles.spanStyle}
-                          onClick={() => {
-                            this.onJumpAlert('component', tenant_name, region_name, group_id, service_alias)
-                          }}
-                        >
-                          {service_cname}
-                        </span>
-                        <span style={{ color: 'red' }}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
+                  {appAlertList.map(item => {
+                    const { group_id, group_name, region_name, service_alias, service_cname, tenant_name, tenant_alias } = item
+                    return (
+                      <div className={enterpriseStyles.contentAlert}>
+                        <div>
+                          <span
+                            className={enterpriseStyles.spanStyle}
+                            onClick={() => {
+                              this.onJumpAlert('team', tenant_name, region_name, group_id, service_alias)
+                            }}
+                          >
+                            {tenant_alias}
+                          </span>
+                          {formatMessage({ id: 'enterpriseOverview.team.group' })}
+                          <span
+                            className={enterpriseStyles.spanStyle}
+                            onClick={() => {
+                              this.onJumpAlert('app', tenant_name, region_name, group_id, service_alias)
+                            }}
+                          >
+                            {group_name}
+                          </span>
+                          {formatMessage({ id: 'enterpriseOverview.overview.app' })}
+                          {formatMessage({ id: 'enterpriseOverview.overview.inside' })}
+                          {formatMessage({ id: 'enterpriseOverview.overview.component' })}
+                          <span
+                            className={enterpriseStyles.spanStyle}
+                            onClick={() => {
+                              this.onJumpAlert('component', tenant_name, region_name, group_id, service_alias)
+                            }}
+                          >
+                            {service_cname}
+                          </span>
+                          <span style={{ color: 'red' }}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
+                        </div>
+                        <div>
+                          <span style={{ marginTop: '2px' }}>
+                            {globalUtil.fetchSvg('runTime')}
+                          </span>
+                          {moment(timestamp).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}
+                        </div>
                       </div>
-                      <div>
-                        <span style={{ marginTop: '2px' }}>
-                          {globalUtil.fetchSvg('runTime')}
-                        </span>
-                        {moment(timestamp).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+                    )
+                  })}
+                </div>
               </div>
             )}
             {appAlertLoding && (
-              <div className={enterpriseStyles.clusterInfo_Empty} style={{boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
+              <div className={enterpriseStyles.clusterInfo_Empty} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                 <Spin></Spin>
               </div>
             )}
             {!appAlertLoding && appAlertList.length == 0 && (
-              <div className={enterpriseStyles.clusterInfo_Empty} style={{boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px'}}>
+              <div className={enterpriseStyles.clusterInfo_Empty} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                 <Empty description={formatMessage({ id: 'enterpriseOverview.overview.no_errorInfo' })} />
               </div>
             )}
