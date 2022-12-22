@@ -378,7 +378,8 @@ export function appExport(
       data: {
         app_id: body.app_id,
         app_versions: body.app_versions,
-        format: body.format
+        format: body.format,
+        image_handle: body.image_handle,
       }
     }
   );

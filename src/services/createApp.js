@@ -379,7 +379,8 @@ export async function installApp(body = {}, handleError) {
         install_from_cloud: body.install_from_cloud
           ? body.install_from_cloud
           : false,
-        market_name: body.marketName
+        market_name: body.marketName,
+        dry_run: body.dry_run
       },
       params: {
         region_name: body.region_name
