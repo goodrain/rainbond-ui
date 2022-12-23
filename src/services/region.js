@@ -239,42 +239,33 @@ export async function fetClusterNodeList(param, handleError) {
   });
 }
 // 节点操作
-// /console/enterprise/{enterprise_id}/regions/{region_id}/nodes/action
 export async function editClusterNodeActive(param, handleError) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/action`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_id}/action`, {
     method: 'post',
     data: {
-      node_name: param.node_id,
       action: param.action
     }
   });
 }
 // 获取节点详情
 export async function fetClusterNodeDetail(param, handleError) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/detail`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_id}`, {
     method: 'get',
-    params: {
-      node_name : param.node_id
-    },
     handleError
   });
 }
 // 获取节点标签
 export async function fetClusterNodeLabels(param, handleError) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/labels`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_name}/labels`, {
     method: 'get',
-    params: {
-      node_name : param.node_name
-    },
     handleError
   });
 }
 // 更新节点标签
 export async function updataClusterNodeLabels(param, handleError) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/labels`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_name}/labels`, {
     method: 'PUT',
     data: {
-      node_name : param.node_name,
       labels: param.labels
     },
     handleError
@@ -283,29 +274,35 @@ export async function updataClusterNodeLabels(param, handleError) {
 
 // 获取污点
 export async function fetClusterNodeTaint(param, handleError) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/taints`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_name}/taints`, {
     method: 'get',
-    params: {
-      node_name : param.node_name
-    },
     handleError
   });
 }
 // 更新污点
 export async function updataClusterNodeTaint(param, handleError) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/taints`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_name}/taints`, {
     method: 'put',
     data: {
-      node_name : param.node_name,
       taints : param.taints
     },
     handleError
   });
 }
-// 获取dashboard信息
+// 获取rainbond组件信息
 export async function fetDashboardList(param, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/rbd-components`, {
     method: 'get',
+    handleError
+  });
+}
+// 获取container数据
+export async function fetClusterNodeContainer(param, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_name}/container`, {
+    method: 'get',
+    params: {
+      container_runtime : param.container_runtime
+    },
     handleError
   });
 }

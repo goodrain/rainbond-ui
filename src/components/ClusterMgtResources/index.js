@@ -97,7 +97,7 @@ class Index extends Component {
                                 </div>
                                 <div>
                                     <p>
-                                        {formatMessage({id:'enterpriseColony.mgt.cluster.pod'})}
+                                        {formatMessage({id:'enterpriseColony.mgt.cluster.pods'})}
                                     </p>
                                 </div>
                             </div>

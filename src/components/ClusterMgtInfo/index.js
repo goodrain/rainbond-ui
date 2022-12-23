@@ -671,7 +671,7 @@ class Index extends Component {
                 <Descriptions >
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })} span={2}>{rbd_version || "-"}</Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>{all_nodes || '-'}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
                 </Descriptions>

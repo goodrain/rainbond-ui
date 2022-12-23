@@ -86,7 +86,7 @@ class Index extends Component {
                 return (
                     <div style={{ color: '#52c41a' }}>
                         <Badge color="#52c41a" />
-                        {formatMessage({id:'status.component.health'})}
+                        {formatMessage({ id: 'status.component.health' })}
                     </div>
                 );
 
@@ -95,18 +95,18 @@ class Index extends Component {
                 return (
                     <div style={{ color: 'red' }}>
                         <Badge color="re d" />
-                        {formatMessage({id:'status.component.not_health'})}
+                        {formatMessage({ id: 'status.component.not_health' })}
                     </div>
                 );
                 break;
         }
     }
     showActivePod = (val) => {
-        const { pods, app } = val
+        const { pods, name } = val
         this.setState({
             showPodSwitch: true,
             activePod: pods,
-            modalTitle: app
+            modalTitle: name
 
         })
 
@@ -121,50 +121,44 @@ class Index extends Component {
         const { activeKey, activePod, showPodSwitch, modalTitle } = this.state
         const columns = [
             {
-                title: formatMessage({ id: 'enterpriseColony.mgt.cluster.server' }),
                 dataIndex: 'pod_name',
                 key: 'pod_name',
-                width: '30%',
+                width: '17%',
             },
             {
-                title: formatMessage({ id: 'enterpriseColony.mgt.cluster.ip' }),
                 dataIndex: 'pod_ip',
                 key: 'pod_ip',
-                width: '15%',
+                width: '17%',
             },
             {
-                title: formatMessage({ id: 'enterpriseColony.mgt.cluster.statues' }),
                 dataIndex: 'status',
                 key: 'status',
-                width: '15%',
+                width: '17%',
                 render: val => {
                     return this.getStatus(val)
                 }
             },
             {
-                title: 'READY',
                 dataIndex: 'number',
                 key: 'number',
-                width: '10%',
+                width: '17%',
                 render: (item, row) => {
                     const { all_container, run_container } = row
                     return <span className={styles.dsahboard}>{run_container}<span>/{all_container}</span></span>
                 }
             },
             {
-                title: formatMessage({ id: 'enterpriseColony.mgt.cluster.restart' }),
                 dataIndex: 'restart_count',
                 key: 'restart_count',
-                width: '15%',
+                width: '17%',
                 render: (item) => {
                     return <span>{item}<span>次</span></span>
                 }
             },
             {
-                title: formatMessage({ id: 'enterpriseColony.mgt.cluster.runTime' }),
                 dataIndex: 'create_time',
                 key: 'create_time',
-                width: '15%',
+                width: '17%',
                 render: item => {
                     return globalUtil.fetchdayTime(item)
                 }
@@ -173,8 +167,8 @@ class Index extends Component {
 
         const column = [
             {
-                dataIndex: 'app',
-                key: 'app',
+                dataIndex: 'name',
+                key: 'name',
                 className: styles.columnMoney,
                 width: '25%',
                 render: val => {
@@ -221,7 +215,7 @@ class Index extends Component {
                     }
                     className={styles.collapseStyle}
                 >
-                    
+
                     {dashboardShow ?
                         (
                             <div>
@@ -230,7 +224,6 @@ class Index extends Component {
                                     <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.statues' })}</Col>
                                     <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.num' })}</Col>
                                     <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.edit' })}</Col>
-
                                 </Row>
                                 <Table columns={column} dataSource={dashboardList} pagination={false} />
                             </div>
@@ -246,10 +239,19 @@ class Index extends Component {
                     onCancel={this.handleCancel}
                     footer={[
                         <Button key="back" onClick={this.handleCancel}>
-                            {formatMessage({id:'popover.cancel'})}
+                            {formatMessage({ id: 'popover.cancel' })}
                         </Button>,
                     ]}
+                    className={styles.modalStyle}
                 >
+                    <Row>
+                        <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.server' })}</Col>
+                        <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.ip' })}</Col>
+                        <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.statues' })}</Col>
+                        <Col span={4}>READY</Col>
+                        <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.restart' })}</Col>
+                        <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.runTime' })}</Col>
+                    </Row>
                     <Table columns={columns} dataSource={activePod} pagination={false} />
                 </Modal>
             </>
