@@ -138,7 +138,6 @@ class Index extends Component {
         })
       }
     });
-
   }
   //获取标签
   fetClusterNodeLabels = (val) => {

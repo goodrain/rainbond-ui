@@ -215,7 +215,6 @@ class Index extends Component {
                     }
                     className={styles.collapseStyle}
                 >
-
                     {dashboardShow ?
                         (
                             <div>

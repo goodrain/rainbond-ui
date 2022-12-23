@@ -26,8 +26,12 @@ import {
   updataClusterNodeLabels,
   fetClusterNodeTaint,
   updataClusterNodeTaint,
+<<<<<<< HEAD
   fetDashboardList,
   fetClusterNodeContainer
+=======
+  fetDashboardList
+>>>>>>> 47d9b886c1a942801015b89e69cda95d2008ef31
 } from '../services/region';
 
 export default {
