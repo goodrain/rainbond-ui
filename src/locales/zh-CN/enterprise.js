@@ -896,7 +896,7 @@ const enterpriseColony = {
     'enterpriseColony.mgt.cluster.totalMemory':'内存总量：',
     'enterpriseColony.mgt.cluster.totalStore':'存储总量：',
     'enterpriseColony.mgt.cluster.node':'正常/节点总数',
-    'enterpriseColony.mgt.cluster.pod':'组件运行数（Pod）',
+    'enterpriseColony.mgt.cluster.pods':'组件运行数（Pod）',
     'enterpriseColony.mgt.cluster.memory':'内存',
     'enterpriseColony.mgt.cluster.store':'存储',
     'enterpriseColony.mgt.cluster.click':'点击查看更多操作',
