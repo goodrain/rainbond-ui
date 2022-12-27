@@ -6,6 +6,7 @@ import { Button, Card, Drawer, Form, Table, notification, Popover, Spin } from '
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from "../../utils/global"
+import jsYaml from 'js-yaml'
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 import { getKubernetesVal, getSingleKubernetesVal, addSingleKubernetesVal, delSingleKubernetesVal, editSingleKubernetesVal } from "../../services/application";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -71,13 +72,16 @@ class Index extends PureComponent {
       const label = {
         yaml: val.yaml
       }
-      if (val.yaml) {
-        this.handelAddOrEdit(label)
-      } else {
-        notification.error({
-          message: formatMessage({id:'notification.hint.resource.msg'})
-        })
-      }
+      const yamlValidation= this.handYamlValidation(val.yaml)
+      if(yamlValidation){
+        if (val.yaml) {
+          this.handelAddOrEdit(label)
+        } else {
+          notification.error({
+            message: formatMessage({id:'notification.hint.resource.msg'})
+          })
+        }
+      } 
     });
   };
   // 编辑
@@ -205,6 +209,18 @@ class Index extends PureComponent {
       visible: false,
     })
   }
+  handYamlValidation = (value) => {
+    try {
+        if(value){
+            const jsonData = jsYaml.load(value)
+            return jsonData
+        }   
+    } catch (e) {
+        const errorInfo = e.message.indexOf("\n")
+        const str = e.message.substring(0, errorInfo);
+        notification.error({ message: str, duration: 30, top: 10 })
+    }
+  } 
   render() {
     const {
       form: { getFieldDecorator, setFieldsValue },
@@ -371,6 +387,7 @@ class Index extends PureComponent {
               message={formatMessage({id:'notification.hint.confiuration.editContent'})}
               data={localContent || "" }
               mode={'yaml'}
+              isAuto={true}
             />
           </Form>
           <div

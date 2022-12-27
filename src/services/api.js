@@ -1411,3 +1411,79 @@ export async function getPluginList(body) {
     }
   );
 }
+// 获取能力列表
+export async function getAbilitiesList(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/abilities`,
+    {
+      method: 'get',
+    }
+  );
+}
+// 能力编辑
+export async function abilitiesEdit(body,handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/abilities/${body.ability_id}`,
+    {
+      method: 'put',
+      data: {
+        object: body.data
+      },
+      handleError
+    }
+  );
+}
+// 获取能力详情
+export async function abilitiesDetail(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/abilities/${body.ability_id}`,
+    {
+      method: 'get',
+    }
+  );
+}
+//获取菜单列表
+export async function getMenuList(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/menu`,
+    {
+      method: 'get',
+    }
+  );
+}
+//添加菜单链接
+export async function addMenuPath(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/menu`,
+    {
+      method: 'post',
+      data: {
+
+      }
+    }
+  );
+}
+//编辑菜单链接
+export async function editMenuPath(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/menu`,
+    {
+      method: 'put',
+      data: {
+
+      }
+    }
+  );
+}
+//删除菜单链接
+export async function deleteMenuPath(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/menu`,
+    {
+      method: 'delete',
+      data: {
+
+      }
+    }
+  );
+}

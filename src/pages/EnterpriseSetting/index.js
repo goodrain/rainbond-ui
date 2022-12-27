@@ -100,14 +100,11 @@ export default class EnterpriseSetting extends PureComponent {
             </TabPane>
           )}
           <TabPane 
-            tab={
-                 <div>
-                  菜单管理
-                 </div>
-                } 
-            key="plugin">
+            tab={<div>菜单管理</div>} 
+            key="menu"
+          >
               <PluginMenu />
-            </TabPane>
+          </TabPane>
         </Tabs>
       </PageHeaderLayout>
     );

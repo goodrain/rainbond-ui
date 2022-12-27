@@ -106,6 +106,13 @@ import {
   createShellPod,
   deleteShellPod,
   getPluginList,
+  getAbilitiesList,
+  abilitiesEdit,
+  abilitiesDetail,
+  getMenuList,
+  addMenuPath,
+  editMenuPath,
+  deleteMenuPath,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -899,7 +906,48 @@ export default {
         callback(response);
       }
     },
-
+    *getAbilitiesList({ payload, callback }, { call }) {
+      const response = yield call(getAbilitiesList, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *abilitiesEdit({ payload, callback, handleError }, { call }) {
+      const response = yield call(abilitiesEdit, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *abilitiesDetail({ payload, callback }, { call }) {
+      const response = yield call(abilitiesDetail, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *getMenuList({ payload, callback }, { call }) {
+      const response = yield call(getMenuList, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *addMenuPath({ payload, callback }, { call }) {
+      const response = yield call(addMenuPath, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *editMenuPath({ payload, callback }, { call }) {
+      const response = yield call(editMenuPath, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *deleteMenuPath({ payload, callback }, { call }) {
+      const response = yield call(deleteMenuPath, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
   },
   reducers: {
     isUpDataHeader(state, action) {

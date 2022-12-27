@@ -10,6 +10,7 @@
     padding: 16px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     border-radius: 5px;
     border: 1px solid #e3e3e3;
     background-color: #fff;
@@ -28,6 +29,17 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      .imgs {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        img,svg {
+          min-width: 44px;
+          max-width: 60px;
+          height: 44px;
+        }
+      }
     }
     .pluginName{
         color: #4d73b1;
@@ -54,37 +66,20 @@
         color: #4d73b1;
         display: flex;
         justify-content: space-around;
+        align-items: center;
         cursor: pointer;
     }
     .statusBox{
         display: flex;
-        align-items: center;
-        .status{
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: rgb(11, 192, 11);
-        }
-        .statusText{
-            font-size: 12px;
-            color: rgb(26, 201, 26);
-            margin-left: 6px;
-        }
-        .error{
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: red;
-        }
-        .status_error{
-            font-size: 12px;
-            color: red;
-            margin-left: 6px;
-        }
+        align-items: center
     }
     .versions, .author{
         font-size: 12px;
         color: #999999; 
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: PingFangSC-Regular;
     }
 }
 
@@ -134,3 +129,4 @@
       }
     }
 }
+

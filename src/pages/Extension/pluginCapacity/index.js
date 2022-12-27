@@ -24,17 +24,15 @@ class Index extends PureComponent {
 
     }
     render() {
-        const { region } = this.props;
-        const { } = this.state;
         return (
             <>
                 <Card style={{ border:'none', padding:'0px'}} className={styles.pluginCard}>
                     <Tabs defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
-                        <TabPane tab='插件' key='0' >
+                        <TabPane tab={formatMessage({id:'extensionEnterprise.tabs.plugin'})} key='0' >
                             <Plugin {...this.props}/>
                         </TabPane>
-                        <TabPane tab='能力' key='1' >
-                            <Capacity />
+                        <TabPane tab={formatMessage({id:'extensionEnterprise.tabs.capacity'})} key='1' >
+                            <Capacity {...this.props}/>
                         </TabPane>
                     </Tabs>
                 </Card>

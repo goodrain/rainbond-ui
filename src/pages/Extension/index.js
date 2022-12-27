@@ -39,7 +39,6 @@ export default class index extends PureComponent {
     }
 
     onChange = key => {
-        console.log(key)
         this.setState({ activeKey: key });
     };
     callback = (key) => {
@@ -68,9 +67,9 @@ export default class index extends PureComponent {
         const { adminer, activeKey, ClustersList } = this.state;
         return (
             <PageHeaderLayout
-                title={formatMessage({id:'LogEnterprise.title'})}
-                content={formatMessage({ id: 'LogEnterprise.desc' })}
-                titleSvg={pageheaderSvg.getSvg('logSvg',18)}
+                title={formatMessage({id: 'extensionEnterprise.title'})}
+                content={formatMessage({id: 'extensionEnterprise.desc'})}
+                titleSvg={pageheaderSvg.getSvg('extensionSvg',18)}
                 isContent={true} 
             >   
                 {ClustersList.length > 0 ? (
@@ -83,10 +82,9 @@ export default class index extends PureComponent {
                         })}
                     </Tabs>
                 ):(
-                    <div style={{width:'100%',height:'300px',display:'flex',justifyContent:'center',alignItems:'center'}}>
+                    <div className={styles.spin}>
                         <Spin />
-                    </div>
-                    
+                    </div>   
                 )}
             </PageHeaderLayout>
         );

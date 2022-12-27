@@ -1056,6 +1056,17 @@ const LogEnterprise = {
     'LogEnterprise.all':'所有日志',
     'LogEnterprise.node':'节点',
 }
+//扩展
+const extensionEnterprise = {
+    'extensionEnterprise.title': '扩展',
+    'extensionEnterprise.desc': '展示平台已安装的插件，以及可复用的一些 K8s 能力。',
+    'extensionEnterprise.tabs.plugin': '插件',
+    'extensionEnterprise.tabs.capacity': '能力',
+    'extensionEnterprise.plugin.btn.manage': '管理',
+    'extensionEnterprise.capacity.table.name': '名称',
+    'extensionEnterprise.capacity.table.operate': '操作',
+    'extensionEnterprise.capacity.table.btn.edit': '编辑',
+}
 
 
-export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise);
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise, extensionEnterprise);
