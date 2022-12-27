@@ -69,7 +69,7 @@ class Index extends Component {
         );
         case 'Ready,SchedulingDisabled':
           return (
-            <span style={{ color: '#52c41a', marginLeft: 20 }}>
+            <span style={{ color: '#52c41a'}}>
               <Badge color="#52c41a" />
               {status}
             </span>
