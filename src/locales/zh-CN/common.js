@@ -600,6 +600,7 @@
         'notification.warn.not_component':'当前组件不存在!',
         'notification.warn.not_app': '当前应用不存在!',
         'notification.warn.not_team': '当前团队不存在!',
+        'notification.warn.save': '请先保存部署属性中已修改的基本信息!',
 
 
         //提示

@@ -541,6 +541,7 @@
         'notification.success.build_success':'Building a successful',
         'notification.success.add_success':'New success',
         'notification.success.wait_patiently':'Update, please wait patiently',
+        'notification.warn.save': 'You need to save the modified basic information in deployment properties first!',
 
         // 失败
         'notification.error.delete':'Delete failure',
