@@ -53,7 +53,7 @@ import userUtil from '../../utils/user';
 import cookie from '../../utils/cookie';
 import Rke from '../../../public/images/rke.svg'
 import K3s from '../../../public/images/k3s.png'
-import Charts from './chart'
+import Charts from '../../components/ClusterEcharts/Echarts'
 import styles from '../List/BasicList.less';
 import enterpriseStyles from './index.less'
 import styleSvg from './svg.less'

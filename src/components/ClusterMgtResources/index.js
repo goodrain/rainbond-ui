@@ -9,7 +9,7 @@ Skeleton
 } from 'antd';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { connect } from 'dva';
-import Charts from './chart'
+import Charts from '../ClusterEcharts/Echarts'
 import styles from './index.less'
 
 @connect()

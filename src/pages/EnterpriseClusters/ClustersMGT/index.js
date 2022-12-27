@@ -138,7 +138,8 @@ class Index extends Component {
         if (res && res.status_code == 200) {
           this.setState({
             nodeList: res.list,
-            showListInfo: true
+            showListInfo: true,
+            nodeType : res.bean
           })
         }
       },
@@ -255,7 +256,8 @@ class Index extends Component {
       updateTask,
       clusterID,
       dashboardList,
-      dashboardShow
+      dashboardShow,
+      nodeType
     } = this.state
     return (
       <>
@@ -272,6 +274,7 @@ class Index extends Component {
           <DetectionInfo
             rowClusterInfo={rowCluster}
             loadClusters={this.loadClusters}
+            nodeType={nodeType}
             showInfo={showInfo}
           />
         </Row>

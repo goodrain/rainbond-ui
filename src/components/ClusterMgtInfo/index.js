@@ -498,7 +498,8 @@ class Index extends Component {
     const {
       rowClusterInfo,
       form,
-      showInfo = false
+      showInfo = false,
+      nodeType
     } = this.props;
     const {
       region_alias,
@@ -670,7 +671,19 @@ class Index extends Component {
               <Row className={styles.ClusterInfo}>
                 <Descriptions >
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })} span={2}>{rbd_version || "-"}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>{all_nodes || '-'}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>
+                    <span className={styles.nodeType}>
+                    {
+                    nodeType && 
+                    Object.keys(nodeType).length> 0 ?
+                    Object.keys(nodeType).map(item =>{
+                       return <span>{nodeType[item]} {item} </span>
+                    }) 
+                    :
+                    "-"
+                    }
+                    </span>
+                  </Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
