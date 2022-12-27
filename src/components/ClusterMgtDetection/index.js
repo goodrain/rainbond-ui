@@ -94,7 +94,7 @@ class Index extends Component {
             default:
                 return (
                     <div style={{ color: 'red' }}>
-                        <Badge color="re d" />
+                        <Badge color="red" />
                         {formatMessage({ id: 'status.component.not_health' })}
                     </div>
                 );
