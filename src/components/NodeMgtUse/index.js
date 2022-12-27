@@ -22,7 +22,8 @@ class Index extends Component {
         }
     }
     render() {
-        const string = formatMessage({id:'enterpriseColony.mgt.cluster.assigned'})
+        const allocation = formatMessage({id:'enterpriseColony.mgt.cluster.assigned'})
+        const use = formatMessage({id:'enterpriseColony.mgt.node.used'})
         const { nodeDetail, showInfo } = this.props;
         const
             {
@@ -71,25 +72,25 @@ class Index extends Component {
                     {nodeDetail && Object.keys(nodeDetail).length > 0 && showInfo ?
                         <>
                             <Row className={styles.titleStyle}>
-                                <Col span={6}>{formatMessage({id:'enterpriseColony.mgt.node.memory'})}</Col>
                                 <Col span={6}>CPU</Col>
+                                <Col span={6}>{formatMessage({id:'enterpriseColony.mgt.node.memory'})}</Col>
                                 <Col span={6}>{formatMessage({id:'enterpriseColony.mgt.node.root'})}</Col>
                                 <Col span={6}>{formatMessage({id:'enterpriseColony.mgt.node.vessel'})}</Col>
                             </Row>
 
                             <Row className={styles.EchartsStyle}>
                                 <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${0}`} cname={string} svalue={memoryUsed} uvalue={`${String(parseInt(memoryUsed))}%`} swidth='250px' sheight='200px' />
+                                    <Echarts keys={'upcpu' + `${0}`} cname={allocation} svalue={memoryUsed} uvalue={`${String(parseInt(memoryUsed))}%`} swidth='250px' sheight='200px' />
                                 </Col>
                                 <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${1}`} cname={string} svalue={cpuUsed} uvalue={`${String(parseInt(cpuUsed))}%`} swidth='250px' sheight='200px' />
+                                    <Echarts keys={'upcpu' + `${1}`} cname={allocation} svalue={cpuUsed} uvalue={`${String(parseInt(cpuUsed))}%`} swidth='250px' sheight='200px' />
                                 </Col>
                                 <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${2}`} cname={string} svalue={rootUsed} uvalue={`${String(parseInt(rootUsed))}%`} swidth='250px' sheight='200px' />
+                                    <Echarts keys={'upcpu' + `${2}`} cname={use} svalue={rootUsed} uvalue={`${String(parseInt(rootUsed))}%`} swidth='250px' sheight='200px' />
 
                                 </Col>
                                 <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${3}`} cname={string} svalue={dockerUsed} uvalue={`${String(parseInt(dockerUsed))}%`} swidth='250px' sheight='200px' />
+                                    <Echarts keys={'upcpu' + `${3}`} cname={use} svalue={dockerUsed} uvalue={`${String(parseInt(dockerUsed))}%`} swidth='250px' sheight='200px' />
                                 </Col>
                             </Row>
 
@@ -104,11 +105,11 @@ class Index extends Component {
 
                                 </Col>
                                 <Col span={6}>
-                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.allocated'})}<span>{req_root_partition.toFixed(2)}</span>GB</p>
+                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.use'})}<span>{req_root_partition.toFixed(2)}</span>GB</p>
                                     <p>{formatMessage({id:'enterpriseColony.mgt.node.totalRoot'})}<span>{cap_root_partition.toFixed(2)}</span>GB</p>
                                 </Col>
                                 <Col span={6}>
-                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.allocated'})}<span>{req_docker_partition.toFixed(2)}</span>GB</p>
+                                    <p>{formatMessage({id:'enterpriseColony.mgt.node.use'})}<span>{req_docker_partition.toFixed(2)}</span>GB</p>
                                     <p>{formatMessage({id:'enterpriseColony.mgt.node.totalvessel'})}<span>{cap_docker_partition.toFixed(2)}</span>GB</p>
                                 </Col>
                             </Row>
