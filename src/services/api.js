@@ -1458,7 +1458,10 @@ export async function addMenuPath(body) {
     {
       method: 'post',
       data: {
-
+        title: body.title,
+        path: body.path,
+        parent_id: body.parent_id,
+        iframe: body.iframe,
       }
     }
   );
@@ -1470,7 +1473,11 @@ export async function editMenuPath(body) {
     {
       method: 'put',
       data: {
-
+        title: body.title,
+        path: body.path,
+        parent_id: body.parent_id,
+        iframe: body.iframe,
+        id: body.id
       }
     }
   );
@@ -1482,7 +1489,7 @@ export async function deleteMenuPath(body) {
     {
       method: 'delete',
       data: {
-
+        id: body.id
       }
     }
   );

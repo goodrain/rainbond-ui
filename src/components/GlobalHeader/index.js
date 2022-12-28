@@ -28,12 +28,14 @@ import styles from './index.less';
 import cookie from '../../utils/cookie';
 import { Link } from 'umi';
 const { Header } = Layout;
+const { SubMenu } = Menu;
 
 @connect(({ user, global, appControl }) => ({
   rainbondInfo: global.rainbondInfo,
   appDetail: appControl.appDetail,
   currentUser: user.currentUser,
-  enterprise: global.enterprise
+  enterprise: global.enterprise,
+  menuList: global.menuList
   // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))
 export default class GlobalHeader extends PureComponent {
@@ -44,6 +46,7 @@ export default class GlobalHeader extends PureComponent {
       isNewbieGuide: false && rainbondUtil.isEnableNewbieGuide(enterprise),
       showChangePassword: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
+      treeData: []
     };
   }
   componentDidMount() {
@@ -76,6 +79,7 @@ export default class GlobalHeader extends PureComponent {
         })
       }
     }
+    this.handleGetMenuList()
   }
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
@@ -163,9 +167,105 @@ export default class GlobalHeader extends PureComponent {
       });
     });
   };
+  // 菜单列表
+  handleGetMenuList = () => {
+    const { dispatch, eid } = this.props
+    dispatch({
+        type: 'global/getMenuList',
+        payload: {
+            enterprise_id: eid,
+        },
+        callback: res => {
+            if (res && res.list) {
+              dispatch({
+                type:'global/saveMenuListPath',
+                payload: res.list
+              })
+            }
+        }
+    })
+  }
+  renderMenuItem = (val) => {
+    if(val.iframe){
+      return(
+        <Menu.Item key={val.id}>
+          <a target="_blank" href={val.path}>{val.title}</a>
+        </Menu.Item>
+      )
+    }else{
+      return(
+        <Menu.Item 
+         key={val.id}
+          onClick={()=>{this.onLinkMenu(val)}}
+        >
+          {val.title}
+        </Menu.Item>
+      )  
+    }
+  }
+  menuManageLink = () => {
+    const { menuList } = this.props
+    const setChildren = []
+    if (menuList.length > 0) {
+      menuList.map(item => {
+            setChildren.push({ 
+              title: item.title, 
+              value: item.id, 
+              iframe: item.iframe, 
+              path: item.path, 
+              children: item.children 
+            })
+        })
+    }
+    return(
+      <div className={styles.menuManageLink} style={{display:'flex'}}>
+        {setChildren.map((item,index)=>{
+        return(
+          <Menu mode="horizontal" >
+            {item.iframe ? (
+                <SubMenu
+                  title={
+                    <span 
+                      className="submenu-title-wrapper"
+                    >
+                      <a target="_blank" style={{color:'#fff'}} href={item.path}>{item.title}</a>
+                    </span>
+                  }
+                >
+                  {item.children && item.children.map((item2)=>{
+                    return this.renderMenuItem(item2)
+                  })}
+                </SubMenu>
+              ) : (
+                <SubMenu
+                  title={
+                    <span 
+                      className="submenu-title-wrapper" 
+                      onClick={()=>{this.onLinkMenu(item)}}
+                    >
+                      {item.title}
+                    </span>
+                  }
+                >
+                  {item.children && item.children.map((item2)=>{
+                    return this.renderMenuItem(item2)
+                  })}
+                </SubMenu>
+              )     
+            } 
+          </Menu>
+        )})}
+      </div>
+    )
+  }
+  onLinkMenu = (val) => {
+    const { dispatch, eid } = this.props
+    window.sessionStorage.setItem("iframePath",JSON.stringify(val.path))
+    dispatch(routerRedux.replace(`/enterprise/${eid}/menu`));
+  }
   render() {
-    const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space=false, is_enterprise=false, customHeaderImg } = this.props;
-    const { language } = this.state
+    const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space=false, is_enterprise=false, customHeaderImg, menuList } = this.props;
+    const { language, treeData } = this.state
     if (!currentUser) {
       return null;
     }
@@ -236,13 +336,6 @@ export default class GlobalHeader extends PureComponent {
         </Menu>
       </div>
     );
-    const MenuCN = (key, text) => {
-      return (
-        <Menu.Item key={key}>
-          {text}
-        </Menu.Item>
-      );
-    };
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
@@ -252,17 +345,14 @@ export default class GlobalHeader extends PureComponent {
           {customHeader && customHeader()}
         </div>
         <div className={styles.right}>
-          {currentUser.is_enterprise_admin && (
-            <Link style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder',marginRight:'14px' }} to={`/enterprise/${eid}/menu`}>
-              菜单管理
-            </Link>
-          )}
+          {this.menuManageLink()}
           {/* 平台管理 */}
           {currentUser.is_enterprise_admin && (
-            <Link style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder',marginRight:'14px' }} to={`/enterprise/${eid}/index`}>
+            <Link style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder', marginRight:'14px' }} to={`/enterprise/${eid}/index`}>
               <FormattedMessage id="GlobalHeader.platform" />
             </Link>
           )}
+          
           {isNewbieGuide && (
             <Popconfirm
               title={formatMessage({ id: 'GlobalHeader.close' })}
@@ -288,7 +378,9 @@ export default class GlobalHeader extends PureComponent {
               target="_blank"
               rel="noopener noreferrer"
             >
-              {handleHandBookSvg}
+              <span style={{display:'block',marginTop:'12px'}}>
+                {handleHandBookSvg}
+              </span>
             </a>
           )}
           {currentUser ? (

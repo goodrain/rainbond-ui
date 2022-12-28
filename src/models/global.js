@@ -148,7 +148,8 @@ export default {
     memoryTip: '',
     is_enterprise_version: false,
     nouse: false,
-    needLogin: false
+    needLogin: false,
+    menuList: []
   },
 
   effects: {
@@ -948,6 +949,12 @@ export default {
         callback(response);
       }
     },
+    *saveMenuListPath({ payload }, { put }) {
+      yield put({
+        type: 'saveMenuList',
+        payload: payload
+      });
+    },
   },
   reducers: {
     isUpDataHeader(state, action) {
@@ -1111,7 +1118,13 @@ export default {
         ...state,
         enterprise: payload
       };
-    }
+    },
+    saveMenuList(state, { payload }) {
+      return {
+        ...state,
+        menuList: payload
+      };
+    },
   },
 
   subscriptions: {
