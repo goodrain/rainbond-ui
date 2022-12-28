@@ -8,6 +8,7 @@ import cookie from '../../../utils/cookie';
 const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const { TextArea } = Input;
 
 // 设置、编辑健康监测
 @Form.create()
@@ -21,7 +22,8 @@ export default class EditHealthCheck extends PureComponent {
       list: HeavyList,
       prolist: HeavyList,
       showHTTP: data.scheme === 'http',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      showCmd: data.scheme === 'cmd'
     };
   }
   onChanges = e => {
@@ -154,7 +156,7 @@ export default class EditHealthCheck extends PureComponent {
       }
     };
     const { getFieldDecorator, getFieldValue } = form;
-    const { list, prolist, isRestart, showHTTP, language } = this.state;
+    const { list, prolist, isRestart, showHTTP, language, showCmd } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout
     const scheme = getFieldValue('scheme') || 'tcp';
     const secondBox = (
@@ -221,7 +223,10 @@ export default class EditHealthCheck extends PureComponent {
             })(
               <RadioGroup
                 onChange={e => {
-                  this.setState({ showHTTP: e.target.value === 'http' });
+                  this.setState({ 
+                    showHTTP: e.target.value === 'http',
+                    showCmd : e.target.value === 'cmd'
+                  });
                 }}
                 options={[
                   {
@@ -231,6 +236,10 @@ export default class EditHealthCheck extends PureComponent {
                   {
                     label: 'http',
                     value: 'http'
+                  },
+                  {
+                    label: 'cmd',
+                    value: 'cmd'
                   }
                 ]}
               />
@@ -247,33 +256,44 @@ export default class EditHealthCheck extends PureComponent {
               </RadioGroup>
             )}
           </FormItem>
-          <FormItem
-            {...is_language}
-            label={<FormattedMessage id='componentOverview.body.EditHealthCheck.http'/>}
-            style={{
-              display: !showHTTP ? 'none' : ''
-            }}
-          >
-            {getFieldDecorator('http_header', {
-              initialValue: data.http_header || ''
-            })(<KVinput />)}
-          </FormItem>
-          <FormItem
-            {...is_language}
-            label={<FormattedMessage id='componentOverview.body.EditHealthCheck.path'/>}
-            style={{
-              display: !showHTTP ? 'none' : ''
-            }}
-          >
-            {getFieldDecorator('path', {
-              initialValue: data.path || '',
-              rules: [
-                {
-                  validator: this.checkPath
-                }
-              ]
-            })(<Input  placeholder={formatMessage({id:'componentOverview.body.EditHealthCheck.Response'})} />)}
-          </FormItem>
+          {showCmd &&
+                    <FormItem 
+                    {...is_language}  
+                    label={formatMessage({id:'teamAdd.create.image.docker_cmd'})}
+                    >
+                      {getFieldDecorator('cmd', {
+                        initialValue: data.cmd || '',
+                      })(
+                        <TextArea />
+                      )}
+                    </FormItem>
+          }
+          {showHTTP && 
+                    <FormItem
+                    {...is_language}
+                    label={<FormattedMessage id='componentOverview.body.EditHealthCheck.http'/>}
+                  >
+                    {getFieldDecorator('http_header', {
+                      initialValue: data.http_header || ''
+                    })(<KVinput />)}
+                  </FormItem>
+          }
+          {showHTTP && 
+                    <FormItem
+                    {...is_language}
+                    label={<FormattedMessage id='componentOverview.body.EditHealthCheck.path'/>}
+                  >
+                    {getFieldDecorator('path', {
+                      initialValue: data.path || '',
+                      rules: [
+                        {
+                          validator: this.checkPath
+                        }
+                      ]
+                    })(<Input  placeholder={formatMessage({id:'componentOverview.body.EditHealthCheck.Response'})} />)}
+                  </FormItem>
+          }
+
           <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.initialization'/>}>
             {getFieldDecorator('initial_delay_second', {
               initialValue: data.initial_delay_second || '2',
@@ -325,6 +345,7 @@ export default class EditHealthCheck extends PureComponent {
               ]
             })(numberBox(isRestart))}
           </FormItem>
+
         </Form>
       </Modal>
     );
