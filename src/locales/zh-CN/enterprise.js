@@ -940,6 +940,9 @@ const enterpriseColony = {
     'enterpriseColony.mgt.node.editStain':'编辑污点',
     'enterpriseColony.mgt.node.editCancel':'取消编辑',
     'enterpriseColony.mgt.node.Policy':'策略：',
+    'enterpriseColony.mgt.node.used':'已使用',
+    'enterpriseColony.mgt.node.use':'已使用：',
+
 }
 // 用户
 const enterpriseUser = {

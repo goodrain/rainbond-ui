@@ -508,7 +508,11 @@ class Main extends PureComponent {
         if (appDetail.service.service_source) {
           this.setState({
             isShowThirdParty: appDetail.is_third ? appDetail.is_third : false,
-            tabsShow: true
+            tabsShow: true,
+          },()=>{
+            this.setState({
+              routerSwitch: false
+            })
           });
         }
         if (
@@ -520,6 +524,11 @@ class Main extends PureComponent {
             appDetail.service.create_status === 'complete'
           ) {
             this.getStatus(false);
+            setTimeout(()=>{
+              this.setState({
+                routerSwitch: false
+              })
+            },100)
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
               this.setState({
                 routerSwitch: false

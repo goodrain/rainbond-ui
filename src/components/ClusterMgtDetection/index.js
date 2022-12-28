@@ -91,6 +91,15 @@ class Index extends Component {
                 );
 
                 break;
+            case 'Completed':
+                return (
+                    <div style={{ color: '#52c41a' }}>
+                        <Badge color="#52c41a" />
+                        {formatMessage({ id: 'componentOverview.body.tab.overview.instance.completed' })}
+                    </div>
+                );
+
+                break;
             default:
                 return (
                     <div style={{ color: 'red' }}>

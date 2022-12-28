@@ -937,6 +937,8 @@ const enterpriseColony = {
     'enterpriseColony.mgt.node.editStain': 'Edit Stain',
     'enterpriseColony.mgt.node.editCancel': 'Cancel Editing',
     'enterpriseColony.mgt.node.Policy': 'Policy:',
+    'enterpriseColony.mgt.node.used':'Already use',
+    'enterpriseColony.mgt.node.use':'Already use:',
 
 }
 // 用户
