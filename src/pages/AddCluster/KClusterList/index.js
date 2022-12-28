@@ -141,7 +141,7 @@ export default class EnterpriseClusters extends PureComponent {
           if (provider === 'custom' || provider === 'rke') {
             this.showBuyClusterConfig();
           }
-          this.setState({ loading: false });
+          this.setState({ loading: false, k8sClusters: [] });
         }
       },
       handleError: res => {
