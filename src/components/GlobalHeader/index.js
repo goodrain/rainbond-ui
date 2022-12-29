@@ -189,7 +189,7 @@ export default class GlobalHeader extends PureComponent {
     if(val.iframe){
       return(
         <Menu.Item key={val.id}>
-          <a target="_blank" href={val.path}>{val.title}</a>
+          <span onClick={()=>{this.onSubMenuLink(val)}}>{val.title}</span>
         </Menu.Item>
       )
     }else{
@@ -203,19 +203,24 @@ export default class GlobalHeader extends PureComponent {
       )  
     }
   }
+  onSubMenuLink = (val) => {
+    if(val){
+      window.open(val.path);
+    }
+  }
   menuManageLink = () => {
     const { menuList } = this.props
     const setChildren = []
     if (menuList.length > 0) {
       menuList.map(item => {
-            setChildren.push({ 
-              title: item.title, 
-              value: item.id, 
-              iframe: item.iframe, 
-              path: item.path, 
-              children: item.children 
-            })
+        setChildren.push({ 
+          title: item.title, 
+          value: item.id, 
+          iframe: item.iframe, 
+          path: item.path, 
+          children: item.children 
         })
+      })
     }
     return(
       <div className={styles.menuManageLink} style={{display:'flex'}}>
@@ -227,8 +232,9 @@ export default class GlobalHeader extends PureComponent {
                   title={
                     <span 
                       className="submenu-title-wrapper"
+                      onClick={()=>{this.onSubMenuLink(item)}}
                     >
-                      <a target="_blank" style={{color:'#fff'}} href={item.path}>{item.title}</a>
+                      {item.title}
                     </span>
                   }
                 >
@@ -261,7 +267,7 @@ export default class GlobalHeader extends PureComponent {
   onLinkMenu = (val) => {
     const { dispatch, eid } = this.props
     window.sessionStorage.setItem("iframePath",JSON.stringify(val.path))
-    dispatch(routerRedux.replace(`/enterprise/${eid}/menu`));
+    dispatch(routerRedux.push(`/enterprise/${eid}/menu`));
   }
   render() {
     const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space=false, is_enterprise=false, customHeaderImg, menuList } = this.props;
@@ -340,7 +346,7 @@ export default class GlobalHeader extends PureComponent {
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <Header className={styles.header}>
-        <div>
+        <div className={styles.left}>
           {customHeaderImg && customHeaderImg()}
           {customHeader && customHeader()}
         </div>
@@ -348,7 +354,7 @@ export default class GlobalHeader extends PureComponent {
           {this.menuManageLink()}
           {/* 平台管理 */}
           {currentUser.is_enterprise_admin && (
-            <Link style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder', marginRight:'14px' }} to={`/enterprise/${eid}/index`}>
+            <Link className={styles.platform} to={`/enterprise/${eid}/index`}>
               <FormattedMessage id="GlobalHeader.platform" />
             </Link>
           )}

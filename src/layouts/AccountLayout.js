@@ -16,6 +16,7 @@ import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
 import rainbondUtil from '../utils/rainbond';
 import Context from './MenuContext';
+import styles from './EnterpriseLayout.less'
 
 const { Content } = Layout;
 let isMobile;
@@ -155,7 +156,7 @@ class AccountLayout extends PureComponent {
     const customHeader = () => {
       return (
         <Link
-          style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }}
+          className={styles.platform}
           to={`/enterprise/${eid}/personal`}
         >
           {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}

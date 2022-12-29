@@ -419,7 +419,7 @@ class EnterpriseLayout extends PureComponent {
     const customHeader = () => {
       return (
         <Link
-          style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }}
+          className={styles.platform}
           to={`/enterprise/${eid}/personal`}
         >
           {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}

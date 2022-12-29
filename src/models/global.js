@@ -149,7 +149,8 @@ export default {
     is_enterprise_version: false,
     nouse: false,
     needLogin: false,
-    menuList: []
+    menuList: [],
+    menuIframePath: '',
   },
 
   effects: {
@@ -955,6 +956,12 @@ export default {
         payload: payload
       });
     },
+    *saveIframePath({ payload }, { put }) {
+      yield put({
+        type: 'iframePath',
+        payload: payload
+      });
+    },
   },
   reducers: {
     isUpDataHeader(state, action) {
@@ -1123,6 +1130,13 @@ export default {
       return {
         ...state,
         menuList: payload
+      };
+    },
+    // 保存菜单链接
+    iframePath(state, { payload }) {
+      return {
+        ...state,
+        menuIframePath: payload
       };
     },
   },

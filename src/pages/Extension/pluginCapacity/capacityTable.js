@@ -65,7 +65,6 @@ class Index extends PureComponent {
             },
             handleError: res => {
                 if(res){
-                    console.log(res,'下面')
                     notification.error({ message: res.data.msg_show, duration: 30 })
                     this.handleAbilitiesList()
                 }

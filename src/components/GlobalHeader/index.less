@@ -351,7 +351,10 @@ i.trigger {
     display: none;
   }
 }
-
+.left{
+  display: flex;
+  align-items: center;
+}
 .right {
   float: right;
   display: flex;
@@ -443,7 +446,17 @@ i.trigger {
   height: 30px;
   line-height: 30px;
 }
-
+.platform{
+  color: #fff;
+  font-size: 16px;
+  font-weight: bolder;
+  margin: 0px 14px;
+  border-bottom: 2px solid transparent;
+}
+.platform:hover{
+  color: #4d73b1;
+  border-bottom: 2px solid #4d73b1;
+}
 :global {
   .ant-layout-header {
     height: 60px;
@@ -454,6 +467,12 @@ i.trigger {
 }
 
 .menuManageLink{
+  .aSubMenu{
+    color: #fff;
+  }
+  .aSubMenu:hover{
+    color: #4d73b1;
+  }
   :global {
     .ant-menu{
       background-color: transparent;
@@ -465,24 +484,28 @@ i.trigger {
       font-weight: bolder;
     }
     .ant-menu-submenu-title{
-      padding: 0px;
-      margin-right: 28px;
+      padding: 9px 14px;
+      // margin-right: 28px;
     }
     .ant-menu-submenu{
-      border: none;
+      // border: none;
     }
     .ant-menu-submenu-title:hover{
-      color: #fff;
+      color: #4d73b1;
     }
     .ant-menu-submenu:hover{
-      border: none;
-      color: #fff;
+      // border: none;
+      // color: #fff;
     }
     .ant-menu-submenu-arrow{
       display: none;
     }
     .ant-menu-item-selected{
       color: #fff;
+    }
+    .ant-menu-submenu-selected{
+      color: #fff;
+      border-bottom: 2px solid transparent;
     }
   }
 }
