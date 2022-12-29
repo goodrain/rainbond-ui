@@ -8,7 +8,8 @@ Tooltip,
 Drawer,
 Form,
 Skeleton,
-notification
+notification,
+Empty
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { connect } from 'dva';
@@ -54,7 +55,7 @@ class Index extends Component {
             } else if (value.taints.length == 1 && (value.taints[0].key == "" || value.taints[0].value == "" || value.taints[0].effect == "")) {
                 bool = false
                 return notification.warning({
-                    message: formatMessage({id:'enterpriseColony.mgt.node.full'})
+                    message: formatMessage({ id: 'enterpriseColony.mgt.node.full' })
                 });
             }
             if (value.taints.length > 1) {
@@ -62,7 +63,7 @@ class Index extends Component {
                     if (item.key == "" || item.vlaue == "" || item.effect == "") {
                         bool = false
                         return notification.warning({
-                            message: formatMessage({id:'enterpriseColony.mgt.node.full'})
+                            message: formatMessage({ id: 'enterpriseColony.mgt.node.full' })
                         });
                     }
                 })
@@ -88,12 +89,12 @@ class Index extends Component {
         const exportButton = (
             <>
                 {showSubmit &&
-                    <Button type="primary" icon="diff" onClick={this.handleSubmit} style={{ marginRight: 15 }}>{formatMessage({id:'enterpriseColony.mgt.node.submit'})}</Button>
+                    <Button type="primary" icon="diff" onClick={this.handleSubmit} style={{ marginRight: 15 }}>{formatMessage({ id: 'enterpriseColony.mgt.node.submit' })}</Button>
                 }
                 {editState ?
-                    <Button icon="form" onClick={this.editStain}>{formatMessage({id:'enterpriseColony.mgt.node.editStain'})}</Button>
+                    <Button icon="form" onClick={this.editStain}>{formatMessage({ id: 'enterpriseColony.mgt.node.editStain' })}</Button>
                     :
-                    <Button icon="close-circle" onClick={this.cancelStain}>{formatMessage({id:'enterpriseColony.mgt.node.editCancel'})}</Button>}
+                    <Button icon="close-circle" onClick={this.cancelStain}>{formatMessage({ id: 'enterpriseColony.mgt.node.editCancel' })}</Button>}
 
             </>
         )
@@ -108,18 +109,22 @@ class Index extends Component {
                 >
                     {showTaints ?
                         <Form onSubmit={this.handleSubmit}>
-                            <Form.Item >
-                                {getFieldDecorator(`taints`, {
-                                    initialValue: taintsList.length > 0 ? taintsList : [],
-                                    rules: [{ required: false, message: formatMessage({id:'enterpriseColony.mgt.node.key'}), }]
-                                })(
-                                    <DApvcinputSelect
-                                        editState={editState}
-                                        removeShow={bool}
-                                        setspan={8}
-                                        removeValue={this.removeValue}
-                                    />)}
-                            </Form.Item>
+                            {(taintsList.length > 0 || !editState) ?
+                                (<Form.Item >
+                                    {getFieldDecorator(`taints`, {
+                                        initialValue: taintsList.length > 0 ? taintsList : [],
+                                        rules: [{ required: false, message: formatMessage({ id: 'enterpriseColony.mgt.node.key' }), }]
+                                    })(
+                                        <DApvcinputSelect
+                                            editState={editState}
+                                            removeShow={bool}
+                                            setspan={8}
+                                            removeValue={this.removeValue}
+                                        />)}
+                                </Form.Item>) : (
+                                    <Empty />
+                                )
+                            }
                         </Form>
                         :
                         <Skeleton active />
