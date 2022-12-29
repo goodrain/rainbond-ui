@@ -199,10 +199,10 @@ export default class Index extends PureComponent {
             this.setState({
               existFileList: data.bean.package_name
             });
-            notification.success({
-              message: formatMessage({ id: 'notification.success.upload_file' })
-            })
-            this.loop = false
+            // notification.success({
+            //   message: formatMessage({ id: 'notification.success.upload_file' })
+            // })
+            // this.loop = false
           }
         }
         if (this.loop) {
@@ -306,7 +306,7 @@ export default class Index extends PureComponent {
                   onChange={this.handleChange}
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder={formatMessage({ id: 'placeholder.appName' })}
-                  style={{ 
+                  style={{
                     display: 'inline-block',
                     width: language ? 276 : 289,
                     marginRight: 10
@@ -340,7 +340,7 @@ export default class Index extends PureComponent {
               })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
             </Form.Item>
             <Form.Item
-            {...is_language}
+              {...is_language}
               label={formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
               extra={formatMessage({ id: 'teamAdd.create.upload.uploadJWar' })}
             >
@@ -351,12 +351,13 @@ export default class Index extends PureComponent {
               })(
                 <Upload
                   fileList={fileList}
-                  accept=".jar,.war"
+                  // accept=".jar,.war,.md"
                   name="packageTarFile"
                   onChange={this.onChangeUpload}
                   onRemove={this.onRemove}
                   action={record.upload_url}
                   headers={myheaders}
+                  multiple={true}
                 >
                   <Button>
                     <Icon type="upload" />
@@ -366,26 +367,43 @@ export default class Index extends PureComponent {
               )}
             </Form.Item>
             <Form.Item
-              labelCol={language ? { span: 5 } : { span: 9}}
+              labelCol={language ? { span: 5 } : { span: 9 }}
               wrapperCol={language ? { span: 19 } : { span: 15 }}
-              label={formatMessage({id:'teamAdd.create.fileList'})}
+              label={formatMessage({ id: 'teamAdd.create.fileList' })}
             >
-            {existFileList.length > 0 ?
-                (existFileList.map((item) => {
-                  return (
-                    <div className={styles.file}>
-                      <Icon style={{ marginRight: '6px' }} type="inbox" />
-                      <span className={styles.fileName}>
-                      {item}
-                      </span>
-                      <Icon onClick={this.handleJarWarUploadDelete} style={{ marginLeft: '12px', color: 'red', cursor: 'pointer' }} type="delete" />
-                    </div>
-                  )
-                })) : (
-                  <div className={styles.empty}>
-                    {formatMessage({id:'teamAdd.create.null_data'})}
-                  </div>
-                )}
+              <div
+                style={{
+                  display: 'flex'
+                }}
+              >
+                <div>
+                  {existFileList.length > 0 ?
+                    (existFileList.map((item) => {
+                      return (
+                        <div className={styles.file}>
+                          <Icon style={{ marginRight: '6px' }} type="inbox" />
+                          <span className={styles.fileName}>
+                            {item}
+                          </span>
+                        </div>
+                      )
+                    })) : (
+                      <div className={styles.empty}>
+                        {formatMessage({ id: 'teamAdd.create.null_data' })}
+                      </div>
+                    )}
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  {existFileList.length > 0 &&
+                  <Icon onClick={this.handleJarWarUploadDelete} style={{ marginLeft: '12px', color: 'red', cursor: 'pointer' }} type="delete" />
+                  }
+                </div>
+              </div>
             </Form.Item>
             <Form.Item
               wrapperCol={{
