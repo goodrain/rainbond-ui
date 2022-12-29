@@ -695,7 +695,7 @@ export default class EnterpriseClusters extends PureComponent {
       },
       {
         // title: '内存(GB)',
-        title: 'CPU(m)',
+        title: 'CPU(Core)',
         dataIndex: 'total_cpu',
         align: 'center',
         width: 80,
