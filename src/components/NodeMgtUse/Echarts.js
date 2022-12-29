@@ -22,7 +22,7 @@ export default class Chart extends Component {
                     x: 'center',
                     top: '30%',
                     textStyle: {
-                        color: 'black',
+                        color: svalue> 80 ? "#f5222d" : 'black',
                         fontSize: 16,
                         fontWeight: '600',
 
@@ -34,7 +34,7 @@ export default class Chart extends Component {
                     y: '40%',
                     textStyle: {
                         fontSize: 20,
-                        color: 'black',
+                        color: svalue> 80 ? "#f5222d" : 'black',
                         fontFamily: 'DINAlternate-Bold, DINAlternate',
                         foontWeight: '600',
                     },
@@ -79,11 +79,11 @@ export default class Chart extends Component {
                             color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [
                                 {
                                     offset: 0,
-                                    color: '#22ac38',
+                                    color: svalue> 80 ? "#f5222d" : '#22ac38',
                                 },
                                 {
                                     offset: 1,
-                                    color: '#22ac38',
+                                    color: svalue> 80 ? "#f5222d" : '#22ac38',
                                 },
                             ]),
                         },
