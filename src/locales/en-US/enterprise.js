@@ -60,9 +60,7 @@ const enterpriseOverview = {
     'enterpriseOverview.overview.Abnormal': 'Cluster communication exception',
     'enterpriseOverview.overview.no_cluster': 'No cluster',
     'enterpriseOverview.overview.no_errorInfo': 'No alarm information',
-    'enterpriseOverview.overview.app': 'App',
-    'enterpriseOverview.overview.inside': 'inside',
-    'enterpriseOverview.overview.component': 'Component',
+    'enterpriseOverview.overview.app': 'Components under the application',
     'enterpriseOverview.overview.error': 'Abnormal',
     // Convenient
     'enterpriseOverview.Convenient.title': 'Add collection',
