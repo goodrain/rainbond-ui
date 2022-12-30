@@ -904,6 +904,8 @@ const enterpriseColony = {
     'enterpriseColony.mgt.cluster.runTime':'Running time',
     'enterpriseColony.mgt.cluster.comName':'Component Name',
     'enterpriseColony.mgt.cluster.num':'Number of copies',
+    'enterpriseColony.mgt.cluster.restart':"Number of restarts",
+    'enterpriseColony.mgt.cluster.pods':'Component runs (Pod)',
 
     // 节点
     'enterpriseColony.mgt.node.infoError': 'Failed to get node details',
