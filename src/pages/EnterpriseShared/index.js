@@ -357,7 +357,7 @@ export default class EnterpriseShared extends PureComponent {
             () => {
               const arr = []
               this.state.marketTab.map(item => {
-                item.type = "marketTab",
+                item.types = "marketTab",
                   arr.push(item)
               })
               
@@ -407,7 +407,7 @@ export default class EnterpriseShared extends PureComponent {
             () => {
               const arr = [];
               this.state.helmTab.map(item => {
-                item.type = 'helmTab';
+                item.types = 'helmTab';
                 arr.push(item)
               })
 
@@ -1448,7 +1448,7 @@ export default class EnterpriseShared extends PureComponent {
       helmInfoSwitch,
       marketInfoSwitch,
     } = this.state;
-    const local = [{ type: 'local' }]
+    const local = [{ types: 'local' }]
     const storeTabs = [...tabsList,...local].reverse()
     const tagLists = tagList && tagList.length > 0 && tagList;
     const accessActions =
@@ -2007,15 +2007,15 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {helmInfoSwitch && marketInfoSwitch  ?
        <Tabs
-          // activeKey={activeTabKey}
+          activeKey={activeTabKey}
           className={styles.setTabs}
           onChange={this.onTabChange}
           type="card"
         >
           {storeTabs && storeTabs.length > 0 &&
             storeTabs.map(item => {
-              const { type } = item;
-              if (type == "local") {
+              const { types } = item;
+              if (types == "local") {
                 return <TabPane
                   tab={
                     <span className={styles.verticalCen}>
@@ -2036,7 +2036,7 @@ export default class EnterpriseShared extends PureComponent {
                     {localsContent}
                   </div>
                 </TabPane>
-              }else if(type == "marketTab"){
+              }else if(types == "marketTab"){
                 const { ID, alias, name } = item;
                 return (
                   <TabPane
