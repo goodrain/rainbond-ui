@@ -227,7 +227,32 @@ export default class Index extends PureComponent {
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.avatar}>
-          <Avatar size="large" src={logoInfo || TeamImg} />
+          {logoInfo ? 
+          (
+          <Avatar size="large" src={logoInfo} />
+          ):(
+          <Avatar
+            style=
+            {{
+              backgroundColor: '#00a2ae',
+              verticalAlign: 'middle'
+            }}
+            size={60}
+            shape="square">
+            <span
+              style=
+              {{
+                color: '#fff',
+                fontSize: 35,
+                textTransform: 'uppercase'
+              }}
+            >
+              {currentTeam.team_alias.substr(0, 1)}
+            </span>
+          </Avatar>
+          )}
+
+
         </div>
         <div className={styles.content}>
           <div className={styles.contentTitle}>
@@ -329,7 +354,7 @@ export default class Index extends PureComponent {
         {showEditName && (
           <MoveTeam
             teamAlias={currentTeam.team_alias}
-            imageUrl={logoInfo}
+            imageUrl={logoInfo ? logoInfo : true}
             onSubmit={this.handleEditName}
             onCancel={this.hideEditName}
           />

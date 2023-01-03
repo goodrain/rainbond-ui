@@ -143,7 +143,8 @@ export default class MoveTeam extends PureComponent {
                   />
                 ) : (
                   // uploadButton
-                  null
+                  ''
+                  // null
                 )}
               </Upload>
             )}
