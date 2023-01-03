@@ -360,6 +360,8 @@ const teamOther = {
   'teamOther.move_team.null':'不能为空!',
   'teamOther.move_team.max':'最大长度32位',
   'teamOther.move_team.input_name':'请输入新的团队名称',
+  'teamOther.move_team.name_label':'修改名称',
+  'teamOther.move_team.logo_label':'修改团队信息',
 
   'teamOther.manage.structure':'构建',
   'teamOther.manage.log':'查看构建日志',
