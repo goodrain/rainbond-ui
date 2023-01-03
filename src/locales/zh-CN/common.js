@@ -750,7 +750,7 @@
         'placeholder.appShare.leastOne':'请至少发布一个组件',
         'placeholder.appShare.appTemplate':'应用模版选择是必须的',
         'placeholder.appShare.selectAppTemplate':'选择发布的应用模版',
-        'placeholder.appShare.version':'版本号默认为选择模版的上次发布版本',
+        'placeholder.appShare.version':'请填写版本号',
         'placeholder.appShare.max64':'最大长度64位',
         'placeholder.appShare.version_alias':'设置版本别名，比如高级版',
         'placeholder.appShare.describe':'请输入版本说明',
