@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
-import { Button, notification } from 'antd';
+import { Button } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -29,8 +29,7 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       appPermissions: this.handlePermissions('queryAppInfo'),
-      appDetail: null,
-      handleBuildSwitch: false
+      appDetail: null
     };
   }
   componentDidMount() {
@@ -71,41 +70,37 @@ export default class Index extends PureComponent {
     return this.props.match.params.appAlias;
   }
 
-  handleBuild = (val) => {
+  handleBuild = () => {
     const { dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
     const { appDetail } = this.state
     const { team_name, app_alias } = this.fetchParameter();
-    if( val == false ){
-      setNodeLanguage({
-        team_name: team_name,
-        app_alias: app_alias,
-        lang: soundCodeLanguage,
-        package_tool: packageNpmOrYarn,
-      })
-      dispatch({
-        type: 'createApp/buildApps',
-        payload: {
-          team_name,
-          app_alias,
-        },
-        callback: data => {
-          if (data) {
-            dispatch({
-              type: 'global/fetchGroups',
-              payload: {
-                team_name
-              }
-            });
-            window.sessionStorage.removeItem('codeLanguage');
-            window.sessionStorage.removeItem('packageNpmOrYarn');
-            window.sessionStorage.removeItem('advanced_setup');
-            this.handleJump(`components/${app_alias}/overview`);
-          }
+    setNodeLanguage({
+      team_name: team_name,
+      app_alias: app_alias,
+      lang: soundCodeLanguage,
+      package_tool: packageNpmOrYarn,
+    })
+    dispatch({
+      type: 'createApp/buildApps',
+      payload: {
+        team_name,
+        app_alias,
+      },
+      callback: data => {
+        if (data) {
+          dispatch({
+            type: 'global/fetchGroups',
+            payload: {
+              team_name
+            }
+          });
+          window.sessionStorage.removeItem('codeLanguage');
+          window.sessionStorage.removeItem('packageNpmOrYarn');
+          window.sessionStorage.removeItem('advanced_setup');
+          this.handleJump(`components/${app_alias}/overview`);
         }
-      });
-    }else{
-      notification.warning({ message: formatMessage({id:'notification.warn.save'}) });
-    }
+      }
+    });
   };
   handleDelete = () => {
     const { dispatch } = this.props;
@@ -149,17 +144,11 @@ export default class Index extends PureComponent {
       app_alias: this.getAppAlias()
     };
   };
-  handleBuildSwitch = (val) =>{
-    this.setState({
-      handleBuildSwitch: val
-    })
-  }
   render() {
     const { buildAppsLoading, deleteAppLoading } = this.props;
     const {
       showDelete,
-      appPermissions: { isDelete },
-      handleBuildSwitch
+      appPermissions: { isDelete }
     } = this.state;
     const appDetail = this.state.appDetail || {};
     if (!appDetail.service) {
@@ -181,7 +170,6 @@ export default class Index extends PureComponent {
         >
           <AppCreateSetting
             updateDetail={this.loadDetail}
-            handleBuildSwitch={this.handleBuildSwitch}
             appDetail={appDetail}
           />
           <div
@@ -202,7 +190,7 @@ export default class Index extends PureComponent {
               style={{
                 marginRight: 8
               }}
-              onClick={()=>this.handleBuild(handleBuildSwitch)}
+              onClick={this.handleBuild}
               type="primary"
             >
               {formatMessage({id:'button.confirm_create'})}
