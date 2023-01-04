@@ -19,7 +19,8 @@ import {
   installHelmApp,
   helmAppInstall,
   getHelmVersion,
-  installHelmAppCmd
+  installHelmAppCmd,
+  setNodeLanguage,
 } from '../services/createApp';
 
 export default {
@@ -181,6 +182,12 @@ export default {
     },
     *installHelmAppCmd({ payload, callback, handleError }, { call }) {
       const data = yield call(installHelmAppCmd, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *setNodeLanguage({ payload, callback, handleError }, { call }) {
+      const data = yield call(setNodeLanguage, payload, handleError);
       if (data && callback) {
         callback(data);
       }

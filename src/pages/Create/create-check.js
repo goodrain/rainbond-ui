@@ -17,7 +17,6 @@ import {
   getCheckuuid,
   getCreateCheckId,
   getCreateCheckResult,
-  setNodeLanguage,
 } from '../../services/createApp';
 import globalUtil from '../../utils/global';
 import regionUtil from '../../utils/region';
@@ -241,7 +240,7 @@ export default class CreateCheck extends React.Component {
   };
   handleSetting = () => {
     const { appAlias } = this.getParameter();
-    window.sessionStorage.setItem('advanced_setup',JSON.stringify('advanced'));
+    window.sessionStorage.setItem('advanced_setup', JSON.stringify('advanced'));
     this.handleJump(`create/create-setting/${appAlias}`);
   };
   // 进入多模块构建
@@ -258,40 +257,47 @@ export default class CreateCheck extends React.Component {
 
   handleBuild = () => {
     const { appAlias, teamName } = this.getParameter();
-
     const { refreshCurrent, dispatch, soundCodeLanguage } = this.props;
     const { isDeploy, ServiceGetData, appDetail, codeLanguage, packageLange } = this.state;
     this.setState({ buildAppLoading: true });
-    setNodeLanguage({
-      team_name: teamName,
-      app_alias: appAlias,
-      lang: codeLanguage,
-      package_tool: packageLange,
-    })
-    buildApp({
-      team_name: teamName,
-      app_alias: appAlias,
-      is_deploy: isDeploy,
-    }).then(data => {
-      this.setState({ buildAppLoading: false });
-      if (data) {
-        dispatch({
-          type: 'global/fetchGroups',
-          payload: {
-            team_name: teamName
-          }
-        });
-        window.sessionStorage.removeItem('codeLanguage');
-        window.sessionStorage.removeItem('packageNpmOrYarn');
-        if (ServiceGetData && isDeploy) {
-          refreshCurrent();
-        } else if (appDetail.service_source === 'third_party') {
-          this.handleJump(`components/${appAlias}/thirdPartyServices`);
-        } else {
-          this.handleJump(`components/${appAlias}/overview`);
+    dispatch({
+      type: 'createApp/setNodeLanguage',
+      payload: {
+        team_name: teamName,
+        app_alias: appAlias,
+        lang: codeLanguage,
+        package_tool: packageLange,
+      },
+      callback: res => {
+        if (res) {
+          buildApp({
+            team_name: teamName,
+            app_alias: appAlias,
+            is_deploy: isDeploy,
+          }).then(data => {
+            this.setState({ buildAppLoading: false });
+            if (data) {
+              dispatch({
+                type: 'global/fetchGroups',
+                payload: {
+                  team_name: teamName
+                }
+              });
+              window.sessionStorage.removeItem('codeLanguage');
+              window.sessionStorage.removeItem('packageNpmOrYarn');
+              if (ServiceGetData && isDeploy) {
+                refreshCurrent();
+              } else if (appDetail.service_source === 'third_party') {
+                this.handleJump(`components/${appAlias}/thirdPartyServices`);
+              } else {
+                this.handleJump(`components/${appAlias}/overview`);
+              }
+            }
+          });
         }
       }
-    });
+    })
+
   };
 
   recheck = () => {
@@ -631,30 +637,30 @@ export default class CreateCheck extends React.Component {
     const { dispatch } = this.props
     this.setState({
       codeLanguage: e.target.value
-    },()=>{
+    }, () => {
       const { codeLanguage } = this.state
       dispatch({
         type: 'teamControl/ChoosingLanguage',
         payload: codeLanguage,
       });
     });
-    
+
   };
   onChange = e => {
     const { dispatch } = this.props
     this.setState({
       packageLange: e.target.value,
-    },()=>{
+    }, () => {
       const { packageLange } = this.state
       dispatch({
         type: 'teamControl/ChoosingPackage',
         payload: packageLange,
       });
     });
-    
+
   };
   renderSuccess = () => {
-    const { ButtonGroupState, ErrState, handleServiceBotton,soundCodeLanguage } = this.props;
+    const { ButtonGroupState, ErrState, handleServiceBotton, soundCodeLanguage } = this.props;
     const {
       ServiceGetData,
       isDeploy,
@@ -680,10 +686,10 @@ export default class CreateCheck extends React.Component {
                   fontWeight: 'bold'
                 }}
               >
-                {formatMessage({id:'confirmModal.check.appShare.title.codeLang'})}：
+                {formatMessage({ id: 'confirmModal.check.appShare.title.codeLang' })}：
               </span>
               <Radio.Group onChange={this.onChangeLange} value={codeLanguage}>
-                <Radio value='Node.js'>Node.js（{formatMessage({id:'confirmModal.check.appShare.title.server'})}）</Radio>
+                <Radio value='Node.js'>Node.js（{formatMessage({ id: 'confirmModal.check.appShare.title.server' })}）</Radio>
                 <Radio value='NodeJSStatic'>NodeJSStatic（Vue、React、Angular）</Radio>
               </Radio.Group>
             </div>
@@ -695,7 +701,7 @@ export default class CreateCheck extends React.Component {
                   fontWeight: 'bold'
                 }}
               >
-                {formatMessage({id:'confirmModal.check.appShare.title.npmOryarn'})}：
+                {formatMessage({ id: 'confirmModal.check.appShare.title.npmOryarn' })}：
               </span>
               <Radio.Group onChange={this.onChange} value={packageLange}>
                 <Radio value='npm'>npm</Radio>
@@ -711,9 +717,9 @@ export default class CreateCheck extends React.Component {
                     fontWeight: 'bold'
                   }}
                 >
-                  {formatMessage({id:'confirmModal.check.appShare.title.port'})}：
+                  {formatMessage({ id: 'confirmModal.check.appShare.title.port' })}：
                 </span>
-                {ports || formatMessage({id:'confirmModal.check.appShare.title.null'})}
+                {ports || formatMessage({ id: 'confirmModal.check.appShare.title.null' })}
               </div>
             )}
             <div style={{ marginBottom: 16 }}>
@@ -724,7 +730,7 @@ export default class CreateCheck extends React.Component {
                   fontWeight: 'bold'
                 }}
               >
-                {formatMessage({id:'confirmModal.check.appShare.title.sourceCode'})}：
+                {formatMessage({ id: 'confirmModal.check.appShare.title.sourceCode' })}：
               </span>
               {source_from}
             </div>
