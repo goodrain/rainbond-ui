@@ -254,7 +254,7 @@ class Index extends Component {
                 >
                     <Row>
                         <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.server' })}</Col>
-                        <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.ip' })}</Col>
+                        <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.node.ip' })}</Col>
                         <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.statues' })}</Col>
                         <Col span={4}>READY</Col>
                         <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.restart' })}</Col>

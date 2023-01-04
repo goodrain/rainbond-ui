@@ -242,7 +242,7 @@ class CreateTeam extends PureComponent {
 
           </FormItem>
           {/* 团队头像 */}
-          {/* <FormItem {...formItemLayout} label='LOGO'
+          <FormItem {...formItemLayout} label='LOGO'
             extra={
               <div className={styles.conformDesc}>
                 <FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.logo' />
@@ -276,12 +276,12 @@ class CreateTeam extends PureComponent {
                   />
                 ) : (
                   // uploadButton
-                  ''
+                  null
                 )}
               </Upload>
             )}
 
-          </FormItem> */}
+          </FormItem>
         </Form>
       </Modal>
     );

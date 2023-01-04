@@ -257,7 +257,8 @@ export async function editTeamName(
     {
       method: 'post',
       data: {
-        new_team_alias: body.new_team_alias
+        new_team_alias: body.new_team_alias,
+        new_logo: body.new_logo
       }
     }
   );
