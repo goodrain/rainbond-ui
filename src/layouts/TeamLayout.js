@@ -531,7 +531,7 @@ class TeamLayout extends PureComponent {
       // Refresh the component information
     } else if (componentID) {
       this.queryComponentDeatil();
-      // return <PageLoading />;
+      return <GlobalHeader/>;
     } else {
       this.setState({ currentComponent: null });
     }
