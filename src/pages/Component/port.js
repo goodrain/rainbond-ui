@@ -41,14 +41,14 @@ class EditAlias extends PureComponent {
   }
   handleSubmit = e => {
     e.preventDefault();
-    const { onOk, form } = this.props;
+    const { onOk, form, port } = this.props;
     form.validateFields(
       {
         force: true
       },
       (err, values) => {
         if (!err && onOk) {
-          onOk(values);
+          onOk(values, port.ID);
         }
       }
     );
@@ -643,15 +643,16 @@ export default class Index extends PureComponent {
   hideEditAlias = () => {
     this.setState({ showEditAlias: null });
   };
-  handleEditAlias = vals => {
+  editPortAlias = (val, bool = false ) =>{
+    const { showEditAlias } = this.props;
     this.props.dispatch({
       type: 'appControl/editPortAlias',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        k8s_service_name: vals.k8s_service_name,
-        port: this.state.showEditAlias.container_port,
-        port_alias: vals.alias
+        k8s_service_name: val.k8s_service_name,
+        port: bool ? val.container_port : this.state.showEditAlias.container_port,
+        port_alias: bool ?  val.port_alias : val.alias
       },
       callback: () => {
         this.fetchPorts();
@@ -662,6 +663,16 @@ export default class Index extends PureComponent {
         this.props.onshowRestartTips(true);
       }
     });
+  }
+  handleEditAlias = (vals ,id) => {
+    const { ports } = this.props;
+    ports.map( item =>{
+    if(item.ID == id){
+      this.editPortAlias(vals)
+      }else{
+      this.editPortAlias(item, true)
+      }
+    })
   };
   // 是否可以浏览当前界面
   canView() {
