@@ -109,10 +109,6 @@ import {
   getAbilitiesList,
   abilitiesEdit,
   abilitiesDetail,
-  getMenuList,
-  addMenuPath,
-  editMenuPath,
-  deleteMenuPath,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -149,8 +145,6 @@ export default {
     is_enterprise_version: false,
     nouse: false,
     needLogin: false,
-    menuList: [],
-    menuIframePath: '',
   },
 
   effects: {
@@ -926,42 +920,6 @@ export default {
         callback(response);
       }
     },
-    *getMenuList({ payload, callback }, { call }) {
-      const response = yield call(getMenuList, payload);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *addMenuPath({ payload, callback }, { call }) {
-      const response = yield call(addMenuPath, payload);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *editMenuPath({ payload, callback }, { call }) {
-      const response = yield call(editMenuPath, payload);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *deleteMenuPath({ payload, callback }, { call }) {
-      const response = yield call(deleteMenuPath, payload);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *saveMenuListPath({ payload }, { put }) {
-      yield put({
-        type: 'saveMenuList',
-        payload: payload
-      });
-    },
-    *saveIframePath({ payload }, { put }) {
-      yield put({
-        type: 'iframePath',
-        payload: payload
-      });
-    },
   },
   reducers: {
     isUpDataHeader(state, action) {
@@ -1124,19 +1082,6 @@ export default {
       return {
         ...state,
         enterprise: payload
-      };
-    },
-    saveMenuList(state, { payload }) {
-      return {
-        ...state,
-        menuList: payload
-      };
-    },
-    // 保存菜单链接
-    iframePath(state, { payload }) {
-      return {
-        ...state,
-        menuIframePath: payload
       };
     },
   },

@@ -351,19 +351,14 @@ i.trigger {
     display: none;
   }
 }
-.left{
-  display: flex;
-  align-items: center;
-}
 .right {
   float: right;
-  display: flex;
-  align-items: center;
   .action {
     cursor: pointer;
     padding: 0 12px;
     display: inline-block;
     transition: all .3s;
+    line-height: 40px;
     >i {
       font-size: 16px;
       padding: 4px;
@@ -446,66 +441,11 @@ i.trigger {
   height: 30px;
   line-height: 30px;
 }
-.platform{
-  color: #fff;
-  font-size: 16px;
-  font-weight: bolder;
-  margin: 0px 14px;
-  border-bottom: 2px solid transparent;
-}
-.platform:hover{
-  color: #4d73b1;
-  border-bottom: 2px solid #4d73b1;
-}
 :global {
   .ant-layout-header {
     height: 60px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
-}
-
-.menuManageLink{
-  .aSubMenu{
-    color: #fff;
-  }
-  .aSubMenu:hover{
-    color: #4d73b1;
-  }
-  :global {
-    .ant-menu{
-      background-color: transparent;
-    }
-    .ant-menu-horizontal{
-      border-bottom: none;
-      color: rgb(255, 255, 255);
-      font-size: 16px;
-      font-weight: bolder;
-    }
-    .ant-menu-submenu-title{
-      padding: 9px 14px;
-      // margin-right: 28px;
-    }
-    .ant-menu-submenu{
-      // border: none;
-    }
-    .ant-menu-submenu-title:hover{
-      color: #4d73b1;
-    }
-    .ant-menu-submenu:hover{
-      // border: none;
-      // color: #fff;
-    }
-    .ant-menu-submenu-arrow{
-      display: none;
-    }
-    .ant-menu-item-selected{
-      color: #fff;
-    }
-    .ant-menu-submenu-selected{
-      color: #fff;
-      border-bottom: 2px solid transparent;
-    }
   }
 }

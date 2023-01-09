@@ -47,12 +47,6 @@ export default [
         authority: ['admin', 'user'],
       },
       {
-        path: '/enterprise/:eid/menu',
-        component: '../layouts/PluginMenu',
-        name: 'PluginMenu',
-        authority: ['admin', 'user'],
-      },
-      {
         path: '/enterprise/:eid',
         component: '../layouts/EnterpriseLayout',
         name: 'EnterprisePage',

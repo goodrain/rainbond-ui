@@ -327,7 +327,7 @@ export default class Space extends Component {
     const customHeader = () => {
       return (
         <Link
-          className={styles.platform}
+          style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }}
           to={`/enterprise/${eid}/personal`}
         >
           {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}

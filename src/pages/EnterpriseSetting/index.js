@@ -9,7 +9,6 @@ import BackupManage from './backup';
 import Infrastructure from './infrastructure';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Management from './management';
-import PluginMenu from './pluginMenu';
 import styles from "./index.less"
 
 
@@ -99,12 +98,6 @@ export default class EnterpriseSetting extends PureComponent {
               <BackupManage {...this.props} />
             </TabPane>
           )}
-          <TabPane 
-            tab={<div>菜单管理</div>} 
-            key="menu"
-          >
-              <PluginMenu />
-          </TabPane>
         </Tabs>
       </PageHeaderLayout>
     );
