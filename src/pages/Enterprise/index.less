@@ -123,25 +123,35 @@
         border-top-right-radius:5px;
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        .setting{
+            margin-right: 3%;
+            svg{
+                vertical-align: bottom;
+            }
+        }
         .clusterName{
             margin-right: 20px;
             font-size: 16px;
             font-weight: 700;
-        }
-        .status{
-            .circle{
-                width: 8px;
-                height: 8px;
-                border-radius: 50%;
-                background: #57D727;
-                display: inline-block;
-                margin: 0px 6px;
-
+            display: flex;
+            .status{
+                margin-left: 20px;
+                .circle{
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: #57D727;
+                    display: inline-block;
+                    margin: 0px 6px;
+    
+                }
+                span{
+                    font-family: PingFangSC-Medium;
+                }
             }
-            span{
-                font-family: PingFangSC-Medium;
-            }
         }
+       
     }
     .clusterInfo_content{
         width: 100%;

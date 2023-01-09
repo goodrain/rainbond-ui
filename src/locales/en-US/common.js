@@ -541,6 +541,7 @@
         'notification.success.build_success':'Building a successful',
         'notification.success.add_success':'New success',
         'notification.success.wait_patiently':'Update, please wait patiently',
+        'notification.warn.save': 'You need to save the modified basic information in deployment properties first!',
 
         // 失败
         'notification.error.delete':'Delete failure',
@@ -740,7 +741,7 @@
         'placeholder.appShare.leastOne':'Please publish at least one component',
         'placeholder.appShare.appTemplate':'Application template selection is required',
         'placeholder.appShare.selectAppTemplate':'Select the published application template',
-        'placeholder.appShare.version':'The version number is the last published version of the selected template by default',
+        'placeholder.appShare.version':'Please fill in the version number',
         'placeholder.appShare.max64':'Maximum length: 64 bits',
         'placeholder.appShare.version_alias':'Set version alias, such as advanced version',
         'placeholder.appShare.describe':'Please enter the Version Description',

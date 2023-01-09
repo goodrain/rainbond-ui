@@ -496,6 +496,8 @@ const helmAppInstall = {
   'helmAppInstall.index.key':'关键字',
   'helmAppInstall.index.new':'最新版本',
   'helmAppInstall.index.now_version':'当前版本为 { lowVs }',
+  'helmAppInstall.index.error':'失败原因：',
+
   // 升级页面
   'helmAppInstall.Upgrade.store':'通过应用商店（',
   'helmAppInstall.Upgrade.from':'）从版本',

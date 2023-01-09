@@ -1383,7 +1383,8 @@ export async function editStartProbe(
     period_second,
     timeout_second,
     success_threshold,
-    is_used
+    is_used,
+    cmd
   }
 ) {
   return request(
@@ -1392,10 +1393,10 @@ export async function editStartProbe(
       method: 'put',
       data: {
         mode: body.mode ? body.mode : 'readiness',
-        scheme: body.scheme,
-        path: body.path,
-        port: body.port,
-        http_header: body.http_header,
+        scheme: body.scheme || '',
+        path: body.path || '',
+        port: body.port || '',
+        http_header: body.http_header || '',
         initial_delay_second: body.initial_delay_second
           ? Number(body.initial_delay_second)
           : 0,
@@ -1405,7 +1406,8 @@ export async function editStartProbe(
           ? Number(body.success_threshold)
           : 0,
         is_used: body.is_used === void 0 ? true : body.is_used,
-        old_mode: body.old_mode ? body.old_mode : ''
+        old_mode: body.old_mode ? body.old_mode : '',
+        cmd:body.cmd || ''
       }
     }
   );

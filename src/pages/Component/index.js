@@ -281,7 +281,8 @@ class Main extends PureComponent {
       promptModal: null,
       websocketURL: '',
       componentTimer: true,
-      tabsShow:false
+      tabsShow:false,
+      routerSwitch: true
     };
     this.socket = null;
     this.destroy = false;
@@ -507,7 +508,11 @@ class Main extends PureComponent {
         if (appDetail.service.service_source) {
           this.setState({
             isShowThirdParty: appDetail.is_third ? appDetail.is_third : false,
-            tabsShow: true
+            tabsShow: true,
+          },()=>{
+            this.setState({
+              routerSwitch: false
+            })
           });
         }
         if (
@@ -519,8 +524,16 @@ class Main extends PureComponent {
             appDetail.service.create_status === 'complete'
           ) {
             this.getStatus(false);
+            setTimeout(()=>{
+              this.setState({
+                routerSwitch: false
+              })
+            },100)
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
-            serviceAlias &&
+              this.setState({
+                routerSwitch: false
+              })
+              serviceAlias &&
               dispatch(
                 routerRedux.replace(
                   `${prefixUrl}create/create-check/${serviceAlias}`
@@ -1151,7 +1164,8 @@ class Main extends PureComponent {
       showEditName,
       showMoveGroup,
       groupDetail,
-      tabsShow
+      tabsShow,
+      routerSwitch
     } = this.state;
     const { getFieldDecorator } = form;
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update'/> : <FormattedMessage id='componentOverview.header.right.update.roll'/>;
@@ -1162,6 +1176,9 @@ class Main extends PureComponent {
       deploy: formatMessage({id:'componentOverview.header.right.build'}),
       rolling: upDataText
     };
+    if (routerSwitch) {
+      return null;
+    }
     if(appDetail && appDetail.service && appDetail.service.service_cname){
       window.sessionStorage.setItem("name",JSON.stringify(appDetail.service.service_cname))
     }

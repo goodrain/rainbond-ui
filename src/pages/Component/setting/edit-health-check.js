@@ -2,12 +2,13 @@ import { Form, Input, Modal, Radio, Select } from 'antd';
 import React, { PureComponent } from 'react';
 import KVinput from '../../../components/KVinput';
 import appProbeUtil from '../../../utils/appProbe-util';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import cookie from '../../../utils/cookie';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const { TextArea } = Input;
 
 // 设置、编辑健康监测
 @Form.create()
@@ -21,7 +22,8 @@ export default class EditHealthCheck extends PureComponent {
       list: HeavyList,
       prolist: HeavyList,
       showHTTP: data.scheme === 'http',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      showCmd: data.scheme === 'cmd'
     };
   }
   onChanges = e => {
@@ -58,20 +60,20 @@ export default class EditHealthCheck extends PureComponent {
   };
   checkPath = (_, value, callback) => {
     const visitType = this.props.form.getFieldValue('scheme');
-    if (visitType === 'tcp') {
+    if (visitType === 'tcp'||visitType ==="cmd") {
       callback();
       return;
     }
 
-    if (visitType !== 'tcp' && value) {
+    if ((visitType !== 'tcp'|| visitType !== 'cmd') && value) {
       callback();
       return;
     }
-    callback(`${formatMessage({id:'componentOverview.body.EditHealthCheck.input_path'})}`);
+    callback(`${formatMessage({ id: 'componentOverview.body.EditHealthCheck.input_path' })}`);
   };
   checkNums = (_, value, callback) => {
     if (value && value < 1) {
-      callback(`${formatMessage({id:'componentOverview.body.EditHealthCheck.min'})}`);
+      callback(`${formatMessage({ id: 'componentOverview.body.EditHealthCheck.min' })}`);
       return;
     }
     callback();
@@ -154,7 +156,7 @@ export default class EditHealthCheck extends PureComponent {
       }
     };
     const { getFieldDecorator, getFieldValue } = form;
-    const { list, prolist, isRestart, showHTTP, language } = this.state;
+    const { list, prolist, isRestart, showHTTP, language, showCmd } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout
     const scheme = getFieldValue('scheme') || 'tcp';
     const secondBox = (
@@ -163,7 +165,7 @@ export default class EditHealthCheck extends PureComponent {
           marginLeft: 8
         }}
       >
-        <FormattedMessage id='componentOverview.body.ViewRunHealthCheck.second'/>
+        <FormattedMessage id='componentOverview.body.ViewRunHealthCheck.second' />
       </span>
     );
     const numberBox = (disabled = false) => (
@@ -181,6 +183,7 @@ export default class EditHealthCheck extends PureComponent {
         validator: this.checkNums
       }
     ];
+    console.log(showHTTP, "showHTTP");
     return (
       <Modal
         width={700}
@@ -192,12 +195,12 @@ export default class EditHealthCheck extends PureComponent {
         confirmLoading={loading}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.port'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.port' />}>
             {getFieldDecorator('port', {
               initialValue:
                 appProbeUtil.getPort(data) ||
                 (list && list.length ? list[0] : ''),
-              rules: [{ required: true, message: formatMessage({id:'componentOverview.body.EditHealthCheck.input'}),}]
+              rules: [{ required: true, message: formatMessage({ id: 'componentOverview.body.EditHealthCheck.input' }), }]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -215,13 +218,16 @@ export default class EditHealthCheck extends PureComponent {
               </Select>
             )}
           </FormItem>
-          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.agreement'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.agreement' />}>
             {getFieldDecorator('scheme', {
               initialValue: data.scheme || 'tcp'
             })(
               <RadioGroup
                 onChange={e => {
-                  this.setState({ showHTTP: e.target.value === 'http' });
+                  this.setState({
+                    showHTTP: e.target.value === 'http',
+                    showCmd: e.target.value === 'cmd'
+                  });
                 }}
                 options={[
                   {
@@ -231,39 +237,51 @@ export default class EditHealthCheck extends PureComponent {
                   {
                     label: 'http',
                     value: 'http'
+                  },
+                  {
+                    label: 'cmd',
+                    value: 'cmd'
                   }
                 ]}
               />
             )}
           </FormItem>
-          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.unhealth'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.unhealth' />}>
             {getFieldDecorator('mode', {
               initialValue: data.mode || 'readiness',
-              rules: [{ required: true, message: formatMessage({id:'componentOverview.body.EditHealthCheck.select'}),}]
+              rules: [{ required: true, message: formatMessage({ id: 'componentOverview.body.EditHealthCheck.select' }), }]
             })(
               <RadioGroup onChange={this.onChanges}>
-                <Radio value="readiness"><FormattedMessage id='componentOverview.body.EditHealthCheck.Offline'/></Radio>
-                {!types && <Radio value="liveness"><FormattedMessage id='componentOverview.body.EditHealthCheck.restart'/></Radio>}
+                <Radio value="readiness"><FormattedMessage id='componentOverview.body.EditHealthCheck.Offline' /></Radio>
+                {!types && <Radio value="liveness"><FormattedMessage id='componentOverview.body.EditHealthCheck.restart' /></Radio>}
               </RadioGroup>
             )}
           </FormItem>
+          {showCmd &&
+            <FormItem
+              {...is_language}
+              label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}
+            >
+              {getFieldDecorator('cmd', {
+                initialValue: data.cmd || '',
+              })(
+                <TextArea />
+              )}
+            </FormItem>
+          }
           <FormItem
+            style={{ display: !showHTTP ? "none" : '' }}
             {...is_language}
-            label={<FormattedMessage id='componentOverview.body.EditHealthCheck.http'/>}
-            style={{
-              display: !showHTTP ? 'none' : ''
-            }}
+            label={<FormattedMessage id='componentOverview.body.EditHealthCheck.http' />}
           >
             {getFieldDecorator('http_header', {
               initialValue: data.http_header || ''
             })(<KVinput />)}
           </FormItem>
           <FormItem
+            style={{ display: !showHTTP ? "none" : '' }}
             {...is_language}
-            label={<FormattedMessage id='componentOverview.body.EditHealthCheck.path'/>}
-            style={{
-              display: !showHTTP ? 'none' : ''
-            }}
+            label={<FormattedMessage id='componentOverview.body.EditHealthCheck.path' />}
           >
             {getFieldDecorator('path', {
               initialValue: data.path || '',
@@ -272,59 +290,62 @@ export default class EditHealthCheck extends PureComponent {
                   validator: this.checkPath
                 }
               ]
-            })(<Input  placeholder={formatMessage({id:'componentOverview.body.EditHealthCheck.Response'})} />)}
+            })(<Input placeholder={formatMessage({ id: 'componentOverview.body.EditHealthCheck.Response' })} />)}
           </FormItem>
-          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.initialization'/>}>
+
+
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.initialization' />}>
             {getFieldDecorator('initial_delay_second', {
               initialValue: data.initial_delay_second || '2',
               rules: [
                 {
                   required: true,
-                  message: formatMessage({id:'componentOverview.body.EditHealthCheck.input_initialization'}),
+                  message: formatMessage({ id: 'componentOverview.body.EditHealthCheck.input_initialization' }),
                 },
                 ...checkNum
               ]
             })(numberBox())}
             {secondBox}
           </FormItem>
-          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.EditHealthCheck.time'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.time' />}>
             {getFieldDecorator('period_second', {
               initialValue: data.period_second || '3',
               rules: [
                 {
                   required: true,
-                  message: formatMessage({id:'componentOverview.body.EditHealthCheck.input_time'}),
+                  message: formatMessage({ id: 'componentOverview.body.EditHealthCheck.input_time' }),
                 },
                 ...checkNum
               ]
             })(numberBox())}
             {secondBox}
           </FormItem>
-          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.over_time'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.over_time' />}>
             {getFieldDecorator('timeout_second', {
               initialValue: data.timeout_second || '20',
               rules: [
                 {
                   required: true,
-                  message: formatMessage({id:'componentOverview.body.EditHealthCheck.input_over_time'}),
+                  message: formatMessage({ id: 'componentOverview.body.EditHealthCheck.input_over_time' }),
                 },
                 ...checkNum
               ]
             })(numberBox())}
             {secondBox}
           </FormItem>
-          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.success'/>}>
+          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.success' />}>
             {getFieldDecorator('success_threshold', {
               initialValue: isRestart ? '1' : data.success_threshold || '1',
               rules: [
                 {
                   required: true,
-                  message: formatMessage({id:'componentOverview.body.EditHealthCheck.success_frequency'}),
+                  message: formatMessage({ id: 'componentOverview.body.EditHealthCheck.success_frequency' }),
                 },
                 ...checkNum
               ]
             })(numberBox(isRestart))}
           </FormItem>
+
         </Form>
       </Modal>
     );

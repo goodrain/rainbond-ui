@@ -80,7 +80,19 @@ export default [
             path: '/enterprise/:eid/clusters',
             component: './EnterpriseClusters',
             name: 'EnterpriseClusters',
-            authority: ['admin', 'user']
+            authority: ['admin', 'user'],
+          },
+          {
+            path: '/enterprise/:eid/clusters/ClustersMGT/:regionID',
+            component: './EnterpriseClusters/ClustersMGT',
+            name: 'EnterpriseClustersMGT',
+            authority: ['admin', 'user'],
+          },
+          {
+            path: '/enterprise/:eid/clusters/NodeMGT/:regionID',
+            component: './EnterpriseClusters/NodeMGT',
+            name: 'EnterpriseNodeMGT',
+            authority: ['admin', 'user'],
           },
           {
             path: '/enterprise/:eid/monitoring/:monitoringKey/dashboard',

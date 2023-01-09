@@ -418,8 +418,9 @@ class Index extends React.Component {
                 size="large"
                 onSearch={this.handleSearch}
                 style={{
-                  width: 522,
-                  padding: '0 0 11px 0'
+                  width: 480,
+                  padding: '0 0 11px 0',
+                  marginLeft: '10px',
                 }}
               />
             }

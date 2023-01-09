@@ -89,7 +89,29 @@ export default class Index extends PureComponent {
 
   componentDidMount() {
     this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
+    this.loadOverview()
   }
+  // 获取团队下的基本信息
+  loadOverview = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'index/fetchOverview',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName()
+      },
+      callback: res => {
+        // console.log(res.bean,"res");
+        if(res){
+          this.setState({
+            logoInfo:res.bean.logo
+          })
+        }
+      },
+      handleError: () => {
+      }
+    });
+  };
   getParam() {
     return this.props.match.params;
   }
@@ -147,6 +169,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.props.dispatch({ type: 'user/fetchCurrent' });
+        this.loadOverview();
         this.hideEditName();
         this.handleUpDataHeader();
       }
@@ -198,12 +221,38 @@ export default class Index extends PureComponent {
       datecenterPermissions: { isAccess: datecenterAccess },
       rolePermissions: { isAccess: roleAccess },
       registryPermissions: { isAccess: registryAccess},
-      tabActiveKey
+      tabActiveKey,
+      logoInfo = false
     } = this.state;
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.avatar}>
-          <Avatar size="large" src={TeamImg} />
+          {logoInfo ? 
+          (
+          <Avatar size="large" src={logoInfo} />
+          ):(
+          <Avatar
+            style=
+            {{
+              backgroundColor: '#00a2ae',
+              verticalAlign: 'middle'
+            }}
+            size={60}
+            shape="square">
+            <span
+              style=
+              {{
+                color: '#fff',
+                fontSize: 35,
+                textTransform: 'uppercase'
+              }}
+            >
+              {currentTeam.team_alias.substr(0, 1)}
+            </span>
+          </Avatar>
+          )}
+
+
         </div>
         <div className={styles.content}>
           <div className={styles.contentTitle}>
@@ -305,6 +354,7 @@ export default class Index extends PureComponent {
         {showEditName && (
           <MoveTeam
             teamAlias={currentTeam.team_alias}
+            imageUrl={logoInfo ? logoInfo : true}
             onSubmit={this.handleEditName}
             onCancel={this.hideEditName}
           />

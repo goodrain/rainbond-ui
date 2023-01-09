@@ -38,13 +38,7 @@ export default class ImportMessage extends PureComponent {
             loadingSwitch: true,
         };
     }
-    componentWillMount() {
-        const { adminer } = this.state;
-        const { dispatch } = this.props;
-        if (!adminer) {
-            dispatch(routerRedux.push(`/`));
-        }
-    }
+
     componentDidMount() {
         this.handleNameSpace()
     }

@@ -429,7 +429,7 @@ export default class Index extends PureComponent {
                     <span
                       style={{
                         color:
-                          showHighlighted == log.substring(0, log.indexOf(':'))
+                          showHighlighted == log.substring(log.indexOf(':') - 12,log.indexOf(':'))
                             ? '#FFFF91'
                             : '#666666'
                       }}
@@ -440,7 +440,7 @@ export default class Index extends PureComponent {
                       ref="texts"
                       style={{
                         color:
-                          showHighlighted == log.substring(0, log.indexOf(':'))
+                          showHighlighted == log.substring(log.indexOf(':') - 12,log.indexOf(':'))
                             ? '#FFFF91'
                             : '#FFF'
                       }}
@@ -455,11 +455,11 @@ export default class Index extends PureComponent {
                         style={{
                           color:
                             showHighlighted ==
-                            log.substring(0, log.indexOf(':'))
+                            log.substring(log.indexOf(':') - 12,log.indexOf(':'))
                               ? '#FFFF91'
                               : '#bbb',
                           cursor: 'pointer',
-                          backgroundColor: log.substring(0, log.indexOf(':'))
+                          backgroundColor: log.substring(log.indexOf(':') - 12,log.indexOf(':'))
                             ? '#666'
                             : ''
                         }}
@@ -467,9 +467,9 @@ export default class Index extends PureComponent {
                           this.setState({
                             showHighlighted:
                               showHighlighted ==
-                              log.substring(0, log.indexOf(':'))
+                              log.substring(log.indexOf(':') - 12,log.indexOf(':'))
                                 ? ''
-                                : log.substring(0, log.indexOf(':'))
+                                : log.substring(log.indexOf(':') - 12,log.indexOf(':'))
                           });
                         }}
                       >
@@ -477,9 +477,10 @@ export default class Index extends PureComponent {
                       </span>
                     ) : logs.length > 1 &&
                       index >= 1 &&
-                      log.substring(0, log.indexOf(':')) ==
+                      log.substring(log.indexOf(':') - 12,log.indexOf(':')) ==
                         logs[index <= 0 ? index + 1 : index - 1].substring(
-                          0,
+                          
+                          logs[index <= 0 ? index + 1 : index - 1].indexOf(':') -12 ,
                           logs[index <= 0 ? index + 1 : index - 1].indexOf(':')
                         ) ? (
                       ''
@@ -488,18 +489,21 @@ export default class Index extends PureComponent {
                         style={{
                           color:
                             showHighlighted ==
-                            log.substring(0, log.indexOf(':'))
+                            log.substring(log.indexOf(':') - 12,log.indexOf(':'))
                               ? '#FFFF91'
                               : '#bbb',
                           cursor: 'pointer',
                           backgroundColor:
-                            index == 0 && log.substring(0, log.indexOf(':'))
+                            index == 0 && log.substring(log.indexOf(':') - 12,log.indexOf(':'))
                               ? '#666'
-                              : log.substring(0, log.indexOf(':')) ==
+                              : log.substring(log.indexOf(':') - 12,log.indexOf(':')) ==
                                 logs[
                                   index <= 0 ? index + 1 : index - 1
                                 ].substring(
-                                  0,
+                                  
+                                  logs[
+                                    index <= 0 ? index + 1 : index - 1
+                                  ].indexOf(':') - 12 ,
                                   logs[
                                     index <= 0 ? index + 1 : index - 1
                                   ].indexOf(':')
@@ -511,9 +515,9 @@ export default class Index extends PureComponent {
                           this.setState({
                             showHighlighted:
                               showHighlighted ==
-                              log.substring(0, log.indexOf(':'))
+                              log.substring(log.indexOf(':') - 12,log.indexOf(':'))
                                 ? ''
-                                : log.substring(0, log.indexOf(':'))
+                                : log.substring(log.indexOf(':') - 12,log.indexOf(':'))
                           });
                         }}
                       >
