@@ -8,6 +8,7 @@ import {
   CheckHelmApp,
   CheckK8sServiceName,
   checkoutGovernanceModel,
+  getGovernancemodeList,
   completeShare,
   createAppBatchComponents,
   createShare,
@@ -58,6 +59,9 @@ import {
   Toupgrade,
   addHelmModule,
   generateHelmModule,
+  deleteKubernetesVal,
+  createKubernetesVal,
+  updateKubernetesVal,
 } from '../services/application';
 
 export default {
@@ -445,6 +449,12 @@ export default {
         callback(response);
       }
     },
+    *getGovernancemodeList({ payload, callback, handleError }, { call }) {
+      const data = yield call(getGovernancemodeList, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
     *addHelmModule({ payload, callback, handleError }, { call }) {
       const data = yield call(addHelmModule, payload, handleError);
       if (data && callback) {
@@ -453,6 +463,24 @@ export default {
     },
     *generateHelmModule({ payload, callback, handleError }, { call }) {
       const data = yield call(generateHelmModule, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *deleteKubernetesVal({ payload, callback, handleError }, { call }) {
+      const data = yield call(deleteKubernetesVal, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *createKubernetesVal({ payload, callback, handleError }, { call }) {
+      const data = yield call(createKubernetesVal, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *updateKubernetesVal({ payload, callback, handleError }, { call }) {
+      const data = yield call(updateKubernetesVal, payload, handleError);
       if (data && callback) {
         callback(data);
       }

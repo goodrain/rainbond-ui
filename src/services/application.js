@@ -105,7 +105,8 @@ export async function setGovernancemode(params) {
     {
       method: 'put',
       data: {
-        governance_mode: params.governance_mode
+        governance_mode: params.governance_mode,
+        action: params.action
       }
     }
   );
@@ -874,6 +875,19 @@ export async function checkoutGovernanceModel(
     }
   );
 }
+// 获取治理模式列表
+export async function getGovernancemodeList(
+  body = { team_name, app_id, governance_mode },
+  handleError
+) {
+  return request(
+    `/console/teams/${body.team_name}/groups/${body.app_id}/governancemode`,
+    {
+      method: 'GET',
+      handleError
+    }
+  );
+}
 
 // 应用下所有k8s资源获取
 export async function getKubernetesVal(body = {}) {
@@ -969,6 +983,40 @@ export function generateHelmModule(body = {}, handleError) {
         app_id: body.app_id
       },
       handleError
+    }
+  );
+}
+
+// 删除治理模式创建出来的 k8s 资源
+export async function deleteKubernetesVal(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/governancemode-cr`,
+    {
+      method: 'delete',
+    }
+  );
+}
+// 创建治理模式创建出来的 k8s 资源
+export async function createKubernetesVal(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/governancemode-cr`,
+    {
+      method: 'post',
+      data: {
+        governance_cr: body.governance_cr
+      },
+    }
+  );
+}
+// 更新治理模式创建出来的 k8s 资源
+export async function updateKubernetesVal(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/governancemode-cr`,
+    {
+      method: 'put',
+      data: {
+        governance_cr: body.governance_cr
+      },
     }
   );
 }

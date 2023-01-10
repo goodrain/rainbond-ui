@@ -316,7 +316,7 @@
 
         //应用治理模式切换
         'confirmModal.app.govern.title':'应用治理模式切换',
-        'confirmModal.app.govern.alert.msg':'应用治理模式主要指组件间通信模式的治理，目前支持内置ServiceMesh模式,Istio治理模式和Kubernetes原生Service模式',
+        'confirmModal.app.govern.alert.msg':'应用治理模式主要指组件间通信模式的治理，目前支持内置ServiceMesh模式和Kubernetes原生Service模式',
         'confirmModal.app.govern.label.name_port':'组件名称/端口',
         'confirmModal.app.govern.label.alias':'别名',
         'confirmModal.app.govern.label.DNS':'内部域名',
