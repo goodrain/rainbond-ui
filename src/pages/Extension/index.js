@@ -1,4 +1,4 @@
-import { Tabs, Card } from 'antd';
+import { Tabs, Card, Spin } from 'antd';
 import AppPubSubSocket from '../../utils/appPubSubSocket';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -6,12 +6,11 @@ import ReactDOM from "react-dom"
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import ClusterLog from './secondaryLogs'
 import userUtil from '../../utils/user';
 import dateUtil from '../../utils/date-util';
 import global from '../../utils/global';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
-import LogInfo from '../../components/EnterpriseLog'
+import PluginCapacity from './pluginCapacity'
 import styles from './index.less'
 const { TabPane } = Tabs;
 
@@ -26,11 +25,11 @@ const { TabPane } = Tabs;
     certificateLongin: loading.effects['global/putCertificateType'],
     overviewInfo: index.overviewInfo
 }))
-export default class EnterpriseSetting extends PureComponent {
+export default class index extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            activeKey: 'consoleLog',
+            activeKey: '0',
             ClustersList: []
         };
         this.socket = null;
@@ -68,25 +67,25 @@ export default class EnterpriseSetting extends PureComponent {
         const { adminer, activeKey, ClustersList } = this.state;
         return (
             <PageHeaderLayout
-                title={formatMessage({id:'LogEnterprise.title'})}
-                content={formatMessage({ id: 'LogEnterprise.desc' })}
-                titleSvg={pageheaderSvg.getSvg('logSvg',18)}
+                title={formatMessage({id: 'extensionEnterprise.title'})}
+                content={formatMessage({id: 'extensionEnterprise.desc'})}
+                titleSvg={pageheaderSvg.getSvg('extensionSvg',18)}
                 isContent={true} 
             >   
-                <Tabs onChange={this.onChange} activeKey={activeKey} destroyInactiveTabPane className={styles.setTabs} type="card">
-                    <TabPane tab={formatMessage({id:'LogEnterprise.console'})} key="consoleLog">
-                        <LogInfo  type={true}/>
-                    </TabPane>
-                    {ClustersList.map((item, index) => {
-                        const { region_alias, region_name, url } = item
-                        const str = url.substring(url.indexOf(':'),url.lastIndexOf(":"))
-                        const tcpUrl = `ws${str}:6060`
-                        return <TabPane tab={`${region_alias} ${formatMessage({id:'LogEnterprise.title'})}`} key={index} className={styles.logInfoStyle}>
-                                    <ClusterLog region={region_name} regionAlias={region_alias} tcpUrl={tcpUrl}/>
-                                </TabPane>
-                    })}
-
-                </Tabs>
+                {ClustersList.length > 0 ? (
+                    <Tabs onChange={this.onChange} activeKey={activeKey} destroyInactiveTabPane className={styles.setTabs} type="card">
+                        {ClustersList.map((item, index) => {
+                            const { region_alias, region_name, url } = item
+                            return <TabPane tab={region_alias} key={index}>
+                                        <PluginCapacity type={true} regionName={region_name} regionAlias={region_alias}/>
+                                    </TabPane>
+                        })}
+                    </Tabs>
+                ):(
+                    <div className={styles.spin}>
+                        <Spin />
+                    </div>   
+                )}
             </PageHeaderLayout>
         );
     }

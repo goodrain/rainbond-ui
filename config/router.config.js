@@ -137,6 +137,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/extension',
+            component: './Extension',
+            name: 'Extension',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/shared/app/:appId',
             component: './EnterpriseShared/Details',
             name: 'AppTemplate',

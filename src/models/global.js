@@ -104,7 +104,11 @@ import {
   upEnterpriseUsers,
   getRainbondAlert,
   createShellPod,
-  deleteShellPod
+  deleteShellPod,
+  getPluginList,
+  getAbilitiesList,
+  abilitiesEdit,
+  abilitiesDetail,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -140,7 +144,7 @@ export default {
     memoryTip: '',
     is_enterprise_version: false,
     nouse: false,
-    needLogin: false
+    needLogin: false,
   },
 
   effects: {
@@ -892,7 +896,30 @@ export default {
         callback(response);
       }
     },
-
+    *getPluginList({ payload, callback, handleError }, { call }) {
+      const response = yield call(getPluginList, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *getAbilitiesList({ payload, callback }, { call }) {
+      const response = yield call(getAbilitiesList, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *abilitiesEdit({ payload, callback, handleError }, { call }) {
+      const response = yield call(abilitiesEdit, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *abilitiesDetail({ payload, callback }, { call }) {
+      const response = yield call(abilitiesDetail, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
   },
   reducers: {
     isUpDataHeader(state, action) {
@@ -1056,7 +1083,7 @@ export default {
         ...state,
         enterprise: payload
       };
-    }
+    },
   },
 
   subscriptions: {

@@ -360,6 +360,60 @@ export default class AppExporter extends PureComponent {
       });
     }
   };
+  handleExporter = format => {
+    const { app, eid, dispatch } = this.props;
+    const { exportVersion, teamName, region_name } = this.state;
+    if(format == 'helm-chart'){
+      dispatch({
+        type: 'createApp/installApp',
+        payload: {
+          team_name: teamName,
+          app_id: app.app_id,
+          app_version: exportVersion[0],
+          dry_run: true,
+          install_from_cloud: false,
+          marketName: 'localApplication',
+          region_name
+        },
+        callback: data => {
+          if (data && data.bean) {
+            dispatch({
+              type: 'market/appExport',
+              payload: {
+                app_id: app.app_id,
+                enterprise_id: eid,
+                app_versions: exportVersion,
+                format,
+                image_handle: 'image_save'
+              },
+              callback: data => {
+                if (data && data.bean) {
+                  notification.success({ message: formatMessage({id:'notification.success.operate_successfully'}) });
+                  this.queryExport();
+                }
+              }
+            });
+          }
+        }
+      });
+    }else{
+      dispatch({
+        type: 'market/appExport',
+        payload: {
+          app_id: app.app_id,
+          enterprise_id: eid,
+          app_versions: exportVersion,
+          format
+        },
+        callback: data => {
+          if (data && data.bean) {
+            notification.success({ message: formatMessage({id:'notification.success.operate_successfully'}) });
+            this.queryExport();
+          }
+        }
+      });
+    }
+  };
   queryExport = () => {
     const { app, eid, dispatch, setIsExporting } = this.props;
 
@@ -448,7 +502,7 @@ export default class AppExporter extends PureComponent {
   handleChange = value => {
     this.setState(
       {
-        exportVersion: [value]
+        exportVersion: [value],
       },
       () => {
         this.handleVersionInfo();

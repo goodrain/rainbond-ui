@@ -1132,6 +1132,16 @@ const LogEnterprise = {
     'LogEnterprise.all': 'All log',
     'LogEnterprise.node': 'Node',
 }
+//扩展
+const extensionEnterprise = {
+    'extensionEnterprise.title': 'Extension',
+    'extensionEnterprise.desc': 'Shows the plug-ins installed on the platform, as well as some K8s capabilities that can be reused.',
+    'extensionEnterprise.tabs.plugin': 'Plugin',
+    'extensionEnterprise.tabs.capacity': 'Capacity',
+    'extensionEnterprise.plugin.btn.manage': 'Manage',
+    'extensionEnterprise.capacity.table.name': 'Name',
+    'extensionEnterprise.capacity.table.operate': 'Operate',
+    'extensionEnterprise.capacity.table.btn.edit': 'Edit',
+}
 
-
-export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise);
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise, extensionEnterprise);

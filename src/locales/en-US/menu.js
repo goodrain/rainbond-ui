@@ -6,6 +6,8 @@ const enterpriseMenu = {
   'menu.enterprise.user': 'User',
   'menu.enterprise.monitoring': 'Monitoring',
   'menu.enterprise.audit': 'Audit',
+  'menu.enterprise.log': 'Log',
+  'menu.enterprise.extension': 'Extension',
   'menu.enterprise.setting': 'Setting',
 };
 

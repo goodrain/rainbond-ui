@@ -1403,3 +1403,44 @@ export async function deleteShellPod(params) {
     }
   );
 }
+// 获取插件
+export async function getPluginList(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/plugins`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+// 获取能力列表
+export async function getAbilitiesList(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/abilities`,
+    {
+      method: 'get',
+    }
+  );
+}
+// 能力编辑
+export async function abilitiesEdit(body,handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/abilities/${body.ability_id}`,
+    {
+      method: 'put',
+      data: {
+        object: body.data
+      },
+      handleError
+    }
+  );
+}
+// 获取能力详情
+export async function abilitiesDetail(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/abilities/${body.ability_id}`,
+    {
+      method: 'get',
+    }
+  );
+}
