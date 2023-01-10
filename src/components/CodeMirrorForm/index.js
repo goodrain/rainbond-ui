@@ -150,7 +150,8 @@ class CodeMirrorForm extends PureComponent {
       disabled = false,
       titles,
       bg = '#333',
-      help
+      help,
+      isAuto = false,
     } = this.props;
     const { fullScreen } = this.state;
     let defaultFullScreenStyle = {
@@ -217,7 +218,7 @@ class CodeMirrorForm extends PureComponent {
         {getFieldDecorator(name, {
           initialValue: data || '',
           rules: [{ required: true, validator: this.checkValue }]
-        })(<CodeMirror options={options} ref={this.saveRef} />)}
+        })(<CodeMirror className={ isAuto ? styles.isAuto : ''} options={options} ref={this.saveRef} />)}
         {amplifications}
         {isHeader && (
           <div style={defaultFullScreenStyle}>
