@@ -1404,11 +1404,12 @@ export async function deleteShellPod(params) {
   );
 }
 // 获取插件
-export async function getPluginList(body) {
+export async function getPluginList(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/plugins`,
     {
       method: 'get',
+      handleError
     }
   );
 }

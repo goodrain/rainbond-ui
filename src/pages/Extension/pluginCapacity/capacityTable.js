@@ -19,6 +19,7 @@ class Index extends PureComponent {
             abilityId: '',
             resourceVersion: '',
             yamlData: '',
+            loading: true,
         }
     }
     componentDidMount() {
@@ -36,7 +37,8 @@ class Index extends PureComponent {
             callback: res => {
                 if (res && res.list) {
                     this.setState({
-                        abilitiesList: res.list
+                        abilitiesList: res.list,
+                        loading: false
                     })
                 }
             }
@@ -150,7 +152,7 @@ class Index extends PureComponent {
         });
     }
     render() {
-        const { abilitiesList, yamlData, abilityId } = this.state
+        const { abilitiesList, yamlData, abilityId, loading } = this.state
         const columns = [
             {
                 title: formatMessage({ id: 'extensionEnterprise.capacity.table.name' }),
@@ -216,6 +218,7 @@ class Index extends PureComponent {
                 <Table
                     dataSource={abilitiesList}
                     columns={columns}
+                    loading={loading}
                     pagination={false}
                     rowKey="ability_id"
                     style={{ background: "#fff", marginTop: "20px" }}

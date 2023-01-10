@@ -1,4 +1,4 @@
-import { Tabs, Card, Col, Spin, Button, Tooltip, Dropdown, Menu, notification } from 'antd';
+import { Tabs, Card, Col, Spin, Button, Tooltip, Dropdown, Menu, notification, Empty } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -14,6 +14,7 @@ class Index extends PureComponent {
         super(props)
         this.state = {
             pluginList: [],
+            loading: true,
         }
     }
     componentDidMount() {
@@ -31,7 +32,16 @@ class Index extends PureComponent {
             callback: res => {
                 if (res && res.list) {
                     this.setState({
-                        pluginList: res.list
+                        pluginList: res.list,
+                        loading: false
+                    })
+                }
+            },
+            handleError: err => {
+                if(err){
+                    this.setState({
+                        pluginList: [],
+                        loading: false
                     })
                 }
             }
@@ -132,7 +142,7 @@ class Index extends PureComponent {
         );
     }
     render() {
-        const { pluginList } = this.state
+        const { pluginList, loading } = this.state
         const pluginSvg = (
             <svg
                 t="1671589320301"
@@ -170,7 +180,7 @@ class Index extends PureComponent {
         )
         return (
             <div>
-                {pluginList.length > 0 ? (
+                {pluginList.length > 0 && (
                     <div style={{ marginTop: '24px', minHeight: '300px' }}>
                         {pluginList.map((item) => {
                             const {
@@ -222,14 +232,19 @@ class Index extends PureComponent {
                                 </div>
                             )
                         })}
-
                     </div>
-                ) : (
+                )}
+                {pluginList.length == 0 && !loading && (
+                    <div className={styles.content}>
+                        <Empty />
+                    </div>
+                )}
+                {loading && (
                     <div className={styles.content}>
                         <Spin />
                     </div>
                 )}
-
+                
             </div>
         );
     }

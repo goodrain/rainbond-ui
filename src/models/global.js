@@ -896,8 +896,8 @@ export default {
         callback(response);
       }
     },
-    *getPluginList({ payload, callback }, { call }) {
-      const response = yield call(getPluginList, payload);
+    *getPluginList({ payload, callback, handleError }, { call }) {
+      const response = yield call(getPluginList, payload, handleError);
       if (callback) {
         callback(response);
       }
