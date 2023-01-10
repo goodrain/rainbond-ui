@@ -32,10 +32,10 @@ export default class ApplicationGovernance extends PureComponent {
       ServiceNameList: [],
       btnConfig: false,
       list: [],
-      typePattern: this.props.mode || '',
+      governName: this.props.mode || '',
       isFlag: (this.props.mode == 'KUBERNETES_NATIVE_SERVICE' || this.props.mode == 'BUILD_IN_SERVICE_MESH') ? true : false,
       action: '',
-      newFlag: false
+      newFlag: false,
     };
   }
 
@@ -229,6 +229,9 @@ export default class ApplicationGovernance extends PureComponent {
   // 切换治理模式
   handleChange = value => {
     const { dispatch, appID, mode } = this.props;
+    this.setState({
+      governName: value
+    })
     if(value == 'BUILD_IN_SERVICE_MESH' || value == 'KUBERNETES_NATIVE_SERVICE'){
       this.setState({
         newFlag: true
@@ -360,6 +363,17 @@ export default class ApplicationGovernance extends PureComponent {
       }
     });
   };
+
+  handleFindDesc = (governName) => {
+    const { list } = this.state
+    return (
+      <div style={{ marginTop: '10px' }}>
+      {list.map((item)=>{
+        return item.name == governName ? item.description : ''
+      })}
+      </div>
+    )
+  }
   render() {
     const {
       loading = false,
@@ -369,11 +383,8 @@ export default class ApplicationGovernance extends PureComponent {
       governanceLoading,
       mode
     } = this.props;
-    const { step, ServiceNameList, btnConfig, list, action } = this.state;
+    const { step, ServiceNameList, btnConfig, list, action, governName } = this.state;
     const { getFieldDecorator, getFieldValue } = form;
-    const type =
-      getFieldValue('governance_mode') || mode || 'KUBERNETES_NATIVE_SERVICE';
-
     return (
       <Modal
         title={formatMessage({id: 'confirmModal.app.govern.title'})}
@@ -530,13 +541,14 @@ export default class ApplicationGovernance extends PureComponent {
                   {formatMessage({id: 'confirmModal.app.govern.label.mode'})}
                 </label>
 
-                <div style={{ marginTop: '10px' }}>
-                  {type === 'KUBERNETES_NATIVE_SERVICE'
+                
+                  {/* {type === 'KUBERNETES_NATIVE_SERVICE'
                     ? formatMessage({id: 'confirmModal.app.govern.label.service'})
                     : type === 'BUILD_IN_SERVICE_MESH'
                     ? formatMessage({id: 'confirmModal.app.govern.label.serviceMesh'})
-                    : '-'}
-                </div>
+                    : '-'} */}
+                    {this.handleFindDesc(governName)}
+                
               </div>
             </div>
           )}
