@@ -183,7 +183,6 @@ export default class EditHealthCheck extends PureComponent {
         validator: this.checkNums
       }
     ];
-    console.log(showHTTP, "showHTTP");
     return (
       <Modal
         width={700}

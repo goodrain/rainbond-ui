@@ -322,7 +322,7 @@ export default class ApplicationGovernance extends PureComponent {
         governance_cr: yamlValue,
       },
       callback: res => {
-        console.log(res,'create')
+        
       },
       handleError: err => {
         
@@ -340,7 +340,7 @@ export default class ApplicationGovernance extends PureComponent {
         governance_cr: yamlValue,
       },
       callback: res => {
-        console.log(res,'update')
+        
       },
       handleError: err => {
         
@@ -357,7 +357,7 @@ export default class ApplicationGovernance extends PureComponent {
         app_id: appID,
       },
       callback: res => {
-        console.log(res,'delete')
+        
       },
       handleError: err => {
         
