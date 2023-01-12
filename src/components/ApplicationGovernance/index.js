@@ -304,6 +304,7 @@ export default class ApplicationGovernance extends PureComponent {
       })
     }
   };
+
   // 获取action value
   getActionValue = () => {
     const { action } = this.state

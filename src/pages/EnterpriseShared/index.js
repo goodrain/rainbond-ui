@@ -226,7 +226,6 @@ export default class EnterpriseShared extends PureComponent {
     arr = marketTab.filter(item => {
       return item.ID === Number(tabID);
     });
-
     let helms = [];
     helms = helmTab.filter(item => {
       return item.name === tabID;
@@ -360,7 +359,6 @@ export default class EnterpriseShared extends PureComponent {
                 item.types = "marketTab",
                   arr.push(item)
               })
-              
               this.setState({
                 tabsList: [...this.state.tabsList, ...arr,],
                 marketInfoSwitch:true
@@ -881,12 +879,23 @@ export default class EnterpriseShared extends PureComponent {
   handleCreateAppMarket = ID => {
     const { upAppMarket } = this.state;
     notification.success({ message: upAppMarket ? formatMessage({id:'notification.success.edit'}) : formatMessage({id:'notification.success.setUp'}) });
-    this.getMarketsTab(ID);
+    this.setState({
+      tabsList: []
+    },()=>{
+      this.getMarketsTab(ID);
+      this.getHelmMarketsTab()
+    }) 
     this.handleCancelAppMarket();
   };
   handleUpHelmAppMarket = ID => {
     notification.success({ message: formatMessage({id:'notification.success.edit'}) });
-    this.getHelmMarketsTab(ID);
+    this.setState({
+      tabsList: []
+    },()=>{
+      this.getMarketsTab();
+      this.getHelmMarketsTab(ID);
+    }) 
+    
     this.handleCancelHelmAppMarket();
   };
 
@@ -1359,8 +1368,11 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
-  onCloseLogin = () => {
-    this.setState({ isInStallShow: true, isAuthorize: true });
+  onCloseLogin = (ID) => {
+    this.setState({ isInStallShow: true, isAuthorize: true, tabsList: [] },()=>{
+      this.getMarketsTab(ID)
+      this.getHelmMarketsTab()
+    });
   };
   // 获取企业的集群信息
   handleLoadEnterpriseClusters = eid => {
@@ -1863,6 +1875,7 @@ export default class EnterpriseShared extends PureComponent {
             }}
             currStep={2}
             isReload
+            activeTabKey={activeTabKey}
             onCloseLogin={this.onCloseLogin}
           />
         )}

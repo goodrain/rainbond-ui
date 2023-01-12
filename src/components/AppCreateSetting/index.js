@@ -176,7 +176,7 @@ class BaseInfo extends PureComponent {
     }
   }
   handleSwitch = ()=>{
-    const { handleBuildSwitch } = this.props;
+    const { handleBuildSwitch } = this.props
     const { method, memory, cpu } = this.state;
     handleBuildSwitch((method || memory || cpu))
   }
@@ -413,7 +413,6 @@ class RenderDeploy extends PureComponent {
     const { runtimeInfo } = this.state;
     if (!runtimeInfo) return null;
     const language = appUtil.getLanguage(appDetail);
-
     return (
       <div
         style={{

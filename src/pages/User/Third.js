@@ -188,15 +188,17 @@ export default class ThirdLogin extends Component {
   render() {
     const { resultState, title, desc } = this.state;
     return (
-      <Result
-        type={resultState}
-        title={title}
-        description={desc}
-        style={{
-          marginTop: '20%',
-          marginBottom: 16
-        }}
-      />
+      <div 
+      style={{
+        paddingTop: '20%',
+        paddingBottom: 16
+      }}>
+        <Result
+          type={resultState}
+          title={title}
+          description={desc}
+        />
+      </div>
     );
   }
 }
