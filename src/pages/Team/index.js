@@ -101,7 +101,6 @@ export default class Index extends PureComponent {
         region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
-        // console.log(res.bean,"res");
         if(res){
           this.setState({
             logoInfo:res.bean.logo
@@ -354,7 +353,7 @@ export default class Index extends PureComponent {
         {showEditName && (
           <MoveTeam
             teamAlias={currentTeam.team_alias}
-            imageUrl={logoInfo ? logoInfo : true}
+            imageUrlTeam={logoInfo}
             onSubmit={this.handleEditName}
             onCancel={this.hideEditName}
           />

@@ -1,5 +1,5 @@
 /* eslint-disable react/sort-comp */
-import { Form, Input, Modal, Upload } from 'antd';
+import { Form, Input, Modal, Upload, Icon } from 'antd';
 import React, { PureComponent } from 'react';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
@@ -12,7 +12,7 @@ export default class MoveTeam extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      imageUrl: true, 
+      imageUrl: '', 
       imageBase64: ''
     };
   }
@@ -63,8 +63,8 @@ export default class MoveTeam extends PureComponent {
   render() {
     const { getFieldDecorator } = this.props.form;
     const initValue = this.props.teamAlias;
-    const { imageBase64 } =this.state
-    const { imageUrl = true } =this.props
+    const { imageBase64, imageUrl } =this.state
+    const { imageUrlTeam = false } =this.props
     const token = cookie.get('token');
     const myheaders = {};
     if (token) {
@@ -88,6 +88,12 @@ export default class MoveTeam extends PureComponent {
         }
       }
     };
+    const uploadButton = (
+      <div>
+        <Icon type="plus" />
+        <div className="ant-upload-text">{formatMessage({id:'popover.newApp.upload_pictures'})}</div>
+      </div>
+    );
     return (
       <Modal
         title={formatMessage({id:'teamOther.move_team.logo_label'})}
@@ -135,16 +141,14 @@ export default class MoveTeam extends PureComponent {
                 onChange={this.handleLogoChange}
                 onRemove={this.handleLogoRemove}
               >
-                {imageUrl ? (
+                {(imageUrl ||imageUrlTeam) ? (
                   <img
-                    src={imageBase64 || imageUrl}
+                    src={imageBase64 || imageUrlTeam}
                     alt="LOGO"
                     style={{ width: '100%' }}
                   />
                 ) : (
-                  // uploadButton
-                  ''
-                  // null
+                  uploadButton
                 )}
               </Upload>
             )}

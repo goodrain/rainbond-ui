@@ -60,7 +60,8 @@ const enterpriseOverview = {
     'enterpriseOverview.overview.Abnormal': '集群通信异常',
     'enterpriseOverview.overview.no_cluster': '暂无集群',
     'enterpriseOverview.overview.no_errorInfo': '暂无报警信息',
-    'enterpriseOverview.overview.app': '应用下的组件',
+    'enterpriseOverview.overview.app': '团队下的应用',
+    'enterpriseOverview.overview.component': '应用下的组件',
     'enterpriseOverview.overview.error': '异常',
     // Convenient
     'enterpriseOverview.Convenient.title': '添加快捷入口',

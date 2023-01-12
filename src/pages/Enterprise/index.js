@@ -1118,7 +1118,7 @@ export default class Enterprise extends PureComponent {
                           >
                             {group_name}
                           </span>
-                          &nbsp;{formatMessage({ id: 'enterpriseOverview.overview.app' })}&nbsp;
+                          &nbsp;{formatMessage({ id: 'enterpriseOverview.overview.component' })}&nbsp;
                           <span
                             className={enterpriseStyles.spanStyle}
                             onClick={() => {

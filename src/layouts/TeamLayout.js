@@ -97,6 +97,7 @@ class TeamLayout extends PureComponent {
   componentWillMount() {
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
+    this.fetchUserInfo()
   }
   componentWillUpdate() {
     const updata = JSON.parse(window.sessionStorage.getItem('updata'))
