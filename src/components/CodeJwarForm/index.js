@@ -393,16 +393,19 @@ export default class Index extends PureComponent {
                       </div>
                     )}
                 </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                >
-                  {existFileList.length > 0 &&
-                  <Icon onClick={this.handleJarWarUploadDelete} style={{ marginLeft: '12px', color: 'red', cursor: 'pointer' }} type="delete" />
-                  }
-                </div>
+                {existFileList.length > 0 &&
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: '#ff7b7b',
+                      padding: '0px 12px',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
+                  </div>
+                }
               </div>
             </Form.Item>
             <Form.Item

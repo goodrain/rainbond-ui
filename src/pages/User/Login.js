@@ -8,6 +8,7 @@ import oauthUtil from '../../utils/oauth';
 import rainbondUtil from '../../utils/rainbond';
 import { formatMessage, setLocale, getLocale, FormattedMessage } from 'umi/locale'
 import cookie from '../../utils/cookie';
+import logo from '../../../public/logoLogin.png';
 import styles from './Login.less';
 import LoginComponent from './loginComponent';
 
@@ -127,8 +128,10 @@ export default class LoginPage extends Component {
     const inlineBlock = { display: 'inline-block' };
     const { language } = this.state;
     return (
-      <div className={styles.main} style={{ marginTop: '20px', marginBottom: 15 }}>
-        <h3><FormattedMessage id="login.Login.title"/></h3>
+      <div className={styles.main} style={{ marginTop: '10px', marginBottom: 15 }}>
+        <div className={styles.logo}>
+            <img src={logo} alt="LOGO" />
+        </div>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
         {rainbondUtil.OauthbEnable(rainbondInfo) &&
           (oauthInfo ||

@@ -201,7 +201,7 @@ export default class Index extends PureComponent {
     });
   };
   handleOkMarkets = () => {
-    const { form, marketName, isReload, onCloseLogin } = this.props;
+    const { form, marketName, isReload, onCloseLogin, activeTabKey } = this.props;
     const { marketList, checkedValues, accessKey, marketUrl } = this.state;
     form.validateFields(err => {
       if (!err) {
@@ -244,7 +244,7 @@ export default class Index extends PureComponent {
                   duration: 1
                 });
                 if (isReload) {
-                  onCloseLogin();
+                  onCloseLogin(activeTabKey);
                 } else {
                   setTimeout(() => {
                     window.location.reload();
@@ -316,7 +316,7 @@ export default class Index extends PureComponent {
       rainbondInfo,
       form,
       eid,
-      isHelm = false
+      isHelm = false,
     } = this.props;
     const {
       currStep: step,

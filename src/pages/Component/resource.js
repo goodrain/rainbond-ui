@@ -261,10 +261,10 @@ export default class Index extends PureComponent {
             this.setState({
               existFileList: data.bean.package_name
             });
-            notification.success({
-              message:  formatMessage({id:'notification.success.upload_file'})
-            })
-            this.loop = false
+            // notification.success({
+            //   message:  formatMessage({id:'notification.success.upload_file'})
+            // })
+            // this.loop = false
           }
         }
         if (this.loop) {
@@ -1222,18 +1222,53 @@ export default class Index extends PureComponent {
           >
             <Upload
               fileList={fileList}
-              accept=".jar,.war"
               name="packageTarFile"
               onChange={this.onChangeUpload}
               onRemove={this.onRemove}
               action={record.upload_url}
               headers={myheaders}
+              multiple={true}
             >
               <Button>
                 <Icon type="upload" /> <FormattedMessage id='componentOverview.body.Resource.upload'/>
               </Button>
             </Upload>
-            <div style={{marginTop:'20px'}}>
+              <div
+                style={{
+                  display: 'flex',
+                  marginTop:'20px'
+                }}
+              >
+                <div>
+                  {existFileList.length > 0 ?
+                    (existFileList.map((item) => {
+                      return (
+                        <div style={{ padding:'12px 8px',border:'1px solid #d9d9d9'}}>
+                          <Icon style={{ marginRight: '6px' }} type="inbox" />
+                          <span className={styles.fileName}>
+                            {item}
+                          </span>
+                        </div>
+                      )
+                    })) : (
+                     null
+                    )}
+                </div>
+                {existFileList.length > 0 &&
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: '#ff7b7b',
+                      padding: '0px 12px',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
+                  </div>
+                }
+              </div>
+            {/* <div style={{marginTop:'20px'}}>
               {existFileList.length > 0 && existFileList.map((item) => {
                 return (
                   <div className={styles.update}>
@@ -1243,7 +1278,7 @@ export default class Index extends PureComponent {
                   </div>
                 )
               })}
-            </div>
+            </div> */}
           </Modal>
         }
         {languageType && runtimeInfo && (

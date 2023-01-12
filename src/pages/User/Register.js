@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
+import logo from '../../../public/logoLogin.png';
 import styles from './Register.less';
 import RegisterComponent from './registerComponent';
 
@@ -51,7 +52,9 @@ export default class Register extends Component {
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     return (
       <div className={styles.main} style={{ padding: '24px'}}>
-        <h3>{firstRegist ? <FormattedMessage id="login.Register.admin"/> :  <FormattedMessage id="login.Register.user"/>}</h3>
+        <div className={styles.logo}>
+          <img src={logo} alt="LOGO" />
+        </div>
         <RegisterComponent onSubmit={this.handleSubmit} type="register" />
       </div>
     );

@@ -111,11 +111,6 @@ export default class Index extends PureComponent {
                 payload: {
                   repo_name: values.name,
                   repo_url: values.url,
-                },
-                callback: res =>{
-                  setTimeout(()=>{
-                    window.history.go(0)
-                  },1000)
                 }
               });
              
