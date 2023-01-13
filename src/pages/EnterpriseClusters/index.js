@@ -982,8 +982,8 @@ export default class EnterpriseClusters extends PureComponent {
                   nextStep: 2,
                   configName: 'addCluster',
                   isSuccess: false,
-                  conPosition: { right: 0, bottom: '-180px' },
-                  svgPosition: { right: '50px', marginTop: '-11px' }
+                  conPosition: { right: '100px', bottom: '-180px' },
+                  svgPosition: { right: '170px', marginTop: '-11px' }
                 })}
             </Col>
           </Row>}
