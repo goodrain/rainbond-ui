@@ -142,8 +142,8 @@ class Index extends PureComponent {
                         callback: res => {
                             if (res) {
                                 const resourceVersion = res.bean && res.bean.metadata && res.bean.metadata.resourceVersion
-                                jsonData[0].metadata.resourceVersion = resourceVersion
-                                this.handleAbilitiesEdit(jsonData[0])
+                                jsonData.metadata.resourceVersion = resourceVersion
+                                this.handleAbilitiesEdit(jsonData)
                             }
                         }
                     })
