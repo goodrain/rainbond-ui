@@ -1027,7 +1027,7 @@ export default class EnterpriseShared extends PureComponent {
             desc: formatMessage({id:'applicationMarket.localMarket.have.desc'}),
             nextStep: 2,
             conPosition: { right: 0, marginTop: '60px' },
-            svgPosition: { right: 0, marginTop: '27px' },
+            svgPosition: { right: 30, marginTop: '27px' },
             handleClick: () => {
               this.installHelmApp(item, types);
             }
