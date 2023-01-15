@@ -229,9 +229,6 @@ export default class ApplicationGovernance extends PureComponent {
   // 切换治理模式
   handleChange = value => {
     const { dispatch, appID, mode } = this.props;
-    this.setState({
-      governName: value
-    })
     if(value == 'BUILD_IN_SERVICE_MESH' || value == 'KUBERNETES_NATIVE_SERVICE'){
       this.setState({
         newFlag: true
