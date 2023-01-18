@@ -274,7 +274,7 @@ export default class Index extends PureComponent {
         if (res && res.code === 404) {
           dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
             )
           );
         }
@@ -365,7 +365,7 @@ export default class Index extends PureComponent {
           this.cancelDelete(false);
           dispatch(
             routerRedux.replace(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
             )
           );
         }
@@ -771,12 +771,13 @@ export default class Index extends PureComponent {
             </div>
           </div>
           <div className={styles.conrHeader}>
+            {/* -------------------------------------------- */}
             <div style={{display:'flex',alignItems:'center',}}>
               <span>{formatMessage({id: 'appOverview.govern'})}</span>
-              <span style={language ? {}:{display:'inline-block'}}>
-                {currApp.governance_mode
+              <span style={ language ? {} : { display: 'inline-block' } }>
+                {currApp.governance_mode && (currApp.governance_mode === 'BUILD_IN_SERVICE_MESH' || currApp.governance_mode === 'KUBERNETES_NATIVE_SERVICE') 
                   ? globalUtil.fetchGovernanceMode(currApp.governance_mode)
-                  : '-'}
+                  : currApp.governance_mode}
               </span>
               {currApp.governance_mode && isEdit && (
                 <a style={{ marginLeft: '5px' }} onClick={this.handleSwitch}>
@@ -784,7 +785,7 @@ export default class Index extends PureComponent {
                 </a>
               )}
             </div>
-
+            {/* -------------------------------------------- */}
             <div>
               <span>{formatMessage({id: 'appOverview.principal'})}</span>
               <span>

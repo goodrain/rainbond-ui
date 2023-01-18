@@ -18,7 +18,16 @@ import {
   fetchClusterLogInfoSingle,
   fetchNodeInfo,
   fetchConsoleLogs,
-  fetchHistoryLogs
+  fetchHistoryLogs,
+  fetClusterNodeList,
+  editClusterNodeActive,
+  fetClusterNodeDetail,
+  fetClusterNodeLabels,
+  updataClusterNodeLabels,
+  fetClusterNodeTaint,
+  updataClusterNodeTaint,
+  fetDashboardList,
+  fetClusterNodeContainer
 } from '../services/region';
 
 export default {
@@ -171,6 +180,60 @@ export default {
     },
     *fetchHistoryLogs({ payload, callback }, { call }) {
       const response = yield call(fetchHistoryLogs, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetClusterNodeList({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetClusterNodeList, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *editClusterNodeActive({ payload, callback, handleError }, { call }) {
+      const response = yield call(editClusterNodeActive, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetClusterNodeDetail({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetClusterNodeDetail, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetClusterNodeLabels({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetClusterNodeLabels, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *updataClusterNodeLabels({ payload, callback, handleError }, { call }) {
+      const response = yield call(updataClusterNodeLabels, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetClusterNodeTaint({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetClusterNodeTaint, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *updataClusterNodeTaint({ payload, callback, handleError }, { call }) {
+      const response = yield call(updataClusterNodeTaint, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetDashboardList({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetDashboardList, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetClusterNodeContainer({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetClusterNodeContainer, payload, handleError);
       if (response && callback) {
         callback(response);
       }

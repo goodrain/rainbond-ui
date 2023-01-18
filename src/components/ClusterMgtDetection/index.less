@@ -1,0 +1,113 @@
+.svgStyle {
+    display: flex;
+    align-items: center;
+    padding-left: 3%;
+    span {
+        margin-left: 6px;
+    }
+}
+
+.dsahboard {
+    color: #52c41a;
+
+    span {
+        color: #b7b7b7;
+    }
+}
+
+.headerStyle {
+    width: 100%;
+    display: flex;
+   
+    div {
+        width: 25%;
+        text-align: center;
+    }
+
+    div:nth-of-type(2) {
+        // background-color: #52c41a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+}
+
+.thStyle {
+    height: 50px;
+    background-color: #FAFBFE;
+    padding: 12px;
+    border-bottom: 1px solid #d9d9d9;
+
+    :global {
+        .ant-col-6 {
+            height: 100%;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+}
+
+.collapseStyle {
+    width: 100%;
+    :global{
+        .ant-col-6{
+            height: 40px;
+            background-color: rgb(245, 246, 248);
+            font-weight: 600;
+            color: #B2B2B5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ant-table-body{
+            .ant-table-thead{
+                display: none;
+            }
+        }
+    }
+    
+}
+
+.spanStyle{
+    color: rgb(141, 155, 173);
+    font-size: 12px;
+    font-weight: 500;
+    span{
+        color: #2CC66A;
+        font-size: 14px;
+        font-weight: 600;
+
+    }
+}
+th.columnMoney,
+td.columnMoney {
+  text-align: center !important;
+}
+
+.modalStyle{
+    :global{
+        .ant-col-4{
+            height: 40px;
+            background-color: rgb(245, 246, 248);
+            font-weight: 600;
+            color: #B2B2B5;
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            padding-left: 20px;
+        }
+        .ant-table-body{
+            max-height: 500px;
+            overflow: auto;
+            .ant-table-thead{
+                display: none;
+            }
+        }
+        .ant-modal-footer {
+            border-top: 0px;
+        }
+    }
+}

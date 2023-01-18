@@ -1,4 +1,4 @@
-import { Button, Form, Input, Modal, Select, Upload } from 'antd';
+import { Button, Form, Input, Modal, Select, Upload, Icon } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -119,11 +119,10 @@ class CreateTeam extends PureComponent {
       guideStep,
       handleNewbieGuiding,
       enterprise_id,
-      imageUrl=true
     } = this.props;
     const token = cookie.get('token');
     const { getFieldDecorator } = form;
-    const { regions, regionLoading, imageBase64 } = this.state;
+    const { regions, regionLoading, imageBase64, imageUrl } = this.state;
     const myheaders = {};
     if (token) {
       myheaders.Authorization = `GRJWT ${token}`;
@@ -138,7 +137,14 @@ class CreateTeam extends PureComponent {
         sm: { span: 14 }
       }
     };
+    const uploadButton = (
+      <div>
+        <Icon type="plus" />
+        <div className="ant-upload-text">上传图标</div>
+      </div>
+    );
     const isRegions = regions && regions.length;
+    console.log(imageUrl,'imageUrl')
     return (
       <Modal
         title={title || <FormattedMessage id='popover.enterpriseOverview.setUpTeam.title' />}
@@ -242,7 +248,7 @@ class CreateTeam extends PureComponent {
 
           </FormItem>
           {/* 团队头像 */}
-          {/* <FormItem {...formItemLayout} label='LOGO'
+          <FormItem {...formItemLayout} label='LOGO'
             extra={
               <div className={styles.conformDesc}>
                 <FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.logo' />
@@ -275,13 +281,12 @@ class CreateTeam extends PureComponent {
                     style={{ width: '100%' }}
                   />
                 ) : (
-                  // uploadButton
-                  ''
+                  uploadButton
                 )}
               </Upload>
             )}
 
-          </FormItem> */}
+          </FormItem>
         </Form>
       </Modal>
     );

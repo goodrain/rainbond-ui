@@ -182,8 +182,8 @@ export default class PageHeader extends PureComponent {
           <div className={styles.detail}>
             {logo && <div className={styles.logo}>{logo}</div>}
             <div className={styles.main}>
-              <div className={styles.row}>
-                {titleSvg && <i className={styles.title_svg}>{titleSvg}</i>}
+              <div className={styles.row} style={{marginBottom:'4px'}}>
+                {titleSvg && <div className={styles.title_svg}>{titleSvg}</div>}
                 {title && <h1 className={styles.title}>{title}</h1>}
                 {action && <div className={styles.action}>{action}</div>}
               </div>

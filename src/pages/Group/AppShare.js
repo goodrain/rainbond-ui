@@ -906,7 +906,7 @@ export default class Main extends PureComponent {
     const { setFieldsValue } = this.props.form;
     this.setState({ versionInfo });
     setFieldsValue({
-      version: isCreate ? '0.1' : versionInfo ? versionInfo.version : ''
+      version: isCreate ? '0.1' : ''
     });
     setFieldsValue({
       version_alias: versionInfo ? versionInfo.version_alias : ''
@@ -1202,7 +1202,7 @@ export default class Main extends PureComponent {
                 <Col span="12">
                   <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.label.version'})}>
                     {getFieldDecorator('version', {
-                      initialValue: (versionInfo && versionInfo.version) || '',
+                      initialValue: '',
                       rules: [
                         {
                           required: true,
@@ -1211,7 +1211,7 @@ export default class Main extends PureComponent {
                       ]
                     })(
                       <AutoComplete
-                        style={{ width: '60%' }}
+                        style={{ width: '100%' }}
                         onChange={this.changeCurrentVersion}
                         placeholder={formatMessage({id:'placeholder.appShare.version'})}
                       >

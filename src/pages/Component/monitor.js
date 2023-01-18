@@ -146,7 +146,7 @@ export default class Index extends PureComponent {
           >
             <Link
               to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                appDetail.service.service_alias
+                appDetail && appDetail.service && appDetail.service.service_alias
               }/plugin`}
             >
               {/* 去开通 */}
@@ -167,6 +167,8 @@ export default class Index extends PureComponent {
     } = this.props;
     const defaultShow = ['pm'];
     const enablePM =
+      appDetail && 
+      appDetail.service &&
       appDetail.service.language &&
       appDetail.service.language.toLowerCase().indexOf('java') > -1;
     return (

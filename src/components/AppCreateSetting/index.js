@@ -92,6 +92,9 @@ class BaseInfo extends PureComponent {
         }
       ],
       is_flag: false,
+      method: false,
+      memory: false,
+      cpu: false
     };
   }
   handleSubmit = () => {
@@ -105,6 +108,25 @@ class BaseInfo extends PureComponent {
   handleChange = (value) => {
   }
   onChecks = (e) => {
+    const { appDetail, form, handleBuildSwitch } = this.props;
+    const { method, memory, cpu } = this.state;
+    const {
+      extend_method: extendMethod,
+    } = appDetail.service;
+    if(e.target.value != extendMethod){
+      this.setState({
+        method: true
+      },()=>{
+        this.handleSwitch()
+      })
+      
+    }else{
+      this.setState({
+        method: false
+      },()=>{
+        this.handleSwitch()
+      })
+    }
     if(e.target.value === 'cronjob'){
       this.setState({
         is_flag:true
@@ -114,6 +136,49 @@ class BaseInfo extends PureComponent {
         is_flag:false
       })
     }
+  }
+  RadioGroupChange = (e) =>{
+    const { appDetail, handleBuildSwitch } = this.props;
+    const {
+      min_memory: minMemory,
+    } = appDetail.service;
+    if(e.target.value != minMemory){
+      this.setState({
+        memory: true
+      },()=>{
+        this.handleSwitch()
+      })
+    }else{
+      this.setState({
+        memory: false
+      },()=>{
+        this.handleSwitch()
+      })
+    }
+  }
+  inputChange =(e)=>{
+    const { appDetail, handleBuildSwitch } = this.props;
+    const {
+      min_cpu: minCpu
+    } = appDetail.service;
+    if(e.target.value != minCpu){
+      this.setState({
+        cpu: true
+      },()=>{
+        this.handleSwitch()
+      })
+    }else{
+      this.setState({
+        cpu: false
+      },()=>{
+        this.handleSwitch()
+      })
+    }
+  }
+  handleSwitch = ()=>{
+    const { handleBuildSwitch } = this.props
+    const { method, memory, cpu } = this.state;
+    handleBuildSwitch((method || memory || cpu))
   }
   render() {
     const { appDetail, form } = this.props;
@@ -222,7 +287,7 @@ class BaseInfo extends PureComponent {
               }
             ]
           })(
-            <RadioGroup>
+            <RadioGroup onChange={this.RadioGroupChange}>
               <RadioButton key={0} value={0}>
                 {formatMessage({id:'componentCheck.advanced.setup.basic_info.label.noLimit'})}
               </RadioButton>
@@ -259,6 +324,7 @@ class BaseInfo extends PureComponent {
               min={0}
               addonAfter="m"
               placeholder={formatMessage({id:'placeholder.plugin.min_cpu'})}
+              onChange={this.inputChange}
             />
           )}
           <div style={{ color: '#999999', fontSize: '12px' }}>
@@ -332,6 +398,7 @@ class RenderDeploy extends PureComponent {
         if (data) {
           this.props.updateDetail();
           notification.success({ message: formatMessage({id:'notification.success.updates'}) });
+          this.props.handleBuildSwitch(false)
         }
       }
     });
@@ -340,12 +407,12 @@ class RenderDeploy extends PureComponent {
     const {
       visible,
       appDetail,
-      componentPermissions: { isDeploytype, isSource }
+      componentPermissions: { isDeploytype, isSource },
+      handleBuildSwitch
     } = this.props;
     const { runtimeInfo } = this.state;
     if (!runtimeInfo) return null;
     const language = appUtil.getLanguage(appDetail);
-
     return (
       <div
         style={{
@@ -354,7 +421,7 @@ class RenderDeploy extends PureComponent {
       >
         {!isDeploytype && !isSource && <NoPermTip />}
         {isDeploytype && (
-          <BaseInfo appDetail={appDetail} onSubmit={this.handleEditInfo} />
+          <BaseInfo appDetail={appDetail} onSubmit={this.handleEditInfo} handleBuildSwitch={handleBuildSwitch}/>
         )}
 
         {language && runtimeInfo && isSource && (
@@ -1239,7 +1306,7 @@ export default class Index extends PureComponent {
     );
   };
   render() {
-    const { appDetail } = this.props;
+    const { appDetail, handleBuildSwitch } = this.props;
     const { type, componentPermissions, language } = this.state;
 
     return (
@@ -1294,6 +1361,7 @@ export default class Index extends PureComponent {
               appDetail={appDetail}
               visible={type === 'deploy'}
               componentPermissions={componentPermissions}
+              handleBuildSwitch={handleBuildSwitch}
             />
             <RenderProperty
               key={appDetail.service.extend_method}

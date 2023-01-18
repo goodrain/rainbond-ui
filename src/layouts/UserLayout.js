@@ -2,7 +2,8 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React from 'react';
 import cloud from '../../public/cloud.png';
-import logo from '../../public/logo.png';
+import logo from '../../public/logoLogin.png';
+import topLogo from '../../public/topLogo.png';
 import globalUtil from '../utils/global';
 import oauthUtil from '../utils/oauth';
 import rainbondUtil from '../utils/rainbond';
@@ -79,21 +80,22 @@ class UserLayout extends React.PureComponent {
     return (
       <div className={styles.container}>
         <div className={styles.headers}>
-          <div className={styles.logo}>
-            <Link to="/">
-              <img src={fetchLogo} alt="LOGO" />
-            </Link>
-          </div>
         </div>
         <div className={styles.content}>
-          <div className={styles.contentBox}>
-            {/* <div className={styles.contentBoxLeft}>
-              <img src={cloud} alt="Rainbond | 云原生多云应用管理平台" />
-            </div> */}
-            <div className={styles.contentBoxRight}>{children}</div>
+          <div className={styles.left}>
+            <img src={topLogo}></img>
+          </div>
+          <div className={styles.right}>
+            <div className={styles.login}>
+              <div className={styles.contentBox}>
+                <div className={styles.contentBoxRight}>{children}</div>
+              </div>
+            </div>
           </div>
         </div>
-        {!isEnterpriseEdition && <CustomFooter />}
+        < div style={{ bottom: 0, width: '100%', position: 'fixed' }} className={styles.CustomFooterStyle}>
+          {!isEnterpriseEdition && <CustomFooter />}
+        </div>
       </div>
     );
   }

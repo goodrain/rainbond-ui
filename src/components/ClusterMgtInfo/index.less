@@ -1,0 +1,58 @@
+.InfoStyle{
+    display: flex;
+    align-items: center;
+    :global{
+        .ant-col-3{
+            text-align: center;
+            height: 100%;
+            padding-right: 20px;
+            p:nth-of-type(1){
+                font-size: 20px;
+                line-height: 28px;
+                font-weight: 600;
+                color: #36435c;
+            }
+            p:nth-of-type(2){
+                margin-top: 6px;
+                font-size: 14px;
+                line-height: 20px;
+                color: rgba(141, 155, 173, 1);
+                font-weight:600;
+            }
+        }
+        .ant-col-15{
+            height: 100%;
+            display: flex;
+            justify-content: end;
+            button{
+                margin-right: 10px;
+            }
+        }
+    }
+}
+.ClusterInfo{
+   :global{
+    .ant-descriptions-view{
+        padding: 30px 10px 0;
+        border-top: 1px solid #eff4f9;
+        .ant-descriptions-item-label{
+            color: rgba(141, 155, 173, 1);
+            font-size: 14px;
+            font-weight:600;
+        }
+        .ant-descriptions-item-content{
+            padding-left: 10px !important;
+            color: rgba(0, 0, 0, 1);
+        }
+    }
+   }
+}
+.nodeType{
+    span::after{
+        content: " + ";
+        margin: 0 4px;
+    }
+   span:last-child::after{
+    content:''
+   }
+}

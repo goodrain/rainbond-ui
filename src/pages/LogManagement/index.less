@@ -20,6 +20,7 @@
       }
       .ant-tabs-nav-container{
         overflow: visible !important;
+        margin-left: 24px !important;
       }
       .ant-tabs-tab-active{
         height: 41px !important ;
@@ -35,7 +36,7 @@
         // padding-top: 26px;
         background-color: #fff;
         box-shadow: #242e4229 2px 4px 10px 0px !important;
-        padding: 10px;
+        padding: 10px 24px;
         // z-index: 99;
       }
       .ant-tabs-nav-scroll{
@@ -51,36 +52,34 @@
     :global{
         .ant-tabs-tab{
           background-color: #fff !important;
-        //   margin-right: 0px !important;
-          border-bottom: 1px solid  #e8e8e8 !important;
+          height: 41px !important ;
+          border: 0 !important;
         }
         .ant-tabs-bar{
           border: 1px solid #fff !important;
-          border-bottom: 1px solid #e8e8e8 !important;
-        //   margin: 0;
-        //   padding-bottom: 1px !important;
+          border-bottom: 1px solid transparent !important;
         }
         .ant-tabs-tab-active{
-        //   height: 41px !important ;
+          height: 41px !important ;
           border: 0px solid #4d73b1 !important;
-          border-bottom: 1px solid #fff !important;
+          border-bottom: 0px solid #fff !important;
           background-color: #fff !important;
         }
         .ant-tabs-top-content{
           border-radius: 5px;
         }
         .ant-tabs-card-content{
-          // padding-top: 26px;
           background-color: #fff;
           box-shadow: #242e4229 2px 4px 10px 0px !important;
-          // padding: 10px;
-          // z-index: 99;
         }
         .ant-tabs-nav-scroll{
           overflow: hidden !important;
         }
         .ant-tabs-nav-container-scrolling{
           overflow: hidden !important;
+        }
+        .ant-tabs-nav-wrap{
+          margin-right: 0 !important;
         }
       }
   }

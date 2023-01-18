@@ -3,11 +3,24 @@
 .main {
   width: 340px;
   margin: 0 auto;
-  & > h3 {
+  & > h2 {
     text-align: center;
     // margin-bottom: 30px;
-    color: #595f69;
-    font-weight: 400;
+    color: #374551;
+    font-weight: 600;
+    margin-bottom: 20px;
+    font-size: 24px;
+  }
+  .logo{
+    width: 100%;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    img{
+      width: 180px;
+      height: 30px;
+    }
   }
   .icon {
     font-size: 24px;
@@ -29,6 +42,12 @@
 
     .register {
       float: right;
+    }
+  }
+  :global{
+    .ant-btn-primary{
+      background-color: #3a99fe;
+      border-color: #3a99fe;
     }
   }
 }

@@ -247,6 +247,8 @@ const teamManage = {
   'teamManage.tabs.member.table.delete':'Delete',
   'teamManage.tabs.member.table.editRole':'EditRole',
   'teamManage.tabs.member.table.turnOver':'TransferTeam',
+  'teamOther.move_team.name_label':'Modify the name',
+  'teamOther.move_team.logo_label':'Modify team information',
 
   //集群 cluster
   'teamManage.tabs.cluster':'Cluster',

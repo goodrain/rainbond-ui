@@ -16,6 +16,7 @@ import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
 import rainbondUtil from '../utils/rainbond';
 import Context from './MenuContext';
+import styles from './EnterpriseLayout.less'
 
 const { Content } = Layout;
 let isMobile;
@@ -184,6 +185,7 @@ class AccountLayout extends PureComponent {
                 rainbondInfo.is_public &&
                 rainbondInfo.is_public.enable
               }
+              eid={eid}
               currentUser={currentUser}
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}

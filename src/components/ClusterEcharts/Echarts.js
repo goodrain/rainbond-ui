@@ -34,22 +34,22 @@ export default class Chart extends Component {
       
         
       
-          let wqColor = "rgba(80, 152, 237,0.9)";
+          let wqColor = svalue > 80 ? "#f5222d" : 'rgba(80, 152, 237,0.9)';
           let nqColor = [
             [
               datas.value / 100,
               new echarts.graphic.LinearGradient(0, 0, 1, 0, [
                 {
                   offset: 0,
-                  color: "#3d54c4",
+                  color: svalue > 80 ? "#f5222d" : "#3d54c4",
                 },
                 {
                   offset: 0.5,
-                  color: "#3d54c4",
+                  color: svalue > 80 ? "#f5222d" : "#3d54c4",
                 },
                 {
                   offset: 1,
-                  color: "#3d54c4",
+                  color: svalue > 80 ? "#f5222d" : "#3d54c4",
                 },
               ]),
             ],
@@ -67,7 +67,7 @@ export default class Chart extends Component {
               textStyle: {
                 fontWeight: "500",
                 fontSize: 12,
-                color: "#79828f",
+                color: svalue > 80 ? "#f5222d" : "#79828f",
               },
             },
             tooltip: {
@@ -106,7 +106,7 @@ export default class Chart extends Component {
                 axisLabel: {
                   distance: -34, //外层文字位置
                   fontSize: 10, //文字大小
-                  color: "#3d54c4", //颜色
+                  color: svalue > 80 ? "#f5222d" : "#3d54c4", //颜色
                 },
                 pointer: {
                   show: true,
@@ -119,15 +119,15 @@ export default class Chart extends Component {
                     color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
                       {
                         offset: 0,
-                        color: "#3d54c4",
+                        color:  svalue > 80 ? "#f5222d" : "#3d54c4",
                       },
                       {
                         offset: 0.5,
-                        color: "#3d54c4",
+                        color:  svalue > 80 ? "#f5222d" : "#3d54c4",
                       },
                       {
                         offset: 1,
-                        color: "#3d54c4",
+                        color:  svalue > 80 ? "#f5222d" : "#3d54c4",
                       },
                     ]),
                   },
@@ -135,19 +135,19 @@ export default class Chart extends Component {
                 detail: {
                   show: true,
                   offsetCenter: [24, "39%"], //显示数值的位置
-                  color: "#3d54c4",
+                  color:  svalue > 80 ? "#f5222d" : "#3d54c4",
                   fontSize: 20,
                   rich: {
                     value: {
                       fontSize: 20,
                       lineHeight: 10,
-                      color: "#3d54c4",
+                      color:  svalue > 80 ? "#f5222d" : "#3d54c4",
                       fontWeight: "700",
                     },
                     company: {
                       fontSize: 10,
                       lineHeight: 20,
-                      color: "#3d54c4",
+                      color:  svalue > 80 ? "#f5222d" : "#3d54c4",
                     },
                   },
                   valueAnimation: true,
@@ -184,7 +184,7 @@ export default class Chart extends Component {
                   show: true,
                   length: 4,
                   lineStyle: {
-                    color: "#3d54c4",
+                    color:  svalue > 80 ? "#f5222d" : "#3d54c4",
                     width: 1,
                     shadowBlur: 0.5,
                     opacity: 0.9,
@@ -195,7 +195,7 @@ export default class Chart extends Component {
                 itemStyle: {
                   //指针阴影
                   shadowBlur: 10,
-                  shadowColor: "rgba(0, 103, 255, 0.2)",
+                  shadowColor:  svalue > 80 ? "#f5222d" : "rgba(0, 103, 255, 0.2)",
                   shadowOffsetX: 0,
                   shadowOffsetY: 8,
                 },
@@ -227,4 +227,3 @@ export default class Chart extends Component {
     )
   }
 }
-

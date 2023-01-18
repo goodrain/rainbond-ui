@@ -26,6 +26,7 @@ import PageLoading from '../components/PageLoading';
 import ServiceOrder from '../components/ServiceOrder';
 import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
+import Exception from '../pages/Exception/403';
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
 import rainbondUtil from '../utils/rainbond';
@@ -94,8 +95,9 @@ class TeamLayout extends PureComponent {
   }
 
   componentWillMount() {
-    this.getNewbieGuideConfig();
     this.getEnterpriseList();
+    this.getNewbieGuideConfig();
+    this.fetchUserInfo()
   }
   componentWillUpdate() {
     const updata = JSON.parse(window.sessionStorage.getItem('updata'))
@@ -116,14 +118,14 @@ class TeamLayout extends PureComponent {
         })
       }
     }
-    if(urlParams) {
+    if (urlParams) {
       const code = urlParams.href.includes("/create/code");
       const image = urlParams.href.includes("/create/image");
       const yaml = urlParams.href.includes("/create/yaml");
       const outer = urlParams.href.includes("/create/outer");
-      if(code || image || yaml || outer){
+      if (code || image || yaml || outer) {
         this.setState({
-          GroupShow:false
+          GroupShow: false
         })
       }
     }
@@ -142,6 +144,11 @@ class TeamLayout extends PureComponent {
         }
       );
     }
+  }
+  GroupShow = () => {
+    this.setState({
+      GroupShow: true
+    })
   }
   getNewbieGuideConfig = () => {
     const { dispatch } = this.props;
@@ -188,6 +195,11 @@ class TeamLayout extends PureComponent {
           if (res && res.status_code === 200) {
             this.getTeamOverview(res.bean && res.bean.user_id);
           }
+        },
+        handleError: () => {
+          this.setState({
+            teamView: false
+          });
         }
       });
     }
@@ -270,6 +282,7 @@ class TeamLayout extends PureComponent {
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
     const enterpriseId = this.props.enterprise && this.props.enterprise.enterprise_id;
+    dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
     dispatch({
       type: 'teamControl/fetchFeatures',
       payload: { team_name: teamName, region_name: regionName }
@@ -288,7 +301,6 @@ class TeamLayout extends PureComponent {
       payload: { team_name: teamName, region_name: regionName }
     });
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
-    dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
     this.setState({
       currentEnterprise: enterpriseList[0],
       currentTeam: team,
@@ -481,6 +493,9 @@ class TeamLayout extends PureComponent {
       return <Redirect to="/" />;
     }
     // The necessary data is loaded
+    if (!teamView) {
+      return <Exception />;
+    }
     if (
       !ready ||
       !currentEnterprise ||
@@ -506,7 +521,7 @@ class TeamLayout extends PureComponent {
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     if (appID && (!currentApp || !groupDetail.ID)) {
       this.fetchAppDetail(appID);
-      return <PageLoading />;
+      // return <PageLoading />;
     }
     // currentComponent is exit and id is current componentID
     else if (
@@ -517,7 +532,7 @@ class TeamLayout extends PureComponent {
       // Refresh the component information
     } else if (componentID) {
       this.queryComponentDeatil();
-      return <PageLoading />;
+      return <GlobalHeader/>;
     } else {
       this.setState({ currentComponent: null });
     }
@@ -549,6 +564,7 @@ class TeamLayout extends PureComponent {
       }
       return (
         <AppHeader
+          handleClick={this.GroupShow}
           teamName={teamName}
           currentEnterprise={currentEnterprise}
           currentTeam={currentTeam}
@@ -699,13 +715,14 @@ class TeamLayout extends PureComponent {
                   showMenu={showMenu ? !componentID : false}
                 />
               )}
-              <TransitionGroup
-                style={{
-                  height: 'calc(100vh - 64px)',
-                  overflow: 'auto',
-                  width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
-                }}>
-                {this.state.GroupShow ?
+              {this.state.GroupShow ?
+                <TransitionGroup
+                  style={{
+                    height: 'calc(100vh - 64px)',
+                    overflow: 'auto',
+                    width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
+                  }}>
+
                   <CSSTransition
                     timeout={300}
                     classNames=
@@ -732,7 +749,8 @@ class TeamLayout extends PureComponent {
                       </div>
                     </Content>
                   </CSSTransition>
-                  :
+                </TransitionGroup> :
+                (
                   <Content
                     style={{
                       height: 'calc(100vh - 64px)',
@@ -748,8 +766,8 @@ class TeamLayout extends PureComponent {
                       {renderContent()}
                     </div>
                   </Content>
-                }
-              </TransitionGroup>
+                )
+              }
             </Layout>
           </Layout>
         </Layout>

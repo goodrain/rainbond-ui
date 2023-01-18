@@ -280,7 +280,9 @@ class Main extends PureComponent {
       isShowThirdParty: false,
       promptModal: null,
       websocketURL: '',
-      componentTimer: true
+      componentTimer: true,
+      tabsShow:false,
+      routerSwitch: true
     };
     this.socket = null;
     this.destroy = false;
@@ -457,13 +459,14 @@ class Main extends PureComponent {
     if (
       appDetail &&
       appDetail.service &&
-      appDetail.service.service_source === 'market'
+      appDetail.service.service_source === 'market' &&
+      appDetail.service.service_alias
     ) {
         dispatch({
           type: 'appControl/getBuildInformation',
           payload: {
             team_name,
-            app_alias: serviceAlias
+            app_alias: appDetail.service.service_alias
           },
           callback: res => {
             if (res && res.status_code === 200) {
@@ -504,7 +507,12 @@ class Main extends PureComponent {
         }
         if (appDetail.service.service_source) {
           this.setState({
-            isShowThirdParty: appDetail.is_third ? appDetail.is_third : false
+            isShowThirdParty: appDetail.is_third ? appDetail.is_third : false,
+            tabsShow: true,
+          },()=>{
+            this.setState({
+              routerSwitch: false
+            })
           });
         }
         if (
@@ -516,8 +524,16 @@ class Main extends PureComponent {
             appDetail.service.create_status === 'complete'
           ) {
             this.getStatus(false);
+            setTimeout(()=>{
+              this.setState({
+                routerSwitch: false
+              })
+            },100)
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
-            serviceAlias &&
+              this.setState({
+                routerSwitch: false
+              })
+              serviceAlias &&
               dispatch(
                 routerRedux.replace(
                   `${prefixUrl}create/create-check/${serviceAlias}`
@@ -564,15 +580,15 @@ class Main extends PureComponent {
   };
   // 应用详情
   fetchAppDetail = () => {
-    const { dispatch } = this.props;
-    const { team_name, region_name, group_id } = this.fetchParameter();
-
+    const { dispatch, appDetail } = this.props;
+    const { team_name, region_name } = this.fetchParameter();
+    const group_id = appDetail && appDetail.service && appDetail.service.group_id;
     dispatch({
       type: 'application/fetchGroupDetail',
       payload: {
         team_name,
         region_name,
-        group_id
+        group_id: group_id
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -974,6 +990,7 @@ class Main extends PureComponent {
       appPermissions: { isEdit: isAppEdit }
     } = this.props;
     const { status, groupDetail, loadingDetail } = this.state;
+    const comName = JSON.parse(window.sessionStorage.getItem('name')) || '-';
     const isHelm =
       groupDetail && groupDetail.app_type && groupDetail.app_type === 'helm';
     return (
@@ -984,7 +1001,7 @@ class Main extends PureComponent {
           </div>
           <div style={{ marginLeft: '14px' }}>
             <div className={styles.contentTitle}>
-              {name || '-'}
+              {comName || '-'}
               {isEdit && (
                 <Icon
                   style={{
@@ -996,7 +1013,7 @@ class Main extends PureComponent {
               )}
             </div>
             <div className={styles.content_Box}>
-              {!appDetail.is_third && isRestart && !appStatusUtil.canStart(status) ? (
+              {status && status.status && !appDetail.is_third && isRestart && !appStatusUtil.canStart(status) ? (
                 <a
                   style={{
                     cursor: !appStatusUtil.canRestart(status)
@@ -1025,9 +1042,9 @@ class Main extends PureComponent {
                   <FormattedMessage id='componentOverview.header.left.reset'/>
                 </a>
               ) : null}
-              {!appDetail.is_third && isRestart && <Divider type="vertical" />}
+              {status && status.status && !appDetail.is_third && isRestart && <Divider type="vertical" />}
                   
-              {isStop && !appStatusUtil.canStart(status) ? (
+              {status && status.status && isStop && !appStatusUtil.canStart(status) ? (
                 <span>
                   <a
                     style={{
@@ -1064,7 +1081,7 @@ class Main extends PureComponent {
                 </span>
               ) : null}
 
-              {isAppEdit && !loadingDetail && !isHelm && (
+              {status && status.status && isAppEdit && !loadingDetail && !isHelm && (
                 <a
                   onClick={() => {
                     this.handleDropClick('moveGroup');
@@ -1077,10 +1094,10 @@ class Main extends PureComponent {
                   <FormattedMessage id='componentOverview.header.left.edit'/>
                 </a>
               )}
-              {isEdit && !loadingDetail && !isHelm && (
+              {status && status.status && isEdit && !loadingDetail && !isHelm && (
                 <Divider type="vertical" />
               )}
-              {isDelete && (
+              {status && status.status && isDelete && (
                 <a
                   onClick={() => {
                     this.handleDropClick('deleteApp');
@@ -1146,7 +1163,9 @@ class Main extends PureComponent {
       showDeleteApp,
       showEditName,
       showMoveGroup,
-      groupDetail
+      groupDetail,
+      tabsShow,
+      routerSwitch
     } = this.state;
     const { getFieldDecorator } = form;
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update'/> : <FormattedMessage id='componentOverview.header.right.update.roll'/>;
@@ -1157,8 +1176,11 @@ class Main extends PureComponent {
       deploy: formatMessage({id:'componentOverview.header.right.build'}),
       rolling: upDataText
     };
-    if (!appDetail.service) {
+    if (routerSwitch) {
       return null;
+    }
+    if(appDetail && appDetail.service && appDetail.service.service_cname){
+      window.sessionStorage.setItem("name",JSON.stringify(appDetail.service.service_cname))
     }
     const {
       serviceAlias,
@@ -1176,10 +1198,8 @@ class Main extends PureComponent {
       />
     );
 
-    if (!status.status) {
-      return null;
-    }
     const action = (
+      status && status.status &&
       <div>
         {isStart && !appStatusUtil.canStop(status) && (
           <Button
@@ -1259,12 +1279,12 @@ class Main extends PureComponent {
               </Button>
             )}
 
-        {appDetail.service.service_source === 'market' &&
+        {appDetail && appDetail.service && appDetail.service.service_source === 'market' &&
           appStatusUtil.canVisit(status) &&
           !isShowThirdParty &&
           isAccess &&
           visitBtns}
-        {appDetail.service.service_source !== 'market' &&
+        {appDetail && appDetail.service && appDetail.service.service_source !== 'market' &&
           appStatusUtil.canVisit(status) &&
           !isShowThirdParty &&
           isAccess &&
@@ -1291,7 +1311,7 @@ class Main extends PureComponent {
       }
     ];
 
-    if (isTelescopic && appDetail.service.extend_method !== 'job' && appDetail.service.extend_method !== 'cronjob') {
+    if (isTelescopic && appDetail && appDetail.service && appDetail.service.extend_method !== 'job' && appDetail.service.extend_method !== 'cronjob') {
       tabs.push({
         key: 'expansion',
         // tab: '伸缩',
@@ -1378,6 +1398,28 @@ class Main extends PureComponent {
           }
         ]
       : tabs;
+    const  overviewTabs=[
+      {
+      key: 'overview',
+      // tab: '总览',
+      tab: formatMessage({id:'componentOverview.body.tab.bar.overview'})
+      },
+      {
+        key: 'port',
+        // tab: '端口',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.port'})
+      },
+      {
+        key: 'connectionInformation',
+        // tab: '连接信息',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.connectionInformation'})
+      },
+      {
+        key: 'members',
+        // tab: '更多设置',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.members'})
+      }
+  ]
     // const { service_source, language } = this.state;
     const map = {
       thirdPartyServices: ThirdPartyServices,
@@ -1439,7 +1481,7 @@ class Main extends PureComponent {
         title={this.renderTitle(componentName)}
         onTabChange={this.handleTabChange}
         tabActiveKey={type}
-        tabList={tabList}
+        tabList={tabsShow ? tabList : overviewTabs}
       >
         {this.state.showMarketAppDetail && (
           <MarketAppDetailShow

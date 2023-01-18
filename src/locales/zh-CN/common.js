@@ -316,7 +316,7 @@
 
         //应用治理模式切换
         'confirmModal.app.govern.title':'应用治理模式切换',
-        'confirmModal.app.govern.alert.msg':'应用治理模式主要指组件间通信模式的治理，目前支持内置ServiceMesh模式,Istio治理模式和Kubernetes原生Service模式',
+        'confirmModal.app.govern.alert.msg':'应用治理模式主要指组件间通信模式的治理，默认支持内置ServiceMesh模式和Kubernetes原生Service模式',
         'confirmModal.app.govern.label.name_port':'组件名称/端口',
         'confirmModal.app.govern.label.alias':'别名',
         'confirmModal.app.govern.label.DNS':'内部域名',
@@ -600,6 +600,7 @@
         'notification.warn.not_component':'当前组件不存在!',
         'notification.warn.not_app': '当前应用不存在!',
         'notification.warn.not_team': '当前团队不存在!',
+        'notification.warn.save': '请先保存部署属性中已修改的基本信息!',
 
 
         //提示
@@ -749,7 +750,7 @@
         'placeholder.appShare.leastOne':'请至少发布一个组件',
         'placeholder.appShare.appTemplate':'应用模版选择是必须的',
         'placeholder.appShare.selectAppTemplate':'选择发布的应用模版',
-        'placeholder.appShare.version':'版本号默认为选择模版的上次发布版本',
+        'placeholder.appShare.version':'请填写版本号',
         'placeholder.appShare.max64':'最大长度64位',
         'placeholder.appShare.version_alias':'设置版本别名，比如高级版',
         'placeholder.appShare.describe':'请输入版本说明',

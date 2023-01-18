@@ -71,7 +71,8 @@ export default class EnterpriseSetting extends PureComponent {
                 title={formatMessage({id:'LogEnterprise.title'})}
                 content={formatMessage({ id: 'LogEnterprise.desc' })}
                 titleSvg={pageheaderSvg.getSvg('logSvg',18)}
-            >
+                isContent={true} 
+            >   
                 <Tabs onChange={this.onChange} activeKey={activeKey} destroyInactiveTabPane className={styles.setTabs} type="card">
                     <TabPane tab={formatMessage({id:'LogEnterprise.console'})} key="consoleLog">
                         <LogInfo  type={true}/>

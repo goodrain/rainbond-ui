@@ -151,7 +151,7 @@ class LicenseDrawer extends PureComponent {
                 left: 0,
                 background: '#fff',
                 borderRadius: '0 0 4px 4px',
-                zIndex: 4
+                zIndex: 999
               }}
             >
               <Button

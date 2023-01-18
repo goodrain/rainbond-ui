@@ -429,11 +429,12 @@ export default class Index extends PureComponent {
           cookie.set('region_name', '')
           if (res.bean.checkAdopt == 'true') {
             this.setState({
-              status: 1
+              status: 1,
             })
           } else {
             this.setState({
-              status: 2
+              status: 2,
+              msg: res.bean.yaml
             })
           }
         }
@@ -844,12 +845,21 @@ export default class Index extends PureComponent {
   };
   // 检验失败
   operationError = () => {
-    const { infoType } = this.state
+    const { infoType, msg } = this.state
     return <Card style={{ marginTop: 20 }}>
       <Result
         type="error"
         title={formatMessage({ id: "helmAppInstall.index.detection_failure" })}
-        description={!infoType ? formatMessage({ id: "helmAppInstall.index.detection_back" }) : formatMessage({ id: "helmAppInstall.index.delete" })}
+        description={<>
+          {!infoType ? 
+          formatMessage({ id: "helmAppInstall.index.detection_back" }) 
+          : 
+          formatMessage({ id: "helmAppInstall.index.delete" })}
+          <p style={{color:'red'}}>
+            {formatMessage({id:'helmAppInstall.index.error'})}{msg||'-'}
+          </p>
+          </>
+        }
         actions={
           <>
             <Button onClick={this.back}>{formatMessage({ id: "helmAppInstall.index.back" })}</Button>

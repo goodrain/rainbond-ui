@@ -643,15 +643,15 @@ export default class Index extends PureComponent {
   hideEditAlias = () => {
     this.setState({ showEditAlias: null });
   };
-  handleEditAlias = vals => {
+  handleEditAlias = (val) =>{
     this.props.dispatch({
       type: 'appControl/editPortAlias',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        k8s_service_name: vals.k8s_service_name,
+        k8s_service_name: val.k8s_service_name,
         port: this.state.showEditAlias.container_port,
-        port_alias: vals.alias
+        port_alias: val.alias
       },
       callback: () => {
         this.fetchPorts();
@@ -662,7 +662,7 @@ export default class Index extends PureComponent {
         this.props.onshowRestartTips(true);
       }
     });
-  };
+  }
   // 是否可以浏览当前界面
   canView() {
     const {

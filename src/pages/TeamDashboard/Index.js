@@ -495,11 +495,19 @@ export default class Index extends PureComponent {
                         );
                       }}
                     >
-                      <div className={styles.appStatus} style={{ background: globalUtil.appStatusColor(item.status) }}>
-                        <div>
-                          {globalUtil.appStatusText(item.status)}
+                      {language ? (
+                        <div className={styles.appStatus} style={{ background: globalUtil.appStatusColor(item.status) }}>
+                          <div>
+                              {globalUtil.appStatusText(item.status)}
+                          </div>
                         </div>
-                      </div>
+                      ):(
+                        <Tooltip placement="left" title={globalUtil.appStatusText(item.status)}>
+                          <div className={styles.appStatus} style={{ background: globalUtil.appStatusColor(item.status) }}>
+                          </div>
+                        </Tooltip>
+                      )}
+
                       <div className={styles.appItemDetail}>
                         <div className={styles.appTitle}>{item.group_name}</div>
                         <div className={styles.value}>

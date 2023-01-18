@@ -16,7 +16,9 @@ import {
   notification,
   Row,
   Table,
-  Tooltip
+  Tooltip,
+  Menu,
+  Dropdown
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -28,8 +30,9 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import styles from "./index.less"
 
 const { confirm } = Modal;
 
@@ -44,7 +47,7 @@ const { confirm } = Modal;
   delclusterLongin: loading.effects['region/deleteEnterpriseCluster'],
   overviewInfo: index.overviewInfo,
   novices: global.novices
-})) 
+}))
 @Form.create()
 export default class EnterpriseClusters extends PureComponent {
   constructor(props) {
@@ -71,7 +74,8 @@ export default class EnterpriseClusters extends PureComponent {
         'successInstallClusters'
       ),
       setTenantLimitShow: false,
-      guideStep: 1
+      guideStep: 1,
+      jumpSwitch: true
     };
   }
   componentWillMount() {
@@ -87,10 +91,10 @@ export default class EnterpriseClusters extends PureComponent {
   handleMandatoryDelete = () => {
     const th = this;
     confirm({
-      title: '当前集群中还存在组件、是否强制删除',
-      content: '删除后可通过相同的集群ID重新添加恢复已有租户和应用的管理',
-      okText: '确认',
-      cancelText: '取消',
+      title: formatMessage({ id: 'enterpriseColony.mgt.cluster.delect' }),
+      content: formatMessage({ id: 'enterpriseColony.mgt.cluster.restore' }),
+      okText: formatMessage({ id: 'button.determine' }),
+      cancelText: formatMessage({ id: 'button.cancel' }),
       onOk() {
         th.handleDelete(true);
         return new Promise((resolve, reject) => {
@@ -117,7 +121,7 @@ export default class EnterpriseClusters extends PureComponent {
       callback: res => {
         if (res && res._condition === 200) {
           this.loadClusters();
-          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
         }
         this.cancelClusters();
       },
@@ -151,9 +155,9 @@ export default class EnterpriseClusters extends PureComponent {
             item.key = `cluster${index}`;
             if (!item.resource_proxy_status) {
               notification.warning({
-                message: formatMessage({id:'utils.request.warning'}),
+                message: formatMessage({ id: 'utils.request.warning' }),
                 description:
-                  `${item.region_alias}${formatMessage({id:'notification.warn.proxy'})}`,
+                  `${item.region_alias}${formatMessage({ id: 'notification.warn.proxy' })}`,
               });
             }
             clusters.push(item);
@@ -219,7 +223,7 @@ export default class EnterpriseClusters extends PureComponent {
           this.setState({
             regionInfo: res.bean,
             editClusterShow: true,
-            text: formatMessage({id:'enterpriseColony.button.edit'})
+            text: formatMessage({ id: 'enterpriseColony.button.edit' })
           });
         }
       }
@@ -307,7 +311,7 @@ export default class EnterpriseClusters extends PureComponent {
             },
             callback: () => {
               notification.success({
-                message: formatMessage({id:'notification.success.setting_successfully'})
+                message: formatMessage({ id: 'notification.success.setting_successfully' })
               });
               this.setState({
                 limitSummitLoading: false,
@@ -317,7 +321,7 @@ export default class EnterpriseClusters extends PureComponent {
             },
             handleError: () => {
               notification.warning({
-                message: formatMessage({id:'notification.error.setting_failed'})
+                message: formatMessage({ id: 'notification.error.setting_failed' })
               });
               this.setState({ limitSummitLoading: false });
             }
@@ -454,7 +458,7 @@ export default class EnterpriseClusters extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: formatMessage({id:'notification.warn.create_team'})
+              message: formatMessage({ id: 'notification.warn.create_team' })
             });
           }
         }
@@ -490,7 +494,7 @@ export default class EnterpriseClusters extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: formatMessage({id:'notification.warn.app'})
+              message: formatMessage({ id: 'notification.warn.app' })
             });
           }
         }
@@ -498,12 +502,39 @@ export default class EnterpriseClusters extends PureComponent {
     });
   };
   // 添加shell
-  terminalCallout = ()=>{
-    const { dispatch } =this.props;
+  terminalCallout = () => {
+    const { dispatch } = this.props;
     dispatch({
       type: 'region/terminalCallout',
       payload: true,
     });
+  }
+  // 行点击事件
+  onClickRow = (record) => {
+    return {
+      onClick: () => {
+        const { jumpSwitch } = this.state;
+        const {
+          dispatch,
+          match: {
+            params: { eid }
+          }
+        } = this.props;
+        if (jumpSwitch) {
+          dispatch(routerRedux.push(`/enterprise/${eid}/clusters/ClustersMGT/${record.region_id}`));
+        }
+      },
+    };
+  }
+  menuMouseEnter = () => {
+    this.setState({
+      jumpSwitch: false
+    })
+  }
+  menuMouseLeave = () => {
+    this.setState({
+      jumpSwitch: true
+    })
   }
   render() {
     const {
@@ -541,7 +572,33 @@ export default class EnterpriseClusters extends PureComponent {
       pageSize: tenantPageSize,
       current: tenantPage
     };
-
+    const moreSvg = () => (
+      <svg
+        t="1581212425061"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="1314"
+        width="32"
+        height="32"
+      >
+        <path
+          d="M512 192m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
+          p-id="1315"
+          fill="#999999"
+        />
+        <path
+          d="M512 512m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
+          p-id="1316"
+          fill="#999999"
+        />
+        <path
+          d="M512 832m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
+          p-id="1317"
+          fill="#999999"
+        />
+      </svg>
+    );
     const colorbj = (color, bg) => {
       return {
         // width: '100px',
@@ -551,16 +608,17 @@ export default class EnterpriseClusters extends PureComponent {
         padding: '2px 0'
       };
     };
+
     const columns = [
       {
         // title: '名称',
-        title: formatMessage({ id: 'table.tr.name' }),
+        title: <span>{formatMessage({ id: 'table.tr.name' })}{<Tooltip placement="top" title={formatMessage({ id: 'enterpriseColony.mgt.cluster.intomgt' })}><span className={styles.nameStyle}>{pageheaderSvg.getSvg('helpSvg', 18)}</span></Tooltip>}</span>,
         dataIndex: 'region_alias',
         align: 'center',
         width: 120,
         render: (val, row) => {
           return (
-            <Link to={`/enterprise/${eid}/clusters/${row.region_id}/dashboard`}>
+            <Link to={`/enterprise/${eid}/clusters/ClustersMGT/${row.region_id}`} className={styles.linkStyle}>
               {val}
             </Link>
           );
@@ -584,15 +642,15 @@ export default class EnterpriseClusters extends PureComponent {
               return (
                 <span style={{ marginRight: '8px' }} key={item}>
                   {/* 自建Kubernetes */}
-                  <FormattedMessage id='enterpriseColony.table.custom'/>
+                  <FormattedMessage id='enterpriseColony.table.custom' />
                 </span>
               );
             case 'rke':
               return (
-                <Tooltip title={<FormattedMessage id='enterpriseColony.table.rke.tooltip'/>}>
+                <Tooltip title={<FormattedMessage id='enterpriseColony.table.rke.tooltip' />}>
                   <span style={{ marginRight: '8px' }} key={item}>
                     {/* 基于主机自建 */}
-                    <FormattedMessage id='enterpriseColony.table.rke'/>
+                    <FormattedMessage id='enterpriseColony.table.rke' />
                   </span>
                 </Tooltip>
               );
@@ -606,14 +664,14 @@ export default class EnterpriseClusters extends PureComponent {
               return (
                 <span style={{ marginRight: '8px' }} key={item}>
                   {/* Helm对接 */}
-                  <FormattedMessage id='enterpriseColony.table.helm'/>
+                  <FormattedMessage id='enterpriseColony.table.helm' />
                 </span>
               );
             default:
               return (
                 <span style={{ marginRight: '8px' }} key={item}>
                   {/* 直接对接 */}
-                  <FormattedMessage id='enterpriseColony.table.other'/>
+                  <FormattedMessage id='enterpriseColony.table.other' />
                 </span>
               );
           }
@@ -627,14 +685,23 @@ export default class EnterpriseClusters extends PureComponent {
         width: 80,
         render: (_, item) => {
           return (
-            <a
-              onClick={() => {
-                this.showRegions(item);
-              }}
+            <span
             >
               {this.handlUnit(item.used_memory)}/
               {this.handlUnit(item.total_memory)}
-            </a>
+            </span>
+          );
+        }
+      },
+      {
+        // title: '内存(GB)',
+        title: 'CPU(Core)',
+        dataIndex: 'total_cpu',
+        align: 'center',
+        width: 80,
+        render: (_, item) => {
+          return (
+            <span>{item.used_cpu}/{item.total_cpu}</span>
           );
         }
       },
@@ -643,7 +710,14 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'table.tr.versions' }),
         dataIndex: 'rbd_version',
         align: 'center',
-        width: 180
+        width: 180,
+        render: val => {
+          if (val.length == 0) {
+            return "-"
+          } else {
+            return val
+          }
+        }
       },
       {
         // title: '状态',
@@ -654,9 +728,9 @@ export default class EnterpriseClusters extends PureComponent {
         render: (val, data) => {
           if (data.health_status === 'failure') {
             return <span style={{ color: 'red' }}>
-                      {/* 通信异常 */}
-                      <FormattedMessage id='enterpriseColony.table.state.err'/>
-                   </span>;
+              {/* 通信异常 */}
+              <FormattedMessage id='enterpriseColony.table.state.err' />
+            </span>;
           }
           switch (val) {
             case '0':
@@ -664,7 +738,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div style={colorbj('#1890ff', '#e6f7ff')}>
                   <Badge color="#1890ff" />
                   {/* 编辑中 */}
-                  <FormattedMessage id='enterpriseColony.table.state.edit'/>
+                  <FormattedMessage id='enterpriseColony.table.state.edit' />
                 </div>
               );
             case '1':
@@ -672,7 +746,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div style={colorbj('#52c41a', '#e9f8e2')}>
                   <Badge color="#52c41a" />
                   {/* 运行中 */}
-                  <FormattedMessage id='enterpriseColony.table.state.run'/>
+                  <FormattedMessage id='enterpriseColony.table.state.run' />
                 </div>
               );
             case '2':
@@ -680,7 +754,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div style={colorbj('#b7b7b7', '#f5f5f5')}>
                   <Badge color="#b7b7b7" />
                   {/* 已下线 */}
-                  <FormattedMessage id='enterpriseColony.table.state.down'/>
+                  <FormattedMessage id='enterpriseColony.table.state.down' />
                 </div>
               );
 
@@ -689,7 +763,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div style={colorbj('#1890ff', '#e6f7ff')}>
                   <Badge color="#1890ff" />
                   {/* 维护中 */}
-                  <FormattedMessage id='enterpriseColony.table.state.maintain'/>
+                  <FormattedMessage id='enterpriseColony.table.state.maintain' />
                 </div>
               );
             case '5':
@@ -697,7 +771,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div style={colorbj('#fff', '#f54545')}>
                   <Badge color="#fff" />
                   {/* 异常 */}
-                  <FormattedMessage id='enterpriseColony.table.state.abnormal'/>
+                  <FormattedMessage id='enterpriseColony.table.state.abnormal' />
                 </div>
               );
             default:
@@ -705,7 +779,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div style={colorbj('#fff', '#ffac38')}>
                   <Badge color="#fff" />
                   {/* 未知 */}
-                  <FormattedMessage id='enterpriseColony.table.state.unknown'/>
+                  <FormattedMessage id='enterpriseColony.table.state.unknown' />
                 </div>
               );
           }
@@ -716,7 +790,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'table.tr.handle' }),
         dataIndex: 'method',
         align: 'center',
-        width: 150,
+        width: 50,
         render: (_, item) => {
           const mlist = [
             <a
@@ -724,7 +798,7 @@ export default class EnterpriseClusters extends PureComponent {
                 this.delUser(item);
               }}
             >
-              <FormattedMessage id='enterpriseColony.table.handle.delete'/>
+              <FormattedMessage id='enterpriseColony.table.handle.delete' />
               {/* 删除 */}
             </a>,
             <a
@@ -732,7 +806,7 @@ export default class EnterpriseClusters extends PureComponent {
                 this.handleEdit(item);
               }}
             >
-              <FormattedMessage id='enterpriseColony.table.handle.edit'/>
+              <FormattedMessage id='enterpriseColony.table.handle.edit' />
               {/* 编辑 */}
             </a>,
             <a
@@ -740,34 +814,54 @@ export default class EnterpriseClusters extends PureComponent {
                 this.showRegions(item);
               }}
             >
-              <FormattedMessage id='enterpriseColony.table.handle.quota'/>
+              <FormattedMessage id='enterpriseColony.table.handle.quota' />
               {/* 资源限额 */}
             </a>,
             <Link
               to={`/enterprise/${eid}/importMessage?region_id=${item.region_id}`}
             >
-              <FormattedMessage id='enterpriseColony.table.handle.import'/>
+              <FormattedMessage id='enterpriseColony.table.handle.import' />
               {/* 导入 */}
-            </Link> 
+            </Link>,
+            <Link to={`/enterprise/${eid}/clusters/${item.region_id}/dashboard`}>
+              {formatMessage({ id: 'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix' })}
+            </Link>
           ];
           if (item.provider === 'rke') {
             mlist.push(
               <Link
                 to={`/enterprise/${eid}/provider/rke/kclusters?clusterID=${item.provider_cluster_id}&updateKubernetes=true`}
               >
-              <FormattedMessage id='enterpriseColony.table.handle.deploy'/>
+                <FormattedMessage id='enterpriseColony.table.handle.deploy' />
                 {/* 节点配置 */}
               </Link>
             );
           }
-          return mlist;
+          const MenuList = (
+            <Menu
+              onMouseEnter={this.menuMouseEnter}
+              onMouseLeave={this.menuMouseLeave}
+            >
+              {mlist.map(item => {
+                return <Menu.Item>
+                  {item}
+                </Menu.Item>
+              })}
+            </Menu>
+          )
+          return <Dropdown
+            overlay={MenuList}
+            placement="bottomLeft"
+          >
+            <Icon component={moreSvg} style={{ width: '100%' }} />
+          </Dropdown>;
         }
       }
     ];
 
     const tenantColumns = [
       {
-        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.team_name'}),
+        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.team_name' }),
         dataIndex: 'team_name',
         align: 'center',
         render: (_, item) => {
@@ -783,27 +877,27 @@ export default class EnterpriseClusters extends PureComponent {
         }
       },
       {
-        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.memory_request'}),
+        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.memory_request' }),
         dataIndex: 'memory_request',
         align: 'center'
       },
       {
-        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.cpu_request'}),
+        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.cpu_request' }),
         dataIndex: 'cpu_request',
         align: 'center'
       },
       {
-        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.set_limit_memory'}),
+        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.set_limit_memory' }),
         dataIndex: 'set_limit_memory',
         align: 'center'
       },
       {
-        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.running_app_num'}),
+        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.running_app_num' }),
         dataIndex: 'running_app_num',
         align: 'center'
       },
       {
-        title: formatMessage({id:'enterpriseColony.table.handle.quota.table.label.method'}),
+        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.method' }),
         dataIndex: 'method',
         align: 'center',
         width: '100px',
@@ -814,7 +908,7 @@ export default class EnterpriseClusters extends PureComponent {
                 this.setTenantLimit(item);
               }}
             >
-              {formatMessage({id:'enterpriseColony.table.handle.quota.table.label.method.btn'})}
+              {formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.method.btn' })}
             </a>
           ];
         }
@@ -833,16 +927,16 @@ export default class EnterpriseClusters extends PureComponent {
     };
     return (
       <PageHeaderLayout
-        title={<FormattedMessage id='enterpriseColony.PageHeaderLayout.title'/>}
-        content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
-        titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
+        title={<FormattedMessage id='enterpriseColony.PageHeaderLayout.title' />}
+        content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content' />}
+        titleSvg={pageheaderSvg.getSvg('clusterSvg', 18)}
       >
         {isNewbieGuide &&
-        showClusterIntroduced &&
-        !clusterLoading &&
-        clusters &&
-        clusters.length &&
-        clusters[0].status === '1' ? (
+          showClusterIntroduced &&
+          !clusterLoading &&
+          clusters &&
+          clusters.length &&
+          clusters[0].status === '1' ? (
           <InstallStep
             onCancel={this.handleClusterIntroduced}
             isCluster
@@ -853,47 +947,46 @@ export default class EnterpriseClusters extends PureComponent {
         ) : (
           ''
         )}
-        
-        <Card 
-          style={{ boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px'}}
+        <Card
+          style={{ boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px' }}
           extra={<Row>
-          <Col span={24} style={{ textAlign: 'right' }}>
-            <Link to={`/enterprise/${eid}/addCluster`}>
-              <Button type="primary">
-                {/* 添加集群 */}
-              <FormattedMessage id='enterpriseColony.button.text'/>
+            <Col span={24} style={{ textAlign: 'right' }}>
+              <Link to={`/enterprise/${eid}/addCluster`}>
+                <Button type="primary">
+                  {/* 添加集群 */}
+                  <FormattedMessage id='enterpriseColony.button.text' />
+                </Button>
+              </Link>
+              <Button onClick={this.terminalCallout} style={{ marginLeft: 15 }}>
+                {formatMessage({ id: 'otherEnterprise.shell.line' })}
               </Button>
-            </Link>
-            <Button onClick={this.terminalCallout} style={{marginLeft:15}}>
-               {formatMessage({id:'otherEnterprise.shell.line'})}
-            </Button>
-            
-            <Button
-              style={{ marginLeft: '16px' }}
-              onClick={() => {
-                this.loadClusters();
-              }}
-            >
-              <Icon type="reload" />
-            </Button>
-            {guideStep === 1 &&
-              this.props.novices &&
-              rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
-              clusters &&
-              clusters.length === 0 &&
-              this.handleNewbieGuiding({
-                // tit: '去添加集群',
-                tit: formatMessage({id:'enterpriseColony.guideStep.title'}),
-                // desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
-                desc: formatMessage({id:'enterpriseColony.guideStep.desc'}),
-                nextStep: 2,
-                configName: 'addCluster',
-                isSuccess: false,
-                conPosition: { right: 0, bottom: '-180px' },
-                svgPosition: { right: '50px', marginTop: '-11px' }
-              })}
-          </Col>
-        </Row>}
+
+              <Button
+                style={{ marginLeft: '16px' }}
+                onClick={() => {
+                  this.loadClusters();
+                }}
+              >
+                <Icon type="reload" />
+              </Button>
+              {guideStep === 1 &&
+                this.props.novices &&
+                rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
+                clusters &&
+                clusters.length === 0 &&
+                this.handleNewbieGuiding({
+                  // tit: '去添加集群',
+                  tit: formatMessage({ id: 'enterpriseColony.guideStep.title' }),
+                  // desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
+                  desc: formatMessage({ id: 'enterpriseColony.guideStep.desc' }),
+                  nextStep: 2,
+                  configName: 'addCluster',
+                  isSuccess: false,
+                  conPosition: { right: '100px', bottom: '-180px' },
+                  svgPosition: { right: '170px', marginTop: '-11px' }
+                })}
+            </Col>
+          </Row>}
         >
           {delVisible && (
             <ConfirmModal
@@ -918,13 +1011,16 @@ export default class EnterpriseClusters extends PureComponent {
           <Alert
             style={{ marginBottom: '16px' }}
             // message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
-            message={<FormattedMessage id='enterpriseColony.alert.message'/>}
+            message={<FormattedMessage id='enterpriseColony.alert.message' />}
           />
           <Table
             // scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
             loading={clusterLoading}
             dataSource={clusters}
             columns={columns}
+            pagination={false}
+            onRow={this.onClickRow}
+            rowClassName={styles.rowStyle}
           />
         </Card>
         {showTenantList && (
@@ -941,20 +1037,20 @@ export default class EnterpriseClusters extends PureComponent {
               <div>
                 <Alert
                   style={{ margin: '20px 0 16px 0' }}
-                  message={formatMessage({id:'enterpriseColony.table.handle.quota.alert'},{name:limitTeamName}) + formatMessage({id:'enterpriseColony.table.handle.quota.alert1'},{region:regionAlias})}
+                  message={formatMessage({ id: 'enterpriseColony.table.handle.quota.alert' }, { name: limitTeamName }) + formatMessage({ id: 'enterpriseColony.table.handle.quota.alert1' }, { region: regionAlias })}
                 />
                 <Form onSubmit={this.submitLimit}>
                   <Form.Item
                     {...formItemLayout}
                     name="limit_memory"
-                    label={formatMessage({id:'enterpriseColony.table.handle.quota.form.label.limit_memory'})}
+                    label={formatMessage({ id: 'enterpriseColony.table.handle.quota.form.label.limit_memory' })}
                   >
                     {getFieldDecorator('limit_memory', {
                       initialValue: initLimitValue,
                       rules: [
                         {
                           required: true,
-                          message: formatMessage({id:'placeholder.limit_memory'})
+                          message: formatMessage({ id: 'placeholder.limit_memory' })
                         }
                       ]
                     })(
@@ -975,7 +1071,7 @@ export default class EnterpriseClusters extends PureComponent {
                         });
                       }}
                     >
-                      {formatMessage({id:'button.cancel'})}
+                      {formatMessage({ id: 'button.cancel' })}
                     </Button>
                     <Button
                       style={{ marginLeft: '16px' }}
@@ -983,17 +1079,17 @@ export default class EnterpriseClusters extends PureComponent {
                       loading={limitSummitLoading}
                       htmlType="submit"
                     >
-                      {formatMessage({id:'button.confirm'})}
+                      {formatMessage({ id: 'button.confirm' })}
                     </Button>
                   </div>
                 </Form>
               </div>
             )}
             {!setTenantLimitShow && (
-              <div >
+              <div style={{ padding: '0px 24px' }}>
                 <Alert
                   style={{ margin: '20px 0 16px 0' }}
-                  message={formatMessage({id:'enterpriseColony.table.handle.quota.form.label.alert'})}
+                  message={formatMessage({ id: 'enterpriseColony.table.handle.quota.form.label.alert' })}
                 />
                 <Table
                   pagination={pagination}

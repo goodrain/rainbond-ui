@@ -13,12 +13,6 @@ class DAinputs extends Component {
     this.initFromProps();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if ('value' in nextProps) {
-      const { value } = nextProps;
-      this.initFromProps(value);
-    }
-  }
   onkeyChange = (value, index) => {
     const { values } = this.state;
     values[index].key = value;
@@ -78,6 +72,7 @@ class DAinputs extends Component {
   }
 
   render() {
+    const { setspan = false} = this.props
     const keyPlaceholder = this.props.keyPlaceholder || 'key';
     const repPlaceholder = this.props.repPlaceholder || 'value';
     const { values } = this.state;
@@ -88,7 +83,7 @@ class DAinputs extends Component {
           return (
             <Row key={index}>
               <Col
-                span={4}
+                span={setspan || 4}
                 style={{
                   textAlign: 'center',
                   marginRight: '27px'
@@ -104,7 +99,7 @@ class DAinputs extends Component {
                 />
               </Col>
               <Col
-                span={4}
+                span={setspan || 4}
                 style={{
                   textAlign: 'center',
                   marginRight: '27px'

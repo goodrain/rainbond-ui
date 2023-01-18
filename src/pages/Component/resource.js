@@ -35,6 +35,9 @@ import { languageObj } from '../../utils/utils';
 import styles from './resource.less';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
+import ModifyUrl from '../Create/modify-url';
+import ModifyImageCmd from '../Create/modify-image-cmd';
+import ModifyImageName from '../Create/modify-image-name';
 import { ResumeContext } from './funContext'
 
 const { TabPane } = Tabs;
@@ -81,20 +84,69 @@ export default class Index extends PureComponent {
       event_id: '',
       percents: false,
       existFileList: [],
+      modifyUrl: false,
+      modifyUserpass: false,
+      showKey: false,
+      modifyImageName: false,
+      modifyImageCmd: false,
     };
   }
   static contextType = ResumeContext;
 
   componentDidMount() {
-    this.setOauthService();
-    this.getRuntimeInfo();
-    this.loadBuildSourceInfo();
+    if(this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias){
+      this.setOauthService();
+      this.getRuntimeInfo();
+      this.loadBuildSourceInfo();
+      this.bindEvent()
+    }else{
+      this.time()
+    }
   }
   componentWillUnmount() {
     this.loop = false;
     this.statusloop = false;
+    this.unbindEvent()
   }
 
+  bindEvent = () => {
+    document.addEventListener('click', this.handleClick, false);
+  };
+  unbindEvent = () => {
+    document.removeEventListener('click', this.handleClick);
+  };
+
+  handleClick = e => {
+    let parent = e.target;
+    const appDetail = this.props && this.props.appDetail && this.props.appDetail.service;
+    while (parent) {
+      if (parent === document.body) {
+        return;
+      }
+      const actionType = parent.getAttribute('action_type');
+      if (actionType === 'modify_url' || actionType === 'modify_repo') {
+        this.setState({ modifyUrl: actionType });
+        return;
+      }
+
+      if (actionType === 'modify_userpass') {
+        this.setState({ modifyUserpass: true });
+        return;
+      }
+
+      parent = parent.parentNode;
+    }
+  };
+  time = () =>{
+    const time = setTimeout(()=>{
+      if(this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias){
+        this.setOauthService();
+        this.getRuntimeInfo();
+        this.loadBuildSourceInfo();
+        this.bindEvent()
+      }
+    },2000)
+  }
   // 上传文件取消
   handleUploadCancel = () => {
     this.setState({ uploadFile: false })
@@ -209,10 +261,10 @@ export default class Index extends PureComponent {
             this.setState({
               existFileList: data.bean.package_name
             });
-            notification.success({
-              message:  formatMessage({id:'notification.success.upload_file'})
-            })
-            this.loop = false
+            // notification.success({
+            //   message:  formatMessage({id:'notification.success.upload_file'})
+            // })
+            // this.loop = false
           }
         }
         if (this.loop) {
@@ -319,7 +371,7 @@ export default class Index extends PureComponent {
       type: 'appControl/getRuntimeBuildInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias
+        app_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias
       },
       callback: data => {
         if (data) {
@@ -333,7 +385,7 @@ export default class Index extends PureComponent {
       type: 'appControl/editRuntimeBuildInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
+        app_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
         build_env_dict
       },
       callback: res => {
@@ -349,7 +401,7 @@ export default class Index extends PureComponent {
       type: 'appControl/editAppCreateInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
+        app_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
         ...val
       },
       callback: data => {
@@ -381,7 +433,7 @@ export default class Index extends PureComponent {
       type: 'appControl/getAppBuidSource',
       payload: {
         team_name,
-        service_alias: this.props.appDetail.service.service_alias
+        service_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias
       },
       callback: data => {
         if (data) {
@@ -447,7 +499,7 @@ export default class Index extends PureComponent {
       type: 'appControl/getLanguage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail.service.service_alias,
+        service_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
         check_uuid: this.state.check_uuid
       },
       callback: res => {
@@ -482,7 +534,7 @@ export default class Index extends PureComponent {
       type: 'appControl/putLanguage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail.service.service_alias,
+        service_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
         eventId: event_id
       },
       callback: res => {
@@ -672,6 +724,35 @@ export default class Index extends PureComponent {
     } = this.props;
     return isSource;
   }
+
+  cancelModifyUrl = () => {
+    this.setState({ modifyUserpass: false });
+  };
+  handleCancelEdit = () => {
+    this.setState({ modifyUserpass: false });
+  };
+  //源码
+  handleModifyUrl = values => {
+    const appDetail = this.props && this.props.appDetail && this.props.appDetail.service;
+    const teamName = globalUtil.getCurrTeamName()
+    this.props.dispatch({
+      type: 'appControl/editAppCreateInfo',
+      payload: {
+        service_cname: values.service_cname ? values.service_cname : '',
+        git_url: values.git_url ? values.git_url : '',
+        team_name: teamName,
+        app_alias: appDetail.service_alias,
+        user_name: values.user_name,
+        password: values.password
+      },
+      callback: data => {
+        if (data) {
+          this.handleDetectPutLanguage()
+          this.handleCancelEdit();
+        }
+      }
+    });
+  };
   render() {
     if (!this.canView()) return <NoPermTip />;
 
@@ -689,6 +770,11 @@ export default class Index extends PureComponent {
       fileList,
       record,
       existFileList,
+      modifyUrl,
+      modifyUserpass,
+      modifyImageName,
+      modifyImageCmd,
+      showKey,
     } = this.state;
     const myheaders = {};
     const language = appUtil.getLanguage(appDetail);
@@ -1136,18 +1222,53 @@ export default class Index extends PureComponent {
           >
             <Upload
               fileList={fileList}
-              accept=".jar,.war"
               name="packageTarFile"
               onChange={this.onChangeUpload}
               onRemove={this.onRemove}
               action={record.upload_url}
               headers={myheaders}
+              multiple={true}
             >
               <Button>
                 <Icon type="upload" /> <FormattedMessage id='componentOverview.body.Resource.upload'/>
               </Button>
             </Upload>
-            <div style={{marginTop:'20px'}}>
+              <div
+                style={{
+                  display: 'flex',
+                  marginTop:'20px'
+                }}
+              >
+                <div>
+                  {existFileList.length > 0 ?
+                    (existFileList.map((item) => {
+                      return (
+                        <div style={{ padding:'12px 8px',border:'1px solid #d9d9d9'}}>
+                          <Icon style={{ marginRight: '6px' }} type="inbox" />
+                          <span className={styles.fileName}>
+                            {item}
+                          </span>
+                        </div>
+                      )
+                    })) : (
+                     null
+                    )}
+                </div>
+                {existFileList.length > 0 &&
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: '#ff7b7b',
+                      padding: '0px 12px',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
+                  </div>
+                }
+              </div>
+            {/* <div style={{marginTop:'20px'}}>
               {existFileList.length > 0 && existFileList.map((item) => {
                 return (
                   <div className={styles.update}>
@@ -1157,7 +1278,7 @@ export default class Index extends PureComponent {
                   </div>
                 )
               })}
-            </div>
+            </div> */}
           </Modal>
         }
         {languageType && runtimeInfo && (
@@ -1332,6 +1453,16 @@ export default class Index extends PureComponent {
             </Spin>{' '}
           </Modal>
         )}
+        {modifyUserpass &&  
+          <ModifyUrl
+            showUsernameAndPass
+            isServiceCname={true}
+            data={buildSource}
+            service_cname={appDetail && appDetail.service && appDetail.service.service_cname}
+            onSubmit={this.handleModifyUrl}
+            onCancel={this.cancelModifyUrl}
+          />
+        }
         {this.state.showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}

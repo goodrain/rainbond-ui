@@ -55,6 +55,7 @@ export default class EnterpriseSetting extends PureComponent {
         // content="支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供"
         content={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.content'/>}
         titleSvg={pageheaderSvg.getSvg("settingSvg",18)}
+        isContent={true} 
       >
         <Tabs 
           onChange={this.onChange} 

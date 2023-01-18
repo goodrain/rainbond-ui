@@ -60,10 +60,11 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const { form, onSubmit } = this.props;
+    const { form, onSubmit, handleType } = this.props;
+    const isService = handleType && handleType === 'Service' ? 'service' : 'team' ;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
-        onSubmit(fieldsValue);
+        onSubmit(fieldsValue, isService);
       }
     });
   };

@@ -80,7 +80,19 @@ export default [
             path: '/enterprise/:eid/clusters',
             component: './EnterpriseClusters',
             name: 'EnterpriseClusters',
-            authority: ['admin', 'user']
+            authority: ['admin', 'user'],
+          },
+          {
+            path: '/enterprise/:eid/clusters/ClustersMGT/:regionID',
+            component: './EnterpriseClusters/ClustersMGT',
+            name: 'EnterpriseClustersMGT',
+            authority: ['admin', 'user'],
+          },
+          {
+            path: '/enterprise/:eid/clusters/NodeMGT/:regionID',
+            component: './EnterpriseClusters/NodeMGT',
+            name: 'EnterpriseNodeMGT',
+            authority: ['admin', 'user'],
           },
           {
             path: '/enterprise/:eid/monitoring/:monitoringKey/dashboard',
@@ -122,6 +134,12 @@ export default [
             path: '/enterprise/:eid/logs',
             component: './LogManagement',
             name: 'LogManagement',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/extension',
+            component: './Extension',
+            name: 'Extension',
             authority: ['admin', 'user']
           },
           {
@@ -237,7 +255,7 @@ export default [
         component: '../layouts/TeamLayout',
         name: 'TeamBasicLayout',
         authority: ['admin', 'user'],
-        Routes: ['./src/layouts/TeamPermissions.js'],
+        // Routes: ['./src/layouts/TeamPermissions.js'],
         routes: [
           // 总览
           {

@@ -30,10 +30,37 @@ export default class ApplicationGovernance extends PureComponent {
     this.state = {
       step: false,
       ServiceNameList: [],
-      btnConfig: false
+      btnConfig: false,
+      list: [],
+      governName: this.props.mode || '',
+      isFlag: (this.props.mode == 'KUBERNETES_NATIVE_SERVICE' || this.props.mode == 'BUILD_IN_SERVICE_MESH') ? true : false,
+      action: '',
+      newFlag: false,
     };
   }
 
+  componentDidMount(){
+    this.handleGovernanceModelList()
+  }
+  //获取治理模式列表
+  handleGovernanceModelList = value => {
+    const { dispatch, appID } = this.props;
+    dispatch({
+      type: 'application/getGovernancemodeList',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_id: appID,
+      },
+      callback: res => {
+        this.setState({
+          list: res.list
+        })
+      },
+      handleError: err => {
+        
+      }
+    });
+  };
   setK8sServiceNames = value => {
     const { dispatch, appID, onCancel } = this.props;
     const { ServiceNameList } = this.state;
@@ -77,7 +104,7 @@ export default class ApplicationGovernance extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form } = this.props;
-    const { step } = this.state;
+    const { step, isFlag, action, newFlag } = this.state;
     form.validateFields((err, value) => {
       if (!err) {
         if (step) {
@@ -91,20 +118,29 @@ export default class ApplicationGovernance extends PureComponent {
 
   handleGovernancemode = value => {
     const { dispatch, appID, onCancel, onOk } = this.props;
+    const { action } = this.state
     dispatch({
       type: 'application/setgovernancemode',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID,
-        governance_mode: value.governance_mode
+        governance_mode: value.governance_mode,
+        action: action,
       },
-      callback: () => {
+      callback: (res) => {
+        if(res.bean.governance_cr && action == 'create'){
+          this.handleCreateKubernetes(res.bean.governance_cr)
+        }else if(res.bean.governance_cr && action == 'update'){
+          this.handleUpdateKubernetes(res.bean.governance_cr)
+        }else{
+          this.handleDeleteKubernetes()
+        }
         onOk();
-        if (value.governance_mode === 'BUILD_IN_SERVICE_MESH') {
+        if (value.governance_mode !== 'BUILD_IN_SERVICE_MESH') {
+          this.fetchServiceNameList();
+        } else {
           this.handleNotification();
           onCancel();
-        } else {
-          this.fetchServiceNameList();
         }
       }
     });
@@ -192,38 +228,151 @@ export default class ApplicationGovernance extends PureComponent {
   };
   // 切换治理模式
   handleChange = value => {
+    const { dispatch, appID, mode } = this.props;
+    if(value == 'BUILD_IN_SERVICE_MESH' || value == 'KUBERNETES_NATIVE_SERVICE'){
+      this.setState({
+        newFlag: true
+      },()=>{
+        const { isFlag, newFlag} = this.state
+        if(isFlag){
+          if(isFlag == newFlag){
+            this.setState({
+              action: ''
+            },()=>{
+              this.getActionValue()
+            })
+          }else{
+            this.setState({
+              action: 'create'
+            },()=>{
+              this.getActionValue()
+            })
+          }
+        }else{
+          if(isFlag == newFlag){
+            this.setState({
+              action: 'update'
+            },()=>{
+              this.getActionValue()
+            })
+          }else{
+            this.setState({
+              action: 'delete'
+            },()=>{
+              this.getActionValue()
+            })
+          }
+        }
+      })
+    }else{
+      this.setState({
+        newFlag: false
+      },()=>{
+        const { isFlag, newFlag} = this.state
+        if(isFlag){
+          if(isFlag == newFlag){
+            this.setState({
+              action: 'update'
+            },()=>{
+              this.getActionValue()
+            })
+          }else{
+            this.setState({
+              action: 'create'
+            },()=>{
+              this.getActionValue()
+            })
+          }
+        }else{
+          if(isFlag == newFlag){
+            this.setState({
+              action: 'update'
+            },()=>{
+              this.getActionValue()
+            })
+          }else{
+            this.setState({
+              action: 'delete'
+            },()=>{
+              this.getActionValue()
+            })
+          }
+        }
+      })
+    }
+  };
+
+  // 获取action value
+  getActionValue = () => {
+    const { action } = this.state
+    return action
+  }
+
+  // 创建 k8s 资源
+  handleCreateKubernetes = yamlValue => {
     const { dispatch, appID } = this.props;
     dispatch({
-      type: 'application/checkoutGovernanceModel',
+      type: 'application/createKubernetesVal',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_id: appID,
-        governance_mode: value
+        governance_cr: yamlValue,
       },
       callback: res => {
-        res &&
-          this.setState({
-            btnConfig: false
-          });
+        
       },
       handleError: err => {
-        if (err && err.data && err.data.code === 11009) {
-          notification.warning({
-            message: formatMessage({id: 'placeholder.govern.change'})
-          });
-          this.setState({
-            btnConfig: true
-          });
-        }
+        
       }
     });
   };
+  // 更新 k8s 资源
+  handleUpdateKubernetes = yamlValue => {
+    const { dispatch, appID } = this.props;
+    dispatch({
+      type: 'application/updateKubernetesVal',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_id: appID,
+        governance_cr: yamlValue,
+      },
+      callback: res => {
+        
+      },
+      handleError: err => {
+        
+      }
+    });
+  };
+  // 删除 k8s 资源
+  handleDeleteKubernetes = () => {
+    const { dispatch, appID } = this.props;
+    dispatch({
+      type: 'application/deleteKubernetesVal',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_id: appID,
+      },
+      callback: res => {
+        
+      },
+      handleError: err => {
+        
+      }
+    });
+  };
+
+  handleFindDesc = (governName) => {
+    const { list } = this.state
+    return (
+      <div style={{ marginTop: '10px' }}>
+      {list.map((item)=>{
+        return item.name == governName ? item.description : ''
+      })}
+      </div>
+    )
+  }
   render() {
-    const list = [
-      { key: 'KUBERNETES_NATIVE_SERVICE', name: formatMessage({id: 'global.fetchGovernanceMode.KUBERNETES_NATIVE_SERVICE'}) },
-      { key: 'BUILD_IN_SERVICE_MESH', name: formatMessage({id: 'global.fetchGovernanceMode.BUILD_IN_SERVICE_MESH'}) },
-      { key: 'ISTIO_SERVICE_MESH', name: formatMessage({id: 'global.fetchGovernanceMode.ISTIO_SERVICE_MESH'}) }
-    ];
     const {
       loading = false,
       onCancel,
@@ -232,11 +381,8 @@ export default class ApplicationGovernance extends PureComponent {
       governanceLoading,
       mode
     } = this.props;
-    const { step, ServiceNameList, btnConfig } = this.state;
+    const { step, ServiceNameList, btnConfig, list, action, governName } = this.state;
     const { getFieldDecorator, getFieldValue } = form;
-    const type =
-      getFieldValue('governance_mode') || mode || 'KUBERNETES_NATIVE_SERVICE';
-
     return (
       <Modal
         title={formatMessage({id: 'confirmModal.app.govern.title'})}
@@ -368,8 +514,8 @@ export default class ApplicationGovernance extends PureComponent {
                   >
                     {list.map(item => {
                       return (
-                        <Option key={item.key} value={item.key}>
-                          {item.name}
+                        <Option key={item.name} value={item.name}>
+                          {(item.name === 'BUILD_IN_SERVICE_MESH' || item.name === 'KUBERNETES_NATIVE_SERVICE') ? globalUtil.fetchGovernanceMode(item.name) : item.name}
                         </Option>
                       );
                     })}
@@ -393,13 +539,14 @@ export default class ApplicationGovernance extends PureComponent {
                   {formatMessage({id: 'confirmModal.app.govern.label.mode'})}
                 </label>
 
-                <div style={{ marginTop: '10px' }}>
-                  {type === 'KUBERNETES_NATIVE_SERVICE'
+                
+                  {/* {type === 'KUBERNETES_NATIVE_SERVICE'
                     ? formatMessage({id: 'confirmModal.app.govern.label.service'})
                     : type === 'BUILD_IN_SERVICE_MESH'
                     ? formatMessage({id: 'confirmModal.app.govern.label.serviceMesh'})
-                    : formatMessage({id: 'confirmModal.app.govern.label.istio'})}
-                </div>
+                    : '-'} */}
+                    {this.handleFindDesc(governName)}
+                
               </div>
             </div>
           )}

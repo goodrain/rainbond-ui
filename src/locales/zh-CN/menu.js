@@ -7,6 +7,8 @@ const enterpriseMenu = {
   'menu.enterprise.user': '用户',
   'menu.enterprise.monitoring': '监控',
   'menu.enterprise.audit': '审计',
+  'menu.enterprise.log': '日志',
+  'menu.enterprise.extension': '扩展',
   'menu.enterprise.setting': '设置',
 }
 const teamMenu = {
@@ -40,7 +42,6 @@ const CustomFooter = {
   'CustomFooter.website':'官网',
   'CustomFooter.services':'企业服务',
   'CustomFooter.community':'社区',
-
   'GlobalHeader.success':'修改成功，请重新登录',
   'GlobalHeader.core':'个人中心',
   'GlobalHeader.edit':'修改密码',

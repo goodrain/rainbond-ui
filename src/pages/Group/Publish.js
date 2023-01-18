@@ -285,12 +285,12 @@ export default class AppPublishList extends PureComponent {
         >
           <ScrollerX sm={800}>
             <Table
-              pagination={{
+              pagination={total > 10 ?{
                 current: page,
                 pageSize,
                 total,
                 onChange: this.onPageChange
-              }}
+              }:false}
               dataSource={recoders || []}
               columns={[
                 {
