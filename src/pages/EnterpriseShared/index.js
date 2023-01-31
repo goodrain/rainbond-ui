@@ -400,7 +400,8 @@ export default class EnterpriseShared extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState(
             {
-              helmTab: Array.isArray(res) ? res : []
+              helmTab: Array.isArray(res) ? res : [],
+              tabsList: []
             },
             () => {
               const arr = [];
@@ -754,12 +755,15 @@ export default class EnterpriseShared extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          this.handleCloseDeleteAppMarket();
-          this.getMarketsTab();
           this.setState({
             activeTabKey: 'local',
             marketInfo: false,
-            deleteAppMarketLoading: false
+            deleteAppMarketLoading: false,
+            tabsList: []
+          },()=>{
+            this.handleCloseDeleteAppMarket();
+            this.getMarketsTab();
+            this.getHelmMarketsTab();
           });
           notification.success({
             message: formatMessage({id:'notification.success.delete'})
@@ -785,12 +789,15 @@ export default class EnterpriseShared extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          this.handleCloseDeleteHelmAppMarket();
-          this.getHelmMarketsTab();
           this.setState({
             activeTabKey: 'local',
             helmInfo: false,
-            deleteHelmAppMarketLoading: false
+            deleteHelmAppMarketLoading: false,
+            tabsList: []
+          },()=>{
+            this.handleCloseDeleteHelmAppMarket();
+            this.getHelmMarketsTab();
+            this.getMarketsTab();
           });
           notification.success({
             message: formatMessage({id:'notification.success.delete'})
@@ -1956,6 +1963,7 @@ export default class EnterpriseShared extends PureComponent {
             eid={eid}
             title={<FormattedMessage id='applicationMarket.localMarket.add_app'/>}
             onOk={this.getHelmMarketsTab}
+            onOkMarketsTab={this.getMarketsTab}
             onCancel={this.handleCancelAppMarket}
             currStep={1}
           />

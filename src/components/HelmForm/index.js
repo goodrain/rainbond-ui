@@ -56,7 +56,7 @@ export default class Index extends PureComponent {
   };
 
   handleCreateAppStore = () => {
-    const { dispatch, form, eid, onCancel, onOk } = this.props;
+    const { dispatch, form, eid, onCancel, onOk, onOkMarketsTab } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
         this.setState({
@@ -68,6 +68,7 @@ export default class Index extends PureComponent {
           callback: res => {
             if (res && res.status_code === 200 && onOk && onCancel) {
               onOk(res.name);
+              onOkMarketsTab()
               onCancel();
             }
             this.handleClose();
