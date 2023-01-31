@@ -582,7 +582,7 @@ export default class Index extends PureComponent {
               )}
             </div>
           ) : (
-            <HelmForm onCancel={onCancel} data={false} eid={eid} onOk={onOk} />
+            <HelmForm onCancel={onCancel} data={false} eid={eid} onOk={onOk} onOkMarketsTab={this.props.onOkMarketsTab} />
           )}
         </Modal>
       )
