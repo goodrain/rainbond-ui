@@ -212,7 +212,7 @@ class Index extends PureComponent {
   handYamlValidation = (value) => {
     try {
         if(value){
-            const jsonData = jsYaml.load(value)
+            const jsonData = jsYaml.loadAll(value)
             return jsonData
         }   
     } catch (e) {
