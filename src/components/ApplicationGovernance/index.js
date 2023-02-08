@@ -375,6 +375,21 @@ export default class ApplicationGovernance extends PureComponent {
       </div>
     )
   }
+  blurInput = (e, id) =>{
+    const { ServiceNameList } = this.state;
+    const arr = [];
+    ServiceNameList.map((item,index)=>{
+      if(item.service_id == id){
+        item.k8s_service_name = e.target.value
+        arr.push(item)
+      }else{
+        arr.push(item)
+      }
+    })
+    this.setState({
+      ServiceNameList: arr
+    })
+  }
   render() {
     const {
       loading = false,
@@ -478,7 +493,7 @@ export default class ApplicationGovernance extends PureComponent {
                             }
                           ]
                         }
-                      )(<Input size="small" />)}
+                        )(<Input size="small" onBlur={(e)=>{this.blurInput(e, data.service_id)}}/>)}
                     </FormItem>
                   )
                 }
