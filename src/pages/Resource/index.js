@@ -4,6 +4,7 @@
 import PageHeaderLayout from '@/layouts/PageHeaderLayout';
 import { Button, Card, Drawer, Form, Table, notification, Popover, Spin } from 'antd';
 import React, { PureComponent } from 'react';
+import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from "../../utils/global"
 import jsYaml from 'js-yaml'
@@ -13,6 +14,7 @@ import ConfirmModal from "../../components/ConfirmModal";
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
 
+@connect()
 @Form.create()
 class Index extends PureComponent {
   constructor(props) {
@@ -125,12 +127,18 @@ class Index extends PureComponent {
   }
   // 删除提示框弹出
   deleteButton = (val) => {
-    this.setState({
-      showDeletePort: !this.state.showDeletePort
-    })
-    this.setState({
-      deleteVal: val,
-    })
+    if(val){
+      this.setState({
+        showDeletePort: !this.state.showDeletePort
+      })
+      this.setState({
+        deleteVal: val,
+      })
+    }else{
+      this.setState({
+        showDeletePort: !this.state.showDeletePort
+      })
+    }
   }
   // 删除
   handleDel = () => {
@@ -221,13 +229,60 @@ class Index extends PureComponent {
         notification.error({ message: str, duration: 30, top: 10 })
     }
   } 
+  onSelectChange = (selectedRowKeys) => {
+    this.setState({ selectedRowKeys });
+   };
+   batchDeletion = () =>{
+     const {selectedRowKeys} = this.state;
+     const { dispatch } = this.props;
+     const teamName = globalUtil.getCurrTeamName()
+     const app_id = globalUtil.getAppID();
+     this.setState({
+       handelType:"multiple"
+     })
+     dispatch({
+       type: 'application/batchDelSingleKubernetesVal',
+       payload: {
+         List_id: selectedRowKeys,
+         team_name: teamName,
+         app_id: app_id,
+       },
+       callback: data => {
+        notification.success({
+          message: formatMessage({id:'notification.success.delete'})
+        })
+         this.setState({
+           showDeletePort: !this.state.showDeletePort,
+           selectedRowKeys: []
+         },()=>{
+           this.getPageContent()
+         })
+         
+       },
+       handleError: (err)=>{
+         notification.error({
+          message: formatMessage({id:'notification.error.delete'})
+        })
+         this.setState({
+           showDeletePort: !this.state.showDeletePort,
+           selectedRowKeys: []
+         },()=>{
+           this.getPageContent()
+         })
+       }
+     });
+   }
   render() {
     const {
       form: { getFieldDecorator, setFieldsValue },
 
     } = this.props;
-    const { content, localContent, title, isSubmit, loadingSwitch, TooltipValue, type } = this.state;
+    const { content, localContent, title, isSubmit, loadingSwitch, TooltipValue, type, selectedRowKeys, handelType } = this.state;
     const isBool = (type == "add") ? true : false 
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: this.onSelectChange,
+    };
     const formItemLayout = {
       labelCol: {
         xs: { span: 4 },
@@ -329,7 +384,14 @@ class Index extends PureComponent {
                 <span className={styles.action} onClick={() => this.editButton("edit", record)} style={{ marginRight: "10px" }}>{formatMessage({id: 'addKubenetesResource.table.btn.edit'})}</span>
               )
               }
-              <span className={styles.action} onClick={() => this.deleteButton(record)}>{formatMessage({id: 'addKubenetesResource.table.btn.delete'})}</span>
+                <span className={styles.action} onClick={() => {
+                this.setState({
+                  handelType:'single'
+                })
+                this.deleteButton(record)}
+                }>
+                  {formatMessage({id: 'addKubenetesResource.table.btn.delete'})}
+              </span>
             </>
           );
         }
@@ -343,11 +405,32 @@ class Index extends PureComponent {
         titleSvg={pageheaderSvg.getSvg('k8sSvg',18)}
       >
         <Card 
+        className={styles.CardStyle}
         style={{
           borderRadius: 5,
           boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
         }}
         extra={
+          <div
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: selectedRowKeys && selectedRowKeys.length > 0 ?'space-between': "end"
+          }}
+          >
+          {selectedRowKeys && selectedRowKeys.length > 0 && 
+          <Button
+          type="primary"
+          onClick={() => {
+            this.deleteButton();
+            this.setState({
+              handelType:'multiple'
+            })
+          }}
+          >
+           <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.delete'/>
+          </Button>
+          }
           <Button
             type="primary"
             icon="plus"
@@ -357,6 +440,7 @@ class Index extends PureComponent {
           >
             {formatMessage({id: 'addKubenetesResource.btn.add'})}
           </Button>
+          </div>
         }
         >
           {loadingSwitch ? (
@@ -364,7 +448,12 @@ class Index extends PureComponent {
               <Spin size="large" />
             </div>
           ): (
-              <Table dataSource = { content } columns = { columns } />
+              <Table 
+              dataSource = { content } 
+              columns = { columns } 
+              rowSelection={rowSelection} 
+              rowKey={record => record.ID}
+              />
 
             )}
 
@@ -417,7 +506,7 @@ class Index extends PureComponent {
             title={formatMessage({id:'confirmModal.delete.resource.title'})}
             desc={formatMessage({id:'confirmModal.delete.resource.desc'})}
             subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            onOk={this.handleDel}
+            onOk={handelType == "multiple" ? this.batchDeletion :  this.handleDel}
             onCancel={this.cancalDeletePort}
           />
         )}
