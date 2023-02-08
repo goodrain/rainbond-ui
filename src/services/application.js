@@ -940,6 +940,19 @@ export async function delSingleKubernetesVal(body = {}) {
     }
   );
 }
+// 应用下批量删除k8s资源
+export async function batchDelSingleKubernetesVal(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources`,
+    {
+      method: 'DELETE',
+      data: {
+        ids:body.List_id,
+      },
+      handleError
+    }
+  );
+}
 // 应用下修改单个k8s资源
 export async function editSingleKubernetesVal(body = {}) {
   return request(

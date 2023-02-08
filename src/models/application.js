@@ -62,6 +62,7 @@ import {
   deleteKubernetesVal,
   createKubernetesVal,
   updateKubernetesVal,
+  batchDelSingleKubernetesVal
 } from '../services/application';
 
 export default {
@@ -485,7 +486,12 @@ export default {
         callback(data);
       }
     },
-
+    *batchDelSingleKubernetesVal({ payload, callback, handleError }, { call }) {
+      const data = yield call(batchDelSingleKubernetesVal, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
   },
   reducers: {
     clearApps(state) {
