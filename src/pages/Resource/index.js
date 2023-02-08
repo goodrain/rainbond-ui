@@ -248,7 +248,6 @@ class Index extends PureComponent {
          app_id: app_id,
        },
        callback: data => {
-        console.log(data);
         notification.success({
           message: formatMessage({id:'notification.success.delete'})
         })
@@ -261,7 +260,6 @@ class Index extends PureComponent {
          
        },
        handleError: (err)=>{
-        console.log(err);
          notification.error({
           message: formatMessage({id:'notification.error.delete'})
         })
