@@ -16,11 +16,32 @@ class Index extends PureComponent {
             list: [],
             instances: [],
             logs:[],
+            wsurl: null,
         }
     }
     componentDidMount() {
         this.fetchInstanceInfo();
+        this.fetchUpClusters();
     }
+    // 获取编辑集群信息 获取当前集群的websocket通信地址
+    fetchUpClusters = () => {
+        const { dispatch, eid, regionId } = this.props;
+        dispatch({
+          type: 'region/fetchEnterpriseCluster',
+          payload: {
+            region_id: regionId,
+            enterprise_id: eid
+          },
+          callback: res => {
+            if (res && res.status_code === 200) {
+             this.setState({
+                wsurl: res.bean.wsurl
+             })
+            }
+          }
+        });
+    };
+    
     // 请求所有日志
     fetchInstanceInfo = () => {
         const { dispatch, region } = this.props;
@@ -59,14 +80,14 @@ class Index extends PureComponent {
     }
     render() {
         const { region, tcpUrl } = this.props;
-        const { ClusterArr, instances, enClusterArr} = this.state;
+        const { ClusterArr, instances, enClusterArr, wsurl} = this.state;
         return (
             <>
                 <Card style={{ padding:'24px 0px'}}>
                     <Tabs tabPosition='left' defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
-                        {ClusterArr && ClusterArr.length > 0 && ClusterArr.map((item, index) => {
+                        {ClusterArr && ClusterArr.length > 0 && (wsurl != null) && ClusterArr.map((item, index) => {
                             return <TabPane tab={item} key={index} >
-                                        <ColonyLog region={region} instances={instances} RbdName={enClusterArr[index]} tcpUrl={tcpUrl}/>
+                                        <ColonyLog region={region} instances={instances} RbdName={enClusterArr[index]} tcpUrl={wsurl}/>
                                     </TabPane>
                         })}
                     </Tabs>
