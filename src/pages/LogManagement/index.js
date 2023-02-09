@@ -66,6 +66,7 @@ export default class EnterpriseSetting extends PureComponent {
 
     render() {
         const { adminer, activeKey, ClustersList } = this.state;
+        const eid = global.getCurrEnterpriseId();
         return (
             <PageHeaderLayout
                 title={formatMessage({id:'LogEnterprise.title'})}
@@ -78,11 +79,9 @@ export default class EnterpriseSetting extends PureComponent {
                         <LogInfo  type={true}/>
                     </TabPane>
                     {ClustersList.map((item, index) => {
-                        const { region_alias, region_name, url } = item
-                        const str = url.substring(url.indexOf(':'),url.lastIndexOf(":"))
-                        const tcpUrl = `ws${str}:6060`
+                        const { region_alias, region_name, url, region_id } = item
                         return <TabPane tab={`${region_alias} ${formatMessage({id:'LogEnterprise.title'})}`} key={index} className={styles.logInfoStyle}>
-                                    <ClusterLog region={region_name} regionAlias={region_alias} tcpUrl={tcpUrl}/>
+                                    <ClusterLog region={region_name} regionId={region_id} regionAlias={region_alias} eid={eid}/>
                                 </TabPane>
                     })}
 
