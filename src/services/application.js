@@ -313,7 +313,25 @@ export async function getGroupApps(
     }
   );
 }
-
+/* 
+获取用户自定义operator管理组件的变动
+*/
+export async function getOperator(
+  body = {
+    team_name,
+    group_id,
+  }
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/operator-managed`,
+    {
+      method: 'get',
+      params: {
+        group_id: body.group_id,
+      },
+    }
+  );
+}
 /*
   删除组
 */
