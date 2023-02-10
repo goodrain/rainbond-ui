@@ -62,7 +62,8 @@ import {
   deleteKubernetesVal,
   createKubernetesVal,
   updateKubernetesVal,
-  batchDelSingleKubernetesVal
+  batchDelSingleKubernetesVal,
+  getOperator
 } from '../services/application';
 
 export default {
@@ -488,6 +489,12 @@ export default {
     },
     *batchDelSingleKubernetesVal({ payload, callback, handleError }, { call }) {
       const data = yield call(batchDelSingleKubernetesVal, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *getOperator({ payload, callback, handleError }, { call }) {
+      const data = yield call(getOperator, payload, handleError);
       if (data && callback) {
         callback(data);
       }

@@ -22,6 +22,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
 import { batchOperation } from '../../services/app';
+import {buildApp} from '../../services/createApp';
 import appUtil from '../../utils/app';
 import cookie from '@/utils/cookie';
 import globalUtil from '../../utils/global';
@@ -97,10 +98,12 @@ export default class ComponentList extends Component {
       clearInterval(this.timer);
     }
     this.loadComponents();
+    this.getOperator();
     const { clearTime } = this.props;
     this.timer = setInterval(() => {
       if (!clearTime) {
         this.loadComponents();
+        this.getOperator();
       }
     }, 5000);
   };
@@ -130,7 +133,49 @@ export default class ComponentList extends Component {
       }
     });
   };
-
+  getOperator = () => {
+    const { dispatch, groupId } = this.props;
+    dispatch({
+      type: 'application/getOperator',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: groupId,
+      },
+      callback: data => {
+        if(data && data.status_code == 200){
+          const arr = data.list
+          if(arr && arr.length > 0){
+            arr.map((item)=>{
+              dispatch({
+                type: 'createApp/createThirdPartyServices',
+                payload: {
+                  team_name: globalUtil.getCurrTeamName(),
+                  group_id: groupId,
+                  service_cname: item.name,
+                  endpoints_type: "static",
+                  k8s_component_name: item.name,
+                  static: item.address
+              },
+              callback: res =>{
+                if(res && res.status_code == 200){
+                  const appAlias = res.bean.service_alias;
+                  if(appAlias.length > 0){
+                      buildApp({
+                        team_name: globalUtil.getCurrTeamName(),
+                        app_alias: appAlias,
+                        is_deploy: true,
+                      }).then(data => {
+                      });
+                  }
+                }
+              }
+            })
+            })
+          }
+        }
+      }
+    });
+  };
   deleteData = () => {
     const { dispatch, groupId } = this.props;
     const { current, pageSize, query } = this.state;
