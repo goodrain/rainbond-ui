@@ -70,7 +70,18 @@ export default class Index extends PureComponent {
   getAppAlias() {
     return this.props.match.params.appAlias;
   }
-
+  handleDebounce (fn, wait) {
+    let timer = null
+    return (e)=>{
+      if (timer !== null) {
+        clearTimeout(timer)
+      }
+      timer = setTimeout(() => {
+        fn.call(e)
+        timer = null
+      }, wait)
+    }
+  }
   handleBuild = (val) => {
     const { dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
     const { appDetail } = this.state
@@ -202,7 +213,7 @@ export default class Index extends PureComponent {
               style={{
                 marginRight: 8
               }}
-              onClick={()=>this.handleBuild(handleBuildSwitch)}
+              onClick={()=>this.handleDebounce(this.handleBuild(handleBuildSwitch),1000)}
               type="primary"
             >
               {formatMessage({id:'button.confirm_create'})}
