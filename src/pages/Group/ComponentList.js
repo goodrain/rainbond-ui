@@ -60,7 +60,8 @@ export default class ComponentList extends Component {
       tableDataLoading: true,
       sortValue: 1,
       orderValue: 'descend',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      isOperator: true,
     };
   }
   componentDidMount() {
@@ -135,6 +136,7 @@ export default class ComponentList extends Component {
   };
   getOperator = () => {
     const { dispatch, groupId } = this.props;
+    const { isOperator } = this.state
     dispatch({
       type: 'application/getOperator',
       payload: {
@@ -143,8 +145,8 @@ export default class ComponentList extends Component {
       },
       callback: data => {
         if(data && data.status_code == 200){
-          const arr = data.list
-          if(arr && arr.length > 0){
+          const arr = data.list.service
+          if(arr && arr.length > 0 && isOperator){
             arr.map((item)=>{
               dispatch({
                 type: 'createApp/createThirdPartyServices',
@@ -158,6 +160,9 @@ export default class ComponentList extends Component {
               },
               callback: res =>{
                 if(res && res.status_code == 200){
+                  this.setState({
+                    isOperator: false
+                  })
                   const appAlias = res.bean.service_alias;
                   if(appAlias.length > 0){
                       buildApp({
