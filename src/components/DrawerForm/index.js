@@ -823,11 +823,10 @@ class DrawerForm extends PureComponent {
               {formatMessage({id:'popover.access_strategy.lable.li1'})}
               </li>
               <li>
-              {formatMessage(
-                {id:'popover.access_strategy.lable.li2'},
-                {currentRegion:currentRegion && currentRegion.team_region_alias},
-                {ip: currentRegion && currentRegion.tcpdomain}
-                )}
+              {formatMessage({id:'popover.access_strategy.lable.li2'})}
+              （{currentRegion && currentRegion.team_region_alias}）
+              {formatMessage({id:'popover.access_strategy.lable.li4'})}
+              {currentRegion && currentRegion.tcpdomain}
               </li>
               <li>
               {formatMessage({id:'popover.access_strategy.lable.li3'})}
