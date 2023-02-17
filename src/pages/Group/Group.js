@@ -79,7 +79,8 @@ export default class Index extends PureComponent {
       compile: false,
       flagHeight: false,
       iframeHeight: '500px',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      isOperator: true
     };
   }
 
@@ -110,6 +111,7 @@ export default class Index extends PureComponent {
     this.fetchAppDetail();
     this.loadTopology(true);
     this.fetchAppDetailState();
+    this.getOperator();
   };
   handleNewbieGuiding = info => {
     const { nextStep } = info;
@@ -204,6 +206,7 @@ export default class Index extends PureComponent {
                     this.fetchAppDetailState();
                     this.fetchAppDetail();
                     this.loadTopology(true);
+                    this.getOperator();
                   },
                   10000
                 );
@@ -220,6 +223,7 @@ export default class Index extends PureComponent {
             this.fetchAppDetailState();
             this.fetchAppDetail();
             this.loadTopology(true);
+            this.getOperator();
           },
           20000
         );
@@ -462,7 +466,50 @@ export default class Index extends PureComponent {
       payload: { isUpData: true }
     });
   };
-
+  // 获取 Operator 创建的 service 转换成第三方组件 
+  getOperator = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'application/getOperator',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: this.getGroupId(),
+      },
+      callback: data => {
+        if(data && data.status_code == 200){
+          const arr = data.list.service
+          if(arr && arr.length > 0){
+            arr.map((item)=>{
+              dispatch({
+                type: 'createApp/createThirdPartyServices',
+                payload: {
+                  team_name: globalUtil.getCurrTeamName(),
+                  group_id: this.getGroupId(),
+                  service_cname: item.name,
+                  endpoints_type: "static",
+                  k8s_component_name: item.name,
+                  static: item.address
+              },
+              callback: res =>{
+                if(res && res.status_code == 200){
+                  const appAlias = res.bean.service_alias;
+                  if(appAlias.length > 0){
+                      buildApp({
+                        team_name: globalUtil.getCurrTeamName(),
+                        app_alias: appAlias,
+                        is_deploy: true,
+                      }).then(data => {
+                      });
+                  }
+                }
+              }
+            })
+            })
+          }
+        }
+      }
+    });
+  };
   /** 构建拓扑图 */
   handleTopology = code => {
     this.setState({

@@ -61,7 +61,6 @@ export default class ComponentList extends Component {
       sortValue: 1,
       orderValue: 'descend',
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      isOperator: true,
     };
   }
   componentDidMount() {
@@ -99,12 +98,10 @@ export default class ComponentList extends Component {
       clearInterval(this.timer);
     }
     this.loadComponents();
-    this.getOperator();
     const { clearTime } = this.props;
     this.timer = setInterval(() => {
       if (!clearTime) {
         this.loadComponents();
-        this.getOperator();
       }
     }, 5000);
   };
@@ -130,53 +127,6 @@ export default class ComponentList extends Component {
             total: data.total || 0,
             tableDataLoading: false
           });
-        }
-      }
-    });
-  };
-  getOperator = () => {
-    const { dispatch, groupId } = this.props;
-    const { isOperator } = this.state
-    dispatch({
-      type: 'application/getOperator',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: groupId,
-      },
-      callback: data => {
-        if(data && data.status_code == 200){
-          const arr = data.list.service
-          if(arr && arr.length > 0 && isOperator){
-            arr.map((item)=>{
-              dispatch({
-                type: 'createApp/createThirdPartyServices',
-                payload: {
-                  team_name: globalUtil.getCurrTeamName(),
-                  group_id: groupId,
-                  service_cname: item.name,
-                  endpoints_type: "static",
-                  k8s_component_name: item.name,
-                  static: item.address
-              },
-              callback: res =>{
-                if(res && res.status_code == 200){
-                  this.setState({
-                    isOperator: false
-                  })
-                  const appAlias = res.bean.service_alias;
-                  if(appAlias.length > 0){
-                      buildApp({
-                        team_name: globalUtil.getCurrTeamName(),
-                        app_alias: appAlias,
-                        is_deploy: true,
-                      }).then(data => {
-                      });
-                  }
-                }
-              }
-            })
-            })
-          }
         }
       }
     });
