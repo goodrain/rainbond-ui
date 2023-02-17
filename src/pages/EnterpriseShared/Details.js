@@ -23,6 +23,7 @@ import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import DOMPurify from 'dompurify'
 import apiconfig from '../../../config/api.config';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from '../../components/CreateTeam/index.less';
@@ -1045,7 +1046,7 @@ export default class Main extends PureComponent {
                       className={detailstyles.markdown}
                       style={{ minHeight: '490px' }}
                       dangerouslySetInnerHTML={{
-                        __html: appInfo && appInfo.details
+                        __html: appInfo && DOMPurify.sanitize(appInfo.details)
                       }}
                     />
                   )}
