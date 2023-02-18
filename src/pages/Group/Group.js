@@ -25,6 +25,7 @@ import AppState from '../../components/ApplicationState';
 import ConfirmModal from '../../components/ConfirmModal';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
+import {buildApp} from '../../services/createApp';
 import CustomFooter from "../../layouts/CustomFooter";
 import { batchOperation } from '../../services/app';
 import cookie from '../../utils/cookie';
