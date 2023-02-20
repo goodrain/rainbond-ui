@@ -481,30 +481,56 @@ export default class Index extends PureComponent {
           const arr = data.list.service
           if(arr && arr.length > 0){
             arr.map((item)=>{
-              dispatch({
-                type: 'createApp/createThirdPartyServices',
-                payload: {
-                  team_name: globalUtil.getCurrTeamName(),
-                  group_id: this.getGroupId(),
-                  service_cname: item.name,
-                  endpoints_type: "static",
-                  k8s_component_name: item.name,
-                  static: item.address
-              },
-              callback: res =>{
-                if(res && res.status_code == 200){
-                  const appAlias = res.bean.service_alias;
-                  if(appAlias.length > 0){
-                      buildApp({
-                        team_name: globalUtil.getCurrTeamName(),
-                        app_alias: appAlias,
-                        is_deploy: true,
-                      }).then(data => {
-                      });
+              if(item.static){
+                dispatch({
+                  type: 'createApp/createThirdPartyServices',
+                  payload: {
+                    team_name: globalUtil.getCurrTeamName(),
+                    group_id: this.getGroupId(),
+                    service_cname: item.name,
+                    endpoints_type: "static",
+                    k8s_component_name: item.name,
+                    static: item.address
+                },
+                callback: res =>{
+                    if(res && res.status_code == 200){
+                      const appAlias = res.bean.service_alias;
+                      if(appAlias.length > 0){
+                        buildApp({
+                          team_name: globalUtil.getCurrTeamName(),
+                          app_alias: appAlias,
+                          is_deploy: true,
+                        })
+                      }
+                    }
                   }
-                }
+                })
+              }else{
+                dispatch({
+                  type: 'createApp/createThirdPartyServices',
+                  payload: {
+                    team_name: globalUtil.getCurrTeamName(),
+                    group_id: this.getGroupId(),
+                    service_cname: item.name,
+                    endpoints_type: "kubernetes",
+                    k8s_component_name: item.name,
+                    namespace: item.namespace,
+                    serviceName: item.service,
+                },
+                callback: res =>{
+                    if(res && res.status_code == 200){
+                      const appAlias = res.bean.service_alias;
+                      if(appAlias){
+                        buildApp({
+                          team_name: globalUtil.getCurrTeamName(),
+                          app_alias: appAlias,
+                          is_deploy: true,
+                        })
+                      }
+                    }
+                  }
+                })
               }
-            })
             })
           }
         }
