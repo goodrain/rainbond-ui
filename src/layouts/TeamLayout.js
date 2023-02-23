@@ -150,6 +150,24 @@ class TeamLayout extends PureComponent {
       GroupShow: true
     })
   }
+  fetchPipePipeline = (eid) =>{
+    window.sessionStorage.removeItem('Pipeline')
+    const { dispatch } = this.props;
+    dispatch({
+        type: 'teamControl/fetchPipePipeline',
+        payload: {
+            enterprise_id: eid,
+            region_name: globalUtil.getCurrRegionName()
+        },
+        callback: res=>{
+          this.setState({
+            showPipeline:res.list
+          },()=>{
+            window.sessionStorage.setItem('Pipeline',JSON.stringify(res.list))
+          })
+        }
+    })
+}
   getNewbieGuideConfig = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -221,9 +239,12 @@ class TeamLayout extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          window.sessionStorage.setItem("team_id",res.bean.team_id)
           this.setState(
             {
               eid: res.bean.eid
+            },()=>{
+              this.fetchPipePipeline(res.bean.eid)
             }
           );
         }
@@ -483,7 +504,8 @@ class TeamLayout extends PureComponent {
       currentComponent,
       teamView,
       currentApp,
-      showMenu
+      showMenu,
+      showPipeline
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -581,7 +603,8 @@ class TeamLayout extends PureComponent {
     let menuData = getMenuData(
       teamName,
       regionName,
-      currentTeam.tenant_actions
+      currentTeam.tenant_actions,
+      showPipeline
     );
     if (mode === 'app') {
       menuData = getAppMenuData(

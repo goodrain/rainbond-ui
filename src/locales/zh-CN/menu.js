@@ -25,6 +25,7 @@ const teamMenu = {
   'menu.team.gateway.control': '访问策略管理',
   'menu.team.plugin': '插件',
   'menu.team.setting': '团队管理',
+  'menu.team.pipeline': '流水线',
 }
 const appMenu = {
   'menu.app.dashboard': '总览',
