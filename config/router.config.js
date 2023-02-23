@@ -292,6 +292,13 @@ export default [
             title: '应用列表'
           },
           {
+            path: '/team/:teamName/region/:regionName/Pipeline',
+            component: './Pipeline',
+            name: 'Pipeline',
+            authority: ['admin', 'user'],
+            title: '流水线'
+          },
+          {
             path: '/team/:teamName/region/:regionName/apps/:appID/upgrade',
             component: './Upgrade',
             name: 'Upgrade',

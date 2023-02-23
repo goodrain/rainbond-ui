@@ -5,7 +5,41 @@ import { isUrl } from '../utils/utils';
 
 const newbieGuide = cookie.get('newbie_guide');
 
-function menuData(teamName, regionName, permissionsInfo) {
+function menuData(teamName, regionName, permissionsInfo, showPipeline) {
+  const pipelineView = showPipeline && showPipeline.map(item =>{
+    if(item.name == 'pipeline'){
+      return 'true'
+    }else{
+      return 'false'
+    }
+  })
+  const Pipeline = (
+        <i className="anticon">
+            <svg 
+              t="1676966831715" 
+              class="icon" 
+              viewBox="0 0 1024 1024" 
+              version="1.1" 
+              xmlns="http://www.w3.org/2000/svg" 
+              p-id="7785" 
+              width="22px" 
+              height="22px"
+            >
+              <path 
+                d="M520.704 64L170.496 241.152v360.448l349.696 177.152 349.696-177.152V241.152l-349.184-177.152z m283.648 497.152l-285.696 144.896-91.648-47.104 157.696-89.6c8.704 4.096 16.896 6.656 25.6 6.656 31.744 0 57.344-25.6 57.344-57.344s-25.6-57.344-57.344-57.344c-29.696 0-53.248 21.504-55.296 49.152l-198.144 111.104-123.904-61.952V279.552l285.696-144.896 102.4 51.2-164.352 91.648c-8.704-4.096-16.896-6.144-25.6-6.144C399.36 271.36 373.76 296.96 373.76 328.704s25.6 57.344 57.344 57.344c29.696 0 53.248-21.504 55.296-49.152l202.752-113.152L802.304 281.6v279.552h2.048z" 
+                fill="#9CA2A8" 
+                p-id="7786"
+              >
+              </path>
+              <path 
+                d="M522.752 883.2l-352.256-173.056v70.656l352.256 175.104 347.648-175.104v-70.656l-347.648 173.056z" 
+                fill="#9CA2A8" 
+                p-id="7787"
+              >
+                </path>
+            </svg>
+            </i>
+        )
   const menuArr = [
     {
       name: formatMessage({ id: 'menu.team.dashboard' }),
@@ -41,14 +75,14 @@ function menuData(teamName, regionName, permissionsInfo) {
     // 角色
     const roles = results('teamRole', 'describe');
 
-    // if (appView) {
-    //   addMenuArr({
-    //     name: formatMessage({ id: 'menu.team.app' }),
-    //     icon: 'appstore-o',
-    //     path: `team/${teamName}/region/${regionName}/apps`,
-    //     authority: ['admin', 'user']
-    //   });
-    // }
+    if (pipelineView && pipelineView[0] == 'true') {
+      addMenuArr({
+        name: formatMessage({id:'menu.team.pipeline'}),
+        icon: Pipeline,
+        path: `team/${teamName}/region/${regionName}/Pipeline`,
+        authority: ['admin', 'user']
+      });
+    }
     if (appCreateView && componentCreateView && componentConstructView) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.create' }),
@@ -166,7 +200,7 @@ function formatter(data, parentPath = '', parentAuthority) {
     return result;
   });
 }
-export const getMenuData = (teamName, regionName, permissionsInfo) => {
-  const menus = formatter(menuData(teamName, regionName, permissionsInfo));
+export const getMenuData = (teamName, regionName, permissionsInfo, showPipeline) => {
+  const menus = formatter(menuData(teamName, regionName, permissionsInfo, showPipeline));
   return menus;
 };

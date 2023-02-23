@@ -29,7 +29,9 @@ import {
   undoTeamUsers,
   getUploadInformation,
   getAdvancedInformation,
-  confirmTheImport
+  confirmTheImport,
+  fetchToken,
+  fetchPipePipeline
 } from '../services/team';
 
 export default {
@@ -270,6 +272,18 @@ export default {
     },
     *confirmTheImport({ payload, callback, handleError }, { call }) {
       const response = yield call(confirmTheImport, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchToken({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchToken, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchPipePipeline({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchPipePipeline, payload, handleError);
       if (response && callback) {
         callback(response);
       }
