@@ -1281,7 +1281,7 @@ export default class Index extends PureComponent {
             </div> */}
           </Modal>
         }
-        {languageType && runtimeInfo && (
+        {languageType && runtimeInfo && Object.keys(runtimeInfo).length >0 && (
           <CodeBuildConfig
             appDetail={this.props.appDetail}
             onSubmit={this.handleEditRuntime}
