@@ -509,7 +509,9 @@ export default class Index extends PureComponent {
                       )}
 
                       <div className={styles.appItemDetail}>
-                        <div className={styles.appTitle}>{item.group_name}</div>
+                        <Tooltip placement="topLeft" title={item.group_name}>
+                          <div className={styles.appTitle}>{item.group_name}</div>
+                        </Tooltip>
                         <div className={styles.value}>
                           <div className={styles.memory}><FormattedMessage id="teamOverview.memory" />: {this.handlUnit(item.used_mem || 0)} {this.handlUnit(item.used_mem || 0, 'MB')}</div>
                           <div className={styles.component}><FormattedMessage id="teamOverview.component.name" />: {item.services_num}<FormattedMessage id="unit.entries" /></div>

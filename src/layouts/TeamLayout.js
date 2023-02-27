@@ -90,7 +90,8 @@ class TeamLayout extends PureComponent {
       appID: globalUtil.getAppID(),
       teamView: true,
       showMenu: true,
-      GroupShow: true
+      GroupShow: true,
+      marginShow: true
     };
   }
 
@@ -126,6 +127,16 @@ class TeamLayout extends PureComponent {
       if (code || image || yaml || outer) {
         this.setState({
           GroupShow: false
+        })
+      }
+      const isPipeline = urlParams.href.includes("Pipeline");
+      if(isPipeline){
+        this.setState({
+          marginShow: false
+        })
+      }else{
+        this.setState({
+          marginShow: true
         })
       }
     }
@@ -505,7 +516,8 @@ class TeamLayout extends PureComponent {
       teamView,
       currentApp,
       showMenu,
-      showPipeline
+      showPipeline,
+      marginShow
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -765,7 +777,7 @@ class TeamLayout extends PureComponent {
                     >
                       <div
                         style={{
-                          margin: '24px 24px 0'
+                          margin: marginShow ? '24px 24px 0' : "0px"
                         }}
                       >
                         {renderContent()}
