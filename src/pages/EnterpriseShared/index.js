@@ -1049,6 +1049,8 @@ export default class EnterpriseShared extends PureComponent {
                 e.stopPropagation();
                 if (types === 'localsContent') {
                   this.handleAppModel(item);
+                }else if (types === 'marketContent'){
+                  this.showMarketAppDetail(item);
                 }
               }}
             >

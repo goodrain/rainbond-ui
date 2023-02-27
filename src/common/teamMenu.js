@@ -75,14 +75,6 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     // 角色
     const roles = results('teamRole', 'describe');
 
-    if (pipelineView && pipelineView[0] == 'true') {
-      addMenuArr({
-        name: formatMessage({id:'menu.team.pipeline'}),
-        icon: Pipeline,
-        path: `team/${teamName}/region/${regionName}/Pipeline`,
-        authority: ['admin', 'user']
-      });
-    }
     if (appCreateView && componentCreateView && componentConstructView) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.create' }),
@@ -119,7 +111,14 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
         ]
       });
     }
-
+    if (pipelineView && pipelineView[0] == 'true') {
+      addMenuArr({
+        name: formatMessage({id:'menu.team.pipeline'}),
+        icon: Pipeline,
+        path: `team/${teamName}/region/${regionName}/Pipeline`,
+        authority: ['admin', 'user']
+      });
+    }
     if (control || certificate) {
       const children = [];
       if (control) {
