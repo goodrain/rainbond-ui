@@ -66,7 +66,7 @@ class Index extends Component {
             type: 'teamControl/fetchToken',
             payload: {
                 team_name: globalUtil.getCurrTeamName(),
-                tokenNode: 'tokenNode'
+                tokenNode: 'pipeline'
             },
             callback: res => {
                 if (res && res.status_code == 200) {
