@@ -91,7 +91,7 @@ export default class MoveGroup extends PureComponent {
             dataSource={apps || []}
             columns={[
               {
-                title: formatMessage({id:'appOverview.list.BatchDelete.title'}),
+                title: formatMessage({id:'appOverview.list.BatchDelete.name'}),
                 dataIndex: 'service_cname'
               },
               {

@@ -412,18 +412,6 @@ export default class AddServiceComponent extends PureComponent {
                     {formatMessage({id:'appOverview.list.btn.addComponent.image'})}
                     </p>
                   </Col>
-                  <Col
-                    span={8}
-                    className={styles.ServiceDiv}
-                    onClick={() => {
-                      this.handleServiceComponent(false, 'imageCmd');
-                    }}
-                  >
-                    {docker_svg}
-                    <p className={styles.ServiceSmallTitle} style={{whiteSpace:'nowrap'}}>
-                    {formatMessage({id:'appOverview.list.btn.addComponent.dockerRun'})}
-                    </p>
-                  </Col>
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
@@ -499,9 +487,6 @@ export default class AddServiceComponent extends PureComponent {
           )}
           {ServiceComponentTwoPage === 'imageName' && (
             <ImageName {...PublicParameter} />
-          )}
-          {ServiceComponentTwoPage === 'imageCmd' && (
-            <ImageCmd {...PublicParameter} />
           )}
           {ServiceComponentTwoPage === 'jwar' && (
             <Jwar {...PublicParameter} setPare={this.setJwar} />
