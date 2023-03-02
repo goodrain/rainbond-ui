@@ -114,7 +114,7 @@ export default class MoveGroup extends PureComponent {
                           this.reDelete(data.service_id);
                         }}
                       >
-                        {formatMessage({id:'appOverview.list.BatchDelete.operation'})}
+                        {formatMessage({id:'appOverview.list.BatchDelete.Confirm'})}
                       </a>
                     );
                   }
