@@ -39,7 +39,6 @@ export default class Main extends PureComponent {
   render() {
     const map = {
       custom: ImageName,
-      dockerrun: ImageCmd,
       Dockercompose: ImageCompose,
     };
 
@@ -47,10 +46,6 @@ export default class Main extends PureComponent {
       {
         key: 'custom',
         tab: formatMessage({id: 'teamAdd.create.image.tabImage'}),
-      },
-      {
-        key: 'dockerrun',
-        tab: formatMessage({id: 'teamAdd.create.image.DockerRun'}),
       },
       {
         key: 'Dockercompose',
