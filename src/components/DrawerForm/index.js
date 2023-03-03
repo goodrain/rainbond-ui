@@ -16,21 +16,27 @@ import {
   Row,
   Select,
   Skeleton,
-  Spin
+  Spin,
+  Collapse,
+  Switch,
+  Radio
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
+import cookie from '../../utils/cookie';
 import rainbondUtil from '../../utils/rainbond';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import DAinput from '../DAinput';
 import DAinputs from '../DAinputs';
 import styles from './index.less';
+import Parameterinput from '../Parameterinput';
 
 const FormItem = Form.Item;
 const { Option, OptGroup } = Select;
+const { Panel } = Collapse;
 
 @connect(({ user, loading, global }) => ({
   currUser: user.currentUser,
@@ -42,7 +48,7 @@ class DrawerForm extends PureComponent {
   constructor(props) {
     super(props);
     const { editInfo } = this.props;
-    
+
     this.state = {
       componentLoading: false,
       portLoading: false,
@@ -54,6 +60,7 @@ class DrawerForm extends PureComponent {
       page: 1,
       page_size: 99999,
       group_name: '',
+      is_httptohttps: true,
       descriptionVisible: false,
       rule_extensions_visible: false,
       is_httptohttps: true,
@@ -67,12 +74,33 @@ class DrawerForm extends PureComponent {
           props.editInfo.path_rewrite ||
           (props.editInfo.rewrites && props.editInfo.rewrites.length > 0) ||
           props.editInfo.certificate_id)
-      )
+      ),
+      WebSocket: !!(editInfo && editInfo.value && editInfo.value.WebSocket),
+      proxyBuffering: !!(
+        props.editInfo &&
+        props.editInfo.value &&
+        props.editInfo.value.proxy_buffering &&
+        props.editInfo.value.proxy_buffering === 'on'
+      ),
+      webSockets: [
+        { item_key: 'Connection', item_value: 'Upgrade' },
+        { item_key: 'Upgrade', item_value: '$http_upgrade' }
+      ],
+      language: cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
+
+
   componentWillMount() {
     this.heandleEditInfo(this.props);
   }
+
+  onChangeWebSocket = () => {
+    const { setFieldsValue } = this.props.form;
+    this.setState({ WebSocket: !this.state.WebSocket }, () => {
+      setFieldsValue({ WebSocket: this.state.WebSocket });
+    });
+  };
 
   heandleEditInfo = props => {
     const { dispatch, editInfo, appID } = props;
@@ -114,7 +142,8 @@ class DrawerForm extends PureComponent {
   };
   handleOk = () => {
     const { onOk, form } = this.props;
-    const { group_name, routingConfiguration } = this.state;
+    const { group_name, routingConfiguration, webSockets } = this.state;
+    const valueObj = {}
     form.validateFields((err, values) => {
       if (!err && onOk) {
         // 过滤
@@ -134,6 +163,31 @@ class DrawerForm extends PureComponent {
         if (values.domain_cookie === '=') {
           info.domain_cookie = '';
         }
+        valueObj.proxy_connect_timeout = Number(values.proxy_connect_timeout)
+        valueObj.proxy_send_timeout = Number(values.proxy_send_timeout)
+        valueObj.proxy_read_timeout = Number(values.proxy_read_timeout)
+        valueObj.proxy_body_size = Number(values.proxy_body_size)
+        valueObj.proxy_buffer_numbers = Number(values.proxy_buffer_numbers)
+        valueObj.proxy_buffer_size = Number(values.proxy_buffer_size)
+        valueObj.proxy_buffering = values.proxy_buffering && values.proxy_buffering ? 'on' : 'off'
+        valueObj.WebSocket = values.WebSocket
+        const setWebSocket = values.WebSocket;
+        let setHeaders = Array.isArray(values.set_headers)
+          ? values.set_headers
+          : [];
+        const isWebSocket = this.handleSetWebSocket(setHeaders);
+        const firstHeaders = setHeaders && setHeaders.length === 1;
+        if (
+          firstHeaders &&
+          (!setHeaders[0].item_key || !setHeaders[0].item_value)
+        ) {
+          setHeaders = [];
+        }
+        if (setWebSocket && !isWebSocket) {
+          setHeaders = [...setHeaders, ...webSockets];
+        }
+        valueObj.set_headers = setHeaders;
+        info.value = valueObj
         onOk(info, group_name, routingConfiguration);
       }
     });
@@ -269,13 +323,13 @@ class DrawerForm extends PureComponent {
     if (value) {
       this.setState({
         rule_extensions_visible: true,
-        is_httptohttps:true
+        is_httptohttps: true
       });
-    }else{
+    } else {
       this.setState({
         is_httptohttps: false,
         rule_extensions_visible: false
-      })
+      });
     }
     this.setState({
       automaticCertificateVisible: value === 'auto_ssl'
@@ -290,7 +344,7 @@ class DrawerForm extends PureComponent {
   weightCheck = (_, value) => {
     if (value > 100 || value < 0) {
       // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject('权重的数值限制在0-100之间');
+      return Promise.reject(formatMessage({id:'placeholder.weight'}));
     }
     return Promise.resolve();
   };
@@ -314,7 +368,7 @@ class DrawerForm extends PureComponent {
         }
       });
       if (isMax) {
-        callback('最大长度255');
+        callback(formatMessage({id:'placeholder.max255'}));
       }
       callback();
     }
@@ -337,11 +391,60 @@ class DrawerForm extends PureComponent {
       if (isPass) {
         callback();
       } else {
-        callback(new Error('需填写完整Rewrites配置'));
+        callback(new Error(formatMessage({id:'placeholder.rewrites'})));
       }
     } else {
       return callback();
     }
+  };
+  handleSetWebSocket = (data, newHeaders) => {
+    const arr = [];
+    const [first, second] = this.state.webSockets;
+    let results = false;
+
+    if (data && data.length > 0) {
+      data.map(item => {
+        const { item_key, item_value } = item;
+        if (
+          (item_key === first.item_key && item_value === first.item_value) ||
+          (item_key === second.item_key && item_value === second.item_value)
+        ) {
+          results = true;
+        } else {
+          arr.push(item);
+        }
+      });
+    }
+    if (newHeaders) {
+      return arr;
+    }
+    return results;
+  };
+  checkContent = (_, value, callback) => {
+    const num = Number(value);
+    if (num) {
+      if (num < 0) {
+        callback(formatMessage({id:'placeholder.min0'}));
+        return;
+      }
+      if (num > 65535) {
+        callback(formatMessage({id:'placeholder.max65535'}));
+        return;
+      }
+    }
+    callback();
+  };
+  checkBufferSize = (res, value, callback) => {
+    const num = Number(value);
+    if (num <= 0) {
+      callback(formatMessage({id:'placeholder.4k'}));
+      return;
+    }
+    if (num > 65535) {
+      callback(formatMessage({id:'placeholder.max65535'}));
+      return;
+    }
+    callback();
   };
   render() {
     const {
@@ -355,13 +458,43 @@ class DrawerForm extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
-        xs: { span: 5 },
-        sm: { span: 8 }
+        xs: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
-        xs: { span: 19 },
-        sm: { span: 16 }
+        xs: { span: 18 },
+        sm: { span: 18 }
       }
+    };
+    const formItemLayouts = {
+      labelCol: {
+        xs: { span: 7 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 17 },
+        sm: { span: 17 }
+      }
+    };
+    const zh_formItemLayouts = {
+      labelCol: {
+        xs: { span: 7 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 17 },
+        sm: { span: 17 }
+      }
+    };
+    const en_formItemLayouts = {
+      labelCol: {
+        xs: { span: 10},
+        sm: { span: 10}
+      },
+      wrapperCol: {
+        xs: { span: 14 },
+        sm: { span: 14 }
+      },
     };
     // const currentGroup = editInfo ? editInfo.g_id : groups.lenth > 0 ? groups[0].group_id : null;
     let rule_http;
@@ -399,9 +532,9 @@ class DrawerForm extends PureComponent {
     const appKeys = editInfo &&
       editInfo.g_id &&
       editInfo.group_name && {
-        key: editInfo.g_id,
-        label: editInfo.group_name
-      };
+      key: editInfo.g_id,
+      label: editInfo.group_name
+    };
     const {
       routingConfiguration,
       licenseList,
@@ -413,8 +546,14 @@ class DrawerForm extends PureComponent {
       portLoading,
       portList,
       rewrite,
-      is_httptohttps
+      is_httptohttps,
+      proxyBuffering,
+      WebSocket,
+      language,
+      gateWayArr
     } = this.state;
+    const setHeaders = this.props.editInfo && this.props.editInfo.value && this.props.editInfo.value.set_headers;
+    const defaultSetHeaders = this.handleSetWebSocket(setHeaders, true);
     const dividers = <Divider style={{ margin: '4px 0' }} />;
     const serviceId = editInfo && editInfo.service_id && editInfo.service_id;
     const serviceIds =
@@ -434,7 +573,16 @@ class DrawerForm extends PureComponent {
         validator: this.checkLength
       }
     ];
+    const customRules = [
+      {
+        pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+        message: formatMessage({id:'placeholder.int'})
+      },
+      { validator: this.checkContent }
+    ];
     const isOk = !(componentLoading || portLoading);
+    const is_languages = language ? zh_formItemLayouts : en_formItemLayouts
+    const is_language = language ? formItemLayout : formItemLayouts
     return (
       <div>
         <Drawer
@@ -450,14 +598,6 @@ class DrawerForm extends PureComponent {
           }}
         >
           <Form>
-            <h3
-              style={{
-                borderBottom: '1px solid #BBBBBB',
-                marginBottom: '10px'
-              }}
-            >
-              {formatMessage({id:'popover.access_strategy.lable.routingRule'})}
-            </h3>
             <FormItem
               {...formItemLayout}
               label={formatMessage({id:'popover.access_strategy.lable.domain_name'})}
@@ -499,190 +639,6 @@ class DrawerForm extends PureComponent {
                 initialValue: editInfo.domain_path
               })(<Input placeholder="/" />)}
             </FormItem>
-            {!routingConfiguration && (
-              <div>
-                <p style={{ textAlign: 'center' }}>
-                  {formatMessage({id:'popover.access_strategy.lable.more'})}
-                  <br />
-                  <Icon type="down" onClick={this.handleRoutingConfiguration} />
-                </p>
-              </div>
-            )}
-            {routingConfiguration && (
-              <div>
-                <FormItem {...formItemLayout} label="Path Rewrite">
-                  {getFieldDecorator('path_rewrite', {
-                    initialValue: editInfo.path_rewrite
-                  })(
-                    <Checkbox defaultChecked={editInfo.path_rewrite}></Checkbox>
-                  )}
-                </FormItem>
-                <FormItem {...formItemLayout} label="Rewrites">
-                  {getFieldDecorator('rewrites', {
-                    initialValue: editInfo.rewrites,
-                    rules: [{ validator: this.handleValidators }]
-                  })(<DAinputs />)}
-                </FormItem>
-                <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.domain_heander'})}>
-                  {getFieldDecorator('domain_heander', {
-                    initialValue: editInfo.domain_heander,
-                    rules: checkLengths
-                  })(<DAinput />)}
-                </FormItem>
-                <FormItem {...formItemLayout} label="Cookie">
-                  {getFieldDecorator('domain_cookie', {
-                    initialValue: editInfo.domain_cookie,
-                    rules: checkLengths
-                  })(<DAinput />)}
-                </FormItem>
-                <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.the_weight'})}>
-                  {getFieldDecorator('the_weight', {
-                    initialValue: editInfo.the_weight || 100,
-                    rules: [{ required: false, validator: this.weightCheck }]
-                  })(
-                    <InputNumber min={0} max={100} style={{ width: '100%' }} />
-                  )}
-                </FormItem>
-                {licenseList && (
-                  <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.certificate_id'})}>
-                    {getFieldDecorator('certificate_id', {
-                      initialValue:
-                        AutomaticCertificate && editInfo.auto_ssl
-                          ? 'auto_ssl'
-                          : editInfo.certificate_id
-                    })(
-                      <Select
-                        getPopupContainer={triggerNode =>
-                          triggerNode.parentNode
-                        }
-                        placeholder={formatMessage({id:'placeholder.certificate.bound'})}
-                        onSelect={this.handeCertificateSelect}
-                        dropdownRender={menu => (
-                          <div>
-                            {menu}
-                            {/* {isAddLicense && (
-                              <div>
-                                {dividers}
-                                <div
-                                  style={{
-                                    padding: '4px 8px',
-                                    cursor: 'pointer'
-                                  }}
-                                  onMouseDown={e => e.preventDefault()}
-                                  onClick={this.addLicense}
-                                >
-                                  <Icon type="plus" /> 加载更多
-                                </div>
-                              </div>
-                            )} */}
-                          </div>
-                        )}
-                      >
-                        <OptGroup label={formatMessage({id:'popover.access_strategy.lable.function_select'})}>
-                          {licenseList && licenseList.length > 0 && (
-                            <Option value="" key={99}>
-                              {formatMessage({id:'placeholder.certificate.remove'})}
-                            </Option>
-                          )}
-                          {AutomaticCertificate && (
-                            <Option value="auto_ssl" key="auto_ssl">
-                              {formatMessage({id:'popover.access_strategy.lable.automatic_issued'})}
-                            </Option>
-                          )}
-                        </OptGroup>
-                        <OptGroup label={formatMessage({id:'popover.access_strategy.lable.exist_certificate_select'})}>
-                          {licenseList.map((license, index) => {
-                            return (
-                              <Option value={license.id} key={index}>
-                                {license.alias}
-                              </Option>
-                            );
-                          })}
-                        </OptGroup>
-                      </Select>
-                    )}
-                  </FormItem>
-                )}
-                {AutomaticCertificate &&
-                  automaticCertificateVisible &&
-                  AutomaticCertificateDeleteValue && (
-                    <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.auto_ssl_config'})}>
-                      {getFieldDecorator('auto_ssl_config', {
-                        initialValue: editInfo.auto_ssl_config,
-                        rules: [
-                          {
-                            required: true,
-                            message: formatMessage({id:'placeholder.select.sign_issue'})
-                          }
-                        ]
-                      })(
-                        <Select
-                          getPopupContainer={triggerNode =>
-                            triggerNode.parentNode
-                          }
-                          placeholder={formatMessage({id:'placeholder.select.sign_issue'})}
-                        >
-                          {Object.keys(AutomaticCertificateDeleteValue).map(
-                            item => {
-                              return <Option value={item}>{item}</Option>;
-                            }
-                          )}
-                        </Select>
-                      )}
-                    </FormItem>
-                  )}
-
-                <FormItem {...formItemLayout} label={formatMessage({id:'popover.access_strategy.lable.rule_extensions_http'})}>
-                  {(this.state.rule_extensions_visible ||
-                    (editInfo.certificate_id && is_httptohttps)||
-                    (editInfo.auto_ssl && is_httptohttps)) &&
-                    getFieldDecorator('rule_extensions_http', {
-                      initialValue: [rule_http]
-                    })(
-                      <Checkbox.Group>
-                        <Row>
-                          <Col span={24}>
-                            <Checkbox value="httptohttps">
-                              HTTP Rewrite HTTPs
-                            </Checkbox>
-                          </Col>
-                        </Row>
-                      </Checkbox.Group>
-                    )}
-                  <FormItem>
-                    {getFieldDecorator('rule_extensions_round', {
-                      initialValue: rule_round || 'round-robin'
-                    })(
-                      <Select
-                        getPopupContainer={triggerNode =>
-                          triggerNode.parentNode
-                        }
-                        placeholder={formatMessage({id:'placeholder.select.rule_extensions_round'})}
-                      >
-                        <Option value="round-robin">
-                          {formatMessage({id:'popover.access_strategy.lable.poll'})}
-                        </Option>
-                        <Option value="cookie-session-affinity">
-                          {formatMessage({id:'popover.access_strategy.lable.conversation'})}
-                        </Option>
-                      </Select>
-                    )}
-                  </FormItem>
-                </FormItem>
-
-                <div style={{ textAlign: 'center' }}>
-                  <Icon type="up" onClick={this.handleRoutingConfiguration} />
-                </div>
-              </div>
-            )}
-            <h3
-              style={{
-                borderBottom: '1px solid #BBBBBB',
-                marginBottom: '10px'
-              }}
-            >
-              {formatMessage({id:'popover.access_strategy.lable.access_target'})}
-            </h3>
             <Skeleton loading={serviceComponentLoading} active>
               <Fragment>
                 <FormItem {...formItemLayout} label={formatMessage({id:'popover.newApp.appName'})}>
@@ -695,7 +651,6 @@ class DrawerForm extends PureComponent {
                       labelInValue
                       disabled={appID}
                       placeholder={formatMessage({id:'placeholder.appName'})}
-                      onChange={this.handleServices}
                     >
                       {(groups || []).map(group => {
                         return (
@@ -738,7 +693,7 @@ class DrawerForm extends PureComponent {
                   <FormItem
                     {...formItemLayout}
                     label={formatMessage({id:'popover.access_strategy.lable.port'})}
-                    style={{ marginBottom: '150px' }}
+                    style={{ marginBottom: '40px' }}
                   >
                     {getFieldDecorator('container_port', {
                       initialValue:
@@ -764,6 +719,284 @@ class DrawerForm extends PureComponent {
                 </Spin>
               </Fragment>
             </Skeleton>
+              <Collapse style={{ marginTop: '60px' }}>
+              <Panel header={formatMessage({id:'popover.access_strategy.lable.routingRule'})}>
+                <FormItem {...is_language} label="Path Rewrite">
+                  {getFieldDecorator('path_rewrite', {
+                    initialValue: editInfo.path_rewrite
+                  })(
+                    <Checkbox defaultChecked={editInfo.path_rewrite}></Checkbox>
+                  )}
+                </FormItem>
+                <FormItem {...is_language} label="Rewrites">
+                  {getFieldDecorator('rewrites', {
+                    initialValue: editInfo.rewrites,
+                    rules: [{ validator: this.handleValidators }]
+                  })(<DAinputs />)}
+                </FormItem>
+                <FormItem {...is_language} label={formatMessage({id:'popover.access_strategy.lable.domain_heander'})}>
+                  {getFieldDecorator('domain_heander', {
+                    initialValue: editInfo.domain_heander,
+                    rules: checkLengths
+                  })(<DAinput />)}
+                </FormItem>
+                <FormItem {...is_language} label="Cookie">
+                  {getFieldDecorator('domain_cookie', {
+                    initialValue: editInfo.domain_cookie,
+                    rules: checkLengths
+                  })(<DAinput />)}
+                </FormItem>
+                <FormItem {...is_language} label={formatMessage({id:'popover.access_strategy.lable.the_weight'})}>
+                  {getFieldDecorator('the_weight', {
+                    initialValue: editInfo.the_weight || 100,
+                    rules: [{ required: false, validator: this.weightCheck }]
+                  })(
+                    <InputNumber min={0} max={100} style={{ width: '100%' }} />
+                  )}
+                </FormItem>
+                {licenseList && (
+                  <FormItem {...is_language} label={formatMessage({id:'popover.access_strategy.lable.certificate_id'})}>
+                    {getFieldDecorator('certificate_id', {
+                      initialValue:
+                        AutomaticCertificate && editInfo.auto_ssl
+                          ? 'auto_ssl'
+                          : editInfo.certificate_id
+                    })(
+                      <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
+                        placeholder={formatMessage({id:'placeholder.certificate.bound'})}
+                        onSelect={this.handeCertificateSelect}
+                        dropdownRender={menu => (
+                          <div>
+                            {menu}
+                          </div>
+                        )}
+                      >
+                        <OptGroup label={formatMessage({id:'popover.access_strategy.lable.function_select'})}>
+                          {licenseList && licenseList.length > 0 && (
+                            <Option value="" key={99}>
+                              {formatMessage({id:'placeholder.certificate.remove'})}
+                            </Option>
+                          )}
+                          {AutomaticCertificate && (
+                            <Option value="auto_ssl" key="auto_ssl">
+                              {formatMessage({id:'popover.access_strategy.lable.automatic_issued'})}
+                            </Option>
+                          )}
+                        </OptGroup>
+                        <OptGroup label={formatMessage({id:'popover.access_strategy.lable.exist_certificate_select'})}>
+                          {licenseList.map((license, index) => {
+                            return (
+                              <Option value={license.id} key={index}>
+                                {license.alias}
+                              </Option>
+                            );
+                          })}
+                        </OptGroup>
+                      </Select>
+                    )}
+                  </FormItem>
+                )}
+                {AutomaticCertificate &&
+                  automaticCertificateVisible &&
+                  AutomaticCertificateDeleteValue && (
+                    <FormItem {...is_language} label={formatMessage({id:'popover.access_strategy.lable.auto_ssl_config'})}>
+                      {getFieldDecorator('auto_ssl_config', {
+                        initialValue: editInfo.auto_ssl_config,
+                        rules: [
+                          {
+                            required: true,
+                            message: formatMessage({id:'placeholder.select.sign_issue'})
+                          }
+                        ]
+                      })(
+                        <Select
+                          getPopupContainer={triggerNode =>
+                            triggerNode.parentNode
+                          }
+                          placeholder={formatMessage({id:'placeholder.select.sign_issue'})}
+                        >
+                          {Object.keys(AutomaticCertificateDeleteValue).map(
+                            item => {
+                              return <Option value={item}>{item}</Option>;
+                            }
+                          )}
+                        </Select>
+                      )}
+                    </FormItem>
+                  )}
+
+                <FormItem {...is_language} label={formatMessage({id:'popover.access_strategy.lable.rule_extensions_http'})}>
+                  {(this.state.rule_extensions_visible ||
+                    (editInfo.certificate_id && is_httptohttps) ||
+                    (editInfo.auto_ssl && is_httptohttps)) &&
+                    getFieldDecorator('rule_extensions_http', {
+                      initialValue: [rule_http]
+                    })(
+                      <Checkbox.Group>
+                        <Row>
+                          <Col span={24}>
+                            <Checkbox value="httptohttps">
+                              HTTP Rewrite HTTPs
+                            </Checkbox>
+                          </Col>
+                        </Row>
+                      </Checkbox.Group>
+                    )}
+                  <FormItem>
+                    {getFieldDecorator('rule_extensions_round', {
+                      initialValue: rule_round || 'round-robin'
+                    })(
+                      <Select
+                        getPopupContainer={triggerNode =>
+                          triggerNode.parentNode
+                        }
+                        placeholder={formatMessage({id:'placeholder.select.rule_extensions_round'})}
+                      >
+                        <Option value="round-robin">
+                          {formatMessage({id:'popover.access_strategy.lable.poll'})}
+                        </Option>
+                        <Option value="cookie-session-affinity">
+                          {formatMessage({id:'popover.access_strategy.lable.conversation'})}
+                        </Option>
+                      </Select>
+                    )}
+                  </FormItem>
+                </FormItem>
+              </Panel>
+              </Collapse>
+              <Collapse style={{ marginTop: '20px', marginBottom: '40px' }}>
+                <Panel header={formatMessage({id:'popover.config.title'})}>
+                  <FormItem
+                    {...is_languages}
+                    label={formatMessage({id:'popover.config.lable.proxy_connect_timeout'})}
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('proxy_connect_timeout', {
+                      rules: [
+                        {
+                          required: true,
+                          message: formatMessage({id:'placeholder.proxy_connect_timeout'})
+                        }
+                      ],
+                      initialValue: editInfo.value && editInfo.value.proxy_connect_timeout || 5
+                    })(<Input addonAfter={formatMessage({id:'popover.config.lable.second'})} />)}
+                  </FormItem>
+
+                  <FormItem
+                    {...is_languages}
+                    label={formatMessage({id:'popover.config.lable.proxy_send_timeout'})}
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('proxy_send_timeout', {
+                      rules: [
+                        {
+                          required: true,
+                          message: formatMessage({id:'placeholder.proxy_send_timeout'})
+                        }
+                      ],
+                      initialValue: editInfo.value && editInfo.value.proxy_send_timeout || 60
+                    })(<Input addonAfter={formatMessage({id:'popover.config.lable.second'})} />)}
+                  </FormItem>
+
+                  <FormItem
+                    {...is_languages}
+                    label={formatMessage({id:'popover.config.lable.proxy_read_timeout'})}
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('proxy_read_timeout', {
+                      rules: [
+                        {
+                          required: true,
+                          message: formatMessage({id:'placeholder.proxy_read_timeout'})
+                        }
+                      ],
+                      initialValue: editInfo.value && editInfo.value.proxy_read_timeout || 60
+                    })(<Input addonAfter={formatMessage({id:'popover.config.lable.second'})} />)}
+                  </FormItem>
+
+                  <FormItem
+                    {...is_languages}
+                    label={formatMessage({id:'popover.config.lable.proxy_body_size'})}
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('proxy_body_size', {
+                      rules: [
+                        {
+                          required: true,
+                          message: formatMessage({id:'placeholder.proxy_body_size'})
+                        },
+                        ...customRules
+                      ],
+                      initialValue: editInfo.value && editInfo.value.proxy_body_size || 0
+                    })(<Input addonAfter="Mb" />)}
+                  </FormItem>
+                  <FormItem
+                    {...is_languages}
+                    label={formatMessage({id:'popover.config.lable.proxy_buffer_numbers'})}
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('proxy_buffer_numbers', {
+                      rules: customRules,
+                      initialValue: editInfo.value && editInfo.value.proxy_buffer_numbers || 4
+                    })(<Input />)}
+                  </FormItem>
+                  <FormItem
+                    {...is_languages}
+                    label={formatMessage({id:'popover.config.lable.proxy_buffer_size'})}
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('proxy_buffer_size', {
+                      rules: [{ validator: this.checkBufferSize }],
+                      initialValue: editInfo.value && editInfo.value.proxy_buffer_size || 4
+                    })(<Input addonAfter="K" placeholder={formatMessage({id:'placeholder.proxy_buffer_size'})} />)}
+                  </FormItem>
+                  <FormItem
+                    {...is_languages}
+                    label={formatMessage({id:'popover.config.lable.WebSocket'})}
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('WebSocket', {
+                      initialValue: WebSocket
+                    })(
+                      <Switch
+                        checkedChildren={formatMessage({id:'button.switch.open'})}
+                        unCheckedChildren={formatMessage({id:'button.switch.close'})}
+                        checked={WebSocket}
+                        onClick={() => {
+                          this.onChangeWebSocket();
+                        }}
+                      />
+                    )}
+                  </FormItem>
+                  <FormItem
+                    {...is_languages}
+                    label={formatMessage({id:'popover.config.lable.proxy_buffering'})}
+                    className={styles.antd_form}
+                  >
+                    {getFieldDecorator('proxy_buffering', {
+                      initialValue: proxyBuffering
+                    })(
+                      <Switch
+                        checkedChildren={formatMessage({id:'button.switch.open'})}
+                        unCheckedChildren={formatMessage({id:'button.switch.close'})}
+                        checked={proxyBuffering}
+                        onClick={() => {
+                          this.setState({ proxyBuffering: !proxyBuffering });
+                        }}
+                      />
+                    )}
+                  </FormItem>
+
+                  <FormItem {...is_languages} label={formatMessage({id:'popover.config.lable.set_headers'})}>
+                    {getFieldDecorator('set_headers', {
+                      initialValue: defaultSetHeaders
+                    })(<Parameterinput editInfo={defaultSetHeaders} />)}
+                  </FormItem>
+                </Panel>
+              </Collapse>
           </Form>
           <div
             style={{
@@ -823,11 +1056,10 @@ class DrawerForm extends PureComponent {
               {formatMessage({id:'popover.access_strategy.lable.li1'})}
               </li>
               <li>
-              {formatMessage(
-                {id:'popover.access_strategy.lable.li2'},
-                {currentRegion:currentRegion && currentRegion.team_region_alias},
-                {ip: currentRegion && currentRegion.tcpdomain}
-                )}
+              {formatMessage({id:'popover.access_strategy.lable.li2'})}
+              （{currentRegion && currentRegion.team_region_alias}）
+              {formatMessage({id:'popover.access_strategy.lable.li4'})}
+              {currentRegion && currentRegion.tcpdomain}
               </li>
               <li>
               {formatMessage({id:'popover.access_strategy.lable.li3'})}

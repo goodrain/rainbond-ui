@@ -14,3 +14,27 @@
         }
     }
 }
+.routings {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    min-width: 130px;
+    li {
+      display: flex;
+      align-items: center;
+    }
+    li div:nth-of-type(1) {
+      min-width: 60px;
+    }
+    li div:nth-of-type(2) {
+      max-width: 160px;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      white-space: nowrap;
+    }
+    i {
+      margin-left: 5px;
+    }
+  }

@@ -10,20 +10,23 @@ import {
   notification,
   Row,
   Table,
-  Tooltip
+  Tooltip,
+  Tabs
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatHTMLMessage, formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import DrawerForm from '../DrawerForm';
+import DrawerGateWayAPI from '../DrawerGateWayAPI';
 import InfoConnectModal from '../InfoConnectModal';
 import ParameterForm from '../ParameterForm';
 import Search from '../Search';
 import styles from './index.less';
 
+const { TabPane } = Tabs;
 @connect(({ user, global, loading, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   groups: global.groups,
@@ -55,7 +58,11 @@ export default class HttpTable extends PureComponent {
       record: '',
       parameterVisible: false,
       parameterInfo: null,
-      gateWayInfo: null
+      gateWayInfo: null,
+      instances: '0',
+      drawerGateWayApi: false,
+      gateWayAPIList: [],
+      editGateWayApiInfo: ''
     };
   }
   componentWillMount() {
@@ -66,12 +73,19 @@ export default class HttpTable extends PureComponent {
       this.load();
     });
   };
+  onPageChangeApi = page_num => {
+    this.setState({ page_num, loading: true }, () => {
+      this.load();
+    });
+  };
   load = () => {
     const { appID } = this.props;
     if (appID) {
       this.queryAppHTTPRule();
+      this.handleGateWayAPI(appID);
     } else {
       this.queryTeamHTTPRule();
+      this.handleGateWayAPI();
     }
   };
   queryAppHTTPRule = () => {
@@ -153,7 +167,18 @@ export default class HttpTable extends PureComponent {
       }
     });
   };
-
+  handleClickGateWayApi = () => {
+    this.setState({ drawerGateWayApi: true });
+  };
+  handleCloseGateWayApi = () => {
+    this.setState({ drawerGateWayApi: false, editInfo: '' });
+  };
+  handleOkGateWayApi = () => {
+    this.setState({
+      drawerGateWayApi: false,
+      editInfo: ''
+    });
+  }
   handleClick = () => {
     this.setState({ drawerVisible: true });
   };
@@ -525,6 +550,61 @@ export default class HttpTable extends PureComponent {
       parameterInfo: null
     });
   };
+  callback = (key) => {
+    this.setState({
+        instances: key,
+    })
+  }
+  handleGateWayAPI = (appID) => {
+    const { dispatch } = this.props
+    const teamName = globalUtil.getCurrTeamName()
+    dispatch({
+      type: 'gateWay/getGateWayApiList',
+      payload: {
+        team_name: teamName,
+        app_id: appID || ''
+      },
+      callback: res => {
+        this.setState({
+          gateWayAPIList: res.list
+        })
+      }
+    })
+  }
+  handleEditGateWayAPI = values => {
+    const { dispatch, appID } = this.props;
+    dispatch({
+      type: 'gateWay/queryDetailGateWayApi',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_id: appID || '',
+        name: values.name
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            editGateWayApiInfo: data.bean,
+            drawerGateWayApi: true
+          });
+        }
+      }
+    });
+  };
+  handleDeleteGateWayAPI = values => {
+    const { dispatch, appID } = this.props;
+    dispatch({
+      type: 'gateWay/deleteGateWayApi',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        name: values.name
+      },
+      callback: data => {
+        if(data){
+          this.handleGateWayAPI(appID)
+        }
+      }
+    });
+  };
   render() {
     const {
       addHttpLoading,
@@ -545,7 +625,10 @@ export default class HttpTable extends PureComponent {
       page_size,
       whetherOpenForm,
       appStatusVisable,
-      parameterInfo
+      parameterInfo,
+      drawerGateWayApi,
+      gateWayAPIList,
+      editGateWayApiInfo
     } = this.state;
 
     const columns = [
@@ -653,17 +736,7 @@ export default class HttpTable extends PureComponent {
         width: 150,
         render: (data, record) => {
           return record.is_outer_service == 1 ? (
-            <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-              {isEdit && (
-                <a
-                  onClick={() => {
-                    this.handleParameterVisibleClick(record);
-                  }}
-                >
-                  {formatMessage({id: 'teamGateway.strategy.table.config'})}
-                </a>
-              )}
-              {/* <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a> */}
+            <div>
               {isEdit && (
                 <a
                   onClick={() => {
@@ -714,47 +787,157 @@ export default class HttpTable extends PureComponent {
         }
       }
     ];
+    const columnsGateWay = [
+      {
+        title: '名称',
+        dataIndex: 'name',
+        key: 'name',
+        align: 'left',
+        render: (text, record) => {
+          return <span>{text}</span>
+        }
+      },
+      {
+        title: '域名',
+        dataIndex: 'hosts',
+        key: 'hosts',
+        align: 'center',
+        render: text => {
+        return text.map((item)=>{
+            return <span>{item}</span>
+          }) 
+        }
+      },
+      {
+        title: 'GateWay(命名空间)',
+        dataIndex: 'gateway_class_name',
+        key: 'gateway_class_name',
+        align: 'center',
+        render: (text, record) => {
+          return <span>{text}({record.gateway_class_namespace})</span>
+        }
+      },
+      {
+        title: formatMessage({id: 'teamGateway.strategy.table.operate'}),
+        dataIndex: 'action',
+        key: 'action',
+        align: 'center',
+        width: 150,
+        render: (data, record) => {
+          return (
+            <div>
+              {isEdit && (
+                <a
+                  onClick={() => {
+                    this.handleEditGateWayAPI(record);
+                  }}
+                >
+                  {formatMessage({id: 'teamGateway.strategy.table.edit'})}
+                </a>
+              )}
+              {isDelete && (
+                <a
+                  onClick={() => {
+                    this.handleDeleteGateWayAPI(record);
+                  }}
+                >
+                  {formatMessage({id: 'teamGateway.strategy.table.delete'})}
+                </a>
+              )}
+            </div>
+          )
+        }
+      }
+    ];
     return (
       <div>
-        <Row
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            marginBottom: '20px',
-            padding:'10px 0',
-            borderRadius:3,
-
-          }}
-        >
-          <Search onSearch={this.handleSearch} type="HTTP" appID={appID} />
-          {isCreate && (
-            <Button
-              type="primary"
-              icon="plus"
-              style={{ position: 'absolute', right: '10px' }}
-              onClick={this.handleClick}
-              loading={addHttpLoading}
-            >
-              {formatMessage({id: 'teamGateway.strategy.btn.add'})}
-            </Button>
-          )}
-        </Row>
-        <Card bodyStyle={{ padding: '0' }}>
-          <Table
-            dataSource={dataList}
-            columns={columns}
-            loading={loading}
-            size="default"
-            rowKey={this.rowKey}
-            pagination={total > 10 ? {
-              total,
-              page_num,
-              pageSize: page_size,
-              onChange: this.onPageChange,
-              current: page_num
-            }:false}
-          />
+        <Card style={{ padding:'0px', border:'none' }} className={styles.pluginCard}>
+          <Tabs defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
+              <TabPane tab='默认' key='0' >
+                <Row
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: '100%',
+                    marginBottom: '10px',
+                    padding:'10px',
+                    background: 'rgb(250, 251, 252)',
+                    borderRadius: '5px',
+                    boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px'
+                  }}
+                >
+                  <Search onSearch={this.handleSearch} type="HTTP" appID={appID} />
+                  {isCreate && (
+                    <Button
+                      type="primary"
+                      icon="plus"
+                      style={{ position: 'absolute', right: '10px' }}
+                      onClick={this.handleClick}
+                      loading={addHttpLoading}
+                    >
+                      {formatMessage({id: 'teamGateway.strategy.btn.add'})}
+                    </Button>
+                  )}
+                </Row>
+                <Card bodyStyle={{ padding: '0' }}>
+                  <Table
+                    dataSource={dataList}
+                    columns={columns}
+                    loading={loading}
+                    size="default"
+                    rowKey={this.rowKey}
+                    pagination={total > 10 ? {
+                      total,
+                      page_num,
+                      pageSize: page_size,
+                      onChange: this.onPageChange,
+                      current: page_num
+                    }:false}
+                  />
+                </Card>
+              </TabPane>
+              <TabPane tab='GateWayAPI' key='1' >
+                <Row
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: '100%',
+                    height: '60px',
+                    marginBottom: '10px',
+                    padding:'10px',
+                    background: 'rgb(250, 251, 252)',
+                    borderRadius: '5px',
+                    boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px'
+                  }}
+                >
+                  {isCreate && (
+                    <Button
+                      type="primary"
+                      icon="plus"
+                      style={{ position: 'absolute', right: '10px' }}
+                      onClick={this.handleClickGateWayApi}
+                      loading={addHttpLoading}
+                    >
+                      {formatMessage({id: 'teamGateway.strategy.btn.add'})}
+                    </Button>
+                  )}
+                </Row>
+                <Table
+                  dataSource={gateWayAPIList}
+                  columns={columnsGateWay}
+                  loading={loading}
+                  size="default"
+                  rowKey={this.rowKey}
+                  pagination={total > 10 ? {
+                    total,
+                    page_num,
+                    pageSize: page_size,
+                    onChange: this.onPageChangeApi,
+                    current: page_num
+                  }:false}
+                />
+              </TabPane>
+          </Tabs>
         </Card>
         {drawerVisible && (
           <DrawerForm
@@ -765,6 +948,18 @@ export default class HttpTable extends PureComponent {
             ref={this.saveForm}
             appID={appID}
             editInfo={this.state.editInfo}
+          />
+        )}
+        {drawerGateWayApi && (
+          <DrawerGateWayAPI
+            groups={this.props.groups}
+            visible={drawerGateWayApi}
+            onClose={this.handleCloseGateWayApi}
+            onOk={this.handleOkGateWayApi}
+            ref={this.saveForm}
+            appID={appID}
+            checkName={this.handleCkeckName}
+            editInfo={editGateWayApiInfo}
           />
         )}
         {parameterVisible && (
