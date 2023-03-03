@@ -281,6 +281,7 @@ export default class CreateCheck extends PureComponent {
       type: 'application/deleteCompose',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
+        app_name: this.props.location && this.props.location.query && this.props.location.query.app_name,
         ...params
       },
       callback: () => {
