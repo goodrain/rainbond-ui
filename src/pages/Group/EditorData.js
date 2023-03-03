@@ -138,43 +138,45 @@ class EditorData extends PureComponent {
           },
         };
         item = data.json_data[k];
-        node.type = 'node';
-        node.size = '75*75';
-        node.shape = item.cur_status;
-        node.color = '#030303';
-        node.label = item.service_cname;
+        if(item.cur_status != 'operator'){
+          node.type = 'node';
+          node.size = '75*75';
+          node.shape = item.cur_status;
+          node.color = '#030303';
+          node.label = item.service_cname;
 
-        node.cur_status = item.cur_status;
-        node.service_alias = item.service_alias;
-        node.id = item.service_id;
-        node.lineTip = item.lineTip;
-        node.labelMinor = '';
-        // 根据状态改变颜色用
-        node.rank = node.cur_status;
-        // node.shape = 'hexagon';
-        node.stack = true;
-        node.stackNum = getStackNum(item);
-        node.linkable = item.cur_status === 'running' ? 1 : 0;
-        node.adjacency = data.json_svg[k] || [];
-        if (item.is_internet) {
-          edge.source = 'The Internet';
-          edge.target = k;
-          dats.edges.push(edge);
-        }
-        if (data.json_svg[k] && data.json_svg[k].length > 0) {
-          for (let o = 0; o < data.json_svg[k].length; o++) {
-            edgr = {};
-            edgr.source = item.service_id;
-            edgr.target = data.json_svg[k][o];
-            edgr.style = {
-              lineWidth: 2,
-              stroke: '#B6B6CD',
-            };
-            arr.push(edgr);
+          node.cur_status = item.cur_status;
+          node.service_alias = item.service_alias;
+          node.id = item.service_id;
+          node.lineTip = item.lineTip;
+          node.labelMinor = '';
+          // 根据状态改变颜色用
+          node.rank = node.cur_status;
+          // node.shape = 'hexagon';
+          node.stack = true;
+          node.stackNum = getStackNum(item);
+          node.linkable = item.cur_status === 'running' ? 1 : 0;
+          node.adjacency = data.json_svg[k] || [];
+          if (item.is_internet) {
+            edge.source = 'The Internet';
+            edge.target = k;
+            dats.edges.push(edge);
           }
+          if (data.json_svg[k] && data.json_svg[k].length > 0) {
+            for (let o = 0; o < data.json_svg[k].length; o++) {
+              edgr = {};
+              edgr.source = item.service_id;
+              edgr.target = data.json_svg[k][o];
+              edgr.style = {
+                lineWidth: 2,
+                stroke: '#B6B6CD',
+              };
+              arr.push(edgr);
+            }
+          }
+          dats.registerData.push(item.cur_status);
+          dats.nodes.push(node);
         }
-        dats.registerData.push(item.cur_status);
-        dats.nodes.push(node);
       }
     });
     dats.edges = Array.from(new Set(dats.edges));

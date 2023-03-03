@@ -60,7 +60,7 @@ export default class ComponentList extends Component {
       tableDataLoading: true,
       sortValue: 1,
       orderValue: 'descend',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
   componentDidMount() {
@@ -129,49 +129,6 @@ export default class ComponentList extends Component {
             total: data.total || 0,
             tableDataLoading: false
           });
-        }
-      }
-    });
-  };
-  getOperator = () => {
-    const { dispatch, groupId } = this.props;
-    dispatch({
-      type: 'application/getOperator',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: groupId,
-      },
-      callback: data => {
-        if(data && data.status_code == 200){
-          const arr = data.list
-          if(arr && arr.length > 0){
-            arr.map((item)=>{
-              dispatch({
-                type: 'createApp/createThirdPartyServices',
-                payload: {
-                  team_name: globalUtil.getCurrTeamName(),
-                  group_id: groupId,
-                  service_cname: item.name,
-                  endpoints_type: "static",
-                  k8s_component_name: item.name,
-                  static: item.address
-              },
-              callback: res =>{
-                if(res && res.status_code == 200){
-                  const appAlias = res.bean.service_alias;
-                  if(appAlias.length > 0){
-                      buildApp({
-                        team_name: globalUtil.getCurrTeamName(),
-                        app_alias: appAlias,
-                        is_deploy: true,
-                      }).then(data => {
-                      });
-                  }
-                }
-              }
-            })
-            })
-          }
         }
       }
     });
