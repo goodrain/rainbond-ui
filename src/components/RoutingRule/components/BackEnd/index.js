@@ -17,13 +17,14 @@ class DAinputs extends Component {
         this.state = {
             values: [
                 {
-                  name: "",
-                  weight: "",
-                  kind: "",
-                  namespace: "",
-                  port: ""
+                    name: "",
+                    weight: "",
+                    kind: "",
+                    namespace: "",
+                    port: ""
                 }
-              ]
+            ],
+            showport: false
         };
     }
     componentDidMount() {
@@ -62,6 +63,13 @@ class DAinputs extends Component {
     };
     onSelectChange = (value, index) => {
         const { values } = this.state;
+        if (value == "Service") {
+            this.setState({
+                showport: true
+            })
+        }else{
+            values[index].port = null;
+        }
         values[index].kind = value;
         this.triggerChange(values);
         this.setValues(values);
@@ -70,7 +78,7 @@ class DAinputs extends Component {
     setValues(arr) {
         const setArr = arr || [];
         if (!setArr.length) {
-            setArr.push({ name: '', weight: '', kind: '', namespace: '',port: '' });
+            setArr.push({ name: '', weight: '', kind: '', namespace: '', port: '' });
         }
         this.setState({ values: setArr });
     }
@@ -89,7 +97,7 @@ class DAinputs extends Component {
             return null;
         }
         this.setState({
-            values: values.concat({ name: '', weight: '', kind: '', namespace: '',port: '' })
+            values: values.concat({ name: '', weight: '', kind: '', namespace: '', port: '' })
         });
     };
 
@@ -112,13 +120,13 @@ class DAinputs extends Component {
         }
         const { onChange } = this.props;
         if (onChange) {
-            onChange(res,this.props.index);
+            onChange(res, this.props.index);
         }
     }
 
     render() {
         const { editState, removeShow } = this.props
-        const { values } = this.state;
+        const { values, showport } = this.state;
         const spanStyle = {
             color: '#8d9ba',
             fontSize: 14,
@@ -128,120 +136,128 @@ class DAinputs extends Component {
         }
         return (
             <div>
-                <h2>后端</h2>
+                <h4>
+                    后端
+                </h4>
                 {values.map((item, index) => {
                     const first = index === 0;
                     return (
                         <Row key={index} className={styles.RowStyle}>
-                            <Card style={{width:'100%'}}>
-                            <Col span={22}>
-                                <Row>
-                                    <Col span={6}>
-                                    <span style={spanStyle}>名称：</span>
+                            <Card style={{ width: '100%' }}>
+                                <Col span={22}>
+                                    <Row>
+                                        <Col span={6}>
+                                            <span style={spanStyle}>名称<span>(必填)</span>：</span>
+                                        </Col>
+                                        <Col span={18}>
+                                            <Input
+                                                style={{ width: "80%" }}
+                                                name="key"
+                                                onChange={e => {
+                                                    this.onNameChange(e.target.value, index);
+                                                }}
+                                                value={item.name}
+                                                placeholder="请输入名称"
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col span={6}>
+                                            <span style={spanStyle}>类型<span>(必填)</span>：</span>
+                                        </Col>
+                                        <Col span={18}>
+                                            <Select
+                                                name="select"
+                                                allowClear
+                                                value={item.kind || null}
+                                                onChange={e => {
+                                                    this.onSelectChange(e, index);
+                                                }}
+                                                style={{ width: "80%" }}
+                                                placeholder="请选择类型"
+                                            >
+                                                <Select.Option value="HTTPRoute">HTTPRoute</Select.Option>
+                                                <Select.Option value="Service">Service</Select.Option>
+                                            </Select>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col span={6}>
+                                            <span style={spanStyle}>命名空间<span>(非必填)</span>：</span>
+                                        </Col>
+                                        <Col span={18}>
+                                            <Input
+                                                style={{ width: "80%" }}
+                                                name="key"
+                                                onChange={e => {
+                                                    this.onNamespaceChange(e.target.value, index);
+                                                }}
+                                                value={item.namespace}
+                                                placeholder="请输入命名空间"
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col span={6}>
+                                            <span style={spanStyle}>权重<span>(必填)</span>：</span>
+                                        </Col>
+                                        <Col span={18}>
+                                            <Input
+                                                style={{ width: "80%" }}
+                                                name="value"
+                                                onChange={e => {
+                                                    this.onWeightChange(e.target.value, index);
+                                                }}
+                                                value={item.weight}
+                                                placeholder="请选择权重"
+                                            />
+                                        </Col>
+                                    </Row>
+                                    {(item.kind == "Service") &&
+                                        <Row>
+                                            <Col span={6}>
+                                                <span style={spanStyle}>端口<span>(必填)</span>：</span>
+                                            </Col>
+                                            <Col span={18}>
+                                                <Input
+                                                    style={{ width: "80%" }}
+                                                    name="value"
+                                                    onChange={e => {
+                                                        this.onPortChange(e.target.value, index);
+                                                    }}
+                                                    defaultValue={item.port || 100}
+                                                    placeholder="请输入端口号"
+                                                />
+                                            </Col>
+                                        </Row>
+                                    }
+
+                                </Col>
+                                {!editState &&
+                                    <Col span={2}>
+                                        <Icon
+                                            type={first ? 'plus-circle' : 'minus-circle'}
+                                            style={{ fontSize: '20px' }}
+                                            onClick={() => {
+                                                if (first) {
+                                                    this.add();
+                                                } else {
+                                                    this.remove(index);
+                                                }
+                                            }}
+                                        />
                                     </Col>
-                                    <Col span={18}>
-                                    <Input
-                                        style={{ width: "80%" }}
-                                        name="key"
-                                        onChange={e => {
-                                            this.onNameChange(e.target.value, index);
-                                        }}
-                                        value={item.name}
-                                        placeholder="请输入名称"
-                                        disabled={editState}
-                                    />
-                                    </Col>
- 
-                                </Row>
-                                <Row>
-                                    <Col span={6}>
-                                    <span style={spanStyle}>类型：</span>
-                                    </Col>
-                                    <Col span={18}>
-                                    <Select
-                                        name="select"
-                                        allowClear
-                                        value={item.kind || null}
-                                        onChange={e => {
-                                            this.onSelectChange(e, index);
-                                        }}
-                                        style={{ width: "80%" }}
-                                        placeholder="请选择类型"
-                                        disabled={editState}
-                                    >
-                                        <Select.Option value="HTTPRoute">HTTPRoute</Select.Option>
-                                        <Select.Option value="Service">Service</Select.Option>
-                                    </Select>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col span={6}>
-                                    <span style={spanStyle}>命名空间：</span>
-                                    </Col>
-                                    <Col span={18}>
-                                    <Input
-                                        style={{ width: "80%" }}
-                                        name="key"
-                                        onChange={e => {
-                                            this.onNamespaceChange(e.target.value, index);
-                                        }}
-                                        value={item.namespace}
-                                        placeholder="请输入命名空间"
-                                        disabled={editState}
-                                    />
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col span={6}>
-                                    <span style={spanStyle}>权重：</span>
-                                    </Col>
-                                    <Col span={18}>
-                                    <Input
-                                        style={{ width: "80%" }}
-                                        name="value"
-                                        onChange={e => {
-                                            this.onWeightChange(e.target.value, index);
-                                        }}
-                                        value={item.weight}
-                                        placeholder="请选择权重"
-                                        disabled={editState}
-                                    />
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col span={6}>
-                                    <span style={spanStyle}>端口：</span>
-                                    </Col>
-                                    <Col span={18}>
-                                    <Input
-                                        style={{ width: "80%" }}
-                                        name="value"
-                                        onChange={e => {
-                                            this.onPortChange(e.target.value, index);
-                                        }}
-                                        value={item.port}
-                                        placeholder="请输入端口号"
-                                        disabled={editState}
-                                    />
-                                    </Col>
-                                </Row>
-                            </Col>
-                            {!editState &&
-                                <Col span={2}>
+
+                                }
+                                {removeShow && first && values.length == 1 &&
                                     <Icon
-                                        type={first ? 'plus-circle' : 'minus-circle'}
+                                        type={'minus-circle'}
                                         style={{ fontSize: '20px' }}
                                         onClick={() => {
-                                            if (first) {
-                                                this.add();
-                                            } else {
-                                                this.remove(index);
-                                            }
+                                            this.props.removeValue()
                                         }}
                                     />
-                                </Col>
-                                
-                            }
+                                }
                             </Card>
                         </Row>
                     );

@@ -5,7 +5,8 @@ import {
     Input,
     notification,
     Row,
-    Select
+    Select,
+    Tooltip
 } from 'antd';
 import React, { Component } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -18,19 +19,19 @@ class index extends Component {
         this.state = {
             values: [
                 {
-                  path: {
-                    type: "",
-                    value: ""
-                  },
-                  headers: [
-                      {
-                          name: "",
-                          type: "",
-                          value: ""
-                      }
-                  ]
+                    path: {
+                        type: "",
+                        value: ""
+                    },
+                    headers: [
+                        {
+                            name: "",
+                            type: "",
+                            value: ""
+                        }
+                    ]
                 }
-              ],
+            ],
         };
     }
     componentDidMount() {
@@ -62,8 +63,8 @@ class index extends Component {
         if (!setArr.length) {
             setArr.push({
                 path: {
-                  type: "",
-                  value: ""
+                    type: "",
+                    value: ""
                 },
                 headers: [
                     {
@@ -72,7 +73,7 @@ class index extends Component {
                         value: ""
                     }
                 ]
-              });
+            });
         }
         this.setState({ values: setArr });
     }
@@ -93,8 +94,8 @@ class index extends Component {
         this.setState({
             values: values.concat({
                 path: {
-                  type: "",
-                  value: ""
+                    type: "",
+                    value: ""
                 },
                 headers: [
                     {
@@ -103,7 +104,7 @@ class index extends Component {
                         value: ""
                     }
                 ]
-              })
+            })
         });
     };
 
@@ -123,15 +124,15 @@ class index extends Component {
         }
         const { onChange } = this.props;
         if (onChange) {
-            onChange(res,this.props.index);
+            onChange(res, this.props.index);
         }
     }
     triggerChanges = (val, index) => {
-        const {values} = this.state
+        const { values } = this.state
         const arr = values
         arr[index].headers = val
         this.setState({
-            values:arr
+            values: arr
         })
     }
 
@@ -146,7 +147,12 @@ class index extends Component {
         }
         return (
             <div>
-                <h2>条件匹配</h2>
+                <h4>
+                    条件匹配
+                    <Tooltip placement="right" title="条件匹配下的headers与path选项可以同时添加或只添加其中一项，且任意一项的所有选项均为必填。">
+                        <Icon type="question-circle" style={{ marginLeft: 6 }} />
+                    </Tooltip>
+                </h4>
                 {values.map((item, index) => {
                     const first = index === 0;
                     const { headers, path } = item
@@ -156,7 +162,7 @@ class index extends Component {
                                 <Col span={22}>
                                     <Row>
                                         <Col span={6}><span>Headers：</span></Col>
-                                        <Col span={18}> <GateWayHeaders value={headers} onChange={this.triggerChanges} index={index}/> </Col>
+                                        <Col span={18}> <GateWayHeaders value={headers} onChange={this.triggerChanges} index={index} /> </Col>
                                     </Row>
                                     <Row
                                     >
@@ -176,8 +182,8 @@ class index extends Component {
                                                         placeholder={'请输入name'}
                                                     />
                                                 </Col>
-                                                <Col 
-                                                span={7}
+                                                <Col
+                                                    span={7}
                                                 >
                                                     <Select
                                                         name="select"
@@ -212,8 +218,18 @@ class index extends Component {
                                                 }
                                             }}
                                         />
+                                        {removeShow && first && values.length == 1 &&
+                                            <Icon
+                                                type={'minus-circle'}
+                                                style={{ fontSize: '20px', marginLeft: 10 }}
+                                                onClick={() => {
+                                                    this.props.removeValue(this.props.index)
+                                                }}
+                                            />
+                                        }
                                     </Col>
                                 }
+
                             </Card>
                         </Row>
                     );
