@@ -50,8 +50,9 @@
         'popover.access_strategy.lable.conversation':'负载均衡算法：会话保持',
         'popover.access_strategy.lable.access_target':'访问目标',
         'popover.access_strategy.lable.li1':'1.HTTP访问控制策略是基于“域名"等组成路由规则，你需要在所绑定域名的域名服务商增加域名DNSA记录 到当前集群的应用网关出口IP地址之上域名访问即可生效。',
-        'popover.access_strategy.lable.li2':'2.当前集群（{ currentRegion }) 出口IP地址是: { ip }',
+        'popover.access_strategy.lable.li2':'2.当前集群',
         'popover.access_strategy.lable.li3':'3.如有疑问请联系平台运营管理员',
+        'popover.access_strategy.lable.li4':'出口IP地址是: ',
 
         //http访问策略参数配置
         'popover.config.title':'参数配置',
@@ -842,7 +843,7 @@
         'placeholder.certificate.name':'请输入证书名称',
         'placeholder.certificate.private':'请输入私钥', 
         'placeholder.userName.search':'请输入用户名称进行搜索',
-
+        'placeholder.limit_memory':'内存限制必填',
     }
     const tooltip = {
         'tooltip.visit':'跳转到组件对外访问端口对应的域名地址',

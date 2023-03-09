@@ -29,7 +29,7 @@ export default class MoveGroup extends PureComponent {
           return {
             service_id: item.service_id,
             service_cname: item.service_cname,
-            msg: '正在删除',
+            msg: formatMessage({id:'appOverview.list.BatchDelete.delete'}),
             status: 0
           };
         }
@@ -80,22 +80,22 @@ export default class MoveGroup extends PureComponent {
     const { confirm, apps } = this.state;
     return (
       <Modal
-        title="确认批量删除"
+        title={formatMessage({id:'appOverview.list.BatchDelete.title'})}
         visible
         width={600}
         onCancel={onCancel}
-        footer={<Button onClick={onCancel}>完成</Button>}
+        footer={<Button onClick={onCancel}>{formatMessage({id:'applicationMarket.NewbieGuiding.complete'})}</Button>}
       >
         {confirm ? (
           <Table
             dataSource={apps || []}
             columns={[
               {
-                title: '组件名称',
+                title: formatMessage({id:'appOverview.list.BatchDelete.name'}),
                 dataIndex: 'service_cname'
               },
               {
-                title: '反馈信息',
+                title: formatMessage({id:'appOverview.list.BatchDelete.msg'}),
                 dataIndex: 'msg',
                 render: (val) => {
                   const map = { success: formatMessage({id:'notification.success.delete'}) };
@@ -103,7 +103,7 @@ export default class MoveGroup extends PureComponent {
                 }
               },
               {
-                title: '操作',
+                title: formatMessage({id:'appOverview.list.BatchDelete.operation'}),
                 dataIndex: 'action',
                 render: (_, data) => {
                   if (data.status == 412) {
@@ -114,15 +114,15 @@ export default class MoveGroup extends PureComponent {
                           this.reDelete(data.service_id);
                         }}
                       >
-                        确认删除
+                        {formatMessage({id:'appOverview.list.BatchDelete.Confirm'})}
                       </a>
                     );
                   }
                   if (data.status == 409) {
-                    return '请先关闭组件';
+                    return `${formatMessage({id:'appOverview.list.BatchDelete.down'})}`;
                   }
                   if (data.status == 200) {
-                    return '已删除';
+                    return `${formatMessage({id:'appOverview.list.BatchDelete.deleted'})}`;
                   }
                 }
               }
@@ -132,8 +132,8 @@ export default class MoveGroup extends PureComponent {
           <div style={{ textAlign: 'center' }}>
             <p>
               {apps && apps.length && apps[0] != undefined
-                ? '即将删除以下组件'
-                : '请刷新数据后删除'}
+                ? `${formatMessage({id:'appOverview.list.BatchDelete.willDeleted'})}`
+                : `${formatMessage({id:'appOverview.list.BatchDelete.refresh'})}`}
             </p>
             <Row>
               {apps.map((item) => {
@@ -155,7 +155,7 @@ export default class MoveGroup extends PureComponent {
                 loading={batchDeleteLoading}
                 onClick={this.handleDelete}
               >
-                确定批量删除
+                {formatMessage({id:'appOverview.list.BatchDelete.ConfirmDelete'})}
               </Button>
             )}
           </div>

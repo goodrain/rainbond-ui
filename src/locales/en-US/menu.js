@@ -25,6 +25,7 @@ const teamMenu = {
   'menu.team.gateway.control': 'Access Policy Manage',
   'menu.team.plugin': 'Plugin',
   'menu.team.setting': 'Manage',
+  'menu.team.pipeline': 'Pipeline',
 }
 
 const appMenu = {
