@@ -1,20 +1,27 @@
 import {
+    Card,
     Col,
     Icon,
     Input,
     notification,
     Row,
     Select,
+    Tooltip
 } from 'antd';
 import React, { Component } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-
+import styles from './index.less'
 const { Option } = Select;
-class Headers extends Component {
+class index extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            values: [{ name: '', value: '', type: '' }]
+            values: [
+                {
+                    value: '',
+                    name: '',
+                }
+            ],
         };
     }
     componentDidMount() {
@@ -27,29 +34,24 @@ class Headers extends Component {
             this.initFromProps(value);
         }
     }
-    onNameChange = (value, index) => {
+    onValueChange = (val, index) => {
         const { values } = this.state;
-        values[index].name = value;
+        values[index].value = val;
         this.triggerChange(values);
         this.setValues(values);
     };
-    onValueChange = (value, index) => {
+    onNameChange = (val, index) => {
         const { values } = this.state;
-        values[index].value = value;
-        this.triggerChange(values);
-        this.setValues(values);
-    };
-    onSelectChange = (value, index) => {
-        const { values } = this.state;
-        values[index].type = value;
+        values[index].name = val;
         this.triggerChange(values);
         this.setValues(values);
     };
 
     setValues(arr) {
         const setArr = arr || [];
+
         if (!setArr.length) {
-            setArr.push({ name: '', value: '', type: '' });
+            setArr.push({ name: "", value: "" });
         }
         this.setState({ values: setArr });
     }
@@ -68,7 +70,9 @@ class Headers extends Component {
             return null;
         }
         this.setState({
-            values: values.concat({ name: '', value: '', type: '' })
+            values: values.concat(
+                { name: "", value: "" }
+            )
         });
     };
 
@@ -84,17 +88,15 @@ class Headers extends Component {
             res.push({
                 name: values[i].name,
                 value: values[i].value,
-                type: values[i].type
             });
         }
         const { onChange } = this.props;
         if (onChange) {
-            onChange(res,this.props.index);
+            onChange(res, this.props.index);
         }
     }
-
     render() {
-        const { setspan = false } = this.props
+        const { setspan = false, editState, } = this.props
         const { values } = this.state;
         const spanStyle = {
             color: '#8d9ba',
@@ -107,69 +109,56 @@ class Headers extends Component {
                 {values.map((item, index) => {
                     const first = index === 0;
                     return (
-                        <Row key={index}>
-                            <Col span={7}>
-                                <Select
-                                    name="select"
-                                    allowClear
-                                    value={item.type || ''}
-                                    placeholder={'type'}
-                                    onChange={e => {
-                                        this.onSelectChange(e, index);
-                                    }}
-                                    style={{ width: "100%" }}
-                                >
-                                    <Select.Option value="Exact">Exact</Select.Option>
-                                    <Select.Option value="RegularExpression">RegularExpression</Select.Option>
-                                </Select>
-                            </Col>
+                        <Row key={index} className={styles.RowStyle}>
                             <Col
                                 span={7}
                             >
                                 <Input
-                                    style={{ width: "90%",marginLeft:'10%' }}
-                                    name="key"
+                                    style={{ width: "95%" }}
+                                    name="name"
                                     onChange={e => {
                                         this.onNameChange(e.target.value, index);
                                     }}
-                                    value={item.name || ''}
+                                    value={item.name}
                                     placeholder={'name'}
                                 />
                             </Col>
                             <Col
                                 span={7}
                             >
-
                                 <Input
                                     style={{ width: "100%" }}
                                     name="value"
                                     onChange={e => {
                                         this.onValueChange(e.target.value, index);
                                     }}
-                                    value={item.value||''}
+                                    value={item.value}
                                     placeholder={'value'}
                                 />
                             </Col>
-                            <Col span={1}>
-                                <Icon
-                                    type={first ? 'plus-circle' : 'minus-circle'}
-                                    style={{ fontSize: '20px', marginLeft:5 }}
-                                    onClick={() => {
-                                        if (first) {
-                                            this.add();
-                                        } else {
-                                            this.remove(index);
-                                        }
-                                    }}
-                                />
-                            </Col>
 
+                            {!editState &&
+                                <Col span={1} style={{ display: 'flex', justifyContent: 'center', marginLeft:10}}>
+                                    <Icon
+                                        type={first ? 'plus-circle' : 'minus-circle'}
+                                        style={{ fontSize: '20px'}}
+                                        onClick={() => {
+                                            if (first) {
+                                                this.add();
+                                            } else {
+                                                this.remove(index);
+                                            }
+                                        }}
+                                    />
+                                </Col>
+                            }
                         </Row>
                     );
-                })}
-            </div>
+                })
+                }
+            </div >
         );
     }
 }
 
-export default Headers;
+export default index;

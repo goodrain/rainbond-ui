@@ -133,6 +133,8 @@ class index extends Component {
         arr[index].headers = val
         this.setState({
             values: arr
+        },()=>{
+            this.triggerChange(this.state.values)
         })
     }
 
@@ -148,68 +150,71 @@ class index extends Component {
         return (
             <div>
                 <h4>
-                    条件匹配
-                    <Tooltip placement="right" title="条件匹配下的headers与path选项可以同时添加或只添加其中一项，且任意一项的所有选项均为必填。">
-                        <Icon type="question-circle" style={{ marginLeft: 6 }} />
-                    </Tooltip>
+                    {formatMessage({id:'teamGateway.DrawerGateWayAPI.Rule.matching'})}
                 </h4>
                 {values.map((item, index) => {
                     const first = index === 0;
                     const { headers, path } = item
+                    let bool = true
+                    if (path == null){
+                        bool = false
+                    }
                     return (
                         <Row key={index} className={styles.RowStyle}>
                             <Card>
-                                <Col span={22}>
+                                <Col span={23}>
                                     <Row>
-                                        <Col span={6}><span>Headers：</span></Col>
-                                        <Col span={18}> <GateWayHeaders value={headers} onChange={this.triggerChanges} index={index} /> </Col>
+                                        <Col span={4}><span>Header：</span></Col>
+                                        <Col span={20}> <GateWayHeaders value={headers} onChange={this.triggerChanges} index={index} /> </Col>
                                     </Row>
                                     <Row
                                     >
-                                        <Col span={6}><span>path：</span></Col>
-                                        <Col span={18}>
+                                        <Col span={4}><span>path：</span></Col>
+                                        <Col span={20}>
                                             <Row>
-                                                <Col
-                                                    span={7}
-                                                >
-                                                    <Input
-                                                        style={{ width: "80%" }}
-                                                        name="key"
-                                                        onChange={e => {
-                                                            this.onkeyChange(e.target.value, index);
-                                                        }}
-                                                        value={path.value}
-                                                        placeholder={'请输入name'}
-                                                    />
-                                                </Col>
-                                                <Col
+                                            <Col
                                                     span={7}
                                                 >
                                                     <Select
                                                         name="select"
                                                         allowClear
-                                                        value={path.type}
-                                                        placeholder={'请选择类型'}
+                                                        value={bool ? item.path.type : ''}
+                                                        placeholder={'type'}
                                                         onChange={e => {
                                                             this.onSelectChange(e, index);
                                                         }}
-                                                        style={{ width: "80%" }}
+                                                        style={{ width: "100%" }}
                                                     >
                                                         <Select.Option value="Exact">Exact</Select.Option>
                                                         <Select.Option value="PathPrefix">PathPrefix</Select.Option>
                                                         <Select.Option value="RegularExpression">RegularExpression</Select.Option>
                                                     </Select>
                                                 </Col>
+
+                                                <Col
+                                                    span={7}
+                                                >
+                                                    <Input
+                                                        style={{ width: "90%" ,marginLeft:'10%'}}
+                                                        name="key"
+                                                        onChange={e => {
+                                                            this.onkeyChange(e.target.value, index);
+                                                        }}
+                                                        value={bool ? item.path.value : ''}
+                                                        placeholder={'value'}
+                                                    />
+                                                </Col>
+                                               
                                             </Row>
                                         </Col>
                                     </Row>
                                 </Col>
 
                                 {!editState &&
-                                    <Col span={2}>
+                                    <Col span={1} style={{display:'flex',justifyContent:'center',paddingTop:10}}>
                                         <Icon
                                             type={first ? 'plus-circle' : 'minus-circle'}
-                                            style={{ fontSize: '20px' }}
+                                            style={{ fontSize: '20px',marginRight:10 }}
                                             onClick={() => {
                                                 if (first) {
                                                     this.add();
@@ -221,7 +226,7 @@ class index extends Component {
                                         {removeShow && first && values.length == 1 &&
                                             <Icon
                                                 type={'minus-circle'}
-                                                style={{ fontSize: '20px', marginLeft: 10 }}
+                                                style={{ fontSize: '20px'}}
                                                 onClick={() => {
                                                     this.props.removeValue(this.props.index)
                                                 }}

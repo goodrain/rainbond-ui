@@ -163,6 +163,88 @@ const teamGateway = {
   'teamGateway.certificate.table.edit':'Edit',
   'teamGateway.certificate.table.update':'Update',
   'teamGateway.certificate.table.delete':'Delete',
+
+  // control
+  'teamGateway.control.table.default':'Default',
+  'teamGateway.control.table.GatewayApi':'Extension gateway',
+
+  // HttpTable
+  'teamGateway.HttpTable.title':'Are you sure you want to add?',
+  'teamGateway.HttpTable.heards':'Request header',
+  'teamGateway.HttpTable.weight':'Weight',
+  'teamGateway.HttpTable.look':'View details',
+  'teamGateway.HttpTable.undeployed':'The current component is in the undeployed state',
+  'teamGateway.HttpTable.start':'Successful startup',
+  'teamGateway.HttpTable.footer':'External access is not enabled for the component you selected. Do you want to automatically enable and add this access policy?',
+  'teamGateway.HttpTable.appStatusVisable':'Friendly reminder',
+  'teamGateway.HttpTable.text':'The current component is in the closed state and can be accessed after starting. Do you want to start the component?',
+
+  // TcpTable
+  'teamGateway.TcpTable.attr_value':'Variable value',
+  'teamGateway.TcpTable.attr_name':'Variable name',
+  'teamGateway.TcpTable.name':'Description',
+
+  'teamGateway.TcpTable.title':'Are you sure you want to add?',
+  'teamGateway.TcpTable.visibleModal':'Access information',
+  'teamGateway.TcpTable.protocol.agreement':'Your current access protocol is',
+  'teamGateway.TcpTable.protocol.address':'Recommended access address',
+  'teamGateway.TcpTable.protocol.open':'Open MySQL client access',
+  'teamGateway.TcpTable.copy':'Copy',
+  // DrawerGateWayAPI
+  'teamGateway.DrawerGateWayAPI.name':'name',
+  'teamGateway.DrawerGateWayAPI.Gateway':'Gateway type',
+  'teamGateway.DrawerGateWayAPI.backend':'Back-end parameter is mandatory.',
+  'teamGateway.DrawerGateWayAPI.pathEmpty':'Please fill in the complete path parameters.',
+  'teamGateway.DrawerGateWayAPI.headerEmpty':'Please complete headers parameters.',
+  'teamGateway.DrawerGateWayAPI.allEmpty':'Please fill in the complete back-end parameters.',
+  'teamGateway.DrawerGateWayAPI.Service':'When the type is Service, port is mandatory.',
+  'teamGateway.DrawerGateWayAPI.RequestRedirect':'When the type is RequestRedirect, the path is mandatory.',
+  'teamGateway.DrawerGateWayAPI.add':'Add GatewayAPI',
+  'teamGateway.DrawerGateWayAPI.edit':'Edit GatewayAPI',
+  'teamGateway.DrawerGateWayAPI.type':'Gateway type',
+  'teamGateway.DrawerGateWayAPI.appName':'Selective application',
+  'teamGateway.DrawerGateWayAPI.hosts':'Domain name',
+  'teamGateway.DrawerGateWayAPI.input_hosts':'Please enter the correct domain name',
+  'teamGateway.DrawerGateWayAPI.rules':'Routing rule',
+  'teamGateway.DrawerGateWayAPI.rules.message':'Please fill in at least the back-end options',
+
+  'teamGateway.DrawerGateWayAPI.hostPlaceholder':'Please enter the domain name address',
+
+  'teamGateway.DrawerGateWayAPI.RoutingRule.rule':'Rule set',
+  'teamGateway.DrawerGateWayAPI.Rule.matching':'Condition matching',
+
+  'teamGateway.DrawerGateWayAPI.BackEnd.title':'routing',
+  'teamGateway.DrawerGateWayAPI.BackEnd.Internal':'Internal domain name',
+  'teamGateway.DrawerGateWayAPI.BackEnd.input_Internal':'Please enter the internal domain name',
+  'teamGateway.DrawerGateWayAPI.BackEnd.type':'Type:',
+  'teamGateway.DrawerGateWayAPI.BackEnd.input_type':'Please select type',
+
+  'teamGateway.DrawerGateWayAPI.BackEnd.namespance':'Namespace',
+  'teamGateway.DrawerGateWayAPI.BackEnd.weight':'Weight',
+  'teamGateway.DrawerGateWayAPI.BackEnd.input_namespace':'Please enter the namespace',
+  'teamGateway.DrawerGateWayAPI.BackEnd.input_weight':'Please fill in the weight',
+  'teamGateway.DrawerGateWayAPI.BackEnd.port':'Port',
+  'teamGateway.DrawerGateWayAPI.BackEnd.input_port':'Please enter the port number',
+
+  'teamGateway.DrawerGateWayAPI.Redirection.Advanced_rule':'Advanced rule',
+  'teamGateway.DrawerGateWayAPI.Redirection.type':'Type:',
+  'teamGateway.DrawerGateWayAPI.Redirection.Cover':'Cover:',
+  'teamGateway.DrawerGateWayAPI.Redirection.add':'Add:',
+  'teamGateway.DrawerGateWayAPI.Redirection.del':'Delete:',
+  'teamGateway.DrawerGateWayAPI.Redirection.Redirection':'Redirection configuration:',
+  'teamGateway.DrawerGateWayAPI.Redirection.select':'Please select protocol',
+
+  'teamGateway.DrawerGateWayAPI.Filtration.type':'Agreement:',
+  'teamGateway.DrawerGateWayAPI.Filtration.select_type':'Please select protocol',
+
+  'teamGateway.DrawerGateWayAPI.Filtration.hostname':'Route:',
+  'teamGateway.DrawerGateWayAPI.Filtration.input_hostname':'Please fill in the route',
+
+  'teamGateway.DrawerGateWayAPI.Filtration.port':'Port:',
+  'teamGateway.DrawerGateWayAPI.Filtration.input_port':'Please enter the port number',
+
+  'teamGateway.DrawerGateWayAPI.Filtration.status_code':'Status code:',
+  'teamGateway.DrawerGateWayAPI.Filtration.input_status_code':'Please enter the status code',
 }
 
 const teamPlugin = {

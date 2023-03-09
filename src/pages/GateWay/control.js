@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import DefaultGateway from '../../components/defaultGateway';
+import GatewayApi from '../../components/GatewayApi'
 import HttpTable from '../../components/HttpTable';
 import TcpTable from '../../components/TcpTable';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -35,6 +37,8 @@ class Control extends Component {
           ? this.props.match.params.types
           : false,
       operationPermissions: this.handlePermissions('queryControlInfo'),
+      tabKeys: 'default',
+      isGateway: true
     };
   }
   componentWillMount() {
@@ -48,7 +52,12 @@ class Control extends Component {
     }
   }
   handleTabChange = key => {
-    this.setState({ tabKey: key, open: false });
+    const { isGateway } = this.state
+    if(isGateway){
+    this.setState({ tabKeys: key, open: false });
+    }else{
+      this.setState({ tabKey: key, open: false });
+    }
   };
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
@@ -58,17 +67,29 @@ class Control extends Component {
     );
   };
   renderContent = () => {
-    const { open, tabKey, operationPermissions } = this.state;
-    if (tabKey === 'http') {
-      return (
-        <HttpTable operationPermissions={operationPermissions} open={open} />
-      );
+    const { appID } = this.props.match.params;
+    const { open, tabKey, operationPermissions, tabKeys, isGateway } = this.state;
+    if(isGateway){
+      if (tabKeys === 'default') {
+        return (
+          <DefaultGateway operationPermissions={operationPermissions} open={open} tabKey={tabKey}/>
+        );
+      }
+      return <GatewayApi operationPermissions={operationPermissions}/>;
+    }else{
+      if (tabKey === 'http') {
+        return (
+          <HttpTable operationPermissions={operationPermissions} open={open} />
+        );
+      }
+      return <TcpTable operationPermissions={operationPermissions} />;
     }
-    return <TcpTable operationPermissions={operationPermissions} />;
+
   };
 
   render() {
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    const { isGateway } = this.state;
     let breadcrumbList = [];
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
@@ -81,9 +102,19 @@ class Control extends Component {
       <PageHeaderLayout
         title={formatMessage({id: 'teamGateway.strategy.title'})}
         titleSvg={pageheaderSvg.getSvg('gatewaySvg',18)}
-        tabActiveKey={this.state.tabKey}
+        tabActiveKey={isGateway ? this.state.tabKeys : this.state.tabKey}
         breadcrumbList={breadcrumbList}
-        tabList={[
+        tabList={isGateway ? [
+          {
+            key: 'default',
+            tab: formatMessage({id:'teamGateway.control.table.default'}),
+          },
+          {
+            key: 'GatewayApi',
+            tab: formatMessage({id:'teamGateway.control.table.GatewayApi'}),
+          },
+        ] : 
+        [
           {
             key: 'http',
             tab: 'HTTP',
@@ -92,7 +123,8 @@ class Control extends Component {
             key: 'tcp',
             tab: 'TCP/UDP',
           },
-        ]}
+        ]
+      }
         onTabChange={this.handleTabChange}
       >
         {this.renderContent()}

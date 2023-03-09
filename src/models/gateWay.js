@@ -27,6 +27,8 @@ import {
     getGateWayApiList,
     queryDetailGateWayApi,
     deleteGateWayApi,
+    addDetailGateWayApi,
+    editDetailGateWayApi
 } from '../services/gateWay';
 
 export default {
@@ -246,6 +248,18 @@ export default {
         },
         *deleteGateWayApi({ callback, payload }, { call }) {
             const response = yield call(deleteGateWayApi, payload);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *addDetailGateWayApi({ callback, payload , handleError}, { call }) {
+            const response = yield call(addDetailGateWayApi, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *editDetailGateWayApi({ callback, payload, handleError }, { call }) {
+            const response = yield call(editDetailGateWayApi, payload, handleError);
             if (callback) {
                 callback(response)
             }

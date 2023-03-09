@@ -14,6 +14,7 @@ import React, { Component } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import BackEnd from './components/BackEnd/index'
 import Rule from "./components/Rule/index"
+import AdvancedRule from './components/AdvancedRule'
 import styles from './index.less'
 const { Option } = Select;
 class index extends Component {
@@ -40,12 +41,41 @@ class index extends Component {
                     backend_refs_rule: [
                         {
                             name: "",
-                            weight: "",
+                            weight: 100,
                             kind: "",
                             namespace: "",
                             port: ""
                         }
-                    ]
+                    ],
+                    filters_rule: [
+                        {
+                            type: "",
+                            request_header_modifier: {
+                                set: [
+                                    {
+                                        name: "",
+                                        value: ""
+                                    }
+                                ],
+                                add: [
+                                    {
+                                        name: "",
+                                        value: ""
+                                    }
+                                ],
+                                remove: [
+                                    ""
+                                ]
+                            },
+                            request_redirect: {
+                                scheme: "",
+                                hostname: "",
+                                port: '',
+                                status_code: ''
+                            }
+        
+                        }
+                    ],
                 }
             ],
             ruleShow: false,
@@ -63,12 +93,6 @@ class index extends Component {
     }
     setValues(arr) {
         const setArr = arr || [];
-        if (arr[0].matches_rule && arr[0].matches_rule != []) {
-            this.setState({
-                ruleShow: true,
-                buttonShow: false
-            })
-        }
         if (!setArr.length) {
             setArr.push({
                 matches_rule: [
@@ -94,7 +118,36 @@ class index extends Component {
                         namespace: "",
                         port: ""
                     }
-                ]
+                ],
+                filters_rule: [
+                    {
+                        type: "",
+                        request_header_modifier: {
+                            set: [
+                                {
+                                    name: "",
+                                    value: ""
+                                }
+                            ],
+                            add: [
+                                {
+                                    name: "",
+                                    value: ""
+                                }
+                            ],
+                            remove: [
+                                ""
+                            ]
+                        },
+                        request_redirect: {
+                            scheme: "",
+                            hostname: "",
+                            port: '',
+                            status_code: ''
+                        }
+    
+                    }
+                ],
             });
         }
         this.setState({ values: setArr });
@@ -138,7 +191,36 @@ class index extends Component {
                         namespace: "",
                         port: ""
                     }
-                ]
+                ],
+                filters_rule: [
+                    {
+                        type: "",
+                        request_header_modifier: {
+                            set: [
+                                {
+                                    name: "",
+                                    value: ""
+                                }
+                            ],
+                            add: [
+                                {
+                                    name: "",
+                                    value: ""
+                                }
+                            ],
+                            remove: [
+                                ""
+                            ]
+                        },
+                        request_redirect: {
+                            scheme: "",
+                            hostname: "",
+                            port: '',
+                            status_code: ''
+                        }
+    
+                    }
+                ],
             })
         },()=>{
             this.triggerChange(this.state.values)
@@ -157,6 +239,7 @@ class index extends Component {
             res.push({
                 matches_rule: values[i].matches_rule,
                 backend_refs_rule: values[i].backend_refs_rule,
+                filters_rule: values[i].filters_rule
             });
         }
         const { onChange } = this.props;
@@ -194,6 +277,16 @@ class index extends Component {
             this.triggerChange(this.state.values)
         })
     }
+     AdvancedRuleTriggerChange = (val, index) => {
+        const { values } = this.state
+        const arr = values
+        arr[index].filters_rule = val
+        this.setState({
+            values: arr
+        },()=>{
+            this.triggerChange(this.state.values)
+        })
+    }
     ruleClick = () => {
         this.setState({
             ruleShow: true,
@@ -212,37 +305,29 @@ class index extends Component {
         
     }
     render() {
-        const { setspan = false, editState, removeShow } = this.props
+        const { setspan = false, editState, removeShow, isEdit } = this.props
         const { values, ruleShow, buttonShow } = this.state;
         const { Panel } = Collapse;
         return (
             <div>
                 {values.map((item, index) => {
                     const first = index === 0;
-                    const { matches_rule, backend_refs_rule } = item
+                    const { matches_rule, backend_refs_rule, filters_rule } = item
                     return (
                         <Row key={index} className={styles.RuleStyle}>
                             <Col span={22}>
-                                <Collapse>
-                                    <Panel header={
+                                <Collapse defaultActiveKey={['1']}>
+                                    <Panel 
+                                    header={
                                         <h3 style={{marginBottom:0}}>
-                                            规则集
-                                            <Tooltip placement="right" title="规则集下的条件匹配选项为选填项，后端选项为必填项。">
-                                                <Icon type="question-circle" style={{ marginLeft: 6 }} />
-                                            </Tooltip>
+                                            {formatMessage({id:'teamGateway.DrawerGateWayAPI.RoutingRule.rule'})}
                                         </h3>
-
                                     }
+                                    key="1"
                                     >
-                                        {buttonShow &&
-                                            <Button type="dashed" block style={{ height: 80,margin:20 }} onClick={this.ruleClick}>
-                                                <h3>添加条件匹配</h3>
-                                            </Button>
-                                        }
-                                        {ruleShow &&
-                                            <Rule value={matches_rule} onChange={this.ruleTriggerChange} index={index} removeValue={this.removeRuleVal} removeShow={true} />
-                                        }
+                                        <Rule value={matches_rule} onChange={this.ruleTriggerChange} index={index}  />
                                         <BackEnd value={backend_refs_rule} onChange={this.backendTriggerChange} index={index} />
+                                        <AdvancedRule value={filters_rule} onChange={this.AdvancedRuleTriggerChange} index={index}/>
                                     </Panel>
                                 </Collapse>
                             </Col>
@@ -274,65 +359,3 @@ export default index;
 
 
 
-// if (!err) {
-//     values && values.username.map(item =>{
-//       const rule = item
-//       if (rule.backend_refs_rule) {
-//         if (rule.backend_refs_rule.length > 0) {
-//           rule.backend_refs_rule.map(item => {
-//             const { name, kind, port, weight } = item
-//             if (kind == 'Service') {
-//               if (port == '') {
-//                 notification.warning({
-//                   message: "当后端类型为Service时，端口选项必填"
-//                 });
-//               } else if (name =='' || kind=='' || weight == '') {
-//                 notification.warning({
-//                   message: "请检查并填写完整的后端配置信息。"
-//                 });
-//               }
-//             } else if (kind != 'Service') {
-//               if (!name || !kind || !weight) {
-//                 notification.warning({
-//                   message: "请检查并填写完整的后端配置信息。"
-//                 });
-//               }
-//             }
-//           })
-//         }
-//       } 
-//       if (rule.matches_rule) {
-//         if (rule.matches_rule.length > 0) {
-//           rule.matches_rule.map((item) => {
-//             const { headers, path } = item
-//             if (headers.length >= 1) {
-//               headers.map(val => {
-//                 const { name, type, value } = val
-//                 if (name=='' && type == undefined && value == '') {
-//                   if (path.type == undefined && path.value == '') {
-//                     notification.warning({
-//                       message: "条件匹配选项中，headers与path至少二者选其一。"
-//                     });
-//                   } else if (path.type == undefined || path.value == '') {
-//                     notification.warning({
-//                       message: "请填写完整的path参数。"
-//                     });
-//                   }
-//                 }else if(name != '' || type != undefined || value != ''){
-//                   notification.warning({
-//                     message: "请填写完整的headers参数。"
-//                   });
-//                 }else if(name!='' && type != '' && value != ''){
-//                   if (path.type != undefined ||  path.value != '') {
-//                     notification.warning({
-//                       message: "请填写完整的path参数。"
-//                     });
-//                   }
-//                 }
-//               })
-//             }
-//           })
-//         }
-//       }
-//     })
-//   }

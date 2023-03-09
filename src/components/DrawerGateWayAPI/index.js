@@ -3,384 +3,463 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable camelcase */
 import {
-    Button,
-    Checkbox,
-    Col,
-    Divider,
-    Drawer,
-    Form,
-    Icon,
-    Input,
-    InputNumber,
-    Modal,
-    Row,
-    Select,
-    Skeleton,
-    Spin,
-    Collapse,
-    Switch,
-    Radio,
-    notification
-  } from 'antd';
-  import { connect } from 'dva';
-  import React, { Fragment, PureComponent } from 'react';
-  import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-  import globalUtil from '../../utils/global';
-  import cookie from '../../utils/cookie';
-  import rainbondUtil from '../../utils/rainbond';
-  import teamUtil from '../../utils/team';
-  import DAHosts from '../DAHosts';
-  import userUtil from '../../utils/user';
-  import styles from './index.less';
-  import Parameterinput from '../Parameterinput';
-  
-  const FormItem = Form.Item;
-  const { Option, OptGroup } = Select;
-  const { Panel } = Collapse;
-  
-  @connect(({ user, loading, global }) => ({
-    currUser: user.currentUser,
-    enterprise: global.enterprise,
-    addHttpStrategyLoading: loading.effects['gateWay/addHttpStrategy'],
-    editHttpStrategyLoading: loading.effects['gateWay/editHttpStrategy']
-  }))
-  class DrawerForm extends PureComponent {
-    constructor(props) {
-      super(props);
-      const { editInfo } = this.props;
-  
-      this.state = {
-        componentLoading: false,
-        portLoading: false,
-        serviceComponentList: [],
-        serviceComponentLoading: true,
-        portList: [],
-        licenseList: [],
-        isAddLicense: false,
-        page: 1,
-        page_size: 99999,
-        group_name: '',
-        is_httptohttps: true,
-        descriptionVisible: false,
-        rule_extensions_visible: false,
-        is_httptohttps: true,
-        automaticCertificateVisible: (editInfo && editInfo.auto_ssl) || false,
-        isPerform: true,
-        rewrite: false,
-        routingConfiguration: !!(
-          props.editInfo &&
-          (props.editInfo.domain_heander ||
-            props.editInfo.domain_cookie ||
-            props.editInfo.path_rewrite ||
-            (props.editInfo.rewrites && props.editInfo.rewrites.length > 0) ||
-            props.editInfo.certificate_id)
-        ),
-        WebSocket: !!(editInfo && editInfo.value && editInfo.value.WebSocket),
-        proxyBuffering: !!(
-          props.editInfo &&
-          props.editInfo.value &&
-          props.editInfo.value.proxy_buffering &&
-          props.editInfo.value.proxy_buffering === 'on'
-        ),
-        webSockets: [
-          { item_key: 'Connection', item_value: 'Upgrade' },
-          { item_key: 'Upgrade', item_value: '$http_upgrade' }
-        ],
-        language: cookie.get('language') === 'zh-CN' ? true : false,
-        gateWayArr: [],
-        GateWayIpList: [],
-      };
-    }
-  
-    componentDidMount(){
-      this.handleBatchGateWay()
-    }
-  
-    componentWillMount() {
-    //   this.heandleEditInfo(this.props);
-    }
+  Button,
+  Checkbox,
+  Col,
+  Divider,
+  Drawer,
+  Form,
+  Icon,
+  Input,
+  InputNumber,
+  Modal,
+  Row,
+  Select,
+  Skeleton,
+  Spin,
+  Collapse,
+  Switch,
+  Radio,
+  notification
+} from 'antd';
+import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import RoutingRule from '@/components/RoutingRule';
+import globalUtil from '../../utils/global';
+import cookie from '../../utils/cookie';
+import rainbondUtil from '../../utils/rainbond';
+import teamUtil from '../../utils/team';
+import DAHosts from '../DAHosts';
+import userUtil from '../../utils/user';
+import styles from './index.less';
+import Parameterinput from '../Parameterinput';
+import { login } from '@/services/user';
 
+const FormItem = Form.Item;
+const { Option, OptGroup } = Select;
+const { Panel } = Collapse;
 
-  
-    addLicense = () => {
-      this.setState(
-        {
-          page_size: this.state.page_size + 10
-        },
-        () => {
-          this.heandleEditInfo(this.props);
-        }
-      );
+@connect(({ user, loading, global }) => ({
+  currUser: user.currentUser,
+  enterprise: global.enterprise,
+  addHttpStrategyLoading: loading.effects['gateWay/addHttpStrategy'],
+  editHttpStrategyLoading: loading.effects['gateWay/editHttpStrategy'],
+  groups: global.groups,
+}))
+class DrawerForm extends PureComponent {
+  constructor(props) {
+    super(props);
+    const { editInfo } = this.props;
+
+    this.state = {
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      gateWayArr: [],
+      GateWayIpList: [],
+      gateWayNamespace: '',
+      loadBalancerArr: [],
+      nodePortArr: [],
     };
-    handleOk = () => {
-      const { onOk, form } = this.props;
-      form.validateFields((err, values) => {
-        if (!err && onOk) {
-        //   onOk();
-        }
-      });
-    };
+  }
 
-    // 获取 gateway 下拉列表
-    handleBatchGateWay = () => {
-      const { dispatch, currUser } = this.props
-      const regionName = globalUtil.getCurrRegionName()
-      dispatch({
-        type: 'gateWay/getBatchGateWay',
-        payload: {
-          enterprise_id: currUser.enterprise_id,
-          region_name: regionName
-        },
-        callback: res => {
-          this.setState({
-            gateWayArr: res.list
-          },()=>{
-                const { gateWayArr }  = this.state
-                this.handleGateWay(gateWayArr[0].name, gateWayArr[0].namespace)
-          })
+  componentDidMount() {
+    this.handleBatchGateWay()
+  }
+
+  componentWillMount() {
+  }
+
+  // 
+  handleOk = (type) => {
+    const { gateWayNamespace } = this.state;
+    const { onOk, form } = this.props;
+    let matches_ruleErr = true;
+    let backend_refs_ruleErr = true;
+    let filters_ruleErr = true;
+    form.validateFields((err, values) => {
+      // if (!err && onOk) {
+      if (!err && onOk) {
+        if (values.rules == null) {
+          notification.warning({
+            message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.backend' })
+          });
+          return
         }
-      })
-    }
-    // 获取 GateWay ip 地址
-    handleGateWay = (name,namespace) => {
-        const { dispatch, currUser } = this.props
-        const regionName = globalUtil.getCurrRegionName()
-        dispatch({
-          type: 'gateWay/getGateWay',
-          payload: {
-            enterprise_id: currUser.enterprise_id,
-            region_name: regionName,
-            name,
-            namespace,
-          },
-          callback: res => {
-              if(res){
-                  const ipList = []
-                  if(res.bean.load_balancer_ip){
-                    res.bean.load_balancer_ip.map((item)=>{
-                        return ipList.push(item)
-                    })
+        values && values.rules.map((item, index) => {
+          const rule = item
+          if (rule && rule.matches_rule) {
+            rule.matches_rule.map(item => {
+              let pathEmpty = true;
+              let headerEmpty = true;
+              const { headers, path } = item
+              if (path) {
+                if (path.type == "" && path.value == "") {
+                  pathEmpty = false;
+                }
+              }
+              headers && headers.map(item => {
+                if (item.name == "" && item.type == "" && item.value == "") {
+                  headerEmpty = false;
+                }
+              })
+              if (pathEmpty || headerEmpty) {
+                if (pathEmpty && path) {
+                  if (path.type == undefined || path.value == "" || path.type == '') {
+                    notification.warning({
+                      message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.pathEmpty' })
+                    });
+                    matches_ruleErr = false
                   }
-                  if(res.bean.node_port_ip){
-                    res.bean.node_port_ip.map((item)=>{
-                        return ipList.push(item)
-                    })
-                  }
-                this.setState({
-                    GateWayIpList: ipList
-                })
-            }
+                } else {
+                  item.path = null
+                }
+                if (headerEmpty && headers) {
+                  headers && headers.map(header_item => {
+                    if (header_item.name == "" || header_item.type == undefined || header_item.value == "" || header_item.type == '') {
+                      notification.warning({
+                        message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.headerEmpty' })
+                      });
+                      matches_ruleErr = false
+
+                    }
+                  })
+                } else {
+                  item.headers = null
+                }
+              }
+              if (!headerEmpty && !pathEmpty) {
+                rule.matches_rule = null
+              }
+            })
+          }
+          if (rule && rule.backend_refs_rule) {
+            rule.backend_refs_rule.map(item => {
+              let allEmpty = true;
+              if (item.name == "" && item.weight == "" && item.kind == "" && item.namespace == "") {
+                allEmpty = false;
+                notification.warning({
+                  message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.backend' })
+                });
+                backend_refs_ruleErr = false
+              }
+              if (allEmpty) {
+                if (item.name == "" || item.weight == "" || item.kind == "" || item.namespace == "" || item.kind == undefined) {
+                  notification.warning({
+                    message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.allEmpty' })
+                  });
+                  backend_refs_ruleErr = false
+                }
+                if (item.weight != "") {
+                  item.weight = Number(item.weight)
+                }
+                if (item.kind == "Service" && item.port == '') {
+                  notification.warning({
+                    message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.Service' })
+                  });
+                  backend_refs_ruleErr = false
+                } else {
+                  item.port = Number(item.port)
+                }
+              }
+            })
+          }
+          if (rule && rule.filters_rule) {
+            rule.filters_rule.map(item => {
+              const { request_redirect } = item
+              if (request_redirect) {
+                if (item.type == 'RequestRedirect') {
+                  request_redirect.port = Number(request_redirect.port)
+                  request_redirect.status_code = Number(request_redirect.status_code)
+                  item.request_header_modifier = null
+                } else if (item.type == 'RequestHeaderModifier') {
+                  item.request_redirect = null
+                } else {
+                  rule.filters_rule = null
+                }
+                if (item.type == 'RequestRedirect' && request_redirect.hostname == "") {
+                  notification.warning({
+                    message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.RequestRedirect' })
+                  });
+                  return
+                  filters_ruleErr = false
+                }
+              }
+            })
           }
         })
-    }
+        if (matches_ruleErr && backend_refs_ruleErr && filters_ruleErr) {
+          onOk(values, gateWayNamespace, type);
+        }
+      }
+      // }
+    });
+  };
 
-    handleCkeckName = (value, callbacks) => {
-        const { dispatch, appID } = this.props
-        dispatch({
-            type: 'gateWay/queryDetailGateWayApi',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              app_id: appID || '',
-              name: value,
-              check: 'check'
-            },
-            callback: data => {
-              if (data.bean && data.bean.exist) {
-                callbacks('名称已存在');
-                notification.warning({
-                    message: '名称已存在'
-                });
-              }
-            }
-        });
-        callbacks();
+  // 获取 gateway 下拉列表
+  handleBatchGateWay = () => {
+    const { dispatch, currUser } = this.props
+    const regionName = globalUtil.getCurrRegionName()
+    dispatch({
+      type: 'gateWay/getBatchGateWay',
+      payload: {
+        enterprise_id: currUser.enterprise_id,
+        region_name: regionName
+      },
+      callback: res => {
+        this.setState({
+          gateWayArr: res.list,
+          gateWayNamespace: res.list[0].namespace,
+          listener_namesArr: res.list[0].listener_names
+        })
+      }
+    })
+  }
+
+  handleGateWayIp = (value) => {
+    const name = value.name
+    const namespace = value.namespace
+    this.setState({
+      gateWayNamespace: value.namespace,
+      loadBalancerArr: value.load_balancer_ip ? value.load_balancer_ip : [],
+      nodePortArr: value.node_port_ip ? value.node_port_ip : [],
+      listener_namesArr: value.listener_names
+    })
+  }
+  render() {
+    const {
+      onClose,
+      enterprise,
+      groups,
+      editInfo,
+      addHttpStrategyLoading,
+      editHttpStrategyLoading,
+    } = this.props;
+    const { getFieldDecorator } = this.props.form;
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 3 },
+        sm: { span: 3 }
+      },
+      wrapperCol: {
+        xs: { span: 21 },
+        sm: { span: 21 }
+      }
+    };
+    const formItemLayouts = {
+      labelCol: {
+        xs: { span: 6 },
+        sm: { span: 6 }
+      },
+      wrapperCol: {
+        xs: { span: 18 },
+        sm: { span: 18 }
+      }
+    };
+    const zh_formItemLayouts = {
+      labelCol: {
+        xs: { span: 7 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 17 },
+        sm: { span: 17 }
+      }
+    };
+    const en_formItemLayouts = {
+      labelCol: {
+        xs: { span: 10 },
+        sm: { span: 10 }
+      },
+      wrapperCol: {
+        xs: { span: 14 },
+        sm: { span: 14 }
+      },
     };
 
+    const {
+      language,
+      gateWayArr,
+      GateWayIpList,
+      gateWayNamespace,
+      listener_namesArr,
+      loadBalancerArr,
+      nodePortArr
+    } = this.state;
+    const is_languages = language ? zh_formItemLayouts : en_formItemLayouts
+    const is_language = language ? formItemLayout : formItemLayouts
+    return (
+      <div>
+        <Drawer
+          title={editInfo ? formatMessage({ id: 'teamGateway.DrawerGateWayAPI.edit' }) : formatMessage({ id: 'teamGateway.DrawerGateWayAPI.add' })}
+          placement="right"
+          width={650}
+          closable={false}
+          onClose={onClose}
+          visible={this.props.visible}
+          maskClosable={false}
+          style={{
+            overflow: 'auto'
+          }}
+        >
+          <Form>
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.type' })}>
+              {getFieldDecorator('gateway_class_name', {
+                initialValue: (editInfo && editInfo.gateway_name) || ( gateWayArr.length > 0 ? gateWayArr[0].name : null),
+                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
+              })(
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder={formatMessage({ id: 'placeholder.appName' })}
+                >
+                  {(gateWayArr || []).map(item => {
+                    return (
+                      <Option onClick={() => { this.handleGateWayIp(item) }} key={item.name} value={item.name}>
+                        {item.name}
+                      </Option>
+                    )
+                  })}
+                </Select>
+              )}
+              {loadBalancerArr.length > 0 &&
+                <>
+                  <h4 style={{ marginBottom: 0 }}>LoadBalancer:</h4>
+                  {loadBalancerArr.map((item) => {
+                    return (
+                      <div style={{ display: 'flex', justifyContent: 'start' }}>
+                        <span style={{ width: '40%', fontWeight: 'bold', fontSize: '14px', color: 'red' }}>
+                          {item}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </>
+              }
+              {nodePortArr.length > 0 &&
+                <>
+                  <h4 style={{ marginBottom: 0 }}>NodePort:</h4>
+                  {nodePortArr.map((item) => {
+                    return (
+                      <div style={{ display: 'flex', justifyContent: 'start' }}>
+                        <span style={{ width: '40%', fontWeight: 'bold', fontSize: '14px', color: 'red' }}>
+                          {item}
+                        </span>
+                      </div>
+                    )
+                  })
+                  }
+                </>
+              }
+            </Form.Item>
+            <Form.Item {...is_language} label={"监听项"}>
+              {getFieldDecorator('section_name', {
+                initialValue: editInfo ? (editInfo.section_name == "" ? "all" : editInfo.section_name) : "all",
+                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
+              })(
+                <Select
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder={"选择监听项"}
+                >
+                  <Option  key={"all"} value={"all"}>
+                    全部监听
+                  </Option>
+                  {(listener_namesArr || []).map((item, index) => {
+                    return (
+                      <Option  key={index} value={item}>
+                        {item}
+                      </Option>
+                    )
+                  })}
 
-    handleGateWayIp = (value) => {
-        console.log(value,'value')
-        const name = value.name
-        const namespace = value.namespace
-        this.handleGateWay(name, namespace)
-    }
-    render() {
-      const {
-        onClose,
-        enterprise,
-        groups,
-        editInfo,
-        addHttpStrategyLoading,
-        editHttpStrategyLoading
-      } = this.props;
-      const { getFieldDecorator } = this.props.form;
-      const formItemLayout = {
-        labelCol: {
-          xs: { span: 6 },
-          sm: { span: 6 }
-        },
-        wrapperCol: {
-          xs: { span: 18 },
-          sm: { span: 18 }
-        }
-      };
-      const formItemLayouts = {
-        labelCol: {
-          xs: { span: 7 },
-          sm: { span: 7 }
-        },
-        wrapperCol: {
-          xs: { span: 17 },
-          sm: { span: 17 }
-        }
-      };
-      const zh_formItemLayouts = {
-        labelCol: {
-          xs: { span: 7 },
-          sm: { span: 7 }
-        },
-        wrapperCol: {
-          xs: { span: 17 },
-          sm: { span: 17 }
-        }
-      };
-      const en_formItemLayouts = {
-        labelCol: {
-          xs: { span: 10},
-          sm: { span: 10}
-        },
-        wrapperCol: {
-          xs: { span: 14 },
-          sm: { span: 14 }
-        },
-      };
-     
-      const {
-        language,
-        gateWayArr,
-        GateWayIpList
-      } = this.state;
-      const is_languages = language ? zh_formItemLayouts : en_formItemLayouts
-      const is_language = language ? formItemLayout : formItemLayouts
-      return (
-        <div>
-          <Drawer
-            title={editInfo ? '编辑 GateWayAPI' : '添加 GateWayAPI'}
-            placement="right"
-            width={500}
-            closable={false}
-            onClose={onClose}
-            visible={this.props.visible}
-            maskClosable={false}
+                </Select>
+              )}
+            </Form.Item>
+            <FormItem {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.hosts' })}>
+              {getFieldDecorator('hosts', {
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.hostPlaceholder' })
+                  },
+                  {
+                    pattern: /^([0-9a-zA-Z-]{1,}\.)+([a-zA-Z]{2,})$/,
+                    message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.input_hosts' })
+                  }
+                ],
+                initialValue: editInfo ? editInfo.hosts : null
+              })(<DAHosts />)}
+            </FormItem>
+            <FormItem {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.appName' })}>
+              {getFieldDecorator('group_id', {
+                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
+                initialValue: editInfo ? `${editInfo.app_id}` : ''
+              })(
+                <Select
+                  // getPopupContainer={triggerNode => triggerNode.parentNode}
+                  // labelInValue
+                  placeholder={formatMessage({ id: 'placeholder.appName' })}
+                >
+                  {(groups || []).map(group => {
+                    return (
+                      <Option
+                        value={`${group.group_id}`}
+                        key={group.group_id}
+                      >
+                        {group.group_name}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              )}
+            </FormItem>
+            <FormItem {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.rules' })}>
+              {getFieldDecorator('rules', {
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.rules.message' })
+                  },
+                ],
+                initialValue: editInfo ? editInfo.rules : null
+              })(<RoutingRule isEdit={editInfo ? true : false} />)}
+            </FormItem>
+          </Form>
+
+          <div
             style={{
-              overflow: 'auto'
+              position: 'absolute',
+              bottom: 0,
+              width: '100%',
+              borderTop: '1px solid #e8e8e8',
+              padding: '10px 16px',
+              textAlign: 'right',
+              left: 0,
+              background: '#fff',
+              borderRadius: '0 0 4px 4px',
+              zIndex: 9999
             }}
           >
-            <Form>
-                <FormItem
-                    {...formItemLayout}
-                    label='名称'
-                    className={styles.antd_form}
-                >
-                    {getFieldDecorator('name', {
-                    validateTrigger: 'onBlur',
-                    rules: [
-                        {
-                            required: true,
-                            message: formatMessage({id:'placeholder.addDomain'})
-                        },
-                        {
-                            validator: (_, value, callback)=>{
-                                this.handleCkeckName(value, callback)
-                            }
-                        }
-                        
-                    ],
-                    initialValue: editInfo.name
-                    })(<Input placeholder={formatMessage({id:'placeholder.addDomain'})} />)}
-                </FormItem>
-                <FormItem {...formItemLayout} label='域名'>
-                    {getFieldDecorator('hosts', {
-                    rules: [
-                        {
-                        required: false,
-                        message: '/'
-                        },
-                        { max: 1024, message: formatMessage({id:'placeholder.max1024'}) },
-                        {
-                        pattern: /^\/+.*/,
-                        message: formatMessage({id:'placeholder.path.absolute'})
-                        }
-                    ],
-                    initialValue: editInfo.hosts
-                    })(<DAHosts />)}
-                </FormItem>
-                <Form.Item {...is_language} label='GateWay'>
-                    {getFieldDecorator('gateway_class_name', {
-                    initialValue: gateWayArr.length > 0 ? gateWayArr[0].name : null,
-                    rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
-                    })(
-                    <Select
-                        getPopupContainer={triggerNode => triggerNode.parentNode}
-                        placeholder={formatMessage({id: 'placeholder.appName'})}
-                    >
-                        {(gateWayArr || []).map(item => {
-                            return (
-                                <Option onClick={()=>{this.handleGateWayIp(item)}} key={item.name} value={item.name}>
-                                    {item.name}
-                                </Option>
-                            )
-                        })}
-                    </Select>
-                    )}
-                    {GateWayIpList.length > 0 && GateWayIpList.map((item)=>{
-                        return (
-                            <div style={{display: 'flex', justifyContent: 'start'}}>
-                                <span style={{ width: '40%', fontWeight: 'bold', fontSize: '16px', color:'red' }}>
-                                    {item}
-                                </span>
-                            </div>
-                        )
-                    })}
-                </Form.Item>
-            </Form>
-  
-            <div
+            <Button
               style={{
-                position: 'absolute',
-                bottom: 0,
-                width: '100%',
-                borderTop: '1px solid #e8e8e8',
-                padding: '10px 16px',
-                textAlign: 'right',
-                left: 0,
-                background: '#fff',
-                borderRadius: '0 0 4px 4px',
-                zIndex: 9999
+                marginRight: 8
               }}
+              onClick={onClose}
             >
-              <Button
-                style={{
-                  marginRight: 8
-                }}
-                onClick={onClose}
-              >
-                {formatMessage({id:'popover.cancel'})}
-              </Button>
-              <Button
-                onClick={() => {
-                    this.handleOk();
-                }}
-                type="primary"
-                loading={addHttpStrategyLoading || editHttpStrategyLoading}
-              >
-                {formatMessage({id:'popover.confirm'})}
-              </Button>
-            </div>
-          </Drawer>
-        </div>
-      );
-    }
+              {formatMessage({ id: 'popover.cancel' })}
+            </Button>
+            <Button
+              onClick={() => {
+                this.handleOk(editInfo ? "edit" : "add");
+              }}
+              type="primary"
+              loading={addHttpStrategyLoading || editHttpStrategyLoading}
+            >
+              {formatMessage({ id: 'popover.confirm' })}
+            </Button>
+          </div>
+        </Drawer>
+      </div>
+    );
   }
-  const drawerForm = Form.create()(DrawerForm);
-  export default drawerForm;
-  
+}
+const drawerForm = Form.create()(DrawerForm);
+export default drawerForm;

@@ -113,7 +113,20 @@ class LicenseDrawer extends PureComponent {
                 ]
               })(<Input placeholder={formatMessage({id:'placeholder.certificate.name'})} />)}
             </FormItem>
-            <FormItem {...formItemLayout} label={formatMessage({id:'popover.manage.certificate.label.kind'})}>
+            {true ? (
+              <FormItem {...formItemLayout} label={formatMessage({id:'teamGateway.DrawerGateWayAPI.Gateway'})}>
+              {getFieldDecorator('certificate_type', {
+                initialValue: editData ? editData.certificate_type : formatMessage({id:'popover.manage.certificate.label.server'}),
+                rules: [{ required: true }]
+              })(
+                <RadioGroup>
+                  <Radio value="default">{formatMessage({id:'teamGateway.control.table.default'})}</Radio>
+                  <Radio value="Gateway">{formatMessage({id:'teamGateway.control.table.GatewayApi'})}</Radio>
+                </RadioGroup>
+              )}
+            </FormItem>
+            ):(
+              <FormItem {...formItemLayout} label={formatMessage({id:'popover.manage.certificate.label.kind'})}>
               {getFieldDecorator('certificate_type', {
                 initialValue: formatMessage({id:'popover.manage.certificate.label.server'}),
                 rules: [{ required: true }]
@@ -123,7 +136,7 @@ class LicenseDrawer extends PureComponent {
                 </RadioGroup>
               )}
             </FormItem>
-
+            )}
             {certificateList.map(item => {
               const { value, name, label, messages, mode } = item;
               return (

@@ -415,6 +415,45 @@ export async function queryDetailGateWayApi(params) {
     }
   );
 }
+
+/** 添加 GateWayApi 详情 */
+export async function addDetailGateWayApi(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/gateway-http-route`,
+    {
+      method: 'post',
+      data: {
+        app_id: params.app_id,
+        gateway_name: params.gateway_name,
+        gateway_namespace: params.gateway_namespace,
+        section_name:params.section_name == "all" ? "" : params.section_name,
+        hosts: params.hosts,
+        rules: params.rules,
+      },
+      handleError
+    }
+  );
+}
+/** 修改 GateWayApi 详情 */
+export async function editDetailGateWayApi(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/gateway-http-route`,
+    {
+      method: 'put',
+      data: {
+        app_id: params.app_id,
+        gateway_name: params.gateway_name,
+        gateway_namespace: params.gateway_namespace,
+        section_name:params.section_name == "all" ? "" : params.section_name,
+        hosts: params.hosts,
+        rules: params.rules,
+        name: params.name
+      },
+      handleError
+    }
+  );
+}
+
 /** 删除 GateWayApi 详情 */
 export async function deleteGateWayApi(params) {
   return request(

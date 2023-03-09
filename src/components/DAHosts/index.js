@@ -36,11 +36,10 @@ class DAHosts extends Component {
     const setValue = value || this.props.value;
     if (setValue) {
       const res = [];
-      const valArr = setValue.split(';');
-      for (let i = 0; i < valArr.length; i++) {
+      for (let index = 0; index < setValue.length; index++) {
         res.push({
-            host: valArr[i].split('=')[0]
-        });
+          host: setValue[index]
+      });
       }
       this.setValues(res);
     }
@@ -64,17 +63,16 @@ class DAHosts extends Component {
   };
   triggerChange(values) {
     const res = [];
-    for (let i = 0; i < values.length; i++) {
-      res.push(`${values[i].host}`);
-    }
     const { onChange } = this.props;
+    const hostArr = values.map(obj => obj.host);
     if (onChange) {
-      onChange(res.join(';'));
+      onChange(hostArr,this.props.index);
     }
   }
 
   render() {
-    const hostPlaceholder = this.props.hostPlaceholder || '请填写域名地址';
+    const  { setspan = false, setSvgSpan = false } = this.props
+    const hostPlaceholder = this.props.hostPlaceholder || formatMessage({id:'teamGateway.DrawerGateWayAPI.hostPlaceholder'});
     const { values } = this.state;
     return (
       <div>
@@ -82,7 +80,7 @@ class DAHosts extends Component {
           const first = index === 0;
           return (
             <Row key={index}>
-              <Col span={20}>
+              <Col span={setspan || 20}>
                 <Input
                   name="host"
                   onChange={e => {
@@ -92,7 +90,7 @@ class DAHosts extends Component {
                   placeholder={hostPlaceholder}
                 />
               </Col>
-              <Col span={4} style={{ textAlign: 'center' }}>
+              <Col span={setSvgSpan || 3} style={{ textAlign: 'center', marginLeft: 10 }}>
                 <Icon
                   type={first ? 'plus-circle' : 'minus-circle'}
                   style={{ fontSize: '20px' }}
