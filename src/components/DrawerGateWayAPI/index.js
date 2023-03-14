@@ -59,11 +59,14 @@ class DrawerForm extends PureComponent {
       gateWayNamespace: '',
       loadBalancerArr: [],
       nodePortArr: [],
+      portsArr:[],
+      nameSpace: ''
     };
   }
 
   componentDidMount() {
     this.handleBatchGateWay()
+    this.fetchServiceID()
   }
 
   componentWillMount() {
@@ -209,11 +212,31 @@ class DrawerForm extends PureComponent {
         this.setState({
           gateWayArr: res.list,
           gateWayNamespace: res.list[0].namespace,
-          listener_namesArr: res.list[0].listener_names
+          listener_namesArr: res.list[0].listener_names,
+          loadBalancerArr: res.list[0].load_balancer_ip ? res.list[0].load_balancer_ip : [],
+          nodePortArr: res.list[0].node_port_ip ? res.list[0].node_port_ip : [],
         })
       }
     })
   }
+    // 获取 gateway 下拉列表
+    fetchServiceID = () => {
+      const { dispatch, currUser } = this.props
+      const teamName = globalUtil.getCurrTeamName()
+      dispatch({
+        type: 'teamControl/fetchServiceID',
+        payload: {
+          team_name: teamName
+        },
+        callback: res => {
+          this.setState({
+            nameSpace:res.bean.namespace || '',
+            portsArr: res.bean.ports || []
+          })
+        }
+      })
+    }
+  
 
   handleGateWayIp = (value) => {
     const name = value.name
@@ -233,6 +256,7 @@ class DrawerForm extends PureComponent {
       editInfo,
       addHttpStrategyLoading,
       editHttpStrategyLoading,
+      appID
     } = this.props;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
@@ -283,10 +307,69 @@ class DrawerForm extends PureComponent {
       gateWayNamespace,
       listener_namesArr,
       loadBalancerArr,
-      nodePortArr
+      nodePortArr,
+      nameSpace,
+      portsArr
     } = this.state;
     const is_languages = language ? zh_formItemLayouts : en_formItemLayouts
     const is_language = language ? formItemLayout : formItemLayouts
+    const rules = [
+      {
+          matches_rule: [
+              {
+                  path: {
+                      type: "",
+                      value: ""
+                  },
+                  headers: [
+                      {
+                          name: "",
+                          type: "",
+                          value: ""
+                      }
+                  ]
+              }
+          ],
+          backend_refs_rule: [
+              {
+                  name: "",
+                  weight: 100,
+                  kind: "Service",
+                  namespace: nameSpace,
+                  port: 80
+              }
+          ],
+          filters_rule: [
+              {
+                  type: "",
+                  request_header_modifier: {
+                      set: [
+                          {
+                              name: "",
+                              value: ""
+                          }
+                      ],
+                      add: [
+                          {
+                              name: "",
+                              value: ""
+                          }
+                      ],
+                      remove: [
+                          ""
+                      ]
+                  },
+                  request_redirect: {
+                      scheme: "",
+                      hostname: "",
+                      port: '',
+                      status_code: ''
+                  }
+
+              }
+          ],
+      }
+  ]
     return (
       <div>
         <Drawer
@@ -320,47 +403,51 @@ class DrawerForm extends PureComponent {
                   })}
                 </Select>
               )}
-              {loadBalancerArr.length > 0 &&
-                <>
-                  <h4 style={{ marginBottom: 0 }}>LoadBalancer:</h4>
-                  {loadBalancerArr.map((item) => {
-                    return (
-                      <div style={{ display: 'flex', justifyContent: 'start' }}>
-                        <span style={{ width: '40%', fontWeight: 'bold', fontSize: '14px', color: 'red' }}>
-                          {item}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </>
+              {loadBalancerArr && loadBalancerArr.length > 0 &&
+              <Row>
+              <Col span={6} style={{ textAlign: 'end',paddingRight:20}}><h4 style={{ marginBottom: 0 }}>LoadBalancer:</h4></Col>
+              <Col span={18}>
+              {loadBalancerArr.map((item) => {
+                  return (
+                    <div >
+                      <span style={{ width: '40%', fontWeight: 'bold', fontSize: '14px', color: 'red' }}>
+                        {item}
+                      </span>
+                    </div>
+                  )
+                })}
+              </Col>
+            </Row>
               }
-              {nodePortArr.length > 0 &&
-                <>
-                  <h4 style={{ marginBottom: 0 }}>NodePort:</h4>
-                  {nodePortArr.map((item) => {
-                    return (
-                      <div style={{ display: 'flex', justifyContent: 'start' }}>
-                        <span style={{ width: '40%', fontWeight: 'bold', fontSize: '14px', color: 'red' }}>
-                          {item}
-                        </span>
-                      </div>
-                    )
-                  })
-                  }
-                </>
-              }
+            {nodePortArr && nodePortArr.length>0 &&
+              <Row>
+              <Col span={6} style={{ textAlign: 'end',paddingRight:20}}><h4 style={{ marginBottom: 0 }}>NodePort:</h4></Col>
+              <Col span={18}>
+              {nodePortArr.map((item) => {
+                  return (
+                    <div>
+                      <span style={{ width: '40%', fontWeight: 'bold', fontSize: '14px', color: 'red' }}>
+                        {item}
+                      </span>
+                    </div>
+                  )
+                })
+                }
+              </Col>
+            </Row>
+            }
             </Form.Item>
-            <Form.Item {...is_language} label={"监听项"}>
+            <Form.Item {...is_language} label={formatMessage({id:'teamGateway.DrawerGateWayAPI.Filtration.Listening'})}>
               {getFieldDecorator('section_name', {
                 initialValue: editInfo ? (editInfo.section_name == "" ? "all" : editInfo.section_name) : "all",
                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder={"选择监听项"}
+                  placeholder={formatMessage({id:'teamGateway.DrawerGateWayAPI.Filtration.select_Listening'})}
                 >
                   <Option  key={"all"} value={"all"}>
-                    全部监听
+                    {formatMessage({id:'teamGateway.DrawerGateWayAPI.Filtration.all_Listening'})}
                   </Option>
                   {(listener_namesArr || []).map((item, index) => {
                     return (
@@ -388,6 +475,7 @@ class DrawerForm extends PureComponent {
                 initialValue: editInfo ? editInfo.hosts : null
               })(<DAHosts />)}
             </FormItem>
+            {!appID &&
             <FormItem {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.appName' })}>
               {getFieldDecorator('group_id', {
                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
@@ -410,7 +498,8 @@ class DrawerForm extends PureComponent {
                   })}
                 </Select>
               )}
-            </FormItem>
+            </FormItem>}
+
             <FormItem {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.rules' })}>
               {getFieldDecorator('rules', {
                 rules: [
@@ -419,8 +508,8 @@ class DrawerForm extends PureComponent {
                     message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.rules.message' })
                   },
                 ],
-                initialValue: editInfo ? editInfo.rules : null
-              })(<RoutingRule isEdit={editInfo ? true : false} />)}
+                initialValue: editInfo ? editInfo.rules : rules
+              })(<RoutingRule isEdit={editInfo ? true : false} ports={portsArr}/>)}
             </FormItem>
           </Form>
 

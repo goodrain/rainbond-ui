@@ -246,7 +246,22 @@ const teamGateway = {
   'teamGateway.DrawerGateWayAPI.Filtration.status_code':'状态码：',
   'teamGateway.DrawerGateWayAPI.Filtration.input_status_code':'请输入状态码',
 
+  'teamGateway.DrawerGateWayAPI.Filtration.Listening':'监听项',
+  'teamGateway.DrawerGateWayAPI.Filtration.select_Listening':'选择监听项',
+  'teamGateway.DrawerGateWayAPI.Filtration.all_Listening':'全部监听',
 
+  'teamGateway.license.noAuthority':'暂无权限，请联系企业管理员修改。',
+  'teamGateway.license.delete':'确认要删除吗？',
+  'teamGateway.license.later':'稍后添加',
+  'teamGateway.license.now':'现在就去',
+  'teamGateway.license.go':'配置网关证书请移步至',
+  'teamGateway.license.path':'平台管理视图 --> 扩展 --> 能力页面',
+  'teamGateway.license.find':'找到需要修改的网关实现',
+  'teamGateway.license.file':'的 yaml文件',
+  'teamGateway.license.in':'在',
+  'teamGateway.license.add':'属性下增加如下字段：',
+  'teamGateway.license.copy':'复制字段',
+  'teamGateway.license.pattern': "必须由小写字母、数字、字符'-'或'.'组成，并且必须以字母、数字开头和结尾",
 
 }
 

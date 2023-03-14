@@ -305,7 +305,7 @@ class index extends Component {
         
     }
     render() {
-        const { setspan = false, editState, removeShow, isEdit } = this.props
+        const { setspan = false, editState, removeShow, isEdit, ports } = this.props
         const { values, ruleShow, buttonShow } = this.state;
         const { Panel } = Collapse;
         return (
@@ -326,8 +326,8 @@ class index extends Component {
                                     key="1"
                                     >
                                         <Rule value={matches_rule} onChange={this.ruleTriggerChange} index={index}  />
-                                        <BackEnd value={backend_refs_rule} onChange={this.backendTriggerChange} index={index} />
                                         <AdvancedRule value={filters_rule} onChange={this.AdvancedRuleTriggerChange} index={index}/>
+                                        <BackEnd value={backend_refs_rule} onChange={this.backendTriggerChange} index={index} ports={ports}/>
                                     </Panel>
                                 </Collapse>
                             </Col>

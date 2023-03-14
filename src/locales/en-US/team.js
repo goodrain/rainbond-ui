@@ -245,6 +245,23 @@ const teamGateway = {
 
   'teamGateway.DrawerGateWayAPI.Filtration.status_code':'Status code:',
   'teamGateway.DrawerGateWayAPI.Filtration.input_status_code':'Please enter the status code',
+
+  'teamGateway.DrawerGateWayAPI.Filtration.Listening':'Listening item',
+  'teamGateway.DrawerGateWayAPI.Filtration.select_Listening':'Select listener',
+  'teamGateway.DrawerGateWayAPI.Filtration.all_Listening':'All monitoring',
+
+  'teamGateway.license.noAuthority':'Please contact the enterprise administrator to modify the permission.',
+  'teamGateway.license.delete':'Are you sure you want to delete it?',
+  'teamGateway.license.later':'Add later',
+  'teamGateway.license.now':'Go now',
+  'teamGateway.license.go':'To configure the gateway certificate, go to',
+  'teamGateway.license.path':'Console Management View -> Extensions -> Capabilities',
+  'teamGateway.license.find':'Find the gateway implementation that you want to modify',
+  'teamGateway.license.file':'yaml file',
+  'teamGateway.license.in':'in',
+  'teamGateway.license.add':'add the following fields to the property:',
+  'teamGateway.license.copy':'Copy field',
+  'teamGateway.license.pattern':"It must consist of lowercase letters, numbers, characters '-', or '.', and must start and end with a letter or number"
 }
 
 const teamPlugin = {

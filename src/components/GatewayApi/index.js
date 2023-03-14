@@ -94,14 +94,14 @@ export default class index extends PureComponent {
     })
   }
   editDetailGateWayApi = (val, namespace) =>{
-    const { dispatch } = this.props
+    const { dispatch, appID } = this.props
     const teamName = globalUtil.getCurrTeamName()
     const { editName } = this.state
     dispatch({
       type: 'gateWay/editDetailGateWayApi',
       payload: {
         team_name: teamName,
-        app_id: val.group_id || '',
+        app_id: val.group_id || appID || '',
         gateway_name: val.gateway_class_name,
         gateway_namespace: namespace,
         hosts: val.hosts,
@@ -119,7 +119,11 @@ export default class index extends PureComponent {
             notification.success({
               message: formatMessage({id:'notification.success.modified'})
             });
-            this.handleGateWayAPI()
+            if (appID) {
+              this.handleGateWayAPI(appID);
+            } else {
+              this.handleGateWayAPI();
+            }
           });
         }
       },
@@ -132,19 +136,23 @@ export default class index extends PureComponent {
           notification.error({
             message: formatMessage({id:'notification.error.change'})
           });
-          this.handleGateWayAPI()
+          if (appID) {
+            this.handleGateWayAPI(appID);
+          } else {
+            this.handleGateWayAPI();
+          }
         });
       }
     })
   }
   addDetailGateWayApi = (val, namespace) =>{
-    const { dispatch } = this.props
+    const { dispatch, appID } = this.props
     const teamName = globalUtil.getCurrTeamName()
     dispatch({
       type: 'gateWay/addDetailGateWayApi',
       payload: {
         team_name: teamName,
-        app_id: val.group_id || '',
+        app_id: val.group_id || appID || '',
         gateway_name: val.gateway_class_name,
         gateway_namespace: namespace,
         hosts: val.hosts,
@@ -161,7 +169,11 @@ export default class index extends PureComponent {
             notification.success({
               message: formatMessage({id:'notification.success.add'})
             });
-            this.handleGateWayAPI()
+            if (appID) {
+              this.handleGateWayAPI(appID);
+            } else {
+              this.handleGateWayAPI();
+            }
           });
         }
       },
@@ -174,7 +186,11 @@ export default class index extends PureComponent {
           notification.error({
             message: formatMessage({id:'notification.error.add'})
           });
-          this.handleGateWayAPI()
+          if (appID) {
+            this.handleGateWayAPI(appID);
+          } else {
+            this.handleGateWayAPI();
+          }
         });
       }
     })
@@ -239,7 +255,11 @@ export default class index extends PureComponent {
           this.setState({
             loading:false
           },()=>{
-            this.handleGateWayAPI(appID)
+            if (appID) {
+              this.handleGateWayAPI(appID);
+            } else {
+              this.handleGateWayAPI();
+            }
           })
         }
       }

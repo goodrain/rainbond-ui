@@ -3,8 +3,8 @@ import {
     Tabs,
     Card
 } from 'antd';
-import HttpTable from '../../components/HttpTable';
-import TcpTable from '../../components/TcpTable';
+import HttpTable from '../HttpTable';
+import TcpTable from '../TcpTable';
 import styles from './index.less'
 
 const TabPane = Tabs.TabPane;
@@ -19,15 +19,15 @@ class Index extends Component {
 
     }
     render() {
-        const { operationPermissions, open, tabKey } = this.props
+        const { operationPermissions, open, tabKey, appID } = this.props
         return (
             <Card style={{ padding: '0px', border: 'none' }} className={styles.pluginCard}>
                 <Tabs defaultActiveKey={tabKey} onChange={this.callback} className={styles.tabsStyle}>
                     <TabPane tab="HTTP" key="http">
-                        <HttpTable operationPermissions={operationPermissions} open={open} />
+                        <HttpTable operationPermissions={operationPermissions} open={open} appID={appID} />
                     </TabPane>
                     <TabPane tab="TCP/UDP" key="tcp">
-                        <TcpTable operationPermissions={operationPermissions} />
+                        <TcpTable operationPermissions={operationPermissions} appID={appID}/>
                     </TabPane>
                 </Tabs>
             </Card>

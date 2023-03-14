@@ -379,11 +379,12 @@ export async function getGateWayApiList(params) {
 }
 
 /* 获取网关 GateWay 下拉列表 */
-export async function getBatchGateWay(params) {
+export async function getBatchGateWay(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_name}/batch-gateway`,
     {
       method: 'get',
+      handleError
     }
   );
 }

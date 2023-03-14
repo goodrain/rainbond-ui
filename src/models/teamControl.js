@@ -31,7 +31,8 @@ import {
   getAdvancedInformation,
   confirmTheImport,
   fetchToken,
-  fetchPipePipeline
+  fetchPipePipeline,
+  fetchServiceID
 } from '../services/team';
 
 export default {
@@ -284,6 +285,12 @@ export default {
     },
     *fetchPipePipeline({ payload, callback, handleError }, { call }) {
       const response = yield call(fetchPipePipeline, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchServiceID({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchServiceID, payload, handleError);
       if (response && callback) {
         callback(response);
       }
