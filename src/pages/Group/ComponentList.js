@@ -98,12 +98,10 @@ export default class ComponentList extends Component {
       clearInterval(this.timer);
     }
     this.loadComponents();
-    this.getOperator();
     const { clearTime } = this.props;
     this.timer = setInterval(() => {
       if (!clearTime) {
         this.loadComponents();
-        this.getOperator();
       }
     }, 5000);
   };

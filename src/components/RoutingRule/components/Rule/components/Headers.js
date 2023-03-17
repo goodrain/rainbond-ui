@@ -117,17 +117,17 @@ class Headers extends Component {
                                     onChange={e => {
                                         this.onSelectChange(e, index);
                                     }}
-                                    style={{ width: "100%" }}
+                                    style={{ width: "90%" }}
                                 >
-                                    <Select.Option value="Exact">Exact</Select.Option>
-                                    <Select.Option value="RegularExpression">RegularExpression</Select.Option>
+                                    <Select.Option value="Exact">{formatMessage({id:'teamGateway.license.Precise'})}</Select.Option>
+                                    <Select.Option value="RegularExpression">{formatMessage({id:'teamGateway.license.regular'})}</Select.Option>
                                 </Select>
                             </Col>
                             <Col
                                 span={7}
                             >
                                 <Input
-                                    style={{ width: "90%",marginLeft:'10%' }}
+                                    style={{ width: "90%"}}
                                     name="key"
                                     onChange={e => {
                                         this.onNameChange(e.target.value, index);
@@ -141,7 +141,7 @@ class Headers extends Component {
                             >
 
                                 <Input
-                                    style={{ width: "100%" }}
+                                    style={{ width: "90%" }}
                                     name="value"
                                     onChange={e => {
                                         this.onValueChange(e.target.value, index);

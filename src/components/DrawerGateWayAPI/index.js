@@ -59,7 +59,7 @@ class DrawerForm extends PureComponent {
       gateWayNamespace: '',
       loadBalancerArr: [],
       nodePortArr: [],
-      portsArr:[],
+      portsArr: [],
       nameSpace: ''
     };
   }
@@ -82,12 +82,6 @@ class DrawerForm extends PureComponent {
     form.validateFields((err, values) => {
       // if (!err && onOk) {
       if (!err && onOk) {
-        if (values.rules == null) {
-          notification.warning({
-            message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.backend' })
-          });
-          return
-        }
         values && values.rules.map((item, index) => {
           const rule = item
           if (rule && rule.matches_rule) {
@@ -123,7 +117,6 @@ class DrawerForm extends PureComponent {
                         message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.headerEmpty' })
                       });
                       matches_ruleErr = false
-
                     }
                   })
                 } else {
@@ -138,30 +131,34 @@ class DrawerForm extends PureComponent {
           if (rule && rule.backend_refs_rule) {
             rule.backend_refs_rule.map(item => {
               let allEmpty = true;
-              if (item.name == "" && item.weight == "" && item.kind == "" && item.namespace == "") {
-                allEmpty = false;
-                notification.warning({
-                  message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.backend' })
-                });
-                backend_refs_ruleErr = false
-              }
-              if (allEmpty) {
-                if (item.name == "" || item.weight == "" || item.kind == "" || item.namespace == "" || item.kind == undefined) {
+              if (item.name == "") {
+                rule.backend_refs_rule = null
+              } else {
+                if (item.name == "" && item.weight == "" && item.kind == "" && item.namespace == "") {
+                  allEmpty = false;
                   notification.warning({
-                    message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.allEmpty' })
+                    message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.backend' })
                   });
                   backend_refs_ruleErr = false
                 }
-                if (item.weight != "") {
-                  item.weight = Number(item.weight)
-                }
-                if (item.kind == "Service" && item.port == '') {
-                  notification.warning({
-                    message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.Service' })
-                  });
-                  backend_refs_ruleErr = false
-                } else {
-                  item.port = Number(item.port)
+                if (allEmpty) {
+                  if (item.name == "" || item.weight == "" || item.kind == "" || item.namespace == "" || item.kind == undefined) {
+                    notification.warning({
+                      message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.allEmpty' })
+                    });
+                    backend_refs_ruleErr = false
+                  }
+                  if (item.weight != "") {
+                    item.weight = Number(item.weight)
+                  }
+                  if (item.kind == "Service" && item.port == '') {
+                    notification.warning({
+                      message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.Service' })
+                    });
+                    backend_refs_ruleErr = false
+                  } else {
+                    item.port = Number(item.port)
+                  }
                 }
               }
             })
@@ -219,24 +216,24 @@ class DrawerForm extends PureComponent {
       }
     })
   }
-    // 获取 gateway 下拉列表
-    fetchServiceID = () => {
-      const { dispatch, currUser } = this.props
-      const teamName = globalUtil.getCurrTeamName()
-      dispatch({
-        type: 'teamControl/fetchServiceID',
-        payload: {
-          team_name: teamName
-        },
-        callback: res => {
-          this.setState({
-            nameSpace:res.bean.namespace || '',
-            portsArr: res.bean.ports || []
-          })
-        }
-      })
-    }
-  
+  // 获取 gateway 下拉列表
+  fetchServiceID = () => {
+    const { dispatch, currUser } = this.props
+    const teamName = globalUtil.getCurrTeamName()
+    dispatch({
+      type: 'teamControl/fetchServiceID',
+      payload: {
+        team_name: teamName
+      },
+      callback: res => {
+        this.setState({
+          nameSpace: res.bean.namespace || '',
+          portsArr: res.bean.ports || []
+        })
+      }
+    })
+  }
+
 
   handleGateWayIp = (value) => {
     const name = value.name
@@ -315,61 +312,61 @@ class DrawerForm extends PureComponent {
     const is_language = language ? formItemLayout : formItemLayouts
     const rules = [
       {
-          matches_rule: [
+        matches_rule: [
+          {
+            path: {
+              type: "",
+              value: ""
+            },
+            headers: [
               {
-                  path: {
-                      type: "",
-                      value: ""
-                  },
-                  headers: [
-                      {
-                          name: "",
-                          type: "",
-                          value: ""
-                      }
-                  ]
+                name: "",
+                type: "",
+                value: ""
               }
-          ],
-          backend_refs_rule: [
-              {
+            ]
+          }
+        ],
+        backend_refs_rule: [
+          {
+            name: "",
+            weight: 100,
+            kind: "Service",
+            namespace: nameSpace,
+            port: 80
+          }
+        ],
+        filters_rule: [
+          {
+            type: "",
+            request_header_modifier: {
+              set: [
+                {
                   name: "",
-                  weight: 100,
-                  kind: "Service",
-                  namespace: nameSpace,
-                  port: 80
-              }
-          ],
-          filters_rule: [
-              {
-                  type: "",
-                  request_header_modifier: {
-                      set: [
-                          {
-                              name: "",
-                              value: ""
-                          }
-                      ],
-                      add: [
-                          {
-                              name: "",
-                              value: ""
-                          }
-                      ],
-                      remove: [
-                          ""
-                      ]
-                  },
-                  request_redirect: {
-                      scheme: "",
-                      hostname: "",
-                      port: '',
-                      status_code: ''
-                  }
+                  value: ""
+                }
+              ],
+              add: [
+                {
+                  name: "",
+                  value: ""
+                }
+              ],
+              remove: [
+                ""
+              ]
+            },
+            request_redirect: {
+              scheme: "",
+              hostname: "",
+              port: '',
+              status_code: ''
+            }
 
-              }
-          ],
+          }
+        ],
       }
-  ]
+    ]
     return (
       <div>
         <Drawer
@@ -387,7 +384,7 @@ class DrawerForm extends PureComponent {
           <Form>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.type' })}>
               {getFieldDecorator('gateway_class_name', {
-                initialValue: (editInfo && editInfo.gateway_name) || ( gateWayArr.length > 0 ? gateWayArr[0].name : null),
+                initialValue: (editInfo && editInfo.gateway_name) || (gateWayArr.length > 0 ? gateWayArr[0].name : null),
                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
               })(
                 <Select
@@ -404,54 +401,54 @@ class DrawerForm extends PureComponent {
                 </Select>
               )}
               {loadBalancerArr && loadBalancerArr.length > 0 &&
-              <Row>
-              <Col span={6} style={{ textAlign: 'end',paddingRight:20}}><h4 style={{ marginBottom: 0 }}>LoadBalancer:</h4></Col>
-              <Col span={18}>
-              {loadBalancerArr.map((item) => {
-                  return (
-                    <div >
-                      <span style={{ width: '40%', fontWeight: 'bold', fontSize: '14px', color: 'red' }}>
-                        {item}
-                      </span>
-                    </div>
-                  )
-                })}
-              </Col>
-            </Row>
+                <Row>
+                  <Col span={6} style={{ textAlign: 'end', paddingRight: 20 }}><h4 style={{ marginBottom: 0 }}>LoadBalancer:</h4></Col>
+                  <Col span={18}>
+                    {loadBalancerArr.map((item) => {
+                      return (
+                        <div >
+                          <span style={{ width: '40%', fontWeight: 'bold', fontSize: '14px', color: 'red' }}>
+                            {item}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </Col>
+                </Row>
               }
-            {nodePortArr && nodePortArr.length>0 &&
-              <Row>
-              <Col span={6} style={{ textAlign: 'end',paddingRight:20}}><h4 style={{ marginBottom: 0 }}>NodePort:</h4></Col>
-              <Col span={18}>
-              {nodePortArr.map((item) => {
-                  return (
-                    <div>
-                      <span style={{ width: '40%', fontWeight: 'bold', fontSize: '14px', color: 'red' }}>
-                        {item}
-                      </span>
-                    </div>
-                  )
-                })
-                }
-              </Col>
-            </Row>
-            }
+              {nodePortArr && nodePortArr.length > 0 &&
+                <Row>
+                  <Col span={6} style={{ textAlign: 'end', paddingRight: 20 }}><h4 style={{ marginBottom: 0 }}>NodePort:</h4></Col>
+                  <Col span={18}>
+                    {nodePortArr.map((item) => {
+                      return (
+                        <div>
+                          <span style={{ width: '40%', fontWeight: 'bold', fontSize: '14px', color: 'red' }}>
+                            {item}
+                          </span>
+                        </div>
+                      )
+                    })
+                    }
+                  </Col>
+                </Row>
+              }
             </Form.Item>
-            <Form.Item {...is_language} label={formatMessage({id:'teamGateway.DrawerGateWayAPI.Filtration.Listening'})}>
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.Filtration.Listening' })}>
               {getFieldDecorator('section_name', {
                 initialValue: editInfo ? (editInfo.section_name == "" ? "all" : editInfo.section_name) : "all",
                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder={formatMessage({id:'teamGateway.DrawerGateWayAPI.Filtration.select_Listening'})}
+                  placeholder={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.Filtration.select_Listening' })}
                 >
-                  <Option  key={"all"} value={"all"}>
-                    {formatMessage({id:'teamGateway.DrawerGateWayAPI.Filtration.all_Listening'})}
+                  <Option key={"all"} value={"all"}>
+                    {formatMessage({ id: 'teamGateway.DrawerGateWayAPI.Filtration.all_Listening' })}
                   </Option>
                   {(listener_namesArr || []).map((item, index) => {
                     return (
-                      <Option  key={index} value={item}>
+                      <Option key={index} value={item}>
                         {item}
                       </Option>
                     )
@@ -476,40 +473,32 @@ class DrawerForm extends PureComponent {
               })(<DAHosts />)}
             </FormItem>
             {!appID &&
-            <FormItem {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.appName' })}>
-              {getFieldDecorator('group_id', {
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
-                initialValue: editInfo ? `${editInfo.app_id}` : ''
-              })(
-                <Select
-                  // getPopupContainer={triggerNode => triggerNode.parentNode}
-                  // labelInValue
-                  placeholder={formatMessage({ id: 'placeholder.appName' })}
-                >
-                  {(groups || []).map(group => {
-                    return (
-                      <Option
-                        value={`${group.group_id}`}
-                        key={group.group_id}
-                      >
-                        {group.group_name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>}
+              <FormItem {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.appName' })}>
+                {getFieldDecorator('group_id', {
+                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
+                  initialValue: editInfo ? `${editInfo.app_id}` : ''
+                })(
+                  <Select
+                    placeholder={formatMessage({ id: 'placeholder.appName' })}
+                  >
+                    {(groups || []).map(group => {
+                      return (
+                        <Option
+                          value={`${group.group_id}`}
+                          key={group.group_id}
+                        >
+                          {group.group_name}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                )}
+              </FormItem>}
 
             <FormItem {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.rules' })}>
               {getFieldDecorator('rules', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.rules.message' })
-                  },
-                ],
                 initialValue: editInfo ? editInfo.rules : rules
-              })(<RoutingRule isEdit={editInfo ? true : false} ports={portsArr}/>)}
+              })(<RoutingRule isEdit={editInfo ? true : false} ports={portsArr} nameSpace={nameSpace} />)}
             </FormItem>
           </Form>
 

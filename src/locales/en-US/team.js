@@ -213,7 +213,7 @@ const teamGateway = {
   'teamGateway.DrawerGateWayAPI.RoutingRule.rule':'Rule set',
   'teamGateway.DrawerGateWayAPI.Rule.matching':'Condition matching',
 
-  'teamGateway.DrawerGateWayAPI.BackEnd.title':'routing',
+  'teamGateway.DrawerGateWayAPI.BackEnd.title':'Back-end routing',
   'teamGateway.DrawerGateWayAPI.BackEnd.Internal':'Internal domain name',
   'teamGateway.DrawerGateWayAPI.BackEnd.input_Internal':'Please enter the internal domain name',
   'teamGateway.DrawerGateWayAPI.BackEnd.type':'Type:',
@@ -237,7 +237,7 @@ const teamGateway = {
   'teamGateway.DrawerGateWayAPI.Filtration.type':'Agreement:',
   'teamGateway.DrawerGateWayAPI.Filtration.select_type':'Please select protocol',
 
-  'teamGateway.DrawerGateWayAPI.Filtration.hostname':'Route:',
+  'teamGateway.DrawerGateWayAPI.Filtration.hostname':'Domain name:',
   'teamGateway.DrawerGateWayAPI.Filtration.input_hostname':'Please fill in the route',
 
   'teamGateway.DrawerGateWayAPI.Filtration.port':'Port:',
@@ -261,7 +261,12 @@ const teamGateway = {
   'teamGateway.license.in':'in',
   'teamGateway.license.add':'add the following fields to the property:',
   'teamGateway.license.copy':'Copy field',
-  'teamGateway.license.pattern':"It must consist of lowercase letters, numbers, characters '-', or '.', and must start and end with a letter or number"
+  'teamGateway.license.pattern':"It must consist of lowercase letters, numbers, characters '-', or '.', and must start and end with a letter or number",
+  'teamGateway.license.Precise': "Precise matching",
+  'teamGateway.license.regular': "Regular matching",
+  'teamGateway.license.prefix': "Prefix matching",
+  'teamGateway.license.request': "Request redirection",
+  'teamGateway.license.processing': "Processing request header",
 }
 
 const teamPlugin = {

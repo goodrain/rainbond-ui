@@ -54,7 +54,7 @@ class DAinputs extends Component {
     };
     onPortChange = (value, index) => {
         const { values } = this.state;
-        values.port = value;
+        values.port = Number(value);
         this.triggerChange(values);
         this.setValues(values);
     };
@@ -141,7 +141,7 @@ class DAinputs extends Component {
                                             <span style={spanStyle}>{formatMessage({id:'teamGateway.DrawerGateWayAPI.Filtration.port'})}</span>
                                         </Col>
                                         <Col span={16}>
-                                            <Input
+                                            {/* <Input
                                                 style={{ width: "80%" }}
                                                 name="key"
                                                 onChange={e => {
@@ -150,7 +150,20 @@ class DAinputs extends Component {
                                                 value={values.port}
                                                 placeholder={formatMessage({id:'teamGateway.DrawerGateWayAPI.Filtration.input_port'})}
                                                 type='number'
-                                            />
+                                            /> */}
+                                           <Select
+                                                name="select"
+                                                value={values.port}
+                                                allowClear
+                                                onChange={e => {
+                                                    this.onPortChange(e);
+                                                }}
+                                                style={{ width: "80%" }}
+                                                placeholder={formatMessage({id:'teamGateway.DrawerGateWayAPI.Filtration.input_port'})}
+                                            >
+                                                <Select.Option value="301">301</Select.Option>
+                                                <Select.Option value="302">302</Select.Option>
+                                            </Select>
                                         </Col>
                                     </Row>
                                     <Row>

@@ -210,7 +210,6 @@ class index extends Component {
             this.triggerChange(this.state.values)
         })
     }
-
     render() {
         const { setspan = false, editState, removeShow } = this.props
         const { values, selectType } = this.state;
@@ -222,9 +221,6 @@ class index extends Component {
         }
         return (
             <div>
-                <h4>
-                    {formatMessage({id:'teamGateway.DrawerGateWayAPI.Redirection.Advanced_rule'})}
-                </h4>
                 {values.map((item, index) => {
                     const first = index === 0;
                     const { request_header_modifier, request_redirect } = item
@@ -247,8 +243,8 @@ class index extends Component {
                                                         style={{ width: "80%" }}
                                                         placeholder={formatMessage({id:'teamGateway.DrawerGateWayAPI.Redirection.select'})}
                                                     >
-                                                        <Select.Option value="RequestRedirect">RequestRedirect</Select.Option>
-                                                        <Select.Option value="RequestHeaderModifier">RequestHeaderModifier</Select.Option>
+                                                        <Select.Option value="RequestRedirect">{formatMessage({id:'teamGateway.license.request'})}</Select.Option>
+                                                        <Select.Option value="RequestHeaderModifier">{formatMessage({id:'teamGateway.license.processing'})}</Select.Option>
                                                     </Select>
                                                 </Col>
                                             </Row>

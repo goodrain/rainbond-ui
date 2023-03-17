@@ -73,7 +73,7 @@ class index extends Component {
                                 port: '',
                                 status_code: ''
                             }
-        
+
                         }
                     ],
                 }
@@ -145,7 +145,7 @@ class index extends Component {
                             port: '',
                             status_code: ''
                         }
-    
+
                     }
                 ],
             });
@@ -159,6 +159,7 @@ class index extends Component {
         }
     }
     add = () => {
+        const { nameSpace } = this.props;
         const { values } = this.state;
         if (values.length > 100) {
             notification.warning({
@@ -186,10 +187,10 @@ class index extends Component {
                 backend_refs_rule: [
                     {
                         name: "",
-                        weight: "",
-                        kind: "",
-                        namespace: "",
-                        port: ""
+                        weight: 100,
+                        kind: "Service",
+                        namespace: nameSpace,
+                        port: 80
                     }
                 ],
                 filters_rule: [
@@ -218,11 +219,11 @@ class index extends Component {
                             port: '',
                             status_code: ''
                         }
-    
+
                     }
                 ],
             })
-        },()=>{
+        }, () => {
             this.triggerChange(this.state.values)
         });
     };
@@ -253,7 +254,7 @@ class index extends Component {
         arr[index].headers = val
         this.setState({
             values: arr
-        },()=>{
+        }, () => {
             this.triggerChange(this.state.values)
         })
     }
@@ -263,7 +264,7 @@ class index extends Component {
         arr[index].backend_refs_rule = val
         this.setState({
             values: arr
-        },()=>{
+        }, () => {
             this.triggerChange(this.state.values)
         })
     }
@@ -273,17 +274,17 @@ class index extends Component {
         arr[index].matches_rule = val
         this.setState({
             values: arr
-        },()=>{
+        }, () => {
             this.triggerChange(this.state.values)
         })
     }
-     AdvancedRuleTriggerChange = (val, index) => {
+    AdvancedRuleTriggerChange = (val, index) => {
         const { values } = this.state
         const arr = values
         arr[index].filters_rule = val
         this.setState({
             values: arr
-        },()=>{
+        }, () => {
             this.triggerChange(this.state.values)
         })
     }
@@ -302,10 +303,10 @@ class index extends Component {
             ruleShow: false,
             buttonShow: true
         })
-        
+
     }
     render() {
-        const { setspan = false, editState, removeShow, isEdit, ports } = this.props
+        const { setspan = false, editState, removeShow, isEdit, ports, nameSpace } = this.props
         const { values, ruleShow, buttonShow } = this.state;
         const { Panel } = Collapse;
         return (
@@ -317,17 +318,39 @@ class index extends Component {
                         <Row key={index} className={styles.RuleStyle}>
                             <Col span={22}>
                                 <Collapse defaultActiveKey={['1']}>
-                                    <Panel 
-                                    header={
-                                        <h3 style={{marginBottom:0}}>
-                                            {formatMessage({id:'teamGateway.DrawerGateWayAPI.RoutingRule.rule'})}
-                                        </h3>
-                                    }
-                                    key="1"
+                                    <Panel
+                                        header={
+                                            <h3 style={{ marginBottom: 0 }}>
+                                                {formatMessage({ id: 'teamGateway.DrawerGateWayAPI.RoutingRule.rule' })}
+                                            </h3>
+                                        }
+                                        key="1"
                                     >
-                                        <Rule value={matches_rule} onChange={this.ruleTriggerChange} index={index}  />
-                                        <AdvancedRule value={filters_rule} onChange={this.AdvancedRuleTriggerChange} index={index}/>
-                                        <BackEnd value={backend_refs_rule} onChange={this.backendTriggerChange} index={index} ports={ports}/>
+                                        <Collapse style={{marginBottom:10}}>
+                                            <Panel
+                                                header={
+                                                    <h4>
+                                                    {formatMessage({id:'teamGateway.DrawerGateWayAPI.Rule.matching'})}
+                                                </h4>
+                                                }
+                                                key="1"
+                                            >
+                                                <Rule value={matches_rule} onChange={this.ruleTriggerChange} index={index} />
+                                            </Panel>
+                                        </Collapse>
+                                        <Collapse style={{marginBottom:10}} >
+                                            <Panel
+                                                header={
+                                                    <h4>
+                                                    {formatMessage({id:'teamGateway.DrawerGateWayAPI.Redirection.Advanced_rule'})}
+                                                </h4>
+                                                }
+                                                key="1"
+                                            >
+                                                <AdvancedRule value={filters_rule} onChange={this.AdvancedRuleTriggerChange} index={index} />
+                                            </Panel>
+                                        </Collapse>
+                                        <BackEnd value={backend_refs_rule} onChange={this.backendTriggerChange} index={index} ports={ports} nameSpace={nameSpace} />
                                     </Panel>
                                 </Collapse>
                             </Col>

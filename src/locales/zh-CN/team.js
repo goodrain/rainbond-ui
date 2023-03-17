@@ -211,7 +211,7 @@ const teamGateway = {
   'teamGateway.DrawerGateWayAPI.RoutingRule.rule':'规则集',
   'teamGateway.DrawerGateWayAPI.Rule.matching':'条件匹配',
 
-  'teamGateway.DrawerGateWayAPI.BackEnd.title':'路由',
+  'teamGateway.DrawerGateWayAPI.BackEnd.title':'后端路由',
   'teamGateway.DrawerGateWayAPI.BackEnd.Internal':'内部域名',
   'teamGateway.DrawerGateWayAPI.BackEnd.input_Internal':'请输入内部域名',
   'teamGateway.DrawerGateWayAPI.BackEnd.type':'类型',
@@ -237,7 +237,7 @@ const teamGateway = {
   'teamGateway.DrawerGateWayAPI.Filtration.type':'协议：',
   'teamGateway.DrawerGateWayAPI.Filtration.select_type':'请选择协议',
 
-  'teamGateway.DrawerGateWayAPI.Filtration.hostname':'路由：',
+  'teamGateway.DrawerGateWayAPI.Filtration.hostname':'域名：',
   'teamGateway.DrawerGateWayAPI.Filtration.input_hostname':'请填写路由',
 
   'teamGateway.DrawerGateWayAPI.Filtration.port':'端口：',
@@ -263,6 +263,11 @@ const teamGateway = {
   'teamGateway.license.copy':'复制字段',
   'teamGateway.license.pattern': "必须由小写字母、数字、字符'-'或'.'组成，并且必须以字母、数字开头和结尾",
 
+  'teamGateway.license.Precise': "精准匹配",
+  'teamGateway.license.regular': "正则匹配",
+  'teamGateway.license.prefix': "前缀匹配",
+  'teamGateway.license.request': "请求重定向",
+  'teamGateway.license.processing': "加工请求头",
 }
 
 const teamPlugin = {
