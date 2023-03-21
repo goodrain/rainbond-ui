@@ -198,7 +198,7 @@ const teamGateway = {
   'teamGateway.DrawerGateWayAPI.headerEmpty':'Please complete headers parameters.',
   'teamGateway.DrawerGateWayAPI.allEmpty':'Please fill in the complete back-end parameters.',
   'teamGateway.DrawerGateWayAPI.Service':'When the type is Service, port is mandatory.',
-  'teamGateway.DrawerGateWayAPI.RequestRedirect':'When the type is RequestRedirect, the path is mandatory.',
+  'teamGateway.DrawerGateWayAPI.RequestRedirect':'When the type is Request redirection, the domain name is mandatory',
   'teamGateway.DrawerGateWayAPI.add':'Add GatewayAPI',
   'teamGateway.DrawerGateWayAPI.edit':'Edit GatewayAPI',
   'teamGateway.DrawerGateWayAPI.type':'Gateway type',
@@ -238,7 +238,7 @@ const teamGateway = {
   'teamGateway.DrawerGateWayAPI.Filtration.select_type':'Please select protocol',
 
   'teamGateway.DrawerGateWayAPI.Filtration.hostname':'Domain name:',
-  'teamGateway.DrawerGateWayAPI.Filtration.input_hostname':'Please fill in the route',
+  'teamGateway.DrawerGateWayAPI.Filtration.input_hostname':'Please fill in the Domain name',
 
   'teamGateway.DrawerGateWayAPI.Filtration.port':'Port:',
   'teamGateway.DrawerGateWayAPI.Filtration.input_port':'Please enter the port number',

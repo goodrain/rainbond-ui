@@ -243,6 +243,7 @@
         'confirmModal.drop_versions.delete.title':'删除版本',
         'confirmModal.give_up_release.delete.title':'放弃发布',
         'confirmModal.quit.team.title':'退出团队',
+        'confirmModal.delete.Gateway.title':'删除网关策略',
 
 
         //组件提示
@@ -295,6 +296,8 @@
         'confirmModal.delete.take_hand.desc':'删除后不可恢复，确定要删除吗？',
         'confirmModal.install.app.desc':'确认要安装此应用作为你的组件么？',
         'confirmModal.return.team.desc': '确定要退出此团队吗?',
+        'confirmModal.delete.team.Gateway': '确定要删除吗?',
+
 
         //友情提示
         'confirmModal.friendly_reminder.title':'友情提示',

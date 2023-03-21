@@ -418,7 +418,7 @@ class Control extends Component {
       currentRegionName
     );
     breadcrumbList.push({ title: formatMessage({ id: 'teamGateway.strategy.manage' }) });
-    const str = `    - name: https\n      protocol: HTTPS\n      port: 443n\n      tls:\n        certificateRefs:\n          - kind: Secret\n            group: ""\n            name: ${name}\n`
+    const str = `       allowedRoutes:\n         namespaces:\n           from: All\n       name: https\n       port: 443\n       protocol: HTTPS\n       tls:\n         certificateRefs:\n           - group: ''\n             kind: Secret\n             name: ${name}\n         mode: Terminate\n`
     return (
       <PageHeaderLayout
         title={formatMessage({ id: 'teamGateway.certificate.title' })}

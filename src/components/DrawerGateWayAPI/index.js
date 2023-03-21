@@ -90,12 +90,12 @@ class DrawerForm extends PureComponent {
               let headerEmpty = true;
               const { headers, path } = item
               if (path) {
-                if (path.type == "" && path.value == "") {
+                if ((path.type == "" || path.type == undefined) && path.value == "") {
                   pathEmpty = false;
                 }
               }
               headers && headers.map(item => {
-                if (item.name == "" && item.type == "" && item.value == "") {
+                if (item.name == "" && (item.type == "" || item.type == undefined ) && item.value == "") {
                   headerEmpty = false;
                 }
               })
@@ -134,7 +134,7 @@ class DrawerForm extends PureComponent {
               if (item.name == "") {
                 rule.backend_refs_rule = null
               } else {
-                if (item.name == "" && item.weight == "" && item.kind == "" && item.namespace == "") {
+                if (item.name == "" && item.weight == "" && (item.kind == "" || item.kind == undefined) && item.namespace == "") {
                   allEmpty = false;
                   notification.warning({
                     message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.backend' })
@@ -177,11 +177,10 @@ class DrawerForm extends PureComponent {
                   rule.filters_rule = null
                 }
                 if (item.type == 'RequestRedirect' && request_redirect.hostname == "") {
+                  filters_ruleErr = false
                   notification.warning({
                     message: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.RequestRedirect' })
                   });
-                  return
-                  filters_ruleErr = false
                 }
               }
             })

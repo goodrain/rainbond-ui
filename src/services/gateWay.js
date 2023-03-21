@@ -462,7 +462,8 @@ export async function deleteGateWayApi(params) {
     {
       method: 'DELETE',
       params: {
-        name: params.name
+        name: params.name,
+        region_app_id: params.app_id
       }
     }
   );

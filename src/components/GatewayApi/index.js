@@ -46,7 +46,9 @@ export default class index extends PureComponent {
       instances: '0',
       drawerGateWayApi: false,
       gateWayAPIList: [],
-      editGateWayApiInfo: ''
+      editGateWayApiInfo: '',
+      delVisible:false,
+      deleteInfo:{}
     };
   }
   componentWillMount() {
@@ -248,10 +250,15 @@ export default class index extends PureComponent {
       type: 'gateWay/deleteGateWayApi',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        name: values.name
+        name: values.name,
+        app_id: values.app_id,
+        delVisible: false
       },
       callback: data => {
         if (data) {
+          notification.success({
+            message: formatMessage({id:'notification.success.delete'})
+          });
           this.setState({
             loading:false
           },()=>{
@@ -279,7 +286,9 @@ export default class index extends PureComponent {
       drawerGateWayApi,
       gateWayAPIList,
       editGateWayApiInfo,
-      type
+      type,
+      delVisible,
+      deleteInfo
     } = this.state;
     const columnsGateWay = [
       {
@@ -332,7 +341,11 @@ export default class index extends PureComponent {
               {isDelete && (
                 <a
                   onClick={() => {
-                    this.handleDeleteGateWayAPI(record);
+                    // this.handleDeleteGateWayAPI(record);
+                    this.setState({
+                      delVisible:true,
+                      deleteInfo:record                
+                    })
                   }}
                 >
                   {formatMessage({ id: 'teamGateway.strategy.table.delete' })}
@@ -399,6 +412,21 @@ export default class index extends PureComponent {
             ref={this.saveForm}
             appID={appID}
             editInfo={type == "add" ? null : editGateWayApiInfo}
+          />
+        )}
+        {delVisible && (
+          <ConfirmModal
+            // loading={delclusterLongin}
+            title={formatMessage({ id: 'confirmModal.delete.Gateway.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.team.Gateway' })}
+            desc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            onOk={() => this.handleDeleteGateWayAPI(deleteInfo)}
+            onCancel={()=>{
+              this.setState({
+                delVisible:false,
+                deleteInfo: {}
+              })
+            }}
           />
         )}
       </div>

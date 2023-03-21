@@ -196,7 +196,7 @@ const teamGateway = {
   'teamGateway.DrawerGateWayAPI.headerEmpty':'请填写完整的headers参数。',
   'teamGateway.DrawerGateWayAPI.allEmpty':'请填写完整的后端参数。',
   'teamGateway.DrawerGateWayAPI.Service':'当类型为Service类型时，port为必填选项。',
-  'teamGateway.DrawerGateWayAPI.RequestRedirect':'当类型为RequestRedirect类型时，路径为必填选项。',
+  'teamGateway.DrawerGateWayAPI.RequestRedirect':'当类型为请求重定向时，域名为必填选项。',
   'teamGateway.DrawerGateWayAPI.add':'添加 GatewayAPI',
   'teamGateway.DrawerGateWayAPI.edit':'编辑 GatewayAPI',
   'teamGateway.DrawerGateWayAPI.type':'网关类型',
@@ -238,7 +238,7 @@ const teamGateway = {
   'teamGateway.DrawerGateWayAPI.Filtration.select_type':'请选择协议',
 
   'teamGateway.DrawerGateWayAPI.Filtration.hostname':'域名：',
-  'teamGateway.DrawerGateWayAPI.Filtration.input_hostname':'请填写路由',
+  'teamGateway.DrawerGateWayAPI.Filtration.input_hostname':'请填写域名',
 
   'teamGateway.DrawerGateWayAPI.Filtration.port':'端口：',
   'teamGateway.DrawerGateWayAPI.Filtration.input_port':'请输入端口号',
