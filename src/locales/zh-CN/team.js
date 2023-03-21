@@ -161,6 +161,113 @@ const teamGateway = {
   'teamGateway.certificate.table.edit':'编辑',
   'teamGateway.certificate.table.update':'更新',
   'teamGateway.certificate.table.delete':'删除',
+
+  // control
+  'teamGateway.control.table.default':'默认',
+  'teamGateway.control.table.GatewayApi':'扩展网关',
+
+  // HttpTable
+  'teamGateway.HttpTable.title':'确认要添加吗？',
+  'teamGateway.HttpTable.heards':'请求头',
+  'teamGateway.HttpTable.weight':'权重',
+  'teamGateway.HttpTable.look':'查看详情',
+  'teamGateway.HttpTable.undeployed':'当前组件属于未部署状态',
+  'teamGateway.HttpTable.start':'启动成功',
+  'teamGateway.HttpTable.footer':'您选择的组件未开启外部访问，是否自动打开并添加此访问策略？',
+  'teamGateway.HttpTable.appStatusVisable':'友情提示',
+  'teamGateway.HttpTable.text':'当前组件处于关闭状态，启动后方可访问，是否启动组件？',
+
+  // TcpTable
+  'teamGateway.TcpTable.attr_value':'变量值',
+  'teamGateway.TcpTable.attr_name':'变量名',
+  'teamGateway.TcpTable.name':'说明',
+
+  'teamGateway.TcpTable.title':'确认要添加吗？',
+  'teamGateway.TcpTable.visibleModal':'访问信息',
+  'teamGateway.TcpTable.protocol.agreement':'您当前的访问协议是',
+  'teamGateway.TcpTable.protocol.address':'推荐访问地址',
+  'teamGateway.TcpTable.protocol.open':'打开MySQL客户端访问',
+  'teamGateway.TcpTable.copy':'复制',
+  // DrawerGateWayAPI
+  'teamGateway.DrawerGateWayAPI.name':'名称',
+  'teamGateway.DrawerGateWayAPI.Gateway':'网关类型',
+  'teamGateway.DrawerGateWayAPI.backend':'后端参数为必填项。',
+  'teamGateway.DrawerGateWayAPI.pathEmpty':'请填写完整的path参数。',
+  'teamGateway.DrawerGateWayAPI.headerEmpty':'请填写完整的headers参数。',
+  'teamGateway.DrawerGateWayAPI.allEmpty':'请填写完整的后端参数。',
+  'teamGateway.DrawerGateWayAPI.Service':'当类型为Service类型时，port为必填选项。',
+  'teamGateway.DrawerGateWayAPI.RequestRedirect':'当类型为请求重定向时，域名为必填选项。',
+  'teamGateway.DrawerGateWayAPI.add':'添加 GatewayAPI',
+  'teamGateway.DrawerGateWayAPI.edit':'编辑 GatewayAPI',
+  'teamGateway.DrawerGateWayAPI.type':'网关类型',
+  'teamGateway.DrawerGateWayAPI.appName':'选择应用',
+  'teamGateway.DrawerGateWayAPI.hosts':'域名',
+  'teamGateway.DrawerGateWayAPI.input_hosts':'请输入正确的域名',
+  'teamGateway.DrawerGateWayAPI.rules':'路由规则',
+  'teamGateway.DrawerGateWayAPI.rules.message':'请至少填写后端选项',
+
+  'teamGateway.DrawerGateWayAPI.hostPlaceholder':'请填写域名地址',
+
+  'teamGateway.DrawerGateWayAPI.RoutingRule.rule':'规则集',
+  'teamGateway.DrawerGateWayAPI.Rule.matching':'条件匹配',
+
+  'teamGateway.DrawerGateWayAPI.BackEnd.title':'后端路由',
+  'teamGateway.DrawerGateWayAPI.BackEnd.Internal':'内部域名',
+  'teamGateway.DrawerGateWayAPI.BackEnd.input_Internal':'请输入内部域名',
+  'teamGateway.DrawerGateWayAPI.BackEnd.type':'类型',
+  'teamGateway.DrawerGateWayAPI.BackEnd.input_type':'请选择类型',
+
+  'teamGateway.DrawerGateWayAPI.BackEnd.namespance':'命名空间',
+  'teamGateway.DrawerGateWayAPI.BackEnd.weight':'权重',
+  'teamGateway.DrawerGateWayAPI.BackEnd.input_namespace':'请输入命名空间',
+  'teamGateway.DrawerGateWayAPI.BackEnd.input_weight':'请填写权重',
+  'teamGateway.DrawerGateWayAPI.BackEnd.port':'端口',
+  'teamGateway.DrawerGateWayAPI.BackEnd.input_port':'请输入端口号',
+  'teamGateway.DrawerGateWayAPI.BackEnd.required':'(必填)',
+  'teamGateway.DrawerGateWayAPI.BackEnd.Not_required':'(非必填)',
+
+  'teamGateway.DrawerGateWayAPI.Redirection.Advanced_rule':'高级规则',
+  'teamGateway.DrawerGateWayAPI.Redirection.type':'类型：',
+  'teamGateway.DrawerGateWayAPI.Redirection.Cover':'覆盖：',
+  'teamGateway.DrawerGateWayAPI.Redirection.add':'添加：',
+  'teamGateway.DrawerGateWayAPI.Redirection.del':'删除：',
+  'teamGateway.DrawerGateWayAPI.Redirection.Redirection':'重定向配置：',
+  'teamGateway.DrawerGateWayAPI.Redirection.select':'请选择协议',
+
+  'teamGateway.DrawerGateWayAPI.Filtration.type':'协议：',
+  'teamGateway.DrawerGateWayAPI.Filtration.select_type':'请选择协议',
+
+  'teamGateway.DrawerGateWayAPI.Filtration.hostname':'域名：',
+  'teamGateway.DrawerGateWayAPI.Filtration.input_hostname':'请填写域名',
+
+  'teamGateway.DrawerGateWayAPI.Filtration.port':'端口：',
+  'teamGateway.DrawerGateWayAPI.Filtration.input_port':'请输入端口号',
+
+  'teamGateway.DrawerGateWayAPI.Filtration.status_code':'状态码：',
+  'teamGateway.DrawerGateWayAPI.Filtration.input_status_code':'请输入状态码',
+
+  'teamGateway.DrawerGateWayAPI.Filtration.Listening':'监听项',
+  'teamGateway.DrawerGateWayAPI.Filtration.select_Listening':'选择监听项',
+  'teamGateway.DrawerGateWayAPI.Filtration.all_Listening':'全部监听',
+
+  'teamGateway.license.noAuthority':'暂无权限，请联系企业管理员修改。',
+  'teamGateway.license.delete':'确认要删除吗？',
+  'teamGateway.license.later':'稍后添加',
+  'teamGateway.license.now':'现在就去',
+  'teamGateway.license.go':'配置网关证书请移步至',
+  'teamGateway.license.path':'平台管理视图 --> 扩展 --> 能力页面',
+  'teamGateway.license.find':'找到需要修改的网关实现',
+  'teamGateway.license.file':'的 yaml文件',
+  'teamGateway.license.in':'在',
+  'teamGateway.license.add':'属性下增加如下字段：',
+  'teamGateway.license.copy':'复制字段',
+  'teamGateway.license.pattern': "必须由小写字母、数字、字符'-'或'.'组成，并且必须以字母、数字开头和结尾",
+
+  'teamGateway.license.Precise': "精准匹配",
+  'teamGateway.license.regular': "正则匹配",
+  'teamGateway.license.prefix': "前缀匹配",
+  'teamGateway.license.request': "请求重定向",
+  'teamGateway.license.processing': "加工请求头",
 }
 
 const teamPlugin = {

@@ -358,7 +358,7 @@ export default class TcpTable extends PureComponent {
         className={styles.tdPadding}
         columns={[
           {
-            title: '变量名',
+            title: formatMessage({id:'teamGateway.TcpTable.attr_name'}),
             dataIndex: 'attr_name',
             key: 'attr_name',
             align: 'center',
@@ -369,7 +369,7 @@ export default class TcpTable extends PureComponent {
             }
           },
           {
-            title: '变量值',
+            title: formatMessage({id:'teamGateway.TcpTable.attr_value'}),
             dataIndex: 'attr_value',
             key: 'attr_value',
             align: 'center',
@@ -380,7 +380,7 @@ export default class TcpTable extends PureComponent {
             }
           },
           {
-            title: '说明',
+            title: formatMessage({id:'teamGateway.TcpTable.name'}),
             dataIndex: 'name',
             key: 'name',
             align: 'center',
@@ -660,24 +660,24 @@ export default class TcpTable extends PureComponent {
         )}
         {whetherOpenForm && (
           <Modal
-            title="确认要添加吗？"
+            title={formatMessage({id:'teamGateway.TcpTable.title'})}
             visible={this.state.whetherOpenForm}
             onOk={this.resolveOk}
             onCancel={this.handleCancel_second}
             footer={[
               <Button type="primary" size="small" onClick={this.resolveOk}>
-                确定
+                {formatMessage({id:'button.confirm'})}
               </Button>
             ]}
             zIndex={9999}
           >
-            <p>您选择的组件未开启外部访问，是否自动打开并添加此访问策略？</p>
+            <p>{formatMessage({id:'teamGateway.HttpTable.footer'})}</p>
           </Modal>
         )}
 
         {visibleModal && (
           <Modal
-            title="访问信息"
+            title={formatMessage({id:'teamGateway.TcpTable.visibleModal'})}
             width="800px"
             visible={visibleModal}
             footer={null}
@@ -686,16 +686,16 @@ export default class TcpTable extends PureComponent {
             <ul className={styles.ul}>
               {agreement.protocol == 'tcp' || agreement.protocol == 'udp' ? (
                 <li style={{ fontWeight: 'bold' }}>
-                  您当前的访问协议是{agreement.protocol}
+                  {formatMessage({id:'teamGateway.TcpTable.protocol.agreement'})}{agreement.protocol}
                 </li>
               ) : (
                 <li style={{ fontWeight: 'bold' }}>
-                  您当前的访问协议是{agreement.protocol},打开MySQL客户端访问
+                  {formatMessage({id:'teamGateway.TcpTable.protocol.agreement'})}{agreement.protocol},{formatMessage({id:'teamGateway.TcpTable.protocol.open'})}
                 </li>
               )}
 
               <li>
-                推荐访问地址&nbsp;
+              {formatMessage({id:'teamGateway.TcpTable.protocol.address'})}&nbsp;
                 <a href="javascript:void(0)" style={{ marginRight: '10px' }}>
                   {agreement.end_point.indexOf('0.0.0.0') > -1 &&
                   currentRegion &&
@@ -723,7 +723,7 @@ export default class TcpTable extends PureComponent {
                 >
                   <Button size="small" type="primary">
                     <Icon type="copy" />
-                    复制
+                    {formatMessage({id:'teamGateway.TcpTable.copy'})}
                   </Button>
                 </CopyToClipboard>
               </li>

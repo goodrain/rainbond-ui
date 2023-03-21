@@ -8,6 +8,7 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import { getUpdateKubernetesTask } from '../../../services/cloud';
 import ClusterDetection from '../../../components/ClusterMgtDetection';
+import cloud from '../../../utils/cloud';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ClusterList from '../../../components/ClusterMgtList';
 import DetectionInfo from '../../../components/ClusterMgtInfo';

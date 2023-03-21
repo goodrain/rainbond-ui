@@ -4,15 +4,16 @@ import roleUtil from '../utils/role';
 import { isUrl } from '../utils/utils';
 
 const newbieGuide = cookie.get('newbie_guide');
+function setTeamMenu(pluginMenu, menuName){
+  if(pluginMenu){
+    const isShow = pluginMenu.some(item =>{
+        return item.name == menuName
+    })
+    return isShow
+  }
+}
 
 function menuData(teamName, regionName, permissionsInfo, showPipeline) {
-  const pipelineView = showPipeline && showPipeline.map(item =>{
-    if(item.name == 'pipeline'){
-      return 'true'
-    }else{
-      return 'false'
-    }
-  })
   const Pipeline = (
         <i className="anticon">
             <svg 
@@ -111,7 +112,7 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
         ]
       });
     }
-    if (pipelineView && pipelineView[0] == 'true') {
+    if (setTeamMenu(showPipeline,'pipeline')) {
       addMenuArr({
         name: formatMessage({id:'menu.team.pipeline'}),
         icon: Pipeline,

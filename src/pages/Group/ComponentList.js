@@ -22,6 +22,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
 import { batchOperation } from '../../services/app';
+import {buildApp} from '../../services/createApp';
 import appUtil from '../../utils/app';
 import cookie from '@/utils/cookie';
 import globalUtil from '../../utils/global';
@@ -59,7 +60,7 @@ export default class ComponentList extends Component {
       tableDataLoading: true,
       sortValue: 1,
       orderValue: 'descend',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
   componentDidMount() {
@@ -130,7 +131,6 @@ export default class ComponentList extends Component {
       }
     });
   };
-
   deleteData = () => {
     const { dispatch, groupId } = this.props;
     const { current, pageSize, query } = this.state;

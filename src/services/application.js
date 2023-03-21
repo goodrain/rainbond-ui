@@ -313,7 +313,25 @@ export async function getGroupApps(
     }
   );
 }
-
+/* 
+获取用户自定义operator管理组件的变动
+*/
+export async function getOperator(
+  body = {
+    team_name,
+    group_id,
+  }
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/operator-managed`,
+    {
+      method: 'get',
+      params: {
+        group_id: body.group_id,
+      },
+    }
+  );
+}
 /*
   删除组
 */
@@ -938,6 +956,19 @@ export async function delSingleKubernetesVal(body = {}) {
         resource_yaml:body.yaml,
         id:body.List_id,
       },
+    }
+  );
+}
+// 应用下批量删除k8s资源
+export async function batchDelSingleKubernetesVal(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources`,
+    {
+      method: 'DELETE',
+      data: {
+        ids:body.List_id,
+      },
+      handleError
     }
   );
 }

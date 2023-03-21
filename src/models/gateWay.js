@@ -21,7 +21,14 @@ import {
     addTcp,
     editTcp,
     query_app_status,
-    startApp
+    startApp,
+    getBatchGateWay,
+    getGateWay,
+    getGateWayApiList,
+    queryDetailGateWayApi,
+    deleteGateWayApi,
+    addDetailGateWayApi,
+    editDetailGateWayApi
 } from '../services/gateWay';
 
 export default {
@@ -214,7 +221,49 @@ export default {
             if (callback) {
                 callback(response)
             }
-        }
+        },
+        *getBatchGateWay({ payload, callback, handleError }, { call }) {
+            const response = yield call(getBatchGateWay, payload, handleError);
+            if (response && callback) {
+              callback(response);
+            }
+        },
+        *getGateWay({ payload, callback, handleError }, { call }) {
+            const response = yield call(getGateWay, payload, handleError);
+            if (response && callback) {
+              callback(response);
+            }
+        },
+        *getGateWayApiList({ payload, callback, handleError }, { call }) {
+            const response = yield call(getGateWayApiList, payload, handleError);
+            if (response && callback) {
+              callback(response);
+            }
+        },
+        *queryDetailGateWayApi({ callback, payload }, { call }) {
+            const response = yield call(queryDetailGateWayApi, payload);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *deleteGateWayApi({ callback, payload }, { call }) {
+            const response = yield call(deleteGateWayApi, payload);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *addDetailGateWayApi({ callback, payload , handleError}, { call }) {
+            const response = yield call(addDetailGateWayApi, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *editDetailGateWayApi({ callback, payload, handleError }, { call }) {
+            const response = yield call(editDetailGateWayApi, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
     },
 
     reducers: {

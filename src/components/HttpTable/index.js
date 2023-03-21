@@ -398,7 +398,7 @@ export default class HttpTable extends PureComponent {
     const domainPath = values.domain_path;
     const setArr = [
       {
-        name: '请求头',
+        name: formatMessage({id:'teamGateway.HttpTable.heards'}),
         val: domainHeander
       },
       {
@@ -410,7 +410,7 @@ export default class HttpTable extends PureComponent {
         val: domainPath
       },
       {
-        name: '权重',
+        name:formatMessage({id:'teamGateway.HttpTable.weight'}),
         val: values.the_weight
       }
     ];
@@ -442,7 +442,7 @@ export default class HttpTable extends PureComponent {
         trigger="click"
         style={{ maxWidth: '500px' }}
       >
-        <a>查看详情</a>
+        <a>{formatMessage({id:'teamGateway.HttpTable.look'})}</a>
       </Tooltip>
     );
   };
@@ -477,7 +477,7 @@ export default class HttpTable extends PureComponent {
           winHandler.close();
         } else if (data && data.bean.status == 'undeploy') {
           notification.warning({
-            message: '当前组件属于未部署状态',
+            message: formatMessage({id:'teamGateway.HttpTable.undeployed'}),
             duration: 5
           });
           that.props.dispatch(
@@ -505,7 +505,7 @@ export default class HttpTable extends PureComponent {
       },
       callback: data => {
         if (data) {
-          notification.success({ message: '启动成功', duration: 5 });
+          notification.success({ message: formatMessage({id:'teamGateway.HttpTable.start'}), duration: 5 });
           this.setState({ loading: false, appStatusVisable: false }, () => {
             this.load();
           });
@@ -797,28 +797,28 @@ export default class HttpTable extends PureComponent {
         )}
         {whetherOpenForm && (
           <Modal
-            title="确认要添加吗？"
+            title={formatMessage({id:'teamGateway.HttpTable.title'})}
             visible={this.state.whetherOpenForm}
             onOk={this.handleOk}
             onCancel={this.handleCancelSecond}
             footer={[
               <Button type="primary" size="small" onClick={this.resolveOk}>
-                确定
+                {formatMessage({id:'button.confirm'})}
               </Button>
             ]}
             zIndex={9999}
           >
-            <p>您选择的组件未开启外部访问，是否自动打开并添加此访问策略？</p>
+            <p>{formatMessage({id:'teamGateway.HttpTable.footer'})}</p>
           </Modal>
         )}
         {appStatusVisable && (
           <Modal
-            title="友情提示"
+            title={formatMessage({id:'teamGateway.HttpTable.appStatusVisable'})}
             visible={appStatusVisable}
             onOk={this.handleAppStatus}
             onCancel={this.handleAppStatusClosed}
           >
-            <p>当前组件处于关闭状态，启动后方可访问，是否启动组件？</p>
+            <p>{formatMessage({id:'teamGateway.HttpTable.text'})}</p>
           </Modal>
         )}
       </div>
