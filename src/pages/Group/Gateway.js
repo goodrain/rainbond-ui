@@ -72,7 +72,7 @@ export default class AppGatewayList extends PureComponent {
   fetchPipePipeline = (eid) => {
     const { dispatch, currUser } = this.props;
     dispatch({
-      type: 'teamControl/fetchPipePipeline',
+      type: 'teamControl/fetchPluginUrl',
       payload: {
         enterprise_id: currUser.enterprise_id,
         region_name: globalUtil.getCurrRegionName()
