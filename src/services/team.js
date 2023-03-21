@@ -748,7 +748,7 @@ export async function fetchToken (params) {
   );
 }
 // 获取流水线url
-export async function fetchPipePipeline (params, handleError) {
+export async function fetchPluginUrl (params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_name}/officialplugins`,
     {

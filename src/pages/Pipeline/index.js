@@ -6,20 +6,23 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import CustomFooter from "../../layouts/CustomFooter";
 import globalUtil from '@/utils/global'
 
-@connect(({ user }) => ({
+@connect(({ user, teamControl, global }) => ({
     user: user.currentUser,
+    teamControl: teamControl.currentTeam,
+    teamOverview : global.teamOverview
 }))
 class Index extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            token: '',
+            token: null,
+            domianUrl: null,
             pipelineArr: []
         }
     }
     componentDidMount() {
-        this.fetchInfo()
-        this.loadOverview()
+        this.fetchPluginInfo()
+        this.fetchInfo() 
         window.addEventListener("message", this.receiveMessage, false);
     }
     componentWillUnmount() {
@@ -53,40 +56,58 @@ class Index extends Component {
         }
         });
     };
-    fetchInfo = () => {
-        const { dispatch } = this.props;
-        const team_id = window.sessionStorage.getItem("team_id") || false
-        const pipelineArr = JSON.parse(window.sessionStorage.getItem("Pipeline")) || []
-        let url = '';
-        pipelineArr && pipelineArr.map(item => {
-            if (item.name == 'pipeline')
-                url = item.urls[0]
-        })
+    fetchPluginInfo = () => {
+        const {
+            dispatch,
+            match: {
+                params: { teamName, regionName }
+            },
+            user
+        } = this.props
         dispatch({
-            type: 'teamControl/fetchToken',
+            type: 'teamControl/fetchPluginUrl',
             payload: {
-                team_name: globalUtil.getCurrTeamName(),
-                tokenNode: 'pipeline'
+                enterprise_id: user.enterprise_id,
+                region_name: regionName
             },
             callback: res => {
-                if (res && res.status_code == 200) {
-                    this.setState({
-                        token: res.bean.access_key || false,
-                        team_id: team_id,
-                        pipelineUrl: url
-                    })
-                }
+                res.list.map((item) => {
+                    if (item.name == 'pipeline') {
+                        this.setState({
+                            domianUrl: item.urls[0]
+                        })
+                    }
+                })
             }
         })
     }
+    fetchInfo = () => {
+        const { dispatch } = this.props;
+        dispatch({
+            type: 'teamControl/fetchToken',
+            payload: {
+            callback: res => {
+                if (res && res.status_code == 200) {
+                    this.setState({
+                        token: res.bean.access_key || false
+                    })
+                }
+            }
+        }
+        })
+    }
     render() {
-        const { team_id, token, pipelineUrl, team_name } = this.state
+        const { token, domianUrl } = this.state
+        const { teamControl, teamOverview } = this.props
+        const teamId = teamOverview && teamOverview.team_id || false
+        const teamAlias = teamControl.team_alias || false
+
         return (
             <>
-                {team_id ? (
-                    <div style={{ height: 'calc( 100vh - 122px )' }}>
+                {(token && teamId && domianUrl && teamAlias)  ? (
+                    <div style={{ height: '100vh' }}>
                         <iframe
-                            src={`${pipelineUrl}/app-service?token=${token}&teamId=${team_id}&teamName=${team_name}`}
+                            src={`${domianUrl}/app-service?token=${token}&teamId=${teamId}&teamName=${teamAlias}`}
                             style={{
                                 width: '100%',
                                 height: '100%'

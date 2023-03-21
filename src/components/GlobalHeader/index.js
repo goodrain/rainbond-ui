@@ -95,7 +95,6 @@ export default class GlobalHeader extends PureComponent {
       }
     }
     if (key === 'logout') {
-      window.sessionStorage.removeItem('Pipeline')
       dispatch({ type: 'user/logout' });
     }
   };

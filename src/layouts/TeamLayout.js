@@ -162,10 +162,9 @@ class TeamLayout extends PureComponent {
     })
   }
   fetchPipePipeline = (eid) =>{
-    window.sessionStorage.removeItem('Pipeline')
     const { dispatch } = this.props;
     dispatch({
-        type: 'teamControl/fetchPipePipeline',
+        type: 'teamControl/fetchPluginUrl',
         payload: {
             enterprise_id: eid,
             region_name: globalUtil.getCurrRegionName()
@@ -173,8 +172,6 @@ class TeamLayout extends PureComponent {
         callback: res=>{
           this.setState({
             showPipeline:res.list
-          },()=>{
-            window.sessionStorage.setItem('Pipeline',JSON.stringify(res.list))
           })
         }
     })
