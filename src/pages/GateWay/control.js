@@ -3,7 +3,7 @@ import { Spin } from 'antd';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import DefaultGateway from '../../components/DefaultGateway';
+import DefaultGateway from '@/components/DefaultGateway';
 import GatewayApi from '../../components/GatewayApi'
 import HttpTable from '../../components/HttpTable';
 import TcpTable from '../../components/TcpTable';
