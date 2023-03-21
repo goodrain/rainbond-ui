@@ -3,7 +3,7 @@ import { Spin } from 'antd';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import DefaultGateway from '@/components/DefaultGateway';
+import TolerantGateway from '@/components/TolerantGateway';
 import GatewayApi from '../../components/GatewayApi'
 import HttpTable from '../../components/HttpTable';
 import TcpTable from '../../components/TcpTable';
@@ -138,7 +138,7 @@ class Control extends Component {
     if (batchGateway && gatewayShow) {
       if (tabKeys === 'default') {
         return (
-          <DefaultGateway operationPermissions={operationPermissions} open={open} tabKey={tabKey} />
+          <TolerantGateway operationPermissions={operationPermissions} open={open} tabKey={tabKey} />
         );
       }
       return <GatewayApi operationPermissions={operationPermissions} />;

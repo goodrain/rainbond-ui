@@ -3,7 +3,7 @@ import { Spin } from 'antd';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import DefaultGateway from '@/components/DefaultGateway';
+import TolerantGateway from '@/components/TolerantGateway';
 import GatewayApi from '../../components/GatewayApi'
 import HttpTable from '../../components/HttpTable';
 import TcpTable from '../../components/TcpTable';
@@ -190,7 +190,7 @@ export default class AppGatewayList extends PureComponent {
     if (batchGateway && gatewayShow) {
       if (tabKeys === 'default') {
         return (
-          <DefaultGateway operationPermissions={operationPermissions} open={open} tabKey={tabKey} appID={appID} />
+          <TolerantGateway operationPermissions={operationPermissions} open={open} tabKey={tabKey} appID={appID} />
         );
       }
       return <GatewayApi operationPermissions={operationPermissions} appID={appID} />;
