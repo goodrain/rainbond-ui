@@ -14,7 +14,12 @@ const RadioGroup = Radio.Group;
 class LicenseDrawer extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      rulesArr:[]
+    };
+  }
+  componentDidMount(){
+    this.rules()
   }
   handleSubmit = e => {
     e.preventDefault();
@@ -42,16 +47,49 @@ class LicenseDrawer extends PureComponent {
     }
     return true;
   };
+  rules = (val)=>{
+    const { isGateway } = this.props
+    let defauleArr = [
+      { required: true, message: formatMessage({id:'placeholder.certificate.name'}) },
+      {
+        max: 64,
+        message: formatMessage({id:'placeholder.appShare.max64'})
+      },
+    ]
+    let gatewayArr = [
+      { required: true, message: formatMessage({id:'placeholder.certificate.name'}) },
+      {
+        max: 64,
+        message: formatMessage({id:'placeholder.appShare.max64'})
+      },
+      {
+        pattern: /[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/,
+        message: formatMessage({id:'teamGateway.license.pattern'})
+      }
+    ]
+    if(val){
+      this.setState({
+        rulesArr: val == "gateway" ? gatewayArr : defauleArr
+      })
+    }else{
+      this.setState({
+        rulesArr: isGateway ? gatewayArr : defauleArr
+      })
+    }
+
+  }
   render() {
     const {
       onClose,
       editData = {},
       addLicenseLoading,
       editLicenseLoading,
-      form
+      form,
+      isGateway = false
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
 
+    const { rulesArr } =this.state
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -104,16 +142,23 @@ class LicenseDrawer extends PureComponent {
           <Form onSubmit={this.handleSubmit}>
             <FormItem {...formItemLayout} label={formatMessage({id:'popover.manage.certificate.label.name'})}>
               {getFieldDecorator('alias', {
-                rules: [
-                  { required: true, message: formatMessage({id:'placeholder.certificate.name'}) },
-                  {
-                    max: 64,
-                    message: formatMessage({id:'placeholder.appShare.max64'})
-                  }
-                ]
+                rules: rulesArr
               })(<Input placeholder={formatMessage({id:'placeholder.certificate.name'})} />)}
             </FormItem>
-            <FormItem {...formItemLayout} label={formatMessage({id:'popover.manage.certificate.label.kind'})}>
+            {isGateway ? (
+              <FormItem {...formItemLayout} label={formatMessage({id:'teamGateway.DrawerGateWayAPI.Gateway'})}>
+              {getFieldDecorator('certificate_type', {
+                initialValue: editData ? editData.certificate_type : formatMessage({id:'popover.manage.certificate.label.server'}),
+                rules: [{ required: true }]
+              })(
+                <RadioGroup>
+                  <Radio value={formatMessage({id:'popover.manage.certificate.label.server'})} onClick={()=>this.rules(formatMessage({id:'popover.manage.certificate.label.server'}))}>{formatMessage({id:'teamGateway.control.table.default'})}</Radio>
+                  <Radio value="gateway"  onClick={()=>this.rules("gateway")}>{formatMessage({id:'teamGateway.control.table.GatewayApi'})}</Radio>
+                </RadioGroup>
+              )}
+            </FormItem>
+            ):(
+              <FormItem {...formItemLayout} label={formatMessage({id:'popover.manage.certificate.label.kind'})}>
               {getFieldDecorator('certificate_type', {
                 initialValue: formatMessage({id:'popover.manage.certificate.label.server'}),
                 rules: [{ required: true }]
@@ -123,7 +168,7 @@ class LicenseDrawer extends PureComponent {
                 </RadioGroup>
               )}
             </FormItem>
-
+            )}
             {certificateList.map(item => {
               const { value, name, label, messages, mode } = item;
               return (
@@ -151,7 +196,7 @@ class LicenseDrawer extends PureComponent {
                 left: 0,
                 background: '#fff',
                 borderRadius: '0 0 4px 4px',
-                zIndex: 999
+                zIndex: 98
               }}
             >
               <Button

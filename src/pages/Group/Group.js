@@ -895,16 +895,6 @@ export default class Index extends PureComponent {
             </div>
           </div>
           <div className={language ? styles.conrBot : styles.en_conrBot}>
-            <div className={styles.conrBox}>
-              <div>{formatMessage({id: 'appOverview.backups'})}</div>
-              <div
-                onClick={() => {
-                  isBackup && this.handleJump('backup');
-                }}
-              >
-                <a>{currApp.backup_num || 0}</a>
-              </div>
-            </div>
 
             <div className={styles.conrBox}>
               <div>{formatMessage({id: 'appOverview.modelRelease'})}</div>

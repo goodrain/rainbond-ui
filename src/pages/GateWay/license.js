@@ -5,12 +5,20 @@ import {
   Popconfirm,
   Row,
   Table,
-  Typography
+  Typography,
+  Modal,
+  Form,
+  Icon,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { routerRedux } from 'dva/router';
+import copy from 'copy-to-clipboard';
+import CodeMirror from 'react-codemirror';
 import LicenseDrawer from '../../components/LicenseDrawer';
+import CodeMirrorForm from '@/components/CodeMirrorForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
@@ -18,6 +26,7 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import roleUtil from '../../utils/role';
 
 const { Paragraph } = Typography;
+@Form.create()
 
 @connect(({ user, teamControl, enterprise }) => ({
   currUser: user.currentUser,
@@ -38,12 +47,17 @@ class Control extends Component {
       total: '',
       editData: '',
       id: '',
-      operationPermissions: this.handlePermissions('queryCertificateInfo')
+      operationPermissions: this.handlePermissions('queryCertificateInfo'),
+      gatewayShow: false,
+      batchGateway: false,
+      name: '',
+      moduleShow: false
     };
   }
-
   componentWillMount() {
-    const { dispatch } = this.props;
+    this.fetchPipePipeline();
+    this.handleBatchGateWay();
+    const { dispatch, } = this.props;
     const {
       operationPermissions: { isAccess }
     } = this.state;
@@ -60,6 +74,48 @@ class Control extends Component {
       this.load();
     });
   };
+
+  fetchPipePipeline = (eid) => {
+    const { dispatch, currUser } = this.props;
+    dispatch({
+      type: 'teamControl/fetchPipePipeline',
+      payload: {
+        enterprise_id: currUser.enterprise_id,
+        region_name: globalUtil.getCurrRegionName()
+      },
+      callback: res => {
+        if (res && res.list) {
+          res.list.map(item => {
+            if (item.name == "rainbond-gateway-base") {
+              this.setState({
+                gatewayShow: true
+              })
+            }
+          })
+        }
+      }
+    })
+  }
+  handleBatchGateWay = () => {
+    const { dispatch, currUser } = this.props
+    const regionName = globalUtil.getCurrRegionName()
+    dispatch({
+      type: 'gateWay/getBatchGateWay',
+      payload: {
+        enterprise_id: currUser.enterprise_id,
+        region_name: regionName
+      },
+      callback: res => {
+        if (res && res.list) {
+          if (res.list.length > 0) {
+            this.setState({
+              batchGateway: true
+            })
+          }
+        }
+      }
+    })
+  }
 
   rowKey = (record, index) => index;
 
@@ -86,7 +142,7 @@ class Control extends Component {
     });
   };
   handleCick = () => {
-    this.setState({ visibleDrawer: true });
+    this.setState({ visibleDrawer: true, isGatewayInfo:false });
   };
   handleClose = () => {
     this.setState({ visibleDrawer: false, editData: '' });
@@ -95,6 +151,9 @@ class Control extends Component {
   handleOk = values => {
     const { editData } = this.state;
     if (!editData) {
+      this.setState({
+        name:values.alias
+      })
       this.props.dispatch({
         type: 'gateWay/addLicense',
         payload: {
@@ -106,9 +165,12 @@ class Control extends Component {
         },
         callback: data => {
           if (data && data.status_code === 200) {
-            notification.success({ message: formatMessage({id:'notification.success.add'}) });
+            notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
             this.setState({ visibleDrawer: false }, () => {
               this.load();
+              this.setState({
+                moduleShow: values.certificate_type == "gateway" ? true : false
+              })
             });
           }
         }
@@ -126,7 +188,7 @@ class Control extends Component {
         },
         callback: data => {
           if (data && data.status_code === 200) {
-            notification.success({ message: data ? formatMessage({id:'notification.success.change'}) : formatMessage({id:'notification.error.change'}) });
+            notification.success({ message: data ? formatMessage({ id: 'notification.success.change' }) : formatMessage({ id: 'notification.error.change' }) });
             this.setState({ visibleDrawer: false }, () => {
               this.load();
             });
@@ -146,7 +208,7 @@ class Control extends Component {
       callback: data => {
         if (data && data.status_code === 200) {
           notification.success({
-            message: (data && data.msg_show) || formatMessage({id:'notification.success.delete'})
+            message: (data && data.msg_show) || formatMessage({ id: 'notification.success.delete' })
           });
           this.load();
         }
@@ -166,7 +228,8 @@ class Control extends Component {
           this.setState({
             visibleDrawer: true,
             editData: data.bean,
-            id: data.bean.id
+            id: data.bean.id,
+            isGatewayInfo: data.bean.certificate_type == "gateway" ? true : false
           });
         }
       }
@@ -189,26 +252,53 @@ class Control extends Component {
       type
     );
   };
+  onCancel = () =>{
+    this.setState({
+      moduleShow: false
+    })
+  }
+  goPath =(str) =>{
+    const {currUser, dispatch} = this.props;
+    if(currUser.is_enterprise_admin){
+      dispatch(
+        routerRedux.push(
+          `/enterprise/${currUser.enterprise_id}/extension`
+        )
+      )
+    }else{
+      notification.warning({
+        message: formatMessage({id:'teamGateway.license.noAuthority'})
+      });
+    }
 
+
+  }
   render() {
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    const { currentEnterprise, currentTeam, currentRegionName, form } = this.props;
     const {
       page,
       pageSize,
       total,
       licenseList,
-      operationPermissions: { isCreate, isEdit, isDelete }
+      operationPermissions: { isCreate, isEdit, isDelete },
+      batchGateway,
+      gatewayShow,
+      name,
+      moduleShow,
+      isGatewayInfo
     } = this.state;
+    const bool = batchGateway && gatewayShow
+    const { getFieldDecorator, setFieldsValue } = form;
     const columns = [
       {
-        title: formatMessage({id: 'teamGateway.certificate.table.name'}),
+        title: formatMessage({ id: 'teamGateway.certificate.table.name' }),
         dataIndex: 'alias',
         key: 'alias',
         align: 'center',
         width: '12%'
       },
       {
-        title: formatMessage({id: 'teamGateway.certificate.table.address'}),
+        title: formatMessage({ id: 'teamGateway.certificate.table.address' }),
         dataIndex: 'issued_to',
         key: 'issued_to',
         align: 'center',
@@ -237,7 +327,7 @@ class Control extends Component {
         }
       },
       {
-        title: formatMessage({id: 'teamGateway.certificate.table.time'}),
+        title: formatMessage({ id: 'teamGateway.certificate.table.time' }),
         dataIndex: 'end_data',
         key: 'end_data',
         align: 'center',
@@ -255,21 +345,28 @@ class Control extends Component {
         }
       },
       {
-        title: formatMessage({id: 'teamGateway.certificate.table.type'}),
+        title: formatMessage({ id: 'teamGateway.DrawerGateWayAPI.Gateway' }),
         dataIndex: 'certificate_type',
         key: 'certificate_type',
         align: 'center',
-        width: '13%'
+        width: '13%',
+        render: (data, record) => {
+          if (data == "gateway") {
+            return <p>{formatMessage({ id: 'teamGateway.control.table.GatewayApi' })}</p>
+          } else {
+            return <p>{data}</p>
+          }
+        }
       },
       {
-        title: formatMessage({id: 'teamGateway.certificate.table.source'}),
+        title: formatMessage({ id: 'teamGateway.certificate.table.source' }),
         dataIndex: 'issued_by',
         key: 'issued_by',
         align: 'center',
         width: '15%'
       },
       {
-        title: formatMessage({id: 'teamGateway.certificate.table.operate'}),
+        title: formatMessage({ id: 'teamGateway.certificate.table.operate' }),
         dataIndex: 'action',
         key: 'action',
         align: 'center',
@@ -284,7 +381,7 @@ class Control extends Component {
                     this.handleEdit(record);
                   }}
                 >
-                 {formatMessage({id: 'teamGateway.certificate.table.edit'})}
+                  {formatMessage({ id: 'teamGateway.certificate.table.edit' })}
                 </a>
               )}
 
@@ -295,18 +392,18 @@ class Control extends Component {
                     this.handleUpdate(record);
                   }}
                 >
-                  {formatMessage({id: 'teamGateway.certificate.table.update'})}
+                  {formatMessage({ id: 'teamGateway.certificate.table.update' })}
                 </a>
               )}
 
               {isDelete && (
                 <Popconfirm
-                  title="确认要删除吗？"
+                  title={formatMessage({id:'teamGateway.license.delete'})}
                   onConfirm={() => {
                     this.handleDelete(record);
                   }}
                 >
-                  <a>{formatMessage({id: 'teamGateway.certificate.table.delete'})}</a>
+                  <a>{formatMessage({ id: 'teamGateway.certificate.table.delete' })}</a>
                 </Popconfirm>
               )}
             </span>
@@ -320,32 +417,33 @@ class Control extends Component {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: formatMessage({id: 'teamGateway.strategy.manage'}) });
+    breadcrumbList.push({ title: formatMessage({ id: 'teamGateway.strategy.manage' }) });
+    const str = `       allowedRoutes:\n         namespaces:\n           from: All\n       name: https\n       port: 443\n       protocol: HTTPS\n       tls:\n         certificateRefs:\n           - group: ''\n             kind: Secret\n             name: ${name}\n         mode: Terminate\n`
     return (
       <PageHeaderLayout
-        title={formatMessage({id: 'teamGateway.certificate.title'})}
+        title={formatMessage({ id: 'teamGateway.certificate.title' })}
         breadcrumbList={breadcrumbList}
-        content={formatMessage({id: 'teamGateway.certificate.desc'})}
-        titleSvg={pageheaderSvg.getSvg('certificateSvg',18)}
+        content={formatMessage({ id: 'teamGateway.certificate.desc' })}
+        titleSvg={pageheaderSvg.getSvg('certificateSvg', 18)}
       >
-        <Card 
-        extra={
-          isCreate && (
-            <Button
-              type="primary"
-              icon="plus"
-              style={{ float: 'right' }}
-              onClick={this.handleCick}
-            >
-              {formatMessage({id: 'teamGateway.certificate.btn.add'})}
-            </Button>
-          )
-        }
-        style={{
-          borderRadius:5,
-          boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
-        }}
-        bodyStyle={{ padding: '0' }}
+        <Card
+          extra={
+            isCreate && (
+              <Button
+                type="primary"
+                icon="plus"
+                style={{ float: 'right' }}
+                onClick={this.handleCick}
+              >
+                {formatMessage({ id: 'teamGateway.certificate.btn.add' })}
+              </Button>
+            )
+          }
+          style={{
+            borderRadius: 5,
+            boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
+          }}
+          bodyStyle={{ padding: '0' }}
         >
           <Table
             pagination={{
@@ -370,8 +468,53 @@ class Control extends Component {
               this.handleOk(values);
             }}
             editData={this.state.editData}
+            isGateway={bool || isGatewayInfo}
           />
         )}
+        <Modal
+          title="Basic Modal"
+          visible={moduleShow}
+          onOk={()=>this.goPath(str)}
+          onCancel={this.onCancel}
+          footer={[
+            <Button key="back" onClick={this.onCancel}>
+              {formatMessage({id:'teamGateway.license.later'})}
+            </Button>,
+            <Button key="submit" type="primary"onClick={()=>this.goPath(str)}>
+              {formatMessage({id:'teamGateway.license.now'})}
+            </Button>,
+          ]}
+        >
+          <p>{formatMessage({id:'teamGateway.license.go'})} <strong> {formatMessage({id:'teamGateway.license.path'})}</strong></p>
+          <p>{formatMessage({id:'teamGateway.license.find'})} <strong>（{name}）</strong>{formatMessage({id:'teamGateway.license.file'})}</p>
+          <p>{formatMessage({id:'teamGateway.license.in'})} <span style={{color:'red'}}><strong>spec.listeners</strong></span> {formatMessage({id:'teamGateway.license.add'})}
+          <Tooltip placement="right" title={formatMessage({id:'teamGateway.license.copy'})}>
+          <Icon
+            style={{color:"blue",fontSize:16}}
+            type="copy"
+            onClick={() => {
+              copy(str);
+              notification.success({ message: formatMessage({id:'notification.success.copy'}) });
+            }}
+          />
+          </Tooltip>
+          </p>
+
+          <CodeMirror
+            value={str}
+            options={{
+              mode: { name: 'yaml', json: true },
+              lineNumbers: true,
+              theme: 'seti',
+              lineWrapping: true,
+              smartIndent: true,
+              matchBrackets: true,
+              showCursorWhenSelecting: true,
+              scrollbarStyle:null,
+              height: 500
+            }}
+          />
+        </Modal>
       </PageHeaderLayout>
     );
   }

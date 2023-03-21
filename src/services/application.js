@@ -364,7 +364,8 @@ export async function deleteCompose(
     {
       method: 'delete',
       data: {
-        compose_id: body.compose_id
+        compose_id: body.compose_id,
+        app_name: body.app_name
       }
     }
   );

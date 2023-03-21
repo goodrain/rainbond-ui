@@ -34,7 +34,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CreateAppModels from '../../components/CreateAppModels';
 import FooterToolbar from '../../components/FooterToolbar';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -122,7 +122,7 @@ class AppInfo extends PureComponent {
               marginBottom: 8
             }}
           >
-            {formatMessage({id:'appPublish.shop.pages.title.joinMsg'})}
+            {formatMessage({ id: 'appPublish.shop.pages.title.joinMsg' })}
           </h4>
           <Divider />
           <Row>
@@ -155,7 +155,7 @@ class AppInfo extends PureComponent {
                         item.attr_value
                       )}
                     >
-                      {formatMessage({id:'appPublish.shop.pages.title.random'})}
+                      {formatMessage({ id: 'appPublish.shop.pages.title.random' })}
                     </Checkbox>
                   )}
                 </FormItem>
@@ -183,8 +183,8 @@ class AppInfo extends PureComponent {
               marginBottom: 8
             }}
           >
-            
-            {formatMessage({id:'appPublish.shop.pages.title.environment_variable'})}
+
+            {formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}
           </h4>
           <Divider />
           <Row>
@@ -198,7 +198,7 @@ class AppInfo extends PureComponent {
                       rules: [
                         {
                           required: false,
-                          message: formatMessage({id:'placeholder.copy.not_null'})
+                          message: formatMessage({ id: 'placeholder.copy.not_null' })
                         }
                       ]
                     })(<Input />)}
@@ -229,24 +229,24 @@ class AppInfo extends PureComponent {
               marginBottom: 8
             }}
           >
-            {formatMessage({id:'appPublish.shop.pages.title.flexible'})}
+            {formatMessage({ id: 'appPublish.shop.pages.title.flexible' })}
           </h4>
           <Divider />
           <Row>
             <Col span={8}>
-              <FormItem label={formatMessage({id:'appPublish.shop.pages.form.label.min_node'})} style={pd16}>
+              <FormItem label={formatMessage({ id: 'appPublish.shop.pages.form.label.min_node' })} style={pd16}>
                 {getFieldDecorator(`${ID}||min_node`, {
                   initialValue: app.extend_method_map.min_node,
                   rules: [
                     {
                       required: true,
-                      message: formatMessage({id:'placeholder.appShare.formatError'})
+                      message: formatMessage({ id: 'placeholder.appShare.formatError' })
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
-                    placeholder={formatMessage({id:'placeholder.appShare.min_node'})}
+                    placeholder={formatMessage({ id: 'placeholder.appShare.min_node' })}
                     min={1}
                     step={steps || app.extend_method_map.step_node}
                   />
@@ -254,19 +254,19 @@ class AppInfo extends PureComponent {
               </FormItem>
             </Col>
             <Col span={8}>
-              <FormItem label={formatMessage({id:'appPublish.shop.pages.form.label.max_node'})} style={pd16}>
+              <FormItem label={formatMessage({ id: 'appPublish.shop.pages.form.label.max_node' })} style={pd16}>
                 {getFieldDecorator(`${ID}||max_node`, {
                   initialValue: app.extend_method_map.max_node,
                   rules: [
                     {
                       required: true,
-                      message: formatMessage({id:'placeholder.appShare.formatError'})
+                      message: formatMessage({ id: 'placeholder.appShare.formatError' })
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
-                    placeholder={formatMessage({id:'placeholder.appShare.max_node'})}
+                    placeholder={formatMessage({ id: 'placeholder.appShare.max_node' })}
                     min={1}
                     step={steps || app.extend_method_map.step_node}
                   />
@@ -274,19 +274,19 @@ class AppInfo extends PureComponent {
               </FormItem>
             </Col>
             <Col span={8}>
-              <FormItem label={formatMessage({id:'appPublish.shop.pages.form.label.step_node'})} style={pd16}>
+              <FormItem label={formatMessage({ id: 'appPublish.shop.pages.form.label.step_node' })} style={pd16}>
                 {getFieldDecorator(`${ID}||step_node`, {
                   initialValue: app.extend_method_map.step_node,
                   rules: [
                     {
                       required: true,
-                      message: formatMessage({id:'placeholder.appShare.formatError'})
+                      message: formatMessage({ id: 'placeholder.appShare.formatError' })
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
-                    placeholder={formatMessage({id:'placeholder.appShare.step_node'})}
+                    placeholder={formatMessage({ id: 'placeholder.appShare.step_node' })}
                     min={app.extend_method_map.min_node}
                     max={app.extend_method_map.max_node}
                   />
@@ -294,52 +294,52 @@ class AppInfo extends PureComponent {
               </FormItem>
             </Col>
             <Col span={8}>
-              <FormItem label={formatMessage({id:'appPublish.shop.pages.form.label.init_memory'})} style={pd16}>
+              <FormItem label={formatMessage({ id: 'appPublish.shop.pages.form.label.init_memory' })} style={pd16}>
                 {getFieldDecorator(`${ID}||init_memory`, {
                   initialValue: app.extend_method_map.init_memory || 0,
                   rules: [
                     {
                       required: true,
-                      message: formatMessage({id:'placeholder.appShare.formatError'})
+                      message: formatMessage({ id: 'placeholder.appShare.formatError' })
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
-                    placeholder={formatMessage({id:'placeholder.appShare.init_memory'})}
+                    placeholder={formatMessage({ id: 'placeholder.appShare.init_memory' })}
                     min={0}
                     max={app.extend_method_map.max_memory}
                     step={app.extend_method_map.step_memory}
                   />
                 )}
                 <div style={{ color: '#999999', fontSize: '12px' }}>
-                 {formatMessage({id:'appPublish.shop.pages.form.quota0.desc'})}
+                  {formatMessage({ id: 'appPublish.shop.pages.form.quota0.desc' })}
                 </div>
               </FormItem>
             </Col>
             <Col span={8}>
-              <FormItem label={formatMessage({id:'appPublish.shop.pages.form.label.container_cpu'})} style={pd16}>
+              <FormItem label={formatMessage({ id: 'appPublish.shop.pages.form.label.container_cpu' })} style={pd16}>
                 {getFieldDecorator(`${ID}||container_cpu`, {
                   initialValue: app.extend_method_map.container_cpu || 0,
                   rules: [
                     {
                       required: true,
-                      message: formatMessage({id:'placeholder.appShare.container_cpu'})
+                      message: formatMessage({ id: 'placeholder.appShare.container_cpu' })
                     },
                     {
                       pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                      message: formatMessage({id:'placeholder.plugin.min_cpuMsg'})
+                      message: formatMessage({ id: 'placeholder.plugin.min_cpuMsg' })
                     }
                   ]
                 })(
                   <InputNumber
                     style={{ width: '100%' }}
                     min={0}
-                    placeholder={formatMessage({id:'placeholder.appShare.container_cpu'})}
+                    placeholder={formatMessage({ id: 'placeholder.appShare.container_cpu' })}
                   />
                 )}
                 <div style={{ color: '#999999', fontSize: '12px' }}>
-                  {formatMessage({id:'appPublish.shop.pages.form.quota1000.desc'})}
+                  {formatMessage({ id: 'appPublish.shop.pages.form.quota1000.desc' })}
                 </div>
               </FormItem>
             </Col>
@@ -414,8 +414,8 @@ export default class Main extends PureComponent {
       currentPage: 1,
       showDrawerSwitchVal: false,
       k8sContent: '',
-      k8sName:"",
-      recoders:[],
+      k8sName: "",
+      recoders: [],
     };
     this.com = [];
     this.share_group_info = null;
@@ -466,7 +466,7 @@ export default class Main extends PureComponent {
             info: data.bean,
             plugin_list: data.bean.share_plugin_list,
             selectedApp,
-            tabk: data.bean.share_service_list[0].service_share_uuid,
+            tabk: data.bean && data.bean.share_service_list && data.bean.share_service_list[0] && data.bean.share_service_list[0].service_share_uuid,
             share_service_list: data.bean.share_service_list,
             share_k8s_resources: data.bean.share_k8s_resources
           });
@@ -655,10 +655,10 @@ export default class Main extends PureComponent {
             versionInfo.dev_status
           ) {
             confirm({
-              title:formatMessage({id:'appPublish.shop.pages.confirm.title'}),
+              title: formatMessage({ id: 'appPublish.shop.pages.confirm.title' }),
               content: '',
-              okText: formatMessage({id:'popover.confirm'}),
-              cancelText: formatMessage({id:'popover.cancel'}),
+              okText: formatMessage({ id: 'popover.confirm' }),
+              cancelText: formatMessage({ id: 'popover.cancel' }),
               onOk: () => {
                 this.handleSubmit();
               }
@@ -776,6 +776,7 @@ export default class Main extends PureComponent {
             }
           });
         });
+   
         newinfo.app_version_info = appVersionInfo;
         newinfo.share_service_list = arr;
         newinfo.share_plugin_list = this.state.plugin_list;
@@ -805,11 +806,11 @@ export default class Main extends PureComponent {
             const data = errs && errs.data;
             const msg = data && data.msg_show;
             if (data && data.code && data.code === 10501) {
-              notification.warning({ message: formatMessage({id:'confirmModal.component.hint'}), description: msg });
+              notification.warning({ message: formatMessage({ id: 'confirmModal.component.hint' }), description: msg });
               this.setState({ isShare: 'true' });
               return null;
             }
-            notification.warning({ message: formatMessage({id:'confirmModal.component.request_Error'}), description: msg });
+            notification.warning({ message: formatMessage({ id: 'confirmModal.component.request_Error' }), description: msg });
           }
         });
       }
@@ -857,7 +858,7 @@ export default class Main extends PureComponent {
     this.setState({ showCreateAppModel: false });
   };
   handleCreateAppModel = () => {
-    notification.success({ message: formatMessage({id:'notification.success.setUp'}) });
+    notification.success({ message: formatMessage({ id: 'notification.success.setUp' }) });
     this.fetchModels(true);
     this.hideCreateAppModel();
   };
@@ -919,7 +920,7 @@ export default class Main extends PureComponent {
   };
 
   handleEditorAppModel = info => {
-    notification.success({ message: formatMessage({id:'notification.success.edit'}) });
+    notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
     this.fetchModels(false, info);
     this.hideEditorAppModel();
   };
@@ -944,11 +945,11 @@ export default class Main extends PureComponent {
   // 验证上传文件方式
   checkVersion = (rules, value, callback) => {
     if (value === '' || !value) {
-      callback(formatMessage({id:'placeholder.appShare.versions_notNull'}));
+      callback(formatMessage({ id: 'placeholder.appShare.versions_notNull' }));
     }
     if (value) {
       if (!/^[0-9]+(\.[0-9]+){1,2}$/.test(value)) {
-        callback(formatMessage({id:'placeholder.appShare.layout_grid_mode'}));
+        callback(formatMessage({ id: 'placeholder.appShare.layout_grid_mode' }));
         return;
       }
     }
@@ -958,7 +959,7 @@ export default class Main extends PureComponent {
     const { share_service_list } = this.state;
     const dep_service_name = [];
     if (share_service_list.length === 1) {
-      message.info(formatMessage({id:'placeholder.appShare.leastOne'}));
+      message.info(formatMessage({ id: 'placeholder.appShare.leastOne' }));
       return;
     }
     share_service_list.map(component => {
@@ -1057,15 +1058,15 @@ export default class Main extends PureComponent {
   //关闭抽屉组件
   onClose = () => {
     this.setState({
-        showDrawerSwitchVal: false,
+      showDrawerSwitchVal: false,
     });
   };
   //查看k8s资源详情
   showDrawer = (text, record) => {
     this.setState({
-        k8sContent: text,
-        k8sName: record.name,
-        showDrawerSwitchVal: !this.state.showDrawerSwitchVal,
+      k8sContent: text,
+      k8sName: record.name,
+      showDrawerSwitchVal: !this.state.showDrawerSwitchVal,
     })
   }
   render() {
@@ -1113,13 +1114,13 @@ export default class Main extends PureComponent {
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
     breadcrumbList.push({
-      title: formatMessage({id:'appPublish.btn.record.list.title'}),
+      title: formatMessage({ id: 'appPublish.btn.record.list.title' }),
       href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`
     });
     if (record && record.scope === 'goodrain') {
-      breadcrumbList.push({ title: formatMessage({id:'appPublish.btn.market'}) });
+      breadcrumbList.push({ title: formatMessage({ id: 'appPublish.btn.market' }) });
     } else {
-      breadcrumbList.push({ title: formatMessage({id:'appPublish.btn.local'}) });
+      breadcrumbList.push({ title: formatMessage({ id: 'appPublish.btn.local' }) });
     }
     const marketId = record.scope_target && record.scope_target.store_id;
     const marketVersion =
@@ -1142,7 +1143,7 @@ export default class Main extends PureComponent {
             style={{
               marginBottom: 24
             }}
-            title={formatMessage({id:'appPublish.btn.record.list.title.versions'})}
+            title={formatMessage({ id: 'appPublish.btn.record.list.title.versions' })}
             bordered={false}
             bodyStyle={{
               padding: 0
@@ -1155,13 +1156,13 @@ export default class Main extends PureComponent {
             >
               <Row gutter={24}>
                 <Col span="12">
-                  <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.title.appMode'})}>
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.title.appMode' })}>
                     {getFieldDecorator('app_id', {
                       initialValue: recoders.length > 1 ? model.app_id : '',
                       rules: [
                         {
                           required: true,
-                          message: formatMessage({id:'placeholder.appShare.appTemplate'})
+                          message: formatMessage({ id: 'placeholder.appShare.appTemplate' })
                         }
                       ]
                     })(
@@ -1171,7 +1172,7 @@ export default class Main extends PureComponent {
                         }
                         style={{ width: '60%' }}
                         onChange={this.changeCurrentModel}
-                        placeholder={formatMessage({id:'placeholder.appShare.selectAppTemplate'})}
+                        placeholder={formatMessage({ id: 'placeholder.appShare.selectAppTemplate' })}
                       >
                         {models.map(item => (
                           <Option key={item.app_id}>{item.app_name}</Option>
@@ -1200,7 +1201,7 @@ export default class Main extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col span="12">
-                  <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.label.version'})}>
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.version' })}>
                     {getFieldDecorator('version', {
                       initialValue: '',
                       rules: [
@@ -1213,7 +1214,7 @@ export default class Main extends PureComponent {
                       <AutoComplete
                         style={{ width: '100%' }}
                         onChange={this.changeCurrentVersion}
-                        placeholder={formatMessage({id:'placeholder.appShare.version'})}
+                        placeholder={formatMessage({ id: 'placeholder.appShare.version' })}
                       >
                         {versions &&
                           versions.length > 0 &&
@@ -1233,25 +1234,25 @@ export default class Main extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col span="12">
-                  <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.label.version_alias'})}>
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.version_alias' })}>
                     {getFieldDecorator('version_alias', {
                       initialValue:
                         (versionInfo && versionInfo.version_alias) || '',
                       rules: [
                         {
                           max: 64,
-                          message: formatMessage({id:'placeholder.appShare.max64'})
+                          message: formatMessage({ id: 'placeholder.appShare.max64' })
                         }
                       ]
                     })(
                       <Input
                         style={{ width: '60%' }}
-                        placeholder={formatMessage({id:'placeholder.appShare.version_alias'})}
+                        placeholder={formatMessage({ id: 'placeholder.appShare.version_alias' })}
                       />
                     )}
                   </Form.Item>
 
-                  <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.label.is_plugin'})}>
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.is_plugin' })}>
                     {getFieldDecorator('is_plugin', {
                       initialValue: (versionInfo && (versionInfo.is_plugin)) || false
                     })(
@@ -1267,7 +1268,7 @@ export default class Main extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col span="12" style={{ height: '104px' }}>
-                  <Form.Item {...formItemLayout} label={formatMessage({id:'appPublish.btn.record.list.label.describe'})}>
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.describe' })}>
                     {getFieldDecorator('describe', {
                       initialValue:
                         (versionInfo &&
@@ -1276,12 +1277,12 @@ export default class Main extends PureComponent {
                       rules: [
                         {
                           max: 255,
-                          message: formatMessage({id:'placeholder.max255'})
+                          message: formatMessage({ id: 'placeholder.max255' })
                         }
                       ]
                     })(
                       <TextArea
-                        placeholder={formatMessage({id:'placeholder.appShare.describe'})}
+                        placeholder={formatMessage({ id: 'placeholder.appShare.describe' })}
                         style={{ height: '70px' }}
                       />
                     )}
@@ -1290,127 +1291,132 @@ export default class Main extends PureComponent {
               </Row>
             </div>
           </Card>
-          <Card
-            style={{
-              marginBottom: 24
-            }}
-            title={formatMessage({id:'appPublish.btn.record.list.title.publish_component_config'})}
-            bordered={false}
-            bodyStyle={{
-              padding: 0
-            }}
-          >
-            <div
+          {apps && apps.length > 0 &&
+            <Card
               style={{
-                padding: '24px'
+                marginBottom: 24
+              }}
+              title={formatMessage({ id: 'appPublish.btn.record.list.title.publish_component_config' })}
+              bordered={false}
+              bodyStyle={{
+                padding: 0
               }}
             >
-              <div className={mytabcss.mytab}>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '16px',
-                    lineHeight: '32px'
-                  }}
-                >
-                  <h4
-                    className={mytabcss.required}
+              {console.log(11111)}
+              <div
+                style={{
+                  padding: '24px'
+                }}
+              >
+                <div className={mytabcss.mytab}>
+                  <div
                     style={{
-                      marginBottom: 0
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '16px',
+                      lineHeight: '32px'
                     }}
                   >
-                    {formatMessage({id:'appPublish.btn.record.list.title.edit_publish_componentMsg'})}
-                  </h4>
-                  <Button
-                    style={{ float: 'right' }}
-                    onClick={() => {
-                      this.setState({ batchEditShow: true });
-                    }}
-                  >
-                    {formatMessage({id:'appPublish.btn.record.list.title.bulk_edit'})}
-                  </Button>
-                </div>
-                <div className={mytabcss.mytabtit} id="mytabtit">
-                  <Tabs
-                    type="editable-card"
-                    hideAdd
-                    activeKey={tabk}
-                    onChange={this.tabClick}
-                    onEdit={(targetKey, action) => {
-                      if (action === 'remove') {
-                        this.removeComponent(targetKey);
-                      }
-                    }}
-                  >
-                    {apps.map(apptit => {
-                      const id = apptit.service_share_uuid
-                      return (
-                        <TabPane
-                          key={id}
-                          tab={
-                            <span className={mytabcss.cont}>
-                              <a
-                                tab={apptit.service_cname}
-                                onClick={() => {
-                                  this.tabClick(id);
-                                }}
-                              >
-                                {apptit.service_cname}
-                              </a>
-                            </span>
-                          }
-                        >
-                          <AppInfo
+                    <h4
+                      className={mytabcss.required}
+                      style={{
+                        marginBottom: 0
+                      }}
+                    >
+                      {formatMessage({ id: 'appPublish.btn.record.list.title.edit_publish_componentMsg' })}
+                    </h4>
+                    <Button
+                      style={{ float: 'right' }}
+                      onClick={() => {
+                        this.setState({ batchEditShow: true });
+                      }}
+                    >
+                      {formatMessage({ id: 'appPublish.btn.record.list.title.bulk_edit' })}
+                    </Button>
+                  </div>
+                  <div className={mytabcss.mytabtit} id="mytabtit">
+                    <Tabs
+                      type="editable-card"
+                      hideAdd
+                      activeKey={tabk}
+                      onChange={this.tabClick}
+                      onEdit={(targetKey, action) => {
+                        if (action === 'remove') {
+                          this.removeComponent(targetKey);
+                        }
+                      }}
+                    >
+                      {apps && apps.map(apptit => {
+                        const id = apptit.service_share_uuid
+                        return (
+                          <TabPane
                             key={id}
-                            form={form}
-                            app={apptit}
-                            getref={this.save}
-                            tab={apptit.service_alias}
-                            ID={apptit.service_id}
-                          />
-                        </TabPane>
-                      );
-                    })}
-                  </Tabs>
+                            tab={
+                              <span className={mytabcss.cont}>
+                                <a
+                                  tab={apptit.service_cname}
+                                  onClick={() => {
+                                    this.tabClick(id);
+                                  }}
+                                >
+                                  {apptit.service_cname}
+                                </a>
+                              </span>
+                            }
+                          >
+                            <AppInfo
+                              key={id}
+                              form={form}
+                              app={apptit}
+                              getref={this.save}
+                              tab={apptit.service_alias}
+                              ID={apptit.service_id}
+                            />
+                          </TabPane>
+                        );
+                      })}
+                    </Tabs>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Card>
-          <Card
-            style={{
-              marginBottom: 24
-            }}
-            title={formatMessage({id:'appPublish.btn.record.list.title.publish_pluginMsg'})}
-            bordered={false}
-          >
-            <Table
-              size="middle"
-              dataSource={plugins}
-              columns={[
-                {
-                  title: formatMessage({id:'appPublish.btn.record.list.table.plugin_alias'}),
-                  dataIndex: 'plugin_alias'
-                },
-                {
-                  title: formatMessage({id:'appPublish.btn.record.list.table.category'}),
-                  dataIndex: 'category',
-                  render: v => {
-                    return pluginUtil.getCategoryCN(v);
+            </Card>
+          }
+          {plugins && plugins.length > 0 &&
+            <Card
+              style={{
+                marginBottom: 24
+              }}
+              title={formatMessage({ id: 'appPublish.btn.record.list.title.publish_pluginMsg' })}
+              bordered={false}
+            >
+              <Table
+                size="middle"
+                dataSource={plugins}
+                columns={[
+                  {
+                    title: formatMessage({ id: 'appPublish.btn.record.list.table.plugin_alias' }),
+                    dataIndex: 'plugin_alias'
+                  },
+                  {
+                    title: formatMessage({ id: 'appPublish.btn.record.list.table.category' }),
+                    dataIndex: 'category',
+                    render: v => {
+                      return pluginUtil.getCategoryCN(v);
+                    }
+                  },
+                  {
+                    title: formatMessage({ id: 'appPublish.btn.record.list.table.build_version' }),
+                    dataIndex: 'build_version'
                   }
-                },
-                {
-                  title: formatMessage({id:'appPublish.btn.record.list.table.build_version'}),
-                  dataIndex: 'build_version'
-                }
-              ]}
-            />
-          </Card>
+                ]}
+              />
+            </Card>
+          }
           <Card
             style={{
               marginBottom: 128
             }}
-            title={formatMessage({id:'appPublish.btn.record.list.title.k8s'})}
+            title={formatMessage({ id: 'appPublish.btn.record.list.title.k8s' })}
             bordered={false}
           >
             <Table
@@ -1418,26 +1424,26 @@ export default class Main extends PureComponent {
               dataSource={curPageData}
               columns={[
                 {
-                  title: formatMessage({id:'appPublish.btn.record.list.table.name'}),
+                  title: formatMessage({ id: 'appPublish.btn.record.list.table.name' }),
                   dataIndex: 'name',
                   key: 'name',
                   align: 'left',
                 },
                 {
-                  title: formatMessage({id:'appPublish.btn.record.list.table.kind'}),
+                  title: formatMessage({ id: 'appPublish.btn.record.list.table.kind' }),
                   dataIndex: 'kind',
                   key: 'kind',
                   align: 'left',
                 },
                 {
-                  title: formatMessage({id:'appPublish.btn.record.list.table.content'}),
+                  title: formatMessage({ id: 'appPublish.btn.record.list.table.content' }),
                   dataIndex: 'content',
                   key: "content",
-                  align:'center',
+                  align: 'center',
                   render: (text, record) => {
                     return <>
                       <Button onClick={() => this.showDrawer(text, record)}>
-                        {formatMessage({id:'appPublish.btn.record.list.table.view_details'})}
+                        {formatMessage({ id: 'appPublish.btn.record.list.table.view_details' })}
                       </Button>
                     </>
                   }
@@ -1447,7 +1453,7 @@ export default class Main extends PureComponent {
             />
           </Card>
           <Drawer
-            title={formatMessage({id:'appPublish.btn.record.list.title.detailMsg'})}
+            title={formatMessage({ id: 'appPublish.btn.record.list.title.detailMsg' })}
             placement="right"
             closable={true}
             onClose={this.onClose}
@@ -1468,18 +1474,18 @@ export default class Main extends PureComponent {
           </Drawer>
           {shareModal && (
             <Modal
-              title={formatMessage({id:'appPublish.btn.record.list.title.check'})}
+              title={formatMessage({ id: 'appPublish.btn.record.list.title.check' })}
               visible={shareModal}
               onOk={() => {
                 this.removeComponentReal(this.state.del_component_share_key);
                 this.onCancels();
               }}
               onCancel={this.onCancels}
-              okText={formatMessage({id:'popover.confirm'})}
-              cancelText={formatMessage({id:'popover.cancel'})}
+              okText={formatMessage({ id: 'popover.confirm' })}
+              cancelText={formatMessage({ id: 'popover.cancel' })}
             >
               <div>
-                {formatMessage({id:'appPublish.btn.record.list.pages.needPublish'})}
+                {formatMessage({ id: 'appPublish.btn.record.list.pages.needPublish' })}
                 {dep_service_name &&
                   dep_service_name.length > 0 &&
                   dep_service_name.map((item, index) => {
@@ -1492,7 +1498,7 @@ export default class Main extends PureComponent {
                       </span>
                     );
                   })}
-                {formatMessage({id:'appPublish.btn.record.list.pages.componentPublish'})}
+                {formatMessage({ id: 'appPublish.btn.record.list.pages.componentPublish' })}
               </div>
             </Modal>
           )}
@@ -1508,7 +1514,7 @@ export default class Main extends PureComponent {
           )}
           {showCreateAppModel && (
             <CreateAppModels
-              title={formatMessage({id:'appPublish.btn.record.list.pages.createAppTemplate'})}
+              title={formatMessage({ id: 'appPublish.btn.record.list.pages.createAppTemplate' })}
               appName={appDetail && appDetail.group_name}
               eid={currentEnterprise.enterprise_id}
               onOk={this.handleCreateAppModel}
@@ -1521,7 +1527,7 @@ export default class Main extends PureComponent {
 
           {editorAppModel && (
             <CreateAppModels
-              title={formatMessage({id:'appPublish.btn.record.list.pages.editAppTemplate'})}
+              title={formatMessage({ id: 'appPublish.btn.record.list.pages.editAppTemplate' })}
               team_name={currentTeam.team_name}
               appInfo={appModelInfo}
               eid={currentEnterprise.enterprise_id}
@@ -1538,13 +1544,13 @@ export default class Main extends PureComponent {
               loading={submitLoading}
               onClick={this.handleSubmitConditions}
             >
-              {formatMessage({id:'button.submit'})}
+              {formatMessage({ id: 'button.submit' })}
             </Button>
             <Button
               disabled={loading.effects['application/giveupShare']}
               onClick={this.handleGiveup}
             >
-              {formatMessage({id:'button.give_up_release'})}
+              {formatMessage({ id: 'button.give_up_release' })}
             </Button>
           </FooterToolbar>
         </div>

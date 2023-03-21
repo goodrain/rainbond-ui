@@ -29,7 +29,10 @@ import {
   undoTeamUsers,
   getUploadInformation,
   getAdvancedInformation,
-  confirmTheImport
+  confirmTheImport,
+  fetchToken,
+  fetchPluginUrl,
+  fetchServiceID
 } from '../services/team';
 
 export default {
@@ -270,6 +273,24 @@ export default {
     },
     *confirmTheImport({ payload, callback, handleError }, { call }) {
       const response = yield call(confirmTheImport, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchToken({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchToken, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchPluginUrl({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchPluginUrl, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchServiceID({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchServiceID, payload, handleError);
       if (response && callback) {
         callback(response);
       }

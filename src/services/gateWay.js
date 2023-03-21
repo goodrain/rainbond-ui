@@ -379,11 +379,12 @@ export async function getGateWayApiList(params) {
 }
 
 /* 获取网关 GateWay 下拉列表 */
-export async function getBatchGateWay(params) {
+export async function getBatchGateWay(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_name}/batch-gateway`,
     {
       method: 'get',
+      handleError
     }
   );
 }
@@ -415,6 +416,45 @@ export async function queryDetailGateWayApi(params) {
     }
   );
 }
+
+/** 添加 GateWayApi 详情 */
+export async function addDetailGateWayApi(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/gateway-http-route`,
+    {
+      method: 'post',
+      data: {
+        app_id: params.app_id,
+        gateway_name: params.gateway_name,
+        gateway_namespace: params.gateway_namespace,
+        section_name:params.section_name == "all" ? "" : params.section_name,
+        hosts: params.hosts,
+        rules: params.rules,
+      },
+      handleError
+    }
+  );
+}
+/** 修改 GateWayApi 详情 */
+export async function editDetailGateWayApi(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/gateway-http-route`,
+    {
+      method: 'put',
+      data: {
+        app_id: params.app_id,
+        gateway_name: params.gateway_name,
+        gateway_namespace: params.gateway_namespace,
+        section_name:params.section_name == "all" ? "" : params.section_name,
+        hosts: params.hosts,
+        rules: params.rules,
+        name: params.name
+      },
+      handleError
+    }
+  );
+}
+
 /** 删除 GateWayApi 详情 */
 export async function deleteGateWayApi(params) {
   return request(
@@ -422,7 +462,8 @@ export async function deleteGateWayApi(params) {
     {
       method: 'DELETE',
       params: {
-        name: params.name
+        name: params.name,
+        region_app_id: params.app_id
       }
     }
   );

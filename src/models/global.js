@@ -145,6 +145,7 @@ export default {
     is_enterprise_version: false,
     nouse: false,
     needLogin: false,
+    teamOverview: null,
   },
 
   effects: {
@@ -395,9 +396,10 @@ export default {
         callback(data);
       }
     },
-    *getTeamOverview({ payload, callback, handleError }, { call }) {
+    *getTeamOverview({ payload, callback, handleError }, { call, put }) {
       const data = yield call(getTeamOverview, payload, handleError);
       if (data && callback) {
+        yield put({ type: 'saveTeamOverview', payload: data.bean });
         callback(data);
       }
     },
@@ -1084,6 +1086,13 @@ export default {
         enterprise: payload
       };
     },
+    saveTeamOverview(state, { payload }) {
+      return {
+        ...state,
+        teamOverview: payload
+      };
+    },
+
   },
 
   subscriptions: {

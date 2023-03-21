@@ -50,8 +50,9 @@
         'popover.access_strategy.lable.conversation':'LB Algorithm: session keep',
         'popover.access_strategy.lable.access_target':'Access target',
         'popover.access_strategy.lable.li1':'1.HTTP access control policies are based on routing rules such as domain names. You need to add the domain name DNSA to the domain name service provider that binds the domain name to the application gateway egress IP address of the current cluster to take effect.',
-        'popover.access_strategy.lable.li2':'2.Current cluster（{ currentRegion }) egress IP address is: { ip }',
+        'popover.access_strategy.lable.li2':'2.Current cluster',
         'popover.access_strategy.lable.li3':'3.If you have any questions, please contact the platform Operations administrator',
+        'popover.access_strategy.lable.li4':'egress IP address is: ',
         
         //http访问策略参数配置
         'popover.config.title':'Parameter configuration',
@@ -244,6 +245,7 @@
         'confirmModal.drop_versions.delete.title':'Delete version',
         'confirmModal.give_up_release.delete.title':'Give up',
         'confirmModal.quit.team.title':'Quit team',
+        'confirmModal.delete.Gateway.title':'Deleting a gateway policy',
 
         //组件提示
         'confirmModal.delete.strategy.subDesc':'This operation cannot be undone',
@@ -295,6 +297,7 @@
         'confirmModal.delete.take_hand.desc':'It cannot be restored after being deleted. Are you sure to delete it?',
         'confirmModal.install.app.desc':'Are you sure you want to install this application as your component?',
         'confirmModal.return.team.desc': 'Are you sure you want to quit this team?',
+        'confirmModal.delete.team.Gateway': 'Are you sure you want to delete it?',
         //友情提示
         'confirmModal.friendly_reminder.title':'Friendly reminder',
         'confirmModal.friendly_reminder.pages.desc':'{ codeObj } All the components in the current application?',
@@ -833,7 +836,7 @@
         'placeholder.certificate.name':'Please enter the certificate name',
         'placeholder.certificate.private':'Please enter your private key',
         'placeholder.userName.search':'Please enter a user name to search',
-
+        'placeholder.limit_memory':'Memory limit value required',
     }
     const tooltip = {
         'tooltip.visit':'Go to the domain address corresponding to the component external access port',

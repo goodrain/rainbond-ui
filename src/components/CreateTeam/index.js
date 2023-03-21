@@ -144,7 +144,6 @@ class CreateTeam extends PureComponent {
       </div>
     );
     const isRegions = regions && regions.length;
-    console.log(imageUrl,'imageUrl')
     return (
       <Modal
         title={title || <FormattedMessage id='popover.enterpriseOverview.setUpTeam.title' />}

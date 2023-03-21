@@ -738,4 +738,32 @@ export async function delAuthorizationMessage (params) {
     }
   );
 }
-
+// team下获取token
+export async function fetchToken (params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/access-token/${params.tokenNode}`,
+    {
+      method: 'get',
+    }
+  );
+}
+// 获取流水线url
+export async function fetchPluginUrl (params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_name}/officialplugins`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+// 获取各个应用的内部域名
+export async function fetchServiceID (params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/service`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}

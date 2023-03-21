@@ -193,7 +193,8 @@ class Index extends PureComponent {
                                 status,
                                 team_name,
                                 version,
-                                urls
+                                urls,
+                                alias
                             } = item
                             return (
                                 <div className={styles.boxs}>
@@ -203,7 +204,7 @@ class Index extends PureComponent {
                                         </div>
                                     </Col>
                                     <Col span={10}>
-                                        <p className={styles.pluginName} onClick={() => this.onJumpApp(item)}>{name}</p>
+                                        <p className={styles.pluginName} onClick={() => this.onJumpApp(item)}>{alias == '' ? name : alias}</p>
                                         <p className={styles.pluginDesc}>{description}</p>
                                     </Col>
                                     <Col span={3}>
