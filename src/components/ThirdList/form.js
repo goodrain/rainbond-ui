@@ -30,10 +30,10 @@ const { TabPane } = Tabs;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 7
   },
   wrapperCol: {
-    span: 19
+    span: 17
   }
 };
 
@@ -144,6 +144,25 @@ class Index extends React.Component {
       showSubdirectories: checkedValues.includes('subdirectories')
     });
   };
+  handleValiateNameSpace = (_, value, callback) => {
+    if (!value) {
+      return callback(new Error(`${formatMessage({id:'componentOverview.EditName.input_en_name'})}` ));
+    }
+    if (value && value.length <= 32) {
+      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
+      if (!Reg.test(value)) {
+        return callback(
+          new Error(
+            `${formatMessage({id:'componentOverview.EditName.only'})}`
+          )
+        );
+      }
+      callback();
+    }
+    if (value.length > 32) {
+      return callback(new Error( `${formatMessage({id:'componentOverview.EditName.Cannot'})}` ));
+    }
+  };
   render() {
     const {
       groups,
@@ -192,7 +211,7 @@ class Index extends React.Component {
                   placeholder="请选择要所属应用"
                   style={{
                     display: 'inline-block',
-                    width: ServiceComponent ? '' : 292,
+                    width: ServiceComponent ? '' : 251,
                     marginRight: 15
                   }}
                   disabled={!!ServiceComponent}
@@ -229,7 +248,21 @@ class Index extends React.Component {
                 rules: [{ required: true, message: '要创建的组件还没有名字' }]
               })(<Input placeholder="请为创建的组件起个名字吧" />)}
             </Form.Item>
-
+            <Form.Item
+              className={styles.clearConform}
+              {...formItemLayout}
+              label={
+                <div className={styles.clearConformMinTitle}>
+                  <img src={Component} alt="" />
+                  组件英文名称&nbsp;:
+                </div>
+              }
+            >
+              {getFieldDecorator('k8s_component_name', {
+                initialValue: '',
+                rules: [{ required: true, validator: this.handleValiateNameSpace}]
+              })(<Input placeholder="请为创建的组件起个英文名字吧" />)}
+            </Form.Item>
             <Form.Item
               className={styles.clearConform}
               {...formItemLayout}

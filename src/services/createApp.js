@@ -46,7 +46,8 @@ export async function createThirtAppByCodes(body = {}) {
         check_uuid: body.check_uuid || '',
         event_id: body.event_id || '',
         open_webhook: body.open_webhook,
-        full_name: body.full_name
+        full_name: body.full_name,
+        k8s_component_name: body.k8s_component_name
       }
     }
   );
