@@ -456,7 +456,7 @@ export async function editDetailGateWayApi(params, handleError) {
 }
 
 /** 删除 GateWayApi 详情 */
-export async function deleteGateWayApi(params) {
+export async function deleteGateWayApi(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.team_name}/gateway-http-route`,
     {
@@ -464,7 +464,8 @@ export async function deleteGateWayApi(params) {
       params: {
         name: params.name,
         region_app_id: params.app_id
-      }
+      },
+      handleError
     }
   );
 }
