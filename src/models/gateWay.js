@@ -246,8 +246,8 @@ export default {
                 callback(response)
             }
         },
-        *deleteGateWayApi({ callback, payload }, { call }) {
-            const response = yield call(deleteGateWayApi, payload);
+        *deleteGateWayApi({ callback, payload, handleError }, { call }) {
+            const response = yield call(deleteGateWayApi, payload, handleError );
             if (callback) {
                 callback(response)
             }

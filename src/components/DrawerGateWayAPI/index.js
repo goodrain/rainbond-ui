@@ -371,7 +371,7 @@ class DrawerForm extends PureComponent {
         <Drawer
           title={editInfo ? formatMessage({ id: 'teamGateway.DrawerGateWayAPI.edit' }) : formatMessage({ id: 'teamGateway.DrawerGateWayAPI.add' })}
           placement="right"
-          width={650}
+          width={700}
           closable={false}
           onClose={onClose}
           visible={this.props.visible}

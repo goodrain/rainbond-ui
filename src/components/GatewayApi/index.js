@@ -252,7 +252,6 @@ export default class index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         name: values.name,
         app_id: values.app_id,
-        delVisible: false
       },
       callback: data => {
         if (data) {
@@ -260,7 +259,8 @@ export default class index extends PureComponent {
             message: formatMessage({id:'notification.success.delete'})
           });
           this.setState({
-            loading:false
+            loading:false,
+            delVisible: false
           },()=>{
             if (appID) {
               this.handleGateWayAPI(appID);
@@ -269,6 +269,11 @@ export default class index extends PureComponent {
             }
           })
         }
+      },
+      handleError: err =>{
+        this.setState({
+          delVisible: false
+        })
       }
     });
   };
