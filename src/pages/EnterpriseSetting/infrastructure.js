@@ -861,7 +861,6 @@ class Infrastructure extends PureComponent {
             {AutomaticIssueCertificate}
             {Oauth}
             {MirrorWarehouseInformation}
-            {CloudBackup}
             {Monitoring}
           </div>
         )}
