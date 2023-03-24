@@ -44,6 +44,7 @@ import {
   createTeam
 } from '../../utils/breadcrumb';
 import cookie from '../../utils/cookie';
+import { openInNewTab } from '../../utils/utils';
 import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
 import BatchEditPublishComponent from './components/BatchEditPublishComponent';
@@ -794,11 +795,33 @@ export default class Main extends PureComponent {
           callback: data => {
             this.setState({ submitLoading: false });
             if (data) {
-              dispatch(
-                routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/share/${shareId}/two?isAppPlugin=${appVersionInfo.is_plugin}`
-                )
-              );
+              if(share_service_data.length == 0){                
+                dispatch({
+                  type: 'application/completeShare',
+                  payload: {
+                    team_name: globalUtil.getCurrTeamName(),
+                    share_id: shareId,
+                    appID: appID
+                  },
+                  callback: data => {
+                    if (data && data.app_market_url) {
+                      openInNewTab(data.app_market_url);
+                    }
+                    dispatch(
+                      routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/publish`)
+                    );
+                  },
+                  handleError: err => {
+                    this.handleError(err);
+                  }
+                });
+              }else{
+                 dispatch(
+                  routerRedux.push(
+                    `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/share/${shareId}/two?isAppPlugin=${appVersionInfo.is_plugin}`
+                  )
+                );
+              }
             }
           },
           handleError: errs => {
@@ -1302,7 +1325,6 @@ export default class Main extends PureComponent {
                 padding: 0
               }}
             >
-              {console.log(11111)}
               <div
                 style={{
                   padding: '24px'
