@@ -10,7 +10,7 @@ const appOverview = {
   'appOverview.updateTime': 'Update Time',
   'appOverview.govern': 'Governance Mode',
   'appOverview.principal': 'Manager',
-  'appOverview.backups': 'Backup',
+  'appOverview.k8s': 'K8S resources',
   'appOverview.modelRelease': 'Model publishing',
   'appOverview.gateway': 'Gateway Strategies',
   'appOverview.upgrade': 'To Upgrade',

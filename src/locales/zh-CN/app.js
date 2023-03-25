@@ -10,7 +10,7 @@ const appOverview = {
   'appOverview.updateTime': '更新时间',
   'appOverview.govern': '治理模式',
   'appOverview.principal': '负责人',
-  'appOverview.backups': '备份',
+  'appOverview.k8s': 'K8S资源',
   'appOverview.modelRelease': '模型发布',
   'appOverview.gateway': '网关策略',
   'appOverview.upgrade': '待升级',
