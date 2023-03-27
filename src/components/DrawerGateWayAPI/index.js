@@ -196,7 +196,7 @@ class DrawerForm extends PureComponent {
 
   // 获取 gateway 下拉列表
   handleBatchGateWay = () => {
-    const { dispatch, currUser } = this.props
+    const { dispatch, currUser, editInfo } = this.props
     const regionName = globalUtil.getCurrRegionName()
     dispatch({
       type: 'gateWay/getBatchGateWay',
@@ -209,9 +209,15 @@ class DrawerForm extends PureComponent {
           gateWayArr: res.list,
           gateWayNamespace: res.list[0].namespace,
           listener_namesArr: res.list[0].listener_names,
-          loadBalancerArr: res.list[0].load_balancer_ip ? res.list[0].load_balancer_ip : [],
-          nodePortArr: res.list[0].node_port_ip ? res.list[0].node_port_ip : [],
         })
+        res.list.map((item)=>{
+          if(editInfo.gateway_name == item.name){
+            this.setState({
+              loadBalancerArr: item.load_balancer_ip ? item.load_balancer_ip : [],
+              nodePortArr: item.node_port_ip ? item.node_port_ip : [],
+            })
+          }
+        }) 
       }
     })
   }

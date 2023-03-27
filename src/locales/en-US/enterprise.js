@@ -289,6 +289,7 @@ const applicationMarket = {
     // 导出离线包
     'applicationMarket.offline_installer.title': 'Export application template',
     'applicationMarket.offline_installer.alert': 'Export application template for delivery',
+    'applicationMarket.offline_installer.error_alert': 'The current version of the application does not support export without components',
     'applicationMarket.offline_installer.form.label.exoprt_versions': 'Version: ',
     'applicationMarket.offline_installer.form.label.rainbond_app': 'Rainbond App model',
     'applicationMarket.offline_installer.form.label.rainbond_app.desc': '(Supports full application operation features)',

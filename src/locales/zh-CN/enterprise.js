@@ -289,6 +289,7 @@ const applicationMarket = {
     // 导出离线包
     'applicationMarket.offline_installer.title': '导出云市应用',
     'applicationMarket.offline_installer.alert': '导出云市应用适用于交付环境',
+    'applicationMarket.offline_installer.error_alert': '当前应用版本无组件不支持导出',
     'applicationMarket.offline_installer.form.label.exoprt_versions': '导出版本: ',
     'applicationMarket.offline_installer.form.label.rainbond_app': '应用模型规范',
     'applicationMarket.offline_installer.form.label.rainbond_app.desc': '(支持完整应用运维特性)',
