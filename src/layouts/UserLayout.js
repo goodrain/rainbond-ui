@@ -93,7 +93,7 @@ class UserLayout extends React.PureComponent {
             </div>
           </div>
         </div>
-        < div style={{ bottom: 0, width: '100%', position: 'fixed' }} className={styles.CustomFooterStyle}>
+        < div style={{ bottom: 0, width: '100%', position: 'fixed', zIndex:'1' }} className={styles.CustomFooterStyle}>
           {!isEnterpriseEdition && <CustomFooter />}
         </div>
       </div>
