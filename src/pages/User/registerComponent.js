@@ -102,6 +102,24 @@ export default class RegisterComponent extends Component {
       user_info: userInfo,
       rainbondInfo
     } = this.props;
+    const formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 0
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 24
+        }
+      }
+    };
     const { getFieldDecorator } = form;
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     const { time } = this.state;
@@ -119,7 +137,7 @@ export default class RegisterComponent extends Component {
     return (
       <Form onSubmit={this.handleSubmit}>
         {firstRegist && (
-          <FormItem>
+          <FormItem {...formItemLayout}>
             {getFieldDecorator('enter_name', {
               rules: [
                 {
@@ -134,7 +152,7 @@ export default class RegisterComponent extends Component {
         )}
         <Row>
           <Col span="12" style={{ padding: '0 8px 0 0' }}>
-            <FormItem>
+            <FormItem {...formItemLayout}>
               {getFieldDecorator('real_name', {
                 initialValue: userInfo ? userInfo.oauth_user_name : '',
                 rules: [
@@ -152,7 +170,7 @@ export default class RegisterComponent extends Component {
             </FormItem>
           </Col>
           <Col span="12" style={{ padding: '0 0 0 8px' }}>
-            <FormItem>
+            <FormItem {...formItemLayout}>
               {getFieldDecorator('user_name', {
                 initialValue: firstRegist ? 'admin' : '',
                 rules: [
@@ -178,7 +196,7 @@ export default class RegisterComponent extends Component {
         </Row>
         <Row>
           <Col span="12" style={{ padding: '0 8px 0 0' }}>
-            <FormItem>
+            <FormItem {...formItemLayout}>
               {getFieldDecorator('email', {
                 initialValue: userInfo ? userInfo.oauth_user_email : '',
                 rules: [
@@ -195,7 +213,7 @@ export default class RegisterComponent extends Component {
             </FormItem>
           </Col>
           <Col span="12" style={{ padding: '0 0 0 8px' }}>
-            <FormItem>
+            <FormItem {...formItemLayout}>
               {getFieldDecorator('phone', {
                 initialValue: '',
                 rules: [
@@ -214,7 +232,7 @@ export default class RegisterComponent extends Component {
             </FormItem>
           </Col>
         </Row>
-        <FormItem>
+        <FormItem {...formItemLayout}>
           {getFieldDecorator('password', {
             rules: checks(formatMessage({id:'login.registerComponent.password'}))
           })(
@@ -226,7 +244,7 @@ export default class RegisterComponent extends Component {
             />
           )}
         </FormItem>
-        <FormItem>
+        <FormItem {...formItemLayout}>
           {getFieldDecorator('password_repeat', {
             rules: checks(formatMessage({id:'login.registerComponent.Confirm_password'}))
           })(
@@ -238,7 +256,7 @@ export default class RegisterComponent extends Component {
             />
           )}
         </FormItem>
-        <FormItem>
+        <FormItem {...formItemLayout}>
           <Row gutter={8}>
             <Col span={16}>
               {getFieldDecorator('captcha_code', {
