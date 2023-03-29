@@ -24,7 +24,7 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.add' }),
-      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate','envFromSource'],
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate','envFromSource', 'annotations'],
       selectVal: undefined,
       havevalArr: [],
       drawerSwitch: "add",
@@ -210,6 +210,18 @@ class Index extends PureComponent {
                 name: selectVal,
                 save_type: "json",
                 attribute_value: value.labels || []
+              }
+              this.handelAddOrEdit(label)
+            } else {
+              this.notificationFun()
+            }
+            break;
+          case 'annotations':
+            if (value.annotations[0].key && value.annotations[0].value) {
+              const label = {
+                name: selectVal,
+                save_type: "json",
+                attribute_value: value.annotations || []
               }
               this.handelAddOrEdit(label)
             } else {
@@ -584,7 +596,7 @@ class Index extends PureComponent {
               </Row>
               <Form onSubmit={this.handleSubmit}>
                 {selectVal &&
-                  ((selectVal == "nodeSelector") || (selectVal == "labels")) &&
+                  ((selectVal == "nodeSelector") || (selectVal == "labels") || (selectVal == "annotations")) &&
                   <Form.Item {...formItemLayouts}>
                     <div style={language ? {width:'100%'} : { marginLeft: 38,width:'100%' }}>
                       <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.key' /></p>
@@ -707,7 +719,7 @@ class Index extends PureComponent {
                     )}
                     <Col span={18}>{
                       item.name &&
-                      (item.name == "nodeSelector" || item.name == "labels") &&
+                      (item.name == "nodeSelector" || item.name == "labels" || item.name == "annotations") &&
                       item.attribute_value.length > 0 &&
                       item.attribute_value.map((ele, index) => {
                         return <Tooltip key={index} placement="top" title={<div><p>Key: {ele.key}</p><p>Value: {ele.value}</p></div>}>
