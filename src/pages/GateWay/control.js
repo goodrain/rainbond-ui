@@ -66,20 +66,18 @@ class Control extends Component {
         region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
-        if (res && res.list) {
+        if (res && res.list.length ){
           res.list.map(item => {
             if (item.name == "rainbond-gateway-base") {
               this.setState({
                 gatewayShow: true,
-                gatewayLoading: true
-              })
-            }else{
-              this.setState({
-                gatewayLoading: true
               })
             }
           })
         }
+        this.setState({
+          gatewayLoading: true
+        })
       },
       handleError: data => {
         this.setState({
@@ -99,16 +97,10 @@ class Control extends Component {
       },
       callback: res => {
         if (res && res.list) {
-          if (res.list.length > 0) {
-            this.setState({
-              batchGateway: true,
-              batchGatewayLoading: true
-            })
-          }else{
-            this.setState({
-              batchGatewayLoading: true
-            })
-          }
+          this.setState({
+            batchGateway: (res.list.length > 0) ? true : false,
+            batchGatewayLoading: true
+          })
         }
       },
       handleError: data => {
