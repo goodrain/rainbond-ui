@@ -86,6 +86,9 @@ class Index extends Component {
         dispatch({
             type: 'teamControl/fetchToken',
             payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                tokenNode: 'pipeline'
+            },
             callback: res => {
                 if (res && res.status_code == 200) {
                     this.setState({
@@ -93,7 +96,6 @@ class Index extends Component {
                     })
                 }
             }
-        }
         })
     }
     render() {
@@ -103,7 +105,7 @@ class Index extends Component {
         const teamAlias = teamControl.team_alias || false
 
         return (
-            <>
+            <div style={{ margin:'0px' }}>
                 {(token && teamId && domianUrl && teamAlias)  ? (
                     <div style={{ height: '100vh' }}>
                         <iframe
@@ -128,7 +130,7 @@ class Index extends Component {
                 )}
 
                 <CustomFooter />
-            </>
+            </div>
         );
     }
 }
