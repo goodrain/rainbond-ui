@@ -651,6 +651,7 @@ class DrawerForm extends PureComponent {
                       labelInValue
                       disabled={appID}
                       placeholder={formatMessage({id:'placeholder.appName'})}
+                      onChange={this.handleServices}
                     >
                       {(groups || []).map(group => {
                         return (

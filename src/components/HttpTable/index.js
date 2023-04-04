@@ -654,15 +654,6 @@ export default class HttpTable extends PureComponent {
         render: (data, record) => {
           return record.is_outer_service == 1 ? (
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-              {isEdit && (
-                <a
-                  onClick={() => {
-                    this.handleParameterVisibleClick(record);
-                  }}
-                >
-                  {formatMessage({id: 'teamGateway.strategy.table.config'})}
-                </a>
-              )}
               {/* <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a> */}
               {isEdit && (
                 <a
