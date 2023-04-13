@@ -809,14 +809,6 @@ export default class EnterpriseClusters extends PureComponent {
               <FormattedMessage id='enterpriseColony.table.handle.edit' />
               {/* 编辑 */}
             </a>,
-            <a
-              onClick={() => {
-                this.showRegions(item);
-              }}
-            >
-              <FormattedMessage id='enterpriseColony.table.handle.quota' />
-              {/* 资源限额 */}
-            </a>,
             <Link
               to={`/enterprise/${eid}/importMessage?region_id=${item.region_id}`}
             >
@@ -1023,84 +1015,6 @@ export default class EnterpriseClusters extends PureComponent {
             rowClassName={styles.rowStyle}
           />
         </Card>
-        {showTenantList && (
-          <Modal
-            maskClosable={false}
-            title=""
-            width={800}
-            visible={showTenantList}
-            footer={null}
-            onOk={this.hideTenantListShow}
-            onCancel={this.hideTenantListShow}
-          >
-            {setTenantLimitShow && (
-              <div>
-                <Alert
-                  style={{ margin: '20px 0 16px 0' }}
-                  message={formatMessage({ id: 'enterpriseColony.table.handle.quota.alert' }, { name: limitTeamName }) + formatMessage({ id: 'enterpriseColony.table.handle.quota.alert1' }, { region: regionAlias })}
-                />
-                <Form onSubmit={this.submitLimit}>
-                  <Form.Item
-                    {...formItemLayout}
-                    name="limit_memory"
-                    label={formatMessage({ id: 'enterpriseColony.table.handle.quota.form.label.limit_memory' })}
-                  >
-                    {getFieldDecorator('limit_memory', {
-                      initialValue: initLimitValue,
-                      rules: [
-                        {
-                          required: true,
-                          message: formatMessage({ id: 'placeholder.limit_memory' })
-                        }
-                      ]
-                    })(
-                      <InputNumber
-                        style={{ width: '200px' }}
-                        min={0}
-                        precision={0}
-                        max={2147483647}
-                      />
-                    )}
-                  </Form.Item>
-                  <div style={{ textAlign: 'center' }}>
-                    <Button
-                      onClick={() => {
-                        this.setState({
-                          setTenantLimitShow: false,
-                          limitSummitLoading: false
-                        });
-                      }}
-                    >
-                      {formatMessage({ id: 'button.cancel' })}
-                    </Button>
-                    <Button
-                      style={{ marginLeft: '16px' }}
-                      type="primary"
-                      loading={limitSummitLoading}
-                      htmlType="submit"
-                    >
-                      {formatMessage({ id: 'button.confirm' })}
-                    </Button>
-                  </div>
-                </Form>
-              </div>
-            )}
-            {!setTenantLimitShow && (
-              <div style={{ padding: '0px 24px' }}>
-                <Alert
-                  style={{ margin: '20px 0 16px 0' }}
-                  message={formatMessage({ id: 'enterpriseColony.table.handle.quota.form.label.alert' })}
-                />
-                <Table
-                  pagination={pagination}
-                  dataSource={tenants}
-                  columns={tenantColumns}
-                  loading={loadTenants}
-                />
-              </div>
-            )}
-          </Modal>
-        )}
       </PageHeaderLayout>
     );
   }

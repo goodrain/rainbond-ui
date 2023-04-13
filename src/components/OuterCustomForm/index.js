@@ -367,13 +367,7 @@ export default class Index extends PureComponent {
               >
                 <Radio value="static">{formatMessage({id: 'teamAdd.create.third.staticRegister'})}</Radio>
                 <Radio value="api">{formatMessage({id: 'teamAdd.create.third.apiRegister'})}</Radio>
-                <Radio value="kubernetes">
-                  <Badge count="Beta">
-                    <span style={{ width: 100, display: 'block' }}>
-                      Kubernetes
-                    </span>
-                  </Badge>
-                </Radio>
+                <Radio value="kubernetes">Kubernetes</Radio>
               </RadioGroup>
             )}
           </FormItem>

@@ -376,15 +376,13 @@ export default class Index extends PureComponent {
               />
               <TabPane
                 tab={
-                  <Badge count="Beta">
-                    <span
+                  <span
                       className={PluginStyles.verticalCen}
                       style={{ width: 100, display: 'block' }}
                     >
                       {globalUtil.fetchSvg('HelmSvg')}
                       <FormattedMessage id='applicationMarket.AuthCompany.Helm'/>
                     </span>
-                  </Badge>
                 }
                 key="helmStore"
               />
