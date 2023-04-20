@@ -209,15 +209,19 @@ class DrawerForm extends PureComponent {
           gateWayArr: res.list,
           gateWayNamespace: res.list[0].namespace,
           listener_namesArr: res.list[0].listener_names,
+        },()=>{
+            this.handleGateWayIp(res.list[0])
         })
-        res.list.map((item)=>{
-          if(editInfo.gateway_name == item.name){
-            this.setState({
-              loadBalancerArr: item.load_balancer_ip ? item.load_balancer_ip : [],
-              nodePortArr: item.node_port_ip ? item.node_port_ip : [],
-            })
-          }
-        }) 
+        if(editInfo){
+          res.list.map((item)=>{
+            if(editInfo.gateway_name == item.name){
+              this.setState({
+                loadBalancerArr: item.load_balancer_ip ? item.load_balancer_ip : [],
+                nodePortArr: item.node_port_ip ? item.node_port_ip : [],
+              })
+            }
+          }) 
+        }
       }
     })
   }

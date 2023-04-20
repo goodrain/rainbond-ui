@@ -63,6 +63,7 @@ const login = {
     'login.error':'手机号格式错误！',
     'login.Verification':'验证码',
     'login.input_Verification':'请输入验证码！',
+    'login.system':'云原生应用管理系统',
 }
 
 export default Object.assign({}, login);

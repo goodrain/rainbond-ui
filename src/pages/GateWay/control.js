@@ -45,9 +45,11 @@ class Control extends Component {
       gatewayLoading: false
     };
   }
+  componentDidMount() {
+    this.handleBatchGateWay();
+  }
   componentWillMount() {
     this.fetchPipePipeline();
-    this.handleBatchGateWay();
     const { dispatch } = this.props;
     const {
       operationPermissions: { isAccess },

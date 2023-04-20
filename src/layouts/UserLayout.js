@@ -82,9 +82,6 @@ class UserLayout extends React.PureComponent {
         <div className={styles.headers}>
         </div>
         <div className={styles.content}>
-          <div className={styles.left}>
-            <img src={topLogo}></img>
-          </div>
           <div className={styles.right}>
             <div className={styles.login}>
               <div className={styles.contentBox}>
@@ -94,7 +91,7 @@ class UserLayout extends React.PureComponent {
           </div>
         </div>
         < div style={{ bottom: 0, width: '100%', position: 'fixed', zIndex:'1' }} className={styles.CustomFooterStyle}>
-          {!isEnterpriseEdition && <CustomFooter />}
+          <CustomFooter />
         </div>
       </div>
     );

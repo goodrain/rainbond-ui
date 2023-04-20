@@ -6,7 +6,8 @@ import React, { Component } from 'react';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
 import rainbondUtil from '../../utils/rainbond';
-import { formatMessage, setLocale, getLocale, FormattedMessage } from 'umi/locale'
+import { setLocale, getLocale } from 'umi/locale'
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import cookie from '../../utils/cookie';
 import logo from '../../../public/logoLogin.png';
 import styles from './Login.less';
@@ -130,7 +131,7 @@ export default class LoginPage extends Component {
     return (
       <div className={styles.main} style={{ marginTop: '10px', marginBottom: 15 }}>
         <div className={styles.logo}>
-            <img src={logo} alt="LOGO" />
+            <h2>Rainbond-{formatMessage({id:'login.system'})}</h2> 
         </div>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
         {rainbondUtil.OauthbEnable(rainbondInfo) &&

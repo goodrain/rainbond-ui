@@ -142,14 +142,20 @@ class DAinputs extends Component {
             fontWeight: 800,
             textAlign: 'right'
         }
-        const options = 
-        ports
-            .map((group,index) => (
-                        <Option key={index} value={group.service_name}>
-                            {group.service_name}
-                            <span style={{ color: 'rgb(0 0 0 / 39%)' }}>({group.component_name})</span>
-                        </Option>
-            ))
+        const options = []
+        if (ports.length > 0) {
+            ports.map((group, index) => {
+                if (group.service_name) {
+                    options.push(group)
+                }
+            })
+        }
+        const optionsArr = options.length > 0 && options.map((item,index) => {
+            return <Option key={index} value={item.service_name}>
+                {item.service_name}
+                <span style={{ color: 'rgb(0 0 0 / 39%)' }}>({item.component_name})</span>
+            </Option>
+        })
         return (
             <div>
                 <h4>
@@ -171,7 +177,7 @@ class DAinputs extends Component {
                                                     this.onNameChange(e,index)
                                                 }
                                                 style={{ width: "80%" }}
-                                                dataSource={options}
+                                                dataSource={optionsArr}
                                                 value={item.name}
                                                 placeholder={showName ? formatMessage({id:'placeholder.appShare.appPublish.name'}) : formatMessage({id:'teamGateway.DrawerGateWayAPI.BackEnd.input_Internal'})}
                                                 optionLabelProp="value"
