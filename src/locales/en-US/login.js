@@ -64,6 +64,7 @@ const login = {
     'login.error':'Mobile phone number format error!',
     'login.Verification':'Verification Code',
     'login.input_Verification':'Please enter the verification code!',
+    'login.system':'Cloud native application management system',
 }
 
 export default Object.assign({}, login);

@@ -53,7 +53,7 @@ export default class Register extends Component {
     return (
       <div className={styles.main} style={{ padding: '24px'}}>
         <div className={styles.logo}>
-          <img src={logo} alt="LOGO" />
+        <h2>Rainbond-{formatMessage({id:'login.system'})}</h2> 
         </div>
         <RegisterComponent onSubmit={this.handleSubmit} type="register" />
       </div>
