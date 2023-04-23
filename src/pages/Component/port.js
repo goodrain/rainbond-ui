@@ -566,7 +566,8 @@ export default class Index extends PureComponent {
         certificate: vals.certificate,
         certificate_type: vals.certificate_type
       },
-      callback: () => {
+      callback: (res) => {
+        notification.success({ message:  'notification.success.setUp'});
         this.cancelCreateKey();
         this.fetchCertificates();
       }
