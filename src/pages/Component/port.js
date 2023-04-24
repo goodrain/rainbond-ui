@@ -357,7 +357,7 @@ export default class Index extends PureComponent {
       type: 'appControl/fetchCertificates',
       payload: {
         page,
-        page_size,
+        page_size: 99999,
         team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
@@ -567,7 +567,7 @@ export default class Index extends PureComponent {
         certificate_type: vals.certificate_type
       },
       callback: (res) => {
-        notification.success({ message:  'notification.success.setUp'});
+        notification.success({ message: formatMessage({id:'notification.success.setUp'})});
         this.cancelCreateKey();
         this.fetchCertificates();
       }
@@ -633,6 +633,7 @@ export default class Index extends PureComponent {
         rule_extensions: values.rule_extensions ? values.rule_extensions : []
       },
       callback: () => {
+        notification.success({ message: formatMessage({id:'notification.success.setUp'})});
         this.fetchPorts();
         this.onCancelAddDomain();
       }

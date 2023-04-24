@@ -24,6 +24,9 @@ export default class AddDomain extends PureComponent {
       },
       (err, values) => {
         if (!err) {
+          if(values.certificate_id){
+            values.certificate_id = values.certificate_id.key
+          }
           this.props.onOk && this.props.onOk(values);
         }
       }
@@ -44,7 +47,7 @@ export default class AddDomain extends PureComponent {
       return;
     }
 
-    callback(<FormattedMessage id='componentOverview.body.AddDomain.callback'/>);
+    callback();
 
   };
   render() {
@@ -144,40 +147,22 @@ export default class AddDomain extends PureComponent {
               {getFieldDecorator('certificate_id', {
                 initialValue: '',
                 rules: [
-                  { required: true },
+                  { required: true, message: formatMessage({id:'componentOverview.body.AddDomain.callback'}) },
                   {
                     validator: this.checkKey
                   }
                 ]
               })(
                 <Select
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  showSearch
+                  allowClear
+                  labelInValue
+                  optionFilterProp="children"
+                  filterOption={(input, option) => 
+                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
                   placeholder={formatMessage({id:'componentOverview.body.AddDomain.select.placeholder'})}
-                  dropdownRender={menu => (
-                    <div>
-                      {menu}
-                      {isAddLicense && (
-                        <div>
-                          <Divider style={{ margin: '4px 0' }} />
-                          <div
-                            style={{
-                              padding: '4px 8px',
-                              cursor: 'pointer'
-                            }}
-                            onMouseDown={e => e.preventDefault()}
-                            onClick={() => {
-                              addLicense && addLicense();
-                            }}
-                          >
-                            <Icon type="plus" /> 
-                            <FormattedMessage id='componentOverview.body.AddDomain.Load_more'/>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 >
-                  <Option value=""><FormattedMessage id='componentOverview.body.AddDomain.select'/></Option>
                   {certificates.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.alias}
