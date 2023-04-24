@@ -404,7 +404,7 @@ export default class shareCheck extends PureComponent {
     let actions = [];
     if (status === 'success') {
       type = 'success';
-      title = formatMessage({id:'confirmModal.check.appShare.title.loading'});
+      title = formatMessage({id:'confirmModal.check.appShare.title.success'});
       desc = '';
       actions = [
         <Button onClick={this.showDelete} type="default">
