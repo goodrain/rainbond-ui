@@ -82,13 +82,14 @@ class Index extends PureComponent {
             })(
               <RadioGroup>
                 <Radio value="1.8">1.8<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
-                <Radio value="1.6">1.6</Radio>
-                <Radio value="1.7">1.7</Radio>
                 <Radio value="1.9">1.9</Radio>
                 <Radio value="10">10</Radio>
                 <Radio value="11">11</Radio>
                 <Radio value="12">12</Radio>
                 <Radio value="13">13</Radio>
+                <Radio value="14">14</Radio>
+                <Radio value="15">15</Radio>
+                <Radio value="16">16</Radio>
               </RadioGroup>
             )}
           </Form.Item>
