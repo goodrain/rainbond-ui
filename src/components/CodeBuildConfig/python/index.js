@@ -46,17 +46,17 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout}   label={<FormattedMessage id="componentOverview.body.PythonConfig.Python"/>}>
           {getFieldDecorator('BUILD_RUNTIMES', {
-            initialValue: (envs && envs.BUILD_RUNTIMES) || 'python-3.6.6',
+            initialValue: (envs && envs.BUILD_RUNTIMES) || 'python-3.6.15',
           })(
             <RadioGroup>
-              <Radio value="python-3.6.6" selected="selected">
-                python-3.6.6
+              <Radio value="python-3.6.15" selected="selected">
+                python-3.6.15
               </Radio>
-              <Radio value="python-3.6.10">python-3.6.10</Radio>
-              <Radio value="python-3.5.7">python-3.5.7</Radio>
-              <Radio value="python-3.4.9">python-3.4.9</Radio>
-              <Radio value="python-2.7.9">python-2.7.9</Radio>
-              <Radio value="python-2.7.17">python-2.7.17</Radio>
+              <Radio value="python-3.9.16">python-3.9.16</Radio>
+              <Radio value="python-3.8.16">python-3.8.16</Radio>
+              <Radio value="python-3.7.16">python-3.7.16</Radio>
+              <Radio value="python-3.5.10">python-3.5.10</Radio>
+              <Radio value="python-2.7.18">python-2.7.18</Radio>
             </RadioGroup>
           )}
         </Form.Item>
