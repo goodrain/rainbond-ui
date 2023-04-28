@@ -30,6 +30,7 @@
     "copy-to-clipboard": "^3.3.1",
     "dagre": "0.8.4",
     "deep-equal": "^2.0.1",
+    "dompurify": "^3.0.0",
     "draftjs-utils": "0.10.2",
     "dva": "^2.4.1",
     "echarts": "^5.1.2",
