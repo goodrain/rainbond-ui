@@ -95,7 +95,20 @@ const appOverview = {
   'appOverview.helm.pages.option': '配置选项',
   'appOverview.helm.pages.standard': '基于Helm规范应用配置的查看与设置',
 
-
+  //删除应用资源
+  'appOverview.app.delete.title': '删除应用所有资源',
+  'appOverview.app.delete.table.th.service': '组件',
+  'appOverview.app.delete.table.th.configGroups': '全局配置',
+  'appOverview.app.delete.table.th.k8s': 'K8S资源',
+  'appOverview.app.delete.table.th.domains': '网关策略',
+  'appOverview.app.delete.table.th.shareRecords': '应用模版发布记录',
+  'appOverview.app.delete.table.td.serviceName': '组件名称',
+  'appOverview.app.delete.table.td.storageName': '当前组件挂载存储',
+  'appOverview.app.delete.table.td.related': '外部应用依赖',
+  'appOverview.app.delete.table.td.appConfigGroups': '应用配置组名称',
+  'appOverview.app.delete.table.td.k8s': 'K8S资源名称（类型）',
+  'appOverview.app.delete.table.td.domain': '网关策略名称',
+  'appOverview.app.delete.table.td.shareRecords': '发布模版名称',
 };
 
 //应用发布

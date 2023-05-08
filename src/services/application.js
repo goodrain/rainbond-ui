@@ -1055,3 +1055,23 @@ export async function updateKubernetesVal(body = {}) {
     }
   );
 }
+// 获取应用下要删除的全部资源
+export async function fetchGroupAllResource(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/handle`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+// 获取应用下要删除的全部资源
+export async function deleteGroupAllResource(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/handle`,
+    {
+      method: 'delete',
+      handleError
+    }
+  );
+}

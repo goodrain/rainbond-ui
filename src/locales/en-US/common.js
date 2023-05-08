@@ -187,6 +187,9 @@
         'button.download':'Download',
         'button.export':'Export',
         'button.freshen':'Refresh',
+        'button.more':'View',
+        'button.fold':'Fold',
+
     }
     const status = {
         'status.component.running':'Running',
@@ -255,7 +258,7 @@
         'confirmModal.component.start.title':'Are you sure you want to start this component?',
         'confirmModal.component.stop.title':'Are you sure you want to close this component?',
         'confirmModal.component.abandon.publish.title':'Are you sure you want to abandon this release?',
-        'confirmModal.app.delete.desc':'Are you sure you want to delete this application?',
+        'confirmModal.app.delete.desc':'Are you sure you want to delete this application, including all resources associated with the application?',
         'confirmModal.backup.delete.desc':'Are you sure you want to delete this backup?',
         'confirmModal.delete.strategy.desc':'Are you sure you want to remove this policy?',
         'confirmModal.delete.configuration.desc':'Are you sure you want to delete this configuration group?',

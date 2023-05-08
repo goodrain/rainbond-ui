@@ -1,0 +1,80 @@
+.tableBox{
+    padding: 0px 12px;
+    .storageContent{
+        width: 100%;
+        display: flex;
+        align-items: center;
+        // font-weight: 600;
+        margin-top: 20px;
+        font-size: 16px;
+        .serviceName{
+            width: 50%;
+            > p{
+                font-size: 14px;
+                width: 90%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+        .volumeName{
+            width: 50%;
+            display: flex;
+            flex-wrap: wrap;
+        }
+    }
+}
+.tags{
+    margin-right: 12px;
+    margin-top: 6px;
+}
+.titleDesc{
+    padding: 0px 12px;
+    width: 100%;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    .componentName{
+        width: 50%;
+    }
+    .storageName{
+        width: 50%;
+    }
+}
+.configGroups, .k8sResources{
+    padding: 0px 12px;
+    display: flex;
+    flex-wrap: wrap;
+}
+.tableNameSpan{
+    color: #fff;
+    font-size: 12px;
+    padding: 1px 8px;
+    background: #2db7f5;
+    border-radius: 10px;
+    margin-left: 4px;
+}
+.content {
+    text-align:center;
+   .inner{
+         display:inline-block;
+         width:400px;
+           .icon {
+             display:inline-block;
+             font-size:50px;
+             vertical-align:middle;
+             color: red;
+             margin-right: 20px;
+         }
+         .desc {
+           margin-bottom: 20px;
+           font-size:16px;
+           vertical-align:middle;
+           p {
+              margin-bottom:0;
+           }
+        }
+   }
+   
+ }
