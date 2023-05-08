@@ -95,6 +95,20 @@ const appOverview = {
   'appOverview.helm.pages.option': 'Configuration options',
   'appOverview.helm.pages.standard': 'View and set the application configuration based on Helm specification',
 
+  //删除应用资源
+  'appOverview.app.delete.title': 'Delete all resources app',
+  'appOverview.app.delete.table.th.service': 'Component',
+  'appOverview.app.delete.table.th.configGroups': 'Config groups',
+  'appOverview.app.delete.table.th.k8s': 'K8S resource',
+  'appOverview.app.delete.table.th.domains': 'Gateway policy',
+  'appOverview.app.delete.table.th.shareRecords': 'App template publishing record',
+  'appOverview.app.delete.table.td.serviceName': 'Component name',
+  'appOverview.app.delete.table.td.storageName': 'Current component storage',
+  'appOverview.app.delete.table.td.related': 'External app dependency',
+  'appOverview.app.delete.table.td.appConfigGroups': 'App configuration group name',
+  'appOverview.app.delete.table.td.k8s': 'K8S Resource Name (Type)',
+  'appOverview.app.delete.table.td.domain': 'Gateway policy name',
+  'appOverview.app.delete.table.td.shareRecords': 'Publish template name',
 };
 
 //应用发布

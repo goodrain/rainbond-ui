@@ -25,8 +25,9 @@ import AppState from '../../components/ApplicationState';
 import ConfirmModal from '../../components/ConfirmModal';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
-import {buildApp} from '../../services/createApp';
+import { buildApp } from '../../services/createApp';
 import CustomFooter from "../../layouts/CustomFooter";
+import AppDeteleResource from '../../components/AppDeteleResource'
 import { batchOperation } from '../../services/app';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
@@ -57,6 +58,7 @@ export default class Index extends PureComponent {
     this.state = {
       type: 'shape',
       toDelete: false,
+      toDeleteResource: false,
       toEdit: false,
       toEditAppDirector: false,
       service_alias: [],
@@ -81,13 +83,16 @@ export default class Index extends PureComponent {
       flagHeight: false,
       iframeHeight: '500px',
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      isOperator: true
+      isOperator: true,
+      resourceList: []
+
     };
   }
 
   componentDidMount() {
     this.loading();
     this.handleWaitLevel();
+    this.handleGroupAllResource()
   }
 
   componentWillUnmount() {
@@ -238,7 +243,7 @@ export default class Index extends PureComponent {
     }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
-        message: formatMessage({id:'notification.warn.error'}),
+        message: formatMessage({ id: 'notification.warn.error' }),
         description: err.data.msg_show
       });
     }
@@ -338,11 +343,15 @@ export default class Index extends PureComponent {
     this.closeComponentTimer();
     this.setState({ toDelete: true });
   };
+  toDeleteResource = () => {
+    this.setState({ toDeleteResource: true });
+  };
+
   cancelDelete = (isOpen = true) => {
-    this.setState({ toDelete: false });
-    if (isOpen) {
-      this.openComponentTimer();
-    }
+    this.setState({ toDelete: false, toDeleteResource: false });
+  };
+  cancelDeleteResource = () => {
+    this.setState({ toDeleteResource: false });
   };
 
   closeComponentTimer = () => {
@@ -356,28 +365,24 @@ export default class Index extends PureComponent {
   };
 
   handleDelete = () => {
-    const { dispatch } = this.props;
+    this.setState({ toDeleteResource: true });
+  };
+
+  handleGroupAllResource = () => {
+    const { dispatch } = this.props
     dispatch({
-      type: 'application/delete',
+      type: 'application/fetchGroupAllResource',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId()
       },
       callback: res => {
-        if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
-          this.closeComponentTimer();
-          this.cancelDelete(false);
-          dispatch(
-            routerRedux.replace(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-            )
-          );
-        }
+        this.setState({
+          resourceList: res.bean
+        })
       }
-    });
-  };
-
+    })
+  }
   newAddress = grid => {
     this.props.dispatch({
       type: 'global/fetchGroups',
@@ -391,8 +396,7 @@ export default class Index extends PureComponent {
           } else {
             this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                  list[0].group_id
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${list[0].group_id
                 }`
               )
             );
@@ -435,7 +439,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.change'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.change' }) });
           dispatch({
             type: 'application/editGroups',
             payload: {
@@ -443,7 +447,7 @@ export default class Index extends PureComponent {
               group_id: this.getGroupId()
             },
             callback: res => {
-              notification.success({ message: formatMessage({id:'notification.success.takeEffect'}) });
+              notification.success({ message: formatMessage({ id: 'notification.success.takeEffect' }) });
             }
           });
         }
@@ -477,11 +481,11 @@ export default class Index extends PureComponent {
         group_id: this.getGroupId(),
       },
       callback: data => {
-        if(data && data.status_code == 200){
+        if (data && data.status_code == 200) {
           const arr = data.list.service
-          if(arr && arr.length > 0){
-            arr.map((item)=>{
-              if(item.static){
+          if (arr && arr.length > 0) {
+            arr.map((item) => {
+              if (item.static) {
                 dispatch({
                   type: 'createApp/createThirdPartyServices',
                   payload: {
@@ -491,11 +495,11 @@ export default class Index extends PureComponent {
                     endpoints_type: "static",
                     k8s_component_name: item.name,
                     static: item.address
-                },
-                callback: res =>{
-                    if(res && res.status_code == 200){
+                  },
+                  callback: res => {
+                    if (res && res.status_code == 200) {
                       const appAlias = res.bean.service_alias;
-                      if(appAlias.length > 0){
+                      if (appAlias.length > 0) {
                         buildApp({
                           team_name: globalUtil.getCurrTeamName(),
                           app_alias: appAlias,
@@ -505,7 +509,7 @@ export default class Index extends PureComponent {
                     }
                   }
                 })
-              }else{
+              } else {
                 dispatch({
                   type: 'createApp/createThirdPartyServices',
                   payload: {
@@ -516,11 +520,11 @@ export default class Index extends PureComponent {
                     k8s_component_name: item.name,
                     namespace: item.namespace,
                     serviceName: item.service,
-                },
-                callback: res =>{
-                    if(res && res.status_code == 200){
+                  },
+                  callback: res => {
+                    if (res && res.status_code == 200) {
                       const appAlias = res.bean.service_alias;
-                      if(appAlias){
+                      if (appAlias) {
                         buildApp({
                           team_name: globalUtil.getCurrTeamName(),
                           app_alias: appAlias,
@@ -568,7 +572,7 @@ export default class Index extends PureComponent {
       }).then(res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: formatMessage({id:'notification.success.reboot_success'})
+            message: formatMessage({ id: 'notification.success.reboot_success' })
           });
           this.handlePromptModalClose();
         }
@@ -585,7 +589,7 @@ export default class Index extends PureComponent {
         callback: res => {
           if (res && res.status_code === 200) {
             notification.success({
-              message: res.msg_show || formatMessage({id:'notification.success.build_success'}),
+              message: res.msg_show || formatMessage({ id: 'notification.success.build_success' }),
               duration: '3'
             });
             this.handlePromptModalClose();
@@ -673,6 +677,7 @@ export default class Index extends PureComponent {
       toEdit,
       toEditAppDirector,
       toDelete,
+      toDeleteResource,
       type,
       customSwitch,
       serviceIds,
@@ -685,13 +690,14 @@ export default class Index extends PureComponent {
       compile,
       flagHeight,
       iframeHeight,
-      language
+      language,
+      resourceList
     } = this.state;
     const codeObj = {
-      start: formatMessage({id: 'appOverview.btn.start'}),
-      restart: formatMessage({id: 'appOverview.list.table.restart'}),
-      stop: formatMessage({id: 'appOverview.btn.stop'}),
-      deploy: formatMessage({id: 'appOverview.btn.build'}),
+      start: formatMessage({ id: 'appOverview.btn.start' }),
+      restart: formatMessage({ id: 'appOverview.list.table.restart' }),
+      stop: formatMessage({ id: 'appOverview.btn.stop' }),
+      deploy: formatMessage({ id: 'appOverview.btn.build' }),
     };
     const BtnDisabled = !(jsonDataLength > 0);
     const MR = { marginRight: '10px' };
@@ -720,7 +726,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    {formatMessage({id: 'appOverview.btn.update'})}
+                    {formatMessage({ id: 'appOverview.btn.update' })}
                   </Button>
                 )}
                 {isConstruct && isComponentConstruct && (
@@ -731,7 +737,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('deploy');
                     }}
                   >
-                    {formatMessage({id: 'appOverview.btn.build'})}
+                    {formatMessage({ id: 'appOverview.btn.build' })}
                   </Button>
                 )}
                 {isCopy && (
@@ -740,7 +746,7 @@ export default class Index extends PureComponent {
                     disabled={BtnDisabled}
                     onClick={this.handleOpenRapidCopy}
                   >
-                    {formatMessage({id: 'appOverview.btn.copy'})}
+                    {formatMessage({ id: 'appOverview.btn.copy' })}
                   </Button>
                 )}
                 {linkList.length > 0 && <VisterBtn linkList={linkList} />}
@@ -757,7 +763,7 @@ export default class Index extends PureComponent {
                   }}
                   disabled={BtnDisabled}
                 >
-                  {formatMessage({id: 'appOverview.btn.start'})}
+                  {formatMessage({ id: 'appOverview.btn.start' })}
                 </a>
                 <Divider type="vertical" />
               </span>
@@ -775,15 +781,18 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    {formatMessage({id: 'appOverview.list.table.restart'})}
+                    {formatMessage({ id: 'appOverview.list.table.restart' })}
                   </a>
                   <Divider type="vertical" />
                 </span>
               )}
-            {isDelete && resources.status !== 'RUNNING' && (
-              <a onClick={this.toDelete}>
-                {formatMessage({id: 'appOverview.list.table.delete'})}
-              </a>
+            {isDelete && (
+              <span>
+                <a onClick={this.toDelete}>
+                  {formatMessage({ id: 'appOverview.list.table.delete' })}
+                </a>
+                <Divider type="vertical" />
+              </span>
             )}
             {resources.status && resources.status !== 'CLOSED' && isStop && (
               <span>
@@ -793,7 +802,7 @@ export default class Index extends PureComponent {
                     this.handleTopology('stop');
                   }}
                 >
-                  {formatMessage({id: 'appOverview.btn.stop'})}
+                  {formatMessage({ id: 'appOverview.btn.stop' })}
                 </a>
               </span>
             )}
@@ -801,21 +810,21 @@ export default class Index extends PureComponent {
           <div className={styles.connect_Bot}>
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
-                <div>{formatMessage({id: 'appOverview.memory'})}</div>
+                <div>{formatMessage({ id: 'appOverview.memory' })}</div>
                 <div>{`${sourceUtil.unit(resources.memory || 0, 'MB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
-                <div>{formatMessage({id: 'appOverview.cpu'})}</div>
+                <div>{formatMessage({ id: 'appOverview.cpu' })}</div>
                 <div>{(resources.cpu && resources.cpu / 1000) || 0}Core</div>
               </div>
             </div>
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
-                <div>{formatMessage({id: 'appOverview.disk'})}</div>
+                <div>{formatMessage({ id: 'appOverview.disk' })}</div>
                 <div>{`${sourceUtil.unit(resources.disk || 0, 'KB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
-                <div>{formatMessage({id: 'appOverview.componentNum'})}</div>
+                <div>{formatMessage({ id: 'appOverview.componentNum' })}</div>
                 <div>{currApp.service_num || 0}</div>
               </div>
             </div>
@@ -824,53 +833,53 @@ export default class Index extends PureComponent {
         <div className={styles.contentr}>
           <div className={styles.conrHeader}>
             <div>
-              <span>{formatMessage({id: 'appOverview.createTime'})}</span>
+              <span>{formatMessage({ id: 'appOverview.createTime' })}</span>
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
             <div>
-              <span>{formatMessage({id: 'appOverview.updateTime'})}</span>
+              <span>{formatMessage({ id: 'appOverview.updateTime' })}</span>
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
           </div>
           <div className={styles.conrHeader}>
             {/* -------------------------------------------- */}
-            <div style={{display:'flex',alignItems:'center',}}>
-              <span>{formatMessage({id: 'appOverview.govern'})}</span>
-              <span style={ language ? {} : { display: 'inline-block' } }>
-                {currApp.governance_mode && (currApp.governance_mode === 'BUILD_IN_SERVICE_MESH' || currApp.governance_mode === 'KUBERNETES_NATIVE_SERVICE') 
+            <div style={{ display: 'flex', alignItems: 'center', }}>
+              <span>{formatMessage({ id: 'appOverview.govern' })}</span>
+              <span style={language ? {} : { display: 'inline-block' }}>
+                {currApp.governance_mode && (currApp.governance_mode === 'BUILD_IN_SERVICE_MESH' || currApp.governance_mode === 'KUBERNETES_NATIVE_SERVICE')
                   ? globalUtil.fetchGovernanceMode(currApp.governance_mode)
                   : currApp.governance_mode}
               </span>
               {currApp.governance_mode && isEdit && (
                 <a style={{ marginLeft: '5px' }} onClick={this.handleSwitch}>
-                  {formatMessage({id: 'appOverview.btn.change'})}
+                  {formatMessage({ id: 'appOverview.btn.change' })}
                 </a>
               )}
             </div>
             {/* -------------------------------------------- */}
             <div>
-              <span>{formatMessage({id: 'appOverview.principal'})}</span>
+              <span>{formatMessage({ id: 'appOverview.principal' })}</span>
               <span>
                 {currApp.principal ? (
                   <Tooltip
                     placement="top"
                     title={
                       <div>
-                        <div>{formatMessage({id: 'appOverview.principal.username'})}{currApp.username}</div>
-                          <div>{formatMessage({id: 'appOverview.principal.principal'})}{currApp.principal}</div>
-                          <div>{formatMessage({id: 'appOverview.principal.email'})}{currApp.email}</div>
+                        <div>{formatMessage({ id: 'appOverview.principal.username' })}{currApp.username}</div>
+                        <div>{formatMessage({ id: 'appOverview.principal.principal' })}{currApp.principal}</div>
+                        <div>{formatMessage({ id: 'appOverview.principal.email' })}{currApp.email}</div>
                       </div>
                     }
                   >
@@ -896,8 +905,8 @@ export default class Index extends PureComponent {
           </div>
           <div className={language ? styles.conrBot : styles.en_conrBot}>
 
-          <div className={styles.conrBox}>
-              <div>{formatMessage({id: 'appOverview.k8s'})}</div>
+            <div className={styles.conrBox}>
+              <div>{formatMessage({ id: 'appOverview.k8s' })}</div>
               <div
                 onClick={() => {
                   this.handleJump('resource');
@@ -908,7 +917,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>{formatMessage({id: 'appOverview.modelRelease'})}</div>
+              <div>{formatMessage({ id: 'appOverview.modelRelease' })}</div>
               <div
                 onClick={() => {
                   isShare && this.handleJump('publish');
@@ -919,7 +928,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>{formatMessage({id: 'appOverview.gateway'})}</div>
+              <div>{formatMessage({ id: 'appOverview.gateway' })}</div>
               <div
                 onClick={() => {
                   isControl && this.handleJump('gateway');
@@ -930,7 +939,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>{formatMessage({id: 'appOverview.upgrade'})}</div>
+              <div>{formatMessage({ id: 'appOverview.upgrade' })}</div>
               <div
                 onClick={() => {
                   !upgradableNumLoading &&
@@ -943,7 +952,7 @@ export default class Index extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>{formatMessage({id: 'appOverview.config'})}</div>
+              <div>{formatMessage({ id: 'appOverview.config' })}</div>
               <div
                 onClick={() => {
                   isConfigGroup && this.handleJump('configgroups');
@@ -981,7 +990,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    {formatMessage({id: 'appOverview.btn.start'})}
+                    {formatMessage({ id: 'appOverview.btn.start' })}
                   </a>
                   <Divider type="vertical" />
                 </span>
@@ -999,15 +1008,18 @@ export default class Index extends PureComponent {
                       }}
                       disabled={BtnDisabled}
                     >
-                      {formatMessage({id: 'appOverview.list.table.restart'})}
+                      {formatMessage({ id: 'appOverview.list.table.restart' })}
                     </a>
                     <Divider type="vertical" />
                   </span>
                 )}
-              {isDelete && resources.status !== 'RUNNING' && (
-                <a onClick={this.toDelete}>
-                  {formatMessage({id: 'appOverview.list.table.delete'})}
-                </a>
+              {isDelete && (
+                <span>
+                  <a onClick={this.toDelete}>
+                    {formatMessage({ id: 'appOverview.list.table.delete' })}
+                  </a>
+                  <Divider type="vertical" />
+                </span>
               )}
               {resources.status && resources.status !== 'CLOSED' && isStop && (
                 <span>
@@ -1019,7 +1031,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('stop');
                     }}
                   >
-                    {formatMessage({id: 'appOverview.btn.stop'})}
+                    {formatMessage({ id: 'appOverview.btn.stop' })}
                   </a>
                 </span>
               )}
@@ -1034,7 +1046,7 @@ export default class Index extends PureComponent {
                     }}
                     disabled={BtnDisabled}
                   >
-                    {formatMessage({id: 'appOverview.btn.update'})}
+                    {formatMessage({ id: 'appOverview.btn.update' })}
                   </Button>
                 )}
                 {isConstruct && isComponentConstruct && (
@@ -1045,7 +1057,7 @@ export default class Index extends PureComponent {
                       this.handleTopology('deploy');
                     }}
                   >
-                    {formatMessage({id: 'appOverview.btn.build'})}
+                    {formatMessage({ id: 'appOverview.btn.build' })}
                   </Button>
                 )}
                 {isCopy && (
@@ -1054,7 +1066,7 @@ export default class Index extends PureComponent {
                     disabled={BtnDisabled}
                     onClick={this.handleOpenRapidCopy}
                   >
-                    {formatMessage({id: 'appOverview.btn.copy'})}
+                    {formatMessage({ id: 'appOverview.btn.copy' })}
                   </Button>
                 )}
                 {linkList.length > 0 && <VisterBtn linkList={linkList} />}
@@ -1065,22 +1077,22 @@ export default class Index extends PureComponent {
         <div className={styles.contentr}>
           <div className={styles.conrHeader}>
             <div>
-              <span>{formatMessage({id: 'appOverview.createTime'})}</span>
+              <span>{formatMessage({ id: 'appOverview.createTime' })}</span>
               <span>
                 {currApp.create_time
                   ? moment(currApp.create_time)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
             <div>
-              <span>{formatMessage({id: 'appOverview.updateTime'})}</span>
+              <span>{formatMessage({ id: 'appOverview.updateTime' })}</span>
               <span>
                 {currApp.update_time
                   ? moment(currApp.update_time)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -1105,12 +1117,12 @@ export default class Index extends PureComponent {
         </Row>
         {guideStep === 1 &&
           this.handleNewbieGuiding({
-            tit: formatMessage({id:'teamOther.Group.tit'}),
+            tit: formatMessage({ id: 'teamOther.Group.tit' }),
             showSvg: false,
             showArrow: true,
             send: false,
             configName: 'applicationInfo',
-            desc: formatMessage({id:'teamOther.Group.desc'}),
+            desc: formatMessage({ id: 'teamOther.Group.desc' }),
             nextStep: 2,
             conPosition: { top: '336px', left: '42%' }
           })}
@@ -1122,7 +1134,7 @@ export default class Index extends PureComponent {
             onOk={this.fetchAppDetail}
           />
         )}
-        <Row className={styles.rowArrow} style={ guideStep === 2 ? highlighted : {} }>
+        <Row className={styles.rowArrow} style={guideStep === 2 ? highlighted : {}}>
           <div
             className={styles.iconBox}
             onClick={() => {
@@ -1146,7 +1158,7 @@ export default class Index extends PureComponent {
               height: '60px',
               alignItems: 'center',
               borderBottom: '1px solid #e8e8e8',
-              borderTopRightRadius:5,
+              borderTopRightRadius: 5,
               borderTopLeftRadius: 5,
             }}
           >
@@ -1165,7 +1177,7 @@ export default class Index extends PureComponent {
                   color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
                 }}
               >
-                {formatMessage({id: 'appOverview.topology'})}
+                {formatMessage({ id: 'appOverview.topology' })}
               </a>
               {isComponentDescribe && (
                 <a
@@ -1177,7 +1189,7 @@ export default class Index extends PureComponent {
                     color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
                   }}
                 >
-                  {formatMessage({id: 'appOverview.list'})}
+                  {formatMessage({ id: 'appOverview.list' })}
                 </a>
               )}
             </Col>
@@ -1190,11 +1202,11 @@ export default class Index extends PureComponent {
                 <Radio.Group>
                   {common ? (
                     <Radio.Button
-                    style={{ 
-                       textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
-                      color:'#F6F7FA', borderColor: '#4C73B0'
-                    }}
+                      style={{
+                        textAlign: 'center', height: '32px',
+                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                        color: '#F6F7FA', borderColor: '#4C73B0'
+                      }}
                       onClick={() => {
                         this.changeType('shape');
                         this.setState({
@@ -1205,15 +1217,15 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                      {formatMessage({id: 'appOverview.btn.ordinary'})}
+                      {formatMessage({ id: 'appOverview.btn.ordinary' })}
                     </Radio.Button>
                   ) : (
                     <Radio.Button
-                    style={{ 
-                      textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
-                      color:'#595959', borderColor: '#D9D9D9',
-                    }}
+                      style={{
+                        textAlign: 'center', height: '32px',
+                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                        color: '#595959', borderColor: '#D9D9D9',
+                      }}
 
                       onClick={() => {
                         this.changeType('shape');
@@ -1224,16 +1236,16 @@ export default class Index extends PureComponent {
                         });
                       }}
                     >
-                      {formatMessage({id: 'appOverview.btn.ordinary'})}
+                      {formatMessage({ id: 'appOverview.btn.ordinary' })}
                     </Radio.Button>
                   )}
                   {aggregation ? (
                     <Radio.Button
-                    style={{ 
-                      textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
-                      color:'#F6F7FA', borderColor: '#4C73B0'
-                    }}
+                      style={{
+                        textAlign: 'center', height: '32px',
+                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                        color: '#F6F7FA', borderColor: '#4C73B0'
+                      }}
                       onClick={() => {
                         this.changeType('aggregation');
                         this.setState({
@@ -1244,15 +1256,15 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                      {formatMessage({id: 'appOverview.btn.aggregation'})}
+                      {formatMessage({ id: 'appOverview.btn.aggregation' })}
                     </Radio.Button>
                   ) : (
                     <Radio.Button
-                    style={{ 
-                      textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
-                      color:'#595959', borderColor: '#D9D9D9'
-                    }}
+                      style={{
+                        textAlign: 'center', height: '32px',
+                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                        color: '#595959', borderColor: '#D9D9D9'
+                      }}
                       onClick={() => {
                         this.changeType('aggregation');
                         this.setState({
@@ -1262,16 +1274,16 @@ export default class Index extends PureComponent {
                         });
                       }}
                     >
-                      {formatMessage({id: 'appOverview.btn.aggregation'})}
+                      {formatMessage({ id: 'appOverview.btn.aggregation' })}
                     </Radio.Button>
                   )}
                   {compile ? (
                     <Radio.Button
-                    style={{ 
-                     textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#4C73B0',
-                      color:'#F6F7FA', borderColor: '#4C73B0'
-                    }}
+                      style={{
+                        textAlign: 'center', height: '32px',
+                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                        color: '#F6F7FA', borderColor: '#4C73B0'
+                      }}
 
                       onClick={() => {
                         this.changeType('shapes');
@@ -1283,15 +1295,15 @@ export default class Index extends PureComponent {
                       }}
                       disabled
                     >
-                     {formatMessage({id: 'appOverview.btn.arrange'})}
+                      {formatMessage({ id: 'appOverview.btn.arrange' })}
                     </Radio.Button>
                   ) : (
                     <Radio.Button
-                    style={{ 
-                      textAlign:'center', height:'32px', 
-                      lineHeight:'32px', fontSize:'13px',padding:'0px 5px',background:'#fff',
-                      color:'#595959', borderColor: '#D9D9D9'
-                    }}
+                      style={{
+                        textAlign: 'center', height: '32px',
+                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                        color: '#595959', borderColor: '#D9D9D9'
+                      }}
                       onClick={() => {
                         this.changeType('shapes');
                         this.setState({
@@ -1301,7 +1313,7 @@ export default class Index extends PureComponent {
                         });
                       }}
                     >
-                      {formatMessage({id: 'appOverview.btn.arrange'})}
+                      {formatMessage({ id: 'appOverview.btn.arrange' })}
                     </Radio.Button>
                   )}
                 </Radio.Group>
@@ -1347,7 +1359,7 @@ export default class Index extends PureComponent {
               copyFlag={true}
               on={this.handleCloseRapidCopy}
               onCancel={this.handleCloseRapidCopy}
-              title={formatMessage({id:'confirmModal.app.title.copy'})}
+              title={formatMessage({ id: 'confirmModal.app.title.copy' })}
             />
           )}
 
@@ -1387,28 +1399,34 @@ export default class Index extends PureComponent {
         </Row>
         {guideStep === 2 &&
           this.handleNewbieGuiding({
-            tit: formatMessage({id:'teamOther.Group.app'}),
-            btnText: formatMessage({id:'teamOther.Group.know'}),
+            tit: formatMessage({ id: 'teamOther.Group.app' }),
+            btnText: formatMessage({ id: 'teamOther.Group.know' }),
             showSvg: false,
             showArrow: true,
             send: true,
             configName: 'applicationInfo',
-            desc:formatMessage({id:'teamOther.Group.Topological'}),
+            desc: formatMessage({ id: 'teamOther.Group.Topological' }),
             nextStep: 3,
             conPosition: { bottom: '-16px', left: '45%' }
           })}
         {isScrollDiv && <div id="scroll_div" style={{ marginTop: '180px' }} />}
 
         {toDelete && (
-          <ConfirmModal
-            title={formatMessage({id:'confirmModal.app.title.delete'})}
-            desc={formatMessage({id:'confirmModal.app.delete.desc'})}
-            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            loading={deleteLoading}
-            onOk={this.handleDelete}
+          <AppDeteleResource
+            onDelete={this.handleDelete}
+            // onOK={this.handleDeleteResource}
             onCancel={this.cancelDelete}
+            goBack={this.cancelDeleteResource}
+            infoList={resourceList}
+            team_name={globalUtil.getCurrTeamName()}
+            group_id={this.getGroupId()}
+            regionName={globalUtil.getCurrRegionName()}
+            isflag={toDeleteResource}
+            desc={formatMessage({ id: 'confirmModal.app.delete.desc' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
           />
         )}
+
         {toEdit && (
           <EditGroupName
             isAddGroup={false}
@@ -1417,7 +1435,7 @@ export default class Index extends PureComponent {
             note={groupDetail.note}
             loading={editGroupLoading}
             k8s_app={groupDetail.k8s_app}
-            title={formatMessage({id:'confirmModal.app.title.edit'})}
+            title={formatMessage({ id: 'confirmModal.app.title.edit' })}
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}
             isEditEnglishName={currApp.can_edit}
@@ -1438,16 +1456,16 @@ export default class Index extends PureComponent {
 
         {promptModal && (
           <Modal
-            title={formatMessage({id:'confirmModal.friendly_reminder.title'})}
+            title={formatMessage({ id: 'confirmModal.friendly_reminder.title' })}
             confirmLoading={buildShapeLoading}
             visible={promptModal}
             onOk={this.handlePromptModalOpen}
             onCancel={this.handlePromptModalClose}
           >
-            <p>{formatMessage({id:'confirmModal.friendly_reminder.pages.desc'},{codeObj: codeObj[code]})}</p>
+            <p>{formatMessage({ id: 'confirmModal.friendly_reminder.pages.desc' }, { codeObj: codeObj[code] })}</p>
           </Modal>
         )}
-        <CustomFooter/>
+        <CustomFooter />
       </Fragment>
     );
   }

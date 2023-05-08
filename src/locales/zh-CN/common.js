@@ -185,6 +185,8 @@
         'button.download':'下载',
         'button.export':'导出',
         'button.freshen':'刷新',
+        'button.more':'查看更多',
+        'button.fold':'折叠',
     }
     const status = {
         'status.component.running':'运行中',
@@ -254,7 +256,7 @@
         'confirmModal.component.start.title':'确认要启动该组件吗？',
         'confirmModal.component.stop.title':'确认要关闭该组件吗？',
         'confirmModal.component.abandon.publish.title':'确定要放弃此次发布吗?',
-        'confirmModal.app.delete.desc':'确定要此删除此应用吗？',
+        'confirmModal.app.delete.desc':'确定要删除此应用，包括应用关联的所有资源吗？',
         'confirmModal.backup.delete.desc':'确定要删除此备份吗？',
         'confirmModal.delete.strategy.desc':'确定要删除此策略吗?',
         'confirmModal.delete.configuration.desc':'确定要删除此配置组吗？',

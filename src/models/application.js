@@ -63,7 +63,9 @@ import {
   createKubernetesVal,
   updateKubernetesVal,
   batchDelSingleKubernetesVal,
-  getOperator
+  getOperator,
+  fetchGroupAllResource,
+  deleteGroupAllResource
 } from '../services/application';
 
 export default {
@@ -497,6 +499,22 @@ export default {
       const data = yield call(getOperator, payload, handleError);
       if (data && callback) {
         callback(data);
+      }
+    },
+    *fetchGroupAllResource({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(fetchGroupAllResource, payload, handleError);
+      if (response) {
+        if (callback) {
+          callback(response);
+        }
+      }
+    },
+    *deleteGroupAllResource({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(deleteGroupAllResource, payload, handleError);
+      if (response) {
+        if (callback) {
+          callback(response);
+        }
       }
     },
   },
