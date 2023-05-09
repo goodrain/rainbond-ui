@@ -24,7 +24,7 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.add' }),
-      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate','envFromSource', 'annotations'],
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate','envFromSource', 'annotations','securityContext'],
       selectVal: undefined,
       havevalArr: [],
       drawerSwitch: "add",
@@ -280,6 +280,19 @@ class Index extends PureComponent {
               this.notificationFun()
             }
             break;
+            
+            case "securityContext":
+              if (value.securityContext != null && value.securityContext.length > 0 && value.securityContext != TooltipValue) {
+                const label = {
+                  name: selectVal,
+                  save_type: "yaml",
+                  attribute_value: value.securityContext || []
+                }
+                this.handelAddOrEdit(label)
+              } else {
+                this.notificationFun()
+              }
+              break;
 
           case 'affinity':
             if (value.affinity != null && value.affinity.length > 0) {
@@ -639,7 +652,7 @@ class Index extends PureComponent {
                 }
                 {
                   selectVal &&
-                  ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || (selectVal == "volumeClaimTemplate") || selectVal == "dnsConfig" || selectVal == 'resources' || selectVal == 'lifecycle'|| selectVal == 'envFromSource') &&
+                  ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || (selectVal == "volumeClaimTemplate") || selectVal == "dnsConfig" || selectVal == 'resources' || selectVal == 'lifecycle'|| selectVal == 'envFromSource'|| selectVal == 'securityContext') &&
                   <>
                     <p style={{ padding: '10px 0' }}> {selectVal == "dnsConfig" ? formatMessage({ id: 'componentOverview.body.Kubernetes.onlyDnsPolicy' }) : ' '}</p>
                     <CodeMirrorForm
@@ -712,7 +725,7 @@ class Index extends PureComponent {
                 allData.length > 0 ? (
                 allData.map((item, index) => {
                   return <Row key={index}>
-                    {(item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == "dnsConfig" || item.name == 'resources' || item.name == 'lifecycle' || item.name =='envFromSource') ? (
+                    {(item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == "dnsConfig" || item.name == 'resources' || item.name == 'lifecycle' || item.name =='envFromSource' || item.name == 'securityContext') ? (
                       <Col span={4} className={styles.yamlTitle_style}>{item.name}:</Col>
                     ) : (
                       <Col span={4}>{item.name}:</Col>
@@ -731,7 +744,7 @@ class Index extends PureComponent {
                       })
                     }
                       {item.name &&
-                        (item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == 'dnsConfig' || item.name == 'resources' || item.name == 'lifecycle' || item.name =='envFromSource') &&
+                        (item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == 'dnsConfig' || item.name == 'resources' || item.name == 'lifecycle' || item.name =='envFromSource'|| item.name == 'securityContext') &&
                         item.attribute_value.length > 0 &&
                         <div className={styles.yamlValue_style}>
                           {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml' />
