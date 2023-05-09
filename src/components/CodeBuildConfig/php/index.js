@@ -59,17 +59,13 @@ class Index extends PureComponent {
           help={<FormattedMessage id="componentOverview.body.PHPConfig.definition"/>}
         >
           {getFieldDecorator('BUILD_RUNTIMES', {
-            initialValue: (envs && envs.BUILD_RUNTIMES) || '5.6.40'
+            initialValue: (envs && envs.BUILD_RUNTIMES) || '8.2.5'
           })(
             <RadioGroup>
-              <Radio value="5.6.40" selected="selected">
-              5.6.40<FormattedMessage id='componentOverview.body.GoConfig.default'/>
+              <Radio value="8.2.5" selected="selected">
+              8.2.5<FormattedMessage id='componentOverview.body.GoConfig.default'/>
               </Radio>
-              <Radio value="7.3.33">7.3.33</Radio>
-              <Radio value="7.4.33">7.4.33</Radio>
-              <Radio value="8.0.28">8.0.28</Radio>
               <Radio value="8.1.18">8.1.18</Radio>
-              <Radio value="8.2.5">8.2.5</Radio>
             </RadioGroup>
           )}
         </Form.Item>
