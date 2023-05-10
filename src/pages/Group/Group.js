@@ -43,7 +43,7 @@ import styles from './Index.less';
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
   editGroupLoading: loading.effects['application/editGroup'],
-  deleteLoading: loading.effects['application/delete'],
+  deleteLoading: loading.effects['application/deleteGroupAllResource'],
   currUser: user.currentUser,
   apps: application.apps,
   groupDetail: application.groupDetail || {},
@@ -1421,6 +1421,7 @@ export default class Index extends PureComponent {
             team_name={globalUtil.getCurrTeamName()}
             group_id={this.getGroupId()}
             regionName={globalUtil.getCurrRegionName()}
+            loading={deleteLoading}
             isflag={toDeleteResource}
             desc={formatMessage({ id: 'confirmModal.app.delete.desc' })}
             subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
