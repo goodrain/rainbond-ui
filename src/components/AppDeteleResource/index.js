@@ -82,7 +82,7 @@ export default class AppDeteleResource extends PureComponent {
         }
     }
     render() {
-        const { onCancel, onOk, infoList, isflag, desc, subDesc, goBack, onDelete } = this.props;
+        const { onCancel, onOk, infoList, isflag, desc, subDesc, goBack, onDelete, loading } = this.props;
         const { } = this.state;
         const columns = [
             {
@@ -177,6 +177,7 @@ export default class AppDeteleResource extends PureComponent {
                     <Button onClick={goBack}> {formatMessage({id:'button.last_step'})} </Button>,
                     <Button
                       type="primary"
+                      loading={loading}
                       onClick={this.handleDeleteResource}
                     >
                       {formatMessage({id:'button.confirm'})}
