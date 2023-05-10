@@ -92,28 +92,30 @@ export default class Index extends PureComponent {
         app_alias: app_alias,
         lang: soundCodeLanguage,
         package_tool: packageNpmOrYarn,
-      })
-      dispatch({
-        type: 'createApp/buildApps',
-        payload: {
-          team_name,
-          app_alias,
-        },
-        callback: data => {
-          if (data) {
-            dispatch({
-              type: 'global/fetchGroups',
-              payload: {
-                team_name
-              }
-            });
-            window.sessionStorage.removeItem('codeLanguage');
-            window.sessionStorage.removeItem('packageNpmOrYarn');
-            window.sessionStorage.removeItem('advanced_setup');
-            this.handleJump(`components/${app_alias}/overview`);
+      }).then(res=>{
+        dispatch({
+          type: 'createApp/buildApps',
+          payload: {
+            team_name,
+            app_alias,
+          },
+          callback: data => {
+            if (data) {
+              dispatch({
+                type: 'global/fetchGroups',
+                payload: {
+                  team_name
+                }
+              });
+              window.sessionStorage.removeItem('codeLanguage');
+              window.sessionStorage.removeItem('packageNpmOrYarn');
+              window.sessionStorage.removeItem('advanced_setup');
+              this.handleJump(`components/${app_alias}/overview`);
+            }
           }
-        }
-        });
+          });
+      })
+      
     }else{
       notification.warning({ message: formatMessage({id:'notification.warn.save'}) });
     }
