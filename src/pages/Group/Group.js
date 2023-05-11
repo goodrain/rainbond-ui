@@ -755,7 +755,12 @@ export default class Index extends PureComponent {
           </div>
           <div className={styles.content_Box}>
             {appStatusConfig && <AppState AppStatus={resources.status} />}
-            {resources.status && isStart && (
+            {resources.status &&
+              resources.status !== 'STARTING' && 
+              resources.status !== 'RUNNING' && 
+              serviceIds &&
+              serviceIds.length > 0 && 
+              isStart && (
               <span>
                 <a
                   onClick={() => {
@@ -786,23 +791,22 @@ export default class Index extends PureComponent {
                   <Divider type="vertical" />
                 </span>
               )}
-            {isDelete && (
+            {resources.status && resources.status !== 'CLOSED' && resources.status !== 'STOPPING' &&  isStop && (
               <span>
-                <a onClick={this.toDelete}>
-                  {formatMessage({ id: 'appOverview.list.table.delete' })}
-                </a>
-                <Divider type="vertical" />
-              </span>
-            )}
-            {resources.status && resources.status !== 'CLOSED' && isStop && (
-              <span>
-                {resources.status !== 'RUNNING' && <Divider type="vertical" />}
                 <a
                   onClick={() => {
                     this.handleTopology('stop');
                   }}
                 >
                   {formatMessage({ id: 'appOverview.btn.stop' })}
+                </a>
+                <Divider type="vertical" />
+              </span>
+            )}
+            {isDelete && (
+              <span>
+                <a onClick={this.toDelete}>
+                  {formatMessage({ id: 'appOverview.list.table.delete' })}
                 </a>
               </span>
             )}
@@ -982,7 +986,12 @@ export default class Index extends PureComponent {
             </div>
             <div className={styles.content_Box}>
               {appStatusConfig && <AppState AppStatus={resources.status} />}
-              {resources.status && isStart && (
+              {resources.status && 
+              resources.status !== 'STARTING' && 
+              resources.status !== 'RUNNING' && 
+              serviceIds &&
+              serviceIds.length > 0 && 
+              isStart && (
                 <span>
                   <a
                     onClick={() => {
@@ -1013,25 +1022,22 @@ export default class Index extends PureComponent {
                     <Divider type="vertical" />
                   </span>
                 )}
-              {isDelete && (
+              {resources.status && resources.status !== 'CLOSED' && resources.status !== 'STOPPING' && isStop && (
                 <span>
-                  <a onClick={this.toDelete}>
-                    {formatMessage({ id: 'appOverview.list.table.delete' })}
-                  </a>
-                  <Divider type="vertical" />
-                </span>
-              )}
-              {resources.status && resources.status !== 'CLOSED' && isStop && (
-                <span>
-                  {resources.status !== 'RUNNING' && (
-                    <Divider type="vertical" />
-                  )}
                   <a
                     onClick={() => {
                       this.handleTopology('stop');
                     }}
                   >
                     {formatMessage({ id: 'appOverview.btn.stop' })}
+                  </a>
+                    <Divider type="vertical" />
+                </span>
+              )}
+              {isDelete && (
+                <span>
+                  <a onClick={this.toDelete}>
+                    {formatMessage({ id: 'appOverview.list.table.delete' })}
                   </a>
                 </span>
               )}
