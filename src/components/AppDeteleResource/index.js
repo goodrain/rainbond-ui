@@ -119,10 +119,11 @@ export default class AppDeteleResource extends PureComponent {
                             </div>
                         )
                     } else if (record.app_share_records) {
+                        const records = record.app_share_records.length > 0 && record.app_share_records.filter(i=>i && i.trim())
                         return (
                             <div>
                                 {record.name}
-                                <span className={styles.tableNameSpan}>{record.app_share_records.length}</span>
+                                <span className={styles.tableNameSpan}>{records.length}</span>
                             </div>
                         )
                     }
@@ -135,28 +136,42 @@ export default class AppDeteleResource extends PureComponent {
                 align: 'center'
             }
         ]
-        const data = [
-            {
-                name: formatMessage({id:'appOverview.app.delete.table.th.service'}),
-                services_info: infoList.services_info
-            },
-            {
-                name: formatMessage({id:'appOverview.app.delete.table.th.configGroups'}),
-                config_groups: infoList.config_groups
-            },
-            {
-                name: formatMessage({id:'appOverview.app.delete.table.th.k8s'}),
-                k8s_resources: infoList.k8s_resources
-            },
-            {
-                name: formatMessage({id:'appOverview.app.delete.table.th.domains'}),
-                domains: infoList.domains
-            },
-            {
-                name: formatMessage({id:'appOverview.app.delete.table.th.shareRecords'}),
-                app_share_records: infoList.app_share_records
-            },
-        ]
+        const data = []
+        if(infoList){
+            Object.keys(infoList).map((item)=>{
+                if(item == 'services_info' && infoList.[item].length > 0){
+                    data.push({
+                        name: formatMessage({id:'appOverview.app.delete.table.th.service'}),
+                        services_info: infoList.[item] || []
+                    })
+                }else if(item == 'config_groups' && infoList.[item].length > 0){
+                    data.push({
+                        name: formatMessage({id:'appOverview.app.delete.table.th.configGroups'}),
+                        config_groups: infoList.[item] || []
+                    })
+                }else if(item == 'k8s_resources' && infoList.[item].length > 0){
+                    data.push({
+                        name: formatMessage({id:'appOverview.app.delete.table.th.k8s'}),
+                        k8s_resources: infoList.[item] || []
+                    })
+                }else if(item == 'domains' && infoList.[item].length > 0){
+                    data.push({
+                        name: formatMessage({id:'appOverview.app.delete.table.th.domains'}),
+                        domains: infoList.[item] || []
+                    })
+                }else if(item == 'app_share_records' && infoList.[item].length > 0){
+                    data.push({
+                        name: formatMessage({id:'appOverview.app.delete.table.th.shareRecords'}),
+                        app_share_records: infoList.[item] || []
+                    })
+                }else if(item == 'backups' && infoList.[item].length > 0){
+                    data.push({
+                        name: formatMessage({id:'appOverview.app.delete.table.th.backups'}),
+                        backups: infoList.[item] || []
+                    })
+                }
+            })
+        }
         return (
             <Modal
                 title={formatMessage({id:'appOverview.app.delete.title'})}
@@ -281,7 +296,7 @@ export default class AppDeteleResource extends PureComponent {
                                     </div>
                                     <div className={styles.k8sResources}>
                                         {record.app_share_records.map((item) => {
-                                            return (
+                                            return (item != null && item != '') && (
                                                 <Tag className={styles.tags} color="blue">{item}</Tag>
                                             )
                                         })}
