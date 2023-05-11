@@ -139,35 +139,30 @@ export default class AppDeteleResource extends PureComponent {
         const data = []
         if(infoList){
             Object.keys(infoList).map((item)=>{
-                if(item == 'services_info' && infoList.[item].length > 0){
+                if(item == 'services_info' && infoList[item].length > 0){
                     data.push({
                         name: formatMessage({id:'appOverview.app.delete.table.th.service'}),
-                        services_info: infoList.[item] || []
+                        services_info: infoList[item] || []
                     })
-                }else if(item == 'config_groups' && infoList.[item].length > 0){
+                }else if(item == 'config_groups' && infoList[item].length > 0){
                     data.push({
                         name: formatMessage({id:'appOverview.app.delete.table.th.configGroups'}),
-                        config_groups: infoList.[item] || []
+                        config_groups: infoList[item] || []
                     })
-                }else if(item == 'k8s_resources' && infoList.[item].length > 0){
+                }else if(item == 'k8s_resources' && infoList[item].length > 0){
                     data.push({
                         name: formatMessage({id:'appOverview.app.delete.table.th.k8s'}),
-                        k8s_resources: infoList.[item] || []
+                        k8s_resources: infoList[item] || []
                     })
-                }else if(item == 'domains' && infoList.[item].length > 0){
+                }else if(item == 'domains' && infoList[item].length > 0){
                     data.push({
                         name: formatMessage({id:'appOverview.app.delete.table.th.domains'}),
-                        domains: infoList.[item] || []
+                        domains: infoList[item] || []
                     })
-                }else if(item == 'app_share_records' && infoList.[item].length > 0){
+                }else if(item == 'app_share_records' && infoList[item].length > 0){
                     data.push({
                         name: formatMessage({id:'appOverview.app.delete.table.th.shareRecords'}),
-                        app_share_records: infoList.[item] || []
-                    })
-                }else if(item == 'backups' && infoList.[item].length > 0){
-                    data.push({
-                        name: formatMessage({id:'appOverview.app.delete.table.th.backups'}),
-                        backups: infoList.[item] || []
+                        app_share_records: infoList[item] || []
                     })
                 }
             })
