@@ -76,9 +76,6 @@ class Index extends PureComponent {
             initialValue: (envs && envs.BUILD_RUNTIMES) || '16.15.0'
           })(
             <RadioGroup onChange={this.onRadioNodeTypeChange}>
-              <Radio value="16.15.0" selected="selected">
-              16.15.0<FormattedMessage id='componentOverview.body.GoConfig.default'/>
-              </Radio>
               <Radio value="8.17.0">8.17.0</Radio>
               <Radio value="10.24.1">10.24.1</Radio>
               <Radio value="11.15.0">11.15.0</Radio>
@@ -86,6 +83,9 @@ class Index extends PureComponent {
               <Radio value="13.14.0">13.14.0</Radio>
               <Radio value="14.21.3">14.21.3</Radio>
               <Radio value="15.14.0">15.14.0</Radio>
+              <Radio value="16.15.0" selected="selected">
+              16.15.0<FormattedMessage id='componentOverview.body.GoConfig.default'/>
+              </Radio>
               <Radio value="16.20.0">16.20.0</Radio>
               <Radio value="17.9.1">17.9.1</Radio>
               <Radio value="18.16.0">18.16.0</Radio>
