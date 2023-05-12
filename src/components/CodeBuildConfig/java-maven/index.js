@@ -140,9 +140,9 @@ class Index extends PureComponent {
             initialValue: (envs && envs.BUILD_RUNTIMES_MAVEN) || '3.3.9'
           })(
             <RadioGroup>
-              <Radio value="3.3.9">3.3.9<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
               <Radio value="3.1.1">3.1.1</Radio>
               <Radio value="3.2.5">3.2.5</Radio>
+              <Radio value="3.3.9">3.3.9<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
               <Radio value="3.5.4">3.5.4</Radio>
               <Radio value="3.6.3">3.6.3</Radio>
               <Radio value="3.8.8">3.8.8</Radio>

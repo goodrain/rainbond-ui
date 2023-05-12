@@ -49,12 +49,12 @@ class Index extends PureComponent {
             initialValue: (envs && envs.BUILD_RUNTIMES) || 'python-3.6.15',
           })(
             <RadioGroup>
-              <Radio value="python-3.6.15" selected="selected">
-                python-3.6.15
-              </Radio>
               <Radio value="python-3.9.16">python-3.9.16</Radio>
               <Radio value="python-3.8.16">python-3.8.16</Radio>
               <Radio value="python-3.7.16">python-3.7.16</Radio>
+              <Radio value="python-3.6.15" selected="selected">
+                python-3.6.15<FormattedMessage id='componentOverview.body.GoConfig.default'/>
+              </Radio>
               <Radio value="python-3.5.6">python-3.5.6</Radio>
               <Radio value="python-2.7.18">python-2.7.18</Radio>
             </RadioGroup>

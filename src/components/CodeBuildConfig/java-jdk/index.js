@@ -80,9 +80,9 @@ class Index extends PureComponent {
             {getFieldDecorator('BUILD_RUNTIMES', {
               initialValue: (envs && envs.BUILD_RUNTIMES) || '1.8',
             })(
-              <RadioGroup>
-                <Radio value="1.8">1.8<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
+              <RadioGroup>          
                 <Radio value="1.9">1.9</Radio>
+                <Radio value="1.8">1.8<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
                 <Radio value="10">10</Radio>
                 <Radio value="11">11</Radio>
                 <Radio value="12">12</Radio>
