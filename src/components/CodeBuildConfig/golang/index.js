@@ -45,7 +45,7 @@ class Index extends PureComponent {
           })(
             <RadioGroup>
               <Radio value="go1.20.4">go1.20</Radio>
-              <Radio value="go1.1.19.9">go1.19</Radio>
+              <Radio value="go1.19.9">go1.19</Radio>
               <Radio value="go1.18.10">go1.18</Radio>
               <Radio value="go1.17.13">go1.17</Radio>
               <Radio value="go1.16.15">go1.16</Radio>
