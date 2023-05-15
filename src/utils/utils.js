@@ -191,15 +191,15 @@ export function isUrl(path) {
 let platform_url = cookie.get("platform_url");
 
 export const languageObj = {
-  Dockefile: `${platform_url}docs/user-manual/app-creation/language-support/dockerfile/`,
-  Java: `${platform_url}docs/user-manual/app-creation/language-support/java/`,
-  PHP: `${platform_url}docs/user-manual/app-creation/language-support/php/`,
-  Python: `${platform_url}docs/user-manual/app-creation/language-support/python/`,
-  Nodejs: `${platform_url}docs/user-manual/app-creation/language-support/nodejs/`,
-  NodeJSStatic: `${platform_url}docs/user-manual/app-creation/language-support/nodejs-static/`,
-  Go: `${platform_url}docs/user-manual/app-creation/language-support/golang/`,
-  Netcore: `${platform_url}docs/user-manual/app-creation/language-support/netcore/`,
-  Html: `${platform_url}docs/user-manual/app-creation/language-support/html/`
+  Dockefile: `${platform_url}docs/use-manual/component-create/language-support/dockefile`,
+  Java: `${platform_url}docs/use-manual/component-create/language-support/java/`,
+  PHP: `${platform_url}docs/use-manual/component-create/language-support/php/`,
+  Python: `${platform_url}docs/use-manual/component-create/language-support/python/`,
+  Nodejs: `${platform_url}docs/use-manual/component-create/language-support/nodejs/`,
+  NodeJSStatic: `${platform_url}docs/use-manual/component-create/language-support/nodejs-static/`,
+  Go: `${platform_url}docs/use-manual/component-create/language-support/golang/`,
+  Netcore: `${platform_url}docs/use-manual/component-create/language-support/netcore/`,
+  Html: `${platform_url}docs/use-manual/component-create/language-support/html/`
 };
 
 export const volumeTypeObj = {

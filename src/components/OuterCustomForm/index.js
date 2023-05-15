@@ -382,7 +382,7 @@ export default class Index extends PureComponent {
                     <Tooltip title={formatMessage({id: "teamAdd.create.third.href"})}>
                       <a
                         target="_blank"
-                        href={`${platform_url}docs/component-create/thirdparty-service/thirdparty-create`}
+                        href={`${platform_url}docs/use-manual/component-create/thirdparty-service/thirdparty-create`}
                       >
                         <Icon type="question-circle-o" />
                       </a>
