@@ -73,24 +73,22 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.NodeJSConfig.node"/>}>
           {getFieldDecorator('BUILD_RUNTIMES', {
-            initialValue: (envs && envs.BUILD_RUNTIMES) || '16.15.0'
+            initialValue: (envs && envs.BUILD_RUNTIMES) || '20.0.0'
           })(
             <RadioGroup onChange={this.onRadioNodeTypeChange}>
-              <Radio value="8.17.0">8.17.0</Radio>
-              <Radio value="10.24.1">10.24.1</Radio>
-              <Radio value="11.15.0">11.15.0</Radio>
-              <Radio value="12.22.12">12.22.12</Radio>
-              <Radio value="13.14.0">13.14.0</Radio>
-              <Radio value="14.21.3">14.21.3</Radio>
-              <Radio value="15.14.0">15.14.0</Radio>
-              <Radio value="16.15.0" selected="selected">
-              16.15.0<FormattedMessage id='componentOverview.body.GoConfig.default'/>
-              </Radio>
-              <Radio value="16.20.0">16.20.0</Radio>
-              <Radio value="17.9.1">17.9.1</Radio>
-              <Radio value="18.16.0">18.16.0</Radio>
+              <Radio value="20.0.0" selected="selected">20.0.0<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
               <Radio value="19.9.0">19.9.0</Radio>
-              <Radio value="20.0.0">20.0.0</Radio>
+              <Radio value="18.16.0">18.16.0</Radio>
+              <Radio value="17.9.1">17.9.1</Radio>
+              <Radio value="16.20.0">16.20.0</Radio>
+              <Radio value="16.15.0">16.15.0</Radio>
+              <Radio value="15.14.0">15.14.0</Radio>
+              <Radio value="14.21.3">14.21.3</Radio>
+              <Radio value="13.14.0">13.14.0</Radio>
+              <Radio value="12.22.12">12.22.12</Radio>
+              <Radio value="11.15.0">11.15.0</Radio>
+              <Radio value="10.24.1">10.24.1</Radio>
+              <Radio value="8.17.0">8.17.0</Radio>
             </RadioGroup>
           )}
         </Form.Item>
