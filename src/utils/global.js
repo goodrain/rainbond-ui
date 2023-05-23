@@ -1593,6 +1593,7 @@ const global = {
         "水平扩容超时,建议观察服务实例运行状态": "horizontal scaling service timeout",
         "分享任务失败，请检查服务信息或查看日志": "create share image task error",
         "获取依赖仓库IP地址失败，请检查rbd-repo组件信息": "get rbd-repo ip failure",
+        '组件申请的内存不足,请在伸缩中调整':'The memory allocated by the component is insufficient. stretch adjust'
       }
       if (language) {
         return message
@@ -1881,7 +1882,10 @@ const global = {
       'update-service-plugin-config': formatMessage({ id: 'global.fetchStateOptTypeText.update-service-plugin-config' }),
       'delete-component-k8s-attributes': formatMessage({ id: 'global.fetchStateOptTypeText.delete-component-k8s-attributes' }),
       'update-component-k8s-attributes': formatMessage({ id: 'global.fetchStateOptTypeText.update-component-k8s-attributes' }),
-      'create-component-k8s-attributes': formatMessage({ id: 'global.fetchStateOptTypeText.create-component-k8s-attributes' })
+      'create-component-k8s-attributes': formatMessage({ id: 'global.fetchStateOptTypeText.create-component-k8s-attributes' }),
+      Unschedulable: formatMessage({id:'global.fetchStateOptTypeText.Unschedulable'}),
+      INITIATING: formatMessage({id:'global.fetchStateOptTypeText.start'}),
+      CrashLoopBackOff: formatMessage({id:'global.fetchStateOptTypeText.error'})
     };
     return statusOptType[state] || state;
   },
