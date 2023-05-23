@@ -166,8 +166,12 @@ export default class PageHeader extends PureComponent {
       className,
       tabActiveKey,
       isSvg,
-      titleSvg
+      titleSvg,
+      keyword,
+      helmInfoSwitch,
+      marketInfoSwitch
     } = this.props;
+    console.log(this.props,'props')
     const appMarketSvg = globalUtil.fetchSvg('appmarket');
     const clsString = classNames(styles.pageHeader, className);
     // const { teamName, regionName } = this.props.match.params;
@@ -205,11 +209,11 @@ export default class PageHeader extends PureComponent {
             </div>
           </div>
         </div>
-        {tabList && tabList.length && (
+        {tabList && tabList.length && helmInfoSwitch && marketInfoSwitch &&(
           <div className={styles.tabsStyle}>
             <Tabs
               className={styles.tabs}
-              {...activeKeyProps}
+              defaultActiveKey={keyword ? keyword : 'localApplication'}
               onChange={this.onChange}
               type='card'
             >

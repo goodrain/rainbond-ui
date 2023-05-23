@@ -93,7 +93,8 @@ export default class Main extends PureComponent {
       helmCreate: null,
       showCreate: null,
       scope,
-      scopeMax: scopeMax || 'localApplication',
+      scopeMax: (match && match.params && match.params.keyword) ? 
+      (match && match.params && match.params.keyword) : (scopeMax  || 'localApplication'),
       showApp: {},
       showMarketAppDetail: false,
       installBounced: false,
@@ -108,6 +109,9 @@ export default class Main extends PureComponent {
       ],
       rainStoreTab: [],
       helmStoreTab: [],
+      tabsList: [],
+      marketInfoSwitch: false,
+      helmInfoSwitch: false,
       currentKey: '',
       helmList: [],
       helmLoading: true,
@@ -240,7 +244,8 @@ export default class Main extends PureComponent {
           });
         }
         this.setState({
-          rainStoreTab: rainStores
+          rainStoreTab: rainStores,
+          marketInfoSwitch:true
         });
         if (scopeMax && scopeMax !== 'localApplication') {
           this.handleTabMaxChange(scopeMax);
@@ -271,7 +276,8 @@ export default class Main extends PureComponent {
               });
             }
             this.setState({
-              helmStoreTab: helmStores
+              helmStoreTab: helmStores,
+              helmInfoSwitch:true
             });
           }
         }
@@ -960,6 +966,9 @@ export default class Main extends PureComponent {
       currentRegionName,
       isHelm = true,
       isAddMarket,
+      match: {
+        params: { keyword }
+      },
     } = this.props;
     const {
       handleType,
@@ -993,7 +1002,9 @@ export default class Main extends PureComponent {
       addAppLoading,
       localAppTab,
       rainStoreTab,
-      helmStoreTab
+      helmStoreTab,
+      helmInfoSwitch,
+      marketInfoSwitch,
     } = this.state;
     const dockerSvg = globalUtil.fetchSvg('dockerSvg');
     const setHideOnSinglePage = !!moreState;
@@ -1130,8 +1141,8 @@ export default class Main extends PureComponent {
         }}
       />
     );
-    const defaultValue =
-      scopeMax == 'localApplication' ? appName : cloudAppName;
+    const defaultValue = scopeMax == 'localApplication' ? appName : cloudAppName;
+      console.log(defaultValue, appName, cloudAppName,'defaultValue')
     //搜索框
     const mainSearch = (
       <div
@@ -1146,14 +1157,14 @@ export default class Main extends PureComponent {
             placeholder={formatMessage({id:'placeholder.group_name'})}
             enterButton={formatMessage({id:'button.search'})}
             size="large"
-            value={defaultValue}
+            // value={defaultValue}
             onChange={event => {
               this.setState({
                 app_name: event.target.value,
                 cloudApp_name: event.target.value
               });
             }}
-            defaultValue={defaultValue}
+            // defaultValue={defaultValue}
             onSearch={this.handleSearch}
             style={{
               width: 500
@@ -1376,12 +1387,16 @@ export default class Main extends PureComponent {
           <div>
             <PageHeaderMarket
               title={formatMessage({id:'teamPlugin.btn.marketAdd'})}
+              
               titleSvg={pageheaderSvg.getSvg('appStoreSvg',18)}
               isAddMarket={this.props.isAddMarket}
               isSvg
               breadcrumbList={breadcrumbList}
               content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
               tabList={marketTab}
+              helmInfoSwitch={helmInfoSwitch}
+              marketInfoSwitch={marketInfoSwitch}
+              keyword={keyword}
               tabActiveKey={scopeMax}
               onTabChange={this.handleTabMaxChange}
               isFooter={!!handleType}
@@ -1404,9 +1419,9 @@ export default class Main extends PureComponent {
                   style={{ margin: '-10px 0 15px 0' }}
                 />
               )}
-              {scopeMax.indexOf('Helm-') > -1 && isHelm ? (
+              {scopeMax.indexOf('Helm-') > -1 && isHelm && helmInfoSwitch && marketInfoSwitch ? (
                 <div>{helmLoading ? SpinBox : helmCardList}</div>
-              ) : scopeMax === 'localApplication' ? (
+              ) : scopeMax === 'localApplication' && helmInfoSwitch && marketInfoSwitch ? (
                 <div
                   style={{
                     marginBottom:
@@ -1416,10 +1431,9 @@ export default class Main extends PureComponent {
                       '40px'
                   }}
                 >
-                  
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
-              ) : (
+              ) :  helmInfoSwitch && marketInfoSwitch ? (
                 <div>
                   {isSpincloudList && isSpincloudList !== -1 ? (
                     SpinBox
@@ -1444,7 +1458,7 @@ export default class Main extends PureComponent {
                     </div>
                   )}
                 </div>
-              )}
+              ): (<div>{SpinBox}</div>)}
               {mores}
             </PageHeaderMarket>
           </div>
