@@ -33,6 +33,13 @@ class Index extends React.Component {
   shouldComponentUpdate() {
     return true;
   }
+  componentDidUpdate(prevProps, prevState) {
+    // 判断日志是否有更新
+    if (prevState.logs.length !== this.state.logs.length) {
+      // 将滚动条滚动到底部
+      this.refs.box.scrollTop = this.refs.box.scrollHeight;
+    }
+  }
   getLineHtml = (lineNumber, message) => {
     return (
       <div className={styles.logline} key={lineNumber}>
