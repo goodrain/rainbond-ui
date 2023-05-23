@@ -156,6 +156,9 @@ const componentOverview = {
     'componentOverview.body.tab.overview.handle.lookLog':'View log',
     'componentOverview.body.tab.overview.handle.handler':'No operation record',
     'componentOverview.body.tab.overview.handle.system':'@System',
+    'componentOverview.body.tab.overview.handle.Dependent':'View dependent component',
+    'componentOverview.body.tab.overview.handle.stretch':'Go to set',
+    'componentOverview.body.tab.overview.handle.DependentCom':'Dependent component',
     // LogItem
     'componentOverview.body.tab.LogItem.hand':'Have in hand',
     'componentOverview.body.tab.LogItem.complete':'Complete',

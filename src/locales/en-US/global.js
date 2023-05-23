@@ -184,6 +184,9 @@ const global = {
     'global.fetchStateOptTypeText.delete-component-k8s-attributes':'Delete k8s attribute',
     'global.fetchStateOptTypeText.update-component-k8s-attributes':'Update k8s attribute',
     'global.fetchStateOptTypeText.create-component-k8s-attributes':'Create k8s attribute',
+    'global.fetchStateOptTypeText.Unschedulable':'Unschedulable',
+    'global.fetchStateOptTypeText.start':'Waiting to start',
+    'global.fetchStateOptTypeText.error':'Abnormal operation',
     
 }
 export default Object.assign({}, global);

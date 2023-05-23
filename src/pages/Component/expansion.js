@@ -14,7 +14,8 @@ import {
   Select,
   Spin,
   Switch,
-  Table
+  Table,
+  AutoComplete
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -85,7 +86,8 @@ export default class Index extends PureComponent {
       errorCpuValue: '',
       errorMemoryValue: '',
       enableGPU: licenseUtil.haveFeature(this.props.features, 'GPU'),
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      dataSource: []
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -776,11 +778,26 @@ export default class Index extends PureComponent {
       errorCpuValue,
       errorMemoryValue,
       enableGPU,
-      language
+      language,
+      dataSource
     } = this.state;
     if (!extendInfo) {
       return null;
+    }else{
+      this.setState({
+        dataSource: extendInfo.memory_list || []
+      })
     }
+    const options = dataSource && dataSource.map((group,index) => (
+        <Option key={index} value={`${group}`}>
+            {sourceUtil.getMemoryAndUnit(group)}
+          </Option>
+    ))
+    .concat([
+      <Option key={0} value={'0'}>
+        <FormattedMessage id='componentOverview.body.Expansion.unlimited'/>
+      </Option>,
+    ]);
     const minNumber = getFieldValue('minNum') || 0;
 
     const grctlCmd = `grctl service get ${appAlias} -t ${globalUtil.getCurrTeamName()}`;
@@ -914,19 +931,12 @@ export default class Index extends PureComponent {
                   {getFieldDecorator('memory', {
                     initialValue: `${extendInfo.current_memory}` || 0
                   })(
-                    <Select
-                      getPopupContainer={triggerNode => triggerNode.parentNode}
-                      className={styles.memorySelect}
-                    >
-                      <Option key={0} value={0}>
-                        <FormattedMessage id='componentOverview.body.Expansion.unlimited'/>
-                      </Option>
-                      {(extendInfo.memory_list || []).map(item => (
-                        <Option key={item} value={item}>
-                          {sourceUtil.getMemoryAndUnit(item)}
-                        </Option>
-                      ))}
-                    </Select>
+                      <AutoComplete
+                      dropdownStyle={{ width: 300 }}
+                      size="large"
+                      style={{ width: '100%' }}
+                      dataSource={options}
+                    />
                   )}
                 </Form.Item>
                 {descBox(`${formatMessage({id:'componentOverview.body.Expansion.algorithm'})}`)}
