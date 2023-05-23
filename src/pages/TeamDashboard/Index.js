@@ -91,6 +91,7 @@ export default class Index extends PureComponent {
       searchVisible: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
       appListLoading: true,
+      rainStoreTab: ''
     };
   }
   componentDidMount() {
@@ -102,6 +103,7 @@ export default class Index extends PureComponent {
     );
     if (teamPermissions && teamPermissions.length !== 0) {
       // 加载团队下的资源
+      this.getMarketsTab()
       this.loadOverview();
       this.loadHotApp();
     }
@@ -113,6 +115,30 @@ export default class Index extends PureComponent {
     // 组件销毁  清除团队下资源的定时器
     this.handleClearTimeout(this.loadTeamTimer);
   }
+  getMarketsTab = () => {
+    const { dispatch, currentEnterprise } = this.props;
+    const { scopeMax } = this.state;
+    dispatch({
+      type: 'market/fetchMarketsTab',
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id
+      },
+      callback: res => {
+        const list = (res && res.list) || [];
+        let rainStores = '';
+        if (list && list.length > 0) {
+          list.map(item => {
+            if(item.domain == 'rainbond'){
+              return rainStores = item.name
+            }
+          });
+        }
+        this.setState({
+          rainStoreTab: rainStores
+        })
+      }
+    });
+  };
   // 搜索应用
   onSearch = value => {
     this.setState(
@@ -169,7 +195,7 @@ export default class Index extends PureComponent {
               const { index } = this.props;
               // // 加载热门应用模块
               // if (!this.loadHotAppTimer) {
-                this.loadHotApp();
+              this.loadHotApp();
               // }
             }
           );
@@ -308,8 +334,419 @@ export default class Index extends PureComponent {
       this.loadHotApp();
     })
   }
+  onClickLinkCreate = (type, link) => {
+    const { dispatch } = this.props
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    if(type == 'code'){
+      dispatch(
+        routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/code/${link}` })
+      );
+    }else if(type == 'market'){
+      console.log(link,'link')
+      dispatch(
+        routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/market/${link}` })
+      );
+    }else if(type == 'image'){
+      dispatch(
+        routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/image/${link}` })
+      );
+    }else if(type == 'yaml'){
+      dispatch(
+        routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/yaml/${link}` })
+      );
+    }
+  }
+  teamOverviewRender = () => {
+    const {
+      loadingOverview,
+      loadedOverview,
+      teamHotAppList,
+      total,
+      pageSizeOptions,
+      createAppVisible,
+      loadingOfApp,
+      page,
+      page_size,
+      query,
+      emptyConfig,
+      searchVisible,
+      language,
+      appListLoading,
+    } = this.state;
+    const {
+      index,
+      dispatch,
+      location: {
+        query: { team_alias }
+      }
+    } = this.props;
+    // 当前团队名称
+    const teamName = globalUtil.getCurrTeamName();
+    // 当前集群名称
+    const regionName = globalUtil.getCurrRegionName();
+    return (
+      <Fragment>
+        {(index.overviewInfo.region_health || loadingOverview) &&
+          <div className={styles.teamAppTitle}>
+            <span>{globalUtil.fetchSvg('teamViewTitle')}</span>
+            <h2 className={styles.topContainerTitle}>
+              {loadingOverview ? (
+                <Spin size="small"></Spin>
+              ) : (
+                index.overviewInfo.team_alias
+              )}
+            </h2>
+          </div>
+        }
+        {loadingOverview && !index.overviewInfo.region_health && (
+          <Spin size="large" tip="Loading..." style={{ textAlign: 'center', }}>
+            {/* page top */}
+            {!index.overviewInfo.region_health && (
+              <div className={styles.topContainer} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+              </div>
+            )}
+          </Spin>
+        )}
+        {loadingOverview && index.overviewInfo.region_health && (
+          <Spin size="large" tip="Loading..." style={{ textAlign: 'center', }}>
+            <div className={styles.topContainer} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+            </div>
+          </Spin>
+        )}
+        {index.overviewInfo.region_health && !loadingOverview && (
+          <div className={styles.topContainer} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+            <div>
+              <div className={styles.resourceTitle}>
+                <FormattedMessage id="teamOverview.runAppNum" />
+              </div>
+              <div className={styles.resourceValue}>
+                {index.overviewInfo && index.overviewInfo.running_app_num || 0}
+              </div>
+            </div>
+            <div>
+              <div className={styles.resourceTitle}>
+                <FormattedMessage id="teamOverview.runComponentNum" />
+              </div>
+              <div className={styles.resourceValue}>
+                {index.overviewInfo && index.overviewInfo.running_component_num || 0}
+              </div>
+            </div>
+            <div>
+              <div className={styles.resourceTitle}>
+                <FormattedMessage id="teamOverview.memoryUsage" />
+                ({this.handlUnit(
+                  index.overviewInfo.team_service_memory_count || 0,
+                  'MB'
+                )})
+              </div>
+              <div className={styles.resourceValue}>
+                {this.handlUnit(
+                  index.overviewInfo.team_service_memory_count || 0
+                )}
+              </div>
+            </div>
+            <div>
+              <div className={styles.resourceTitle}>
+                <FormattedMessage id="teamOverview.diskUsage" />
+                ({this.handlUnit(
+                  index.overviewInfo.team_service_total_disk || 0,
+                  'MB'
+                )})
+              </div>
+              <div className={styles.resourceValue}>
+                {this.handlUnit(
+                  index.overviewInfo.team_service_total_disk || 0
+                )}
+              </div>
+            </div>
+            <div
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                dispatch(
+                  routerRedux.push({
+                    pathname: `/team/${teamName}/region/${regionName}/team`,
+                    state: { config: 'member' }
+                  })
+                );
+              }}
+            >
+              <div className={styles.resourceTitle}>
+                <FormattedMessage id="teamOverview.UserNum" />
+              </div>
+              <div className={styles.resourceValue}>
+                {(index.overviewInfo && index.overviewInfo.user_nums) || 0}
+              </div>
+            </div>
+          </div>
+        )}
 
+        {(index.overviewInfo.region_health || loadingOverview) &&
+          <>
+            {/* 热门应用标题 */}
+            <div className={styles.teamHotAppTitle}>
+              <div className={styles.teamHotAppTitleLeft}>
+                <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
+                <h2><FormattedMessage id="teamOverview.appList" /></h2>
+              </div>
+            </div>
+            {/* app list Loading */}
+            {/* appList */}
+            {<div className={styles.appListBox} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+              <div className={styles.teamHotAppTitleSearch}>
+                <Select
+                  style={language ? { width: '140px' } : { width: '200px' }}
+                  placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
+                  defaultValue={1}
+                  onChange={this.handleSortChange}
+                >
+                  <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}><FormattedMessage id="teamOverview.runStatusSort" /></Option>
+                  <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}><FormattedMessage id="teamOverview.updateTimeSort" /></Option>
+                </Select>
+                <Search
+                  placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
+                  onSearch={this.onSearch}
+                  defaultValue={query}
+                  allowClear
+                  style={{ width: 400, margin: '0px 10px' }}
+                />
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    this.setState({ createAppVisible: true });
+                  }}
+                >
+                  {formatMessage({ id: 'teamOverview.createApp' })}
+                </Button>
+              </div>
+              {appListLoading && (
+                <div className={styles.no_teamHotAppList}>
+                  <Spin tip="Loading..." size="large" />
+                </div>
+              )}
+              {!loadingOfApp && !emptyConfig && teamHotAppList.length > 0 && (
+                <div className={styles.teamHotAppList} style={{ height: teamHotAppList.length < 8 ? '300px' : '' }}>
+                  {/* 1 */}
+                  {teamHotAppList.map((item, index) => {
+                    return (
+                      <div key={item.group_id} style={{ marginLeft: (index % 4) ? '4%' : '0px' }}>
+                        <div
+                          className={`${styles.teamHotAppItem} ${styles.hoverPointer}`}
+                          style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
+                          onClick={() => {
+                            dispatch(
+                              routerRedux.push(
+                                `/team/${teamName}/region/${regionName}/apps/${item.group_id}`
+                              )
+                            );
+                          }}
+                        >
+                          {language ? (
+                            <div className={styles.appStatus} style={{ background: globalUtil.appStatusColor(item.status) }}>
+                              <div>
+                                {globalUtil.appStatusText(item.status)}
+                              </div>
+                            </div>
+                          ) : (
+                            <Tooltip placement="left" title={globalUtil.appStatusText(item.status)}>
+                              <div className={styles.appStatus} style={{ background: globalUtil.appStatusColor(item.status) }}>
+                              </div>
+                            </Tooltip>
+                          )}
 
+                          <div className={styles.appItemDetail}>
+                            <Tooltip placement="topLeft" title={item.group_name}>
+                              <div className={styles.appTitle}>{item.group_name}</div>
+                            </Tooltip>
+                            <div className={styles.value}>
+                              <div className={styles.memory}><FormattedMessage id="teamOverview.memory" />: {this.handlUnit(item.used_mem || 0)} {this.handlUnit(item.used_mem || 0, 'MB')}</div>
+                              <div className={styles.component}><FormattedMessage id="teamOverview.component.name" />: {item.services_num}<FormattedMessage id="unit.entries" /></div>
+                            </div>
+                            <div className={styles.updateTime}>
+                              <div>
+                                {item.update_time &&
+                                  moment(item.update_time).fromNow()}
+                                <FormattedMessage id="teamOverview.update" />
+                              </div>
+                              {item.status === 'RUNNING' && (
+                                <div>
+                                  {item.accesses.length > 0 && (
+                                    <VisterBtn
+                                      linkList={item.accesses}
+                                      type="link"
+                                    />
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>)}
+              {/* 空状态 */}
+              {((!appListLoading && teamHotAppList.length == 0) || (emptyConfig && !loadingOfApp)) && (
+                <div className={styles.no_teamHotAppList}>
+                  <Empty />
+                </div>
+              )}
+              {/* 分页 */}
+              {(teamHotAppList.length > 0 && (teamHotAppList.length >= page_size || page > 1)) &&
+                <div className={styles.pagination}>
+                  <Pagination
+                    showSizeChanger
+                    onShowSizeChange={this.handleChangePageSize}
+                    current={page}
+                    pageSize={page_size}
+                    total={total}
+                    pageSizeOptions={pageSizeOptions}
+                    onChange={this.handleChangePage}
+                  />
+                </div>}
+            </div>
+            }
+
+            {/* 搜索为空时的状态 */}
+            {/* {emptyConfig && !loadingOfApp && <Empty />} */}
+            {/* 新建应用 */}
+            {createAppVisible && (
+              <EditGroupName
+                title={formatMessage({ id: 'teamOverview.createApp' })}
+                onCancel={this.handleCancelApplication}
+                onOk={this.handleOkApplication}
+                handleAppLoading={this.handleAppLoading}
+              />
+            )}
+          </>
+        }
+        {/* 集群不健康的情况 */}
+        {loadedOverview &&
+          index.overviewInfo &&
+          !index.overviewInfo.region_health && (
+            <div>
+              <Result
+                type="warning"
+                title={formatMessage({ id: 'teamOverview.result.title' })}
+                description={formatMessage({ id: 'teamOverview.result.description' })}
+                actions={[
+                  <Button
+                    loading={loadingOverview}
+                    onClick={this.loadOverview}
+                    type="primary"
+                    key="console"
+                  >
+                    <FormattedMessage id="teamOverview.loadOverview" />
+                  </Button>
+                ]}
+              />
+            </div>
+          )}
+        <CustomFooter />
+      </Fragment>
+    )
+  }
+  initOverviewRender = () => {
+    const teamCode = globalUtil.fetchSvg('teamCode');
+    const teamMarket = globalUtil.fetchSvg('teamMarket');
+    const teamImage = globalUtil.fetchSvg('teamImage');
+    const teamUpload = globalUtil.fetchSvg('teamUpload');
+    const { rainStoreTab } = this.state
+    return (
+      <Fragment>
+        <div className={styles.overviewBox}>
+          <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+            <div className={styles.topContent}>
+              <div className={styles.initIcon}>
+                <div>
+                  {teamCode}
+                </div>
+              </div>
+              <div className={styles.initTitle}>
+                从源码构建
+              </div>
+              <div className={styles.initDesc}>
+                <p>
+                  从指定源码仓库中获取源码，基于源码信息创建新组件。
+                </p>
+              </div>
+            </div>
+            <div className={styles.bottomContent}>
+              <p onClick={()=>this.onClickLinkCreate('code','custom')}>自定义源码</p>
+              <p onClick={()=>this.onClickLinkCreate('code','jwar')}>软件包上传</p>
+              <p onClick={()=>this.onClickLinkCreate('code','demo')}>官方Demo</p>
+            </div>
+          </div>
+          <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+            <div className={styles.topContent}>
+              <div className={styles.initIcon}>
+                <div>
+                  {teamMarket}
+                </div>
+              </div>
+              <div className={styles.initTitle}>
+                从应用市场安装
+              </div>
+              <div className={styles.initDesc}>
+                <p>
+                  从本地组件库或应用商店一键安装应用。
+                </p>
+              </div>
+            </div>
+            <div className={styles.bottomContent}>
+              <p onClick={()=>this.onClickLinkCreate('market',rainStoreTab)}>开源应用商店</p>
+              <p onClick={()=>this.onClickLinkCreate('market','')}>本地组件库</p>
+            </div>
+          </div>
+          <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+            <div className={styles.topContent}>
+              <div className={styles.initIcon}>
+                <div>
+                  {teamImage}
+                </div>
+              </div>
+              <div className={styles.initTitle}>
+                从镜像构建
+              </div>
+              <div className={styles.initDesc}>
+                <p>
+                  支持从单一镜像、Docker命令、DockerCompose配置创建应用。
+                </p>
+              </div>
+            </div>
+            <div className={styles.bottomContent}>
+              <p onClick={()=>this.onClickLinkCreate('image','custom')}>指定镜像</p>
+              <p onClick={()=>this.onClickLinkCreate('image','dockerrun')}>DockerRun 命令</p>
+              <p onClick={()=>this.onClickLinkCreate('image','Dockercompose')}>DockerCompose</p>
+            </div>
+          </div>
+          <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+            <div className={styles.topContent}>
+              <div className={styles.initIcon}>
+                <div>
+                    {teamUpload}
+                </div>
+              </div>
+              <div className={styles.initTitle}>
+                Kubernetes YAML Helm
+              </div>
+              <div className={styles.initDesc}>
+                <p>
+                支持从 Kubernetes YAML创建组件和 Kubernetes 已有资源导入。
+                </p>
+              </div>
+            </div>
+            <div className={styles.bottomContent}>
+              <p onClick={()=>this.onClickLinkCreate('yaml','yaml')}>YAML文件上传</p>
+              <p onClick={()=>this.onClickLinkCreate('yaml','importCluster')}>Kubernetes 资源</p>
+              <p onClick={()=>this.onClickLinkCreate('yaml','helm')}>Helm 命令</p>
+            </div>
+          </div>
+        </div>
+        <CustomFooter />
+      </Fragment>
+    )
+  }
   render() {
     const {
       loadingOverview,
@@ -341,263 +778,12 @@ export default class Index extends PureComponent {
     // 团队应用
     return (
       <Fragment>
-        {(index.overviewInfo.region_health || loadingOverview) && 
-                <div className={styles.teamAppTitle}>
-                <span>{globalUtil.fetchSvg('teamViewTitle')}</span>
-                <h2 className={styles.topContainerTitle}>
-                  {loadingOverview ? (
-                    <Spin size="small"></Spin>
-                  ) : (
-                    index.overviewInfo.team_alias
-                  )}
-                </h2>
-              </div>
+        {(
+          !loadingOfApp &&
+          teamHotAppList.length > 0) ?
+          this.teamOverviewRender() :
+          this.initOverviewRender()
         }
-        {loadingOverview && !index.overviewInfo.region_health && (
-          <Spin size="large" tip="Loading..." style={{ textAlign: 'center', }}>
-            {/* page top */}
-            {!index.overviewInfo.region_health && (
-              <div className={styles.topContainer} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-              </div>
-            )}
-          </Spin>
-        )}
-         {loadingOverview && index.overviewInfo.region_health && (
-          <Spin size="large" tip="Loading..." style={{ textAlign: 'center', }}>
-            <div className={styles.topContainer} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-            </div>
-          </Spin>
-         )}
-        {index.overviewInfo.region_health && !loadingOverview && (
-          <div className={styles.topContainer} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-            <div>
-              <div className={styles.resourceTitle}>
-                <FormattedMessage id="teamOverview.runAppNum" />      
-              </div>
-              <div className={styles.resourceValue}>
-                {index.overviewInfo && index.overviewInfo.running_app_num || 0}
-              </div>
-            </div>
-            <div>
-              <div className={styles.resourceTitle}>
-              <FormattedMessage id="teamOverview.runComponentNum" />    
-              </div>
-              <div className={styles.resourceValue}>
-                {index.overviewInfo && index.overviewInfo.running_component_num || 0}
-              </div>
-            </div>
-            <div>
-              <div className={styles.resourceTitle}>
-              <FormattedMessage id="teamOverview.memoryUsage" />
-                ({this.handlUnit(
-                  index.overviewInfo.team_service_memory_count || 0,
-                  'MB'
-                )})
-              </div>
-              <div className={styles.resourceValue}>
-                {this.handlUnit(
-                  index.overviewInfo.team_service_memory_count || 0
-                )}
-              </div>
-            </div>
-            <div>
-              <div className={styles.resourceTitle}>
-              <FormattedMessage id="teamOverview.diskUsage" />
-              ({this.handlUnit(
-                  index.overviewInfo.team_service_total_disk || 0,
-                  'MB'
-                )})
-              </div>
-              <div className={styles.resourceValue}>
-                {this.handlUnit(
-                  index.overviewInfo.team_service_total_disk || 0
-                )}
-              </div>
-            </div>
-            <div
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
-                dispatch(
-                  routerRedux.push({
-                    pathname: `/team/${teamName}/region/${regionName}/team`,
-                    state: { config: 'member' }
-                  })
-                );
-              }}
-            >
-              <div className={styles.resourceTitle}>
-                <FormattedMessage id="teamOverview.UserNum" />
-              </div>
-              <div className={styles.resourceValue}>
-                {(index.overviewInfo && index.overviewInfo.user_nums) || 0}
-              </div>
-            </div>
-          </div>
-        )}
-        
-      {(index.overviewInfo.region_health || loadingOverview) && 
-        <>
-              {/* 热门应用标题 */}
-              <div className={styles.teamHotAppTitle}>
-          <div className={styles.teamHotAppTitleLeft}>
-            <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
-            <h2><FormattedMessage id="teamOverview.appList" /></h2>
-          </div>
-        </div>
-        {/* app list Loading */}
-        {/* appList */}
-        {<div className={styles.appListBox} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-          <div className={styles.teamHotAppTitleSearch}>
-            <Select
-              style={language ? { width: '140px' } : { width: '200px' }}
-              placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
-              defaultValue={1}
-              onChange={this.handleSortChange}
-            >
-              <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}><FormattedMessage id="teamOverview.runStatusSort" /></Option>
-              <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}><FormattedMessage id="teamOverview.updateTimeSort" /></Option>
-            </Select>
-            <Search
-              placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
-              onSearch={this.onSearch}
-              defaultValue={query}
-              allowClear
-              style={{ width: 400, margin: '0px 10px' }}
-            />
-            <Button
-              type="primary"
-              onClick={() => {
-                this.setState({ createAppVisible: true });
-              }}
-            >
-              {formatMessage({ id: 'teamOverview.createApp' })}
-            </Button>
-          </div>
-          {appListLoading &&( 
-            <div className={styles.no_teamHotAppList}>
-              <Spin tip="Loading..." size="large" />
-            </div>
-          )}
-          {!loadingOfApp && !emptyConfig && teamHotAppList.length > 0 && (
-            <div className={styles.teamHotAppList} style={{height: teamHotAppList.length < 8 ? '300px' : ''}}>
-              {/* 1 */}
-              {teamHotAppList.map((item, index) => {
-                return (
-                  <div key={item.group_id} style={{ marginLeft: (index % 4) ? '4%' : '0px' }}>
-                    <div
-                      className={`${styles.teamHotAppItem} ${styles.hoverPointer}`}
-                      style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
-                      onClick={() => {
-                        dispatch(
-                          routerRedux.push(
-                            `/team/${teamName}/region/${regionName}/apps/${item.group_id}`
-                          )
-                        );
-                      }}
-                    >
-                      {language ? (
-                        <div className={styles.appStatus} style={{ background: globalUtil.appStatusColor(item.status) }}>
-                          <div>
-                              {globalUtil.appStatusText(item.status)}
-                          </div>
-                        </div>
-                      ):(
-                        <Tooltip placement="left" title={globalUtil.appStatusText(item.status)}>
-                          <div className={styles.appStatus} style={{ background: globalUtil.appStatusColor(item.status) }}>
-                          </div>
-                        </Tooltip>
-                      )}
-
-                      <div className={styles.appItemDetail}>
-                        <Tooltip placement="topLeft" title={item.group_name}>
-                          <div className={styles.appTitle}>{item.group_name}</div>
-                        </Tooltip>
-                        <div className={styles.value}>
-                          <div className={styles.memory}><FormattedMessage id="teamOverview.memory" />: {this.handlUnit(item.used_mem || 0)} {this.handlUnit(item.used_mem || 0, 'MB')}</div>
-                          <div className={styles.component}><FormattedMessage id="teamOverview.component.name" />: {item.services_num}<FormattedMessage id="unit.entries" /></div>
-                        </div>
-                        <div className={styles.updateTime}>
-                          <div>
-                            {item.update_time &&
-                              moment(item.update_time).fromNow()}
-                            <FormattedMessage id="teamOverview.update" />
-                          </div>
-                          {item.status === 'RUNNING' && (
-                            <div>
-                              {item.accesses.length > 0 && (
-                                <VisterBtn
-                                  linkList={item.accesses}
-                                  type="link"
-                                />
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>)}
-          {/* 空状态 */}
-          {((!appListLoading && teamHotAppList.length == 0) || (emptyConfig && !loadingOfApp)) && (
-            <div className={styles.no_teamHotAppList}>
-              <Empty />
-            </div>
-          )}
-          {/* 分页 */}
-          {(teamHotAppList.length > 0 && (teamHotAppList.length >= page_size || page > 1)) &&
-            <div className={styles.pagination}>
-              <Pagination
-                showSizeChanger
-                onShowSizeChange={this.handleChangePageSize}
-                current={page}
-                pageSize={page_size}
-                total={total}
-                pageSizeOptions={pageSizeOptions}
-                onChange={this.handleChangePage}
-              />
-            </div>}
-        </div>
-        }
-
-        {/* 搜索为空时的状态 */}
-        {/* {emptyConfig && !loadingOfApp && <Empty />} */}
-        {/* 新建应用 */}
-        {createAppVisible && (
-          <EditGroupName
-            title={formatMessage({ id: 'teamOverview.createApp' })}
-            onCancel={this.handleCancelApplication}
-            onOk={this.handleOkApplication}
-            handleAppLoading={this.handleAppLoading}
-          />
-        )}
-      </>
-      }
-        
-        {/* 集群不健康的情况 */}
-        {loadedOverview &&
-          index.overviewInfo &&
-          !index.overviewInfo.region_health && (
-            <div>
-              <Result
-                type="warning"
-                title={formatMessage({ id: 'teamOverview.result.title' })}
-                description={formatMessage({ id: 'teamOverview.result.description' })}
-                actions={[
-                  <Button
-                    loading={loadingOverview}
-                    onClick={this.loadOverview}
-                    type="primary"
-                    key="console"
-                  >
-                    <FormattedMessage id="teamOverview.loadOverview" />
-                  </Button>
-                ]}
-              />
-            </div>
-          )}
-        <CustomFooter />
       </Fragment>
     );
   }
