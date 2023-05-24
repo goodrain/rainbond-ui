@@ -45,7 +45,7 @@ export default class Index extends PureComponent {
     });
   };
   render() {
-    const code = decodeURIComponent(this.props.match.params.code || '');
+    const code = decodeURIComponent(this.props.match && this.props.match.params && this.props.match.params.code || '');
     return (
       <Card>
         <TopUpHints />
@@ -61,6 +61,7 @@ export default class Index extends PureComponent {
           <CodeDemoForm
             data={{ git_url: code || '' }}
             onSubmit={this.handleSubmit}
+            {...this.props}
           />
         </div>
       </Card>

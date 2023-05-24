@@ -21,10 +21,10 @@ const formItemLayout = {
 };
 const en_formItemLayout = {
   labelCol: {
-    span: 9
+    span: 7
   },
   wrapperCol: {
-    span: 15
+    span: 17
   }
 };
 
@@ -80,7 +80,7 @@ export default class Index extends PureComponent {
 
   handleOpenDemo = () => {
     Modal.warning({
-      title: formatMessage({id: 'teamAdd.create.code.demoBtn'}),
+      title: formatMessage({ id: 'teamAdd.create.code.demoBtn' }),
       content: (
         <div>
           <Tag color="magenta" style={{ marginBottom: '10px' }}>
@@ -89,7 +89,7 @@ export default class Index extends PureComponent {
               style={{ color: '#EA2E96' }}
               href={`${configureGlobal.documentAddress}demo-2048.git`}
             >
-              {formatMessage({id: 'teamAdd.create.code.demoBtn'})}
+              {formatMessage({ id: 'teamAdd.create.code.demoBtn' })}
             </a>
           </Tag>
           <Tag color="green" style={{ marginBottom: '10px' }}>
@@ -98,7 +98,7 @@ export default class Index extends PureComponent {
               style={{ color: '#74CC49' }}
               href={`${configureGlobal.documentAddress}static-demo.git`}
             >
-              {formatMessage({id: 'teamAdd.create.code.demoBtn'})}
+              {formatMessage({ id: 'teamAdd.create.code.demoBtn' })}
             </a>
           </Tag>
           <Tag color="volcano" style={{ marginBottom: '10px' }}>
@@ -195,40 +195,52 @@ export default class Index extends PureComponent {
 
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error(formatMessage({id:'placeholder.k8s_component_name'})));
+      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
           new Error(
-            formatMessage({id: 'placeholder.nameSpaceReg'})
+            formatMessage({ id: 'placeholder.nameSpaceReg' })
           )
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error(formatMessage({id: 'placeholder.max32'})));
+      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
     }
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { groups, createAppByCodeLoading, rainbondInfo } = this.props;
+    const { groups, createAppByCodeLoading, rainbondInfo, handleType, showCreateGroup, groupId, showSubmitBtn = true, ButtonGroupState, handleServiceBotton } = this.props;
     const data = this.props.data || {};
     const { language } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout;
+    const isService = handleType && handleType === 'Service';
+    const showCreateGroups =
+      showCreateGroup === void 0 ? true : showCreateGroup;
     return (
       <Form layout="horizontal" hideRequiredMark>
-        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
+        <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
           {getFieldDecorator('group_id', {
-            initialValue: data.groupd_id ? data.groupd_id : undefined,
-            rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
+            initialValue: isService ? Number(groupId) : data.group_id,
+            rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
-              placeholder={formatMessage({id: 'placeholder.appName'})}
-              style={{ display: 'inline-block', width: language ? 275 : 289, marginRight: 10 }}
+              placeholder={formatMessage({ id: 'placeholder.appName' })}
+              style={language ? {
+                display: 'inline-block',
+                width: isService ? '' : 270,
+                marginRight: 15
+              } : {
+                display: 'inline-block',
+                width: isService ? '' : 330,
+                marginRight: 15
+              }}
+              disabled={!!isService}
             >
               {(groups || []).map(group => (
                 <Option key={group.group_id} value={group.group_id}>
@@ -237,25 +249,28 @@ export default class Index extends PureComponent {
               ))}
             </Select>
           )}
-          <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamApply.createApp'})}</Button>
+          {handleType &&
+            handleType === 'Service' ? null : showCreateGroups ? (
+              <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamApply.createApp' })}</Button>
+            ) : null}
         </Form.Item>
-        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
+        <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
           {getFieldDecorator('service_cname', {
             initialValue: data.service_cname || '',
             rules: [
-              { required: true, message: formatMessage({id: 'placeholder.service_cname'}) },
+              { required: true, message: formatMessage({ id: 'placeholder.service_cname' }) },
               {
                 max: 24,
-                message: formatMessage({id: 'placeholder.max24'})
+                message: formatMessage({ id: 'placeholder.max24' })
               }
             ]
           })(
             <Input
-              placeholder={formatMessage({id: 'placeholder.service_cname'})}
+              placeholder={formatMessage({ id: 'placeholder.service_cname' })}
             />
           )}
         </Form.Item>
-        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
+        <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
           {getFieldDecorator('k8s_component_name', {
             rules: [
               {
@@ -263,26 +278,34 @@ export default class Index extends PureComponent {
                 validator: this.handleValiateNameSpace
               }
             ]
-          })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})}   />)}
+          })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
         </Form.Item>
         <Form.Item {...is_language} label={<span>Demo</span>}>
           {getFieldDecorator('git_url', {
             initialValue:
               data.git_url || configureGlobal.documentAddressDefault,
-            rules: [{ required: true, message: formatMessage({id: 'placeholder.select'})  }]
+            rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
-              style={{ display: 'inline-block', width: 290, marginRight: 10 }}
+              style={language ? {
+                display: 'inline-block',
+                width: isService ? 210 : 300,
+                marginRight: 15
+              } : {
+                display: 'inline-block',
+                width: isService ? 234 : 340,
+                marginRight: 15
+              }}
               onChange={this.handleChangeDemo}
             >
               <Option value={`${configureGlobal.documentAddress}demo-2048.git`}>
-                {formatMessage({id: 'teamAdd.create.code.demo2048'})}
+                {formatMessage({ id: 'teamAdd.create.code.demo2048' })}
               </Option>
               <Option
                 value={`${configureGlobal.documentAddress}static-demo.git`}
               >
-                {formatMessage({id: 'teamAdd.create.code.demoStatic'})}
+                {formatMessage({ id: 'teamAdd.create.code.demoStatic' })}
               </Option>
               <Option value={`${configureGlobal.documentAddress}php-demo.git`}>
                 PHP Demo
@@ -329,29 +352,47 @@ export default class Index extends PureComponent {
           )}
           {this.state.demoHref &&
             rainbondUtil.documentPlatform_url(rainbondInfo) && (
-              <a target="_blank" href={this.state.demoHref}>
-                {formatMessage({id: 'teamAdd.create.code.href'})}
+              <a
+                target="_blank"
+                href={this.state.demoHref}
+              >
+                {formatMessage({ id: 'teamAdd.create.code.href' })}
               </a>
             )}
         </Form.Item>
-        <Form.Item
-          wrapperCol={{
-            xs: { span: 24, offset: 0 },
-            sm: {
-              span: is_language.wrapperCol.span,
-              offset: is_language.labelCol.span
-            }
-          }}
-          label=""
-        >
-          <Button
-            onClick={this.handleSubmit}
-            type="primary"
-            loading={createAppByCodeLoading}
-          >
-            {formatMessage({id: 'teamAdd.create.btn.create'})}
-          </Button>
-        </Form.Item>
+        {showSubmitBtn ? (
+            <Form.Item
+              wrapperCol={{
+                xs: { span: 24, offset: 0 },
+                sm: {
+                  span: is_language.wrapperCol.span,
+                  offset: is_language.labelCol.span
+                }
+              }}
+              label=""
+            >
+              {isService && ButtonGroupState
+                ? handleServiceBotton(
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByCodeLoading}
+                    >
+                      {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
+                    </Button>,
+                    false
+                  )
+                : !handleType && (
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByCodeLoading}
+                    >
+                      {formatMessage({id: 'teamAdd.create.btn.create'})}
+                    </Button>
+                  )}
+            </Form.Item>
+          ) : null}
         {this.state.addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}

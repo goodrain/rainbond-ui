@@ -15,6 +15,7 @@ import ThirdParty from './AddThirdParty'
 import Custom from '../Create/code-custom';
 import Check from '../Create/create-check';
 import ImageCmd from '../Create/image-cmd';
+import CodeDemo from '../Create/code-demo';
 import HelmCmd from '../Create/helm-cmd';
 import ImageName from '../Create/image-name';
 import Jwar from '../Create/upload-jarwar'
@@ -247,6 +248,7 @@ export default class AddServiceComponent extends PureComponent {
     const JarWar_svg = globalUtil.fetchSvg('JarWar_svg');
     const yaml_svg = globalUtil.fetchSvg('yaml_svg');
     const helm_svg = globalUtil.fetchSvg('helm_svg');
+    const codeDemo_svg = globalUtil.fetchSvg('codeDemo');
 
     const servers = oauthUtil.getEnableGitOauthServer(serversList);
     const BasisParameter = {
@@ -332,6 +334,18 @@ export default class AddServiceComponent extends PureComponent {
                     {JarWar_svg}
                     <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
                     {formatMessage({id:'appOverview.list.btn.addComponent.jwar'})}
+                    </p>
+                  </Col>
+                  <Col
+                    span={4}
+                    className={styles.ServiceDiv}
+                    onClick={() => {
+                      this.handleServiceComponent(false, 'codeDemo');
+                    }}
+                  >
+                    {codeDemo_svg}
+                    <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
+                    {formatMessage({id:'teamAdd.create.code.demo'})}
                     </p>
                   </Col>
                   {servers &&
@@ -505,6 +519,9 @@ export default class AddServiceComponent extends PureComponent {
           )}
           {ServiceComponentTwoPage === 'jwar' && (
             <Jwar {...PublicParameter} setPare={this.setJwar} />
+          )}
+          {ServiceComponentTwoPage === 'codeDemo' && (
+            <CodeDemo {...PublicParameter} />
           )}
           {ServiceComponentTwoPage === 'yaml' && (
             <Yaml {...PublicParameter} setPare={this.setYaml} />
