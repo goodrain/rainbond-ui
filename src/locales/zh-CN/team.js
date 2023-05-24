@@ -83,7 +83,7 @@ const teamAdd = {
   'teamAdd.create.image.title':'从Docker镜像创建组件',
   'teamAdd.create.image.desc':'支持从单一镜像、Docker命令、DockerCompose配置创建应用。',
   'teamAdd.create.image.tabImage':'指定镜像',
-  'teamAdd.create.image.DockerRun':'DockerRun命令',
+  'teamAdd.create.image.DockerRun':'DockerRun 命令',
   'teamAdd.create.image.docker_cmd':'命令',
   'teamAdd.create.image.hint1':'这是一个私有仓库?',
   'teamAdd.create.image.hint2':'填写仓库账号密码',
@@ -104,7 +104,7 @@ const teamAdd = {
   'teamAdd.create.upload.uploadYaml':'只支持yaml格式上传多文件',
 
   //market
-
+  'teamAdd.create.market.desc':'从本地组件库或应用商店一键安装应用。',
   //third
   'teamAdd.create.third.title':'添加第三方组件',
   'teamAdd.create.third.desc':'第三方组件，即运行于平台集群外的组件，在平台中创建组件即可以将其与平台网关无缝对接。同时也可以被平台内服务访问，满足用户通过平台对各类组件进行统一的监控和管理的需要。',

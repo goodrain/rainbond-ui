@@ -1,6 +1,6 @@
 import { Icon, Menu } from 'antd';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
+import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
@@ -184,6 +184,13 @@ export default class GlobalRouter extends PureComponent {
       </Link>
     );
   };
+  // 跳转
+  onSubMenuLink = (item) => {
+    const { dispatch } = this.props
+    if(item.isClick){
+      dispatch(routerRedux.push({ pathname: `/team/${item.teamName}/region/${item.regionName}/wizard` }))
+    }
+  }
   /**
    * get SubMenu or Item
    */
@@ -193,7 +200,7 @@ export default class GlobalRouter extends PureComponent {
         <SubMenu
           className={styles.items}
           title={
-            <a className={styles.item}>
+            <a className={styles.item} onClick={() => { this.onSubMenuLink(item) }}>
               {item.icon && getIcon(item.icon)}
               <span>{item.name}</span>
             </a>

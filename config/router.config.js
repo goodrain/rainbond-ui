@@ -265,6 +265,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/team/:teamName/region/:regionName/wizard',
+            component: './TeamWizard/Index',
+            name: 'teamOverview',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/team/:teamName/region/:regionName/message',
             component: './Message/Index',
             name: 'Message',
