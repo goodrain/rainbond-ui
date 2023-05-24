@@ -127,6 +127,7 @@
         //位置：企业视图>应用市场>添加应用商店
         'popover.applicationMarket.addMarket.title':'添加应用商店',
         'popover.applicationMarket.local':'本地组件库',
+        'popover.applicationMarket.market':'开源应用商店',
         'popover.applicationMarket.all':'全部',
         'popover.applicationMarket.company':'公司发布',
         'popover.applicationMarket.team':'团队发布',

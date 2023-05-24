@@ -128,6 +128,7 @@
         //位置：企业视图>应用市场>添加应用商店
         'popover.applicationMarket.addMarket.title':'Add an Market',
         'popover.applicationMarket.local':'Local Market',
+        'popover.applicationMarket.market':'Open source app store',
         'popover.applicationMarket.all':'All',
         'popover.applicationMarket.company':'Enterprise Scope',
         'popover.applicationMarket.team':'Team Scope',

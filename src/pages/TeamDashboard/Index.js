@@ -27,6 +27,7 @@ import Result from '../../components/Result';
 import CustomFooter from "../../layouts/CustomFooter"
 import VisterBtn from '../../components/visitBtnForAlllink';
 import globalUtil from '../../utils/global';
+import TeamWizard from '../TeamWizard'
 import userUtil from '../../utils/user';
 import cookie from '../../utils/cookie';
 import styles from './Index.less';
@@ -77,6 +78,7 @@ export default class Index extends PureComponent {
       loadingOverview: true,
       loadedOverview: false,
       loadingOfApp: true,
+      loadingNotData: true,
       // 热门应用查询参数
       page: 1,
       page_size: 12,
@@ -91,7 +93,6 @@ export default class Index extends PureComponent {
       searchVisible: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
       appListLoading: true,
-      rainStoreTab: ''
     };
   }
   componentDidMount() {
@@ -103,7 +104,6 @@ export default class Index extends PureComponent {
     );
     if (teamPermissions && teamPermissions.length !== 0) {
       // 加载团队下的资源
-      this.getMarketsTab()
       this.loadOverview();
       this.loadHotApp();
     }
@@ -115,30 +115,6 @@ export default class Index extends PureComponent {
     // 组件销毁  清除团队下资源的定时器
     this.handleClearTimeout(this.loadTeamTimer);
   }
-  getMarketsTab = () => {
-    const { dispatch, currentEnterprise } = this.props;
-    const { scopeMax } = this.state;
-    dispatch({
-      type: 'market/fetchMarketsTab',
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id
-      },
-      callback: res => {
-        const list = (res && res.list) || [];
-        let rainStores = '';
-        if (list && list.length > 0) {
-          list.map(item => {
-            if(item.domain == 'rainbond'){
-              return rainStores = item.name
-            }
-          });
-        }
-        this.setState({
-          rainStoreTab: rainStores
-        })
-      }
-    });
-  };
   // 搜索应用
   onSearch = value => {
     this.setState(
@@ -146,10 +122,9 @@ export default class Index extends PureComponent {
         query: value,
         loadingOfApp: true,
         page: 1,
-        searchVisible: true
       },
       () => {
-        this.loadHotApp();
+        this.loadHotApp(true);
       }
     );
   };
@@ -209,7 +184,7 @@ export default class Index extends PureComponent {
     });
   };
   // 加载热门应用数据源
-  loadHotApp = () => {
+  loadHotApp = (isSearch = false) => {
     const { page, page_size, query, emptyConfig, sortValue } = this.state;
     this.props.dispatch({
       type: 'global/getTeamAppList',
@@ -227,9 +202,10 @@ export default class Index extends PureComponent {
             teamHotAppList: res.list,
             total: res.bean && res.bean.total,
             loadingOfApp: false,
+            searchVisible: isSearch ? true : false,
             emptyConfig: false,
-            searchVisible: false,
             appListLoading: false,
+            loadingNotData: false,
           });
         } else {
           this.setState({
@@ -338,19 +314,19 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
-    if(type == 'code'){
+    if (type == 'code') {
       dispatch(
         routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/code/${link}` })
       );
-    }else if(type == 'market'){
+    } else if (type == 'market') {
       dispatch(
         routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/market/${link}` })
       );
-    }else if(type == 'image'){
+    } else if (type == 'image') {
       dispatch(
         routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/image/${link}` })
       );
-    }else if(type == 'yaml'){
+    } else if (type == 'yaml') {
       dispatch(
         routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/yaml/${link}` })
       );
@@ -369,7 +345,6 @@ export default class Index extends PureComponent {
       page_size,
       query,
       emptyConfig,
-      searchVisible,
       language,
       appListLoading,
     } = this.state;
@@ -645,107 +620,6 @@ export default class Index extends PureComponent {
       </Fragment>
     )
   }
-  initOverviewRender = () => {
-    const teamCode = globalUtil.fetchSvg('teamCode');
-    const teamMarket = globalUtil.fetchSvg('teamMarket');
-    const teamImage = globalUtil.fetchSvg('teamImage');
-    const teamUpload = globalUtil.fetchSvg('teamUpload');
-    const { rainStoreTab } = this.state
-    return (
-      <Fragment>
-        <div className={styles.overviewBox}>
-          <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-            <div className={styles.topContent}>
-              <div className={styles.initIcon}>
-                <div>
-                  {teamCode}
-                </div>
-              </div>
-              <div className={styles.initTitle}>
-                从源码构建
-              </div>
-              <div className={styles.initDesc}>
-                <p>
-                  从指定源码仓库中获取源码，基于源码信息创建新组件。
-                </p>
-              </div>
-            </div>
-            <div className={styles.bottomContent}>
-              <p onClick={()=>this.onClickLinkCreate('code','custom')}>自定义源码</p>
-              <p onClick={()=>this.onClickLinkCreate('code','jwar')}>软件包上传</p>
-              <p onClick={()=>this.onClickLinkCreate('code','demo')}>官方Demo</p>
-            </div>
-          </div>
-          <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-            <div className={styles.topContent}>
-              <div className={styles.initIcon}>
-                <div>
-                  {teamMarket}
-                </div>
-              </div>
-              <div className={styles.initTitle}>
-                从应用市场安装
-              </div>
-              <div className={styles.initDesc}>
-                <p>
-                  从本地组件库或应用商店一键安装应用。
-                </p>
-              </div>
-            </div>
-            <div className={styles.bottomContent}>
-              <p onClick={()=>this.onClickLinkCreate('market',rainStoreTab)}>开源应用商店</p>
-              <p onClick={()=>this.onClickLinkCreate('market','')}>本地组件库</p>
-            </div>
-          </div>
-          <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-            <div className={styles.topContent}>
-              <div className={styles.initIcon}>
-                <div>
-                  {teamImage}
-                </div>
-              </div>
-              <div className={styles.initTitle}>
-                从镜像构建
-              </div>
-              <div className={styles.initDesc}>
-                <p>
-                  支持从单一镜像、Docker命令、DockerCompose配置创建应用。
-                </p>
-              </div>
-            </div>
-            <div className={styles.bottomContent}>
-              <p onClick={()=>this.onClickLinkCreate('image','custom')}>指定镜像</p>
-              <p onClick={()=>this.onClickLinkCreate('image','dockerrun')}>DockerRun 命令</p>
-              <p onClick={()=>this.onClickLinkCreate('image','Dockercompose')}>DockerCompose</p>
-            </div>
-          </div>
-          <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-            <div className={styles.topContent}>
-              <div className={styles.initIcon}>
-                <div>
-                    {teamUpload}
-                </div>
-              </div>
-              <div className={styles.initTitle}>
-                Kubernetes YAML Helm
-              </div>
-              <div className={styles.initDesc}>
-                <p>
-                支持从 Kubernetes YAML创建组件和 Kubernetes 已有资源导入。
-                </p>
-              </div>
-            </div>
-            <div className={styles.bottomContent}>
-              <p onClick={()=>this.onClickLinkCreate('yaml','yaml')}>YAML文件上传</p>
-              <p onClick={()=>this.onClickLinkCreate('yaml','importCluster')}>Kubernetes 资源</p>
-              <p onClick={()=>this.onClickLinkCreate('yaml','helm')}>Helm 命令</p>
-            </div>
-          </div>
-        </div>
-        <CustomFooter />
-      </Fragment>
-    )
-  }
   render() {
     const {
       loadingOverview,
@@ -762,6 +636,7 @@ export default class Index extends PureComponent {
       searchVisible,
       language,
       appListLoading,
+      loadingNotData,
     } = this.state;
     const {
       index,
@@ -774,14 +649,19 @@ export default class Index extends PureComponent {
     const teamName = globalUtil.getCurrTeamName();
     // 当前集群名称
     const regionName = globalUtil.getCurrRegionName();
-    // 团队应用
+
     return (
       <Fragment>
-        {(
-          !loadingOfApp &&
-          teamHotAppList.length > 0) ?
-          this.teamOverviewRender() :
-          this.initOverviewRender()
+        {loadingNotData ?
+          (
+            <div style={{width:'100%', height: '600px', display:'flex',justifyContent:'center',alignItems:'center'}}>
+              <Spin size="large" tip="Loading..." />
+            </div>
+          ) : (
+            <div>
+              {((!emptyConfig && teamHotAppList.length > 0) || (emptyConfig && searchVisible && teamHotAppList.length == 0)) ? this.teamOverviewRender() : <TeamWizard />}
+            </div>
+          )
         }
       </Fragment>
     );
