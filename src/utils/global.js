@@ -1780,7 +1780,10 @@ const global = {
       ReadinessProbeFailed: '#CD0200',
       AbnormalShtdown: '#CD0200',
       EventTypeAbnormalExited: '#CD0200',
-      AbnormalExited: '#CD0200'
+      AbnormalExited: '#CD0200',
+      CrashLoopBackOff: '#CD0200',
+      Unschedulable: '#CD0200',
+      INITIATING: '#CD0200',
     };
     return abnormalcolor[type] || 'rgba(0,0,0,0.65)';
   },

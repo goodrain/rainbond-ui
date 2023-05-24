@@ -95,14 +95,14 @@ class Index extends PureComponent {
        arr = JSON.parse(arrayStr);
     }
     return <>
-              {message[1]} 
+              ({message[1]} 
               {arr && arr.length > 0 && arr.map((item,index) =>{
                 if(arr.length > 3){
                   return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.showJumpModal(arr)}}>{formatMessage({id:'componentOverview.body.tab.overview.handle.Dependent'})}</span>
                 }else{ 
                   return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.jumpExpansion(true,item.service_alias)}}>{item.service_cname}</span>
                 }
-              })}
+              })})
            </>
   }
   showJumpModal = (arr) =>{
@@ -178,7 +178,7 @@ class Index extends PureComponent {
                     </Tooltip>
 
                     <div>
-                      <Tooltip title={ OptType == 'INITIATING' ? this.jumpMessage(Messages,true): Messages}>
+                      <Tooltip title={ OptType == 'INITIATING' ? this.jumpMessage(Message,true): Messages}>
                         <span
                           style={{
                             color: globalUtil.fetchAbnormalcolor(OptType)
@@ -192,15 +192,15 @@ class Index extends PureComponent {
                         {Status === 'failure' && globalUtil.fetchReason(Reason)}
                         {OptType == 'Unschedulable' ? 
                         <span>
-                          {Messages}
-                          {(Messages == "节点CPU不足" || Messages =="节点内存不足") &&
+                          ({Message}
+                          {(Message == "节点CPU不足" || Message =="节点内存不足") &&
                               <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>this.jumpExpansion(false)}>{formatMessage({id:'componentOverview.body.tab.overview.handle.stretch'})}
                               </span> 
-                          }
+                          })
                         </span>
                         :
                         OptType == 'INITIATING' ?
-                        this.jumpMessage(Messages,false)
+                        this.jumpMessage(Message,false)
                         :
                         Messages
                         }
