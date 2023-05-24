@@ -221,7 +221,6 @@ export default class Index extends PureComponent {
     const isService = handleType && handleType === 'Service';
     const showCreateGroups =
       showCreateGroup === void 0 ? true : showCreateGroup;
-    console.log(this.props, 'props')
     return (
       <Form layout="horizontal" hideRequiredMark>
         <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>

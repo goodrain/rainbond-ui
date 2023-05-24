@@ -343,7 +343,6 @@ export default class Index extends PureComponent {
         routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/code/${link}` })
       );
     }else if(type == 'market'){
-      console.log(link,'link')
       dispatch(
         routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/market/${link}` })
       );
