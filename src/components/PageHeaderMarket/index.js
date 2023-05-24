@@ -171,7 +171,6 @@ export default class PageHeader extends PureComponent {
       helmInfoSwitch,
       marketInfoSwitch
     } = this.props;
-    console.log(this.props,'props')
     const appMarketSvg = globalUtil.fetchSvg('appmarket');
     const clsString = classNames(styles.pageHeader, className);
     // const { teamName, regionName } = this.props.match.params;

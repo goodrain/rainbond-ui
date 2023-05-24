@@ -16,7 +16,8 @@ export default class Register extends Component {
     super(props)
     this.state = {
       eid:'',
-      is_admin: 0
+      is_admin: 0,
+      regionName: null
     }
   }
   componentDidMount(){
@@ -35,11 +36,29 @@ export default class Register extends Component {
           },()=>{
             const { eid } = this.state
             this.loadUser(eid)
+            this.loadClusters(eid)
           })
 
         }
       },
       handleError: () => {
+      }
+    });
+  };
+  // 集群列表
+  loadClusters = (eid) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'region/fetchEnterpriseClusters',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.list.length > 0) {
+          this.setState({ regionName: res.list[0].region_name });
+        } else {
+          this.setState({ regionName: null });
+        }
       }
     });
   };
@@ -63,10 +82,11 @@ export default class Register extends Component {
       }
     });
   };
-  onRouterLink = (eid, is_admin)=>{
+  onRouterLink = (eid, is_admin, regionName)=>{
     const { dispatch } = this.props;
-    if(is_admin == 1){
-      dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
+    if(is_admin == 1 && regionName){
+      // dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
+      dispatch(routerRedux.replace(`/team/default/region/${regionName}/index`))
     }else{
       dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
     }
@@ -74,10 +94,10 @@ export default class Register extends Component {
   }
   render() {
     const { location,user } = this.props
-    const { eid, is_admin } = this.state
+    const { eid, is_admin, regionName } = this.state
     const actions = (
       <div className={styles.actions}>
-        {is_admin &&<Button size="large" onClick={()=>{this.onRouterLink(eid,is_admin)}}><FormattedMessage id="login.RegisterResult.back" /></Button>}
+        {is_admin &&<Button size="large" onClick={()=>{this.onRouterLink(eid,is_admin, regionName)}}><FormattedMessage id="login.RegisterResult.back" /></Button>}
       </div>
     );
     return (

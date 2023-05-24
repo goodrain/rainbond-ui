@@ -1142,7 +1142,6 @@ export default class Main extends PureComponent {
       />
     );
     const defaultValue = scopeMax == 'localApplication' ? appName : cloudAppName;
-      console.log(defaultValue, appName, cloudAppName,'defaultValue')
     //搜索框
     const mainSearch = (
       <div
