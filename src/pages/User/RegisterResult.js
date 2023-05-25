@@ -84,13 +84,15 @@ export default class Register extends Component {
   };
   onRouterLink = (eid, is_admin, regionName)=>{
     const { dispatch } = this.props;
-    if(is_admin == 1 && regionName){
-      // dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
-      dispatch(routerRedux.replace(`/team/default/region/${regionName}/index`))
+    if(is_admin == 1){
+      if(regionName){
+        dispatch(routerRedux.replace(`/team/default/region/${regionName}/index`))
+      }else{
+        dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
+      }
     }else{
       dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
     }
-    
   }
   render() {
     const { location,user } = this.props
