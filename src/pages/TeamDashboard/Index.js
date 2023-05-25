@@ -310,28 +310,6 @@ export default class Index extends PureComponent {
       this.loadHotApp();
     })
   }
-  onClickLinkCreate = (type, link) => {
-    const { dispatch } = this.props
-    const teamName = globalUtil.getCurrTeamName();
-    const regionName = globalUtil.getCurrRegionName();
-    if (type == 'code') {
-      dispatch(
-        routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/code/${link}` })
-      );
-    } else if (type == 'market') {
-      dispatch(
-        routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/market/${link}` })
-      );
-    } else if (type == 'image') {
-      dispatch(
-        routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/image/${link}` })
-      );
-    } else if (type == 'yaml') {
-      dispatch(
-        routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/yaml/${link}` })
-      );
-    }
-  }
   teamOverviewRender = () => {
     const {
       loadingOverview,
