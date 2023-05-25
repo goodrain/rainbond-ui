@@ -93,8 +93,8 @@ export default class Main extends PureComponent {
       helmCreate: null,
       showCreate: null,
       scope,
-      scopeMax: (match && match.params && match.params.keyword) ? 
-      (match && match.params && match.params.keyword) : (scopeMax  || 'localApplication'),
+      scopeMax: (this.props.match && this.props.match.params && this.props.match.params.keyword) ? 
+      (this.props.match && this.props.match.params && this.props.match.params.keyword) : (scopeMax  || 'localApplication'),
       showApp: {},
       showMarketAppDetail: false,
       installBounced: false,
@@ -966,9 +966,6 @@ export default class Main extends PureComponent {
       currentRegionName,
       isHelm = true,
       isAddMarket,
-      match: {
-        params: { keyword }
-      },
     } = this.props;
     const {
       handleType,
@@ -1006,6 +1003,7 @@ export default class Main extends PureComponent {
       helmInfoSwitch,
       marketInfoSwitch,
     } = this.state;
+    const keyword = this.props.match && this.props.match.params && this.props.match.params.keyword || '';
     const dockerSvg = globalUtil.fetchSvg('dockerSvg');
     const setHideOnSinglePage = !!moreState;
     const paginationProps = {
