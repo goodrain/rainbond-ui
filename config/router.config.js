@@ -266,7 +266,7 @@ export default [
           },
           {
             path: '/team/:teamName/region/:regionName/wizard',
-            component: './TeamWizard/Index',
+            component: './TeamWizard/index',
             name: 'teamOverview',
             authority: ['admin', 'user']
           },
