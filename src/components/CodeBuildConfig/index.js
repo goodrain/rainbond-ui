@@ -187,6 +187,7 @@ class CodeBuildConfig extends PureComponent {
       }
     };
     const { getFieldDecorator } = this.props.form;
+    const { isBtn = true } = this.props
     const { languageType, arr } = this.state;
     return (
       <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title'/>}>
@@ -260,14 +261,17 @@ class CodeBuildConfig extends PureComponent {
             </Form.Item>
           </div>
         )}
-        <Row>
-          <Col span="5" />
-          <Col span="19">
-            <Button onClick={this.showConfirm} type="primary">
-              <FormattedMessage id='componentOverview.body.CodeBuildConfig.Confirm'/>
-            </Button>
-          </Col>
-        </Row>
+        {isBtn &&
+          <Row>
+            <Col span="5" />
+            <Col span="19">
+              <Button onClick={this.showConfirm} type="primary">
+                <FormattedMessage id='componentOverview.body.CodeBuildConfig.Confirm'/>
+              </Button>
+            </Col>
+          </Row>
+        }
+        
       </Card>
     );
   }

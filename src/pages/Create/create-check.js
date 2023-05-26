@@ -244,6 +244,11 @@ export default class CreateCheck extends React.Component {
     window.sessionStorage.setItem('advanced_setup', JSON.stringify('advanced'));
     this.handleJump(`create/create-setting/${appAlias}`);
   };
+  handleConfigFile = () => {
+    const { appAlias } = this.getParameter();
+    window.sessionStorage.setItem('advanced_setup', JSON.stringify('advanced'));
+    this.handleJump(`create/create-configFile/${appAlias}`);
+  };
   // 进入多模块构建
   handleMoreService = () => {
     const { handleServiceDataState } = this.props;
@@ -341,7 +346,7 @@ export default class CreateCheck extends React.Component {
     
   };
 
-  handlePreventClick = (flag) => {
+  handlePreventClick = () => {
     if(!this.loadingBuild){
       this.handleBuild()
     }else{
@@ -811,16 +816,16 @@ export default class CreateCheck extends React.Component {
               {formatMessage({ id: 'button.abandon_create' })}
             </Button>
           )}
-          <Button
+          {/* <Button
             type="default"
             onClick={this.handleSetting}
             style={{ marginRight: '8px' }}
           >
             {formatMessage({ id: 'button.advanced_setup' })}
-          </Button>
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          </Button> */}
+          {/* <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Button
-              onClick={() => this.handlePreventClick(buildAppLoading)}
+              onClick={this.handlePreventClick}
               type="primary"
               style={{ marginRight: '8px' }}
               loading={buildAppLoading}
@@ -846,7 +851,14 @@ export default class CreateCheck extends React.Component {
                 {formatMessage({ id: 'button.build_start' })}
               </Radio>
             </Tooltip>
-          </div>
+          </div> */}
+            <Button
+              type="primary"
+              style={{ marginRight: '8px' }}
+              onClick={this.handleConfigFile}
+            >
+              下一步
+            </Button>
         </div>
       ];
     } else if (appDetail.service_source === 'third_party') {
@@ -854,7 +866,7 @@ export default class CreateCheck extends React.Component {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
-              onClick={() => this.handlePreventClick(buildAppLoading)}
+              onClick={this.handlePreventClick}
               type="primary"
               style={{ marginRight: '8px' }}
               loading={buildAppLoading}
@@ -872,12 +884,12 @@ export default class CreateCheck extends React.Component {
               {formatMessage({ id: 'button.abandon_create' })}
             </Button>
           )}
-          <Button type="default" onClick={this.handleSetting}>
+          {/* <Button type="default" onClick={this.handleSetting}>
             {formatMessage({ id: 'button.advanced_setup' })}
-          </Button>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          </Button> */}
+          {/* <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
-              onClick={() => this.handlePreventClick(buildAppLoading)}
+              onClick={this.handlePreventClick}
               type="primary"
               style={{ marginRight: '8px' }}
               loading={buildAppLoading}
@@ -903,7 +915,14 @@ export default class CreateCheck extends React.Component {
                 {formatMessage({ id: 'button.build_start' })}
               </Radio>
             </Tooltip>
-          </div>
+          </div> */}
+            <Button
+              type="primary"
+              style={{ marginRight: '8px' }}
+              onClick={this.handleConfigFile}
+            >
+              下一步
+            </Button>
         </div>
       ];
     }
@@ -913,7 +932,7 @@ export default class CreateCheck extends React.Component {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
-              onClick={() => this.handlePreventClick(buildAppLoading)}
+              onClick={this.handlePreventClick}
               type="primary"
               style={{ marginRight: '8px' }}
               loading={buildAppLoading}
@@ -1007,7 +1026,7 @@ export default class CreateCheck extends React.Component {
           )}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
-              onClick={() => this.handlePreventClick(buildAppLoading)}
+              onClick={this.handlePreventClick}
               type="primary"
               style={mr8}
               loading={buildAppLoading}
@@ -1043,7 +1062,7 @@ export default class CreateCheck extends React.Component {
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {isDelete && (
               <Button
-                onClick={() => this.handlePreventClick(buildAppLoading)}
+                onClick={this.handlePreventClick}
                 type="primary"
                 style={mr8}
                 loading={buildAppLoading}
@@ -1078,7 +1097,7 @@ export default class CreateCheck extends React.Component {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
-              onClick={() => this.handlePreventClick(buildAppLoading)}
+              onClick={this.handlePreventClick}
               type="primary"
               style={mr8}
               loading={buildAppLoading}
