@@ -6,19 +6,20 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { setNodeLanguage } from '../../services/createApp';
-import AppCreateSetting from '../../components/AppCreateSetting';
+import AppConfigPort from '../../components/AppCreateConfigPort';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
 import roleUtil from '../../utils/role';
 
 @connect(
-  ({ loading, teamControl }) => ({
+  ({ loading, teamControl, appControl }) => ({
     buildAppsLoading: loading.effects['createApp/buildApps'],
     deleteAppLoading: loading.effects['appControl/deleteApp'],
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
     soundCodeLanguage: teamControl.codeLanguage,
     packageNpmOrYarn: teamControl.packageNpmOrYarn,
+    ports: appControl.ports,
   }),
   null,
   null,
@@ -167,16 +168,21 @@ export default class Index extends PureComponent {
       handleBuildSwitch: val
     })
   }
-  render() {
+  handleLinkConfigFile = (link) => {
     const { 
-      buildAppsLoading, 
-      deleteAppLoading,
-      match: {
-          params:{
-              appAlias,
-          }
-      },
-  } = this.props
+        match: {
+            params:{
+                appAlias,
+                regionName,
+                teamName
+            }
+        },
+        dispatch 
+    } = this.props 
+    dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
+  }
+  render() {
+    const { buildAppsLoading, deleteAppLoading } = this.props;
     const {
       showDelete,
       appPermissions: { isDelete },
@@ -193,14 +199,14 @@ export default class Index extends PureComponent {
             textAlign: 'center'
           }}
         >
-           {formatMessage({id:'componentCheck.advanced.setup'})}
+          访问配置
         </h2>
         <div
           style={{
             overflow: 'hidden'
           }}
         >
-          <AppCreateSetting
+          <AppConfigPort
             updateDetail={this.loadDetail}
             appDetail={appDetail}
             handleBuildSwitch={this.handleBuildSwitch}
@@ -231,15 +237,28 @@ export default class Index extends PureComponent {
             )}
             <Button
               loading={buildAppsLoading}
-              onClick={()=>this.handleJump(`create/create-configPort/${appAlias}`)}
               style={{
                 marginRight: 8
               }}
+              onClick={() => this.handleLinkConfigFile('create-setting')}
             >
-              上一步
-            </Button> 
+              高级设置
+            </Button>
             <Button
               loading={buildAppsLoading}
+              style={{
+                marginRight: 8
+              }}
+              type="primary"
+              onClick={() => this.handleLinkConfigFile('create-configFile')}
+            >
+              上一步
+            </Button>
+            <Button
+              loading={buildAppsLoading}
+              style={{
+                marginRight: 8
+              }}
               onClick={()=>this.handleDebounce(this.handleBuild(handleBuildSwitch),1000)}
               type="primary"
             >

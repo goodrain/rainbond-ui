@@ -6,7 +6,7 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { setNodeLanguage } from '../../services/createApp';
-import AppCreateSetting from '../../components/AppCreateSetting';
+import AppConfigFile from '../../components/AppCreateConfigFile';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
@@ -167,16 +167,78 @@ export default class Index extends PureComponent {
       handleBuildSwitch: val
     })
   }
-  render() {
+  handleLinkConfigPort = (link) => {
     const { 
-      buildAppsLoading, 
-      deleteAppLoading,
-      match: {
-          params:{
-              appAlias,
-          }
+        match: {
+            params:{
+                appAlias,
+                regionName,
+                teamName
+            }
+        },
+        dispatch 
+    } = this.props 
+    dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
+  }
+  handleJumpNext = () => {
+      this.handleEditInfo()
+      this.handleEditRuntime()
+      this.handleLinkConfigPort('create-configPort')
+  }
+  // cpu 内存 接口
+  handleEditInfo = (val = {}) => {
+    const { 
+        match: {
+            params:{
+                appAlias,
+                regionName,
+                teamName
+            }
+        },
+        dispatch 
+    } = this.props 
+    this.props.dispatch({
+      type: 'appControl/editAppCreateInfo',
+      payload: {
+        team_name: teamName,
+        app_alias: appAlias,
+        ...val
       },
-  } = this.props
+      callback: data => {
+        if (data) {
+          this.loadDetail();
+          this.handleBuildSwitch(false)
+        }
+      }
+    });
+  };
+  // 构建源信息
+  handleEditRuntime = (build_env_dict = {}) => {
+    const { 
+        match: {
+            params:{
+                appAlias,
+                regionName,
+                teamName
+            }
+        },
+        dispatch 
+    } = this.props 
+    this.props.dispatch({
+      type: 'appControl/editRuntimeBuildInfo',
+      payload: {
+        team_name: teamName,
+        app_alias: appAlias,
+        build_env_dict
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+        }
+      }
+    });
+  };
+  render() {
+    const { buildAppsLoading, deleteAppLoading } = this.props;
     const {
       showDelete,
       appPermissions: { isDelete },
@@ -193,17 +255,19 @@ export default class Index extends PureComponent {
             textAlign: 'center'
           }}
         >
-           {formatMessage({id:'componentCheck.advanced.setup'})}
+           环境配置
         </h2>
         <div
           style={{
             overflow: 'hidden'
           }}
         >
-          <AppCreateSetting
+          <AppConfigFile
             updateDetail={this.loadDetail}
             appDetail={appDetail}
             handleBuildSwitch={this.handleBuildSwitch}
+            handleEditInfo={this.handleEditInfo}
+            handleEditRuntime={this.handleEditRuntime}
           />
           <div
             style={{
@@ -223,7 +287,7 @@ export default class Index extends PureComponent {
                 onClick={this.showDelete} 
                 type="default"
                 style={{
-                  marginRight: 8
+                    marginRight: 8
                 }}
               >
                {formatMessage({id:'button.abandon_create'})}
@@ -231,19 +295,19 @@ export default class Index extends PureComponent {
             )}
             <Button
               loading={buildAppsLoading}
-              onClick={()=>this.handleJump(`create/create-configPort/${appAlias}`)}
               style={{
                 marginRight: 8
               }}
+              onClick={() => this.handleLinkConfigPort('create-check')}
             >
               上一步
-            </Button> 
+            </Button>
             <Button
               loading={buildAppsLoading}
-              onClick={()=>this.handleDebounce(this.handleBuild(handleBuildSwitch),1000)}
+              onClick={this.handleJumpNext}
               type="primary"
             >
-              {formatMessage({id:'button.confirm_create'})}
+              下一步
             </Button>
             
           </div>
