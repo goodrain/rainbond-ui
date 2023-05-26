@@ -87,7 +87,7 @@ export default class Index extends PureComponent {
       errorMemoryValue: '',
       enableGPU: licenseUtil.haveFeature(this.props.features, 'GPU'),
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      dataSource: []
+      dataSource: [],
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -146,23 +146,30 @@ export default class Index extends PureComponent {
     return isTelescopic;
   }
   handleVertical = () => {
-    const { form, appAlias } = this.props;
+    const { form, appAlias, extendInfo } = this.props;
     const { getFieldValue } = form;
+    const { setUnit } = this.state;
     const memory = getFieldValue('memory');
     const gpu = Number(getFieldValue('gpu'));
     const cpu = Number(getFieldValue('new_cpu'));
-
-    vertical({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: appAlias,
-      new_memory: memory,
-      new_gpu: gpu,
-      new_cpu: cpu
-    }).then(data => {
-      if (data && !data.status) {
-        notification.success({ message: formatMessage({id:'notification.success.operationImplement'}) });
-      }
-    });
+    var memoryNum = 0;
+    if(setUnit){
+      memoryNum = setUnit == "G" ? memory * 1024 : memory
+    }else{
+      memoryNum = sourceUtil.getUnit(extendInfo.current_memory) == "G" ? memory * 1024 : memory
+    }
+    console.log(memoryNum,"memoryNum");
+    // vertical({
+    //   team_name: globalUtil.getCurrTeamName(),
+    //   app_alias: appAlias,
+    //   new_memory: memoryNum,
+    //   new_gpu: gpu,
+    //   new_cpu: cpu
+    // }).then(data => {
+    //   if (data && !data.status) {
+    //     notification.success({ message: formatMessage({id:'notification.success.operationImplement'}) });
+    //   }
+    // });
   };
   handleHorizontal = () => {
     const node = this.props.form.getFieldValue('node');
@@ -748,7 +755,11 @@ export default class Index extends PureComponent {
       errorType: type
     });
   };
-
+  selectAfterChange =(val)=>{
+    this.setState({
+      setUnit:val
+    })
+  }
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { extendInfo, appAlias, form, appDetail } = this.props;
@@ -779,7 +790,8 @@ export default class Index extends PureComponent {
       errorMemoryValue,
       enableGPU,
       language,
-      dataSource
+      dataSource,
+      setUnit
     } = this.state;
     if (!extendInfo) {
       return null;
@@ -788,16 +800,6 @@ export default class Index extends PureComponent {
         dataSource: extendInfo.memory_list || []
       })
     }
-    const options = dataSource && dataSource.map((group,index) => (
-        <Option key={index} value={`${group}`}>
-            {sourceUtil.getMemoryAndUnit(group)}
-          </Option>
-    ))
-    .concat([
-      <Option key={0} value={'0'}>
-        <FormattedMessage id='componentOverview.body.Expansion.unlimited'/>
-      </Option>,
-    ]);
     const minNumber = getFieldValue('minNum') || 0;
 
     const grctlCmd = `grctl service get ${appAlias} -t ${globalUtil.getCurrTeamName()}`;
@@ -929,14 +931,16 @@ export default class Index extends PureComponent {
                   className={styles.customFormItem}
                 >
                   {getFieldDecorator('memory', {
-                    initialValue: `${extendInfo.current_memory}` || 0
+                    initialValue: `${extendInfo.current_memory && extendInfo.current_memory % 1024 == 0 ? extendInfo.current_memory / 1024 : extendInfo.current_memory}` || 0
                   })(
-                      <AutoComplete
-                      dropdownStyle={{ width: 300 }}
-                      size="large"
-                      style={{ width: '100%' }}
-                      dataSource={options}
-                    />
+                  <Input 
+                  addonAfter={
+                  <Select value={setUnit ? setUnit : sourceUtil.getUnit(extendInfo.current_memory)} onChange={this.selectAfterChange}>
+                    <Option value="M">M</Option>
+                    <Option value="G">G</Option>
+                  </Select>
+                  }
+                />
                   )}
                 </Form.Item>
                 {descBox(`${formatMessage({id:'componentOverview.body.Expansion.algorithm'})}`)}
