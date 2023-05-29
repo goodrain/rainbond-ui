@@ -100,7 +100,7 @@ class Index extends PureComponent {
                 if(arr.length > 3){
                   return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.showJumpModal(arr)}}>{formatMessage({id:'componentOverview.body.tab.overview.handle.Dependent'})}</span>
                 }else{ 
-                  return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.jumpExpansion(true,item.service_alias)}}>{item.service_cname}</span>
+                  return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.jumpExpansion(true,item.serivce_alias)}}>{item.service_cname}</span>
                 }
               })})
            </>

@@ -156,20 +156,19 @@ export default class Index extends PureComponent {
     if(setUnit){
       memoryNum = setUnit == "G" ? memory * 1024 : memory
     }else{
-      memoryNum = sourceUtil.getUnit(extendInfo.current_memory) == "G" ? memory * 1024 : memory
+      memoryNum = sourceUtil.getUnit(extendInfo.current_memory) == "G" ? Number(memory * 1024) : Number(memory)
     }
-    console.log(memoryNum,"memoryNum");
-    // vertical({
-    //   team_name: globalUtil.getCurrTeamName(),
-    //   app_alias: appAlias,
-    //   new_memory: memoryNum,
-    //   new_gpu: gpu,
-    //   new_cpu: cpu
-    // }).then(data => {
-    //   if (data && !data.status) {
-    //     notification.success({ message: formatMessage({id:'notification.success.operationImplement'}) });
-    //   }
-    // });
+    vertical({
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: appAlias,
+      new_memory: memoryNum ,
+      new_gpu: gpu,
+      new_cpu: cpu
+    }).then(data => {
+      if (data && !data.status) {
+        notification.success({ message: formatMessage({id:'notification.success.operationImplement'}) });
+      }
+    });
   };
   handleHorizontal = () => {
     const node = this.props.form.getFieldValue('node');
