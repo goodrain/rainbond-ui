@@ -41,6 +41,7 @@ import {
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import sourceUtil from '../../utils/source';
 import cookie from '@/utils/cookie';
 import { getVolumeTypeShowName } from '../../utils/utils';
 import CodeBuildConfig from '../CodeBuildConfig';
@@ -182,9 +183,15 @@ class BaseInfo extends PureComponent {
     const { method, memory, cpu } = this.state;
     handleBuildSwitch((method || memory || cpu))
   }
+  selectAfterChange =(val)=>{
+    this.setState({
+      setUnit:val
+    })
+  }
+
   render() {
     const { appDetail, form } = this.props;
-    const { is_flag } = this.state
+    const { is_flag, setUnit } = this.state
     const { getFieldDecorator } = form;
     const {
       extend_method: extendMethod,
@@ -225,7 +232,7 @@ class BaseInfo extends PureComponent {
       >
         <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.advanced.setup.basic_info.label.min_memory'})}>
           {getFieldDecorator('min_memory', {
-            initialValue: minMemory || 0,
+            initialValue:  `${ minMemory % 1024 == 0 ? minMemory / 1024 : minMemory}` || 0,
             rules: [
               {
                 required: true,
@@ -233,21 +240,16 @@ class BaseInfo extends PureComponent {
               }
             ]
           })(
-            <RadioGroup onChange={this.RadioGroupChange}>
-              <RadioButton key={0} value={0}>
-                {formatMessage({id:'componentCheck.advanced.setup.basic_info.label.noLimit'})}
-              </RadioButton>
-              {minMemory < list[0].value && minMemory != 0 ? (
-                <RadioButton value={minMemory}>{minMemory}M</RadioButton>
-              ) : null}
-              {list.map((item, index) => {
-                return (
-                  <RadioButton key={index} value={item.value}>
-                    {item.text}
-                  </RadioButton>
-                );
-              })}
-            </RadioGroup>
+            <Input 
+                  style={{ width: '200px' }}
+                  type="number"
+                  addonAfter={
+                  <Select value={setUnit ? setUnit : sourceUtil.getUnit(minMemory)} onChange={this.selectAfterChange}>
+                    <Option value="M">M</Option>
+                    <Option value="G">G</Option>
+                  </Select>
+                  }
+                />
           )}
         </Form.Item>
         <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.advanced.setup.basic_info.label.min_cpu'})}>

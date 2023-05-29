@@ -13,6 +13,20 @@ const sourceUtil = {
     }
     return `${res.toFixed(num, 2)}G`;
   },
+  getUnit(memory, num = 2) {
+    if (memory === void 0) {
+      return '';
+    }
+
+    if (memory < 1024) {
+      return `M`;
+    }
+    const res = memory / 1024;
+    if (res % 1 === 0) {
+      return `G`;
+    }
+    return `${res.toFixed(num, 2)}G`;
+  },
   getDiskAndUnit(disk, num = 2) {
     if (disk === void 0) {
       return '';
