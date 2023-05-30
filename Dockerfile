@@ -1,6 +1,2 @@
-ARG VERSION=v5.14
-ARG IMAGE_DOMAIN=docker.io
-ARG IMAGE_NAMESPACE=rainbond
-
-FROM ${IMAGE_DOMAIN}/${IMAGE_NAMESPACE}/rbd-ui-base:${VERSION}
+FROM alpine:3.18
 ADD dist /dist
