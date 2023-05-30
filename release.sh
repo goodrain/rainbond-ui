@@ -14,10 +14,9 @@ IMAGE_NAME="${IMAGE_DOMAIN}/${IMAGE_NAMESPACE}/rainbond-ui:$VERSION"
 BUILD_RBD_APP_UI=${BUILD_RBD_APP_UI:-true}
 DOMESTIC_BASE_NAME=${DOMESTIC_BASE_NAME:-'registry.cn-hangzhou.aliyuncs.com'}
 DOMESTIC_NAMESPACE=${DOMESTIC_NAMESPACE:-'goodrain'}
-BASE_VERSION=v5.14
 
 echo "$DOCKER_PASSWORD" | docker login ${IMAGE_DOMAIN} -u "$DOCKER_USERNAME" --password-stdin
-docker build --build-arg VERSION="${BASE_VERSION}" --build-arg IMAGE_DOMAIN="${IMAGE_DOMAIN}" --build-arg IMAGE_NAMESPACE="${IMAGE_NAMESPACE}" -t ${IMAGE_NAME} .
+docker build -t ${IMAGE_NAME} .
 docker push ${IMAGE_NAME}
 
 if [ ${BUILD_RBD_APP_UI} == "true" ]; then
