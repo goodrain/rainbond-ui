@@ -32,6 +32,9 @@ export default class Register extends Component {
       },
       complete: data => {
         if (firstRegist) {
+          dispatch({
+            type: 'global/fetchInitCluster',
+          })
           globalUtil.putRegistLog(
             Object.assign(
               { enterprise_alias: values.enter_name, version },

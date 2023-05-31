@@ -1444,3 +1444,12 @@ export async function abilitiesDetail(body) {
     }
   );
 }
+// dind 初始化集群
+export async function fetchInitCluster(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/init`,
+    {
+      method: 'get',
+    }
+  );
+}
