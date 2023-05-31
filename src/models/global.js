@@ -109,6 +109,7 @@ import {
   getAbilitiesList,
   abilitiesEdit,
   abilitiesDetail,
+  fetchInitCluster
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -146,6 +147,7 @@ export default {
     nouse: false,
     needLogin: false,
     teamOverview: null,
+    initCluster: false, //初始化集群信息
   },
 
   effects: {
@@ -922,6 +924,18 @@ export default {
         callback(response);
       }
     },
+    *fetchInitCluster({ payload, callback }, { put, call }) {
+      const response = yield call(fetchInitCluster, payload);
+      if (callback) {
+        callback(response);
+      }
+      if(response){
+        yield put({
+          type: 'saveClusterInit',
+          payload: response.default_region || false
+        });
+      }
+    },
   },
   reducers: {
     isUpDataHeader(state, action) {
@@ -1092,7 +1106,12 @@ export default {
         teamOverview: payload
       };
     },
-
+    saveClusterInit(state, { payload }) {
+      return {
+        ...state,
+        initCluster: payload && payload.region_name || false
+      };
+    }
   },
 
   subscriptions: {

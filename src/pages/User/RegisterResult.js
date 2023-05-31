@@ -8,7 +8,8 @@ import styles from './RegisterResult.less';
 @connect(({ user, global }) => ({
   register: user.register,
   rainbondInfo: global.rainbondInfo,
-  isRegist: global.isRegist
+  isRegist: global.isRegist,
+  initClusterName: global.initCluster
 }))
 
 export default class Register extends Component {
@@ -36,29 +37,11 @@ export default class Register extends Component {
           },()=>{
             const { eid } = this.state
             this.loadUser(eid)
-            this.loadClusters(eid)
           })
 
         }
       },
       handleError: () => {
-      }
-    });
-  };
-  // 集群列表
-  loadClusters = (eid) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'region/fetchEnterpriseClusters',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.list.length > 0) {
-          this.setState({ regionName: res.list[0].region_name });
-        } else {
-          this.setState({ regionName: null });
-        }
       }
     });
   };
@@ -82,11 +65,12 @@ export default class Register extends Component {
       }
     });
   };
-  onRouterLink = (eid, is_admin, regionName)=>{
+  onRouterLink = (eid, is_admin)=>{
+    const { initClusterName } = this.props
     const { dispatch } = this.props;
     if(is_admin == 1){
-      if(regionName){
-        dispatch(routerRedux.replace(`/team/default/region/${regionName}/index`))
+      if(initClusterName){
+        dispatch(routerRedux.replace(`/team/default/region/${initClusterName}/index`))
       }else{
         dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
       }
@@ -95,11 +79,11 @@ export default class Register extends Component {
     }
   }
   render() {
-    const { location,user } = this.props
-    const { eid, is_admin, regionName } = this.state
+    const { location, user } = this.props
+    const { eid, is_admin } = this.state
     const actions = (
       <div className={styles.actions}>
-        {is_admin &&<Button size="large" onClick={()=>{this.onRouterLink(eid,is_admin, regionName)}}><FormattedMessage id="login.RegisterResult.back" /></Button>}
+        {is_admin &&<Button size="large" onClick={()=>{this.onRouterLink(eid,is_admin)}}><FormattedMessage id="login.RegisterResult.back" /></Button>}
       </div>
     );
     return (
@@ -108,7 +92,6 @@ export default class Register extends Component {
         type="success"
         title={
           <div className={styles.title}>
-
             <FormattedMessage id="login.RegisterResult.your" />{location.state ? location.state.account : 'xxx'} <FormattedMessage id="login.RegisterResult.success" />
           </div>
         }
