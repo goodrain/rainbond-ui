@@ -39,6 +39,9 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     this.props.dispatch({ type: 'appControl/clearDetail' });
   }
+  onRef = (ref) => {
+    this.child = ref
+  }
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.querySpecifiedPermissionsInfo(
@@ -181,8 +184,7 @@ export default class Index extends PureComponent {
     dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
   }
   handleJumpNext = () => {
-      this.handleEditInfo()
-      this.handleEditRuntime()
+      this.child.childFn()
       this.handleLinkConfigPort('create-configPort')
   }
   // cpu 内存 接口
@@ -255,7 +257,7 @@ export default class Index extends PureComponent {
             textAlign: 'center'
           }}
         >
-           环境配置
+          环境配置
         </h2>
         <div
           style={{
@@ -268,6 +270,7 @@ export default class Index extends PureComponent {
             handleBuildSwitch={this.handleBuildSwitch}
             handleEditInfo={this.handleEditInfo}
             handleEditRuntime={this.handleEditRuntime}
+            onRef={this.onRef}
           />
           <div
             style={{
