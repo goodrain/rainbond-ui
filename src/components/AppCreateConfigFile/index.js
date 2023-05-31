@@ -100,92 +100,108 @@ class BaseInfo extends PureComponent {
       cpu: false
     };
   }
-  handleSubmit = () => {
+  componentDidMount() {
+    const { onRefCpu } = this.props
+    if (onRefCpu) {
+      this.props.onRefCpu(this)
+    }
+  }
+
+  handleSubmitCpu = () => {
+    const { setUnit } = this.state
     const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (!err && onSubmit) {
+      if (!err && onSubmit && fieldsValue) {
+        if(fieldsValue.min_memory){
+          if (setUnit) {
+            const memoryNum = setUnit == "G" ? fieldsValue.min_memory * 1024 : fieldsValue.min_memory
+            fieldsValue.min_memory = memoryNum
+          } else {
+            const memoryNum = sourceUtil.getUnit(512) == "G" ? Number(fieldsValue.min_memory * 1024) : Number(fieldsValue.min_memory)
+            fieldsValue.min_memory = memoryNum
+          }
+        }
         onSubmit(fieldsValue);
       }
     });
   };
-  handleChange = (value) => {
-  }
+
   onChecks = (e) => {
     const { appDetail, form, handleBuildSwitch } = this.props;
     const { method, memory, cpu } = this.state;
     const {
       extend_method: extendMethod,
     } = appDetail.service;
-    if(e.target.value != extendMethod){
+    if (e.target.value != extendMethod) {
       this.setState({
         method: true
-      },()=>{
+      }, () => {
         this.handleSwitch()
       })
-      
-    }else{
+
+    } else {
       this.setState({
         method: false
-      },()=>{
+      }, () => {
         this.handleSwitch()
       })
     }
-    if(e.target.value === 'cronjob'){
+    if (e.target.value === 'cronjob') {
       this.setState({
-        is_flag:true
+        is_flag: true
       })
-    }else{
+    } else {
       this.setState({
-        is_flag:false
+        is_flag: false
       })
     }
   }
-  RadioGroupChange = (e) =>{
+  RadioGroupChange = (e) => {
     const { appDetail, handleBuildSwitch } = this.props;
     const {
       min_memory: minMemory,
     } = appDetail.service;
-    if(e.target.value != minMemory){
+    if (e.target.value != minMemory) {
       this.setState({
         memory: true
-      },()=>{
+      }, () => {
         this.handleSwitch()
       })
-    }else{
+    } else {
       this.setState({
         memory: false
-      },()=>{
+      }, () => {
         this.handleSwitch()
       })
     }
   }
-  inputChange =(e)=>{
+  inputChange = (e) => {
     const { appDetail, handleBuildSwitch } = this.props;
     const {
       min_cpu: minCpu
     } = appDetail.service;
-    if(e.target.value != minCpu){
+    if (e.target.value != minCpu) {
       this.setState({
         cpu: true
-      },()=>{
+      }, () => {
         this.handleSwitch()
       })
-    }else{
+    } else {
       this.setState({
         cpu: false
-      },()=>{
+      }, () => {
         this.handleSwitch()
       })
     }
   }
-  handleSwitch = ()=>{
+  handleSwitch = () => {
     const { handleBuildSwitch } = this.props
     const { method, memory, cpu } = this.state;
     handleBuildSwitch((method || memory || cpu))
   }
-  selectAfterChange =(val)=>{
+  selectAfterChange = (val) => {
     this.setState({
-      setUnit:val
+      setUnit: val
     })
   }
 
@@ -199,7 +215,7 @@ class BaseInfo extends PureComponent {
       min_cpu: minCpu
     } = appDetail.service;
     const list = this.state.memoryList;
-    const arrOption = ['0 * * * *','0 0 * * *','0 0 * * 0','0 0 1 * *','0 0 1 1 *']
+    const arrOption = ['0 * * * *', '0 0 * * *', '0 0 * * 0', '0 0 1 * *', '0 0 1 1 *']
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -230,39 +246,39 @@ class BaseInfo extends PureComponent {
           marginBottom: 16
         }}
       >
-        <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.advanced.setup.basic_info.label.min_memory'})}>
+        <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
           {getFieldDecorator('min_memory', {
-            initialValue:  `${ minMemory % 1024 == 0 ? minMemory / 1024 : minMemory}` || 0,
+            initialValue: `${minMemory % 1024 == 0 ? minMemory / 1024 : minMemory}` || 0,
             rules: [
               {
                 required: true,
-                message: formatMessage({id:'placeholder.setting.min_memory'})
+                message: formatMessage({ id: 'placeholder.setting.min_memory' })
               }
             ]
           })(
-            <Input 
-                  style={{ width: '200px' }}
-                  type="number"
-                  addonAfter={
-                  <Select value={setUnit ? setUnit : sourceUtil.getUnit(minMemory)} onChange={this.selectAfterChange}>
-                    <Option value="M">M</Option>
-                    <Option value="G">G</Option>
-                  </Select>
-                  }
-                />
+            <Input
+              style={{ width: '200px' }}
+              type="number"
+              addonAfter={
+                <Select value={setUnit ? setUnit : sourceUtil.getUnit(minMemory)} onChange={this.selectAfterChange}>
+                  <Option value="M">M</Option>
+                  <Option value="G">G</Option>
+                </Select>
+              }
+            />
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label={formatMessage({id:'componentCheck.advanced.setup.basic_info.label.min_cpu'})}>
+        <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
           {getFieldDecorator('min_cpu', {
             initialValue: minCpu || 0,
             rules: [
               {
                 required: true,
-                message: formatMessage({id:'placeholder.plugin.min_cpu'})
+                message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
               },
               {
                 pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                message: formatMessage({id:'placeholder.plugin.min_cpuMsg'})
+                message: formatMessage({ id: 'placeholder.plugin.min_cpuMsg' })
               }
             ]
           })(
@@ -271,12 +287,12 @@ class BaseInfo extends PureComponent {
               type="number"
               min={0}
               addonAfter="m"
-              placeholder={formatMessage({id:'placeholder.plugin.min_cpu'})}
+              placeholder={formatMessage({ id: 'placeholder.plugin.min_cpu' })}
               onChange={this.inputChange}
             />
           )}
           <div style={{ color: '#999999', fontSize: '12px' }}>
-            {formatMessage({id:'appPublish.shop.pages.form.quota1000.desc'})}
+            {formatMessage({ id: 'appPublish.shop.pages.form.quota1000.desc' })}
           </div>
         </Form.Item>
         {/* <Row>
@@ -309,8 +325,18 @@ class RenderDeploy extends PureComponent {
     this.getRuntimeInfo();
     this.fetchVolumes()
     this.fetchBaseInfo();
+    this.props.onRef(this)
   }
-
+  onRef = (ref) => {
+    this.child = ref
+  }
+  onRefCpu = (ref) => {
+    this.childCpu = ref
+  }
+  childFn = (e) => {
+    this.child.handleSubmit()
+    this.childCpu.handleSubmitCpu()
+  }
   getRuntimeInfo = () => {
     this.props.dispatch({
       type: 'appControl/getRuntimeBuildInfo',
@@ -325,7 +351,7 @@ class RenderDeploy extends PureComponent {
       }
     });
   };
-  
+
   fetchVolumes = () => {
     this.props.dispatch({
       type: 'appControl/fetchVolumes',
@@ -389,7 +415,7 @@ class RenderDeploy extends PureComponent {
           if (res && res.status_code === 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();
-            notification.success({ message:  formatMessage({id:'notification.success.edit'})});
+            notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
           }
         }
       });
@@ -405,7 +431,7 @@ class RenderDeploy extends PureComponent {
           if (res && res.status_code === 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();
-            notification.success({ message: formatMessage({id:'notification.success.add'}) });
+            notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
           }
         }
       });
@@ -427,18 +453,18 @@ class RenderDeploy extends PureComponent {
       <div>
         {!isDeploytype && !isSource && <NoPermTip />}
         {isDeploytype && (
-          <BaseInfo appDetail={appDetail} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch}/>
+          <BaseInfo onRefCpu={this.onRefCpu} appDetail={appDetail} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} />
         )}
-         <Card
+        <Card
           style={{
             marginBottom: 24,
-            borderRadius:5,
+            borderRadius: 5,
           }}
-          title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title'/> </span>}
+          title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title' /> </span>}
           extra={
             <Button onClick={this.handleAddVars}>
               <Icon type="plus" />
-              <FormattedMessage id='componentOverview.body.tab.env.setting.add'/>
+              <FormattedMessage id='componentOverview.body.tab.env.setting.add' />
             </Button>
           }
         >
@@ -447,19 +473,19 @@ class RenderDeploy extends PureComponent {
               pagination={false}
               columns={[
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.setting.volume_name'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
                   dataIndex: 'volume_name'
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.setting.volume_path'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_path' }),
                   dataIndex: 'volume_path'
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.setting.mode'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.mode' }),
                   dataIndex: 'mode'
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.setting.action'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.action' }),
                   dataIndex: 'action',
                   render: (v, data) => (
                     <div>
@@ -469,7 +495,7 @@ class RenderDeploy extends PureComponent {
                         }}
                         href="javascript:;"
                       >
-                        <FormattedMessage id='componentOverview.body.tab.env.setting.delete'/>
+                        <FormattedMessage id='componentOverview.body.tab.env.setting.delete' />
                       </a>
                       <a
                         onClick={() => {
@@ -477,7 +503,7 @@ class RenderDeploy extends PureComponent {
                         }}
                         href="javascript:;"
                       >
-                        <FormattedMessage id='componentOverview.body.tab.env.setting.edit'/>
+                        <FormattedMessage id='componentOverview.body.tab.env.setting.edit' />
                       </a>
                     </div>
                   )
@@ -494,6 +520,7 @@ class RenderDeploy extends PureComponent {
             isBtn={false}
             language={language}
             runtimeInfo={this.state.runtimeInfo}
+            onRef={this.onRef}
           />
         )}
         {this.state.showAddVars && (
@@ -530,6 +557,16 @@ export default class Index extends PureComponent {
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
+  componentDidMount() {
+    //通过pros接收父组件传来的方法
+    this.props.onRef(this)
+  }
+  onRef = (ref) => {
+    this.child = ref
+  }
+  childFn = (e) => {
+    this.child.childFn()
+  }
   getAppAlias() {
     return this.props.match.params.appAlias;
   }
@@ -545,7 +582,7 @@ export default class Index extends PureComponent {
       type
     );
   };
-  
+
   render() {
     const { appDetail, handleBuildSwitch, handleEditInfo, handleEditRuntime } = this.props;
     const { type, componentPermissions, language } = this.state;
@@ -571,10 +608,11 @@ export default class Index extends PureComponent {
               componentPermissions={componentPermissions}
               handleBuildSwitch={handleBuildSwitch}
               handleEditRuntime={handleEditRuntime}
+              onRef={this.onRef}
             />
           </div>
         </div>
-      <CustomFooter />
+        <CustomFooter />
       </div>
     );
   }

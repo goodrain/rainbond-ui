@@ -54,8 +54,12 @@ class CodeBuildConfig extends PureComponent {
   }
 
   componentDidMount() {
+    const { isBtn = true, onRef } = this.props
     this.handleRuntimeInfo(this.props);
     this.setArr(this.props);
+    if(!isBtn && onRef){
+      this.props.onRef(this)
+    }
   }
 
   componentWillReceiveProps(nextProps) {
