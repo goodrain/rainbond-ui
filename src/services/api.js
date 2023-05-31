@@ -1449,7 +1449,7 @@ export async function fetchInitCluster(body) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/init`,
     {
-      method: 'get',
+      method: 'post',
     }
   );
 }
