@@ -463,6 +463,64 @@ class RenderDeploy extends PureComponent {
         {isDeploytype && (
           <BaseInfo onRefCpu={this.onRefCpu} appDetail={appDetail} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} />
         )}
+        <Card
+          style={{
+            marginBottom: 24,
+            borderRadius: 5,
+          }}
+          title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title' /> </span>}
+          extra={
+            <Button onClick={this.handleAddVars}>
+              <Icon type="plus" />
+              <FormattedMessage id='componentOverview.body.tab.env.setting.add' />
+            </Button>
+          }
+        >
+          <ScrollerX sm={650}>
+            <Table
+              pagination={false}
+              columns={[
+                {
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
+                  dataIndex: 'volume_name'
+                },
+                {
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_path' }),
+                  dataIndex: 'volume_path'
+                },
+                {
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.mode' }),
+                  dataIndex: 'mode'
+                },
+                {
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.action' }),
+                  dataIndex: 'action',
+                  render: (v, data) => (
+                    <div>
+                      <a
+                        onClick={() => {
+                          this.onDeleteVolume(data);
+                        }}
+                        href="javascript:;"
+                      >
+                        <FormattedMessage id='componentOverview.body.tab.env.setting.delete' />
+                      </a>
+                      <a
+                        onClick={() => {
+                          this.onEditVolume(data);
+                        }}
+                        href="javascript:;"
+                      >
+                        <FormattedMessage id='componentOverview.body.tab.env.setting.edit' />
+                      </a>
+                    </div>
+                  )
+                }
+              ]}
+              dataSource={volumes}
+            />
+          </ScrollerX>
+        </Card>
         {language && runtimeInfo && isSource && (
           <CodeBuildConfig
             appDetail={this.props.appDetail}
