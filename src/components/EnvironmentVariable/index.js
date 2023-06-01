@@ -489,7 +489,8 @@ class EnvironmentVariable extends React.Component {
       editEvnsLoading,
       addInnerEnvsLoading,
       deleteEnvsEnvsLoading,
-      putTransferLoading
+      putTransferLoading,
+      isConfigPort = false
     } = this.props;
     const {
       isAttrNameList,
@@ -712,11 +713,12 @@ class EnvironmentVariable extends React.Component {
 
         <Card
           style={{
-            marginBottom: 24,
             borderRadius:5,
+            border: isConfigPort ? 'none' : '',
+            padding: isConfigPort ? 0 : '24px'
           }}
           loading={loading}
-          title={title}
+          title={isConfigPort ?  null : title}
           extra={type === 'Outer' && addButton}
         >
           {type === 'Inner' && (
@@ -735,7 +737,7 @@ class EnvironmentVariable extends React.Component {
               {addButton}
             </div>
           )}
-          <ScrollerX sm={600}>
+          <ScrollerX sm={isConfigPort ? 650 : 600}>
             <EditableContext.Provider value={form}>
               <Table
                 style={{ width: '100%', overflowX: 'auto' }}
