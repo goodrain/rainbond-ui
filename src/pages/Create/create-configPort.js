@@ -31,8 +31,10 @@ export default class Index extends PureComponent {
     this.state = {
       appPermissions: this.handlePermissions('queryAppInfo'),
       appDetail: null,
-      handleBuildSwitch: false
+      handleBuildSwitch: false,
+      isDeploy: true
     };
+    this.loadingBuild = false
   }
   componentDidMount() {
     this.loadDetail();
@@ -83,29 +85,69 @@ export default class Index extends PureComponent {
       }, wait)
     }
   }
-  handleBuild = (val) => {
-    const { dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
-    const { appDetail } = this.state
+  
+  handleBuild = () => {
+    this.loadingBuild = true
     const { team_name, app_alias } = this.fetchParameter();
-    if( val == false ){
-      setNodeLanguage({
-        team_name: team_name,
-        app_alias: app_alias,
-        lang: soundCodeLanguage,
-        package_tool: packageNpmOrYarn,
-      }).then(res=>{
+    const { refreshCurrent, dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
+    const { isDeploy } = this.state;
+    this.setState({ buildAppLoading: true },()=>{
+      if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic') {
+        dispatch({
+          type: 'createApp/setNodeLanguage',
+          payload: {
+            team_name: team_name,
+            app_alias: app_alias,
+            lang: soundCodeLanguage,
+            package_tool: packageNpmOrYarn,
+          },
+          callback: res => {
+            if (res) {
+              dispatch({
+                type: 'createApp/buildApps',
+                payload: {
+                  team_name: team_name,
+                  app_alias: app_alias,
+                  is_deploy: isDeploy,
+                },
+                callback: res => {
+                  if (res) {
+                    dispatch({
+                      type: 'global/fetchGroups',
+                      payload: {
+                        team_name: team_name
+                      },
+                      callback: res => {
+                        this.setState({ buildAppLoading: false });
+                        this.loadingBuild = false
+                      }
+                    });
+                    window.sessionStorage.removeItem('codeLanguage');
+                    window.sessionStorage.removeItem('packageNpmOrYarn');
+                    window.sessionStorage.removeItem('advanced_setup');
+                    this.handleJump(`components/${app_alias}/overview`);
+                  }
+                }
+              })
+            }
+          }
+        }) 
+      }else{
         dispatch({
           type: 'createApp/buildApps',
           payload: {
-            team_name,
-            app_alias,
+            team_name: team_name,
+            app_alias: app_alias,
+            is_deploy: isDeploy,
           },
-          callback: data => {
-            if (data) {
+          callback: res => {
+            if (res) {
+              this.setState({ buildAppLoading: false });
+              this.loadingBuild = false
               dispatch({
                 type: 'global/fetchGroups',
                 payload: {
-                  team_name
+                  team_name: team_name
                 }
               });
               window.sessionStorage.removeItem('codeLanguage');
@@ -114,13 +156,21 @@ export default class Index extends PureComponent {
               this.handleJump(`components/${app_alias}/overview`);
             }
           }
-          });
-      })
-      
-    }else{
-      notification.warning({ message: formatMessage({id:'notification.warn.save'}) });
-    }
+        })
+      }
+       
+    });
+    
   };
+
+  handlePreventClick = () => {
+    if(!this.loadingBuild){
+      this.handleBuild()
+    }else{
+      notification.warning({ message: '正在创建，请勿频繁操作！' });
+    }
+  }
+
   handleDelete = () => {
     const { dispatch } = this.props;
     const { team_name, app_alias } = this.fetchParameter();
@@ -186,7 +236,8 @@ export default class Index extends PureComponent {
     const {
       showDelete,
       appPermissions: { isDelete },
-      handleBuildSwitch
+      handleBuildSwitch,
+      buildAppLoading
     } = this.state;
     const appDetail = this.state.appDetail || {};
     if (!appDetail.service) {
@@ -235,7 +286,7 @@ export default class Index extends PureComponent {
                {formatMessage({id:'button.abandon_create'})}
               </Button>
             )}
-            <Button
+            {/* <Button
               loading={buildAppsLoading}
               style={{
                 marginRight: 8
@@ -243,9 +294,8 @@ export default class Index extends PureComponent {
               onClick={() => this.handleLinkConfigFile('create-setting')}
             >
               高级设置
-            </Button>
+            </Button> */}
             <Button
-              loading={buildAppsLoading}
               style={{
                 marginRight: 8
               }}
@@ -255,7 +305,7 @@ export default class Index extends PureComponent {
               上一步
             </Button>
             <Button
-              loading={buildAppsLoading}
+              loading={buildAppLoading}
               style={{
                 marginRight: 8
               }}

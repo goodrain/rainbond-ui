@@ -31,10 +31,7 @@ export default class Register extends Component {
         ...values
       },
       complete: data => {
-        if (firstRegist) {
-          dispatch({
-            type: 'global/fetchInitCluster',
-          })
+        if (firstRegist) { 
           globalUtil.putRegistLog(
             Object.assign(
               { enterprise_alias: values.enter_name, version },

@@ -9,7 +9,6 @@ import styles from './RegisterResult.less';
   register: user.register,
   rainbondInfo: global.rainbondInfo,
   isRegist: global.isRegist,
-  initClusterName: global.initCluster
 }))
 
 export default class Register extends Component {
@@ -22,6 +21,24 @@ export default class Register extends Component {
     }
   }
   componentDidMount(){
+    const { isRegist, dispatch} = this.props
+    console.log(isRegist,'isRegist')
+    if(!isRegist){
+      dispatch({
+        type: 'global/fetchInitCluster',
+        payload: {},
+        callback: res => {
+          if(res && res.bean && res.bean.default_region){
+            this.setState({
+              regionName: res.bean.default_region.region_name
+            })
+          }
+        },
+        handleError: res => {
+          console.log(res,'error')
+        }
+      })
+    }
     this.getEnterpriseList()
   }
    // 获取企业列表
@@ -36,9 +53,7 @@ export default class Register extends Component {
             eid:res.list[0].enterprise_id
           },()=>{
             const { eid } = this.state
-            this.loadUser(eid)
           })
-
         }
       },
       handleError: () => {
@@ -65,12 +80,11 @@ export default class Register extends Component {
       }
     });
   };
-  onRouterLink = (eid, is_admin)=>{
-    const { initClusterName } = this.props
+  onRouterLink = (eid, isRegist, regionName)=>{
     const { dispatch } = this.props;
-    if(is_admin == 1){
-      if(initClusterName){
-        dispatch(routerRedux.replace(`/team/default/region/${initClusterName}/index`))
+    if(!isRegist){
+      if(regionName){
+        dispatch(routerRedux.replace(`/team/default/region/${regionName}/index`))
       }else{
         dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
       }
@@ -79,11 +93,11 @@ export default class Register extends Component {
     }
   }
   render() {
-    const { location, user } = this.props
-    const { eid, is_admin } = this.state
+    const { location, user, isRegist } = this.props
+    const { eid, is_admin, regionName } = this.state
     const actions = (
       <div className={styles.actions}>
-        {is_admin &&<Button size="large" onClick={()=>{this.onRouterLink(eid,is_admin)}}><FormattedMessage id="login.RegisterResult.back" /></Button>}
+        <Button size="large" onClick={()=>{this.onRouterLink(eid, isRegist, regionName)}}><FormattedMessage id="login.RegisterResult.back" /></Button>
       </div>
     );
     return (
