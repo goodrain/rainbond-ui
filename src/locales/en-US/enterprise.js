@@ -150,7 +150,7 @@ const applicationMarket = {
     'applicationMarket.AuthCompany.authentication': 'The enterprise has not yet bound the cloud app market. Follow these steps for binding authentication.',
     'applicationMarket.AuthCompany.Accessing': 'Accessing',
     'applicationMarket.AuthCompany.store': ' Cloud App market ',
-    'applicationMarket.AuthCompany.grant': 'Authorize the user and obtain the permission to install the application.',
+    'applicationMarket.AuthCompany.grant': 'After connecting to the store, you can obtain the permission to install applications',
     'applicationMarket.AuthCompany.RainStore': 'RainStore market',
     'applicationMarket.AuthCompany.Helm': 'Helm market',
     'applicationMarket.AuthCompany.market': 'Please get the application market certification first',

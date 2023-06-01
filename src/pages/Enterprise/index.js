@@ -1194,7 +1194,7 @@ export default class Enterprise extends PureComponent {
           />
         )}
         {/* 安装集群成功的弹窗 */}
-        {eid &&
+        {/* {eid &&
           isNewbieGuide &&
           showClusterIntroduced &&
           clusters &&
@@ -1207,7 +1207,7 @@ export default class Enterprise extends PureComponent {
               onStartInstall={this.onStartInstall}
               onViewInstance={this.onViewInstance}
             />
-          )}
+          )} */}
         <CustomFooter />
       </div>
     );

@@ -431,6 +431,7 @@ export default class CreateCheck extends PureComponent {
           <div>
             <div>{formatMessage({id:'componentCheck.tooltip.title.p3'})}</div>
             {formatMessage({id:'componentCheck.tooltip.title.p4'})}
+            {formatMessage({id:'componentCheck.tooltip.title.p9'})}
             {(platform_url && (
               <span>
                 <a
