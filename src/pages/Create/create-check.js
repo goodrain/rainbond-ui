@@ -25,6 +25,7 @@ import userUtil from '../../utils/user';
 import ModifyImageCmd from './modify-image-cmd';
 import ModifyImageName from './modify-image-name';
 import ModifyUrl from './modify-url';
+import cookie from '../../utils/cookie';
 
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -63,6 +64,7 @@ export default class CreateCheck extends React.Component {
       codeLanguage: '',
       source_from: '',
       ports: '',
+      language: cookie.get('language') === 'zh-CN' ? true : false,
     };
     this.mount = false;
     this.loadingBuild = false
@@ -974,8 +976,9 @@ export default class CreateCheck extends React.Component {
                 {formatMessage({ id: 'componentCheck.tooltip.title.p3' })}
               </div>
               {formatMessage({ id: 'componentCheck.tooltip.title.p4' })}{' '}
+              {formatMessage({ id: 'componentCheck.tooltip.title.p9' })}{' '}
               <a
-                href="https://www.rainbond.com/en/docs/use-manual/component-create/language-support/"
+                href={this.state.language ? `https://www.rainbond.com/docs/use-manual/component-create/language-support/` : `https://www.rainbond.com/en/docs/use-manual/component-create/language-support/`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

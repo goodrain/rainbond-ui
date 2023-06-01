@@ -66,9 +66,9 @@ const teamAdd = {
   // code
   'teamAdd.create.code.title':'从源码创建组件',
   'teamAdd.create.code.desc':'从指定源码仓库中获取源码，基于源码信息创建新组件。',
-  'teamAdd.create.code.customSource':'自定义源码',
-  'teamAdd.create.code.package':'软件包上传',
-  'teamAdd.create.code.demo':'官方DEMO',
+  'teamAdd.create.code.customSource':'源码',
+  'teamAdd.create.code.package':' Jar、War',
+  'teamAdd.create.code.demo':'示例',
   'teamAdd.create.code.address':'仓库地址',
   'teamAdd.create.code.versions':'代码版本',
   'teamAdd.create.code.branch':'分支',
@@ -82,8 +82,8 @@ const teamAdd = {
   // image
   'teamAdd.create.image.title':'从Docker镜像创建组件',
   'teamAdd.create.image.desc':'支持从单一镜像、Docker命令、DockerCompose配置创建应用。',
-  'teamAdd.create.image.tabImage':'指定镜像',
-  'teamAdd.create.image.DockerRun':'DockerRun 命令',
+  'teamAdd.create.image.tabImage':'镜像',
+  'teamAdd.create.image.DockerRun':'DockerRun',
   'teamAdd.create.image.docker_cmd':'命令',
   'teamAdd.create.image.hint1':'这是一个私有仓库?',
   'teamAdd.create.image.hint2':'填写仓库账号密码',
@@ -105,6 +105,7 @@ const teamAdd = {
 
   //market
   'teamAdd.create.market.desc':'从本地组件库或应用商店一键安装应用。',
+  'teamAdd.create.market.market':'外部应用市场（100+）',
   //third
   'teamAdd.create.third.title':'添加第三方组件',
   'teamAdd.create.third.desc':'第三方组件，即运行于平台集群外的组件，在平台中创建组件即可以将其与平台网关无缝对接。同时也可以被平台内服务访问，满足用户通过平台对各类组件进行统一的监控和管理的需要。',

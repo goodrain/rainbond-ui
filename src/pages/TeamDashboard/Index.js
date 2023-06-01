@@ -446,8 +446,25 @@ export default class Index extends PureComponent {
             {/* appList */}
             {<div className={styles.appListBox} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
               <div className={styles.teamHotAppTitleSearch}>
+              <Button
+                  style={{float:'left'}}
+                  type="primary"
+                  onClick={() => {
+                    // this.setState({ createAppVisible: true });
+                    this.props.dispatch(routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/wizard` }))
+                  }}
+                >
+                  {formatMessage({ id: 'teamOverview.createApp' })}
+                </Button>
+                <Search
+                  placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
+                  onSearch={this.onSearch}
+                  defaultValue={query}
+                  allowClear
+                  style={{ width: 400, margin: '0 0 0 10px' , float:'right'}}
+                />
                 <Select
-                  style={language ? { width: '140px' } : { width: '200px' }}
+                  style={language ? { width: '140px',float:'right' } : { width: '200px',float:'right' }}
                   placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
                   defaultValue={1}
                   onChange={this.handleSortChange}
@@ -455,21 +472,6 @@ export default class Index extends PureComponent {
                   <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}><FormattedMessage id="teamOverview.runStatusSort" /></Option>
                   <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}><FormattedMessage id="teamOverview.updateTimeSort" /></Option>
                 </Select>
-                <Search
-                  placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
-                  onSearch={this.onSearch}
-                  defaultValue={query}
-                  allowClear
-                  style={{ width: 400, margin: '0px 10px' }}
-                />
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    this.setState({ createAppVisible: true });
-                  }}
-                >
-                  {formatMessage({ id: 'teamOverview.createApp' })}
-                </Button>
               </div>
               {appListLoading && (
                 <div className={styles.no_teamHotAppList}>

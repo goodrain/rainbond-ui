@@ -280,7 +280,55 @@ export default class Index extends PureComponent {
             ]
           })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
         </Form.Item>
-        <Form.Item {...is_language} label={<span>Demo</span>}>
+        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.address'})}>
+            {getFieldDecorator('type', {
+              initialValue: this.state.demoHref || '',
+              force: true,
+              rules: [
+                { required: true, message: formatMessage({id: 'placeholder.git_url'}) },
+              ]
+            })(
+              <Input
+                disabled={true}
+                addonBefore={
+                <Select
+                  disabled={true}
+                  defaultValue={'git'}
+                  style={{ width: 70 }}
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                >
+                  <Option value="git">Git</Option>
+                  <Option value="svn">Svn</Option>
+                  <Option value="oss">OSS</Option>
+                </Select>
+                }
+                placeholder={formatMessage({id: 'placeholder.git_url'})}
+              />
+            )}
+          </Form.Item>
+            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.versions'})}>
+              {getFieldDecorator('uuurl', {
+                initialValue: 'master',
+                rules: [{ required: true, message: formatMessage({id: 'placeholder.code_version'}) }]
+              })(
+                <Input
+                  disabled={true}
+                  addonBefore={
+                  <Select
+                    disabled={true}
+                    defaultValue={'branch'}
+                    style={{ width: 70 }}
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                  >
+                    <Option value="branch">{formatMessage({id: 'teamAdd.create.code.branch'})}</Option>
+                    <Option value="tag">Tag</Option>
+                  </Select>}
+                  placeholder={formatMessage({id: 'placeholder.code_version'})}
+                />
+              )}
+            </Form.Item>
+        
+        <Form.Item {...is_language} label={<span>{formatMessage({ id: 'teamAdd.create.code.demo' })}</span>}>
           {getFieldDecorator('git_url', {
             initialValue:
               data.git_url || configureGlobal.documentAddressDefault,

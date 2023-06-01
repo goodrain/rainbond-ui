@@ -15,8 +15,9 @@ import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
 import styles from './index.less';
 
-@connect(({ enterprise }) => ({
+@connect(({ enterprise, user }) => ({
     currentEnterprise: enterprise.currentEnterprise,
+    user: user.currentUser,
 }))
   
 export default class Index extends PureComponent {
@@ -25,11 +26,33 @@ export default class Index extends PureComponent {
         this.state = {
             rainStoreTab: '',
             language: cookie.get('language') === 'zh-CN' ? true : false,
+            scope: 'enterprise',
         };
     }
     componentDidMount(){
         this.getMarketsTab()
+        this.getCloudRecommendApps()
     }
+    getCloudRecommendApps = v => {
+        const {scope} = this.state;
+        const { dispatch, currentEnterprise, user } = this.props;
+        dispatch({
+          type: 'market/fetchAppModels',
+          payload: {
+            enterprise_id: currentEnterprise.enterprise_id,
+            user_id: user.user_id,
+            app_name: '',
+            scope: scope,
+            page_size: 9,
+            page: 1,
+          },
+          callback: data => {
+            this.setState({
+                localist: data.list
+            })
+          }
+        });
+      };
     getMarketsTab = () => {
         const { dispatch, currentEnterprise } = this.props;
         dispatch({
@@ -81,10 +104,56 @@ export default class Index extends PureComponent {
         const teamMarket = globalUtil.fetchSvg('teamMarket');
         const teamImage = globalUtil.fetchSvg('teamImage');
         const teamUpload = globalUtil.fetchSvg('teamUpload');
-        const { rainStoreTab, language } = this.state
+        const { rainStoreTab, language, localist } = this.state
         return (
             <Fragment>
                 <div className={styles.overviewBox}>
+                    <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+                        <div className={styles.topContent} style={{ height: language ? '230px' : '260px' }}>
+                            <div className={styles.initIcon}>
+                                <div>
+                                    {teamMarket}
+                                </div>
+                            </div>
+                            <div className={styles.initTitle}>
+                                {formatMessage({ id: 'menu.team.create.market' })}
+                            </div>
+                            <div className={styles.initDesc}>
+                                <p>
+                                    {formatMessage({ id: 'teamAdd.create.market.desc' })}
+                                </p>
+                            </div>
+                        </div>
+                        <div className={styles.bottomContent}>
+                            <p onClick={() => this.onClickLinkCreate('market', rainStoreTab)}>{formatMessage({id:'teamAdd.create.market.market'})}</p>
+                            <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })} {localist && localist.length > 0 ? (<> ({localist.length}) </>):''}</p>
+
+                        </div>
+                    </div>
+                    <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+                        <div className={styles.topContent} style={{ height: language ? '230px' : '260px' }}>
+                            <div className={styles.initIcon}>
+                                <div>
+                                    {teamImage}
+                                </div>
+                            </div>
+                            <div className={styles.initTitle}>
+                                {formatMessage({ id: 'menu.team.create.image' })}
+                            </div>
+                            <div className={styles.initDesc}>
+                                <p>
+                                    {formatMessage({ id: 'teamAdd.create.image.desc' })}
+                                </p>
+                            </div>
+                        </div>
+                        <div className={styles.bottomContent}>
+                            <p onClick={() => this.onClickLinkCreate('image', 'custom')}>{formatMessage({ id: 'teamAdd.create.image.tabImage' })}</p>
+                            <p onClick={() => this.onClickLinkCreate('image', 'dockerrun')}>Docker Run</p>
+                            <p onClick={() => this.onClickLinkCreate('image', 'Dockercompose')}>Docker Compose</p>
+                            <p onClick={() => this.onClickLinkCreate('image', 'ImageNameDemo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>
+
+                        </div>
+                    </div>
                     <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                         <div className={styles.topContent} style={{ height: language ? '230px' : '260px' }}>
                             <div className={styles.initIcon}>
@@ -111,49 +180,6 @@ export default class Index extends PureComponent {
                         <div className={styles.topContent} style={{ height: language ? '230px' : '260px' }}>
                             <div className={styles.initIcon}>
                                 <div>
-                                    {teamMarket}
-                                </div>
-                            </div>
-                            <div className={styles.initTitle}>
-                                {formatMessage({ id: 'menu.team.create.market' })}
-                            </div>
-                            <div className={styles.initDesc}>
-                                <p>
-                                    {formatMessage({ id: 'teamAdd.create.market.desc' })}
-                                </p>
-                            </div>
-                        </div>
-                        <div className={styles.bottomContent}>
-                            <p onClick={() => this.onClickLinkCreate('market', rainStoreTab)}>{formatMessage({ id: 'popover.applicationMarket.market' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })}</p>
-                        </div>
-                    </div>
-                    <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-                        <div className={styles.topContent} style={{ height: language ? '230px' : '260px' }}>
-                            <div className={styles.initIcon}>
-                                <div>
-                                    {teamImage}
-                                </div>
-                            </div>
-                            <div className={styles.initTitle}>
-                                {formatMessage({ id: 'menu.team.create.image' })}
-                            </div>
-                            <div className={styles.initDesc}>
-                                <p>
-                                    {formatMessage({ id: 'teamAdd.create.image.desc' })}
-                                </p>
-                            </div>
-                        </div>
-                        <div className={styles.bottomContent}>
-                            <p onClick={() => this.onClickLinkCreate('image', 'custom')}>{formatMessage({ id: 'teamAdd.create.image.tabImage' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('image', 'dockerrun')}>{formatMessage({ id: 'teamAdd.create.image.DockerRun' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('image', 'Dockercompose')}>DockerCompose</p>
-                        </div>
-                    </div>
-                    <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-                        <div className={styles.topContent} style={{ height: language ? '230px' : '260px' }}>
-                            <div className={styles.initIcon}>
-                                <div>
                                     {teamUpload}
                                 </div>
                             </div>
@@ -168,8 +194,8 @@ export default class Index extends PureComponent {
                         </div>
                         <div className={styles.bottomContent}>
                             <p onClick={() => this.onClickLinkCreate('yaml', 'yaml')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.yaml' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('yaml', 'importCluster')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.k8s' })}</p>
                             <p onClick={() => this.onClickLinkCreate('yaml', 'helm')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.helm' })}</p>
+                            <p onClick={() => this.onClickLinkCreate('yaml', 'importCluster')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.k8s' })}</p>
                         </div>
                     </div>
                 </div>
