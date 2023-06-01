@@ -297,7 +297,6 @@ export default class Index extends PureComponent {
               </Button>
             )}
             <Button
-              loading={buildAppsLoading}
               style={{
                 marginRight: 8
               }}

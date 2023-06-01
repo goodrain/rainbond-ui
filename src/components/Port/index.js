@@ -266,13 +266,11 @@ export default class Index extends PureComponent {
     const { agreement } = this.state;
     const isHelm =
       appDetail.service && appDetail.service.component_type === 'helm';
-      console.log(showDomain,'fffff')
 
     // 是否显示对外访问地址,创建过程中不显示
     const showOuterUrl =
       this.props.showOuterUrl === void 0 ? true : this.props.showOuterUrl;
     showDomain = showDomain === void 0 ? true : showDomain;
-    console.log(showDomain,'showDomain')
     // const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
     // const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
     // const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
