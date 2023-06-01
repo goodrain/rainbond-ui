@@ -147,7 +147,6 @@ export default {
     nouse: false,
     needLogin: false,
     teamOverview: null,
-    initCluster: false, //初始化集群信息
   },
 
   effects: {
@@ -924,16 +923,10 @@ export default {
         callback(response);
       }
     },
-    *fetchInitCluster({ payload, callback }, { put, call }) {
-      const response = yield call(fetchInitCluster, payload);
+    *fetchInitCluster({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchInitCluster, payload, handleError);
       if (callback) {
         callback(response);
-      }
-      if(response){
-        yield put({
-          type: 'saveClusterInit',
-          payload: response.default_region || false
-        });
       }
     },
   },
@@ -1106,12 +1099,6 @@ export default {
         teamOverview: payload
       };
     },
-    saveClusterInit(state, { payload }) {
-      return {
-        ...state,
-        initCluster: payload && payload.region_name || false
-      };
-    }
   },
 
   subscriptions: {

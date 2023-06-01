@@ -215,7 +215,6 @@ class Ports extends PureComponent {
   };
   render() {
     const ports = this.state.ports || [];
-    console.log(ports,'-------')
     const isImageApp = appUtil.isImageApp(this.props.appDetail);
     const isDockerfile = appUtil.isDockerfile(this.props.appDetail);
     return (

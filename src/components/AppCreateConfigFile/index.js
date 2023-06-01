@@ -334,7 +334,15 @@ class RenderDeploy extends PureComponent {
     this.childCpu = ref
   }
   childFn = (e) => {
-    this.child.handleSubmit()
+    const {
+      appDetail,
+      componentPermissions: { isDeploytype, isSource },
+    } = this.props;
+    const { runtimeInfo } = this.state
+    const language = appUtil.getLanguage(appDetail);
+    if(language && runtimeInfo && isSource){
+      this.child.handleSubmit()
+    }
     this.childCpu.handleSubmitCpu()
   }
   getRuntimeInfo = () => {
