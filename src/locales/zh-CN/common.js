@@ -155,7 +155,7 @@
         'button.confirm':'确定',
         'button.save':'保存',
         'button.retest_check':'重新检测',
-        'button.abandon_create':'放弃创建',
+        'button.abandon_create':'放弃构建',
         'button.advanced_setup':'高级设置',
         'button.create':'创建',
         'button.confirm_create':'确认创建',

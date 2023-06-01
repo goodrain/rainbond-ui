@@ -157,7 +157,7 @@
         'button.confirm':'Confirm',
         'button.save':'Save',
         'button.retest_check':'Retry',
-        'button.abandon_create':'Give up',
+        'button.abandon_create':'Abandoned build',
         'button.advanced_setup':'Advanced setup',
         'button.create':'Create',
         'button.confirm_create':'Confirm create',

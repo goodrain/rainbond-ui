@@ -10,6 +10,7 @@ import AppConfigFile from '../../components/AppCreateConfigFile';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
+import CustomFooter from "../../layouts/CustomFooter";
 import roleUtil from '../../utils/role';
 
 @connect(
@@ -259,11 +260,7 @@ export default class Index extends PureComponent {
         >
           环境配置
         </h2>
-        <div
-          style={{
-            overflow: 'hidden'
-          }}
-        >
+        <div>
           <AppConfigFile
             updateDetail={this.loadDetail}
             appDetail={appDetail}
@@ -272,17 +269,11 @@ export default class Index extends PureComponent {
             handleEditRuntime={this.handleEditRuntime}
             onRef={this.onRef}
           />
-          <div
+          <div 
             style={{
-              background: '#fff',
-              padding: '20px',
-              textAlign: 'right',
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: 2,
-              borderTop: '1px solid #e8e8e8'
+              width:'100%',
+              display: 'flex',
+              justifyContent:'center'
             }}
           >
             {isDelete && (
@@ -311,8 +302,8 @@ export default class Index extends PureComponent {
             >
               下一步
             </Button>
-            
           </div>
+        <CustomFooter />
           {showDelete && (
             <ConfirmModal
               loading={deleteAppLoading}
