@@ -144,14 +144,20 @@ export default class AddVolumes extends PureComponent {
             message={<FormattedMessage id="componentOverview.body.tab.AddStorage.edit_content"/>}
             data={data.file_content || ''}
           />
-        </Form>
-        <div
+          <div
           style={{
             borderTop: '1px solid #e8e8e8',
             padding: '10px 16px',
             textAlign: 'right',
             background: '#fff',
-            borderRadius: '0 0 4px 4px'
+            borderRadius: '0 0 4px 4px',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            zIndex: 99999
           }}
         >
           <Button
@@ -166,6 +172,7 @@ export default class AddVolumes extends PureComponent {
             <FormattedMessage id='button.determine'/>
           </Button>
         </div>
+        </Form>
       </Drawer>
     );
   }

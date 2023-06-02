@@ -4,11 +4,11 @@ import { routerRedux } from 'dva/router';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Button } from 'antd';
 import Result from '../../components/Result';
+import rainbondUtil from '../../utils/rainbond';
 import styles from './RegisterResult.less';
 @connect(({ user, global }) => ({
   register: user.register,
   rainbondInfo: global.rainbondInfo,
-  isRegist: global.isRegist,
 }))
 
 export default class Register extends Component {
@@ -21,9 +21,9 @@ export default class Register extends Component {
     }
   }
   componentDidMount(){
-    const { isRegist, dispatch} = this.props
-    console.log(isRegist,'isRegist')
-    if(!isRegist){
+    const { dispatch, rainbondInfo } = this.props
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
+    if(firstRegist){
       dispatch({
         type: 'global/fetchInitCluster',
         payload: {},
@@ -80,9 +80,9 @@ export default class Register extends Component {
       }
     });
   };
-  onRouterLink = (eid, isRegist, regionName)=>{
+  onRouterLink = (eid, firstRegist, regionName)=>{
     const { dispatch } = this.props;
-    if(!isRegist){
+    if(firstRegist){
       if(regionName){
         dispatch(routerRedux.replace(`/team/default/region/${regionName}/index`))
       }else{
@@ -93,11 +93,12 @@ export default class Register extends Component {
     }
   }
   render() {
-    const { location, user, isRegist } = this.props
+    const { location, user, rainbondInfo } = this.props
     const { eid, is_admin, regionName } = this.state
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     const actions = (
       <div className={styles.actions}>
-        <Button size="large" onClick={()=>{this.onRouterLink(eid, isRegist, regionName)}}><FormattedMessage id="login.RegisterResult.back" /></Button>
+        <Button size="large" onClick={()=>{this.onRouterLink(eid, firstRegist, regionName)}}><FormattedMessage id="login.RegisterResult.back" /></Button>
       </div>
     );
     return (

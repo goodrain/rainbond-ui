@@ -20,7 +20,6 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
 import AddPort from '../../components/AddPort';
-import AddStorage from '../../components/AddStorage';
 import AddRelation from '../../components/AddRelation';
 import ScrollerX from '../../components/ScrollerX';
 import AddRelationMnt from '../../components/AddRelationMnt';
@@ -97,7 +96,10 @@ class BaseInfo extends PureComponent {
       is_flag: false,
       method: false,
       memory: false,
-      cpu: false
+      cpu: false,
+      isComponentType: false,
+      isMemory: false,
+      isCpu: false,
     };
   }
   componentDidMount() {
@@ -112,7 +114,7 @@ class BaseInfo extends PureComponent {
     const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit && fieldsValue) {
-        if(fieldsValue.min_memory){
+        if (fieldsValue.change_memory && fieldsValue.min_memory) {
           if (setUnit) {
             const memoryNum = setUnit == "G" ? fieldsValue.min_memory * 1024 : fieldsValue.min_memory
             fieldsValue.min_memory = memoryNum
@@ -120,6 +122,14 @@ class BaseInfo extends PureComponent {
             const memoryNum = sourceUtil.getUnit(512) == "G" ? Number(fieldsValue.min_memory * 1024) : Number(fieldsValue.min_memory)
             fieldsValue.min_memory = memoryNum
           }
+        }else{
+          fieldsValue.min_memory = 0
+        }
+        if(!fieldsValue.change_cpu){
+          fieldsValue.min_cpu = 0
+        }
+        if(!fieldsValue.extend){
+          fieldsValue.extend_method = 'stateless_multiple'
         }
         onSubmit(fieldsValue);
       }
@@ -204,10 +214,57 @@ class BaseInfo extends PureComponent {
       setUnit: val
     })
   }
-
+  // 组件类型
+  RadioChangeComponentType = (e) => {
+    this.setState({
+      isComponentType: e.target.value
+    })
+  }
+  // CPU
+  RadioGroupChangeCpu = (e) => {
+    this.setState({
+      isCpu: e.target.value
+    })
+  }
+  // 内存
+  RadioGroupChangeMemory = (e) => {
+    this.setState({
+      isMemory: e.target.value
+    })
+  }
+  onChecks = (e) => {
+    const { appDetail, form, handleBuildSwitch } = this.props;
+    const { method, memory, cpu } = this.state;
+    const {
+      extend_method: extendMethod,
+    } = appDetail.service;
+    if(e.target.value != extendMethod){
+      this.setState({
+        method: true
+      },()=>{
+        this.handleSwitch()
+      })
+      
+    }else{
+      this.setState({
+        method: false
+      },()=>{
+        this.handleSwitch()
+      })
+    }
+    if(e.target.value === 'cronjob'){
+      this.setState({
+        is_flag:true
+      })
+    }else{
+      this.setState({
+        is_flag:false
+      })
+    }
+  }
   render() {
     const { appDetail, form } = this.props;
-    const { is_flag, setUnit } = this.state
+    const { is_flag, setUnit, isComponentType, isMemory, isCpu } = this.state
     const { getFieldDecorator } = form;
     const {
       extend_method: extendMethod,
@@ -241,12 +298,104 @@ class BaseInfo extends PureComponent {
     };
     return (
       <Card
-        title='资源设置'
+        title='组件信息设置'
         style={{
           marginBottom: 16
         }}
       >
+        <Form.Item style={{ marginTop: '6px' }} {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.extend_method' })}>
+          {getFieldDecorator('extend', {
+            initialValue: false,
+            rules: [
+              {
+                required: true,
+                message: formatMessage({ id: 'placeholder.setting.extend_method' })
+              }
+            ]
+          })(
+            <RadioGroup onChange={this.RadioChangeComponentType}>
+              <RadioButton key='default' value={false}>
+                默认类型
+              </RadioButton>
+              <RadioButton key='rest' value={true}>
+                其他类型
+              </RadioButton>
+            </RadioGroup>
+          )}
+        </Form.Item>
+        {isComponentType && <Form.Item style={{ paddingLeft: '160px' }} {...formItemLayout}>
+          {getFieldDecorator('extend_method', {
+            initialValue: 'stateless_multiple',
+            rules: [
+              {
+                required: true,
+                message: formatMessage({ id: 'placeholder.setting.extend_method' })
+              }
+            ]
+          })(
+            <RadioGroup>
+              {globalUtil.getSupportComponentTyps().map(item => {
+                return (
+                  <Radio key={item.type} onChange={this.onChecks} style={radioStyle} value={item.type}>
+                    {item.desc}
+                  </Radio>
+                );
+              })}
+            </RadioGroup>
+          )}
+        </Form.Item>}
+        {is_flag && <Form.Item {...formItemLayout}>
+          {getFieldDecorator('schedule', {
+            initialValue: '0 * * * *',
+            rules: [
+              {
+                required: false,
+                message: formatMessage({ id: 'placeholder.setting.schedule' })
+              }
+            ]
+          })(
+            <Row className={styles.selectRow} type="flex" style={{ margin: '14px 0px', marginTop: '-20px' }}>
+              <div style={{ marginLeft: '160px', fontWeight: 'bolder', marginTop: '-4px' }}>
+                {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.schedule' })}
+              </div>
+              <AutoComplete
+                defaultValue={'0 * * * *'}
+              >
+                {(arrOption.length > 0)
+                  ? arrOption.map((item) => {
+                    const res = (
+                      <AutoComplete.Option value={item}>
+                        {item}
+                      </AutoComplete.Option>
+                    );
+                    return res;
+                  })
+                  : null}
+              </AutoComplete>
+            </Row>
+          )}
+        </Form.Item>
+        }
         <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
+          {getFieldDecorator('change_memory', {
+            initialValue: false,
+            rules: [
+              {
+                required: true,
+              }
+            ]
+          })(
+            <RadioGroup onChange={this.RadioGroupChangeMemory}>
+              <RadioButton key='noLimitMemory' value={false}>
+                {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
+              </RadioButton>
+              <RadioButton key='limitMemory' value={true}>
+                自定义
+              </RadioButton>
+            </RadioGroup>
+          )}
+        </Form.Item>
+        {isMemory && <Form.Item style={{ paddingLeft: '149px' }}  {...formItemLayout}>
           {getFieldDecorator('min_memory', {
             initialValue: `${minMemory % 1024 == 0 ? minMemory / 1024 : minMemory}` || 0,
             rules: [
@@ -257,7 +406,7 @@ class BaseInfo extends PureComponent {
             ]
           })(
             <Input
-              style={{ width: '200px' }}
+              style={{ width: '200px', marginTop: '3px', marginLeft: '12px' }}
               type="number"
               addonAfter={
                 <Select value={setUnit ? setUnit : sourceUtil.getUnit(minMemory)} onChange={this.selectAfterChange}>
@@ -267,8 +416,29 @@ class BaseInfo extends PureComponent {
               }
             />
           )}
-        </Form.Item>
+
+        </Form.Item>}
         <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
+          {getFieldDecorator('change_cpu', {
+            initialValue: false,
+            rules: [
+              {
+                required: true,
+                message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
+              }
+            ]
+          })(
+            <RadioGroup onChange={this.RadioGroupChangeCpu}>
+              <RadioButton key='noLimitCpu' value={false}>
+                {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
+              </RadioButton>
+              <RadioButton key='limitCpu' value={true}>
+                自定义
+              </RadioButton>
+            </RadioGroup>
+          )}
+        </Form.Item>
+        {isCpu && <Form.Item {...formItemLayout} style={{ paddingLeft: '160px' }} >
           {getFieldDecorator('min_cpu', {
             initialValue: minCpu || 0,
             rules: [
@@ -291,18 +461,7 @@ class BaseInfo extends PureComponent {
               onChange={this.inputChange}
             />
           )}
-          <div style={{ color: '#999999', fontSize: '12px' }}>
-            {formatMessage({ id: 'appPublish.shop.pages.form.quota1000.desc' })}
-          </div>
-        </Form.Item>
-        {/* <Row>
-          <Col span="5" />
-          <Col span="19">
-            <Button onClick={this.handleSubmit} type="primary">
-              {formatMessage({id:'button.confirm_update'})}
-            </Button>
-          </Col>
-        </Row> */}
+        </Form.Item>}
       </Card>
     );
   }
@@ -323,8 +482,6 @@ class RenderDeploy extends PureComponent {
   }
   componentDidMount() {
     this.getRuntimeInfo();
-    this.fetchVolumes()
-    this.fetchBaseInfo();
     this.props.onRef(this)
   }
   onRef = (ref) => {
@@ -340,7 +497,7 @@ class RenderDeploy extends PureComponent {
     } = this.props;
     const { runtimeInfo } = this.state
     const language = appUtil.getLanguage(appDetail);
-    if(language && runtimeInfo && isSource){
+    if (language && runtimeInfo && isSource) {
       this.child.handleSubmit()
     }
     this.childCpu.handleSubmitCpu()
@@ -360,91 +517,6 @@ class RenderDeploy extends PureComponent {
     });
   };
 
-  fetchVolumes = () => {
-    this.props.dispatch({
-      type: 'appControl/fetchVolumes',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
-        is_config: false
-      },
-      callback: data => {
-        if (data) {
-          this.setState({
-            volumes: data.list || []
-          });
-        }
-      }
-    });
-  };
-  fetchBaseInfo = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'appControl/fetchBaseInfo',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias
-      }
-    });
-  };
-  onDeleteVolume = data => {
-    this.setState({ toDeleteVolume: data });
-  };
-  onCancelDeleteVolume = () => {
-    this.setState({ toDeleteVolume: null });
-  };
-  onEditVolume = data => {
-    this.setState({ showAddVars: data, editor: data });
-  };
-  handleAddVars = () => {
-    this.setState({
-      showAddVars: {
-        new: true
-      }
-    });
-  };
-  handleCancelAddVars = () => {
-    this.setState({ showAddVars: null, editor: null });
-  };
-  handleSubmitAddVars = vals => {
-    const { editor } = this.state;
-    if (editor) {
-      this.props.dispatch({
-        type: 'appControl/editorVolume',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appDetail.service.service_alias,
-          new_volume_path: vals.volume_path,
-          new_file_content: vals.file_content,
-          mode: vals.mode,
-          ID: editor.ID
-        },
-        callback: res => {
-          if (res && res.status_code === 200) {
-            this.fetchVolumes();
-            this.handleCancelAddVars();
-            notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
-          }
-        }
-      });
-    } else {
-      this.props.dispatch({
-        type: 'appControl/addVolume',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appDetail.service.service_alias,
-          ...vals
-        },
-        callback: res => {
-          if (res && res.status_code === 200) {
-            this.fetchVolumes();
-            this.handleCancelAddVars();
-            notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
-          }
-        }
-      });
-    }
-  };
   render() {
     const {
       visible,
@@ -463,64 +535,6 @@ class RenderDeploy extends PureComponent {
         {isDeploytype && (
           <BaseInfo onRefCpu={this.onRefCpu} appDetail={appDetail} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} />
         )}
-        <Card
-          style={{
-            marginBottom: 24,
-            borderRadius: 5,
-          }}
-          title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title' /> </span>}
-          extra={
-            <Button onClick={this.handleAddVars}>
-              <Icon type="plus" />
-              <FormattedMessage id='componentOverview.body.tab.env.setting.add' />
-            </Button>
-          }
-        >
-          <ScrollerX sm={650}>
-            <Table
-              pagination={false}
-              columns={[
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
-                  dataIndex: 'volume_name'
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_path' }),
-                  dataIndex: 'volume_path'
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.mode' }),
-                  dataIndex: 'mode'
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.action' }),
-                  dataIndex: 'action',
-                  render: (v, data) => (
-                    <div>
-                      <a
-                        onClick={() => {
-                          this.onDeleteVolume(data);
-                        }}
-                        href="javascript:;"
-                      >
-                        <FormattedMessage id='componentOverview.body.tab.env.setting.delete' />
-                      </a>
-                      <a
-                        onClick={() => {
-                          this.onEditVolume(data);
-                        }}
-                        href="javascript:;"
-                      >
-                        <FormattedMessage id='componentOverview.body.tab.env.setting.edit' />
-                      </a>
-                    </div>
-                  )
-                }
-              ]}
-              dataSource={volumes}
-            />
-          </ScrollerX>
-        </Card>
         {language && runtimeInfo && isSource && (
           <CodeBuildConfig
             appDetail={this.props.appDetail}
@@ -529,16 +543,6 @@ class RenderDeploy extends PureComponent {
             language={language}
             runtimeInfo={this.state.runtimeInfo}
             onRef={this.onRef}
-          />
-        )}
-        {this.state.showAddVars && (
-          <AddStorage
-            appBaseInfo={this.props.appBaseInfo}
-            onCancel={this.handleCancelAddVars}
-            onSubmit={this.handleSubmitAddVars}
-            data={this.state.showAddVars}
-            editor={this.state.editor}
-            {...this.props}
           />
         )}
       </div>
@@ -606,7 +610,7 @@ export default class Index extends PureComponent {
             className={styles.content}
             style={{
               overflow: 'hidden',
-              marginBottom: 90
+              marginBottom: 40
             }}
           >
             <RenderDeploy
@@ -620,7 +624,6 @@ export default class Index extends PureComponent {
             />
           </div>
         </div>
-        <CustomFooter />
       </div>
     );
   }

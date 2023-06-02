@@ -10,6 +10,7 @@ import AppConfigPort from '../../components/AppCreateConfigPort';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
+import CustomFooter from "../../layouts/CustomFooter";
 import roleUtil from '../../utils/role';
 
 @connect(
@@ -250,7 +251,7 @@ export default class Index extends PureComponent {
             textAlign: 'center'
           }}
         >
-          访问配置
+          高级配置
         </h2>
         <div
           style={{
@@ -264,15 +265,9 @@ export default class Index extends PureComponent {
           />
           <div
             style={{
-              background: '#fff',
-              padding: '20px',
-              textAlign: 'right',
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: 2,
-              borderTop: '1px solid #e8e8e8'
+              width:'100%',
+              display: 'flex',
+              justifyContent:'center'
             }}
           >
             {isDelete && (
@@ -283,26 +278,16 @@ export default class Index extends PureComponent {
                   marginRight: 8
                 }}
               >
-               {formatMessage({id:'button.abandon_create'})}
+               放弃构建
               </Button>
             )}
-            {/* <Button
-              loading={buildAppsLoading}
-              style={{
-                marginRight: 8
-              }}
-              onClick={() => this.handleLinkConfigFile('create-setting')}
-            >
-              高级设置
-            </Button> */}
             <Button
               style={{
                 marginRight: 8
               }}
-              type="primary"
               onClick={() => this.handleLinkConfigFile('create-configFile')}
             >
-              上一步
+              {formatMessage({id:'button.previous'})}
             </Button>
             <Button
               loading={buildAppLoading}
@@ -314,8 +299,8 @@ export default class Index extends PureComponent {
             >
               {formatMessage({id:'button.confirm_create'})}
             </Button>
-            
           </div>
+          <CustomFooter />
           {showDelete && (
             <ConfirmModal
               loading={deleteAppLoading}
