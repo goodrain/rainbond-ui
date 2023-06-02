@@ -498,7 +498,7 @@ class RenderDeploy extends PureComponent {
     const { runtimeInfo } = this.state
     const language = appUtil.getLanguage(appDetail);
     if (language && runtimeInfo && isSource) {
-      // this.child.handleSubmit()
+      this.child.handleSubmit()
     }
     this.childCpu.handleSubmitCpu()
   }
