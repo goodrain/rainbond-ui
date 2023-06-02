@@ -293,14 +293,14 @@ export default class Index extends PureComponent {
               }}
               onClick={() => this.handleLinkConfigPort('create-check')}
             >
-              上一步
+              {formatMessage({id:'button.previous'})}
             </Button>
             <Button
               loading={buildAppsLoading}
               onClick={this.handleJumpNext}
               type="primary"
             >
-              下一步
+              {formatMessage({id:'button.next'})}
             </Button>
           </div>
         <CustomFooter />
