@@ -278,7 +278,7 @@ export default class Index extends PureComponent {
                   marginRight: 8
                 }}
               >
-               {formatMessage({id:'button.abandon_create'})}
+               放弃构建
               </Button>
             )}
             <Button
