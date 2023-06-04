@@ -604,7 +604,7 @@ class EnvironmentVariable extends React.Component {
                   {/* 删除 */}
                   <FormattedMessage id='componentOverview.body.tab.env.table.column.delete'/>
                 </a>
-                {(type === 'Inner' || autoQuery) && (
+                {(type === 'Inner' || autoQuery) && !isConfigPort && (
                   <Tooltip
                     title={
                       <p>

@@ -298,7 +298,7 @@ class BaseInfo extends PureComponent {
     };
     return (
       <Card
-        title='组件信息设置'
+        title='基础信息设置'
         style={{
           marginBottom: 16
         }}
@@ -315,7 +315,7 @@ class BaseInfo extends PureComponent {
           })(
             <RadioGroup onChange={this.RadioChangeComponentType}>
               <RadioButton key='default' value={false}>
-                默认类型
+                无状态类型
               </RadioButton>
               <RadioButton key='rest' value={true}>
                 其他类型

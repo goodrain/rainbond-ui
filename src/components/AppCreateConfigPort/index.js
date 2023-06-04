@@ -13,7 +13,8 @@ import {
   Tooltip,
   Select,
   AutoComplete,
-  Collapse
+  Collapse,
+  Tag
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -71,6 +72,7 @@ class Ports extends PureComponent {
   componentDidMount() {
     this.fetchPorts();
   }
+
   fetchPorts = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -223,7 +225,7 @@ class Ports extends PureComponent {
     const isDockerfile = appUtil.isDockerfile(this.props.appDetail);
     return (
       <div>
-         <div
+        <div
           style={{
             textAlign: 'right',
             marginBottom: 12
@@ -264,7 +266,7 @@ class Ports extends PureComponent {
             ''
           )}
         </div>
-       
+
         {this.state.showEditAlias && (
           <EditPortAlias
             port={this.state.showEditAlias}
@@ -419,6 +421,7 @@ class Mnt extends PureComponent {
     this.setState({ toDeleteMnt: mnt });
   };
   onDeleteVolume = data => {
+    console.log(data,'data')
     this.setState({ toDeleteVolume: data });
   };
   onCancelDeleteVolume = () => {
@@ -517,136 +520,19 @@ class Mnt extends PureComponent {
     ];
     return (
       <Fragment>
-          <div
-            style={{
-              textAlign: 'right',
-              marginBottom: 12
-            }}
-          >
-            <Button onClick={this.showAddRelation}>
+        <div
+          style={{
+            textAlign: 'right',
+            marginBottom: 12
+          }}
+        >
+          <Button onClick={this.handleAddVar}>
               <Icon type="plus" />
-              {formatMessage({ id: 'componentCheck.advanced.setup.shared_storage.btn.add' })}
-            </Button>
-          </div>
-          <Table
-            pagination={false}
-            columns={[
-              {
-                title: formatMessage({ id: 'componentCheck.advanced.setup.shared_storage.label.local_vol_path' }),
-                dataIndex: 'local_vol_path',
-                key: '1',
-                width: '20%',
-                render: (data, index) => (
-                  <Tooltip title={data}>
-                    <span
-                      style={{
-                        wordBreak: 'break-all',
-                        wordWrap: 'break-word'
-                      }}
-                    >
-                      {data}
-                    </span>
-                  </Tooltip>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentCheck.advanced.setup.shared_storage.label.dep_vol_name' }),
-                dataIndex: 'dep_vol_name',
-                key: '2',
-                width: '15%',
-                render: (data, index) => (
-                  <Tooltip title={data}>
-                    <span
-                      style={{
-                        wordBreak: 'break-all',
-                        wordWrap: 'break-word'
-                      }}
-                    >
-                      {data}
-                    </span>
-                  </Tooltip>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentCheck.advanced.setup.shared_storage.label.dep_vol_path' }),
-                dataIndex: 'dep_vol_path',
-                key: '3',
-                width: '15%',
-                render: (data, index) => (
-                  <Tooltip title={data}>
-                    <span
-                      style={{
-                        wordBreak: 'break-all',
-                        wordWrap: 'break-word'
-                      }}
-                    >
-                      {data}
-                    </span>
-                  </Tooltip>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentCheck.advanced.setup.shared_storage.label.dep_vol_type' }),
-                dataIndex: 'dep_vol_type',
-                key: '4',
-                width: '10%',
-                render: (text, record) => {
-                  return <span>{this.getVolumeTypeShowName(text)}</span>;
-                }
-              },
-              {
-                title: formatMessage({ id: 'componentCheck.advanced.setup.shared_storage.label.dep_app_name' }),
-                dataIndex: 'dep_app_name',
-                key: '5',
-                width: '10%',
-                render: (v, data) => {
-                  return (
-                    <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
-                        }/overview`}
-                    >
-                      {v}
-                    </Link>
-                  );
-                }
-              },
-              {
-                title: formatMessage({ id: 'componentCheck.advanced.setup.shared_storage.label.dep_app_group' }),
-                dataIndex: 'dep_app_group',
-                key: '6',
-                width: '15%',
-                render: (v, data) => {
-                  return (
-                    <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
-                        }`}
-                    >
-                      {v}
-                    </Link>
-                  );
-                }
-              },
-              {
-                title: formatMessage({ id: 'componentCheck.advanced.setup.shared_storage.label.action' }),
-                dataIndex: 'action',
-                key: '7',
-                width: '15%',
-                render: (val, data) => {
-                  return (
-                    <a
-                      onClick={() => {
-                        this.onDeleteMnt(data);
-                      }}
-                      href="javascript:;"
-                    >
-                      {formatMessage({ id: 'button.umount' })}
-                    </a>
-                  );
-                }
-              }
-            ]}
-            dataSource={mntList}
-          />
+              {formatMessage({id:'componentCheck.advanced.setup.storage_setting.btn.add'})}
+          </Button>
+        </div>
+        <Table pagination={false} dataSource={volumes} columns={columns} />
+
         {this.state.showAddVar && (
           <AddOrEditVolume
             volumeOpts={this.state.volumeOpts}
@@ -707,7 +593,7 @@ class ConfigFiles extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
-        is_config: false
+        is_config: true
       },
       callback: data => {
         if (data) {
@@ -786,6 +672,23 @@ class ConfigFiles extends PureComponent {
       });
     }
   };
+  handleDeleteVolume = () => {
+    this.props.dispatch({
+      type: 'appControl/deleteVolume',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        volume_id: this.state.toDeleteVolume.ID
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          notification.success({ message:  formatMessage({id:'notification.success.delete'})});
+          this.onCancelDeleteVolume();
+          this.fetchVolumes();
+        }
+      }
+    });
+  };
   render() {
     const { appDetail } = this.props;
     const { volumes } = this.state;
@@ -859,6 +762,14 @@ class ConfigFiles extends PureComponent {
             {...this.props}
           />
         )}
+        {this.state.toDeleteVolume && (
+          <ConfirmModal
+            title={<FormattedMessage id='confirmModal.deldete.configurationFile.title'/>}
+            desc={<FormattedMessage id='confirmModal.deldete.configurationFile.desc'/>}
+            onCancel={this.onCancelDeleteVolume}
+            onOk={this.handleDeleteVolume}
+          />
+        )}
       </div>
     );
   }
@@ -880,8 +791,30 @@ export default class Index extends PureComponent {
     this.state = {
       componentPermissions: this.handlePermissions('queryComponentInfo'),
       type: 'deploy',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      portsData: [],
+      volumesData: [],
+      mntDataList: [],
+      innerEnvsList: [],
+      isPortFlag: false,
+      isVolumesFlag: false,
+      isMntFlag: false,
+      isInnerEnvsFlag: false,
+      activeKeyPort: true,
+      activeKeyVolume: true,
+      activeKeyEnv: true,
+      activeKeyMnt: true,
+      iconPort: false,
+      iconVolume: false,
+      iconEnv: false,
+      iconMnt: false
     };
+  }
+  componentDidMount() {
+    this.handleFetchPorts()
+    this.handleFetchVolumes()
+    this.handleLoadMntList()
+    this.handleFetchInnerEnvs()
   }
   getAppAlias() {
     return this.props.match.params.appAlias;
@@ -898,12 +831,181 @@ export default class Index extends PureComponent {
       type
     );
   };
+  handleFetchPorts = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'appControl/fetchPorts',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias
+      },
+      callback: data => {
+        this.setState({
+          portsData: (data && data.list) || [],
+          isPortFlag: true,
+          iconPort: data && data.list.length > 0 ? true :false
+        });
+      }
+    });
+  };
+  handleFetchVolumes = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'appControl/fetchVolumes',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        is_config: true
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            volumesData: data.list || [],
+            isVolumesFlag: true
+          });
+        }
+      }
+    });
+  };
+  handleLoadMntList = () => {
+    getMnt({
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: this.props.appDetail.service.service_alias,
+      page: 1,
+      page_size: 1000
+    }).then(data => {
+      if (data) {
+        this.setState({
+          mntDataList: data.list || [],
+          isMntFlag: true,
+        });
+      }
+    });
+  };
+  handleLoadMntList = () => {
+    this.props.dispatch({
+      type: 'appControl/fetchVolumes',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        is_config: false
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            mntDataList: data.list || [],
+            isMntFlag: true,
+          });
+        }
+      }
+    });
+  };
+  handleFetchInnerEnvs = () => {
+    const { dispatch, appAlias, type } = this.props;
+
+    const obj = {
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: this.props.appDetail.service.service_alias,
+      page: 1,
+      page_size: 5,
+      env_name: ''
+    };
+    dispatch({
+      type: 'appControl/fetchInnerEnvs',
+      payload: obj,
+      callback: res => {
+        if (res && res.status_code === 200) {
+          const arr = [];
+          if (res.list && res.list.length > 0) {
+            res.list.map(item => {
+              const isHidden = globalUtil.confirmEnding(
+                `${item.attr_name}`,
+                'PASS'
+              );
+              if (isHidden) {
+                arr.push(item.ID);
+              }
+            });
+          }
+          this.setState({
+            innerEnvsList: res.list,
+            isInnerEnvsFlag: true,
+          });
+        }
+      }
+    });
+  };
+  genExtraPort = (key) => {
+    return (
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>去配置</span>
+    )
+  }
+  genExtraVolume = (key) => {
+    return (
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>去配置</span>
+    )
+  }
+  genExtraEnv = (key) => {
+    return (
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>去配置</span>
+    )
+  }
+  genExtraMnt = (key) => {
+    return (
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>去配置</span>
+    )
+  }
+  
+  callbackPort = (e) => {
+    this.setState({
+      activeKeyPort: e.length
+    })
+    if (!e.length) {
+      this.handleFetchPorts()
+    }
+  }
+  callbackVolume = (e) => {
+    this.setState({
+      activeKeyVolume: e.length
+    })
+    if (!e.length) {
+      this.handleFetchVolumes()
+    }
+  }
+  callbackEnv = (e) => {
+    this.setState({
+      activeKeyEnv: e.length
+    })
+    if (!e.length) {
+      this.handleFetchInnerEnvs()
+    }
+  }
+  callbackMnt = (e) => {
+    this.setState({
+      activeKeyMnt: e.length
+    })
+    if (!e.length) {
+      this.handleLoadMntList()
+    }
+  }
   render() {
     const { appDetail } = this.props;
     const {
       type,
       componentPermissions: { isEnv, isRely, isStorage, isPort },
-      language
+      language,
+      portsData,
+      volumesData,
+      mntDataList,
+      innerEnvsList,
+      isPortFlag,
+      isVolumesFlag,
+      isMntFlag,
+      isInnerEnvsFlag,
+      activeKeyPort,
+      activeKeyVolume,
+      activeKeyEnv,
+      activeKeyMnt,
     } = this.state;
     return (
       <div>
@@ -919,36 +1021,113 @@ export default class Index extends PureComponent {
               marginBottom: 40
             }}
           >
-            <Collapse defaultActiveKey="1">
-              <Panel header="端口管理" key="1">
-                <Ports appDetail={appDetail} />
-              </Panel>
-            </Collapse>
-            <Collapse style={{marginTop:'40px'}} defaultActiveKey="2">
-              <Panel header="配置文件" key="2">
-                <ConfigFiles appDetail={appDetail} />
-              </Panel>
-            </Collapse>
-            <Collapse style={{marginTop:'40px'}} defaultActiveKey="3">
-              <Panel header="环境变量" key="3">
-              {isEnv && (
-                <EnvironmentVariable
-                  isConfigPort={true}
-                  title={formatMessage({ id: 'componentCheck.advanced.setup.environment_variable.title' })}
-                  type="Inner"
-                  appAlias={appDetail.service.service_alias}
-                />
-            )}
-              </Panel>
-            </Collapse>
+            {isPortFlag &&
+              <Collapse onChange={this.callbackPort} defaultActiveKey={portsData.length > 0 ? 'port' : ''} expandIconPosition='right'>
+                <Panel
+                  header={
+                    <span className={styles.spanBox}>
+                      <span className={styles.panelTitle}>{formatMessage({ id: 'enterpriseColony.import.recognition.port' })}</span>
+                      <span className={styles.panelSpan}>提供外部访问业务的入口。端口需要配置与程序监听端口一致。</span>
+                      {!activeKeyPort && portsData.length > 0 &&
+                        <span className={styles.spanList}>
+                          端口信息:&nbsp;&nbsp;
+                          {portsData.map((item => {
+                            return <span>
+                              <Tag color="blue">{item.container_port}</Tag>
+                            </span>
+                          }))}
+                        </span>}
+                    </span>}
+                  key="port"
+                  extra={this.genExtraPort(iconPort)}
+                  showArrow={false}
+                >
+                  <Ports appDetail={appDetail} />
+                </Panel>
+              </Collapse>}
+            {isVolumesFlag &&
+              <Collapse style={{ marginTop: '40px' }} onChange={this.callbackVolume} defaultActiveKey={volumesData.length > 0 ? 'volume' : ''} expandIconPosition='right'>
+                <Panel
+                  header={
+                    <span>
+                      <span className={styles.panelTitle}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
+                      <span className={styles.panelSpan}>将配置文件挂载到容器内路径，可以自定义业务的参数和设置，实现代码与配置解耦。</span>
+                      {!activeKeyVolume && volumesData.length > 0 &&
+                        <span className={styles.spanList}>
+                          文件名称:&nbsp;&nbsp;
+                          {volumesData.map((item => {
+                            return <span>
+                              <Tag color="blue">{item.volume_name}</Tag>
+                            </span>
+                          }))}
+                        </span>}
+                    </span>}
+                  extra={this.genExtraVolume(!activeKeyVolume)}
+                  showArrow={false}
+                  key="volume"
+                >
+                  <ConfigFiles appDetail={appDetail} />
+                </Panel>
+              </Collapse>
+            }
+            {isInnerEnvsFlag &&
+              <Collapse style={{ marginTop: '40px' }} onChange={this.callbackEnv} defaultActiveKey={innerEnvsList.length > 0 ? 'env' : ''} expandIconPosition='right'>
+                <Panel
+                  header={
+                    <span>
+                      <span className={styles.panelTitle}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
+                      <span className={styles.panelSpan}>可以使用环境变量提供业务所需参数或其他信息。</span>
+                      {!activeKeyEnv && innerEnvsList.length > 0 &&
+                        <span className={styles.spanList}>
+                          变量名称:&nbsp;&nbsp;
+                          {innerEnvsList.map((item => {
+                            return <span>
+                              <Tag color="blue">{item.name}</Tag>
+                            </span>
+                          }))}
+                        </span>}
+                    </span>}
+                  key="env"
+                  extra={this.genExtraEnv(!activeKeyEnv)}
+                  showArrow={false}
+                >
+                  {isEnv && (
+                    <EnvironmentVariable
+                      isConfigPort={true}
+                      title={formatMessage({ id: 'componentCheck.advanced.setup.environment_variable.title' })}
+                      type="Inner"
+                      appAlias={appDetail.service.service_alias}
+                    />
+                  )}
+                </Panel>
+              </Collapse>
+            }
 
-            <Collapse style={{marginTop:'40px'}} defaultActiveKey="4">
-              <Panel header="共享存储" key="4">
-              {isStorage && <Mnt appDetail={appDetail} />}
-              </Panel>
-            </Collapse>
-            
-           
+            {isMntFlag &&
+              <Collapse style={{ marginTop: '40px' }} onChange={this.callbackMnt} defaultActiveKey={mntDataList.length > 0 ? 'mnt' : ''} expandIconPosition='right'>
+                <Panel
+                  header={
+                    <span>
+                      <span className={styles.panelTitle}>{formatMessage({ id: 'componentCheck.advanced.setup.shared_storage.title' })}</span>
+                      <span className={styles.panelSpan}>将容器内的目录持久化，以防止业务数据丢失。</span>
+                      {!activeKeyMnt && mntDataList.length > 0 &&
+                        <span className={styles.spanList}>
+                          存储名称:&nbsp;&nbsp;
+                          {mntDataList.map((item => {
+                            return <span>
+                              <Tag color="blue">{item.volume_name}</Tag>
+                            </span>
+                          }))}
+                        </span>}
+                    </span>}
+                  key="mnt"
+                  extra={this.genExtraMnt(!activeKeyMnt)}
+                  showArrow={false}
+                >
+                  {isStorage && <Mnt appDetail={appDetail} />}
+                </Panel>
+              </Collapse>
+            }
           </div>
         </div>
       </div>

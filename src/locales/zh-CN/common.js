@@ -158,7 +158,7 @@
         'button.abandon_create':'放弃构建',
         'button.advanced_setup':'高级设置',
         'button.create':'创建',
-        'button.confirm_create':'确认创建',
+        'button.confirm_create':'确认构建',
         'button.confirm_update':'确认修改',
         'button.components_build':'进入多组件构建',
         'button.service_build':'进入多服务构建',
