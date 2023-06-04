@@ -258,7 +258,7 @@ export default class Index extends PureComponent {
             textAlign: 'center'
           }}
         >
-          环境配置
+          {formatMessage({id:'componentCheck.advanced.env'})}
         </h2>
         <div>
           <AppConfigFile

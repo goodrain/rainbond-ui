@@ -251,7 +251,7 @@ export default class Index extends PureComponent {
             textAlign: 'center'
           }}
         >
-          高级配置
+          {formatMessage({id:'componentCheck.advanced.setup'})}
         </h2>
         <div
           style={{
@@ -278,9 +278,18 @@ export default class Index extends PureComponent {
                   marginRight: 8
                 }}
               >
-               放弃构建
+               {formatMessage({id:'button.abandon_create'})}
               </Button>
             )}
+            <Button
+              loading={buildAppsLoading}
+              style={{
+                marginRight: 8
+              }}
+              onClick={() => this.handleLinkConfigFile('create-setting')}
+            >
+              高级设置
+            </Button>
             <Button
               style={{
                 marginRight: 8
