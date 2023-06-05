@@ -126,7 +126,7 @@ export default class Index extends PureComponent {
                         </div>
                         <div className={styles.bottomContent}>
                             <p onClick={() => this.onClickLinkCreate('market', rainStoreTab)}>{formatMessage({id:'teamAdd.create.market.market'})}</p>
-                            <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })} {localist && localist.length > 0 ? (<> ({localist.length}) </>):''}</p>
+                            <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })} {localist && localist.length > 0 ? (<> ({localist.length}) </>): (<span>(0)</span>)}</p>
 
                         </div>
                     </div>
@@ -193,9 +193,9 @@ export default class Index extends PureComponent {
                             </div>
                         </div>
                         <div className={styles.bottomContent}>
-                            <p onClick={() => this.onClickLinkCreate('yaml', 'yaml')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.yaml' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('yaml', 'helm')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.helm' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('yaml', 'importCluster')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.k8s' })}</p>
+                            <p onClick={() => this.onClickLinkCreate('yaml', 'yaml')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.yaml' })}</p>
+                            <p onClick={() => this.onClickLinkCreate('yaml', 'helm')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.helm' })}</p>
+                            <p onClick={() => this.onClickLinkCreate('yaml', 'importCluster')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.k8s.text' })}</p>
                         </div>
                     </div>
                 </div>

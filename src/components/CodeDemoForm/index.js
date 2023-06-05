@@ -46,7 +46,8 @@ export default class Index extends PureComponent {
       language: cookie.get('language') === 'zh-CN' ? true : false,
       addGroup: false,
       demoHref:
-        this.props.data.git_url || configureGlobal.documentAddressDefault
+        this.props.data.git_url || configureGlobal.documentAddressDefault,
+      defaultName: 'demo-2048'
     };
   }
   onAddGroup = () => {
@@ -60,6 +61,8 @@ export default class Index extends PureComponent {
     const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
+        fieldsValue.k8s_app="appCodeDemo"
+        fieldsValue.is_demo = true
         onSubmit(fieldsValue);
       }
     });
@@ -186,10 +189,20 @@ export default class Index extends PureComponent {
       )
     });
   };
+  extractRepoName = (url) => {
+    const regex = /\/([^/]+)\.git/;
+    const matches = regex.exec(url);
+    if (matches && matches.length > 1) {
+      return matches[1];
+    }
+    return "demo";
+  }
 
   handleChangeDemo = value => {
+    const name = this.extractRepoName(value)
     this.setState({
-      demoHref: value
+      demoHref: value,
+      defaultName: name
     });
   };
 
@@ -216,119 +229,14 @@ export default class Index extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     const { groups, createAppByCodeLoading, rainbondInfo, handleType, showCreateGroup, groupId, showSubmitBtn = true, ButtonGroupState, handleServiceBotton } = this.props;
     const data = this.props.data || {};
-    const { language } = this.state;
+    const { language, defaultName } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout;
     const isService = handleType && handleType === 'Service';
     const showCreateGroups =
       showCreateGroup === void 0 ? true : showCreateGroup;
     return (
       <Form layout="horizontal" hideRequiredMark>
-        <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
-          {getFieldDecorator('group_id', {
-            initialValue: isService ? Number(groupId) : data.group_id,
-            rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
-          })(
-            <Select
-              getPopupContainer={triggerNode => triggerNode.parentNode}
-              placeholder={formatMessage({ id: 'placeholder.appName' })}
-              style={language ? {
-                display: 'inline-block',
-                width: isService ? '' : 270,
-                marginRight: 15
-              } : {
-                display: 'inline-block',
-                width: isService ? '' : 330,
-                marginRight: 15
-              }}
-              disabled={!!isService}
-            >
-              {(groups || []).map(group => (
-                <Option key={group.group_id} value={group.group_id}>
-                  {group.group_name}
-                </Option>
-              ))}
-            </Select>
-          )}
-          {handleType &&
-            handleType === 'Service' ? null : showCreateGroups ? (
-              <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamApply.createApp' })}</Button>
-            ) : null}
-        </Form.Item>
-        <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
-          {getFieldDecorator('service_cname', {
-            initialValue: data.service_cname || '',
-            rules: [
-              { required: true, message: formatMessage({ id: 'placeholder.service_cname' }) },
-              {
-                max: 24,
-                message: formatMessage({ id: 'placeholder.max24' })
-              }
-            ]
-          })(
-            <Input
-              placeholder={formatMessage({ id: 'placeholder.service_cname' })}
-            />
-          )}
-        </Form.Item>
-        <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
-          {getFieldDecorator('k8s_component_name', {
-            rules: [
-              {
-                required: true,
-                validator: this.handleValiateNameSpace
-              }
-            ]
-          })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
-        </Form.Item>
-        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.address'})}>
-            {getFieldDecorator('type', {
-              initialValue: this.state.demoHref || '',
-              force: true,
-              rules: [
-                { required: true, message: formatMessage({id: 'placeholder.git_url'}) },
-              ]
-            })(
-              <Input
-                disabled={true}
-                addonBefore={
-                <Select
-                  disabled={true}
-                  defaultValue={'git'}
-                  style={{ width: 70 }}
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                >
-                  <Option value="git">Git</Option>
-                  <Option value="svn">Svn</Option>
-                  <Option value="oss">OSS</Option>
-                </Select>
-                }
-                placeholder={formatMessage({id: 'placeholder.git_url'})}
-              />
-            )}
-          </Form.Item>
-            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.versions'})}>
-              {getFieldDecorator('uuurl', {
-                initialValue: 'master',
-                rules: [{ required: true, message: formatMessage({id: 'placeholder.code_version'}) }]
-              })(
-                <Input
-                  disabled={true}
-                  addonBefore={
-                  <Select
-                    disabled={true}
-                    defaultValue={'branch'}
-                    style={{ width: 70 }}
-                    getPopupContainer={triggerNode => triggerNode.parentNode}
-                  >
-                    <Option value="branch">{formatMessage({id: 'teamAdd.create.code.branch'})}</Option>
-                    <Option value="tag">Tag</Option>
-                  </Select>}
-                  placeholder={formatMessage({id: 'placeholder.code_version'})}
-                />
-              )}
-            </Form.Item>
-        
-        <Form.Item {...is_language} label={<span>{formatMessage({ id: 'teamAdd.create.code.demo' })}</span>}>
+        <Form.Item {...is_language} label={<span>{formatMessage({ id: 'teamAdd.create.code.selectDemo' })}</span>}>
           {getFieldDecorator('git_url', {
             initialValue:
               data.git_url || configureGlobal.documentAddressDefault,
@@ -408,6 +316,93 @@ export default class Index extends PureComponent {
               </a>
             )}
         </Form.Item>
+        <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
+          {getFieldDecorator('group_id', {
+            initialValue: language ? "源码示例应用" : "Source sample application", 
+            rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
+          })(
+             <Input
+             disabled={true}
+             placeholder={formatMessage({ id: 'placeholder.appName' })}
+           />
+          )}
+        </Form.Item>
+        <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
+          {getFieldDecorator('service_cname', {
+            initialValue: defaultName,
+            rules: [
+              { required: true, message: formatMessage({ id: 'placeholder.service_cname' }) },
+              {
+                max: 24,
+                message: formatMessage({ id: 'placeholder.max24' })
+              }
+            ]
+          })(
+            <Input
+              disabled={true}
+              placeholder={formatMessage({ id: 'placeholder.service_cname' })}
+            />
+          )}
+        </Form.Item>
+        <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+          {getFieldDecorator('k8s_component_name', {
+            initialValue: defaultName,
+            rules: [
+              {
+                required: true,
+                validator: this.handleValiateNameSpace
+              }
+            ]
+          })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} disabled={true}/>)}
+        </Form.Item>
+        <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.address'})}>
+            {getFieldDecorator('type', {
+              initialValue: this.state.demoHref || '',
+              force: true,
+              rules: [
+                { required: true, message: formatMessage({id: 'placeholder.git_url'}) },
+              ]
+            })(
+              <Input
+                disabled={true}
+                addonBefore={
+                <Select
+                  disabled={true}
+                  defaultValue={'git'}
+                  style={{ width: 70 }}
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                >
+                  <Option value="git">Git</Option>
+                  <Option value="svn">Svn</Option>
+                  <Option value="oss">OSS</Option>
+                </Select>
+                }
+                placeholder={formatMessage({id: 'placeholder.git_url'})}
+              />
+            )}
+          </Form.Item>
+            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.versions'})}>
+              {getFieldDecorator('uuurl', {
+                initialValue: 'master',
+                rules: [{ required: true, message: formatMessage({id: 'placeholder.code_version'}) }]
+              })(
+                <Input
+                  disabled={true}
+                  addonBefore={
+                  <Select
+                    disabled={true}
+                    defaultValue={'branch'}
+                    style={{ width: 70 }}
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                  >
+                    <Option value="branch">{formatMessage({id: 'teamAdd.create.code.branch'})}</Option>
+                    <Option value="tag">Tag</Option>
+                  </Select>}
+                  placeholder={formatMessage({id: 'placeholder.code_version'})}
+                />
+              )}
+            </Form.Item>
+        
         {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{

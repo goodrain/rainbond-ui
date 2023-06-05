@@ -56,7 +56,7 @@ export default class Main extends PureComponent {
       },
       {
         key: 'Dockercompose',
-        tab: 'DockerCompose',
+        tab: 'Docker Compose',
       },
       {
         key: 'ImageNameDemo',

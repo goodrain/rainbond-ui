@@ -646,7 +646,7 @@
         'notification.market.hint.null_app3':'或',
         'notification.market.hint.null_app4':'从云端同步',
         'notification.market.hint.null_app5':'当前市场没有安装权限，',
-        'notification.market.hint.null_app6':'去授权',
+        'notification.market.hint.null_app6':'去对接',
 
     }
     const placeholder = {

@@ -18,7 +18,7 @@ import {
 import styles from "./Index.less";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
-import ImageCmdForm from "../../components/ImageCmdForm";
+import ImageCmdDemoForm from "../../components/ImageCmdDemoForm ";
 import TopUpHints from '../../components/TopUpHints';
 
 const { Option } = Select;
@@ -122,7 +122,7 @@ export default class Index extends PureComponent {
                 : "600px"
           }}
         >
-          <ImageCmdForm
+          <ImageCmdDemoForm
             data={{ docker_cmd: image || "" }}
             onSubmit={this.handleSubmit}
             {...this.props}
