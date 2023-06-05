@@ -58,11 +58,14 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const { form, onSubmit } = this.props;
+    const { form, onSubmit, handleType } = this.props;
+    const isService = handleType && handleType === 'Service';
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
-        fieldsValue.k8s_app="appCodeDemo"
-        fieldsValue.is_demo = true
+        if(!isService){
+          fieldsValue.k8s_app="appCodeDemo"
+          fieldsValue.is_demo = true
+        }
         onSubmit(fieldsValue);
       }
     });
@@ -318,13 +321,35 @@ export default class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
           {getFieldDecorator('group_id', {
-            initialValue: language ? "源码示例应用" : "Source sample application", 
+            initialValue:  isService ? Number(groupId) : language ? "源码构建示例" : "Source sample application", 
             rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
           })(
+            !isService ?
              <Input
              disabled={true}
              placeholder={formatMessage({ id: 'placeholder.appName' })}
            />
+           :
+           <Select
+              getPopupContainer={triggerNode => triggerNode.parentNode}
+              placeholder={formatMessage({ id: 'placeholder.appName' })}
+              style={language ? {
+                display: 'inline-block',
+                width: isService ? '' : 270,
+                marginRight: 15
+              } : {
+                display: 'inline-block',
+                width: isService ? '' : 330,
+                marginRight: 15
+              }}
+              disabled={!!isService}
+            >
+              {(groups || []).map(group => (
+                <Option key={group.group_id} value={group.group_id}>
+                  {group.group_name}
+                </Option>
+              ))}
+            </Select>
           )}
         </Form.Item>
         <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
