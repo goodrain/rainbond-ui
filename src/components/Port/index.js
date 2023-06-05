@@ -495,7 +495,6 @@ export default class Index extends PureComponent {
                 {appPortUtil.canBindDomain(port) ? (
                   <div>
                     {domains.map(domain => {
-                      console.log(domain,'domain')
                       return (
                         <div>
                           {domain.domain_type == 'www' ? (

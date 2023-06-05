@@ -544,12 +544,5 @@ export default {
         groupDetail: action.payload
       };
     },
-    saveFunc(state, action) {
-      console.log(action,'action')
-      return {
-        ...state,
-        func: action.payload
-      };
-    }
   }
 };
