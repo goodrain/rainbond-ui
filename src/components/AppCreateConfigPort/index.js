@@ -1053,7 +1053,7 @@ export default class Index extends PureComponent {
                         </span>}
                     </span>}
                   key="port"
-                  extra={this.genExtraPort(iconPort)}
+                  extra={this.genExtraPort(!activeKeyPort)}
                   showArrow={false}
                 >
                   <Ports appDetail={appDetail} />

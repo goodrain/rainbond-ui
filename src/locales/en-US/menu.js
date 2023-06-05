@@ -16,7 +16,7 @@ const teamMenu = {
   'menu.team.create': 'Add',
   'menu.team.create.code': 'Build from source code',
   'menu.team.create.image': 'Build from images',
-  'menu.team.create.upload': 'YAML Helm Kubernetes',
+  'menu.team.create.upload': 'Yaml Helm Kubernetes',
   'menu.team.create.market': 'Install from the App Market',
   'menu.team.create.third': 'Create third party components',
   'menu.team.app': 'Apps',
