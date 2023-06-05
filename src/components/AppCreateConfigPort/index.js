@@ -421,7 +421,6 @@ class Mnt extends PureComponent {
     this.setState({ toDeleteMnt: mnt });
   };
   onDeleteVolume = data => {
-    console.log(data,'data')
     this.setState({ toDeleteVolume: data });
   };
   onCancelDeleteVolume = () => {
@@ -831,7 +830,7 @@ export default class Index extends PureComponent {
       type
     );
   };
-  handleFetchPorts = () => {
+  handleFetchPorts = (isFlag) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'appControl/fetchPorts',
@@ -839,16 +838,20 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias
       },
-      callback: data => {
+      callback: data => {     
         this.setState({
           portsData: (data && data.list) || [],
           isPortFlag: true,
-          iconPort: data && data.list.length > 0 ? true :false
         });
+        if(!isFlag){
+          this.setState({
+            iconPort: data && data.list.length > 0 ? true :false
+          })
+        }
       }
     });
   };
-  handleFetchVolumes = () => {
+  handleFetchVolumes = (isFlag) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'appControl/fetchVolumes',
@@ -861,28 +864,18 @@ export default class Index extends PureComponent {
         if (data) {
           this.setState({
             volumesData: data.list || [],
-            isVolumesFlag: true
+            isVolumesFlag: true,
           });
+          if(!isFlag){
+            this.setState({
+              iconVolume: data && data.list.length > 0 ? true :false
+            })
+          }
         }
       }
     });
   };
-  handleLoadMntList = () => {
-    getMnt({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appDetail.service.service_alias,
-      page: 1,
-      page_size: 1000
-    }).then(data => {
-      if (data) {
-        this.setState({
-          mntDataList: data.list || [],
-          isMntFlag: true,
-        });
-      }
-    });
-  };
-  handleLoadMntList = () => {
+  handleLoadMntList = (isFlag) => {
     this.props.dispatch({
       type: 'appControl/fetchVolumes',
       payload: {
@@ -896,11 +889,16 @@ export default class Index extends PureComponent {
             mntDataList: data.list || [],
             isMntFlag: true,
           });
+          if(!isFlag){
+            this.setState({
+              iconMnt: data && data.list.length > 0 ? true :false
+            })
+          }
         }
       }
     });
   };
-  handleFetchInnerEnvs = () => {
+  handleFetchInnerEnvs = (isFlag) => {
     const { dispatch, appAlias, type } = this.props;
 
     const obj = {
@@ -915,77 +913,89 @@ export default class Index extends PureComponent {
       payload: obj,
       callback: res => {
         if (res && res.status_code === 200) {
-          const arr = [];
-          if (res.list && res.list.length > 0) {
-            res.list.map(item => {
-              const isHidden = globalUtil.confirmEnding(
-                `${item.attr_name}`,
-                'PASS'
-              );
-              if (isHidden) {
-                arr.push(item.ID);
-              }
-            });
-          }
           this.setState({
             innerEnvsList: res.list,
             isInnerEnvsFlag: true,
           });
+          if(!isFlag){
+            this.setState({
+              iconEnv: res && res.list.length > 0 ? true :false
+            })
+          }
         }
       }
     });
   };
   genExtraPort = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>去配置</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? '折叠' : '去配置'}</span>
     )
   }
+
   genExtraVolume = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>去配置</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? '折叠' : '去配置'}</span>
     )
   }
+
   genExtraEnv = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>去配置</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? '折叠' : '去配置'}</span>
     )
   }
+
   genExtraMnt = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>去配置</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? '折叠' : '去配置'}</span>
     )
   }
   
   callbackPort = (e) => {
     this.setState({
-      activeKeyPort: e.length
+      activeKeyPort: e.length,
+      iconPort: true
     })
     if (!e.length) {
-      this.handleFetchPorts()
+      this.setState({
+        iconPort: false,
+      })
+      this.handleFetchPorts(true)
     }
   }
   callbackVolume = (e) => {
     this.setState({
-      activeKeyVolume: e.length
+      activeKeyVolume: e.length,
+      iconVolume: true
     })
     if (!e.length) {
-      this.handleFetchVolumes()
+      this.setState({
+        iconVolume: false,
+      })
+      this.handleFetchVolumes(true)
     }
   }
   callbackEnv = (e) => {
     this.setState({
-      activeKeyEnv: e.length
+      activeKeyEnv: e.length,
+      iconEnv: true
     })
     if (!e.length) {
-      this.handleFetchInnerEnvs()
+      this.setState({
+        iconEnv: false,
+      })
+      this.handleFetchInnerEnvs(true)
     }
   }
   callbackMnt = (e) => {
     this.setState({
-      activeKeyMnt: e.length
+      activeKeyMnt: e.length,
+      iconMnt: true
     })
     if (!e.length) {
-      this.handleLoadMntList()
+      this.setState({
+        iconMnt: false,
+      })
+      this.handleLoadMntList(true)
     }
   }
   render() {
@@ -1006,6 +1016,10 @@ export default class Index extends PureComponent {
       activeKeyVolume,
       activeKeyEnv,
       activeKeyMnt,
+      iconPort,
+      iconVolume,
+      iconEnv,
+      iconMnt
     } = this.state;
     return (
       <div>
@@ -1039,7 +1053,7 @@ export default class Index extends PureComponent {
                         </span>}
                     </span>}
                   key="port"
-                  extra={this.genExtraPort(!activeKeyPort)}
+                  extra={this.genExtraPort(iconPort)}
                   showArrow={false}
                 >
                   <Ports appDetail={appDetail} />
@@ -1051,7 +1065,7 @@ export default class Index extends PureComponent {
                   header={
                     <span>
                       <span className={styles.panelTitle}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
-                      <span className={styles.panelSpan}>将配置文件挂载到容器内路径，可以自定义业务的参数和设置，实现代码与配置解耦。</span>
+                      <span className={styles.panelSpan}>将配置文件挂载到程序内路径，可以自定义业务的参数和设置，实现代码与配置解耦。</span>
                       {!activeKeyVolume && volumesData.length > 0 &&
                         <span className={styles.spanList}>
                           文件名称:&nbsp;&nbsp;
@@ -1062,7 +1076,7 @@ export default class Index extends PureComponent {
                           }))}
                         </span>}
                     </span>}
-                  extra={this.genExtraVolume(!activeKeyVolume)}
+                  extra={this.genExtraVolume(iconVolume)}
                   showArrow={false}
                   key="volume"
                 >
@@ -1088,7 +1102,7 @@ export default class Index extends PureComponent {
                         </span>}
                     </span>}
                   key="env"
-                  extra={this.genExtraEnv(!activeKeyEnv)}
+                  extra={this.genExtraEnv(iconEnv)}
                   showArrow={false}
                 >
                   {isEnv && (
@@ -1121,7 +1135,7 @@ export default class Index extends PureComponent {
                         </span>}
                     </span>}
                   key="mnt"
-                  extra={this.genExtraMnt(!activeKeyMnt)}
+                  extra={this.genExtraMnt(iconMnt)}
                   showArrow={false}
                 >
                   {isStorage && <Mnt appDetail={appDetail} />}
