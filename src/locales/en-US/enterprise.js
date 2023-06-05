@@ -417,6 +417,7 @@ const enterpriseColony = {
     'enterpriseColony.import.recognition.tabs.deploy.cpu': 'CPU:',
     'enterpriseColony.import.recognition.tabs.deploy.unlimited': 'Unlimited',
     'enterpriseColony.import.recognition.tabs.port': 'Port management:',
+    'enterpriseColony.import.recognition.port': 'Port management',
     'enterpriseColony.import.recognition.tabs.port.port_number': 'Port number',
     'enterpriseColony.import.recognition.tabs.port.agreement': 'Port protocol',
     'enterpriseColony.import.recognition.tabs.port.message': 'Service information',

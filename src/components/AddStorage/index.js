@@ -120,7 +120,7 @@ export default class AddVolumes extends PureComponent {
                 <RadioGroup>
                   <Radio value="config-file" disabled={!!this.props.editor}>
                     <Tooltip title={<FormattedMessage id='componentOverview.body.tab.AddStorage.content'/>}>
-                    <FormattedMessage id='componentOverview.body.tab.AddStorage.AddStoragefile'/>
+                    <FormattedMessage id='enterpriseColony.import.recognition.tabs.configFiles'/>
                     </Tooltip>
                   </Radio>
                 </RadioGroup>

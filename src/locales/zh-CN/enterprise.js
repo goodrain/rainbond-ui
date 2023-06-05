@@ -418,6 +418,7 @@ const enterpriseColony = {
     'enterpriseColony.import.recognition.tabs.deploy.cpu': 'CPU:',
     'enterpriseColony.import.recognition.tabs.deploy.unlimited': '无限制',
     'enterpriseColony.import.recognition.tabs.port': '端口管理:',
+    'enterpriseColony.import.recognition.port': '端口管理',
     'enterpriseColony.import.recognition.tabs.port.port_number': '端口号',
     'enterpriseColony.import.recognition.tabs.port.agreement': '端口协议',
     'enterpriseColony.import.recognition.tabs.port.message': '服务信息',
