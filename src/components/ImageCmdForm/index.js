@@ -44,8 +44,7 @@ export default class Index extends PureComponent {
     this.state = {
       showUsernameAndPass: false,
       addGroup: false,
-      language: cookie.get('language') === 'zh-CN' ? true : false,
-      dockerRun: 'docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:tag'
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
   onAddGroup = () => {
@@ -85,11 +84,6 @@ export default class Index extends PureComponent {
       return callback(new Error(formatMessage({id: 'placeholder.max32'})));
     }
   };
-  demoChange = (val)=>{
-      this.setState({
-        dockerRun: val=="mysql" ? 'docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:tag' : val=="nginx" ? 'docker run --name some-nginx -v /some/content:/usr/share/nginx/html:ro -d nginx' : 'docker run --name some-redis -d redis'
-      })
-  }
   render() {
     const {
       groups,
@@ -99,13 +93,12 @@ export default class Index extends PureComponent {
       handleType,
       ButtonGroupState,
       showSubmitBtn = true,
-      showCreateGroup = true,
-      isDemo = false
+      showCreateGroup = true
     } = this.props;
     const { getFieldDecorator } = form;
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
-    const {language, dockerRun} = this.state;
+    const {language} = this.state;
     const is_language = language ? formItemLayout : formItemLayouts;
     return (
       <Fragment>
@@ -162,31 +155,14 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.image.docker_cmd'})}>
             {getFieldDecorator('docker_cmd', {
-              initialValue: isDemo ? dockerRun : data.docker_cmd || '',
+              initialValue: data.docker_cmd || '',
               rules: [{ required: true, message: formatMessage({id: 'placeholder.dockerRunMsg'}) }]
             })(
-              <TextArea placeholder={formatMessage({id: 'placeholder.dockerRun'})} disabled={isDemo}/>
+              <TextArea placeholder={formatMessage({id: 'placeholder.dockerRun'})} />
             )}
           </Form.Item>
-          {isDemo && 
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.demo' })}>
-          {getFieldDecorator('type', {
-            initialValue: 'mysql',
-            rules: [{ required: true, message: formatMessage({id: 'placeholder.code_version'}) }]
-          })(
-            <Select
-            onChange={this.demoChange}
-            getPopupContainer={triggerNode => triggerNode.parentNode}
-          >
-            <Option value="mysql">mysql</Option>
-            <Option value="nginx">nginx</Option>
-            <Option value="redis">redis</Option>
-          </Select>
-          )}
-          </Form.Item>
-          }
-          {!isDemo && <>
-            <div style={{ textAlign: 'right', marginTop: '-16px' }}>
+
+          <div style={{ textAlign: 'right', marginTop: '-16px' }}>
           {formatMessage({id: 'teamAdd.create.image.hint1'})}
             <a
               onClick={() => {
@@ -223,8 +199,6 @@ export default class Index extends PureComponent {
               />
             )}
           </Form.Item>
-          </>
-          }
           {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{

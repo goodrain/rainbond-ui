@@ -69,7 +69,7 @@ const teamAdd = {
   'teamAdd.create.code.title':'Create components from the source code',
   'teamAdd.create.code.desc':'Obtains the source code from the specified source repository and creates a new component based on the source information',
   'teamAdd.create.code.customSource':'Source code',
-  'teamAdd.create.code.package':' Jar、War',
+  'teamAdd.create.code.package':'Software package',
   'teamAdd.create.code.demo':'Example',
   'teamAdd.create.code.address':'Repo Address',
   'teamAdd.create.code.versions':'Code Version',
@@ -104,6 +104,8 @@ const teamAdd = {
   'teamAdd.create.upload.uploadFiles.helm':'Helm Command',
   'teamAdd.create.upload.uploadJWar':'You can upload files in Jar and War formats',
   'teamAdd.create.upload.uploadYaml':'Only YAML files can be uploaded',
+  'teamAdd.create.upload.TeamWizard.helm':'Helm',
+  'teamAdd.create.upload.TeamWizard.yaml':'Yaml',
 
   //market
   'teamAdd.create.market.desc':'Install apps with one click from local component libraries or app stores.',

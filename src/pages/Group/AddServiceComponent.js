@@ -18,6 +18,7 @@ import ImageCmd from '../Create/image-cmd';
 import CodeDemo from '../Create/code-demo';
 import HelmCmd from '../Create/helm-cmd';
 import ImageName from '../Create/image-name';
+import DockerDemo from '../Create/ImageName-Demo'
 import Jwar from '../Create/upload-jarwar'
 import Yaml from '../Create/upload-yaml'
 import Market from '../Create/market';
@@ -438,6 +439,18 @@ export default class AddServiceComponent extends PureComponent {
                       {formatMessage({ id: 'appOverview.list.btn.addComponent.dockerRun' })}
                     </p>
                   </Col>
+                  <Col
+                    span={8}
+                    className={styles.ServiceDiv}
+                    onClick={() => {
+                      this.handleServiceComponent(false, 'ImageNameDemo');
+                    }}
+                  >
+                    {docker_svg}
+                    <p className={styles.ServiceSmallTitle} style={{ whiteSpace: 'nowrap' }}>
+                      {formatMessage({ id: 'teamAdd.create.code.demo' })}
+                    </p>
+                  </Col>
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
@@ -528,6 +541,9 @@ export default class AddServiceComponent extends PureComponent {
           )}
           {ServiceComponentTwoPage === 'helm' && (
             <HelmCmd {...PublicParameter} onClose={this.cancelAddService} />
+          )}
+          {ServiceComponentTwoPage === 'ImageNameDemo' && (
+            <DockerDemo {...PublicParameter} onClose={this.cancelAddService} />
           )}
           {ServiceComponentTwoPage === 'market' && (
             <Market

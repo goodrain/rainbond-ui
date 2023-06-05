@@ -641,7 +641,7 @@
         'notification.market.hint.null_app3':'or',
         'notification.market.hint.null_app4':'Sync from the cloud',
         'notification.market.hint.null_app5':'The current market does not have the installation permission,',
-        'notification.market.hint.null_app6':'To authorize',
+        'notification.market.hint.null_app6':'To docking',
     }
     const placeholder = {
         'placeholder.appName':'select the application to deploy',
