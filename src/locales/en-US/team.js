@@ -81,6 +81,7 @@ const teamAdd = {
   'teamAdd.create.code.href':'View code',
   'teamAdd.create.code.demo2048':'2048 small game',
   'teamAdd.create.code.demoStatic':'Static Web：hello world !',
+  'teamAdd.create.code.selectDemo':'Selection example',
   // image
   'teamAdd.create.image.title':'Create components from the Docker image',
   'teamAdd.create.image.desc':'Support for creating applications from a single image, Docker commands, and DockerCompose configuration',
@@ -101,6 +102,7 @@ const teamAdd = {
   'teamAdd.create.upload.uploadFiles':'Upload file',
   'teamAdd.create.upload.uploadFiles.yaml':'Upload YAML File',
   'teamAdd.create.upload.uploadFiles.k8s':'Import Kubernetes Resources',
+  'teamAdd.create.upload.uploadFiles.k8s.text':'Import Kubernetes',
   'teamAdd.create.upload.uploadFiles.helm':'Helm Command',
   'teamAdd.create.upload.uploadJWar':'You can upload files in Jar and War formats',
   'teamAdd.create.upload.uploadYaml':'Only YAML files can be uploaded',

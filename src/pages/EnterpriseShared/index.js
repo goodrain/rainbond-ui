@@ -1864,7 +1864,7 @@ export default class EnterpriseShared extends PureComponent {
           <PlatformIntroduced onCancel={this.hideInitShow} />
         )} */}
 
-        {/* {guideStep === 'Jump' && isInStallShow && (
+        {guideStep === 'Jump' && isInStallShow && (
           <InstallStep
             onCancel={this.hideInstallStep}
             isAuthorize={isAuthorize}
@@ -1872,7 +1872,7 @@ export default class EnterpriseShared extends PureComponent {
             installType={this.state.installType}
             isStoreCluster={this.state.isStoreCluster}
           />
-        )} */}
+        )}
 
         {showMarketCloudAuth && (
           <AuthCompany
