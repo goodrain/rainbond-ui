@@ -928,25 +928,25 @@ export default class Index extends PureComponent {
   };
   genExtraPort = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? '折叠' : '去配置'}</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
     )
   }
 
   genExtraVolume = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? '折叠' : '去配置'}</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
     )
   }
 
   genExtraEnv = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? '折叠' : '去配置'}</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
     )
   }
 
   genExtraMnt = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? '折叠' : '去配置'}</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
     )
   }
   
@@ -1041,10 +1041,14 @@ export default class Index extends PureComponent {
                   header={
                     <span className={styles.spanBox}>
                       <span className={styles.panelTitle}>{formatMessage({ id: 'enterpriseColony.import.recognition.port' })}</span>
-                      <span className={styles.panelSpan}>提供外部访问业务的入口。端口需要配置与程序监听端口一致。</span>
+                      <span className={styles.panelSpan}>
+                        <Tooltip title={formatMessage({id:'enterpriseColony.import.recognition.port.desc'})}>
+                          {formatMessage({id:'enterpriseColony.import.recognition.port.desc'})}
+                        </Tooltip> 
+                      </span>
                       {!activeKeyPort && portsData.length > 0 &&
                         <span className={styles.spanList}>
-                          端口信息:&nbsp;&nbsp;
+                          {formatMessage({id:'enterpriseColony.import.recognition.port.info'})}&nbsp;&nbsp;
                           {portsData.map((item => {
                             return <span>
                               <Tag color="blue">{item.container_port}</Tag>
@@ -1053,7 +1057,7 @@ export default class Index extends PureComponent {
                         </span>}
                     </span>}
                   key="port"
-                  extra={this.genExtraPort(!activeKeyPort)}
+                  extra={this.genExtraPort(iconPort)}
                   showArrow={false}
                 >
                   <Ports appDetail={appDetail} />
@@ -1065,10 +1069,14 @@ export default class Index extends PureComponent {
                   header={
                     <span>
                       <span className={styles.panelTitle}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
-                      <span className={styles.panelSpan}>将配置文件挂载到程序内路径，可以自定义业务的参数和设置，实现代码与配置解耦。</span>
+                      <span className={styles.panelSpan}>
+                        <Tooltip title={formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.desc'})}>
+                        {formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.desc'})}
+                        </Tooltip>
+                      </span>
                       {!activeKeyVolume && volumesData.length > 0 &&
                         <span className={styles.spanList}>
-                          文件名称:&nbsp;&nbsp;
+                          {formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.name'})}&nbsp;&nbsp;
                           {volumesData.map((item => {
                             return <span>
                               <Tag color="blue">{item.volume_name}</Tag>
@@ -1090,13 +1098,17 @@ export default class Index extends PureComponent {
                   header={
                     <span>
                       <span className={styles.panelTitle}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
-                      <span className={styles.panelSpan}>可以使用环境变量提供业务所需参数或其他信息。</span>
+                      <span className={styles.panelSpan}>
+                        <Tooltip title={formatMessage({id:'appPublish.shop.pages.title.environment_variable.desc'})}>
+                          {formatMessage({id:'appPublish.shop.pages.title.environment_variable.desc'})}
+                        </Tooltip>
+                      </span>
                       {!activeKeyEnv && innerEnvsList.length > 0 &&
                         <span className={styles.spanList}>
-                          变量名称:&nbsp;&nbsp;
+                          {formatMessage({id:'appPublish.shop.pages.title.environment_variable.name'})}&nbsp;&nbsp;
                           {innerEnvsList.map((item => {
                             return <span>
-                              <Tag color="blue">{item.name}</Tag>
+                              <Tag color="blue">{item.attr_name}</Tag>
                             </span>
                           }))}
                         </span>}
@@ -1122,11 +1134,15 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle}>{formatMessage({ id: 'componentCheck.advanced.setup.shared_storage.title' })}</span>
-                      <span className={styles.panelSpan}>将容器内的目录持久化，以防止业务数据丢失。</span>
+                      <span className={styles.panelTitle}>{formatMessage({ id: 'componentCheck.advanced.setup.storage_config.title' })}</span>
+                      <span className={styles.panelSpan}>
+                        <Tooltip title={formatMessage({id:'componentCheck.advanced.setup.storage_config.desc'})}>
+                          {formatMessage({id:'componentCheck.advanced.setup.storage_config.desc'})}
+                        </Tooltip>
+                      </span>
                       {!activeKeyMnt && mntDataList.length > 0 &&
                         <span className={styles.spanList}>
-                          存储名称:&nbsp;&nbsp;
+                          {formatMessage({id:'componentCheck.advanced.setup.storage_config.name'})}&nbsp;&nbsp;
                           {mntDataList.map((item => {
                             return <span>
                               <Tag color="blue">{item.volume_name}</Tag>

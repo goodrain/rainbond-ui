@@ -54,6 +54,7 @@ const { Option, OptGroup } = Select;
 class BaseInfo extends PureComponent {
   constructor(props) {
     super(props);
+    const methods = props.appDetail && props.appDetail.service && props.appDetail.service.extend_method || 'stateless_multiple'
     this.state = {
       memoryList: [
         {
@@ -97,7 +98,7 @@ class BaseInfo extends PureComponent {
       method: false,
       memory: false,
       cpu: false,
-      isComponentType: false,
+      isComponentType: methods !== 'stateless_multiple' ? true : false,
       isMemory: false,
       isCpu: false,
     };
@@ -271,6 +272,8 @@ class BaseInfo extends PureComponent {
       min_memory: minMemory,
       min_cpu: minCpu
     } = appDetail.service;
+    const method = appDetail && appDetail.service && appDetail.service.extend_method 
+    const extendMethods = method == 'state_singleton' ? 'state_multiple' : method == 'stateless_singleton' ? 'stateless_multiple' : method == 'job' ? 'job' : method == 'cronjob' ? 'cronjob' : 'stateless_multiple';
     const list = this.state.memoryList;
     const arrOption = ['0 * * * *', '0 0 * * *', '0 0 * * 0', '0 0 1 * *', '0 0 1 1 *']
     const radioStyle = {
@@ -298,14 +301,14 @@ class BaseInfo extends PureComponent {
     };
     return (
       <Card
-        title='基础信息设置'
+        title={formatMessage({id:'componentCheck.advanced.setup.basic_info'})}
         style={{
           marginBottom: 16
         }}
       >
         <Form.Item style={{ marginTop: '6px' }} {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.extend_method' })}>
           {getFieldDecorator('extend', {
-            initialValue: false,
+            initialValue: method !== 'stateless_multiple' ? true : false,
             rules: [
               {
                 required: true,
@@ -315,17 +318,17 @@ class BaseInfo extends PureComponent {
           })(
             <RadioGroup onChange={this.RadioChangeComponentType}>
               <RadioButton key='default' value={false}>
-                无状态类型
+                {formatMessage({id:'componentCheck.advanced.setup.deploy_attr.Stateless_type'})}
               </RadioButton>
               <RadioButton key='rest' value={true}>
-                其他类型
+                {formatMessage({id:'componentCheck.advanced.setup.deploy_attr.Other_types'})}
               </RadioButton>
             </RadioGroup>
           )}
         </Form.Item>
         {isComponentType && <Form.Item style={{ paddingLeft: '160px' }} {...formItemLayout}>
           {getFieldDecorator('extend_method', {
-            initialValue: 'stateless_multiple',
+            initialValue: extendMethods,
             rules: [
               {
                 required: true,
@@ -390,7 +393,7 @@ class BaseInfo extends PureComponent {
                 {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
               </RadioButton>
               <RadioButton key='limitMemory' value={true}>
-                自定义
+                {formatMessage({id:'componentCheck.advanced.setup.basic_info.label.customize'})}
               </RadioButton>
             </RadioGroup>
           )}
@@ -433,7 +436,7 @@ class BaseInfo extends PureComponent {
                 {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
               </RadioButton>
               <RadioButton key='limitCpu' value={true}>
-                自定义
+              {formatMessage({id:'componentCheck.advanced.setup.basic_info.label.customize'})}
               </RadioButton>
             </RadioGroup>
           )}
@@ -598,7 +601,6 @@ export default class Index extends PureComponent {
   render() {
     const { appDetail, handleBuildSwitch, handleEditInfo, handleEditRuntime } = this.props;
     const { type, componentPermissions, language } = this.state;
-
     return (
       <div>
         <div

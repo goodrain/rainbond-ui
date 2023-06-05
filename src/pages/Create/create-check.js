@@ -818,48 +818,12 @@ export default class CreateCheck extends React.Component {
               {formatMessage({ id: 'button.abandon_create' })}
             </Button>
           )}
-          {/* <Button
-            type="default"
-            onClick={this.handleSetting}
-            style={{ marginRight: '8px' }}
-          >
-            {formatMessage({ id: 'button.advanced_setup' })}
-          </Button> */}
-          {/* <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <Button
-              onClick={this.handlePreventClick}
-              type="primary"
-              style={{ marginRight: '8px' }}
-              loading={buildAppLoading}
-            >
-              {formatMessage({ id: 'button.create' })}
-            </Button>
-            
-            <Tooltip
-              placement="topLeft"
-              title={
-                <p>
-                  {formatMessage({ id: 'componentCheck.tooltip.title.p1' })}
-                  <br />
-                  {formatMessage({ id: 'componentCheck.tooltip.title.p2' })}
-                </p>
-              }
-            >
-              <Radio
-                size="small"
-                onClick={this.renderSuccessOnChange}
-                checked={isDeploy}
-              >
-                {formatMessage({ id: 'button.build_start' })}
-              </Radio>
-            </Tooltip>
-          </div> */}
             <Button
               type="primary"
               style={{ marginRight: '8px' }}
               onClick={this.handleConfigFile}
             >
-              下一步
+              {formatMessage({id:'button.next_step'})}
             </Button>
         </div>
       ];
@@ -886,44 +850,12 @@ export default class CreateCheck extends React.Component {
               {formatMessage({ id: 'button.abandon_create' })}
             </Button>
           )}
-          {/* <Button type="default" onClick={this.handleSetting}>
-            {formatMessage({ id: 'button.advanced_setup' })}
-          </Button> */}
-          {/* <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Button
-              onClick={this.handlePreventClick}
-              type="primary"
-              style={{ marginRight: '8px' }}
-              loading={buildAppLoading}
-            >
-              {formatMessage({ id: 'button.create' })}
-            </Button>
-            {appDetail.service_source === 'third_party'}
-            <Tooltip
-              placement="topLeft"
-              title={
-                <p>
-                  {formatMessage({ id: 'componentCheck.tooltip.title.p1' })}
-                  <br />
-                  {formatMessage({ id: 'componentCheck.tooltip.title.p2' })}
-                </p>
-              }
-            >
-              <Radio
-                size="small"
-                onClick={this.renderSuccessOnChange}
-                checked={isDeploy}
-              >
-                {formatMessage({ id: 'button.build_start' })}
-              </Radio>
-            </Tooltip>
-          </div> */}
             <Button
               type="primary"
               style={{ marginRight: '8px' }}
               onClick={this.handleConfigFile}
             >
-              下一步
+              {formatMessage({id:'button.next_step'})}
             </Button>
         </div>
       ];

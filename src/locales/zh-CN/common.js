@@ -188,6 +188,7 @@
         'button.freshen':'刷新',
         'button.more':'查看更多',
         'button.fold':'折叠',
+        'button.config':'去配置',
     }
     const status = {
         'status.component.running':'运行中',

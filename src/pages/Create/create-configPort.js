@@ -282,15 +282,6 @@ export default class Index extends PureComponent {
               </Button>
             )}
             <Button
-              loading={buildAppsLoading}
-              style={{
-                marginRight: 8
-              }}
-              onClick={() => this.handleLinkConfigFile('create-setting')}
-            >
-              高级设置
-            </Button>
-            <Button
               style={{
                 marginRight: 8
               }}
