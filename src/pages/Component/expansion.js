@@ -917,7 +917,15 @@ export default class Index extends PureComponent {
               style={{ marginBottom: '16px' }}
               type="warning"
               closable
-              message={<FormattedMessage id='componentOverview.body.Expansion.empower'/>}
+              message={<>
+                <FormattedMessage id='componentOverview.body.Expansion.empower'/>
+                <a 
+                  href='https://www.rainbond.com/enterprise_server/' 
+                  target="_blank" 
+                >
+                  {formatMessage({id:'componentOverview.body.Expansion.authorization'})}
+                </a>
+              </>}
             />
           )}
           <Form layout="inline" hideRequiredMark className={styles.fromItem}>
