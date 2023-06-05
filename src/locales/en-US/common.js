@@ -190,7 +190,7 @@
         'button.freshen':'Refresh',
         'button.more':'View',
         'button.fold':'Fold',
-
+        'button.config':'Config',
     }
     const status = {
         'status.component.running':'Running',
