@@ -1,15 +1,15 @@
 /* eslint-disable react/sort-comp */
 import {
-    Alert,
-    Button,
-    Card,
-    Dropdown,
-    Icon,
-    Menu,
-    Modal,
-    notification,
-    Table,
-    Tooltip
+  Alert,
+  Button,
+  Card,
+  Dropdown,
+  Icon,
+  Menu,
+  Modal,
+  notification,
+  Table,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -17,7 +17,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import { openInNewTab } from '../../utils/utils';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from './index.less';
 
 /*
@@ -126,7 +126,7 @@ export default class Index extends PureComponent {
     }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
-        message: formatMessage({id:'notification.warn.error'}),
+        message: formatMessage({ id: 'notification.warn.error' }),
         description: err.data.msg_show
       });
     }
@@ -150,6 +150,9 @@ export default class Index extends PureComponent {
     // window.open(item.key);
     openInNewTab(item.key);
   };
+  handleClickLinkTcp = item => {
+    openInNewTab(`http://${item}`);
+  };
   renderNoHttpOuterTitle = item => (
     <div>
       <span
@@ -169,12 +172,12 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title={formatMessage({id:'tooltip.visit'})}
+          title={formatMessage({ id: 'tooltip.visit' })}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
             {/* 访问 */}
-            <FormattedMessage id='componentOverview.header.right.visit'/>
+            <FormattedMessage id='componentOverview.header.right.visit' />
           </Button>
         </Tooltip>
         {showModal && (
@@ -243,7 +246,7 @@ export default class Index extends PureComponent {
     const links = this.getHttpLinks(demo.access_info || {});
     if (links.length === 1) {
       return (
-        <Tooltip title={formatMessage({id:'tooltip.visit'})}>
+        <Tooltip title={formatMessage({ id: 'tooltip.visit' })}>
           <Button
             type={this.props.btntype}
             onClick={() => {
@@ -252,7 +255,7 @@ export default class Index extends PureComponent {
             }}
           >
             {/* 访问 */}
-            <FormattedMessage id='componentOverview.header.right.visit'/>
+            <FormattedMessage id='componentOverview.header.right.visit' />
           </Button>
         </Tooltip>
       );
@@ -260,12 +263,12 @@ export default class Index extends PureComponent {
       return (
         <Fragment>
           <Tooltip
-            title={formatMessage({id:'tooltip.visit'})}
+            title={formatMessage({ id: 'tooltip.visit' })}
             placement="topRight"
           >
             <Button type={this.props.btntype} onClick={this.showModal}>
               {/* 访问 */}
-              <FormattedMessage id='componentOverview.header.right.visit'/>
+              <FormattedMessage id='componentOverview.header.right.visit' />
             </Button>
           </Tooltip>
           {showModal && (
@@ -296,7 +299,7 @@ export default class Index extends PureComponent {
     }
     return (
       <Tooltip
-        title={formatMessage({id:'tooltip.visit'})}
+        title={formatMessage({ id: 'tooltip.visit' })}
         placement="topRight"
       >
         <Dropdown
@@ -312,7 +315,7 @@ export default class Index extends PureComponent {
         >
           <Button type={this.props.btntype}>
             <a href={links[0]} target="_blank">
-            <FormattedMessage id='componentOverview.header.right.visit'/>
+              <FormattedMessage id='componentOverview.header.right.visit' />
               {/* 访问 */}
             </a>
           </Button>
@@ -323,11 +326,11 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title={formatMessage({id:'tooltip.visit'})}
+          title={formatMessage({ id: 'tooltip.visit' })}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
-            <FormattedMessage id='componentOverview.header.right.visit'/>
+            <FormattedMessage id='componentOverview.header.right.visit' />
             {/* 访问 */}
           </Button>
         </Tooltip>
@@ -361,6 +364,7 @@ export default class Index extends PureComponent {
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
+    const links = this.getHttpLinks(demo.access_info || {});
     const res = demo.access_info || [];
     const btn = <Button onClick={this.hiddenModal}>关闭</Button>;
     const btns = [btn];
@@ -368,148 +372,120 @@ export default class Index extends PureComponent {
     const currentRegion = region.filter(item => {
       return item.team_region_name == globalUtil.getCurrRegionName();
     });
+    if (links.length === 1 && res[0].protocol == 'tcp') {
+      return (
+        <Tooltip title={formatMessage({ id: 'tooltip.visit' })}>
+          <Button
+            type={this.props.btntype}
+            onClick={() => {
+              this.handleClickLinkTcp(links[0])
+            }}
+          >
+            {/* 访问 */}
+            <FormattedMessage id='componentOverview.header.right.visit' />
+          </Button>
+        </Tooltip>
+      );
+    } else if (links.length === 0) {
+      return (
+        <Fragment>
+          <Tooltip
+            title={formatMessage({ id: 'tooltip.visit' })}
+            placement="topRight"
+          >
+            <Button type={this.props.btntype} onClick={this.showModal}>
+              {/* 访问 */}
+              <FormattedMessage id='componentOverview.header.right.visit' />
+            </Button>
+          </Tooltip>
+          {showModal && (
+            <Modal
+              title="提示"
+              visible
+              onCancel={this.hiddenModal}
+              footer={[<Button onClick={this.hiddenModal}> 关闭 </Button>]}
+            >
+              <div
+                style={{
+                  textAlign: 'center',
+                  fontSize: 16
+                }}
+              >
+                http协议端口需打开外部访问服务, 去
+                <Link
+                  onClick={this.hiddenModal}
+                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                >
+                  打开
+                </Link>
+              </div>
+            </Modal>
+          )}
+        </Fragment>
+      );
+    }
+    return (
+      <Tooltip
+        title={formatMessage({ id: 'tooltip.visit' })}
+        placement="topRight"
+      >
+        <Dropdown
+          overlay={
+            <Menu>
+              {links.map(item => (
+                <Menu.Item onClick={()=>this.handleClickLinkTcp(item)} key={item}>{item}</Menu.Item>
+              ))}
+            </Menu>
+          }
+          placement="bottomRight"
+        >
+          <Button type={this.props.btntype}>
+            <a onClick={()=>this.handleClickLinkTcp(links[0])} target="_blank">
+              <FormattedMessage id='componentOverview.header.right.visit' />
+              {/* 访问 */}
+            </a>
+          </Button>
+        </Dropdown>
+      </Tooltip>
+    );
 
     return (
       <Fragment>
         <Tooltip
-          title={formatMessage({id:'tooltip.visit'})}
+          title={formatMessage({ id: 'tooltip.visit' })}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
-            <FormattedMessage id='componentOverview.header.right.visit'/>
+            <FormattedMessage id='componentOverview.header.right.visit' />
+            {/* 访问 */}
           </Button>
         </Tooltip>
         {showModal && (
           <Modal
-            title="访问信息"
-            width="800px"
+            title="提示"
             visible
             onCancel={this.hiddenModal}
-            footer={btns}
+            footer={[<Button onClick={this.hiddenModal}> 关闭 </Button>]}
           >
-            {res.map((item, i) => {
-              const connect_info = item.connect_info || [];
-              const accessUrls =
-                item.access_urls &&
-                item.access_urls.length > 0 &&
-                item.access_urls[0];
-              // connect_info = connect_info.filter((d, i) => d.attr_name.indexOf("_PORT") === -1 && d.attr_name.indexOf("_HOST") === -1);
-              return (
-                <Card
-                  type="inner"
-                  style={{
-                    marginBottom: 24
-                  }}
-                  // title={this.renderNoHttpOuterTitle(item)}
-                >
-                  {/* {!item.connect_info.length ? (
-                    "-"
-                  ) : ( */}
-                  <Fragment>
-                    <ul className={styles.ul}>
-                      {item.protocol == 'tcp' || item.protocol == 'udp' ? (
-                        <li style={{ fontWeight: 'bold' }}>
-                          您当前的访问协议是{item.protocol}
-                        </li>
-                      ) : (
-                        <li style={{ fontWeight: 'bold' }}>
-                          您当前的访问协议是{item.protocol},打开MySQL客户端访问
-                        </li>
-                      )}
-                      <li>
-                        推荐访问地址&nbsp;
-                        <a
-                          href="javascript:void(0)"
-                          style={{ marginRight: '10px' }}
-                        >
-                          {accessUrls &&
-                          accessUrls.indexOf('0.0.0.0') > -1 &&
-                          currentRegion &&
-                          currentRegion.length > 0
-                            ? accessUrls &&
-                              accessUrls.replace(
-                                /0.0.0.0/g,
-                                currentRegion[0].tcpdomain
-                              )
-                            : accessUrls && accessUrls.replace(/\s+/g, '')}
-                        </a>
-                        <CopyToClipboard
-                          text={
-                            accessUrls &&
-                            accessUrls.indexOf('0.0.0.0') > -1 &&
-                            currentRegion &&
-                            currentRegion.length > 0
-                              ? accessUrls &&
-                                accessUrls.replace(
-                                  /0.0.0.0/g,
-                                  currentRegion[0].tcpdomain
-                                )
-                              : accessUrls && accessUrls.replace(/\s+/g, '')
-                          }
-                          onCopy={() => {
-                            notification.success({ message: formatMessage({id:'notification.success.copy'}) });
-                          }}
-                        >
-                          <Button size="small" type="primary">
-                            <Icon type="copy" />
-                            复制
-                          </Button>
-                        </CopyToClipboard>
-                      </li>
-                      {this.showConnectInfo(connect_info)}
-                    </ul>
-
-                    {/* <table
-                          style={{
-                            width: "100%",
-                          }}
-                        >
-                          <thead>
-                            <tr>
-                              <th>变量名</th>
-                              <th>变量值</th>
-                              <th>说明</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {connect_info.map((item) => {
-                              // if (
-                              //   item.attr_name.indexOf("_PORT") > -1 ||
-                              //   item.attr_name.indexOf("_HOST") > -1
-                              // ) {
-                              //   return null;
-                              // }
-                              return (
-                                <tr>
-                                  <td width="150">{item.attr_name}</td>
-                                  <td>{item.attr_value}</td>
-                                  <td>{item.name}</td>
-                                </tr>
-                              );
-                            })}
-                            {!connect_info.length ? (
-                              <tr>
-                                <td
-                                  colSpan="3"
-                                  style={{
-                                    textAlign: "center",
-                                  }}
-                                >
-                                  暂无数据
-                              </td>
-                              </tr>
-                            ) : null}
-                          </tbody>
-                        </table> */}
-                  </Fragment>
-                  {/* )} */}
-                </Card>
-              );
-            })}
+            <div
+              style={{
+                textAlign: 'center',
+                fontSize: 16
+              }}
+            >
+              需要配置端口信息, 去
+              <Link
+                onClick={this.hiddenModal}
+                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+              >
+                配置
+              </Link>
+            </div>
           </Modal>
         )}
       </Fragment>
     );
+
   };
   renderNotHttpInner = visitInfo => {
     const { showModal } = this.state;
@@ -596,11 +572,11 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip
-          title={formatMessage({id:'tooltip.visit'})}
+          title={formatMessage({ id: 'tooltip.visit' })}
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
-          <FormattedMessage id='componentOverview.header.right.visit'/>
+            <FormattedMessage id='componentOverview.header.right.visit' />
             {/* 访问 */}
           </Button>
         </Tooltip>

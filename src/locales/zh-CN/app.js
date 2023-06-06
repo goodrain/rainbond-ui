@@ -108,7 +108,7 @@ const appOverview = {
   'appOverview.app.delete.table.td.appConfigGroups': '应用配置组名称',
   'appOverview.app.delete.table.td.k8s': 'K8S资源名称（类型）',
   'appOverview.app.delete.table.td.domain': '网关策略名称',
-  'appOverview.app.delete.table.td.shareRecords': '发布模版名称',
+  'appOverview.app.delete.table.td.shareRecords': '发布模版名称（版本）',
 };
 
 //应用发布

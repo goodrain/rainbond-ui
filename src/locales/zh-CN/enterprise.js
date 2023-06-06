@@ -433,7 +433,7 @@ const enterpriseColony = {
     'enterpriseColony.import.recognition.tabs.env.env_explain': '说明',
     'enterpriseColony.import.recognition.tabs.configFiles': '配置文件',
     'enterpriseColony.import.recognition.tabs.configFiles.desc': '将配置文件挂载到程序内路径，可以自定义业务的参数和设置，实现代码与配置解耦。',
-    'enterpriseColony.import.recognition.tabs.configFiles.name': '文件名称',
+    'enterpriseColony.import.recognition.tabs.configFiles.name': '文件名称:',
     'enterpriseColony.import.recognition.tabs.configFiles.config_name': '配置文件名称',
     'enterpriseColony.import.recognition.tabs.configFiles.config_path': '配置文件挂载路径',
     'enterpriseColony.import.recognition.tabs.configFiles.mode': '权限',
