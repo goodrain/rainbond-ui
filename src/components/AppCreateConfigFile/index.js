@@ -273,7 +273,7 @@ class BaseInfo extends PureComponent {
       min_cpu: minCpu
     } = appDetail.service;
     const method = appDetail && appDetail.service && appDetail.service.extend_method 
-    const extendMethods = method == 'state_singleton' ? 'state_multiple' : method == 'stateless_singleton' ? 'stateless_multiple' : method == 'job' ? 'job' : method == 'cronjob' ? 'cronjob' : 'stateless_multiple';
+    const extendMethods = method == 'state_singleton' ? 'state_multiple' : method == 'stateless_singleton' ? 'stateless_multiple' : method == 'job' ? 'job' : method == 'cronjob' ? 'cronjob' : method;
     const list = this.state.memoryList;
     const arrOption = ['0 * * * *', '0 0 * * *', '0 0 * * 0', '0 0 1 * *', '0 0 1 1 *']
     const radioStyle = {
