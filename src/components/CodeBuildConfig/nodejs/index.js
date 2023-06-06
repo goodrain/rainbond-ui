@@ -107,8 +107,8 @@ class Index extends PureComponent {
           {getFieldDecorator('BUILD_NPM_REGISTRY', {
             initialValue:
               (envs && envs.BUILD_NPM_REGISTRY) ||
-              'https://registry.npm.taobao.org'
-          })(<Input placeholder="https://registry.npm.taobao.org" />)}
+              'https://registry.npmmirror.com'
+          })(<Input placeholder="https://registry.npmmirror.com" />)}
         </Form.Item>
 
         <Form.Item
@@ -119,8 +119,8 @@ class Index extends PureComponent {
           {getFieldDecorator('BUILD_YARN_REGISTRY', {
             initialValue:
               (envs && envs.BUILD_YARN_REGISTRY) ||
-              'https://registry.npm.taobao.org'
-          })(<Input placeholder="https://registry.npm.taobao.org" />)}
+              'https://registry.npmmirror.com'
+          })(<Input placeholder="https://registry.npmmirror.com" />)}
         </Form.Item>
 
         {(((languageType === 'nodejsstatic' && advanced_setup != 'advanced') || (languageType === 'NodeJSStatic' && advanced_setup != 'advanced')) || (soundCodeLanguage == 'NodeJSStatic' && advanced_setup == 'advanced')) && (

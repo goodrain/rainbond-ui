@@ -136,7 +136,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : language ? "源码构建示例" : "Source sample application",
+              initialValue: isService ? Number(groupId) : language ? "镜像构建示例" : "Source sample application",
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
             })(
               !isService ?
