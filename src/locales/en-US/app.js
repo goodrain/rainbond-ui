@@ -108,7 +108,7 @@ const appOverview = {
   'appOverview.app.delete.table.td.appConfigGroups': 'App configuration group name',
   'appOverview.app.delete.table.td.k8s': 'K8S Resource Name (Type)',
   'appOverview.app.delete.table.td.domain': 'Gateway policy name',
-  'appOverview.app.delete.table.td.shareRecords': 'Publish template name',
+  'appOverview.app.delete.table.td.shareRecords': 'Publish template name（Version）',
 };
 
 //应用发布

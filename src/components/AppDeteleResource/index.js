@@ -119,7 +119,7 @@ export default class AppDeteleResource extends PureComponent {
                             </div>
                         )
                     } else if (record.app_share_records) {
-                        const records = record.app_share_records.length > 0 && record.app_share_records.filter(i=>i && i.trim())
+                        const records = record.app_share_records.length > 0 && record.app_share_records.filter(i=>i.name && i.name.trim())
                         return (
                             <div>
                                 {record.name}
@@ -292,7 +292,7 @@ export default class AppDeteleResource extends PureComponent {
                                     <div className={styles.k8sResources}>
                                         {record.app_share_records.map((item) => {
                                             return (item != null && item != '') && (
-                                                <Tag className={styles.tags} color="blue">{item}</Tag>
+                                                <Tag className={styles.tags} color="blue">{item.name}（{item.version}）</Tag>
                                             )
                                         })}
                                     </div>
