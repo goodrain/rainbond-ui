@@ -91,17 +91,22 @@ export default class Index extends PureComponent {
     this.loadingBuild = true
     const { team_name, app_alias } = this.fetchParameter();
     const { refreshCurrent, dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
+    const dist = JSON.parse(window.sessionStorage.getItem('dist')) || false
     const { isDeploy } = this.state;
     this.setState({ buildAppLoading: true },()=>{
       if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic') {
+      const obj = {
+        team_name: team_name,
+        app_alias: app_alias,
+        lang: soundCodeLanguage,
+        package_tool: packageNpmOrYarn,
+      }
+      if(soundCodeLanguage == 'NodeJSStatic'){
+        obj.dist = dist
+      }
         dispatch({
           type: 'createApp/setNodeLanguage',
-          payload: {
-            team_name: team_name,
-            app_alias: app_alias,
-            lang: soundCodeLanguage,
-            package_tool: packageNpmOrYarn,
-          },
+          payload: obj,
           callback: res => {
             if (res) {
               dispatch({

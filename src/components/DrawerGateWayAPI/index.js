@@ -210,7 +210,15 @@ class DrawerForm extends PureComponent {
           gateWayNamespace: res.list[0].namespace,
           listener_namesArr: res.list[0].listener_names,
         },()=>{
+          if(editInfo){
+            res.list.map(item =>{
+              if(item.namespace == editInfo.gateway_namespace && item.name == editInfo.gateway_name){
+                this.handleGateWayIp(item)
+              }
+            })
+          }else{
             this.handleGateWayIp(res.list[0])
+          }
         })
         if(editInfo){
           res.list.map((item)=>{
@@ -393,16 +401,16 @@ class DrawerForm extends PureComponent {
           <Form>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamGateway.DrawerGateWayAPI.type' })}>
               {getFieldDecorator('gateway_class_name', {
-                initialValue: (editInfo && editInfo.gateway_name) || (gateWayArr.length > 0 ? gateWayArr[0].name : null),
+                initialValue: editInfo ? editInfo.gateway_name : (gateWayArr.length > 0 ? gateWayArr[0].name : null),
                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder={formatMessage({ id: 'placeholder.appName' })}
                 >
-                  {(gateWayArr || []).map(item => {
+                  {(gateWayArr || []).map((item,index) => {
                     return (
-                      <Option onClick={() => { this.handleGateWayIp(item) }} key={item.name} value={item.name}>
+                      <Option onClick={() => { this.handleGateWayIp(item) }} key={item.name + index} value={item.name}>
                         {item.name}
                       </Option>
                     )
