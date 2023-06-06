@@ -309,7 +309,8 @@ export async function setNodeLanguage(body = {}) {
       method: 'post',
       data:{
         lang: body.lang,
-        package_tool: body.package_tool
+        package_tool: body.package_tool,
+        dist: body.dist
       }
     }
   );

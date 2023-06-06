@@ -2,7 +2,7 @@
 /* eslint-disable react/no-danger */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-undef */
-import { Button, Card, Icon, Modal, notification, Radio, Tooltip } from 'antd';
+import { Button, Card, Icon, Modal, notification, Radio, Tooltip, Input } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React from 'react';
@@ -65,6 +65,7 @@ export default class CreateCheck extends React.Component {
       source_from: '',
       ports: '',
       language: cookie.get('language') === 'zh-CN' ? true : false,
+      Directory: "dist"
     };
     this.mount = false;
     this.loadingBuild = false
@@ -91,11 +92,12 @@ export default class CreateCheck extends React.Component {
   }
 
   getParameter = () => {
-    const { ServiceGetData } = this.state;
+    const { ServiceGetData,Directory } = this.state;
     return {
       appAlias: ServiceGetData || this.props.match.params.appAlias,
       teamName: globalUtil.getCurrTeamName(),
-      regionName: globalUtil.getCurrRegionName()
+      regionName: globalUtil.getCurrRegionName(),
+      dist: Directory||'dist'
     };
   };
 
@@ -247,8 +249,12 @@ export default class CreateCheck extends React.Component {
     this.handleJump(`create/create-setting/${appAlias}`);
   };
   handleConfigFile = () => {
-    const { appAlias } = this.getParameter();
+    const { appAlias, dist } = this.getParameter();
     window.sessionStorage.setItem('advanced_setup', JSON.stringify('advanced'));
+    const { codeLanguage } = this.state;
+    if(codeLanguage == 'NodeJSStatic'){
+      window.sessionStorage.setItem('dist', JSON.stringify(`${dist}`));
+    }
     this.handleJump(`create/create-configFile/${appAlias}`);
   };
   // 进入多模块构建
@@ -715,6 +721,11 @@ export default class CreateCheck extends React.Component {
     });
 
   };
+  distChange = e =>{
+    this.setState({
+      Directory:e
+    })
+  }
   renderSuccess = (buildAppLoading) => {
     const { ButtonGroupState, ErrState, handleServiceBotton, soundCodeLanguage } = this.props;
     const {
@@ -727,6 +738,7 @@ export default class CreateCheck extends React.Component {
       source_from,
       ports,
       packageLange,
+      Directory
     } = this.state;
     let extra = '';
     const arr = [];
@@ -765,7 +777,8 @@ export default class CreateCheck extends React.Component {
               </Radio.Group>
             </div>
             {codeLanguage == 'NodeJSStatic' && (
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 16,display:"flex",flexDirection:'column' }}>
+                <div>
                 <span
                   style={{
                     verticalAlign: 'top',
@@ -776,6 +789,19 @@ export default class CreateCheck extends React.Component {
                   {formatMessage({ id: 'confirmModal.check.appShare.title.port' })}：
                 </span>
                 {ports || formatMessage({ id: 'confirmModal.check.appShare.title.null' })}
+                </div>
+                <div style={{marginTop:16}}>
+                <span
+                  style={{
+                    verticalAlign: 'top',
+                    display: 'inline-block',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {formatMessage({id:'confirmModal.check.appShare.title.dist'})}
+                </span>
+                  <Input placeholder="Basic usage" defaultValue={Directory} onChange={e => this.distChange(e.target.value)} style={{width:200}}/>
+                </div>
               </div>
             )}
             <div style={{ marginBottom: 16 }}>

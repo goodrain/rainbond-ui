@@ -390,6 +390,7 @@
         'confirmModal.check.appShare.title.port':'Port info',
         'confirmModal.check.appShare.title.sourceCode':'Source Info',
         'confirmModal.check.appShare.title.null':'No data',
+        'confirmModal.check.appShare.title.dist':'Package directory:',
         
         // 删除组件
         'confirmModal.assembly.delete.title':'Remove component',

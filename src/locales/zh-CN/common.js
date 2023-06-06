@@ -392,6 +392,7 @@
         'confirmModal.check.appShare.title.port':'端口信息',
         'confirmModal.check.appShare.title.sourceCode':'源码信息',
         'confirmModal.check.appShare.title.null':'暂无',
+        'confirmModal.check.appShare.title.dist':'打包目录：',
         
         // 删除组件
         'confirmModal.assembly.delete.title':'删除组件',
