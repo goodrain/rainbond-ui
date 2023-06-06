@@ -4,11 +4,11 @@ import { routerRedux } from 'dva/router';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Button } from 'antd';
 import Result from '../../components/Result';
+import rainbondUtil from '../../utils/rainbond';
 import styles from './RegisterResult.less';
 @connect(({ user, global }) => ({
   register: user.register,
   rainbondInfo: global.rainbondInfo,
-  isRegist: global.isRegist
 }))
 
 export default class Register extends Component {
@@ -16,10 +16,29 @@ export default class Register extends Component {
     super(props)
     this.state = {
       eid:'',
-      is_admin: 0
+      is_admin: 0,
+      regionName: null
     }
   }
   componentDidMount(){
+    const { dispatch, rainbondInfo } = this.props
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
+    if(firstRegist){
+      dispatch({
+        type: 'global/fetchInitCluster',
+        payload: {},
+        callback: res => {
+          if(res && res.bean && res.bean.default_region){
+            this.setState({
+              regionName: res.bean.default_region.region_name
+            })
+          }
+        },
+        handleError: res => {
+          console.log(res,'error')
+        }
+      })
+    }
     this.getEnterpriseList()
   }
    // 获取企业列表
@@ -34,9 +53,7 @@ export default class Register extends Component {
             eid:res.list[0].enterprise_id
           },()=>{
             const { eid } = this.state
-            this.loadUser(eid)
           })
-
         }
       },
       handleError: () => {
@@ -63,21 +80,25 @@ export default class Register extends Component {
       }
     });
   };
-  onRouterLink = (eid, is_admin)=>{
+  onRouterLink = (eid, firstRegist, regionName)=>{
     const { dispatch } = this.props;
-    if(is_admin == 1){
-      dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
+    if(firstRegist){
+      if(regionName){
+        dispatch(routerRedux.replace(`/team/default/region/${regionName}/index`))
+      }else{
+        dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
+      }
     }else{
       dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
     }
-    
   }
   render() {
-    const { location,user } = this.props
-    const { eid, is_admin } = this.state
+    const { location, user, rainbondInfo } = this.props
+    const { eid, is_admin, regionName } = this.state
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     const actions = (
       <div className={styles.actions}>
-        {is_admin &&<Button size="large" onClick={()=>{this.onRouterLink(eid,is_admin)}}><FormattedMessage id="login.RegisterResult.back" /></Button>}
+        <Button size="large" onClick={()=>{this.onRouterLink(eid, firstRegist, regionName)}}><FormattedMessage id="login.RegisterResult.back" /></Button>
       </div>
     );
     return (
@@ -86,7 +107,6 @@ export default class Register extends Component {
         type="success"
         title={
           <div className={styles.title}>
-
             <FormattedMessage id="login.RegisterResult.your" />{location.state ? location.state.account : 'xxx'} <FormattedMessage id="login.RegisterResult.success" />
           </div>
         }

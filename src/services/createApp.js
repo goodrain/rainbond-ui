@@ -20,7 +20,10 @@ export async function createAppByCode(body = {}) {
         username: body.username,
         password: body.password,
         server_type: body.server_type,
-        k8s_component_name: body.k8s_component_name
+        k8s_component_name: body.k8s_component_name,
+        k8s_component_name: body.k8s_component_name,
+        k8s_app: body.k8s_app || '',
+        is_demo: body.is_demo || false
       }
     }
   );
@@ -208,7 +211,9 @@ export async function createAppByDockerrun(body = {}) {
         image_type: body.image_type,
         user_name: body.user_name,
         password: body.password,
-        k8s_component_name: body.k8s_component_name
+        k8s_component_name: body.k8s_component_name,
+        k8s_app: body.k8s_app || '',
+        is_demo: body.is_demo || false
       }
     }
   );
@@ -304,7 +309,8 @@ export async function setNodeLanguage(body = {}) {
       method: 'post',
       data:{
         lang: body.lang,
-        package_tool: body.package_tool
+        package_tool: body.package_tool,
+        dist: body.dist
       }
     }
   );

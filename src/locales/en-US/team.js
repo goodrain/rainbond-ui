@@ -68,9 +68,9 @@ const teamAdd = {
   // code
   'teamAdd.create.code.title':'Create components from the source code',
   'teamAdd.create.code.desc':'Obtains the source code from the specified source repository and creates a new component based on the source information',
-  'teamAdd.create.code.customSource':'Custom source code',
-  'teamAdd.create.code.package':'Package upload',
-  'teamAdd.create.code.demo':'Official DEMO',
+  'teamAdd.create.code.customSource':'Source code',
+  'teamAdd.create.code.package':'Software package',
+  'teamAdd.create.code.demo':'Example',
   'teamAdd.create.code.address':'Repo Address',
   'teamAdd.create.code.versions':'Code Version',
   'teamAdd.create.code.branch':'Branch',
@@ -81,11 +81,12 @@ const teamAdd = {
   'teamAdd.create.code.href':'View code',
   'teamAdd.create.code.demo2048':'2048 small game',
   'teamAdd.create.code.demoStatic':'Static Web：hello world !',
+  'teamAdd.create.code.selectDemo':'Selection example',
   // image
   'teamAdd.create.image.title':'Create components from the Docker image',
   'teamAdd.create.image.desc':'Support for creating applications from a single image, Docker commands, and DockerCompose configuration',
   'teamAdd.create.image.tabImage':'DockerImage',
-  'teamAdd.create.image.DockerRun':'DockerRun',
+  'teamAdd.create.image.DockerRun':'Docker Run',
   'teamAdd.create.image.docker_cmd':'Command',
   'teamAdd.create.image.hint1':'This is a private repository? ',
   'teamAdd.create.image.hint2':'Account password',
@@ -101,12 +102,16 @@ const teamAdd = {
   'teamAdd.create.upload.uploadFiles':'Upload file',
   'teamAdd.create.upload.uploadFiles.yaml':'Upload YAML File',
   'teamAdd.create.upload.uploadFiles.k8s':'Import Kubernetes Resources',
+  'teamAdd.create.upload.uploadFiles.k8s.text':'Import Kubernetes',
   'teamAdd.create.upload.uploadFiles.helm':'Helm Command',
   'teamAdd.create.upload.uploadJWar':'You can upload files in Jar and War formats',
   'teamAdd.create.upload.uploadYaml':'Only YAML files can be uploaded',
+  'teamAdd.create.upload.TeamWizard.helm':'Helm',
+  'teamAdd.create.upload.TeamWizard.yaml':'Yaml',
 
   //market
-  
+  'teamAdd.create.market.desc':'Install apps with one click from local component libraries or app stores.',
+  'teamAdd.create.market.market':'External application market (100+)',
   //third
   'teamAdd.create.third.title':'Adding Third Party Component',
   'teamAdd.create.third.desc':'Third-party components are components that run outside the platform cluster. Creating a component on a platform can connect it seamlessly to the platform gateway and be accessed by services on the platform. To meet the users through the platform can be unified monitoring and management of various components.',

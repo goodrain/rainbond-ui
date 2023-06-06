@@ -265,6 +265,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/team/:teamName/region/:regionName/wizard',
+            component: './TeamWizard/index',
+            name: 'teamOverview',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/team/:teamName/region/:regionName/message',
             component: './Message/Index',
             name: 'Message',
@@ -502,7 +508,21 @@ export default [
             authority: ['admin', 'user']
           },
 
+          {
+            path:
+              '/team/:teamName/region/:regionName/create/create-configPort/:appAlias',
+            component: './Create/create-configPort',
+            name: 'configPort',
+            authority: ['admin', 'user']
+          },
 
+          {
+            path:
+              '/team/:teamName/region/:regionName/create/create-configFile/:appAlias',
+            component: './Create/create-configFile',
+            name: 'configFile',
+            authority: ['admin', 'user']
+          },
 
           {
             path:

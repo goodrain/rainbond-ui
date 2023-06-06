@@ -109,6 +109,7 @@ import {
   getAbilitiesList,
   abilitiesEdit,
   abilitiesDetail,
+  fetchInitCluster
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -922,6 +923,12 @@ export default {
         callback(response);
       }
     },
+    *fetchInitCluster({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchInitCluster, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
   },
   reducers: {
     isUpDataHeader(state, action) {
@@ -1092,7 +1099,6 @@ export default {
         teamOverview: payload
       };
     },
-
   },
 
   subscriptions: {

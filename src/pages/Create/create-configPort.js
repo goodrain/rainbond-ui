@@ -6,19 +6,21 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { setNodeLanguage } from '../../services/createApp';
-import AppCreateSetting from '../../components/AppCreateSetting';
+import AppConfigPort from '../../components/AppCreateConfigPort';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
+import CustomFooter from "../../layouts/CustomFooter";
 import roleUtil from '../../utils/role';
 
 @connect(
-  ({ loading, teamControl }) => ({
+  ({ loading, teamControl, appControl }) => ({
     buildAppsLoading: loading.effects['createApp/buildApps'],
     deleteAppLoading: loading.effects['appControl/deleteApp'],
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
     soundCodeLanguage: teamControl.codeLanguage,
     packageNpmOrYarn: teamControl.packageNpmOrYarn,
+    ports: appControl.ports,
   }),
   null,
   null,
@@ -30,8 +32,10 @@ export default class Index extends PureComponent {
     this.state = {
       appPermissions: this.handlePermissions('queryAppInfo'),
       appDetail: null,
-      handleBuildSwitch: false
+      handleBuildSwitch: false,
+      isDeploy: true
     };
+    this.loadingBuild = false
   }
   componentDidMount() {
     this.loadDetail();
@@ -82,29 +86,74 @@ export default class Index extends PureComponent {
       }, wait)
     }
   }
-  handleBuild = (val) => {
-    const { dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
-    const { appDetail } = this.state
+  
+  handleBuild = () => {
+    this.loadingBuild = true
     const { team_name, app_alias } = this.fetchParameter();
-    if( val == false ){
-      setNodeLanguage({
+    const { refreshCurrent, dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
+    const dist = JSON.parse(window.sessionStorage.getItem('dist')) || false
+    const { isDeploy } = this.state;
+    this.setState({ buildAppLoading: true },()=>{
+      if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic') {
+      const obj = {
         team_name: team_name,
         app_alias: app_alias,
         lang: soundCodeLanguage,
         package_tool: packageNpmOrYarn,
-      }).then(res=>{
+      }
+      if(soundCodeLanguage == 'NodeJSStatic'){
+        obj.dist = dist
+      }
+        dispatch({
+          type: 'createApp/setNodeLanguage',
+          payload: obj,
+          callback: res => {
+            if (res) {
+              dispatch({
+                type: 'createApp/buildApps',
+                payload: {
+                  team_name: team_name,
+                  app_alias: app_alias,
+                  is_deploy: isDeploy,
+                },
+                callback: res => {
+                  if (res) {
+                    dispatch({
+                      type: 'global/fetchGroups',
+                      payload: {
+                        team_name: team_name
+                      },
+                      callback: res => {
+                        this.setState({ buildAppLoading: false });
+                        this.loadingBuild = false
+                      }
+                    });
+                    window.sessionStorage.removeItem('codeLanguage');
+                    window.sessionStorage.removeItem('packageNpmOrYarn');
+                    window.sessionStorage.removeItem('advanced_setup');
+                    this.handleJump(`components/${app_alias}/overview`);
+                  }
+                }
+              })
+            }
+          }
+        }) 
+      }else{
         dispatch({
           type: 'createApp/buildApps',
           payload: {
-            team_name,
-            app_alias,
+            team_name: team_name,
+            app_alias: app_alias,
+            is_deploy: isDeploy,
           },
-          callback: data => {
-            if (data) {
+          callback: res => {
+            if (res) {
+              this.setState({ buildAppLoading: false });
+              this.loadingBuild = false
               dispatch({
                 type: 'global/fetchGroups',
                 payload: {
-                  team_name
+                  team_name: team_name
                 }
               });
               window.sessionStorage.removeItem('codeLanguage');
@@ -113,13 +162,21 @@ export default class Index extends PureComponent {
               this.handleJump(`components/${app_alias}/overview`);
             }
           }
-          });
-      })
-      
-    }else{
-      notification.warning({ message: formatMessage({id:'notification.warn.save'}) });
-    }
+        })
+      }
+       
+    });
+    
   };
+
+  handlePreventClick = () => {
+    if(!this.loadingBuild){
+      this.handleBuild()
+    }else{
+      notification.warning({ message: '正在创建，请勿频繁操作！' });
+    }
+  }
+
   handleDelete = () => {
     const { dispatch } = this.props;
     const { team_name, app_alias } = this.fetchParameter();
@@ -167,20 +224,26 @@ export default class Index extends PureComponent {
       handleBuildSwitch: val
     })
   }
-  render() {
+  handleLinkConfigFile = (link) => {
     const { 
-      buildAppsLoading, 
-      deleteAppLoading,
-      match: {
-          params:{
-              appAlias,
-          }
-      },
-  } = this.props
+        match: {
+            params:{
+                appAlias,
+                regionName,
+                teamName
+            }
+        },
+        dispatch 
+    } = this.props 
+    dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
+  }
+  render() {
+    const { buildAppsLoading, deleteAppLoading } = this.props;
     const {
       showDelete,
       appPermissions: { isDelete },
-      handleBuildSwitch
+      handleBuildSwitch,
+      buildAppLoading
     } = this.state;
     const appDetail = this.state.appDetail || {};
     if (!appDetail.service) {
@@ -193,29 +256,23 @@ export default class Index extends PureComponent {
             textAlign: 'center'
           }}
         >
-           {formatMessage({id:'componentCheck.advanced.setup'})}
+          {formatMessage({id:'componentCheck.advanced.setup'})}
         </h2>
         <div
           style={{
             overflow: 'hidden'
           }}
         >
-          <AppCreateSetting
+          <AppConfigPort
             updateDetail={this.loadDetail}
             appDetail={appDetail}
             handleBuildSwitch={this.handleBuildSwitch}
           />
           <div
             style={{
-              background: '#fff',
-              padding: '20px',
-              textAlign: 'right',
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: 2,
-              borderTop: '1px solid #e8e8e8'
+              width:'100%',
+              display: 'flex',
+              justifyContent:'center'
             }}
           >
             {isDelete && (
@@ -230,23 +287,25 @@ export default class Index extends PureComponent {
               </Button>
             )}
             <Button
-              loading={buildAppsLoading}
-              onClick={()=>this.handleJump(`create/create-configPort/${appAlias}`)}
               style={{
                 marginRight: 8
               }}
+              onClick={() => this.handleLinkConfigFile('create-configFile')}
             >
-              上一步
-            </Button> 
+              {formatMessage({id:'button.previous'})}
+            </Button>
             <Button
-              loading={buildAppsLoading}
+              loading={buildAppLoading}
+              style={{
+                marginRight: 8
+              }}
               onClick={()=>this.handleDebounce(this.handleBuild(handleBuildSwitch),1000)}
               type="primary"
             >
               {formatMessage({id:'button.confirm_create'})}
             </Button>
-            
           </div>
+          <CustomFooter />
           {showDelete && (
             <ConfirmModal
               loading={deleteAppLoading}

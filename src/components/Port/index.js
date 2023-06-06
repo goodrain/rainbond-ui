@@ -612,7 +612,7 @@ export default class Index extends PureComponent {
                   </Link>
                 )}
               </td>
-            )}
+            )} 
             <td>
               <p>
                 {!isHelm && (

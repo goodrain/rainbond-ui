@@ -2,7 +2,7 @@
 /* eslint-disable react/no-danger */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-undef */
-import { Button, Card, Icon, Modal, notification, Radio, Tooltip } from 'antd';
+import { Button, Card, Icon, Modal, notification, Radio, Tooltip, Input } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React from 'react';
@@ -25,6 +25,7 @@ import userUtil from '../../utils/user';
 import ModifyImageCmd from './modify-image-cmd';
 import ModifyImageName from './modify-image-name';
 import ModifyUrl from './modify-url';
+import cookie from '../../utils/cookie';
 
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -63,8 +64,11 @@ export default class CreateCheck extends React.Component {
       codeLanguage: '',
       source_from: '',
       ports: '',
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      Directory: "dist"
     };
     this.mount = false;
+    this.loadingBuild = false
     this.socketUrl = '';
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
@@ -88,11 +92,12 @@ export default class CreateCheck extends React.Component {
   }
 
   getParameter = () => {
-    const { ServiceGetData } = this.state;
+    const { ServiceGetData,Directory } = this.state;
     return {
       appAlias: ServiceGetData || this.props.match.params.appAlias,
       teamName: globalUtil.getCurrTeamName(),
-      regionName: globalUtil.getCurrRegionName()
+      regionName: globalUtil.getCurrRegionName(),
+      dist: Directory||'dist'
     };
   };
 
@@ -243,6 +248,15 @@ export default class CreateCheck extends React.Component {
     window.sessionStorage.setItem('advanced_setup', JSON.stringify('advanced'));
     this.handleJump(`create/create-setting/${appAlias}`);
   };
+  handleConfigFile = () => {
+    const { appAlias, dist } = this.getParameter();
+    window.sessionStorage.setItem('advanced_setup', JSON.stringify('advanced'));
+    const { codeLanguage } = this.state;
+    if(codeLanguage == 'NodeJSStatic'){
+      window.sessionStorage.setItem('dist', JSON.stringify(`${dist}`));
+    }
+    this.handleJump(`create/create-configFile/${appAlias}`);
+  };
   // 进入多模块构建
   handleMoreService = () => {
     const { handleServiceDataState } = this.props;
@@ -256,35 +270,74 @@ export default class CreateCheck extends React.Component {
   };
 
   handleBuild = () => {
+    this.loadingBuild = true
     const { appAlias, teamName } = this.getParameter();
     const { refreshCurrent, dispatch, soundCodeLanguage } = this.props;
     const { isDeploy, ServiceGetData, appDetail, codeLanguage, packageLange } = this.state;
-    this.setState({ buildAppLoading: true });
-    dispatch({
-      type: 'createApp/setNodeLanguage',
-      payload: {
-        team_name: teamName,
-        app_alias: appAlias,
-        lang: codeLanguage,
-        package_tool: packageLange,
-      },
-      callback: res => {
-        if (res) {
-          buildApp({
+    this.setState({ buildAppLoading: true },()=>{
+      if (codeLanguage == 'Node.js' || codeLanguage == 'NodeJSStatic') {
+        dispatch({
+          type: 'createApp/setNodeLanguage',
+          payload: {
+            team_name: teamName,
+            app_alias: appAlias,
+            lang: codeLanguage,
+            package_tool: packageLange,
+          },
+          callback: res => {
+            if (res) {
+              dispatch({
+                type: 'createApp/buildApps',
+                payload: {
+                  team_name: teamName,
+                  app_alias: appAlias,
+                  is_deploy: isDeploy,
+                },
+                callback: res => {
+                  if (res) {
+                    dispatch({
+                      type: 'global/fetchGroups',
+                      payload: {
+                        team_name: teamName
+                      },
+                      callback: res => {
+                        this.setState({ buildAppLoading: false });
+                        this.loadingBuild = false
+                      }
+                    });
+                    window.sessionStorage.removeItem('codeLanguage');
+                    window.sessionStorage.removeItem('packageNpmOrYarn');
+                    if (ServiceGetData && isDeploy) {
+                      refreshCurrent();
+                    } else if (appDetail.service_source === 'third_party') {
+                      this.handleJump(`components/${appAlias}/thirdPartyServices`);
+                    } else {
+                      this.handleJump(`components/${appAlias}/overview`);
+                    }
+                  }
+                }
+              })
+            }
+          }
+        }) 
+      }else{
+        dispatch({
+          type: 'createApp/buildApps',
+          payload: {
             team_name: teamName,
             app_alias: appAlias,
             is_deploy: isDeploy,
-          }).then(data => {
-            this.setState({ buildAppLoading: false });
-            if (data) {
+          },
+          callback: res => {
+            if (res) {
+              this.setState({ buildAppLoading: false });
+              this.loadingBuild = false
               dispatch({
                 type: 'global/fetchGroups',
                 payload: {
                   team_name: teamName
                 }
               });
-              window.sessionStorage.removeItem('codeLanguage');
-              window.sessionStorage.removeItem('packageNpmOrYarn');
               if (ServiceGetData && isDeploy) {
                 refreshCurrent();
               } else if (appDetail.service_source === 'third_party') {
@@ -293,12 +346,21 @@ export default class CreateCheck extends React.Component {
                 this.handleJump(`components/${appAlias}/overview`);
               }
             }
-          });
-        }
+          }
+        })
       }
-    })
-
+       
+    });
+    
   };
+
+  handlePreventClick = () => {
+    if(!this.loadingBuild){
+      this.handleBuild()
+    }else{
+      notification.warning({ message: '正在创建，请勿频繁操作！' });
+    }
+  }
 
   recheck = () => {
     this.setState(
@@ -659,7 +721,12 @@ export default class CreateCheck extends React.Component {
     });
 
   };
-  renderSuccess = () => {
+  distChange = e =>{
+    this.setState({
+      Directory:e
+    })
+  }
+  renderSuccess = (buildAppLoading) => {
     const { ButtonGroupState, ErrState, handleServiceBotton, soundCodeLanguage } = this.props;
     const {
       ServiceGetData,
@@ -671,6 +738,7 @@ export default class CreateCheck extends React.Component {
       source_from,
       ports,
       packageLange,
+      Directory
     } = this.state;
     let extra = '';
     const arr = [];
@@ -709,7 +777,8 @@ export default class CreateCheck extends React.Component {
               </Radio.Group>
             </div>
             {codeLanguage == 'NodeJSStatic' && (
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 16,display:"flex",flexDirection:'column' }}>
+                <div>
                 <span
                   style={{
                     verticalAlign: 'top',
@@ -720,6 +789,19 @@ export default class CreateCheck extends React.Component {
                   {formatMessage({ id: 'confirmModal.check.appShare.title.port' })}：
                 </span>
                 {ports || formatMessage({ id: 'confirmModal.check.appShare.title.null' })}
+                </div>
+                <div style={{marginTop:16}}>
+                <span
+                  style={{
+                    verticalAlign: 'top',
+                    display: 'inline-block',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {formatMessage({id:'confirmModal.check.appShare.title.dist'})}
+                </span>
+                  <Input placeholder="Basic usage" defaultValue={Directory} onChange={e => this.distChange(e.target.value)} style={{width:200}}/>
+                </div>
               </div>
             )}
             <div style={{ marginBottom: 16 }}>
@@ -752,7 +834,7 @@ export default class CreateCheck extends React.Component {
     let actions = [];
     if (ServiceGetData) {
       actions = [
-        <div key="action" style={{ display: 'flex' }}>
+        <div style={{ display: 'flex' }}>
           {isDelete && (
             <Button
               onClick={this.showDelete}
@@ -762,41 +844,13 @@ export default class CreateCheck extends React.Component {
               {formatMessage({ id: 'button.abandon_create' })}
             </Button>
           )}
-          <Button
-            type="default"
-            onClick={this.handleSetting}
-            style={{ marginRight: '8px' }}
-          >
-            {formatMessage({ id: 'button.advanced_setup' })}
-          </Button>
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Button
-              onClick={this.handleBuild}
               type="primary"
               style={{ marginRight: '8px' }}
-              loading={this.state.buildAppLoading}
+              onClick={this.handleConfigFile}
             >
-              {formatMessage({ id: 'button.create' })}
+              {formatMessage({id:'button.next_step'})}
             </Button>
-            <Tooltip
-              placement="topLeft"
-              title={
-                <p>
-                  {formatMessage({ id: 'componentCheck.tooltip.title.p1' })}
-                  <br />
-                  {formatMessage({ id: 'componentCheck.tooltip.title.p2' })}
-                </p>
-              }
-            >
-              <Radio
-                size="small"
-                onClick={this.renderSuccessOnChange}
-                checked={isDeploy}
-              >
-                {formatMessage({ id: 'button.build_start' })}
-              </Radio>
-            </Tooltip>
-          </div>
         </div>
       ];
     } else if (appDetail.service_source === 'third_party') {
@@ -804,10 +858,10 @@ export default class CreateCheck extends React.Component {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
-              onClick={this.handleBuild}
+              onClick={this.handlePreventClick}
               type="primary"
               style={{ marginRight: '8px' }}
-              loading={this.state.buildAppLoading}
+              loading={buildAppLoading}
             >
               {formatMessage({ id: 'button.create' })}
             </Button>
@@ -822,38 +876,13 @@ export default class CreateCheck extends React.Component {
               {formatMessage({ id: 'button.abandon_create' })}
             </Button>
           )}
-          <Button type="default" onClick={this.handleSetting}>
-            {formatMessage({ id: 'button.advanced_setup' })}
-          </Button>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
-              onClick={this.handleBuild}
               type="primary"
               style={{ marginRight: '8px' }}
-              loading={this.state.buildAppLoading}
+              onClick={this.handleConfigFile}
             >
-              {formatMessage({ id: 'button.create' })}
+              {formatMessage({id:'button.next_step'})}
             </Button>
-            {appDetail.service_source === 'third_party'}
-            <Tooltip
-              placement="topLeft"
-              title={
-                <p>
-                  {formatMessage({ id: 'componentCheck.tooltip.title.p1' })}
-                  <br />
-                  {formatMessage({ id: 'componentCheck.tooltip.title.p2' })}
-                </p>
-              }
-            >
-              <Radio
-                size="small"
-                onClick={this.renderSuccessOnChange}
-                checked={isDeploy}
-              >
-                {formatMessage({ id: 'button.build_start' })}
-              </Radio>
-            </Tooltip>
-          </div>
         </div>
       ];
     }
@@ -863,10 +892,10 @@ export default class CreateCheck extends React.Component {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
-              onClick={this.handleBuild}
+              onClick={this.handlePreventClick}
               type="primary"
               style={{ marginRight: '8px' }}
-              loading={this.state.buildAppLoading}
+              loading={buildAppLoading}
             >
               {formatMessage({ id: 'button.create' })}
             </Button>
@@ -905,8 +934,9 @@ export default class CreateCheck extends React.Component {
                 {formatMessage({ id: 'componentCheck.tooltip.title.p3' })}
               </div>
               {formatMessage({ id: 'componentCheck.tooltip.title.p4' })}{' '}
+              {formatMessage({ id: 'componentCheck.tooltip.title.p9' })}{' '}
               <a
-                href="https://www.rainbond.com/en/docs/use-manual/component-create/language-support/"
+                href={this.state.language ? `https://www.rainbond.com/docs/use-manual/component-create/language-support/` : `https://www.rainbond.com/en/docs/use-manual/component-create/language-support/`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -923,7 +953,7 @@ export default class CreateCheck extends React.Component {
     );
   };
 
-  renderMoreService = () => {
+  renderMoreService = (buildAppLoading) => {
     const {
       ServiceGetData,
       isDeploy,
@@ -957,10 +987,10 @@ export default class CreateCheck extends React.Component {
           )}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
-              onClick={this.handleBuild}
+              onClick={this.handlePreventClick}
               type="primary"
               style={mr8}
-              loading={this.state.buildAppLoading}
+              loading={buildAppLoading}
             >
               {formatMessage({ id: 'button.create' })}
             </Button>
@@ -993,10 +1023,10 @@ export default class CreateCheck extends React.Component {
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {isDelete && (
               <Button
-                onClick={this.handleBuild}
+                onClick={this.handlePreventClick}
                 type="primary"
                 style={mr8}
-                loading={this.state.buildAppLoading}
+                loading={buildAppLoading}
               >
                 {formatMessage({ id: 'button.abandon_create' })}
               </Button>
@@ -1028,10 +1058,10 @@ export default class CreateCheck extends React.Component {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
-              onClick={this.handleBuild}
+              onClick={this.handlePreventClick}
               type="primary"
               style={mr8}
-              loading={this.state.buildAppLoading}
+              loading={buildAppLoading}
             >
               {formatMessage({ id: 'button.create' })}
             </Button>
@@ -1138,7 +1168,8 @@ export default class CreateCheck extends React.Component {
       modifyUserpass,
       showKey,
       deleteLoading,
-      showDelete
+      showDelete,
+      buildAppLoading
     } = this.state;
     const box = (
       <Card bordered={false}>
@@ -1148,8 +1179,8 @@ export default class CreateCheck extends React.Component {
           }}
         >
           {status === 'checking' && this.renderChecking()}
-          {status === 'success' && isMulti !== true && this.renderSuccess()}
-          {status === 'success' && isMulti === true && this.renderMoreService()}
+          {status === 'success' && isMulti !== true && this.renderSuccess(buildAppLoading)}
+          {status === 'success' && isMulti === true && this.renderMoreService(buildAppLoading)}
           {status === 'failure' && this.renderError()}
         </div>
       </Card>

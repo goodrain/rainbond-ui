@@ -14,7 +14,8 @@ import {
   Select,
   Spin,
   Switch,
-  Table
+  Table,
+  AutoComplete
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -85,7 +86,8 @@ export default class Index extends PureComponent {
       errorCpuValue: '',
       errorMemoryValue: '',
       enableGPU: licenseUtil.haveFeature(this.props.features, 'GPU'),
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      dataSource: [],
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -144,16 +146,22 @@ export default class Index extends PureComponent {
     return isTelescopic;
   }
   handleVertical = () => {
-    const { form, appAlias } = this.props;
+    const { form, appAlias, extendInfo } = this.props;
     const { getFieldValue } = form;
+    const { setUnit } = this.state;
     const memory = getFieldValue('memory');
     const gpu = Number(getFieldValue('gpu'));
     const cpu = Number(getFieldValue('new_cpu'));
-
+    var memoryNum = 0;
+    if(setUnit){
+      memoryNum = setUnit == "G" ? memory * 1024 : memory
+    }else{
+      memoryNum = sourceUtil.getUnit(extendInfo.current_memory) == "G" ? Number(memory * 1024) : Number(memory)
+    }
     vertical({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: appAlias,
-      new_memory: memory,
+      new_memory: memoryNum ,
       new_gpu: gpu,
       new_cpu: cpu
     }).then(data => {
@@ -746,7 +754,11 @@ export default class Index extends PureComponent {
       errorType: type
     });
   };
-
+  selectAfterChange =(val)=>{
+    this.setState({
+      setUnit:val
+    })
+  }
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { extendInfo, appAlias, form, appDetail } = this.props;
@@ -776,10 +788,16 @@ export default class Index extends PureComponent {
       errorCpuValue,
       errorMemoryValue,
       enableGPU,
-      language
+      language,
+      dataSource,
+      setUnit
     } = this.state;
     if (!extendInfo) {
       return null;
+    }else{
+      this.setState({
+        dataSource: extendInfo.memory_list || []
+      })
     }
     const minNumber = getFieldValue('minNum') || 0;
 
@@ -899,7 +917,15 @@ export default class Index extends PureComponent {
               style={{ marginBottom: '16px' }}
               type="warning"
               closable
-              message={<FormattedMessage id='componentOverview.body.Expansion.empower'/>}
+              message={<>
+                <FormattedMessage id='componentOverview.body.Expansion.empower'/>
+                <a 
+                  href='https://www.rainbond.com/enterprise_server/' 
+                  target="_blank" 
+                >
+                  {formatMessage({id:'componentOverview.body.Expansion.authorization'})}
+                </a>
+              </>}
             />
           )}
           <Form layout="inline" hideRequiredMark className={styles.fromItem}>
@@ -912,21 +938,16 @@ export default class Index extends PureComponent {
                   className={styles.customFormItem}
                 >
                   {getFieldDecorator('memory', {
-                    initialValue: `${extendInfo.current_memory}` || 0
+                    initialValue: `${extendInfo.current_memory && extendInfo.current_memory % 1024 == 0 ? extendInfo.current_memory / 1024 : extendInfo.current_memory}` || 0
                   })(
-                    <Select
-                      getPopupContainer={triggerNode => triggerNode.parentNode}
-                      className={styles.memorySelect}
-                    >
-                      <Option key={0} value={0}>
-                        <FormattedMessage id='componentOverview.body.Expansion.unlimited'/>
-                      </Option>
-                      {(extendInfo.memory_list || []).map(item => (
-                        <Option key={item} value={item}>
-                          {sourceUtil.getMemoryAndUnit(item)}
-                        </Option>
-                      ))}
-                    </Select>
+                  <Input 
+                  addonAfter={
+                  <Select value={setUnit ? setUnit : sourceUtil.getUnit(extendInfo.current_memory)} onChange={this.selectAfterChange}>
+                    <Option value="M">M</Option>
+                    <Option value="G">G</Option>
+                  </Select>
+                  }
+                />
                   )}
                 </Form.Item>
                 {descBox(`${formatMessage({id:'componentOverview.body.Expansion.algorithm'})}`)}

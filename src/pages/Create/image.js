@@ -6,6 +6,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ImageName from './image-name';
 import ImageCmd from './image-cmd';
 import ImageCompose from './image-compose';
+import ImageNameDemo from './ImageName-Demo'
 import roleUtil from '../../utils/role';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
@@ -41,6 +42,7 @@ export default class Main extends PureComponent {
       custom: ImageName,
       dockerrun: ImageCmd,
       Dockercompose: ImageCompose,
+      ImageNameDemo: ImageNameDemo
     };
 
     const tabList = [
@@ -54,7 +56,11 @@ export default class Main extends PureComponent {
       },
       {
         key: 'Dockercompose',
-        tab: 'DockerCompose',
+        tab: 'Docker Compose',
+      },
+      {
+        key: 'ImageNameDemo',
+        tab: formatMessage({ id: 'teamAdd.create.code.demo' }),
       },
     ];
     const {

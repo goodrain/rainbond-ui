@@ -16,7 +16,7 @@ const teamMenu = {
   'menu.team.create': '新建',
   'menu.team.create.code': '从源码构建',
   'menu.team.create.image': '从镜像构建',
-  'menu.team.create.upload': 'Kubernetes YAML Helm',
+  'menu.team.create.upload': 'Yaml Helm Kubernetes',
   'menu.team.create.market': '从应用市场安装',
   'menu.team.create.third': '创建第三方组件',
   'menu.team.app': '应用',

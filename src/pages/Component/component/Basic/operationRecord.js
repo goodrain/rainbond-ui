@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { Card, Col, Form, Icon, Row, Tooltip } from 'antd';
+import { Card, Col, Form, Icon, Row, Tooltip, Modal } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
@@ -32,7 +32,7 @@ class Index extends PureComponent {
 
   showLogModal = (EventID, showSocket, OptType = '') => {
     const { isopenLog, onLogPush, dispatch } = this.props;
-    if(OptType == 'AbnormalExited' || OptType == 'EventTypeAbnormalExited'){
+    if(OptType == 'AbnormalExited' || OptType == 'EventTypeAbnormalExited' || OptType =='CrashLoopBackOff'){
       this.props.dispatch(
         routerRedux.push(
           `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/log`
@@ -65,10 +65,60 @@ class Index extends PureComponent {
     }
     return '';
   };
-
+  jumpExpansion =(bool = false, serivce_alias)=>{
+    if(!bool){
+      this.props.dispatch(
+        routerRedux.push(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/expansion`
+        )
+      )
+    }else{
+      this.props.dispatch(
+        routerRedux.push(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${serivce_alias}/overview`
+        )
+      )
+    }
+    
+  }
+  jumpMessage = (val,bool) =>{
+    const regex = /\[([\s\S]*)\]/; 
+    const match = val.match(regex);
+    const msgregex = /(.+)(?=\[)/; 
+    const message = val.match(msgregex);
+    if(bool){
+      return message[1] || ''
+    }
+    var arr = []
+    if (match && match.length > 1) {
+      const arrayStr = match[0];
+       arr = JSON.parse(arrayStr);
+    }
+    return <>
+              ({message[1]} 
+              {arr && arr.length > 0 && arr.map((item,index) =>{
+                if(arr.length > 3){
+                  return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.showJumpModal(arr)}}>{formatMessage({id:'componentOverview.body.tab.overview.handle.Dependent'})}</span>
+                }else{ 
+                  return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.jumpExpansion(true,item.serivce_alias)}}>{item.service_cname}</span>
+                }
+              })})
+           </>
+  }
+  showJumpModal = (arr) =>{
+    this.setState({
+      showModal: true,
+      showModalArr: arr
+    })
+  }
+  hideModal = () =>{
+    this.setState({
+      showModal: false,
+    })
+  }
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
-    const { logVisible, selectEventID, showSocket } = this.state;
+    const { logVisible, selectEventID, showSocket, showModalArr, showModal } = this.state;
     const logsvg = globalUtil.fetchSvg('logs', '#cccccc');
     let showLogEvent = '';
     const statusMap = {
@@ -128,7 +178,7 @@ class Index extends PureComponent {
                     </Tooltip>
 
                     <div>
-                      <Tooltip title={Messages}>
+                      <Tooltip title={ OptType == 'INITIATING' ? this.jumpMessage(Message,true): Messages}>
                         <span
                           style={{
                             color: globalUtil.fetchAbnormalcolor(OptType)
@@ -140,7 +190,21 @@ class Index extends PureComponent {
                         {globalUtil.fetchOperation(FinalStatus, Status)}
                         &nbsp;
                         {Status === 'failure' && globalUtil.fetchReason(Reason)}
-                        {Messages}
+                        {OptType == 'Unschedulable' ? 
+                        <span>
+                          ({Message}
+                          {(Message == "节点CPU不足" || Message =="节点内存不足") &&
+                              <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>this.jumpExpansion(false)}>{formatMessage({id:'componentOverview.body.tab.overview.handle.stretch'})}
+                              </span> 
+                          })
+                        </span>
+                        :
+                        OptType == 'INITIATING' ?
+                        this.jumpMessage(Message,false)
+                        :
+                        Messages
+                        }
+                        
                       </Tooltip>
                     </div>
                     <div className={styles.nowarpText}>
@@ -165,8 +229,9 @@ class Index extends PureComponent {
                         </span>
                       </span>
                     </div>
-                    <div style={{ position: 'static' }} className="table-wrap">
-                      {SynType === 0 && (
+                      <div style={{ position: 'static' }} className="table-wrap">
+                      { OptType != 'Unschedulable' && OptType != 'INITIATING' &&
+                      SynType === 0 && (
                         <Tooltip
                           visible={FinalStatus === ''}
                           placement="top"
@@ -186,10 +251,11 @@ class Index extends PureComponent {
                               this.showLogModal(EventID, FinalStatus === '', OptType);
                             }}
                           >
-                            {logsvg}
+                            {globalUtil.fetchSvg('logs', Status == 'failure' && OptType == 'build-service' ? '#CE0601':'#cccccc')}
                           </div>
                         </Tooltip>
-                      )}
+                      )
+                    }
                     </div>
                   </div>
                 );
@@ -238,6 +304,18 @@ class Index extends PureComponent {
             socket={this.props.socket}
           />
         )}
+        <Modal
+          title={formatMessage({id:'componentOverview.body.tab.overview.handle.DependentCom'})}
+          visible={showModal}
+          onCancel={this.hideModal}
+          footer={null}
+        >
+          <div>
+          {showModalArr && showModalArr.length > 0 && showModalArr.map((item,index) =>{
+            return <p style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.jumpExpansion(true,item.service_alias)}}>{item.service_cname}</p>
+          })}
+          </div>
+        </Modal>
       </Card>
     );
   }

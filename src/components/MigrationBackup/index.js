@@ -72,8 +72,7 @@ export default class Index extends PureComponent {
   };
   handleSubmit = () => {
     const { mode, currentRegion } = this.props;
-    const { teamsName } = this.state;
-    const { regionName } = this.state;
+    const { regionName, teamsName } = this.state;
     if (teamsName === '') {
       notification.warning({ message: formatMessage({id:'notification.hint.migration.team'}) });
       return;

@@ -6,10 +6,11 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { setNodeLanguage } from '../../services/createApp';
-import AppCreateSetting from '../../components/AppCreateSetting';
+import AppConfigFile from '../../components/AppCreateConfigFile';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
+import CustomFooter from "../../layouts/CustomFooter";
 import roleUtil from '../../utils/role';
 
 @connect(
@@ -38,6 +39,9 @@ export default class Index extends PureComponent {
   }
   componentWillUnmount() {
     this.props.dispatch({ type: 'appControl/clearDetail' });
+  }
+  onRef = (ref) => {
+    this.child = ref
   }
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
@@ -167,16 +171,77 @@ export default class Index extends PureComponent {
       handleBuildSwitch: val
     })
   }
-  render() {
+  handleLinkConfigPort = (link) => {
     const { 
-      buildAppsLoading, 
-      deleteAppLoading,
-      match: {
-          params:{
-              appAlias,
-          }
+        match: {
+            params:{
+                appAlias,
+                regionName,
+                teamName
+            }
+        },
+        dispatch 
+    } = this.props 
+    dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
+  }
+  handleJumpNext = () => {
+      this.child.childFn()
+      this.handleLinkConfigPort('create-configPort')
+  }
+  // cpu 内存 接口
+  handleEditInfo = (val = {}) => {
+    const { 
+        match: {
+            params:{
+                appAlias,
+                regionName,
+                teamName
+            }
+        },
+        dispatch 
+    } = this.props 
+    this.props.dispatch({
+      type: 'appControl/editAppCreateInfo',
+      payload: {
+        team_name: teamName,
+        app_alias: appAlias,
+        ...val
       },
-  } = this.props
+      callback: data => {
+        if (data) {
+          this.loadDetail();
+          this.handleBuildSwitch(false)
+        }
+      }
+    });
+  };
+  // 构建源信息
+  handleEditRuntime = (build_env_dict = {}) => {
+    const { 
+        match: {
+            params:{
+                appAlias,
+                regionName,
+                teamName
+            }
+        },
+        dispatch 
+    } = this.props 
+    this.props.dispatch({
+      type: 'appControl/editRuntimeBuildInfo',
+      payload: {
+        team_name: teamName,
+        app_alias: appAlias,
+        build_env_dict
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+        }
+      }
+    });
+  };
+  render() {
+    const { buildAppsLoading, deleteAppLoading } = this.props;
     const {
       showDelete,
       appPermissions: { isDelete },
@@ -193,29 +258,22 @@ export default class Index extends PureComponent {
             textAlign: 'center'
           }}
         >
-           {formatMessage({id:'componentCheck.advanced.setup'})}
+          {formatMessage({id:'componentCheck.advanced.env'})}
         </h2>
-        <div
-          style={{
-            overflow: 'hidden'
-          }}
-        >
-          <AppCreateSetting
+        <div>
+          <AppConfigFile
             updateDetail={this.loadDetail}
             appDetail={appDetail}
             handleBuildSwitch={this.handleBuildSwitch}
+            handleEditInfo={this.handleEditInfo}
+            handleEditRuntime={this.handleEditRuntime}
+            onRef={this.onRef}
           />
-          <div
+          <div 
             style={{
-              background: '#fff',
-              padding: '20px',
-              textAlign: 'right',
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: 2,
-              borderTop: '1px solid #e8e8e8'
+              width:'100%',
+              display: 'flex',
+              justifyContent:'center'
             }}
           >
             {isDelete && (
@@ -223,30 +281,29 @@ export default class Index extends PureComponent {
                 onClick={this.showDelete} 
                 type="default"
                 style={{
-                  marginRight: 8
+                    marginRight: 8
                 }}
               >
                {formatMessage({id:'button.abandon_create'})}
               </Button>
             )}
             <Button
-              loading={buildAppsLoading}
-              onClick={()=>this.handleJump(`create/create-configPort/${appAlias}`)}
               style={{
                 marginRight: 8
               }}
+              onClick={() => this.handleLinkConfigPort('create-check')}
             >
-              上一步
-            </Button> 
+              {formatMessage({id:'button.previous'})}
+            </Button>
             <Button
               loading={buildAppsLoading}
-              onClick={()=>this.handleDebounce(this.handleBuild(handleBuildSwitch),1000)}
+              onClick={this.handleJumpNext}
               type="primary"
             >
-              {formatMessage({id:'button.confirm_create'})}
+              {formatMessage({id:'button.next'})}
             </Button>
-            
           </div>
+        <CustomFooter />
           {showDelete && (
             <ConfirmModal
               loading={deleteAppLoading}

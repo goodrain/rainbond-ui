@@ -127,6 +127,7 @@
         //位置：企业视图>应用市场>添加应用商店
         'popover.applicationMarket.addMarket.title':'添加应用商店',
         'popover.applicationMarket.local':'本地组件库',
+        'popover.applicationMarket.market':'开源应用商店',
         'popover.applicationMarket.all':'全部',
         'popover.applicationMarket.company':'公司发布',
         'popover.applicationMarket.team':'团队发布',
@@ -154,10 +155,10 @@
         'button.confirm':'确定',
         'button.save':'保存',
         'button.retest_check':'重新检测',
-        'button.abandon_create':'放弃创建',
+        'button.abandon_create':'放弃构建',
         'button.advanced_setup':'高级设置',
         'button.create':'创建',
-        'button.confirm_create':'确认创建',
+        'button.confirm_create':'确认构建',
         'button.confirm_update':'确认修改',
         'button.components_build':'进入多组件构建',
         'button.service_build':'进入多服务构建',
@@ -187,6 +188,7 @@
         'button.freshen':'刷新',
         'button.more':'查看更多',
         'button.fold':'折叠',
+        'button.config':'去配置',
     }
     const status = {
         'status.component.running':'运行中',
@@ -390,6 +392,7 @@
         'confirmModal.check.appShare.title.port':'端口信息',
         'confirmModal.check.appShare.title.sourceCode':'源码信息',
         'confirmModal.check.appShare.title.null':'暂无',
+        'confirmModal.check.appShare.title.dist':'打包目录：',
         
         // 删除组件
         'confirmModal.assembly.delete.title':'删除组件',
@@ -645,7 +648,7 @@
         'notification.market.hint.null_app3':'或',
         'notification.market.hint.null_app4':'从云端同步',
         'notification.market.hint.null_app5':'当前市场没有安装权限，',
-        'notification.market.hint.null_app6':'去授权',
+        'notification.market.hint.null_app6':'去对接',
 
     }
     const placeholder = {

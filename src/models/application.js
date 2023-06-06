@@ -76,7 +76,8 @@ export default {
     // component list
     apps: [],
     // plugin
-    plugins: []
+    plugins: [],
+    func: {}
   },
   effects: {
     *fetchHelmComponents({ payload, callback }, { call }) {
@@ -542,6 +543,6 @@ export default {
         ...state,
         groupDetail: action.payload
       };
-    }
+    },
   }
 };

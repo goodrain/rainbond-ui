@@ -128,6 +128,7 @@
         //位置：企业视图>应用市场>添加应用商店
         'popover.applicationMarket.addMarket.title':'Add an Market',
         'popover.applicationMarket.local':'Local Market',
+        'popover.applicationMarket.market':'Open source app store',
         'popover.applicationMarket.all':'All',
         'popover.applicationMarket.company':'Enterprise Scope',
         'popover.applicationMarket.team':'Team Scope',
@@ -156,7 +157,7 @@
         'button.confirm':'Confirm',
         'button.save':'Save',
         'button.retest_check':'Retry',
-        'button.abandon_create':'Give up',
+        'button.abandon_create':'Abandoned build',
         'button.advanced_setup':'Advanced setup',
         'button.create':'Create',
         'button.confirm_create':'Confirm create',
@@ -189,7 +190,7 @@
         'button.freshen':'Refresh',
         'button.more':'View',
         'button.fold':'Fold',
-
+        'button.config':'Config',
     }
     const status = {
         'status.component.running':'Running',
@@ -389,6 +390,7 @@
         'confirmModal.check.appShare.title.port':'Port info',
         'confirmModal.check.appShare.title.sourceCode':'Source Info',
         'confirmModal.check.appShare.title.null':'No data',
+        'confirmModal.check.appShare.title.dist':'Package directory:',
         
         // 删除组件
         'confirmModal.assembly.delete.title':'Remove component',
@@ -640,7 +642,7 @@
         'notification.market.hint.null_app3':'or',
         'notification.market.hint.null_app4':'Sync from the cloud',
         'notification.market.hint.null_app5':'The current market does not have the installation permission,',
-        'notification.market.hint.null_app6':'To authorize',
+        'notification.market.hint.null_app6':'To docking',
     }
     const placeholder = {
         'placeholder.appName':'select the application to deploy',
