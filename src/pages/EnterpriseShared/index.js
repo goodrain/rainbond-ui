@@ -1165,7 +1165,8 @@ export default class EnterpriseShared extends PureComponent {
                     } else {
                       this.setState({
                         isInStallShow: true,
-                        guideStep: 'Jump'
+                        guideStep: 'Jump',
+                        showMarketCloudAuth: true 
                       });
                     }
                   }}
@@ -1860,19 +1861,6 @@ export default class EnterpriseShared extends PureComponent {
         titleSvg={pageheaderSvg.getSvg('storeSvg',20)} 
         isContent={true}
       >
-        {/* {initShow && isNewbieGuide && (
-          <PlatformIntroduced onCancel={this.hideInitShow} />
-        )} */}
-
-        {guideStep === 'Jump' && isInStallShow && (
-          <InstallStep
-            onCancel={this.hideInstallStep}
-            isAuthorize={isAuthorize}
-            eid={eid}
-            installType={this.state.installType}
-            isStoreCluster={this.state.isStoreCluster}
-          />
-        )}
 
         {showMarketCloudAuth && (
           <AuthCompany
@@ -1970,15 +1958,6 @@ export default class EnterpriseShared extends PureComponent {
             currStep={1}
           />
         )}
-        {/* {this.state.createAppMarket && (
-          <CreateAppMarket
-            title="添加应用商店"
-            eid={eid}
-            loading={createAppMarketLoading}
-            onOk={this.handleCreateAppMarket}
-            onCancel={this.handleCancelAppMarket}
-          />
-        )} */}
         {upAppMarket && (
           <CreateAppMarket
             title={<FormattedMessage id="applicationMarket.CreateAppMarket.title"/>}

@@ -104,31 +104,6 @@ export default class InstallStep extends PureComponent {
           <Tabs value={installType} onChange={this.onTabChange}>
             <TabPane  tab={<FormattedMessage id='enterpriseOverview.overview.InstallStep.our_app'/>}key="1">
               <Steps direction="vertical" current="1">
-                {/* {!isHaveCluters && (
-                  <Step
-                    title={
-                      <span
-                        style={{
-                          color: '#4D73B1',
-                          fontWeight: 'bold'
-                        }}
-                      >
-                        集群安装
-                      </span>
-                    }
-                    icon={
-                      <img
-                        style={{ width: '24px', height: '24px' }}
-                        src={isCluster ? success : clusterColor}
-                      />
-                    }
-                    description={
-                      <span style={{ color: '#000000A6' }}>
-                        当前暂无可用的计算资源，需要进行集群的安装
-                      </span>
-                    }
-                  />
-                )} */}
                 <Step
                   title={
                     <span
@@ -176,41 +151,6 @@ export default class InstallStep extends PureComponent {
                     </span>
                   }
                 />
-                {/* {!isHaveCluters && (
-                  <Step
-                    title={
-                      <span
-                        style={{
-                          color: isAuthorize ? '#4D73B1' : '#000000A6',
-                          fontWeight: 'bold'
-                        }}
-                      >
-                        集群安装
-                      </span>
-                    }
-                    icon={
-                      <img
-                        style={{ width: '24px', height: '24px' }}
-                        src={
-                          isCluster && isAuthorize
-                            ? success
-                            : isAuthorize
-                            ? clusterColor
-                            : cluster
-                        }
-                      />
-                    }
-                    description={
-                      <span
-                        style={{
-                          color: isAuthorize ? '#000000A6' : '#00000073'
-                        }}
-                      >
-                        当前暂无可用的计算资源，需要进行集群的安装
-                      </span>
-                    }
-                  />
-                )} */}
                 <Step
                   title={
                     <span
