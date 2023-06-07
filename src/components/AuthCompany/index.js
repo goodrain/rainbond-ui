@@ -344,7 +344,7 @@ export default class Index extends PureComponent {
     const message = (
       <span>
         <FormattedMessage id='applicationMarket.AuthCompany.Accessing'/>
-        <a target="_blank" rel="noopener noreferrer" href={marketUrl}>
+        <a target="_blank" rel="noopener noreferrer" href={'https://store.goodrain.com/markets/rainbond'}>
           <FormattedMessage id='applicationMarket.AuthCompany.store'/>
         </a>
         <FormattedMessage id='applicationMarket.AuthCompany.grant'/>
