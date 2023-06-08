@@ -15,7 +15,8 @@ import {
   Table,
   Dropdown,
   Alert,
-  Skeleton
+  Skeleton,
+  Tag
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { connect } from 'dva';
@@ -261,7 +262,7 @@ class Index extends Component {
         if (res && res._condition === 200) {
           notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
           dispatch(
-            routerRedux(`/enterprise/${eid}/clusters`)
+            routerRedux.replace(`/enterprise/${eid}/clusters`)
           )
         }
       },
@@ -679,6 +680,10 @@ class Index extends Component {
                   </Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
+                  <Descriptions.Item label='CPU架构'>
+                    <Tag color="blue">arm64</Tag>
+                    <Tag color="blue">amd64</Tag>
+                  </Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
                 </Descriptions>
               </Row>

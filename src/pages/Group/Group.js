@@ -14,7 +14,8 @@ import {
   Radio,
   Row,
   Spin,
-  Tooltip
+  Tooltip,
+  Tag
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -715,6 +716,7 @@ export default class Index extends PureComponent {
                 onClick={this.toEdit}
                 type="edit"
               />
+              <Tag style={{ marginLeft:'12px' }}>amd64</Tag>
             </div>
             {resources.status && (
               <div className={styles.extraContent}>
@@ -983,6 +985,7 @@ export default class Index extends PureComponent {
                 onClick={this.toEdit}
                 type="edit"
               />
+              <Tag style={{ marginLeft:'8px' }} color="blue">amd64</Tag>
             </div>
             <div className={styles.content_Box}>
               {appStatusConfig && <AppState AppStatus={resources.status} />}

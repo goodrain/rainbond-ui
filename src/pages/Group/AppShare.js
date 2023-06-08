@@ -29,7 +29,8 @@ import {
   Table,
   Tabs,
   Popover,
-  Drawer
+  Drawer,
+  Tag
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -50,6 +51,7 @@ import pluginUtil from '../../utils/plugin';
 import BatchEditPublishComponent from './components/BatchEditPublishComponent';
 import CodeMirrorForm from '../../components/CodeMirrorForm'
 import mytabcss from './mytab.less';
+import { T } from 'antd/lib/upload/utils';
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -777,7 +779,7 @@ export default class Main extends PureComponent {
             }
           });
         });
-   
+
         newinfo.app_version_info = appVersionInfo;
         newinfo.share_service_list = arr;
         newinfo.share_plugin_list = this.state.plugin_list;
@@ -795,7 +797,7 @@ export default class Main extends PureComponent {
           callback: data => {
             this.setState({ submitLoading: false });
             if (data) {
-              if(share_service_data.length == 0){                
+              if (share_service_data.length == 0) {
                 dispatch({
                   type: 'application/completeShare',
                   payload: {
@@ -815,8 +817,8 @@ export default class Main extends PureComponent {
                     this.handleError(err);
                   }
                 });
-              }else{
-                 dispatch(
+              } else {
+                dispatch(
                   routerRedux.push(
                     `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/share/${shareId}/two?isAppPlugin=${appVersionInfo.is_plugin}`
                   )
@@ -1287,6 +1289,14 @@ export default class Main extends PureComponent {
                         </Checkbox>
                       )
 
+                    )}
+                  </Form.Item>
+
+                  <Form.Item {...formItemLayout} label='CPU架构'>
+                    {getFieldDecorator('is_plugin', {
+                      initialValue: (versionInfo && (versionInfo.is_plugin)) || false
+                    })(
+                      <Tag>amd64</Tag>
                     )}
                   </Form.Item>
                 </Col>

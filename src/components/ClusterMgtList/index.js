@@ -188,6 +188,14 @@ class Index extends Component {
           text.map(item => <Tag color="blue">{item}</Tag>)
       },
       {
+        title: 'CPU架构',
+        dataIndex: 'role',
+        key: 'role',
+        render: text => {
+          return <Tag color="blue">amd64</Tag>
+        } 
+      },
+      {
         title: formatMessage({id:'enterpriseColony.mgt.cluster.assignedCpu'}),
         dataIndex: 'cpu',
         key: 'cpu',
