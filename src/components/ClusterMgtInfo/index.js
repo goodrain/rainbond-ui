@@ -261,7 +261,7 @@ class Index extends Component {
         if (res && res._condition === 200) {
           notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
           dispatch(
-            routerRedux(`/enterprise/${eid}/clusters`)
+            routerRedux.replace(`/enterprise/${eid}/clusters`)
           )
         }
       },
