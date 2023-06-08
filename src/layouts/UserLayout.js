@@ -71,6 +71,7 @@ class UserLayout extends React.PureComponent {
   };
   render() {
     const { rainbondInfo, children } = this.props;
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     const { isRender } = this.state;
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo) || logo;
     const isEnterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
@@ -79,9 +80,9 @@ class UserLayout extends React.PureComponent {
     }
     return (
       <div className={styles.container}>
-        <div className={styles.headers}>
+        <div className={firstRegist ? styles.isAdminHeaders : styles.headers}>
         </div>
-        <div className={styles.content}>
+        <div className={firstRegist ? styles.isAdminContent : styles.content}>
           <div className={styles.right}>
             <div className={styles.login}>
               <div className={styles.contentBox}>

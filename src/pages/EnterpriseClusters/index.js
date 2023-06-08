@@ -923,22 +923,6 @@ export default class EnterpriseClusters extends PureComponent {
         content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content' />}
         titleSvg={pageheaderSvg.getSvg('clusterSvg', 18)}
       >
-        {isNewbieGuide &&
-          showClusterIntroduced &&
-          !clusterLoading &&
-          clusters &&
-          clusters.length &&
-          clusters[0].status === '1' ? (
-          <InstallStep
-            onCancel={this.handleClusterIntroduced}
-            isCluster
-            eid={eid}
-            onStartInstall={this.onStartInstall}
-            onViewInstance={this.onViewInstance}
-          />
-        ) : (
-          ''
-        )}
         <Card
           style={{ boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px' }}
           extra={<Row>
