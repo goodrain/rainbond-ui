@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/alt-text */
-import { Button, Col, Form, Input, Row } from 'antd';
+import { Button, Col, Form, Input, Row, Divider } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Component } from 'react';
@@ -57,6 +57,9 @@ export default class RegisterComponent extends Component {
       (err, values) => {
         if (!err) {
           userUtil.removeCookie();
+          if(values.password){
+            values.password_repeat = values.password
+          }
           const info = Object.assign({}, values);
           if (!values.name) {
             info.name = values.user_name;
@@ -72,16 +75,16 @@ export default class RegisterComponent extends Component {
   checkPassword = (rule, value, callback) => {
     const { form } = this.props;
     if (value && value.length < 8) {
-      callback(formatMessage({id:'login.registerComponent.min'}));
+      callback(formatMessage({ id: 'login.registerComponent.min' }));
     } else if (value && value.length > 16) {
-      callback(formatMessage({id:'login.registerComponent.max'}));
+      callback(formatMessage({ id: 'login.registerComponent.max' }));
     } else if (
       rule &&
       rule.field === 'password_repeat' &&
       value &&
       value !== form.getFieldValue('password')
     ) {
-      callback(formatMessage({id:'login.registerComponent.pass'}));
+      callback(formatMessage({ id: 'login.registerComponent.pass' }));
     } else {
       callback();
     }
@@ -136,64 +139,75 @@ export default class RegisterComponent extends Component {
     };
     return (
       <Form onSubmit={this.handleSubmit}>
+        {firstRegist && 
+          <Divider>企业信息</Divider>
+        }
         {firstRegist && (
           <FormItem {...formItemLayout}>
             {getFieldDecorator('enter_name', {
               rules: [
                 {
                   required: true,
-                  message: formatMessage({id:'login.registerComponent.input_en_name'})
+                  message: formatMessage({ id: 'login.registerComponent.input_en_name' })
                 }
               ]
             })(
-              <Input autoComplete="off" size="large" placeholder={formatMessage({id:'login.registerComponent.en_name'})}/>
+              <Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.en_name' })} />
             )}
           </FormItem>
         )}
-        <Row>
-          <Col span="12" style={{ padding: '0 8px 0 0' }}>
-            <FormItem {...formItemLayout}>
-              {getFieldDecorator('real_name', {
-                initialValue: userInfo ? userInfo.oauth_user_name : '',
-                rules: [
-                  { required: true, message: formatMessage({id:'login.registerComponent.input_name'}) },
-                  {
-                    max: 24,
-                    message: formatMessage({id:'login.registerComponent.Max'})
-                  },
-                  {
-                    pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
-                    message: formatMessage({id:'login.registerComponent.only'})
-                  }
-                ]
-              })(<Input autoComplete="off" size="large" placeholder={formatMessage({id:'login.registerComponent.name'})} />)}
-            </FormItem>
-          </Col>
-          <Col span="12" style={{ padding: '0 0 0 8px' }}>
-            <FormItem {...formItemLayout}>
-              {getFieldDecorator('user_name', {
-                initialValue: firstRegist ? 'admin' : '',
-                rules: [
-                  { required: true, message: formatMessage({id:'login.registerComponent.username'}) },
-                  {
-                    min: 3,
-                    message: formatMessage({id:'login.registerComponent.min_length'})
-                  },
-                  {
-                    max: 24,
-                    message: formatMessage({id:'login.registerComponent.max_length'})
-                  },
-                  {
-                    pattern: /^[a-zA-Z0-9_\-]+$/,
-                    message: formatMessage({id:'login.registerComponent.Only'})
-                  }
-                ]
-              })(
-                <Input autoComplete="off" size="large" placeholder={formatMessage({id:'login.registerComponent.user'})}/>
-              )}
-            </FormItem>
-          </Col>
-        </Row>
+        <FormItem {...formItemLayout}>
+          {getFieldDecorator('user_name', {
+            rules: [
+              { required: true, message: formatMessage({ id: 'login.registerComponent.username' }) },
+              {
+                min: 3,
+                message: formatMessage({ id: 'login.registerComponent.min_length' })
+              },
+              {
+                max: 24,
+                message: formatMessage({ id: 'login.registerComponent.max_length' })
+              },
+              {
+                pattern: /^[a-zA-Z0-9_\-]+$/,
+                message: formatMessage({ id: 'login.registerComponent.Only' })
+              }
+            ]
+          })(
+            <Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.user' })} />
+          )}
+        </FormItem>
+        <FormItem {...formItemLayout}>
+          {getFieldDecorator('password', {
+            rules: checks(formatMessage({ id: 'login.registerComponent.password' }))
+          })(
+            <Input
+              size="large"
+              type="password"
+              placeholder={formatMessage({ id: 'login.registerComponent.password' })}
+              autoComplete="new-password"
+            />
+          )}
+        </FormItem>
+        {firstRegist && 
+          <Divider>用户详情</Divider>
+        }
+        <FormItem {...formItemLayout}>
+          {getFieldDecorator('real_name', {
+            initialValue: userInfo ? userInfo.oauth_user_name : '',
+            rules: [
+              { required: true, message: formatMessage({ id: 'login.registerComponent.input_name' }) },
+              {
+                max: 24,
+                message: formatMessage({ id: 'login.registerComponent.Max' })
+              },
+              {
+                pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
+                message: formatMessage({ id: 'login.registerComponent.only' })
+              }
+            ]
+          })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.name' })} />)}
+        </FormItem>
         <Row>
           <Col span="12" style={{ padding: '0 8px 0 0' }}>
             <FormItem {...formItemLayout}>
@@ -202,14 +216,14 @@ export default class RegisterComponent extends Component {
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({id:'login.registerComponent.input_add'})
+                    message: formatMessage({ id: 'login.registerComponent.input_add' })
                   },
                   {
                     type: 'email',
-                    message: formatMessage({id:'login.registerComponent.add_error'})
+                    message: formatMessage({ id: 'login.registerComponent.add_error' })
                   }
                 ]
-              })(<Input autoComplete="off" size="large" placeholder={formatMessage({id:'login.registerComponent.mailbox'})} />)}
+              })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.mailbox' })} />)}
             </FormItem>
           </Col>
           <Col span="12" style={{ padding: '0 0 0 8px' }}>
@@ -219,43 +233,19 @@ export default class RegisterComponent extends Component {
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({id:'login.registerComponent.iphone'})
+                    message: formatMessage({ id: 'login.registerComponent.iphone' })
                   },
                   {
                     pattern: /^[0-9]{11}$/,
-                    message: formatMessage({id:'login.registerComponent.input_iphone'})
+                    message: formatMessage({ id: 'login.registerComponent.input_iphone' })
                   }
                 ]
               })(
-                <Input autoComplete="off" size="large" placeholder= {formatMessage({id:'login.registerComponent.Iphone'})}/>
+                <Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.Iphone' })} />
               )}
             </FormItem>
           </Col>
         </Row>
-        <FormItem {...formItemLayout}>
-          {getFieldDecorator('password', {
-            rules: checks(formatMessage({id:'login.registerComponent.password'}))
-          })(
-            <Input
-              size="large"
-              type="password"
-              placeholder={formatMessage({id:'login.registerComponent.password'})}
-              autoComplete="new-password"
-            />
-          )}
-        </FormItem>
-        <FormItem {...formItemLayout}>
-          {getFieldDecorator('password_repeat', {
-            rules: checks(formatMessage({id:'login.registerComponent.Confirm_password'}))
-          })(
-            <Input
-              size="large"
-              type="password"
-              placeholder={formatMessage({id:'login.registerComponent.Confirm_password'})}
-              autoComplete="new-password"
-            />
-          )}
-        </FormItem>
         <FormItem {...formItemLayout}>
           <Row gutter={8}>
             <Col span={16}>
@@ -263,19 +253,19 @@ export default class RegisterComponent extends Component {
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({id:'login.registerComponent.Verification_Code'})
+                    message: formatMessage({ id: 'login.registerComponent.Verification_Code' })
                   },
                   {
                     min: 4,
-                    message: formatMessage({id:'login.registerComponent.four'})
+                    message: formatMessage({ id: 'login.registerComponent.four' })
                   },
                   {
                     max: 4,
-                    message: formatMessage({id:'login.registerComponent.success'})
+                    message: formatMessage({ id: 'login.registerComponent.success' })
                   }
                 ]
               })(
-                <Input autoComplete="off" size="large" placeholder={formatMessage({id:'login.registerComponent.Verification'})} />
+                <Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.Verification' })} />
               )}
             </Col>
             <Col span={8}>
@@ -300,15 +290,15 @@ export default class RegisterComponent extends Component {
             htmlType="submit"
           >
             {firstRegist
-              ? <FormattedMessage id='login.registerComponent.admin'/>
+              ? <FormattedMessage id='login.registerComponent.admin' />
               : type === 'register'
-              ? <FormattedMessage id='login.registerComponent.register'/>
-              : <FormattedMessage id='login.registerComponent.bind'/>}
+                ? <FormattedMessage id='login.registerComponent.register' />
+                : <FormattedMessage id='login.registerComponent.bind' />}
           </Button>
 
           {!firstRegist && type === 'register' && (
             <Link className={styles.login} to="/user/login">
-              <FormattedMessage id='login.registerComponent.use'/>
+              <FormattedMessage id='login.registerComponent.use' />
             </Link>
           )}
         </FormItem>
@@ -318,7 +308,7 @@ export default class RegisterComponent extends Component {
               span={24}
               style={{ fontSize: 12, marginTop: -12, color: '#666666' }}
             >
-              <FormattedMessage id='login.registerComponent.be_careful'/>
+              <FormattedMessage id='login.registerComponent.be_careful' />
             </Col>
           </Row>
         )}

@@ -1040,7 +1040,7 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span className={styles.spanBox}>
-                      <span className={styles.panelTitle}>{formatMessage({ id: 'enterpriseColony.import.recognition.port' })}</span>
+                      <span className={styles.panelTitle} style={{color: portsData.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'enterpriseColony.import.recognition.port' })}</span>
                       <span className={styles.panelSpan}>
                         <Tooltip title={formatMessage({id:'enterpriseColony.import.recognition.port.desc'})}>
                           {formatMessage({id:'enterpriseColony.import.recognition.port.desc'})}
@@ -1068,7 +1068,7 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
+                      <span className={styles.panelTitle} style={{color: volumesData.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
                       <span className={styles.panelSpan}>
                         <Tooltip title={formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.desc'})}>
                         {formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.desc'})}
@@ -1097,7 +1097,7 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
+                      <span className={styles.panelTitle} style={{color: innerEnvsList.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
                       <span className={styles.panelSpan}>
                         <Tooltip title={formatMessage({id:'appPublish.shop.pages.title.environment_variable.desc'})}>
                           {formatMessage({id:'appPublish.shop.pages.title.environment_variable.desc'})}
@@ -1134,7 +1134,7 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle}>{formatMessage({ id: 'componentCheck.advanced.setup.storage_config.title' })}</span>
+                      <span className={styles.panelTitle} style={{color: mntDataList.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'componentCheck.advanced.setup.storage_config.title' })}</span>
                       <span className={styles.panelSpan}>
                         <Tooltip title={formatMessage({id:'componentCheck.advanced.setup.storage_config.desc'})}>
                           {formatMessage({id:'componentCheck.advanced.setup.storage_config.desc'})}
