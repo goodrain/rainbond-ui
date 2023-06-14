@@ -267,7 +267,8 @@ export default class Index extends PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      groups
+      groups,
+      archInfo
     } = this.props;
     const myheaders = {};
     const { fileList, defaultRadio, addGroup, record, region_name, existFileList, language } = this.state;
@@ -289,6 +290,13 @@ export default class Index extends PureComponent {
       }
     };
     const is_language = language ? formItemLayout : en_formItemLayout;
+    let arch = 'amd64'
+    let archLegnth = archInfo.length
+    if(archLegnth == 2){
+      arch = 'amd64'
+    }else if(archInfo.length == 1){
+      arch = archInfo && archInfo[0]
+    }
     return (
       <>
         <div className={styles.yaml_container}>
@@ -408,6 +416,17 @@ export default class Index extends PureComponent {
                 }
               </div>
             </Form.Item>
+            <Form.Item {...is_language} label='选择架构'>
+            {getFieldDecorator('arch', {
+              initialValue: arch,
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+            })(
+              <Radio.Group onChange={this.onChangeCpu} value={this.state.value}>
+                <Radio value='amd64' disabled={archLegnth == 2 ? false : arch == 'amd64' ? false : true}>amd64</Radio>
+                <Radio value='arm64' disabled={archLegnth == 2 ? false : arch == 'arm64' ? false : true}>arm64</Radio>
+              </Radio.Group>
+            )}
+          </Form.Item>
             <Form.Item
               wrapperCol={{
                 xs: {

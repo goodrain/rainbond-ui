@@ -25,9 +25,33 @@ import { createEnterprise, createTeam } from '../../utils/breadcrumb';
   { pure: false }
 )
 export default class Main extends PureComponent {
+  constructor(props){
+    super(props)
+    this.state = {
+      archInfo: []
+    }
+  }
   componentWillMount() {
     const { currentTeamPermissionsInfo, dispatch } = this.props;
     roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
+    this.handleArchCpuInfo()
+  }
+  handleArchCpuInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'index/fetchArchOverview',
+      payload: {
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            archInfo: res.list
+          })
+        }
+      }
+    });
   }
   handleTabChange = key => {
     const { dispatch } = this.props;
@@ -69,7 +93,7 @@ export default class Main extends PureComponent {
       currentRegionName,
       match,
     } = this.props;
-
+    const { archInfo } = this.state
     let { type } = match.params;
     if (!type) {
       type = 'custom';
@@ -92,7 +116,7 @@ export default class Main extends PureComponent {
         tabList={tabList}
         titleSvg={pageheaderSvg.getSvg('dockerSvg',18)}
       >
-        {Com ? <Com {...this.props} /> : <FormattedMessage id="teamAdd.create.error" />}
+        {Com ? <Com archInfo={archInfo} {...this.props} /> : <FormattedMessage id="teamAdd.create.error" />}
       </PageHeaderLayout>
     );
   }

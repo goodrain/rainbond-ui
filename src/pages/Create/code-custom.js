@@ -84,6 +84,7 @@ export default class Index extends PureComponent {
     });
   };
   render() {
+    const arch = this.props.archInfo
     return (
       <Card>
         <TopUpHints />

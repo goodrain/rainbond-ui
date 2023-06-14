@@ -188,11 +188,11 @@ class Index extends Component {
           text.map(item => <Tag color="blue">{item}</Tag>)
       },
       {
-        title: 'CPU架构',
-        dataIndex: 'role',
-        key: 'role',
+        title: formatMessage({id:'enterpriseColony.mgt.node.framework'}),
+        dataIndex: 'arch',
+        key: 'arch',
         render: text => {
-          return <Tag color="blue">amd64</Tag>
+          return <Tag color="blue">{text}</Tag>
         } 
       },
       {

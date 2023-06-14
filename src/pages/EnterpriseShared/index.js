@@ -23,7 +23,8 @@ import {
   Row,
   Spin,
   Tabs,
-  Tooltip
+  Tooltip,
+  Select
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -54,6 +55,7 @@ import TagList from './TagList';
 
 const { TabPane } = Tabs;
 const { Search } = Input;
+const { Option } = Select;
 
 @connect(({ user, global, loading }) => ({
   user: user.currentUser,
@@ -1406,6 +1408,10 @@ export default class EnterpriseShared extends PureComponent {
       }
     });
   };
+  // 筛选应用列表类型
+  handleChangeType = (key) => {
+    console.log(key,'key')
+  }
   render() {
     const {
       match: {
@@ -1673,6 +1679,18 @@ export default class EnterpriseShared extends PureComponent {
                   <FormattedMessage id="applicationMarket.localMarket.radioValue.team"/>
                 </Radio.Button>
               </Radio.Group>
+              <div style={{marginLeft:'100px'}}>
+                CPU架构:&nbsp;&nbsp;
+                <Select 
+                  defaultValue="all" 
+                  style={{ width: 160 }} 
+                  onChange={this.handleChangeType}
+                >
+                  <Option value="all">全部</Option>
+                  <Option value="amd64">amd64</Option>
+                  <Option value="arm64">arm64</Option>
+                </Select>
+              </div>
               {tagLists && <Divider type="vertical" />}
               {tagLists && (
                 <Checkbox.Group
@@ -1737,8 +1755,8 @@ export default class EnterpriseShared extends PureComponent {
       <div style={{padding:'0px 24px'}}>
         {isMarket && (
           <Row style={contentStyle}>
-            <Col span={19} style={contentLeftStyle}>
-              <div>
+            <Col span={20} style={contentLeftStyle}>
+              <div style={{ marginRight: '80px' }}>
                 <FormattedMessage id='applicationMarket.cloudMarket.msg'/>
                 {/* 市场已经正常连接，该平台具有 */}
                 &nbsp;
@@ -1760,13 +1778,25 @@ export default class EnterpriseShared extends PureComponent {
                 {/* 应用权限 */}
                 <FormattedMessage id='applicationMarket.cloudMarket.msgs'/>
               </div>
+              <div>
+                CPU架构:&nbsp;&nbsp;
+                <Select 
+                  defaultValue="all" 
+                  style={{ width: 160 }} 
+                  onChange={this.handleChangeType}
+                >
+                  <Option value="all">全部</Option>
+                  <Option value="amd64">amd64</Option>
+                  <Option value="arm64">arm64</Option>
+                </Select>
+              </div>
               <Search
-                style={{ width: '400px', marginLeft: '100px' }}
+                style={{ width: '300px', marginLeft: '100px' }}
                 placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
                 onSearch={this.handleSearchMarket}
               />
             </Col>
-            <Col span={5} style={rightStyle} className={styles.btns}>
+            <Col span={4} style={rightStyle} className={styles.btns}>
               {marketOperation}
             </Col>
           </Row>

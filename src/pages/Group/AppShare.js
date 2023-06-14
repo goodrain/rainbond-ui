@@ -1161,6 +1161,7 @@ export default class Main extends PureComponent {
       total: count,
       pageSize: perPageNum,
     };
+    const app_arch = appDetail.app_arch || []
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
@@ -1292,11 +1293,16 @@ export default class Main extends PureComponent {
                     )}
                   </Form.Item>
 
-                  <Form.Item {...formItemLayout} label='CPU架构'>
-                    {getFieldDecorator('is_plugin', {
-                      initialValue: (versionInfo && (versionInfo.is_plugin)) || false
+                  <Form.Item {...formItemLayout} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
+                    {getFieldDecorator('arch', {
+                      initialValue: null
                     })(
-                      <Tag>amd64</Tag>
+                      <>
+                        {app_arch.length > 0 && 
+                          app_arch.map((item)=>{
+                            return <Tag>{item}</Tag>
+                        })}
+                      </>
                     )}
                   </Form.Item>
                 </Col>

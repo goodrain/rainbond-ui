@@ -3054,7 +3054,8 @@ export async function putAppBuidSource(
         is_oauth: body.is_oauth,
         service_id: body.oauth_service_id,
         full_name: body.full_name,
-        server_type: body.server_type
+        server_type: body.server_type,
+        arch: body.arch
       }
     }
   );

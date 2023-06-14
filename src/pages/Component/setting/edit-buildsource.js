@@ -1,6 +1,6 @@
 /* eslint-disable react/no-redundant-should-component-update */
 /* eslint-disable react/no-unused-state */
-import { Alert, Form, Input, Modal, notification, Select, Tabs } from 'antd';
+import { Alert, Form, Input, Modal, notification, Select, Tabs, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
@@ -133,7 +133,7 @@ export default class ChangeBuildSource extends PureComponent {
   }
 
   render() {
-    const { title, onCancel, appBuidSourceLoading, form } = this.props;
+    const { title, onCancel, appBuidSourceLoading, form, archInfo } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
     const { showUsernameAndPass, showKey, isFlag, tabValue, buildSource, tabKey, language } = this.state;
     const formItemLayout = {
@@ -212,7 +212,9 @@ export default class ChangeBuildSource extends PureComponent {
         <Option value="tag">Tag</Option>
       </Select>
     );
-
+    const archLegnth = buildSource.arch.length
+    console.log(archLegnth,'archLegnth')
+    console.log(archInfo,'info')
     return (
       <Modal
         width={700}
@@ -299,6 +301,16 @@ export default class ChangeBuildSource extends PureComponent {
                     />
                   )}
                 </Form.Item>
+                <Form.Item {...is_language} label='选择架构'>
+                  {getFieldDecorator('arch', {
+                    initialValue: archInfo,
+                  })(
+                    <Radio.Group onChange={this.onChangeCpu}>
+                      <Radio value='amd64' disabled={archLegnth == 2 ? false : archInfo == 'amd64' ? false : true}>amd64</Radio>
+                      <Radio value='arm64' disabled={archLegnth == 2 ? false : archInfo == 'arm64' ? false : true}>arm64</Radio>
+                    </Radio.Group>
+                  )}
+                </Form.Item>
               </Form>
             )}
 
@@ -354,6 +366,16 @@ export default class ChangeBuildSource extends PureComponent {
                       type="password"
                       placeholder={formatMessage({id:'componentOverview.body.ChangeBuildSource.input_password'})}
                     />
+                  )}
+                </Form.Item>
+                <Form.Item {...is_language} label='选择架构'>
+                  {getFieldDecorator('arch', {
+                    initialValue: archInfo,
+                  })(
+                    <Radio.Group onChange={this.onChangeCpu}>
+                      <Radio value='amd64' disabled={archLegnth == 2 ? false : archInfo == 'amd64' ? false : true}>amd64</Radio>
+                      <Radio value='arm64' disabled={archLegnth == 2 ? false : archInfo == 'arm64' ? false : true}>arm64</Radio>
+                    </Radio.Group>
                   )}
                 </Form.Item>
               </Form>

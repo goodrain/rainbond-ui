@@ -711,12 +711,17 @@ export default class Index extends PureComponent {
               <Icon
                 style={{
                   cursor: 'pointer',
-                  marginLeft: '5px'
+                  marginLeft: '5px',
+                  marginRight: '12px'
                 }}
                 onClick={this.toEdit}
                 type="edit"
               />
-              <Tag style={{ marginLeft:'12px' }}>amd64</Tag>
+              {currApp.app_arch && 
+                currApp.app_arch.length > 0 && 
+                currApp.app_arch.map((item) => {
+                  return <Tag>{item}</Tag>
+              })}
             </div>
             {resources.status && (
               <div className={styles.extraContent}>
@@ -980,12 +985,17 @@ export default class Index extends PureComponent {
               <Icon
                 style={{
                   cursor: 'pointer',
-                  marginLeft: '5px'
+                  marginLeft: '5px',
+                  marginRight: '12px'
                 }}
                 onClick={this.toEdit}
                 type="edit"
               />
-              <Tag style={{ marginLeft:'8px' }} color="blue">amd64</Tag>
+              {currApp.app_arch && 
+                currApp.app_arch.length > 0 && 
+                currApp.app_arch.map((item) => {
+                  return <Tag>{item}</Tag>
+              })}
             </div>
             <div className={styles.content_Box}>
               {appStatusConfig && <AppState AppStatus={resources.status} />}

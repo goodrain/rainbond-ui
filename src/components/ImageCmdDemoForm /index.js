@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Form, Input, Select, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -109,13 +109,21 @@ export default class Index extends PureComponent {
       ButtonGroupState,
       showSubmitBtn = true,
       showCreateGroup = true,
-      isDemo = false
+      isDemo = false,
+      archInfo
     } = this.props;
     const { getFieldDecorator } = form;
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
     const { language, dockerRun, demoName } = this.state;
     const is_language = language ? formItemLayout : formItemLayouts;
+    let arch = 'amd64'
+    let archLegnth = archInfo.length
+    if(archLegnth == 2){
+      arch = 'amd64'
+    }else if(archInfo.length == 1){
+      arch = archInfo && archInfo[0]
+    }
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
@@ -202,6 +210,17 @@ export default class Index extends PureComponent {
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
             })(
               <TextArea style={{height:80}} placeholder={formatMessage({ id: 'placeholder.dockerRun' })} disabled={isDemo} />
+            )}
+          </Form.Item>
+          <Form.Item {...is_language} label='选择架构'>
+            {getFieldDecorator('arch', {
+              initialValue: arch,
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+            })(
+              <Radio.Group onChange={this.onChangeCpu} value={this.state.value}>
+                <Radio value='amd64' disabled={archLegnth == 2 ? false : arch == 'amd64' ? false : true}>amd64</Radio>
+                <Radio value='arm64' disabled={archLegnth == 2 ? false : arch == 'arm64' ? false : true}>arm64</Radio>
+              </Radio.Group>
             )}
           </Form.Item>
           {showSubmitBtn ? (

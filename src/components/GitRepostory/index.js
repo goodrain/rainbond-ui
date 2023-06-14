@@ -114,7 +114,8 @@ export default class Index extends PureComponent {
       team_name: teamName,
       open_webhook: value.open_webhook, // 是否开启webhook
       full_name: value.project_full_name,
-      k8s_component_name: value.k8s_component_name
+      k8s_component_name: value.k8s_component_name,
+      arch: value.arch,
     };
     dispatch({
       type: 'createApp/createThirtAppByCode',

@@ -513,7 +513,8 @@ class Index extends Component {
       health_status,
       region_type,
       region_id,
-      provider_cluster_id
+      provider_cluster_id,
+      arch
     } = rowClusterInfo
     const eid = globalUtil.getCurrEnterpriseId()
     const pagination = {
@@ -646,17 +647,6 @@ class Index extends Component {
                       >
                         {formatMessage({ id: 'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix' })}
                       </Button>
-                      {/* {provider === "rke" &&
-                        <Button
-                          onClick={() => {
-                            this.props.dispatch(
-                              routerRedux.push(`/enterprise/${eid}/provider/rke/kclusters?clusterID=${provider_cluster_id}&updateKubernetes=true`)
-                            )
-                          }}
-                        >
-                          <FormattedMessage id='enterpriseColony.table.handle.deploy' />
-                        </Button>
-                      } */}
                     </>
                   }
                 </Col>
@@ -680,9 +670,10 @@ class Index extends Component {
                   </Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
-                  <Descriptions.Item label='CPU架构'>
-                    <Tag color="blue">arm64</Tag>
-                    <Tag color="blue">amd64</Tag>
+                  <Descriptions.Item label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
+                    {arch.length > 0 && arch.map((item)=>{
+                      return <Tag color="blue">{item}</Tag>
+                    })}
                   </Descriptions.Item>
                   <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
                 </Descriptions>

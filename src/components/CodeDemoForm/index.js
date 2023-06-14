@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-target-blank */
-import { Button, Form, Input, Modal, Select, Tag } from 'antd';
+import { Button, Form, Input, Modal, Select, Tag, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -230,13 +230,19 @@ export default class Index extends PureComponent {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { groups, createAppByCodeLoading, rainbondInfo, handleType, showCreateGroup, groupId, showSubmitBtn = true, ButtonGroupState, handleServiceBotton } = this.props;
+    const { groups, createAppByCodeLoading, rainbondInfo, handleType, showCreateGroup, groupId, showSubmitBtn = true, ButtonGroupState, handleServiceBotton, archInfo } = this.props;
     const data = this.props.data || {};
     const { language, defaultName } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout;
     const isService = handleType && handleType === 'Service';
-    const showCreateGroups =
-      showCreateGroup === void 0 ? true : showCreateGroup;
+    const showCreateGroups = showCreateGroup === void 0 ? true : showCreateGroup;
+    let arch = 'amd64'
+    let archLegnth = archInfo.length
+    if(archLegnth == 2){
+      arch = 'amd64'
+    }else if(archInfo.length == 1){
+      arch = archInfo && archInfo[0]
+    }
     return (
       <Form layout="horizontal" hideRequiredMark>
         <Form.Item {...is_language} label={<span>{formatMessage({ id: 'teamAdd.create.code.selectDemo' })}</span>}>
@@ -406,27 +412,38 @@ export default class Index extends PureComponent {
               />
             )}
           </Form.Item>
-            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.versions'})}>
-              {getFieldDecorator('uuurl', {
-                initialValue: 'master',
-                rules: [{ required: true, message: formatMessage({id: 'placeholder.code_version'}) }]
-              })(
-                <Input
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.versions'})}>
+            {getFieldDecorator('uuurl', {
+              initialValue: 'master',
+              rules: [{ required: true, message: formatMessage({id: 'placeholder.code_version'}) }]
+            })(
+              <Input
+                disabled={true}
+                addonBefore={
+                <Select
                   disabled={true}
-                  addonBefore={
-                  <Select
-                    disabled={true}
-                    defaultValue={'branch'}
-                    style={{ width: 70 }}
-                    getPopupContainer={triggerNode => triggerNode.parentNode}
-                  >
-                    <Option value="branch">{formatMessage({id: 'teamAdd.create.code.branch'})}</Option>
-                    <Option value="tag">Tag</Option>
-                  </Select>}
-                  placeholder={formatMessage({id: 'placeholder.code_version'})}
-                />
-              )}
-            </Form.Item>
+                  defaultValue={'branch'}
+                  style={{ width: 70 }}
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                >
+                  <Option value="branch">{formatMessage({id: 'teamAdd.create.code.branch'})}</Option>
+                  <Option value="tag">Tag</Option>
+                </Select>}
+                placeholder={formatMessage({id: 'placeholder.code_version'})}
+              />
+            )}
+          </Form.Item>
+          <Form.Item {...is_language} label='选择架构'>
+            {getFieldDecorator('arch', {
+              initialValue: arch,
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+            })(
+              <Radio.Group onChange={this.onChangeCpu} value={this.state.value}>
+                <Radio value='amd64' disabled={archLegnth == 2 ? false : arch == 'amd64' ? false : true}>amd64</Radio>
+                <Radio value='arm64' disabled={archLegnth == 2 ? false : arch == 'arm64' ? false : true}>arm64</Radio>
+              </Radio.Group>
+            )}
+          </Form.Item>
         
         {showSubmitBtn ? (
             <Form.Item
