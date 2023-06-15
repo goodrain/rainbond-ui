@@ -463,8 +463,6 @@ export default class Main extends PureComponent {
 
   showCreate = app => {
     const { handleType } = this.state;
-    console.log(app,'app')
-    console.log(handleType,'handleType')
     if (handleType) {
       this.setState({ installBounced: app });
     } else {
@@ -956,6 +954,12 @@ export default class Main extends PureComponent {
                     value={item.version || item.app_version}
                   >
                     {item.version || item.app_version}
+                    <Tag 
+                      color="blue" 
+                      style={{ marginLeft: '8px', lineHeight: '18px' }}
+                    >
+                      {item.arch}
+                    </Tag>
                   </Option>
                 );
               })}

@@ -771,7 +771,7 @@ export default class Main extends PureComponent {
                   <Tag
                     title={items.version}
                     className={PluginStyles.cardVersionTagStyle}
-                    color="green"
+                    color="blue"
                     size="small"
                     key={index}
                   >
@@ -784,7 +784,7 @@ export default class Main extends PureComponent {
                 return (
                   <Tag
                     className={PluginStyles.cardVersionTagStyle}
-                    color="green"
+                    color="blue"
                     size="small"
                     title={itemx.app_version || itemx.version}
                     key={index}

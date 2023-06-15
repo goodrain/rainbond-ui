@@ -213,8 +213,6 @@ export default class ChangeBuildSource extends PureComponent {
       </Select>
     );
     const archLegnth = buildSource.arch.length
-    console.log(archLegnth, 'archLegnth')
-    console.log(archInfo, 'info')
     return (
       <Modal
         width={700}

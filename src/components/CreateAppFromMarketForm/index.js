@@ -143,7 +143,7 @@ export default class Index extends PureComponent {
                         <Option key={index} value={item.version}>
                           {item.version}
                           <Tag 
-                            color="green" 
+                            color="blue" 
                             style={{ marginLeft: '8px', lineHeight: '18px' }}
                           >
                             {item.arch}
@@ -157,7 +157,7 @@ export default class Index extends PureComponent {
                         <Option key={index} value={item.app_version}>
                           {item.app_version} 
                           <Tag 
-                            color="green" 
+                            color="blue" 
                             style={{ marginLeft: '8px', lineHeight: '18px' }}
                           >
                             {item.arch}

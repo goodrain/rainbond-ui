@@ -393,6 +393,7 @@ export default class AddServiceComponent extends PureComponent {
                 </Row>
                 <Row>
                   <MarketDrawer
+                    archInfo={groupDetail.app_arch}
                     {...MarketParameter}
                     isHelm={true}
                     handleServiceComponent={scopeMax => {
