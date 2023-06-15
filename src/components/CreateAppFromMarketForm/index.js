@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Modal, Radio, Select } from 'antd';
+import { Button, Form, Modal, Radio, Select, Tag } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
@@ -142,6 +142,12 @@ export default class Index extends PureComponent {
                       return (
                         <Option key={index} value={item.version}>
                           {item.version}
+                          <Tag 
+                            color="green" 
+                            style={{ marginLeft: '8px', lineHeight: '18px' }}
+                          >
+                            {item.arch}
+                          </Tag>
                         </Option>
                       );
                     })
@@ -149,7 +155,13 @@ export default class Index extends PureComponent {
                     appVersions.map((item, index) => {
                       return (
                         <Option key={index} value={item.app_version}>
-                          {item.app_version}
+                          {item.app_version} 
+                          <Tag 
+                            color="green" 
+                            style={{ marginLeft: '8px', lineHeight: '18px' }}
+                          >
+                            {item.arch}
+                          </Tag>
                         </Option>
                       );
                     })}

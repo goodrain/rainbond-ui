@@ -1679,18 +1679,6 @@ export default class EnterpriseShared extends PureComponent {
                   <FormattedMessage id="applicationMarket.localMarket.radioValue.team"/>
                 </Radio.Button>
               </Radio.Group>
-              <div style={{marginLeft:'100px'}}>
-                CPU架构:&nbsp;&nbsp;
-                <Select 
-                  defaultValue="all" 
-                  style={{ width: 160 }} 
-                  onChange={this.handleChangeType}
-                >
-                  <Option value="all">全部</Option>
-                  <Option value="amd64">amd64</Option>
-                  <Option value="arm64">arm64</Option>
-                </Select>
-              </div>
               {tagLists && <Divider type="vertical" />}
               {tagLists && (
                 <Checkbox.Group
@@ -1756,7 +1744,7 @@ export default class EnterpriseShared extends PureComponent {
         {isMarket && (
           <Row style={contentStyle}>
             <Col span={20} style={contentLeftStyle}>
-              <div style={{ marginRight: '80px' }}>
+              <div>
                 <FormattedMessage id='applicationMarket.cloudMarket.msg'/>
                 {/* 市场已经正常连接，该平台具有 */}
                 &nbsp;
@@ -1778,20 +1766,8 @@ export default class EnterpriseShared extends PureComponent {
                 {/* 应用权限 */}
                 <FormattedMessage id='applicationMarket.cloudMarket.msgs'/>
               </div>
-              <div>
-                CPU架构:&nbsp;&nbsp;
-                <Select 
-                  defaultValue="all" 
-                  style={{ width: 160 }} 
-                  onChange={this.handleChangeType}
-                >
-                  <Option value="all">全部</Option>
-                  <Option value="amd64">amd64</Option>
-                  <Option value="arm64">arm64</Option>
-                </Select>
-              </div>
               <Search
-                style={{ width: '300px', marginLeft: '100px' }}
+                style={{ width: '400px', marginLeft: '100px' }}
                 placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
                 onSearch={this.handleSearchMarket}
               />

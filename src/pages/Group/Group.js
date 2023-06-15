@@ -717,11 +717,6 @@ export default class Index extends PureComponent {
                 onClick={this.toEdit}
                 type="edit"
               />
-              {currApp.app_arch && 
-                currApp.app_arch.length > 0 && 
-                currApp.app_arch.map((item) => {
-                  return <Tag>{item}</Tag>
-              })}
             </div>
             {resources.status && (
               <div className={styles.extraContent}>
@@ -759,6 +754,13 @@ export default class Index extends PureComponent {
                 {linkList.length > 0 && <VisterBtn linkList={linkList} />}
               </div>
             )}
+          </div>
+          <div style={{ height: '34px', paddingTop: '12px' }}>
+            {currApp.app_arch && 
+              currApp.app_arch.length > 0 && 
+              currApp.app_arch.map((item) => {
+                return <Tag>{item}</Tag>
+            })}
           </div>
           <div className={styles.content_Box}>
             {appStatusConfig && <AppState AppStatus={resources.status} />}
@@ -864,7 +866,7 @@ export default class Index extends PureComponent {
               </span>
             </div>
           </div>
-          <div className={styles.conrHeader}>
+          <div className={styles.conrHeader} style={{ margin: '35px 0px' }}>
             {/* -------------------------------------------- */}
             <div style={{ display: 'flex', alignItems: 'center', }}>
               <span>{formatMessage({ id: 'appOverview.govern' })}</span>
@@ -991,11 +993,6 @@ export default class Index extends PureComponent {
                 onClick={this.toEdit}
                 type="edit"
               />
-              {currApp.app_arch && 
-                currApp.app_arch.length > 0 && 
-                currApp.app_arch.map((item) => {
-                  return <Tag>{item}</Tag>
-              })}
             </div>
             <div className={styles.content_Box}>
               {appStatusConfig && <AppState AppStatus={resources.status} />}

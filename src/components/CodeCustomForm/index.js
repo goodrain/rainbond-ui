@@ -189,12 +189,6 @@ export default class Index extends PureComponent {
       return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
     }
   };
-  onChangeCpu = e => {
-    console.log('radio checked', e.target.value);
-    this.setState({
-      value: e.target.value,
-    });
-  };
   render() {
     const {
       groups,
@@ -394,9 +388,18 @@ export default class Index extends PureComponent {
               initialValue: arch,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
-              <Radio.Group onChange={this.onChangeCpu} value={this.state.value}>
-                <Radio value='amd64' disabled={archLegnth == 2 ? false : arch == 'amd64' ? false : true}>amd64</Radio>
-                <Radio value='arm64' disabled={archLegnth == 2 ? false : arch == 'arm64' ? false : true}>arm64</Radio>
+              <Radio.Group>
+                {archLegnth == 2 ? (
+                  <>
+                    <Radio value='amd64'>amd64</Radio>
+                    <Radio value='arm64'>arm64</Radio>
+                  </>
+                ) : (
+                  <>
+                    {arch == 'amd64' && <Radio value='amd64'>amd64</Radio>}
+                    {arch == 'arm64' && <Radio value='arm64'>arm64</Radio>}
+                  </>
+                )}
               </Radio.Group>
             )}
           </Form.Item>
