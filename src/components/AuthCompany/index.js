@@ -53,8 +53,8 @@ export default class Index extends PureComponent {
       activeKeyStore: 'rainbondStore',
       marketList: [],
       checkedValues: [],
-      enterprise_alias: this.props.enterprise.enterprise_alias || '',
-      enterprise_id: this.props.enterprise.enterprise_id || '',
+      enterprise_alias: this.props.enterprise && this.props.enterprise.enterprise_alias || '',
+      enterprise_id: this.props.enterprise && this.props.enterprise.enterprise_id || '',
       real_name: this.props.currUser.real_name || '',
       isShowModal: true
     };
