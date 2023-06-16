@@ -778,24 +778,26 @@ export default class CreateCheck extends React.Component {
             </div>
             {codeLanguage == 'NodeJSStatic' && (
               <div style={{ marginBottom: 16,display:"flex",flexDirection:'column' }}>
+                {ports && 
+                <div style={{ marginBottom: 16 }}>
+                  <span
+                    style={{
+                      verticalAlign: 'top',
+                      display: 'inline-block',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    {formatMessage({ id: 'confirmModal.check.appShare.title.port' })}：
+                  </span>
+                  {ports || formatMessage({ id: 'confirmModal.check.appShare.title.null' })}
+                </div>}
                 <div>
                 <span
                   style={{
                     verticalAlign: 'top',
                     display: 'inline-block',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {formatMessage({ id: 'confirmModal.check.appShare.title.port' })}：
-                </span>
-                {ports || formatMessage({ id: 'confirmModal.check.appShare.title.null' })}
-                </div>
-                <div style={{marginTop:16}}>
-                <span
-                  style={{
-                    verticalAlign: 'top',
-                    display: 'inline-block',
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    marginTop: '6px'
                   }}
                 >
                   {formatMessage({id:'confirmModal.check.appShare.title.dist'})}
@@ -804,7 +806,7 @@ export default class CreateCheck extends React.Component {
                 </div>
               </div>
             )}
-            <div style={{ marginBottom: 16 }}>
+            <div>
               <span
                 style={{
                   verticalAlign: 'top',
