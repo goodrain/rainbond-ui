@@ -299,7 +299,7 @@ export default class ChangeBuildSource extends PureComponent {
                     />
                   )}
                 </Form.Item>
-                <Form.Item {...is_language} label='选择架构'>
+                <Form.Item {...is_language} label='CPU架构'>
                   {getFieldDecorator('arch', {
                     initialValue: archInfo,
                   })(
@@ -366,7 +366,7 @@ export default class ChangeBuildSource extends PureComponent {
                     />
                   )}
                 </Form.Item>
-                <Form.Item {...is_language} label='选择架构'>
+                <Form.Item {...is_language} label='CPU架构'>
                   {getFieldDecorator('arch', {
                     initialValue: archInfo,
                   })(

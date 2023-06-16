@@ -416,7 +416,7 @@ export default class Index extends PureComponent {
                 }
               </div>
             </Form.Item>
-            <Form.Item {...is_language} label='选择架构'>
+            <Form.Item {...is_language} label='CPU架构'>
             {getFieldDecorator('arch', {
               initialValue: arch,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
