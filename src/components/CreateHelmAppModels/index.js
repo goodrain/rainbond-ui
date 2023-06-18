@@ -1,5 +1,5 @@
 /* eslint-disable array-callback-return */
-import { Button, Checkbox, Form, Input, Modal, Select } from 'antd';
+import { Button, Checkbox, Form, Input, Modal, Select, Tag } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
@@ -517,7 +517,10 @@ class CreateHelmAppModels extends PureComponent {
                       const val = item.version || item.app_version;
                       return (
                         <Option key={item.version} value={val}>
-                          {val}
+                          {val} 
+                          <Tag style={{marginLeft: '6px'}} color="blue">
+                            {item.arch}
+                          </Tag>
                         </Option>
                       );
                     })}

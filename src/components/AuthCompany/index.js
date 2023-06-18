@@ -247,7 +247,7 @@ export default class Index extends PureComponent {
                   onCloseLogin(activeTabKey);
                 } else {
                   setTimeout(() => {
-                    window.location.reload();
+                    // window.location.reload();
                   }, 1000);
                 }
               }

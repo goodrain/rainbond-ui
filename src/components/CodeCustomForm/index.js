@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-void */
 /* eslint-disable no-nested-ternary */
-import { Button, Checkbox, Col, Form, Input, Row, Select } from 'antd';
+import { Button, Checkbox, Col, Form, Input, Row, Select, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -29,10 +29,10 @@ const en_formItemLayout = {
 };
 
 @connect(
-  ({ user, global, loading }) => ({
+  ({ user, global, loading, }) => ({
     currUser: user.currentUser,
     groups: global.groups,
-    createAppByCodeLoading: loading.effects['createApp/createAppByCode']
+    createAppByCodeLoading: loading.effects['createApp/createAppByCode'],
   }),
   null,
   null,
@@ -94,7 +94,7 @@ export default class Index extends PureComponent {
     if (urlCheck.test(value)) {
       callback();
     } else {
-      callback(formatMessage({id:'componentOverview.body.ChangeBuildSource.Illegal'}));
+      callback(formatMessage({ id: 'componentOverview.body.ChangeBuildSource.Illegal' }));
     }
   };
 
@@ -152,19 +152,19 @@ export default class Index extends PureComponent {
           <Col span={isSubdirectories ? 16 : 24} style={{ textAlign: 'right' }}>
             {type === 'showKey' && (
               <Checkbox value="showKey" checked={showKey}>
-                {formatMessage({id:'teamPlugin.create.pages.key'})}
+                {formatMessage({ id: 'teamPlugin.create.pages.key' })}
               </Checkbox>
             )}
             {type === 'showUsernameAndPass' && (
               <Checkbox value="showUsernameAndPass">
-                {formatMessage({id:'teamAdd.create.code.fillInUser'})}
+                {formatMessage({ id: 'teamAdd.create.code.fillInUser' })}
               </Checkbox>
             )}
           </Col>
           {isSubdirectories && (
             <Col span={8} style={{ textAlign: 'right' }}>
               <Checkbox value="subdirectories">
-                {formatMessage({id:'teamAdd.create.code.fillInPath'})}
+                {formatMessage({ id: 'teamAdd.create.code.fillInPath' })}
               </Checkbox>
             </Col>
           )}
@@ -174,19 +174,19 @@ export default class Index extends PureComponent {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error(formatMessage({id: 'placeholder.k8s_component_name'})));
+      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error(formatMessage({id: 'placeholder.nameSpaceReg'}))
+          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error(formatMessage({id: 'placeholder.max32'})));
+      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
     }
   };
   render() {
@@ -200,7 +200,8 @@ export default class Index extends PureComponent {
       showSubmitBtn = true,
       ButtonGroupState,
       handleServiceBotton,
-      showCreateGroup
+      showCreateGroup,
+      archInfo
     } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
 
@@ -212,6 +213,13 @@ export default class Index extends PureComponent {
       addGroup,
       language
     } = this.state;
+    let arch = 'amd64'
+    let archLegnth = archInfo.length
+    if(archLegnth == 2){
+      arch = 'amd64'
+    }else if(archInfo.length == 1){
+      arch = archInfo && archInfo[0]
+    }
     const is_language = language ? formItemLayout : en_formItemLayout;
     const gitUrl = getFieldValue('git_url');
 
@@ -248,7 +256,7 @@ export default class Index extends PureComponent {
         style={{ width: 100 }}
         getPopupContainer={triggerNode => triggerNode.parentNode}
       >
-        <Option value="branch">{formatMessage({id: 'teamAdd.create.code.branch'})}</Option>
+        <Option value="branch">{formatMessage({ id: 'teamAdd.create.code.branch' })}</Option>
         <Option value="tag">Tag</Option>
       </Select>
     );
@@ -257,13 +265,13 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
+          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
-              rules: [{ required: true, message: formatMessage({id: 'placeholder.appName'}) }]
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.appName' }) }]
             })(
               <Select
-                placeholder={formatMessage({id: 'placeholder.appName'})}
+                placeholder={formatMessage({ id: 'placeholder.appName' })}
                 style={language ? {
                   display: 'inline-block',
                   width: isService ? '' : 292,
@@ -283,24 +291,24 @@ export default class Index extends PureComponent {
               </Select>
             )}
             {handleType &&
-            handleType === 'Service' ? null : showCreateGroups ? (
-              <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamOverview.createApp'})}</Button>
-            ) : null}
+              handleType === 'Service' ? null : showCreateGroups ? (
+                <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamOverview.createApp' })}</Button>
+              ) : null}
           </Form.Item>
-          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
+          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
-                { required: true, message: formatMessage({id: 'placeholder.service_cname'}) },
+                { required: true, message: formatMessage({ id: 'placeholder.service_cname' }) },
                 {
                   max: 24,
-                  message: formatMessage({id:'placeholder.max24'})
+                  message: formatMessage({ id: 'placeholder.max24' })
                 }
               ]
-            })(<Input placeholder={formatMessage({id: 'placeholder.service_cname'})} />)}
+            })(<Input placeholder={formatMessage({ id: 'placeholder.service_cname' })} />)}
           </Form.Item>
           {/* 集群内组件名称 */}
-          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
+          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
               rules: [
                 {
@@ -308,20 +316,20 @@ export default class Index extends PureComponent {
                   validator: this.handleValiateNameSpace
                 }
               ]
-            })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})} />)}
+            })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
           </Form.Item>
-          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.address'})}>
+          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.address' })}>
             {getFieldDecorator('git_url', {
               initialValue: data.git_url || '',
               force: true,
               rules: [
-                { required: true, message: formatMessage({id: 'placeholder.git_url'}) },
-                { validator: this.checkURL, message: formatMessage({id: 'placeholder.notGit_url'}) }
+                { required: true, message: formatMessage({ id: 'placeholder.git_url' }) },
+                { validator: this.checkURL, message: formatMessage({ id: 'placeholder.notGit_url' }) }
               ]
             })(
               <Input
                 addonBefore={prefixSelector}
-                placeholder={formatMessage({id: 'placeholder.git_url'})}
+                placeholder={formatMessage({ id: 'placeholder.git_url' })}
               />
             )}
           </Form.Item>
@@ -331,49 +339,70 @@ export default class Index extends PureComponent {
             this.fetchCheckboxGroup('showUsernameAndPass', serverType)}
 
           {showUsernameAndPass && isHttp && (
-            <Form.Item {...is_language} label={formatMessage({id: "teamAdd.create.form.user"})}>
+            <Form.Item {...is_language} label={formatMessage({ id: "teamAdd.create.form.user" })}>
               {getFieldDecorator('username_1', {
                 initialValue: data.username || '',
-                rules: [{ required: false, message: formatMessage({id: 'placeholder.username_1'}) }]
-              })(<Input autoComplete="off" placeholder={formatMessage({id: 'placeholder.username_1'})} />)}
+                rules: [{ required: false, message: formatMessage({ id: 'placeholder.username_1' }) }]
+              })(<Input autoComplete="off" placeholder={formatMessage({ id: 'placeholder.username_1' })} />)}
             </Form.Item>
           )}
           {showUsernameAndPass && isHttp && (
-            <Form.Item {...is_language} label={formatMessage({id: "teamAdd.create.form.password"})}>
+            <Form.Item {...is_language} label={formatMessage({ id: "teamAdd.create.form.password" })}>
               {getFieldDecorator('password_1', {
                 initialValue: data.password || '',
-                rules: [{ required: false, message: formatMessage({id: 'placeholder.password_1'}) }]
+                rules: [{ required: false, message: formatMessage({ id: 'placeholder.password_1' }) }]
               })(
                 <Input
                   autoComplete="new-password"
                   type="password"
-                  placeholder={formatMessage({id: 'placeholder.password_1'})}
+                  placeholder={formatMessage({ id: 'placeholder.password_1' })}
                 />
               )}
             </Form.Item>
           )}
 
           {subdirectories && serverType === 'git' && (
-            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.path'})}>
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.path' })}>
               {getFieldDecorator('subdirectories', {
                 initialValue: '',
-                rules: [{ required: true, message: formatMessage({id: 'placeholder.subdirectories'}) }]
-              })(<Input placeholder={formatMessage({id: 'placeholder.subdirectories'})} />)}
+                rules: [{ required: true, message: formatMessage({ id: 'placeholder.subdirectories' }) }]
+              })(<Input placeholder={formatMessage({ id: 'placeholder.subdirectories' })} />)}
             </Form.Item>
           )}
           {serverType !== 'oss' && (
-            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.code.versions'})}>
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.versions' })}>
               {getFieldDecorator('code_version', {
                 initialValue: data.code_version || this.getDefaultBranchName(),
-                rules: [{ required: true, message: formatMessage({id: 'placeholder.code_version'}) }]
+                rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
               })(
                 <Input
                   addonBefore={versionSelector}
-                  placeholder={formatMessage({id: 'placeholder.code_version'})}
+                  placeholder={formatMessage({ id: 'placeholder.code_version' })}
                 />
               )}
             </Form.Item>
           )}
+
+          <Form.Item {...is_language} label='CPU架构'>
+            {getFieldDecorator('arch', {
+              initialValue: arch,
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+            })(
+              <Radio.Group>
+                {archLegnth == 2 ? (
+                  <>
+                    <Radio value='amd64'>amd64</Radio>
+                    <Radio value='arm64'>arm64</Radio>
+                  </>
+                ) : (
+                  <>
+                    {arch == 'amd64' && <Radio value='amd64'>amd64</Radio>}
+                    {arch == 'arm64' && <Radio value='arm64'>arm64</Radio>}
+                  </>
+                )}
+              </Radio.Group>
+            )}
+          </Form.Item>
 
           {showSubmitBtn ? (
             <Form.Item
@@ -388,24 +417,24 @@ export default class Index extends PureComponent {
             >
               {isService && ButtonGroupState
                 ? handleServiceBotton(
-                    <Button
-                      onClick={this.handleSubmit}
-                      type="primary"
-                      loading={createAppByCodeLoading}
-                    >
-                      {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
-                    </Button>,
-                    false
-                  )
+                  <Button
+                    onClick={this.handleSubmit}
+                    type="primary"
+                    loading={createAppByCodeLoading}
+                  >
+                    {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
+                  </Button>,
+                  false
+                )
                 : !handleType && (
-                    <Button
-                      onClick={this.handleSubmit}
-                      type="primary"
-                      loading={createAppByCodeLoading}
-                    >
-                      {formatMessage({id: 'teamAdd.create.btn.create'})}
-                    </Button>
-                  )}
+                  <Button
+                    onClick={this.handleSubmit}
+                    type="primary"
+                    loading={createAppByCodeLoading}
+                  >
+                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                  </Button>
+                )}
             </Form.Item>
           ) : null}
         </Form>

@@ -267,7 +267,8 @@ export default class Index extends PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      groups
+      groups,
+      archInfo
     } = this.props;
     const myheaders = {};
     const { fileList, defaultRadio, addGroup, record, region_name, existFileList, language } = this.state;
@@ -289,6 +290,13 @@ export default class Index extends PureComponent {
       }
     };
     const is_language = language ? formItemLayout : en_formItemLayout;
+    let arch = 'amd64'
+    let archLegnth = archInfo.length
+    if(archLegnth == 2){
+      arch = 'amd64'
+    }else if(archInfo.length == 1){
+      arch = archInfo && archInfo[0]
+    }
     return (
       <>
         <div className={styles.yaml_container}>
@@ -408,15 +416,32 @@ export default class Index extends PureComponent {
                 }
               </div>
             </Form.Item>
+            <Form.Item {...is_language} label='CPU架构'>
+            {getFieldDecorator('arch', {
+              initialValue: arch,
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+            })(
+              <Radio.Group>
+                {archLegnth == 2 ? (
+                  <>
+                    <Radio value='amd64'>amd64</Radio>
+                    <Radio value='arm64'>arm64</Radio>
+                  </>
+                ) : (
+                  <>
+                    {arch == 'amd64' && <Radio value='amd64'>amd64</Radio>}
+                    {arch == 'arm64' && <Radio value='arm64'>arm64</Radio>}
+                  </>
+                )}
+              </Radio.Group>
+            )}
+          </Form.Item>
             <Form.Item
               wrapperCol={{
-                xs: {
-                  span: 7,
-                  offset: 7
-                },
+                xs: { span: 24, offset: 0 },
                 sm: {
-                  span: 9,
-                  offset: 9
+                  span: is_language.wrapperCol.span,
+                  offset: is_language.labelCol.span
                 }
               }}
             >

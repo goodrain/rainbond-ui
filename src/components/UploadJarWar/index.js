@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Upload, Icon, notification, message } from 'antd';
+import { Button, Form, Input, Select, Upload, Icon, notification, message, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -249,13 +249,21 @@ export default class Index extends PureComponent {
       ButtonGroupState,
       groupId,
       showSubmitBtn = true,
-      showCreateGroup = true
+      showCreateGroup = true,
+      archInfo
     } = this.props;
     const { fileList, defaultRadio, isShowCom, addGroup, record, region_name, existFileList, language } = this.state
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
     const isService = handleType && handleType === 'Service';
     const is_language = language ? formItemLayout : en_formItemLayout;
+    let arch = 'amd64'
+    let archLegnth = archInfo.length
+    if(archLegnth == 2){
+      arch = 'amd64'
+    }else if(archInfo.length == 1){
+      arch = archInfo && archInfo[0]
+    }
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
@@ -387,6 +395,17 @@ export default class Index extends PureComponent {
                 }
               </div>
             </Form.Item>
+            <Form.Item {...is_language} label='CPU架构'>
+            {getFieldDecorator('arch', {
+              initialValue: arch,
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+            })(
+              <Radio.Group onChange={this.onChangeCpu} value={this.state.value}>
+                <Radio value='amd64' disabled={archLegnth == 2 ? false : arch == 'amd64' ? false : true}>amd64</Radio>
+                <Radio value='arm64' disabled={archLegnth == 2 ? false : arch == 'arm64' ? false : true}>arm64</Radio>
+              </Radio.Group>
+            )}
+          </Form.Item>
           {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{

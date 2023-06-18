@@ -924,7 +924,7 @@ const enterpriseColony = {
     'enterpriseColony.mgt.node.stain':'污点',
     'enterpriseColony.mgt.node.ip':'IP地址',
     'enterpriseColony.mgt.node.container':'容器运行时',
-    'enterpriseColony.mgt.node.framework':'系统架构',
+    'enterpriseColony.mgt.node.framework':'CPU 架构',
     'enterpriseColony.mgt.node.type':'节点类型',
     'enterpriseColony.mgt.node.operatingVs':'操作系统版本',
     'enterpriseColony.mgt.node.time':'创建时间',

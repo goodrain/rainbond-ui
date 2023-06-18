@@ -13,7 +13,8 @@ import {
   Select,
   Spin,
   Switch,
-  Tabs
+  Tabs,
+  Radio
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
@@ -174,6 +175,7 @@ class Index extends React.Component {
       showSubmitBtn = true,
       showCreateGroup = true,
       handleType,
+      archInfo,
     } = this.props;
     const { getFieldDecorator } = form;
     const {
@@ -184,6 +186,13 @@ class Index extends React.Component {
       checkedList,
       showSubdirectories
     } = this.state;
+    let arch = 'amd64'
+    let archLegnth = archInfo.length
+    if(archLegnth == 2){
+      arch = 'amd64'
+    }else if(archInfo.length == 1){
+      arch = archInfo && archInfo[0]
+    }
     return (
       <Fragment>
         <Spin spinning={Loading}>
@@ -357,6 +366,26 @@ class Index extends React.Component {
                 rules: [{ required: true, message: '请选择' }]
               })(<Switch />)}
             </Form.Item>
+            <Form.Item {...formItemLayoutOrder} label='CPU架构'>
+            {getFieldDecorator('arch', {
+              initialValue: arch,
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+            })(
+              <Radio.Group>
+                {archLegnth == 2 ? (
+                  <>
+                    <Radio value='amd64'>amd64</Radio>
+                    <Radio value='arm64'>arm64</Radio>
+                  </>
+                ) : (
+                  <>
+                    {arch == 'amd64' && <Radio value='amd64'>amd64</Radio>}
+                    {arch == 'arm64' && <Radio value='arm64'>arm64</Radio>}
+                  </>
+                )}
+              </Radio.Group>
+            )}
+          </Form.Item>
 
             {showSubmitBtn ? (
               <div style={{ textAlign: 'center' }}>

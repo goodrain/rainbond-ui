@@ -923,7 +923,7 @@ const enterpriseColony = {
     'enterpriseColony.mgt.node.stain': 'Stain',
     'enterpriseColony.mgt.node.ip': 'IP',
     'enterpriseColony.mgt.node.container': 'Container runtime',
-    'enterpriseColony.mgt.node.framework': 'System architecture ',
+    'enterpriseColony.mgt.node.framework': 'CPU architecture ',
     'enterpriseColony.mgt.node.type': 'Node Type',
     'enterpriseColony.mgt.node.operatingVs': 'Operating system version',
     'enterpriseColony.mgt.node.time': 'Creation time',
