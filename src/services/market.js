@@ -152,7 +152,7 @@ export async function fetchAppModels(param) {
         tags: JSON.stringify(param.tags),
         need_install: param.need_install,
         is_plugin: param.is_plugin || '',
-        arch: param.arch
+        arch: param.arch || ''
       }
     }
   );
