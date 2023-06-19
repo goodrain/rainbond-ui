@@ -222,7 +222,7 @@ export default class AddServiceComponent extends PureComponent {
     this.setState({ scopeProMax });
   };
   render() {
-    const { rainbondInfo, enterprise, groupId, onload, groupDetail } = this.props;
+    const { rainbondInfo, enterprise, groupId, onload, groupDetail, archInfo } = this.props;
     const {
       ButtonGroup,
       moreState,
@@ -393,7 +393,7 @@ export default class AddServiceComponent extends PureComponent {
                 </Row>
                 <Row>
                   <MarketDrawer
-                    archInfo={groupDetail.app_arch}
+                    archInfo={archInfo}
                     {...MarketParameter}
                     isHelm={true}
                     handleServiceComponent={scopeMax => {
@@ -493,13 +493,13 @@ export default class AddServiceComponent extends PureComponent {
             </div>
           )}
           {ServiceComponentTwoPage === 'custom' && (
-            <Custom archInfo={groupDetail.app_arch} {...PublicParameter} />
+            <Custom archInfo={archInfo} {...PublicParameter} />
           )}
           {ServiceComponentTwoPage === 'gitrepostory' && (
             <CodeGitRepostory
               {...PublicParameter}
               type={gitServiceID}
-              archInfo={groupDetail.app_arch}
+              archInfo={archInfo}
               gitType={gitType}
             />
           )}
@@ -527,16 +527,16 @@ export default class AddServiceComponent extends PureComponent {
             />
           )}
           {ServiceComponentTwoPage === 'imageName' && (
-            <ImageName archInfo={groupDetail.app_arch} {...PublicParameter} />
+            <ImageName archInfo={archInfo} {...PublicParameter} />
           )}
           {ServiceComponentTwoPage === 'imageCmd' && (
-            <ImageCmd archInfo={groupDetail.app_arch} {...PublicParameter} />
+            <ImageCmd archInfo={archInfo} {...PublicParameter} />
           )}
           {ServiceComponentTwoPage === 'jwar' && (
-            <Jwar archInfo={groupDetail.app_arch} {...PublicParameter} setPare={this.setJwar} />
+            <Jwar archInfo={archInfo} {...PublicParameter} setPare={this.setJwar} />
           )}
           {ServiceComponentTwoPage === 'codeDemo' && (
-            <CodeDemo archInfo={groupDetail.app_arch} {...PublicParameter} />
+            <CodeDemo archInfo={archInfo} {...PublicParameter} />
           )}
           {ServiceComponentTwoPage === 'yaml' && (
             <Yaml {...PublicParameter} setPare={this.setYaml} />
@@ -545,7 +545,7 @@ export default class AddServiceComponent extends PureComponent {
             <HelmCmd {...PublicParameter} onClose={this.cancelAddService} />
           )}
           {ServiceComponentTwoPage === 'ImageNameDemo' && (
-            <DockerDemo archInfo={groupDetail.app_arch} {...PublicParameter} onClose={this.cancelAddService} />
+            <DockerDemo archInfo={archInfo} {...PublicParameter} onClose={this.cancelAddService} />
           )}
           {ServiceComponentTwoPage === 'market' && (
             <Market

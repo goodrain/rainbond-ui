@@ -366,7 +366,7 @@ class Index extends React.Component {
                 rules: [{ required: true, message: '请选择' }]
               })(<Switch />)}
             </Form.Item>
-            <Form.Item {...formItemLayoutOrder} label='CPU架构'>
+            <Form.Item {...formItemLayoutOrder} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
             {getFieldDecorator('arch', {
               initialValue: arch,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
