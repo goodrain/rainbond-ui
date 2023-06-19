@@ -212,7 +212,7 @@ export default class Index extends PureComponent {
               <TextArea style={{height:80}} placeholder={formatMessage({ id: 'placeholder.dockerRun' })} disabled={isDemo} />
             )}
           </Form.Item>
-          <Form.Item {...is_language} label='CPU架构'>
+          <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
             {getFieldDecorator('arch', {
               initialValue: arch,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]

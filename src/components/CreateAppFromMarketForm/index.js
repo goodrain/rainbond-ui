@@ -142,12 +142,13 @@ export default class Index extends PureComponent {
                       return (
                         <Option key={index} value={item.version}>
                           {item.version}
-                          <Tag 
-                            color="blue" 
-                            style={{ marginLeft: '8px', lineHeight: '18px' }}
-                          >
-                            {item.arch}
-                          </Tag>
+                          {item.arch &&
+                            <Tag 
+                              color="blue" 
+                              style={{ marginLeft: '8px', lineHeight: '18px' }}
+                            >
+                              {item.arch}
+                            </Tag>}
                         </Option>
                       );
                     })
@@ -156,12 +157,13 @@ export default class Index extends PureComponent {
                       return (
                         <Option key={index} value={item.app_version}>
                           {item.app_version} 
+                         {item.arch &&
                           <Tag 
                             color="blue" 
                             style={{ marginLeft: '8px', lineHeight: '18px' }}
                           >
                             {item.arch}
-                          </Tag>
+                          </Tag>}
                         </Option>
                       );
                     })}

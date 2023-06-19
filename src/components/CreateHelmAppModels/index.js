@@ -518,9 +518,11 @@ class CreateHelmAppModels extends PureComponent {
                       return (
                         <Option key={item.version} value={val}>
                           {val} 
-                          <Tag style={{marginLeft: '6px'}} color="blue">
-                            {item.arch}
-                          </Tag>
+                          {item.arch && 
+                            <Tag style={{marginLeft: '6px'}} color="blue">
+                              {item.arch}
+                            </Tag>
+                          }
                         </Option>
                       );
                     })}

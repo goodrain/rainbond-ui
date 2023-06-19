@@ -954,12 +954,13 @@ export default class Main extends PureComponent {
                     value={item.version || item.app_version}
                   >
                     {item.version || item.app_version}
+                    {item.arch && 
                     <Tag 
                       color="blue" 
                       style={{ marginLeft: '8px', lineHeight: '18px' }}
                     >
                       {item.arch}
-                    </Tag>
+                    </Tag>}
                   </Option>
                 );
               })}
