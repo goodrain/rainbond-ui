@@ -77,7 +77,7 @@ export default class Index extends PureComponent {
       <Card>
         <TopUpHints />
         <div className={styles.formWrap}>
-          <ImageComposeForm onSubmit={this.handleSubmit} />
+          <ImageComposeForm {...this.props} onSubmit={this.handleSubmit} />
         </div>
       </Card>
     );

@@ -5,6 +5,7 @@ import {
   getTeamRegionOverview,
   getTeamRegionGroup,
   getNewestEvent,
+  getTeamArchOverview,
 } from '../services/team';
 import cookie from '../utils/cookie';
 
@@ -47,6 +48,18 @@ export default {
     },
     *fetchOverview({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getTeamRegionOverview, payload, handleError);
+      if (response) {
+        yield put({
+          type: 'saveOverviewInfo',
+          payload: response.bean,
+        });
+        if (callback) {
+          callback(response);
+        }
+      }
+    },
+    *fetchArchOverview({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(getTeamArchOverview, payload, handleError);
       if (response) {
         yield put({
           type: 'saveOverviewInfo',

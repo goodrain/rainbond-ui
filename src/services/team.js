@@ -317,6 +317,29 @@ export async function getTeamRegionOverview(
   );
 }
 
+/*
+  团队下的cpu架构信息
+ */
+  export async function getTeamArchOverview(
+    body = {
+      team_name,
+      region_name
+    },
+    handleError
+  ) {
+    return request(
+      `${apiconfig.baseUrl}/console/teams/${body.team_name}/arch`,
+      {
+        showLoading: false,
+        params: {
+          region_name: body.region_name
+        },
+        handleError
+      }
+    );
+  }
+
+
 export async function getTeamAppOverview(
   body = {
     team_name,

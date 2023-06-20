@@ -100,6 +100,7 @@ export default class Main extends PureComponent {
       moreState: moreState || null,
       is_deploy: true,
       btnStatus:'',
+      archInfo: [],
       localAppTab: [
         {
           key: 'localApplication',
@@ -129,7 +130,7 @@ export default class Main extends PureComponent {
   }
   componentDidMount() {
     this.mount = true;
-    this.getApps();
+    this.handleArchCpuInfo()
     this.getMarketsTab();
     this.getHelmMarketsTab();
   }
@@ -138,11 +139,32 @@ export default class Main extends PureComponent {
     this.mountquery = false;
   }
 
+  // 获取团队架构信息
+  handleArchCpuInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'index/fetchArchOverview',
+      payload: {
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            archInfo: res.list.length == 2 ? '' : res.list[0]
+          },()=>{
+            this.getApps();
+          })  
+        }
+      }
+    });
+  }
+
   onCancelCreate = () => {
     this.setState({ showCreate: null, helmCreate: null, addAppLoading: false });
   };
   getCloudRecommendApps = v => {
-    const { currentKey } = this.state;
+    const { currentKey, archInfo } = this.state;
     const { currentEnterprise } = this.props;
     this.props.dispatch({
       type: 'market/fetchMarkets',
@@ -153,6 +175,7 @@ export default class Main extends PureComponent {
         pageSize: v ? 9 : this.state.cloudPageSize,
         page: v ? 1 : this.state.cloudPage,
         is_plugin: true,
+        arch: archInfo
       },
       callback: data => {
         if (data) {
@@ -187,7 +210,7 @@ export default class Main extends PureComponent {
   };
   getApps = v => {
     const { currentEnterprise, dispatch } = this.props;
-    const { scopeMax } = this.state;
+    const { scopeMax, archInfo } = this.state;
     if (scopeMax && scopeMax !== 'localApplication') {
       return null;
     }
@@ -201,7 +224,8 @@ export default class Main extends PureComponent {
         page: v ? 1 : this.state.page,
         need_install: true,
         is_complete: 1,
-        is_plugin: true
+        is_plugin: true,
+        arch: archInfo
       },
       callback: data => {
         if (data) {
@@ -748,20 +772,34 @@ export default class Main extends PureComponent {
     const title = item => (
       <div
         title={item.app_name || item.name || ''}
-        style={{
-          maxWidth: '200px',
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis'
-        }}
+        style={{display:'flex',alignItems:'center'}}
       >
-        <a
-          onClick={() => {
-            this.showMarketAppDetail(item);
+        <div
+          style={{ 
+            maxWidth: '170px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis'
           }}
         >
-          {item.app_name || item.name}
-        </a>
+          <a
+            onClick={() => {
+              this.showMarketAppDetail(item);
+            }}
+            style={{ 
+              marginRight: '12px',
+            }}
+          >
+            {item.app_name || item.name} 
+          </a>
+        </div>
+        <div>
+        {item.arch && 
+          item.arch.length > 0 && 
+            item.arch.map((item)=>{
+              return <Tag>{item}</Tag>
+          })}
+        </div>
       </div>
     );
     const versionBox = (
@@ -775,7 +813,7 @@ export default class Main extends PureComponent {
                   <Tag
                     title={items.version}
                     className={PluginStyles.cardVersionTagStyle}
-                    color="green"
+                    color="blue"
                     size="small"
                     key={index}
                   >
@@ -788,7 +826,7 @@ export default class Main extends PureComponent {
                 return (
                   <Tag
                     className={PluginStyles.cardVersionTagStyle}
-                    color="green"
+                    color="blue"
                     size="small"
                     title={itemx.app_version || itemx.version}
                     key={index}

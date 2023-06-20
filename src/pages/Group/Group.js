@@ -14,7 +14,8 @@ import {
   Radio,
   Row,
   Spin,
-  Tooltip
+  Tooltip,
+  Tag
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -84,13 +85,14 @@ export default class Index extends PureComponent {
       iframeHeight: '500px',
       language: cookie.get('language') === 'zh-CN' ? true : false,
       isOperator: true,
-      resourceList: []
-
+      resourceList: [],
+      archInfo: []
     };
   }
 
   componentDidMount() {
     this.loading();
+    this.handleArchCpuInfo();
     this.handleWaitLevel();
     this.handleGroupAllResource()
   }
@@ -100,6 +102,25 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     dispatch({ type: 'application/clearGroupDetail' });
   }
+  // 获取集群架构信息
+  handleArchCpuInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'index/fetchArchOverview',
+      payload: {
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            archInfo: res.list
+          })
+        }
+      }
+    });
+  }
+
   onCancel = () => {
     this.setState({
       customSwitch: false
@@ -691,8 +712,10 @@ export default class Index extends PureComponent {
       flagHeight,
       iframeHeight,
       language,
-      resourceList
+      resourceList,
+      archInfo
     } = this.state;
+
     const codeObj = {
       start: formatMessage({ id: 'appOverview.btn.start' }),
       restart: formatMessage({ id: 'appOverview.list.table.restart' }),
@@ -710,7 +733,8 @@ export default class Index extends PureComponent {
               <Icon
                 style={{
                   cursor: 'pointer',
-                  marginLeft: '5px'
+                  marginLeft: '5px',
+                  marginRight: '12px'
                 }}
                 onClick={this.toEdit}
                 type="edit"
@@ -752,6 +776,13 @@ export default class Index extends PureComponent {
                 {linkList.length > 0 && <VisterBtn linkList={linkList} />}
               </div>
             )}
+          </div>
+          <div style={{ height: '34px', paddingTop: '12px' }}>
+            {currApp.app_arch && 
+              currApp.app_arch.length > 0 && 
+              currApp.app_arch.map((item) => {
+                return <Tag>{item}</Tag>
+            })}
           </div>
           <div className={styles.content_Box}>
             {appStatusConfig && <AppState AppStatus={resources.status} />}
@@ -857,7 +888,7 @@ export default class Index extends PureComponent {
               </span>
             </div>
           </div>
-          <div className={styles.conrHeader}>
+          <div className={styles.conrHeader} style={{ margin: '35px 0px' }}>
             {/* -------------------------------------------- */}
             <div style={{ display: 'flex', alignItems: 'center', }}>
               <span>{formatMessage({ id: 'appOverview.govern' })}</span>
@@ -978,7 +1009,8 @@ export default class Index extends PureComponent {
               <Icon
                 style={{
                   cursor: 'pointer',
-                  marginLeft: '5px'
+                  marginLeft: '5px',
+                  marginRight: '12px'
                 }}
                 onClick={this.toEdit}
                 type="edit"
@@ -1346,6 +1378,7 @@ export default class Index extends PureComponent {
               {isComponentCreate && isComponentConstruct && (
                 <AddServiceComponent
                   groupId={this.getGroupId()}
+                  archInfo={archInfo}
                   refreshCurrent={() => {
                     this.loading();
                   }}

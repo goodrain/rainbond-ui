@@ -23,7 +23,8 @@ import {
   Row,
   Spin,
   Tabs,
-  Tooltip
+  Tooltip,
+  Select
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -54,6 +55,7 @@ import TagList from './TagList';
 
 const { TabPane } = Tabs;
 const { Search } = Input;
+const { Option } = Select;
 
 @connect(({ user, global, loading }) => ({
   user: user.currentUser,
@@ -1406,6 +1408,10 @@ export default class EnterpriseShared extends PureComponent {
       }
     });
   };
+  // 筛选应用列表类型
+  handleChangeType = (key) => {
+    console.log(key,'key')
+  }
   render() {
     const {
       match: {
@@ -1737,7 +1743,7 @@ export default class EnterpriseShared extends PureComponent {
       <div style={{padding:'0px 24px'}}>
         {isMarket && (
           <Row style={contentStyle}>
-            <Col span={19} style={contentLeftStyle}>
+            <Col span={20} style={contentLeftStyle}>
               <div>
                 <FormattedMessage id='applicationMarket.cloudMarket.msg'/>
                 {/* 市场已经正常连接，该平台具有 */}
@@ -1766,7 +1772,7 @@ export default class EnterpriseShared extends PureComponent {
                 onSearch={this.handleSearchMarket}
               />
             </Col>
-            <Col span={5} style={rightStyle} className={styles.btns}>
+            <Col span={4} style={rightStyle} className={styles.btns}>
               {marketOperation}
             </Col>
           </Row>

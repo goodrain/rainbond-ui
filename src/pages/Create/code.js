@@ -32,7 +32,8 @@ export default class Main extends PureComponent {
   constructor(props){
     super(props)
     this.state= {
-      serversList: null
+      serversList: null,
+      archInfo: []
     }
   }
 
@@ -44,8 +45,26 @@ export default class Main extends PureComponent {
   componentDidMount(){
     const enterprise_id = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id
     this.fetchEnterpriseInfo(enterprise_id)
+    this.handleArchCpuInfo()
   }
 
+  handleArchCpuInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'index/fetchArchOverview',
+      payload: {
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            archInfo: res.list
+          })
+        }
+      }
+    });
+  }
   handleTabChange = key => {
     const { dispatch } = this.props;
     dispatch(
@@ -81,9 +100,9 @@ export default class Main extends PureComponent {
       match,
       currentEnterprise,
       currentTeam,
-      currentRegionName
+      currentRegionName,
     } = this.props;
-    const { serversList } = this.state
+    const { serversList, archInfo } = this.state
     const map = {
       custom: CodeCustom,
       demo: CodeDemo,
@@ -152,6 +171,7 @@ export default class Main extends PureComponent {
       >
         {Com ? (
           <Com
+            archInfo={archInfo}
             {...this.props}
             type={this.props.match.params.type}
             tabList={tabList}

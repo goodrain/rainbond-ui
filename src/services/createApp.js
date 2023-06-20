@@ -23,7 +23,8 @@ export async function createAppByCode(body = {}) {
         k8s_component_name: body.k8s_component_name,
         k8s_component_name: body.k8s_component_name,
         k8s_app: body.k8s_app || '',
-        is_demo: body.is_demo || false
+        is_demo: body.is_demo || false,
+        arch: body.arch,
       }
     }
   );
@@ -213,7 +214,8 @@ export async function createAppByDockerrun(body = {}) {
         password: body.password,
         k8s_component_name: body.k8s_component_name,
         k8s_app: body.k8s_app || '',
-        is_demo: body.is_demo || false
+        is_demo: body.is_demo || false,
+        arch: body.arch,
       }
     }
   );

@@ -121,7 +121,8 @@ export default class Main extends PureComponent {
         page: 1,
         query: ''
       },
-      addAppLoading: false
+      addAppLoading: false,
+      archInfo: []
     };
     this.mount = false;
   }
@@ -131,7 +132,7 @@ export default class Main extends PureComponent {
   }
   componentDidMount() {
     this.mount = true;
-    this.getApps();
+    this.handleArchCpuInfo();
     this.getMarketsTab();
     this.getHelmMarketsTab();
   }
@@ -139,12 +140,31 @@ export default class Main extends PureComponent {
     this.mount = false;
     this.mountquery = false;
   }
-
+  // 获取团队架构信息
+  handleArchCpuInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'index/fetchArchOverview',
+      payload: {
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            archInfo: res.list.length == 2 ? '' : res.list[0]
+          },()=>{
+            this.getApps();
+          })  
+        }
+      }
+    });
+  }
   onCancelCreate = () => {
     this.setState({ showCreate: null, helmCreate: null, addAppLoading: false });
   };
   getCloudRecommendApps = v => {
-    const { currentKey } = this.state;
+    const { currentKey, archInfo } = this.state;
     const { currentEnterprise } = this.props;
     this.props.dispatch({
       type: 'market/fetchMarkets',
@@ -153,7 +173,8 @@ export default class Main extends PureComponent {
         enterprise_id: currentEnterprise.enterprise_id,
         query: v ? '' : this.state.cloudApp_name || '',
         pageSize: v ? 9 : this.state.cloudPageSize,
-        page: v ? 1 : this.state.cloudPage
+        page: v ? 1 : this.state.cloudPage,
+        arch: archInfo
       },
       callback: data => {
         if (data) {
@@ -188,7 +209,7 @@ export default class Main extends PureComponent {
   };
   getApps = v => {
     const { currentEnterprise, dispatch } = this.props;
-    const { scopeMax } = this.state;
+    const { scopeMax, archInfo } = this.state;
     if (scopeMax && scopeMax !== 'localApplication') {
       return null;
     }
@@ -201,7 +222,8 @@ export default class Main extends PureComponent {
         page_size: v ? 9 : this.state.pageSize,
         page: v ? 1 : this.state.page,
         need_install: true,
-        is_complete: 1
+        is_complete: 1,
+        arch: archInfo
       },
       callback: data => {
         if (data) {
@@ -688,20 +710,34 @@ export default class Main extends PureComponent {
     const title = item => (
       <div
         title={item.app_name || item.name || ''}
-        style={{
-          maxWidth: '200px',
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis'
-        }}
+        style={{display:'flex',alignItems:'center'}}
       >
-        <a
-          onClick={() => {
-            this.showMarketAppDetail(item);
+        <div
+          style={{ 
+            maxWidth: '170px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis'
           }}
         >
-          {item.app_name || item.name}
-        </a>
+          <a
+            onClick={() => {
+              this.showMarketAppDetail(item);
+            }}
+            style={{ 
+              marginRight: '12px',
+            }}
+          >
+            {item.app_name || item.name} 
+          </a>
+        </div>
+        <div>
+        {item.arch && 
+          item.arch.length > 0 && 
+            item.arch.map((item)=>{
+              return <Tag>{item}</Tag>
+          })}
+        </div>
       </div>
     );
     const versionBox = (
@@ -926,6 +962,13 @@ export default class Main extends PureComponent {
                     value={item.version || item.app_version}
                   >
                     {item.version || item.app_version}
+                    {item.arch && 
+                    <Tag 
+                      color="blue" 
+                      style={{ marginLeft: '8px', lineHeight: '18px' }}
+                    >
+                      {item.arch}
+                    </Tag>}
                   </Option>
                 );
               })}

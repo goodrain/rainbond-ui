@@ -680,6 +680,7 @@ import {
     };
     // eslint-disable-next-line react/sort-comp
     renderApp = (item, isInstall, type) => {
+      const { archInfo } = this.props
       const { scopeMax, handleType } = this.state;
       const cloud = scopeMax != 'localApplication';
       const title = item => (
@@ -894,6 +895,7 @@ import {
                       value={item.version || item.app_version}
                     >
                       {item.version || item.app_version}
+
                     </Option>
                   );
                 })}
@@ -916,7 +918,8 @@ import {
         currentEnterprise,
         currentTeam,
         currentRegionName,
-        isHelm = true
+        isHelm = true,
+        archInfo
       } = this.props;
       const {
         handleType,
@@ -1157,7 +1160,6 @@ import {
           <Spin size="large" />
         </div>
       );
-  
       return (
         <div>
           {authorizations && (
@@ -1202,58 +1204,7 @@ import {
               app={showApp}
             />
           )}
-          {handleType && installBounced && (
-            <Modal
-              title={formatMessage({id:'confirmModal.install.app.desc'})}
-              className={styles.TelescopicModal}
-              visible={installBounced}
-              onOk={this.handleInstallBounced}
-              onCancel={() => {
-                this.setState({ installBounced: false });
-              }}
-              footer={
-                <div>
-                  <Button
-                    onClick={() => {
-                      this.setState({
-                        installBounced: false,
-                        is_deploy: true
-                      });
-                    }}
-                  >
-                    {formatMessage({id:'button.cancel'})}
-                  </Button>
-                  <Button
-                    onClick={this.handleInstallBounced}
-                    type="primary"
-                    style={{ marginRight: '5px' }}
-                    loading={loading.effects['createApp/installApp']}
-                  >
-                    {formatMessage({id:'button.install'})}
-                  </Button>
-                  <Radio
-                    size="small"
-                    onClick={this.renderSuccessOnChange}
-                    checked={isDeploy}
-                  >
-                    {formatMessage({id:'button.build_start'})}
-                  </Radio>
-                </div>
-              }
-            >
-              {installBounced.describe && (
-                <p
-                  style={{
-                    background: 'rgba(22, 184, 248, 0.1)',
-                    padding: '8px'
-                  }}
-                >
-                  {installBounced.describe}
-                </p>
-              )}
-              {this.renderFormComponent()}
-            </Modal>
-          )}
+        
   
           {marketTab && marketTab.length > 0 && (
             <div>

@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Form, Input, Select, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -93,13 +93,21 @@ export default class Index extends PureComponent {
       handleType,
       ButtonGroupState,
       showSubmitBtn = true,
-      showCreateGroup = true
+      showCreateGroup = true,
+      archInfo
     } = this.props;
     const { getFieldDecorator } = form;
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
     const {language} = this.state;
     const is_language = language ? formItemLayout : formItemLayouts;
+    let arch = 'amd64'
+    let archLegnth = archInfo.length
+    if(archLegnth == 2){
+      arch = 'amd64'
+    }else if(archInfo.length == 1){
+      arch = archInfo && archInfo[0]
+    }
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
@@ -197,6 +205,26 @@ export default class Index extends PureComponent {
                 type="password"
                 placeholder={formatMessage({id: 'placeholder.password_1'})}
               />
+            )}
+          </Form.Item>
+          <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
+            {getFieldDecorator('arch', {
+              initialValue: arch,
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+            })(
+              <Radio.Group>
+                {archLegnth == 2 ? (
+                  <>
+                    <Radio value='amd64'>amd64</Radio>
+                    <Radio value='arm64'>arm64</Radio>
+                  </>
+                ) : (
+                  <>
+                    {arch == 'amd64' && <Radio value='amd64'>amd64</Radio>}
+                    {arch == 'arm64' && <Radio value='arm64'>arm64</Radio>}
+                  </>
+                )}
+              </Radio.Group>
             )}
           </Form.Item>
           {showSubmitBtn ? (

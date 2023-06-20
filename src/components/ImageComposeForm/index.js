@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input } from 'antd';
+import { Button, Card, Form, Input, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -71,11 +71,19 @@ export default class Index extends PureComponent {
       form,
       data = {},
       createAppByCompose,
-      showSubmitBtn = true
+      showSubmitBtn = true,
+      archInfo
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
     const {language } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout;
+    let arch = 'amd64'
+    let archLegnth = archInfo.length
+    if(archLegnth == 2){
+      arch = 'amd64'
+    }else if(archInfo.length == 1){
+      arch = archInfo && archInfo[0]
+    }
     return (
       <Fragment>
         <Card style={{ width: '800px', margin: '0 auto' }} bordered={false}>
@@ -161,6 +169,26 @@ export default class Index extends PureComponent {
                 />
               )}
             </Form.Item>
+            <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
+            {getFieldDecorator('arch', {
+              initialValue: arch,
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+            })(
+              <Radio.Group>
+                {archLegnth == 2 ? (
+                  <>
+                    <Radio value='amd64'>amd64</Radio>
+                    <Radio value='arm64'>arm64</Radio>
+                  </>
+                ) : (
+                  <>
+                    {arch == 'amd64' && <Radio value='amd64'>amd64</Radio>}
+                    {arch == 'arm64' && <Radio value='arm64'>arm64</Radio>}
+                  </>
+                )}
+              </Radio.Group>
+            )}
+          </Form.Item>
             {showSubmitBtn ? (
               <Form.Item
                 wrapperCol={{

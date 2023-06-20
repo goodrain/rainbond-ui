@@ -18,7 +18,8 @@ import {
   notification,
   Radio,
   Select,
-  Tooltip
+  Tooltip,
+  Tag
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -993,6 +994,7 @@ class Main extends PureComponent {
     const comName = JSON.parse(window.sessionStorage.getItem('name')) || '-';
     const isHelm =
       groupDetail && groupDetail.app_type && groupDetail.app_type === 'helm';
+    const arch = appDetail.service && appDetail.service.arch
     return (
       <Fragment>
         <div style={{ display: 'flex' }}>
@@ -1005,12 +1007,14 @@ class Main extends PureComponent {
               {isEdit && (
                 <Icon
                   style={{
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    marginRight: '12px'
                   }}
                   onClick={this.showEditName}
                   type="edit"
                 />
               )}
+              <Tag>{arch}</Tag>
             </div>
             <div className={styles.content_Box}>
               {status && status.status && !appDetail.is_third && isRestart && !appStatusUtil.canStart(status) ? (
@@ -1073,7 +1077,7 @@ class Main extends PureComponent {
                     onClick={() => {
                       this.handleOpenHelpfulHints('stop');
                     }}
-                  >
+                  >````
                     {/* 关闭 */}
                     <FormattedMessage id='componentOverview.header.left.turnoff'/>
                   </a>

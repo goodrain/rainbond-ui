@@ -1295,6 +1295,7 @@ export default class Index extends PureComponent {
             onOk={this.onChangeBuildSource}
             buildSource={buildSource}
             appAlias={this.props.appDetail.service.service_alias}
+            archInfo={this.props.appDetail.service.arch}
             title={<FormattedMessage id='componentOverview.body.Resource.Change_component_build_source'/>}
             onCancel={this.hideBuildSource}
           />
