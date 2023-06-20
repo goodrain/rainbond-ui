@@ -994,7 +994,7 @@ class Main extends PureComponent {
     const comName = JSON.parse(window.sessionStorage.getItem('name')) || '-';
     const isHelm =
       groupDetail && groupDetail.app_type && groupDetail.app_type === 'helm';
-    const arch = appDetail.service.arch
+    const arch = appDetail.service && appDetail.service.arch
     return (
       <Fragment>
         <div style={{ display: 'flex' }}>
