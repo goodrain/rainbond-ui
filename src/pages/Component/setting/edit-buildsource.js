@@ -301,11 +301,11 @@ export default class ChangeBuildSource extends PureComponent {
                 </Form.Item>
                 <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
                   {getFieldDecorator('arch', {
-                    initialValue: archInfo,
+                    initialValue: archLegnth == 2 ? archInfo : (archLegnth == 1 && buildSource.arch[0]),
                   })(
                     <Radio.Group onChange={this.onChangeCpu}>
-                      <Radio value='amd64' disabled={archLegnth == 2 ? false : archInfo == 'amd64' ? false : true}>amd64</Radio>
-                      <Radio value='arm64' disabled={archLegnth == 2 ? false : archInfo == 'arm64' ? false : true}>arm64</Radio>
+                      <Radio value='amd64' disabled={archLegnth == 2 ? false : (archLegnth == 1 && buildSource.arch[0] == 'amd64') ? false : true}>amd64</Radio>
+                      <Radio value='arm64' disabled={archLegnth == 2 ? false : (archLegnth == 1 && buildSource.arch[0] == 'arm64') ? false : true}>arm64</Radio>
                     </Radio.Group>
                   )}
                 </Form.Item>
@@ -368,20 +368,11 @@ export default class ChangeBuildSource extends PureComponent {
                 </Form.Item>
                 <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
                   {getFieldDecorator('arch', {
-                    initialValue: archInfo,
+                    initialValue: archLegnth == 2 ? archInfo : (archLegnth == 1 && buildSource.arch[0]),
                   })(
                     <Radio.Group>
-                      {archLegnth == 2 ? (
-                        <>
-                          <Radio value='amd64'>amd64</Radio>
-                          <Radio value='arm64'>arm64</Radio>
-                        </>
-                      ) : (
-                        <>
-                          {archInfo == 'amd64' && <Radio value='amd64'>amd64</Radio>}
-                          {archInfo == 'arm64' && <Radio value='arm64'>arm64</Radio>}
-                        </>
-                      )}
+                      <Radio value='amd64' disabled={archLegnth == 2 ? false : (archLegnth == 1 && buildSource.arch[0] == 'amd64') ? false : true}>amd64</Radio>
+                      <Radio value='arm64' disabled={archLegnth == 2 ? false : (archLegnth == 1 && buildSource.arch[0] == 'arm64') ? false : true}>arm64</Radio>
                     </Radio.Group>
                   )}
                 </Form.Item>
