@@ -710,26 +710,34 @@ export default class Main extends PureComponent {
     const title = item => (
       <div
         title={item.app_name || item.name || ''}
-        style={{
-          maxWidth: '200px',
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis'
-        }}
+        style={{display:'flex',alignItems:'center'}}
       >
-        <a
-          onClick={() => {
-            this.showMarketAppDetail(item);
+        <div
+          style={{ 
+            maxWidth: '170px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis'
           }}
-          style={{ marginRight: '12px' }}
         >
-          {item.app_name || item.name} 
-        </a>
+          <a
+            onClick={() => {
+              this.showMarketAppDetail(item);
+            }}
+            style={{ 
+              marginRight: '12px',
+            }}
+          >
+            {item.app_name || item.name} 
+          </a>
+        </div>
+        <div>
         {item.arch && 
           item.arch.length > 0 && 
             item.arch.map((item)=>{
               return <Tag>{item}</Tag>
           })}
+        </div>
       </div>
     );
     const versionBox = (
