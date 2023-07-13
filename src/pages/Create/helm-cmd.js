@@ -101,39 +101,30 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res) {
           const info = res.bean
-          if (info.tgz) {
-            if (isService == 'team') {
-              dispatch(
-                routerRedux.push(
-                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}`
-                )
-              );
-            } else {
-              this.props.onClose();
-            }
-          } else {
-            if (info && info.status) {
-              const { chart } = info;
+          if (res && res.status_code == 200) {
+            if (info.command == "install") {
               const obj = {
-                app_store_name: chart.repo_name,
-                app_template_name: chart.chart_name,
-                version: chart.version,
-                overrides: chart.overrides,
+                app_store_name: info.repo_name,
+                app_template_name: info.chart_name,
+                version: info.version,
+                overrides: info.overrides,
               }
               window.sessionStorage.setItem('appinfo', JSON.stringify(obj))
-              this.handleCreateAppStore(chart)
+              this.handleCreateAppStore(info)
               dispatch(
                 routerRedux.push(
                   `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}/helminstall?installPath=cmd`
                 )
               );
             } else {
-              this.setState({
-                errorShow: true,
-                BtnLoading: false,
-                errorInfo: info.information
-              })
+              this.addAppStore(info.repo_url, info.repo_name, this.props.currUser.enterprise_id)
             }
+          } else {
+            this.setState({
+              errorShow: true,
+              BtnLoading: false,
+              errorInfo: info.information
+            })
           }
         }
       },
@@ -146,25 +137,53 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleCreateAppStore = (info) => {
+  addAppStore = (url, name, eid) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'market/addHelmAppStore',
-      payload: {
-        enterprise_id: info.eid,
-        name: info.repo_name,
-        url: info.repo_url,
-        username: info.username,
-        password: info.password,
+      payload: { 
+        enterprise_id: eid,
+        url: url,
+        name: name
+       },
+      callback: res => {
+        notification.success({
+          message: formatMessage({id:"notification.success.add"})
+        });
+        dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
       },
+      handleError: res => {
+      }
     });
+    dispatch({
+      type: 'market/HelmwaRehouseAdd',
+      payload: {
+        repo_name: name,
+        repo_url: url,
+      },
+      callback: res => {
+      }
+    });
+  };
+  handleCreateAppStore = (info) => {
+    const { dispatch } = this.props;
+    // dispatch({
+    //   type: 'market/addHelmAppStore',
+    //   payload: {
+    //     enterprise_id: info.eid,
+    //     name: info.repo_name,
+    //     url: info.repo_url,
+    //     username: info.username || '',
+    //     password: info.password || '',
+    //   },
+    // });
     dispatch({
       type: 'market/HelmwaRehouseAdd',
       payload: {
         repo_name: info.repo_name,
         repo_url: info.repo_url,
-        username: info.username,
-        password: info.password
+        username: info.username || '',
+        password: info.password || ''
       },
     });
   }
