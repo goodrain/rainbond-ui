@@ -120,19 +120,23 @@ export default class Index extends PureComponent {
               this.addAppStore(info.repo_url, info.repo_name, this.props.currUser.enterprise_id)
             }
           } else {
+            notification.error({
+              message: info.msg_show
+            });
             this.setState({
-              errorShow: true,
+              errorShow: false,
               BtnLoading: false,
-              errorInfo: info.information
             })
           }
         }
       },
-      handleError: res => {
+      handleError: err => {
+        notification.error({
+          message: err.data.msg_show
+        });
         this.setState({
           BtnLoading: false,
-          errorShow: true,
-          errorInfo: formatMessage({ id: 'teamOther.HelmCmdForm.error' })
+          errorShow: false,
         })
       }
     });
@@ -150,7 +154,6 @@ export default class Index extends PureComponent {
         notification.success({
           message: formatMessage({id:"notification.success.add"})
         });
-        dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
       },
       handleError: res => {
       }
