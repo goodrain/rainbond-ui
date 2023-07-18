@@ -1077,7 +1077,7 @@ class Main extends PureComponent {
                     onClick={() => {
                       this.handleOpenHelpfulHints('stop');
                     }}
-                  >````
+                  >
                     {/* 关闭 */}
                     <FormattedMessage id='componentOverview.header.left.turnoff'/>
                   </a>

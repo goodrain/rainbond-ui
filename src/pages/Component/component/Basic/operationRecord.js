@@ -296,7 +296,7 @@ class Index extends PureComponent {
           <LogShow
             // title="日志"
             title={<FormattedMessage id='componentOverview.body.tab.overview.handle.log'/>} 
-            width="1000px"
+            width="90%"
             onOk={this.handleCancel}
             onCancel={this.handleCancel}
             showSocket={showSocket}
