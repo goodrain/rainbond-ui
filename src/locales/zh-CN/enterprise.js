@@ -127,6 +127,8 @@ const applicationMarket = {
     'applicationMarket.AuthCompany.title_one':'您在该云应用商店无安装权限，请登录获取授权',
     'applicationMarket.localMarket.export_app':'导出应用模版',
     'applicationMarket.localMarket.in_export':'(导出中)',
+    'applicationMarket.localMarket.installclusters':'您还有没安装集群，因此不能进行此操作。',
+    'applicationMarket.localMarket.isInstallclusters':'是否现在安装集群？',
     // 三个点
     'applicationMarket.localMarket.delete.template': '删除应用模板',
     'applicationMarket.localMarket.import.template': '导入应用模板',
@@ -588,6 +590,10 @@ const enterpriseColony = {
     'enterpriseColony.addCluster.host.Custom_configuration': '自定义配置',
     'enterpriseColony.addCluster.host.Fill_in_node': '填写节点',
     'enterpriseColony.addCluster.host.RKE_cluste_configuration': 'RKE集群配置',
+    'enterpriseColony.addCluster.ipcheck1': 'apiserver的地址不能使用回环地址(127.0.0.0/8)',
+    'enterpriseColony.addCluster.ipcheck2': 'apiserver的地址不能使用本地链路地址(169.254.0.0/16)',
+    'enterpriseColony.addCluster.ipcheck3': 'apiserver的地址不能使用本地链路组播地址((224.0.0.0/24)',
+    
     // k8stableshow
     'enterpriseColony.addCluster.host.name': '名称(ID)',
     'enterpriseColony.addCluster.host.cluster_type': '类型',

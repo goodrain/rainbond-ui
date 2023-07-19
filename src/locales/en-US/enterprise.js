@@ -127,6 +127,8 @@ const applicationMarket = {
     'applicationMarket.AuthCompany.title_one': 'You do not have installation permission in the cloud app store. Please log in to obtain authorization',
     'applicationMarket.localMarket.export_app': 'Export',
     'applicationMarket.localMarket.in_export': '(In the export)',
+    'applicationMarket.localMarket.installclusters':'You do not have a cluster installed, so you cannot perform this operation.',
+    'applicationMarket.localMarket.isInstallclusters':'Do you want to install the cluster now?',
     // 三个点
     'applicationMarket.localMarket.delete.template': 'Delete',
     'applicationMarket.localMarket.import.template': 'Import',
@@ -587,6 +589,9 @@ const enterpriseColony = {
     'enterpriseColony.addCluster.host.Custom_configuration': 'Custom configuration',
     'enterpriseColony.addCluster.host.Fill_in_node': 'Fill in node',
     'enterpriseColony.addCluster.host.RKE_cluste_configuration': 'RKE config',
+    'enterpriseColony.addCluster.ipcheck1': 'The address of apiserver cannot use the loopback address (127.0.0.0/8).',
+    'enterpriseColony.addCluster.ipcheck2': 'The address of apiserver cannot use the local link address (169.254.0.0/16).',
+    'enterpriseColony.addCluster.ipcheck3': 'The address of apiserver cannot use the local link multicast address ((224.0.0.0/24)).',
     // k8stableshow
     'enterpriseColony.addCluster.host.name': 'Name(ID)',
     'enterpriseColony.addCluster.host.cluster_type': 'Type',

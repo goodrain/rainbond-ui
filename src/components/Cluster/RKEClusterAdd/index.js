@@ -81,6 +81,17 @@ class EditableCell extends React.Component {
       this.toggleEdit();
     });
   };
+  validateIP = (_, value, callback) => {
+    if (value.startsWith('127')) {
+      callback(`${formatMessage({id:'enterpriseColony.addCluster.ipcheck1'})}}`);
+    } else if (value.startsWith('169.254')) {
+      callback(`${formatMessage({id:'enterpriseColony.addCluster.ipcheck2'})}}`);
+    } else if (value.startsWith('224.0.0')) {
+      callback(`${formatMessage({id:'enterpriseColony.addCluster.ipcheck3'})}}`);
+    } else {
+      callback();
+    }
+  };
 
   renderCell = form => {
     this.form = form;
@@ -90,7 +101,8 @@ class EditableCell extends React.Component {
       {
         required: true,
         message: formatMessage({id:'enterpriseColony.addCluster.host.Required'},{title:title})
-      }
+      },
+      { validator: this.validateIP }
     ];
     const ips = dataIndex === 'ip' || dataIndex === 'internalIP';
     if (ips) {
@@ -904,7 +916,7 @@ export default class RKEClusterConfig extends PureComponent {
                   <li>
                     <span>
                       <FormattedMessage id='enterpriseColony.addCluster.host.already_installed'/>
-                      <b> 1.13.x</b>
+                      <b> 1.19.x</b>
                     </span>
                   </li>
                 </ul>
