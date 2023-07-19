@@ -996,6 +996,21 @@ export default class EnterpriseShared extends PureComponent {
       showMarketAppDetail: false
     });
   };
+  ModalhandleOk = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    this.setState({
+      goClusters:false
+    },()=>{
+      dispatch(
+        routerRedux.push(`/enterprise/${eid}/clusters`)
+      );
+    })
+  }
   handleLists = (types, managementMenu, item, pic, versions, indexs) => {
     const {
       app_id: appId,
@@ -1165,11 +1180,17 @@ export default class EnterpriseShared extends PureComponent {
                     ) {
                       this.installHelmApp(item, types);
                     } else {
-                      this.setState({
-                        isInStallShow: true,
-                        guideStep: 'Jump',
-                        showMarketCloudAuth: true 
-                      });
+                      if(!isClusters){
+                        this.setState({
+                          goClusters: true
+                        });
+                      }else{
+                        this.setState({
+                          isInStallShow: true,
+                          guideStep: 'Jump',
+                          showMarketCloudAuth: true 
+                        });
+                      }
                     }
                   }}
                 >
@@ -1475,6 +1496,7 @@ export default class EnterpriseShared extends PureComponent {
       tabsList,
       helmInfoSwitch,
       marketInfoSwitch,
+      goClusters
     } = this.state;
     const local = [{ types: 'local' }]
     const storeTabs = [...tabsList,...local].reverse()
@@ -2014,6 +2036,19 @@ export default class EnterpriseShared extends PureComponent {
             currStep={2}
           />
         )}
+        {goClusters &&
+          <Modal
+          title={formatMessage({id:'topology.Topological.title'})}
+          visible={goClusters}
+          onOk={this.ModalhandleOk}
+          onCancel={()=>{
+            this.setState({ goClusters: false });
+          }}
+        >
+          <p>{formatMessage({id:'applicationMarket.localMarket.installclusters'})}</p>
+          <p>{formatMessage({id:'applicationMarket.localMarket.isInstallclusters'})}</p>
+        </Modal>
+        }
         {helmInfoSwitch && marketInfoSwitch  ?
        <Tabs
           activeKey={activeTabKey}

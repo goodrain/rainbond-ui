@@ -284,10 +284,10 @@ class Index extends Component {
   handleMandatoryDelete = () => {
     const th = this;
     confirm({
-      title: formatMessage({id:'enterpriseColony.mgt.cluster.delect'}),
-      content: formatMessage({id:'enterpriseColony.mgt.cluster.restore'}),
-      okText: formatMessage({id:'button.determine'}),
-      cancelText: formatMessage({id:'button.cancel'}),
+      title: formatMessage({ id: 'enterpriseColony.mgt.cluster.delect' }),
+      content: formatMessage({ id: 'enterpriseColony.mgt.cluster.restore' }),
+      okText: formatMessage({ id: 'button.determine' }),
+      cancelText: formatMessage({ id: 'button.cancel' }),
       onOk() {
         th.handleDelete(true);
         return new Promise((resolve, reject) => {
@@ -607,12 +607,12 @@ class Index extends Component {
                 {/* 名称 */}
                 <Col span={3}>
                   <p>{region_alias}</p>
-                  <p>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterName'})}</p>
+                  <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterName' })}</p>
                 </Col>
                 {/* 状态 */}
                 <Col span={3}>
                   <p>{this.clusterStatus(status, health_status)}</p>
-                  <p>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterStatus'})}</p>
+                  <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterStatus' })}</p>
                 </Col>
                 {/* 按钮 */}
                 <Col span={15}>
@@ -632,7 +632,7 @@ class Index extends Component {
                     <FormattedMessage id='enterpriseColony.table.handle.delete' />
                   </Button>
                   {!buttonSwitch &&
-                    <Tooltip title={formatMessage({id:'enterpriseColony.mgt.cluster.click'})}>
+                    <Tooltip title={formatMessage({ id: 'enterpriseColony.mgt.cluster.click' })}>
                       <Icon type="ellipsis" onClick={this.buttonShow} style={{ fontSize: 30 }} />
                     </Tooltip>
                   }
@@ -652,32 +652,34 @@ class Index extends Component {
                 </Col>
               </Row>
               {/* 基本信息 */}
-              <Row className={styles.ClusterInfo}>
-                <Descriptions >
-                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })} span={2}>{rbd_version || "-"}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>
-                    <span className={styles.nodeType}>
-                    {
-                    nodeType && 
-                    Object.keys(nodeType).length> 0 ?
-                    Object.keys(nodeType).map(item =>{
-                       return <span>{nodeType[item]} {item} </span>
-                    }) 
-                    :
-                    "-"
-                    }
-                    </span>
-                  </Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
-                    {arch.length > 0 && arch.map((item)=>{
-                      return <Tag color="blue">{item}</Tag>
-                    })}
-                  </Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
-                </Descriptions>
-              </Row>
+              {health_status !== 'failure' &&
+                <Row className={styles.ClusterInfo}>
+                  <Descriptions >
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })} span={2}>{rbd_version || "-"}</Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>
+                      <span className={styles.nodeType}>
+                        {
+                          nodeType &&
+                            Object.keys(nodeType).length > 0 ?
+                            Object.keys(nodeType).map(item => {
+                              return <span>{nodeType[item]} {item} </span>
+                            })
+                            :
+                            "-"
+                        }
+                      </span>
+                    </Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
+                      {arch.length > 0 && arch.map((item) => {
+                        return <Tag color="blue">{item}</Tag>
+                      })}
+                    </Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
+                  </Descriptions>
+                </Row>
+              }
             </>
           }
         </Card>
